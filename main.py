@@ -38,18 +38,15 @@ import math
 from PyQt4.QtCore import *
 from PyQt4.QtGui import *
 from ui import Styles, SliceHelixGroup, ui_mainwindow
-from mouseEventFilter import *
+from mouseQGraphicsView import *
 
 class CadnanoMainWindow(QMainWindow, ui_mainwindow.Ui_MainWindow):
     def __init__(self, parent=None):
         super(CadnanoMainWindow, self).__init__(parent)
         self.setupUi(self)
         
-        #self.slicescene = QGraphicsScene()
-        self.slicescene = mouseQGraphicsScene(self.sliceGraphicsView)
-        #self.filter = mouseEventFilter(self.sliceGraphicsView,self.slicescene)
+        self.slicescene = QGraphicsScene()
         self.sliceGraphicsView.setScene(self.slicescene)
-        #self.sliceGraphicsView.installEventFilter(self.filter)
         
         # self.pathscene = PathScene(self)
         # self.pathGraphicsView.setScene(self.pathscene)
@@ -100,12 +97,8 @@ class CadnanoMainWindow(QMainWindow, ui_mainwindow.Ui_MainWindow):
         self.slicescene.addItem(hc)
 
 def main():
-    #global myfilter
     app = QApplication(sys.argv)
     window = CadnanoMainWindow()
-    #myfilter = mouseEventFilter(window.sliceGraphicsView,window.slicescene)
-    #window.sliceGraphicsView.installEventFilter(myfilter)
-    #app.installEventFilter(myfilter)
     window.show()
     app.exec_()
 
