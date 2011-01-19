@@ -36,13 +36,12 @@ class Slice():
     
     # store slice nodes in hash accessible by "row,col" keys
     def __init__(self,rows, cols):
-        self.index = '' 
-        self.sliceHash =  Object() 
+        self.sliceHash =  {}
         
         # create a SliceNode at each position in the grid
         for col in range(cols):
             for row in range(rows):
-                index = row + "," + col 
+                index = (row, col) 
                 self.sliceHash[index] = SliceNode(row, col) 
             # end for
         # end for
@@ -50,40 +49,40 @@ class Slice():
         # Populate neighbor linkages
         for col in range(cols):
             for row in range(rows):
-                index = row + "," + col 
+                index = (row,col) 
                 node = self.sliceHash[index] 
                 
                 if node.parity: # odd parity
                     # if col-1 exists, set P0
                     if col > 0:
-                        index = row + "," + (col-1) 
+                        index = (row ,col-1) 
                         node.p0neighbor = self.sliceHash[index] 
                     # end if
                     # if row+1 exists, set P1
                     if row < rows-1:
-                        index = (row+1) + "," + col 
+                        index = (row+1 ,col) 
                         node.p1neighbor = self.sliceHash[index] 
                     # end if
                     # if col+1 exists, set P2
                     if col < cols-1:
-                        index = row + "," + (col+1) 
+                        index = (row ,col+1) 
                         node.p2neighbor = self.sliceHash[index] 
                     # end if
                 # end if
                 else:         # even parity
                     # if col+1 exists, set P0
                     if col < cols-1:
-                        index = row + "," + (col+1) 
+                        index = (row ,col+1) 
                         node.p0neighbor = self.sliceHash[index] 
                     # end if
                     # if row-1 exists, set P1
                     if row > 0:
-                        index = (row-1) + "," + col 
+                        index = (row-1, col) 
                         node.p1neighbor = self.sliceHash[index] 
                     # end if
                     # if col-1 exists, set P2
                     if col > 0:
-                        index = row + "," + (col-1) 
+                        index = (row , col-1) 
                         node.p2neighbor = self.sliceHash[index] 
                     # end if
                 # end else
@@ -95,7 +94,7 @@ class Slice():
         """ 
             Called by DataTools 
         """
-        index = row + "," + col 
+        index = (row, col) 
         return self.sliceHash[index] 
     # end def
     
