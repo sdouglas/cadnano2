@@ -26,41 +26,80 @@
 # http://www.opensource.org/licenses/mit-license.php
 
 """
-mouseEventFilter.py
+mouseQGraphicsView.py
 
 Created by Nick Conway on 2011-01-17.
 Copyright (c) 2010 . All rights reserved.
 """
-
-import sys
-import math
-
 from PyQt4.QtCore import *
 from PyQt4.QtGui import *
 
 class mouseQGraphicsView(QGraphicsView):
+    """
+    Base class for QGraphicsViews with Mouse Zoom and Pan support via the Control/Command shortcut key.
+
+    A QGraphics View stores info on the view and handles mouse events for zooming and panning
+    
+    Ctrl-LeftMouseButton = Pan
+    Ctrl-RightMouseButton = Dolly Zoom
+    MouseWheel = Zoom
+
+    Parameters
+    ----------
+    parent: type of QWidget, such as QWidget.splitter() for the type of View its has
+
+    See Also
+    --------
+
+    Examples
+    --------
+
+    For details on these and other miscellaneous methods, see below.
+    """
     def __init__(self, parent = None):
         """
-            on initialization we need to bind the Ctrl/command key to 
-            enable manipulation of the view 
+        on initialization we need to bind the Ctrl/command key to 
+        enable manipulation of the view 
+    
+        Parameters
+        ----------
+        parent: type of QWidget, such as QWidget.splitter() for the type of View its has
+
+        See Also
+        --------
+
+        Examples
+        --------
         """
         super(QGraphicsView, self).__init__(parent) 
         
-        #self.myGView.mousePressEvent = lambda event: event.accept()
-        #self.myGView.mouseReleaseEvent = lambda event: event.accept()
-        #self.myGview.mouseMoveEvent = lambda event: event.ignore()
-        #self.myGView.mouseMoveEvent = lambda event: self.panMove(event)
-        self.x0 = 0
-        self.y0 = 0
         self.noDrag = QGraphicsView.NoDrag
         self.yesDrag = QGraphicsView.ScrollHandDrag
         self.setDragMode(self.noDrag)
         self.transformEnable = False
         self.dollyZoomEnable = False
 
+        self.x0 = 0
+        self.y0 = 0
+        self.scale_size = 1.0
+        self.scale_limit_max = 3.0
+        self.scale_limit_min = .41
+        self.last_scale_factor = 0.0
+
     # end def
     
     def keyPressEvent(self,event):
+        """
+        Parameters
+        ----------
+        event: type of QKeyEvent
+
+        See Also
+        --------
+
+        Examples
+        --------
+        """
         if event.key() == Qt.Key_Control:
             event.accept()
             #print "control pressed"
@@ -71,10 +110,22 @@ class mouseQGraphicsView(QGraphicsView):
     # end def    
     
     def keyReleaseEvent(self,event):
+        """
+        Parameters
+        ----------
+        event: type of QKeyEvent
+
+        See Also
+        --------
+
+        Examples
+        --------
+        """
         if event.key() == Qt.Key_Control:
             event.accept()
             #print "control released"
             self.transformEnable = False
+            self.dollyZoomEnable = False
             self.panDisable()    
         # end if
         else:
@@ -86,27 +137,50 @@ class mouseQGraphicsView(QGraphicsView):
         """
             Must reimplement mouseMoveEvent of QGraphicsView to allow ScrollHandDrag due
             to the fact that events are intercepted breaks this feature.
+            
+            Parameters
+            ----------
+            event: type of QMouseEvent
+
+            See Also
+            --------
+
+            Examples
+            --------
         """
         if self.transformEnable == True:
-            # print "Mouse Move 1", self.yesDrag, self.myGView.dragMode()
             if self.dragMode() == self.yesDrag: 
-                event.accept()
                 """
                 Add stuff to handle the pan event
                 """
-                # print "Mouse Move 2", self.x0, self.y0
-                xf = event.pos().x()
-                yf = event.pos().y()
+                xf = event.x()
+                yf = event.y()
                 self.translate(xf-self.x0,yf-self.y0)
                 self.x0 = xf
                 self.y0 = yf
-            else:
-                QGraphicsView.mouseMoveEvent(self,event)
-        else:
-            QGraphicsView.mouseMoveEvent(self,event)
+            elif self.dollyZoomEnable == True:
+                self.dollyZoom(event)
+            #else:
+            #    QGraphicsView.mouseMoveEvent(self,event)
+        #else:
+        # adding this allows events to be passed to items underneath
+        QGraphicsView.mouseMoveEvent(self,event)
     # end def
     
     def mousePressEvent(self,event):
+        """
+        This takes a QMouseEvent for the event
+        
+        Parameters
+        ----------
+        event: type of QMouseEvent
+
+        See Also
+        --------
+
+        Examples
+        --------
+        """
         if self.transformEnable == True:
             event.accept()
             which_buttons = event.buttons()
@@ -115,59 +189,133 @@ class mouseQGraphicsView(QGraphicsView):
                 self.panEnable()
                 self.x0 = event.pos().x()
                 self.y0 = event.pos().y()
-            #elif which_buttons == Qt.RightButton:
-            #    self.dollyZoomEnable = True
+            elif which_buttons == Qt.RightButton:
+                self.dollyZoomEnable = True
+                self.last_scale_factor = 0
+                # QMouseEvent.y() returns the position of the mouse cursor relative to the widget
+                self.y0 = event.y()
         else:
             QGraphicsView.mousePressEvent(self,event)
     #end def
     
     def mouseReleaseEvent(self,event):
+        """
+        This takes a QMouseEvent for the event
+        
+        Parameters
+        ----------
+        event: type of QMouseEvent
+
+        See Also
+        --------
+
+        Examples
+        --------
+        """
         if self.transformEnable == True:
-            which_buttons = event.buttons()
+            # QMouseEvent.button() returns the button that triggered the event
+            which_button = event.button()
             # print "panning off"
-            if which_buttons == Qt.LeftButton:
+            if which_button == Qt.LeftButton:
                 self.panDisable()
-            # elif which_buttons == Qt.RightButton:
-            #    self.dollyZoomEnable = False
+            elif which_button == Qt.RightButton:
+                self.dollyZoomEnable = False
         # end if
         else:
             QGraphicsView.mouseReleaseEvent(self,event)
     #end def
     
     def panEnable(self):
+        """Enable ScrollHandDrag Mode in QGraphicsView (displays a hand pointer)"""
         # print "dragging enabled"
         self.setDragMode(self.yesDrag)
     # end def
     
     def panDisable(self):
+        """Disable ScrollHandDrag Mode in QGraphicsView (displays a hand pointer)"""
         ## print "dragging disabled"
         self.setDragMode(self.noDrag)
     # end def
     
     def wheelEvent(self,event):
-        self.wheel_zoom(event)
+        """
+        This takes a QMouseEvent for the event
+        
+        Parameters
+        ----------
+        event: type of QMouseEvent
+
+        See Also
+        --------
+
+        Examples
+        --------
+        """
+        self.wheelZoom(event)
     #end def
     
-    def wheel_zoom(self,event):
+    def wheelZoom(self,event):
+        """
+        This takes a QMouseEvent for the event
+        
+        Parameters
+        ----------
+        event: type of QMouseEvent
+
+        See Also
+        --------
+
+        Examples
+        --------
+        """
         if event.delta() > 0: # rotated away from the user
-            self.scale(1.25,1.25)
+            if self.scale_limit_max > self.scale_size:
+                self.scale(1.25,1.25)
+                self.scale_size *= 1.25
+            # end if
         # end if
         else: 
-            self.scale(.8,.8)
+            if self.scale_limit_min < self.scale_size:
+                self.scale(.8,.8)
+                self.scale_size *= 0.8
+            # end if
         # end else
     # end def
     
-    def dolly_zoom(self,event):
-        y0 = event.lastPos().y()
-        yf = event.pos().y()
-        if yf-y0 > 0:       # if mouse y position is getting bigger zoom in
-            #self.myGView.scale(1.25,1.25)
-            pass
-        # end else
-        else: # else id smaller zoom out
-            #self.myGView.scale(.8,.8)
-            pass
-        # end else 
+    def dollyZoom(self,event):
+        """
+        This takes a QMouseEvent for the event
+        
+        Parameters
+        ----------
+        event: type of QMouseEvent
+
+        See Also
+        --------
+
+        Examples
+        --------
+        """
+        # QMouseEvent.y() returns the position of the mouse cursor relative to the widget
+        yf = event.y()
+        denom = abs(yf-self.y0)
+        if denom > 0:
+            scale_factor = (self.height()/2) % denom
+            if self.last_scale_factor != scale_factor:
+                self.last_scale_factor = scale_factor
+                if yf-self.y0 > 0:       # if mouse y position is getting bigger zoom in
+                    if self.scale_limit_max > self.scale_size:
+                        self.scale(1.25,1.25)
+                        self.scale_size *= 1.25
+                    # end if
+                # end else
+                else: # else id smaller zoom out
+                    if self.scale_limit_min < self.scale_size:
+                        self.scale(.8,.8)
+                        self.scale_size *= 0.8
+                    # end if
+                # end else
+        # end if
     # end def
       
 #end class
