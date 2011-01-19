@@ -40,7 +40,7 @@ class mouseQGraphicsView(QGraphicsView):
 
     A QGraphics View stores info on the view and handles mouse events for zooming and panning
 
-    Ctrl-LeftMouseButton = Pan
+    Ctrl-MidMouseButton = Pan
     Ctrl-RightMouseButton = Dolly Zoom
     MouseWheel = Zoom
 
@@ -85,7 +85,10 @@ class mouseQGraphicsView(QGraphicsView):
         self.scale_limit_max = 3.0
         self.scale_limit_min = .41
         self.last_scale_factor = 0.0
-
+        self.key_mod = Qt.Key_Control
+        self.key_pan = Qt.MidButton#Qt.LeftButton
+        self.key_zoom = Qt.RightButton
+        
     # end def
 
     def keyPressEvent(self,event):
@@ -100,7 +103,7 @@ class mouseQGraphicsView(QGraphicsView):
         Examples
         --------
         """
-        if event.key() == Qt.Key_Control:
+        if event.key() == self.key_mod:
             event.accept()
             #print "control pressed"
             self.transformEnable = True    
@@ -121,7 +124,7 @@ class mouseQGraphicsView(QGraphicsView):
         Examples
         --------
         """
-        if event.key() == Qt.Key_Control:
+        if event.key() == self.key_mod:
             event.accept()
             #print "control released"
             self.transformEnable = False
@@ -184,12 +187,12 @@ class mouseQGraphicsView(QGraphicsView):
         if self.transformEnable == True:
             event.accept()
             which_buttons = event.buttons()
-            if which_buttons == Qt.LeftButton:
+            if which_buttons == self.key_pan:
                 # print "panning on"
                 self.panEnable()
                 self.x0 = event.pos().x()
                 self.y0 = event.pos().y()
-            elif which_buttons == Qt.RightButton:
+            elif which_buttons == self.key_zoom:
                 self.dollyZoomEnable = True
                 self.last_scale_factor = 0
                 # QMouseEvent.y() returns the position of the mouse cursor relative to the widget
@@ -216,9 +219,9 @@ class mouseQGraphicsView(QGraphicsView):
             # QMouseEvent.button() returns the button that triggered the event
             which_button = event.button()
             # print "panning off"
-            if which_button == Qt.LeftButton:
+            if which_button == self.key_pan:
                 self.panDisable()
-            elif which_button == Qt.RightButton:
+            elif which_button == self.key_zoom:
                 self.dollyZoomEnable = False
         # end if
         else:
