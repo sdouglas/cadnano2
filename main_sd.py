@@ -40,25 +40,29 @@ from PyQt4.QtGui import *
 from ui import ui_mainwindow
 from ui import Styles
 from ui import SliceHelixGroup
-from ui import PathTools
+from ui import PathController, SliceController
 from mouseQGraphicsScene import *
 
 class CadnanoMainWindow(QMainWindow, ui_mainwindow.Ui_MainWindow):
     def __init__(self, parent=None):
-        super(CadnanoMainWindow, self).__init__(parent)
-        self.setupUi(self)
-        
-        self.slicescene = QGraphicsScene()
-        # self.slicescene = mouseQGraphicsScene(self.sliceGraphicsView)
-        
-        self.sliceGraphicsView.setScene(self.slicescene)
-        
-        # self.pathscene = PathScene(self)
-        # self.pathGraphicsView.setScene(self.pathscene)
-        self.connect(self.actionNewHoneycombPart, SIGNAL("triggered()"), self.honeycombClicked)
-        
-        # Path tools
-        self.pathtools = PathTools.PathTools(self)
+		super(CadnanoMainWindow, self).__init__(parent)
+		self.setupUi(self)
+		
+		self.slicescene = QGraphicsScene()
+		# self.slicescene = mouseQGraphicsScene(self.sliceGraphicsView)
+		
+		self.sliceGraphicsView.setScene(self.slicescene)
+		
+		# self.pathscene = PathScene(self)
+		# self.pathGraphicsView.setScene(self.pathscene)
+		self.connect(self.actionNewHoneycombPart, SIGNAL("triggered()"), self.honeycombClicked)
+		
+		# Path tools
+		self.pathController = PathController.PathController(self)
+		
+		#Slice Tools
+		self.sliceController = SliceController.SliceController(self)
+
 
     def honeycombClicked(self):
         """docstring for honeycombClicked"""

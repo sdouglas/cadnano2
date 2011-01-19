@@ -24,9 +24,9 @@
 from PyQt4.QtCore import *
 from PyQt4.QtGui import *
 
-class PathTools():
-	"""PathTools manges all of the events related to QAction found rightToolBar """
-	
+class PathController():
+	"""Manages the interactions between widgets / UI elements and the path model"""
+
 	def __init__(self,win):
 		self.mainWindow = win
 		self.toolset = set((win.actionPathSelect, win.actionPathMove, win.actionPathBreak, win.actionPathErase, win.actionPathForce, win.actionPathInsertion, win.actionPathSkip))
@@ -38,8 +38,11 @@ class PathTools():
 		win.connect(win.actionPathInsertion, SIGNAL("triggered()"), self.chooseInsertTool)
 		win.connect(win.actionPathSkip, SIGNAL("triggered()"),      self.chooseSkipTool)
 		self.currentTool=None
+		ag = QActionGroup(win)
+		for a in self.toolset:
+			ag.addAction(a)
+		ag.setExclusive(True)
 		self.chooseSelectTool()
-
 	
 	def chooseSelectTool(self):
 		widget = self.mainWindow.actionPathSelect
@@ -47,55 +50,61 @@ class PathTools():
 			return
 		else:
 			self.currentTool = widget
-		widget.setChecked(False)
-		for w in self.toolset:
-			if w is not widget: w.setChecked(False)
+		widget.setChecked(True)
+		print "path select"
+			
 	def chooseMoveTool(self):
 		widget = self.mainWindow.actionPathMove
 		if self.currentTool is widget:
 			return
 		else:
 			self.currentTool = widget
-		for w in self.toolset:
-			if w is not widget: w.setChecked(False)
+		widget.setChecked(True)
+		print "path move"
+			
 	def chooseBreakTool(self):
 		widget = self.mainWindow.actionPathBreak
 		if self.currentTool is widget:
 			return
 		else:
 			self.currentTool = widget
-		for w in self.toolset:
-			if w is not widget: w.setChecked(False)
+		widget.setChecked(True)
+		print "path break"
+			
 	def chooseEraseTool(self):
 		widget = self.mainWindow.actionPathErase
 		if self.currentTool is widget:
 			return
 		else:
 			self.currentTool = widget
-		for w in self.toolset:
-			if w is not widget: w.setChecked(False)
+		widget.setChecked(True)
+		print "path erase"
+			
 	def chooseForceTool(self):
 		widget = self.mainWindow.actionPathForce
 		if self.currentTool is widget:
 			return
 		else:
 			self.currentTool = widget
-		for w in self.toolset:
-			if w is not widget: w.setChecked(False)
+		widget.setChecked(True)
+		print "path force"
+		
 	def chooseInsertTool(self):
 		widget = self.mainWindow.actionPathInsertion
 		if self.currentTool is widget:
 			return
 		else:
 			self.currentTool = widget
-		for w in self.toolset:
-			if w is not widget: w.setChecked(False)
+		widget.setChecked(True)
+		print "path insert"
+			
 	def chooseSkipTool(self):
 		widget = self.mainWindow.actionPathSkip
 		if self.currentTool is widget:
 			return
 		else:
 			self.currentTool = widget
-		for w in self.toolset:
-			if w is not widget: w.setChecked(False)
+		widget.setChecked(True)
+		print "path skip"
+			
 	
