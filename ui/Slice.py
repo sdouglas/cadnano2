@@ -27,15 +27,42 @@
     
 class Slice():
     """
-        A Slice instance is meant to store a 2D array of helix data, in the form
-        of SliceNodes.  This facilitates populating spatial relationships
-        between helices in the honeycomb lattice.  Slice and SliceNode classes
-        might be combined at some point, since we no longer need to store
-        multiple slices.
+    A Slice instance is meant to store a 2D array of helix data, in the form
+    of SliceNodes.  This facilitates populating spatial relationships
+    between helices in the honeycomb lattice.  Slice and SliceNode classes
+    might be combined at some point, since we no longer need to store
+    multiple slices.
+    
+    column nodes all have the same X coordinate
+    row nodes can have slightly different Y coordinates (offset) for convenience of data representation
+    as is the case of the honeycomb representation
+    
+    Parameters
+    ----------
+    rows: rows grid size
+    cols: columns grid size
+
+    See Also
+    --------
+
+    Examples
+    --------
     """
     
     # store slice nodes in hash accessible by "row,col" keys
     def __init__(self,rows, cols):
+        """
+        Parameters
+        ----------
+        rows: rows grid size
+        cols: columns grid size
+
+        See Also
+        --------
+
+        Examples
+        --------
+        """
         self.sliceHash =  {}
         
         # create a SliceNode at each position in the grid
@@ -92,16 +119,36 @@ class Slice():
     
     def getSliceNode(self,row,col):
         """ 
-            Called by DataTools 
-        """
+        Called by DataTools
+        
+        Parameters
+        ----------
+        row: row index
+        col: columns index
+
+        See Also
+        --------
+
+        Examples
+        --------
+        """ 
         index = (row, col) 
         return self.sliceHash[index] 
     # end def
     
     def pairAllVstrands(self,path): 
         """ 
-            Called by DataTools
-            path = Path 
+        Called by DataTools
+        
+        Parameters
+        ----------
+        path: Path
+
+        See Also
+        --------
+
+        Examples
+        -------- 
         """
         for node in self.sliceHash:
             if node.number != -1:
