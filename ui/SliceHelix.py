@@ -1,17 +1,17 @@
 # The MIT License
-# 
-# Copyright (c) 2010 Wyss Institute at Harvard University
-# 
+#
+# Copyright (c) 2011 Wyss Institute at Harvard University
+#
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
 # in the Software without restriction, including without limitation the rights
 # to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
 # copies of the Software, and to permit persons to whom the Software is
 # furnished to do so, subject to the following conditions:
-# 
+#
 # The above copyright notice and this permission notice shall be included in
 # all copies or substantial portions of the Software.
-# 
+#
 # THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
 # IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
 # FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -19,7 +19,7 @@
 # LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 # THE SOFTWARE.
-# 
+#
 # http://www.opensource.org/licenses/mit-license.php
 
 """
@@ -36,18 +36,17 @@ from PyQt4.QtGui import QPen
 
 import Styles
 
+
 class SliceHelix(QGraphicsItem):
     """docstring for SliceHelix"""
-    # default
+    # set up default, hover, and active drawing styles
     def_brush = QBrush(Styles.grayfill)
     def_pen = QPen(Styles.graystroke, Styles.SLICE_HELIX_STROKE_WIDTH)
-    # hover
     hov_brush = QBrush(Styles.bluefill)
     hov_pen = QPen(Styles.bluestroke, Styles.SLICE_HELIX_STROKE_WIDTH)
-    # used 
     use_brush = QBrush(Styles.orangefill)
     use_pen = QPen(Styles.orangestroke, Styles.SLICE_HELIX_STROKE_WIDTH)
-    
+
     def __init__(self, row, col, position, parent):
         super(SliceHelix, self).__init__()
         self.parent = parent
@@ -71,17 +70,17 @@ class SliceHelix(QGraphicsItem):
         self.rect = QRectF(0, 0, self.diameter, self.diameter)
         self.setPos(position)
     # end def
-    
+
     def paint(self, painter, option, widget=None):
         painter.setBrush(self.brush)
         painter.setPen(self.pen)
         painter.drawEllipse(self.rect)
     # end def    
-    
+
     def boundingRect(self):
         return self.rect
     # end def
-    
+
     def hoverEnterEvent(self, event):
         """hoverEnterEvent changes the SliceHelix brush and pen from default to the hover colors if necessary."""
         if self.marked:
@@ -106,12 +105,12 @@ class SliceHelix(QGraphicsItem):
 
     def mousePressEvent(self, event):
         pass
-    
+
     def mouseReleaseEvent(self, event):
         """docstring for mousePressEvent"""
         # notify parent 
         self.parent.parseHelixClick(self)
-        
+
     def useHelix(self):
         """useHelix adds displays the number after it has been clicked."""
         if self.label == None:

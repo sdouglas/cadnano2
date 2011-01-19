@@ -1,17 +1,17 @@
 # The MIT License
-# 
-# Copyright (c) 2010 Wyss Institute at Harvard University
-# 
+#
+# Copyright (c) 2011 Wyss Institute at Harvard University
+#
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
 # in the Software without restriction, including without limitation the rights
 # to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
 # copies of the Software, and to permit persons to whom the Software is
 # furnished to do so, subject to the following conditions:
-# 
+#
 # The above copyright notice and this permission notice shall be included in
 # all copies or substantial portions of the Software.
-# 
+#
 # THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
 # IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
 # FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -19,7 +19,7 @@
 # LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 # THE SOFTWARE.
-# 
+#
 # http://www.opensource.org/licenses/mit-license.php
 
 
@@ -47,7 +47,7 @@ class SliceHelixGroup(QGraphicsObject):
         # data related
         self.evens = -2
         self.odds = -1
-        
+
         # drawing related
         self.radius = Styles.SLICE_HELIX_RADIUS
         self.nrows = nrows 
@@ -56,13 +56,13 @@ class SliceHelixGroup(QGraphicsObject):
         self.handleSize = 15
         self.setFlags(QGraphicsItem.ItemIsSelectable)
         self.helixhash = {}
-        
+
         if type == "honeycomb":
             self.rect = QRectF(0, \
                                0, \
                                (ncolumns)*self.radius*root3, \
                                (nrows)*self.radius*3)
-            
+
             # create a SliceHelix at each position in the grid
             for column in range(ncolumns):
                for row in range(nrows):
@@ -74,7 +74,7 @@ class SliceHelixGroup(QGraphicsObject):
                    helix = SliceHelix.SliceHelix(row, column, QPointF(x, y), self)
                    self.helixhash[(row, column)] = helix
                    helix.setParentItem(self)
-            
+
             # populate neighbor linkages
             for column in range(ncolumns):
                 for row in range(nrows):
@@ -109,13 +109,13 @@ class SliceHelixGroup(QGraphicsObject):
             pass
         # end else
     # end def
-    
+
     def paint(self, painter, option, widget=None):
         pass
-    
+
     def boundingRect(self):
         return self.rect
-    
+
     def parseHelixClick(self, helix):
         """
         parseHelixClick handles the outcome of a mouseReleaseEvent passed from a child SliceHelix.
@@ -132,7 +132,7 @@ class SliceHelixGroup(QGraphicsObject):
                     self.evens = self.evens + 2
                     helix.number = self.evens
                 # end else
-                
+
                 helix.useHelix()
 
                 ## PORT: add this back in once Path.py is ready
@@ -171,7 +171,7 @@ class SliceHelixGroup(QGraphicsObject):
         # end else
         helix.update()
     # end def
-    
+
     def resetCounters(even, odd):
         self.evens = even 
         self.odds = odd 

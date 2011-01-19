@@ -2,19 +2,19 @@
 # encoding: utf-8
 
 # The MIT License
-# 
-# Copyright (c) 2010 Wyss Institute at Harvard University
-# 
+#
+# Copyright (c) 2011 Wyss Institute at Harvard University
+#
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
 # in the Software without restriction, including without limitation the rights
 # to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
 # copies of the Software, and to permit persons to whom the Software is
 # furnished to do so, subject to the following conditions:
-# 
+#
 # The above copyright notice and this permission notice shall be included in
 # all copies or substantial portions of the Software.
-# 
+#
 # THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
 # IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
 # FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -22,7 +22,7 @@
 # LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 # THE SOFTWARE.
-# 
+#
 # http://www.opensource.org/licenses/mit-license.php
 
 """
@@ -39,7 +39,7 @@ class mouseQGraphicsView(QGraphicsView):
     Base class for QGraphicsViews with Mouse Zoom and Pan support via the Control/Command shortcut key.
 
     A QGraphics View stores info on the view and handles mouse events for zooming and panning
-    
+
     Ctrl-LeftMouseButton = Pan
     Ctrl-RightMouseButton = Dolly Zoom
     MouseWheel = Zoom
@@ -60,7 +60,7 @@ class mouseQGraphicsView(QGraphicsView):
         """
         on initialization we need to bind the Ctrl/command key to 
         enable manipulation of the view 
-    
+
         Parameters
         ----------
         parent: type of QWidget, such as QWidget.splitter() for the type of View its has
@@ -72,7 +72,7 @@ class mouseQGraphicsView(QGraphicsView):
         --------
         """
         super(QGraphicsView, self).__init__(parent) 
-        
+
         self.noDrag = QGraphicsView.NoDrag
         self.yesDrag = QGraphicsView.ScrollHandDrag
         self.setDragMode(self.noDrag)
@@ -87,7 +87,7 @@ class mouseQGraphicsView(QGraphicsView):
         self.last_scale_factor = 0.0
 
     # end def
-    
+
     def keyPressEvent(self,event):
         """
         Parameters
@@ -108,7 +108,7 @@ class mouseQGraphicsView(QGraphicsView):
             QGraphicsView.keyPressEvent(self,event)
         # end else
     # end def    
-    
+
     def keyReleaseEvent(self,event):
         """
         Parameters
@@ -137,7 +137,7 @@ class mouseQGraphicsView(QGraphicsView):
         """
             Must reimplement mouseMoveEvent of QGraphicsView to allow ScrollHandDrag due
             to the fact that events are intercepted breaks this feature.
-            
+
             Parameters
             ----------
             event: type of QMouseEvent
@@ -166,11 +166,11 @@ class mouseQGraphicsView(QGraphicsView):
         # adding this allows events to be passed to items underneath
         QGraphicsView.mouseMoveEvent(self,event)
     # end def
-    
+
     def mousePressEvent(self,event):
         """
         This takes a QMouseEvent for the event
-        
+
         Parameters
         ----------
         event: type of QMouseEvent
@@ -197,11 +197,11 @@ class mouseQGraphicsView(QGraphicsView):
         else:
             QGraphicsView.mousePressEvent(self,event)
     #end def
-    
+
     def mouseReleaseEvent(self,event):
         """
         This takes a QMouseEvent for the event
-        
+
         Parameters
         ----------
         event: type of QMouseEvent
@@ -224,23 +224,23 @@ class mouseQGraphicsView(QGraphicsView):
         else:
             QGraphicsView.mouseReleaseEvent(self,event)
     #end def
-    
+
     def panEnable(self):
         """Enable ScrollHandDrag Mode in QGraphicsView (displays a hand pointer)"""
         # print "dragging enabled"
         self.setDragMode(self.yesDrag)
     # end def
-    
+
     def panDisable(self):
         """Disable ScrollHandDrag Mode in QGraphicsView (displays a hand pointer)"""
         ## print "dragging disabled"
         self.setDragMode(self.noDrag)
     # end def
-    
+
     def wheelEvent(self,event):
         """
         This takes a QMouseEvent for the event
-        
+
         Parameters
         ----------
         event: type of QMouseEvent
@@ -253,11 +253,11 @@ class mouseQGraphicsView(QGraphicsView):
         """
         self.wheelZoom(event)
     #end def
-    
+
     def wheelZoom(self,event):
         """
         This takes a QMouseEvent for the event
-        
+
         Parameters
         ----------
         event: type of QMouseEvent
@@ -281,11 +281,11 @@ class mouseQGraphicsView(QGraphicsView):
             # end if
         # end else
     # end def
-    
+
     def dollyZoom(self,event):
         """
         This takes a QMouseEvent for the event
-        
+
         Parameters
         ----------
         event: type of QMouseEvent
@@ -317,5 +317,5 @@ class mouseQGraphicsView(QGraphicsView):
                 # end else
         # end if
     # end def
-      
+
 #end class

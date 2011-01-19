@@ -2,19 +2,19 @@
 # encoding: utf-8
 
 # The MIT License
-# 
-# Copyright (c) 2010 Wyss Institute at Harvard University
-# 
+#
+# Copyright (c) 2011 Wyss Institute at Harvard University
+#
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
 # in the Software without restriction, including without limitation the rights
 # to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
 # copies of the Software, and to permit persons to whom the Software is
 # furnished to do so, subject to the following conditions:
-# 
+#
 # The above copyright notice and this permission notice shall be included in
 # all copies or substantial portions of the Software.
-# 
+#
 # THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
 # IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
 # FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -22,7 +22,7 @@
 # LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 # THE SOFTWARE.
-# 
+#
 # http://www.opensource.org/licenses/mit-license.php
 
 """
@@ -59,7 +59,7 @@ class mouseQGraphicsScene(QGraphicsScene):
         self.x0 = 0
         self.y0 = 0
     # end def
-    
+
     def mouseMoveEvent(self,event):
         """
             Must reimplement mouseMoveEvent of QGraphicsView to allow ScrollHandDrag due
@@ -81,7 +81,7 @@ class mouseQGraphicsScene(QGraphicsScene):
         else:
             QGraphicsView.mouseMoveEvent(self,event)
     # end def
-    
+
     def keyPressEvent(self,event):
         if event.key() == Qt.Key_Control:
             event.accept()
@@ -92,7 +92,7 @@ class mouseQGraphicsScene(QGraphicsScene):
             QGraphicsScene.keyPressEvent(self, event)
         # end else
     # end def    
-    
+
     def keyReleaseEvent(self,event):
         if event.key() == Qt.Key_Control:
             event.accept()
@@ -104,22 +104,22 @@ class mouseQGraphicsScene(QGraphicsScene):
             QGraphicsScene.keyPressEvent(self, event)
         # end else
     # end def
-    
+
     def wheelEvento(self,event):
         if self.transformEnable == True:
             #print "wheel zoom"
             self.wheel_zoom(event)
         # end if    
     #end def
-    
+
     # def mouseMoveEvent(self,event):
     #     if self.dollyZoomEnable == True and self.transformEnable == True:
     #         #print "dolly_zoom"
     #         self.dolly_zoom(event)
     #     # end if    
     # #end def
-    
-    
+
+
     def mousePressEvent(self,event):
         if self.transformEnable == True:
             which_buttons = event.buttons()
@@ -135,7 +135,7 @@ class mouseQGraphicsScene(QGraphicsScene):
             QGraphicsScene.mousePressEvent(self, event)
         # end else
     #end def
-    
+
     def mouseReleaseEvent(self,event):
         if self.transformEnable == True:
             which_buttons = event.buttons()
@@ -149,17 +149,17 @@ class mouseQGraphicsScene(QGraphicsScene):
             QGraphicsScene.mouseReleaseEvent(self, event)
         # end else
     #end def
-    
+
     def panEnable(self):
         #print "dragging enabled"
         self.myGView.setDragMode(self.yesDrag)
     # end def
-    
+
     def panDisable(self):
         #print "dragging disabled"
         self.myGView.setDragMode(self.noDrag)
     # end def
-    
+
     def wheel_zoom(self,event):
         if event.delta() > 0: # rotated away from the user
             self.myGView.scale(1.25,1.25)
@@ -168,7 +168,7 @@ class mouseQGraphicsScene(QGraphicsScene):
             self.myGView.scale(.8,.8)
         # end else
     # end def
-    
+
     def dolly_zoom(self,event):
         y0 = event.lastPos().y()
         yf = event.pos().y()
@@ -181,5 +181,5 @@ class mouseQGraphicsScene(QGraphicsScene):
             pass
         # end else 
     # end def
-    
+
 # end class
