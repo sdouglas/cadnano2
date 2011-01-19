@@ -58,13 +58,7 @@ class CadnanoMainWindow(QMainWindow, ui_mainwindow.Ui_MainWindow):
         self.connect(self.actionNewHoneycombPart, SIGNAL("triggered()"), self.honeycombClicked)
         
         # Path tools
-        self.pathtools = PathTools.PathTools()
-        self.connect(self.actionPathSelect, SIGNAL("triggered()"), self.pathtools.setSelected)
-        self.connect(self.actionPathBreak, SIGNAL("triggered()"), self.pathtools.setSelected)
-        self.connect(self.actionPathErase, SIGNAL("triggered()"), self.pathtools.setSelected)
-        self.connect(self.actionPathForce, SIGNAL("triggered()"), self.pathtools.setSelected)
-        self.connect(self.actionPathInsertion, SIGNAL("triggered()"), self.pathtools.setSelected)
-        self.connect(self.actionPathSkip, SIGNAL("triggered()"), self.pathtools.setSelected)
+        self.pathtools = PathTools.PathTools(self)
 
     def honeycombClicked(self):
         """docstring for honeycombClicked"""
@@ -85,5 +79,9 @@ def main():
     app.exec_()
 
 if __name__ == '__main__':
-    main()
+	main()
+else: #Otherwise drop back to prompt in the interactive interpreter (event processing still works, evidently because it spawns a separate thread for us! How nice!)
+	app = QApplication(sys.argv)
+	win = CadnanoMainWindow()
+	win.show()
 
