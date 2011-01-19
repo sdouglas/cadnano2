@@ -41,7 +41,6 @@ from ui import ui_mainwindow
 from ui import Styles
 from ui import SliceHelixGroup
 from ui.Document import *
-from mouseQGraphicsScene import *
 
 
 class CadnanoMainWindow(QMainWindow, ui_mainwindow.Ui_MainWindow):

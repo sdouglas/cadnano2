@@ -8,6 +8,7 @@
 # WARNING! All changes made in this file will be lost!
 
 from PyQt4 import QtCore, QtGui
+import CustomQGraphicsView
 
 try:
     _fromUtf8 = QtCore.QString.fromUtf8
@@ -37,7 +38,7 @@ class Ui_MainWindow(object):
         self.treeView.setMaximumSize(QtCore.QSize(150, 16777215))
         self.treeView.setBaseSize(QtCore.QSize(0, 0))
         self.treeView.setObjectName(_fromUtf8("treeView"))
-        self.sliceGraphicsView = QtGui.QGraphicsView(self.splitter)
+        self.sliceGraphicsView = CustomQGraphicsView.CustomQGraphicsView(self.splitter)
         sizePolicy = QtGui.QSizePolicy(QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Expanding)
         sizePolicy.setHorizontalStretch(4)
         sizePolicy.setVerticalStretch(0)
