@@ -90,6 +90,22 @@ class mouseQGraphicsView(QGraphicsView):
         self.key_zoom = Qt.RightButton
         
     # end def
+    
+    def setKeyPan(self,button):
+        """
+        Set the class pan button remotely
+        Parameters
+        ----------
+        button: QtGui.Qt Namespace button identifier
+
+        See Also
+        --------
+
+        Examples
+        -------- 
+        """
+        self.key_pan = button
+    # end def
 
     def keyPressEvent(self,event):
         """
