@@ -26,10 +26,7 @@
 # http://www.opensource.org/licenses/mit-license.php
 
 """
-main.py
-
-Created by Shawn Douglas on 2010-09-26.
-Copyright (c) 2010 . All rights reserved.
+DocWindow.py
 """
 
 import sys
@@ -40,17 +37,37 @@ from PyQt4.QtGui import *
 from ui import ui_mainwindow
 from ui import Styles
 from ui import SliceHelixGroup
-from ui.Document import *
+from ui import PathController, SliceController
 from mouseQGraphicsScene import *
 
-def main():
-    app = QApplication(sys.argv)
-    doc = Document()
-    app.exec_()
+class DocWindow(QMainWindow, ui_mainwindow.Ui_MainWindow):
+    def __init__(self, parent=None, doc=None):
+		super(DocWindow, self).__init__(parent)
+		self.document = doc
+		self.setupUi(self)
+		
+		self.slicescene = QGraphicsScene()
+		# self.slicescene = mouseQGraphicsScene(self.sliceGraphicsView)
+		
+		self.sliceGraphicsView.setScene(self.slicescene)
+		
+		# self.pathscene = PathScene(self)
+		# self.pathGraphicsView.setScene(self.pathscene)
+		self.connect(self.actionNewHoneycombPart, SIGNAL("triggered()"), self.honeycombClicked)
+		
+		#Delegate tool control
+		self.pathController = PathController.PathController(self)
+		self.sliceController = SliceController.SliceController(self)
+		
 
-if __name__ == '__main__':
-	main()
-else: #Otherwise drop back to prompt in the interactive interpreter (event processing still works, evidently because it spawns a separate thread for us! How nice!)
-	app = QApplication(sys.argv)
-	doc = Document()
+    def honeycombClicked(self):
+        """docstring for honeycombClicked"""
+        self.addHoneycombShape()
 
+    def squareClicked(self):
+        """docstring for squareClicked"""
+        print "square clicked"
+
+    def addHoneycombShape(self, nrows=20, ncolumns=20):
+        hc = SliceHelixGroup.SliceHelixGroup(nrows, ncolumns, "honeycomb")
+        self.slicescene.addItem(hc)

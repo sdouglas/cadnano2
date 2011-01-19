@@ -25,32 +25,13 @@
 # 
 # http://www.opensource.org/licenses/mit-license.php
 
-"""
-main.py
-
-Created by Shawn Douglas on 2010-09-26.
-Copyright (c) 2010 . All rights reserved.
-"""
-
-import sys
-import math
-
-from PyQt4.QtCore import *
+from ui.DocWindow import *
 from PyQt4.QtGui import *
-from ui import ui_mainwindow
-from ui import Styles
-from ui import SliceHelixGroup
-from ui.Document import *
-from mouseQGraphicsScene import *
 
-def main():
-    app = QApplication(sys.argv)
-    doc = Document()
-    app.exec_()
-
-if __name__ == '__main__':
-	main()
-else: #Otherwise drop back to prompt in the interactive interpreter (event processing still works, evidently because it spawns a separate thread for us! How nice!)
-	app = QApplication(sys.argv)
-	doc = Document()
-
+class Document():
+	"""The document controller. Hooks high level (read file/write file, add submodel, etc) UI elements to their corresponding actions in the model"""
+	def __init__(self):
+		self.undoStack = QUndoStack()
+		self.win = DocWindow(doc=self)
+		self.win.show()
+		
