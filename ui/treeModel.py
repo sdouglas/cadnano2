@@ -25,8 +25,7 @@
 #
 # http://www.opensource.org/licenses/mit-license.php
 
-from PyQt4.QtCore import QAbstractItemModel, QModelIndex, Qt
-
+from PyQt4.QtCore import QAbstractItemModel, QModelIndex, Qt, QByteArray, QXmlStreamWriter
 
 class BranchNode(object):
     """
@@ -40,6 +39,7 @@ class BranchNode(object):
         self.name = name
         self.parent = parent
         self.children = []
+        
     # end def
 # end class
         
@@ -66,6 +66,9 @@ class TreeModel(QAbstractItemModel):
         self.headers = []
         self.root = BranchNode()
         self.cutNode = 0
+        self.maxCompression  = 9
+        self.mime_type = QString("application/vnd.qtrac.xml.task.z") 
+        self.COLUMNCOUNT = 3
         
     def flags(self, index):
         """
@@ -125,6 +128,22 @@ class TreeModel(QAbstractItemModel):
         
     # end def
     
+    def parent(self, index:
+        node = self.nodeFromIndex(child)
+        if node is None:
+            return QModelIndex()
+        parent = node.parent
+        if parent is None:
+            return QModelIndex()
+        grandparent = parent.parent
+        if grandparent is None:
+            return QModelIndex()
+        row = grandparent.rowOfChild(parent)
+        assert row != -1
+        return self.createIndex(row, 0, parent)
+        
+    # end def
+    
     def headerData(self,section,orientation,role):
         """
         """
@@ -151,22 +170,33 @@ class TreeModel(QAbstractItemModel):
     #def setHeaderData(self, index, value, roleorientation, f):
         
     # end def
-
-    def data(self, index, role):
-
-    # end def
     
     def data(self, index, role):
-        if role == Qt.TextAlignmentRole:
-            return QVariant(int(Qt.AlignTop|Qt.AlignLeft))
-        if role != Qt.DisplayRole:
+        """
+        """
+        if not self.root or not index.isValid() or \
+            index.column() < 0 or index.column() >= self.COLUMNCOUNT:
             return QVariant()
         node = self.nodeFromIndex(index)
         assert node is not None
+        if node:
+            if role == Qt.DisplayRole or role == Qt.EditRole:
+                if index.column() == NAME:
+                    return node.name()
+                # end if
+            # end if
+        # end if
+        if role == Qt.CheckStateRole and index.column() == NAME:
+            return QVariant( int( Qt.Checked if item.isDone() else Qt.Unchecked ) )
+        # end if
+        if role == Qt.TextAlignmentRole:
+            return QVariant(int(Qt.AlignTop|Qt.AlignLeft))
+        # end if
         if isinstance(node, BranchNode):
             return QVariant(node.toString()) \
                 if index.column() == 0 else QVariant(QString(""))
-        return QVariant(node.field(index.column()))
+        # end if
+        return QVariant()
     # end def
     
     def setData(self, index, value, role):
@@ -360,5 +390,81 @@ class TreeModel(QAbstractItemModel):
             self.treeView.setCurrentIndex(index)
         # end if
     # end def
+    
+    def mimeData(indices):
+        """
+        """
+        assert indices.count()
+        if indices.count() != 1:
+            return 0
+        node = nodeFromIndex(indices.at(0))
+        if node:
+            mime_data = QMimeData()
+            xml_data = QByteArray()
+            writer =  QXmlStreamWriter(xml_data)
+            self.writeNodeAndChildren(writer,node)
+            mime_data.setData(self.mime_type,QByteArray.qCompress(xml_data, self.maxCompression))
+            return mime_data
+        # end if
+        return 0
+    # end def
+    
+    def dropMimeData(mime_data, action, row, column, parent):
+        """
+        """
+        if action == Qt.IgnoreAction:
+            return True
+        if action != Qt.MoveAction or column > 0 or \
+            not mime_data or not mime_data.hasFormat(self.mimeType):
+            return False
+        node = nodeFromIndex(parent)
+        if node:
+            xml_data = QByteArray.qUncompress(mime_data.data(self.mimeType))
+            reader(xml_data)
+            if row == -1:
+                if parent.isValid():
+                    row = parent.row()
+                else:
+                    row = self.root.childCount()
+            # end if
+            self.beginInsertRows(parent, row, row)
+            self.readTasks(reader, item)
+            self.endInsertRows()
+            return True
+        # end if
+        return False
+    # end def
+    
+    def supportedDragActions(self):
+        return Qt.MoveAction# | Qt.CopyAction
+        
+    def supportedDropActions(self):
+        return Qt.MoveAction# | Qt.CopyAction
+        
+    def writeNodeAndChildren(writer, node):
+        """
+        This needs to be written for all types of tags
+        """
+        if node != self.root:
+            writer.writeStartElement(NodeTag)
+            writer.writeAttribute(NameAttribute, node.name())
+            writer.writeAttribute(DoneAttribute, "1" if node.isDone()) else "0")
+            while more:
+                writer.writeStartElement(WhenTag)
+                writer.writeEndElement() 
+            # end while
+        # end if
+        for child in node.children:
+            writeNodeAndChildren(writer, child)
+        # end for
+        if node != self.root:
+            writer.writeEndElement() 
+        # end if
+    # end def
+    
+            
+            
+        
+            
     
     
