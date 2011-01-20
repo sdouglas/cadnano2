@@ -22,4 +22,21 @@
 #
 # http://www.opensource.org/licenses/mit-license.php
 
+"""
+assembly.py
 
+Created by Nick Conway on 2011-01-19.
+Copyright (c) 2011 __Wyss Institute__. All rights reserved.
+"""
+
+import treeModel
+
+class Part(treeModel.BranchNode):
+    """
+    """
+    def __init__(self, name, parent):
+        """
+        """
+        super(treeModel.BranchNode,self).__init__()
+    # end def
+# end class

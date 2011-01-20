@@ -33,11 +33,16 @@ Copyright (c) 2011 __Wyss Institute__. All rights reserved.
 """
 
 from collections import defaultdict
+import treeModel
 
-class Assembly(self):
+class Assembly(treeModel.BranchNode):
     """
     """
-    def __init__(self):
+    def __init__(self,name, parent=None):
+        """
+        """
+        super(treeModel.BranchNode,self).__init__()  
+        self.parent = parent
         self.id = self.createAsmID()
         self.name = "Asm" + str(0)
         self.color = 0xFFFFFFFF
