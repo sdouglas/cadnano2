@@ -32,6 +32,8 @@ Created by Nick Conway on 2011-01-19.
 Copyright (c) 2011 __Wyss Institute__. All rights reserved.
 """
 
+from collections import defaultdict
+
 class Assembly(self):
     """
     """
@@ -39,8 +41,8 @@ class Assembly(self):
         self.id = self.createAsmID()
         self.name = "Asm" + str(0)
         self.color = 0xFFFFFFFF
-        self.annotation
-        self.object_instances_dict = {}   # default dictionary as a list?     
+        self.annotation = []
+        self.object_instances = defaultdict(list)  # default dictionary as a list?     
     # end def
     
     def createPartID(self):
