@@ -29,6 +29,7 @@ import bisect
 from PyQt4.QtCore import QAbstractItemModel, QModelIndex, Qt, QByteArray 
 from PyQt4.QtCore import QXmlStreamReader, QXmlStreamWriter
 import json_io
+from idbank import IdBank
 
 KEY, NODE = range(2)
 
@@ -36,7 +37,7 @@ class Node(object):
     """
     
     """
-    def __init__(self, name, node_type, parent=None):
+    def __init__(self, name, node_type, id_hash, parent=None):
         """
         
         """
@@ -46,7 +47,7 @@ class Node(object):
         
         self.name = name
         self.ntype = node_type # the type of node i.e. Assembly, Part, etc
-        self.id = 'something'
+        self.id = id_hash
         self.checked = True
         self.locked = False 
         self.done
@@ -171,7 +172,7 @@ class Node(object):
                 if reader.name() == json_io.NodeTag:
                     name = reader.attributes().value(NameAttribute).toString()
                     done = reader.attributes().value(DoneAttribute) == "1"
-                    node = Node(name,done,self)
+                    node = Node(name,done,self.idbank.issue(),self)
                 # end if
                 elif reader.name() == json_io.WhenTag:
                     pass
@@ -186,7 +187,6 @@ class Node(object):
             # end elif
         # while
     # end def
-    
 # end class
         
 class TreeModel(QAbstractItemModel):
@@ -196,12 +196,14 @@ class TreeModel(QAbstractItemModel):
         super(QAbstractItemModel,self).__init__(parent)    
         self.columns = 0
         self.headers = []
-        self.root = Node()
+        self.idbank = IdBank()
+        self.root = AssemblyNode('ASM_0','assembly', self.idbank.issue(), parent=None)
         self.cutNode = 0
         self.maxCompression  = 9
         self.mime_type = QString("application/vnd.qtrac.xml.task.z") 
         self.COLUMNCOUNT = 3
-        
+    # end def
+
     def flags(self, index):
         """
         """
@@ -213,8 +215,8 @@ class TreeModel(QAbstractItemModel):
         return theFlags
             
     # end def
-    
-    
+
+
     def rowCount(self, parent):
         """
         parent: QModelIndex
@@ -266,9 +268,8 @@ class TreeModel(QAbstractItemModel):
         row = grandparent.rowOfChild(parent)
         assert row != -1
         return self.createIndex(row, 0, parent)
-        
     # end def
-    
+
     def parent(self, index):
         node = self.nodeFromIndex(child)
         if node is None:
@@ -283,7 +284,7 @@ class TreeModel(QAbstractItemModel):
         assert row != -1
         return self.createIndex(row, 0, parent)    
     # end def
-    
+
     def headerData(self,section,orientation,role):
         """
         """
@@ -298,7 +299,7 @@ class TreeModel(QAbstractItemModel):
         # end if    
         return QVariant()
     # end def
-    
+
     def headerData(self, section, orientation, role):
         if orientation == Qt.Horizontal and \
            role == Qt.DisplayRole:
@@ -306,11 +307,11 @@ class TreeModel(QAbstractItemModel):
             return QVariant(self.headers[section])
         return QVariant()
     # end def
-    
+
     #def setHeaderData(self, index, value, roleorientation, f):
         
     # end def
-    
+
     def data(self, index, role):
         """
         """
@@ -340,7 +341,7 @@ class TreeModel(QAbstractItemModel):
         # end if
         return QVariant()   # Default return
     # end def
-    
+
     def setData(self, index, value, role):
         """
         """
@@ -366,9 +367,11 @@ class TreeModel(QAbstractItemModel):
                 
     def insertRows(self,row,count, parent):
         """
+        Need to understand insertRows better
+        the type of node going in must be obvious
         """
-        if not self.root:
-            self.root = Node()
+        if not self.root:   # if there is no root node, we must create one
+            self.root = AssemblyNode('ASM_0','assembly', self.idbank.issue(), parent=None)
         # end if
         if parent.isValid():
             parentNode = self.nodeFromIndex(parent)
@@ -377,6 +380,7 @@ class TreeModel(QAbstractItemModel):
             parentNode = self.root
         # end else
         self.beginInsertRows(parent,row, row + count - 1)
+        # TODO Fix this !!!!!
         for i in range(count):
             node = Node()
             parentNode.insertChild(row,node)
@@ -427,7 +431,7 @@ class TreeModel(QAbstractItemModel):
                 0 <= newRow and newRow < parent.childCount():
         parent.swapChildren(oldRow,newRow)
         oldIndex = self.createIndex(oldRow, 0, parent.childAt(oldRow))
-        newIndex = self.createIndex(newRow, 0, parent.childAt(newRow))
+        newIndex = self.createIndex(newRow, 0, parent.childAt(newRow)) 
     # end def
     
     def moveUp(self, index):
@@ -629,7 +633,7 @@ class TreeModel(QAbstractItemModel):
         if reader.hasError():
             pass
     # end def
+# end class
         
-            
     
     

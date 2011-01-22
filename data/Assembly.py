@@ -35,20 +35,33 @@ Copyright (c) 2011 __Wyss Institute__. All rights reserved.
 from collections import defaultdict
 import treeModel as TM
 
-class Assembly(TM.BranchNode):
+class AssemblyNode(TM.Node):
     """
     """
-    def __init__(self,name, parent=None):
+    def __init__(self, name, node_type, id_hash, parent=None):
         """
         """
-        super(TM.BranchNode,self).__init__()  
+        super(TM.Node,self).__init__()  
         self.parent = parent
-        self.id = self.createAsmID()
+        self.id = id_hash
         self.name = "Asm" + str(0)
         self.color = 0xFFFFFFFF
         self.annotation = []
+        # this is gonna be a list of non-specific attributes for an assembly
         self.object_instances = defaultdict(list)  # default dictionary as a list?
-        self.children = []     
+        self.children = [] 
+        
+        
+        self.parent = parent
+        self.children = []
+        
+        self.name = name
+        self.ntype = "part" # the type of node i.e. Assembly, Part, etc
+        self.id = 'something'
+        self.checked = True
+        self.locked = False 
+        self.done = False
+            
     # end def
     
     def createPartID(self):
@@ -175,4 +188,6 @@ class Assembly(TM.BranchNode):
     
     
 # end class
-        
+
+class Assembly(object)
+    super(TM.Node,self).__init__()  

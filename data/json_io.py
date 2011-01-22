@@ -11,6 +11,16 @@ import json
 import assembly as asm
 import part as prt
 
+VHELIX = "vhelix"
+NUM = "num"
+COL = "col"
+ROW = "row"
+SCAFFOLD = "scaffold"
+STAPLE = "staple"
+INSERTION = "insertion"
+DELETION = "deletion"
+
+
 def save(my_assembly,filename):
     """
     save a json file, decides between current filetype
@@ -28,7 +38,7 @@ def save(my_assembly,filename):
     """
 #def
 
-def load(filename):
+def load(filename, mymodel):
     """
     load a json file, decides between current filetype and legacy caDNAno 1.0 filetype
     
@@ -46,12 +56,12 @@ def load(filename):
         objects = json.load(myfile)
     try:
         if objects['fileType'] == 'caDNAno2.0':
-            parse_current(objects) 
+            parse_current(objects,mymodel) 
     except:
-        parse_legacy(objects)
+        parse_legacy(objects,mymodel)
 #end def
 
-def parse_legacy(obj):
+def parse_legacy(obj,mymodel):
     """
     take a loaded legacy dictionary, decides between current filetype and legacy caDNAno 1.0 filetype
     
@@ -66,6 +76,7 @@ def parse_legacy(obj):
     -------- 
     """
     my_assembly = asm.Assembly()
+    
     my_part = prt.Part(my_assembly.createPartID())
     
     

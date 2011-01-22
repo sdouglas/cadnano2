@@ -31,13 +31,24 @@ Copyright (c) 2011 __Wyss Institute__. All rights reserved.
 
 import ui.treeModel as TM
 
-class Part(TM.Node):
+class PartNode(TM.Node):
     """
     """
-    def __init__(self, name, parent):
+    def __init__(self, name, node_type, id_hash, parent=None):
         """
         """
         super(TM.Node,self).__init__()
+        
+        self.parent = parent
+        self.children = []
+        
+        self.name = name
+        self.ntype = "part" # the type of node i.e. Assembly, Part, etc
+        self.id = id_hash
+        self.checked = True
+        self.locked = False 
+        self.done = False
+        
     # end def
 
     def writeNodeAndChildren(writer, treemodel):
