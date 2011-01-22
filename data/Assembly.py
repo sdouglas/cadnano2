@@ -33,21 +33,22 @@ Copyright (c) 2011 __Wyss Institute__. All rights reserved.
 """
 
 from collections import defaultdict
-import treeModel
+import treeModel as TM
 
-class Assembly(treeModel.BranchNode):
+class Assembly(TM.BranchNode):
     """
     """
     def __init__(self,name, parent=None):
         """
         """
-        super(treeModel.BranchNode,self).__init__()  
+        super(TM.BranchNode,self).__init__()  
         self.parent = parent
         self.id = self.createAsmID()
         self.name = "Asm" + str(0)
         self.color = 0xFFFFFFFF
         self.annotation = []
-        self.object_instances = defaultdict(list)  # default dictionary as a list?     
+        self.object_instances = defaultdict(list)  # default dictionary as a list?
+        self.children = []     
     # end def
     
     def createPartID(self):
@@ -150,5 +151,28 @@ class Assembly(treeModel.BranchNode):
         -------- 
         """
     # end def
+    
+    def writeNodeAndChildren(writer, treemodel):
+        """
+        This needs to be written for all types of tags
+        """
+        if self != treemodel.root:
+            writer.writeStartElement(json_io.NodeTag)
+            writer.writeAttribute(NameAttribute, node.name())
+            writer.writeAttribute(DoneAttribute, "1" if node.isDone()) else "0")
+            while more:
+                writer.writeStartElement(WhenTag)
+                writer.writeEndElement() 
+            # end while
+        # end if
+        for child in self.children:
+            writeNodeAndChildren(writer, child)
+        # end for
+        if self != treemodel.root:
+            writer.writeEndElement() 
+        # end if
+    # end def
+    
+    
 # end class
         

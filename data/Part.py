@@ -29,14 +29,38 @@ Created by Nick Conway on 2011-01-19.
 Copyright (c) 2011 __Wyss Institute__. All rights reserved.
 """
 
-import treeModel
+import ui.treeModel as TM
 
-class Part(treeModel.BranchNode):
+class Part(TM.Node):
     """
     """
     def __init__(self, name, parent):
         """
         """
-        super(treeModel.BranchNode,self).__init__()
+        super(TM.Node,self).__init__()
     # end def
+
+    def writeNodeAndChildren(writer, treemodel):
+        """
+        This needs to be written for all types of tags
+        """
+        if self != treemodel.root:
+            writer.writeStartElement(json_io.NodeTag)
+            writer.writeAttribute(NameAttribute, node.name())
+            writer.writeAttribute(DoneAttribute, "1" if node.isDone()) else "0")
+            while more:
+                writer.writeStartElement(WhenTag)
+                writer.writeEndElement() 
+            # end while
+        # end if
+        for child in self.children:
+            child.writeNodeAndChildren(writer, treemodel)
+        # end for
+        if self != treemodel.root:
+            writer.writeEndElement() 
+        # end if
+    # end def
+    
+    
 # end class
+
