@@ -25,38 +25,170 @@
 #
 # http://www.opensource.org/licenses/mit-license.php
 
-from PyQt4.QtCore import QAbstractItemModel, QModelIndex, Qt, QByteArray, QXmlStreamWriter
+import bisect
+from PyQt4.QtCore import QAbstractItemModel, QModelIndex, Qt, QByteArray 
+from PyQt4.QtCore import QXmlStreamReader, QXmlStreamWriter
+import json_io
 
-class BranchNode(object):
+KEY, NODE = range(2)
+
+class Node(object):
     """
     
     """
-    def __init__(self, name, parent=None):
+    def __init__(self, name, node_type, parent=None):
         """
         
         """
-        super(BranchNode,self).__init__()    
-        self.name = name
+        super(Node,self).__init__()    
         self.parent = parent
         self.children = []
         
-    # end def
-# end class
+        self.name = name
+        self.ntype = node_type # the type of node i.e. Assembly, Part, etc
+        self.id = 'something'
+        self.checked = True
+        self.locked = False 
+        self.done
         
-class LeafNode(object):
-    """
-    
-    """
-    def __init__(self, parent=None):
-        """
-        
-        """
-        super(LeafNode,self).__init__()    
-        self.parent = parent
     # end def
     
-# end class
+    def orderKey(self):
+        """
+        """
+        return self.name.lower()
+    # end def
 
+    def toString(self):
+        return self.name
+    # end def
+
+    def __len__(self):
+        """
+        """
+        return len(self.children)
+    # end def
+
+    def childAtRow(self, row):
+        """
+        """
+        assert 0 <= row < len(self.children)
+        return self.children[row][NODE]
+    # end def
+
+    def rowOfChild(self, child):
+        """
+        """
+        for i, kid in enumerate(self.children):
+            if kid[NODE] == child:
+                return i
+            # end if
+        # end for
+        return -1
+    # end def
+
+    def childWithKey(self, key):
+        """
+        """
+        if not self.children:
+            return None
+        # end if
+        i = bisect.bisect_left(self.children, (key, None))
+        if i < 0 or i >= len(self.children):
+            return None
+        # end if
+        if self.children[i][KEY] == key:
+            return self.children[i][NODE]
+        # end if
+        return None
+    # end def
+
+    def insertChild(self, child):
+        """
+        """
+        child.parent = self
+        bisect.insort(self.children, (child.orderKey(), child))
+    # end def
+    
+    def insertChild(self, row, child):
+        """
+        """
+        child.parent = self
+        self.children.insert(row, child)
+    # end def
+
+    def addChild(child):
+        """
+        """
+        child.parent = self
+        self.children.append(child)
+    # end def
+    
+    def swapChildren(oldRow, newRow):
+        """
+        """
+        tempNew = self.children[newRow]
+        self.children[newRow] = self.children[oldRow]
+        self.children[oldRow] = tempNew
+    # end def
+        
+    def hasKids(self):
+        """
+        """
+        if not self.children:
+            return False
+        # end if
+        return isinstance(self.children[0], Node)
+    # end def
+    
+    def writeNodeAndChildren(writer, node, treemodel):
+        """
+        This needs to be written for all types of tags
+        """
+        if self != treemodel.root:
+            writer.writeStartElement(json_io.NodeTag)
+            writer.writeAttribute(NameAttribute, node.name())
+            writer.writeAttribute(DoneAttribute, "1" if node.isDone()) else "0")
+            while more:
+                writer.writeStartElement(WhenTag)
+                writer.writeEndElement() 
+            # end while
+        # end if
+        for child in self.children:
+            child.writeNodeAndChildren(writer, treemodel)
+        # end for
+        if self != treemodel.root:
+            writer.writeEndElement() 
+        # end if
+    # end def
+
+    def readNode(reader, treemodel):
+        """
+        """
+        while not reader.atEnd():
+            reader.readNext()
+            if reader.isStartElement():
+                if reader.name() == json_io.NodeTag:
+                    name = reader.attributes().value(NameAttribute).toString()
+                    done = reader.attributes().value(DoneAttribute) == "1"
+                    node = Node(name,done,self)
+                # end if
+                elif reader.name() == json_io.WhenTag:
+                    pass
+                # end elif
+            # end if
+            elif reader.isEndElement():
+                if reader.name() == NodeTag:
+                    assert node
+                    node = node.parent
+                    assert node
+                # end if
+            # end elif
+        # while
+    # end def
+    
+# end class
+        
 class TreeModel(QAbstractItemModel):
     """
     """
@@ -64,7 +196,7 @@ class TreeModel(QAbstractItemModel):
         super(QAbstractItemModel,self).__init__(parent)    
         self.columns = 0
         self.headers = []
-        self.root = BranchNode()
+        self.root = Node()
         self.cutNode = 0
         self.maxCompression  = 9
         self.mime_type = QString("application/vnd.qtrac.xml.task.z") 
@@ -88,32 +220,41 @@ class TreeModel(QAbstractItemModel):
         parent: QModelIndex
         """
         node = self.nodeFromIndex(parent)
-        if node is None or isinstance(node, LeafNode):
+        if node is None or not node.hasKids():
             return 0
         return len(node)
 
 
     def columnCount(self, parent):
+        """
+        """
         return self.columns
     
     def nodeFromIndex(self, index):
-        return index.internalPointer() \
-            if index.isValid() else self.root
+        """
+        """
+        if index.isValid():
+            return index.internalPointer()
+        else:
+             return self.root
+    # end def
     
     def index(self, row, column, parent):
         """
         """
         assert self.root
-        branch = self.nodeFromIndex(parent)
-        assert branch is not None
-        return self.createIndex(row, column,
-                                branch.childAtRow(row))
+        node = self.nodeFromIndex(parent)
+        assert node is not None
+        return self.createIndex(row, column, node.childAtRow(row))
     
     # end def
     
     
     def parent(self, child):
+        """
+        """
         node = self.nodeFromIndex(child)
+
         if node is None:
             return QModelIndex()
         parent = node.parent
@@ -128,7 +269,7 @@ class TreeModel(QAbstractItemModel):
         
     # end def
     
-    def parent(self, index:
+    def parent(self, index):
         node = self.nodeFromIndex(child)
         if node is None:
             return QModelIndex()
@@ -140,8 +281,7 @@ class TreeModel(QAbstractItemModel):
             return QModelIndex()
         row = grandparent.rowOfChild(parent)
         assert row != -1
-        return self.createIndex(row, 0, parent)
-        
+        return self.createIndex(row, 0, parent)    
     # end def
     
     def headerData(self,section,orientation,role):
@@ -155,7 +295,7 @@ class TreeModel(QAbstractItemModel):
                 return "Time (Today)"
             elif section == TOTAL:
                 return "Tme (Total)"
-        # end if
+        # end if    
         return QVariant()
     # end def
     
@@ -177,35 +317,40 @@ class TreeModel(QAbstractItemModel):
         if not self.root or not index.isValid() or \
             index.column() < 0 or index.column() >= self.COLUMNCOUNT:
             return QVariant()
+        # end if
         node = self.nodeFromIndex(index)
         assert node is not None
         if node:
             if role == Qt.DisplayRole or role == Qt.EditRole:
                 if index.column() == NAME:
-                    return node.name()
+                    return QVariant(node.name)
+                else 
+                    return QVariant(QString(""))
                 # end if
             # end if
+            if role == Qt.CheckStateRole and index.column() == NAME:
+                return QVariant( int( Qt.Checked if item.isDone() else Qt.Unchecked ) )
+            # end if
+            if role == Qt.TextAlignmentRole:
+                return QVariant(int(Qt.AlignTop|Qt.AlignLeft))
+            # end if
+            if role == Qt.DecorationRole && index.column() == True:
+                pass
+            # end if
         # end if
-        if role == Qt.CheckStateRole and index.column() == NAME:
-            return QVariant( int( Qt.Checked if item.isDone() else Qt.Unchecked ) )
-        # end if
-        if role == Qt.TextAlignmentRole:
-            return QVariant(int(Qt.AlignTop|Qt.AlignLeft))
-        # end if
-        if isinstance(node, BranchNode):
-            return QVariant(node.toString()) \
-                if index.column() == 0 else QVariant(QString(""))
-        # end if
-        return QVariant()
+        return QVariant()   # Default return
     # end def
     
     def setData(self, index, value, role):
+        """
+        """
         if not index.isValid() or index.column() != NAME:
             return False
+        # end if
         node = self.nodeFromIndex(index)
         if node:
             if role == Qt.EditRole:
-                node.setName(value.toString())
+                node.name = value.toString()
             # end if
             elif role == Qt.CheckStateRole:
                 node.setDone(value.toBool())
@@ -220,16 +365,20 @@ class TreeModel(QAbstractItemModel):
     # end def
                 
     def insertRows(self,row,count, parent):
+        """
+        """
         if not self.root:
-            self.root = BranchNode()
+            self.root = Node()
+        # end if
         if parent.isValid():
             parentNode = self.nodeFromIndex(parent)
+        # end if
         else:
             parentNode = self.root
         # end else
         self.beginInsertRows(parent,row, row + count - 1)
         for i in range(count):
-            node = Branch()
+            node = Node()
             parentNode.insertChild(row,node)
         # end for
         self.endInsertRows()
@@ -237,6 +386,8 @@ class TreeModel(QAbstractItemModel):
     # end def
     
     def removeRows(self, row, count, parent):
+        """
+        """
         if not self.root:
             return False
         # end if
@@ -255,6 +406,8 @@ class TreeModel(QAbstractItemModel):
     # end def
     
     def isChecked(self, index):
+        """
+        """
         if not index.isValid():
             return False
         # end if
@@ -262,10 +415,14 @@ class TreeModel(QAbstractItemModel):
     # end def
     
     def hasCutItem(self):
-        
+        """
+        """
+        return self.cutItem
     # end def
     
     def moveItem(self,parent, oldRow, newRow):
+        """
+        """
         assert 0 <= oldRow and oldRow < parent.childCount() and \
                 0 <= newRow and newRow < parent.childCount():
         parent.swapChildren(oldRow,newRow)
@@ -274,21 +431,25 @@ class TreeModel(QAbstractItemModel):
     # end def
     
     def moveUp(self, index):
+        """
+        """
         if not index.isValid() or index.row() <= 0:
             return idex
         node = self.nodeFromIndex(index)
         assert node
-        parent = node.parent()
+        parent = node.parent
         assert parent
         return self.moveItem(parent,index.row(), index.row() -1)
     # end def
     
     def moveDown(self, index):
+        """
+        """
         if not index.isValid():
             return index
         node = self.nodeFromIndex(index)
         assert node
-        parent = node.parent()
+        parent = node.parent
         newRow = index.row() + 1
         if not parent or parent.childCount() <= newRow
             return index
@@ -297,12 +458,14 @@ class TreeModel(QAbstractItemModel):
     # end def
     
     def cut(self, index):
+        """
+        """
         if not index.isValid():
             return index
         del self.cutNode
         self.cutNode = self.nodeFromIndex(index)
         assert cutNode
-        parent = cutNode.parent()
+        parent = cutNode.parent
         assert parent
         row = parent.rowOfChild(cutNode)
         assert row == index.row()
@@ -315,18 +478,20 @@ class TreeModel(QAbstractItemModel):
             row -= 1
             return self.createIndex(row,0,parent.childAt(row))
         # end if
-        grandParent = parent.parent()
+        grandParent = parent.parent
         assert grandParent
         return self.createIndex(grandParent.rowOfChild(parent), 0, parent)
         
     # end def
     
     def paste(self, index):
+        """
+        """
         if not index.isValid() or not self.cutNode:
             return index
         sibling = self.nodeFromIndex(index)
         assert sibling
-        parent = sibling.parent()
+        parent = sibling.parent
         assert parent
         row = parent.rowOfChild(sibling) + 1
         beginInsertRows(index.parent(), row, row)
@@ -338,11 +503,13 @@ class TreeModel(QAbstractItemModel):
     # end def
     
     def promote(self, index):
+        """
+        """
         if not index.isValid():
             return index
         node = self.nodeFromIndex(index)
         assert node
-        parent = node.parent()
+        parent = node.parent
         assert parent
         if parent == self.root:
             return index # Already top level item
@@ -357,15 +524,18 @@ class TreeModel(QAbstractItemModel):
     # end def
     
     def demote (self,index):
+        """
+        """
         if not index.isValid():
             return index
         node = self.nodeFromIndex(index)
         assert node
-        parent = node.parent()
+        parent = node.parent
         assert parent
         row = parent.rowOfChild(node)
         if row == 0:
             return index # No preceding sibling to move this under
+        # end if
         child = parent.takeChild(row)
         assert child == node
         sibling = parent.childAr(row-1)
@@ -377,6 +547,8 @@ class TreeModel(QAbstractItemModel):
     # end def
     
     def clear(self):
+        """
+        """
         del self.root
         self.root = 0
         del cutNode
@@ -385,6 +557,8 @@ class TreeModel(QAbstractItemModel):
     # end def
     
     def setCurrentIndex(index):
+        """
+        """
         if index.isValid():
             self.treeView.scrollTo(index)
             self.treeView.setCurrentIndex(index)
@@ -402,7 +576,7 @@ class TreeModel(QAbstractItemModel):
             mime_data = QMimeData()
             xml_data = QByteArray()
             writer =  QXmlStreamWriter(xml_data)
-            self.writeNodeAndChildren(writer,node)
+            node.writeNodeAndChildren(writer,self)
             mime_data.setData(self.mime_type,QByteArray.qCompress(xml_data, self.maxCompression))
             return mime_data
         # end if
@@ -415,12 +589,12 @@ class TreeModel(QAbstractItemModel):
         if action == Qt.IgnoreAction:
             return True
         if action != Qt.MoveAction or column > 0 or \
-            not mime_data or not mime_data.hasFormat(self.mimeType):
+            not mime_data or not mime_data.hasFormat(self.mime_type):
             return False
         node = nodeFromIndex(parent)
         if node:
-            xml_data = QByteArray.qUncompress(mime_data.data(self.mimeType))
-            reader(xml_data)
+            xml_data = QByteArray.qUncompress(mime_data.data(self.mime_type))
+            reader = QXmlStreamReader(xml_data)
             if row == -1:
                 if parent.isValid():
                     row = parent.row()
@@ -428,7 +602,7 @@ class TreeModel(QAbstractItemModel):
                     row = self.root.childCount()
             # end if
             self.beginInsertRows(parent, row, row)
-            self.readTasks(reader, item)
+            node.readTasks(reader, self)
             self.endInsertRows()
             return True
         # end if
@@ -436,34 +610,25 @@ class TreeModel(QAbstractItemModel):
     # end def
     
     def supportedDragActions(self):
+        """
+        """
         return Qt.MoveAction# | Qt.CopyAction
         
     def supportedDropActions(self):
+        """
+        """
         return Qt.MoveAction# | Qt.CopyAction
         
-    def writeNodeAndChildren(writer, node):
+    def load(self):
         """
-        This needs to be written for all types of tags
         """
-        if node != self.root:
-            writer.writeStartElement(NodeTag)
-            writer.writeAttribute(NameAttribute, node.name())
-            writer.writeAttribute(DoneAttribute, "1" if node.isDone()) else "0")
-            while more:
-                writer.writeStartElement(WhenTag)
-                writer.writeEndElement() 
-            # end while
-        # end if
-        for child in node.children:
-            writeNodeAndChildren(writer, child)
-        # end for
-        if node != self.root:
-            writer.writeEndElement() 
-        # end if
+        clear()
+        self.root = Node()
+        reader = QXmlStreamReader(soome)
+        readNode(reader, self.root)    
+        if reader.hasError():
+            pass
     # end def
-    
-            
-            
         
             
     
