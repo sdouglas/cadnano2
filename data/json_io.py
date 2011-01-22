@@ -56,9 +56,9 @@ def load(filename, mymodel):
         objects = json.load(myfile)
     try:
         if objects['fileType'] == 'caDNAno2.0':
-            parse_current(objects,mymodel) 
+            return parse_current(objects,mymodel) 
     except:
-        parse_legacy(objects,mymodel)
+        return parse_legacy(objects,mymodel)
 #end def
 
 def parse_legacy(obj,mymodel):
@@ -171,5 +171,5 @@ def parse_legacy(obj,mymodel):
     
     my_part.VHelix = vhelixlist
     my_assembly.addPart(my_part)
-    return my_assembly
+    return my_parts, my_assembly
 # end def
