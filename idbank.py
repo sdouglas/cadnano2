@@ -31,31 +31,33 @@ Copyright (c) 2011 __Wyss Institute__. All rights reserved.
 
 from collections import deque
 
+
 class IdBank(object):
     """
-    A way to issue keys and remove keys.  Removed keys are available for reissue
-    This should be fast as typically users shouldn't be deleting lots of items, so we store
-    the previosuly used ids in a deque
+    A way to issue keys and remove keys.  Removed keys are available for
+    reissue.
+    This should be fast as typically users shouldn't be deleting lots of
+    items, so we store the previosuly used ids in a deque.
     """
     def __init__(self):
         """
-        
+        docstring for __init__.
         """
-        super(object,self).__init__()
-        self.id_count = 0 
+        super(object, self).__init__()
+        self.id_count = 0
         self.removed_ids = deque()
         self.id_dict = {}
         self.id_dict_import = {}
         self.import_ids = []
     # end def
-    
+
     def isIdIssued(self, id_hash):
         """
         check if key was issued
         """
         return id_hash in self.id_dict
     # end def
-        
+
     def issue(self):
         """
         Creates a new id for a unique element/part/assembly
@@ -63,29 +65,29 @@ class IdBank(object):
         try:
             removed_ids.popleft()
         except:
-            self.id_count += 1 # increase the hash key
+            self.id_count += 1  # increase the hash key
             self.id_dict[self.id_count] = True
             return self.id_count
-    # def 
-        
-    def remove(self,id_hash):
+    # end def
+
+    def remove(self, id_hash):
         """
         assumes id_hash is an issued hash
         I could create a dictionary of issue key's as well to check
         To be used when deleting parts and assemblies
-        If someone undoes this with an UNDO/REDO, it shouldn't matter if the item get assigned
-        a different id to previous. 
+        If someone undoes this with an UNDO/REDO, it shouldn't matter if the
+        item get assigned a different id to previous.
         """
         try:
             if id_hash < self.removed_ids[0]:
                 self.removed_ids.appendleft(id_hash)
-            else: 
+            else:
                 self.removed_ids.append(id_hash)
-        except: # deque is empty so just append the key anyway
+        except:  # deque is empty so just append the key anyway
             self.removed_ids.append(id_hash)
     # end def
-    
-    def deleteDeep(self,id_hash):
+
+    def deleteDeep(self, id_hash):
         """
         To be used to UNDO the creation of a id/key
         """
@@ -98,14 +100,15 @@ class IdBank(object):
         else:
             print "can't undo anymore"
     # end def
-    
-    def importIssue(self,id_hash):
+
+    def importIssue(self, id_hash):
         """
-        issue new ideas for a file import, does not preserve the id's in the file
-        this could be implemented, but I don't think it matters nor saves time
+        issue new ideas for a file import, does not preserve the id's in the
+        file this could be implemented, but I don't think it matters nor
+        saves time
         """
         # see if we've already encountered the hash
-        if id_hash in self.id_dict: # might not need the if
+        if id_hash in self.id_dict:  # might not need the if
             return self.id_dict_import[id_hash]
         # end if
         else:
@@ -115,7 +118,7 @@ class IdBank(object):
             return temp
         # end else
     # end def
-    
+
     def importInit(self):
         """
         clears the dictionary that keeps track of imported keys
@@ -123,11 +126,11 @@ class IdBank(object):
         # clears memory asssociated with these potentially large variables
         del self.id_dict_import
         del self.imported_ids
-        
+
         self.id_dict_import = {}
-        self.imported_ids = []    # store the import start id to allow easy UNDO/REDO
+        self.imported_ids = []  # store the import start id for easy UNDO/REDO
     # end def
-    
+
     def undoImport(self):
         """
         For undoing an import
