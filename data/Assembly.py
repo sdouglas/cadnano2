@@ -33,7 +33,7 @@ Copyright (c) 2011 __Wyss Institute__. All rights reserved.
 """
 
 from collections import defaultdict
-import treeModel as TM
+import ui.treeModel as TM
 
 class AssemblyNode(TM.Node):
     """

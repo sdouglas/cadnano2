@@ -11,6 +11,14 @@ import json
 import assembly as asm
 import part as prt
 
+NODETAG = "node"
+NAME = "name"
+ID = "id"
+DONE = "done"
+CHECKED = "check"
+LOCKED = "locked"
+
+
 VHELIX = "vhelix"
 NUM = "num"
 COL = "col"

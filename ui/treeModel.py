@@ -64,6 +64,10 @@ class Node(object):
         return self.name
     # end def
 
+    def __str__(self):
+        return self.name
+    # end def
+    
     def __len__(self):
         """
         """
@@ -142,18 +146,25 @@ class Node(object):
         return isinstance(self.children[0], Node)
     # end def
     
-    def writeNodeAndChildren(writer, node, treemodel):
+    def writeNodeAndChildren(writer, treemodel):
         """
         This needs to be written for all types of tags
+        
+        self.name = name
+        self.ntype = "part" # the type of node i.e. Assembly, Part, etc
+        self.id = 'something'
+        self.checked = True
+        self.locked = False 
+        self.done = False
         """
-        if self != treemodel.root:
-            writer.writeStartElement(json_io.NodeTag)
-            writer.writeAttribute(NameAttribute, node.name())
-            writer.writeAttribute(DoneAttribute, "1" if node.isDone()) else "0")
-            while more:
-                writer.writeStartElement(WhenTag)
-                writer.writeEndElement() 
-            # end while
+        if self != treemodel.root:            
+            writer.writeStartElement(json_io.NODETAG)
+            writer.writeAttribute(json_io.NAME, node.name())
+            writer.writeAttribute(json_io.NTYPE, node.ntype())
+            writer.writeAttribute(json_io.ID, node.id())
+            writer.writeAttribute(json_io.CHECKED, "1" if node.checked) else "0")
+            writer.writeAttribute(json_io.LOCKED, "1" if node.locked) else "0")
+            writer.writeAttribute(json_io.DONE, "1" if node.done) else "0")
         # end if
         for child in self.children:
             child.writeNodeAndChildren(writer, treemodel)
@@ -165,21 +176,26 @@ class Node(object):
 
     def readNode(reader, treemodel):
         """
+        readNode requires some knowledge of all the types of nodes to properly create the node
         """
         while not reader.atEnd():
             reader.readNext()
             if reader.isStartElement():
-                if reader.name() == json_io.NodeTag:
-                    name = reader.attributes().value(NameAttribute).toString()
-                    done = reader.attributes().value(DoneAttribute) == "1"
-                    node = Node(name,done,self.idbank.issue(),self)
+                if reader.name() == json_io.NODETAG:
+                    name = reader.attributes().value(json_io.NAME).toString()
+                    ntype = reader.attributes().value(json_io.NTYPE).toString() 
+                    id_hash = reader.attributes().value(json_io.ID)
+                    done = reader.attributes().value(json_io.CHECKED) == "1"
+                    done = reader.attributes().value(json_io.LOCKED) == "1"
+                    done = reader.attributes().value(json_io.DONE) == "1"
+                    if ntype == Part().ntype:
+                        node = Part(name,done,id_hash,self)
+                    elif ntype == Assembly().ntype:
+                        node = Assembly(name,done,id_hash,self)
                 # end if
-                elif reader.name() == json_io.WhenTag:
-                    pass
-                # end elif
             # end if
             elif reader.isEndElement():
-                if reader.name() == NodeTag:
+                if reader.name() == json_io.NODETAG:
                     assert node
                     node = node.parent
                     assert node
@@ -557,7 +573,7 @@ class TreeModel(QAbstractItemModel):
         self.root = 0
         del cutNode
         cutNode = 0
-        self.reset()
+        #self.reset()
     # end def
     
     def setCurrentIndex(index):
