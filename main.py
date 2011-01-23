@@ -167,7 +167,7 @@ class CadnanoMainWindow(QMainWindow, ui_mainwindow.Ui_MainWindow):
         deleteButton = messageBox.addButton(QString("&Delete"), QMessageBox.AcceptRole)
         messageBox.addButton(QString("Do &Not Delete"),QMessageBox.RejectRole)
         messageBox.setDefaultButton(deleteButton)
-        messageBox.exec()
+        messageBox.exec_()
         return messageBox.clickedButton() == deleteButton
     # end def
 
