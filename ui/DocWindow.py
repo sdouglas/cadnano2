@@ -38,7 +38,9 @@ from ui import ui_mainwindow
 from ui import Styles
 from ui import SliceHelixGroup
 from ui import PathController, SliceController
-from mouseQGraphicsScene import *
+from CustomQGraphicsView import *
+
+
 
 class DocWindow(QMainWindow, ui_mainwindow.Ui_MainWindow):
     def __init__(self, parent=None, doc=None):
@@ -47,7 +49,7 @@ class DocWindow(QMainWindow, ui_mainwindow.Ui_MainWindow):
 		self.setupUi(self)
 		
 		self.slicescene = QGraphicsScene()
-		# self.slicescene = mouseQGraphicsScene(self.sliceGraphicsView)
+		# self.slicescene = CustomQGraphicsView(self.sliceGraphicsView)
 		
 		self.sliceGraphicsView.setScene(self.slicescene)
 		

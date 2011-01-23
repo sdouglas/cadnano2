@@ -1,9 +1,6 @@
-#!/usr/bin/env python
-# encoding: utf-8
-
 # The MIT License
 #
-# Copyright (c) 2010 Wyss Institute at Harvard University
+# Copyright (c) 2011 Wyss Institute at Harvard University
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -25,16 +22,10 @@
 #
 # http://www.opensource.org/licenses/mit-license.php
 
-from ui.DocWindow import *
-from PyQt4.QtGui import *
+"""
+__init__.py
 
+Created by Shawn Douglas on 2011-01-23.
 
-class Document():
-    """
-    The document controller. Hooks high level (read file/write file, add
-    submodel, etc) UI elements to their corresponding actions in the model
-    """
-    def __init__(self):
-        self.undoStack = QUndoStack()
-        self.win = DocWindow(doc=self)
-        self.win.show()
+"""
+

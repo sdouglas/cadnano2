@@ -38,8 +38,8 @@ import math
 from PyQt4.QtCore import *
 from PyQt4.QtGui import *
 from ui import Styles, SliceHelixGroup, ui_mainwindow
-from mouseQGraphicsView import *
-import json_io
+from data import json_io
+
 
 class CadnanoMainWindow(QMainWindow, ui_mainwindow.Ui_MainWindow):
     def __init__(self, parent=None):
@@ -51,17 +51,31 @@ class CadnanoMainWindow(QMainWindow, ui_mainwindow.Ui_MainWindow):
         self.treeModel = TreeModel()
         self.parts = {}
         self.assemblies = {}
-        
+
         # self.pathscene = PathScene(self)
         # self.pathGraphicsView.setScene(self.pathscene)
-        self.connect(self.actionNewHoneycombPart, SIGNAL("triggered()"), self.honeycombClicked)
-        self.connect(self.actionNewSquarePart, SIGNAL("triggered()"),self.squareClicked)
+        self.connect(self.actionNewHoneycombPart,\
+                     SIGNAL("triggered()"),\
+                     self.honeycombClicked)
+        self.connect(self.actionNewSquarePart,\
+                     SIGNAL("triggered()"),\
+                     self.squareClicked)
 
-        self.connect(self.actionNew, SIGNAL("triggered()"),self.newClicked)
-        self.connect(self.actionOpen, SIGNAL("triggered()"),self.openClicked)
-        self.connect(self.actionClose, SIGNAL("triggered()"),self.closeClicked)
-        self.connect(self.actionSave, SIGNAL("triggered()"),self.saveClicked)
-        self.connect(self.actionSVG, SIGNAL("triggered()"),self.svgClicked)
+        self.connect(self.actionNew,\
+                     SIGNAL("triggered()"),\
+                     self.newClicked)
+        self.connect(self.actionOpen,\
+                     SIGNAL("triggered()"),\
+                     self.openClicked)
+        self.connect(self.actionClose,\
+                     SIGNAL("triggered()"),\
+                     self.closeClicked)
+        self.connect(self.actionSave,\
+                     SIGNAL("triggered()"),\
+                     self.saveClicked)
+        self.connect(self.actionSVG,\
+                     SIGNAL("triggered()"),\
+                     self.svgClicked)
     # end def
 
     def newClicked(self):
@@ -72,7 +86,7 @@ class CadnanoMainWindow(QMainWindow, ui_mainwindow.Ui_MainWindow):
     def openClicked(self):
         """docstring for honeycombClicked"""
         print "open clicked"
-        self.parts, self.assemblies = self.parts json_io.load(self.treeModel)
+        # self.parts, self.assemblies = self.parts json_io.load(self.treeModel)
     # end def
 
     def closeClicked(self):
@@ -101,6 +115,7 @@ class CadnanoMainWindow(QMainWindow, ui_mainwindow.Ui_MainWindow):
         hc = SliceHelixGroup.SliceHelixGroup(nrows, ncolumns, "honeycomb")
         self.slicescene.addItem(hc)
 
+
 def main():
     app = QApplication(sys.argv)
     window = CadnanoMainWindow()
@@ -109,4 +124,3 @@ def main():
 
 if __name__ == '__main__':
     main()
-
