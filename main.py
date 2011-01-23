@@ -115,6 +115,63 @@ class CadnanoMainWindow(QMainWindow, ui_mainwindow.Ui_MainWindow):
         hc = SliceHelixGroup.SliceHelixGroup(nrows, ncolumns, "honeycomb")
         self.slicescene.addItem(hc)
 
+    def addClicked(self):
+        index = self.treeView.currentIndex()
+        if self.treeModel.insertRow(0, index):
+            index = self.treeModel.index(0, 0, index)
+            self.setCurrentIndex(index)
+            self.treeView.edit(index)
+            setDirty()
+            updateUi()
+        #end if
+    # end def
+
+    def deleteClicked(self):
+        index = self.treeView.currentIndex()
+        if not index.isValid():
+            return
+        name = self.treeModel.data(index).toString()
+        rows = self.treeModel.rowCount(index)
+        if rows == 0:
+            message = "<p>Delete '%s'" % name
+        # end if    
+        elif rows == 1:
+            message = "<p>Delete '%s' and its child (and "
+                         "grandchildren etc.)" % name
+        # end elif
+        elif rows > 1:
+            message = "<p>Delete '%s' and its %d children (and "
+                         "grandchildren etc.)" % (name, rows)
+        
+        # end elif
+        if not self.okToDelete(this, QString("Delete"), QString(message) ) :
+            return
+        self.treeModel.removeRow(index.row(), index.parent())
+        setDirty()
+        updateUi()
+    # end def
+
+    def okToDelete(parent, title,text, detailedText):
+        """
+        """
+        messageBox = QMessageBox(parent)
+        if parent:
+            messageBox.setWindowModality(Qt.WindowModal)
+        # end if
+        messageBox.setIcon(QMessageBox.Question)
+        messageBox.setWindowTitle( QString("%1 - %2").arg(QApplication.applicationName()).arg(title) )
+        messageBox.setText(text)
+        if not detailedText.isEmpty():
+            messageBox.setInformativeText(detailedText)
+        # end if
+        deleteButton = messageBox.addButton(QString("&Delete"), QMessageBox.AcceptRole)
+        messageBox.addButton(QString("Do &Not Delete"),QMessageBox.RejectRole)
+        messageBox.setDefaultButton(deleteButton)
+        messageBox.exec_()
+        return messageBox.clickedButton() == deleteButton
+    # end def
+
+# end class
 
 def main():
     app = QApplication(sys.argv)
