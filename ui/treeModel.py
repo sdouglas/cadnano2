@@ -650,6 +650,16 @@ class TreeModel(QAbstractItemModel):
             pass
     # end def
 # end class
-        
+
+def editAdd()
+    index = self.treeView.currentIndex();
+    if treeModel.insertRow(0, index):
+        index = model->index(0, 0, index);
+        self.setCurrentIndex(index);
+        self.treeView.edit(index);
+        setDirty();
+        updateUi();
+    #end if
+# end def
     
     
