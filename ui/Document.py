@@ -38,3 +38,65 @@ class Document():
         self.undoStack = QUndoStack()
         self.win = DocWindow(doc=self)
         self.win.show()
+        self.win.connect(self.win.actionNewHoneycombPart,\
+                     SIGNAL("triggered()"),\
+                     self.honeycombClicked)
+        self.win.connect(self.win.actionNewSquarePart,\
+                     SIGNAL("triggered()"),\
+                     self.squareClicked)
+        self.win.connect(self.win.actionNew,\
+                     SIGNAL("triggered()"),\
+                     self.newClicked)
+        self.win.connect(self.win.actionOpen,\
+                     SIGNAL("triggered()"),\
+                     self.openClicked)
+        self.win.connect(self.win.actionClose,\
+                     SIGNAL("triggered()"),\
+                     self.closeClicked)
+        self.win.connect(self.win.actionSave,\
+                     SIGNAL("triggered()"),\
+                     self.saveClicked)
+        self.win.connect(self.win.actionSVG,\
+                     SIGNAL("triggered()"),\
+                     self.svgClicked)
+
+    def newClicked(self):
+        """docstring for newClicked"""
+        print "new clicked"
+    # end def
+
+    def openClicked(self):
+        """docstring for openClicked"""
+        print "open clicked"
+        # self.parts, self.assemblies = self.parts json_io.load(self.treeModel)
+    # end def
+
+    def closeClicked(self):
+        """docstring for closeClicked"""
+        print "close clicked"
+    # end def
+
+    def saveClicked(self):
+        """docstring for saveClicked"""
+        print "save clicked"
+    # end def
+
+    def svgClicked(self):
+        """docstring for svgClicked"""
+        print "svg clicked"
+    # end def
+
+    def honeycombClicked(self):
+        """docstring for honeycombClicked"""
+        print "+honeycomb clicked"
+        self.addHoneycombHelixGroup()
+    # end def
+
+    def squareClicked(self):
+        """docstring for squareClicked"""
+        print "+square clicked"
+    # end def
+
+    def addHoneycombHelixGroup(self, nrows=20, ncolumns=20):
+        hc = SliceHelixGroup.SliceHelixGroup(nrows, ncolumns, "honeycomb")
+        self.win.slicescene.addItem(hc)

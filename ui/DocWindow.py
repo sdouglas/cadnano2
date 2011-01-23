@@ -34,11 +34,9 @@ import math
 
 from PyQt4.QtCore import *
 from PyQt4.QtGui import *
-from ui import ui_mainwindow
-from ui import Styles
-from ui import SliceHelixGroup
-from ui import DocumentController, PathController, SliceController
-from CustomQGraphicsView import *
+import ui_mainwindow
+import SliceHelixGroup
+import PathController, SliceController
 
 
 class DocWindow(QMainWindow, ui_mainwindow.Ui_MainWindow):
@@ -46,9 +44,7 @@ class DocWindow(QMainWindow, ui_mainwindow.Ui_MainWindow):
     def __init__(self, parent=None, doc=None):
         super(DocWindow, self).__init__(parent)
         self.document = doc
-        # Document setup
         self.setupUi(self)
-        self.documentController = DocumentController.DocumentController(self)
         # Slice setup
         self.slicescene = QGraphicsScene()
         self.sliceGraphicsView.setScene(self.slicescene)
