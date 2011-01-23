@@ -37,39 +37,23 @@ from PyQt4.QtGui import *
 from ui import ui_mainwindow
 from ui import Styles
 from ui import SliceHelixGroup
-from ui import PathController, SliceController
+from ui import DocumentController, PathController, SliceController
 from CustomQGraphicsView import *
 
 
-
 class DocWindow(QMainWindow, ui_mainwindow.Ui_MainWindow):
+    '''docstring for DocWindow'''
     def __init__(self, parent=None, doc=None):
-		super(DocWindow, self).__init__(parent)
-		self.document = doc
-		self.setupUi(self)
-		
-		self.slicescene = QGraphicsScene()
-		# self.slicescene = CustomQGraphicsView(self.sliceGraphicsView)
-		
-		self.sliceGraphicsView.setScene(self.slicescene)
-		
-		# self.pathscene = PathScene(self)
-		# self.pathGraphicsView.setScene(self.pathscene)
-		self.connect(self.actionNewHoneycombPart, SIGNAL("triggered()"), self.honeycombClicked)
-		
-		#Delegate tool control
-		self.pathController = PathController.PathController(self)
-		self.sliceController = SliceController.SliceController(self)
-		
-
-    def honeycombClicked(self):
-        """docstring for honeycombClicked"""
-        self.addHoneycombShape()
-
-    def squareClicked(self):
-        """docstring for squareClicked"""
-        print "square clicked"
-
-    def addHoneycombShape(self, nrows=20, ncolumns=20):
-        hc = SliceHelixGroup.SliceHelixGroup(nrows, ncolumns, "honeycomb")
-        self.slicescene.addItem(hc)
+        super(DocWindow, self).__init__(parent)
+        self.document = doc
+        # Document setup
+        self.setupUi(self)
+        self.documentController = DocumentController.DocumentController(self)
+        # Slice setup
+        self.slicescene = QGraphicsScene()
+        self.sliceGraphicsView.setScene(self.slicescene)
+        self.sliceController = SliceController.SliceController(self)
+        # Path setup
+        self.pathscene = QGraphicsScene()
+        self.pathGraphicsView.setScene(self.pathscene)
+        self.pathController = PathController.PathController(self)

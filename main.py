@@ -106,12 +106,12 @@ class CadnanoMainWindow(QMainWindow, ui_mainwindow.Ui_MainWindow):
 
     def honeycombClicked(self):
         """docstring for honeycombClicked"""
-        self.addHoneycombShape()
+        self.addHoneycombHelixGroup()
 
     def squareClicked(self):
         """docstring for squareClicked"""
 
-    def addHoneycombShape(self, nrows=20, ncolumns=20):
+    def addHoneycombHelixGroup(self, nrows=20, ncolumns=20):
         hc = SliceHelixGroup.SliceHelixGroup(nrows, ncolumns, "honeycomb")
         self.slicescene.addItem(hc)
 
