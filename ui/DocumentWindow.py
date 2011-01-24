@@ -26,7 +26,7 @@
 # http://www.opensource.org/licenses/mit-license.php
 
 """
-DocWindow.py
+DocumentWindow.py
 """
 
 import sys
@@ -39,10 +39,10 @@ import SliceHelixGroup
 import PathController, SliceController
 
 
-class DocWindow(QMainWindow, ui_mainwindow.Ui_MainWindow):
-    '''docstring for DocWindow'''
+class DocumentWindow(QMainWindow, ui_mainwindow.Ui_MainWindow):
+    '''docstring for DocumentWindow'''
     def __init__(self, parent=None, doc=None):
-        super(DocWindow, self).__init__(parent)
+        super(DocumentWindow, self).__init__(parent)
         self.document = doc
         self.setupUi(self)
         # Slice setup

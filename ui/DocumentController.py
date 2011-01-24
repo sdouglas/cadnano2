@@ -25,18 +25,18 @@
 #
 # http://www.opensource.org/licenses/mit-license.php
 
-from ui.DocWindow import *
+from ui.DocumentWindow import *
 from PyQt4.QtGui import *
 
 
-class Document():
+class DocumentController():
     """
     The document controller. Hooks high level (read file/write file, add
     submodel, etc) UI elements to their corresponding actions in the model
     """
     def __init__(self):
         self.undoStack = QUndoStack()
-        self.win = DocWindow(doc=self)
+        self.win = DocumentWindow(doc=self)
         self.win.show()
         self.win.connect(self.win.actionNewHoneycombPart,\
                      SIGNAL("triggered()"),\
@@ -68,7 +68,6 @@ class Document():
     def openClicked(self):
         """docstring for openClicked"""
         print "open clicked"
-        # self.parts, self.assemblies = self.parts json_io.load(self.treeModel)
     # end def
 
     def closeClicked(self):
@@ -98,5 +97,7 @@ class Document():
     # end def
 
     def addHoneycombHelixGroup(self, nrows=20, ncolumns=20):
+        """docstring for addHoneycombHelixGroup"""
         hc = SliceHelixGroup.SliceHelixGroup(nrows, ncolumns, "honeycomb")
         self.win.slicescene.addItem(hc)
+    # end def
