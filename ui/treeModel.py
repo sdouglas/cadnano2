@@ -29,7 +29,7 @@ import bisect
 from PyQt4.QtCore import QAbstractItemModel, QModelIndex, Qt, QByteArray 
 from PyQt4.QtCore import QXmlStreamReader, QXmlStreamWriter
 import json_io
-from idbank import IdBank
+
 from data.assembly import AssemblyNode
 from data.part import PartNode
 
@@ -39,7 +39,7 @@ class Node(object):
     """
     
     """
-    def __init__(self, name, id_hash, parent=None,node_type="extra"):
+    def __init__(self, name, obj_id, inst_id, parent=None,node_type="extra"):
         """
         We could do this one of two ways, straight add children, or, 
         keep children sorted when they get added.  Keeping them sorted complicates the undo process
@@ -53,18 +53,8 @@ class Node(object):
         
         self.name = name
         self.ntype = node_type # the type of node i.e. Assembly, Part, etc
-        self.id = id_hash
-        self.checked = True
-        self.locked = False 
-        self.done
-
-    # end def
-    
-    def addToTable(self, table_dict):
-        """
-        add the node to the node type's dictionary
-        """
-        table_dict[self.id] = "blank"
+        self.object_id = obj_id
+        self.instance_id = inst_id
     # end def
     
     def orderKey(self):
@@ -177,7 +167,7 @@ class Node(object):
         
         self.name = name
         self.ntype = "part" # the type of node i.e. Assembly, Part, etc
-        self.id = 'something'
+        self.object_id = 'something'
         self.checked = True
         self.locked = False 
         self.done = False
@@ -186,10 +176,8 @@ class Node(object):
             writer.writeStartElement(json_io.NODETAG)
             writer.writeAttribute(json_io.NAME, node.name())
             writer.writeAttribute(json_io.NTYPE, node.ntype())
-            writer.writeAttribute(json_io.ID, node.id())
-            writer.writeAttribute(json_io.CHECKED, "1" if node.checked) else "0")
-            writer.writeAttribute(json_io.LOCKED, "1" if node.locked) else "0")
-            writer.writeAttribute(json_io.DONE, "1" if node.done) else "0")
+            writer.writeAttribute(json_io.OBJ_ID, node.object_id)
+            writer.writeAttribute(json_io.INST_ID, node.instance_id)
         # end if
         for child in self.children:
             child[NODE].writeNodeAndChildren(writer, treemodel)
@@ -209,21 +197,13 @@ class Node(object):
                 if reader.name() == json_io.NODETAG:
                     name = reader.attributes().value(json_io.NAME).toString()
                     ntype = reader.attributes().value(json_io.NTYPE).toString() 
-                    id_hash = reader.attributes().value(json_io.ID)
-                    checked = reader.attributes().value(json_io.CHECKED) == "1"
-                    locked = reader.attributes().value(json_io.LOCKED) == "1"
-                    done = reader.attributes().value(json_io.DONE) == "1"
+                    id_obj = reader.attributes().value(json_io.OBJ_ID)
+                    id_inst = reader.attributes().value(json_io.INST_ID)
                     if ntype == PartNode().ntype:
-                        node = PartNode(name,id_hash,self)
-                        node.checked = checked
-                        node.locked = locked
-                        node.done = done
+                        node = PartNode(name, id_obj, id_inst, self)
                     # end if
                     elif ntype == AssemblyNode().ntype:
-                        node = AssemblyNode(name,id_hash,self)
-                        node.checked = checked
-                        node.locked = locked
-                        node.done = done
+                        node = AssemblyNode(name,id_obj, id_inst, self)
                     # end elif
                 # end if
             # end if
@@ -245,7 +225,6 @@ class TreeModel(QAbstractItemModel):
         super(QAbstractItemModel,self).__init__(parent)    
         self.columns = 0
         self.headers = []
-        self.idbank = IdBank()
         self.root = AssemblyNode('ASM_0', self.idbank.issue(), parent=None)
         self.cutNode = 0
         self.maxCompression  = 9

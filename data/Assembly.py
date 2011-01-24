@@ -34,11 +34,12 @@ Copyright (c) 2011 __Wyss Institute__. All rights reserved.
 
 from collections import defaultdict
 import ui.treeModel as TM
+from idbank import IdBank
 
 class AssemblyNode(TM.Node):
     """
     """
-    def __init__(self, name, id_hash, parent=None, node_type="assembly"):
+    def __init__(self, name, obj_id, inst_id, parent=None, node_type="assembly"):
         """
         """
         super(TM.Node,self).__init__()  
@@ -49,11 +50,8 @@ class AssemblyNode(TM.Node):
         
         self.name = "Asm" + str(0)
         self.ntype = "assembly" # the type of node i.e. Assembly, Part, etc
-        self.id = id_hash
-        self.checked = True
-        self.locked = False 
-        self.done = False
-
+        self.object_id = obj_id
+        self.instance_id = inst_id
     # end def
     
     def addToTable(self, table_dict):
@@ -170,13 +168,28 @@ class AssemblyNode(TM.Node):
 class Assembly(object):
     """
     """
-    def __init__(self, name, id_hash, parent=None, node_type="assembly"):
+    def __init__(self, name, obj_id, parent=None, node_type="assembly"):
         super(object,self).__init__()
         """
-        self.color = 0xFFFFFFFF
-        self.annotation = []
-        # this is gonna be a list of non-specific attributes for an assembly
+        this is gonna be a list of non-specific attributes for an assembly
         self.object_instances = defaultdict(list)  # default dictionary as a list?
         """
+        self.name = name
+        self.parent = parent    # or parent hash?
+        self.node_type = "assembly"
+        self.color = 0
+        self.annotation = ""
+        
+        self.object_id = obj_id
+        self.instance_id_bank = IdBank()    # generate instances of themselves
+                
+        # this contains instances of this specific assembly, and other views
+        # like: self.instances[id] = [treeNode] 
+        self.instances = {}
+        
+        self.part_children = {}
+        self.mate_children = {}
+        
+        # other views
     # end def
 # end class

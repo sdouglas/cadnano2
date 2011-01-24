@@ -13,7 +13,8 @@ import part as prt
 
 NODETAG = "node"
 NAME = "name"
-ID = "id"
+OBJ_ID = "objectid"
+INST_ID = "instanceid"
 DONE = "done"
 CHECKED = "check"
 LOCKED = "locked"

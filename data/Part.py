@@ -30,11 +30,12 @@ Copyright (c) 2011 __Wyss Institute__. All rights reserved.
 """
 
 import ui.treeModel as TM
+from idbank import IdBank
 
 class PartNode(TM.Node):
     """
     """
-    def __init__(self, name, id_hash, parent=None,node_type="part"):
+    def __init__(self, name, obj_id, inst_id, parent=None,node_type="part"):
         """
         """
         super(TM.Node,self).__init__()
@@ -44,18 +45,8 @@ class PartNode(TM.Node):
         
         self.name = name
         self.ntype = "part" # the type of node i.e. Assembly, Part, etc
-        self.id = id_hash
-        self.checked = True
-        self.locked = False 
-        self.done = False
-        
-    # end def
-    
-    def addToTable(self, table_dict):
-        """
-        add the node to the node type's dictionary
-        """
-        table_dict[self.id] = Part()
+        self.object_id = obj_id
+        self.instance_id = inst_id
     # end def
     
 # end class
@@ -63,13 +54,29 @@ class PartNode(TM.Node):
 class Part(object):
     """
     """
-    def __init__(self, name, id_hash, parent=None, node_type="assembly"):
+    def __init__(self, name, obj_id, parent=None, node_type="part"):
         super(object,self).__init__()
         """
-        self.color = 0xFFFFFFFF
-        self.annotation = []
-        # this is gonna be a list of non-specific attributes for an assembly
+        this is gonna be a list of non-specific attributes for an assembly
         self.object_instances = defaultdict(list)  # default dictionary as a list?
+        """
+        self.name = name
+        self.parent = parent# or parent hash?
+        self.node_type = "part"
+        self.color = 0
+        self.annotation = ""
+        
+        self.object_id = obj_id
+        self.instance_id_bank = IdBank()    # generate instances of themselves
+        
+        # this contains instances of this specific assembly, and other views
+        # like: self.instances[id] = [treeNode, SliceObjectView, PathObjectView]
+        self.instances = {}                 # this contains instances of this specific assembly
+        
+        self.VHelixList = []
+        self.staples = []
+    
+    # end def
         """
     # end def
 # end class
