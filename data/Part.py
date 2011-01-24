@@ -34,7 +34,7 @@ import ui.treeModel as TM
 class PartNode(TM.Node):
     """
     """
-    def __init__(self, name, node_type, id_hash, parent=None):
+    def __init__(self, name, id_hash, parent=None,node_type="part"):
         """
         """
         super(TM.Node,self).__init__()
@@ -50,28 +50,26 @@ class PartNode(TM.Node):
         self.done = False
         
     # end def
-
-    def writeNodeAndChildren(writer, treemodel):
-        """
-        This needs to be written for all types of tags
-        """
-        if self != treemodel.root:
-            writer.writeStartElement(json_io.NodeTag)
-            writer.writeAttribute(NameAttribute, node.name())
-            writer.writeAttribute(DoneAttribute, "1" if node.isDone()) else "0")
-            while more:
-                writer.writeStartElement(WhenTag)
-                writer.writeEndElement() 
-            # end while
-        # end if
-        for child in self.children:
-            child.writeNodeAndChildren(writer, treemodel)
-        # end for
-        if self != treemodel.root:
-            writer.writeEndElement() 
-        # end if
-    # end def
     
+    def addToTable(self, table_dict):
+        """
+        add the node to the node type's dictionary
+        """
+        table_dict[self.id] = Part()
+    # end def
     
 # end class
 
+class Part(object):
+    """
+    """
+    def __init__(self, name, id_hash, parent=None, node_type="assembly"):
+        super(object,self).__init__()
+        """
+        self.color = 0xFFFFFFFF
+        self.annotation = []
+        # this is gonna be a list of non-specific attributes for an assembly
+        self.object_instances = defaultdict(list)  # default dictionary as a list?
+        """
+    # end def
+# end class

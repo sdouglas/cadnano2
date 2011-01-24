@@ -30,6 +30,8 @@ from PyQt4.QtCore import QAbstractItemModel, QModelIndex, Qt, QByteArray
 from PyQt4.QtCore import QXmlStreamReader, QXmlStreamWriter
 import json_io
 from idbank import IdBank
+from data.assembly import AssemblyNode
+from data.part import PartNode
 
 KEY, NODE = range(2)
 
@@ -37,13 +39,17 @@ class Node(object):
     """
     
     """
-    def __init__(self, name, node_type, id_hash, parent=None):
+    def __init__(self, name, id_hash, parent=None,node_type="extra"):
         """
+        We could do this one of two ways, straight add children, or, 
+        keep children sorted when they get added.  Keeping them sorted complicates the undo process
         
         """
         super(Node,self).__init__()    
         self.parent = parent
         self.children = []
+        
+        parent.addChild(self)
         
         self.name = name
         self.ntype = node_type # the type of node i.e. Assembly, Part, etc
@@ -51,7 +57,14 @@ class Node(object):
         self.checked = True
         self.locked = False 
         self.done
-        
+
+    # end def
+    
+    def addToTable(self, table_dict):
+        """
+        add the node to the node type's dictionary
+        """
+        table_dict[self.id] = "blank"
     # end def
     
     def orderKey(self):
@@ -61,6 +74,8 @@ class Node(object):
     # end def
 
     def toString(self):
+        """
+        """
         return self.name
     # end def
 
@@ -112,40 +127,50 @@ class Node(object):
         """
         """
         child.parent = self
+        # insert the child in assuming that self.children is already sorted
         bisect.insort(self.children, (child.orderKey(), child))
     # end def
     
-    def insertChild(self, row, child):
-        """
-        """
-        child.parent = self
-        self.children.insert(row, child)
-    # end def
+    # def insertChild(self, row, child):
+    #     """
+    #     """
+    #     child.parent = self
+    #     self.children.insert(row, child)
+    # # end def
 
     def addChild(child):
         """
         """
-        child.parent = self
-        self.children.append(child)
+        insertChild(self,child)
+        # child.parent = self
+        # self.children.append(child.child)
     # end def
     
     def swapChildren(oldRow, newRow):
         """
+        This is used assuming that order doesn't matter
         """
         tempNew = self.children[newRow]
         self.children[newRow] = self.children[oldRow]
         self.children[oldRow] = tempNew
     # end def
-        
+
+    def takeChild(self, row):
+        child = self.children[row][NODE]
+        assert child
+        child.parent = 0
+        return child
+    # end def
+
     def hasKids(self):
         """
         """
         if not self.children:
             return False
         # end if
-        return isinstance(self.children[0], Node)
+        return isinstance(self.children[0][NODE], Node)
     # end def
-    
+
     def writeNodeAndChildren(writer, treemodel):
         """
         This needs to be written for all types of tags
@@ -167,7 +192,7 @@ class Node(object):
             writer.writeAttribute(json_io.DONE, "1" if node.done) else "0")
         # end if
         for child in self.children:
-            child.writeNodeAndChildren(writer, treemodel)
+            child[NODE].writeNodeAndChildren(writer, treemodel)
         # end for
         if self != treemodel.root:
             writer.writeEndElement() 
@@ -185,13 +210,21 @@ class Node(object):
                     name = reader.attributes().value(json_io.NAME).toString()
                     ntype = reader.attributes().value(json_io.NTYPE).toString() 
                     id_hash = reader.attributes().value(json_io.ID)
-                    done = reader.attributes().value(json_io.CHECKED) == "1"
-                    done = reader.attributes().value(json_io.LOCKED) == "1"
+                    checked = reader.attributes().value(json_io.CHECKED) == "1"
+                    locked = reader.attributes().value(json_io.LOCKED) == "1"
                     done = reader.attributes().value(json_io.DONE) == "1"
-                    if ntype == Part().ntype:
-                        node = Part(name,done,id_hash,self)
-                    elif ntype == Assembly().ntype:
-                        node = Assembly(name,done,id_hash,self)
+                    if ntype == PartNode().ntype:
+                        node = PartNode(name,id_hash,self)
+                        node.checked = checked
+                        node.locked = locked
+                        node.done = done
+                    # end if
+                    elif ntype == AssemblyNode().ntype:
+                        node = AssemblyNode(name,id_hash,self)
+                        node.checked = checked
+                        node.locked = locked
+                        node.done = done
+                    # end elif
                 # end if
             # end if
             elif reader.isEndElement():
@@ -201,7 +234,7 @@ class Node(object):
                     assert node
                 # end if
             # end elif
-        # while
+        # end while
     # end def
 # end class
         
@@ -213,7 +246,7 @@ class TreeModel(QAbstractItemModel):
         self.columns = 0
         self.headers = []
         self.idbank = IdBank()
-        self.root = AssemblyNode('ASM_0','assembly', self.idbank.issue(), parent=None)
+        self.root = AssemblyNode('ASM_0', self.idbank.issue(), parent=None)
         self.cutNode = 0
         self.maxCompression  = 9
         self.mime_type = QString("application/vnd.qtrac.xml.task.z") 
@@ -240,6 +273,7 @@ class TreeModel(QAbstractItemModel):
         node = self.nodeFromIndex(parent)
         if node is None or not node.hasKids():
             return 0
+        # end if
         return len(node)
 
 
@@ -387,7 +421,7 @@ class TreeModel(QAbstractItemModel):
         the type of node going in must be obvious
         """
         if not self.root:   # if there is no root node, we must create one
-            self.root = AssemblyNode('ASM_0','assembly', self.idbank.issue(), parent=None)
+            self.root = AssemblyNode('ASM_0', self.idbank.issue(), parent=None)
         # end if
         if parent.isValid():
             parentNode = self.nodeFromIndex(parent)
@@ -482,6 +516,7 @@ class TreeModel(QAbstractItemModel):
         """
         if not index.isValid():
             return index
+        # end if
         del self.cutNode
         self.cutNode = self.nodeFromIndex(index)
         assert cutNode
@@ -509,16 +544,17 @@ class TreeModel(QAbstractItemModel):
         """
         if not index.isValid() or not self.cutNode:
             return index
+        # end if
         sibling = self.nodeFromIndex(index)
         assert sibling
         parent = sibling.parent
         assert parent
         row = parent.rowOfChild(sibling) + 1
-        beginInsertRows(index.parent(), row, row)
+        self.beginInsertRows(index.parent(), row, row)
         parent.insertChild(row, self.cutNode)
         child = self.cutNode
         self.cutNode = 0
-        endInsertRows()
+        self.endInsertRows()
         return self.createIndex(row,0,child)
     # end def
     
@@ -651,15 +687,5 @@ class TreeModel(QAbstractItemModel):
     # end def
 # end class
 
-def editAdd()
-    index = self.treeView.currentIndex();
-    if treeModel.insertRow(0, index):
-        index = model->index(0, 0, index);
-        self.setCurrentIndex(index);
-        self.treeView.edit(index);
-        setDirty();
-        updateUi();
-    #end if
-# end def
     
     

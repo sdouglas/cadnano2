@@ -38,30 +38,29 @@ import ui.treeModel as TM
 class AssemblyNode(TM.Node):
     """
     """
-    def __init__(self, name, node_type, id_hash, parent=None):
+    def __init__(self, name, id_hash, parent=None, node_type="assembly"):
         """
         """
         super(TM.Node,self).__init__()  
         self.parent = parent
-        self.id = id_hash
-        self.name = "Asm" + str(0)
-        self.color = 0xFFFFFFFF
-        self.annotation = []
-        # this is gonna be a list of non-specific attributes for an assembly
-        self.object_instances = defaultdict(list)  # default dictionary as a list?
         self.children = [] 
         
+        parent.addChild(self)
         
-        self.parent = parent
-        self.children = []
-        
-        self.name = name
-        self.ntype = "part" # the type of node i.e. Assembly, Part, etc
-        self.id = 'something'
+        self.name = "Asm" + str(0)
+        self.ntype = "assembly" # the type of node i.e. Assembly, Part, etc
+        self.id = id_hash
         self.checked = True
         self.locked = False 
         self.done = False
-            
+
+    # end def
+    
+    def addToTable(self, table_dict):
+        """
+        add the node to the node type's dictionary
+        """
+        table_dict[self.id] = Assembly()
     # end def
     
     def createPartID(self):
@@ -165,29 +164,19 @@ class AssemblyNode(TM.Node):
         """
     # end def
     
-    def writeNodeAndChildren(writer, treemodel):
-        """
-        This needs to be written for all types of tags
-        """
-        if self != treemodel.root:
-            writer.writeStartElement(json_io.NodeTag)
-            writer.writeAttribute(NameAttribute, node.name())
-            writer.writeAttribute(DoneAttribute, "1" if node.isDone()) else "0")
-            while more:
-                writer.writeStartElement(WhenTag)
-                writer.writeEndElement() 
-            # end while
-        # end if
-        for child in self.children:
-            writeNodeAndChildren(writer, child)
-        # end for
-        if self != treemodel.root:
-            writer.writeEndElement() 
-        # end if
-    # end def
-    
     
 # end class
 
-class Assembly(object)
-    super(TM.Node,self).__init__()  
+class Assembly(object):
+    """
+    """
+    def __init__(self, name, id_hash, parent=None, node_type="assembly"):
+        super(object,self).__init__()
+        """
+        self.color = 0xFFFFFFFF
+        self.annotation = []
+        # this is gonna be a list of non-specific attributes for an assembly
+        self.object_instances = defaultdict(list)  # default dictionary as a list?
+        """
+    # end def
+# end class
