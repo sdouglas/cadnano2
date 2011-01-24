@@ -1,6 +1,9 @@
+#!/usr/bin/env python
+# encoding: utf-8
+
 # The MIT License
 #
-# Copyright (c) 2011 Wyss Institute at Harvard University
+# Copyright (c) 2010 Wyss Institute at Harvard University
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -22,41 +25,38 @@
 #
 # http://www.opensource.org/licenses/mit-license.php
 
-from PyQt4.QtCore import *
+from ui.DocumentWindow import *
 from PyQt4.QtGui import *
-import SliceHelixGroup
 
 
 class DocumentController():
     """
-    Manages interactions between the Document widgets/UI and the Document 
-    model.
+    The document controller. Hooks high level (read file/write file, add
+    submodel, etc) UI elements to their corresponding actions in the model
     """
-
-    # We store mainWindow because a controller's got to have
-    # references to both the layer above (UI) and the layer below (model)
-    def __init__(self, win):
-        self.mainWindow = win
-        # Connect actions to slots
-        win.connect(win.actionNewHoneycombPart,\
+    def __init__(self):
+        self.undoStack = QUndoStack()
+        self.win = DocumentWindow(doc=self)
+        self.win.show()
+        self.win.connect(self.win.actionNewHoneycombPart,\
                      SIGNAL("triggered()"),\
                      self.honeycombClicked)
-        win.connect(win.actionNewSquarePart,\
+        self.win.connect(self.win.actionNewSquarePart,\
                      SIGNAL("triggered()"),\
                      self.squareClicked)
-        win.connect(win.actionNew,\
+        self.win.connect(self.win.actionNew,\
                      SIGNAL("triggered()"),\
                      self.newClicked)
-        win.connect(win.actionOpen,\
+        self.win.connect(self.win.actionOpen,\
                      SIGNAL("triggered()"),\
                      self.openClicked)
-        win.connect(win.actionClose,\
+        self.win.connect(self.win.actionClose,\
                      SIGNAL("triggered()"),\
                      self.closeClicked)
-        win.connect(win.actionSave,\
+        self.win.connect(self.win.actionSave,\
                      SIGNAL("triggered()"),\
                      self.saveClicked)
-        win.connect(win.actionSVG,\
+        self.win.connect(self.win.actionSVG,\
                      SIGNAL("triggered()"),\
                      self.svgClicked)
 
@@ -68,7 +68,6 @@ class DocumentController():
     def openClicked(self):
         """docstring for openClicked"""
         print "open clicked"
-        # self.parts, self.assemblies = self.parts json_io.load(self.treeModel)
     # end def
 
     def closeClicked(self):
@@ -98,5 +97,7 @@ class DocumentController():
     # end def
 
     def addHoneycombHelixGroup(self, nrows=20, ncolumns=20):
+        """docstring for addHoneycombHelixGroup"""
         hc = SliceHelixGroup.SliceHelixGroup(nrows, ncolumns, "honeycomb")
-        self.mainWindow.slicescene.addItem(hc)
+        self.win.slicescene.addItem(hc)
+    # end def

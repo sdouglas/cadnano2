@@ -37,11 +37,11 @@ import math
 
 from PyQt4.QtCore import *
 from PyQt4.QtGui import *
-from ui.Document import *
+from ui.DocumentController import *
 
 def main():
     app = QApplication(sys.argv)
-    doc = Document()
+    doc = DocumentController()
     app.exec_()
 
 if __name__ == '__main__':
