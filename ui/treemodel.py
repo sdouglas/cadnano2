@@ -1,6 +1,3 @@
-#!/usr/bin/env python
-# encoding: utf-8
-
 # The MIT License
 #
 # Copyright (c) 2011 Wyss Institute at Harvard University
@@ -127,7 +124,7 @@ class Node(object):
     def addChild(child):
         """
         """
-        insertChild(self,child)
+        insertChild(self, child)
         # child.parent = self
         # self.children.append(child.child)
     # end def
@@ -198,7 +195,7 @@ class Node(object):
                     if ntype == PartNode().ntype:
                         node = PartNode(name, id_obj, id_inst, self)
                     # end if
-                    elif ntype == AssemblyNode().ntype:
+                    elif ntype == AssemblyNode.ntype:
                         node = AssemblyNode(name,id_obj, id_inst, self)
                     # end elif
                 # end if
@@ -240,7 +237,6 @@ class TreeModel(QAbstractItemModel):
             
     # end def
 
-
     def rowCount(self, parent):
         """
         parent: QModelIndex
@@ -275,25 +271,6 @@ class TreeModel(QAbstractItemModel):
         return self.createIndex(row, column, node.childAtRow(row))
     
     # end def
-    
-    
-    def parent(self, child):
-        """
-        """
-        node = self.nodeFromIndex(child)
-
-        if node is None:
-            return QModelIndex()
-        parent = node.parent
-        if parent is None:
-            return QModelIndex()
-        grandparent = parent.parent
-        if grandparent is None:
-            return QModelIndex()
-        row = grandparent.rowOfChild(parent)
-        assert row != -1
-        return self.createIndex(row, 0, parent)
-    # end def
 
     def parent(self, index):
         node = self.nodeFromIndex(child)
@@ -316,10 +293,6 @@ class TreeModel(QAbstractItemModel):
             assert 0 <= section <= len(self.headers)
             return QVariant(self.headers[section])
         return QVariant()
-    # end def
-
-    #def setHeaderData(self, index, value, roleorientation, f):
-        
     # end def
 
     def data(self, index, role):
@@ -375,7 +348,7 @@ class TreeModel(QAbstractItemModel):
         return False
     # end def
                 
-    def insertRows(self,row,count, parent):
+    def insertRows(self, row, count, parent):
         """
         Need to understand insertRows better
         the type of node going in must be obvious
@@ -437,7 +410,7 @@ class TreeModel(QAbstractItemModel):
         return self.cutItem
     # end def
     
-    def moveItem(self,parent, oldRow, newRow):
+    def moveItem(self, parent, oldRow, newRow):
         """
         """
         assert (0 <= oldRow) and (oldRow < parent.childCount()) and \
@@ -542,7 +515,7 @@ class TreeModel(QAbstractItemModel):
         return newIndex
     # end def
     
-    def demote (self,index):
+    def demote(self, index):
         """
         """
         if not index.isValid():

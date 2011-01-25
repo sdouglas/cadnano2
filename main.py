@@ -29,7 +29,6 @@
 main.py
 
 Created by Shawn Douglas on 2010-09-26.
-Copyright (c) 2010 . All rights reserved.
 """
 
 import sys
@@ -37,7 +36,7 @@ import math
 
 from PyQt4.QtCore import *
 from PyQt4.QtGui import *
-from ui.documentcontroller import *
+from ui.documentcontroller import DocumentController
 
 def main():
     app = QApplication(sys.argv)

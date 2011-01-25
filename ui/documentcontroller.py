@@ -23,8 +23,8 @@
 # http://www.opensource.org/licenses/mit-license.php
 
 from PyQt4.QtGui import *
-from ui.documentwindow import *
-from ui.treemodel import TreeModel
+from documentwindow import DocumentWindow
+from treemodel import TreeModel
 from idbank import IdBank
 
 class DocumentController():
