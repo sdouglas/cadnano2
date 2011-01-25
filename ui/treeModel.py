@@ -222,10 +222,10 @@ class TreeModel(QAbstractItemModel):
     """
     """
     def __init__():
-        super(QAbstractItemModel,self).__init__(parent)    
+        super(QAbstractItemModel,self).__init__()    
         self.columns = 0
         self.headers = []
-        self.root = AssemblyNode('ASM_0', self.idbank.issue(), parent=None)
+        self.root = AssemblyNode('ASM_0', self.idbank.issue(), None)
         self.cutNode = 0
         self.maxCompression  = 9
         self.mime_type = QString("application/vnd.qtrac.xml.task.z") 
@@ -312,21 +312,6 @@ class TreeModel(QAbstractItemModel):
         row = grandparent.rowOfChild(parent)
         assert row != -1
         return self.createIndex(row, 0, parent)    
-    # end def
-
-    def headerData(self,section,orientation,role):
-        """
-        """
-        if orientation == Qt.Horizontal and \
-            role == Qt.DisplayRole:
-            if section == NAME:
-                return "Task/Subtask/..."
-            elif section == TODAY:
-                return "Time (Today)"
-            elif section == TOTAL:
-                return "Tme (Total)"
-        # end if    
-        return QVariant()
     # end def
 
     def headerData(self, section, orientation, role):
