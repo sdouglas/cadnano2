@@ -228,7 +228,7 @@ class TreeModel(QAbstractItemModel):
         self.root = AssemblyNode('ASM_0', self.idbank.issue(), None)
         self.cutNode = 0
         self.maxCompression  = 9
-        self.mime_type = QString("application/vnd.qtrac.xml.task.z") 
+        self.mime_type = QString("application/cadnano.xml.node.z") 
         self.COLUMNCOUNT = 3
     # end def
 
