@@ -42,6 +42,12 @@ class PartNode(Node):
         super(Node,self).__init__()
         
         self.parent = parent
+        if self.parent:
+            self.parent.addChild(self)
+        if not name:
+            self.name = "Prt%d.%d" % (obj_id,inst_id)
+        else:
+            self.name = name
         self.children = []
         
         self.name = name

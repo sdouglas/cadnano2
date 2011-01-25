@@ -23,10 +23,14 @@
 # http://www.opensource.org/licenses/mit-license.php
 
 import bisect
-from PyQt4.QtCore import QAbstractItemModel, QModelIndex
-from PyQt4.QtCore import Qt, QByteArray, QString
+from PyQt4.QtCore import QAbstractItemModel, QModelIndex, Qt, QByteArray, QString
 from PyQt4.QtCore import QXmlStreamReader, QXmlStreamWriter
-import data.json_io as json_io
+
+
+NODETAG = "node"
+NAME = "name"
+OBJ_ID = "objectid"
+INST_ID = "instanceid"
 
 KEY, NODE = range(2)
 
@@ -45,7 +49,8 @@ class Node(object):
         self.parent = parent
         self.children = []
         
-        parent.addChild(self)
+        if self.parent:
+            self.parent.addChild(self)
         
         self.name = name
         self.object_id = obj_id
@@ -156,74 +161,18 @@ class Node(object):
         return isinstance(self.children[0][NODE], Node)
     # end def
 
-    def writeNodeAndChildren(writer, treemodel):
-        """
-        This needs to be written for all types of tags
-        
-        self.name = name
-        self.ntype = "part" # the type of node i.e. Assembly, Part, etc
-        self.object_id = 'something'
-        self.checked = True
-        self.locked = False 
-        self.done = False
-        """
-        if self != treemodel.root:            
-            writer.writeStartElement(json_io.NODETAG)
-            writer.writeAttribute(json_io.NAME, node.name())
-            writer.writeAttribute(json_io.NTYPE, node.ntype())
-            writer.writeAttribute(json_io.OBJ_ID, node.object_id)
-            writer.writeAttribute(json_io.INST_ID, node.instance_id)
-        # end if
-        for child in self.children:
-            child[NODE].writeNodeAndChildren(writer, treemodel)
-        # end for
-        if self != treemodel.root:
-            writer.writeEndElement() 
-        # end if
-    # end def
-
-    def readNode(reader, treemodel):
-        """
-        readNode requires some knowledge of all the types of nodes to properly create the node
-        """
-        while not reader.atEnd():
-            reader.readNext()
-            if reader.isStartElement():
-                if reader.name() == json_io.NODETAG:
-                    name = reader.attributes().value(json_io.NAME).toString()
-                    ntype = reader.attributes().value(json_io.NTYPE).toString() 
-                    id_obj = reader.attributes().value(json_io.OBJ_ID)
-                    id_inst = reader.attributes().value(json_io.INST_ID)
-                    #if ntype == "part"#PartNode().ntype:
-                    #   node = PartNode(name, id_obj, id_inst, self)
-                    # end if
-                    #elif ntype == AssemblyNode.ntype:
-                    #    node = AssemblyNode(name,id_obj, id_inst, self)
-                    # end elif
-                # end if
-            # end if
-            elif reader.isEndElement():
-                if reader.name() == json_io.NODETAG:
-                    assert node
-                    node = node.parent
-                    assert node
-                # end if
-            # end elif
-        # end while
-    # end def
 # end class
         
 class TreeModel(QAbstractItemModel):
     """
     """
     def __init__(self):
-        from data.assembly import AssemblyNode
-        from data.part import PartNode
-        
+        """
+        """
         super(QAbstractItemModel,self).__init__()    
         self.columns = 0
         self.headers = []
-        self.root = AssemblyNode('ASM_0', 0, 0, None)
+        self.root = Node("", 0, 0, None)
         self.cutNode = 0
         self.maxCompression  = 9
         self.mime_type = QString("application/cadnano.xml.node.z") 
@@ -359,7 +308,7 @@ class TreeModel(QAbstractItemModel):
         the type of node going in must be obvious
         """
         if not self.root:   # if there is no root node, we must create one
-            self.root = AssemblyNode('ASM_0', self.idbank.issue(), parent=None)
+            self.root = Node("", 0,0, None)
         # end if
         if parent.isValid():
             parentNode = self.nodeFromIndex(parent)
@@ -557,8 +506,8 @@ class TreeModel(QAbstractItemModel):
         """
         """
         if index.isValid():
-            self.treeview.scrollTo(index)
-            self.treeview.setCurrentIndex(index)
+            self.treeView.scrollTo(index)
+            self.treeView.setCurrentIndex(index)
         # end if
     # end def
     
@@ -573,7 +522,7 @@ class TreeModel(QAbstractItemModel):
             mime_data = QMimeData()
             xml_data = QByteArray()
             writer =  QXmlStreamWriter(xml_data)
-            node.writeNodeAndChildren(writer,self)
+            self.writeNodeAndChildren(writer,node)
             mime_data.setData(self.mime_type,QByteArray.qCompress(xml_data, self.maxCompression))
             return mime_data
         # end if
@@ -599,11 +548,66 @@ class TreeModel(QAbstractItemModel):
                     row = self.root.childCount()
             # end if
             self.beginInsertRows(parent, row, row)
-            node.readTasks(reader, self)
+            self.readNode(reader, node)
             self.endInsertRows()
             return True
         # end if
         return False
+    # end def
+    
+    def writeNodeAndChildren(writer, node):
+        """
+        This needs to be written for all types of tags
+        
+        self.name = name
+        self.ntype = "part" # the type of node i.e. Assembly, Part, etc
+        self.object_id = 'something'
+        self.checked = True
+        self.locked = False 
+        self.done = False
+        """
+        if node != self.root:            
+            writer.writeStartElement(NODETAG)
+            writer.writeAttribute(NAME, node.name)
+            writer.writeAttribute(NTYPE, node.ntype)
+            writer.writeAttribute(OBJ_ID, node.object_id)
+            writer.writeAttribute(INST_ID, node.instance_id)
+        # end if
+        for child in node.children:
+            self.writeNodeAndChildren(writer, child[NODE])
+        # end for
+        if node != self.root:
+            writer.writeEndElement() 
+        # end if
+    # end def
+    
+    def readNode(reader, node):
+        """
+        readNode requires some knowledge of all the types of nodes to properly create the node
+        """
+        while not reader.atEnd():
+            reader.readNext()
+            if reader.isStartElement():
+                if reader.name() == NODETAG:
+                    name = reader.attributes().value(NAME).toString()
+                    ntype = reader.attributes().value(NTYPE).toString() 
+                    id_obj = reader.attributes().value(OBJ_ID)
+                    id_inst = reader.attributes().value(INST_ID)
+                    generateNode(name,ntype, id_obj,id_inst)
+                # end if
+            # end if
+            elif reader.isEndElement():
+                if reader.name() == NODETAG:
+                    assert node
+                    node = node.parent
+                    assert node
+                # end if
+            # end elif
+        # end while
+    # end def
+    
+    def generateNode(name, ntype, id_obj,id_inst):
+        pass
     # end def
     
     def supportedDragActions(self):
@@ -628,5 +632,4 @@ class TreeModel(QAbstractItemModel):
     # end def
 # end class
 
-    
     

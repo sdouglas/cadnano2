@@ -31,6 +31,7 @@ Created by Nick Conway on 2011-01-19.
 from collections import defaultdict
 from idbank import IdBank
 from ui.treemodel import Node
+#from part import Part
 
 class AssemblyNode(Node):
     """
@@ -44,116 +45,16 @@ class AssemblyNode(Node):
         super(Node,self).__init__()  
         self.parent = parent
         self.children = [] 
-        if parent:
-            parent.addChild(self)
-        
-        self.name = "Asm" + str(0)
+        if self.parent:
+            self.parent.addChild(self)
+        if not name:
+            self.name = "Asm%d.%d" % (obj_id,inst_id)
+        else:
+            self.name = name
         self.object_id = obj_id
         self.instance_id = inst_id
     # end def
-    
-    def createPartID(self):
-        """
-        create a unique part id for a part
-
-        Parameters
-        ----------
-        filename: filename of json file
-
-        See Also
-        --------
-
-        Examples
-        -------- 
-        """
-    # end def
-    
-    def createAsmID(self):
-        """
-        load a json file, decides between current filetype and legacy caDNAno 1.0 filetype
-
-        Parameters
-        ----------
-        filename: filename of json file
-
-        See Also
-        --------
-
-        Examples
-        -------- 
-        """
-    # end def
-    
-    def setPosition(partid, pos):
-        """
-        load a json file, decides between current filetype and legacy caDNAno 1.0 filetype
-
-        Parameters
-        ----------
-        instance_index: index in the object instance list
-        partid: part id
-        pos: list of coordinates
-
-        See Also
-        --------
-
-        Examples
-        -------- 
-        """
-    # end def
-    
-    def getPostion(instance_index):
-        """
-        get the position of the part
-
-        Parameters
-        ----------
-        instance_index: index in the object instance list
-        partid: part id
-        pos: list of coordinates
-
-        See Also
-        --------
-
-        Examples
-        -------- 
-        """
-    # end def
-    
-    def addPart(self,my_part):
-        """
-        load a json file, decides between current filetype and legacy caDNAno 1.0 filetype
-
-        Parameters
-        ----------
-        my_part: Part Object
-
-        See Also
-        --------
-
-        Examples
-        -------- 
-        """
-        self.object_instances[my_part.id].append
-    # end def
-    
-    def removePart(self,my_part):
-        """
-        remove a part from the object instance dictionary, and if it is the last instance of the part, del the part from memory?
-
-        Parameters
-        ----------
-        my_part: Part Object
-
-        See Also
-        --------
-
-        Examples
-        -------- 
-        """
-    # end def
-    
-    
+        
 # end class
 
 class Assembly(object):
