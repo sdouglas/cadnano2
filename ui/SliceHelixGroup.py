@@ -48,7 +48,7 @@ class SliceHelixGroup(QGraphicsObject):
         self.odds = -1
 
         # drawing related
-        self.radius = Styles.SLICE_HELIX_RADIUS
+        self.radius = styles.SLICE_HELIX_RADIUS
         self.nrows = nrows 
         self.ncolumns = ncolumns
         self.type = type

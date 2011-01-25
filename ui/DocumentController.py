@@ -23,9 +23,9 @@
 # http://www.opensource.org/licenses/mit-license.php
 
 from PyQt4.QtGui import *
+from PyQt4.QtCore import SIGNAL
 from documentwindow import DocumentWindow
-from treemodel import TreeModel
-from idbank import IdBank
+from slicehelixgroup import SliceHelixGroup
 
 class DocumentController():
     """
@@ -33,6 +33,11 @@ class DocumentController():
     submodel, etc) UI elements to their corresponding actions in the model
     """
     def __init__(self):
+        from data.assembly import AssemblyNode
+        from data.part import PartNode
+        from treemodel import TreeModel
+        from idbank import IdBank
+        
         #for example: self.parts[object_id] = Part()
         self.parts = {}
         #for example: self.assemblies[object_id] = Assembly()
@@ -45,7 +50,7 @@ class DocumentController():
         self.win.show()
 
         self.treemodel = TreeModel()
-        self.win.treeWidget.setModel(self.treemodel)
+        self.win.treeview.setModel(self.treemodel)
 
         self.win.connect(self.win.actionNewHoneycombPart,\
                      SIGNAL("triggered()"),\
@@ -108,30 +113,30 @@ class DocumentController():
 
     def addHoneycombHelixGroup(self, nrows=20, ncolumns=20):
         """docstring for addHoneycombHelixGroup"""
-        hc = SliceHelixGroup.SliceHelixGroup(nrows, ncolumns, "honeycomb")
+        hc = SliceHelixGroup(nrows, ncolumns, "honeycomb")
         self.win.slicescene.addItem(hc)
-        index = self.treeView.currentIndex()
-        if self.treemodel.insertRow(0, index):
-            index = self.treemodel.index(0, 0, index)
-            self.setCurrentIndex(index)
-            self.treeView.edit(index)
-            setDirty()
-            updateUi()
+        # index = self.win.treeview.currentIndex()
+        # if self.treemodel.insertRow(0, index):
+        #     index = self.treemodel.index(0, 0, index)
+        #     self.setCurrentIndex(index)
+        #     self.treeview.edit(index)
+        #     setDirty()
+        #     updateUi()
     # end def
     
     def addClicked(self):
-        index = self.treeView.currentIndex()
+        index = self.treeview.currentIndex()
         if self.treemodel.insertRow(0, index):
             index = self.treemodel.index(0, 0, index)
             self.setCurrentIndex(index)
-            self.treeView.edit(index)
+            self.treeview.edit(index)
             setDirty()
             updateUi()
         #end if
     # end def
     
     def deleteClicked(self):
-        index = self.treeView.currentIndex()
+        index = self.treeview.currentIndex()
         if not index.isValid():
             return
         name = self.treemodel.data(index).toString()

@@ -28,22 +28,23 @@ part.py
 Created by Nick Conway on 2011-01-19.
 """
 
-import ui.treemodel as TM
-from idbank import IdBank
 
-class PartNode(TM.Node):
+from idbank import IdBank
+from ui.treemodel import Node
+
+class PartNode(Node):
     """
     """
-    def __init__(self, name, obj_id, inst_id, parent=None,node_type="part"):
+    ntype="part"
+    def __init__(self, name, obj_id, inst_id, parent=None):
         """
         """
-        super(TM.Node,self).__init__()
+        super(Node,self).__init__()
         
         self.parent = parent
         self.children = []
         
         self.name = name
-        self.ntype = "part" # the type of node i.e. Assembly, Part, etc
         self.object_id = obj_id
         self.instance_id = inst_id
     # end def
@@ -52,7 +53,7 @@ class PartNode(TM.Node):
 class Part(object):
     """
     """
-    def __init__(self, name, obj_id, parent=None, node_type="part"):
+    def __init__(self, name, obj_id, parent=None):
         super(object,self).__init__()
         """
         this is gonna be a list of non-specific attributes for an assembly

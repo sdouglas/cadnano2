@@ -23,11 +23,10 @@
 # http://www.opensource.org/licenses/mit-license.php
 
 import bisect
-from PyQt4.QtCore import QAbstractItemModel, QModelIndex, Qt, QByteArray, QString
+from PyQt4.QtCore import QAbstractItemModel, QModelIndex
+from PyQt4.QtCore import Qt, QByteArray, QString
 from PyQt4.QtCore import QXmlStreamReader, QXmlStreamWriter
 import data.json_io as json_io
-
-
 
 KEY, NODE = range(2)
 
@@ -558,8 +557,8 @@ class TreeModel(QAbstractItemModel):
         """
         """
         if index.isValid():
-            self.treeView.scrollTo(index)
-            self.treeView.setCurrentIndex(index)
+            self.treeview.scrollTo(index)
+            self.treeview.setCurrentIndex(index)
         # end if
     # end def
     

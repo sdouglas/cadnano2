@@ -53,6 +53,6 @@ class DocumentWindow(QMainWindow, ui_mainwindow.Ui_MainWindow):
         self.pathscene = QGraphicsScene()
         self.pathGraphicsView.setScene(self.pathscene)
         self.pathController = pathcontroller.PathController(self)
-        # TreeView setup
-        self.treeWidget = QTreeView()
-        self.treeWidget.setSelectionBehavior(QTreeView.SelectItems)
+        # treeview setup
+        self.treeview = QTreeView()
+        self.treeview.setSelectionBehavior(QTreeView.SelectItems)
