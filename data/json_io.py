@@ -29,8 +29,7 @@ Created by Nick Conway on 2011-01-19.
 """
 
 import json
-import assembly as asm
-import part as prt
+
 
 
 NODETAG = "node"
@@ -65,6 +64,7 @@ def save(my_assembly,filename):
     Examples
     -------- 
     """
+    pass
 #end def
 
 def load(filename, mymodel):
@@ -81,7 +81,7 @@ def load(filename, mymodel):
     Examples
     -------- 
     """
-    with open(filename,'r') as myfile
+    with open(filename,'r') as myfile:
         objects = json.load(myfile)
     try:
         if objects['fileType'] == 'caDNAno2.0':
@@ -104,9 +104,12 @@ def parse_legacy(obj,mymodel):
     Examples
     -------- 
     """
-    my_assembly = asm.Assembly()
+    from assembly import Assembly
+    from part import Part
     
-    my_part = prt.Part(my_assembly.createPartID())
+    my_assembly = Assembly()
+    
+    my_part = Part(my_assembly.createPartID())
     
     
     vhelixlist = obj["vstrands"] # should rename to 

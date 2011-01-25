@@ -30,32 +30,26 @@ Created by Nick Conway on 2011-01-19.
 
 from collections import defaultdict
 from idbank import IdBank
-import ui.treemodel as TM
+from ui.treemodel import Node
 
-
-class AssemblyNode(TM.Node):
+class AssemblyNode(Node):
     """
     """
-    def __init__(self, name, obj_id, inst_id, parent=None, node_type="assembly"):
+    ntype = "assembly" # the type of node i.e. Assembly, Part, etc
+    
+    def __init__(self, name, obj_id, inst_id, parent=None):
         """
         """
-        super(TM.Node,self).__init__()  
+        
+        super(Node,self).__init__()  
         self.parent = parent
         self.children = [] 
-        
-        parent.addChild(self)
+        if parent:
+            parent.addChild(self)
         
         self.name = "Asm" + str(0)
-        self.ntype = "assembly" # the type of node i.e. Assembly, Part, etc
         self.object_id = obj_id
         self.instance_id = inst_id
-    # end def
-    
-    def addToTable(self, table_dict):
-        """
-        add the node to the node type's dictionary
-        """
-        table_dict[self.id] = Assembly()
     # end def
     
     def createPartID(self):
@@ -165,7 +159,7 @@ class AssemblyNode(TM.Node):
 class Assembly(object):
     """
     """
-    def __init__(self, name, obj_id, parent=None, node_type="assembly"):
+    def __init__(self, name, obj_id, parent=None):
         super(object,self).__init__()
         """
         this is gonna be a list of non-specific attributes for an assembly

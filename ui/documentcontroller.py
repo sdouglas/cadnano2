@@ -23,9 +23,9 @@
 # http://www.opensource.org/licenses/mit-license.php
 
 from PyQt4.QtGui import *
+from PyQt4.QtCore import SIGNAL
 from documentwindow import DocumentWindow
-from treemodel import TreeModel
-from idbank import IdBank
+
 
 class DocumentController():
     """
@@ -33,6 +33,11 @@ class DocumentController():
     submodel, etc) UI elements to their corresponding actions in the model
     """
     def __init__(self):
+        from data.assembly import AssemblyNode
+        from data.part import PartNode
+        from treemodel import TreeModel
+        from idbank import IdBank
+        
         #for example: self.parts[object_id] = Part()
         self.parts = {}
         #for example: self.assemblies[object_id] = Assembly()

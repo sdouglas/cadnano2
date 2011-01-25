@@ -42,7 +42,7 @@ class IdBank(object):
         """
         docstring for __init__.
         """
-        super(object, self).__init__()
+        #super(object, self).__init__()
         self.id_count = 0
         self.removed_ids = deque()
         self.id_dict = {}

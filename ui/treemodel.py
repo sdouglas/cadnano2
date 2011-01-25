@@ -23,16 +23,20 @@
 # http://www.opensource.org/licenses/mit-license.php
 
 import bisect
-from PyQt4.QtCore import QAbstractItemModel, QModelIndex, Qt, QByteArray 
+from PyQt4.QtCore import QAbstractItemModel, QModelIndex, Qt, QByteArray, QString
 from PyQt4.QtCore import QXmlStreamReader, QXmlStreamWriter
-from data.assembly import AssemblyNode
-from data.part import PartNode
 import data.json_io as json_io
+
+
 
 KEY, NODE = range(2)
 
 class Node(object):
-    def __init__(self, name, obj_id, inst_id, parent=None,node_type="extra"):
+    """
+    """
+    ntype="extra" # the type of node i.e. Assembly, Part, etc
+    
+    def __init__(self, name, obj_id, inst_id, parent=None):
         """
         We could do this one of two ways, straight add children, or,
         keep children sorted when they get added.  Keeping them sorted
@@ -45,7 +49,6 @@ class Node(object):
         parent.addChild(self)
         
         self.name = name
-        self.ntype = node_type # the type of node i.e. Assembly, Part, etc
         self.object_id = obj_id
         self.instance_id = inst_id
     # end def
@@ -192,11 +195,11 @@ class Node(object):
                     ntype = reader.attributes().value(json_io.NTYPE).toString() 
                     id_obj = reader.attributes().value(json_io.OBJ_ID)
                     id_inst = reader.attributes().value(json_io.INST_ID)
-                    if ntype == PartNode().ntype:
-                        node = PartNode(name, id_obj, id_inst, self)
+                    #if ntype == "part"#PartNode().ntype:
+                    #   node = PartNode(name, id_obj, id_inst, self)
                     # end if
-                    elif ntype == AssemblyNode.ntype:
-                        node = AssemblyNode(name,id_obj, id_inst, self)
+                    #elif ntype == AssemblyNode.ntype:
+                    #    node = AssemblyNode(name,id_obj, id_inst, self)
                     # end elif
                 # end if
             # end if
@@ -215,10 +218,13 @@ class TreeModel(QAbstractItemModel):
     """
     """
     def __init__(self):
+        from data.assembly import AssemblyNode
+        from data.part import PartNode
+        
         super(QAbstractItemModel,self).__init__()    
         self.columns = 0
         self.headers = []
-        self.root = AssemblyNode('ASM_0', self.idbank.issue(), None)
+        self.root = AssemblyNode('ASM_0', 0, 0, None)
         self.cutNode = 0
         self.maxCompression  = 9
         self.mime_type = QString("application/cadnano.xml.node.z") 
