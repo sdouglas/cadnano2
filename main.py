@@ -3,7 +3,7 @@
 
 # The MIT License
 #
-# Copyright (c) 2010 Wyss Institute at Harvard University
+# Copyright (c) 2011 Wyss Institute at Harvard University
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -37,7 +37,7 @@ import math
 
 from PyQt4.QtCore import *
 from PyQt4.QtGui import *
-from ui.DocumentController import *
+from ui.documentcontroller import *
 
 def main():
     app = QApplication(sys.argv)

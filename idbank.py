@@ -26,7 +26,6 @@
 idbank.py
 
 Created by Nick Conway on 2011-01-19.
-Copyright (c) 2011 __Wyss Institute__. All rights reserved.
 """
 
 from collections import deque
