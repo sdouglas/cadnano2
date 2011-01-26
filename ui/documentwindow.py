@@ -56,3 +56,11 @@ class DocumentWindow(QMainWindow, ui_mainwindow.Ui_MainWindow):
         # treeview setup
         self.treeview = QTreeView()
         self.treeview.setSelectionBehavior(QTreeView.SelectItems)
+    # end def
+
+    def setCurrentIndex(index):
+        if index.isValid():
+            self.treeview.scrollTo(index)
+            self.treeview.setCurrentIndex(index)
+        # end if
+    # end def

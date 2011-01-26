@@ -49,7 +49,10 @@ class DocumentController():
         self.win = DocumentWindow(doc=self)
         self.win.show()
 
+        # Configure the treeview
         self.treemodel = TreeModel()
+        self.win.treeview.setDragDropMode(QAbstractItemView.InternalMove)
+        self.win.treeview.setAllColumnsShowFocus(True)
         self.win.treeview.setModel(self.treemodel)
 
         self.win.connect(self.win.actionNewHoneycombPart,\
@@ -75,6 +78,37 @@ class DocumentController():
                      self.svgClicked)
     # end def
 
+    def createConnections():
+        """
+        """
+        self.win.connect(self.treeview.selectionModel(), SIGNAL("currentChange()"), self.win, SLOT(updateUi))
+        
+        self.win.connect(self.treemodel, SIGNAL(dataChanged()) , self.win, SLOT(setDirty))
+        self.win.connect(self.treemodel, SIGNAL(rowsRemoved()) , self.win, SLOT(setDirty))
+        self.win.connect(self.treemodel, SIGNAL(modelReset()) , self.win, SLOT(setDirty))
+        
+        slotForAction = {}
+        slotForAction[actionNew] = SLOT(self.fileNew)
+        slotForAction[actionOpen] = SLOT(self.fileOpen)
+        slotForAction[actionSave] = SLOT(self.fileSave)
+        slotForAction[actionSave_As] = SLOT(self.fileSaveAs)
+        slotForAction[actionQuit] = SLOT(self.close)
+        slotForAction[actionAdd] = SLOT(self.editAdd)
+        slotForAction[actionDelete] = SLOT(self.editDelete)
+        slotForAction[actionCut] = SLOT(self.editCut)
+        slotForAction[actionPaste] = SLOT(self.editPaste)
+        slotForAction[actionMoveUp] = SLOT(self.editMoveUp())
+        slotForAction[actionMoveDown] = SLOT(self.editMoveDown())
+        slotForAction[actionPromote] = SLOT(self.editPromote())
+        slotForAction[actionDemote] = SLOT(self.editDemote())
+        
+        for key in slotForAction:
+            self.win.connect(key, SIGNAL("triggered()"), self.win, slotForAction[key])
+        # end for
+        
+    
+    # end def
+
     def newClicked(self):
         """docstring for newClicked"""
         print "new clicked"
@@ -93,6 +127,44 @@ class DocumentController():
     def saveClicked(self):
         """docstring for saveClicked"""
         print "save clicked"
+        # saved = False
+        # if self.treemodel.filename == None:
+        #     self.saveAsClicked()
+        # # end if
+        # else:
+        #     try:
+        #         self.treemodel.save()
+        #         self.setDirty = False
+        #         #self.win.setWindowTitle()
+        #         saved = True
+        #     except:
+        #         print "Failed to save"
+        # # end else
+        # self.updateUi()
+        # return saved
+    # end def
+
+    def saveAsClicked():
+        """"""
+        filename = self.treemodel.filename
+        if filename == None:
+            directory = "."
+        # end if
+        else:
+            directory = QFileInfo(filename).path()
+        # end else
+        filename = QFileDialog.getSaveFileName(self.win, \
+                                                "%s - Save As" % QApplication.applicationName(),\
+                                                directory, \
+                                                "%s (*.json)" % QApplication.applicationName() )
+        if filename.isEmpty():
+            return False
+        # end if
+        if not filename.toLower().endswith(".json"):
+            filename += ".json"
+        # end if
+        self.treemodel.filename = filename
+        return self.saveClicked()
     # end def
 
     def svgClicked(self):
@@ -123,23 +195,23 @@ class DocumentController():
         #     index = self.treemodel.index(0, 0, index)
         #     self.setCurrentIndex(index)
         #     self.treeview.edit(index)
-        #     setDirty()
-        #     updateUi()
+        #     self.win.setWindowModified(True)
+        #     self.updateUi()
     # end def
     
     def addClicked(self):
-        index = self.treeview.currentIndex()
+        index = self.win.treeview.currentIndex()
         if self.treemodel.insertRow(0, index):
             index = self.treemodel.index(0, 0, index)
             self.setCurrentIndex(index)
-            self.treeview.edit(index)
-            setDirty()
-            updateUi()
+            self.win.treeview.edit(index)
+            self.win.setWindowModified(True)
+            self.updateUi()
         #end if
     # end def
     
     def deleteClicked(self):
-        index = self.treeview.currentIndex()
+        index = self.win.treeview.currentIndex()
         if not index.isValid():
             return
         name = self.treemodel.data(index).toString()
@@ -159,8 +231,8 @@ class DocumentController():
         if not self.okToDelete(this, QString("Delete"), QString(message) ) :
             return
         self.treemodel.removeRow(index.row(), index.parent())
-        setDirty()
-        updateUi()
+        self.win.setWindowModified(True)
+        self.updateUi()
     # end def
     
     def okToDelete(parent, title,text, detailedText):
@@ -182,4 +254,107 @@ class DocumentController():
         messageBox.exec_()
         return messageBox.clickedButton() == deleteButton
     # end def
+    
+    
+    
+    def okToClear(savedata, parent, title,text, detailedText):
+        """
+        savedata is a function pointer
+        """
+        assert savedata and parent
+        messageBox = QMessageBox(parent)
+        if parent:
+            messageBox.setWindowModality(Qt.WindowModal)
+        # end if
+        messageBox.setIcon(QMessageBox.Question)
+        messageBox.setWindowTitle( QString("%1 - %2").arg(QApplication.applicationName()).arg(title) )
+        messageBox.setText(text)
+        if not detailedText.isEmpty():
+            messageBox.setInformativeText(detailedText)
+        # end if
+        
+        saveButton = messageBox.addButton(QMessageBox.Save)
+        messageBox.addButton(QMessageBox.Save)
+        messageBox.addButton(QMessageBox.Discard)
+        messageBox.addButton(QMessageBox.Cancel)
+        messageBox.setDefaultButton(saveButton)
+        messageBox.exec_()
+        if messageBox.clickedButton() == messageBox.button(QMessageBox.Cancel):
+            return False
+            if messageBox.clickedButton() == messageBox.button(QMessageBox.Save):
+                return parent.savedata() # how to return the function (lambda?)
+        return True 
+    # end def
+    
+    def createAction(icon, text, parent, shortcutkey):
+        """
+        returns a QAction object
+        """
+        action = QAction(QIcon(icon), text, parent)
+        if not shorcutkey.isEmpty():
+            action.setShortcut(shortcutkey)
+        # end if
+        return action
+    # end def
+    
+    def updateUi():
+        """
+        """
+        self.win.actionSave.setEnabled(isWindowModified)
+        rows = self.treemodel.rowCount()
+        self.win.actionSave_As.setEnabled(self.win.isWindowModified() or rows)
+        self.win.actionHideOrShowItems.setEnabled(rows)
+        enable = self.treeview.currentIndex().isValid()
+        
+        actions = [self.win.actionDelete, self.win.actionMoveUp, self.win.actionMoveDown, \
+                    self.win.actionCut,self.win.actionPromote, self.win.actionDemote]
+        for action in actions:
+            action.setEnabled(enable)
+        # end for
+        self.win.actionStartOrStop.setEnabled(rows);
+        self.win.actionPaste.setEnabled(self.treemodel.hasCutItem())
+    #endif
+        
+    def cutClicked():
+        index = self.win.treeview.currentIndex()
+        self.win.setCurrentIndex(self.treemodel.cut(index))
+        self.win.actionPaste.setEnabled(self.treemodel.hasCutItem())
+    # end def
+    
+    def pasteClicked():
+        index = self.win.treeview.currentIndex()
+        self.win.setCurrentIndex(self.treemodel.paste(index))
+    # end def
+        
+    def moveUpClicked():
+        index = self.win.treeview.currentIndex()
+        self.win.setCurrentIndex(self.treemodel.moveUp(index))
+    # end def
+
+    def moveDownClicked():
+        index = self.win.treeview.currentIndex()
+        self.win.setCurrentIndex(self.treemodel.moveDown(index))
+    # end def
+
+    def promoteClicked():
+        index = self.win.treeview.currentIndex()
+        self.win.setCurrentIndex(self.treemodel.promote(index))
+    #end def
+
+    def demoteClicked():
+        index = self.win.treeview.currentIndex()
+        self.win.setCurrentIndex(self.treemodel.demote(index))
+    #end def
+    
+    def hideOrShowNode(hide, index):
+        """"""
+        hideThisOne = hide #and self.treemodel.isChecked(index)
+        if index.isValid():
+            self.win.treeview.setRowHidden(index.row(), index.parent(), hideThisOne)
+        # end if
+        if not hideThisOne:
+            for row in range(self.treemodel.rowCount(index)):
+                self.hideOrShowNode(hide, self.treemodel.index(row, 0, index))
+            # end for
+        # end if
 # end class

@@ -177,6 +177,7 @@ class TreeModel(QAbstractItemModel):
         self.maxCompression  = 9
         self.mime_type = QString("application/cadnano.xml.node.z") 
         self.COLUMNCOUNT = 3
+        self.filename = ""
     # end def
 
     def flags(self, index):
