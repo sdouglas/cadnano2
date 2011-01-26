@@ -47,4 +47,4 @@ if __name__ == '__main__':
     main()
 else:  # Otherwise drop back to prompt in the interactive interpreter
     app = QApplication(sys.argv)
-    doc = DocumentController
+    doc = DocumentController()

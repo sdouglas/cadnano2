@@ -32,7 +32,7 @@ from PyQt4.QtCore import QRectF
 from PyQt4.QtGui import QBrush
 from PyQt4.QtGui import QGraphicsItem
 from PyQt4.QtGui import QGraphicsSimpleTextItem
-from PyQt4.QtGui import QPen
+from PyQt4.QtGui import QPen, QDrag
 
 import styles
 
@@ -43,9 +43,11 @@ class SliceHelix(QGraphicsItem):
     def_brush = QBrush(styles.grayfill)
     def_pen = QPen(styles.graystroke, styles.SLICE_HELIX_STROKE_WIDTH)
     hov_brush = QBrush(styles.bluefill)
-    hov_pen = QPen(styles.bluestroke, styles.SLICE_HELIX_STROKE_WIDTH)
+    hov_pen = QPen(styles.bluestroke, styles.SLICE_HELIX_HILIGHT_WIDTH)
     use_brush = QBrush(styles.orangefill)
     use_pen = QPen(styles.orangestroke, styles.SLICE_HELIX_STROKE_WIDTH)
+    radius = styles.SLICE_HELIX_RADIUS
+    rect = QRectF(0, 0, 2*radius, 2*radius)
 
     def __init__(self, row, col, position, parent):
         super(SliceHelix, self).__init__()
@@ -57,72 +59,87 @@ class SliceHelix(QGraphicsItem):
         self.p0neighbor = None
         self.p1neighbor = None
         self.p2neighbor = None
-        self.marked = False
         self.number = -1 
         self.vhelix = None
         self.label = None
         # drawing related
-        self.setAcceptsHoverEvents(True);
-        self.brush = SliceHelix.def_brush
-        self.pen = SliceHelix.def_pen
-        self.radius = styles.SLICE_HELIX_RADIUS
-        self.diameter = 2 * self.radius
-        self.rect = QRectF(0, 0, self.diameter, self.diameter)
+        self.beingHoveredOver = False
+        self.setAcceptsHoverEvents(True)
         self.setPos(position)
-    # end def
-
+    
     def paint(self, painter, option, widget=None):
-        painter.setBrush(self.brush)
-        painter.setPen(self.pen)
+        if self.number >= 0:
+            painter.setBrush(self.use_brush)
+            painter.setPen(self.use_pen)
+        else:
+            painter.setBrush(self.def_brush)
+            painter.setPen(self.def_pen)
+        if self.beingHoveredOver:
+            #Focus ring will be drawn beneath 2 neighboring SliceHelix if we do it here
+            #painter.setBrush(self.hov_brush)
+            painter.setPen(self.hov_pen)
         painter.drawEllipse(self.rect)
-    # end def    
+    
+    class FocusRingPainter(QGraphicsItem):
+        def __init__(self,helix):
+            super(FocusRingPainter,self).__init__()
+            self.helix=helix       
+            self.setPos(helix.pos())
+        def paint(self,painter,option,widget=None):
+            painter.setPen(self.hov_pen)
+            painter.drawEllipse(self.rect)
+        def boundingRect(self):
+            return self.helix.rect
 
     def boundingRect(self):
         return self.rect
-    # end def
 
     def hoverEnterEvent(self, event):
         """hoverEnterEvent changes the SliceHelix brush and pen from default to the hover colors if necessary."""
-        if self.marked:
-            self.brush = SliceHelix.use_brush
-            self.pen = SliceHelix.use_pen
-        else:
-            self.brush = SliceHelix.hov_brush
-            self.pen = SliceHelix.hov_pen
-            self.update()
+        self.beingHoveredOver = True
+        self.update(self.rect)
     # end def
 
     def hoverLeaveEvent(self, event):
         """hoverEnterEvent changes the SliceHelix brush and pen from hover to the default colors if necessary."""
-        if self.marked:
-            self.brush = SliceHelix.use_brush
-            self.pen = SliceHelix.use_pen
-        else:
-            self.brush = SliceHelix.def_brush
-            self.pen = SliceHelix.def_pen
-            self.update()
+        self.beingHoveredOver = False
+        self.update(self.rect)
     # end def
 
     def mousePressEvent(self, event):
-        pass
-
-    def mouseReleaseEvent(self, event):
-        """docstring for mousePressEvent"""
-        # notify parent 
-        self.parent.parseHelixClick(self)
-
-    def useHelix(self):
-        """useHelix adds displays the number after it has been clicked."""
+        self.setUsed(not self.number>=0)
+        QDrag(self.parent.parentWidget())
+   
+    def dragEnterEvent(self,e):
+        self.setUsed(not self.number>=0)
+        e.acceptProposedAction()
+        print "dee"
+        
+    def setNumber(self,n):
+        """If n!=slice.number the caller should have already reserved n with the parent SliceHelixGroup (get it from self.parent.newNumberForHelix). The callee tells the SliceHelixGroup to recycle the old value."""
+        self.update(self.rect)
+        if n!=self.number and self.number>=0:
+            self.parent.recycleNumberForHelix(self.number,self)
+        if n < 0:
+            if self.label:
+                self.label.setParentItem(None)
+                self.label = None
+            self.number = -1
+            return
+        self.number = n
         if self.label == None:
             self.label = QGraphicsSimpleTextItem("%d" % self.number)
-            if self.number < 10:
-                self.label.setX(self.radius/1.3)
-            else:
-                self.label.setX(self.radius/2)
-            self.label.setY(self.radius/2)
             self.label.setParentItem(self)
-        self.brush = SliceHelix.use_brush
-        self.pen = SliceHelix.use_pen
-        # update() is handled in SliceHelixGroup
-
-# end class
+        if self.number < 10:
+            self.label.setX(self.radius/1.3)
+        else:
+            self.label.setX(self.radius/2)
+        self.label.setY(self.radius/2)
+     
+    def setUsed(self,u):
+        if (self.number>=0) == u:
+            return
+        if self.number < 0: #Use
+            self.setNumber(self.parent.newNumberForHelix(self))
+        else: #Unuse
+            self.setNumber(-1)
