@@ -187,6 +187,7 @@ class DocumentController():
         """docstring for addHoneycombHelixGroup"""
         shg = SliceHelixGroup(nrows, ncolumns, "honeycomb")
         self.win.slicescene.addItem(shg)
+        shg.scene = self.win.slicescene
         self.shg = shg
         # phg = PathHelixGroup("honeycomb")
         # connect(shg.addHelix, SIGNAL("triggered()"), phg.addHelix)

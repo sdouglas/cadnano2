@@ -63,6 +63,7 @@ class SliceHelix(QGraphicsItem):
         self.vhelix = None
         self.label = None
         # drawing related
+        self.focusRing = None
         self.beingHoveredOver = False
         self.setAcceptsHoverEvents(True)
         self.setPos(position)
@@ -80,14 +81,16 @@ class SliceHelix(QGraphicsItem):
             painter.setPen(self.hov_pen)
         painter.drawEllipse(self.rect)
     
-    class FocusRingPainter(QGraphicsItem):
-        def __init__(self,helix):
-            super(FocusRingPainter,self).__init__()
+    class FocusRingPainter(QGraphicsItem):         
+        """Draws a focus ring around helix in parent"""
+        def __init__(self,helix,parent):
+            super(SliceHelix.FocusRingPainter,self).__init__()
             self.helix=helix       
             self.setPos(helix.pos())
+            parent.addItem(self)
         def paint(self,painter,option,widget=None):
-            painter.setPen(self.hov_pen)
-            painter.drawEllipse(self.rect)
+            painter.setPen(SliceHelix.hov_pen)
+            painter.drawEllipse(self.helix.rect)
         def boundingRect(self):
             return self.helix.rect
 
@@ -96,13 +99,16 @@ class SliceHelix(QGraphicsItem):
 
     def hoverEnterEvent(self, event):
         """hoverEnterEvent changes the SliceHelix brush and pen from default to the hover colors if necessary."""
-        self.beingHoveredOver = True
+        if self.focusRing == None:
+            self.focusRing = SliceHelix.FocusRingPainter(self,self.parent.scene)
         self.update(self.rect)
     # end def
 
     def hoverLeaveEvent(self, event):
         """hoverEnterEvent changes the SliceHelix brush and pen from hover to the default colors if necessary."""
-        self.beingHoveredOver = False
+        if self.focusRing != None:
+            self.focusRing.setParentItem(None)
+            self.focusRing = None
         self.update(self.rect)
     # end def
 
