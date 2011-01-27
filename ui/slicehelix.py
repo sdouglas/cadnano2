@@ -59,7 +59,7 @@ class SliceHelix(QGraphicsItem):
         self.p0neighbor = None
         self.p1neighbor = None
         self.p2neighbor = None
-        self.number = -1 
+        self.number = -1
         self.vhelix = None
         self.label = None
         # drawing related

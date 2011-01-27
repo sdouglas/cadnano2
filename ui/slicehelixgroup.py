@@ -37,6 +37,8 @@ from PyQt4.QtGui import QGraphicsItem, QGraphicsObject
 import slicehelix
 import styles
 
+from heapq import *
+
 root3 = 1.732051
 
 class SliceHelixGroup(QGraphicsObject):
@@ -48,8 +50,8 @@ class SliceHelixGroup(QGraphicsObject):
         super(SliceHelixGroup, self).__init__(parent)
         # data related
         self.sliceController = controller
-        self.oddRecycleBin = set()
-        self.evenRecycleBin = set()
+        self.oddRecycleBin = []
+        self.evenRecycleBin = []
         self.reserveBin = set()
         self.highestUsedOdd = -1  #Used iff the recycle bin is empty and highestUsedOdd+2 is not in the reserve bin
         self.highestUsedEven = -2  #same
@@ -136,7 +138,7 @@ class SliceHelixGroup(QGraphicsObject):
             return num
         if helix.parity == 1: #We find an arbitrary index (subject to parity constraints) to give the sender
             if len(self.oddRecycleBin):
-                return self.oddRecycleBin.pop()
+                return heappop(self.oddRecycleBin)
             else:
                 while self.highestUsedOdd+2 in self.reserveBin:
                     self.highestUsedOdd+=2
@@ -144,7 +146,7 @@ class SliceHelixGroup(QGraphicsObject):
                 return self.highestUsedOdd
         else:
             if len(self.evenRecycleBin):
-                return self.evenRecycleBin.pop()
+                return heappop(self.evenRecycleBin)
             else:
                 while self.highestUsedEven+2 in self.reserveBin:
                     self.highestUsedEven+=2
@@ -154,8 +156,8 @@ class SliceHelixGroup(QGraphicsObject):
     def recycleLabelForHelix(self,n,helix):
         """The caller's contract is to ensure that n is not used in *any* helix at the time of the calling of this function (or afterwards, unless reserveLabelForHelix returns the label again)"""
         if n%2==0:
-            self.evenRecycleBin.add(n)
+            heappush(self.evenRecycleBin,n)
         else:
-            self.oddRecycleBin.add(n)
+            heappush(self.oddRecycleBin,n)
 
 
