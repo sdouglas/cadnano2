@@ -87,5 +87,7 @@ class Assembly(object):
 # end class
 
 class AssemblyInstance(Assembly):
-    
+    def __init__(self, name, obj_id, parent=None):
+        pass
+    # end def
 # end class
