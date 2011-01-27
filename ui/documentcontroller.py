@@ -55,74 +55,108 @@ class DocumentController():
         self.win.treeview.setAllColumnsShowFocus(True)
         self.win.treeview.setModel(self.treemodel)
 
-        self.win.connect(self.win.actionNewHoneycombPart,\
-                     SIGNAL("triggered()"),\
-                     self.honeycombClicked)
-        self.win.connect(self.win.actionNewSquarePart,\
-                     SIGNAL("triggered()"),\
-                     self.squareClicked)
-        self.win.connect(self.win.actionNew,\
-                     SIGNAL("triggered()"),\
-                     self.newClicked)
-        self.win.connect(self.win.actionOpen,\
-                     SIGNAL("triggered()"),\
-                     self.openClicked)
-        self.win.connect(self.win.actionClose,\
-                     SIGNAL("triggered()"),\
-                     self.closeClicked)
-        self.win.connect(self.win.actionSave,\
-                     SIGNAL("triggered()"),\
-                     self.saveClicked)
-        self.win.connect(self.win.actionSVG,\
-                     SIGNAL("triggered()"),\
-                     self.svgClicked)
+        # self.win.connect(self.win.actionNewHoneycombPart,\
+        #              SIGNAL("triggered()"),\
+        #              self.honeycombClicked)
+        # self.win.connect(self.win.actionNewSquarePart,\
+        #              SIGNAL("triggered()"),\
+        #              self.squareClicked)
+        # self.win.connect(self.win.actionNew,\
+        #              SIGNAL("triggered()"),\
+        #              self.newClicked)
+        # self.win.connect(self.win.actionOpen,\
+        #              SIGNAL("triggered()"),\
+        #              self.openClicked)
+        # self.win.connect(self.win.actionClose,\
+        #              SIGNAL("triggered()"),\
+        #              self.closeClicked)
+        # self.win.connect(self.win.actionSave,\
+        #              SIGNAL("triggered()"),\
+        #              self.saveClicked)
+        # self.win.connect(self.win.actionSVG,\
+        #              SIGNAL("triggered()"),\
+        #              self.svgClicked)
+                     
+                     
+        self.win.actionNewHoneycombPart.triggered.connect(self.honeycombClicked)
+        self.win.actionNewSquarePart.triggered.connect(self.squareClicked)
+        self.win.actionNew.triggered.connect(self.newClicked)
+        self.win.actionOpen.triggered.connect(self.openClicked)
+        self.win.actionClose.triggered.connect(self.closeClicked)
+        self.win.actionSave.triggered.connect(self.saveClicked)
+        self.win.actionSVG.triggered.connect(self.svgClicked)
     # end def
 
     def createConnections():
         """
         """
-        self.win.connect(self.treeview.selectionModel(), SIGNAL("currentChange()"), self.win, SLOT(updateUi))
+        #self.win.connect(self.treeview.selectionModel(), SIGNAL("currentChange()"), self.win, SLOT(updateUi))
+        # QItemSelectionModel.currentChange emits the previous and current selected QModelIndex, but we don't use those values
+        self.treeview.selectionModel().currentChange.connect(self.updateUi)
         
-        self.win.connect(self.treemodel, SIGNAL(dataChanged()) , self.win, SLOT(setDirty))
-        self.win.connect(self.treemodel, SIGNAL(rowsRemoved()) , self.win, SLOT(setDirty))
-        self.win.connect(self.treemodel, SIGNAL(modelReset()) , self.win, SLOT(setDirty))
+        
+        # self.win.connect(self.treemodel, SIGNAL(dataChanged()) , self.win, SLOT(setDirty))
+        # self.win.connect(self.treemodel, SIGNAL(rowsRemoved()) , self.win, SLOT(setDirty))
+        # self.win.connect(self.treemodel, SIGNAL(modelReset()) , self.win, SLOT(setDirty))
+        self.treemodel.dataChanged.connect(self.win.setWindowModified)
+        self.treemodel.rowsRemoved.connect(self.win.setWindowModified)
+        self.treemodel.modelReset.connect(self.win.setWindowModified)
         
         slotForAction = {}
-        slotForAction[actionNew] = SLOT(self.fileNew)
-        slotForAction[actionOpen] = SLOT(self.fileOpen)
-        slotForAction[actionSave] = SLOT(self.fileSave)
-        slotForAction[actionSave_As] = SLOT(self.fileSaveAs)
-        slotForAction[actionQuit] = SLOT(self.close)
-        slotForAction[actionAdd] = SLOT(self.editAdd)
-        slotForAction[actionDelete] = SLOT(self.editDelete)
-        slotForAction[actionCut] = SLOT(self.editCut)
-        slotForAction[actionPaste] = SLOT(self.editPaste)
-        slotForAction[actionMoveUp] = SLOT(self.editMoveUp())
-        slotForAction[actionMoveDown] = SLOT(self.editMoveDown())
-        slotForAction[actionPromote] = SLOT(self.editPromote())
-        slotForAction[actionDemote] = SLOT(self.editDemote())
+        # slotForAction[actionNew] = SLOT(self.fileNew)
+        # slotForAction[actionOpen] = SLOT(self.fileOpen)
+        # slotForAction[actionSave] = SLOT(self.fileSave)
+        # slotForAction[actionSave_As] = SLOT(self.fileSaveAs)
+        # slotForAction[actionQuit] = SLOT(self.close)
+        # slotForAction[actionAdd] = SLOT(self.editAdd)
+        # slotForAction[actionDelete] = SLOT(self.editDelete)
+        # slotForAction[actionCut] = SLOT(self.editCut)
+        # slotForAction[actionPaste] = SLOT(self.editPaste)
+        # slotForAction[actionMoveUp] = SLOT(self.editMoveUp())
+        # slotForAction[actionMoveDown] = SLOT(self.editMoveDown())
+        # slotForAction[actionPromote] = SLOT(self.editPromote())
+        # slotForAction[actionDemote] = SLOT(self.editDemote())
+        
+        slotForAction[actionNew] = self.newClicked
+        slotForAction[actionOpen] = self.openClicked
+        slotForAction[actionSave] = self.SaveClicked
+        slotForAction[actionSave_As] = self.saveAsClicked
+        slotForAction[actionQuit] = self.closeClicked
+        slotForAction[actionAdd] = self.addClicked
+        slotForAction[actionDelete] = self.deleteClicked
+        slotForAction[actionCut] = self.cutClicked
+        slotForAction[actionPaste] = self.pasteClicked
+        slotForAction[actionMoveUp] = self.moveUpClicked
+        slotForAction[actionMoveDown] = self.moveDownClicked
+        slotForAction[actionPromote] = self.promoteClicked
+        slotForAction[actionDemote] = self.demoteClicked
         
         for key in slotForAction:
-            self.win.connect(key, SIGNAL("triggered()"), self.win, slotForAction[key])
+            #self.win.connect(key, SIGNAL("triggered()"), slotForAction[key])
+            key.triggered.connect(slotForAction[key])
         # end for
         
     
     # end def
+
 
     def newClicked(self):
         """docstring for newClicked"""
         print "new clicked"
     # end def
 
+
     def openClicked(self):
         """docstring for openClicked"""
         print "open clicked"
     # end def
 
+
     def closeClicked(self):
         """docstring for closeClicked"""
         print "close clicked"
     # end def
+
 
     def saveClicked(self):
         """docstring for saveClicked"""
@@ -144,6 +178,7 @@ class DocumentController():
         # return saved
     # end def
 
+    
     def saveAsClicked():
         """"""
         filename = self.treemodel.filename
@@ -172,16 +207,19 @@ class DocumentController():
         print "svg clicked"
     # end def
 
+
     def honeycombClicked(self):
         """docstring for honeycombClicked"""
         print "+honeycomb clicked"
         self.addHoneycombHelixGroup()
     # end def
 
+
     def squareClicked(self):
         """docstring for squareClicked"""
         print "+square clicked"
     # end def
+
 
     def addHoneycombHelixGroup(self, nrows=20, ncolumns=20):
         """docstring for addHoneycombHelixGroup"""
@@ -198,7 +236,8 @@ class DocumentController():
         #     self.win.setWindowModified(True)
         #     self.updateUi()
     # end def
-    
+
+
     def addClicked(self):
         index = self.win.treeview.currentIndex()
         if self.treemodel.insertRow(0, index):
@@ -209,7 +248,8 @@ class DocumentController():
             self.updateUi()
         #end if
     # end def
-    
+
+
     def deleteClicked(self):
         index = self.win.treeview.currentIndex()
         if not index.isValid():
@@ -234,7 +274,7 @@ class DocumentController():
         self.win.setWindowModified(True)
         self.updateUi()
     # end def
-    
+
     def okToDelete(parent, title,text, detailedText):
         """
         """
@@ -254,9 +294,8 @@ class DocumentController():
         messageBox.exec_()
         return messageBox.clickedButton() == deleteButton
     # end def
-    
-    
-    
+
+
     def okToClear(savedata, parent, title,text, detailedText):
         """
         savedata is a function pointer
@@ -285,7 +324,7 @@ class DocumentController():
                 return parent.savedata() # how to return the function (lambda?)
         return True 
     # end def
-    
+
     def createAction(icon, text, parent, shortcutkey):
         """
         returns a QAction object
@@ -296,7 +335,8 @@ class DocumentController():
         # end if
         return action
     # end def
-    
+
+
     def updateUi():
         """
         """
@@ -314,38 +354,45 @@ class DocumentController():
         self.win.actionStartOrStop.setEnabled(rows);
         self.win.actionPaste.setEnabled(self.treemodel.hasCutItem())
     #endif
-        
+
+
     def cutClicked():
         index = self.win.treeview.currentIndex()
         self.win.setCurrentIndex(self.treemodel.cut(index))
         self.win.actionPaste.setEnabled(self.treemodel.hasCutItem())
     # end def
-    
+
+
     def pasteClicked():
         index = self.win.treeview.currentIndex()
         self.win.setCurrentIndex(self.treemodel.paste(index))
     # end def
-        
+
+
     def moveUpClicked():
         index = self.win.treeview.currentIndex()
         self.win.setCurrentIndex(self.treemodel.moveUp(index))
     # end def
+
 
     def moveDownClicked():
         index = self.win.treeview.currentIndex()
         self.win.setCurrentIndex(self.treemodel.moveDown(index))
     # end def
 
+
     def promoteClicked():
         index = self.win.treeview.currentIndex()
         self.win.setCurrentIndex(self.treemodel.promote(index))
     #end def
 
+
     def demoteClicked():
         index = self.win.treeview.currentIndex()
         self.win.setCurrentIndex(self.treemodel.demote(index))
     #end def
-    
+
+
     def hideOrShowNode(hide, index):
         """"""
         hideThisOne = hide #and self.treemodel.isChecked(index)

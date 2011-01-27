@@ -23,7 +23,7 @@
 # http://www.opensource.org/licenses/mit-license.php
 
 import bisect
-from PyQt4.QtCore import QAbstractItemModel, QModelIndex, Qt, QByteArray, QString
+from PyQt4.QtCore import QAbstractItemModel, QModelIndex, Qt, QByteArray, QString, QStringList
 from PyQt4.QtCore import QXmlStreamReader, QXmlStreamWriter
 
 
@@ -181,8 +181,7 @@ class TreeModel(QAbstractItemModel):
     # end def
 
     def flags(self, index):
-        """
-        """
+        """QAbstractItemModel required"""
         theFlags = QAbstractItemModel.flags(index)
         if index.isValid():
             theFlags |= Qt.ItemIsSelectable | \
@@ -194,6 +193,7 @@ class TreeModel(QAbstractItemModel):
 
     def rowCount(self, parent):
         """
+        QAbstractItemModel required
         parent: QModelIndex
         """
         node = self.nodeFromIndex(parent)
@@ -205,6 +205,7 @@ class TreeModel(QAbstractItemModel):
 
     def columnCount(self, parent):
         """
+        QAbstractItemModel required
         """
         return self.columns
     
@@ -218,8 +219,7 @@ class TreeModel(QAbstractItemModel):
     # end def
     
     def index(self, row, column, parent):
-        """
-        """
+        """QAbstractItemModel required"""
         assert self.root
         node = self.nodeFromIndex(parent)
         assert node is not None
@@ -243,6 +243,7 @@ class TreeModel(QAbstractItemModel):
     # end def
 
     def headerData(self, section, orientation, role):
+        """QAbstractItemModel required"""
         if orientation == Qt.Horizontal and \
            role == Qt.DisplayRole:
             assert 0 <= section <= len(self.headers)
@@ -251,8 +252,7 @@ class TreeModel(QAbstractItemModel):
     # end def
 
     def data(self, index, role):
-        """
-        """
+        """QAbstractItemModel required"""
         if not self.root or not index.isValid() or \
             index.column() < 0 or index.column() >= self.COLUMNCOUNT:
             return QVariant()
@@ -281,8 +281,7 @@ class TreeModel(QAbstractItemModel):
     # end def
 
     def setData(self, index, value, role):
-        """
-        """
+        """QAbstractItemModel required"""
         if not index.isValid() or index.column() != NAME:
             return False
         # end if
@@ -328,8 +327,7 @@ class TreeModel(QAbstractItemModel):
     # end def
     
     def removeRows(self, row, count, parent):
-        """
-        """
+        """QAbstractItemModel required"""
         if not self.root:
             return False
         # end if
@@ -503,18 +501,8 @@ class TreeModel(QAbstractItemModel):
         #self.reset()
     # end def
     
-    def setCurrentIndex(index):
-        """
-        """
-        if index.isValid():
-            self.treeView.scrollTo(index)
-            self.treeView.setCurrentIndex(index)
-        # end if
-    # end def
-    
     def mimeData(indices):
-        """
-        """
+        """QAbstractItemModel drag and drop required"""
         assert indices.count()
         if indices.count() != 1:
             return 0
@@ -531,8 +519,7 @@ class TreeModel(QAbstractItemModel):
     # end def
     
     def dropMimeData(mime_data, action, row, column, parent):
-        """
-        """
+        """QAbstractItemModel drag and drop required"""
         if action == Qt.IgnoreAction:
             return True
         if action != Qt.MoveAction or column > 0 or \
@@ -554,6 +541,21 @@ class TreeModel(QAbstractItemModel):
             return True
         # end if
         return False
+    # end def
+    
+    def mimeTypes():
+        """QAbstractItemModel drag and drop required"""
+        return QStringList(self.mime_type)
+    # end def
+    
+    def supportedDragActions(self):
+        """QAbstractItemModel drag and drop required"""
+        return Qt.MoveAction# | Qt.CopyAction
+    # end def
+        
+    def supportedDropActions(self):
+        """QAbstractItemModel drag and drop required"""
+        return Qt.MoveAction# | Qt.CopyAction
     # end def
     
     def writeNodeAndChildren(writer, node):
@@ -610,17 +612,7 @@ class TreeModel(QAbstractItemModel):
     def generateNode(name, ntype, id_obj,id_inst):
         pass
     # end def
-    
-    def supportedDragActions(self):
-        """
-        """
-        return Qt.MoveAction# | Qt.CopyAction
-        
-    def supportedDropActions(self):
-        """
-        """
-        return Qt.MoveAction# | Qt.CopyAction
-        
+
     def load(self):
         """
         """

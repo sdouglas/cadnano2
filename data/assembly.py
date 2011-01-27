@@ -85,3 +85,7 @@ class Assembly(object):
         # other views
     # end def
 # end class
+
+class AssemblyInstance(Assembly):
+    
+# end class
