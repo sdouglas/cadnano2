@@ -56,6 +56,13 @@ class DocumentWindow(QMainWindow, ui_mainwindow.Ui_MainWindow):
         # treeview setup
         self.treeview = QTreeView()
         self.treeview.setSelectionBehavior(QTreeView.SelectItems)
+        # Edit menu setup
+        self.undoStack = doc.undoStack
+        self.editMenu = self.menuBar().addMenu("Edit")
+        self.undoAction = doc.undoStack.createUndoAction(self)
+        self.redoAction = doc.undoStack.createRedoAction(self)
+        self.editMenu.addAction(self.undoAction)
+        self.editMenu.addAction(self.redoAction)
     # end def
 
     def setCurrentIndex(index):

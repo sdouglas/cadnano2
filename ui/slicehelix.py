@@ -32,7 +32,7 @@ from PyQt4.QtCore import QRectF
 from PyQt4.QtGui import QBrush
 from PyQt4.QtGui import QGraphicsItem
 from PyQt4.QtGui import QGraphicsSimpleTextItem
-from PyQt4.QtGui import QPen, QDrag
+from PyQt4.QtGui import QPen, QDrag, QUndoCommand
 
 import styles
 
@@ -121,11 +121,24 @@ class SliceHelix(QGraphicsItem):
         e.acceptProposedAction()
         print "dee"
         
-    def setNumber(self,n):
-        """If n!=slice.number the caller should have already reserved n with the parent SliceHelixGroup (get it from self.parent.newNumberForHelix). The callee tells the SliceHelixGroup to recycle the old value."""
+    class RenumberCommand(QUndoCommand):
+        def __init__(self,helix,fromNum,toNum):
+            super(SliceHelix.RenumberCommand,self).__init__()
+            self.fromNum = fromNum
+            self.toNum = toNum
+            self.helix=helix
+        def redo(self):
+            self.helix.setNumber(self.toNum,pushToUndo=False)
+        def undo(self):
+            self.helix.setNumber(self.fromNum,pushToUndo=False)
+        
+    def setNumber(self,n,pushToUndo=True):
+        """If n!=slice.number the caller should have already reserved n with the parent SliceHelixGroup (get it from self.parent.reserveLabelForHelix). The callee tells the SliceHelixGroup to recycle the old value."""
+        if pushToUndo:
+            self.parent.sliceController.mainWindow.undoStack.push(SliceHelix.RenumberCommand(self,self.number,n))
         self.update(self.rect)
         if n!=self.number and self.number>=0:
-            self.parent.recycleNumberForHelix(self.number,self)
+            self.parent.recycleLabelForHelix(self.number,self)
         if n < 0:
             if self.label:
                 self.label.setParentItem(None)
@@ -146,6 +159,6 @@ class SliceHelix(QGraphicsItem):
         if (self.number>=0) == u:
             return
         if self.number < 0: #Use
-            self.setNumber(self.parent.newNumberForHelix(self))
+            self.setNumber(self.parent.reserveLabelForHelix(self))
         else: #Unuse
             self.setNumber(-1)
