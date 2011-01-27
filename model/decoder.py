@@ -23,19 +23,20 @@
 # http://www.opensource.org/licenses/mit-license.php
 
 """
-styles.py
-
-Created by Shawn on 2010-06-15.
+decoder
+Created by Jonathan deWerd on 2011-01-26.
 """
-from PyQt4.QtGui import QColor
+import json
+from .dnapart import DNAPart
+from .document import Document
+classNameToClassMap = {}
+classNameToClassMap['DNAPart'] = DNAPart
+classNameToClassMap['CADNanoDocument'] = Document
 
-bluefill = QColor(153, 204, 255)
-bluestroke = QColor(0, 102, 204)
-orangefill = QColor(255, 204, 153)
-orangestroke = QColor(204, 102, 51)
-grayfill = QColor(238, 238, 238)
-graystroke = QColor(153, 153, 153)
+def decodeObj(dct):
+    if '.class' in dct:
+        return classNameToClassMap[dct['.class']].fromSimpleRep(dct)
+    return dct
 
-SLICE_HELIX_RADIUS = 15
-SLICE_HELIX_STROKE_WIDTH = 0.5
-SLICE_HELIX_HILIGHT_WIDTH = 2
+def decode(str):
+    return json.loads(str, object_hook=decodeObj)

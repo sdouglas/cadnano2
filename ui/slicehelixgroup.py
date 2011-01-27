@@ -37,15 +37,24 @@ from PyQt4.QtGui import QGraphicsItem, QGraphicsObject
 import slicehelix
 import styles
 
+from heapq import *
+
 root3 = 1.732051
 
 class SliceHelixGroup(QGraphicsObject):
-    """docstring for SliceHelixGroup"""
-    def __init__(self, nrows=3, ncolumns=6, type="honeycomb", parent=None):
+    """
+    SliceHelixGroup maintains data and state for a set of SliceHelix (the circles in the slice view) and serves as the root of their drawing tree.
+    -reserveLabelForHelix and -recycleLabelForHelix maintain a pool of labels (these are the nonnegative integers that appear on them) for slices.
+    """
+    def __init__(self, nrows=3, ncolumns=6, type="honeycomb", parent=None, controller=None):
         super(SliceHelixGroup, self).__init__(parent)
         # data related
-        self.evens = -2
-        self.odds = -1
+        self.sliceController = controller
+        self.oddRecycleBin = []
+        self.evenRecycleBin = []
+        self.reserveBin = set()
+        self.highestUsedOdd = -1  #Used iff the recycle bin is empty and highestUsedOdd+2 is not in the reserve bin
+        self.highestUsedEven = -2  #same
 
         # drawing related
         self.radius = styles.SLICE_HELIX_RADIUS
@@ -115,65 +124,40 @@ class SliceHelixGroup(QGraphicsObject):
     def boundingRect(self):
         return self.rect
 
-    def parseHelixClick(self, helix):
-        """
-        parseHelixClick handles the outcome of a mouseReleaseEvent passed from a child SliceHelix.
-        A previously unmarked helix is assigned a number, redrawn, and spawns its corresponding Path VirtualHelix.
-        """
-        if not helix.marked: # newly marked
-            helix.marked = True  # toggle
-            if helix.number == -1: # previously un-numbered
-                if helix.parity == 1: 
-                    self.odds = self.odds + 2 
-                    helix.number = self.odds
-                # end if 
-                else:
-                    self.evens = self.evens + 2
-                    helix.number = self.evens
-                # end else
+    def reserveLabelForHelix(self, helix, num=None):
+        """Reserves and returns a unique numerical label appropriate for helix. If a specific index is preferable (say, for undo/redo) it can be requested in num."""
+        if num!=None: #A special request
+            assert num>=0, long(num)==num
+            if num in self.oddRecycleBin:
+                self.oddRecycleBin.remove(num)
+                return num
+            if num in self.evenRecycleBin:
+                self.evenRecycleBin.remove(num)
+                return num
+            self.reserveBin.add(num)
+            return num
+        if helix.parity == 1: #We find an arbitrary index (subject to parity constraints) to give the sender
+            if len(self.oddRecycleBin):
+                return heappop(self.oddRecycleBin)
+            else:
+                while self.highestUsedOdd+2 in self.reserveBin:
+                    self.highestUsedOdd+=2
+                self.highestUsedOdd+=2
+                return self.highestUsedOdd
+        else:
+            if len(self.evenRecycleBin):
+                return heappop(self.evenRecycleBin)
+            else:
+                while self.highestUsedEven+2 in self.reserveBin:
+                    self.highestUsedEven+=2
+                self.highestUsedEven+=2
+                return self.highestUsedEven
 
-                helix.useHelix()
-
-                ## PORT: add this back in once Path.py is ready
-                # path.addHelix(helix) 
-                # 
-                # # install vhelix neighbor relationships
-                # if helix.p0neighbor != None && helix.p0neighbor.number != -1:
-                #     path.pairHelices(helix.vhelix, helix.p0neighbor.vhelix, 0) 
-                # if helix.p1neighbor != None && helix.p1neighbor.number != -1:
-                #     path.pairHelices(helix.vhelix, helix.p1neighbor.vhelix, 1) 
-                # if helix.p2neighbor != None && helix.p2neighbor.number != -1:
-                #     path.pairHelices(helix.vhelix, helix.p2neighbor.vhelix, 2) 
-            # end if
-            else: # update existing helix with new path
-                ## PORT: add this back in once Path.py is ready
-                # if event.shiftKey:
-                #     path.addStapleBases(self.drawPath.currentSlice,helix.vhelix) 
-                # # end if 
-                # else:
-                #     path.addBases(self.drawPath.currentSlice,helix.vhelix) 
-                # # end else
-                # 
-                # helix.vhelix.drawvhelix.update() 
-                pass
-            # end else
-        # end if
-        else: # scaffold already present
-            pass
-            # PORT: add this back when Path.py is ready
-            # if helix.number != -1: # previously un-numbered 
-            #     if event.shiftKey:
-            #         path.addStapleBases(self.drawPath.currentSlice,helix.vhelix) 
-            #         helix.vhelix.drawvhelix.update() 
-                # end if
-            # end if
-        # end else
-        helix.update()
-    # end def
-
-    def resetCounters(even, odd):
-        self.evens = even 
-        self.odds = odd 
-    # end
+    def recycleLabelForHelix(self,n,helix):
+        """The caller's contract is to ensure that n is not used in *any* helix at the time of the calling of this function (or afterwards, unless reserveLabelForHelix returns the label again)"""
+        if n%2==0:
+            heappush(self.evenRecycleBin,n)
+        else:
+            heappush(self.oddRecycleBin,n)
 
 

@@ -42,14 +42,12 @@ class DocumentController():
         self.parts = {}
         #for example: self.assemblies[object_id] = Assembly()
         self.assemblies = {}
-
-        self.idbank = IdBank()
-
+        
+        self.idbank = IdBank()                
         self.undoStack = QUndoStack()
         self.win = DocumentWindow(doc=self)
         self.win.show()
-
-        # Configure the treeview
+        
         self.treemodel = TreeModel()
         self.win.treeview.setDragDropMode(QAbstractItemView.InternalMove)
         self.win.treeview.setAllColumnsShowFocus(True)
@@ -223,8 +221,10 @@ class DocumentController():
 
     def addHoneycombHelixGroup(self, nrows=20, ncolumns=20):
         """docstring for addHoneycombHelixGroup"""
-        shg = SliceHelixGroup(nrows, ncolumns, "honeycomb")
+        shg = SliceHelixGroup(nrows, ncolumns, "honeycomb", controller=self.win.sliceController)
         self.win.slicescene.addItem(shg)
+        shg.scene = self.win.slicescene
+        self.shg = shg
         # phg = PathHelixGroup("honeycomb")
         # connect(shg.addHelix, SIGNAL("triggered()"), phg.addHelix)
         

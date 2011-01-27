@@ -23,19 +23,10 @@
 # http://www.opensource.org/licenses/mit-license.php
 
 """
-styles.py
+__init__.py
 
-Created by Shawn on 2010-06-15.
+This module holds the data model. Keeping the model in a separate folder should help enforce 
+the separation between model, view, etc.
+
 """
-from PyQt4.QtGui import QColor
 
-bluefill = QColor(153, 204, 255)
-bluestroke = QColor(0, 102, 204)
-orangefill = QColor(255, 204, 153)
-orangestroke = QColor(204, 102, 51)
-grayfill = QColor(238, 238, 238)
-graystroke = QColor(153, 153, 153)
-
-SLICE_HELIX_RADIUS = 15
-SLICE_HELIX_STROKE_WIDTH = 0.5
-SLICE_HELIX_HILIGHT_WIDTH = 2

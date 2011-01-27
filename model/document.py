@@ -21,3 +21,28 @@
 # THE SOFTWARE.
 #
 # http://www.opensource.org/licenses/mit-license.php
+
+"""
+document.py
+
+"""
+
+import json
+from .dnapart import DNAPart
+
+class Document:
+    def __init__(self):
+        self._parts=[DNAPart()]
+        self._partInstances=[]
+    def simpleRep(self):
+        """Returns a representation in terms of simple JSON-encodable types or types that implement simpleRep"""
+        ret = {".class":"CADNanoDocument"}
+        ret["parts"] = self._parts
+        ret["partInstances"] = self._partInstances
+        return ret
+    @classmethod
+    def fromSimpleRep(cls,dct):
+        ret = Document()
+        ret._parts = dct['parts']
+        ret._partInstances = dct['partInstances']
+        return ret

@@ -21,21 +21,34 @@
 # THE SOFTWARE.
 #
 # http://www.opensource.org/licenses/mit-license.php
-
 """
-styles.py
-
-Created by Shawn on 2010-06-15.
+part.py
 """
-from PyQt4.QtGui import QColor
 
-bluefill = QColor(153, 204, 255)
-bluestroke = QColor(0, 102, 204)
-orangefill = QColor(255, 204, 153)
-orangestroke = QColor(204, 102, 51)
-grayfill = QColor(238, 238, 238)
-graystroke = QColor(153, 153, 153)
+import json
+from .part import Part
 
-SLICE_HELIX_RADIUS = 15
-SLICE_HELIX_STROKE_WIDTH = 0.5
-SLICE_HELIX_HILIGHT_WIDTH = 2
+class DNAPart(Part):
+    def __init__(self,*args,**kwargs):
+        super(DNAPart,self).__init__(self,*args,**kwargs)
+        #The instance variables are private for a reason: accessors are important in a model!
+        self._virtualHelices = []
+        self._name = kwargs.get('name','untitled')
+        self._staples = []
+        self._scaffolds = []
+    def simpleRep(self):
+        """Provides a representation of the receiver in terms of simple (container,atomic) classes and other objects implementing simpleRep"""
+        ret = {'.class':"DNAPart"}
+        ret["virtualHelices"] = self._virtualHelices
+        ret["name"] = self._name
+        ret["staples"] = self._staples
+        ret["scaffolds"] = self._scaffolds
+        return ret
+    @classmethod
+    def fromSimpleRep(cls,rep):
+        ret = DNAPart()
+        ret._virtualHelices = rep['virtualHelices']
+        ret._name = rep['name']
+        ret._staples = rep['staples']
+        ret._scaffolds = rep['scaffolds']
+        return ret

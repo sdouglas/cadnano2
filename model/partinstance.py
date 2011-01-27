@@ -23,19 +23,11 @@
 # http://www.opensource.org/licenses/mit-license.php
 
 """
-styles.py
-
-Created by Shawn on 2010-06-15.
+partinstance
+Created by Jonathan deWerd on 2011-01-26.
 """
-from PyQt4.QtGui import QColor
 
-bluefill = QColor(153, 204, 255)
-bluestroke = QColor(0, 102, 204)
-orangefill = QColor(255, 204, 153)
-orangestroke = QColor(204, 102, 51)
-grayfill = QColor(238, 238, 238)
-graystroke = QColor(153, 153, 153)
-
-SLICE_HELIX_RADIUS = 15
-SLICE_HELIX_STROKE_WIDTH = 0.5
-SLICE_HELIX_HILIGHT_WIDTH = 2
+class PartInstance(object):
+    """Represents an instantiation of a part on the canvas"""
+    def __init__(self,part):
+        self.part = part

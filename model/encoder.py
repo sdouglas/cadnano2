@@ -22,20 +22,27 @@
 #
 # http://www.opensource.org/licenses/mit-license.php
 
+#from model.document import Document
+#from model.encoder import encode
+#from model.decoder import decode
+#d=Document()
+#s=encode(d)
+#dd=decode(s)
+#s==encode(dd)
+
+
+
+
 """
-styles.py
-
-Created by Shawn on 2010-06-15.
+encoder.py
 """
-from PyQt4.QtGui import QColor
+import json
 
-bluefill = QColor(153, 204, 255)
-bluestroke = QColor(0, 102, 204)
-orangefill = QColor(255, 204, 153)
-orangestroke = QColor(204, 102, 51)
-grayfill = QColor(238, 238, 238)
-graystroke = QColor(153, 153, 153)
+class Encoder(json.JSONEncoder):
+    def default(self,obj):
+        if hasattr(obj,"simpleRep"):
+            return obj.simpleRep()
+        return json.JSONEncoder.default(self,obj)
 
-SLICE_HELIX_RADIUS = 15
-SLICE_HELIX_STROKE_WIDTH = 0.5
-SLICE_HELIX_HILIGHT_WIDTH = 2
+def encode(root):
+    return json.dumps(root,cls=Encoder)
