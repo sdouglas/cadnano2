@@ -23,7 +23,7 @@
 # http://www.opensource.org/licenses/mit-license.php
 
 """
-dnapart
+part
 Created by Jonathan deWerd on 2011-01-26.
 """
 from exceptions import NotImplementedError
@@ -32,11 +32,13 @@ class Part(object):
     def __init__(self, *args, **kargs):
         pass
     def simpleRep(self):
-        """Returns a representation in terms of simple JSON-encodable types or types that implement simpleRep"""
+        """Returns a representation in terms of simple JSON-encodable types
+        or types that implement simpleRep"""
         raise NotImplementedError
     @classmethod
     def fromSimpleRep(cls,rep):
-        """Instantiates one of the parent class from the simple representation rep"""
+        """Instantiates one of the parent class from the simple
+        representation rep"""
         raise NotImplementedError
-        
+
         

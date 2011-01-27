@@ -35,7 +35,8 @@ class Document:
         self._parts=[DNAPart()]
         self._partInstances=[]
     def simpleRep(self):
-        """Returns a representation in terms of simple JSON-encodable types or types that implement simpleRep"""
+        """Returns a representation in terms of simple JSON-encodable types
+        or types that implement simpleRep"""
         ret = {".class":"CADNanoDocument"}
         ret["parts"] = self._parts
         ret["partInstances"] = self._partInstances

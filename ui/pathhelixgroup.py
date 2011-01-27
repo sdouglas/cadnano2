@@ -27,11 +27,9 @@
 pathhelixgroup.py
 
 Created by Shawn on 2011-01-27.
-Copyright (c) 2011 __MyCompanyName__. All rights reserved.
 """
 
-from PyQt4.QtCore import QRectF, QPointF, QObject, QEvent
-from PyQt4.QtCore import QObject, pyqtSlot
+from PyQt4.QtCore import QRectF, QPointF, QEvent, pyqtSlot
 from PyQt4.QtGui import QBrush
 from PyQt4.QtGui import QGraphicsItem, QGraphicsObject
 
@@ -40,22 +38,33 @@ import styles
 
 class PathHelixGroup(QGraphicsObject):
     """docstring for PathHelixGroup"""
-    def __init__(self, type="honeycomb", controller=None, parent=None):
+    def __init__(self, type="honeycomb", controller=None,\
+                 scene=None, parent=None):
         super(PathHelixGroup, self).__init__()
         self.pathController = controller
+        self.scene = scene
 
         if type == "honeycomb":
             # set honeycomb parameters
+            self.rect = QRectF(0, \
+                               0, \
+                               100, \
+                               100)
             pass
         else:
             # set square parameters
             pass
-        
+
     def paint(self, painter, option, widget=None):
         pass
 
     def boundingRect(self):
         return self.rect
+
+    @pyqtSlot(int)
+    def handleNewHelix(self, number):
+        """docstring for addHelix"""
+        print "path helix group: addHelix slot", number
 
 
     

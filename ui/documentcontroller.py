@@ -26,6 +26,7 @@ from PyQt4.QtGui import *
 from PyQt4.QtCore import SIGNAL
 from documentwindow import DocumentWindow
 from slicehelixgroup import SliceHelixGroup
+from pathhelixgroup import PathHelixGroup
 
 class DocumentController():
     """
@@ -37,45 +38,22 @@ class DocumentController():
         from data.part import PartNode
         from treemodel import TreeModel
         from idbank import IdBank
-        
+
         #for example: self.parts[object_id] = Part()
         self.parts = {}
         #for example: self.assemblies[object_id] = Assembly()
         self.assemblies = {}
-        
+
         self.idbank = IdBank()                
         self.undoStack = QUndoStack()
         self.win = DocumentWindow(doc=self)
         self.win.show()
-        
+
         self.treemodel = TreeModel()
         self.win.treeview.setDragDropMode(QAbstractItemView.InternalMove)
         self.win.treeview.setAllColumnsShowFocus(True)
         self.win.treeview.setModel(self.treemodel)
 
-        # self.win.connect(self.win.actionNewHoneycombPart,\
-        #              SIGNAL("triggered()"),\
-        #              self.honeycombClicked)
-        # self.win.connect(self.win.actionNewSquarePart,\
-        #              SIGNAL("triggered()"),\
-        #              self.squareClicked)
-        # self.win.connect(self.win.actionNew,\
-        #              SIGNAL("triggered()"),\
-        #              self.newClicked)
-        # self.win.connect(self.win.actionOpen,\
-        #              SIGNAL("triggered()"),\
-        #              self.openClicked)
-        # self.win.connect(self.win.actionClose,\
-        #              SIGNAL("triggered()"),\
-        #              self.closeClicked)
-        # self.win.connect(self.win.actionSave,\
-        #              SIGNAL("triggered()"),\
-        #              self.saveClicked)
-        # self.win.connect(self.win.actionSVG,\
-        #              SIGNAL("triggered()"),\
-        #              self.svgClicked)
-                     
-                     
         self.win.actionNewHoneycombPart.triggered.connect(self.honeycombClicked)
         self.win.actionNewSquarePart.triggered.connect(self.squareClicked)
         self.win.actionNew.triggered.connect(self.newClicked)
@@ -91,30 +69,13 @@ class DocumentController():
         #self.win.connect(self.treeview.selectionModel(), SIGNAL("currentChange()"), self.win, SLOT(updateUi))
         # QItemSelectionModel.currentChange emits the previous and current selected QModelIndex, but we don't use those values
         self.treeview.selectionModel().currentChange.connect(self.updateUi)
-        
-        
-        # self.win.connect(self.treemodel, SIGNAL(dataChanged()) , self.win, SLOT(setDirty))
-        # self.win.connect(self.treemodel, SIGNAL(rowsRemoved()) , self.win, SLOT(setDirty))
-        # self.win.connect(self.treemodel, SIGNAL(modelReset()) , self.win, SLOT(setDirty))
+
         self.treemodel.dataChanged.connect(self.win.setWindowModified)
         self.treemodel.rowsRemoved.connect(self.win.setWindowModified)
         self.treemodel.modelReset.connect(self.win.setWindowModified)
-        
+
         slotForAction = {}
-        # slotForAction[actionNew] = SLOT(self.fileNew)
-        # slotForAction[actionOpen] = SLOT(self.fileOpen)
-        # slotForAction[actionSave] = SLOT(self.fileSave)
-        # slotForAction[actionSave_As] = SLOT(self.fileSaveAs)
-        # slotForAction[actionQuit] = SLOT(self.close)
-        # slotForAction[actionAdd] = SLOT(self.editAdd)
-        # slotForAction[actionDelete] = SLOT(self.editDelete)
-        # slotForAction[actionCut] = SLOT(self.editCut)
-        # slotForAction[actionPaste] = SLOT(self.editPaste)
-        # slotForAction[actionMoveUp] = SLOT(self.editMoveUp())
-        # slotForAction[actionMoveDown] = SLOT(self.editMoveDown())
-        # slotForAction[actionPromote] = SLOT(self.editPromote())
-        # slotForAction[actionDemote] = SLOT(self.editDemote())
-        
+
         slotForAction[actionNew] = self.newClicked
         slotForAction[actionOpen] = self.openClicked
         slotForAction[actionSave] = self.SaveClicked
@@ -130,11 +91,8 @@ class DocumentController():
         slotForAction[actionDemote] = self.demoteClicked
         
         for key in slotForAction:
-            #self.win.connect(key, SIGNAL("triggered()"), slotForAction[key])
             key.triggered.connect(slotForAction[key])
         # end for
-        
-    
     # end def
 
 
@@ -186,10 +144,10 @@ class DocumentController():
         else:
             directory = QFileInfo(filename).path()
         # end else
-        filename = QFileDialog.getSaveFileName(self.win, \
-                                                "%s - Save As" % QApplication.applicationName(),\
-                                                directory, \
-                                                "%s (*.json)" % QApplication.applicationName() )
+        filename = QFileDialog.getSaveFileName(self.win,\
+                            "%s - Save As" % QApplication.applicationName(),\
+                            directory,\
+                            "%s (*.json)" % QApplication.applicationName())
         if filename.isEmpty():
             return False
         # end if
@@ -221,11 +179,16 @@ class DocumentController():
 
     def addHoneycombHelixGroup(self, nrows=20, ncolumns=20):
         """docstring for addHoneycombHelixGroup"""
-        shg = SliceHelixGroup(nrows, ncolumns, "honeycomb", controller=self.win.sliceController)
+        shg = SliceHelixGroup(nrows, ncolumns, "honeycomb",\
+                              scene=self.win.slicescene,\
+                              controller=self.win.sliceController)
         self.win.slicescene.addItem(shg)
-        shg.scene = self.win.slicescene
-        self.shg = shg
-        # phg = PathHelixGroup("honeycomb")
+        phg = PathHelixGroup("honeycomb",\
+                             scene=self.win.pathscene,\
+                             controller=self.win.pathController)
+        self.win.pathscene.addItem(phg)
+        
+        shg.helixAdded.connect(phg.handleNewHelix)
         # connect(shg.addHelix, SIGNAL("triggered()"), phg.addHelix)
         
         # index = self.win.treeview.currentIndex()

@@ -28,41 +28,27 @@ from PyQt4.QtGui import *
 
 class PathController():
     """
-    Manages the interactions between widgets / UI elements and the path model
+    Manages the interactions between Path widgets / UI elements and the model
     """
 
     def __init__(self, win):
         self.mainWindow = win
+        win.actionPathSelect.triggered.connect(self.chooseSelectTool)
+        win.actionPathMove.triggered.connect(self.chooseMoveTool)
+        win.actionPathBreak.triggered.connect(self.chooseBreakTool)
+        win.actionPathErase.triggered.connect(self.chooseEraseTool)
+        win.actionPathForce.triggered.connect(self.chooseForceTool)
+        win.actionPathInsertion.triggered.connect(self.chooseInsertTool)
+        win.actionPathSkip.triggered.connect(self.chooseSkipTool)
         self.toolset = set((win.actionPathSelect, win.actionPathMove,\
                             win.actionPathBreak, win.actionPathErase,\
                             win.actionPathForce, win.actionPathInsertion,\
                             win.actionPathSkip))
-        win.connect(win.actionPathSelect,\
-                    SIGNAL("triggered()"),\
-                    self.chooseSelectTool)
-        win.connect(win.actionPathMove,\
-                    SIGNAL("triggered()"),\
-                    self.chooseMoveTool)
-        win.connect(win.actionPathBreak,\
-                    SIGNAL("triggered()"),\
-                    self.chooseBreakTool)
-        win.connect(win.actionPathErase,\
-                    SIGNAL("triggered()"),\
-                    self.chooseEraseTool)
-        win.connect(win.actionPathForce,\
-                    SIGNAL("triggered()"),\
-                    self.chooseForceTool)
-        win.connect(win.actionPathInsertion,\
-                    SIGNAL("triggered()"),\
-                    self.chooseInsertTool)
-        win.connect(win.actionPathSkip,\
-                    SIGNAL("triggered()"),\
-                    self.chooseSkipTool)
-        self.currentTool = None
         ag = QActionGroup(win)
         for a in self.toolset:
             ag.addAction(a)
         ag.setExclusive(True)
+        self.currentTool = None
         self.chooseSelectTool()
 
     def chooseSelectTool(self):

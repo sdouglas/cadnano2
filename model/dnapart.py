@@ -22,7 +22,7 @@
 #
 # http://www.opensource.org/licenses/mit-license.php
 """
-part.py
+DNAPart.py
 """
 
 import json
@@ -37,7 +37,10 @@ class DNAPart(Part):
         self._staples = []
         self._scaffolds = []
     def simpleRep(self):
-        """Provides a representation of the receiver in terms of simple (container,atomic) classes and other objects implementing simpleRep"""
+        """
+        Provides a representation of the receiver in terms of simple
+        (container,atomic) classes and other objects implementing simpleRep
+        """
         ret = {'.class':"DNAPart"}
         ret["virtualHelices"] = self._virtualHelices
         ret["name"] = self._name

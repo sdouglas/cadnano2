@@ -29,11 +29,9 @@ slicehelixgroup.py
 Created by Shawn Douglas on 2010-06-15.
 """
 
-from PyQt4.QtCore import QPointF, QObject, QEvent
-from PyQt4.QtCore import QRectF
+from PyQt4.QtCore import QRectF, QPointF, QEvent, pyqtSignal
 from PyQt4.QtGui import QBrush
 from PyQt4.QtGui import QGraphicsItem, QGraphicsObject
-
 import slicehelix
 import styles
 
@@ -43,18 +41,27 @@ root3 = 1.732051
 
 class SliceHelixGroup(QGraphicsObject):
     """
-    SliceHelixGroup maintains data and state for a set of SliceHelix (the circles in the slice view) and serves as the root of their drawing tree.
-    -reserveLabelForHelix and -recycleLabelForHelix maintain a pool of labels (these are the nonnegative integers that appear on them) for slices.
+    SliceHelixGroup maintains data and state for a set of SliceHelix objects
+    (the circles in the slice view) and serves as the root of their
+    drawing tree.
+    
+    -reserveLabelForHelix and -recycleLabelForHelix maintain a pool
+    of labels (these are the nonnegative integers that appear on them)
+    for slices.
     """
-    def __init__(self, nrows=3, ncolumns=6, type="honeycomb", parent=None, controller=None):
+    helixAdded = pyqtSignal(int)
+    
+    def __init__(self, nrows=3, ncolumns=6, type="honeycomb", \
+                controller=None, scene=None, parent=None):
         super(SliceHelixGroup, self).__init__(parent)
         # data related
         self.sliceController = controller
+        self.scene = scene
         self.oddRecycleBin = []
         self.evenRecycleBin = []
         self.reserveBin = set()
-        self.highestUsedOdd = -1  #Used iff the recycle bin is empty and highestUsedOdd+2 is not in the reserve bin
-        self.highestUsedEven = -2  #same
+        self.highestUsedOdd = -1  # Used iff the recycle bin is empty and highestUsedOdd+2 is not in the reserve bin
+        self.highestUsedEven = -2  # same
 
         # drawing related
         self.radius = styles.SLICE_HELIX_RADIUS
@@ -125,8 +132,12 @@ class SliceHelixGroup(QGraphicsObject):
         return self.rect
 
     def reserveLabelForHelix(self, helix, num=None):
-        """Reserves and returns a unique numerical label appropriate for helix. If a specific index is preferable (say, for undo/redo) it can be requested in num."""
-        if num!=None: #A special request
+        """
+        Reserves and returns a unique numerical label appropriate for helix.
+        If a specific index is preferable (say, for undo/redo) it can be
+        requested in num.
+        """
+        if num!=None: # A special request
             assert num>=0, long(num)==num
             if num in self.oddRecycleBin:
                 self.oddRecycleBin.remove(num)
@@ -136,7 +147,7 @@ class SliceHelixGroup(QGraphicsObject):
                 return num
             self.reserveBin.add(num)
             return num
-        if helix.parity == 1: #We find an arbitrary index (subject to parity constraints) to give the sender
+        if helix.parity == 1: # We find an arbitrary index (subject to parity constraints) to give the sender
             if len(self.oddRecycleBin):
                 return heappop(self.oddRecycleBin)
             else:
@@ -153,11 +164,14 @@ class SliceHelixGroup(QGraphicsObject):
                 self.highestUsedEven+=2
                 return self.highestUsedEven
 
-    def recycleLabelForHelix(self,n,helix):
+    def recycleLabelForHelix(self, n, helix):
         """The caller's contract is to ensure that n is not used in *any* helix at the time of the calling of this function (or afterwards, unless reserveLabelForHelix returns the label again)"""
         if n%2==0:
             heappush(self.evenRecycleBin,n)
         else:
             heappush(self.oddRecycleBin,n)
-
+    
+    def addVirtualHelixtoDnaPart(self, number):
+        """docstring for addVirtualHelixtoDnaPart"""
+        self.helixAdded.emit(number)
 

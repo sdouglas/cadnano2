@@ -25,8 +25,8 @@
 """
 __init__.py
 
-This module holds the data model. Keeping the model in a separate folder should help enforce 
-the separation between model, view, etc.
+This module holds the data model. Keeping the model in a separate folder
+should help enforce the separation between model, view, etc.
 
 """
 

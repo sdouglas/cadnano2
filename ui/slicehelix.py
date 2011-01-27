@@ -67,7 +67,7 @@ class SliceHelix(QGraphicsItem):
         self.beingHoveredOver = False
         self.setAcceptsHoverEvents(True)
         self.setPos(position)
-    
+
     def paint(self, painter, option, widget=None):
         if self.number >= 0:
             painter.setBrush(self.use_brush)
@@ -80,32 +80,40 @@ class SliceHelix(QGraphicsItem):
             #painter.setBrush(self.hov_brush)
             painter.setPen(self.hov_pen)
         painter.drawEllipse(self.rect)
-    
+    # end def
+
     class FocusRingPainter(QGraphicsItem):         
         """Draws a focus ring around helix in parent"""
         def __init__(self,helix,parent):
-            super(SliceHelix.FocusRingPainter,self).__init__()
+            super(SliceHelix.FocusRingPainter, self).__init__()
             self.helix=helix       
             self.setPos(helix.pos())
             parent.addItem(self)
-        def paint(self,painter,option,widget=None):
+            
+        def paint(self, painter, option, widget=None):
             painter.setPen(SliceHelix.hov_pen)
             painter.drawEllipse(self.helix.rect)
+        
         def boundingRect(self):
             return self.helix.rect
+        # end def
+    # end class
 
     def boundingRect(self):
         return self.rect
 
     def hoverEnterEvent(self, event):
-        """hoverEnterEvent changes the SliceHelix brush and pen from default to the hover colors if necessary."""
+        """hoverEnterEvent changes the SliceHelix brush and pen from default
+        to the hover colors if necessary."""
         if self.focusRing == None:
-            self.focusRing = SliceHelix.FocusRingPainter(self,self.parent.scene)
+            self.focusRing = SliceHelix.FocusRingPainter(self, \
+                                                         self.parent.scene)
         self.update(self.rect)
     # end def
 
     def hoverLeaveEvent(self, event):
-        """hoverEnterEvent changes the SliceHelix brush and pen from hover to the default colors if necessary."""
+        """hoverEnterEvent changes the SliceHelix brush and pen from hover
+        to the default colors if necessary."""
         if self.focusRing != None:
             self.focusRing.setParentItem(None)
             self.focusRing = None
@@ -115,27 +123,34 @@ class SliceHelix(QGraphicsItem):
     def mousePressEvent(self, event):
         self.setUsed(not self.number>=0)
         QDrag(self.parent.parentWidget())
-   
-    def dragEnterEvent(self,e):
+
+    def dragEnterEvent(self, e):
         self.setUsed(not self.number>=0)
         e.acceptProposedAction()
         print "dee"
-        
+    # end def
+
     class RenumberCommand(QUndoCommand):
-        def __init__(self,helix,fromNum,toNum):
-            super(SliceHelix.RenumberCommand,self).__init__()
+        def __init__(self, helix, fromNum, toNum):
+            super(SliceHelix.RenumberCommand, self).__init__()
             self.fromNum = fromNum
             self.toNum = toNum
             self.helix=helix
         def redo(self):
-            self.helix.setNumber(self.toNum,pushToUndo=False)
+            self.helix.setNumber(self.toNum, pushToUndo=False)
         def undo(self):
-            self.helix.setNumber(self.fromNum,pushToUndo=False)
-        
+            self.helix.setNumber(self.fromNum, pushToUndo=False)
+    # end class
+
     def setNumber(self,n,pushToUndo=True):
-        """If n!=slice.number the caller should have already reserved n with the parent SliceHelixGroup (get it from self.parent.reserveLabelForHelix). The callee tells the SliceHelixGroup to recycle the old value."""
+        """
+        If n!=slice.number the caller should have already reserved n with
+        the parent SliceHelixGroup (from self.parent.reserveLabelForHelix).
+        The callee tells the SliceHelixGroup to recycle the old value.
+        """
         if pushToUndo:
-            self.parent.sliceController.mainWindow.undoStack.push(SliceHelix.RenumberCommand(self,self.number,n))
+            self.parent.sliceController.mainWindow.undoStack.push(\
+                        SliceHelix.RenumberCommand(self, self.number, n))
         self.update(self.rect)
         if n!=self.number and self.number>=0:
             self.parent.recycleLabelForHelix(self.number,self)
@@ -154,11 +169,19 @@ class SliceHelix(QGraphicsItem):
         else:
             self.label.setX(self.radius/2)
         self.label.setY(self.radius/2)
-     
+    # end def
+
     def setUsed(self,u):
         if (self.number>=0) == u:
-            return
-        if self.number < 0: #Use
+            # self.parent.addBasesToDnaPart(self.number)
+            pass
+        if self.number < 0: # Use
             self.setNumber(self.parent.reserveLabelForHelix(self))
-        else: #Unuse
-            self.setNumber(-1)
+            self.parent.addVirtualHelixtoDnaPart(self.number)
+            # self.parent.addBasesToDnaPart(self.number)
+        else:  # Unuse
+            # self.setNumber(-1)
+            pass
+    # end def
+# end class
+

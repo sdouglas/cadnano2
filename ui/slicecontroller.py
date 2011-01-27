@@ -27,18 +27,15 @@ from PyQt4.QtGui import *
 
 
 class SliceController():
-    """Manages interactions between the slice widgets/UI and the slice model"""
-
+    """
+    Manages interactions between the slice widgets/UI and the model.
+    """
     # We store mainWindow because a controller's got to have
     # references to both the layer above (UI) and the layer below (model)
     def __init__(self, win):
         self.mainWindow = win
-        win.connect(win.actionSliceSelect,\
-                    SIGNAL("triggered()"),\
-                    self.chooseSelectTool)
-        win.connect(win.actionSliceMove,\
-                    SIGNAL("triggered()"),\
-                    self.chooseMoveTool)
+        win.actionSliceSelect.triggered.connect(self.chooseSelectTool)
+        win.actionSliceMove.triggered.connect(self.chooseMoveTool)
         self.toolset = set((win.actionSliceSelect, win.actionSliceMove))
         ag = QActionGroup(win)
         for a in self.toolset:
