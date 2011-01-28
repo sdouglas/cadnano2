@@ -26,10 +26,8 @@ from PyQt4.QtGui import *
 from PyQt4.QtCore import SIGNAL, QString
 from documentwindow import DocumentWindow
 from slicehelixgroup import SliceHelixGroup
-from ui.partnode import PartNode
-from ui.assemblynode import AssemblyNode
 from idbank import IdBank
-from treemodel import TreeModel
+from treecontroller import TreeController
 
 class DocumentController():
     """
@@ -50,44 +48,15 @@ class DocumentController():
         self.win = DocumentWindow(doc=self)
         self.win.show()
         
-        self.setupTreeview()
-
+        # self.setupTreeview()
+        self.treeController = TreeController(self.win.treeview)
 
         self.createConnections()
     # end def
     
-    def setupTreeview(self):
-        """"""
-        headers = ["item","hide","lock"]
-        self.treemodel = TreeModel(self.win.treeview)
-        self.treemodel.headers = headers
-        self.win.treeview.setDragDropMode(QAbstractItemView.InternalMove)
-        #self.win.treeview.setItemDelegateForColumn(0, QString())
-        self.win.treeview.setAllColumnsShowFocus(True)
-        self.win.treeview.setModel(self.treemodel)
-        index = self.win.treeview.currentIndex()
-        nodeparent = self.treemodel.nodeFromIndex(index)
-        print nodeparent.name
-        node = AssemblyNode("", 0, 1,None, nodeparent)
-        if self.treemodel.insertRow(0, index,node):
-            # set index to the inserted child
-            index = self.treemodel.index(0, 0, index)
-            self.win.setCurrentIndex(index)
-            #self.win.treeview.edit(index)
-            self.setDirty(True)
-            self.treemodel.reset()
-    # end def
     def createConnections(self):
         """
         """
-        # QItemSelectionModel.currentChange emits the previous and current selected QModelIndex, but we don't use those values
-        #self.win.treeview.selectionModel().currentChanged.connect(self.updateUi)
-        #self.win.treeview.activated.connect()
-        # 
-        # 
-        #self.treemodel.dataChanged.connect(self.setDirty_ind)
-        #self.treemodel.rowsRemoved.connect(self.setDirty)
-        #self.treemodel.modelReset.connect(self.setDirty)
         
         self.win.actionNewHoneycombPart.triggered.connect(self.honeycombClicked)
         self.win.actionNewSquarePart.triggered.connect(self.squareClicked)
@@ -207,36 +176,10 @@ class DocumentController():
         self.shg = shg
         # phg = PathHelixGroup("honeycomb")
         # connect(shg.addHelix, SIGNAL("triggered()"), phg.addHelix)
+
+        self.treeController.addPartNode()
         
-        index = self.win.treeview.currentIndex()
-        nodeparent = self.treemodel.nodeFromIndex(index)
-        if nodeparent.ntype == AssemblyNode.ntype:
-            print nodeparent.name
-            node = PartNode("", 0, 1,None, nodeparent)
-            if self.treemodel.insertRow(0, index,node):
-                # set index to the inserted child
-                index = self.treemodel.index(0, 0, index)
-                self.win.setCurrentIndex(index)
-                #self.win.treeview.edit(index)
-                self.setDirty(True)
-                #self.treemodel.reset()
-                #self.updateUi()
-            # end if
-        # end if
     # end def
-
-
-    def addClicked(self):
-        index = self.win.treeview.currentIndex()
-        if self.treemodel.insertRow(0, index):
-            index = self.treemodel.index(0, 0, index)
-            self.setCurrentIndex(index)
-            self.win.treeview.edit(index)
-            self.setDirty(True)
-            #self.updateUi()
-        #end if
-    # end def
-
 
     def deleteClicked(self):
         index = self.win.treeview.currentIndex()
@@ -346,51 +289,43 @@ class DocumentController():
 
 
     def cutClicked(self):
-        index = self.win.treeview.currentIndex()
-        self.win.setCurrentIndex(self.treemodel.cut(index))
-        self.win.actionPaste.setEnabled(self.treemodel.hasCutItem())
+        """"""
+        self.win.actionPaste.setEnabled(self.treeController.cut())
     # end def
 
 
     def pasteClicked(self):
-        index = self.win.treeview.currentIndex()
-        self.win.setCurrentIndex(self.treemodel.paste(index))
+        """"""
+        self.treeController.paste()
     # end def
 
 
     def moveUpClicked(self):
-        index = self.win.treeview.currentIndex()
-        self.win.setCurrentIndex(self.treemodel.moveUp(index))
+        """"""
+        self.treeController.moveUp()
     # end def
 
 
     def moveDownClicked(self):
-        index = self.win.treeview.currentIndex()
-        self.win.setCurrentIndex(self.treemodel.moveDown(index))
+        """"""
+        self.treeController.moveDown()
     # end def
 
 
     def promoteClicked(self):
-        index = self.win.treeview.currentIndex()
-        self.win.setCurrentIndex(self.treemodel.promote(index))
+        """"""
+        self.treeController.promote()
     #end def
 
 
     def demoteClicked(self):
-        index = self.win.treeview.currentIndex()
-        self.win.setCurrentIndex(self.treemodel.demote(index))
+        """"""
+        self.treeController.demote()
     #end def
 
 
     def hideOrShowNode(self,hide, index):
         """"""
-        hideThisOne = hide #and self.treemodel.isChecked(index)
-        if index.isValid():
-            self.win.treeview.setRowHidden(index.row(), index.parent(), hideThisOne)
-        # end if
-        if not hideThisOne:
-            for row in range(self.treemodel.rowCount(index)):
-                self.hideOrShowNode(hide, self.treemodel.index(row, 0, index))
-            # end for
-        # end if
+        self.treeController.hideOrShowNode()
+    # end def
 # end class

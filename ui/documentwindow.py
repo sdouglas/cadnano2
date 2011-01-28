@@ -53,9 +53,6 @@ class DocumentWindow(QMainWindow, ui_mainwindow.Ui_MainWindow):
         self.pathscene = QGraphicsScene()
         self.pathGraphicsView.setScene(self.pathscene)
         self.pathController = pathcontroller.PathController(self)
-        # treeview setup
-        self.treeview.setSelectionBehavior(QTreeView.SelectItems)
-        self.treeview.setUniformRowHeights(True)
         # Edit menu setup
         self.undoStack = doc.undoStack
         self.editMenu = self.menuBar().addMenu("Edit")
@@ -64,10 +61,4 @@ class DocumentWindow(QMainWindow, ui_mainwindow.Ui_MainWindow):
         self.editMenu.addAction(self.undoAction)
         self.editMenu.addAction(self.redoAction)
     # end def
-
-    def setCurrentIndex(self,index):
-        if index.isValid():
-            self.treeview.scrollTo(index)
-            self.treeview.setCurrentIndex(index)
-        # end if
-    # end def
+# end class

@@ -41,6 +41,9 @@ from ui.documentcontroller import DocumentController
 def main():
     app = QApplication(sys.argv)
     doc = DocumentController()
+    app.setWindowIcon(QIcon('ui/images/part-new-honeycomb.png'))
+    doc.win.setWindowIcon(QIcon('ui/images/part-new-honeycomb.png'))
+    app.setApplicationName (QString("caDNAno"))
     app.exec_()
 
 if __name__ == '__main__':

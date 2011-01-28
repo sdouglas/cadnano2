@@ -247,38 +247,19 @@ class TreeModel(QAbstractItemModel):
         node = self.nodeFromIndex(index)
         if node is None:
             return QModelIndex()
+        # end if
         parentnode = node.parent
         if parentnode is None:
             return QModelIndex()
+        # end if
         grandparentnode = parentnode.parent
         if grandparentnode is None:
             return QModelIndex()
+        # end if
         row = grandparentnode.rowOfChild(parentnode)
         assert row != -1
         return self.createIndex(row, 0, parentnode)    
     # end def
-    
-    # def parent(self, index):
-    #     """"""
-    #     if index.isValid():
-    #         return QModelIndex()
-    #     # end if
-    #     node = self.nodeFromIndex(index)
-    #     if node:
-    #         parentnode = node.parent
-    #         if parentnode:
-    #             if parentnode == self.root:
-    #                 return QModelIndex()
-    #             # end if
-    #             grandparentnode = parentnode.parent
-    #             if grandparentnode:
-    #                 row = grandparentnode.rowOfChild(parentnode)
-    #                 return self.createIndex(row,0,parentnode)
-    #             # end if
-    #         # end if
-    #     # end if
-    #     return QModelIndex()
-    # # end def
     
     def headerData(self, section, orientation, role):
         """QAbstractItemModel required"""
@@ -313,22 +294,25 @@ class TreeModel(QAbstractItemModel):
 
     def setData(self, index, value, role):
         """QAbstractItemModel required"""
-        print "setting data...."
+        #print "setting data...."
         if not index.isValid() or index.column() != NAME:
             return False
         # end if
         node = self.nodeFromIndex(index)
-        print "setting %s" % node.name
+        #print "setting %s" % node.name
         if node != None:
             if role == Qt.EditRole:
-                node.name = value.toString()
-                print "new name: %s" % node.name
+                temp = value.toString()
+                if temp != "":
+                    node.name = value.toString()
+                # end if
+                # print "new name: %s" % node.name
             # end if
             # elif role == Qt.CheckStateRole:
             #     node.setDone(value.toBool())
             # # end elif
             else:
-                print "not an edit role"
+                #print "not an edit role"
                 return False
             # end else
             print "setdata: Data Changed!"
