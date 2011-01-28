@@ -38,22 +38,17 @@ class DocumentController():
     submodel, etc) UI elements to their corresponding actions in the model
     """
     def __init__(self):
-<<<<<<< HEAD
-        from data.assembly import AssemblyNode
-        from data.part import PartNode
-        from treemodel import TreeModel
-        from idbank import IdBank
         self.doc = Document()
         self.idbank = IdBank()
         self.undoStack = QUndoStack()
         self.win = DocumentWindow(doc=self)
         self.win.show()
     
-         self.treeController = TreeController(self.win.treeview)
+        self.treeController = TreeController(self.win.treeview)
         self.createConnections()
     # end def
 
-    def createConnections():
+    def createConnections(self):
         """
         Organizational method to collect signal/slot connectors.
         """
@@ -164,19 +159,19 @@ class DocumentController():
     def addHoneycombHelixGroup(self, nrows=20, ncolumns=20):
         """docstring for addHoneycombHelixGroup"""
         # Create a new DNA part
-        partInst = self.doc.addDnaPart()
+        #partInst = self.doc.addDnaPart()
 
         # Add the part to the Tree view
         # self.addPartToTree(partInst)
 
         # Create a Slice view of part
-        shg = SliceHelixGroup(partInst, nrows, ncolumns, "honeycomb",\
+        shg = SliceHelixGroup(nrows, ncolumns, "honeycomb",\
                               scene=self.win.slicescene,\
                               controller=self.win.sliceController)
         self.win.slicescene.addItem(shg)
 
         # Create a Path view of the part
-        phg = PathHelixGroup(partInst, "honeycomb",\
+        phg = PathHelixGroup("honeycomb",\
                              scene=self.win.pathscene,\
                              controller=self.win.pathController)
         self.win.pathscene.addItem(phg)

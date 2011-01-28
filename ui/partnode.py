@@ -43,15 +43,15 @@ class PartNode(Node):
         self.children = []
         
         if name == "":
-            self.name = "Prt.%d.%d" % (obj_id,inst_id)
-            print "adding Part"
+            self.name = "Part.%d.%d" % (obj_id,inst_id)
+            #print "adding Part"
         # end if
         else:
             self.name = name
         # end else
         
         if self.parent != None:
-            print "added Part!"
+            #print "added Part!"
             self.parent.addChild(self)
         #end if
         

@@ -44,15 +44,15 @@ class AssemblyNode(Node):
         self.children = []
         
         if name == "":
-            self.name = "Asm.%d.%d" % (obj_id,inst_id)
-            print "adding Asm"
+            self.name = "Assembly.%d.%d" % (obj_id,inst_id)
+            #print "adding Asm"
         #end if
         else:
             self.name = name
         # end else
         
         if self.parent != None:
-            print "added Asm!"
+            #print "added Asm!"
             self.parent.addChild(self)
         #end if
         
