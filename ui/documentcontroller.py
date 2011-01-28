@@ -40,19 +40,15 @@ class DocumentController():
         from data.part import PartNode
         from treemodel import TreeModel
         from idbank import IdBank
-
         self.doc = Document()
-
         self.idbank = IdBank()
         self.undoStack = QUndoStack()
         self.win = DocumentWindow(doc=self)
         self.win.show()
-
         self.treemodel = TreeModel()
         self.win.treeview.setDragDropMode(QAbstractItemView.InternalMove)
         self.win.treeview.setAllColumnsShowFocus(True)
         self.win.treeview.setModel(self.treemodel)
-
         self.createConnections()
     # end def
 
@@ -169,7 +165,6 @@ class DocumentController():
 
         # Connect the slice
         shg.helixAdded.connect(phg.handleNewHelix)
-        # connect(shg.addHelix, SIGNAL("triggered()"), phg.addHelix)
 
         # index = self.win.treeview.currentIndex()
         # if self.treemodel.insertRow(0, index):

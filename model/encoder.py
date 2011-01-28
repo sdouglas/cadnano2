@@ -35,11 +35,13 @@ encoder.py
 """
 import json
 
+
 class Encoder(json.JSONEncoder):
-    def default(self,obj):
-        if hasattr(obj,"simpleRep"):
+    def default(self, obj):
+        if hasattr(obj, "simpleRep"):
             return obj.simpleRep()
-        return json.JSONEncoder.default(self,obj)
+        return json.JSONEncoder.default(self, obj)
+
 
 def encode(root):
-    return json.dumps(root,cls=Encoder)
+    return json.dumps(root, cls=Encoder)

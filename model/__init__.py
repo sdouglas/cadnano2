@@ -29,4 +29,3 @@ This module holds the data model. Keeping the model in a separate folder
 should help enforce the separation between model, view, etc.
 
 """
-

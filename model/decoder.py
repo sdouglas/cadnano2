@@ -29,14 +29,17 @@ Created by Jonathan deWerd on 2011-01-26.
 import json
 from .dnapart import DNAPart
 from .document import Document
+
 classNameToClassMap = {}
 classNameToClassMap['DNAPart'] = DNAPart
 classNameToClassMap['CADNanoDocument'] = Document
+
 
 def decodeObj(dct):
     if '.class' in dct:
         return classNameToClassMap[dct['.class']].fromSimpleRep(dct)
     return dct
+
 
 def decode(str):
     return json.loads(str, object_hook=decodeObj)

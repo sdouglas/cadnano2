@@ -27,7 +27,17 @@ partinstance
 Created by Jonathan deWerd on 2011-01-26.
 """
 
+
 class PartInstance(object):
     """Represents an instantiation of a part on the canvas"""
-    def __init__(self,part):
-        self.part = part
+    def __init__(self, part, id):
+        self._part = part
+        self._id = id
+
+    def part(self):
+        """docstring for part"""
+        return self._part
+
+    def id(self):
+        """docstring for id"""
+        return self._id

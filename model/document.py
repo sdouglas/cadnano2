@@ -24,38 +24,41 @@
 
 """
 document.py
-
+Created by Jonathan deWerd on 2011-01-26.
 """
 
 import json
 from .dnapart import DNAPart
 from .partinstance import PartInstance
 
+
 class Document:
     def __init__(self):
         self._parts = []
         self._partInstances = []
+
     def simpleRep(self):
         """Returns a representation in terms of simple JSON-encodable types
         or types that implement simpleRep"""
-        ret = {".class":"CADNanoDocument"}
+        ret = {".class": "CADNanoDocument"}
         ret["parts"] = self._parts
         ret["partInstances"] = self._partInstances
         return ret
+
     @classmethod
-    def fromSimpleRep(cls,dct):
+    def fromSimpleRep(cls, dct):
         ret = Document()
         ret._parts = dct['parts']
         ret._partInstances = dct['partInstances']
         return ret
 
-    def addDnaPart(self):
+    def addDnaPart(self, partid, instid):
         """
         Create and store a new DNAPart and instance, and return the instance.
         """
-        part = DNAPart()
+        part = DNAPart(partid)
         self._parts.append(part)
-        inst = PartInstance(part)
+        inst = PartInstance(part, instid)
         self._partInstances.append(inst)
+        print "Document.addDnaPart"
         return inst
-

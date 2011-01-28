@@ -28,27 +28,29 @@ DNAPart.py
 import json
 from .part import Part
 
+
 class DNAPart(Part):
-    def __init__(self,*args,**kwargs):
-        super(DNAPart,self).__init__(self,*args,**kwargs)
-        #The instance variables are private for a reason: accessors are important in a model!
+    def __init__(self, *args, **kwargs):
+        super(DNAPart, self).__init__(self, *args, **kwargs)
         self._virtualHelices = []
-        self._name = kwargs.get('name','untitled')
+        self._name = kwargs.get('name', 'untitled')
         self._staples = []
         self._scaffolds = []
+
     def simpleRep(self):
         """
         Provides a representation of the receiver in terms of simple
         (container,atomic) classes and other objects implementing simpleRep
         """
-        ret = {'.class':"DNAPart"}
+        ret = {'.class': "DNAPart"}
         ret["virtualHelices"] = self._virtualHelices
         ret["name"] = self._name
         ret["staples"] = self._staples
         ret["scaffolds"] = self._scaffolds
         return ret
+
     @classmethod
-    def fromSimpleRep(cls,rep):
+    def fromSimpleRep(cls, rep):
         ret = DNAPart()
         ret._virtualHelices = rep['virtualHelices']
         ret._name = rep['name']
