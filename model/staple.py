@@ -38,5 +38,3 @@ class Staple(object):
         representation rep"""
         raise NotImplementedError
 
-
-

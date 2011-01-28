@@ -24,6 +24,7 @@
 
 from PyQt4.QtGui import *
 from PyQt4.QtCore import SIGNAL
+from model.document import Document
 from documentwindow import DocumentWindow
 from slicehelixgroup import SliceHelixGroup
 from pathhelixgroup import PathHelixGroup
@@ -39,12 +40,9 @@ class DocumentController():
         from treemodel import TreeModel
         from idbank import IdBank
 
-        #for example: self.parts[object_id] = Part()
-        self.parts = {}
-        #for example: self.assemblies[object_id] = Assembly()
-        self.assemblies = {}
+        self.doc = Document()
 
-        self.idbank = IdBank()                
+        self.idbank = IdBank()
         self.undoStack = QUndoStack()
         self.win = DocumentWindow(doc=self)
         self.win.show()
@@ -53,7 +51,18 @@ class DocumentController():
         self.win.treeview.setDragDropMode(QAbstractItemView.InternalMove)
         self.win.treeview.setAllColumnsShowFocus(True)
         self.win.treeview.setModel(self.treemodel)
+        
+        self.createConnections()
+    # end def
 
+    def createConnections():
+        """
+        Organizational method to collect signal/slot connectors.
+        """
+        # self.treeview.selectionModel().currentChange.connect(self.updateUi)
+        # self.treemodel.dataChanged.connect(self.win.setWindowModified)
+        # self.treemodel.rowsRemoved.connect(self.win.setWindowModified)
+        # self.treemodel.modelReset.connect(self.win.setWindowModified)
         self.win.actionNewHoneycombPart.triggered.connect(self.honeycombClicked)
         self.win.actionNewSquarePart.triggered.connect(self.squareClicked)
         self.win.actionNew.triggered.connect(self.newClicked)
@@ -61,38 +70,6 @@ class DocumentController():
         self.win.actionClose.triggered.connect(self.closeClicked)
         self.win.actionSave.triggered.connect(self.saveClicked)
         self.win.actionSVG.triggered.connect(self.svgClicked)
-    # end def
-
-    def createConnections():
-        """
-        """
-        #self.win.connect(self.treeview.selectionModel(), SIGNAL("currentChange()"), self.win, SLOT(updateUi))
-        # QItemSelectionModel.currentChange emits the previous and current selected QModelIndex, but we don't use those values
-        self.treeview.selectionModel().currentChange.connect(self.updateUi)
-
-        self.treemodel.dataChanged.connect(self.win.setWindowModified)
-        self.treemodel.rowsRemoved.connect(self.win.setWindowModified)
-        self.treemodel.modelReset.connect(self.win.setWindowModified)
-
-        slotForAction = {}
-
-        slotForAction[actionNew] = self.newClicked
-        slotForAction[actionOpen] = self.openClicked
-        slotForAction[actionSave] = self.SaveClicked
-        slotForAction[actionSave_As] = self.saveAsClicked
-        slotForAction[actionQuit] = self.closeClicked
-        slotForAction[actionAdd] = self.addClicked
-        slotForAction[actionDelete] = self.deleteClicked
-        slotForAction[actionCut] = self.cutClicked
-        slotForAction[actionPaste] = self.pasteClicked
-        slotForAction[actionMoveUp] = self.moveUpClicked
-        slotForAction[actionMoveDown] = self.moveDownClicked
-        slotForAction[actionPromote] = self.promoteClicked
-        slotForAction[actionDemote] = self.demoteClicked
-        
-        for key in slotForAction:
-            key.triggered.connect(slotForAction[key])
-        # end for
     # end def
 
 
@@ -179,15 +156,25 @@ class DocumentController():
 
     def addHoneycombHelixGroup(self, nrows=20, ncolumns=20):
         """docstring for addHoneycombHelixGroup"""
-        shg = SliceHelixGroup(nrows, ncolumns, "honeycomb",\
+        # Create a new DNA part
+        partInst = self.doc.addDnaPart()
+        
+        # Add the part to the Tree view
+        # self.addPartToTree(partInst)
+        
+        # Create a Slice view of part
+        shg = SliceHelixGroup(partInst, nrows, ncolumns, "honeycomb",\
                               scene=self.win.slicescene,\
                               controller=self.win.sliceController)
         self.win.slicescene.addItem(shg)
-        phg = PathHelixGroup("honeycomb",\
+        
+        # Create a Path view of the part
+        phg = PathHelixGroup(partInst, "honeycomb",\
                              scene=self.win.pathscene,\
                              controller=self.win.pathController)
         self.win.pathscene.addItem(phg)
         
+        # Connect the slice 
         shg.helixAdded.connect(phg.handleNewHelix)
         # connect(shg.addHelix, SIGNAL("triggered()"), phg.addHelix)
         

@@ -29,11 +29,12 @@ document.py
 
 import json
 from .dnapart import DNAPart
+from .partinstance import PartInstance
 
 class Document:
     def __init__(self):
-        self._parts=[DNAPart()]
-        self._partInstances=[]
+        self._parts = []
+        self._partInstances = []
     def simpleRep(self):
         """Returns a representation in terms of simple JSON-encodable types
         or types that implement simpleRep"""
@@ -47,3 +48,14 @@ class Document:
         ret._parts = dct['parts']
         ret._partInstances = dct['partInstances']
         return ret
+
+    def addDnaPart(self):
+        """
+        Create and store a new DNAPart and instance, and return the instance.
+        """
+        part = DNAPart()
+        self._parts.append(part)
+        inst = PartInstance(part)
+        self._partInstances.append(inst)
+        return inst
+

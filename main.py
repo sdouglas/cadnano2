@@ -40,11 +40,11 @@ from ui.documentcontroller import DocumentController
 
 def main():
     app = QApplication(sys.argv)
-    doc = DocumentController()
+    dc = DocumentController()
     app.exec_()
 
 if __name__ == '__main__':
     main()
 else:  # Otherwise drop back to prompt in the interactive interpreter
     app = QApplication(sys.argv)
-    doc = DocumentController()
+    dc = DocumentController()

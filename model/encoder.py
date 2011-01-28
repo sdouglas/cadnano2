@@ -30,9 +30,6 @@
 #dd=decode(s)
 #s==encode(dd)
 
-
-
-
 """
 encoder.py
 """
