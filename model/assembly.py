@@ -30,32 +30,6 @@ Created by Nick Conway on 2011-01-19.
 
 from collections import defaultdict
 from idbank import IdBank
-from ui.treemodel import Node
-#from part import Part
-
-class AssemblyNode(Node):
-    """
-    """
-    ntype = "assembly" # the type of node i.e. Assembly, Part, etc
-    
-    def __init__(self, name, obj_id, inst_id, parent=None):
-        """
-        """
-        
-        super(Node,self).__init__()  
-        self.parent = parent
-        self.children = [] 
-        if self.parent:
-            self.parent.addChild(self)
-        if not name:
-            self.name = "Asm%d.%d" % (obj_id,inst_id)
-        else:
-            self.name = name
-        self.object_id = obj_id
-        self.instance_id = inst_id
-    # end def
-        
-# end class
 
 class Assembly(object):
     """

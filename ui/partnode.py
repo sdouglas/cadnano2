@@ -1,6 +1,3 @@
-#!/usr/bin/env python
-# encoding: utf-8
-
 # The MIT License
 #
 # Copyright (c) 2011 Wyss Institute at Harvard University
@@ -26,29 +23,40 @@
 # http://www.opensource.org/licenses/mit-license.php
 
 """
-main.py
+partnode.py
 
-Created by Shawn Douglas on 2010-09-26.
+Created by Nick Conway on 2011-01-19.
 """
 
-import sys
-import math
+from ui.treemodel import Node
 
-from PyQt4.QtCore import *
-from PyQt4.QtGui import *
-from ui.documentcontroller import DocumentController
-
-def main():
-    app = QApplication(sys.argv)
-    dc = DocumentController()
-    app.setWindowIcon(QIcon('ui/images/part-new-honeycomb.png'))
-    dc.win.setWindowIcon(QIcon('ui/images/part-new-honeycomb.png'))
-    app.setApplicationName (QString("caDNAno"))
-    app.exec_()
-# end def
-
-if __name__ == '__main__':
-    main()
-else:  # Otherwise drop back to prompt in the interactive interpreter
-    app = QApplication(sys.argv)
-    dc = DocumentController()
+class PartNode(Node):
+    """
+    """
+    ntype = "part" # the type of node i.e. Assembly, Part, etc
+    
+    def __init__(self, name="", obj_id=0, inst_id=0,node_attribute=None, parent=None):
+        """
+        """
+        super(PartNode,self).__init__(parent)    
+        self.parent = parent
+        self.children = []
+        
+        if name == "":
+            self.name = "Prt.%d.%d" % (obj_id,inst_id)
+            print "adding Part"
+        # end if
+        else:
+            self.name = name
+        # end else
+        
+        if self.parent != None:
+            print "added Part!"
+            self.parent.addChild(self)
+        #end if
+        
+        self.object_id = obj_id
+        self.instance_id = inst_id
+    # end def
+        
+# end class

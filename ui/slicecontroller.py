@@ -34,8 +34,10 @@ class SliceController():
     # references to both the layer above (UI) and the layer below (model)
     def __init__(self, win):
         self.mainWindow = win
+
         win.actionSliceSelect.triggered.connect(self.chooseSelectTool)
         win.actionSliceMove.triggered.connect(self.chooseMoveTool)
+
         self.toolset = set((win.actionSliceSelect, win.actionSliceMove))
         ag = QActionGroup(win)
         for a in self.toolset:

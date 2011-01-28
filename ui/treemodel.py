@@ -23,23 +23,24 @@
 # http://www.opensource.org/licenses/mit-license.php
 
 import bisect
-from PyQt4.QtCore import QAbstractItemModel, QModelIndex, Qt, QByteArray, QString, QStringList
+from PyQt4.QtCore import QAbstractItemModel, QModelIndex, Qt, QByteArray, QString, QStringList, QVariant
 from PyQt4.QtCore import QXmlStreamReader, QXmlStreamWriter
 
 
 NODETAG = "node"
-NAME = "name"
+NAMETAG = "NAMETAG"
 OBJ_ID = "objectid"
 INST_ID = "instanceid"
 
 KEY, NODE = range(2)
 
+NAME,HIDDEN,LOCKED = range(3)
+
 class Node(object):
     """
     """
-    ntype="extra" # the type of node i.e. Assembly, Part, etc
-    
-    def __init__(self, name, obj_id, inst_id, parent=None):
+    ntype =""
+    def __init__(self, name="", obj_id=0, inst_id=0,node_attribute=None, parent=None):
         """
         We could do this one of two ways, straight add children, or,
         keep children sorted when they get added.  Keeping them sorted
@@ -49,12 +50,15 @@ class Node(object):
         self.parent = parent
         self.children = []
         
-        if self.parent:
-            self.parent.addChild(self)
-        
         self.name = name
+                
+        if self.parent != None:
+            self.parent.addChild(self)
+        #end if
+        
         self.object_id = obj_id
         self.instance_id = inst_id
+        self.node_attr = node_attribute
     # end def
     
     def orderKey(self):
@@ -125,18 +129,18 @@ class Node(object):
     #     """
     #     """
     #     child.parent = self
-    #     self.children.insert(row, child)
+    #     self.children.insert(row, ('a', child))
     # # end def
 
-    def addChild(child):
+    def addChild(self,child):
         """
         """
-        insertChild(self, child)
+        self.insertChild(child)
         # child.parent = self
         # self.children.append(child.child)
     # end def
     
-    def swapChildren(oldRow, newRow):
+    def swapChildren(self,oldRow, newRow):
         """
         This is used assuming that order doesn't matter
         """
@@ -155,9 +159,10 @@ class Node(object):
     def hasKids(self):
         """
         """
-        if not self.children:
+        if len(self.children) == 0:
             return False
         # end if
+        #print "am I a child node?"
         return isinstance(self.children[0][NODE], Node)
     # end def
 
@@ -166,47 +171,57 @@ class Node(object):
 class TreeModel(QAbstractItemModel):
     """
     """
-    def __init__(self):
+    def __init__(self,parent=None):
         """
         """
-        super(QAbstractItemModel,self).__init__()    
-        self.columns = 0
+        super(QAbstractItemModel,self).__init__(parent)    
         self.headers = []
-        self.root = Node("", 0, 0, None)
+        self.root = Node()
         self.cutNode = 0
         self.maxCompression  = 9
         self.mime_type = QString("application/cadnano.xml.node.z") 
+        
+        # must set this in order for anything to work!
         self.COLUMNCOUNT = 3
+        self.columns = self.COLUMNCOUNT
+        
         self.filename = ""
     # end def
 
     def flags(self, index):
         """QAbstractItemModel required"""
-        theFlags = QAbstractItemModel.flags(index)
+        theFlags = QAbstractItemModel.flags(self,index)
         if index.isValid():
-            theFlags |= Qt.ItemIsSelectable | \
-             Qt.ItemIsEnabled | Qt.ItemIsDragEnabled | Qt.ItemIsDropEnabled
+            theFlags |= Qt.ItemIsSelectable | Qt.ItemIsEnabled 
+        if index.column() == NAME:
+            theFlags |= Qt.ItemIsEditable | Qt.ItemIsDragEnabled | Qt.ItemIsDropEnabled
         # end if
         return theFlags
             
     # end def
 
-    def rowCount(self, parent):
+    def rowCount(self, parentindex=None):
         """
         QAbstractItemModel required
-        parent: QModelIndex
+        parentindex: QModelIndex
         """
-        node = self.nodeFromIndex(parent)
-        if node is None or not node.hasKids():
+        
+        try:
+            node = self.nodeFromIndex(parentindex)
+            if node is None or not node.hasKids():
+                return 0
+            # end if
+            return len(node)
+        except:
             return 0
-        # end if
-        return len(node)
+    # end def
 
     def columnCount(self, parent):
         """
         QAbstractItemModel required
         """
         return self.columns
+    # end def
     
     def nodeFromIndex(self, index):
         """
@@ -217,109 +232,141 @@ class TreeModel(QAbstractItemModel):
              return self.root
     # end def
     
-    def index(self, row, column, parent):
+    def index(self, row, column, parentindex):
         """QAbstractItemModel required"""
         assert self.root
-        node = self.nodeFromIndex(parent)
+        node = self.nodeFromIndex(parentindex)
         assert node is not None
         return self.createIndex(row, column, node.childAtRow(row))
     
     # end def
 
     def parent(self, index):
-        node = self.nodeFromIndex(child)
+        """"""
+        node = self.nodeFromIndex(index)
         if node is None:
             return QModelIndex()
-        parent = node.parent
-        if parent is None:
+        # end if
+        parentnode = node.parent
+        if parentnode is None:
             return QModelIndex()
-        grandparent = parent.parent
-        if grandparent is None:
+        # end if
+        grandparentnode = parentnode.parent
+        if grandparentnode is None:
             return QModelIndex()
-        row = grandparent.rowOfChild(parent)
+        # end if
+        row = grandparentnode.rowOfChild(parentnode)
         assert row != -1
-        return self.createIndex(row, 0, parent)    
+        return self.createIndex(row, 0, parentnode)    
     # end def
-
+    
     def headerData(self, section, orientation, role):
         """QAbstractItemModel required"""
-        if orientation == Qt.Horizontal and \
-           role == Qt.DisplayRole:
+        if orientation == Qt.Horizontal and role == Qt.DisplayRole:
             assert 0 <= section <= len(self.headers)
+            #print "header confirmed"
             return QVariant(self.headers[section])
         return QVariant()
     # end def
 
     def data(self, index, role):
         """QAbstractItemModel required"""
-        if not self.root or not index.isValid() or \
-            index.column() < 0 or index.column() >= self.COLUMNCOUNT:
+        # if role == Qt.DecorationRole:
+        #     node = self.nodeFromIndex(index)
+        #     if node is None:
+        #         return QVariant()
+        #     else:
+        #         return QVariant(node.toString())
+        if role == Qt.TextAlignmentRole:
+            return QVariant(int(Qt.AlignTop|Qt.AlignLeft))
+        if role != Qt.DisplayRole:
             return QVariant()
-        # end if
         node = self.nodeFromIndex(index)
         assert node is not None
-        if node:
-            if role == Qt.DisplayRole or role == Qt.EditRole:
-                if index.column() == NAME:
-                    return QVariant(node.name)
-                else:
-                    return QVariant(QString(""))
-                # end if
-            # end if
-            if role == Qt.CheckStateRole and index.column() == NAME:
-                return QVariant(int(Qt.Checked if item.isDone() else Qt.Unchecked))
-            # end if
-            if role == Qt.TextAlignmentRole:
-                return QVariant(int(Qt.AlignTop|Qt.AlignLeft))
-            # end if
-            if (role == Qt.DecorationRole) and (index.column() == True):
-                pass
-            # end if
-        # end if
-        return QVariant()   # Default return
+        if index.column() == NAME:
+            #print "yes!"
+            return QVariant(node.toString())
+        else:
+            #print "no!"
+            QVariant(QString("poo"))
     # end def
 
     def setData(self, index, value, role):
         """QAbstractItemModel required"""
+        #print "setting data...."
         if not index.isValid() or index.column() != NAME:
             return False
         # end if
         node = self.nodeFromIndex(index)
-        if node:
+        #print "setting %s" % node.name
+        if node != None:
             if role == Qt.EditRole:
-                node.name = value.toString()
+                temp = value.toString()
+                if temp != "":
+                    node.name = value.toString()
+                # end if
+                # print "new name: %s" % node.name
             # end if
-            elif role == Qt.CheckStateRole:
-                node.setDone(value.toBool())
-            # end elif
+            # elif role == Qt.CheckStateRole:
+            #     node.setDone(value.toBool())
+            # # end elif
             else:
+                #print "not an edit role"
                 return False
             # end else
+            print "setdata: Data Changed!"
             self.dataChanged.emit(index,index)
-            return true
+            return True
         # end if
         return False
     # end def
-                
-    def insertRows(self, row, count, parent):
+
+    def insertRow(self, row, parentindex,node=None):
+        """"""
+        if parentindex.isValid():
+            parentnode = self.nodeFromIndex(parentindex)
+        # end if
+        else:
+            return False
+        # end else
+        self.beginInsertRows(parentindex,row, row)
+        # TODO Fix this !!!!!
+        if node == None:
+            return False
+        # end if
+        print "inserted %s" % node.name
+        if node.parent == None:
+            #parentnode.insertChild(row,node)
+            parentnode.insertChild(node)
+        # end if
+        self.endInsertRows()
+        return True
+    # end def
+
+    def insertRows(self, row, count, parentindex,node=None):
         """
         Need to understand insertRows better
         the type of node going in must be obvious
         """
-        if not self.root:   # if there is no root node, we must create one
-            self.root = Node("", 0,0, None)
+        print "insertRows called for some reason"
+        if not self.root == None:   # if there is no root node, we must create one
+            if node == None:
+                self.root = Node()
+            else:
+                self.root = node
         # end if
-        if parent.isValid():
-            parentNode = self.nodeFromIndex(parent)
+        if parentindex.isValid():
+            parentnode = self.nodeFromIndex(parentindex)
         # end if
         else:
-            parentNode = self.root
+            parentnode = self.root
         # end else
-        self.beginInsertRows(parent,row, row + count - 1)
+        self.beginInsertRows(parentindex,row, row + count - 1)
         # TODO Fix this !!!!!
         for i in range(count):
             node = Node()
-            parentNode.insertChild(row,node)
+            #parentnode.insertChild(row,node)
+            parentnode.insertChild(node)
         # end for
         self.endInsertRows()
         return True
@@ -490,15 +537,15 @@ class TreeModel(QAbstractItemModel):
         return newIndex
     # end def
     
-    def clear(self):
-        """
-        """
-        del self.root
-        self.root = 0
-        del cutNode
-        cutNode = 0
-        #self.reset()
-    # end def
+    # def clear(self):
+    #     """
+    #     """
+    #     del self.root
+    #     self.root = 0
+    #     del cutNode
+    #     cutNode = 0
+    #     #self.reset()
+    # # end def
     
     def mimeData(indices):
         """QAbstractItemModel drag and drop required"""
@@ -570,7 +617,7 @@ class TreeModel(QAbstractItemModel):
         """
         if node != self.root:            
             writer.writeStartElement(NODETAG)
-            writer.writeAttribute(NAME, node.name)
+            writer.writeAttribute(NAMETAG, node.name)
             writer.writeAttribute(NTYPE, node.ntype)
             writer.writeAttribute(OBJ_ID, node.object_id)
             writer.writeAttribute(INST_ID, node.instance_id)
@@ -591,7 +638,7 @@ class TreeModel(QAbstractItemModel):
             reader.readNext()
             if reader.isStartElement():
                 if reader.name() == NODETAG:
-                    name = reader.attributes().value(NAME).toString()
+                    name = reader.attributes().value(NAMETAG).toString()
                     ntype = reader.attributes().value(NTYPE).toString() 
                     id_obj = reader.attributes().value(OBJ_ID)
                     id_inst = reader.attributes().value(INST_ID)
@@ -612,16 +659,16 @@ class TreeModel(QAbstractItemModel):
         pass
     # end def
 
-    def load(self):
-        """
-        """
-        clear()
-        self.root = Node()
-        reader = QXmlStreamReader(soome)
-        readNode(reader, self.root)    
-        if reader.hasError():
-            pass
-    # end def
+    # def load(self):
+    #     """
+    #     """
+    #     clear()
+    #     self.root = Node()
+    #     reader = QXmlStreamReader(soome)
+    #     readNode(reader, self.root)    
+    #     if reader.hasError():
+    #         pass
+    # # end def
 # end class
 
     

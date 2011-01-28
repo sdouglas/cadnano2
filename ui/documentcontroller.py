@@ -23,12 +23,14 @@
 # http://www.opensource.org/licenses/mit-license.php
 
 from PyQt4.QtGui import *
-from PyQt4.QtCore import SIGNAL
+
+from PyQt4.QtCore import SIGNAL, QString
 from model.document import Document
 from documentwindow import DocumentWindow
 from slicehelixgroup import SliceHelixGroup
 from pathhelixgroup import PathHelixGroup
-
+from idbank import IdBank
+from treecontroller import TreeController
 
 class DocumentController():
     """
@@ -36,6 +38,7 @@ class DocumentController():
     submodel, etc) UI elements to their corresponding actions in the model
     """
     def __init__(self):
+<<<<<<< HEAD
         from data.assembly import AssemblyNode
         from data.part import PartNode
         from treemodel import TreeModel
@@ -45,10 +48,8 @@ class DocumentController():
         self.undoStack = QUndoStack()
         self.win = DocumentWindow(doc=self)
         self.win.show()
-        self.treemodel = TreeModel()
-        self.win.treeview.setDragDropMode(QAbstractItemView.InternalMove)
-        self.win.treeview.setAllColumnsShowFocus(True)
-        self.win.treeview.setModel(self.treemodel)
+    
+         self.treeController = TreeController(self.win.treeview)
         self.createConnections()
     # end def
 
@@ -56,19 +57,36 @@ class DocumentController():
         """
         Organizational method to collect signal/slot connectors.
         """
-        # self.treeview.selectionModel().currentChange.connect(self.updateUi)
-        # self.treemodel.dataChanged.connect(self.win.setWindowModified)
-        # self.treemodel.rowsRemoved.connect(self.win.setWindowModified)
-        # self.treemodel.modelReset.connect(self.win.setWindowModified)
         self.win.actionNewHoneycombPart.triggered.connect(self.hcombClicked)
+
         self.win.actionNewSquarePart.triggered.connect(self.squareClicked)
         self.win.actionNew.triggered.connect(self.newClicked)
         self.win.actionOpen.triggered.connect(self.openClicked)
         self.win.actionClose.triggered.connect(self.closeClicked)
         self.win.actionSave.triggered.connect(self.saveClicked)
         self.win.actionSVG.triggered.connect(self.svgClicked)
+        
+        # self.win.actionSave_As.triggered.connect(self.saveAsClicked)
+        # self.win.actionQuit.triggered.connect(self.closeClicked)
+        # self.win.actionAdd.triggered.connect(self.addClicked)
+        # self.win.actionDelete.triggered.connect(self.deleteClicked)
+        # self.win.actionCut.triggered.connect(self.cutClicked)
+        # self.win.actionPaste.triggered.connect(self.pasteClicked)
+        # self.win.actionMoveUp.triggered.connect(self.moveUpClicked)
+        # self.win.actionMoveDown.triggered.connect(self.moveDownClicked)
+        # self.win.actionPromote.triggered.connect(self.promoteClicked)
+        # self.win.actionDemote.triggered.connect(self.demoteClicked)
+        
     # end def
 
+    def setDirty(self, dirty=True):
+        self.win.setWindowModified(dirty)
+    #end def
+
+    def setDirty_ind(self, ind1, ind2, dirty=True):
+        self.win.setWindowModified(dirty)
+    #end def
+    
     def newClicked(self):
         """docstring for newClicked"""
         print "new clicked"
@@ -166,24 +184,7 @@ class DocumentController():
         # Connect the slice
         shg.helixAdded.connect(phg.handleNewHelix)
 
-        # index = self.win.treeview.currentIndex()
-        # if self.treemodel.insertRow(0, index):
-        #     index = self.treemodel.index(0, 0, index)
-        #     self.setCurrentIndex(index)
-        #     self.treeview.edit(index)
-        #     self.win.setWindowModified(True)
-        #     self.updateUi()
-    # end def
-
-    def addClicked(self):
-        index = self.win.treeview.currentIndex()
-        if self.treemodel.insertRow(0, index):
-            index = self.treemodel.index(0, 0, index)
-            self.setCurrentIndex(index)
-            self.win.treeview.edit(index)
-            self.win.setWindowModified(True)
-            self.updateUi()
-        #end if
+        self.treeController.addPartNode()
     # end def
 
     def deleteClicked(self):
@@ -207,11 +208,11 @@ class DocumentController():
         if not self.okToDelete(this, QString("Delete"), QString(message)):
             return
         self.treemodel.removeRow(index.row(), index.parent())
-        self.win.setWindowModified(True)
+        self.setDirty(True)
         self.updateUi()
     # end def
 
-    def okToDelete(parent, title, text, detailedText):
+    def okToDelete(self, parent, title,text, detailedText):
         """
         """
         messageBox = QMessageBox(parent)
@@ -234,7 +235,7 @@ class DocumentController():
         return messageBox.clickedButton() == deleteButton
     # end def
 
-    def okToClear(savedata, parent, title, text, detailedText):
+    def okToClear(self, savedata, parent, title,text, detailedText):
         """
         savedata is a function pointer
         """
@@ -264,7 +265,7 @@ class DocumentController():
         return True
     # end def
 
-    def createAction(icon, text, parent, shortcutkey):
+    def createAction(self,icon, text, parent, shortcutkey):
         """
         returns a QAction object
         """
@@ -275,67 +276,65 @@ class DocumentController():
         return action
     # end def
 
-    def updateUi():
+    def updateUi(self):
         """
         """
-        self.win.actionSave.setEnabled(isWindowModified)
+        #self.win.actionSave.setEnabled(self.win.isWindowModified())
+        
         rows = self.treemodel.rowCount()
-        self.win.actionSave_As.setEnabled(self.win.isWindowModified() or rows)
-        self.win.actionHideOrShowItems.setEnabled(rows)
-        enable = self.treeview.currentIndex().isValid()
 
-        actions = [self.win.actionDelete, self.win.actionMoveUp,\
-                   self.win.actionMoveDown, self.win.actionCut, \
-                   self.win.actionPromote, self.win.actionDemote]
-        for action in actions:
-            action.setEnabled(enable)
-        # end for
-        self.win.actionStartOrStop.setEnabled(rows)
-        self.win.actionPaste.setEnabled(self.treemodel.hasCutItem())
-    #endif
-
-    def cutClicked():
-        index = self.win.treeview.currentIndex()
-        self.win.setCurrentIndex(self.treemodel.cut(index))
-        self.win.actionPaste.setEnabled(self.treemodel.hasCutItem())
-    # end def
-
-    def pasteClicked():
-        index = self.win.treeview.currentIndex()
-        self.win.setCurrentIndex(self.treemodel.paste(index))
-    # end def
-
-    def moveUpClicked():
-        index = self.win.treeview.currentIndex()
-        self.win.setCurrentIndex(self.treemodel.moveUp(index))
-    # end def
-
-    def moveDownClicked():
-        index = self.win.treeview.currentIndex()
-        self.win.setCurrentIndex(self.treemodel.moveDown(index))
-    # end def
-
-    def promoteClicked():
-        index = self.win.treeview.currentIndex()
-        self.win.setCurrentIndex(self.treemodel.promote(index))
+        #self.win.actionSave_As.setEnabled(self.win.isWindowModified() or rows)
+        #self.win.actionHideOrShowItems.setEnabled(rows)
+        enable = self.win.treeview.currentIndex().isValid()
+        
+        # actions = [self.win.actionDelete, self.win.actionMoveUp, self.win.actionMoveDown, \
+        #             self.win.actionCut,self.win.actionPromote, self.win.actionDemote]
+        # for action in actions:
+        #     action.setEnabled(enable)
+        # # end for
+        # self.win.actionStartOrStop.setEnabled(rows);
+        # self.win.actionPaste.setEnabled(self.treemodel.hasCutItem())
     #end def
 
-    def demoteClicked():
-        index = self.win.treeview.currentIndex()
-        self.win.setCurrentIndex(self.treemodel.demote(index))
-    #end def
 
-    def hideOrShowNode(hide, index):
+    def cutClicked(self):
         """"""
-        hideThisOne = hide  # and self.treemodel.isChecked(index)
-        if index.isValid():
-            self.win.treeview.setRowHidden(index.row(),\
-                                           index.parent(),\
-                                           hideThisOne)
-        # end if
-        if not hideThisOne:
-            for row in range(self.treemodel.rowCount(index)):
-                self.hideOrShowNode(hide, self.treemodel.index(row, 0, index))
-            # end for
-        # end if
+        self.win.actionPaste.setEnabled(self.treeController.cut())
+    # end def
+
+
+    def pasteClicked(self):
+        """"""
+        self.treeController.paste()
+    # end def
+
+
+    def moveUpClicked(self):
+        """"""
+        self.treeController.moveUp()
+    # end def
+
+
+    def moveDownClicked(self):
+        """"""
+        self.treeController.moveDown()
+    # end def
+
+
+    def promoteClicked(self):
+        """"""
+        self.treeController.promote()
+    #end def
+
+
+    def demoteClicked(self):
+        """"""
+        self.treeController.demote()
+    #end def
+
+
+    def hideOrShowNode(self,hide, index):
+        """"""
+        self.treeController.hideOrShowNode()
+    # end def
 # end class
