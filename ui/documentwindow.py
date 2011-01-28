@@ -55,6 +55,7 @@ class DocumentWindow(QMainWindow, ui_mainwindow.Ui_MainWindow):
         self.pathController = pathcontroller.PathController(self)
         # treeview setup
         self.treeview.setSelectionBehavior(QTreeView.SelectItems)
+        self.treeview.setUniformRowHeights(True)
         # Edit menu setup
         self.undoStack = doc.undoStack
         self.editMenu = self.menuBar().addMenu("Edit")

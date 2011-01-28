@@ -50,27 +50,44 @@ class DocumentController():
         self.win = DocumentWindow(doc=self)
         self.win.show()
         
-        headers = ["item", "lock", "hide"]
-        self.treemodel = TreeModel(self.win.treeview,AssemblyNode())
+        self.setupTreeview()
+
+
+        self.createConnections()
+    # end def
+    
+    def setupTreeview(self):
+        """"""
+        headers = ["item","hide","lock"]
+        self.treemodel = TreeModel(self.win.treeview)
         self.treemodel.headers = headers
         self.win.treeview.setDragDropMode(QAbstractItemView.InternalMove)
         #self.win.treeview.setItemDelegateForColumn(0, QString())
         self.win.treeview.setAllColumnsShowFocus(True)
         self.win.treeview.setModel(self.treemodel)
-
-        self.createConnections()
+        index = self.win.treeview.currentIndex()
+        nodeparent = self.treemodel.nodeFromIndex(index)
+        print nodeparent.name
+        node = AssemblyNode("", 0, 1,None, nodeparent)
+        if self.treemodel.insertRow(0, index,node):
+            # set index to the inserted child
+            index = self.treemodel.index(0, 0, index)
+            self.win.setCurrentIndex(index)
+            #self.win.treeview.edit(index)
+            self.setDirty(True)
+            self.treemodel.reset()
     # end def
-
     def createConnections(self):
         """
         """
         # QItemSelectionModel.currentChange emits the previous and current selected QModelIndex, but we don't use those values
-        self.win.treeview.selectionModel().currentChanged.connect(self.updateUi)
+        #self.win.treeview.selectionModel().currentChanged.connect(self.updateUi)
+        #self.win.treeview.activated.connect()
         # 
         # 
-        self.treemodel.dataChanged.connect(self.setDirty_ind)
-        self.treemodel.rowsRemoved.connect(self.setDirty)
-        self.treemodel.modelReset.connect(self.setDirty)
+        #self.treemodel.dataChanged.connect(self.setDirty_ind)
+        #self.treemodel.rowsRemoved.connect(self.setDirty)
+        #self.treemodel.modelReset.connect(self.setDirty)
         
         self.win.actionNewHoneycombPart.triggered.connect(self.honeycombClicked)
         self.win.actionNewSquarePart.triggered.connect(self.squareClicked)
@@ -193,15 +210,19 @@ class DocumentController():
         
         index = self.win.treeview.currentIndex()
         nodeparent = self.treemodel.nodeFromIndex(index)
-        print nodeparent.name
-        node = PartNode("", 0, 1,None, nodeparent)
-        if self.treemodel.insertRow(0, index,node):
-            # set index to the inserted child
-            index = self.treemodel.index(0, 0, index)
-            self.win.setCurrentIndex(index)
-            self.win.treeview.edit(index)
-            self.setDirty(True)
-            #self.updateUi()
+        if nodeparent.ntype == AssemblyNode.ntype:
+            print nodeparent.name
+            node = PartNode("", 0, 1,None, nodeparent)
+            if self.treemodel.insertRow(0, index,node):
+                # set index to the inserted child
+                index = self.treemodel.index(0, 0, index)
+                self.win.setCurrentIndex(index)
+                #self.win.treeview.edit(index)
+                self.setDirty(True)
+                #self.treemodel.reset()
+                #self.updateUi()
+            # end if
+        # end if
     # end def
 
 
