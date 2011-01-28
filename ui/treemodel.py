@@ -202,7 +202,6 @@ class TreeModel(QAbstractItemModel):
         # end if
         return len(node)
 
-
     def columnCount(self, parent):
         """
         QAbstractItemModel required

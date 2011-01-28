@@ -66,5 +66,3 @@ class PathHelixGroup(QGraphicsObject):
         """docstring for addHelix"""
         print "path helix group: addHelix slot", number
 
-
-    

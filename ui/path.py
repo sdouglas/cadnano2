@@ -1,6 +1,3 @@
-#!/usr/bin/env python
-# encoding: utf-8
-
 # The MIT License
 #
 # Copyright (c) 2011 Wyss Institute at Harvard University
@@ -403,8 +400,6 @@ class Path(self):
         self.loadedData = True 
     # end def
 # end class
-
-
 
 def main():
     pass

@@ -33,7 +33,6 @@ from PyQt4.QtGui import QBrush
 from PyQt4.QtGui import QGraphicsItem
 from PyQt4.QtGui import QGraphicsSimpleTextItem
 from PyQt4.QtGui import QPen, QDrag, QUndoCommand
-
 import styles
 
 
@@ -47,7 +46,7 @@ class SliceHelix(QGraphicsItem):
     use_brush = QBrush(styles.orangefill)
     use_pen = QPen(styles.orangestroke, styles.SLICE_HELIX_STROKE_WIDTH)
     radius = styles.SLICE_HELIX_RADIUS
-    rect = QRectF(0, 0, 2*radius, 2*radius)
+    rect = QRectF(0, 0, 2 * radius, 2 * radius)
 
     def __init__(self, row, col, position, parent):
         super(SliceHelix, self).__init__()
@@ -76,24 +75,22 @@ class SliceHelix(QGraphicsItem):
             painter.setBrush(self.def_brush)
             painter.setPen(self.def_pen)
         if self.beingHoveredOver:
-            #Focus ring will be drawn beneath 2 neighboring SliceHelix if we do it here
-            #painter.setBrush(self.hov_brush)
             painter.setPen(self.hov_pen)
         painter.drawEllipse(self.rect)
     # end def
 
-    class FocusRingPainter(QGraphicsItem):         
+    class FocusRingPainter(QGraphicsItem):
         """Draws a focus ring around helix in parent"""
-        def __init__(self,helix,parent):
+        def __init__(self, helix, parent):
             super(SliceHelix.FocusRingPainter, self).__init__()
-            self.helix=helix       
+            self.helix = helix
             self.setPos(helix.pos())
             parent.addItem(self)
-            
+
         def paint(self, painter, option, widget=None):
             painter.setPen(SliceHelix.hov_pen)
             painter.drawEllipse(self.helix.rect)
-        
+
         def boundingRect(self):
             return self.helix.rect
         # end def
@@ -121,11 +118,12 @@ class SliceHelix(QGraphicsItem):
     # end def
 
     def mousePressEvent(self, event):
-        self.setUsed(not self.number>=0)
+        self.setUsed(not self.number >= 0)
         QDrag(self.parent.parentWidget())
+    # end def
 
     def dragEnterEvent(self, e):
-        self.setUsed(not self.number>=0)
+        self.setUsed(not self.number >= 0)
         e.acceptProposedAction()
         print "dee"
     # end def
@@ -135,14 +133,16 @@ class SliceHelix(QGraphicsItem):
             super(SliceHelix.RenumberCommand, self).__init__()
             self.fromNum = fromNum
             self.toNum = toNum
-            self.helix=helix
+            self.helix = helix
+
         def redo(self):
             self.helix.setNumber(self.toNum, pushToUndo=False)
+
         def undo(self):
             self.helix.setNumber(self.fromNum, pushToUndo=False)
     # end class
 
-    def setNumber(self,n,pushToUndo=True):
+    def setNumber(self, n, pushToUndo=True):
         """
         If n!=slice.number the caller should have already reserved n with
         the parent SliceHelixGroup (from self.parent.reserveLabelForHelix).
@@ -152,8 +152,8 @@ class SliceHelix(QGraphicsItem):
             self.parent.sliceController.mainWindow.undoStack.push(\
                         SliceHelix.RenumberCommand(self, self.number, n))
         self.update(self.rect)
-        if n!=self.number and self.number>=0:
-            self.parent.recycleLabelForHelix(self.number,self)
+        if n != self.number and self.number >= 0:
+            self.parent.recycleLabelForHelix(self.number, self)
         if n < 0:
             if self.label:
                 self.label.setParentItem(None)
@@ -165,17 +165,17 @@ class SliceHelix(QGraphicsItem):
             self.label = QGraphicsSimpleTextItem("%d" % self.number)
             self.label.setParentItem(self)
         if self.number < 10:
-            self.label.setX(self.radius/1.3)
+            self.label.setX(self.radius / 1.3)
         else:
-            self.label.setX(self.radius/2)
-        self.label.setY(self.radius/2)
+            self.label.setX(self.radius / 2)
+        self.label.setY(self.radius / 2)
     # end def
 
-    def setUsed(self,u):
-        if (self.number>=0) == u:
+    def setUsed(self, u):
+        if (self.number >= 0) == u:
             # self.parent.addBasesToDnaPart(self.number)
             pass
-        if self.number < 0: # Use
+        if self.number < 0:  # Use
             self.setNumber(self.parent.reserveLabelForHelix(self))
             self.parent.addVirtualHelixtoDnaPart(self.number)
             # self.parent.addBasesToDnaPart(self.number)
@@ -184,4 +184,3 @@ class SliceHelix(QGraphicsItem):
             pass
     # end def
 # end class
-

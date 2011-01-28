@@ -29,6 +29,7 @@ from documentwindow import DocumentWindow
 from slicehelixgroup import SliceHelixGroup
 from pathhelixgroup import PathHelixGroup
 
+
 class DocumentController():
     """
     The document controller. Hooks high level (read file/write file, add
@@ -51,7 +52,7 @@ class DocumentController():
         self.win.treeview.setDragDropMode(QAbstractItemView.InternalMove)
         self.win.treeview.setAllColumnsShowFocus(True)
         self.win.treeview.setModel(self.treemodel)
-        
+
         self.createConnections()
     # end def
 
@@ -63,7 +64,7 @@ class DocumentController():
         # self.treemodel.dataChanged.connect(self.win.setWindowModified)
         # self.treemodel.rowsRemoved.connect(self.win.setWindowModified)
         # self.treemodel.modelReset.connect(self.win.setWindowModified)
-        self.win.actionNewHoneycombPart.triggered.connect(self.honeycombClicked)
+        self.win.actionNewHoneycombPart.triggered.connect(self.hcombClicked)
         self.win.actionNewSquarePart.triggered.connect(self.squareClicked)
         self.win.actionNew.triggered.connect(self.newClicked)
         self.win.actionOpen.triggered.connect(self.openClicked)
@@ -72,24 +73,20 @@ class DocumentController():
         self.win.actionSVG.triggered.connect(self.svgClicked)
     # end def
 
-
     def newClicked(self):
         """docstring for newClicked"""
         print "new clicked"
     # end def
-
 
     def openClicked(self):
         """docstring for openClicked"""
         print "open clicked"
     # end def
 
-
     def closeClicked(self):
         """docstring for closeClicked"""
         print "close clicked"
     # end def
-
 
     def saveClicked(self):
         """docstring for saveClicked"""
@@ -111,7 +108,6 @@ class DocumentController():
         # return saved
     # end def
 
-    
     def saveAsClicked():
         """"""
         filename = self.treemodel.filename
@@ -140,44 +136,41 @@ class DocumentController():
         print "svg clicked"
     # end def
 
-
-    def honeycombClicked(self):
-        """docstring for honeycombClicked"""
+    def hcombClicked(self):
+        """docstring for hcombClicked"""
         print "+honeycomb clicked"
         self.addHoneycombHelixGroup()
     # end def
-
 
     def squareClicked(self):
         """docstring for squareClicked"""
         print "+square clicked"
     # end def
 
-
     def addHoneycombHelixGroup(self, nrows=20, ncolumns=20):
         """docstring for addHoneycombHelixGroup"""
         # Create a new DNA part
         partInst = self.doc.addDnaPart()
-        
+
         # Add the part to the Tree view
         # self.addPartToTree(partInst)
-        
+
         # Create a Slice view of part
         shg = SliceHelixGroup(partInst, nrows, ncolumns, "honeycomb",\
                               scene=self.win.slicescene,\
                               controller=self.win.sliceController)
         self.win.slicescene.addItem(shg)
-        
+
         # Create a Path view of the part
         phg = PathHelixGroup(partInst, "honeycomb",\
                              scene=self.win.pathscene,\
                              controller=self.win.pathController)
         self.win.pathscene.addItem(phg)
-        
-        # Connect the slice 
+
+        # Connect the slice
         shg.helixAdded.connect(phg.handleNewHelix)
         # connect(shg.addHelix, SIGNAL("triggered()"), phg.addHelix)
-        
+
         # index = self.win.treeview.currentIndex()
         # if self.treemodel.insertRow(0, index):
         #     index = self.treemodel.index(0, 0, index)
@@ -186,7 +179,6 @@ class DocumentController():
         #     self.win.setWindowModified(True)
         #     self.updateUi()
     # end def
-
 
     def addClicked(self):
         index = self.win.treeview.currentIndex()
@@ -199,7 +191,6 @@ class DocumentController():
         #end if
     # end def
 
-
     def deleteClicked(self):
         index = self.win.treeview.currentIndex()
         if not index.isValid():
@@ -208,7 +199,7 @@ class DocumentController():
         rows = self.treemodel.rowCount(index)
         if rows == 0:
             message = "<p>Delete '%s'" % name
-        # end if    
+        # end if
         elif rows == 1:
             message = "<p>Delete '%s' and its child (and " +\
                          "grandchildren etc.)" % name
@@ -216,16 +207,16 @@ class DocumentController():
         elif rows > 1:
             message = "<p>Delete '%s' and its %d children (and " +\
                          "grandchildren etc.)" % (name, rows)
-        
+
         # end elif
-        if not self.okToDelete(this, QString("Delete"), QString(message) ) :
+        if not self.okToDelete(this, QString("Delete"), QString(message)):
             return
         self.treemodel.removeRow(index.row(), index.parent())
         self.win.setWindowModified(True)
         self.updateUi()
     # end def
 
-    def okToDelete(parent, title,text, detailedText):
+    def okToDelete(parent, title, text, detailedText):
         """
         """
         messageBox = QMessageBox(parent)
@@ -233,20 +224,22 @@ class DocumentController():
             messageBox.setWindowModality(Qt.WindowModal)
         # end if
         messageBox.setIcon(QMessageBox.Question)
-        messageBox.setWindowTitle( QString("%1 - %2").arg(QApplication.applicationName()).arg(title) )
+        messageBox.setWindowTitle(\
+            QString("%1 - %2").arg(QApplication.applicationName()).arg(title))
         messageBox.setText(text)
         if not detailedText.isEmpty():
             messageBox.setInformativeText(detailedText)
         # end if
-        deleteButton = messageBox.addButton(QString("&Delete"), QMessageBox.AcceptRole)
-        messageBox.addButton(QString("Do &Not Delete"),QMessageBox.RejectRole)
+        deleteButton = messageBox.addButton(QString("&Delete"),\
+                                            QMessageBox.AcceptRole)
+        messageBox.addButton(QString("Do &Not Delete"),\
+                             QMessageBox.RejectRole)
         messageBox.setDefaultButton(deleteButton)
         messageBox.exec_()
         return messageBox.clickedButton() == deleteButton
     # end def
 
-
-    def okToClear(savedata, parent, title,text, detailedText):
+    def okToClear(savedata, parent, title, text, detailedText):
         """
         savedata is a function pointer
         """
@@ -256,12 +249,13 @@ class DocumentController():
             messageBox.setWindowModality(Qt.WindowModal)
         # end if
         messageBox.setIcon(QMessageBox.Question)
-        messageBox.setWindowTitle( QString("%1 - %2").arg(QApplication.applicationName()).arg(title) )
+        messageBox.setWindowTitle(\
+          QString("%1 - %2").arg(QApplication.applicationName()).arg(title))
         messageBox.setText(text)
         if not detailedText.isEmpty():
             messageBox.setInformativeText(detailedText)
         # end if
-        
+
         saveButton = messageBox.addButton(QMessageBox.Save)
         messageBox.addButton(QMessageBox.Save)
         messageBox.addButton(QMessageBox.Discard)
@@ -270,9 +264,9 @@ class DocumentController():
         messageBox.exec_()
         if messageBox.clickedButton() == messageBox.button(QMessageBox.Cancel):
             return False
-            if messageBox.clickedButton() == messageBox.button(QMessageBox.Save):
-                return parent.savedata() # how to return the function (lambda?)
-        return True 
+        if messageBox.clickedButton() == messageBox.button(QMessageBox.Save):
+            return parent.savedata()  # how to return the function (lambda?)
+        return True
     # end def
 
     def createAction(icon, text, parent, shortcutkey):
@@ -286,7 +280,6 @@ class DocumentController():
         return action
     # end def
 
-
     def updateUi():
         """
         """
@@ -295,16 +288,16 @@ class DocumentController():
         self.win.actionSave_As.setEnabled(self.win.isWindowModified() or rows)
         self.win.actionHideOrShowItems.setEnabled(rows)
         enable = self.treeview.currentIndex().isValid()
-        
-        actions = [self.win.actionDelete, self.win.actionMoveUp, self.win.actionMoveDown, \
-                    self.win.actionCut,self.win.actionPromote, self.win.actionDemote]
+
+        actions = [self.win.actionDelete, self.win.actionMoveUp,\
+                   self.win.actionMoveDown, self.win.actionCut, \
+                   self.win.actionPromote, self.win.actionDemote]
         for action in actions:
             action.setEnabled(enable)
         # end for
-        self.win.actionStartOrStop.setEnabled(rows);
+        self.win.actionStartOrStop.setEnabled(rows)
         self.win.actionPaste.setEnabled(self.treemodel.hasCutItem())
     #endif
-
 
     def cutClicked():
         index = self.win.treeview.currentIndex()
@@ -312,42 +305,38 @@ class DocumentController():
         self.win.actionPaste.setEnabled(self.treemodel.hasCutItem())
     # end def
 
-
     def pasteClicked():
         index = self.win.treeview.currentIndex()
         self.win.setCurrentIndex(self.treemodel.paste(index))
     # end def
-
 
     def moveUpClicked():
         index = self.win.treeview.currentIndex()
         self.win.setCurrentIndex(self.treemodel.moveUp(index))
     # end def
 
-
     def moveDownClicked():
         index = self.win.treeview.currentIndex()
         self.win.setCurrentIndex(self.treemodel.moveDown(index))
     # end def
-
 
     def promoteClicked():
         index = self.win.treeview.currentIndex()
         self.win.setCurrentIndex(self.treemodel.promote(index))
     #end def
 
-
     def demoteClicked():
         index = self.win.treeview.currentIndex()
         self.win.setCurrentIndex(self.treemodel.demote(index))
     #end def
 
-
     def hideOrShowNode(hide, index):
         """"""
-        hideThisOne = hide #and self.treemodel.isChecked(index)
+        hideThisOne = hide  # and self.treemodel.isChecked(index)
         if index.isValid():
-            self.win.treeview.setRowHidden(index.row(), index.parent(), hideThisOne)
+            self.win.treeview.setRowHidden(index.row(),\
+                                           index.parent(),\
+                                           hideThisOne)
         # end if
         if not hideThisOne:
             for row in range(self.treemodel.rowCount(index)):
