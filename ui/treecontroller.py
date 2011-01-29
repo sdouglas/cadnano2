@@ -23,14 +23,18 @@
 # http://www.opensource.org/licenses/mit-license.php
 
 from PyQt4.QtGui import QAbstractItemView, QTreeView
-from PyQt4.QtCore import QString
+from PyQt4.QtCore import QObject, QString, pyqtSignal
 from ui.partnode import PartNode
 from ui.assemblynode import AssemblyNode
 from treemodel import TreeModel
 
-class TreeController(object):
+class TreeController(QObject):
+    
+    partselected = pyqtSignal('QString',int,int)
+    assemblyselected = pyqtSignal('QString',int,int)
     
     def __init__(self, treeview):
+        super(TreeController, self).__init__()
         self.treeview = treeview
         self.treeview.setSelectionBehavior(QTreeView.SelectItems)
         self.treeview.setUniformRowHeights(True)
@@ -56,6 +60,7 @@ class TreeController(object):
             self.treemodel.reset()
         # end if
         
+        self.createConnections()
     # end def
     
     def createConnections(self):
@@ -67,7 +72,9 @@ class TreeController(object):
         #self.treemodel.dataChanged.connect(self.setDirty_ind)
         #self.treemodel.rowsRemoved.connect(self.setDirty)
         #self.treemodel.modelReset.connect(self.setDirty)
-        pass
+        
+        # clicked is a QAbstractItemView signal
+        self.treeview.clicked.connect(self.activated)
     # end def
     
     def setCurrentIndex(self,index):
@@ -86,8 +93,8 @@ class TreeController(object):
             if self.treemodel.insertRow(0, index,node):
                 # set index to the inserted child
                 index = self.treemodel.index(0, 0, index)
-                self.win.setCurrentIndex(index)
-                #self.win.treeview.edit(index)
+                self.setCurrentIndex(index)
+                #self.treeview.edit(index)
                 #self.setDirty(True)
                 #self.treemodel.reset()
             # end if
@@ -146,5 +153,10 @@ class TreeController(object):
             # end for
         # end if
     # end def
-
+    
+    def activated(self, index):
+        """"""
+        node = self.treemodel.nodeFromIndex(index)
+        print "I'm working on it"
+        self.partselected.emit(node.ntype, node.object_id,node.instance_id)
 # end class

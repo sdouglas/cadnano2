@@ -314,7 +314,7 @@ class TreeModel(QAbstractItemModel):
                 #print "not an edit role"
                 return False
             # end else
-            print "setdata: Data Changed!"
+            #print "setdata: Data Changed!"
             self.dataChanged.emit(index,index)
             return True
         # end if

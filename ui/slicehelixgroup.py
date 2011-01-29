@@ -175,3 +175,17 @@ class SliceHelixGroup(QGraphicsObject):
         """docstring for addVirtualHelixtoDnaPart"""
         self.helixAdded.emit(number)
 
+        
+    def bringToFront(self):
+        """"""
+        zval = 1
+        items = self.collidingItems() # the is a QList
+        for item in items:
+            temp = item.zValue()
+            if temp >= zval:
+                zval = item.zValue()+1
+            # end if
+        # end for
+        self.setZValue(zval)
+    # end def
+    
