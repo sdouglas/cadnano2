@@ -41,8 +41,8 @@ from ui.documentcontroller import DocumentController
 def main():
     app = QApplication(sys.argv)
     dc = DocumentController()
-    app.setWindowIcon(QIcon('ui/images/part-new-honeycomb.png'))
-    dc.win.setWindowIcon(QIcon('ui/images/part-new-honeycomb.png'))
+    app.setWindowIcon(QIcon('ui/images/cadnano2-app-icon.png'))
+    dc.win.setWindowIcon(QIcon('ui/images/cadnano2-app-icon.png'))
     app.setApplicationName (QString("caDNAno"))
     app.exec_()
 # end def
