@@ -37,18 +37,14 @@ import math
 from PyQt4.QtCore import *
 from PyQt4.QtGui import *
 from ui.documentcontroller import DocumentController
+from cadnano import caDNAno
+
 
 def main():
-    app = QApplication(sys.argv)
-    dc = DocumentController()
-    app.setWindowIcon(QIcon('ui/images/part-new-honeycomb.png'))
-    dc.win.setWindowIcon(QIcon('ui/images/part-new-honeycomb.png'))
-    app.setApplicationName (QString("caDNAno"))
+    app = caDNAno(sys.argv)
     app.exec_()
-# end def
 
 if __name__ == '__main__':
     main()
 else:  # Otherwise drop back to prompt in the interactive interpreter
-    app = QApplication(sys.argv)
-    dc = DocumentController()
+    app = caDNAno(sys.argv)

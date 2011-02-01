@@ -29,7 +29,7 @@ Created by Jonathan deWerd on 2011-01-26.
 
 
 class VirtualHelix(object):
-    def simpleRep(self):
+    def simpleRep(self,encoder):
         """Returns a representation in terms of simple JSON-encodable types
         or types that implement simpleRep"""
         raise NotImplementedError
@@ -38,4 +38,6 @@ class VirtualHelix(object):
     def fromSimpleRep(cls, rep):
         """Instantiates one of the parent class from the simple
         representation rep"""
+        raise NotImplementedError
+    def resolveSimpleRepIDs(self,idToObj):
         raise NotImplementedError

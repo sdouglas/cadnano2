@@ -37,7 +37,7 @@ class DNAPart(Part):
         self._staples = []
         self._scaffolds = []
 
-    def simpleRep(self):
+    def simpleRep(self,encoder):
         """
         Provides a representation of the receiver in terms of simple
         (container,atomic) classes and other objects implementing simpleRep
@@ -57,3 +57,6 @@ class DNAPart(Part):
         ret._staples = rep['staples']
         ret._scaffolds = rep['scaffolds']
         return ret
+    def resolveSimpleRepIDs(self,idToObj):
+        pass  # DNAPart owns its virtual helices, staples, and scaffods
+              # so we don't need to make weak refs to them

@@ -31,6 +31,8 @@ from slicehelixgroup import SliceHelixGroup
 from pathhelixgroup import PathHelixGroup
 from idbank import IdBank
 from treecontroller import TreeController
+from cadnano import app
+from model.encoder import encode
 
 class DocumentController():
     """
@@ -38,15 +40,25 @@ class DocumentController():
     submodel, etc) UI elements to their corresponding actions in the model
     """
     def __init__(self):
+        app().documentControllers.add(self)
         self.doc = Document()
         self.idbank = IdBank()
         self.undoStack = QUndoStack()
-        self.win = DocumentWindow(doc=self)
+        app().undoGroup.addStack(self.undoStack)
+        self.win = DocumentWindow(docCtrlr=self)
         self.win.show()
-    
+        self._filename = "untitled.cadnano"
         self.treeController = TreeController(self.win.treeview)
         self.createConnections()
-    # end def
+    
+    def filename(self):
+        return self._filename
+    def setFilename(self,proposedFName):
+        if self._filename == proposedFName:
+            return True
+        self._filename = proposedFName
+        self.setDirty(True)
+        return True
 
     def createConnections(self):
         """
@@ -55,7 +67,7 @@ class DocumentController():
         self.win.actionNewHoneycombPart.triggered.connect(self.hcombClicked)
 
         self.win.actionNewSquarePart.triggered.connect(self.squareClicked)
-        self.win.actionNew.triggered.connect(self.newClicked)
+        self.win.actionNew.triggered.connect(app().newDocument)
         self.win.actionOpen.triggered.connect(self.openClicked)
         self.win.actionClose.triggered.connect(self.closeClicked)
         self.win.actionSave.triggered.connect(self.saveClicked)
@@ -77,10 +89,6 @@ class DocumentController():
     def setDirty(self, dirty=True):
         self.win.setWindowModified(dirty)
     #end def
-
-    def setDirty_ind(self, ind1, ind2, dirty=True):
-        self.win.setWindowModified(dirty)
-    #end def
     
     def newClicked(self):
         """docstring for newClicked"""
@@ -99,46 +107,30 @@ class DocumentController():
 
     def saveClicked(self):
         """docstring for saveClicked"""
-        print "save clicked"
-        # saved = False
-        # if self.treemodel.filename == None:
-        #     self.saveAsClicked()
-        # # end if
-        # else:
-        #     try:
-        #         self.treemodel.save()
-        #         self.setDirty = False
-        #         #self.win.setWindowTitle()
-        #         saved = True
-        #     except:
-        #         print "Failed to save"
-        # # end else
-        # self.updateUi()
-        # return saved
-    # end def
+        try:
+            f = open(self.filename())
+            f.write(encode(self.doc))
+            f.close()
+        except Exception:
+            print "Save "
+        return True
 
     def saveAsClicked():
-        """"""
-        filename = self.treemodel.filename
+        filename = self.filename()
         if filename == None:
             directory = "."
-        # end if
         else:
             directory = QFileInfo(filename).path()
-        # end else
         filename = QFileDialog.getSaveFileName(self.win,\
                             "%s - Save As" % QApplication.applicationName(),\
                             directory,\
-                            "%s (*.json)" % QApplication.applicationName())
+                            "%s (*.cadnano)" % QApplication.applicationName())
         if filename.isEmpty():
             return False
-        # end if
-        if not filename.toLower().endswith(".json"):
-            filename += ".json"
-        # end if
-        self.treemodel.filename = filename
+        if not filename.toLower().endswith(".cadnano"):
+            filename += ".cadnano"
+        self.setFilename(filename)
         return self.saveClicked()
-    # end def
 
     def svgClicked(self):
         """docstring for svgClicked"""

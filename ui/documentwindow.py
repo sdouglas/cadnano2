@@ -32,13 +32,14 @@ import ui_mainwindow
 import slicehelixgroup
 import pathcontroller
 import slicecontroller
+from cadnano import app
 
 
 class DocumentWindow(QMainWindow, ui_mainwindow.Ui_MainWindow):
     '''docstring for DocumentWindow'''
-    def __init__(self, parent=None, doc=None):
+    def __init__(self, parent=None, docCtrlr=None):
         super(DocumentWindow, self).__init__(parent)
-        self.document = doc
+        self.controller = docCtrlr
         self.setupUi(self)
         # Slice setup
         self.slicescene = QGraphicsScene()
@@ -49,11 +50,11 @@ class DocumentWindow(QMainWindow, ui_mainwindow.Ui_MainWindow):
         self.pathGraphicsView.setScene(self.pathscene)
         self.pathController = pathcontroller.PathController(self)
         # Edit menu setup
-        self.undoStack = doc.undoStack
+        self.undoStack = docCtrlr.undoStack
         self.editMenu = self.menuBar().addMenu("Edit")
-        self.undoAction = doc.undoStack.createUndoAction(self)
-        self.redoAction = doc.undoStack.createRedoAction(self)
+        self.undoAction = docCtrlr.undoStack.createUndoAction(self)
+        self.redoAction = docCtrlr.undoStack.createRedoAction(self)
         self.editMenu.addAction(self.undoAction)
         self.editMenu.addAction(self.redoAction)
-    # end def
-# end class
+    def focusInEvent(self):
+       app().undoGroup.setActiveStack(self.controller.undoStack)

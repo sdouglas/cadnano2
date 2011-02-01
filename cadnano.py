@@ -23,33 +23,28 @@
 # http://www.opensource.org/licenses/mit-license.php
 
 """
-partinstance
-Created by Jonathan deWerd on 2011-01-26.
+cadnano
+Created by Jonathan deWerd on 2011-01-29.
 """
+from PyQt4.QtCore import *
+from PyQt4.QtGui import *
 
-
-class PartInstance(object):
-    """Represents an instantiation of a part on the canvas"""
-    def __init__(self, part, id):
-        self._part = part
-
-    def part(self):
-        """docstring for part"""
-        return self._part
-
-    def simpleRep(self,encoder):
-        """Returns a representation in terms of simple JSON-encodable types
-        or types that implement simpleRep"""
-        ret = {".class":"PartInstance"}
-        ret['part'] = encoder.idForObject(self._part)  # An instance doesn't own its part
-        return ret
-
-    @classmethod
-    def fromSimpleRep(cls, rep):
-        """Instantiates one of the parent class from the simple
-        representation rep"""
-        pi = PartInstance()
-        pi.partID = rep['part']
-    def resolveSimpleRepIDs(self,idToObj):
-        self._part = idToObj[self.partID]
-        del self.partID
+class caDNAno(QApplication):
+    sharedApp = None  # This class is a singleton.
+    def __init__(self,argv):
+        super(caDNAno, self).__init__(argv)
+        assert(not caDNAno.sharedApp)
+        caDNAno.sharedApp = self
+        self.setWindowIcon(QIcon('ui/images/part-new-honeycomb.png'))
+        self.undoGroup = QUndoGroup()
+        self.setApplicationName(QString("caDNAno"))
+        self.documentControllers = set()     # Open documents
+        self.newDocument()
+        
+    def newDocument(self):
+        from ui.documentcontroller import DocumentController
+        DocumentController()  # DocumentController is responsible for adding itself to app.documentControllers
+    
+# Convenience. No reason to feel guilty using it - caDNAno is a singleton.    
+def app():
+    return caDNAno.sharedApp

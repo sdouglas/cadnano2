@@ -33,7 +33,7 @@ class Part(object):
     def __init__(self, id, *args, **kargs):
         self._id = id
 
-    def simpleRep(self):
+    def simpleRep(self,encoder):
         """Returns a representation in terms of simple JSON-encodable types
         or types that implement simpleRep"""
         raise NotImplementedError
@@ -43,3 +43,5 @@ class Part(object):
         """Instantiates one of the parent class from the simple
         representation rep"""
         raise NotImplementedError
+    def resolveSimpleRepIDs(self,idToObj):
+        raise NotImplementedError  # It's up to children to implement serialization

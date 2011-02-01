@@ -37,7 +37,7 @@ class Document:
         self._parts = []
         self._partInstances = []
 
-    def simpleRep(self):
+    def simpleRep(self,encoder):
         """Returns a representation in terms of simple JSON-encodable types
         or types that implement simpleRep"""
         ret = {".class": "CADNanoDocument"}
@@ -51,6 +51,9 @@ class Document:
         ret._parts = dct['parts']
         ret._partInstances = dct['partInstances']
         return ret
+    def resolveSimpleRepIDs(self,idToObj):
+        pass  # Document owns its parts and partInstances
+              # so we didn't need to make weak refs to them
 
     def addDnaPart(self, partid, instid):
         """

@@ -37,6 +37,8 @@ class IdBank(object):
     reissue.
     This should be fast as typically users shouldn't be deleting lots of
     items, so we store the previosuly used ids in a deque.
+    This class is not a singleton because IDs have context, namely the document
+    they belong to. We can't expect a document on disk to 
     """
     def __init__(self):
         """
