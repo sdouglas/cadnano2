@@ -166,8 +166,10 @@ class SliceHelix(QGraphicsItem):
             self.label.setParentItem(self)
         if self.number < 10:
             self.label.setX(self.radius / 1.3)
-        else:
+        elif self.number < 100:
             self.label.setX(self.radius / 2)
+        else:   # added for bigger than 100 by NC
+            self.label.setX(self.radius/4)
         self.label.setY(self.radius / 2)
     # end def
 

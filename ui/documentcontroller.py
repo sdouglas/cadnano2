@@ -39,6 +39,7 @@ class DocumentController():
     The document controller. Hooks high level (read file/write file, add
     submodel, etc) UI elements to their corresponding actions in the model
     """
+    
     def __init__(self):
         app().documentControllers.add(self)
         self.doc = Document()
@@ -48,6 +49,7 @@ class DocumentController():
         self.win = DocumentWindow(docCtrlr=self)
         self.win.show()
         self._filename = "untitled.cadnano"
+        self.first = None
         self.treeController = TreeController(self.win.treeview)
         self.createConnections()
     
@@ -83,9 +85,21 @@ class DocumentController():
         # self.win.actionMoveDown.triggered.connect(self.moveDownClicked)
         # self.win.actionPromote.triggered.connect(self.promoteClicked)
         # self.win.actionDemote.triggered.connect(self.demoteClicked)
-        
+    
+        # tree nodes get destroyed for dragging and droping so we must 
+        # use ids to select and deselect other views
+        self.treeController.partselected.connect(self.getViewsFromTree)
     # end def
+    
+    def getViewsFromTree(self, ntype, object_id, instance_id):
+        """place code here that emits signals based on dictionary values"""
+        print "were doing this: %s" % ntype
+        
+        # this is a placeholder for the actual dictionary look up of objects
+        self.first.bringToFront()
 
+    # end def
+    
     def setDirty(self, dirty=True):
         self.win.setWindowModified(dirty)
     #end def
@@ -161,7 +175,11 @@ class DocumentController():
                               scene=self.win.slicescene,\
                               controller=self.win.sliceController)
         self.win.slicescene.addItem(shg)
-
+        
+        if self.first == None:
+            self.first = shg
+        #end if
+        
         # Create a Path view of the part
         phg = PathHelixGroup("honeycomb",\
                              scene=self.win.pathscene,\
@@ -170,8 +188,9 @@ class DocumentController():
 
         # Connect the slice
         shg.helixAdded.connect(phg.handleNewHelix)
-
+        
         self.treeController.addPartNode()
+        
     # end def
 
     def deleteClicked(self):
