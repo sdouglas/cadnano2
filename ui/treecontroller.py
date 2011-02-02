@@ -64,7 +64,8 @@ class TreeController(QObject):
     # end def
     
     def createConnections(self):
-        # QItemSelectionModel.currentChange emits the previous and current selected QModelIndex, but we don't use those values
+        # QItemSelectionModel.currentChange emits the previous and current 
+        # selected QModelIndex, but we don't use those values
         #self.treeview.selectionModel().currentChanged.connect(self.updateUi)
         #self.treeview.activated.connect()
         # 
@@ -85,18 +86,30 @@ class TreeController(QObject):
     # end def
     
     def addPartNode(self):
-        index = self.treeview.currentIndex()
+        """
+        Adds a part to the tree model
+        Makes sure it adds to the closest parent assembly if a part is the 
+        current selected item
+        """
+        index = self.treeview.currentIndex()    # this is a QModelIndex
         nodeparent = self.treemodel.nodeFromIndex(index)
-        if nodeparent.ntype == AssemblyNode.ntype:
-            print nodeparent.name
-            node = PartNode("", 0, 1,None, nodeparent)
-            if self.treemodel.insertRow(0, index,node):
-                # set index to the inserted child
-                index = self.treemodel.index(0, 0, index)
-                self.setCurrentIndex(index)
-                #self.treeview.edit(index)
-                #self.setDirty(True)
-                #self.treemodel.reset()
+        
+        # must make it an assembly that we insert at
+        if nodeparent.ntype != AssemblyNode.ntype:                                     
+            index = index.parent()              # returns the parent model index
+            nodeparent = nodeparent.parent      # go to the parent
+        # end if
+        node = PartNode("", 0, 1,None, nodeparent)
+        
+        # currently we insert the new node first in the list but 
+        # treemodel handles keeping things alphabetical
+        if self.treemodel.insertRow(0, index,node):
+            # set index to the inserted child
+            index = self.treemodel.index(0, 0, index)
+            self.setCurrentIndex(index)
+            #self.treeview.edit(index)
+            #self.setDirty(True)
+            #self.treemodel.reset()
             # end if
         # end if
     # end def
