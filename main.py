@@ -32,12 +32,10 @@ Created by Shawn Douglas on 2010-09-26.
 """
 
 import sys
-import math
-
 from PyQt4.QtCore import *
 from PyQt4.QtGui import *
-from ui.documentcontroller import DocumentController
 from cadnano import caDNAno
+from ui.documentcontroller import DocumentController
 
 
 def main():

@@ -38,7 +38,7 @@ class caDNAno(QApplication):
         self.setWindowIcon(QIcon('ui/images/cadnano2-app-icon.png'))
         self.undoGroup = QUndoGroup()
         self.setApplicationName(QString("caDNAno"))
-        self.documentControllers = set()     # Open documents
+        self.documentControllers = set() # Open documents
         self.newDocument()
 
     def newDocument(self):

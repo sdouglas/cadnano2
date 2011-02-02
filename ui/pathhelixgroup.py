@@ -32,23 +32,22 @@ Created by Shawn on 2011-01-27.
 from PyQt4.QtCore import QRectF, QPointF, QEvent, pyqtSlot
 from PyQt4.QtGui import QBrush
 from PyQt4.QtGui import QGraphicsItem, QGraphicsObject
-
-# import pathhelix
+from .pathhelix import PathHelix
 import styles
 
 class PathHelixGroup(QGraphicsObject):
     """docstring for PathHelixGroup"""
-    def __init__(self, partInst, type="honeycomb", controller=None,\
+    def __init__(self, dnaPartInst, type="honeycomb", controller=None,\
                  scene=None, parent=None):
         super(PathHelixGroup, self).__init__()
-        self.partInst = partInst
+        self.dnaPartInst = dnaPartInst
         self.pathController = controller
         self.scene = scene
-        self.crossSectionType = self.partInst.part().getCrossSectionType()
+        self.crossSectionType = self.dnaPartInst.part().getCrossSectionType()
 
         if self.crossSectionType == "honeycomb":
             # set honeycomb parameters
-            self.rect = QRectF(0, 0, 100, 100)
+            self.rect = QRectF(0, 0, 200, 200)
             self.pathCanvasWidth = 42 # FIX: set from config file
         else:
             # set square parameters
@@ -62,6 +61,14 @@ class PathHelixGroup(QGraphicsObject):
 
     @pyqtSlot(int)
     def handleNewHelix(self, number):
-        """docstring for addHelix"""
-        pass
-
+        """
+        Retrieve reference to new VirtualHelix vh based on number relayed
+        by the signal event. Next, create a new PathHelix associated 
+        with vh and draw it on the screen.
+        """
+        part = self.dnaPartInst.part()
+        vh = part.getVirtualHelix(number)
+        x = 0
+        y = part.getVirtualHelixCount() * 50
+        ph = PathHelix(vh, QPointF(x, y), self)
+        ph.setParentItem(self)

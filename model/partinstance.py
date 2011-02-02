@@ -30,11 +30,12 @@ Created by Jonathan deWerd on 2011-01-26.
 
 class PartInstance(object):
     """Represents an instantiation of a part on the canvas"""
-    def __init__(self, part, id):
+    def __init__(self, part, id, *args, **kwargs):
         self._part = part
+        self._id = id
 
     def part(self):
-        """docstring for part"""
+        """Return reference to original part object"""
         return self._part
 
     def simpleRep(self,encoder):

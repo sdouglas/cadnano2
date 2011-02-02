@@ -23,44 +23,50 @@
 # http://www.opensource.org/licenses/mit-license.php
 
 """
-virtualhelix.py
-Created by Jonathan deWerd on 2011-01-26.
+dnapartinstance.py
+Created by Shawn Douglas on 2011-02-01.
 """
+from .partinstance import PartInstance
 
 
-class VirtualHelix(object):
-    """Stores staple and scaffold routing information."""
-    def __init__(self, number, canvasSize):
-        super(VirtualHelix, self).__init__()
-        self._number = number
-        self._canvasSize = canvasSize
-        self._staple = []
-        self._scaffold = []
+class DNAPartInstance(PartInstance):
+    """
+    DNAPartInstance stores view-level customization that does not
+    change the underlying data structure, such as color schemes and
+    VirtualHelix ordering.
+    """
+    def __init__(self, part, id, *args, **kwargs):
+        super(DNAPartInstance, self).__init__(part, id, *args, **kwargs)
+        self._virtualHelixOrder = []
+        self._stapleColor = {}
+        self._scaffoldColor = {}
 
     def simpleRep(self,encoder):
         """Returns a representation in terms of simple JSON-encodable types
         or types that implement simpleRep"""
-        ret = {'.class': "DNAPart"}
-        ret['number'] = self._number
-        ret['canvasSize'] = self._canvasSize
-        ret['staple'] = self._staple
-        ret['scaffold'] = self._scaffold
+        ret = {".class":"DNAPartInstance"}
+        ret['virtualHelixOrder'] = self._virtualHelixOrder
+        ret['stapleColor'] = self._stapleColor
+        ret['scaffoldColor'] = self._scaffoldColor
         return ret
 
     @classmethod
     def fromSimpleRep(cls, rep):
         """Instantiates one of the parent class from the simple
         representation rep"""
-        ret = VirtualHelix()
-        ret._number = rep['number']
-        ret._canvasSize = rep['canvasSize']
-        ret._staple = rep['staple']
-        ret._scaffold = rep['scaffold']
-        return ret
+        dpi = DNAPartInstance()
+        dpi.partID = rep['part']
+        dpi._virtualHelixOrder = rep['virtualHelixOrder']
+        dpi._stapleColor = rep['stapleColor']
+        dpi._scaffoldColor = rep['scaffoldColor']
+        return dpi
 
     def resolveSimpleRepIDs(self,idToObj):
-        raise NotImplementedError
+        self._part = idToObj[self.partID]
+        del self.partID
 
-    def number(self):
-        """return VirtualHelix number"""
-        return self._number
+    def getVirtualHelixOrder(self):
+        """getVirtualHelixOrder returns a list of """
+        return self._virtualHelixOrder
+
+        

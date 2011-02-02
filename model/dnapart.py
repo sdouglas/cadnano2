@@ -32,7 +32,7 @@ from .virtualhelix import VirtualHelix
 class DNAPart(Part):
     def __init__(self, *args, **kwargs):
         super(DNAPart, self).__init__(self, *args, **kwargs)
-        self._virtualHelices = []
+        self._virtualHelices = {}
         self._staples = []
         self._scaffolds = []
         self._name = kwargs.get('name', 'untitled')
@@ -41,7 +41,7 @@ class DNAPart(Part):
         if (self._crossSectionType == 'honeycomb'):
             self._canvasSize = 42
 
-    def simpleRep(self,encoder):
+    def simpleRep(self, encoder):
         """
         Provides a representation of the receiver in terms of simple
         (container,atomic) classes and other objects implementing simpleRep
@@ -74,8 +74,15 @@ class DNAPart(Part):
         """Returns the current canvas size (# of bases) for the DNA part."""
         return self._canvasSize
 
-    def addVirtualHelix(self):
+    def addVirtualHelix(self, number):
         """Adds a new VirtualHelix to the part in response to user input."""
-        vhelix = VirtualHelix(self._canvasSize)
+        vhelix = VirtualHelix(number, self._canvasSize)
+        self._virtualHelices[number] = vhelix
 
+    def getVirtualHelix(self, number):
+        """Look up and return reference to a VirtualHelix"""
+        return self._virtualHelices[number]
 
+    def getVirtualHelixCount(self):
+        """docstring for getVirtualHelixList"""
+        return len(self._virtualHelices)

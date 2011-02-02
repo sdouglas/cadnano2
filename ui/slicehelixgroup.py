@@ -29,13 +29,13 @@ slicehelixgroup.py
 Created by Shawn Douglas on 2010-06-15.
 """
 
+from heapq import *
 from PyQt4.QtCore import QRectF, QPointF, QEvent, pyqtSignal
 from PyQt4.QtGui import QBrush
 from PyQt4.QtGui import QGraphicsItem, QGraphicsObject
-import slicehelix
+from .slicehelix import SliceHelix
 import styles
 
-from heapq import *
 
 root3 = 1.732051
 
@@ -51,12 +51,12 @@ class SliceHelixGroup(QGraphicsObject):
     """
     helixAdded = pyqtSignal(int)
     
-    def __init__(self, partInst, nrows=3, ncolumns=6,\
+    def __init__(self, dnaPartInst, nrows=3, ncolumns=6,\
                 controller=None, scene=None, parent=None):
         super(SliceHelixGroup, self).__init__(parent)
         # data related
-        self.partInst = partInst
-        self.crossSectionType = self.partInst.part().getCrossSectionType()
+        self.dnaPartInst = dnaPartInst
+        self.crossSectionType = self.dnaPartInst.part().getCrossSectionType()
         self.sliceController = controller
         self.scene = scene
         self.oddRecycleBin = []
@@ -85,8 +85,7 @@ class SliceHelixGroup(QGraphicsObject):
                        y = row*self.radius*3 + self.radius
                    else:                          # even parity
                        y = row*self.radius*3
-                   helix = slicehelix.SliceHelix(row, column,\
-                                                 QPointF(x, y), self)
+                   helix = SliceHelix(row, column, QPointF(x, y), self)
                    self.helixhash[(row, column)] = helix
                    helix.setParentItem(self)
             # populate neighbor linkages
@@ -174,7 +173,7 @@ class SliceHelixGroup(QGraphicsObject):
         else:
             heappush(self.oddRecycleBin,n)
 
-    def addVirtualHelixtoDnaPart(self, number):
+    def addVirtualHelixToPathGroup(self, number):
         """docstring for addVirtualHelixtoDnaPart"""
         self.helixAdded.emit(number)
 

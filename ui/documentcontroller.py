@@ -23,23 +23,23 @@
 # http://www.opensource.org/licenses/mit-license.php
 
 from PyQt4.QtGui import *
-
 from PyQt4.QtCore import SIGNAL, QString
-from model.document import Document
-from documentwindow import DocumentWindow
-from slicehelixgroup import SliceHelixGroup
-from pathhelixgroup import PathHelixGroup
-from idbank import IdBank
-from treecontroller import TreeController
 from cadnano import app
+from idbank import IdBank
+from model.document import Document
 from model.encoder import encode
+from .documentwindow import DocumentWindow
+from .pathhelixgroup import PathHelixGroup
+from .slicehelixgroup import SliceHelixGroup
+from .treecontroller import TreeController
+
 
 class DocumentController():
     """
     The document controller. Hooks high level (read file/write file, add
     submodel, etc) UI elements to their corresponding actions in the model
     """
-    
+
     def __init__(self):
         app().documentControllers.add(self)
         self.doc = Document()
@@ -52,10 +52,11 @@ class DocumentController():
         self.first = None
         self.treeController = TreeController(self.win.treeview)
         self.createConnections()
-    
+
     def filename(self):
         return self._filename
-    def setFilename(self,proposedFName):
+
+    def setFilename(self, proposedFName):
         if self._filename == proposedFName:
             return True
         self._filename = proposedFName
@@ -74,7 +75,7 @@ class DocumentController():
         self.win.actionClose.triggered.connect(self.closeClicked)
         self.win.actionSave.triggered.connect(self.saveClicked)
         self.win.actionSVG.triggered.connect(self.svgClicked)
-        
+
         # self.win.actionSave_As.triggered.connect(self.saveAsClicked)
         # self.win.actionQuit.triggered.connect(self.closeClicked)
         # self.win.actionAdd.triggered.connect(self.addClicked)
@@ -85,25 +86,23 @@ class DocumentController():
         # self.win.actionMoveDown.triggered.connect(self.moveDownClicked)
         # self.win.actionPromote.triggered.connect(self.promoteClicked)
         # self.win.actionDemote.triggered.connect(self.demoteClicked)
-    
-        # tree nodes get destroyed for dragging and droping so we must 
+
+        # tree nodes get destroyed for dragging and droping so we must
         # use ids to select and deselect other views
         self.treeController.partselected.connect(self.getViewsFromTree)
     # end def
-    
+
     def getViewsFromTree(self, ntype, object_id, instance_id):
         """place code here that emits signals based on dictionary values"""
-        print "were doing this: %s" % ntype
-        
+        print "we're doing this: %s" % ntype
         # this is a placeholder for the actual dictionary look up of objects
         self.first.bringToFront()
-
     # end def
-    
+
     def setDirty(self, dirty=True):
         self.win.setWindowModified(dirty)
     #end def
-    
+
     def newClicked(self):
         """docstring for newClicked"""
         print "new clicked"
@@ -167,13 +166,13 @@ class DocumentController():
         # Create a new DNA part
         objId = self.idbank.get()
         instId = self.idbank.get()
-        partInst = self.doc.addDnaPart(objId, instId,\
-                                       crossSectionType='honeycomb')
+        dnaPartInst = self.doc.addDnaPart(objId, instId,\
+                                          crossSectionType='honeycomb')
         # Add the part to the Tree view
         self.treeController.addPartNode()
 
         # Create a Slice view of part
-        shg = SliceHelixGroup(partInst, nrows, ncolumns,\
+        shg = SliceHelixGroup(dnaPartInst, nrows, ncolumns,\
                               scene=self.win.slicescene,\
                               controller=self.win.sliceController)
         self.win.slicescene.addItem(shg)
@@ -183,7 +182,7 @@ class DocumentController():
         #end if
 
         # Create a Path view of the part
-        phg = PathHelixGroup(partInst, scene=self.win.pathscene,\
+        phg = PathHelixGroup(dnaPartInst, scene=self.win.pathscene,\
                              controller=self.win.pathController)
         self.win.pathscene.addItem(phg)
 
@@ -216,7 +215,7 @@ class DocumentController():
         self.updateUi()
     # end def
 
-    def okToDelete(self, parent, title,text, detailedText):
+    def okToDelete(self, parent, title, text, detailedText):
         """
         """
         messageBox = QMessageBox(parent)
@@ -239,7 +238,7 @@ class DocumentController():
         return messageBox.clickedButton() == deleteButton
     # end def
 
-    def okToClear(self, savedata, parent, title,text, detailedText):
+    def okToClear(self, savedata, parent, title, text, detailedText):
         """
         savedata is a function pointer
         """
@@ -269,7 +268,7 @@ class DocumentController():
         return True
     # end def
 
-    def createAction(self,icon, text, parent, shortcutkey):
+    def createAction(self, icon, text, parent, shortcutkey):
         """
         returns a QAction object
         """
@@ -284,15 +283,19 @@ class DocumentController():
         """
         """
         #self.win.actionSave.setEnabled(self.win.isWindowModified())
-        
+
         rows = self.treemodel.rowCount()
 
         #self.win.actionSave_As.setEnabled(self.win.isWindowModified() or rows)
         #self.win.actionHideOrShowItems.setEnabled(rows)
         enable = self.win.treeview.currentIndex().isValid()
-        
-        # actions = [self.win.actionDelete, self.win.actionMoveUp, self.win.actionMoveDown, \
-        #             self.win.actionCut,self.win.actionPromote, self.win.actionDemote]
+
+        # actions = [self.win.actionDelete,\
+        #            self.win.actionMoveUp,\
+        #            self.win.actionMoveDown,\
+        #            self.win.actionCut,\
+        #            self.win.actionPromote,\
+        #            self.win.actionDemote]
         # for action in actions:
         #     action.setEnabled(enable)
         # # end for
@@ -300,44 +303,37 @@ class DocumentController():
         # self.win.actionPaste.setEnabled(self.treemodel.hasCutItem())
     #end def
 
-
     def cutClicked(self):
         """"""
         self.win.actionPaste.setEnabled(self.treeController.cut())
     # end def
-
 
     def pasteClicked(self):
         """"""
         self.treeController.paste()
     # end def
 
-
     def moveUpClicked(self):
         """"""
         self.treeController.moveUp()
     # end def
-
 
     def moveDownClicked(self):
         """"""
         self.treeController.moveDown()
     # end def
 
-
     def promoteClicked(self):
         """"""
         self.treeController.promote()
     #end def
-
 
     def demoteClicked(self):
         """"""
         self.treeController.demote()
     #end def
 
-
-    def hideOrShowNode(self,hide, index):
+    def hideOrShowNode(self, hide, index):
         """"""
         self.treeController.hideOrShowNode()
     # end def
