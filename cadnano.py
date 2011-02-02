@@ -35,16 +35,17 @@ class caDNAno(QApplication):
         super(caDNAno, self).__init__(argv)
         assert(not caDNAno.sharedApp)
         caDNAno.sharedApp = self
-        self.setWindowIcon(QIcon('ui/images/part-new-honeycomb.png'))
+        self.setWindowIcon(QIcon('ui/images/cadnano2-app-icon.png'))
         self.undoGroup = QUndoGroup()
         self.setApplicationName(QString("caDNAno"))
         self.documentControllers = set()     # Open documents
         self.newDocument()
-        
+
     def newDocument(self):
         from ui.documentcontroller import DocumentController
-        DocumentController()  # DocumentController is responsible for adding itself to app.documentControllers
-    
-# Convenience. No reason to feel guilty using it - caDNAno is a singleton.    
+        DocumentController() # DocumentController is responsible for adding
+                             # itself to app.documentControllers
+
+# Convenience. No reason to feel guilty using it - caDNAno is a singleton.
 def app():
     return caDNAno.sharedApp

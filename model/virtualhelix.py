@@ -29,15 +29,31 @@ Created by Jonathan deWerd on 2011-01-26.
 
 
 class VirtualHelix(object):
+    """Stores staple and scaffold routing information."""
+    def __init__(self, canvasSize):
+        super(VirtualHelix, self).__init__()
+        self._canvasSize = canvasSize
+        self._staple = []
+        self._scaffold = []
+
     def simpleRep(self,encoder):
         """Returns a representation in terms of simple JSON-encodable types
         or types that implement simpleRep"""
-        raise NotImplementedError
+        ret = {'.class': "DNAPart"}
+        ret['canvasSize'] = self._canvasSize
+        ret['staple'] = self._staple
+        ret['scaffold'] = self._scaffold
+        return ret
 
     @classmethod
     def fromSimpleRep(cls, rep):
         """Instantiates one of the parent class from the simple
         representation rep"""
-        raise NotImplementedError
+        ret = VirtualHelix()
+        ret._canvasSize = rep['canvasSize']
+        ret._staple = rep['staple']
+        ret._scaffold = rep['scaffold']
+        return ret
+
     def resolveSimpleRepIDs(self,idToObj):
         raise NotImplementedError

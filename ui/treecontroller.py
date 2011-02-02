@@ -50,7 +50,7 @@ class TreeController(QObject):
         index = self.treeview.currentIndex()
         nodeparent = self.treemodel.nodeFromIndex(index)
         print nodeparent.name
-        node = AssemblyNode("", 0, 1,None, nodeparent)
+        node = AssemblyNode("Assembly", 0, 1, None, nodeparent)
         if self.treemodel.insertRow(0, index,node):
             # set index to the inserted child
             index = self.treemodel.index(0, 0, index)

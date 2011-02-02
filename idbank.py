@@ -59,6 +59,18 @@ class IdBank(object):
         return id_hash in self.id_dict
     # end def
 
+    def get(self):
+        """
+        Creates and returns a new id for a unique element/part/assembly
+        """
+        try:
+            removed_ids.popleft()
+        except:
+            self.id_count += 1  # increase the hash key
+            self.id_dict[self.id_count] = True
+            return self.id_count
+    # end def
+
     def issue(self):
         """
         Creates a new id for a unique element/part/assembly

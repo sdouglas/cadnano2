@@ -33,7 +33,7 @@ class Part(object):
     def __init__(self, id, *args, **kargs):
         self._id = id
 
-    def simpleRep(self,encoder):
+    def simpleRep(self, encoder):
         """Returns a representation in terms of simple JSON-encodable types
         or types that implement simpleRep"""
         raise NotImplementedError

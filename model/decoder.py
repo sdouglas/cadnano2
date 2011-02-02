@@ -30,11 +30,13 @@ import json
 from .dnapart import DNAPart
 from .document import Document
 from .partinstance import PartInstance
+from .virtualhelix import VirtualHelix
 
 classNameToClassMap = {}
 classNameToClassMap['DNAPart'] = DNAPart
 classNameToClassMap['CADNanoDocument'] = Document
 classNameToClassMap['PartInstance'] = PartInstance
+classNameToClassMap['VirtualHelix'] = VirtualHelix
 
 class Decoder(object):
     """Has to be a class because it carries state (object ids)"""

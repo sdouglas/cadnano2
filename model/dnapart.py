@@ -27,15 +27,19 @@ DNAPart.py
 
 import json
 from .part import Part
-
+from .virtualhelix import VirtualHelix
 
 class DNAPart(Part):
     def __init__(self, *args, **kwargs):
         super(DNAPart, self).__init__(self, *args, **kwargs)
         self._virtualHelices = []
-        self._name = kwargs.get('name', 'untitled')
         self._staples = []
         self._scaffolds = []
+        self._name = kwargs.get('name', 'untitled')
+        self._crossSectionType = kwargs.get('crossSectionType', 'honeycomb')
+        # FIX: defaults should be read from a config file
+        if (self._crossSectionType == 'honeycomb'):
+            self._canvasSize = 42
 
     def simpleRep(self,encoder):
         """
@@ -43,10 +47,10 @@ class DNAPart(Part):
         (container,atomic) classes and other objects implementing simpleRep
         """
         ret = {'.class': "DNAPart"}
-        ret["virtualHelices"] = self._virtualHelices
-        ret["name"] = self._name
-        ret["staples"] = self._staples
-        ret["scaffolds"] = self._scaffolds
+        ret['virtualHelices'] = self._virtualHelices
+        ret['name'] = self._name
+        ret['staples'] = self._staples
+        ret['scaffolds'] = self._scaffolds
         return ret
 
     @classmethod
@@ -57,6 +61,21 @@ class DNAPart(Part):
         ret._staples = rep['staples']
         ret._scaffolds = rep['scaffolds']
         return ret
+
     def resolveSimpleRepIDs(self,idToObj):
         pass  # DNAPart owns its virtual helices, staples, and scaffods
               # so we don't need to make weak refs to them
+
+    def getCrossSectionType(self):
+        """Returns the cross-section type of the DNA part."""
+        return self._crossSectionType
+
+    def getCanvasSize(self):
+        """Returns the current canvas size (# of bases) for the DNA part."""
+        return self._canvasSize
+
+    def addVirtualHelix(self):
+        """Adds a new VirtualHelix to the part in response to user input."""
+        vhelix = VirtualHelix(self._canvasSize)
+
+

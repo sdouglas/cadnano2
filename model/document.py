@@ -55,13 +55,12 @@ class Document:
         pass  # Document owns its parts and partInstances
               # so we didn't need to make weak refs to them
 
-    def addDnaPart(self, partid, instid):
+    def addDnaPart(self, partid, instid, crossSectionType):
         """
         Create and store a new DNAPart and instance, and return the instance.
         """
-        part = DNAPart(partid)
+        part = DNAPart(partid, crossSectionType)
         self._parts.append(part)
         inst = PartInstance(part, instid)
         self._partInstances.append(inst)
-        print "Document.addDnaPart"
         return inst

@@ -38,19 +38,18 @@ import styles
 
 class PathHelixGroup(QGraphicsObject):
     """docstring for PathHelixGroup"""
-    def __init__(self, type="honeycomb", controller=None,\
+    def __init__(self, partInst, type="honeycomb", controller=None,\
                  scene=None, parent=None):
         super(PathHelixGroup, self).__init__()
+        self.partInst = partInst
         self.pathController = controller
         self.scene = scene
+        self.crossSectionType = self.partInst.part().getCrossSectionType()
 
-        if type == "honeycomb":
+        if self.crossSectionType == "honeycomb":
             # set honeycomb parameters
-            self.rect = QRectF(0, \
-                               0, \
-                               100, \
-                               100)
-            pass
+            self.rect = QRectF(0, 0, 100, 100)
+            self.pathCanvasWidth = 42 # FIX: set from config file
         else:
             # set square parameters
             pass
@@ -64,5 +63,5 @@ class PathHelixGroup(QGraphicsObject):
     @pyqtSlot(int)
     def handleNewHelix(self, number):
         """docstring for addHelix"""
-        print "path helix group: addHelix slot", number
+        pass
 

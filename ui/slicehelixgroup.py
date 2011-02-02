@@ -51,10 +51,12 @@ class SliceHelixGroup(QGraphicsObject):
     """
     helixAdded = pyqtSignal(int)
     
-    def __init__(self, nrows=3, ncolumns=6, type="honeycomb", \
+    def __init__(self, partInst, nrows=3, ncolumns=6,\
                 controller=None, scene=None, parent=None):
         super(SliceHelixGroup, self).__init__(parent)
         # data related
+        self.partInst = partInst
+        self.crossSectionType = self.partInst.part().getCrossSectionType()
         self.sliceController = controller
         self.scene = scene
         self.oddRecycleBin = []
@@ -67,17 +69,14 @@ class SliceHelixGroup(QGraphicsObject):
         self.radius = styles.SLICE_HELIX_RADIUS
         self.nrows = nrows 
         self.ncolumns = ncolumns
-        self.type = type
-        self.handleSize = 15
+        self.handleSize = 15 # FIX: read from config file
         self.setFlags(QGraphicsItem.ItemIsSelectable)
         self.helixhash = {}
 
-        if type == "honeycomb":
-            self.rect = QRectF(0, \
-                               0, \
-                               (ncolumns)*self.radius*root3, \
+        if self.crossSectionType == 'honeycomb':
+            self.rect = QRectF(0, 0,\
+                               (ncolumns)*self.radius*root3,\
                                (nrows)*self.radius*3)
-
             # create a SliceHelix at each position in the grid
             for column in range(ncolumns):
                for row in range(nrows):
@@ -86,10 +85,10 @@ class SliceHelixGroup(QGraphicsObject):
                        y = row*self.radius*3 + self.radius
                    else:                          # even parity
                        y = row*self.radius*3
-                   helix = slicehelix.SliceHelix(row, column, QPointF(x, y), self)
+                   helix = slicehelix.SliceHelix(row, column,\
+                                                 QPointF(x, y), self)
                    self.helixhash[(row, column)] = helix
                    helix.setParentItem(self)
-
             # populate neighbor linkages
             for column in range(ncolumns):
                 for row in range(nrows):
@@ -121,6 +120,7 @@ class SliceHelixGroup(QGraphicsObject):
             # end for
         # end if
         else: # type = square
+            print "self.type == honeycomb is false"
             pass
         # end else
     # end def
@@ -137,8 +137,8 @@ class SliceHelixGroup(QGraphicsObject):
         If a specific index is preferable (say, for undo/redo) it can be
         requested in num.
         """
-        if num!=None: # A special request
-            assert num>=0, long(num)==num
+        if num != None: # A special request
+            assert num >= 0, long(num) == num
             if num in self.oddRecycleBin:
                 self.oddRecycleBin.remove(num)
                 return num
@@ -151,31 +151,33 @@ class SliceHelixGroup(QGraphicsObject):
             if len(self.oddRecycleBin):
                 return heappop(self.oddRecycleBin)
             else:
-                while self.highestUsedOdd+2 in self.reserveBin:
-                    self.highestUsedOdd+=2
-                self.highestUsedOdd+=2
+                while self.highestUsedOdd + 2 in self.reserveBin:
+                    self.highestUsedOdd += 2
+                self.highestUsedOdd += 2
                 return self.highestUsedOdd
         else:
             if len(self.evenRecycleBin):
                 return heappop(self.evenRecycleBin)
             else:
-                while self.highestUsedEven+2 in self.reserveBin:
-                    self.highestUsedEven+=2
-                self.highestUsedEven+=2
+                while self.highestUsedEven + 2 in self.reserveBin:
+                    self.highestUsedEven += 2
+                self.highestUsedEven += 2
                 return self.highestUsedEven
 
     def recycleLabelForHelix(self, n, helix):
-        """The caller's contract is to ensure that n is not used in *any* helix at the time of the calling of this function (or afterwards, unless reserveLabelForHelix returns the label again)"""
-        if n%2==0:
+        """
+        The caller's contract is to ensure that n is not used in *any* helix
+        at the time of the calling of this function (or afterwards, unless
+        reserveLabelForHelix returns the label again)"""
+        if n % 2 == 0:
             heappush(self.evenRecycleBin,n)
         else:
             heappush(self.oddRecycleBin,n)
-    
+
     def addVirtualHelixtoDnaPart(self, number):
         """docstring for addVirtualHelixtoDnaPart"""
         self.helixAdded.emit(number)
 
-        
     def bringToFront(self):
         """"""
         zval = 1
@@ -183,9 +185,8 @@ class SliceHelixGroup(QGraphicsObject):
         for item in items:
             temp = item.zValue()
             if temp >= zval:
-                zval = item.zValue()+1
+                zval = item.zValue() + 1
             # end if
         # end for
         self.setZValue(zval)
     # end def
-    

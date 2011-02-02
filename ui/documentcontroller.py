@@ -165,32 +165,30 @@ class DocumentController():
     def addHoneycombHelixGroup(self, nrows=20, ncolumns=20):
         """docstring for addHoneycombHelixGroup"""
         # Create a new DNA part
-        #partInst = self.doc.addDnaPart()
-
+        objId = self.idbank.get()
+        instId = self.idbank.get()
+        partInst = self.doc.addDnaPart(objId, instId,\
+                                       crossSectionType='honeycomb')
         # Add the part to the Tree view
-        # self.addPartToTree(partInst)
+        self.treeController.addPartNode()
 
         # Create a Slice view of part
-        shg = SliceHelixGroup(nrows, ncolumns, "honeycomb",\
+        shg = SliceHelixGroup(partInst, nrows, ncolumns,\
                               scene=self.win.slicescene,\
                               controller=self.win.sliceController)
         self.win.slicescene.addItem(shg)
-        
+
         if self.first == None:
             self.first = shg
         #end if
-        
+
         # Create a Path view of the part
-        phg = PathHelixGroup("honeycomb",\
-                             scene=self.win.pathscene,\
+        phg = PathHelixGroup(partInst, scene=self.win.pathscene,\
                              controller=self.win.pathController)
         self.win.pathscene.addItem(phg)
 
         # Connect the slice
         shg.helixAdded.connect(phg.handleNewHelix)
-        
-        self.treeController.addPartNode()
-        
     # end def
 
     def deleteClicked(self):
