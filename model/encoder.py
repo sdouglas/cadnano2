@@ -37,10 +37,32 @@ import json
 
 
 class Encoder(json.JSONEncoder):
+    def __init__(self):
+        super(Encoder,self).__init__()
+        self._nextID = 0
+        self._objToId = {}
+        self._alreadyEncoded = set()
     def default(self, obj):
+        # If you just hit the assert below,
+        # something (probably a circular strong reference) is misdesigned.
+        # Use weak references (storing IDs not objects) to break the loop.
+        assert(obj not in self._alreadyEncoded)      
+        assert(self._alreadyEncoded.add(obj) == None)
         if hasattr(obj, "simpleRep"):
-            return obj.simpleRep()
+            sr = obj.simpleRep(self)
+            if obj in self._objToId:
+                sr['.id'] = self._objToId[obj]
+            else:
+                sr['.id'] = self._nextID
+                self._nextID += 1
+            return sr
         return json.JSONEncoder.default(self, obj)
+    def idForObject(obj):
+        if obj in self._objToId:
+            return self._objToId[obj]
+        else:
+            self._nextID += 1
+            return self._nextID-1
 
 
 def encode(root):

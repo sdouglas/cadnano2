@@ -29,17 +29,35 @@ Created by Jonathan deWerd on 2011-01-26.
 import json
 from .dnapart import DNAPart
 from .document import Document
+from .partinstance import PartInstance
+from .virtualhelix import VirtualHelix
 
 classNameToClassMap = {}
 classNameToClassMap['DNAPart'] = DNAPart
 classNameToClassMap['CADNanoDocument'] = Document
+classNameToClassMap['PartInstance'] = PartInstance
+classNameToClassMap['VirtualHelix'] = VirtualHelix
 
-
-def decodeObj(dct):
-    if '.class' in dct:
-        return classNameToClassMap[dct['.class']].fromSimpleRep(dct)
-    return dct
+class Decoder(object):
+    """Has to be a class because it carries state (object ids)"""
+    def __init__(self):
+        self.idToObj={}
+        self.objsWthWeakRefsToResolve=[]
+    def decode(self,str):
+        rootObj = json.loads(str, object_hook=lambda x: self.decodeObj(self,x))
+        for o in self.objsWthWeakRefsToResolve:
+            o.resolveSimpleRepIDs(self.idToObj)
+    def decodeObj(self,dct):
+        if '.class' in dct:
+            obj = classNameToClassMap[dct['.class']].fromSimpleRep(dct)
+            objsWthWeakRefsToResolve.append(obj)
+            if '.id' in dct:
+                ii = dct['id']
+                assert(ii not in self.idToObj)
+                self.idToObj[dct['.id']] = obj
+        return dct
 
 
 def decode(str):
-    return json.loads(str, object_hook=decodeObj)
+    d = Decoder()
+    return d.decode(str)

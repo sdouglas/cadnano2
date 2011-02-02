@@ -27,26 +27,30 @@ DNAPart.py
 
 import json
 from .part import Part
-
+from .virtualhelix import VirtualHelix
 
 class DNAPart(Part):
     def __init__(self, *args, **kwargs):
         super(DNAPart, self).__init__(self, *args, **kwargs)
-        self._virtualHelices = []
-        self._name = kwargs.get('name', 'untitled')
+        self._virtualHelices = {}
         self._staples = []
         self._scaffolds = []
+        self._name = kwargs.get('name', 'untitled')
+        self._crossSectionType = kwargs.get('crossSectionType', 'honeycomb')
+        # FIX: defaults should be read from a config file
+        if (self._crossSectionType == 'honeycomb'):
+            self._canvasSize = 42
 
-    def simpleRep(self):
+    def simpleRep(self, encoder):
         """
         Provides a representation of the receiver in terms of simple
         (container,atomic) classes and other objects implementing simpleRep
         """
         ret = {'.class': "DNAPart"}
-        ret["virtualHelices"] = self._virtualHelices
-        ret["name"] = self._name
-        ret["staples"] = self._staples
-        ret["scaffolds"] = self._scaffolds
+        ret['virtualHelices'] = self._virtualHelices
+        ret['name'] = self._name
+        ret['staples'] = self._staples
+        ret['scaffolds'] = self._scaffolds
         return ret
 
     @classmethod
@@ -57,3 +61,28 @@ class DNAPart(Part):
         ret._staples = rep['staples']
         ret._scaffolds = rep['scaffolds']
         return ret
+
+    def resolveSimpleRepIDs(self,idToObj):
+        pass  # DNAPart owns its virtual helices, staples, and scaffods
+              # so we don't need to make weak refs to them
+
+    def getCrossSectionType(self):
+        """Returns the cross-section type of the DNA part."""
+        return self._crossSectionType
+
+    def getCanvasSize(self):
+        """Returns the current canvas size (# of bases) for the DNA part."""
+        return self._canvasSize
+
+    def addVirtualHelix(self, number):
+        """Adds a new VirtualHelix to the part in response to user input."""
+        vhelix = VirtualHelix(number, self._canvasSize)
+        self._virtualHelices[number] = vhelix
+
+    def getVirtualHelix(self, number):
+        """Look up and return reference to a VirtualHelix"""
+        return self._virtualHelices[number]
+
+    def getVirtualHelixCount(self):
+        """docstring for getVirtualHelixList"""
+        return len(self._virtualHelices)

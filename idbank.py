@@ -37,6 +37,8 @@ class IdBank(object):
     reissue.
     This should be fast as typically users shouldn't be deleting lots of
     items, so we store the previosuly used ids in a deque.
+    This class is not a singleton because IDs have context, namely the document
+    they belong to. We can't expect a document on disk to 
     """
     def __init__(self):
         """
@@ -55,6 +57,18 @@ class IdBank(object):
         check if key was issued
         """
         return id_hash in self.id_dict
+    # end def
+
+    def get(self):
+        """
+        Creates and returns a new id for a unique element/part/assembly
+        """
+        try:
+            removed_ids.popleft()
+        except:
+            self.id_count += 1  # increase the hash key
+            self.id_dict[self.id_count] = True
+            return self.id_count
     # end def
 
     def issue(self):

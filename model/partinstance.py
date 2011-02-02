@@ -30,14 +30,27 @@ Created by Jonathan deWerd on 2011-01-26.
 
 class PartInstance(object):
     """Represents an instantiation of a part on the canvas"""
-    def __init__(self, part, id):
+    def __init__(self, part, id, *args, **kwargs):
         self._part = part
         self._id = id
 
     def part(self):
-        """docstring for part"""
+        """Return reference to original part object"""
         return self._part
 
-    def id(self):
-        """docstring for id"""
-        return self._id
+    def simpleRep(self,encoder):
+        """Returns a representation in terms of simple JSON-encodable types
+        or types that implement simpleRep"""
+        ret = {".class":"PartInstance"}
+        ret['part'] = encoder.idForObject(self._part)  # An instance doesn't own its part
+        return ret
+
+    @classmethod
+    def fromSimpleRep(cls, rep):
+        """Instantiates one of the parent class from the simple
+        representation rep"""
+        pi = PartInstance()
+        pi.partID = rep['part']
+    def resolveSimpleRepIDs(self,idToObj):
+        self._part = idToObj[self.partID]
+        del self.partID

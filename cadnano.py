@@ -23,25 +23,29 @@
 # http://www.opensource.org/licenses/mit-license.php
 
 """
-part
-Created by Jonathan deWerd on 2011-01-26.
+cadnano
+Created by Jonathan deWerd on 2011-01-29.
 """
-from exceptions import NotImplementedError
+from PyQt4.QtCore import *
+from PyQt4.QtGui import *
 
+class caDNAno(QApplication):
+    sharedApp = None  # This class is a singleton.
+    def __init__(self,argv):
+        super(caDNAno, self).__init__(argv)
+        assert(not caDNAno.sharedApp)
+        caDNAno.sharedApp = self
+        self.setWindowIcon(QIcon('ui/images/cadnano2-app-icon.png'))
+        self.undoGroup = QUndoGroup()
+        self.setApplicationName(QString("caDNAno"))
+        self.documentControllers = set() # Open documents
+        self.newDocument()
 
-class Part(object):
-    def __init__(self, id, *args, **kargs):
-        self._id = id
+    def newDocument(self):
+        from ui.documentcontroller import DocumentController
+        DocumentController() # DocumentController is responsible for adding
+                             # itself to app.documentControllers
 
-    def simpleRep(self, encoder):
-        """Returns a representation in terms of simple JSON-encodable types
-        or types that implement simpleRep"""
-        raise NotImplementedError
-
-    @classmethod
-    def fromSimpleRep(cls, rep):
-        """Instantiates one of the parent class from the simple
-        representation rep"""
-        raise NotImplementedError
-    def resolveSimpleRepIDs(self,idToObj):
-        raise NotImplementedError  # It's up to children to implement serialization
+# Convenience. No reason to feel guilty using it - caDNAno is a singleton.
+def app():
+    return caDNAno.sharedApp

@@ -32,23 +32,17 @@ Created by Shawn Douglas on 2010-09-26.
 """
 
 import sys
-import math
-
 from PyQt4.QtCore import *
 from PyQt4.QtGui import *
+from cadnano import caDNAno
 from ui.documentcontroller import DocumentController
 
+
 def main():
-    app = QApplication(sys.argv)
-    dc = DocumentController()
-    app.setWindowIcon(QIcon('ui/images/cadnano2-app-icon.png'))
-    dc.win.setWindowIcon(QIcon('ui/images/cadnano2-app-icon.png'))
-    app.setApplicationName (QString("caDNAno"))
+    app = caDNAno(sys.argv)
     app.exec_()
-# end def
 
 if __name__ == '__main__':
     main()
 else:  # Otherwise drop back to prompt in the interactive interpreter
-    app = QApplication(sys.argv)
-    dc = DocumentController()
+    app = caDNAno(sys.argv)

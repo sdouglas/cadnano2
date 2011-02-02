@@ -125,7 +125,6 @@ class CustomQGraphicsView(QGraphicsView):
         """
         if event.key() == self.key_mod:
             event.accept()
-            #print "control pressed"
             self.transformEnable = True
         else:
             QGraphicsView.keyPressEvent(self, event)
@@ -146,7 +145,6 @@ class CustomQGraphicsView(QGraphicsView):
         """
         if event.key() == self.key_mod:
             event.accept()
-            #print "control released"
             self.transformEnable = False
             self.dollyZoomEnable = False
             self.panDisable()
@@ -209,7 +207,6 @@ class CustomQGraphicsView(QGraphicsView):
             event.accept()
             which_buttons = event.buttons()
             if which_buttons == self.key_pan:
-                # print "panning on"
                 self.panEnable()
                 self.x0 = event.pos().x()
                 self.y0 = event.pos().y()
@@ -240,7 +237,6 @@ class CustomQGraphicsView(QGraphicsView):
         if self.transformEnable == True:
             # QMouseEvent.button() returns the button that triggered the event
             which_button = event.button()
-            # print "panning off"
             if which_button == self.key_pan:
                 self.panDisable()
             elif which_button == self.key_zoom:
@@ -253,14 +249,12 @@ class CustomQGraphicsView(QGraphicsView):
     def panEnable(self):
         """Enable ScrollHandDrag Mode in QGraphicsView (displays a hand
         pointer)"""
-        # print "dragging enabled"
         self.setDragMode(self.yesDrag)
     # end def
 
     def panDisable(self):
         """Disable ScrollHandDrag Mode in QGraphicsView (displays a hand
         pointer)"""
-        ## print "dragging disabled"
         self.setDragMode(self.noDrag)
     # end def
 

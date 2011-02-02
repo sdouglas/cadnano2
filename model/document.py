@@ -29,36 +29,38 @@ Created by Jonathan deWerd on 2011-01-26.
 
 import json
 from .dnapart import DNAPart
-from .partinstance import PartInstance
+from .dnapartinstance import DNAPartInstance
 
 
 class Document:
     def __init__(self):
         self._parts = []
-        self._partInstances = []
+        self._dnaPartInstances = []
 
-    def simpleRep(self):
+    def simpleRep(self,encoder):
         """Returns a representation in terms of simple JSON-encodable types
         or types that implement simpleRep"""
         ret = {".class": "CADNanoDocument"}
         ret["parts"] = self._parts
-        ret["partInstances"] = self._partInstances
+        ret["dnaPartInstances"] = self._dnaPartInstances
         return ret
 
     @classmethod
     def fromSimpleRep(cls, dct):
         ret = Document()
         ret._parts = dct['parts']
-        ret._partInstances = dct['partInstances']
+        ret._dnaPartInstances = dct['dnaPartInstances']
         return ret
+    def resolveSimpleRepIDs(self,idToObj):
+        pass  # Document owns its parts and dnaPartInstances
+              # so we didn't need to make weak refs to them
 
-    def addDnaPart(self, partid, instid):
+    def addDnaPart(self, partid, instid, crossSectionType):
         """
         Create and store a new DNAPart and instance, and return the instance.
         """
-        part = DNAPart(partid)
-        self._parts.append(part)
-        inst = PartInstance(part, instid)
-        self._partInstances.append(inst)
-        print "Document.addDnaPart"
-        return inst
+        dnapart = DNAPart(partid, crossSectionType)
+        self._parts.append(dnapart)
+        dnainst = DNAPartInstance(dnapart, instid)
+        self._dnaPartInstances.append(dnainst)
+        return dnainst

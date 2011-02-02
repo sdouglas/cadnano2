@@ -34,6 +34,7 @@ from PyQt4.QtGui import QGraphicsItem
 from PyQt4.QtGui import QGraphicsSimpleTextItem
 from PyQt4.QtGui import QPen, QDrag, QUndoCommand
 import styles
+from model.virtualhelix import VirtualHelix
 
 
 class SliceHelix(QGraphicsItem):
@@ -169,20 +170,37 @@ class SliceHelix(QGraphicsItem):
         elif self.number < 100:
             self.label.setX(self.radius / 2)
         else:   # added for bigger than 100 by NC
-            self.label.setX(self.radius/4)
+            self.label.setX(self.radius / 4)
         self.label.setY(self.radius / 2)
     # end def
 
     def setUsed(self, u):
+        """
+        Handles user click on SliceHelix in two possible ways:
+        
+        1. If the SliceHelix has never been used, reserver a new label
+        from the parent SliceHelixGroup, create a new VirtualHelix vhelix,
+        and notify the PathHelixGroup that it should create a new
+        PathHelix that points to vhelix.
+        
+        2. If the SliceHelix has been used previously, try to add some
+        scaffold at the currently selected position in the path view.
+        """
         if (self.number >= 0) == u:
             # self.parent.addBasesToDnaPart(self.number)
             pass
         if self.number < 0:  # Use
             self.setNumber(self.parent.reserveLabelForHelix(self))
-            self.parent.addVirtualHelixtoDnaPart(self.number)
+            part = self.parent.dnaPartInst.part()
+            self.vhelix = part.addVirtualHelix(self.number)
+            self.parent.addVirtualHelixToPathGroup(self.number)
             # self.parent.addBasesToDnaPart(self.number)
         else:  # Unuse
             # self.setNumber(-1)
             pass
     # end def
+
+    def add(self):
+        """docstring for add"""
+        pass
 # end class
