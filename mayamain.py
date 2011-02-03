@@ -32,14 +32,15 @@ Created by Shawn Douglas on 2010-09-26.
 """
 
 import sys
+pathadder = '/Users/nick/oldnick/python_scripts/cadnano/cadnano2'
+if pathadder not in sys.path:
+    sys.path.append(pathadder)
+# end if
 
-from cadnano import caDNAno
+import cadnanomaya
+reload(sys.modules['cadnanomaya'])
+caDNAno = cadnanomaya.caDNAno
 
-def main():
-    app = caDNAno(sys.argv)
-    app.exec_()
+#import pymel.core as pm
+caDNAno()
 
-if __name__ == '__main__':
-    main()
-else:  # Otherwise drop back to prompt in the interactive interpreter
-    app = caDNAno(sys.argv)

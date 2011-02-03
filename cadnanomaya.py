@@ -1,6 +1,3 @@
-#!/usr/bin/env python
-# encoding: utf-8
-
 # The MIT License
 #
 # Copyright (c) 2011 Wyss Institute at Harvard University
@@ -26,20 +23,31 @@
 # http://www.opensource.org/licenses/mit-license.php
 
 """
-main.py
-
-Created by Shawn Douglas on 2010-09-26.
+cadnanomaya
+Created by Nick Conway on 2011-02-03.
+modified from cadnano.py
 """
+from PyQt4 import QtCore
+from PyQt4 import QtGui
 
-import sys
+class caDNAno(QtCore.QObject):
+    sharedApp = None  # This class is a singleton.
+    def __init__(self):
+        super(caDNAno, self).__init__()
+        assert(not caDNAno.sharedApp)
+        caDNAno.sharedApp = self
+        self.app = QtGui.qApp
+        #self.setWindowIcon(QIcon('ui/images/cadnano2-app-icon.png'))
+        self.undoGroup = QtGui.QUndoGroup()
+        #self.setApplicationName(QString("caDNAno"))
+        self.documentControllers = set() # Open documents
+        self.newDocument()
 
-from cadnano import caDNAno
+    def newDocument(self):
+        from ui.mayacontroller import DocumentController
+        DocumentController() # DocumentController is responsible for adding
+                             # itself to app.documentControllers
 
-def main():
-    app = caDNAno(sys.argv)
-    app.exec_()
-
-if __name__ == '__main__':
-    main()
-else:  # Otherwise drop back to prompt in the interactive interpreter
-    app = caDNAno(sys.argv)
+# Convenience. No reason to feel guilty using it - caDNAno is a singleton.
+def app():
+    return caDNAno.sharedApp
