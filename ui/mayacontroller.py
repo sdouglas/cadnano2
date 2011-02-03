@@ -24,12 +24,10 @@
 
 from PyQt4.QtGui import *
 from PyQt4.QtCore import SIGNAL, QString
-#from cadnano import app
 from cadnanomaya import app
 from idbank import IdBank
 from model.document import Document
 from model.encoder import encode
-#from .documentwindow import DocumentWindow
 from .mayawindow import DocumentWindow
 from .pathhelixgroup import PathHelixGroup
 from .slicehelixgroup import SliceHelixGroup
