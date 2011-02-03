@@ -32,11 +32,15 @@ Created by Shawn Douglas on 2010-09-26.
 """
 
 import sys
+#sys.path.append( '/Users/nick/oldnick/python_scripts/cadnano/cadnano2' )
+
 from PyQt4.QtCore import *
 from PyQt4.QtGui import *
 from cadnano import caDNAno
 from ui.documentcontroller import DocumentController
-
+#import maya.standalone 
+#maya.standalone.initialize( name='python' )
+#import pymel.core as pm
 
 def main():
     app = caDNAno(sys.argv)

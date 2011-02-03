@@ -123,11 +123,13 @@ class PathHelix(QGraphicsItem):
         if self.label == None:
             self.label = QGraphicsSimpleTextItem("%d" % self.number)
             self.label.setParentItem(self)
+        y_val = self.radius / 2
         if self.number < 10:
-            self.label.setX(self.radius / 1.3)
+            #self.label.setX(self.radius / 1.3)
+            self.label.setPos(self.radius / 1.3, y_val)
         elif self.number < 100:
-            self.label.setX(self.radius / 2)
+            #self.label.setX(self.radius / 2)
+            self.label.setPos(self.radius / 2, y_val)
         else:   # added for bigger than 100 by NC
-            self.label.setX(self.radius / 4)
-        self.label.setY(self.radius / 2)
-        
+            #self.label.setX(self.radius / 4)
+            self.label.setPos(self.radius / 4, y_val)

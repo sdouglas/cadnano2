@@ -30,16 +30,22 @@ Created by Shawn Douglas on 2010-06-15.
 """
 
 from heapq import *
-from PyQt4.QtCore import QRectF, QPointF, QEvent, pyqtSignal
+from PyQt4.QtCore import QRectF, QPointF, QEvent, pyqtSignal, QObject
 from PyQt4.QtGui import QBrush
-from PyQt4.QtGui import QGraphicsItem, QGraphicsObject
+from PyQt4.QtGui import QGraphicsItem#, QGraphicsObject
 from .slicehelix import SliceHelix
 import styles
 
 
 root3 = 1.732051
 
-class SliceHelixGroup(QGraphicsObject):
+class ShgObject(QObject):
+    helixAdded = pyqtSignal(int)
+    def __init__(self):
+        super(ShgObject, self).__init__()
+# end class
+
+class SliceHelixGroup(QGraphicsItem):#QGraphicsObject):
     """
     SliceHelixGroup maintains data and state for a set of SliceHelix objects
     (the circles in the slice view) and serves as the root of their
@@ -49,7 +55,7 @@ class SliceHelixGroup(QGraphicsObject):
     of labels (these are the nonnegative integers that appear on them)
     for slices.
     """
-    helixAdded = pyqtSignal(int)
+    
     
     def __init__(self, dnaPartInst, nrows=3, ncolumns=6,\
                 controller=None, scene=None, parent=None):
@@ -64,7 +70,9 @@ class SliceHelixGroup(QGraphicsObject):
         self.reserveBin = set()
         self.highestUsedOdd = -1  # Used iff the recycle bin is empty and highestUsedOdd+2 is not in the reserve bin
         self.highestUsedEven = -2  # same
-
+        
+        self.qObject = ShgObject()
+        self.helixAdded = self.qObject.helixAdded
         # drawing related
         self.radius = styles.SLICE_HELIX_RADIUS
         self.nrows = nrows 

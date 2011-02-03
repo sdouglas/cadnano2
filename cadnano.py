@@ -35,9 +35,9 @@ class caDNAno(QApplication):
         super(caDNAno, self).__init__(argv)
         assert(not caDNAno.sharedApp)
         caDNAno.sharedApp = self
-        self.setWindowIcon(QIcon('ui/images/cadnano2-app-icon.png'))
+        #self.setWindowIcon(QIcon('ui/images/cadnano2-app-icon.png'))
         self.undoGroup = QUndoGroup()
-        self.setApplicationName(QString("caDNAno"))
+        #self.setApplicationName(QString("caDNAno"))
         self.documentControllers = set() # Open documents
         self.newDocument()
 

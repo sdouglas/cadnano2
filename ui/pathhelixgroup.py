@@ -29,17 +29,18 @@ pathhelixgroup.py
 Created by Shawn on 2011-01-27.
 """
 
-from PyQt4.QtCore import QRectF, QPointF, QEvent, pyqtSlot
+from PyQt4.QtCore import QRectF, QPointF, QEvent, pyqtSlot, QObject
 from PyQt4.QtGui import QBrush
-from PyQt4.QtGui import QGraphicsItem, QGraphicsObject
+from PyQt4.QtGui import QGraphicsItem#, QGraphicsObject
 from .pathhelix import PathHelix
 import styles
 
-class PathHelixGroup(QGraphicsObject):
+class PathHelixGroup(QGraphicsItem):#(QGraphicsObject):
     """docstring for PathHelixGroup"""
     def __init__(self, dnaPartInst, type="honeycomb", controller=None,\
                  scene=None, parent=None):
         super(PathHelixGroup, self).__init__()
+        
         self.dnaPartInst = dnaPartInst
         self.pathController = controller
         self.scene = scene
