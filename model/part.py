@@ -28,11 +28,12 @@ Created by Jonathan deWerd on 2011-01-26.
 """
 from exceptions import NotImplementedError
 
-
 class Part(object):
+    
+    
     def __init__(self, id, *args, **kargs):
         self._id = id
-
+        
     def simpleRep(self, encoder):
         """Returns a representation in terms of simple JSON-encodable types
         or types that implement simpleRep"""

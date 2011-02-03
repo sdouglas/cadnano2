@@ -27,11 +27,12 @@ from PyQt4.QtCore import QObject, QString, pyqtSignal
 from ui.partnode import PartNode
 from ui.assemblynode import AssemblyNode
 from treemodel import TreeModel
+from model.assembly import Assembly
 
 class TreeController(QObject):
     
-    partselected = pyqtSignal('QString',int,int)
-    assemblyselected = pyqtSignal('QString',int,int)
+    #partselected = pyqtSignal('QString',int,int)
+    #assemblyselected = pyqtSignal('QString',int,int)
     
     def __init__(self, treeview):
         super(TreeController, self).__init__()
@@ -50,7 +51,8 @@ class TreeController(QObject):
         index = self.treeview.currentIndex()
         nodeparent = self.treemodel.nodeFromIndex(index)
         print nodeparent.name
-        node = AssemblyNode("Assembly", 0, 1, None, nodeparent)
+        node = AssemblyNode("Assembly", Assembly(), None, nodeparent)
+        self.indexlast = index
         if self.treemodel.insertRow(0, index,node):
             # set index to the inserted child
             index = self.treemodel.index(0, 0, index)
@@ -85,7 +87,7 @@ class TreeController(QObject):
         # end if
     # end def
     
-    def addPartNode(self):
+    def addPartNode(self,name,partInst):
         """
         Adds a part to the tree model
         Makes sure it adds to the closest parent assembly if a part is the 
@@ -99,18 +101,19 @@ class TreeController(QObject):
             index = index.parent()              # returns the parent model index
             nodeparent = nodeparent.parent      # go to the parent
         # end if
-        node = PartNode("", 0, 1,None, nodeparent)
+        
+        #node = PartNode(name, partInst,None, nodeparent)
+        node = PartNode(name, partInst,None, None)
         
         # currently we insert the new node first in the list but 
         # treemodel handles keeping things alphabetical
         if self.treemodel.insertRow(0, index,node):
             # set index to the inserted child
-            index = self.treemodel.index(0, 0, index)
+            index = self.treemodel.index(self.treemodel.lastrow, 0, index)
             self.setCurrentIndex(index)
             #self.treeview.edit(index)
             #self.setDirty(True)
             #self.treemodel.reset()
-            # end if
         # end if
     # end def
     
@@ -170,6 +173,9 @@ class TreeController(QObject):
     def activated(self, index):
         """"""
         node = self.treemodel.nodeFromIndex(index)
-        print "I'm working on it"
-        self.partselected.emit(node.ntype, node.object_id,node.instance_id)
+        if node.ntype==PartNode.ntype:
+            node.object_instance.partselected.emit()
+            print "I'm working on it"
+            #self.partselected.emit(node.ntype, node.object_id,node.instance_id)
+            
 # end class

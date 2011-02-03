@@ -35,7 +35,7 @@ class PartNode(Node):
     """
     ntype = "part" # the type of node i.e. Assembly, Part, etc
     
-    def __init__(self, name="", obj_id=0, inst_id=0,node_attribute=None, parent=None):
+    def __init__(self, name="", part_inst=None, node_attribute=None, parent=None):
         """
         """
         super(PartNode,self).__init__(parent)    
@@ -43,7 +43,7 @@ class PartNode(Node):
         self.children = []
         
         if name == "":
-            self.name = "Part.%d.%d" % (obj_id,inst_id)
+            self.name = "Part.1"
             #print "adding Part"
         # end if
         else:
@@ -55,8 +55,7 @@ class PartNode(Node):
             self.parent.addChild(self)
         #end if
         
-        self.object_id = obj_id
-        self.instance_id = inst_id
+        self.object_instance = part_inst
     # end def
         
 # end class

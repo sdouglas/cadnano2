@@ -35,7 +35,7 @@ class AssemblyNode(Node):
     """
     ntype = "assembly" # the type of node i.e. Assembly, Part, etc
     
-    def __init__(self, name="", obj_id=0, inst_id=0,node_attribute=None, parent=None):
+    def __init__(self, name="", obj_inst=None,node_attribute=None, parent=None):
         """
         """
         
@@ -44,7 +44,7 @@ class AssemblyNode(Node):
         self.children = []
         
         if name == "":
-            self.name = "Assembly.%d.%d" % (obj_id,inst_id)
+            self.name = "Assembly.1"
             #print "adding Asm"
         #end if
         else:
@@ -56,8 +56,7 @@ class AssemblyNode(Node):
             self.parent.addChild(self)
         #end if
         
-        self.object_id = obj_id
-        self.instance_id = inst_id
+        self.object_instance = obj_inst
     # end def
         
 # end class

@@ -56,7 +56,9 @@ class Encoder(json.JSONEncoder):
                 sr['.id'] = self._nextID
                 self._nextID += 1
             return sr
-        return json.JSONEncoder.default(self, obj)
+        else:
+            return json.JSONEncoder.default(self, obj)
+
     def idForObject(obj):
         if obj in self._objToId:
             return self._objToId[obj]

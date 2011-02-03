@@ -40,7 +40,7 @@ class Node(object):
     """
     """
     ntype =""
-    def __init__(self, name="", obj_id=0, inst_id=0,node_attribute=None, parent=None):
+    def __init__(self, name="", obj_inst=None,node_attribute=None, parent=None):
         """
         We could do this one of two ways, straight add children, or,
         keep children sorted when they get added.  Keeping them sorted
@@ -56,8 +56,7 @@ class Node(object):
             self.parent.addChild(self)
         #end if
         
-        self.object_id = obj_id
-        self.instance_id = inst_id
+        self.object_instance = obj_inst
         self.node_attr = node_attribute
     # end def
     
@@ -122,7 +121,9 @@ class Node(object):
         """
         child.parent = self
         # insert the child in assuming that self.children is already sorted
-        bisect.insort(self.children, (child.orderKey(), child))
+        ind = bisect.bisect_right(self.children, (child.orderKey(), child) )
+        self.children.insert(ind, (child.orderKey(), child) )
+        return ind
     # end def
     
     # def insertChild(self, row, child):
@@ -178,6 +179,7 @@ class TreeModel(QAbstractItemModel):
         self.headers = []
         self.root = Node()
         self.cutNode = 0
+        self.lastrow = 0    # row of last single row insertion
         self.maxCompression  = 9
         self.mime_type = QString("application/cadnano.xml.node.z") 
         
@@ -229,7 +231,7 @@ class TreeModel(QAbstractItemModel):
         if index.isValid():
             return index.internalPointer()
         else:
-             return self.root
+            return self.root
     # end def
     
     def index(self, row, column, parentindex):
@@ -337,7 +339,7 @@ class TreeModel(QAbstractItemModel):
         print "inserted %s" % node.name
         if node.parent == None:
             #parentnode.insertChild(row,node)
-            parentnode.insertChild(node)
+            self.lastrow = parentnode.insertChild(node)
         # end if
         self.endInsertRows()
         return True
@@ -619,8 +621,8 @@ class TreeModel(QAbstractItemModel):
             writer.writeStartElement(NODETAG)
             writer.writeAttribute(NAMETAG, node.name)
             writer.writeAttribute(NTYPE, node.ntype)
-            writer.writeAttribute(OBJ_ID, node.object_id)
-            writer.writeAttribute(INST_ID, node.instance_id)
+            #writer.writeAttribute(OBJ_ID, node.object_id)
+            #writer.writeAttribute(INST_ID, node.instance_id)
         # end if
         for child in node.children:
             self.writeNodeAndChildren(writer, child[NODE])
@@ -640,9 +642,9 @@ class TreeModel(QAbstractItemModel):
                 if reader.name() == NODETAG:
                     name = reader.attributes().value(NAMETAG).toString()
                     ntype = reader.attributes().value(NTYPE).toString() 
-                    id_obj = reader.attributes().value(OBJ_ID)
-                    id_inst = reader.attributes().value(INST_ID)
-                    generateNode(name,ntype, id_obj,id_inst)
+                    #id_obj = reader.attributes().value(OBJ_ID)
+                    #id_inst = reader.attributes().value(INST_ID)
+                    #generateNode(name,ntype, id_obj,id_inst)
                 # end if
             # end if
             elif reader.isEndElement():
@@ -655,8 +657,8 @@ class TreeModel(QAbstractItemModel):
         # end while
     # end def
     
-    def generateNode(name, ntype, id_obj,id_inst):
-        pass
+    #def generateNode(name, ntype, id_obj,id_inst):
+    #    pass
     # end def
 
     # def load(self):
@@ -669,6 +671,6 @@ class TreeModel(QAbstractItemModel):
     #     if reader.hasError():
     #         pass
     # # end def
+
 # end class
 
-    

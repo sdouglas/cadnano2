@@ -49,7 +49,6 @@ class DocumentController():
         self.win = DocumentWindow(docCtrlr=self)
         self.win.show()
         self._filename = "untitled.cadnano"
-        self.first = None
         self.treeController = TreeController(self.win.treeview)
         self.createConnections()
 
@@ -87,16 +86,6 @@ class DocumentController():
         # self.win.actionPromote.triggered.connect(self.promoteClicked)
         # self.win.actionDemote.triggered.connect(self.demoteClicked)
 
-        # tree nodes get destroyed for dragging and droping so we must
-        # use ids to select and deselect other views
-        self.treeController.partselected.connect(self.getViewsFromTree)
-    # end def
-
-    def getViewsFromTree(self, ntype, object_id, instance_id):
-        """place code here that emits signals based on dictionary values"""
-        print "we're doing this: %s" % ntype
-        # this is a placeholder for the actual dictionary look up of objects
-        self.first.bringToFront()
     # end def
 
     def setDirty(self, dirty=True):
@@ -165,21 +154,18 @@ class DocumentController():
         """docstring for addHoneycombHelixGroup"""
         # Create a new DNA part
         objId = self.idbank.get()
-        instId = self.idbank.get()
+        instId = objId#self.idbank.get()
         dnaPartInst = self.doc.addDnaPart(objId, instId,\
                                           crossSectionType='honeycomb')
         # Add the part to the Tree view
-        self.treeController.addPartNode()
+        name = "Part.%d" % objId 
+        self.treeController.addPartNode(name, dnaPartInst)
 
         # Create a Slice view of part
         shg = SliceHelixGroup(dnaPartInst, nrows, ncolumns,\
                               scene=self.win.slicescene,\
                               controller=self.win.sliceController)
         self.win.slicescene.addItem(shg)
-
-        if self.first == None:
-            self.first = shg
-        #end if
 
         # Create a Path view of the part
         phg = PathHelixGroup(dnaPartInst, scene=self.win.pathscene,\
@@ -188,6 +174,8 @@ class DocumentController():
 
         # Connect the slice
         shg.helixAdded.connect(phg.handleNewHelix)
+        dnaPartInst.partselected.connect(shg.bringToFront)
+        
     # end def
 
     def deleteClicked(self):

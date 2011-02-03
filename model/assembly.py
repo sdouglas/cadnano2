@@ -34,20 +34,18 @@ from idbank import IdBank
 class Assembly(object):
     """
     """
-    def __init__(self, name, obj_id, parent=None):
-        super(object,self).__init__()
+    def __init__(self, parent=None):
+        super(Assembly,self).__init__()
         """
         this is gonna be a list of non-specific attributes for an assembly
         self.object_instances = defaultdict(list)  # default dictionary as a list?
         """
-        self.name = name
         self.parent = parent    # or parent hash?
         self.node_type = "assembly"
         self.color = 0
         self.annotation = ""
         
-        self.object_id = obj_id
-        self.instance_id_bank = IdBank()    # generate instances of themselves
+        #self.instance_id_bank = IdBank()    # generate instances of themselves
                 
         # this contains instances of this specific assembly, and other views
         # like: self.instances[id] = [treeNode] 

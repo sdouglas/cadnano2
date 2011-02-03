@@ -40,6 +40,7 @@ class DNAPart(Part):
         # FIX: defaults should be read from a config file
         if (self._crossSectionType == 'honeycomb'):
             self._canvasSize = 42
+        
 
     def simpleRep(self, encoder):
         """

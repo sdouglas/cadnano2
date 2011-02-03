@@ -28,18 +28,19 @@ Created by Shawn Douglas on 2011-02-01.
 """
 from .partinstance import PartInstance
 
-
 class DNAPartInstance(PartInstance):
     """
     DNAPartInstance stores view-level customization that does not
     change the underlying data structure, such as color schemes and
     VirtualHelix ordering.
     """
+    
     def __init__(self, part, id, *args, **kwargs):
         super(DNAPartInstance, self).__init__(part, id, *args, **kwargs)
         self._virtualHelixOrder = []
         self._stapleColor = {}
         self._scaffoldColor = {}
+        
 
     def simpleRep(self,encoder):
         """Returns a representation in terms of simple JSON-encodable types

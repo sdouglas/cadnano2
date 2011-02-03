@@ -26,11 +26,15 @@
 partinstance
 Created by Jonathan deWerd on 2011-01-26.
 """
+from PyQt4.QtCore import QObject, pyqtSignal
 
-
-class PartInstance(object):
+class PartInstance(QObject):
+    
+    partselected = pyqtSignal()
+    
     """Represents an instantiation of a part on the canvas"""
     def __init__(self, part, id, *args, **kwargs):
+        super(PartInstance, self).__init__()
         self._part = part
         self._id = id
 
