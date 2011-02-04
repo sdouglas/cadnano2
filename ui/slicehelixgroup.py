@@ -55,8 +55,6 @@ class SliceHelixGroup(QGraphicsItem):#QGraphicsObject):
     of labels (these are the nonnegative integers that appear on them)
     for slices.
     """
-    
-    
     def __init__(self, dnaPartInst, nrows=3, ncolumns=6,\
                 controller=None, scene=None, parent=None):
         super(SliceHelixGroup, self).__init__(parent)
@@ -100,7 +98,7 @@ class SliceHelixGroup(QGraphicsItem):#QGraphicsObject):
             for column in range(ncolumns):
                 for row in range(nrows):
                     index = (row, column)
-                    helix = self.helixhash[index] 
+                    helix = self.helixhash[index]
                     if helix.parity: # odd parity
                         if column > 0: # if col-1 exists, set P0
                             helix.p0neighbor = self.helixhash[(row,column-1)]
@@ -186,7 +184,8 @@ class SliceHelixGroup(QGraphicsItem):#QGraphicsObject):
         self.helixAdded.emit(number)
 
     def bringToFront(self):
-        """"""
+        """collidingItems gets a list of all items that overlap. sets
+        this items zValue to one higher than the max."""
         zval = 1
         items = self.collidingItems() # the is a QList
         for item in items:

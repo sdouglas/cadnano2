@@ -32,9 +32,11 @@ Created by Shawn Douglas on 2010-09-26.
 """
 
 import sys
-pathadder = '/Users/nick/oldnick/python_scripts/cadnano/cadnano2'
-if pathadder not in sys.path:
-    sys.path.append(pathadder)
+paths = ['/Users/shawn/Desktop/cadnano2',\
+         '/Users/nick/oldnick/python_scripts/cadnano/cadnano2']
+for p in paths:
+    if p not in sys.path:
+        sys.path.append(p)
 # end if
 
 def getDefaultModules():

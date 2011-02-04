@@ -45,7 +45,7 @@ class PathHelix(QGraphicsItem):
     use_pen = QPen(styles.orangestroke, styles.SLICE_HELIX_STROKE_WIDTH)
     radius = styles.SLICE_HELIX_RADIUS
     rect = QRectF(0, 0, 2 * radius, 2 * radius)
-    
+
     def __init__(self, vhelix, position, parent):
         super(PathHelix, self).__init__()
         self.parent = parent
@@ -71,19 +71,20 @@ class PathHelix(QGraphicsItem):
 
     class FocusRingPainter(QGraphicsItem):
         """Draws a focus ring around helix in parent"""
-        def __init__(self, helix, parent):
+        def __init__(self, helix, scene):
             super(PathHelix.FocusRingPainter, self).__init__()
+            self.scene = scene
             self.helix = helix
             self.setPos(helix.pos())
-            parent.addItem(self)
+            scene.addItem(self)
 
         def paint(self, painter, option, widget=None):
             painter.setPen(PathHelix.hov_pen)
             painter.drawEllipse(self.helix.rect)
+            bringToFront(self, self.scene)
 
         def boundingRect(self):
             return self.helix.rect
-        # end def
     # end class
 
     def boundingRect(self):
@@ -133,3 +134,16 @@ class PathHelix(QGraphicsItem):
         else:   # added for bigger than 100 by NC
             #self.label.setX(self.radius / 4)
             self.label.setPos(self.radius / 4, y_val)
+
+def bringToFront(target, scene):
+    """collidingItems gets a list of all items that overlap. sets
+    this items zValue to one higher than the max."""
+    zval = 1
+    items = scene.items(target.boundingRect()) # the is a QList
+    for item in items:
+        temp = item.zValue()
+        if temp >= zval:
+            zval = item.zValue() + 1
+        # end if
+    # end for
+    target.setZValue(zval)

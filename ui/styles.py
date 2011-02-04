@@ -31,11 +31,18 @@ from PyQt4.QtGui import QColor
 
 bluefill = QColor(153, 204, 255)
 bluestroke = QColor(0, 102, 204)
+# bluestroke = QColor(103, 141, 178)
+
 orangefill = QColor(255, 204, 153)
 orangestroke = QColor(204, 102, 51)
-grayfill = QColor(238, 238, 238)
-graystroke = QColor(153, 153, 153)
+
+# grayfill = QColor(238, 238, 238)
+# graystroke = QColor(153, 153, 153)
+
+grayfill = QColor(161, 161, 161)
+graystroke = QColor(61, 61, 61)
+
 
 SLICE_HELIX_RADIUS = 15
-SLICE_HELIX_STROKE_WIDTH = 0.5
-SLICE_HELIX_HILIGHT_WIDTH = 1.5
+SLICE_HELIX_STROKE_WIDTH = 1.5
+SLICE_HELIX_HILIGHT_WIDTH = 2.5
