@@ -329,16 +329,18 @@ class TreeModel(QAbstractItemModel):
             parentnode = self.nodeFromIndex(parentindex)
         # end if
         else:
-            return False
+            parentindex = self.createIndex(0, 0, self.root) 
+            parentnode = self.root
+            #return False
         # end else
         self.beginInsertRows(parentindex,row, row)
-        # TODO Fix this !!!!!
+        # This checks is if everything was done incorrectly
         if node == None:
+            print "something was done wrong"
             return False
         # end if
         print "inserted %s" % node.name
         if node.parent == None:
-            #parentnode.insertChild(row,node)
             self.lastrow = parentnode.insertChild(node)
         # end if
         self.endInsertRows()

@@ -50,18 +50,13 @@ class TreeController(QObject):
         # insert the base level assembly
         index = self.treeview.currentIndex()
         nodeparent = self.treemodel.nodeFromIndex(index)
-        print nodeparent.name
-        node = AssemblyNode("Assembly", Assembly(), None, nodeparent)
-        self.indexlast = index
+        node = AssemblyNode("Assembly", Assembly(), None, None)
+        
         if self.treemodel.insertRow(0, index,node):
             # set index to the inserted child
             index = self.treemodel.index(0, 0, index)
             self.setCurrentIndex(index)
-            #self.win.treeview.edit(index)
-            #self.setDirty(True)
-            self.treemodel.reset()
         # end if
-        
         self.createConnections()
     # end def
     
@@ -112,7 +107,6 @@ class TreeController(QObject):
             index = self.treemodel.index(self.treemodel.lastrow, 0, index)
             self.setCurrentIndex(index)
             #self.treeview.edit(index)
-            #self.setDirty(True)
             #self.treemodel.reset()
         # end if
     # end def
