@@ -30,12 +30,20 @@ Created by Shawn on 2011-01-27.
 """
 
 from PyQt4.QtCore import QRectF, QPointF, QEvent, pyqtSlot, QObject
+from PyQt4.QtCore import pyqtSignal
 from PyQt4.QtGui import QBrush
 from PyQt4.QtGui import QGraphicsItem#, QGraphicsObject
 from .pathhelix import PathHelix
 import styles
 
-class PathHelixGroup(QGraphicsItem):#(QGraphicsObject):
+class PhgObject(QObject):
+    """ A placeholder class until QGraphicsObject is available to allow signaling """
+    scaffoldChange = pyqtSignal(int)
+    def __init__(self):
+        super(PhgObject, self).__init__()
+# end class
+
+class PathHelixGroup(QGraphicsItem):    # change to QGraphicsObject for Qt 4.6
     """docstring for PathHelixGroup"""
     def __init__(self, dnaPartInst, type="honeycomb", controller=None,\
                  scene=None, parent=None):
@@ -53,6 +61,11 @@ class PathHelixGroup(QGraphicsItem):#(QGraphicsObject):
         else:
             # set square parameters
             pass
+            
+        # set up signals    
+        self.qObject = PhgObject()
+        self.scaffoldChange = self.qObject.scaffoldChange
+    # end def
 
     def paint(self, painter, option, widget=None):
         pass
@@ -60,8 +73,8 @@ class PathHelixGroup(QGraphicsItem):#(QGraphicsObject):
     def boundingRect(self):
         return self.rect
 
-    @pyqtSlot(int)
-    def handleNewHelix(self, number):
+    @pyqtSlot(int,int,int)
+    def handleNewHelix(self, row, col, number):
         """
         Retrieve reference to new VirtualHelix vh based on number relayed
         by the signal event. Next, create a new PathHelix associated 

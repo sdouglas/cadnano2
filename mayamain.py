@@ -61,7 +61,7 @@ def getDefaultModules():
 def removeModules(moddict):
     """
     removes modules related to the program but not 
-    installed Maya or Qt modules
+    installed Maya or PyQt4 modules
     """
     for key in sys.modules.keys():
         if not moddict.has_key(key):

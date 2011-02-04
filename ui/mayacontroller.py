@@ -30,6 +30,7 @@ from model.document import Document
 from model.encoder import encode
 from .mayawindow import DocumentWindow
 from .pathhelixgroup import PathHelixGroup
+from .solidhelixgroup import SolidHelixGroup
 from .slicehelixgroup import SliceHelixGroup
 from .treecontroller import TreeController
 
@@ -172,10 +173,16 @@ class DocumentController():
                              controller=self.win.pathController)
         self.win.pathscene.addItem(phg)
 
+
+        solhg = SolidHelixGroup(dnaPartInst,controller=self.win.pathController)
+        
         # Connect the slice
         shg.helixAdded.connect(phg.handleNewHelix)
-        dnaPartInst.partselected.connect(shg.bringToFront)
+        shg.helixAdded.connect(solhg.handleNewHelix)
+        phg.scaffoldChange.connect(solhg.handleScaffoldChange)
         
+        dnaPartInst.partselected.connect(shg.bringToFront)
+
     # end def
 
     def deleteClicked(self):

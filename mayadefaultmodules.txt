@@ -136,5 +136,4 @@ sip
 json
 model.exceptions
 model.collections
-ui.styles
 ui

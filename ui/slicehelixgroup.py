@@ -40,12 +40,12 @@ import styles
 root3 = 1.732051
 
 class ShgObject(QObject):
-    helixAdded = pyqtSignal(int)
+    helixAdded = pyqtSignal(int,int,int)
     def __init__(self):
         super(ShgObject, self).__init__()
 # end class
 
-class SliceHelixGroup(QGraphicsItem):#QGraphicsObject):
+class SliceHelixGroup(QGraphicsItem):  # was a QGraphicsObject change for Qt 4.6
     """
     SliceHelixGroup maintains data and state for a set of SliceHelix objects
     (the circles in the slice view) and serves as the root of their
@@ -181,9 +181,9 @@ class SliceHelixGroup(QGraphicsItem):#QGraphicsObject):
         else:
             heappush(self.oddRecycleBin,n)
 
-    def addVirtualHelixToPathGroup(self, number):
+    def addVirtualHelixToPathGroup(self, row, col, number):
         """docstring for addVirtualHelixtoDnaPart"""
-        self.helixAdded.emit(number)
+        self.helixAdded.emit(row, col, number)
 
     def bringToFront(self):
         """"""
@@ -197,3 +197,5 @@ class SliceHelixGroup(QGraphicsItem):#QGraphicsObject):
         # end for
         self.setZValue(zval)
     # end def
+
+                    

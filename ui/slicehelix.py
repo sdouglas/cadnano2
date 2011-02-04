@@ -50,6 +50,10 @@ class SliceHelix(QGraphicsItem):
     rect = QRectF(0, 0, 2 * radius, 2 * radius)
 
     def __init__(self, row, col, position, parent):
+        """
+        
+        parent: a slice helix group
+        """
         super(SliceHelix, self).__init__()
         self.parent = parent
         # data related
@@ -196,7 +200,7 @@ class SliceHelix(QGraphicsItem):
             self.setNumber(self.parent.reserveLabelForHelix(self))
             part = self.parent.dnaPartInst.part()
             self.vhelix = part.addVirtualHelix(self.number)
-            self.parent.addVirtualHelixToPathGroup(self.number)
+            self.parent.addVirtualHelixToPathGroup(self.row, self.col, self.number)
             # self.parent.addBasesToDnaPart(self.number)
         else:  # Unuse
             # self.setNumber(-1)
