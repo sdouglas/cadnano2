@@ -182,7 +182,7 @@ class SliceHelixGroup(QGraphicsItem):  # was a QGraphicsObject change for Qt 4.6
     def addVirtualHelixToPathGroup(self, pos, number):
         """docstring for addVirtualHelixtoDnaPart
         
-        pos: a QPointF identifying a slice views XY position
+        pos: a QPointF identifying a slice views XY position for a helix
         """
         self.helixAdded.emit(pos, number)
 
