@@ -100,12 +100,13 @@ class SolidHelixGroup(QObject):
         self.dcolumn = 0    # the direction normal to the row direction and the helical axis 
         self.dhelix = 0     # the helical axis
         self.model_scale = 1
-        self.unit_scale = 10
+        self.unit_scale = 2
         self.N_bases = 1
         self.N_bases_default = 3
         # set up the above parameters
         self.calculateParameters()
         print "maya group created"
+        self.group = pc.general.group(em=True,name='helixgroup0')
     # end def
     
     def calculateParameters(self):
@@ -234,8 +235,9 @@ class SolidHelixGroup(QObject):
         axis: vector defining the spatial direction of the helix
         height: length of the cylinder
         """
-        temp = pc.polyCylinder(axis=axis,radius=(self.helix_diameter/self.unit_scale/2), height=length)[0]
+        temp = pc.polyCylinder(axis=axis,radius=(self.helix_diameter/self.unit_scale/2), height=length, name='helix0')[0]
         temp.setTranslation(origin, space='object')
+        pc.general.parent(temp.name(), self.group.name())
         return temp
     # end def
 # end class
