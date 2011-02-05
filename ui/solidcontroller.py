@@ -29,3 +29,74 @@ Created by Nick Conway on 2011-02-04.
 For use controlling 3D solid models generated in Maya
 """
 
+class SolidController():
+    """
+    Manages interactions between the slice widgets/UI and the model.
+    """
+    
+    def drawHexPair(self,start_point, end_point, orientation):
+        
+        originA = [[],[],[]]
+        originB = [[],[],[]]
+        
+        if (orientation == True): 
+            column_offset = self.dcolumn/4
+            row_offset = self.drow/4
+        # end if
+        else:
+            column_offset = -self.dcolumn/4
+            row_offset = -self.drow/4
+        # end else
+        originA[self.column_dir] = start_point[self.column_dir]-column_offset
+        originB[self.column_dir] = start_point[self.column_dir]+column_offset
+        originA[self.row_dir] = start_point[self.row_dir]+row_offset
+        originB[self.row_dir] = start_point[self.row_dir]-row_offset
+    
+        originA[self.helix_dir] = (start_point[self.helix_dir]+start_point[self.helix_dir])/2
+        originB[self.helix_dir] = originA[self.helix_dir]
+        
+        #axisPair = [start_point[X]-end_point[X], start_point[Y]-end_point[Y],start_point[Z]-end_point[Z]]   
+        axisPair = [0,0,0]
+        axisPair[self.helix_dir] = 1
+        
+        cylinder_length = abs(start_point[self.helix_dir]-end_point[self.helix_dir])  
+        
+        temp = polyCylinder(axis = axisPair,radius = (self.helix_diameter/2), height = cylinder_length)[0]
+        temp.setTranslation(originA, space = 'object')
+        temp = polyCylinder(axis = axisPair,radius = (self.helix_diameter/2), height = cylinder_length)[0]
+        temp.setTranslation(originB,space = 'object')
+    # end def
+    
+    def drawCubePair(self,start_point, end_point, orientation):
+        
+        originA = [[],[],[]]
+        originB = [[],[],[]]
+        
+        if (orientation == True): 
+            column_offset = self.dcolumn/4
+            row_offset = 0
+        # end if
+        else:
+            column_offset = -self.dcolumn/4
+            row_offset = 0
+        # end else
+        originA[self.column_dir] = start_point[self.column_dir]-column_offset
+        originB[self.column_dir] = start_point[self.column_dir]+column_offset
+        originA[self.row_dir] = start_point[self.row_dir]+row_offset
+        originB[self.row_dir] = start_point[self.row_dir]-row_offset
+    
+        originA[self.helix_dir] = (start_point[self.helix_dir]+start_point[self.helix_dir])/2
+        originB[self.helix_dir] = originA[self.helix_dir]
+        
+        #axisPair = [start_point[X]-end_point[X], start_point[Y]-end_point[Y],start_point[Z]-end_point[Z]]   
+        axisPair = [0,0,0]
+        axisPair[self.helix_dir] = 1
+        
+        cylinder_length = abs(start_point[self.helix_dir]-end_point[self.helix_dir])  
+        
+        temp = polyCylinder(axis = axisPair,radius = (self.helix_diameter/2), height = cylinder_length)[0]
+        temp.setTranslation(originA, space = 'object')
+        temp = polyCylinder(axis = axisPair,radius = (self.helix_diameter/2), height = cylinder_length)[0]
+        temp.setTranslation(originB,space = 'object')
+    # end def
+# end class

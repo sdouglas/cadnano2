@@ -73,8 +73,8 @@ class PathHelixGroup(QGraphicsItem):    # change to QGraphicsObject for Qt 4.6
     def boundingRect(self):
         return self.rect
 
-    @pyqtSlot(int,int,int)
-    def handleNewHelix(self, row, col, number):
+    @pyqtSlot('QPointF',int)
+    def handleNewHelix(self, pos, number):
         """
         Retrieve reference to new VirtualHelix vh based on number relayed
         by the signal event. Next, create a new PathHelix associated 

@@ -32,11 +32,9 @@ Created by Shawn Douglas on 2010-09-26.
 """
 
 import sys
-paths = ['/Users/shawn/Desktop/cadnano2',\
-         '/Users/nick/oldnick/python_scripts/cadnano/cadnano2']
-for p in paths:
-    if p not in sys.path:
-        sys.path.append(p)
+pathadder = '/Users/nick/oldnick/python_scripts/cadnano/cadnano2'
+if pathadder not in sys.path:
+        sys.path.append(pathadder)
 # end if
 
 def getDefaultModules():
@@ -86,6 +84,12 @@ removeModules(defmods)
 
 # begin program
 import cadnanomaya
+import pymel.core as pc
+
+pc.general.select(all=True)
+selectedObjects = pc.ls(sl=True)
+pc.general.delete(selectedObjects)
+
 caDNAno = cadnanomaya.caDNAno
 
 #import pymel.core as pm

@@ -40,7 +40,7 @@ import styles
 root3 = 1.732051
 
 class ShgObject(QObject):
-    helixAdded = pyqtSignal(int,int,int)
+    helixAdded = pyqtSignal('QPointF',int)
     def __init__(self):
         super(ShgObject, self).__init__()
 # end class
@@ -179,9 +179,12 @@ class SliceHelixGroup(QGraphicsItem):  # was a QGraphicsObject change for Qt 4.6
         else:
             heappush(self.oddRecycleBin,n)
 
-    def addVirtualHelixToPathGroup(self, row, col, number):
-        """docstring for addVirtualHelixtoDnaPart"""
-        self.helixAdded.emit(row, col, number)
+    def addVirtualHelixToPathGroup(self, pos, number):
+        """docstring for addVirtualHelixtoDnaPart
+        
+        pos: a QPointF identifying a slice views XY position
+        """
+        self.helixAdded.emit(pos, number)
 
     def bringToFront(self):
         """collidingItems gets a list of all items that overlap. sets

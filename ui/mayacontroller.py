@@ -52,6 +52,7 @@ class DocumentController():
         self._filename = "untitled.cadnano"
         self.treeController = TreeController(self.win.treeview)
         self.createConnections()
+        self.solidlist = []
 
     def filename(self):
         return self._filename
@@ -175,6 +176,8 @@ class DocumentController():
 
 
         solhg = SolidHelixGroup(dnaPartInst,controller=self.win.pathController)
+        # need to create a permanent class level reference to this so that it doesn't get garbage collected
+        self.solidlist.append(solhg)
         
         # Connect the slice
         shg.helixAdded.connect(phg.handleNewHelix)
