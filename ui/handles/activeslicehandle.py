@@ -41,16 +41,18 @@ class ActiveSliceHandle(QGraphicsItem):
     brush = QBrush(styles.orangefill)
     pen = QPen(styles.orangestroke, styles.SLICE_HANDLE_STROKE_WIDTH)
 
-    def __init__(self, helixCount, startBase):
+    def __init__(self, helixCount, startBase, maxBase):
         super(ActiveSliceHandle, self).__init__()
         self.setFlag(QGraphicsItem.ItemIsMovable)
         self.height = (helixCount + 2) * (styles.PATH_BASE_HEIGHT + \
                                           styles.PATH_HELIX_PADDING)
         self.rect = QRectF(0, 0, self.width, self.height)
-        
         self.x0 = startBase * self.width
         self.y0 = -1 * (styles.PATH_HELIX_PADDING)
+        self.minX = 0
+        self.maxX = (maxBase-1) * self.width
         self.setPos(QPointF(self.x0, self.y0))
+
 
     def boundingRect(self):
         """docstring for boundingRect"""
@@ -68,8 +70,18 @@ class ActiveSliceHandle(QGraphicsItem):
         self.rect.setHeight(height)
         self.update(self.rect)
 
+    def resetBounds(self, maxBase):
+        """Call after resizing virtualhelix canvas."""
+        self.maxX = (maxBase-1) * self.width
+
     def mouseMoveEvent(self, event):
         """docstring for mouseMoveEvent"""
-        xf = event.pos().x()
-        self.translate(xf - self.x0, 0)
-        self.x0 = xf
+        xf = event.scenePos().x()
+        if xf > self.minX and xf < self.maxX:
+            self.translate(xf - self.x0, 0)
+            self.x0 = xf
+
+    # def mouseReleaseEvent(self, event):
+    #     """docstring for mouseReleaseEvent"""
+    #     self.setX()
+
