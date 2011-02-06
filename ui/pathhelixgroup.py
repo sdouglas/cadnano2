@@ -35,6 +35,7 @@ from PyQt4.QtGui import QBrush
 from PyQt4.QtGui import QGraphicsItem#, QGraphicsObject
 from .pathhelix import PathHelix
 from handles.pathhelixhandle import PathHelixHandle
+from handles.activeslicehandle import ActiveSliceHandle
 import styles
 
 
@@ -58,20 +59,25 @@ class PathHelixGroup(QGraphicsItem):
     def __init__(self, dnaPartInst, type="honeycomb", controller=None,\
                  scene=None, parent=None):
         super(PathHelixGroup, self).__init__()
-
         self.dnaPartInst = dnaPartInst
+        self.part = dnaPartInst.part()
         self.pathController = controller
         self.scene = scene
+        # Lattice-specific initialization 
         self.crossSectionType = self.dnaPartInst.part().getCrossSectionType()
-
         if self.crossSectionType == "honeycomb":
             # set honeycomb parameters
             self.rect = QRectF(0, 0, 1000, 1000)
             self.pathCanvasWidth = 42 # FIX: set from config file
+            self.startBase = 21
         else:
             # set square parameters
-            pass
-
+            self.pathCanvasWidth = 32 # FIX: set from config file
+            self.startBase = 16
+        count = self.part.getVirtualHelixCount()
+        self.activeslicehandle = ActiveSliceHandle(count, self.startBase)
+        if count > 0: # initalize if loading from file, otherwise delay
+            self.activeslicehandle.setParentItem(self)
         # set up signals
         self.qObject = PhgObject()
         self.scaffoldChange = self.qObject.scaffoldChange
@@ -88,17 +94,24 @@ class PathHelixGroup(QGraphicsItem):
         """
         Retrieve reference to new VirtualHelix vh based on number relayed
         by the signal event. Next, create a new PathHelix associated 
-        with vh and draw it on the screen.
+        with vh and draw it on the screen. Finally, create or update
+        the ActiveSliceHandle.
         """
-        part = self.dnaPartInst.part()
-        vh = part.getVirtualHelix(number)
+        vh = self.part.getVirtualHelix(number)
+        count = self.part.getVirtualHelixCount()
         # add PathHelixHandle
         x = 20
-        y = part.getVirtualHelixCount() * (2 * styles.PATH_BASE_WIDTH + \
-                                           styles.PATH_HELIX_PADDING)
+        y = count * (styles.PATH_BASE_HEIGHT + styles.PATH_HELIX_PADDING)
         phh = PathHelixHandle(vh, QPointF(x, y), self)
         phh.setParentItem(self)
         # add PathHelix
         x = x + 4*self.handleRadius
         ph = PathHelix(vh, QPointF(x, y), self)
         ph.setParentItem(self)
+        # update activeslicehandle
+        if count == 1: # first vhelix added by mouse click
+            self.activeslicehandle = ActiveSliceHandle(count, self.startBase)
+            self.activeslicehandle.setParentItem(self)
+        else:
+            self.activeslicehandle.resize(count)
+        

@@ -26,7 +26,7 @@ activeslicehandle.py
 Created by Shawn on 2011-02-05.
 """
 
-from PyQt4.QtCore import QRectF
+from PyQt4.QtCore import QPointF, QRectF
 from PyQt4.QtCore import Qt
 from PyQt4.QtGui import QBrush
 from PyQt4.QtGui import QGraphicsItem
@@ -36,7 +36,40 @@ import ui.styles as styles
 
 
 class ActiveSliceHandle(QGraphicsItem):
-    """docstring for PathHelixHandle"""
-    def __init__(self):
-        super(ActiveSliceHandle, self).__init__()
+    """docstring for ActiveSliceHandle"""
+    width = styles.PATH_BASE_WIDTH
+    brush = QBrush(styles.orangefill)
+    pen = QPen(styles.orangestroke, styles.SLICE_HANDLE_STROKE_WIDTH)
 
+    def __init__(self, helixCount, startBase):
+        super(ActiveSliceHandle, self).__init__()
+        self.setFlag(QGraphicsItem.ItemIsMovable)
+        self.height = (helixCount + 2) * (styles.PATH_BASE_HEIGHT + \
+                                          styles.PATH_HELIX_PADDING)
+        self.rect = QRectF(0, 0, self.width, self.height)
+        
+        self.x0 = startBase * self.width
+        self.y0 = -1 * (styles.PATH_HELIX_PADDING)
+        self.setPos(QPointF(self.x0, self.y0))
+
+    def boundingRect(self):
+        """docstring for boundingRect"""
+        return self.rect
+
+    def paint(self, painter, option, widget=None):
+        painter.setBrush(self.brush)
+        painter.setPen(self.pen)
+        painter.drawRect(self.rect)
+
+    def resize(self, helixCount):
+        """docstring for resize"""
+        height = (helixCount + 2) * (styles.PATH_BASE_HEIGHT + \
+                                     styles.PATH_HELIX_PADDING)
+        self.rect.setHeight(height)
+        self.update(self.rect)
+
+    def mouseMoveEvent(self, event):
+        """docstring for mouseMoveEvent"""
+        xf = event.pos().x()
+        self.translate(xf - self.x0, 0)
+        self.x0 = xf

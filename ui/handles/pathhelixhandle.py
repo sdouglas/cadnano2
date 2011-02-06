@@ -26,8 +26,7 @@ pathhelixhandle.py
 Created by Shawn on 2011-02-05.
 """
 
-from PyQt4.QtCore import QRectF
-from PyQt4.QtCore import Qt
+from PyQt4.QtCore import QPointF, QRectF, Qt
 from PyQt4.QtGui import QBrush
 from PyQt4.QtGui import QGraphicsItem
 from PyQt4.QtGui import QGraphicsSimpleTextItem
