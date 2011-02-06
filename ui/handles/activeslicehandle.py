@@ -21,36 +21,22 @@
 # THE SOFTWARE.
 #
 # http://www.opensource.org/licenses/mit-license.php
-
 """
-styles.py
-
-Created by Shawn on 2010-06-15.
+activeslicehandle.py
+Created by Shawn on 2011-02-05.
 """
-from PyQt4.QtGui import QColor
 
-# Slice Sizing
-SLICE_HELIX_RADIUS = 15
-SLICE_HELIX_STROKE_WIDTH = 1.5
-SLICE_HELIX_HILIGHT_WIDTH = 2.5
-
-# Slice Colors
-bluefill = QColor(153, 204, 255)  # 99ccff
-bluestroke = QColor(0, 102, 204)  # 0066cc
-orangefill = QColor(255, 204, 153)  # ffcc99
-orangestroke = QColor(204, 102, 51)  # cc6633
-grayfill = QColor(161, 161, 161)  # a1a1a1
-graystroke = QColor(61, 61, 61)  # 424242
-# grayfill = QColor(238, 238, 238)  # eeeeee
-# graystroke = QColor(153, 153, 153)  # 999999
+from PyQt4.QtCore import QRectF
+from PyQt4.QtCore import Qt
+from PyQt4.QtGui import QBrush
+from PyQt4.QtGui import QGraphicsItem
+from PyQt4.QtGui import QGraphicsSimpleTextItem
+from PyQt4.QtGui import QPen, QDrag, QUndoCommand
+import ui.styles as styles
 
 
-# Path Sizing
-PATH_HELIX_RADIUS = 20
-PATH_BASE_WIDTH = 20  # used to size bases (grid squares, handles, etc)
-PATH_HELIX_PADDING = 20 # gap between PathHelix objects in path view
-PATH_GRID_STROKE_WIDTH = 1
+class ActiveSliceHandle(QGraphicsItem):
+    """docstring for PathHelixHandle"""
+    def __init__(self):
+        super(ActiveSliceHandle, self).__init__()
 
-# Path Colors
-minorgridstroke = QColor(204, 204, 204)  # cccccc
-majorgridstroke = QColor(102, 102, 102)  # 666666

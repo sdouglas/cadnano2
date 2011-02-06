@@ -27,9 +27,11 @@ Created by Shawn on 2011-01-27.
 """
 
 from PyQt4.QtCore import QRectF
+from PyQt4.QtCore import Qt
 from PyQt4.QtGui import QBrush
 from PyQt4.QtGui import QGraphicsItem
 from PyQt4.QtGui import QGraphicsSimpleTextItem
+from PyQt4.QtGui import QPainterPath
 from PyQt4.QtGui import QPen, QDrag, QUndoCommand
 import styles
 from model.virtualhelix import VirtualHelix
@@ -37,113 +39,72 @@ from model.virtualhelix import VirtualHelix
 
 class PathHelix(QGraphicsItem):
     """docstring for PathHelix"""
-    def_brush = QBrush(styles.grayfill)
-    def_pen = QPen(styles.graystroke, styles.SLICE_HELIX_STROKE_WIDTH)
-    hov_brush = QBrush(styles.bluefill)
-    hov_pen = QPen(styles.bluestroke, styles.SLICE_HELIX_HILIGHT_WIDTH)
-    use_brush = QBrush(styles.orangefill)
-    use_pen = QPen(styles.orangestroke, styles.SLICE_HELIX_STROKE_WIDTH)
-    radius = styles.SLICE_HELIX_RADIUS
-    rect = QRectF(0, 0, 2 * radius, 2 * radius)
-
+    minorGridPen = QPen(styles.minorgridstroke, styles.PATH_GRID_STROKE_WIDTH)
+    majorGridPen = QPen(styles.majorgridstroke, styles.PATH_GRID_STROKE_WIDTH)
+    nobrush = QBrush(Qt.NoBrush)
+    baseWidth = styles.PATH_BASE_WIDTH
+    
     def __init__(self, vhelix, position, parent):
         super(PathHelix, self).__init__()
-        self.parent = parent
         self.vhelix = vhelix
-        self.number = self.vhelix.number()
-        self.label = None
-        self.focusRing = None
-        self.beingHoveredOver = False
-        self.setAcceptsHoverEvents(True)
+        self.parent = parent
         self.setPos(position)
-        self.setNumber()
+        self.minorGrid = self.getMinorGridPath()
+        self.majorGrid = self.getMajorGridPath()
+        self.rect = QRectF()
+        self.updateRect()
 
-    def paint(self, painter, option, widget=None):
-        if self.number >= 0:
-            painter.setBrush(self.use_brush)
-            painter.setPen(self.use_pen)
-        else:
-            painter.setBrush(self.def_brush)
-            painter.setPen(self.def_pen)
-        if self.beingHoveredOver:
-            painter.setPen(self.hov_pen)
-        painter.drawEllipse(self.rect)
-
-    class FocusRingPainter(QGraphicsItem):
-        """Draws a focus ring around helix in parent"""
-        def __init__(self, helix, scene):
-            super(PathHelix.FocusRingPainter, self).__init__()
-            self.scene = scene
-            self.helix = helix
-            self.setPos(helix.pos())
-            scene.addItem(self)
-
-        def paint(self, painter, option, widget=None):
-            painter.setPen(PathHelix.hov_pen)
-            painter.drawEllipse(self.helix.rect)
-            bringToFront(self, self.scene)
-
-        def boundingRect(self):
-            return self.helix.rect
-    # end class
+    def updateRect(self):
+        """Sets rect width to reflect number of bases in vhelix. Sets
+        rect height to the width of two bases (one for scaffold and
+        one for staple)"""
+        canvasSize = self.vhelix.part().getCanvasSize()
+        self.rect.setWidth(self.baseWidth*canvasSize)
+        self.rect.setHeight(2*self.baseWidth)
 
     def boundingRect(self):
         return self.rect
 
-    def hoverEnterEvent(self, event):
-        """hoverEnterEvent changes the PathHelix brush and pen from default
-        to the hover colors if necessary."""
-        if self.focusRing == None:
-            self.focusRing = PathHelix.FocusRingPainter(self, \
-                                                         self.parent.scene)
-        self.update(self.rect)
-    # end def
+    def paint(self, painter, option, widget=None):
+        # Minor grid lines
+        painter.setBrush(self.nobrush)
+        painter.setPen(self.minorGridPen)
+        painter.drawPath(self.minorGrid)
+        # Major grid lines
+        painter.setPen(self.majorGridPen)
+        painter.drawPath(self.majorGrid)
 
-    def hoverLeaveEvent(self, event):
-        """hoverEnterEvent changes the PathHelix brush and pen from hover
-        to the default colors if necessary."""
-        if self.focusRing != None:
-            self.focusRing.setParentItem(None)
-            self.focusRing = None
-        self.update(self.rect)
-    # end def
+    def getMinorGridPath(self):
+        """
+        Returns a QPainterPath object for the minor grid lines.
+        The path also includes a border outline and a midline for
+        dividing scaffold and staple bases.
+        """
+        path = QPainterPath()
+        canvasSize = self.vhelix.part().getCanvasSize()
+        # border
+        path.addRect(0,0,self.baseWidth*canvasSize, 2*self.baseWidth)
+        # minor tick marks
+        for i in range(canvasSize):
+            if (i % 7 != 0):
+                path.moveTo(self.baseWidth*i,0)
+                path.lineTo(self.baseWidth*i,2*self.baseWidth)
+        # staple-scaffold divider
+        path.moveTo(0, self.baseWidth)
+        path.lineTo(self.baseWidth*canvasSize, self.baseWidth)
+        return path
 
-    def mousePressEvent(self, event):
-        # self.setUsed(not self.number >= 0)
-        QDrag(self.parent.parentWidget())
-    # end def
+    def getMajorGridPath(self):
+        """
+        Returns a QPainterPath object for the major grid lines.
+        This is separated from the minor grid lines so different
+        pens can be used for each.
+        """
+        path = QPainterPath()
+        canvasSize = self.vhelix.part().getCanvasSize()
+        # major tick marks
+        for i in range(0,canvasSize+1,7):
+                path.moveTo(self.baseWidth*i,0)
+                path.lineTo(self.baseWidth*i,2*self.baseWidth)
+        return path
 
-    def dragEnterEvent(self, e):
-        # self.setUsed(not self.number >= 0)
-        e.acceptProposedAction()
-        print "dee"
-    # end def
-
-    def setNumber(self):
-        """docstring for setNumber"""
-        if self.label == None:
-            self.label = QGraphicsSimpleTextItem("%d" % self.number)
-            self.label.setParentItem(self)
-        y_val = self.radius / 2
-        if self.number < 10:
-            #self.label.setX(self.radius / 1.3)
-            self.label.setPos(self.radius / 1.3, y_val)
-        elif self.number < 100:
-            #self.label.setX(self.radius / 2)
-            self.label.setPos(self.radius / 2, y_val)
-        else:   # added for bigger than 100 by NC
-            #self.label.setX(self.radius / 4)
-            self.label.setPos(self.radius / 4, y_val)
-
-def bringToFront(target, scene):
-    """collidingItems gets a list of all items that overlap. sets
-    this items zValue to one higher than the max."""
-    zval = 1
-    items = scene.items(target.boundingRect()) # the is a QList
-    for item in items:
-        temp = item.zValue()
-        if temp >= zval:
-            zval = item.zValue() + 1
-        # end if
-    # end for
-    target.setZValue(zval)

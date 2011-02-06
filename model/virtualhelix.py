@@ -30,10 +30,10 @@ Created by Jonathan deWerd on 2011-01-26.
 
 class VirtualHelix(object):
     """Stores staple and scaffold routing information."""
-    def __init__(self, number, canvasSize):
+    def __init__(self, part, number):
         super(VirtualHelix, self).__init__()
+        self._part = part
         self._number = number
-        self._canvasSize = canvasSize
         self._staple = []
         self._scaffold = []
 
@@ -41,8 +41,8 @@ class VirtualHelix(object):
         """Returns a representation in terms of simple JSON-encodable types
         or types that implement simpleRep"""
         ret = {'.class': "DNAPart"}
+        ret['part'] = self._part
         ret['number'] = self._number
-        ret['canvasSize'] = self._canvasSize
         ret['staple'] = self._staple
         ret['scaffold'] = self._scaffold
         return ret
@@ -52,8 +52,8 @@ class VirtualHelix(object):
         """Instantiates one of the parent class from the simple
         representation rep"""
         ret = VirtualHelix()
+        ret._part = rep['part']
         ret._number = rep['number']
-        ret._canvasSize = rep['canvasSize']
         ret._staple = rep['staple']
         ret._scaffold = rep['scaffold']
         return ret
@@ -64,3 +64,8 @@ class VirtualHelix(object):
     def number(self):
         """return VirtualHelix number"""
         return self._number
+
+    def part(self):
+        """docstring for part"""
+        return self._part
+

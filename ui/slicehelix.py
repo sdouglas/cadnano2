@@ -40,12 +40,12 @@ from model.virtualhelix import VirtualHelix
 class SliceHelix(QGraphicsItem):
     """docstring for SliceHelix"""
     # set up default, hover, and active drawing styles
-    def_brush = QBrush(styles.grayfill)
-    def_pen = QPen(styles.graystroke, styles.SLICE_HELIX_STROKE_WIDTH)
-    hov_brush = QBrush(styles.bluefill)
-    hov_pen = QPen(styles.bluestroke, styles.SLICE_HELIX_HILIGHT_WIDTH)
-    use_brush = QBrush(styles.orangefill)
-    use_pen = QPen(styles.orangestroke, styles.SLICE_HELIX_STROKE_WIDTH)
+    defBrush = QBrush(styles.grayfill)
+    defPen = QPen(styles.graystroke, styles.SLICE_HELIX_STROKE_WIDTH)
+    hovBrush = QBrush(styles.bluefill)
+    hovPen = QPen(styles.bluestroke, styles.SLICE_HELIX_HILIGHT_WIDTH)
+    useBrush = QBrush(styles.orangefill)
+    usePen = QPen(styles.orangestroke, styles.SLICE_HELIX_STROKE_WIDTH)
     radius = styles.SLICE_HELIX_RADIUS
     rect = QRectF(0, 0, 2 * radius, 2 * radius)
 
@@ -75,13 +75,13 @@ class SliceHelix(QGraphicsItem):
 
     def paint(self, painter, option, widget=None):
         if self.number >= 0:
-            painter.setBrush(self.use_brush)
-            painter.setPen(self.use_pen)
+            painter.setBrush(self.useBrush)
+            painter.setPen(self.usePen)
         else:
-            painter.setBrush(self.def_brush)
-            painter.setPen(self.def_pen)
+            painter.setBrush(self.defBrush)
+            painter.setPen(self.defPen)
         if self.beingHoveredOver:
-            painter.setPen(self.hov_pen)
+            painter.setPen(self.hovPen)
         painter.drawEllipse(self.rect)
     # end def
 
@@ -95,7 +95,7 @@ class SliceHelix(QGraphicsItem):
             scene.addItem(self)
 
         def paint(self, painter, option, widget=None):
-            painter.setPen(SliceHelix.hov_pen)
+            painter.setPen(SliceHelix.hovPen)
             painter.drawEllipse(self.helix.rect)
             bringToFront(self, self.scene)
 

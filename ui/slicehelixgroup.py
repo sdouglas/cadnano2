@@ -152,7 +152,8 @@ class SliceHelixGroup(QGraphicsItem):  # was a QGraphicsObject change for Qt 4.6
                 return num
             self.reserveBin.add(num)
             return num
-        if helix.parity == 1: # We find an arbitrary index (subject to parity constraints) to give the sender
+        # Find an arbitrary index (subject to parity constraints)
+        if helix.parity == 1:
             if len(self.oddRecycleBin):
                 return heappop(self.oddRecycleBin)
             else:

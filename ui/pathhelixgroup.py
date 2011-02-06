@@ -34,21 +34,31 @@ from PyQt4.QtCore import pyqtSignal
 from PyQt4.QtGui import QBrush
 from PyQt4.QtGui import QGraphicsItem#, QGraphicsObject
 from .pathhelix import PathHelix
+from handles.pathhelixhandle import PathHelixHandle
 import styles
 
+
 class PhgObject(QObject):
-    """ A placeholder class until QGraphicsObject is available to allow signaling """
+    """
+    A placeholder class until QGraphicsObject is available to allow signaling
+    """
     scaffoldChange = pyqtSignal(int)
     def __init__(self):
         super(PhgObject, self).__init__()
 # end class
 
-class PathHelixGroup(QGraphicsItem):    # change to QGraphicsObject for Qt 4.6
-    """docstring for PathHelixGroup"""
+class PathHelixGroup(QGraphicsItem):
+    """
+    PathHelixGroup maintains data and state for a set of object that provide
+    an interface to the schematic view of a DNA part. These objects include 
+    the PathHelix, PathHelixHandles, and ActiveSliceHandle.
+    """
+    handleRadius = styles.SLICE_HELIX_RADIUS
+    
     def __init__(self, dnaPartInst, type="honeycomb", controller=None,\
                  scene=None, parent=None):
         super(PathHelixGroup, self).__init__()
-        
+
         self.dnaPartInst = dnaPartInst
         self.pathController = controller
         self.scene = scene
@@ -56,13 +66,13 @@ class PathHelixGroup(QGraphicsItem):    # change to QGraphicsObject for Qt 4.6
 
         if self.crossSectionType == "honeycomb":
             # set honeycomb parameters
-            self.rect = QRectF(0, 0, 200, 200)
+            self.rect = QRectF(0, 0, 1000, 1000)
             self.pathCanvasWidth = 42 # FIX: set from config file
         else:
             # set square parameters
             pass
-            
-        # set up signals    
+
+        # set up signals
         self.qObject = PhgObject()
         self.scaffoldChange = self.qObject.scaffoldChange
     # end def
@@ -82,7 +92,13 @@ class PathHelixGroup(QGraphicsItem):    # change to QGraphicsObject for Qt 4.6
         """
         part = self.dnaPartInst.part()
         vh = part.getVirtualHelix(number)
-        x = 0
-        y = part.getVirtualHelixCount() * 50
+        # add PathHelixHandle
+        x = 20
+        y = part.getVirtualHelixCount() * (2 * styles.PATH_BASE_WIDTH + \
+                                           styles.PATH_HELIX_PADDING)
+        phh = PathHelixHandle(vh, QPointF(x, y), self)
+        phh.setParentItem(self)
+        # add PathHelix
+        x = x + 4*self.handleRadius
         ph = PathHelix(vh, QPointF(x, y), self)
         ph.setParentItem(self)

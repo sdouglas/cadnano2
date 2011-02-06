@@ -29,29 +29,27 @@ from ui.assemblynode import AssemblyNode
 from treemodel import TreeModel
 from model.assembly import Assembly
 
+
 class TreeController(QObject):
-    
-    #partselected = pyqtSignal('QString',int,int)
-    #assemblyselected = pyqtSignal('QString',int,int)
-    
+
     def __init__(self, treeview):
         super(TreeController, self).__init__()
         self.treeview = treeview
         self.treeview.setSelectionBehavior(QTreeView.SelectItems)
         self.treeview.setUniformRowHeights(True)
-        headers = ["item","hide","lock"]
+        headers = ["item", "hide", "lock"]
         self.treemodel = TreeModel(self.treeview)
         self.treemodel.headers = headers
         self.treeview.setDragDropMode(QAbstractItemView.InternalMove)
         #self.win.treeview.setItemDelegateForColumn(0, QString())
         self.treeview.setAllColumnsShowFocus(True)
         self.treeview.setModel(self.treemodel)
-        
+
         # insert the base level assembly
         index = self.treeview.currentIndex()
         nodeparent = self.treemodel.nodeFromIndex(index)
         node = AssemblyNode("Assembly", Assembly(), None, None)
-        
+
         if self.treemodel.insertRow(0, index,node):
             # set index to the inserted child
             index = self.treemodel.index(0, 0, index)
@@ -59,29 +57,28 @@ class TreeController(QObject):
         # end if
         self.createConnections()
     # end def
-    
+
     def createConnections(self):
-        # QItemSelectionModel.currentChange emits the previous and current 
+        # QItemSelectionModel.currentChange emits the previous and current
         # selected QModelIndex, but we don't use those values
         #self.treeview.selectionModel().currentChanged.connect(self.updateUi)
         #self.treeview.activated.connect()
         # 
-        # 
         #self.treemodel.dataChanged.connect(self.setDirty_ind)
         #self.treemodel.rowsRemoved.connect(self.setDirty)
         #self.treemodel.modelReset.connect(self.setDirty)
-        
+
         # clicked is a QAbstractItemView signal
         self.treeview.clicked.connect(self.activated)
     # end def
-    
+
     def setCurrentIndex(self,index):
         if index.isValid():
             self.treeview.scrollTo(index)
             self.treeview.setCurrentIndex(index)
         # end if
     # end def
-    
+
     def addPartNode(self,name,partInst):
         """
         Adds a part to the tree model
@@ -90,16 +87,16 @@ class TreeController(QObject):
         """
         index = self.treeview.currentIndex()    # this is a QModelIndex
         nodeparent = self.treemodel.nodeFromIndex(index)
-        
+
         # must make it an assembly that we insert at
         if nodeparent.ntype != AssemblyNode.ntype:                                     
             index = index.parent()              # returns the parent model index
             nodeparent = nodeparent.parent      # go to the parent
         # end if
-        
+
         #node = PartNode(name, partInst,None, nodeparent)
         node = PartNode(name, partInst,None, None)
-        
+
         # currently we insert the new node first in the list but 
         # treemodel handles keeping things alphabetical
         if self.treemodel.insertRow(0, index,node):
@@ -110,7 +107,7 @@ class TreeController(QObject):
             #self.treemodel.reset()
         # end if
     # end def
-    
+
     def cut(self):
         """
         returns if the treemodel was able to cut something
@@ -120,36 +117,30 @@ class TreeController(QObject):
         return self.treemodel.hasCutItem()
     # end def
 
-
     def paste(self):
         index = self.treeview.currentIndex()
         self.setCurrentIndex(self.treemodel.paste(index))
     # end def
-
 
     def moveUp(self):
         index = self.treeview.currentIndex()
         self.setCurrentIndex(self.treemodel.moveUp(index))
     # end def
 
-
     def moveDown(self):
         index = self.treeview.currentIndex()
         self.setCurrentIndex(self.treemodel.moveDown(index))
     # end def
-
 
     def promote(self):
         index = self.treeview.currentIndex()
         self.setCurrentIndex(self.treemodel.promote(index))
     #end def
 
-
     def demote(self):
         index = self.win.treeview.currentIndex()
         self.setCurrentIndex(self.treemodel.demote(index))
     #end def
-
 
     def hideOrShowNode(self,hide, index):
         """"""
@@ -163,13 +154,12 @@ class TreeController(QObject):
             # end for
         # end if
     # end def
-    
+
     def activated(self, index):
         """"""
         node = self.treemodel.nodeFromIndex(index)
         if node.ntype==PartNode.ntype:
             node.object_instance.partselected.emit()
-            print "I'm working on it"
             #self.partselected.emit(node.ntype, node.object_id,node.instance_id)
             
 # end class

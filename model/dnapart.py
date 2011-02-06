@@ -40,7 +40,6 @@ class DNAPart(Part):
         # FIX: defaults should be read from a config file
         if (self._crossSectionType == 'honeycomb'):
             self._canvasSize = 42
-        
 
     def simpleRep(self, encoder):
         """
@@ -77,7 +76,7 @@ class DNAPart(Part):
 
     def addVirtualHelix(self, number):
         """Adds a new VirtualHelix to the part in response to user input."""
-        vhelix = VirtualHelix(number, self._canvasSize)
+        vhelix = VirtualHelix(self, number)
         self._virtualHelices[number] = vhelix
 
     def getVirtualHelix(self, number):
