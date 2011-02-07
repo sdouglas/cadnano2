@@ -107,6 +107,13 @@ class SolidHelixGroup(QObject):
         self.calculateParameters()
         print "maya group created"
         self.group = pc.general.group(em=True,name='helixgroup0')
+        
+        # the coloring of the cylinders is set here 
+        shdr, sg = pc.createSurfaceShader( 'blinn' )
+        self.colorshader = sg
+        colorfill = styles.orangefill
+        # maya takes RGB component values from 0 to 1
+        shdr.setAttr('color', colorfill.redF(),colorfill.greenF(),colorfill.blueF(), type='double3')
     # end def
     
     def calculateParameters(self):
@@ -154,7 +161,7 @@ class SolidHelixGroup(QObject):
         x = pos.x()*self.pointscale # scale input from slice view
         # scale input from slice view make negative to invert the fact that
         # Qt defines origins positve moving downscreen from the top left corner
-        y = -pos.y()*self.pointscale 
+        y = -pos.y()*self.pointscale + 29 
         print x, y
         origin = [x/self.unit_scale, y/self.unit_scale, 0]
         
@@ -236,9 +243,15 @@ class SolidHelixGroup(QObject):
         height: length of the cylinder
         """
         temp = pc.polyCylinder(axis=axis,radius=(self.helix_diameter/self.unit_scale/2), height=length, name='helix0')[0]
-        temp.setTranslation(origin, space='object')
+        # set position
+        temp.setTranslation(origin, space='object') 
+        
+        # apply coloring
+        pc.general.sets(self.colorshader, edit=True, forceElement=temp)
+        
+        # set up parent group
         pc.general.parent(temp.name(), self.group.name())
-        return temp
+        return temp[0]
     # end def
 # end class
 

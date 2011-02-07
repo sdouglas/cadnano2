@@ -84,11 +84,6 @@ removeModules(defmods)
 
 # begin program
 import cadnanomaya
-import pymel.core as pc
-
-pc.general.select(all=True)
-selectedObjects = pc.ls(sl=True)
-pc.general.delete(selectedObjects)
 
 caDNAno = cadnanomaya.caDNAno
 

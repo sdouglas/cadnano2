@@ -29,12 +29,14 @@ modified from cadnano.py
 """
 from PyQt4 import QtCore
 from PyQt4 import QtGui
+import pymel.core as pc
 
 class caDNAno(QtCore.QObject):
     sharedApp = None  # This class is a singleton.
     def __init__(self):
         super(caDNAno, self).__init__()
         assert(not caDNAno.sharedApp)
+        self.configMaya()
         caDNAno.sharedApp = self
         self.app = QtGui.qApp
         #self.setWindowIcon(QIcon('ui/images/cadnano2-app-icon.png'))
@@ -47,6 +49,40 @@ class caDNAno(QtCore.QObject):
         from ui.mayacontroller import DocumentController
         DocumentController() # DocumentController is responsible for adding
                              # itself to app.documentControllers
+                             
+    def configMaya(self):
+        
+        # delete all objects in the scene
+        pc.general.select(all=True)
+        selectedObjects = pc.ls(sl=True)
+        pc.general.delete(selectedObjects)
+        
+        # set up the panel shading
+        mypanel = pc.windows.getPanel(underPointer=True)
+        
+        if mypanel == None or mypanel.name() == "":
+            mypanel = pc.windows.getPanel(withFocus=True)  
+        #end if
+        print "setting up panel: %s\n" % mypanel.name()
+        if pc.windows.modelEditor(mypanel.name(), query=True, exists=True):
+            pc.windows.modelEditor(mypanel.name(), edit=True, displayAppearance='smoothShaded',smoothWireframe=False)
+        # end if
+        #print pc.windows.paneLayout(paneUnderPointer=True,query=True)
+        #[u'modelPanel4', u'modelPanel2', u'modelPanel3', u'modelPanel1']
+        panels = pc.windows.paneLayout('viewPanes',query=True, childArray=True)
+        print panels
+        for current in panels:
+            if current != "":
+                pc.windows.modelEditor(current, edit=True, \
+                                    displayAppearance='smoothShaded', \
+                                    wireframeOnShaded=False, \
+                                    smoothWireframe=False)
+                print "setting up panel: %s\n" % current
+            # end if
+        # end for
+        # finish setting up panels
+        
+    # end def
 
 # Convenience. No reason to feel guilty using it - caDNAno is a singleton.
 def app():
