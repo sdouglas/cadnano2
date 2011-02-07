@@ -36,7 +36,8 @@ import pymel.core as pc
 import os
 import sys
 import styles
-
+import maya.OpenMayaUI as mui
+import maya.OpenMaya as mo	
 
 X, Y, Z = range(3) # enumerate unit direction indices
 
@@ -114,6 +115,13 @@ class SolidHelixGroup(QObject):
         colorfill = styles.orangefill
         # maya takes RGB component values from 0 to 1
         shdr.setAttr('color', colorfill.redF(),colorfill.greenF(),colorfill.blueF(), type='double3')
+        # self.cool = mui.M3dView.active3dView()
+        # #self.cool.beginGL()
+        # self.cool.beginOverlayDrawing()
+        # self.a = self.cool.drawText('Awesome',mo.MPoint(0,0,0), mui.M3dView.kLeft)
+        # #activeView.drawText( "Some Text", textPositionNearPlane, OpenMayaUI.M3dView.kLeft )
+        # self.cool.endOverlayDrawing()
+        # #self.cool.endGL()
     # end def
     
     def calculateParameters(self):
