@@ -81,7 +81,18 @@ class ActiveSliceHandle(QGraphicsItem):
             self.translate(xf - self.x0, 0)
             self.x0 = xf
 
-    # def mouseReleaseEvent(self, event):
-    #     """docstring for mouseReleaseEvent"""
-    #     self.setX()
+    def mouseLeaveEvent(self):
+        """docstring for dragLeaveEvent"""
+        print "dragleaveevent"
+
+    def mouseReleaseEvent(self, event):
+        """Snaps to grid after mouse released"""
+        d = self.x0 % self.width
+        if d < (self.width / 2):  # snap left
+            self.translate(-d, 0)
+            self.x0 -= d
+        else:  # snap right
+            self.translate((self.width-d), 0)
+            self.x0 += (self.width-d)
+        
 
