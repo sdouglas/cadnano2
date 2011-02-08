@@ -29,8 +29,6 @@ Created by Jonathan deWerd on 2011-01-26.
 from exceptions import NotImplementedError
 
 class Part(object):
-    
-    
     def __init__(self, id, *args, **kargs):
         self._id = id
         

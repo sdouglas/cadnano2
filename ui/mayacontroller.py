@@ -180,10 +180,9 @@ class DocumentController():
         self.solidlist.append(solhg)
         
         # Connect the slice
-        shg.helixAdded.connect(phg.handleNewHelix)
-        shg.helixAdded.connect(solhg.handleNewHelix)
+        shg.helixAdded.connect(phg.handleHelixAdded)
+        shg.helixAdded.connect(solhg.handleHelixAdded)
         phg.scaffoldChange.connect(solhg.handleScaffoldChange)
-        
         dnaPartInst.partselected.connect(shg.bringToFront)
 
     # end def

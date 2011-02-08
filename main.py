@@ -32,7 +32,6 @@ Created by Shawn Douglas on 2010-09-26.
 """
 
 import sys
-
 from cadnano import caDNAno
 
 def main():

@@ -149,7 +149,7 @@ class SolidHelixGroup(QObject):
     # end def
     
     @pyqtSlot('QPointF',int)
-    def handleNewHelix(self, pos, number):
+    def handleHelixAdded(self, pos, number):
         """
         Retrieve reference to new VirtualHelix vh based on number relayed
         by the signal event. Next, create a new PathHelix associated 
