@@ -34,8 +34,9 @@ from PyQt4.QtCore import pyqtSignal
 from PyQt4.QtGui import QBrush
 from PyQt4.QtGui import QGraphicsItem#, QGraphicsObject
 from .pathhelix import PathHelix
-from handles.pathhelixhandle import PathHelixHandle
 from handles.activeslicehandle import ActiveSliceHandle
+from handles.breakpointhandle import BreakpointHandle, EndType, StrandType
+from handles.pathhelixhandle import PathHelixHandle
 import styles
 
 
@@ -63,6 +64,8 @@ class PathHelixGroup(QGraphicsItem):
         self.part = dnaPartInst.part()
         self.pathController = controller
         self.scene = scene
+        self.numToPathHelix = {}
+        
         # Lattice-specific initialization 
         self.crossSectionType = self.dnaPartInst.part().getCrossSectionType()
         if self.crossSectionType == "honeycomb":
@@ -109,6 +112,7 @@ class PathHelixGroup(QGraphicsItem):
         # add PathHelix
         ph = PathHelix(vh, QPointF(0, y), self)
         ph.setParentItem(self)
+        self.numToPathHelix[number] = ph
         # update activeslicehandle
         if count == 1: # first vhelix added by mouse click
             self.activeslicehandle = ActiveSliceHandle(count,\
@@ -117,4 +121,48 @@ class PathHelixGroup(QGraphicsItem):
             self.activeslicehandle.setParentItem(self)
         else:
             self.activeslicehandle.resize(count)
+
+    @pyqtSlot('QPointF',int)
+    def handleSliceHelixClick(self, number):
+        """docstring for handleSliceHelixClick"""
+        index = self.activeslicehandle.getPosition()
+        # get away from edge
+        if index == 0:
+            index = 1
+            self.activeslicehandle.setPosition(1)
+        elif index == self.part.getCanvasSize() - 1:
+            index -= 1
+            self.activeslicehandle.setPosition(index)
         
+        # update vhelix data
+        # refresh breakpointhandles
+        
+        # temporary: directly add breakpointhandles
+        vh = self.part.getVirtualHelix(number)
+        ph = self.numToPathHelix[number]
+        bh5 = BreakpointHandle(vh,\
+                               EndType.Left5Prime,\
+                               StrandType.Scaffold,\
+                               index-1)
+        bh5.setParentItem(ph)
+        bh3 = BreakpointHandle(vh,\
+                               EndType.Right3Prime,\
+                               StrandType.Scaffold,\
+                               index+1)
+        bh3.setParentItem(ph)
+        s = "sliceHelix %d clicked at index %d" % (number, index)
+        print s
+
+    def bringToFront(self):
+        """collidingItems gets a list of all items that overlap. sets
+        this items zValue to one higher than the max."""
+        zval = 1
+        items = self.collidingItems() # the is a QList
+        for item in items:
+            temp = item.zValue()
+            if temp >= zval:
+                zval = item.zValue() + 1
+            # end if
+        # end for
+        self.setZValue(zval)
+    # end def

@@ -174,7 +174,9 @@ class DocumentController():
 
         # Connect the slice
         shg.helixAdded.connect(phg.handleNewHelix)
+        shg.helixClicked.connect(phg.handleSliceHelixClick)
         dnaPartInst.partselected.connect(shg.bringToFront)
+        dnaPartInst.partselected.connect(phg.bringToFront)
         
     # end def
 

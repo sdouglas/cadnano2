@@ -26,10 +26,12 @@ pathhelixhandle.py
 Created by Shawn on 2011-02-06.
 """
 
+from exceptions import AttributeError
 from PyQt4.QtCore import QPointF, QRectF, Qt
 from PyQt4.QtGui import QBrush
 from PyQt4.QtGui import QGraphicsItem
-from PyQt4.QtGui import QGraphicsSimpleTextItem
+from PyQt4.QtGui import QPainterPath
+from PyQt4.QtGui import QPolygonF
 from PyQt4.QtGui import QPen, QDrag, QUndoCommand
 import ui.styles as styles
 
@@ -43,6 +45,105 @@ class BreakpointHandle(QGraphicsItem):
     released, it notifies the PathController if its DNApart should be
     updated.
     """
-    def __init__(self, arg):
+    pen = QPen(styles.minorgridstroke, styles.PATH_GRID_STROKE_WIDTH)
+    nopen = QPen(Qt.NoPen)
+    brush = QBrush(styles.bluestroke)
+    nobrush = QBrush(Qt.NoBrush)
+    baseWidth = styles.PATH_BASE_WIDTH
+
+    def __init__(self, vhelix, endType, strandType, pos):
         super(BreakpointHandle, self).__init__()
-        self.arg = arg
+        self.setFlag(QGraphicsItem.ItemIsMovable)
+        self.vhelix = vhelix
+        self.endType = endType
+        self.strandType = strandType
+        self.pos = pos
+        self.minX = 0
+        self.maxX = (vhelix.part().getCanvasSize()-1) * self.baseWidth
+        self.rect = QRectF(0, 0, self.baseWidth, self.baseWidth)
+        self.x0 = pos * self.baseWidth
+        self.y0 = 0
+        self.setPos(QPointF(self.x0, self.y0))
+        if endType == EndType.Left5Prime:
+            self.painterpath = self.getLeft5PrimePainterPath()
+        elif endType == EndType.Left3Prime:
+            self.painterpath = self.getLeft3PrimePainterPath()
+        elif endType == EndType.Right5Prime:
+            self.painterpath = self.getRight5PrimePainterPath()
+        elif endType == EndType.Right3Prime:
+            self.painterpath = self.getRight3PrimePainterPath()
+        else:
+            raise AttributeError
+
+    def boundingRect(self):
+        """docstring for boundingRect"""
+        return self.rect
+
+    def paint(self, painter, option, widget=None):
+        painter.setBrush(self.brush)
+        painter.setPen(self.nopen)
+        painter.drawPath(self.painterpath)
+        painter.setBrush(self.nobrush)
+        painter.setPen(self.pen)
+        painter.drawRect(self.rect)
+
+    def getLeft5PrimePainterPath(self):
+        """docstring for getLeft3PrimePath"""
+        pp = QPainterPath()
+        pp.addRect(0.25*self.baseWidth, 0, 0.75*self.baseWidth, self.baseWidth)
+        return pp
+
+    def getLeft3PrimePainterPath(self):
+        """docstring for getLeft3PrimePath"""
+        poly = QPolygonF()
+        poly.append(QPointF(self.baseWidth,0))
+        poly.append(QPointF(0.25*self.baseWidth,0.5*self.baseWidth))
+        poly.append(QPointF(self.baseWidth,self.baseWidth))
+        pp = QPainterPath()
+        pp.addPolygon(poly)
+        return pp
+
+    def getRight5PrimePainterPath(self):
+        """docstring for getRight3PrimePath"""
+        pp = QPainterPath()
+        pp.addRect(0, 0, 0.75*self.baseWidth, self.baseWidth)
+        return pp
+
+    def getRight3PrimePainterPath(self):
+        """docstring for getRight3PrimePath"""
+        poly = QPolygonF()
+        poly.append(QPointF(0, 0))
+        poly.append(QPointF(0.75*self.baseWidth, 0.5*self.baseWidth))
+        poly.append(QPointF(0, self.baseWidth))
+        pp = QPainterPath()
+        pp.addPolygon(poly)
+        return pp
+
+    def mouseMoveEvent(self, event):
+        """docstring for mouseMoveEvent"""
+        xf = event.scenePos().x()
+        if xf > self.minX and xf < self.maxX:
+            self.translate(xf - self.x0, 0)
+            self.x0 = xf
+
+    def mouseReleaseEvent(self, event):
+        """Snaps to grid after mouse released"""
+        d = self.x0 % self.baseWidth
+        if d < (self.baseWidth / 2):  # snap left
+            self.translate(-d, 0)
+            self.x0 -= d
+        else:  # snap right
+            self.translate((self.baseWidth-d), 0)
+            self.x0 += (self.baseWidth-d)
+
+
+class StrandType:
+    Scaffold = 0
+    Staple = 1
+
+
+class EndType:
+    Left5Prime = 0
+    Left3Prime = 1
+    Right5Prime = 2
+    Right3Prime = 3
