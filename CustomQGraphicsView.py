@@ -124,7 +124,7 @@ class CustomQGraphicsView(QGraphicsView):
         --------
         """
         if event.key() == self.key_mod:
-            event.accept()
+            #event.accept()
             self.transformEnable = True
         else:
             QGraphicsView.keyPressEvent(self, event)
@@ -144,7 +144,7 @@ class CustomQGraphicsView(QGraphicsView):
         --------
         """
         if event.key() == self.key_mod:
-            event.accept()
+            #event.accept()
             self.transformEnable = False
             self.dollyZoomEnable = False
             self.panDisable()
@@ -204,7 +204,7 @@ class CustomQGraphicsView(QGraphicsView):
         --------
         """
         if self.transformEnable == True:
-            event.accept()
+            #event.accept()
             which_buttons = event.buttons()
             if which_buttons == self.key_pan:
                 self.panEnable()
@@ -216,6 +216,8 @@ class CustomQGraphicsView(QGraphicsView):
                 # QMouseEvent.y() returns the position of the mouse cursor
                 # relative to the widget
                 self.y0 = event.y()
+            else:
+                QGraphicsView.mousePressEvent(self, event)
         else:
             QGraphicsView.mousePressEvent(self, event)
     #end def
@@ -241,6 +243,8 @@ class CustomQGraphicsView(QGraphicsView):
                 self.panDisable()
             elif which_button == self.key_zoom:
                 self.dollyZoomEnable = False
+            else:
+                QGraphicsView.mouseReleaseEvent(self, event)
         # end if
         else:
             QGraphicsView.mouseReleaseEvent(self, event)
