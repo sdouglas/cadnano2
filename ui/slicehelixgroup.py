@@ -40,7 +40,8 @@ import styles
 root3 = 1.732051
 
 class ShgObject(QObject):
-    helixAdded = pyqtSignal('QPointF',int)
+    helixAdded = pyqtSignal('QPointF', int)
+    helixClicked = pyqtSignal(int)
     def __init__(self):
         super(ShgObject, self).__init__()
 # end class
@@ -71,6 +72,7 @@ class SliceHelixGroup(QGraphicsItem):  # was a QGraphicsObject change for Qt 4.6
         
         self.qObject = ShgObject()
         self.helixAdded = self.qObject.helixAdded
+        self.helixClicked = self.qObject.helixClicked
         # drawing related
         self.radius = styles.SLICE_HELIX_RADIUS
         self.nrows = nrows 
@@ -181,11 +183,17 @@ class SliceHelixGroup(QGraphicsItem):  # was a QGraphicsObject change for Qt 4.6
             heappush(self.oddRecycleBin,n)
 
     def addVirtualHelixToPathGroup(self, pos, number):
-        """docstring for addVirtualHelixtoDnaPart
-        
+        """Notify PathHelixGroup that a new VirtualHelix has been
+        added to the part.
         pos: a QPointF identifying a slice views XY position for a helix
+        number: slicehelix number
         """
+        # install VirtualHelix neighbor relationships
         self.helixAdded.emit(pos, number)
+
+    def addBasesToDnaPart(self, number):
+        """Notify PathHelixGroup"""
+        self.helixClicked.emit(number)
 
     def bringToFront(self):
         """collidingItems gets a list of all items that overlap. sets

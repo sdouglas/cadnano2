@@ -55,3 +55,6 @@ SLICE_HANDLE_STROKE_WIDTH = 1
 # Path Colors
 minorgridstroke = QColor(204, 204, 204)  # cccccc
 majorgridstroke = QColor(102, 102, 102)  # 666666
+
+handlefill = QColor(0, 102, 204)  # 0066cc
+# handlestroke = QColor(0, 102, 204)  # 0066cc

@@ -204,10 +204,9 @@ class SliceHelix(QGraphicsItem):
             part = self.parent.dnaPartInst.part()
             self.vhelix = part.addVirtualHelix(self.number)
             self.parent.addVirtualHelixToPathGroup(self.pos(), self.number)
-            # self.parent.addBasesToDnaPart(self.number)
+            self.parent.addBasesToDnaPart(self.number)
         else:  # Unuse
-            # self.setNumber(-1)
-            pass
+            self.parent.addBasesToDnaPart(self.number)
     # end def
 
     def add(self):

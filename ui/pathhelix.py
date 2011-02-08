@@ -49,8 +49,8 @@ class PathHelix(QGraphicsItem):
         self.vhelix = vhelix
         self.parent = parent
         self.setPos(position)
-        self.minorGrid = self.getMinorGridPath()
-        self.majorGrid = self.getMajorGridPath()
+        self.minorGridPainterPath = self.getMinorGridPainterPath()
+        self.majorGridPainterPath = self.getMajorGridPainterPath()
         self.rect = QRectF()
         self.updateRect()
 
@@ -69,12 +69,12 @@ class PathHelix(QGraphicsItem):
         # Minor grid lines
         painter.setBrush(self.nobrush)
         painter.setPen(self.minorGridPen)
-        painter.drawPath(self.minorGrid)
+        painter.drawPath(self.minorGridPainterPath)
         # Major grid lines
         painter.setPen(self.majorGridPen)
-        painter.drawPath(self.majorGrid)
+        painter.drawPath(self.majorGridPainterPath)
 
-    def getMinorGridPath(self):
+    def getMinorGridPainterPath(self):
         """
         Returns a QPainterPath object for the minor grid lines.
         The path also includes a border outline and a midline for
@@ -94,7 +94,7 @@ class PathHelix(QGraphicsItem):
         path.lineTo(self.baseWidth*canvasSize, self.baseWidth)
         return path
 
-    def getMajorGridPath(self):
+    def getMajorGridPainterPath(self):
         """
         Returns a QPainterPath object for the major grid lines.
         This is separated from the minor grid lines so different

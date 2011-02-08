@@ -26,6 +26,7 @@ activeslicehandle.py
 Created by Shawn on 2011-02-05.
 """
 
+from exceptions import IndexError
 from PyQt4.QtCore import QPointF, QRectF
 from PyQt4.QtCore import Qt
 from PyQt4.QtGui import QBrush
@@ -37,22 +38,22 @@ import ui.styles as styles
 
 class ActiveSliceHandle(QGraphicsItem):
     """docstring for ActiveSliceHandle"""
-    width = styles.PATH_BASE_WIDTH
+    baseWidth = styles.PATH_BASE_WIDTH
     brush = QBrush(styles.orangefill)
     pen = QPen(styles.orangestroke, styles.SLICE_HANDLE_STROKE_WIDTH)
 
     def __init__(self, helixCount, startBase, maxBase):
         super(ActiveSliceHandle, self).__init__()
+        self.maxBase = maxBase
         self.setFlag(QGraphicsItem.ItemIsMovable)
         self.height = (helixCount + 2) * (styles.PATH_BASE_HEIGHT + \
                                           styles.PATH_HELIX_PADDING)
-        self.rect = QRectF(0, 0, self.width, self.height)
-        self.x0 = startBase * self.width
+        self.rect = QRectF(0, 0, self.baseWidth, self.height)
+        self.x0 = startBase * self.baseWidth
         self.y0 = -1 * (styles.PATH_HELIX_PADDING)
         self.minX = 0
-        self.maxX = (maxBase-1) * self.width
+        self.maxX = (maxBase-1) * self.baseWidth
         self.setPos(QPointF(self.x0, self.y0))
-
 
     def boundingRect(self):
         """docstring for boundingRect"""
@@ -63,8 +64,21 @@ class ActiveSliceHandle(QGraphicsItem):
         painter.setPen(self.pen)
         painter.drawRect(self.rect)
 
+    def getPosition(self):
+        """Returns the base position"""
+        return int(self.x0 / self.baseWidth)
+
+    def setPosition(self, pos):
+        """Returns the base position"""
+        if pos >= 0 and pos <= self.maxBase:
+            xf = pos * self.baseWidth
+            self.translate(xf - self.x0, 0)
+            self.x0 = xf
+        else:
+            raise IndexError
+
     def resize(self, helixCount):
-        """docstring for resize"""
+        """Call after adding or removing a virtualhelix"""
         height = (helixCount + 2) * (styles.PATH_BASE_HEIGHT + \
                                      styles.PATH_HELIX_PADDING)
         self.rect.setHeight(height)
@@ -72,7 +86,8 @@ class ActiveSliceHandle(QGraphicsItem):
 
     def resetBounds(self, maxBase):
         """Call after resizing virtualhelix canvas."""
-        self.maxX = (maxBase-1) * self.width
+        self.maxBase = maxBase
+        self.maxX = (maxBase-1) * self.baseWidth
 
     def mouseMoveEvent(self, event):
         """docstring for mouseMoveEvent"""
@@ -81,7 +96,12 @@ class ActiveSliceHandle(QGraphicsItem):
             self.translate(xf - self.x0, 0)
             self.x0 = xf
 
-    # def mouseReleaseEvent(self, event):
-    #     """docstring for mouseReleaseEvent"""
-    #     self.setX()
-
+    def mouseReleaseEvent(self, event):
+        """Snaps to grid after mouse released"""
+        d = self.x0 % self.baseWidth
+        if d < (self.baseWidth / 2):  # snap left
+            self.translate(-d, 0)
+            self.x0 -= d
+        else:  # snap right
+            self.translate((self.baseWidth-d), 0)
+            self.x0 += (self.baseWidth-d)
