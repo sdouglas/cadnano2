@@ -173,8 +173,8 @@ class DocumentController():
         self.win.pathscene.addItem(phg)
 
         # Connect the slice
-        shg.helixAdded.connect(phg.handleNewHelix)
-        shg.helixClicked.connect(phg.handleSliceHelixClick)
+        shg.helixAdded.connect(phg.handleHelixAdded)
+        shg.sliceHelixClicked.connect(phg.handleSliceHelixClick)
         dnaPartInst.partselected.connect(shg.bringToFront)
         dnaPartInst.partselected.connect(phg.bringToFront)
         

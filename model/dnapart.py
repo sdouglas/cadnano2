@@ -76,7 +76,7 @@ class DNAPart(Part):
 
     def addVirtualHelix(self, number):
         """Adds a new VirtualHelix to the part in response to user input."""
-        vhelix = VirtualHelix(self, number)
+        vhelix = VirtualHelix(part=self, number=number, size=self._canvasSize)
         self._virtualHelices[number] = vhelix
 
     def getVirtualHelix(self, number):

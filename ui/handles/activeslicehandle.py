@@ -54,6 +54,7 @@ class ActiveSliceHandle(QGraphicsItem):
         self.minX = 0
         self.maxX = (maxBase-1) * self.baseWidth
         self.setPos(QPointF(self.x0, self.y0))
+        self.setZValue(-10)
 
     def boundingRect(self):
         """docstring for boundingRect"""

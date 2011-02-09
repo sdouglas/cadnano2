@@ -94,8 +94,8 @@ class PathHelixGroup(QGraphicsItem):
     def boundingRect(self):
         return self.rect
 
-    @pyqtSlot('QPointF',int)
-    def handleNewHelix(self, pos, number):
+    @pyqtSlot('QPointF', int)
+    def handleHelixAdded(self, pos, number):
         """
         Retrieve reference to new VirtualHelix vh based on number relayed
         by the signal event. Next, create a new PathHelix associated 
@@ -122,34 +122,55 @@ class PathHelixGroup(QGraphicsItem):
         else:
             self.activeslicehandle.resize(count)
 
-    @pyqtSlot('QPointF',int)
+    @pyqtSlot('QPointF', int)
     def handleSliceHelixClick(self, number):
         """docstring for handleSliceHelixClick"""
         index = self.activeslicehandle.getPosition()
-        # get away from edge
+        vh = self.part.getVirtualHelix(number)
+        ph = self.numToPathHelix[number]
+
+        # move activeslice away from edge
         if index == 0:
             index = 1
             self.activeslicehandle.setPosition(1)
         elif index == self.part.getCanvasSize() - 1:
             index -= 1
             self.activeslicehandle.setPosition(index)
-        
-        # update vhelix data
-        # refresh breakpointhandles
-        
-        # temporary: directly add breakpointhandles
-        vh = self.part.getVirtualHelix(number)
-        ph = self.numToPathHelix[number]
-        bh5 = BreakpointHandle(vh,\
-                               EndType.Left5Prime,\
-                               StrandType.Scaffold,\
-                               index-1)
-        bh5.setParentItem(ph)
-        bh3 = BreakpointHandle(vh,\
-                               EndType.Right3Prime,\
-                               StrandType.Scaffold,\
-                               index+1)
-        bh3.setParentItem(ph)
+
+        # initialize some scaffold bases
+        if number % 2 == 0:  # even parity
+            prev = vh.scaffoldBase(index-1)
+            curr = vh.scaffoldBase(index)
+            next = vh.scaffoldBase(index+1)
+            prev.setNext(curr)
+            curr.setPrev(prev)
+            curr.setNext(next)
+            next.setPrev(curr)
+        else:  # odd parity
+            prev = vh.scaffoldBase(index+1)
+            curr = vh.scaffoldBase(index)
+            next = vh.scaffoldBase(index-1)
+            prev.setNext(curr)
+            curr.setPrev(prev)
+            curr.setNext(next)
+            next.setPrev(curr)
+
+        # install breakpoints
+        (list5p, list3p) = vh.getScaffoldBreakpoints()
+        print "breaklists:", list5p, list3p
+        for index in list5p:
+            bh = BreakpointHandle(vh,\
+                                  EndType.Left5Prime,\
+                                  StrandType.Scaffold,\
+                                  index)
+            bh.setParentItem(ph)
+        for index in list3p:
+            bh = BreakpointHandle(vh,\
+                                  EndType.Right3Prime,\
+                                  StrandType.Scaffold,\
+                                  index)
+            bh.setParentItem(ph)
+
         s = "sliceHelix %d clicked at index %d" % (number, index)
         print s
 

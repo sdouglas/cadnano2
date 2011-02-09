@@ -58,3 +58,8 @@ majorgridstroke = QColor(102, 102, 102)  # 666666
 
 handlefill = QColor(0, 102, 204)  # 0066cc
 # handlestroke = QColor(0, 102, 204)  # 0066cc
+
+
+# Overwrite for Maya
+majorgridstroke = QColor(255, 255, 255)  # ffffff for maya
+

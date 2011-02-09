@@ -62,7 +62,7 @@ class DNAPartInstance(PartInstance):
         dpi._scaffoldColor = rep['scaffoldColor']
         return dpi
 
-    def resolveSimpleRepIDs(self,idToObj):
+    def resolveSimpleRepIDs(self, idToObj):
         self._part = idToObj[self.partID]
         del self.partID
 

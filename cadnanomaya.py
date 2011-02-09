@@ -58,18 +58,19 @@ class caDNAno(QtCore.QObject):
         pc.general.delete(selectedObjects)
         
         # set up the panel shading
-        mypanel = pc.windows.getPanel(underPointer=True)
-        
-        if mypanel == None or mypanel.name() == "":
-            mypanel = pc.windows.getPanel(withFocus=True)  
-        #end if
-        print "setting up panel: %s\n" % mypanel.name()
-        if pc.windows.modelEditor(mypanel.name(), query=True, exists=True):
-            pc.windows.modelEditor(mypanel.name(), edit=True, displayAppearance='smoothShaded',smoothWireframe=False)
+        # mypanel = pc.windows.getPanel(underPointer=True)
+        # 
+        # if mypanel == None or mypanel.name() == "":
+        #     mypanel = pc.windows.getPanel(withFocus=True)  
+        # #end if
+        # print "setting up panel: %s\n" % mypanel.name()
+        # if pc.windows.modelEditor(mypanel.name(), query=True, exists=True):
+        #     pc.windows.modelEditor(mypanel.name(), edit=True, displayAppearance='smoothShaded',smoothWireframe=False)
         # end if
         #print pc.windows.paneLayout(paneUnderPointer=True,query=True)
         #[u'modelPanel4', u'modelPanel2', u'modelPanel3', u'modelPanel1']
-        panels = pc.windows.paneLayout('viewPanes',query=True, childArray=True)
+        # panels = pc.windows.paneLayout('viewPanes',query=True, childArray=True)
+        panels = [u'modelPanel4', u'modelPanel2', u'modelPanel3', u'modelPanel1']
         print panels
         for current in panels:
             if current != "":

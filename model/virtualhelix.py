@@ -26,25 +26,27 @@
 virtualhelix.py
 Created by Jonathan deWerd on 2011-01-26.
 """
-
+from .base import Base
 
 class VirtualHelix(object):
     """Stores staple and scaffold routing information."""
-    def __init__(self, part, number):
+    def __init__(self, *args, **kwargs):
         super(VirtualHelix, self).__init__()
-        self._part = part
-        self._number = number
-        self._staple = []
-        self._scaffold = []
+        self._part = kwargs.get('part', None)
+        self._number = kwargs.get('number', None)
+        self._size = kwargs.get('size', 0)
+        self._stapleBases = [Base() for n in range(self._size)]
+        self._scaffoldBases = [Base() for n in range(self._size)]
 
-    def simpleRep(self,encoder):
+    def simpleRep(self, encoder):
         """Returns a representation in terms of simple JSON-encodable types
         or types that implement simpleRep"""
         ret = {'.class': "DNAPart"}
         ret['part'] = self._part
         ret['number'] = self._number
-        ret['staple'] = self._staple
-        ret['scaffold'] = self._scaffold
+        ret['size'] = self._size
+        ret['stapleBases'] = self._stapleBases
+        ret['scaffoldBases'] = self._scaffoldBases
         return ret
 
     @classmethod
@@ -54,8 +56,8 @@ class VirtualHelix(object):
         ret = VirtualHelix()
         ret._part = rep['part']
         ret._number = rep['number']
-        ret._staple = rep['staple']
-        ret._scaffold = rep['scaffold']
+        ret._stapleBases = rep['stapleBases']
+        ret._scaffoldBases = rep['scaffoldBases']
         return ret
 
     def resolveSimpleRepIDs(self,idToObj):
@@ -68,4 +70,29 @@ class VirtualHelix(object):
     def part(self):
         """docstring for part"""
         return self._part
+
+    def stapleBase(self, index):
+        """docstring for stapleBase"""
+        return self._stapleBases[index]
+
+    def scaffoldBase(self, index):
+        """docstring for scaffoldBase"""
+        return self._scaffoldBases[index]
+
+    def getScaffoldBreakpoints(self):
+        """
+        Returns a tuple of lists. The first list contains the indices
+        of bases that are 5' breakpoints. The second list contains the
+        indices of bases that are 3' breakpoints.
+        """
+        list5p = []
+        list3p = []
+        for i in range(len(self._scaffoldBases)):
+            if self._scaffoldBases[i].is5primeEnd():
+                list5p.append(i)
+            if self._scaffoldBases[i].is3primeEnd():
+                list3p.append(i)
+        return (list5p, list3p)
+
+
 
