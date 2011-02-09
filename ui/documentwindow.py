@@ -56,5 +56,6 @@ class DocumentWindow(QMainWindow, ui_mainwindow.Ui_MainWindow):
         self.redoAction = docCtrlr.undoStack.createRedoAction(self)
         self.editMenu.addAction(self.undoAction)
         self.editMenu.addAction(self.redoAction)
+        
     def focusInEvent(self):
        app().undoGroup.setActiveStack(self.controller.undoStack)

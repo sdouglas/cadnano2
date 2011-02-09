@@ -115,13 +115,7 @@ class SolidHelixGroup(QObject):
         colorfill = styles.orangefill
         # maya takes RGB component values from 0 to 1
         shdr.setAttr('color', colorfill.redF(),colorfill.greenF(),colorfill.blueF(), type='double3')
-        # self.cool = mui.M3dView.active3dView()
-        # #self.cool.beginGL()
-        # self.cool.beginOverlayDrawing()
-        # self.a = self.cool.drawText('Awesome',mo.MPoint(0,0,0), mui.M3dView.kLeft)
-        # #activeView.drawText( "Some Text", textPositionNearPlane, OpenMayaUI.M3dView.kLeft )
-        # self.cool.endOverlayDrawing()
-        # #self.cool.endGL()
+ 
     # end def
     
     def calculateParameters(self):
@@ -173,7 +167,7 @@ class SolidHelixGroup(QObject):
         print x, y
         origin = [x/self.unit_scale, y/self.unit_scale, 0]
         
-        self.number_hash[number] = self.drawHelix(origin, length, axis)
+        self.number_hash[number] = self.drawHelix(origin, length, axis,number)
     # end def
     
     def drawHexPair(self,start_point, end_point, orientation):
@@ -244,7 +238,7 @@ class SolidHelixGroup(QObject):
         self.drawHelix(originB, cylinder_length, axisPair)
     # end def
 
-    def drawHelix(self, origin, length, axis):
+    def drawHelix(self, origin, length, axis,number=None):
         """
         origin: defines the starting point of one end of the helix
         axis: vector defining the spatial direction of the helix
@@ -256,7 +250,12 @@ class SolidHelixGroup(QObject):
         
         # apply coloring
         pc.general.sets(self.colorshader, edit=True, forceElement=temp)
-        
+        mypoint = (origin[0],origin[1],origin[2])
+        if number != None:
+            mynote = str(number)
+        else:
+            mynote = 'awesome'
+        pc.windows.annotate( temp.name(), tx=mynote, p=mypoint ) 
         # set up parent group
         pc.general.parent(temp.name(), self.group.name())
         return temp[0]
