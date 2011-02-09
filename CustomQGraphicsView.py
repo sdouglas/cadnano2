@@ -83,7 +83,12 @@ class CustomQGraphicsView(QGraphicsView):
         self.setDragMode(self.noDrag)
         self.transformEnable = False
         self.dollyZoomEnable = False
+        #print self.transformationAnchor()
+        self.setTransformationAnchor(QGraphicsView.AnchorUnderMouse)
 
+        # self.horizontalScrollBar().setMaximum(800)
+        # self.horizontalScrollBar().setMinimum(-800)
+        #self.setSceneRect(-200,200,800,800)
         self.x0 = 0
         self.y0 = 0
         self.scale_size = 1.0
@@ -182,8 +187,8 @@ class CustomQGraphicsView(QGraphicsView):
                 self.y0 = yf
             elif self.dollyZoomEnable == True:
                 self.dollyZoom(event)
-            #else:
-            #    QGraphicsView.mouseMoveEvent(self, event)
+            else:
+                QGraphicsView.mouseMoveEvent(self, event)
         #else:
         # adding this allows events to be passed to items underneath
         QGraphicsView.mouseMoveEvent(self, event)
