@@ -96,8 +96,9 @@ class CustomQGraphicsView(QGraphicsView):
         self.scale_limit_min = .41
         self.last_scale_factor = 0.0
         self.key_mod = Qt.Key_Control
-        self.key_pan = Qt.MidButton  # Qt.LeftButton
+        self.key_pan = Qt.LeftButton #Qt.MidButton
         self.key_zoom = Qt.RightButton
+        self.viewRootItem = None
     # end def
 
     def setKeyPan(self, button):
@@ -182,13 +183,13 @@ class CustomQGraphicsView(QGraphicsView):
                 """
                 xf = event.x()
                 yf = event.y()
-                self.translate(xf - self.x0, yf - self.y0)
+                self.viewRootItem.translate(xf - self.x0, yf - self.y0)
                 self.x0 = xf
                 self.y0 = yf
             elif self.dollyZoomEnable == True:
                 self.dollyZoom(event)
-            else:
-                QGraphicsView.mouseMoveEvent(self, event)
+            #else:
+                #QGraphicsView.mouseMoveEvent(self, event)
         #else:
         # adding this allows events to be passed to items underneath
         QGraphicsView.mouseMoveEvent(self, event)

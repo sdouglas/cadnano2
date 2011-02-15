@@ -164,8 +164,8 @@ class DocumentController():
         # Create a Slice view of part
         shg = SliceHelixGroup(dnaPartInst, nrows, ncolumns,\
                               scene=self.win.slicescene,\
-                              controller=self.win.sliceController)
-        self.win.slicescene.addItem(shg)
+                              controller=self.win.sliceController,parent=self.win.sliceroot)
+        #self.win.slicescene.addItem(shg)
 
         # Create a Path view of the part
         phg = PathHelixGroup(dnaPartInst, scene=self.win.pathscene,\

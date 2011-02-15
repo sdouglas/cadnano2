@@ -49,12 +49,12 @@ class SliceHelix(QGraphicsItem):
     radius = styles.SLICE_HELIX_RADIUS
     rect = QRectF(0, 0, 2 * radius, 2 * radius)
 
-    def __init__(self, row, col, position, parent):
+    def __init__(self, row, col, position, parent=None):
         """
         
         parent: a slice helix group
         """
-        super(SliceHelix, self).__init__()
+        super(SliceHelix, self).__init__(parent)
         self.parent = parent
         self.scene = parent.scene
         # data related
@@ -87,12 +87,13 @@ class SliceHelix(QGraphicsItem):
 
     class FocusRingPainter(QGraphicsItem):
         """Draws a focus ring around helix in parent"""
-        def __init__(self, helix, scene):
-            super(SliceHelix.FocusRingPainter, self).__init__()
+        def __init__(self, helix, scene, parent=None):
+            super(SliceHelix.FocusRingPainter, self).__init__(parent)
+            self.parent = parent
             self.scene = scene
             self.helix = helix
             self.setPos(helix.pos())
-            scene.addItem(self)
+            #scene.addItem(self)
 
         def paint(self, painter, option, widget=None):
             painter.setPen(SliceHelix.hovPen)
@@ -111,7 +112,7 @@ class SliceHelix(QGraphicsItem):
         to the hover colors if necessary."""
         if self.focusRing == None:
             self.focusRing = SliceHelix.FocusRingPainter(self,\
-                                                         self.parent.scene)
+                                                         self.parent.scene, self.parent)
         self.update(self.rect)
     # end def
 

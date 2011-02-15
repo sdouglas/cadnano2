@@ -69,6 +69,8 @@ class SliceHelixGroup(QGraphicsItem):  # was a QGraphicsObject change for Qt 4.6
         self.reserveBin = set()
         self.highestUsedOdd = -1  # Used iff the recycle bin is empty and highestUsedOdd+2 is not in the reserve bin
         self.highestUsedEven = -2  # same
+
+        self.parent = parent
         
         self.qObject = ShgObject()
         self.helixAdded = self.qObject.helixAdded

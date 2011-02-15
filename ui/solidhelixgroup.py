@@ -255,7 +255,7 @@ class SolidHelixGroup(QObject):
             mynote = str(number)
         else:
             mynote = 'awesome'
-        pc.windows.annotate( temp.name(), tx=mynote, p=mypoint ) 
+        #pc.windows.annotate( temp.name(), tx=mynote, p=mypoint ) 
         # set up parent group
         pc.general.parent(temp.name(), self.group.name())
         return temp[0]

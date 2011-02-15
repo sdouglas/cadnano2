@@ -43,6 +43,20 @@ def getMayaWindow():
     return sip.wrapinstance(long(ptr), QtCore.QObject)
 # end def
 
+class SliceRoot(QtGui.QGraphicsItem):
+    def __init__(self,rectsource=None, parent = None, scene=None):
+        super(SliceRoot, self).__init__()
+        self.parent = parent 
+        self.scene = scene
+        self.rect = rectsource.sceneRect()
+        
+    def paint(self, painter, option, widget):
+        pass
+        
+    def boundingRect(self):
+        return self.rect
+# end class
+
 class DocumentWindow(QtGui.QMainWindow, ui_mainwindow.Ui_MainWindow):
     '''docstring for DocumentWindow'''
     def __init__(self, parent=getMayaWindow(), docCtrlr=None):
@@ -51,7 +65,14 @@ class DocumentWindow(QtGui.QMainWindow, ui_mainwindow.Ui_MainWindow):
         self.setupUi(self)
         # Slice setup
         self.slicescene = QtGui.QGraphicsScene()
+        
+        self.sliceroot = SliceRoot(rectsource=self.slicescene)
+        self.slicescene.addItem(self.sliceroot)
+        
         self.sliceGraphicsView.setScene(self.slicescene)
+        
+        self.sliceGraphicsView.viewRootItem = self.sliceroot
+        
         self.sliceController = slicecontroller.SliceController(self)
         # Path setup
         self.pathscene = QtGui.QGraphicsScene()
