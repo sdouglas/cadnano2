@@ -33,6 +33,7 @@ from string import *
 import math
 import random
 import pymel.core as pc
+import pymel.api as pa
 import os
 import sys
 import styles
@@ -116,7 +117,15 @@ class SolidHelixGroup(QObject):
         # maya takes RGB component values from 0 to 1
         shdr.setAttr('color', colorfill.redF(),colorfill.greenF(),colorfill.blueF(), type='double3')
  
+        print  pc.language.scriptJob( event=[u'SelectionChanged',self.cool])
+        #pa.MEventMessage.addEventCallback(u'SelectionChanged',self.cool)
     # end def
+    
+    def cool(self,*args):
+        print "Who?"
+        if args != None:
+            print args
+        print "Awesome job"
     
     def calculateParameters(self):
         """ calculate the core values of the cylinders """
@@ -244,21 +253,105 @@ class SolidHelixGroup(QObject):
         axis: vector defining the spatial direction of the helix
         height: length of the cylinder
         """
-        temp = pc.polyCylinder(axis=axis,radius=(self.helix_diameter/self.unit_scale/2), height=length, name='helix0')[0]
-        # set position
-        temp.setTranslation(origin, space='object') 
+        # returns [nt.Transform(u'helix0'), nt.PolyCylinder(u'polyCylinder1')]
+        temp = pc.polyCylinder(axis=axis,radius=(self.helix_diameter/self.unit_scale/2), height=length, name='helix0')
+        # set position in the Transform Node
+        temp[0].setTranslation(origin, space='object') 
         
         # apply coloring
-        pc.general.sets(self.colorshader, edit=True, forceElement=temp)
+        pc.general.sets(self.colorshader, edit=True, forceElement=temp[0])
         mypoint = (origin[0],origin[1],origin[2])
         if number != None:
             mynote = str(number)
         else:
             mynote = 'awesome'
-        #pc.windows.annotate( temp.name(), tx=mynote, p=mypoint ) 
+        #pc.windows.annotate( temp[0].name(), tx=mynote, p=mypoint ) 
         # set up parent group
-        pc.general.parent(temp.name(), self.group.name())
-        return temp[0]
+        pc.general.parent(temp[0].name(), self.group.name())
+        return temp
+
     # end def
 # end class
+
+"""
+pc.language.scriptJob(listEvents=True, ) or (name, function)
+[u'linearUnitChanged', 
+u'timeUnitChanged', 
+u'angularUnitChanged', 
+u'Undo', 
+u'Redo', 
+u'timeChanged', 
+u'currentContainerChange', 
+u'quitApplication', 
+u'idleHigh', 
+u'idle', 
+u'RecentCommandChanged',
+u'ToolChanged', 
+u'PostToolChanged', 
+u'DisplayRGBColorChanged', 
+u'animLayerRebuild', 
+u'animLayerRefresh', 
+u'animLayerAnimationChanged', 
+u'animLayerLockChanged', 
+u'animLayerBaseLockChanged', 
+u'animLayerGhostChanged', 
+u'cameraChange', 
+u'cameraDisplayAttributesChange', 
+u'SelectionChanged', 
+u'ActiveViewChanged', 
+u'SelectModeChanged', 
+u'SelectTypeChanged', 
+u'SelectPreferenceChanged', 
+u'DagObjectCreated', 
+u'renderLayerManagerChange', 
+u'renderLayerChange', 
+u'displayLayerManagerChange', 
+u'displayLayerAdded', 
+u'displayLayerDeleted', 
+u'displayLayerVisibilityChanged', 
+u'displayLayerChange', 
+u'renderPassChange', 
+u'renderPassSetChange', 
+u'renderPassSetMembershipChange', 
+u'passContributionMapChange', 
+u'DisplayColorChanged', 
+u'lightLinkingChanged', 
+u'lightLinkingChangedNonSG', 
+u'SceneSegmentChanged', 
+u'PostSceneSegmentChanged', 
+u'ColorIndexChanged', 
+u'deleteAll', 
+u'NameChanged', 
+u'symmetricModellingOptionsChanged', 
+u'softSelectOptionsChanged', 
+u'SetModified', 
+u'linearToleranceChanged', 
+u'angularToleranceChanged', 
+u'nurbsToPolygonsPrefsChanged', 
+u'nurbsCurveRebuildPrefsChanged', 
+u'constructionHistoryChanged', 
+u'threadCountChanged', 
+u'NewSceneOpened', 
+u'SceneOpened', 
+u'SceneImported', 
+u'PreFileNewOrOpened', 
+u'workspaceChanged', 
+u'DragRelease', 
+u'ModelPanelSetFocus', 
+u'MenuModeChanged', 
+u'gridDisplayChanged', 
+u'interactionStyleChanged', 
+u'axisAtOriginChanged', 
+u'CurveRGBColorChanged', 
+u'SelectPriorityChanged', 
+u'snapModeChanged', 
+u'nurbsToSubdivPrefsChanged', 
+u'selectionPipelineChanged', 
+u'playbackRangeChanged', 
+u'playbackRangeSliderChanged', 
+u'currentSoundNodeChanged', 
+u'glFrameTrigger', 
+u'RebuildUIValues']
+
+"""
 

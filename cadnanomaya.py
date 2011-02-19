@@ -57,6 +57,7 @@ class caDNAno(QtCore.QObject):
         selectedObjects = pc.ls(sl=True)
         pc.general.delete(selectedObjects)
         
+        pc.language.scriptJob( killAll=True)
         # set up the panel shading
         # mypanel = pc.windows.getPanel(underPointer=True)
         # 
@@ -74,10 +75,13 @@ class caDNAno(QtCore.QObject):
         print panels
         for current in panels:
             if current != "":
+                # renderName=ogsRenderer is Viewport 2.0
                 pc.windows.modelEditor(current, edit=True, \
                                     displayAppearance='smoothShaded', \
                                     wireframeOnShaded=False, \
-                                    smoothWireframe=False)
+                                    smoothWireframe=False, \
+                                    rendererName=u'ogsRenderer') #rendererName=u'base_OpenGL_Renderer'
+                print pc.windows.modelEditor(current, query=True, rendererList=True)
                 print "setting up panel: %s\n" % current
             # end if
         # end for

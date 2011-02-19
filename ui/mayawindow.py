@@ -43,11 +43,12 @@ def getMayaWindow():
     return sip.wrapinstance(long(ptr), QtCore.QObject)
 # end def
 
-class SliceRoot(QtGui.QGraphicsItem):
+class SceneRoot(QtGui.QGraphicsItem):
     def __init__(self,rectsource=None, parent = None, scene=None):
-        super(SliceRoot, self).__init__()
+        super(SceneRoot, self).__init__()
         self.parent = parent 
         self.scene = scene
+        # this sets the rect of itself to the QGraphicsScene bounding volume
         self.rect = rectsource.sceneRect()
         
     def paint(self, painter, option, widget):
@@ -66,7 +67,7 @@ class DocumentWindow(QtGui.QMainWindow, ui_mainwindow.Ui_MainWindow):
         # Slice setup
         self.slicescene = QtGui.QGraphicsScene()
         
-        self.sliceroot = SliceRoot(rectsource=self.slicescene)
+        self.sliceroot = SceneRoot(rectsource=self.slicescene)
         self.slicescene.addItem(self.sliceroot)
         
         self.sliceGraphicsView.setScene(self.slicescene)
