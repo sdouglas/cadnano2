@@ -34,20 +34,21 @@ import pathcontroller
 import slicecontroller
 from cadnano import app
 
-class SliceRoot(QGraphicsItem):
-    def __init__(self,rectsource=None, parent = None, scene=None):
-        super(SliceRoot, self).__init__()
-        self.parent = parent 
+
+class ViewRoot(QGraphicsItem):
+    def __init__(self,rectsource=None, parent=None, scene=None):
+        super(ViewRoot, self).__init__()
+        self.parent = parent
         self.scene = scene
         self.rect = rectsource.sceneRect()
-        
+
     def paint(self, painter, option, widget):
         pass
-        
+
     def boundingRect(self):
         return self.rect
-# end class
-        
+
+
 class DocumentWindow(QMainWindow, ui_mainwindow.Ui_MainWindow):
     '''docstring for DocumentWindow'''
     def __init__(self, parent=None, docCtrlr=None):
@@ -56,18 +57,17 @@ class DocumentWindow(QMainWindow, ui_mainwindow.Ui_MainWindow):
         self.setupUi(self)
         # Slice setup
         self.slicescene = QGraphicsScene()
-
-        self.sliceroot = SliceRoot(rectsource=self.slicescene)
-        self.slicescene.addItem(self.sliceroot) 
-        
+        self.sliceroot = ViewRoot(rectsource=self.slicescene)
+        self.slicescene.addItem(self.sliceroot)
         self.sliceGraphicsView.setScene(self.slicescene)
-        
         self.sliceGraphicsView.viewRootItem = self.sliceroot
-        
         self.sliceController = slicecontroller.SliceController(self)
         # Path setup
         self.pathscene = QGraphicsScene()
+        self.pathroot = ViewRoot(rectsource=self.pathscene)
+        self.pathscene.addItem(self.pathroot)
         self.pathGraphicsView.setScene(self.pathscene)
+        self.pathGraphicsView.viewRootItem = self.pathroot
         self.pathController = pathcontroller.PathController(self)
         # Edit menu setup
         self.undoStack = docCtrlr.undoStack
@@ -76,6 +76,6 @@ class DocumentWindow(QMainWindow, ui_mainwindow.Ui_MainWindow):
         self.redoAction = docCtrlr.undoStack.createRedoAction(self)
         self.editMenu.addAction(self.undoAction)
         self.editMenu.addAction(self.redoAction)
-        
+
     def focusInEvent(self):
        app().undoGroup.setActiveStack(self.controller.undoStack)

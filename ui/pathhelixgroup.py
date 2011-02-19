@@ -52,7 +52,7 @@ class PhgObject(QObject):
 class PathHelixGroup(QGraphicsItem):
     """
     PathHelixGroup maintains data and state for a set of object that provide
-    an interface to the schematic view of a DNA part. These objects include 
+    an interface to the schematic view of a DNA part. These objects include
     the PathHelix, PathHelixHandles, and ActiveSliceHandle.
     """
     handleRadius = styles.SLICE_HELIX_RADIUS
@@ -64,6 +64,7 @@ class PathHelixGroup(QGraphicsItem):
         self.part = dnaPartInst.part()
         self.pathController = controller
         self.scene = scene
+        self.parent = parent
         self.numToPathHelix = {}
         
         # Lattice-specific initialization 

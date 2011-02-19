@@ -96,7 +96,8 @@ class CustomQGraphicsView(QGraphicsView):
         self.scale_limit_min = .41
         self.last_scale_factor = 0.0
         self.key_mod = Qt.Key_Control
-        self.key_pan = Qt.LeftButton #Qt.MidButton
+        self.key_pan = Qt.LeftButton
+        self.key_pan_alt = Qt.MidButton
         self.key_zoom = Qt.RightButton
         self.viewRootItem = None
     # end def
@@ -212,7 +213,7 @@ class CustomQGraphicsView(QGraphicsView):
         if self.transformEnable == True:
             #event.accept()
             which_buttons = event.buttons()
-            if which_buttons == self.key_pan:
+            if which_buttons in [self.key_pan, self.key_pan_alt]:
                 self.panEnable()
                 self.x0 = event.pos().x()
                 self.y0 = event.pos().y()
@@ -245,7 +246,7 @@ class CustomQGraphicsView(QGraphicsView):
         if self.transformEnable == True:
             # QMouseEvent.button() returns the button that triggered the event
             which_button = event.button()
-            if which_button == self.key_pan:
+            if which_button in [self.key_pan, self.key_pan_alt]:
                 self.panDisable()
             elif which_button == self.key_zoom:
                 self.dollyZoomEnable = False

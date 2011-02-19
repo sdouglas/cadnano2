@@ -64,14 +64,12 @@ class SliceHelixGroup(QGraphicsItem):  # was a QGraphicsObject change for Qt 4.6
         self.crossSectionType = self.dnaPartInst.part().getCrossSectionType()
         self.sliceController = controller
         self.scene = scene
+        self.parent = parent
         self.oddRecycleBin = []
         self.evenRecycleBin = []
         self.reserveBin = set()
         self.highestUsedOdd = -1  # Used iff the recycle bin is empty and highestUsedOdd+2 is not in the reserve bin
         self.highestUsedEven = -2  # same
-
-        self.parent = parent
-        
         self.qObject = ShgObject()
         self.helixAdded = self.qObject.helixAdded
         self.sliceHelixClicked = self.qObject.sliceHelixClicked

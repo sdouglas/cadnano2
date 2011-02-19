@@ -58,7 +58,6 @@ class PathController():
         else:
             self.currentTool = widget
         widget.setChecked(True)
-        print "path select"
 
     def chooseMoveTool(self):
         widget = self.mainWindow.actionPathMove
@@ -67,7 +66,6 @@ class PathController():
         else:
             self.currentTool = widget
         widget.setChecked(True)
-        print "path move"
 
     def chooseBreakTool(self):
         widget = self.mainWindow.actionPathBreak
@@ -76,7 +74,6 @@ class PathController():
         else:
             self.currentTool = widget
         widget.setChecked(True)
-        print "path break"
 
     def chooseEraseTool(self):
         widget = self.mainWindow.actionPathErase
@@ -85,7 +82,6 @@ class PathController():
         else:
             self.currentTool = widget
         widget.setChecked(True)
-        print "path erase"
 
     def chooseForceTool(self):
         widget = self.mainWindow.actionPathForce
@@ -94,7 +90,6 @@ class PathController():
         else:
             self.currentTool = widget
         widget.setChecked(True)
-        print "path force"
 
     def chooseInsertTool(self):
         widget = self.mainWindow.actionPathInsertion
@@ -103,7 +98,6 @@ class PathController():
         else:
             self.currentTool = widget
         widget.setChecked(True)
-        print "path insert"
 
     def chooseSkipTool(self):
         widget = self.mainWindow.actionPathSkip
@@ -112,4 +106,3 @@ class PathController():
         else:
             self.currentTool = widget
         widget.setChecked(True)
-        print "path skip"
