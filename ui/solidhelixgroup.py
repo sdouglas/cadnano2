@@ -254,6 +254,10 @@ class SolidHelixGroup(QObject):
         height: length of the cylinder
         """
         # returns [nt.Transform(u'helix0'), nt.PolyCylinder(u'polyCylinder1')]
+        # modify the cylinder length with temp[1].setHeight() and temp[0].setTranslation([0,], space = 'object')
+        # so if you want to stretch in one direction only,
+        # the origin of a cylinder is it's geometric center
+        # use space=‘transform’, ‘preTransform’, ‘object’, ‘world’ to the transform
         temp = pc.polyCylinder(axis=axis,radius=(self.helix_diameter/self.unit_scale/2), height=length, name='helix0')
         # set position in the Transform Node
         temp[0].setTranslation(origin, space='object') 
@@ -270,6 +274,14 @@ class SolidHelixGroup(QObject):
         pc.general.parent(temp[0].name(), self.group.name())
         return temp
 
+    # end def
+    
+    def addbases(self, helix, end5prime, end3prime):
+        temp = helix[1].getHeight()
+        helix[1].setHeight()
+        # or we can do scale as N and start with 1 base
+        # the_scale = helix[0].getScale()[2], helix[0].setScale(1.0,1.0,float)
+        helix[0].setTranslation([0, 0,temp-], space='object')
     # end def
 # end class
 
@@ -352,6 +364,11 @@ u'playbackRangeSliderChanged',
 u'currentSoundNodeChanged', 
 u'glFrameTrigger', 
 u'RebuildUIValues']
+
+"""
+"""
+Create custom menu sets
+Create custom Marking menus
 
 """
 

@@ -53,7 +53,6 @@ class SliceController():
         else:
             self.currentTool = widget
         widget.setChecked(True)
-        print "slice select"
 
     def chooseMoveTool(self):
         widget = self.mainWindow.actionSliceMove
@@ -62,4 +61,3 @@ class SliceController():
         else:
             self.currentTool = widget
         widget.setChecked(True)
-        print "slice move"

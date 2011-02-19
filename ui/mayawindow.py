@@ -50,10 +50,10 @@ class SceneRoot(QtGui.QGraphicsItem):
         self.scene = scene
         # this sets the rect of itself to the QGraphicsScene bounding volume
         self.rect = rectsource.sceneRect()
-        
+
     def paint(self, painter, option, widget):
         pass
-        
+
     def boundingRect(self):
         return self.rect
 # end class
@@ -66,18 +66,17 @@ class DocumentWindow(QtGui.QMainWindow, ui_mainwindow.Ui_MainWindow):
         self.setupUi(self)
         # Slice setup
         self.slicescene = QtGui.QGraphicsScene()
-        
         self.sliceroot = SceneRoot(rectsource=self.slicescene)
         self.slicescene.addItem(self.sliceroot)
-        
         self.sliceGraphicsView.setScene(self.slicescene)
-        
-        self.sliceGraphicsView.viewRootItem = self.sliceroot
-        
+        self.sliceGraphicsView.sceneRootItem = self.sliceroot
         self.sliceController = slicecontroller.SliceController(self)
         # Path setup
         self.pathscene = QtGui.QGraphicsScene()
+        self.pathroot = SceneRoot(rectsource=self.pathscene)
+        self.pathscene.addItem(self.pathroot)
         self.pathGraphicsView.setScene(self.pathscene)
+        self.pathGraphicsView.sceneRootItem = self.pathroot
         self.pathController = pathcontroller.PathController(self)
         # Edit menu setup
         self.undoStack = docCtrlr.undoStack
