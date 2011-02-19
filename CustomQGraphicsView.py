@@ -131,7 +131,6 @@ class CustomQGraphicsView(QGraphicsView):
         --------
         """
         if event.key() == self.key_mod:
-            #event.accept()
             self.transformEnable = True
         else:
             QGraphicsView.keyPressEvent(self, event)
@@ -151,7 +150,6 @@ class CustomQGraphicsView(QGraphicsView):
         --------
         """
         if event.key() == self.key_mod:
-            #event.accept()
             self.transformEnable = False
             self.dollyZoomEnable = False
             self.panDisable()
@@ -191,7 +189,7 @@ class CustomQGraphicsView(QGraphicsView):
             elif self.dollyZoomEnable == True:
                 self.dollyZoom(event)
             #else:
-                #QGraphicsView.mouseMoveEvent(self, event)
+            #    QGraphicsView.mouseMoveEvent(self, event)
         #else:
         # adding this allows events to be passed to items underneath
         QGraphicsView.mouseMoveEvent(self, event)
@@ -211,8 +209,8 @@ class CustomQGraphicsView(QGraphicsView):
         Examples
         --------
         """
-        if self.transformEnable == True:
-            #event.accept()
+        #if self.transformEnable == True:
+        if self.transformEnable == True and qApp.keyboardModifiers():
             which_buttons = event.buttons()
             if which_buttons in [self.key_pan, self.key_pan_alt]:
                 self.panEnable()
