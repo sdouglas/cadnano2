@@ -158,6 +158,14 @@ class CustomQGraphicsView(QGraphicsView):
             QGraphicsView.keyReleaseEvent(self, event)
         # end else
     # end def
+    
+    def enterEvent(self,event):
+        self.setFocus(True)
+        QGraphicsView.enterEvent(self,event)
+
+    def leaveEvent(self,event):
+        self.setFocus(False)
+        QGraphicsView.leaveEvent(self,event)
 
     def mouseMoveEvent(self, event):
         """
