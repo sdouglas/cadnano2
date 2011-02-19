@@ -184,7 +184,8 @@ class CustomQGraphicsView(QGraphicsView):
                 """
                 xf = event.x()
                 yf = event.y()
-                self.viewRootItem.translate(xf - self.x0, yf - self.y0)
+                self.viewRootItem.translate((xf - self.x0)/self.scale_size,\
+                                            (yf - self.y0)/self.scale_size)
                 self.x0 = xf
                 self.y0 = yf
             elif self.dollyZoomEnable == True:
