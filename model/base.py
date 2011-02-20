@@ -119,3 +119,7 @@ class Base(object):
             return True
         else:
             return False
+
+class EndType:
+    FivePrime = 0
+    ThreePrime = 1

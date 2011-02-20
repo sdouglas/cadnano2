@@ -57,14 +57,11 @@ class DocumentWindow(QMainWindow, ui_mainwindow.Ui_MainWindow):
         self.setupUi(self)
         # Slice setup
         self.slicescene = QGraphicsScene()
-
         self.sliceroot = SceneRoot(rectsource=self.slicescene)
         self.slicescene.addItem(self.sliceroot)
-         
         self.sliceGraphicsView.setScene(self.slicescene)
         self.sliceGraphicsView.sceneRootItem = self.sliceroot
         self.sliceController = slicecontroller.SliceController(self)
-        
         # Path setup
         self.pathscene = QGraphicsScene()
         self.pathroot = SceneRoot(rectsource=self.pathscene)

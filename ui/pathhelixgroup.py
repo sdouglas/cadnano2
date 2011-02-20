@@ -35,8 +35,10 @@ from PyQt4.QtGui import QBrush
 from PyQt4.QtGui import QGraphicsItem#, QGraphicsObject
 from .pathhelix import PathHelix
 from handles.activeslicehandle import ActiveSliceHandle
-from handles.breakpointhandle import BreakpointHandle, EndType, StrandType
+from handles.breakpointhandle import BreakpointHandle
 from handles.pathhelixhandle import PathHelixHandle
+from model.base import EndType
+from model.virtualhelix import StrandType
 import styles
 
 
@@ -81,7 +83,8 @@ class PathHelixGroup(QGraphicsItem):
         count = self.part.getVirtualHelixCount()
         self.activeslicehandle = ActiveSliceHandle(count,\
                                                    self.startBase,\
-                                                   self.pathCanvasWidth)
+                                                   self.pathCanvasWidth,\
+                                                   None)
         if count > 0: # initalize if loading from file, otherwise delay
             self.activeslicehandle.setParentItem(self)
         # set up signals
@@ -162,15 +165,17 @@ class PathHelixGroup(QGraphicsItem):
             bh = BreakpointHandle(vh,\
                                   EndType.FivePrime,\
                                   StrandType.Scaffold,\
-                                  index)
+                                  index,\
+                                  ph)
             ph.addScaffoldBreakHandle(bh)
         for index in vh.getScaffold3PrimeEnds():
             bh = BreakpointHandle(vh,\
                                   EndType.ThreePrime,\
                                   StrandType.Scaffold,\
-                                  index)
+                                  index,\
+                                  ph)
             ph.addScaffoldBreakHandle(bh)
-        ph.updateScafBreakBounds()
+        ph.updateBreakBounds(StrandType.Scaffold)
     # end def
 
     def bringToFront(self):

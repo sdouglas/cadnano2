@@ -26,6 +26,7 @@ pathhelix.py
 Created by Shawn on 2011-01-27.
 """
 
+from exceptions import AttributeError
 from PyQt4.QtCore import QRectF
 from PyQt4.QtCore import Qt
 from PyQt4.QtGui import QBrush
@@ -34,8 +35,8 @@ from PyQt4.QtGui import QGraphicsSimpleTextItem
 from PyQt4.QtGui import QPainterPath
 from PyQt4.QtGui import QPen, QDrag, QUndoCommand
 import styles
-from model.virtualhelix import VirtualHelix
-from handles.breakpointhandle import BreakpointHandle, EndType, StrandType
+from model.virtualhelix import VirtualHelix, StrandType
+from handles.breakpointhandle import BreakpointHandle
 
 
 class PathHelix(QGraphicsItem):
@@ -123,17 +124,25 @@ class PathHelix(QGraphicsItem):
 
     def addScaffoldBreakHandle(self, bh):
         """docstring for addScaffoldBreakHandle"""
-        bh.setParentItem(self)
+        # bh.setParentItem(self)
         self._scafBreaktHandles.append(bh)
 
     def addStapleBreakHandle(self, bh):
         """docstring for addStapleBreakHandle"""
-        bh.setParentItem(self)
+        # bh.setParentItem(self)
         self._stapBreaktHandles.append(bh)
 
-    def updateScafBreakBounds(self):
-        handles = sorted(self._scafBreaktHandles+self._scafCrossoverHandles,\
-                         key=lambda handle: handle.baseIndex)
+    def updateBreakBounds(self, strandType):
+        if strandType == StrandType.Scaffold:
+            handles = sorted(self._scafBreaktHandles +\
+                             self._scafCrossoverHandles,\
+                             key=lambda handle: handle.baseIndex)
+        elif strandType == StrandType.Staple:
+            handles = sorted(self._stapBreaktHandles +\
+                             self._stapCrossoverHandles,\
+                             key=lambda handle: handle.baseIndex)
+        else:
+            raise AttributeError
         count = len(handles)
         if count == 0:
             return
@@ -148,4 +157,8 @@ class PathHelix(QGraphicsItem):
             handles[count-1].setDragBounds(handles[count-2].baseIndex+1,\
                                            maxIndex)
     # end def
+    def updateStapBreakBounds(self):
+        """docstring for fname"""
+        pass
+
 # end class

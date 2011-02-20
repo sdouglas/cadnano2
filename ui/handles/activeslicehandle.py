@@ -42,8 +42,8 @@ class ActiveSliceHandle(QGraphicsItem):
     brush = QBrush(styles.orangefill)
     pen = QPen(styles.orangestroke, styles.SLICE_HANDLE_STROKE_WIDTH)
 
-    def __init__(self, helixCount, startBase, maxBase):
-        super(ActiveSliceHandle, self).__init__()
+    def __init__(self, helixCount, startBase, maxBase, parent=None):
+        super(ActiveSliceHandle, self).__init__(parent)
         self.maxBase = maxBase
         self.setFlag(QGraphicsItem.ItemIsMovable)
         self.height = (helixCount + 2) * (styles.PATH_BASE_HEIGHT + \
@@ -91,11 +91,19 @@ class ActiveSliceHandle(QGraphicsItem):
         self.maxX = (maxBase-1) * self.baseWidth
 
     def mouseMoveEvent(self, event):
-        """docstring for mouseMoveEvent"""
-        xf = event.scenePos().x()
-        if xf > self.minX and xf < self.maxX:
-            self.translate(xf - self.x0, 0)
-            self.x0 = xf
+        """Only allow dragging in the x direction."""
+        newX = event.scenePos().x()
+        if newX < self.minX:
+            self.x0 = self.minX
+        elif newX > self.maxX:
+            self.x0 = self.maxX
+        else:  # xf > self.minX and xf < self.maxX
+            d = newX % self.baseWidth #
+            if d < (self.baseWidth >> 1):
+                self.x0 = newX - d  # snap left
+            else:
+                self.x0 = newX + (self.baseWidth - d)
+        self.setPos(self.x0, self.y0)
 
     def mouseReleaseEvent(self, event):
         """Snaps to grid after mouse released"""

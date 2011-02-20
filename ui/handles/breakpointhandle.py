@@ -33,6 +33,8 @@ from PyQt4.QtGui import QGraphicsItem
 from PyQt4.QtGui import QPainterPath
 from PyQt4.QtGui import QPolygonF
 from PyQt4.QtGui import QPen, QDrag, QUndoCommand
+from model.base import EndType
+from model.virtualhelix import StrandType, Parity
 import ui.styles as styles
 
 
@@ -51,16 +53,17 @@ class BreakpointHandle(QGraphicsItem):
     nobrush = QBrush(Qt.NoBrush)
     baseWidth = styles.PATH_BASE_WIDTH
 
-    def __init__(self, vhelix, endType, strandType, baseIndex):
+    def __init__(self, vhelix, endType, strandType, baseIndex, parent=None):
         """Determine parity from vhelix. Make sure the breakpoint is
         drawn in the correct orientation depending on parity and whether
         it's a 5' end or a 3' end."""
-        super(BreakpointHandle, self).__init__()
+        super(BreakpointHandle, self).__init__(parent)
         self.setFlag(QGraphicsItem.ItemIsMovable)
         self.vhelix = vhelix
         self.endType = endType
         self.strandType = strandType
         self.baseIndex = baseIndex
+        self.parent = parent
         self.minX = 0
         self.maxX = (vhelix.part().getCanvasSize()-1) * self.baseWidth
         self.rect = QRectF(0, 0, self.baseWidth, self.baseWidth)
@@ -170,36 +173,36 @@ class BreakpointHandle(QGraphicsItem):
 
     def mouseMoveEvent(self, event):
         """Only allow dragging in the x direction."""
-        xf = event.scenePos().x()
-        if xf > self.minX and xf < self.maxX:
-            self.translate(xf - self.x0, 0)
-            self.x0 = xf
+        newX = event.scenePos().x()
+        if newX < self.minX:
+            self.x0 = self.minX
+        elif newX > self.maxX:
+            self.x0 = self.maxX
+        else:  # xf > self.minX and xf < self.maxX
+            d = newX % self.baseWidth #
+            if d < (self.baseWidth >> 1):
+                self.x0 = newX - d  # snap left
+            else:
+                self.x0 = newX + (self.baseWidth - d)
+        self.setPos(self.x0, self.y0)
 
     def mouseReleaseEvent(self, event):
         """Snaps to grid after mouse released."""
         d = self.x0 % self.baseWidth
-        if d < (self.baseWidth / 2):  # snap left
-            self.translate(-d, 0)
-            self.x0 -= d
-        else:  # snap right
-            self.translate((self.baseWidth-d), 0)
-            self.x0 += (self.baseWidth-d)
-        
+        # if d < (self.baseWidth >> 1):  # snap left
+        #     self.translate(-d, 0)
+        #     self.x0 -= d
+        # else:  # snap right
+        #     self.translate((self.baseWidth-d), 0)
+        #     self.x0 += (self.baseWidth-d)
+        newBaseIndex = self.x0/self.baseWidth
+        if newBaseIndex != self.baseIndex:
+            self.baseIndex = newBaseIndex
+            self.parent.updateBreakBounds(self.strandType)
+
 
     def setDragBounds(self, minIndex, maxIndex):
         """docstring for setBounds"""
         self.minX = minIndex * self.baseWidth
         self.maxX = maxIndex * self.baseWidth
 # end class
-
-class StrandType:
-    Scaffold = 0
-    Staple = 1
-
-class EndType:
-    FivePrime = 0
-    ThreePrime = 1
-
-class Parity:
-    Even = 0
-    Odd = 1

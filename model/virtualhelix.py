@@ -110,3 +110,10 @@ class VirtualHelix(object):
                 ret.append(i)
         return ret
 
+class StrandType:
+    Scaffold = 0
+    Staple = 1
+
+class Parity:
+    Even = 0
+    Odd = 1

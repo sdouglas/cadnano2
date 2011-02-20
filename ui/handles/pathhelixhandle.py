@@ -46,7 +46,7 @@ class PathHelixHandle(QGraphicsItem):
     usePen = QPen(styles.orangestroke, styles.SLICE_HELIX_STROKE_WIDTH)
 
     def __init__(self, vhelix, position, parent):
-        super(PathHelixHandle, self).__init__()
+        super(PathHelixHandle, self).__init__(parent)
         print vhelix
         self.vhelix = vhelix
         self.parent = parent
