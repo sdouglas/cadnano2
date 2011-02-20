@@ -174,13 +174,10 @@ class SliceHelix(QGraphicsItem):
             self.label.setParentItem(self)
         y_val = self.radius / 2
         if self.number < 10:
-            #self.label.setX(self.radius / 1.3)
             self.label.setPos(self.radius / 1.3, y_val)
         elif self.number < 100:
-            #self.label.setX(self.radius / 2)
             self.label.setPos(self.radius / 2, y_val)
-        else:   # added for bigger than 100 by NC
-            #self.label.setX(self.radius / 4)
+        else:
             self.label.setPos(self.radius / 4, y_val)
         bringToFront(self, self.scene)
     # end def
@@ -200,13 +197,13 @@ class SliceHelix(QGraphicsItem):
         if (self.number >= 0) == u:
             # self.parent.addBasesToDnaPart(self.number)
             pass
-        if self.number < 0:  # Use
+        if self.number < 0:  # Initiate
             self.setNumber(self.parent.reserveLabelForHelix(self))
             part = self.parent.dnaPartInst.part()
             self.vhelix = part.addVirtualHelix(self.number)
             self.parent.addHelixToPathGroup(self.pos(), self.number)
             self.parent.addBasesToDnaPart(self.number)
-        else:  # Unuse
+        else:  # Just add more bases
             self.parent.addBasesToDnaPart(self.number)
     # end def
 

@@ -35,6 +35,7 @@ from PyQt4.QtGui import QPainterPath
 from PyQt4.QtGui import QPen, QDrag, QUndoCommand
 import styles
 from model.virtualhelix import VirtualHelix
+from handles.breakpointhandle import BreakpointHandle, EndType, StrandType
 
 
 class PathHelix(QGraphicsItem):
@@ -48,6 +49,10 @@ class PathHelix(QGraphicsItem):
         super(PathHelix, self).__init__()
         self.vhelix = vhelix
         self.parent = parent
+        self._scafBreaktHandles = []
+        self._stapBreaktHandles = []
+        self._scafCrossoverHandles = []
+        self._stapCrossoverHandles = []
         self.setPos(position)
         self.minorGridPainterPath = self.getMinorGridPainterPath()
         self.majorGridPainterPath = self.getMajorGridPainterPath()
@@ -108,3 +113,39 @@ class PathHelix(QGraphicsItem):
                 path.lineTo(self.baseWidth*i,2*self.baseWidth)
         return path
 
+    def getScaffoldBreakHandles(self):
+        """docstring for getScaffoldBreakHandles"""
+        return self._scafBreaktHandles
+
+    def getStapleBreakHandles(self):
+        """docstring for getStapleBreakHandles"""
+        return self._stapBreaktHandles
+
+    def addScaffoldBreakHandle(self, bh):
+        """docstring for addScaffoldBreakHandle"""
+        bh.setParentItem(self)
+        self._scafBreaktHandles.append(bh)
+
+    def addStapleBreakHandle(self, bh):
+        """docstring for addStapleBreakHandle"""
+        bh.setParentItem(self)
+        self._stapBreaktHandles.append(bh)
+
+    def updateScafBreakBounds(self):
+        handles = sorted(self._scafBreaktHandles+self._scafCrossoverHandles,\
+                         key=lambda handle: handle.baseIndex)
+        count = len(handles)
+        if count == 0:
+            return
+        maxIndex = self.vhelix.part().getCanvasSize()-1
+        if count == 1:
+            handles[0].setDragBounds(0,maxIndex)
+        else:
+            handles[0].setDragBounds(0,handles[1].baseIndex-1)
+            for i in range(len(handles[1:-1])):
+                handles[i].setDragBounds(handles[i-1].baseIndex+1,\
+                                         handles[i+1].baseIndex-1)
+            handles[count-1].setDragBounds(handles[count-2].baseIndex+1,\
+                                           maxIndex)
+    # end def
+# end class

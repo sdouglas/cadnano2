@@ -122,6 +122,7 @@ class PathHelixGroup(QGraphicsItem):
             self.activeslicehandle.setParentItem(self)
         else:
             self.activeslicehandle.resize(count)
+    # end def
 
     @pyqtSlot('QPointF', int)
     def handleSliceHelixClick(self, number):
@@ -156,24 +157,21 @@ class PathHelixGroup(QGraphicsItem):
             curr.setNext(next)
             next.setPrev(curr)
 
-        # install breakpoints
-        (list5p, list3p) = vh.getScaffoldBreakpoints()
-        print "breaklists:", list5p, list3p
-        for index in list5p:
+        # install breakpointhandles
+        for index in vh.getScaffold5PrimeEnds():
             bh = BreakpointHandle(vh,\
-                                  EndType.Left5Prime,\
+                                  EndType.FivePrime,\
                                   StrandType.Scaffold,\
                                   index)
-            bh.setParentItem(ph)
-        for index in list3p:
+            ph.addScaffoldBreakHandle(bh)
+        for index in vh.getScaffold3PrimeEnds():
             bh = BreakpointHandle(vh,\
-                                  EndType.Right3Prime,\
+                                  EndType.ThreePrime,\
                                   StrandType.Scaffold,\
                                   index)
-            bh.setParentItem(ph)
-
-        s = "sliceHelix %d clicked at index %d" % (number, index)
-        print s
+            ph.addScaffoldBreakHandle(bh)
+        ph.updateScafBreakBounds()
+    # end def
 
     def bringToFront(self):
         """collidingItems gets a list of all items that overlap. sets

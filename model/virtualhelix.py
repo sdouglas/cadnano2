@@ -35,8 +35,8 @@ class VirtualHelix(object):
         self._part = kwargs.get('part', None)
         self._number = kwargs.get('number', None)
         self._size = kwargs.get('size', 0)
-        self._stapleBases = [Base() for n in range(self._size)]
-        self._scaffoldBases = [Base() for n in range(self._size)]
+        self._stapleBases = [Base(self._number, n) for n in range(self._size)]
+        self._scaffoldBases = [Base(self._number, n) for n in range(self._size)]
 
     def simpleRep(self, encoder):
         """Returns a representation in terms of simple JSON-encodable types
@@ -79,20 +79,34 @@ class VirtualHelix(object):
         """docstring for scaffoldBase"""
         return self._scaffoldBases[index]
 
-    def getScaffoldBreakpoints(self):
+    def getScaffoldHandleIndexList(self):
         """
-        Returns a tuple of lists. The first list contains the indices
-        of bases that are 5' breakpoints. The second list contains the
-        indices of bases that are 3' breakpoints.
+        Returns list containing the indices of bases that are 5' breakpoints,
+        3' breakpoints, or crossovers.
         """
-        list5p = []
-        list3p = []
+        ret = []
         for i in range(len(self._scaffoldBases)):
             if self._scaffoldBases[i].is5primeEnd():
-                list5p.append(i)
+                ret.append(i)
             if self._scaffoldBases[i].is3primeEnd():
-                list3p.append(i)
-        return (list5p, list3p)
+                ret.append(i)
+            if self._scaffoldBases[i].isCrossover():
+                ret.append(i)
+        return ret
 
+    def getScaffold5PrimeEnds(self):
+        """docstring for getScaffold5PrimeBreaks"""
+        ret = []
+        for i in range(len(self._scaffoldBases)):
+            if self._scaffoldBases[i].is5primeEnd():
+                ret.append(i)
+        return ret
 
+    def getScaffold3PrimeEnds(self):
+        """docstring for getScaffold5PrimeBreaks"""
+        ret = []
+        for i in range(len(self._scaffoldBases)):
+            if self._scaffoldBases[i].is3primeEnd():
+                ret.append(i)
+        return ret
 

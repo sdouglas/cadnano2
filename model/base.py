@@ -30,10 +30,12 @@ class Base(object):
     """docstring for Base"""
     _null = -1
     
-    def __init__(self):
+    def __init__(self, vhelix=None, index=None):
         super(Base, self).__init__()
         self._prevBase = Base._null
         self._nextBase = Base._null
+        self._vhelix = vhelix
+        self._index = index
 
     def simpleRep(self, encoder):
         """
@@ -43,46 +45,77 @@ class Base(object):
         ret = {'.class': "Base"}
         ret['prevBase'] = self._prevBase
         ret['nextBase'] = self._nextBase
+        ret['vhelix'] = self._vhelix
+        ret['index'] = self._index
         return ret
 
     @classmethod
     def fromSimpleRep(cls, rep):
+        """prevBase and nextBase are weak references.
+        Everything else handled as normal."""
         b = Base()
+        b._index = rep['index']
         b.prevID = rep['prevBase']
         b.nextID = rep['nextBase']
-        return ret
+        b.vhelixID = rep['vhelixnum']
+        return b
 
     def resolveSimpleRepIDs(self, idToObj):
-        self._part = idToObj[self.partID]
-        del self.partID
+        self._prevBase = idToObj[self.prevID]
+        del self.prevID
+        self._nextBase = idToObj[self.nextID]
+        del self.nextID
+        self._vhelix = idToObj[self.vhelixID]
+        del vhelixID
 
     def getPrev(self):
-        """docstring for getPrev"""
+        """Return reference to previous base, or _null."""
         return _prevBase
 
     def setPrev(self, base):
-        """docstring for setPrev"""
+        """Set base as prevBase"""
         self._prevBase = base
 
     def getNext(self):
-        """docstring for getNext"""
+        """Return reference to next base, or _null."""
         return _nextBase
 
     def setNext(self, base):
-        """docstring for setPrev"""
+        """Set base as nextBase"""
         self._nextBase = base
 
+    def partId(self):
+        """docstring for partNum"""
+        return self._vhelix.part().id()
+
+    def vhelixNum(self):
+        """docstring for vhelixNum"""
+        return self._vhelix.number()
+
     def is5primeEnd(self):
-        """docstring for is5primeEnd"""
+        """Return True if no prevBase, but nextBase exists."""
         if self._prevBase == Base._null and self._nextBase != Base._null:
             return True
         else:
             return False
 
     def is3primeEnd(self):
-        """docstring for is3primeEnd"""
+        """Return True if no nextBase, but prevBase exists."""
         if self._prevBase != Base._null and self._nextBase == Base._null:
             return True
         else:
             return False
 
+    def isCrossover(self):
+        """Return True if the part id or vhelix number of the prev or
+        next base does not match the same for this base."""
+        if self.vhelixNum() != self._prevBase.vhelixNum():
+            return True
+        elif self.vhelixNum() != self._nextBase.vhelixNum():
+            return True
+        elif self.partId() != self._prevBase.partId():
+            return True
+        elif self.partId() != self._nextBase.partId():
+            return True
+        else:
+            return False

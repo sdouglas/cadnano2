@@ -44,3 +44,7 @@ class Part(object):
         raise NotImplementedError
     def resolveSimpleRepIDs(self,idToObj):
         raise NotImplementedError  # It's up to children to implement serialization
+
+    def id(self):
+        """docstring for id"""
+        return self._id
