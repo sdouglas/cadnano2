@@ -28,6 +28,7 @@ solidhelixgroup.py
 Created by Nick Conway on 2011-02-04.
 For use controlling 3D solid models generated in Maya
 """
+print "cupcakes suckffffffdsg"
 from PyQt4.QtCore import pyqtSignal, pyqtSlot, QObject
 from string import *
 import math
@@ -39,7 +40,7 @@ import sys
 import styles
 import maya.OpenMayaUI as mui
 import maya.OpenMaya as mo	
-
+print "cupcakes suckfff"
 X, Y, Z = range(3) # enumerate unit direction indices
 
 class SolidHelixGroup(QObject):
@@ -257,34 +258,34 @@ class SolidHelixGroup(QObject):
         # modify the cylinder length with temp[1].setHeight() and temp[0].setTranslation([0,], space = 'object')
         # so if you want to stretch in one direction only,
         # the origin of a cylinder is it's geometric center
-        # use space=‘transform’, ‘preTransform’, ‘object’, ‘world’ to the transform
-        temp = pc.polyCylinder(axis=axis,radius=(self.helix_diameter/self.unit_scale/2), height=length, name='helix0')
+        temp = pc.polyCylinder(axis=axis,radius=(self.helix_diameter/self.unit_scale/2), height=length, name='helix0')[0]
         # set position in the Transform Node
-        temp[0].setTranslation(origin, space='object') 
+        temp.setTranslation(origin, space='object') 
         
         # apply coloring
-        pc.general.sets(self.colorshader, edit=True, forceElement=temp[0])
-        mypoint = (origin[0],origin[1],origin[2])
-        if number != None:
-            mynote = str(number)
-        else:
-            mynote = 'awesome'
+        pc.general.sets(self.colorshader, edit=True, forceElement=temp)
+        #mypoint = (origin[0],origin[1],origin[2])
+        # if number != None:
+        #     mynote = str(number)
+        # else:
+        #     mynote = 'awesome'
         #pc.windows.annotate( temp[0].name(), tx=mynote, p=mypoint ) 
         # set up parent group
-        pc.general.parent(temp[0].name(), self.group.name())
+        pc.general.parent(temp.name(), self.group.name())
         return temp
 
     # end def
     
-    def addbases(self, helix, end5prime, end3prime):
-        temp = helix[1].getHeight()
-        helix[1].setHeight()
-        # or we can do scale as N and start with 1 base
-        # the_scale = helix[0].getScale()[2], helix[0].setScale(1.0,1.0,float)
-        helix[0].setTranslation([0, 0,temp-], space='object')
-    # end def
+    # def addbases(self, helix, end5prime, end3prime):
+    #     temp = helix[1].getHeight()
+    #     helix[1].setHeight()
+    #     # or we can do scale as N and start with 1 base
+    #     # the_scale = helix[0].getScale()[2], helix[0].setScale(1.0,1.0,float)
+    #     helix[0].setTranslation([0, 0,temp-], space='object')
+    # # end def
 # end class
 
+print "cupcakes suck"
 """
 pc.language.scriptJob(listEvents=True, ) or (name, function)
 [u'linearUnitChanged', 

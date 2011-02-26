@@ -31,6 +31,7 @@ from PyQt4 import QtCore
 from PyQt4 import QtGui
 import pymel.core as pc
 
+
 class caDNAno(QtCore.QObject):
     sharedApp = None  # This class is a singleton.
     def __init__(self):
@@ -44,9 +45,10 @@ class caDNAno(QtCore.QObject):
         #self.setApplicationName(QString("caDNAno"))
         self.documentControllers = set() # Open documents
         self.newDocument()
+        
 
     def newDocument(self):
-        from ui.mayacontroller import DocumentController
+        from ui.mayacontroller import DocumentController 
         DocumentController() # DocumentController is responsible for adding
                              # itself to app.documentControllers
                              
@@ -81,7 +83,7 @@ class caDNAno(QtCore.QObject):
                                     wireframeOnShaded=False, \
                                     smoothWireframe=False, \
                                     rendererName=u'ogsRenderer') #rendererName=u'base_OpenGL_Renderer'
-                print pc.windows.modelEditor(current, query=True, rendererList=True)
+                #print pc.windows.modelEditor(current, query=True, rendererList=True)
                 print "setting up panel: %s\n" % current
             # end if
         # end for

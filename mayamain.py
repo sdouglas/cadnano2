@@ -26,7 +26,7 @@
 # http://www.opensource.org/licenses/mit-license.php
 
 """
-main.py
+mayamain.py
 
 Created by Shawn Douglas on 2010-09-26.
 """

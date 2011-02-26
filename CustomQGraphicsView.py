@@ -27,9 +27,14 @@
 
 """
 CustomQGraphicsView.py
-
-Created by Nick Conway on 2011-01-17.
+.. module:: CustomQGraphicsView
+   :platform: Unix, Windows, Mac OS X
+   :synopsis: A Custom QGraphicsView module to allow focus input events
+   like mouse clicks and panning and zooming
+   
+.. moduleauthor::  Nick Conway on 2011-01-17.
 Copyright (c) 2010 . All rights reserved.
+
 """
 from PyQt4.QtCore import *
 from PyQt4.QtGui import *
@@ -61,20 +66,22 @@ class CustomQGraphicsView(QGraphicsView):
     For details on these and other miscellaneous methods, see below.
     """
     def __init__(self, parent=None):
-        """
-        on initialization we need to bind the Ctrl/command key to
+        """on initialization we need to bind the Ctrl/command key to
         enable manipulation of the view
 
-        Parameters
-        ----------
-        parent: type of QWidget, such as QWidget.splitter() for the type of
-        View its has
+        Args:
+           self
 
-        See Also
-        --------
+        Kwargs:
+           parent (QWidget): type of QWidget, such as QWidget.splitter() for the type of
+           View its has
 
-        Examples
-        --------
+        Returns:
+           self
+
+        Raises:
+           None
+        
         """
         super(QGraphicsView, self).__init__(parent)
 
@@ -103,32 +110,39 @@ class CustomQGraphicsView(QGraphicsView):
     # end def
 
     def setKeyPan(self, button):
-        """
-        Set the class pan button remotely
-        Parameters
-        ----------
-        button: QtGui.Qt Namespace button identifier
+        """Set the class pan button remotely
 
-        See Also
-        --------
+        Args:
+           self
+           button: QtGui.Qt Namespace button identifier
 
-        Examples
-        --------
+        Kwargs:
+            None
+
+        Returns:
+           None
+
+        Raises:
+           None
+           
         """
         self.key_pan = button
     # end def
 
     def keyPressEvent(self, event):
         """
-        Parameters
-        ----------
-        event: type of QKeyEvent
+        Args:
+           self
+           event (QKeyEvent): the event
 
-        See Also
-        --------
+        Kwargs:
+            None
 
-        Examples
-        --------
+        Returns:
+           None
+
+        Raises:
+           None
         """
         if event.key() == self.key_mod:
             self.transformEnable = True
@@ -139,15 +153,18 @@ class CustomQGraphicsView(QGraphicsView):
 
     def keyReleaseEvent(self, event):
         """
-        Parameters
-        ----------
-        event: type of QKeyEvent
+        Args:
+           self
+           event (QKeyEvent): the event
 
-        See Also
-        --------
+        Kwargs:
+            None
 
-        Examples
-        --------
+        Returns:
+           None
+
+        Raises:
+           None
         """
         if event.key() == self.key_mod:
             self.transformEnable = False
@@ -168,20 +185,23 @@ class CustomQGraphicsView(QGraphicsView):
         QGraphicsView.leaveEvent(self,event)
 
     def mouseMoveEvent(self, event):
-        """
-            Must reimplement mouseMoveEvent of QGraphicsView to allow
-            ScrollHandDrag due to the fact that events are intercepted
-            breaks this feature.
+        """Must reimplement mouseMoveEvent of QGraphicsView to allow
+        ScrollHandDrag due to the fact that events are intercepted
+        breaks this feature.
 
-            Parameters
-            ----------
-            event: type of QMouseEvent
+        Args:
+           self
+           event (QMouseEvent): the event
 
-            See Also
-            --------
+        Kwargs:
+            None
 
-            Examples
-            --------
+        Returns:
+           None
+
+        Raises:
+           None
+        
         """
         if self.transformEnable == True:
             if self.dragMode() == self.yesDrag:
@@ -204,18 +224,20 @@ class CustomQGraphicsView(QGraphicsView):
     # end def
 
     def mousePressEvent(self, event):
-        """
-        This takes a QMouseEvent for the event
+        """This takes a QMouseEvent for the event
+        Args:
+           self
+           event (QMouseEvent): the event
 
-        Parameters
-        ----------
-        event: type of QMouseEvent
+        Kwargs:
+            None
 
-        See Also
-        --------
+        Returns:
+           None
 
-        Examples
-        --------
+        Raises:
+           None
+        
         """
         #if self.transformEnable == True:
         if self.transformEnable == True and qApp.keyboardModifiers():
@@ -237,18 +259,21 @@ class CustomQGraphicsView(QGraphicsView):
     #end def
 
     def mouseReleaseEvent(self, event):
-        """
-        This takes a QMouseEvent for the event
+        """This takes a QMouseEvent for the event
 
-        Parameters
-        ----------
-        event: type of QMouseEvent
+        Args:
+           self
+           event (QMouseEvent): the event
 
-        See Also
-        --------
+        Kwargs:
+            None
 
-        Examples
-        --------
+        Returns:
+           None
+
+        Raises:
+           None
+        
         """
         if self.transformEnable == True:
             # QMouseEvent.button() returns the button that triggered the event
@@ -272,40 +297,48 @@ class CustomQGraphicsView(QGraphicsView):
 
     def panDisable(self):
         """Disable ScrollHandDrag Mode in QGraphicsView (displays a hand
-        pointer)"""
+        pointer)
+        
+        """
         self.setDragMode(self.noDrag)
     # end def
 
     def wheelEvent(self, event):
-        """
-        This takes a QMouseEvent for the event
+        """This takes a QMouseEvent for the event
 
-        Parameters
-        ----------
-        event: type of QMouseEvent
+        Args:
+           self
+           event (QMouseEvent): the event
 
-        See Also
-        --------
+        Kwargs:
+            None
 
-        Examples
-        --------
+        Returns:
+           None
+
+        Raises:
+           None
+        
         """
         self.wheelZoom(event)
     #end def
 
     def wheelZoom(self, event):
-        """
-        This takes a QMouseEvent for the event
+        """This takes a QMouseEvent for the event
 
-        Parameters
-        ----------
-        event: type of QMouseEvent
+        Args:
+           self
+           event (QMouseEvent): the event
 
-        See Also
-        --------
+        Kwargs:
+            None
 
-        Examples
-        --------
+        Returns:
+           None
+
+        Raises:
+           None
+        
         """
         if event.delta() > 0:  # rotated away from the user
             if self.scale_limit_max > self.scale_size:
@@ -322,18 +355,21 @@ class CustomQGraphicsView(QGraphicsView):
     # end def
 
     def dollyZoom(self, event):
-        """
-        This takes a QMouseEvent for the event
+        """This takes a QMouseEvent for the event
 
-        Parameters
-        ----------
-        event: type of QMouseEvent
+        Args:
+           self
+           event (QMouseEvent): the event
 
-        See Also
-        --------
+        Kwargs:
+            None
 
-        Examples
-        --------
+        Returns:
+           None
+
+        Raises:
+           None
+        
         """
         # QMouseEvent.y() returns the position of the mouse cursor relative
         # to the widget

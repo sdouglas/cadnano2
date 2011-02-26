@@ -25,6 +25,7 @@
 from PyQt4.QtGui import *
 from PyQt4.QtCore import SIGNAL, QString
 from cadnanomaya import app
+#cool5EJjk
 from idbank import IdBank
 from model.document import Document
 from model.encoder import encode
@@ -33,7 +34,6 @@ from .pathhelixgroup import PathHelixGroup
 from .solidhelixgroup import SolidHelixGroup
 from .slicehelixgroup import SliceHelixGroup
 from .treecontroller import TreeController
-
 
 class DocumentController():
     """
@@ -53,9 +53,11 @@ class DocumentController():
         self.treeController = TreeController(self.win.treeview)
         self.createConnections()
         self.solidlist = []
+    # end def
 
     def filename(self):
         return self._filename
+    # end def
 
     def setFilename(self, proposedFName):
         if self._filename == proposedFName:

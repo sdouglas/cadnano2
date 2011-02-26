@@ -86,5 +86,5 @@ class DocumentWindow(QtGui.QMainWindow, ui_mainwindow.Ui_MainWindow):
         self.editMenu.addAction(self.undoAction)
         self.editMenu.addAction(self.redoAction)
     def focusInEvent(self):
-       app().undoGroup.setActiveStack(self.controller.undoStack)
+        app().undoGroup.setActiveStack(self.controller.undoStack)
 # end class
