@@ -47,11 +47,9 @@ class PathHelixHandle(QGraphicsItem):
 
     def __init__(self, vhelix, position, parent):
         super(PathHelixHandle, self).__init__(parent)
-        print vhelix
         self.vhelix = vhelix
         self.parent = parent
         self.number = self.vhelix.number()
-        print "PathHelixHandle self.number:",self.number
         self.label = None
         self.focusRing = None
         self.beingHoveredOver = False

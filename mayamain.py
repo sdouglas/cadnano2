@@ -32,7 +32,7 @@ Created by Shawn Douglas on 2010-09-26.
 """
 
 import sys
-pathadder = '/Users/nick/oldnick/python_scripts/cadnano/cadnano2'
+pathadder = '/Users/shawn/Desktop/cadnano2'
 if pathadder not in sys.path:
         sys.path.append(pathadder)
 # end if

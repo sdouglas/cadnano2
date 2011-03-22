@@ -28,7 +28,6 @@ solidhelixgroup.py
 Created by Nick Conway on 2011-02-04.
 For use controlling 3D solid models generated in Maya
 """
-print "cupcakes suckffffffdsg"
 from PyQt4.QtCore import pyqtSignal, pyqtSlot, QObject
 from string import *
 import math
@@ -40,7 +39,6 @@ import sys
 import styles
 import maya.OpenMayaUI as mui
 import maya.OpenMaya as mo	
-print "cupcakes suckfff"
 X, Y, Z = range(3) # enumerate unit direction indices
 
 class SolidHelixGroup(QObject):
@@ -285,7 +283,6 @@ class SolidHelixGroup(QObject):
     # # end def
 # end class
 
-print "cupcakes suck"
 """
 pc.language.scriptJob(listEvents=True, ) or (name, function)
 [u'linearUnitChanged', 

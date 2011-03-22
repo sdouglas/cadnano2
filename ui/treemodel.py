@@ -339,7 +339,7 @@ class TreeModel(QAbstractItemModel):
             print "something was done wrong"
             return False
         # end if
-        print "inserted %s" % node.name
+        # print "inserted %s" % node.name
         if node.parent == None:
             self.lastrow = parentnode.insertChild(node)
         # end if

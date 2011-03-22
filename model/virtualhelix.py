@@ -110,6 +110,85 @@ class VirtualHelix(object):
                 ret.append(i)
         return ret
 
+    def updateAfterBreakpointMove(self, strandType, breakType, startIndex, delta):
+        """docstring for extendStrand"""
+        print "updateAfterBreakpointMove %d from %d by %d bases" % (self._number, startIndex, delta)
+        if delta == 0:
+            return
+        if strandType == StrandType.Scaffold:
+            strandBases = self._scaffoldBases
+        elif strandType == StrandType.Staple:
+            strandBases = self._stapleBases
+        else:
+            raise AttributeError
+
+        if (breakType == BreakType.Left3Prime):
+            if (delta > 0):  # retract
+                for i in range(startIndex, startIndex+delta):
+                    strandBases[i].clearPrev()
+                    strandBases[i+1].clearNext()
+            else:  # extend
+                for i in range(startIndex, startIndex+delta, -1):
+                    strandBases[i].setNext(strandBases[i-1])
+                    strandBases[i-1].setPrev(strandBases[i])
+        elif (breakType == BreakType.Left5Prime):
+            if (delta > 0):  # retract
+                for i in range(startIndex, startIndex+delta):
+                    strandBases[i].clearNext()
+                    strandBases[i+1].clearPrev()
+            else:  # extend
+                for i in range(startIndex, startIndex+delta, -1):
+                    strandBases[i].setNext(strandBases[i-1])
+                    strandBases[i-1].setPrev(strandBases[i])
+        elif (breakType == BreakType.Right3Prime):
+            if (delta > 0):  # extend
+                for i in range(startIndex, startIndex+delta):
+                    strandBases[i].setNext(strandBases[i+1])
+                    strandBases[i+1].setPrev(strandBases[i])
+            else:  # retract
+                for i in range(startIndex, startIndex+delta, -1):
+                    strandBases[i].clearPrev()
+                    strandBases[i-1].clearNext()
+        elif (breakType == BreakType.Right5Prime):
+            if (delta > 0):  # extend
+                for i in range(startIndex, startIndex+delta):
+                    strandBases[i].setPrev(strandBases[i+1])
+                    strandBases[i+1].setNext(strandBases[i])
+            else:  # retract
+                for i in range(startIndex, startIndex+delta, -1):
+                    strandBases[i].clearNext()
+                    strandBases[i-1].clearPrev()
+        else:
+            raise AttributeError
+
+
+
+    def retractStrand(self, strandType, startIndex, delta):
+        """docstring for extendStrand"""
+        print "retract %d from %d by %d bases" % (self._number, startIndex, delta)
+        if delta == 0:
+            return
+
+        if strandType == StrandType.Scaffold:
+            strandBases = self._scaffoldBases
+        elif strandType == StrandType.Staple:
+            strandBases = self._stapleBases
+        else:
+            raise AttributeError
+
+        if delta > 0:
+            for i in range(startIndex, startIndex+delta):
+                curr = self.strandBases[i]
+                next = self.strandBases[i+1]
+                curr.clearNext()
+                next.setPrev(curr)
+        else:
+            for i in range(startIndex, startIndex+delta, -1):
+                curr = self.strandBases[i]
+                next = self.strandBases[i-1]
+                curr.setNext(next)
+                next.setPrev(curr)
+
 class StrandType:
     Scaffold = 0
     Staple = 1
@@ -117,3 +196,9 @@ class StrandType:
 class Parity:
     Even = 0
     Odd = 1
+
+class BreakType:
+    Left5Prime = 0
+    Left3Prime = 1
+    Right5Prime = 2
+    Right3Prime = 3

@@ -45,26 +45,24 @@ class caDNAno(QtCore.QObject):
         #self.setApplicationName(QString("caDNAno"))
         self.documentControllers = set() # Open documents
         self.newDocument()
-        
 
     def newDocument(self):
-        from ui.mayacontroller import DocumentController 
+        from ui.mayacontroller import DocumentController
         DocumentController() # DocumentController is responsible for adding
                              # itself to app.documentControllers
-                             
+
     def configMaya(self):
-        
         # delete all objects in the scene
         pc.general.select(all=True)
         selectedObjects = pc.ls(sl=True)
         pc.general.delete(selectedObjects)
-        
+
         pc.language.scriptJob( killAll=True)
         # set up the panel shading
         # mypanel = pc.windows.getPanel(underPointer=True)
         # 
         # if mypanel == None or mypanel.name() == "":
-        #     mypanel = pc.windows.getPanel(withFocus=True)  
+        #     mypanel = pc.windows.getPanel(withFocus=True)
         # #end if
         # print "setting up panel: %s\n" % mypanel.name()
         # if pc.windows.modelEditor(mypanel.name(), query=True, exists=True):
@@ -78,17 +76,16 @@ class caDNAno(QtCore.QObject):
         for current in panels:
             if current != "":
                 # renderName=ogsRenderer is Viewport 2.0
-                pc.windows.modelEditor(current, edit=True, \
-                                    displayAppearance='smoothShaded', \
-                                    wireframeOnShaded=False, \
-                                    smoothWireframe=False, \
+                pc.windows.modelEditor(current, edit=True,\
+                                    displayAppearance='smoothShaded',\
+                                    wireframeOnShaded=False,\
+                                    smoothWireframe=False,\
                                     rendererName=u'ogsRenderer') #rendererName=u'base_OpenGL_Renderer'
                 #print pc.windows.modelEditor(current, query=True, rendererList=True)
                 print "setting up panel: %s\n" % current
             # end if
         # end for
         # finish setting up panels
-        
     # end def
 
 # Convenience. No reason to feel guilty using it - caDNAno is a singleton.

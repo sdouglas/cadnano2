@@ -34,7 +34,7 @@ from PyQt4.QtGui import QPainterPath
 from PyQt4.QtGui import QPolygonF
 from PyQt4.QtGui import QPen, QDrag, QUndoCommand
 from model.base import EndType
-from model.virtualhelix import StrandType, Parity
+from model.virtualhelix import StrandType, Parity, BreakType
 import ui.styles as styles
 
 
@@ -62,6 +62,7 @@ class BreakpointHandle(QGraphicsItem):
         self.vhelix = vhelix
         self.endType = endType
         self.strandType = strandType
+        self.type = None  # direction + end type (see mouseReleaseEvent)
         self.baseIndex = baseIndex
         self.parent = parent
         self.minX = 0
@@ -111,15 +112,19 @@ class BreakpointHandle(QGraphicsItem):
         (even or odd)."""
         if self.parity == Parity.Even:
             if self.endType == EndType.FivePrime:
+                self.type = BreakType.Left5Prime
                 self.painterpath = self.getLeft5PrimePainterPath()
             elif self.endType == EndType.ThreePrime:
+                self.type = BreakType.Right3Prime
                 self.painterpath = self.getRight3PrimePainterPath()
             else:
                 raise AttributeError
         elif self.parity == Parity.Odd:
             if self.endType == EndType.FivePrime:
+                self.type = BreakType.Right5Prime
                 self.painterpath = self.getRight5PrimePainterPath()
             elif self.endType == EndType.ThreePrime:
+                self.type = BreakType.Left3Prime
                 self.painterpath = self.getLeft3PrimePainterPath()
             else:
                 raise AttributeError
@@ -172,37 +177,36 @@ class BreakpointHandle(QGraphicsItem):
         return pp
 
     def mouseMoveEvent(self, event):
-        """Only allow dragging in the x direction."""
+        """Snaps handle into place when dragging."""
+        # FIX: offset x0 to compensate for user panning
         newX = event.scenePos().x()
         if newX < self.minX:
             self.x0 = self.minX
         elif newX > self.maxX:
             self.x0 = self.maxX
         else:  # xf > self.minX and xf < self.maxX
-            d = newX % self.baseWidth #
-            if d < (self.baseWidth >> 1):
-                self.x0 = newX - d  # snap left
-            else:
-                self.x0 = newX + (self.baseWidth - d)
+            self.x0 = newX - (newX % self.baseWidth)  # snap to grid
         self.setPos(self.x0, self.y0)
 
     def mouseReleaseEvent(self, event):
-        """Snaps to grid after mouse released."""
-        d = self.x0 % self.baseWidth
-        # if d < (self.baseWidth >> 1):  # snap left
-        #     self.translate(-d, 0)
-        #     self.x0 -= d
-        # else:  # snap right
-        #     self.translate((self.baseWidth-d), 0)
-        #     self.x0 += (self.baseWidth-d)
-        newBaseIndex = self.x0/self.baseWidth
-        if newBaseIndex != self.baseIndex:
-            self.baseIndex = newBaseIndex
-            self.parent.updateBreakBounds(self.strandType)
-
+        """Snaps to grid after mouse released. Updates vhelix data according
+        to what movement took place."""
+        newBaseIndex = int(self.x0/self.baseWidth)
+        delta = newBaseIndex - self.baseIndex
+        if delta == 0:
+            return
+        self.vhelix.updateAfterBreakpointMove(self.strandType,\
+                                              self.type,\
+                                              self.baseIndex,\
+                                              delta)
+        self.baseIndex = newBaseIndex
+        self.parent.updateBreakBounds(self.strandType)
 
     def setDragBounds(self, minIndex, maxIndex):
-        """docstring for setBounds"""
+        """Called by PathHelix.updateBreakBounds to notify breakpoint handle
+        of where it can legally move along the vhelix."""
         self.minX = minIndex * self.baseWidth
         self.maxX = maxIndex * self.baseWidth
+        print minIndex, maxIndex
 # end class
+

@@ -133,6 +133,9 @@ class PathHelix(QGraphicsItem):
         self._stapBreaktHandles.append(bh)
 
     def updateBreakBounds(self, strandType):
+        """Sorts a list of all breakpoint and crossover handles, and then
+        iterates over those handles and sets dragging boundaries for 
+        breakpoint handles."""
         if strandType == StrandType.Scaffold:
             handles = sorted(self._scafBreaktHandles +\
                              self._scafCrossoverHandles,\

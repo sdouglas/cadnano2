@@ -84,6 +84,14 @@ class Base(object):
         """Set base as nextBase"""
         self._nextBase = base
 
+    def clearPrev(self):
+        """Set previous base reference to _null"""
+        self._prevBase = Base._null
+
+    def clearNext(self):
+        """Set previous base reference to _null"""
+        self._nextBase = Base._null
+
     def partId(self):
         """docstring for partNum"""
         return self._vhelix.part().id()
