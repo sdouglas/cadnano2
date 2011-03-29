@@ -42,19 +42,24 @@ class ActiveSliceHandle(QGraphicsItem):
     brush = QBrush(styles.orangefill)
     pen = QPen(styles.orangestroke, styles.SLICE_HANDLE_STROKE_WIDTH)
 
-    def __init__(self, helixCount, startBase, maxBase, parent=None):
+    def __init__(self, part, startBase, parent=None):
         super(ActiveSliceHandle, self).__init__(parent)
-        self.maxBase = maxBase
         self.setFlag(QGraphicsItem.ItemIsMovable)
+        self.part = part
+        helixCount = self.part.getVirtualHelixCount()
         self.height = (helixCount + 2) * (styles.PATH_BASE_HEIGHT + \
                                           styles.PATH_HELIX_PADDING)
         self.rect = QRectF(0, 0, self.baseWidth, self.height)
+        self.baseIndex = startBase
+        self.tempIndex = startBase
         self.x0 = startBase * self.baseWidth
         self.y0 = -1 * (styles.PATH_HELIX_PADDING)
-        self.minX = 0
-        self.maxX = (maxBase-1) * self.baseWidth
+        self.minIndex = 0
+        self.maxIndex = part.getCanvasSize()-1
         self.setPos(QPointF(self.x0, self.y0))
         self.setZValue(-10)
+        self.pressX = 0
+        self.pressXoffset = 0
 
     def boundingRect(self):
         """docstring for boundingRect"""
@@ -91,26 +96,27 @@ class ActiveSliceHandle(QGraphicsItem):
         self.maxX = (maxBase-1) * self.baseWidth
 
     def mouseMoveEvent(self, event):
-        """Only allow dragging in the x direction."""
-        newX = event.scenePos().x()
-        if newX < self.minX:
-            self.x0 = self.minX
-        elif newX > self.maxX:
-            self.x0 = self.maxX
-        else:  # xf > self.minX and xf < self.maxX
-            d = newX % self.baseWidth #
-            if d < (self.baseWidth >> 1):
-                self.x0 = newX - d  # snap left
-            else:
-                self.x0 = newX + (self.baseWidth - d)
+        """Snaps handle into place when dragging."""
+        moveX = event.scenePos().x()
+        delta = moveX-self.pressX
+        self.tempIndex = int((self.baseIndex*self.baseWidth+\
+                          self.pressXoffset+delta) / self.baseWidth)
+        if self.tempIndex < self.minIndex:
+            self.tempIndex = self.minIndex
+        elif self.tempIndex > self.maxIndex:
+            self.tempIndex = self.maxIndex
+        self.x0 = self.tempIndex * self.baseWidth
         self.setPos(self.x0, self.y0)
 
+    def mousePressEvent(self, event):
+        self.pressX = event.scenePos().x()
+        self.pressXoffset = self.pressX % self.baseWidth
+
     def mouseReleaseEvent(self, event):
-        """Snaps to grid after mouse released"""
-        d = self.x0 % self.baseWidth
-        if d < (self.baseWidth / 2):  # snap left
-            self.translate(-d, 0)
-            self.x0 -= d
-        else:  # snap right
-            self.translate((self.baseWidth-d), 0)
-            self.x0 += (self.baseWidth-d)
+        """Snaps to grid after mouse released. Updates vhelix data according
+        to what movement took place."""
+        if self.tempIndex == self.baseIndex:
+            return
+        delta = int(self.tempIndex - self.baseIndex)
+        self.baseIndex = self.tempIndex
+

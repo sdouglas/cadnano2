@@ -59,20 +59,23 @@ class BreakpointHandle(QGraphicsItem):
         it's a 5' end or a 3' end."""
         super(BreakpointHandle, self).__init__(parent)
         self.setFlag(QGraphicsItem.ItemIsMovable)
+        self.parent = parent
         self.vhelix = vhelix
         self.endType = endType
         self.strandType = strandType
         self.type = None  # direction + end type (see mouseReleaseEvent)
         self.baseIndex = baseIndex
-        self.parent = parent
-        self.minX = 0
-        self.maxX = (vhelix.part().getCanvasSize()-1) * self.baseWidth
+        self.tempIndex = baseIndex
+        self.minIndex = 0
+        self.maxIndex = (vhelix.part().getCanvasSize()-1)
         self.rect = QRectF(0, 0, self.baseWidth, self.baseWidth)
         self.setParity()
         self.x0 = baseIndex * self.baseWidth
         self.y0 = self.getYoffset()
         self.setPos(QPointF(self.x0, self.y0))
         self.setPainterPathType()
+        self.pressX = 0
+        self.pressXoffset = 0
 
     def boundingRect(self):
         return self.rect
@@ -178,35 +181,38 @@ class BreakpointHandle(QGraphicsItem):
 
     def mouseMoveEvent(self, event):
         """Snaps handle into place when dragging."""
-        # FIX: offset x0 to compensate for user panning
-        newX = event.scenePos().x()
-        if newX < self.minX:
-            self.x0 = self.minX
-        elif newX > self.maxX:
-            self.x0 = self.maxX
-        else:  # xf > self.minX and xf < self.maxX
-            self.x0 = newX - (newX % self.baseWidth)  # snap to grid
+        moveX = event.scenePos().x()
+        delta = moveX-self.pressX
+        self.tempIndex = int((self.baseIndex*self.baseWidth+\
+                          self.pressXoffset+delta) / self.baseWidth)
+        if self.tempIndex < self.minIndex:
+            self.tempIndex = self.minIndex
+        elif self.tempIndex > self.maxIndex:
+            self.tempIndex = self.maxIndex
+        self.x0 = self.tempIndex * self.baseWidth
         self.setPos(self.x0, self.y0)
 
+    def mousePressEvent(self, event):
+        self.pressX = event.scenePos().x()
+        self.pressXoffset = self.pressX % self.baseWidth
+    
     def mouseReleaseEvent(self, event):
         """Snaps to grid after mouse released. Updates vhelix data according
         to what movement took place."""
-        newBaseIndex = int(self.x0/self.baseWidth)
-        delta = newBaseIndex - self.baseIndex
-        if delta == 0:
+        if self.tempIndex == self.baseIndex:
             return
+        delta = int(self.tempIndex - self.baseIndex)
         self.vhelix.updateAfterBreakpointMove(self.strandType,\
                                               self.type,\
                                               self.baseIndex,\
                                               delta)
-        self.baseIndex = newBaseIndex
+        self.baseIndex = self.tempIndex
         self.parent.updateBreakBounds(self.strandType)
 
     def setDragBounds(self, minIndex, maxIndex):
         """Called by PathHelix.updateBreakBounds to notify breakpoint handle
         of where it can legally move along the vhelix."""
-        self.minX = minIndex * self.baseWidth
-        self.maxX = maxIndex * self.baseWidth
-        print minIndex, maxIndex
+        self.minIndex = minIndex
+        self.maxIndex = maxIndex
 # end class
 

@@ -81,10 +81,9 @@ class PathHelixGroup(QGraphicsItem):
             self.pathCanvasWidth = 32 # FIX: set from config file
             self.startBase = 16
         count = self.part.getVirtualHelixCount()
-        self.activeslicehandle = ActiveSliceHandle(count,\
-                                                   self.startBase,\
-                                                   self.pathCanvasWidth,\
-                                                   None)
+        # self.activeslicehandle = ActiveSliceHandle(self.part,\
+        #                                            self.startBase,\
+        #                                            self)
         if count > 0: # initalize if loading from file, otherwise delay
             self.activeslicehandle.setParentItem(self)
         # set up signals
@@ -119,9 +118,9 @@ class PathHelixGroup(QGraphicsItem):
         self.numToPathHelix[number] = ph
         # update activeslicehandle
         if count == 1: # first vhelix added by mouse click
-            self.activeslicehandle = ActiveSliceHandle(count,\
+            self.activeslicehandle = ActiveSliceHandle(self.part,\
                                                        self.startBase,\
-                                                       self.pathCanvasWidth)
+                                                       self)
             self.activeslicehandle.setParentItem(self)
         else:
             self.activeslicehandle.resize(count)
