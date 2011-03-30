@@ -85,7 +85,7 @@ class DocumentController():
         # self.win.actionMoveDown.triggered.connect(self.moveDownClicked)
         # self.win.actionPromote.triggered.connect(self.promoteClicked)
         # self.win.actionDemote.triggered.connect(self.demoteClicked)
-
+        
     # end def
 
     def setDirty(self, dirty=True):

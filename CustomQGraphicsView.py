@@ -85,26 +85,26 @@ class CustomQGraphicsView(QGraphicsView):
         """
         super(QGraphicsView, self).__init__(parent)
 
-        self.noDrag = QGraphicsView.NoDrag
-        self.yesDrag = QGraphicsView.ScrollHandDrag
-        self.setDragMode(self.noDrag)
-        self.transformEnable = False
-        self.dollyZoomEnable = False
+        self._noDrag = QGraphicsView.NoDrag
+        self._yesDrag = QGraphicsView.ScrollHandDrag
+        self.setDragMode(self._noDrag)
+        self._transformEnable = False
+        self._dollyZoomEnable = False
         #print self.transformationAnchor()
         self.setTransformationAnchor(QGraphicsView.AnchorUnderMouse)
 
         # self.horizontalScrollBar().setMaximum(800)
         # self.horizontalScrollBar().setMinimum(-800)
         #self.setSceneRect(-200,200,800,800)
-        self.x0 = 0
-        self.y0 = 0
-        self.scale_size = 1.0
-        self.scale_limit_max = 3.0
-        self.scale_limit_min = .41
-        self.last_scale_factor = 0.0
-        self.key_mod = Qt.Key_Control
-        self.key_pan = Qt.LeftButton
-        self.key_pan_alt = Qt.MidButton
+        self._x0 = 0
+        self._y0 = 0
+        self._scale_size = 1.0
+        self._scale_limit_max = 3.0
+        self._scale_limit_min = .41
+        self._last_scale_factor = 0.0
+        self._key_mod = Qt.Key_Control
+        self._key_pan = Qt.LeftButton
+        self._key_pan_alt = Qt.MidButton
         self.key_zoom = Qt.RightButton
         self.sceneRootItem = None
         
@@ -129,7 +129,7 @@ class CustomQGraphicsView(QGraphicsView):
            None
            
         """
-        self.key_pan = button
+        self._key_pan = button
     # end def
 
     def addToPressList(self, item):
@@ -151,8 +151,8 @@ class CustomQGraphicsView(QGraphicsView):
         Raises:
            None
         """
-        if event.key() == self.key_mod:
-            self.transformEnable = True
+        if event.key() == self._key_mod:
+            self._transformEnable = True
         else:
             QGraphicsView.keyPressEvent(self, event)
         # end else
@@ -173,9 +173,9 @@ class CustomQGraphicsView(QGraphicsView):
         Raises:
            None
         """
-        if event.key() == self.key_mod:
-            self.transformEnable = False
-            self.dollyZoomEnable = False
+        if event.key() == self._key_mod:
+            self._transformEnable = False
+            self._dollyZoomEnable = False
             self.panDisable()
         # end if
         else:
@@ -210,18 +210,18 @@ class CustomQGraphicsView(QGraphicsView):
            None
         
         """
-        if self.transformEnable == True:
-            if self.dragMode() == self.yesDrag:
+        if self._transformEnable == True:
+            if self.dragMode() == self._noDrag:
                 """
                 Add stuff to handle the pan event
                 """
                 xf = event.x()
                 yf = event.y()
-                self.sceneRootItem.translate((xf - self.x0)/self.scale_size,\
-                                            (yf - self.y0)/self.scale_size)
-                self.x0 = xf
-                self.y0 = yf
-            elif self.dollyZoomEnable == True:
+                self.sceneRootItem.translate((xf - self._x0)/self._scale_size,\
+                                            (yf - self._y0)/self._scale_size)
+                self._x0 = xf
+                self._y0 = yf
+            elif self._dollyZoomEnable == True:
                 self.dollyZoom(event)
             #else:
             #    QGraphicsView.mouseMoveEvent(self, event)
@@ -246,19 +246,19 @@ class CustomQGraphicsView(QGraphicsView):
            None
         
         """
-        #if self.transformEnable == True:
-        if self.transformEnable == True and qApp.keyboardModifiers():
+        #if self._transformEnable == True:
+        if self._transformEnable == True and qApp.keyboardModifiers():
             which_buttons = event.buttons()
-            if which_buttons in [self.key_pan, self.key_pan_alt]:
+            if which_buttons in [self._key_pan, self._key_pan_alt]:
                 self.panEnable()
-                self.x0 = event.pos().x()
-                self.y0 = event.pos().y()
+                self._x0 = event.pos().x()
+                self._y0 = event.pos().y()
             elif which_buttons == self.key_zoom:
-                self.dollyZoomEnable = True
-                self.last_scale_factor = 0
+                self._dollyZoomEnable = True
+                self._last_scale_factor = 0
                 # QMouseEvent.y() returns the position of the mouse cursor
                 # relative to the widget
-                self.y0 = event.y()
+                self._y0 = event.y()
             else:
                 QGraphicsView.mousePressEvent(self, event)
         else:
@@ -282,13 +282,13 @@ class CustomQGraphicsView(QGraphicsView):
            None
         
         """
-        if self.transformEnable == True:
+        if self._transformEnable == True:
             # QMouseEvent.button() returns the button that triggered the event
             which_button = event.button()
-            if which_button in [self.key_pan, self.key_pan_alt]:
+            if which_button in [self._key_pan, self._key_pan_alt]:
                 self.panDisable()
             elif which_button == self.key_zoom:
-                self.dollyZoomEnable = False
+                self._dollyZoomEnable = False
             else:
                 QGraphicsView.mouseReleaseEvent(self, event)
         # end if
@@ -306,7 +306,7 @@ class CustomQGraphicsView(QGraphicsView):
     def panEnable(self):
         """Enable ScrollHandDrag Mode in QGraphicsView (displays a hand
         pointer)"""
-        self.setDragMode(self.yesDrag)
+        self.setDragMode(self._yesDrag)
     # end def
 
     def panDisable(self):
@@ -314,7 +314,7 @@ class CustomQGraphicsView(QGraphicsView):
         pointer)
         
         """
-        self.setDragMode(self.noDrag)
+        self.setDragMode(self._noDrag)
     # end def
 
     def wheelEvent(self, event):
@@ -355,15 +355,15 @@ class CustomQGraphicsView(QGraphicsView):
         
         """
         if event.delta() > 0:  # rotated away from the user
-            if self.scale_limit_max > self.scale_size:
+            if self._scale_limit_max > self._scale_size:
                 self.scale(1.25, 1.25)
-                self.scale_size *= 1.25
+                self._scale_size *= 1.25
             # end if
         # end if
         else:
-            if self.scale_limit_min < self.scale_size:
+            if self._scale_limit_min < self._scale_size:
                 self.scale(.8, .8)
-                self.scale_size *= 0.8
+                self._scale_size *= 0.8
             # end if
         # end else
     # end def
@@ -388,24 +388,31 @@ class CustomQGraphicsView(QGraphicsView):
         # QMouseEvent.y() returns the position of the mouse cursor relative
         # to the widget
         yf = event.y()
-        denom = abs(yf - self.y0)
+        denom = abs(yf - self._y0)
         if denom > 0:
             scale_factor = (self.height() / 2) % denom
-            if self.last_scale_factor != scale_factor:
-                self.last_scale_factor = scale_factor
+            if self._last_scale_factor != scale_factor:
+                self._last_scale_factor = scale_factor
                 # zoom in if mouse y position is getting bigger
-                if yf - self.y0 > 0:
-                    if self.scale_limit_max > self.scale_size:
+                if yf - self._y0 > 0:
+                    if self._scale_limit_max > self._scale_size:
                         self.scale(1.25, 1.25)
-                        self.scale_size *= 1.25
+                        self._scale_size *= 1.25
                     # end if
                 # end else
                 else:  # else id smaller zoom out
-                    if self.scale_limit_min < self.scale_size:
+                    if self._scale_limit_min < self._scale_size:
                         self.scale(.8, .8)
-                        self.scale_size *= 0.8
+                        self._scale_size *= 0.8
                     # end if
                 # end else
         # end if
+    # end def
+    
+    def resetScale():
+        """
+        reset the scale to 1
+        """
+        self._scale_size = 1
     # end def
 #end class

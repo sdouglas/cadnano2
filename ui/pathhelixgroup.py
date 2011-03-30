@@ -29,7 +29,7 @@ pathhelixgroup.py
 Created by Shawn on 2011-01-27.
 """
 
-from PyQt4.QtCore import QRectF, QPointF, QEvent, pyqtSlot, QObject
+from PyQt4.QtCore import QRectF, QPointF, QEvent, pyqtSlot, QObject, Qt
 from PyQt4.QtCore import pyqtSignal
 from PyQt4.QtGui import QBrush
 from PyQt4.QtGui import QGraphicsItem#, QGraphicsObject
@@ -125,6 +125,12 @@ class PathHelixGroup(QGraphicsItem):
             self.activeslicehandle.setParentItem(self)
         else:
             self.activeslicehandle.resize(count)
+        
+        # Auto zoom to center the scene
+        thescene = self.scene()
+        theview = thescene.views()[0]
+        theview.fitInView(thescene.sceneRect(),Qt.KeepAspectRatio)
+        theview.resetScale()
     # end def
 
     @pyqtSlot('QPointF', int)
