@@ -58,13 +58,13 @@ class SliceHelix(QGraphicsItem):
         self.parent = parent
         self.scene = parent.scene
         # data related
-        self.row = row
-        self.col = col
+        self._row = row
+        self._col = col
+        self._number = -1
         self.parity = (row % 2) ^ (col % 2)
         self.p0neighbor = None
         self.p1neighbor = None
         self.p2neighbor = None
-        self.number = -1
         self.vhelix = None
         self.label = None
         # drawing related
@@ -73,8 +73,20 @@ class SliceHelix(QGraphicsItem):
         self.setAcceptsHoverEvents(True)
         self.setPos(position)
 
+    def number(self):
+        """docstring for number"""
+        return self._number
+
+    def row(self):
+        """returns SliceHelix row"""
+        return self._row
+
+    def col(self):
+        """returns SliceHelix column"""
+        return self._col
+
     def paint(self, painter, option, widget=None):
-        if self.number >= 0:
+        if self._number >= 0:
             painter.setBrush(self.useBrush)
             painter.setPen(self.usePen)
         else:
@@ -93,7 +105,6 @@ class SliceHelix(QGraphicsItem):
             self.scene = scene
             self.helix = helix
             self.setPos(helix.pos())
-            #scene.addItem(self)
 
         def paint(self, painter, option, widget=None):
             painter.setPen(SliceHelix.hovPen)
@@ -112,7 +123,8 @@ class SliceHelix(QGraphicsItem):
         to the hover colors if necessary."""
         if self.focusRing == None:
             self.focusRing = SliceHelix.FocusRingPainter(self,\
-                                                         self.parent.scene, self.parent)
+                                                         self.parent.scene,\
+                                                         self.parent)
         self.update(self.rect)
     # end def
 
@@ -126,12 +138,12 @@ class SliceHelix(QGraphicsItem):
     # end def
 
     def mousePressEvent(self, event):
-        self.setUsed(not self.number >= 0)
+        self.setUsed(not self._number >= 0)
         QDrag(self.parent.parentWidget())
     # end def
 
     def dragEnterEvent(self, e):
-        self.setUsed(not self.number >= 0)
+        self.setUsed(not self._number >= 0)
         e.acceptProposedAction()
         print "dee"
     # end def
@@ -158,24 +170,24 @@ class SliceHelix(QGraphicsItem):
         """
         if pushToUndo:
             self.parent.sliceController.mainWindow.undoStack.push(\
-                        SliceHelix.RenumberCommand(self, self.number, n))
+                        SliceHelix.RenumberCommand(self, self._number, n))
         self.update(self.rect)
-        if n != self.number and self.number >= 0:
-            self.parent.recycleLabelForHelix(self.number, self)
+        if n != self._number and self._number >= 0:
+            self.parent.recycleLabelForHelix(self._number, self)
         if n < 0:
             if self.label:
                 self.label.setParentItem(None)
                 self.label = None
-            self.number = -1
+            self._number = -1
             return
-        self.number = n
+        self._number = n
         if self.label == None:
-            self.label = QGraphicsSimpleTextItem("%d" % self.number)
+            self.label = QGraphicsSimpleTextItem("%d" % self._number)
             self.label.setParentItem(self)
         y_val = self.radius / 2
-        if self.number < 10:
+        if self._number < 10:
             self.label.setPos(self.radius / 1.3, y_val)
-        elif self.number < 100:
+        elif self._number < 100:
             self.label.setPos(self.radius / 2, y_val)
         else:
             self.label.setPos(self.radius / 4, y_val)
@@ -194,17 +206,17 @@ class SliceHelix(QGraphicsItem):
         2. If the SliceHelix has been used previously, try to add some
         scaffold at the currently selected position in the path view.
         """
-        if (self.number >= 0) == u:
-            # self.parent.addBasesToDnaPart(self.number)
+        if (self._number >= 0) == u:
+            # self.parent.addBasesToDnaPart(self._number)
             pass
-        if self.number < 0:  # Initiate
+        if self._number < 0:  # Initiate
             self.setNumber(self.parent.reserveLabelForHelix(self))
             part = self.parent.dnaPartInst.part()
-            self.vhelix = part.addVirtualHelix(self.number)
-            self.parent.addHelixToPathGroup(self.pos(), self.number)
-            self.parent.addBasesToDnaPart(self.number)
+            self.vhelix = part.addVirtualHelix(self)
+            self.parent.addHelixToPathGroup(self.pos(), self._number)
+            self.parent.addBasesToDnaPart(self._number)
         else:  # Just add more bases
-            self.parent.addBasesToDnaPart(self.number)
+            self.parent.addBasesToDnaPart(self._number)
     # end def
 
     def add(self):

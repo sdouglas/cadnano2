@@ -74,10 +74,14 @@ class DNAPart(Part):
         """Returns the current canvas size (# of bases) for the DNA part."""
         return self._canvasSize
 
-    def addVirtualHelix(self, number):
+    def addVirtualHelix(self, slicehelix):
         """Adds a new VirtualHelix to the part in response to user input."""
-        vhelix = VirtualHelix(part=self, number=number, size=self._canvasSize)
-        self._virtualHelices[number] = vhelix
+        vhelix = VirtualHelix(part=self,\
+                              number=slicehelix.number(),\
+                              row=slicehelix.row(),\
+                              col=slicehelix.col(),\
+                              size=self._canvasSize)
+        self._virtualHelices[slicehelix.number()] = vhelix
 
     def getVirtualHelix(self, number):
         """Look up and return reference to a VirtualHelix"""

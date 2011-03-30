@@ -34,15 +34,17 @@ class VirtualHelix(object):
         super(VirtualHelix, self).__init__()
         self._part = kwargs.get('part', None)
         self._number = kwargs.get('number', None)
+        self._row = kwargs.get('row', 0)
+        self._col = kwargs.get('col', 0)
         self._size = kwargs.get('size', 0)
-        self._stapleBases = [Base(self._number, n) for n in range(self._size)]
-        self._scaffoldBases = [Base(self._number, n) for n in range(self._size)]
+        self._stapleBases = [Base(self, n) for n in range(self._size)]
+        self._scaffoldBases = [Base(self, n) for n in range(self._size)]
 
     def simpleRep(self, encoder):
         """Returns a representation in terms of simple JSON-encodable types
         or types that implement simpleRep"""
         ret = {'.class': "DNAPart"}
-        ret['part'] = self._part
+        ret['part'] = encoder.idForObject(self._part)
         ret['number'] = self._number
         ret['size'] = self._size
         ret['stapleBases'] = self._stapleBases
@@ -54,22 +56,33 @@ class VirtualHelix(object):
         """Instantiates one of the parent class from the simple
         representation rep"""
         ret = VirtualHelix()
-        ret._part = rep['part']
+        ret.partID = rep['part']
         ret._number = rep['number']
+        ret._row = rep['row']
+        ret._col = rep['col']
         ret._stapleBases = rep['stapleBases']
         ret._scaffoldBases = rep['scaffoldBases']
         return ret
 
     def resolveSimpleRepIDs(self,idToObj):
-        raise NotImplementedError
+        self._part = idToObj[self.partID]
+        del self.partID
+
+    def part(self):
+        """docstring for part"""
+        return self._part
 
     def number(self):
         """return VirtualHelix number"""
         return self._number
 
-    def part(self):
-        """docstring for part"""
-        return self._part
+    def row(self):
+        """return VirtualHelix helical-axis row"""
+        return self._row
+
+    def col(self):
+        """return VirtualHelix helical-axis column"""
+        return self._col
 
     def stapleBase(self, index):
         """docstring for stapleBase"""
@@ -110,9 +123,11 @@ class VirtualHelix(object):
                 ret.append(i)
         return ret
 
-    def updateAfterBreakpointMove(self, strandType, breakType, startIndex, delta):
-        """docstring for extendStrand"""
-        print "updateAfterBreakpointMove %d from %d by %d bases" % (self._number, startIndex, delta)
+    def updateAfterBreakpointMove(self, strandType, breakType, \
+                                  startIndex, delta):
+        """Called by a BreakpointHandle mouseReleaseEvent to update
+        the data model."""
+        # print "updateAfterBreakpointMove %d from %d by %d bases" % (self.number(), startIndex, delta)
         if delta == 0:
             return
         if strandType == StrandType.Scaffold:
@@ -160,34 +175,6 @@ class VirtualHelix(object):
                     strandBases[i-1].clearPrev()
         else:
             raise AttributeError
-
-
-
-    def retractStrand(self, strandType, startIndex, delta):
-        """docstring for extendStrand"""
-        print "retract %d from %d by %d bases" % (self._number, startIndex, delta)
-        if delta == 0:
-            return
-
-        if strandType == StrandType.Scaffold:
-            strandBases = self._scaffoldBases
-        elif strandType == StrandType.Staple:
-            strandBases = self._stapleBases
-        else:
-            raise AttributeError
-
-        if delta > 0:
-            for i in range(startIndex, startIndex+delta):
-                curr = self.strandBases[i]
-                next = self.strandBases[i+1]
-                curr.clearNext()
-                next.setPrev(curr)
-        else:
-            for i in range(startIndex, startIndex+delta, -1):
-                curr = self.strandBases[i]
-                next = self.strandBases[i-1]
-                curr.setNext(next)
-                next.setPrev(curr)
 
 class StrandType:
     Scaffold = 0
