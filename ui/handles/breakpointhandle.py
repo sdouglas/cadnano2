@@ -27,7 +27,7 @@ Created by Shawn on 2011-02-06.
 """
 
 from exceptions import AttributeError
-from PyQt4.QtCore import QPointF, QRectF, Qt, SIGNAL, QMimeData
+from PyQt4.QtCore import QPointF, QRectF, Qt
 from PyQt4.QtGui import QBrush
 from PyQt4.QtGui import QGraphicsItem
 from PyQt4.QtGui import QPainterPath

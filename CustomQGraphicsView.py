@@ -409,7 +409,7 @@ class CustomQGraphicsView(QGraphicsView):
         # end if
     # end def
     
-    def resetScale():
+    def resetScale(self):
         """
         reset the scale to 1
         """
