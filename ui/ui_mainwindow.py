@@ -65,6 +65,8 @@ class Ui_MainWindow(object):
         self.pathGraphicsView.setFocusPolicy(QtCore.Qt.WheelFocus)
         self.pathGraphicsView.setVerticalScrollBarPolicy(QtCore.Qt.ScrollBarAlwaysOff)
         self.pathGraphicsView.setHorizontalScrollBarPolicy(QtCore.Qt.ScrollBarAlwaysOff)
+        #self.pathGraphicsView.setTransformationAnchor(CustomQGraphicsView.CustomQGraphicsView.NoAnchor)
+        #self.pathGraphicsView.setResizeAnchor(CustomQGraphicsView.CustomQGraphicsView.AnchorViewCenter)
         self.pathGraphicsView.setRenderHints(QtGui.QPainter.Antialiasing|QtGui.QPainter.TextAntialiasing)
         self.pathGraphicsView.setObjectName(_fromUtf8("pathGraphicsView"))
         self.gridLayout.addWidget(self.splitter, 0, 0, 1, 1)

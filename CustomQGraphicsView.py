@@ -107,6 +107,9 @@ class CustomQGraphicsView(QGraphicsView):
         self.key_pan_alt = Qt.MidButton
         self.key_zoom = Qt.RightButton
         self.sceneRootItem = None
+        
+        self._pressList = []
+        
     # end def
 
     def setKeyPan(self, button):
@@ -127,6 +130,10 @@ class CustomQGraphicsView(QGraphicsView):
            
         """
         self.key_pan = button
+    # end def
+
+    def addToPressList(self, item):
+        self._pressList.append(item)
     # end def
 
     def keyPressEvent(self, event):
@@ -286,6 +293,13 @@ class CustomQGraphicsView(QGraphicsView):
                 QGraphicsView.mouseReleaseEvent(self, event)
         # end if
         else:
+            if len(self._pressList):
+                event_pos = event.pos()
+                for item in self._pressList:
+                    item.mouseUp(event_pos)
+                #end for
+                self._pressList = []
+            # end if 
             QGraphicsView.mouseReleaseEvent(self, event)
     #end def
 

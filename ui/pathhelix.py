@@ -51,6 +51,7 @@ class PathHelix(QGraphicsItem):
         super(PathHelix, self).__init__()
         self.vhelix = vhelix
         self.parent = parent
+        self.setParentItem(parent) 
         self._scafBreaktHandles = []
         self._stapBreaktHandles = []
         self._scafCrossoverHandles = []

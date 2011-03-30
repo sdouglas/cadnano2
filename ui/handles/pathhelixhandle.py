@@ -49,6 +49,7 @@ class PathHelixHandle(QGraphicsItem):
         super(PathHelixHandle, self).__init__(parent)
         self.vhelix = vhelix
         self.parent = parent
+        self.setParentItem(parent) 
         self.number = self.vhelix.number()
         self.label = None
         self.focusRing = None
@@ -124,16 +125,16 @@ class PathHelixHandle(QGraphicsItem):
         self.update(self.rect)
     # end def
 
-    def mousePressEvent(self, event):
-        # self.setUsed(not self.number >= 0)
-        QDrag(self.parent.parentWidget())
-    # end def
-
-    def dragEnterEvent(self, e):
-        # self.setUsed(not self.number >= 0)
-        e.acceptProposedAction()
-        print "dee"
-    # end def
+    # def mousePressEvent(self, event):
+    #     # self.setUsed(not self.number >= 0)
+    #     QDrag(self.parent.parentWidget())
+    # # end def
+    # 
+    # def dragEnterEvent(self, e):
+    #     # self.setUsed(not self.number >= 0)
+    #     e.acceptProposedAction()
+    #     print "dee"
+    # # end def
     
 def bringToFront(target, scene):
     """collidingItems gets a list of all items that overlap. sets

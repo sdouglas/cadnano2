@@ -60,6 +60,7 @@ class ActiveSliceHandle(QGraphicsItem):
         self.setZValue(-10)
         self.pressX = 0
         self.pressXoffset = 0
+        self.setParentItem(parent) 
 
     def boundingRect(self):
         """docstring for boundingRect"""

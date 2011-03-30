@@ -60,13 +60,14 @@ class PathHelixGroup(QGraphicsItem):
     handleRadius = styles.SLICE_HELIX_RADIUS
     
     def __init__(self, dnaPartInst, type="honeycomb", controller=None,\
-                 scene=None, parent=None):
+                 parent=None):
         super(PathHelixGroup, self).__init__(parent)
         self.dnaPartInst = dnaPartInst
         self.part = dnaPartInst.part()
         self.pathController = controller
-        self.scene = scene
+        # self.scene = scene
         self.parent = parent
+        self.setParentItem(parent) 
         self.numToPathHelix = {}
         
         # Lattice-specific initialization 
@@ -165,14 +166,14 @@ class PathHelixGroup(QGraphicsItem):
                                   EndType.FivePrime,\
                                   StrandType.Scaffold,\
                                   index,\
-                                  ph)
+                                  parent=ph)
             ph.addScaffoldBreakHandle(bh)
         for index in vh.getScaffold3PrimeEnds():
             bh = BreakpointHandle(vh,\
                                   EndType.ThreePrime,\
                                   StrandType.Scaffold,\
                                   index,\
-                                  ph)
+                                  parent=ph)
             ph.addScaffoldBreakHandle(bh)
         ph.updateBreakBounds(StrandType.Scaffold)
         ph.redrawLines(StrandType.Scaffold)

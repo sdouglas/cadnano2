@@ -27,7 +27,7 @@ Created by Shawn on 2011-02-06.
 """
 
 from exceptions import AttributeError
-from PyQt4.QtCore import QPointF, QRectF, Qt
+from PyQt4.QtCore import QPointF, QRectF, Qt, SIGNAL, QMimeData
 from PyQt4.QtGui import QBrush
 from PyQt4.QtGui import QGraphicsItem
 from PyQt4.QtGui import QPainterPath
@@ -60,6 +60,7 @@ class BreakpointHandle(QGraphicsItem):
         super(BreakpointHandle, self).__init__(parent)
         self.setFlag(QGraphicsItem.ItemIsMovable)
         self.parent = parent
+        self.setParentItem(parent) 
         self.vhelix = vhelix
         self.endType = endType
         self.strandType = strandType
@@ -76,6 +77,8 @@ class BreakpointHandle(QGraphicsItem):
         self.setPainterPathType()
         self.pressX = 0
         self.pressXoffset = 0
+        self.setCursor(Qt.OpenHandCursor)
+        self._dragMode = False
 
     def boundingRect(self):
         return self.rect
@@ -181,22 +184,36 @@ class BreakpointHandle(QGraphicsItem):
 
     def mouseMoveEvent(self, event):
         """Snaps handle into place when dragging."""
-        moveX = event.scenePos().x()
-        delta = moveX-self.pressX
-        self.tempIndex = int((self.baseIndex*self.baseWidth+\
-                          self.pressXoffset+delta) / self.baseWidth)
-        if self.tempIndex < self.minIndex:
-            self.tempIndex = self.minIndex
-        elif self.tempIndex > self.maxIndex:
-            self.tempIndex = self.maxIndex
-        self.x0 = self.tempIndex * self.baseWidth
-        self.setPos(self.x0, self.y0)
+        if self._dragMode == True:
+            moveX = event.scenePos().x()
+            delta = moveX-self.pressX
+            self.tempIndex = int((self.baseIndex*self.baseWidth+\
+                              self.pressXoffset+delta) / self.baseWidth)
+            if self.tempIndex < self.minIndex:
+                self.tempIndex = self.minIndex
+            elif self.tempIndex > self.maxIndex:
+                self.tempIndex = self.maxIndex
+            self.x0 = self.tempIndex * self.baseWidth
+            self.setPos(self.x0, self.y0)
+        
+            self.setCursor(Qt.OpenHandCursor)
+        else:
+            QGraphicsItem.mousePressEvent(self,event)
+        
+        
 
     def mousePressEvent(self, event):
-        self.pressX = event.scenePos().x()
-        self.pressXoffset = self.pressX % self.baseWidth
-    
-    def mouseReleaseEvent(self, event):
+        if event.button() != Qt.LeftButton:
+            event.ignore()
+            QGraphicsItem.mousePressEvent(self,event)
+        else:
+            self.scene().views()[0].addToPressList(self)
+            self._dragMode = True
+            self.pressX = event.scenePos().x()
+            self.pressXoffset = self.pressX % self.baseWidth
+            self.setCursor(Qt.ClosedHandCursor)
+
+    def mouseUp(self, epos):
         """Snaps to grid after mouse released. Updates vhelix data according
         to what movement took place."""
         if self.tempIndex == self.baseIndex:
@@ -209,6 +226,7 @@ class BreakpointHandle(QGraphicsItem):
         self.baseIndex = self.tempIndex
         self.parent.updateBreakBounds(self.strandType)
         self.parent.redrawLines(self.strandType)
+        self._dragMode = False
 
     def setDragBounds(self, minIndex, maxIndex):
         """Called by PathHelix.updateBreakBounds to notify breakpoint handle

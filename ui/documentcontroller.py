@@ -169,7 +169,7 @@ class DocumentController():
         #self.win.slicescene.addItem(shg)
 
         # Create a Path view of the part
-        phg = PathHelixGroup(dnaPartInst, scene=self.win.pathscene,\
+        phg = PathHelixGroup(dnaPartInst, \
                              controller=self.win.pathController,\
                              parent=self.win.pathroot)
         #self.win.pathscene.addItem(phg)
