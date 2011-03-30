@@ -92,7 +92,7 @@ class CustomQGraphicsView(QGraphicsView):
         self._dollyZoomEnable = False
         #print self.transformationAnchor()
         self.setTransformationAnchor(QGraphicsView.AnchorUnderMouse)
-
+        # self.setAlignment(Qt.AlignHCenter)
         # self.horizontalScrollBar().setMaximum(800)
         # self.horizontalScrollBar().setMinimum(-800)
         #self.setSceneRect(-200,200,800,800)
@@ -211,14 +211,16 @@ class CustomQGraphicsView(QGraphicsView):
         
         """
         if self._transformEnable == True:
-            if self.dragMode() == self._noDrag:
+            if self.dragMode() == self._yesDrag:
                 """
                 Add stuff to handle the pan event
                 """
-                xf = event.x()
-                yf = event.y()
-                self.sceneRootItem.translate((xf - self._x0)/self._scale_size,\
-                                            (yf - self._y0)/self._scale_size)
+                xf = event.posF().x()
+                yf = event.posF().y()
+                # self.sceneRootItem.translate((xf - self._x0)/self._scale_size,\
+                #                             (yf - self._y0)/self._scale_size)
+                self.sceneRootItem.translate(2*(xf - self._x0)/self._scale_size,\
+                                            2*(yf - self._y0)/self._scale_size)
                 self._x0 = xf
                 self._y0 = yf
             elif self._dollyZoomEnable == True:
@@ -251,8 +253,8 @@ class CustomQGraphicsView(QGraphicsView):
             which_buttons = event.buttons()
             if which_buttons in [self._key_pan, self._key_pan_alt]:
                 self.panEnable()
-                self._x0 = event.pos().x()
-                self._y0 = event.pos().y()
+                self._x0 = event.posF().x()
+                self._y0 = event.posF().y()
             elif which_buttons == self.key_zoom:
                 self._dollyZoomEnable = True
                 self._last_scale_factor = 0
@@ -357,12 +359,17 @@ class CustomQGraphicsView(QGraphicsView):
         if event.delta() > 0:  # rotated away from the user
             if self._scale_limit_max > self._scale_size:
                 self.scale(1.25, 1.25)
+                #self.centerOn(1.25*event.x(),1.25*event.y())
+                #self.centerOn(QPointF(0.8*event.globalX(),0.8*event.globalY()))
                 self._scale_size *= 1.25
             # end if
         # end if
         else:
             if self._scale_limit_min < self._scale_size:
                 self.scale(.8, .8)
+                #self.translate(event.x(),event.y())
+                #self.centerOn(QPointF(1.25*event.globalX(),1.25*event.globalY()))
+                #self.centerOn(QPointF(0.8*event.x(),0.8*event.y()))
                 self._scale_size *= 0.8
             # end if
         # end else
