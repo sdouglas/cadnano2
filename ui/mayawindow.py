@@ -65,7 +65,7 @@ class DocumentWindow(QtGui.QMainWindow, ui_mainwindow.Ui_MainWindow):
         self.controller = docCtrlr
         self.setupUi(self)
         # Slice setup
-        self.slicescene = QtGui.QGraphicsScene()
+        self.slicescene = QtGui.QGraphicsScene(parent=self.sliceGraphicsView)
         self.sliceroot = SceneRoot(rectsource=self.slicescene)
         self.slicescene.addItem(self.sliceroot)
         assert self.sliceroot.scene() == self.slicescene
@@ -73,7 +73,7 @@ class DocumentWindow(QtGui.QMainWindow, ui_mainwindow.Ui_MainWindow):
         self.sliceGraphicsView.sceneRootItem = self.sliceroot
         self.sliceController = slicecontroller.SliceController(self)
         # Path setup
-        self.pathscene = QtGui.QGraphicsScene()
+        self.pathscene = QtGui.QGraphicsScene(parent=self.pathGraphicsView)
         self.pathroot = SceneRoot(rectsource=self.pathscene)
         self.pathscene.addItem(self.pathroot)
         assert self.pathroot.scene() == self.pathscene

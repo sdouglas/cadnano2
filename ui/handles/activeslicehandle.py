@@ -44,7 +44,7 @@ class ActiveSliceHandle(QGraphicsItem):
 
     def __init__(self, part, startBase, parent=None):
         super(ActiveSliceHandle, self).__init__(parent)
-        self.setFlag(QGraphicsItem.ItemIsMovable)
+        
         self.part = part
         helixCount = self.part.getVirtualHelixCount()
         self.height = (helixCount + 2) * (styles.PATH_BASE_HEIGHT + \
@@ -60,7 +60,9 @@ class ActiveSliceHandle(QGraphicsItem):
         self.setZValue(-10)
         self.pressX = 0
         self.pressXoffset = 0
-        self.setParentItem(parent) 
+        self.setParentItem(parent)
+        # do setting Flags last as it needs self.rect 
+        self.setFlag(QGraphicsItem.ItemIsMovable)
 
     def boundingRect(self):
         """docstring for boundingRect"""

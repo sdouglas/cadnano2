@@ -58,7 +58,7 @@ class BreakpointHandle(QGraphicsItem):
         drawn in the correct orientation depending on parity and whether
         it's a 5' end or a 3' end."""
         super(BreakpointHandle, self).__init__(parent)
-        self.setFlag(QGraphicsItem.ItemIsMovable)
+        
         self.parent = parent
         self.setParentItem(parent) 
         self.vhelix = vhelix
@@ -79,7 +79,9 @@ class BreakpointHandle(QGraphicsItem):
         self.pressXoffset = 0
         self.setCursor(Qt.OpenHandCursor)
         self._dragMode = False
-
+        # do setting Flags last as it needs self.rect
+        self.setFlag(QGraphicsItem.ItemIsMovable)
+        
     def boundingRect(self):
         return self.rect
 

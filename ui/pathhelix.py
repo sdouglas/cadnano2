@@ -51,7 +51,6 @@ class PathHelix(QGraphicsItem):
         super(PathHelix, self).__init__()
         self.vhelix = vhelix
         self.parent = parent
-        self.setParentItem(parent) 
         self._scafBreaktHandles = []
         self._stapBreaktHandles = []
         self._scafCrossoverHandles = []
@@ -63,6 +62,7 @@ class PathHelix(QGraphicsItem):
         self.majorGridPainterPath = self.getMajorGridPainterPath()
         self.rect = QRectF()
         self.updateRect()
+        self.setParentItem(parent) 
 
     def updateRect(self):
         """Sets rect width to reflect number of bases in vhelix. Sets
