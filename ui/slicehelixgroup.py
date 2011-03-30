@@ -65,6 +65,8 @@ class SliceHelixGroup(QGraphicsItem):  # was a QGraphicsObject change for Qt 4.6
         self.sliceController = controller
         self.scene = scene
         self.parent = parent
+        self.setParentItem(parent)
+         
         self.oddRecycleBin = []
         self.evenRecycleBin = []
         self.reserveBin = set()
@@ -78,8 +80,9 @@ class SliceHelixGroup(QGraphicsItem):  # was a QGraphicsObject change for Qt 4.6
         self.nrows = nrows 
         self.ncolumns = ncolumns
         self.handleSize = 15 # FIX: read from config file
-        self.setFlags(QGraphicsItem.ItemIsSelectable)
         self.helixhash = {}
+        
+        self.rect = QRectF()
 
         if self.crossSectionType == 'honeycomb':
             self.rect = QRectF(0, 0,\
@@ -130,6 +133,9 @@ class SliceHelixGroup(QGraphicsItem):  # was a QGraphicsObject change for Qt 4.6
             print "self.type == honeycomb is false"
             pass
         # end else
+        
+        # do setting Flags last as it needs self.rect
+        self.setFlags(QGraphicsItem.ItemIsSelectable)
     # end def
 
     def paint(self, painter, option, widget=None):

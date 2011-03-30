@@ -57,7 +57,6 @@ class PathHelix(QGraphicsItem):
         super(PathHelix, self).__init__()
         self._vhelix = vhelix
         self.parent = parent
-        self.setParentItem(parent) 
         self._scafBreaktHandles = []
         self._stapBreaktHandles = []
         self._scafCrossoverHandles = []
@@ -69,7 +68,7 @@ class PathHelix(QGraphicsItem):
         self.majorGridPainterPath = self.getMajorGridPainterPath()
         self.rect = QRectF()
         self.updateRect()
-        
+        self.setParentItem(parent) 
         # For Campbell
         # Here's where cadnano gets the reference to mMaya's 3D equivalent
         # of the PathHelix (while passing a handy reference to itself)

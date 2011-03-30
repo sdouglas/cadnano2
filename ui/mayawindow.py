@@ -44,10 +44,10 @@ def getMayaWindow():
 # end def
 
 class SceneRoot(QtGui.QGraphicsItem):
-    def __init__(self,rectsource=None, parent = None, scene=None):
+    def __init__(self,rectsource=None):
         super(SceneRoot, self).__init__()
-        self.parent = parent 
-        self.scene = scene
+        # self.parent = parent 
+        # self.scene = scene
         # this sets the rect of itself to the QGraphicsScene bounding volume
         self.rect = rectsource.sceneRect()
 
@@ -65,16 +65,18 @@ class DocumentWindow(QtGui.QMainWindow, ui_mainwindow.Ui_MainWindow):
         self.controller = docCtrlr
         self.setupUi(self)
         # Slice setup
-        self.slicescene = QtGui.QGraphicsScene()
+        self.slicescene = QtGui.QGraphicsScene(parent=self.sliceGraphicsView)
         self.sliceroot = SceneRoot(rectsource=self.slicescene)
         self.slicescene.addItem(self.sliceroot)
+        assert self.sliceroot.scene() == self.slicescene
         self.sliceGraphicsView.setScene(self.slicescene)
         self.sliceGraphicsView.sceneRootItem = self.sliceroot
         self.sliceController = slicecontroller.SliceController(self)
         # Path setup
-        self.pathscene = QtGui.QGraphicsScene()
+        self.pathscene = QtGui.QGraphicsScene(parent=self.pathGraphicsView)
         self.pathroot = SceneRoot(rectsource=self.pathscene)
         self.pathscene.addItem(self.pathroot)
+        assert self.pathroot.scene() == self.pathscene
         self.pathGraphicsView.setScene(self.pathscene)
         self.pathGraphicsView.sceneRootItem = self.pathroot
         self.pathController = pathcontroller.PathController(self)

@@ -170,13 +170,13 @@ class DocumentController():
                               scene=self.win.slicescene,\
                               controller=self.win.sliceController,\
                               parent=self.win.sliceroot)
-        #self.win.slicescene.addItem(shg)
+        self.win.slicescene.addItem(shg)
 
         # Create a Path view of the part
-        phg = PathHelixGroup(dnaPartInst, scene=self.win.pathscene,\
+        phg = PathHelixGroup(dnaPartInst,
                              controller=self.win.pathController,\
                              parent=self.win.pathroot)
-        #self.win.pathscene.addItem(phg)
+        self.win.pathscene.addItem(phg)
 
 
         solhg = SolidHelixGroup(dnaPartInst,controller=self.win.pathController)
@@ -187,7 +187,9 @@ class DocumentController():
         shg.helixAdded.connect(phg.handleHelixAdded)
         shg.helixAdded.connect(solhg.handleHelixAdded)
         shg.sliceHelixClicked.connect(phg.handleSliceHelixClick)
+        
         phg.scaffoldChange.connect(solhg.handleScaffoldChange)
+        
         dnaPartInst.partselected.connect(shg.bringToFront)
         dnaPartInst.partselected.connect(phg.bringToFront)
 
