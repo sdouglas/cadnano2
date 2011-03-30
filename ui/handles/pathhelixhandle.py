@@ -36,7 +36,7 @@ import ui.styles as styles
 
 class PathHelixHandle(QGraphicsItem):
     """docstring for PathHelixHandle"""
-    radius = styles.PATH_HELIX_RADIUS
+    radius = styles.PATHHELIXHANDLE_RADIUS
     rect = QRectF(0, 0, 2*radius, 2*radius)
     defBrush = QBrush(styles.grayfill)
     defPen = QPen(styles.graystroke, styles.SLICE_HELIX_STROKE_WIDTH)
@@ -87,17 +87,17 @@ class PathHelixHandle(QGraphicsItem):
 
     class FocusRingPainter(QGraphicsItem):
         """Draws a focus ring around helix in parent"""
-        def __init__(self, helix, scene):
-            super(PathHelixHandle.FocusRingPainter, self).__init__()
+        def __init__(self, helix, scene, parent=None):
+            super(PathHelixHandle.FocusRingPainter, self).__init__(parent)
+            self.parent = parent
             self.scene = scene
             self.helix = helix
             self.setPos(helix.pos())
-            scene.addItem(self)
 
         def paint(self, painter, option, widget=None):
             painter.setPen(PathHelixHandle.hovPen)
             painter.drawEllipse(self.helix.rect)
-            bringToFront(self, self.scene)
+            # bringToFront(self, self.scene)
 
         def boundingRect(self):
             return self.helix.rect
@@ -110,7 +110,8 @@ class PathHelixHandle(QGraphicsItem):
         """
         if self.focusRing == None:
             self.focusRing = PathHelixHandle.FocusRingPainter(self,\
-                                                            self.parent.scene)
+                                                         self.parent.scene,\
+                                                         self.parent)
         self.update(self.rect)
     # end def
 
@@ -125,17 +126,6 @@ class PathHelixHandle(QGraphicsItem):
         self.update(self.rect)
     # end def
 
-    # def mousePressEvent(self, event):
-    #     # self.setUsed(not self.number >= 0)
-    #     QDrag(self.parent.parentWidget())
-    # # end def
-    # 
-    # def dragEnterEvent(self, e):
-    #     # self.setUsed(not self.number >= 0)
-    #     e.acceptProposedAction()
-    #     print "dee"
-    # # end def
-    
 def bringToFront(target, scene):
     """collidingItems gets a list of all items that overlap. sets
     this items zValue to one higher than the max."""

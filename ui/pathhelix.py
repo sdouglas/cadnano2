@@ -38,9 +38,15 @@ import styles
 from model.virtualhelix import VirtualHelix, StrandType, Parity
 from handles.breakpointhandle import BreakpointHandle
 
+from mmayacadnano.pathhelix3d import PathHelix3D  # For Campbell
 
 class PathHelix(QGraphicsItem):
-    """docstring for PathHelix"""
+    """
+    PathHelix is the primary "view" of the VirtualHelix data.
+    It manages the ui interactions from the user, such as
+    dragging breakpoints or crossovers addition/removal,
+    and updates the data model accordingly.
+    """
     minorGridPen = QPen(styles.minorgridstroke, styles.PATH_GRID_STROKE_WIDTH)
     majorGridPen = QPen(styles.majorgridstroke, styles.PATH_GRID_STROKE_WIDTH)
     scafPen = QPen(styles.scafstroke, styles.PATH_STRAND_STROKE_WIDTH)
@@ -49,7 +55,7 @@ class PathHelix(QGraphicsItem):
     
     def __init__(self, vhelix, position, parent):
         super(PathHelix, self).__init__()
-        self.vhelix = vhelix
+        self._vhelix = vhelix
         self.parent = parent
         self._scafBreaktHandles = []
         self._stapBreaktHandles = []
@@ -63,12 +69,25 @@ class PathHelix(QGraphicsItem):
         self.rect = QRectF()
         self.updateRect()
         self.setParentItem(parent) 
+        # For Campbell
+        # Here's where cadnano gets the reference to mMaya's 3D equivalent
+        # of the PathHelix (while passing a handy reference to itself)
+        self.PathHelix3D = PathHelix3D(self)
+
+    def number(self):
+        return self._vhelix.number()
+
+    def row(self):
+        return self._vhelix.row()
+
+    def col(self):
+        return self._vhelix.col()
 
     def updateRect(self):
         """Sets rect width to reflect number of bases in vhelix. Sets
         rect height to the width of two bases (one for scaffold and
         one for staple)"""
-        canvasSize = self.vhelix.part().getCanvasSize()
+        canvasSize = self._vhelix.part().getCanvasSize()
         self.rect.setWidth(self.baseWidth*canvasSize)
         self.rect.setHeight(2*self.baseWidth)
 
@@ -76,6 +95,7 @@ class PathHelix(QGraphicsItem):
         return self.rect
 
     def paint(self, painter, option, widget=None):
+        # FIX: should draw gridlines in background
         # Minor grid lines
         painter.setBrush(self.nobrush)
         painter.setPen(self.minorGridPen)
@@ -83,10 +103,10 @@ class PathHelix(QGraphicsItem):
         # Major grid lines
         painter.setPen(self.majorGridPen)
         painter.drawPath(self.majorGridPainterPath)
+
         # Scaffold lines
         painter.setPen(self.scafPen)
         painter.drawLines(self.scafLines)
-        
 
     def getMinorGridPainterPath(self):
         """
@@ -95,7 +115,7 @@ class PathHelix(QGraphicsItem):
         dividing scaffold and staple bases.
         """
         path = QPainterPath()
-        canvasSize = self.vhelix.part().getCanvasSize()
+        canvasSize = self._vhelix.part().getCanvasSize()
         # border
         path.addRect(0,0,self.baseWidth*canvasSize, 2*self.baseWidth)
         # minor tick marks
@@ -115,7 +135,7 @@ class PathHelix(QGraphicsItem):
         pens can be used for each.
         """
         path = QPainterPath()
-        canvasSize = self.vhelix.part().getCanvasSize()
+        canvasSize = self._vhelix.part().getCanvasSize()
         # major tick marks
         for i in range(0,canvasSize+1,7):
                 path.moveTo(self.baseWidth*i,0)
@@ -131,13 +151,13 @@ class PathHelix(QGraphicsItem):
         return self._stapBreaktHandles
 
     def addScaffoldBreakHandle(self, bh):
-        """docstring for addScaffoldBreakHandle"""
-        # bh.setParentItem(self)
+        """addScaffoldBreakHandle gets called by PathHelixGroup
+        when the handles are changed (e.g. by handleSliceHelixClick
+        or when a crossover is added)."""
         self._scafBreaktHandles.append(bh)
 
     def addStapleBreakHandle(self, bh):
         """docstring for addStapleBreakHandle"""
-        # bh.setParentItem(self)
         self._stapBreaktHandles.append(bh)
 
     def updateBreakBounds(self, strandType):
@@ -157,7 +177,7 @@ class PathHelix(QGraphicsItem):
         count = len(handles)
         if count == 0:
             return
-        maxIndex = self.vhelix.part().getCanvasSize()-1
+        maxIndex = self._vhelix.part().getCanvasSize()-1
         if count == 1:
             handles[0].setDragBounds(0,maxIndex)
         else:
@@ -171,7 +191,7 @@ class PathHelix(QGraphicsItem):
 
     def setParity(self):
         """docstring for setParity"""
-        if self.vhelix.number() % 2 == 0:
+        if self._vhelix.number() % 2 == 0:
             self.parity = Parity.Even
         else:
             self.parity = Parity.Odd
@@ -216,10 +236,11 @@ class PathHelix(QGraphicsItem):
 
         self.scafLines = []  # get rid of old points
         y = self.getYoffset(strandType)  # determine y offset
-        for [x1Index, x2Index] in endpoints:
-            x1 = (x1Index * self.baseWidth) + (self.baseWidth >> 1)
-            x2 = (x2Index * self.baseWidth) + (self.baseWidth >> 1)
+        for [startIndex, endIndex] in endpoints:
+            x1 = (startIndex * self.baseWidth) + (self.baseWidth >> 1)
+            x2 = (endIndex * self.baseWidth) + (self.baseWidth >> 1)
             self.scafLines.append(QLine(x1,y,x2,y))  # create QLine list
         self.update(self.rect)
+        self.PathHelix3D.updateDNA(strandType, endpoints)
 
 # end class

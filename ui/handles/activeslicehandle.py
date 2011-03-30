@@ -35,6 +35,8 @@ from PyQt4.QtGui import QGraphicsSimpleTextItem
 from PyQt4.QtGui import QPen, QDrag, QUndoCommand
 import ui.styles as styles
 
+from mmayacadnano.activeslicehandle3d import ActiveSliceHandle3D # For Campbell
+
 
 class ActiveSliceHandle(QGraphicsItem):
     """docstring for ActiveSliceHandle"""
@@ -61,8 +63,9 @@ class ActiveSliceHandle(QGraphicsItem):
         self.pressX = 0
         self.pressXoffset = 0
         self.setParentItem(parent)
-        # do setting Flags last as it needs self.rect 
         self.setFlag(QGraphicsItem.ItemIsMovable)
+        self.activeslicehandle3D = ActiveSliceHandle3D(self) # for Campbell
+
 
     def boundingRect(self):
         """docstring for boundingRect"""
@@ -110,6 +113,8 @@ class ActiveSliceHandle(QGraphicsItem):
             self.tempIndex = self.maxIndex
         self.x0 = self.tempIndex * self.baseWidth
         self.setPos(self.x0, self.y0)
+        # this should be fixed on only notify on changes
+        self.activeslicehandle3D.dragFrom2D(self.tempIndex)
 
     def mousePressEvent(self, event):
         self.pressX = event.scenePos().x()
@@ -122,4 +127,17 @@ class ActiveSliceHandle(QGraphicsItem):
             return
         delta = int(self.tempIndex - self.baseIndex)
         self.baseIndex = self.tempIndex
+
+    def updateFrom3D(self, newIndex):
+        """Called by BreakpointHandle3D to notify cadnano that the
+        ActiveSliceHandle has moved to a new location. All updates to the data
+        structure are then handled by cadnano."""
+
+        # not tested
+
+        if self.baseIndex == newIndex:
+            return
+        self.baseIndex = newIndex
+        self.x0 = self.baseIndex*self.baseWidth
+        self.setPos(self.x0, self.y0)
 

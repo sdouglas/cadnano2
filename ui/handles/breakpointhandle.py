@@ -26,8 +26,8 @@ pathhelixhandle.py
 Created by Shawn on 2011-02-06.
 """
 
-from exceptions import AttributeError
-from PyQt4.QtCore import QPointF, QRectF, Qt
+from exceptions import AttributeError, NotImplementedError
+from PyQt4.QtCore import QPointF, QRectF, Qt, SIGNAL, QMimeData
 from PyQt4.QtGui import QBrush
 from PyQt4.QtGui import QGraphicsItem
 from PyQt4.QtGui import QPainterPath
@@ -36,6 +36,8 @@ from PyQt4.QtGui import QPen, QDrag, QUndoCommand
 from model.base import EndType
 from model.virtualhelix import StrandType, Parity, BreakType
 import ui.styles as styles
+
+from mmayacadnano.breakpointhandle3d import BreakpointHandle3D # For Campbell
 
 
 class BreakpointHandle(QGraphicsItem):
@@ -65,7 +67,7 @@ class BreakpointHandle(QGraphicsItem):
         self.endType = endType
         self.strandType = strandType
         self.type = None  # direction + end type (see mouseReleaseEvent)
-        self.baseIndex = baseIndex
+        self.baseIndex = baseIndex  # public
         self.tempIndex = baseIndex
         self.minIndex = 0
         self.maxIndex = (vhelix.part().getCanvasSize()-1)
@@ -79,9 +81,9 @@ class BreakpointHandle(QGraphicsItem):
         self.pressXoffset = 0
         self.setCursor(Qt.OpenHandCursor)
         self._dragMode = False
-        # do setting Flags last as it needs self.rect
         self.setFlag(QGraphicsItem.ItemIsMovable)
-        
+        self.breakpoint3D = BreakpointHandle3D(self)  # for Campbell
+
     def boundingRect(self):
         return self.rect
 
@@ -147,7 +149,8 @@ class BreakpointHandle(QGraphicsItem):
         position of the breakpointhandle relative to the rest of the path).
         """
         pp = QPainterPath()
-        pp.addRect(0.25*self.baseWidth, 0, 0.75*self.baseWidth, self.baseWidth)
+        # pp.addRect(0, 0, self.baseWidth, self.baseWidth)
+        pp.addRect(0.25*self.baseWidth, 0.125*self.baseWidth, 0.75*self.baseWidth, 0.75*self.baseWidth)
         return pp
 
     def getLeft3PrimePainterPath(self):
@@ -168,7 +171,8 @@ class BreakpointHandle(QGraphicsItem):
         to the left such that the base path line should extend to the left,
         i.e. the breakpoint sits at the right edge of a path."""
         pp = QPainterPath()
-        pp.addRect(0, 0, 0.75*self.baseWidth, self.baseWidth)
+        # pp.addRect(0, 0, self.baseWidth, self.baseWidth)
+        pp.addRect(0, 0.125*self.baseWidth, 0.75*self.baseWidth, 0.75*self.baseWidth)
         return pp
 
     def getRight3PrimePainterPath(self):
@@ -197,12 +201,10 @@ class BreakpointHandle(QGraphicsItem):
                 self.tempIndex = self.maxIndex
             self.x0 = self.tempIndex * self.baseWidth
             self.setPos(self.x0, self.y0)
-        
             self.setCursor(Qt.OpenHandCursor)
+            self.breakpoint3D.dragFrom2D(self.tempIndex)
         else:
             QGraphicsItem.mousePressEvent(self,event)
-        
-        
 
     def mousePressEvent(self, event):
         if event.button() != Qt.LeftButton:
@@ -235,5 +237,42 @@ class BreakpointHandle(QGraphicsItem):
         of where it can legally move along the vhelix."""
         self.minIndex = minIndex
         self.maxIndex = maxIndex
-# end class
 
+    def dragFrom3D(self, newIndex):
+        """Called by mMaya BreakpointHandle3D to notify cadnano that the
+        3D handle is being dragged to a new location, and should be
+        dragged in the 2D view as well. No updates are made to the model."""
+
+        # *** not tested ***
+
+        if self.newIndex < self.minIndex:
+            self.newIndex = self.minIndex
+        elif self.newIndex > self.maxIndex:
+            self.newIndex = self.maxIndex
+        self.x0 = self.newIndex * self.baseWidth # determine new location
+        self.setPos(self.x0, self.y0) # move there
+
+    def dragReleaseFrom3D(self, newIndex):
+        """Called by mMaya BreakpointHandle3D to notify cadnano that the
+        3D handle has moved to a new location. All updates to the data
+        structure are then handled by cadnano on the 2D side."""
+
+        # *** not tested ***
+
+        if self.baseIndex == newIndex:
+            return
+        delta = int(newIndex - self.baseIndex)
+        # update data stucture after move
+        self.vhelix.updateAfterBreakpointMove(self.strandType,\
+                                              self.type,\
+                                              self.baseIndex,\
+                                              delta)
+        self.baseIndex = newIndex
+        self.parent.updateBreakBounds(self.strandType) # new breakpoint bounds
+        self.parent.redrawLines(self.strandType) # new 2D lines
+
+    def actionFrom3D(self, actionType):
+        """Called by mMaya BreakpointHandle3D to notify cadnano that the
+        3D handle has received a user action. All updates to the data
+        structure are then handled by cadnano on the 2D side."""
+        raise NotImplementedError

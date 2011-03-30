@@ -31,33 +31,32 @@ from PyQt4.QtGui import QColor
 
 # Slice Sizing
 SLICE_HELIX_RADIUS = 15
-SLICE_HELIX_STROKE_WIDTH = 1.5
-SLICE_HELIX_HILIGHT_WIDTH = 2.5
+SLICE_HELIX_STROKE_WIDTH = 0.5
+SLICE_HELIX_HILIGHT_WIDTH = 1.5
 
 # Slice Colors
 bluefill = QColor(153, 204, 255)  # 99ccff
 bluestroke = QColor(0, 102, 204)  # 0066cc
 orangefill = QColor(255, 204, 153)  # ffcc99
 orangestroke = QColor(204, 102, 51)  # cc6633
-grayfill = QColor(161, 161, 161)  # a1a1a1
-graystroke = QColor(61, 61, 61)  # 424242
-# grayfill = QColor(238, 238, 238)  # eeeeee
-# graystroke = QColor(153, 153, 153)  # 999999
+# grayfill = QColor(161, 161, 161)  # a1a1a1
+# graystroke = QColor(61, 61, 61)  # 424242
+grayfill = QColor(238, 238, 238)  # eeeeee
+graystroke = QColor(102, 102, 102)  # 666666
 
 # Path Sizing
-PATH_HELIX_RADIUS = 20
+PATHHELIXHANDLE_RADIUS = 15
 PATH_BASE_WIDTH = 20  # used to size bases (grid squares, handles, etc)
 PATH_BASE_HEIGHT = 2 * PATH_BASE_WIDTH  # staple + scaffold
-PATH_HELIX_PADDING = 20 # gap between PathHelix objects in path view
-PATH_GRID_STROKE_WIDTH = 1
+PATH_HELIX_PADDING = 50 # gap between PathHelix objects in path view
+PATH_GRID_STROKE_WIDTH = 0.5
 SLICE_HANDLE_STROKE_WIDTH = 1
-
-scafstroke = QColor(0, 102, 204)  # 0066cc
 PATH_STRAND_STROKE_WIDTH = 2
 
 # Path Colors
-minorgridstroke = QColor(204, 204, 204)  # cccccc
-majorgridstroke = QColor(102, 102, 102)  # 666666
+minorgridstroke = QColor(153, 153, 153)  # 999999
+majorgridstroke = QColor(51, 51, 51)  # 333333
+scafstroke = QColor(0, 102, 204)  # 0066cc
 
 handlefill = QColor(0, 102, 204)  # 0066cc
 # handlestroke = QColor(0, 102, 204)  # 0066cc

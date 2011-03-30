@@ -111,7 +111,8 @@ class PathHelixGroup(QGraphicsItem):
         # add PathHelixHandle
         x = -4*self.handleRadius
         y = count * (styles.PATH_BASE_HEIGHT + styles.PATH_HELIX_PADDING)
-        phh = PathHelixHandle(vh, QPointF(x, y), self)
+        phhY = ((styles.PATH_BASE_HEIGHT-(styles.PATHHELIXHANDLE_RADIUS*2))/2)
+        phh = PathHelixHandle(vh, QPointF(x, y+phhY), self)
         phh.setParentItem(self)
         # add PathHelix
         ph = PathHelix(vh, QPointF(0, y), self)
