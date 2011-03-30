@@ -208,6 +208,7 @@ class BreakpointHandle(QGraphicsItem):
                                               delta)
         self.baseIndex = self.tempIndex
         self.parent.updateBreakBounds(self.strandType)
+        self.parent.redrawLines(self.strandType)
 
     def setDragBounds(self, minIndex, maxIndex):
         """Called by PathHelix.updateBreakBounds to notify breakpoint handle

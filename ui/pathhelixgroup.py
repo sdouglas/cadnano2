@@ -175,6 +175,7 @@ class PathHelixGroup(QGraphicsItem):
                                   ph)
             ph.addScaffoldBreakHandle(bh)
         ph.updateBreakBounds(StrandType.Scaffold)
+        ph.redrawLines(StrandType.Scaffold)
     # end def
 
     def bringToFront(self):

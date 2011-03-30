@@ -26,16 +26,16 @@ pathhelix.py
 Created by Shawn on 2011-01-27.
 """
 
-from exceptions import AttributeError
-from PyQt4.QtCore import QRectF
+from exceptions import AttributeError, ValueError
 from PyQt4.QtCore import Qt
+from PyQt4.QtCore import QLine, QRectF
 from PyQt4.QtGui import QBrush
 from PyQt4.QtGui import QGraphicsItem
 from PyQt4.QtGui import QGraphicsSimpleTextItem
-from PyQt4.QtGui import QPainterPath
+from PyQt4.QtGui import QPainter, QPainterPath
 from PyQt4.QtGui import QPen, QDrag, QUndoCommand
 import styles
-from model.virtualhelix import VirtualHelix, StrandType
+from model.virtualhelix import VirtualHelix, StrandType, Parity
 from handles.breakpointhandle import BreakpointHandle
 
 
@@ -43,6 +43,7 @@ class PathHelix(QGraphicsItem):
     """docstring for PathHelix"""
     minorGridPen = QPen(styles.minorgridstroke, styles.PATH_GRID_STROKE_WIDTH)
     majorGridPen = QPen(styles.majorgridstroke, styles.PATH_GRID_STROKE_WIDTH)
+    scafPen = QPen(styles.scafstroke, styles.PATH_STRAND_STROKE_WIDTH)
     nobrush = QBrush(Qt.NoBrush)
     baseWidth = styles.PATH_BASE_WIDTH
     
@@ -54,6 +55,8 @@ class PathHelix(QGraphicsItem):
         self._stapBreaktHandles = []
         self._scafCrossoverHandles = []
         self._stapCrossoverHandles = []
+        self.scafLines = []
+        self.setParity()
         self.setPos(position)
         self.minorGridPainterPath = self.getMinorGridPainterPath()
         self.majorGridPainterPath = self.getMajorGridPainterPath()
@@ -79,6 +82,10 @@ class PathHelix(QGraphicsItem):
         # Major grid lines
         painter.setPen(self.majorGridPen)
         painter.drawPath(self.majorGridPainterPath)
+        # Scaffold lines
+        painter.setPen(self.scafPen)
+        painter.drawLines(self.scafLines)
+        
 
     def getMinorGridPainterPath(self):
         """
@@ -160,8 +167,58 @@ class PathHelix(QGraphicsItem):
             handles[count-1].setDragBounds(handles[count-2].baseIndex+1,\
                                            maxIndex)
     # end def
-    def updateStapBreakBounds(self):
-        """docstring for fname"""
-        pass
+
+    def setParity(self):
+        """docstring for setParity"""
+        if self.vhelix.number() % 2 == 0:
+            self.parity = Parity.Even
+        else:
+            self.parity = Parity.Odd
+
+    def getYoffset(self, strandType):
+        """
+        This function returns the appropriate Y offset according to the
+        rule that even-parity staples and odd-parity scaffolds run in the
+        negative-z direction and are drawn in the lower half of the
+        path helix grid.
+        """
+        if (self.parity == Parity.Even and strandType == StrandType.Staple) or \
+           (self.parity == Parity.Odd and strandType == StrandType.Scaffold):
+            return self.baseWidth + (self.baseWidth >> 1)
+        else:
+            return self.baseWidth >> 1
+
+    def redrawLines(self, strandType):
+        """Draw horizontal lines where non-breakpoint, non-crossover strand
+           is present"""
+        endpoints = []
+        if strandType == StrandType.Scaffold:
+            handles = sorted(self._scafBreaktHandles +\
+                             self._scafCrossoverHandles,\
+                             key=lambda handle: handle.baseIndex)
+        elif strandType == StrandType.Staple:
+            handles = sorted(self._stapBreaktHandles +\
+                             self._stapCrossoverHandles,\
+                             key=lambda handle: handle.baseIndex)
+        else:
+            raise AttributeError
+        count = len(handles)
+        if count == 0:
+            return
+        if count % 2 == 1:
+            raise ValueError  # should always be even
+        else:
+            for i in range(0, len(handles), 2):
+                # collect endpoints
+                endpoints.append([handles[i].baseIndex,\
+                                  handles[i+1].baseIndex])
+
+        self.scafLines = []  # get rid of old points
+        y = self.getYoffset(strandType)  # determine y offset
+        for [x1Index, x2Index] in endpoints:
+            x1 = (x1Index * self.baseWidth) + (self.baseWidth >> 1)
+            x2 = (x2Index * self.baseWidth) + (self.baseWidth >> 1)
+            self.scafLines.append(QLine(x1,y,x2,y))  # create QLine list
+        self.update(self.rect)
 
 # end class

@@ -52,6 +52,9 @@ PATH_HELIX_PADDING = 20 # gap between PathHelix objects in path view
 PATH_GRID_STROKE_WIDTH = 1
 SLICE_HANDLE_STROKE_WIDTH = 1
 
+scafstroke = QColor(0, 102, 204)  # 0066cc
+PATH_STRAND_STROKE_WIDTH = 2
+
 # Path Colors
 minorgridstroke = QColor(204, 204, 204)  # cccccc
 majorgridstroke = QColor(102, 102, 102)  # 666666
