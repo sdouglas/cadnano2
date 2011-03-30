@@ -25,7 +25,7 @@
 from PyQt4.QtGui import *
 from PyQt4.QtCore import SIGNAL, QString
 from cadnanomaya import app
-#cool5EJjk
+
 from idbank import IdBank
 from model.document import Document
 from model.encoder import encode
