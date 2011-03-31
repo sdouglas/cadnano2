@@ -109,7 +109,9 @@ class CustomQGraphicsView(QGraphicsView):
         self.sceneRootItem = None
         
         self._pressList = []
-        
+        self.setStyleSheet("QGraphicsView { background-color: rgb(96.5%, 96.5%, 96.5%); }");
+        # self.setStyleSheet("QGraphicsView { background-color: #FF0000; }");
+        # self.setStyleSheet("QGraphicsView { background-color: rgba(255, 0, 0, 75%); }");
     # end def
 
     def setKeyPan(self, button):
