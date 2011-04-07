@@ -48,6 +48,8 @@ class DocumentController():
         app().undoGroup.addStack(self.undoStack)
         self.win = DocumentWindow(docCtrlr=self)
         self.win.show()
+        self.win.showSizes()
+        
         self._filename = "untitled.cadnano"
         self.treeController = TreeController(self.win.treeview)
         self.createConnections()
@@ -163,14 +165,16 @@ class DocumentController():
 
         # Create a Slice view of part
         shg = SliceHelixGroup(dnaPartInst, nrows, ncolumns,\
-                              scene=self.win.slicescene,\
                               controller=self.win.sliceController,\
+                              defaultheight=self.win.sliceGraphicsView.frameSize().height(), \
                               parent=self.win.sliceroot)
         #self.win.slicescene.addItem(shg)
 
         # Create a Path view of the part
+        # used the divide by 1.7
         phg = PathHelixGroup(dnaPartInst, \
                              controller=self.win.pathController,\
+                             defaultheight=self.win.pathGraphicsView.frameSize().height()/1.7, \
                              parent=self.win.pathroot)
         #self.win.pathscene.addItem(phg)
 
@@ -179,7 +183,7 @@ class DocumentController():
         shg.sliceHelixClicked.connect(phg.handleSliceHelixClick)
         dnaPartInst.partselected.connect(shg.bringToFront)
         dnaPartInst.partselected.connect(phg.bringToFront)
-        
+        self.win.showSizes()
     # end def
 
     def deleteClicked(self):

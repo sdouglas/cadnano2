@@ -55,6 +55,8 @@ class DocumentWindow(QMainWindow, ui_mainwindow.Ui_MainWindow):
         super(DocumentWindow, self).__init__(parent)
         self.controller = docCtrlr
         self.setupUi(self)
+        self.times = 0
+        
         # Slice setup
         self.slicescene = QGraphicsScene(parent=self.sliceGraphicsView)
         self.sliceroot = SceneRoot(rectsource=self.slicescene)
@@ -79,5 +81,27 @@ class DocumentWindow(QMainWindow, ui_mainwindow.Ui_MainWindow):
         self.editMenu.addAction(self.undoAction)
         self.editMenu.addAction(self.redoAction)
 
+        self.showSizes()
+    
+    def showSizes(self):
+        myheight = self.splitter.frameRect().width()
+        myheight = self.centralwidget.size()
+        print "my central widget is tall ", self.centralwidget.frameSize()
+        print "my slice view  widget is tall ", self.sliceGraphicsView.frameSize()
+        print "my path view is tall ", self.pathGraphicsView.frameSize()
+        print "my slice scene  widget is tall ", self.slicescene.sceneRect().height()
+        print "my path scen is tall ", self.pathscene.sceneRect().height()
+    # end def
+    
     def focusInEvent(self):
        app().undoGroup.setActiveStack(self.controller.undoStack)
+
+    def resizeEvent(self,event):
+        print "cool ", self.times
+        if self.times == 1:
+            h_new = event.size().height()
+            h_old = event.oldSize().height()
+            self.sliceGraphicsView.resetScale(h_old, h_new)
+            self.pathGraphicsView.resetScale(h_old, h_new)
+        self.times = 1
+    #end def

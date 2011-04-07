@@ -27,9 +27,9 @@ Created by Shawn on 2011-02-05.
 """
 
 from PyQt4.QtCore import QPointF, QRectF, Qt
-from PyQt4.QtGui import QBrush
+from PyQt4.QtGui import QBrush, QFont
 from PyQt4.QtGui import QGraphicsItem
-from PyQt4.QtGui import QGraphicsSimpleTextItem
+from PyQt4.QtGui import QGraphicsSimpleTextItem, QGraphicsTextItem
 from PyQt4.QtGui import QPen, QDrag, QUndoCommand
 import ui.styles as styles
 
@@ -44,9 +44,11 @@ class PathHelixHandle(QGraphicsItem):
     hovPen = QPen(styles.bluestroke, styles.SLICE_HELIX_HILIGHT_WIDTH)
     useBrush = QBrush(styles.orangefill)
     usePen = QPen(styles.orangestroke, styles.SLICE_HELIX_STROKE_WIDTH)
+    
+    
 
     def __init__(self, vhelix, position, parent):
-        super(PathHelixHandle, self).__init__(parent)
+        super(PathHelixHandle, self).__init__(parent)        
         self.vhelix = vhelix
         self.parent = parent
         self.setParentItem(parent) 
@@ -56,7 +58,10 @@ class PathHelixHandle(QGraphicsItem):
         self.beingHoveredOver = False
         self.setAcceptsHoverEvents(True)
         self.setPos(position)
+        self.font = QFont("Times", 30, QFont.Bold)
+        
         self.setNumber()
+        
 
     def boundingRect(self):
         return self.rect
@@ -76,13 +81,21 @@ class PathHelixHandle(QGraphicsItem):
         """docstring for setNumber"""
         if self.label == None:
             self.label = QGraphicsSimpleTextItem("%d" % self.number)
+            # self.label = QGraphicsTextItem("%d" % self.number)
+            # self.label.toHtml()
+            # self.label.setHtml("<p style='align: center;'>")
+            self.label.setFont(self.font)
             self.label.setParentItem(self)
-        y_val = self.radius / 2
+        # y_val = self.radius / 2
+        y_val = self.radius / 3
         if self.number < 10:
-            self.label.setPos(self.radius / 1.3, y_val)
+            # self.label.setPos(self.radius / 1.3, y_val)
+            self.label.setPos(self.radius / 1.5, y_val)
         elif self.number < 100:
-            self.label.setPos(self.radius / 2, y_val)
+            # self.label.setPos(self.radius / 2, y_val)
+            self.label.setPos(self.radius / 3, y_val)
         else:  # added for bigger than 100 by NC
+            # self.label.setPos(self.radius / 4, y_val)
             self.label.setPos(self.radius / 4, y_val)
 
     class FocusRingPainter(QGraphicsItem):
@@ -126,15 +139,15 @@ class PathHelixHandle(QGraphicsItem):
         self.update(self.rect)
     # end def
 
-def bringToFront(target, scene):
+def bringToFront(self):
     """collidingItems gets a list of all items that overlap. sets
     this items zValue to one higher than the max."""
     zval = 1
-    items = scene.items(target.boundingRect()) # the is a QList
+    items = self.scene().items(self.boundingRect()) # the is a QList
     for item in items:
         temp = item.zValue()
         if temp >= zval:
             zval = item.zValue() + 1
         # end if
     # end for
-    target.setZValue(zval)
+    self.setZValue(zval)

@@ -45,7 +45,8 @@ grayfill = QColor(238, 238, 238)  # eeeeee
 graystroke = QColor(102, 102, 102)  # 666666
 
 # Path Sizing
-PATHHELIXHANDLE_RADIUS = 15
+# PATHHELIXHANDLE_RADIUS = 15
+PATHHELIXHANDLE_RADIUS = 30
 PATH_BASE_WIDTH = 20  # used to size bases (grid squares, handles, etc)
 PATH_BASE_HEIGHT = 2 * PATH_BASE_WIDTH  # staple + scaffold
 PATH_HELIX_PADDING = 50 # gap between PathHelix objects in path view

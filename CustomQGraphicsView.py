@@ -109,9 +109,9 @@ class CustomQGraphicsView(QGraphicsView):
         self.sceneRootItem = None
         
         self._pressList = []
-        self.setStyleSheet("QGraphicsView { background-color: rgb(96.5%, 96.5%, 96.5%); }");
-        # self.setStyleSheet("QGraphicsView { background-color: #FF0000; }");
-        # self.setStyleSheet("QGraphicsView { background-color: rgba(255, 0, 0, 75%); }");
+        self.setStyleSheet("QGraphicsView { background-color: rgb(96.5%, 96.5%, 96.5%); }")
+        # self.setStyleSheet("QGraphicsView { background-color: #FF0000; }")
+        # self.setStyleSheet("QGraphicsView { background-color: rgba(255, 0, 0, 75%); }")
     # end def
 
     def setKeyPan(self, button):
@@ -219,10 +219,12 @@ class CustomQGraphicsView(QGraphicsView):
                 """
                 xf = event.posF().x()
                 yf = event.posF().y()
-                # self.sceneRootItem.translate((xf - self._x0)/self._scale_size,\
-                #                             (yf - self._y0)/self._scale_size)
-                self.sceneRootItem.translate(2*(xf - self._x0)/self._scale_size,\
-                                            2*(yf - self._y0)/self._scale_size)
+                self.sceneRootItem.translate((xf - self._x0)/self._scale_size,\
+                                            (yf - self._y0)/self._scale_size)
+                # self.sceneRootItem.translate(2*(xf - self._x0)/self._scale_size,\
+                #                             2*(yf - self._y0)/self._scale_size)
+                # self.sceneRootItem.translate(1*(xf - self._x0)/1,\
+                #             1*(yf - self._y0)/1)
                 self._x0 = xf
                 self._y0 = yf
             elif self._dollyZoomEnable == True:
@@ -262,7 +264,7 @@ class CustomQGraphicsView(QGraphicsView):
                 self._last_scale_factor = 0
                 # QMouseEvent.y() returns the position of the mouse cursor
                 # relative to the widget
-                self._y0 = event.y()
+                self._y0 = event.posF().y()
             else:
                 QGraphicsView.mousePressEvent(self, event)
         else:
@@ -306,6 +308,12 @@ class CustomQGraphicsView(QGraphicsView):
             # end if 
             QGraphicsView.mouseReleaseEvent(self, event)
     #end def
+    
+    # def resizeEvent(self,event):
+    #     h_new = event.size().height()
+    #     h_old = event.oldSize().height()
+    #     self.resetScale(height_old, height_new)
+    # # end def
 
     def panEnable(self):
         """Enable ScrollHandDrag Mode in QGraphicsView (displays a hand
@@ -418,10 +426,13 @@ class CustomQGraphicsView(QGraphicsView):
         # end if
     # end def
     
-    def resetScale(self):
+    def resetScale(self, height_old, height_new):
         """
         reset the scale to 1
         """
-        self._scale_size = 1
+        self._scale_size *= (height_old/height_new)
+        self._scale_limit_min = 0.41*self._scale_size
+        self._scale_limit_max = 3.0*self._scale_size
+        self._last_scale_factor *= (height_old/height_new)    
     # end def
 #end class

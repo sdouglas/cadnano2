@@ -30,7 +30,7 @@ Created by Shawn Douglas on 2010-06-15.
 """
 
 from heapq import *
-from PyQt4.QtCore import QRectF, QPointF, QEvent, pyqtSignal, QObject
+from PyQt4.QtCore import QRectF, QPointF, QEvent, pyqtSignal, QObject, Qt
 from PyQt4.QtGui import QBrush
 from PyQt4.QtGui import QGraphicsItem#, QGraphicsObject
 from .slicehelix import SliceHelix
@@ -57,16 +57,16 @@ class SliceHelixGroup(QGraphicsItem):  # was a QGraphicsObject change for Qt 4.6
     for slices.
     """
     def __init__(self, dnaPartInst, nrows=3, ncolumns=6,\
-                controller=None, scene=None, parent=None):
+                defaultheight=None, \
+                controller=None, parent=None):
         super(SliceHelixGroup, self).__init__(parent)
         # data related
         self.dnaPartInst = dnaPartInst
         self.crossSectionType = self.dnaPartInst.part().getCrossSectionType()
         self.sliceController = controller
-        self.scene = scene
         self.parent = parent
         self.setParentItem(parent)
-         
+        
         self.oddRecycleBin = []
         self.evenRecycleBin = []
         self.reserveBin = set()
@@ -81,13 +81,12 @@ class SliceHelixGroup(QGraphicsItem):  # was a QGraphicsObject change for Qt 4.6
         self.ncolumns = ncolumns
         self.handleSize = 15 # FIX: read from config file
         self.helixhash = {}
-        
-        self.rect = QRectF()
 
         if self.crossSectionType == 'honeycomb':
             self.rect = QRectF(0, 0,\
                                (ncolumns)*self.radius*root3,\
                                (nrows)*self.radius*3)
+            # self.rect = QRectF(0, 0, 1000, 1000)
             # create a SliceHelix at each position in the grid
             for column in range(ncolumns):
                for row in range(nrows):
@@ -135,7 +134,12 @@ class SliceHelixGroup(QGraphicsItem):  # was a QGraphicsObject change for Qt 4.6
         # end else
         
         # do setting Flags last as it needs self.rect
-        self.setFlags(QGraphicsItem.ItemIsSelectable)
+        #self.setFlags(QGraphicsItem.ItemIsSelectable)
+        
+        # self.rect = QRectF()
+        
+        self.zoomToFit(defaultheight)
+        # self.zoomToFit()
     # end def
 
     def paint(self, painter, option, widget=None):
@@ -143,6 +147,20 @@ class SliceHelixGroup(QGraphicsItem):  # was a QGraphicsObject change for Qt 4.6
 
     def boundingRect(self):
         return self.rect
+
+    def zoomToFit(self, h=None):
+        # Auto zoom to center the scene
+        thescene = self.scene()
+        theview = thescene.views()[0]
+        if h == None:
+            #height_old = thescene.sceneRect().height()
+            height_old = self.rect.height()
+        else:
+            height_old = h
+        theview.fitInView(self.rect, Qt.KeepAspectRatio)
+        # print height_old, thescene.sceneRect().height()
+        theview.resetScale(height_old,self.rect.height())
+    # end def
 
     def reserveLabelForHelix(self, helix, num=None):
         """
@@ -214,5 +232,6 @@ class SliceHelixGroup(QGraphicsItem):  # was a QGraphicsObject change for Qt 4.6
         # end for
         self.setZValue(zval)
     # end def
+    
 
                     

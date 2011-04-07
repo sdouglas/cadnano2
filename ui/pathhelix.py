@@ -66,13 +66,14 @@ class PathHelix(QGraphicsItem):
         self.setPos(position)
         self.minorGridPainterPath = self.getMinorGridPainterPath()
         self.majorGridPainterPath = self.getMajorGridPainterPath()
-        self.rect = QRectF()
-        self.updateRect()
         self.setParentItem(parent) 
         # For Campbell
         # Here's where cadnano gets the reference to mMaya's 3D equivalent
         # of the PathHelix (while passing a handy reference to itself)
         self.PathHelix3D = PathHelix3D(self)
+        
+        self.rect = QRectF()
+        self.updateRect()
 
     def number(self):
         return self._vhelix.number()

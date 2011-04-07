@@ -56,7 +56,7 @@ class SliceHelix(QGraphicsItem):
         """
         super(SliceHelix, self).__init__(parent)
         self.parent = parent
-        self.scene = parent.scene
+        # self.scene = parent.scene()
         # data related
         self._row = row
         self._col = col
@@ -109,7 +109,7 @@ class SliceHelix(QGraphicsItem):
         def paint(self, painter, option, widget=None):
             painter.setPen(SliceHelix.hovPen)
             painter.drawEllipse(self.helix.rect)
-            bringToFront(self, self.scene)
+            bringToFront(self)
 
         def boundingRect(self):
             return self.helix.rect
@@ -191,7 +191,7 @@ class SliceHelix(QGraphicsItem):
             self.label.setPos(self.radius / 2, y_val)
         else:
             self.label.setPos(self.radius / 4, y_val)
-        bringToFront(self, self.scene)
+        bringToFront(self)
     # end def
 
     def setUsed(self, u):
@@ -226,15 +226,15 @@ class SliceHelix(QGraphicsItem):
 # end class
 
 
-def bringToFront(target, scene):
+def bringToFront(self):
     """collidingItems gets a list of all items that overlap. sets
     this items zValue to one higher than the max."""
     zval = 1
-    items = scene.items(target.boundingRect()) # the is a QList
+    items = self.scene().items(self.boundingRect()) # the is a QList
     for item in items:
         temp = item.zValue()
         if temp >= zval:
             zval = item.zValue() + 1
         # end if
     # end for
-    target.setZValue(zval)
+    self.setZValue(zval)

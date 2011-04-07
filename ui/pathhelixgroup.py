@@ -60,6 +60,7 @@ class PathHelixGroup(QGraphicsItem):
     handleRadius = styles.SLICE_HELIX_RADIUS
     
     def __init__(self, dnaPartInst, type="honeycomb", controller=None,\
+                    defaultheight=None, \
                  parent=None):
         super(PathHelixGroup, self).__init__(parent)
         self.dnaPartInst = dnaPartInst
@@ -90,6 +91,10 @@ class PathHelixGroup(QGraphicsItem):
         # set up signals
         self.qObject = PhgObject()
         self.scaffoldChange = self.qObject.scaffoldChange
+        
+        # self.height_old = defaultheight
+        self.zoomToFit(defaultheight)
+        # self.zoomToFit()
     # end def
 
     def paint(self, painter, option, widget=None):
@@ -109,7 +114,7 @@ class PathHelixGroup(QGraphicsItem):
         vh = self.part.getVirtualHelix(number)
         count = self.part.getVirtualHelixCount()
         # add PathHelixHandle
-        x = -4*self.handleRadius
+        x = -5*self.handleRadius
         y = count * (styles.PATH_BASE_HEIGHT + styles.PATH_HELIX_PADDING)
         phhY = ((styles.PATH_BASE_HEIGHT-(styles.PATHHELIXHANDLE_RADIUS*2))/2)
         phh = PathHelixHandle(vh, QPointF(x, y+phhY), self)
@@ -128,10 +133,23 @@ class PathHelixGroup(QGraphicsItem):
             self.activeslicehandle.resize(count)
         
         # Auto zoom to center the scene
+        # self.zoomToFit()
+    # end def
+    
+    def zoomToFit(self, h=None):
+        # Auto zoom to center the scene
         thescene = self.scene()
         theview = thescene.views()[0]
-        theview.fitInView(thescene.sceneRect(),Qt.KeepAspectRatio)
-        theview.resetScale()
+        # new_rect = thescene.sceneRect()
+        new_rect = self.rect
+        
+        if h == None:
+            # height_old = thescene.sceneRect().height()
+            height_old = new_rect.height()
+        else:
+            height_old = h
+        theview.fitInView(self.rect, Qt.KeepAspectRatio)    
+        theview.resetScale(height_old,self.rect.height())
     # end def
 
     @pyqtSlot('QPointF', int)
