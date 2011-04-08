@@ -37,7 +37,7 @@ class TreeController(QObject):
         self.treeview = treeview
         self.treeview.setSelectionBehavior(QTreeView.SelectItems)
         self.treeview.setUniformRowHeights(True)
-        headers = ["item", "hide", "lock"]
+        headers = ["item", "visible", "lock"]
         self.treemodel = TreeModel(self.treeview)
         self.treemodel.headers = headers
         self.treeview.setDragDropMode(QAbstractItemView.InternalMove)
@@ -50,7 +50,7 @@ class TreeController(QObject):
         nodeparent = self.treemodel.nodeFromIndex(index)
         node = AssemblyNode("Assembly", Assembly(), None, None)
 
-        if self.treemodel.insertRow(0, index,node):
+        if self.treemodel.insertRow(0, index, node):
             # set index to the inserted child
             index = self.treemodel.index(0, 0, index)
             self.setCurrentIndex(index)

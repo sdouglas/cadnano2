@@ -218,11 +218,6 @@ class SliceHelix(QGraphicsItem):
         else:  # Just add more bases
             self.parent.addBasesToDnaPart(self._number)
     # end def
-
-    def add(self):
-        """docstring for add"""
-        pass
-    # end def
 # end class
 
 

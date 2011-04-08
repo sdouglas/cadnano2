@@ -48,8 +48,6 @@ class DocumentController():
         app().undoGroup.addStack(self.undoStack)
         self.win = DocumentWindow(docCtrlr=self)
         self.win.show()
-        self.win.showSizes()
-        
         self._filename = "untitled.cadnano"
         self.treeController = TreeController(self.win.treeview)
         self.createConnections()
@@ -183,7 +181,7 @@ class DocumentController():
         shg.sliceHelixClicked.connect(phg.handleSliceHelixClick)
         dnaPartInst.partselected.connect(shg.bringToFront)
         dnaPartInst.partselected.connect(phg.bringToFront)
-        self.win.showSizes()
+        # self.win.showSizes()
     # end def
 
     def deleteClicked(self):

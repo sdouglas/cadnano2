@@ -60,8 +60,8 @@ class BreakpointHandle(QGraphicsItem):
         drawn in the correct orientation depending on parity and whether
         it's a 5' end or a 3' end."""
         super(BreakpointHandle, self).__init__(parent)
-        
         self.parent = parent
+        self.undoStack = parent.parent.pathController.mainWindow.undoStack
         self.setParentItem(parent) 
         self.vhelix = vhelix
         self.endType = endType
@@ -83,6 +83,20 @@ class BreakpointHandle(QGraphicsItem):
         self._dragMode = False
         self.setFlag(QGraphicsItem.ItemIsMovable)
         self.breakpoint3D = BreakpointHandle3D(self)  # for Campbell
+
+    class MoveCommand(QUndoCommand):
+        def __init__(self, breakpointhandle, fromIndex, toIndex):
+            super(BreakpointHandle.MoveCommand, self).__init__()
+            self.bh = breakpointhandle
+            self.fromIndex = fromIndex
+            self.toIndex = toIndex
+
+        def redo(self):
+            self.bh.dragReleaseFrom3D(self.toIndex, pushToUndo=False)
+
+        def undo(self):
+            self.bh.dragReleaseFrom3D(self.fromIndex, pushToUndo=False)
+    # end class
 
     def boundingRect(self):
         return self.rect
@@ -149,8 +163,8 @@ class BreakpointHandle(QGraphicsItem):
         position of the breakpointhandle relative to the rest of the path).
         """
         pp = QPainterPath()
-        # pp.addRect(0, 0, self.baseWidth, self.baseWidth)
-        pp.addRect(0.25*self.baseWidth, 0.125*self.baseWidth, 0.75*self.baseWidth, 0.75*self.baseWidth)
+        pp.addRect(0.25*self.baseWidth, 0.125*self.baseWidth,\
+                   0.75*self.baseWidth, 0.75*self.baseWidth)
         return pp
 
     def getLeft3PrimePainterPath(self):
@@ -227,10 +241,15 @@ class BreakpointHandle(QGraphicsItem):
                                               self.type,\
                                               self.baseIndex,\
                                               delta)
+        self.undoStack.push(BreakpointHandle.MoveCommand(self,\
+                                                         self.baseIndex,\
+                                                         self.tempIndex))
         self.baseIndex = self.tempIndex
         self.parent.updateBreakBounds(self.strandType)
         self.parent.redrawLines(self.strandType)
         self._dragMode = False
+
+
 
     def setDragBounds(self, minIndex, maxIndex):
         """Called by PathHelix.updateBreakBounds to notify breakpoint handle
@@ -243,20 +262,26 @@ class BreakpointHandle(QGraphicsItem):
         3D handle is being dragged to a new location, and should be
         dragged in the 2D view as well. No updates are made to the model."""
 
+
         # *** not tested ***
-
-        if self.newIndex < self.minIndex:
-            self.newIndex = self.minIndex
-        elif self.newIndex > self.maxIndex:
-            self.newIndex = self.maxIndex
-        self.x0 = self.newIndex * self.baseWidth # determine new location
+        if newIndex < self.minIndex:
+            newIndex = self.minIndex
+        elif newIndex > self.maxIndex:
+            newIndex = self.maxIndex
+        self.x0 = newIndex * self.baseWidth # determine new location
         self.setPos(self.x0, self.y0) # move there
+        self.baseIndex = newIndex
 
-    def dragReleaseFrom3D(self, newIndex):
+
+    def dragReleaseFrom3D(self, newIndex, pushToUndo=True):
         """Called by mMaya BreakpointHandle3D to notify cadnano that the
         3D handle has moved to a new location. All updates to the data
         structure are then handled by cadnano on the 2D side."""
 
+        if pushToUndo:
+            self.undoStack.push(BreakpointHandle.MoveCommand(self,\
+                                                             self.baseIndex,\
+                                                             self.tempIndex))
         # *** not tested ***
 
         if self.baseIndex == newIndex:
@@ -268,6 +293,8 @@ class BreakpointHandle(QGraphicsItem):
                                               self.baseIndex,\
                                               delta)
         self.baseIndex = newIndex
+        self.x0 = newIndex * self.baseWidth # determine new location
+        self.setPos(self.x0, self.y0) # move there
         self.parent.updateBreakBounds(self.strandType) # new breakpoint bounds
         self.parent.redrawLines(self.strandType) # new 2D lines
 

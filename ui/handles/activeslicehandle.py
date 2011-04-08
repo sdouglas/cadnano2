@@ -63,6 +63,7 @@ class ActiveSliceHandle(QGraphicsItem):
         self.pressX = 0
         self.pressXoffset = 0
         self.setParentItem(parent)
+        self.setCursor(Qt.OpenHandCursor)
         self.setFlag(QGraphicsItem.ItemIsMovable)
         self.activeslicehandle3D = ActiveSliceHandle3D(self) # for Campbell
 
