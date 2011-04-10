@@ -51,10 +51,11 @@ class PathHelix3D(object):
         breakpoint, adding a crossover, etc.). Returns a list of startpoint
         and endpoint indices corresponding to where the lines in the 2D grid
         are drawn."""
-        print "in PathHelix3D:"
+        # print "in PathHelix3D:"
         type = "Scaffold"
         if strandType == StrandType.Staple:
             type = "Staple"
         for [startIndex, endIndex] in endpoints:
-            print "%s DNA is now present at (%d, %d) from %d to %d" % \
-                   (type, self.row, self.col, startIndex, endIndex)
+            # print "%s DNA is now present at (%d, %d) from %d to %d" % \
+            #        (type, self.row, self.col, startIndex, endIndex)
+            pass

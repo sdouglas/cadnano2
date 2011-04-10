@@ -141,7 +141,6 @@ class DocumentController():
 
     def hcombClicked(self):
         """docstring for hcombClicked"""
-        print "+honeycomb clicked"
         self.addHoneycombHelixGroup()
     # end def
 
@@ -178,6 +177,7 @@ class DocumentController():
 
         # Connect the slice
         shg.helixAdded.connect(phg.handleHelixAdded)
+        shg.helixRemoved.connect(phg.handleHelixRemoved)
         shg.sliceHelixClicked.connect(phg.handleSliceHelixClick)
         dnaPartInst.partselected.connect(shg.bringToFront)
         dnaPartInst.partselected.connect(phg.bringToFront)

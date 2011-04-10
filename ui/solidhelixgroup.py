@@ -165,7 +165,7 @@ class SolidHelixGroup(QObject):
         axis[self.helix_dir] = 1
         
         # draw the default length helix
-        length= self.dhelix*self.N_bases_default
+        length = self.dhelix*self.N_bases_default
         
         # figure out starting position
         x = pos.x()*self.pointscale # scale input from slice view

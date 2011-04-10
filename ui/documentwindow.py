@@ -73,6 +73,7 @@ class DocumentWindow(QMainWindow, ui_mainwindow.Ui_MainWindow):
         self.pathGraphicsView.setScene(self.pathscene)
         self.pathGraphicsView.sceneRootItem = self.pathroot
         self.pathController = pathcontroller.PathController(self)
+        self.pathGraphicsView.setViewportUpdateMode(QGraphicsView.FullViewportUpdate)
         # Edit menu setup
         self.undoStack = docCtrlr.undoStack
         self.actionUndo = docCtrlr.undoStack.createUndoAction(self)

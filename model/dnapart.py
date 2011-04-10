@@ -82,10 +82,21 @@ class DNAPart(Part):
                               col=slicehelix.col(),\
                               size=self._canvasSize)
         self._virtualHelices[slicehelix.number()] = vhelix
+        return vhelix
+
+    def removeVirtualHelix(self, number):
+        """Called by SliceHelix.removeVirtualHelix() to update data."""
+        del self._virtualHelices[number]
 
     def getVirtualHelix(self, number):
         """Look up and return reference to a VirtualHelix"""
         return self._virtualHelices[number]
+
+    def hasVirtualHelix(self, number):
+        if number in self._virtualHelices:
+            return True
+        else:
+            return False
 
     def getVirtualHelixCount(self):
         """docstring for getVirtualHelixList"""

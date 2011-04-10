@@ -41,6 +41,7 @@ root3 = 1.732051
 
 class ShgObject(QObject):
     helixAdded = pyqtSignal('QPointF', int)
+    helixRemoved = pyqtSignal(int)
     sliceHelixClicked = pyqtSignal(int)
     def __init__(self):
         super(ShgObject, self).__init__()
@@ -74,6 +75,7 @@ class SliceHelixGroup(QGraphicsItem):  # was a QGraphicsObject change for Qt 4.6
         self.highestUsedEven = -2  # same
         self.qObject = ShgObject()
         self.helixAdded = self.qObject.helixAdded
+        self.helixRemoved = self.qObject.helixRemoved
         self.sliceHelixClicked = self.qObject.sliceHelixClicked
         # drawing related
         self.radius = styles.SLICE_HELIX_RADIUS
@@ -214,6 +216,10 @@ class SliceHelixGroup(QGraphicsItem):  # was a QGraphicsObject change for Qt 4.6
         """
         # install VirtualHelix neighbor relationships
         self.helixAdded.emit(pos, number)
+
+    def removeHelixFromPathGroup(self, number):
+        """docstring for removeHelixFromPathGroup"""
+        self.helixRemoved.emit(number)
 
     def addBasesToDnaPart(self, number):
         """Notify PathHelixGroup"""

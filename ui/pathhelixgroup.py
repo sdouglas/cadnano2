@@ -66,12 +66,14 @@ class PathHelixGroup(QGraphicsItem):
         self.dnaPartInst = dnaPartInst
         self.part = dnaPartInst.part()
         self.pathController = controller
+        self.activeslicehandle = None
         # self.scene = scene
         self.parent = parent
         self.setParentItem(parent) 
         self.numToPathHelix = {}
-        
-        # Lattice-specific initialization 
+        self.numToPathHelixHandle = {}
+
+        # Lattice-specific initialization
         self.crossSectionType = self.dnaPartInst.part().getCrossSectionType()
         if self.crossSectionType == "honeycomb":
             # set honeycomb parameters
@@ -118,16 +120,18 @@ class PathHelixGroup(QGraphicsItem):
         y = count * (styles.PATH_BASE_HEIGHT + styles.PATH_HELIX_PADDING)
         phhY = ((styles.PATH_BASE_HEIGHT-(styles.PATHHELIXHANDLE_RADIUS*2))/2)
         phh = PathHelixHandle(vh, QPointF(x, y+phhY), self)
+        self.numToPathHelixHandle[number] = phh
         phh.setParentItem(self)
         # add PathHelix
         ph = PathHelix(vh, QPointF(0, y), self)
-        ph.setParentItem(self)
         self.numToPathHelix[number] = ph
+        ph.setParentItem(self)
         # update activeslicehandle
         if count == 1: # first vhelix added by mouse click
-            self.activeslicehandle = ActiveSliceHandle(self.part,\
-                                                       self.startBase,\
-                                                       self)
+            if self.activeslicehandle == None:
+                self.activeslicehandle = ActiveSliceHandle(self.part,\
+                                                           self.startBase,\
+                                                           self)
             self.activeslicehandle.setParentItem(self)
         else:
             self.activeslicehandle.resize(count)
@@ -135,22 +139,26 @@ class PathHelixGroup(QGraphicsItem):
         # Auto zoom to center the scene
         # self.zoomToFit()
     # end def
-    
-    def zoomToFit(self, h=None):
-        # Auto zoom to center the scene
-        thescene = self.scene()
-        theview = thescene.views()[0]
-        # new_rect = thescene.sceneRect()
-        new_rect = self.rect
-        
-        if h == None:
-            # height_old = thescene.sceneRect().height()
-            height_old = new_rect.height()
+
+    @pyqtSlot('QPointF', int)
+    def handleHelixRemoved(self, number):
+        scene = self.scene()
+        count = self.part.getVirtualHelixCount()
+        # remove PathHelix
+        ph = self.numToPathHelix[number]
+        scene.removeItem(ph)
+        del self.numToPathHelix[number]
+        # remove PathHelixHandle
+        phh = self.numToPathHelixHandle[number]
+        scene.removeItem(phh)
+        del self.numToPathHelixHandle[number]
+        # update or hide activeslicehandle
+        if count == 0:
+            scene.removeItem(self.activeslicehandle)
         else:
-            height_old = h
-        theview.fitInView(self.rect, Qt.KeepAspectRatio)    
-        theview.resetScale(height_old,self.rect.height())
-    # end def
+            rect = self.activeslicehandle.boundingRect()
+            self.activeslicehandle.resize(count)
+            self.parent.update(rect)
 
     @pyqtSlot('QPointF', int)
     def handleSliceHelixClick(self, number):
@@ -202,6 +210,22 @@ class PathHelixGroup(QGraphicsItem):
             ph.addScaffoldBreakHandle(bh)
         ph.updateBreakBounds(StrandType.Scaffold)
         ph.redrawLines(StrandType.Scaffold)
+    # end def
+
+    def zoomToFit(self, h=None):
+        # Auto zoom to center the scene
+        thescene = self.scene()
+        theview = thescene.views()[0]
+        # new_rect = thescene.sceneRect()
+        new_rect = self.rect
+        
+        if h == None:
+            # height_old = thescene.sceneRect().height()
+            height_old = new_rect.height()
+        else:
+            height_old = h
+        theview.fitInView(self.rect, Qt.KeepAspectRatio)
+        theview.resetScale(height_old,self.rect.height())
     # end def
 
     def bringToFront(self):

@@ -56,22 +56,84 @@ class SliceHelix(QGraphicsItem):
         """
         super(SliceHelix, self).__init__(parent)
         self.parent = parent
-        # self.scene = parent.scene()
         # data related
+        self.part = parent.dnaPartInst.part()
+        self._number = -1
         self._row = row
         self._col = col
-        self._number = -1
         self.parity = (row % 2) ^ (col % 2)
         self.p0neighbor = None
         self.p1neighbor = None
         self.p2neighbor = None
-        self.vhelix = None
         self.label = None
         # drawing related
         self.focusRing = None
         self.beingHoveredOver = False
         self.setAcceptsHoverEvents(True)
         self.setPos(position)
+        self.undoStack = self.parent.sliceController.mainWindow.undoStack
+
+    class FocusRingPainter(QGraphicsItem):
+        """Draws a focus ring around helix in parent"""
+        def __init__(self, helix, scene, parent=None):
+            super(SliceHelix.FocusRingPainter, self).__init__(parent)
+            self.parent = parent
+            self.scene = scene
+            self.helix = helix
+            self.setPos(helix.pos())
+
+        def paint(self, painter, option, widget=None):
+            painter.setPen(SliceHelix.hovPen)
+            painter.drawEllipse(self.helix.rect)
+            bringToFront(self)
+
+        def boundingRect(self):
+            return self.helix.rect
+    # end class
+
+    class RenumberCommand(QUndoCommand):
+        def __init__(self, slicehelix, fromNum):
+            super(SliceHelix.RenumberCommand, self).__init__()
+            self.slicehelix = slicehelix
+            self.fromNum = fromNum
+
+        def redo(self):
+            self.toNum = self.slicehelix.parent.reserveLabelForHelix(self.slicehelix)
+            self.slicehelix.setNumber(self.toNum)
+            self.slicehelix.update(self.slicehelix.rect)
+
+        def undo(self):
+            self.slicehelix.setNumber(self.fromNum) # will recycle
+            self.slicehelix.update(self.slicehelix.rect)
+    # end class
+
+    class AddHelixCommand(QUndoCommand):
+        def __init__(self, slicehelix, number, position):
+            super(SliceHelix.AddHelixCommand, self).__init__()
+            self.slicehelix = slicehelix
+            self.num = number
+            self.pos = position
+
+        def redo(self):
+            self.slicehelix.addVirtualHelix(self.num, self.pos)
+
+        def undo(self):
+            self.slicehelix.removeVirtualHelix(self.num)
+
+    # end class
+
+    class RemoveHelixCommand(QUndoCommand):
+        def __init__(self, slicehelix, position, number):
+            super(SliceHelix.RemoveHelixCommand, self).__init__()
+            self.slicehelix = slicehelix
+            self._pos = position
+            self._num = number
+
+        def redo(self):
+            pass
+            
+        def undo(self):
+            pass
 
     def number(self):
         """docstring for number"""
@@ -96,24 +158,6 @@ class SliceHelix(QGraphicsItem):
             painter.setPen(self.hovPen)
         painter.drawEllipse(self.rect)
     # end def
-
-    class FocusRingPainter(QGraphicsItem):
-        """Draws a focus ring around helix in parent"""
-        def __init__(self, helix, scene, parent=None):
-            super(SliceHelix.FocusRingPainter, self).__init__(parent)
-            self.parent = parent
-            self.scene = scene
-            self.helix = helix
-            self.setPos(helix.pos())
-
-        def paint(self, painter, option, widget=None):
-            painter.setPen(SliceHelix.hovPen)
-            painter.drawEllipse(self.helix.rect)
-            bringToFront(self)
-
-        def boundingRect(self):
-            return self.helix.rect
-    # end class
 
     def boundingRect(self):
         return self.rect
@@ -145,33 +189,14 @@ class SliceHelix(QGraphicsItem):
     def dragEnterEvent(self, e):
         self.setUsed(not self._number >= 0)
         e.acceptProposedAction()
-        print "dee"
     # end def
 
-    class RenumberCommand(QUndoCommand):
-        def __init__(self, helix, fromNum, toNum):
-            super(SliceHelix.RenumberCommand, self).__init__()
-            self.fromNum = fromNum
-            self.toNum = toNum
-            self.helix = helix
-
-        def redo(self):
-            self.helix.setNumber(self.toNum, pushToUndo=False)
-
-        def undo(self):
-            self.helix.setNumber(self.fromNum, pushToUndo=False)
-    # end class
-
-    def setNumber(self, n, pushToUndo=True):
+    def setNumber(self, n):
         """
         If n!=slice.number the caller should have already reserved n with
         the parent SliceHelixGroup (from self.parent.reserveLabelForHelix).
         The callee tells the SliceHelixGroup to recycle the old value.
         """
-        if pushToUndo:
-            self.parent.sliceController.mainWindow.undoStack.push(\
-                        SliceHelix.RenumberCommand(self, self._number, n))
-        self.update(self.rect)
         if n != self._number and self._number >= 0:
             self.parent.recycleLabelForHelix(self._number, self)
         if n < 0:
@@ -186,23 +211,23 @@ class SliceHelix(QGraphicsItem):
             self.label.setParentItem(self)
         y_val = self.radius / 2
         if self._number < 10:
-            self.label.setPos(self.radius / 1.3, y_val)
+            self.label.setPos(self.radius/1.3, y_val)
         elif self._number < 100:
-            self.label.setPos(self.radius / 2, y_val)
+            self.label.setPos(self.radius/2, y_val)
         else:
-            self.label.setPos(self.radius / 4, y_val)
+            self.label.setPos(self.radius/4, y_val)
         bringToFront(self)
     # end def
 
     def setUsed(self, u):
         """
         Handles user click on SliceHelix in two possible ways:
-        
+
         1. If the SliceHelix has never been used, reserver a new label
         from the parent SliceHelixGroup, create a new VirtualHelix vhelix,
         and notify the PathHelixGroup that it should create a new
         PathHelix that points to vhelix.
-        
+
         2. If the SliceHelix has been used previously, try to add some
         scaffold at the currently selected position in the path view.
         """
@@ -210,16 +235,35 @@ class SliceHelix(QGraphicsItem):
             # self.parent.addBasesToDnaPart(self._number)
             pass
         if self._number < 0:  # Initiate
-            self.setNumber(self.parent.reserveLabelForHelix(self))
-            part = self.parent.dnaPartInst.part()
-            self.vhelix = part.addVirtualHelix(self)
-            self.parent.addHelixToPathGroup(self.pos(), self._number)
-            self.parent.addBasesToDnaPart(self._number)
+            self.undoStack.beginMacro("add new SliceHelix")
+            self.undoStack.push(SliceHelix.RenumberCommand(self, self._number))
+            self.undoStack.push(SliceHelix.AddHelixCommand(self, self._number, self.pos()))
+            self.undoStack.endMacro()
         else:  # Just add more bases
             self.parent.addBasesToDnaPart(self._number)
     # end def
-# end class
 
+    def addVirtualHelix(self, number, position):
+        """
+        Called by setUsed or AddHelixCommand.redo().
+        Creates a new part, adds a virtualhelix to that part, notifies
+        the pathhelixgroup, and then populates some scaf bases on the new 
+        helix.
+        """
+        if not self.part.hasVirtualHelix(number):
+            self.part.addVirtualHelix(self)
+            self.parent.addHelixToPathGroup(self.pos(), number)
+            self.parent.addBasesToDnaPart(number)
+
+    def removeVirtualHelix(self, number):
+        """docstring for removeVirtualHelix"""
+        # if pushToUndo:
+        #     self.undoStack.push(SliceHelix.RemoveHelixCommand(self, position, number))
+        self.part.removeVirtualHelix(number)
+        self.parent.removeHelixFromPathGroup(number)
+
+# end class
+    
 
 def bringToFront(self):
     """collidingItems gets a list of all items that overlap. sets

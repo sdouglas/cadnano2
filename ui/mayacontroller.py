@@ -145,7 +145,6 @@ class DocumentController():
 
     def hcombClicked(self):
         """docstring for hcombClicked"""
-        print "+honeycomb clicked"
         self.addHoneycombHelixGroup()
     # end def
 
