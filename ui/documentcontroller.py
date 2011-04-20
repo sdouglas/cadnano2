@@ -32,6 +32,8 @@ from .documentwindow import DocumentWindow
 from .pathhelixgroup import PathHelixGroup
 from .slicehelixgroup import SliceHelixGroup
 from .treecontroller import TreeController
+from handles.activeslicehandle import ActiveSliceHandle
+from model.dnapart import LatticeType
 
 
 class DocumentController():
@@ -151,29 +153,34 @@ class DocumentController():
 
     def addHoneycombHelixGroup(self, nrows=20, ncolumns=20):
         """docstring for addHoneycombHelixGroup"""
+        startBase = 21  # honeycomb
+        # startBase = 16  # square
+
         # Create a new DNA part
         objId = self.idbank.get()
-        instId = objId#self.idbank.get()
-        dnaPartInst = self.doc.addDnaPart(objId, instId,\
-                                          crossSectionType='honeycomb')
+        dnaPartInst = self.doc.addDnaPart(objId, crossSectionType='honeycomb')
         # Add the part to the Tree view
         name = "Part.%d" % objId 
         self.treeController.addPartNode(name, dnaPartInst)
-
+        
+        # Create the ActiveSliceHandle
+        activeslicehandle = ActiveSliceHandle(dnaPartInst, startBase)
+        
         # Create a Slice view of part
-        shg = SliceHelixGroup(dnaPartInst, nrows, ncolumns,\
+        shg = SliceHelixGroup(dnaPartInst,\
+                              activeslicehandle,\
+                              nrows, ncolumns,\
+                              type=LatticeType.Honeycomb,\
                               controller=self.win.sliceController,\
                               defaultheight=self.win.sliceGraphicsView.frameSize().height(), \
                               parent=self.win.sliceroot)
-        #self.win.slicescene.addItem(shg)
-
         # Create a Path view of the part
         # used the divide by 1.7
-        phg = PathHelixGroup(dnaPartInst, \
+        phg = PathHelixGroup(dnaPartInst,\
+                             activeslicehandle,\
                              controller=self.win.pathController,\
                              defaultheight=self.win.pathGraphicsView.frameSize().height()/1.7, \
                              parent=self.win.pathroot)
-        #self.win.pathscene.addItem(phg)
 
         # Connect the slice
         shg.helixAdded.connect(phg.handleHelixAdded)
@@ -181,7 +188,6 @@ class DocumentController():
         shg.sliceHelixClicked.connect(phg.handleSliceHelixClick)
         dnaPartInst.partselected.connect(shg.bringToFront)
         dnaPartInst.partselected.connect(phg.bringToFront)
-        # self.win.showSizes()
     # end def
 
     def deleteClicked(self):

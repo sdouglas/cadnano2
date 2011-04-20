@@ -39,6 +39,7 @@ from handles.breakpointhandle import BreakpointHandle
 from handles.pathhelixhandle import PathHelixHandle
 from model.base import EndType
 from model.virtualhelix import StrandType
+from model.dnapart import LatticeType
 import styles
 
 
@@ -59,35 +60,22 @@ class PathHelixGroup(QGraphicsItem):
     """
     handleRadius = styles.SLICE_HELIX_RADIUS
     
-    def __init__(self, dnaPartInst, type="honeycomb", controller=None,\
-                    defaultheight=None, \
-                 parent=None):
+    def __init__(self, dnaPartInst, activeslicehandle,\
+                       controller=None,\
+                       defaultheight=None,\
+                       parent=None):
         super(PathHelixGroup, self).__init__(parent)
         self.dnaPartInst = dnaPartInst
         self.part = dnaPartInst.part()
         self.pathController = controller
-        self.activeslicehandle = None
+        self.activeslicehandle = activeslicehandle
         # self.scene = scene
         self.parent = parent
         self.setParentItem(parent) 
         self.numToPathHelix = {}
         self.numToPathHelixHandle = {}
-
-        # Lattice-specific initialization
-        self.crossSectionType = self.dnaPartInst.part().getCrossSectionType()
-        if self.crossSectionType == "honeycomb":
-            # set honeycomb parameters
-            self.rect = QRectF(0, 0, 1000, 1000)
-            self.pathCanvasWidth = 42 # FIX: set from config file
-            self.startBase = 21
-        else:
-            # set square parameters
-            self.pathCanvasWidth = 32 # FIX: set from config file
-            self.startBase = 16
+        self.rect = QRectF(0, 0, 1000, 1000)
         count = self.part.getVirtualHelixCount()
-        # self.activeslicehandle = ActiveSliceHandle(self.part,\
-        #                                            self.startBase,\
-        #                                            self)
         if count > 0: # initalize if loading from file, otherwise delay
             self.activeslicehandle.setParentItem(self)
         # set up signals
@@ -105,8 +93,8 @@ class PathHelixGroup(QGraphicsItem):
     def boundingRect(self):
         return self.rect
 
-    @pyqtSlot('QPointF', int)
-    def handleHelixAdded(self, pos, number):
+    @pyqtSlot(int)
+    def handleHelixAdded(self, number):
         """
         Retrieve reference to new VirtualHelix vh based on number relayed
         by the signal event. Next, create a new PathHelix associated 
@@ -128,19 +116,11 @@ class PathHelixGroup(QGraphicsItem):
         ph.setParentItem(self)
         # update activeslicehandle
         if count == 1: # first vhelix added by mouse click
-            if self.activeslicehandle == None:
-                self.activeslicehandle = ActiveSliceHandle(self.part,\
-                                                           self.startBase,\
-                                                           self)
             self.activeslicehandle.setParentItem(self)
-        else:
-            self.activeslicehandle.resize(count)
-        
-        # Auto zoom to center the scene
-        # self.zoomToFit()
+        self.activeslicehandle.resize(count)
     # end def
 
-    @pyqtSlot('QPointF', int)
+    @pyqtSlot(int)
     def handleHelixRemoved(self, number):
         scene = self.scene()
         count = self.part.getVirtualHelixCount()
@@ -160,10 +140,9 @@ class PathHelixGroup(QGraphicsItem):
             self.activeslicehandle.resize(count)
             self.parent.update(rect)
 
-    @pyqtSlot('QPointF', int)
-    def handleSliceHelixClick(self, number):
+    @pyqtSlot(int, int)
+    def handleSliceHelixClick(self, number, index):
         """docstring for handleSliceHelixClick"""
-        index = self.activeslicehandle.getPosition()
         vh = self.part.getVirtualHelix(number)
         ph = self.numToPathHelix[number]
 

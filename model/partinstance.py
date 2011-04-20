@@ -33,10 +33,9 @@ class PartInstance(QObject):
     partselected = pyqtSignal()
     
     """Represents an instantiation of a part on the canvas"""
-    def __init__(self, part, id, *args, **kwargs):
+    def __init__(self, part, *args, **kwargs):
         super(PartInstance, self).__init__()
         self._part = part
-        self._id = id
 
     def part(self):
         """Return reference to original part object"""

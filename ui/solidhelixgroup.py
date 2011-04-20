@@ -39,6 +39,9 @@ import sys
 import styles
 import maya.OpenMayaUI as mui
 import maya.OpenMaya as mo	
+from model.dnapart import LatticeType
+
+
 X, Y, Z = range(3) # enumerate unit direction indices
 
 class SolidHelixGroup(QObject):
@@ -63,7 +66,7 @@ class SolidHelixGroup(QObject):
     """
 
     # store slice nodes in hash accessible by "row,col" keys
-    def __init__(self, dnaPartInst, htype="honeycomb", controller=None, parent=None):
+    def __init__(self, dnaPartInst, htype=LatticeType.Honeycomb, controller=None, parent=None):
         """
         Parameters
         ----------

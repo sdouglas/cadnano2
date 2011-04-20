@@ -241,9 +241,15 @@ class BreakpointHandle(QGraphicsItem):
                                               self.type,\
                                               self.baseIndex,\
                                               delta)
+
+
+        self.undoStack.beginMacro("break move %d[%d] to %d[%d]" % \
+                                    (self.vhelix.number(), self.baseIndex,\
+                                     self.vhelix.number(), self.tempIndex))
         self.undoStack.push(BreakpointHandle.MoveCommand(self,\
                                                          self.baseIndex,\
                                                          self.tempIndex))
+        self.undoStack.endMacro()
         self.baseIndex = self.tempIndex
         self.parent.updateBreakBounds(self.strandType)
         self.parent.redrawLines(self.strandType)

@@ -50,10 +50,7 @@ class SliceHelix(QGraphicsItem):
     rect = QRectF(0, 0, 2 * radius, 2 * radius)
 
     def __init__(self, row, col, position, parent=None):
-        """
-        
-        parent: a slice helix group
-        """
+        """docstring for __init__"""
         super(SliceHelix, self).__init__(parent)
         self.parent = parent
         # data related
@@ -92,6 +89,7 @@ class SliceHelix(QGraphicsItem):
     # end class
 
     class RenumberCommand(QUndoCommand):
+        """docstring for RenumberCommand"""
         def __init__(self, slicehelix, fromNum):
             super(SliceHelix.RenumberCommand, self).__init__()
             self.slicehelix = slicehelix
@@ -108,23 +106,40 @@ class SliceHelix(QGraphicsItem):
     # end class
 
     class AddHelixCommand(QUndoCommand):
-        def __init__(self, slicehelix, number, position):
+        """docstring for AddHelixCommand"""
+        def __init__(self, slicehelix, number):
             super(SliceHelix.AddHelixCommand, self).__init__()
             self.slicehelix = slicehelix
-            self.num = number
-            self.pos = position
+            self._number = number
 
         def redo(self):
-            self.slicehelix.addVirtualHelix(self.num, self.pos)
+            self.slicehelix.part.addVirtualHelix(self.slicehelix)
+            self.slicehelix.parent.addHelixToPathGroup(self._number)
 
         def undo(self):
-            self.slicehelix.removeVirtualHelix(self.num)
-
+            self.slicehelix.part.removeVirtualHelix(self._number)
+            self.slicehelix.parent.removeHelixFromPathGroup(self._number)
     # end class
 
-    class RemoveHelixCommand(QUndoCommand):
+    class AddBasesToHelixCommand(QUndoCommand):
+        """docstring for AddBasesToHelixCommand"""
+        def __init__(self, slicehelix, number, index):
+            super(SliceHelix.AddBasesToHelixCommand, self).__init__()
+            self.slicehelix = slicehelix
+            self._number = number
+            self._index = index
+
+        def redo(self):
+            self.slicehelix.parent.addBasesToDnaPart(self._number, self._index)
+
+        def undo(self):
+            self.slicehelix.parent.removeBasesFromDnaPart(self._number, self._index)
+    # end class
+
+    class DeleteHelixCommand(QUndoCommand):
+        """docstring for DeleteHelixCommand"""
         def __init__(self, slicehelix, position, number):
-            super(SliceHelix.RemoveHelixCommand, self).__init__()
+            super(SliceHelix.DeleteHelixCommand, self).__init__()
             self.slicehelix = slicehelix
             self._pos = position
             self._num = number
@@ -134,6 +149,7 @@ class SliceHelix(QGraphicsItem):
             
         def undo(self):
             pass
+    # end class
 
     def number(self):
         """docstring for number"""
@@ -235,35 +251,19 @@ class SliceHelix(QGraphicsItem):
             # self.parent.addBasesToDnaPart(self._number)
             pass
         if self._number < 0:  # Initiate
-            self.undoStack.beginMacro("add new SliceHelix")
+            self.undoStack.beginMacro("Add new SliceHelix %d" % self._number)
             self.undoStack.push(SliceHelix.RenumberCommand(self, self._number))
-            self.undoStack.push(SliceHelix.AddHelixCommand(self, self._number, self.pos()))
+            self.undoStack.push(SliceHelix.AddHelixCommand(self, self._number))
+            index = self.parent.activeslicehandle.getPosition()
+            self.undoStack.push(SliceHelix.AddBasesToHelixCommand(self, self._number, index))
             self.undoStack.endMacro()
         else:  # Just add more bases
-            self.parent.addBasesToDnaPart(self._number)
+            index = self.parent.activeslicehandle.getPosition()
+            self.undoStack.beginMacro("Add scaf at %d[%d]" % (self._number, index))
+            self.undoStack.push(SliceHelix.AddBasesToHelixCommand(self, self._number, index))
+            self.undoStack.endMacro()
     # end def
-
-    def addVirtualHelix(self, number, position):
-        """
-        Called by setUsed or AddHelixCommand.redo().
-        Creates a new part, adds a virtualhelix to that part, notifies
-        the pathhelixgroup, and then populates some scaf bases on the new 
-        helix.
-        """
-        if not self.part.hasVirtualHelix(number):
-            self.part.addVirtualHelix(self)
-            self.parent.addHelixToPathGroup(self.pos(), number)
-            self.parent.addBasesToDnaPart(number)
-
-    def removeVirtualHelix(self, number):
-        """docstring for removeVirtualHelix"""
-        # if pushToUndo:
-        #     self.undoStack.push(SliceHelix.RemoveHelixCommand(self, position, number))
-        self.part.removeVirtualHelix(number)
-        self.parent.removeHelixFromPathGroup(number)
-
 # end class
-    
 
 def bringToFront(self):
     """collidingItems gets a list of all items that overlap. sets
