@@ -432,6 +432,7 @@ class CustomQGraphicsView(QGraphicsView):
         
         # self._scale_limit_min = 0.41*self._scale_size
         # make it so fitting in view is zoomed minimum
+        # still gives you one zoom level out before violates limit
         self._scale_limit_min = self._scale_size
         
         # use this if you want to reset the zoom in limit
@@ -447,7 +448,7 @@ class CustomQGraphicsView(QGraphicsView):
         self.sceneRootItem.resetTransform() # zero out translations
         self.resetTransform() # zero out scaling
         scene_rect = thescene.sceneRect()
-        
+        self.updateSceneRect(scene_rect)
         
         self.fitInView(scene_rect, Qt.KeepAspectRatio) # fit in view
         # theview.ensureVisible(self.mapRectToScene(new_rect))

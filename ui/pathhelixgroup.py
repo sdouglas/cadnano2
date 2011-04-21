@@ -103,19 +103,19 @@ class PathHelixGroup(QGraphicsItem):
         count = self.part.getVirtualHelixCount()
         # add PathHelixHandle
         x = 0#5*self.handleRadius
-        xoff = 5*self.handleRadius
+        xoff = -5*self.handleRadius
         y = count * (styles.PATH_BASE_HEIGHT + styles.PATH_HELIX_PADDING)
         phhY = ((styles.PATH_BASE_HEIGHT-(styles.PATHHELIXHANDLE_RADIUS*2))/2)
-        phh = PathHelixHandle(vh, QPointF(x, y+phhY), self)
+        phh = PathHelixHandle(vh, QPointF(xoff, y+phhY), self)
         self.numToPathHelixHandle[number] = phh
         phh.setParentItem(self)
         # add PathHelix
 
-        ph = PathHelix(vh, QPointF(xoff, y), self)
-        ph.setParentItem(self)
+        #ph = PathHelix(vh, QPointF(xoff, y), self)
+        #ph.setParentItem(self)
 
         # shawn
-        # ph = PathHelix(vh, QPointF(0, y), self)
+        ph = PathHelix(vh, QPointF(0, y), self)
 
         self.numToPathHelix[number] = ph
         ph.setParentItem(self)
