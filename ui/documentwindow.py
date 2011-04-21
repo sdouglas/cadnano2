@@ -73,15 +73,21 @@ class DocumentWindow(QMainWindow, ui_mainwindow.Ui_MainWindow):
         self.pathGraphicsView.setScene(self.pathscene)
         self.pathGraphicsView.sceneRootItem = self.pathroot
         self.pathController = pathcontroller.PathController(self)
+        self.pathGraphicsView.setViewportUpdateMode(QGraphicsView.FullViewportUpdate)
         # Edit menu setup
         self.undoStack = docCtrlr.undoStack
-        self.editMenu = self.menuBar().addMenu("Edit")
-        self.undoAction = docCtrlr.undoStack.createUndoAction(self)
-        self.redoAction = docCtrlr.undoStack.createRedoAction(self)
-        self.editMenu.addAction(self.undoAction)
-        self.editMenu.addAction(self.redoAction)
-
-        self.showSizes()
+        self.actionUndo = docCtrlr.undoStack.createUndoAction(self)
+        self.actionRedo = docCtrlr.undoStack.createRedoAction(self)
+        self.actionUndo.setText(QApplication.translate("MainWindow", "Undo", None, QApplication.UnicodeUTF8))
+        self.actionUndo.setShortcut(QApplication.translate("MainWindow", "Ctrl+Z", None, QApplication.UnicodeUTF8))
+        self.actionRedo.setText(QApplication.translate("MainWindow", "Redo", None, QApplication.UnicodeUTF8))
+        self.actionRedo.setShortcut(QApplication.translate("MainWindow", "Ctrl+Shift+Z", None, QApplication.UnicodeUTF8))
+        self.sep = QAction(self)
+        self.sep.setSeparator(True)
+        self.menuEdit.insertAction(self.actionCut, self.sep)
+        self.menuEdit.insertAction(self.sep, self.actionRedo)
+        self.menuEdit.insertAction(self.actionRedo, self.actionUndo)
+        # self.showSizes()
     
     def showSizes(self):
         myheight = self.splitter.frameRect().width()
@@ -97,7 +103,6 @@ class DocumentWindow(QMainWindow, ui_mainwindow.Ui_MainWindow):
        app().undoGroup.setActiveStack(self.controller.undoStack)
 
     def resizeEvent(self,event):
-        print "cool ", self.times
         if self.times == 1:
             h_new = event.size().height()
             h_old = event.oldSize().height()

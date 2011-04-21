@@ -44,27 +44,30 @@ class ActiveSliceHandle(QGraphicsItem):
     brush = QBrush(styles.orangefill)
     pen = QPen(styles.orangestroke, styles.SLICE_HANDLE_STROKE_WIDTH)
 
-    def __init__(self, part, offsetX, startBase, parent=None):
+    def __init__(self, dnaPartInst, startBase, parent=None):
         super(ActiveSliceHandle, self).__init__(parent)
-        
-        self.part = part
+        self.dnaPartInst = dnaPartInst
+        self.part = dnaPartInst.part()
         helixCount = self.part.getVirtualHelixCount()
         self.height = (helixCount + 2) * (styles.PATH_BASE_HEIGHT + \
                                           styles.PATH_HELIX_PADDING)
         self.rect = QRectF(0, 0, self.baseWidth, self.height)
         self.baseIndex = startBase
         self.tempIndex = startBase
-        self.x0 = (startBase * self.baseWidth) + offsetX
+        
+        self.x0 = (startBase * self.baseWidth)
         self.y0 = -1 * (styles.PATH_HELIX_PADDING)
         self.minIndex = 0
-        self.maxIndex = part.getCanvasSize()-1
+        self.maxIndex = self.part.getCanvasSize()-1
         self.setPos(QPointF(self.x0, self.y0))
         self.setZValue(-10)
         self.pressX = 0
         self.pressXoffset = 0
         self.setParentItem(parent)
+        self.setCursor(Qt.OpenHandCursor)
         self.setFlag(QGraphicsItem.ItemIsMovable)
         self.activeslicehandle3D = ActiveSliceHandle3D(self) # for Campbell
+        print "ActiveSliceHandle created"
 
 
     def boundingRect(self):

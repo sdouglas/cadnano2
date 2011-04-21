@@ -71,7 +71,7 @@ class PathHelix(QGraphicsItem):
         # Here's where cadnano gets the reference to mMaya's 3D equivalent
         # of the PathHelix (while passing a handy reference to itself)
         self.PathHelix3D = PathHelix3D(self)
-        
+
         self.rect = QRectF()
         self.updateRect()
 

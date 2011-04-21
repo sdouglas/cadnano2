@@ -447,10 +447,9 @@ class CustomQGraphicsView(QGraphicsView):
     def zoomToFit(self):
         # Auto zoom to center the scene
         thescene = self.sceneRootItem.scene()
-        scene_rect = thescene.sceneRect()
-
         self.sceneRootItem.resetTransform() # zero out translations
-        self.resetTransform() # zero out scaling
+        scene_rect = thescene.sceneRect()
+        # self.resetTransform() # zero out scaling
         
         self.fitInView(scene_rect, Qt.KeepAspectRatio) # fit in view
         # theview.ensureVisible(self.mapRectToScene(new_rect))

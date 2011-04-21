@@ -35,12 +35,12 @@ class DNAPartInstance(PartInstance):
     VirtualHelix ordering.
     """
     
-    def __init__(self, part, id, *args, **kwargs):
-        super(DNAPartInstance, self).__init__(part, id, *args, **kwargs)
+    def __init__(self, part, *args, **kwargs):
+        super(DNAPartInstance, self).__init__(part, *args, **kwargs)
+        self._part = part
         self._virtualHelixOrder = []
         self._stapleColor = {}
         self._scaffoldColor = {}
-        
 
     def simpleRep(self,encoder):
         """Returns a representation in terms of simple JSON-encodable types

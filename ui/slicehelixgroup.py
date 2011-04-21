@@ -29,10 +29,13 @@ slicehelixgroup.py
 Created by Shawn Douglas on 2010-06-15.
 """
 
+from exceptions import NotImplementedError
 from heapq import *
 from PyQt4.QtCore import QRectF, QPointF, QEvent, pyqtSignal, QObject, Qt
 from PyQt4.QtGui import QBrush
-from PyQt4.QtGui import QGraphicsItem#, QGraphicsObject
+from PyQt4.QtGui import QGraphicsItem
+from handles.activeslicehandle import ActiveSliceHandle
+from model.dnapart import LatticeType
 from .slicehelix import SliceHelix
 import styles
 
@@ -40,8 +43,9 @@ import styles
 root3 = 1.732051
 
 class ShgObject(QObject):
-    helixAdded = pyqtSignal('QPointF', int)
-    sliceHelixClicked = pyqtSignal(int)
+    helixAdded = pyqtSignal(int)
+    helixRemoved = pyqtSignal(int)
+    sliceHelixClicked = pyqtSignal(int, int)
     def __init__(self):
         super(ShgObject, self).__init__()
 # end class
@@ -56,11 +60,13 @@ class SliceHelixGroup(QGraphicsItem):  # was a QGraphicsObject change for Qt 4.6
     of labels (these are the nonnegative integers that appear on them)
     for slices.
     """
-    def __init__(self, dnaPartInst, nrows=3, ncolumns=6,\
-                controller=None, parent=None):
+    def __init__(self, dnaPartInst, activeslicehandle,\
+                 nrows=3, ncolumns=6, type=LatticeType.Honeycomb,\
+                 controller=None, parent=None):
         super(SliceHelixGroup, self).__init__(parent)
         # data related
         self.dnaPartInst = dnaPartInst
+        self.activeslicehandle = activeslicehandle
         self.crossSectionType = self.dnaPartInst.part().getCrossSectionType()
         self.sliceController = controller
         self.parent = parent
@@ -73,6 +79,7 @@ class SliceHelixGroup(QGraphicsItem):  # was a QGraphicsObject change for Qt 4.6
         self.highestUsedEven = -2  # same
         self.qObject = ShgObject()
         self.helixAdded = self.qObject.helixAdded
+        self.helixRemoved = self.qObject.helixRemoved
         self.sliceHelixClicked = self.qObject.sliceHelixClicked
         # drawing related
         self.radius = styles.SLICE_HELIX_RADIUS
@@ -81,7 +88,7 @@ class SliceHelixGroup(QGraphicsItem):  # was a QGraphicsObject change for Qt 4.6
         self.handleSize = 15 # FIX: read from config file
         self.helixhash = {}
 
-        if self.crossSectionType == 'honeycomb':
+        if self.crossSectionType == LatticeType.Honeycomb:
             self.rect = QRectF(0, 0,\
                                (ncolumns)*self.radius*root3,\
                                (nrows)*self.radius*3)
@@ -127,9 +134,12 @@ class SliceHelixGroup(QGraphicsItem):  # was a QGraphicsObject change for Qt 4.6
                 # end for
             # end for
         # end if
+        elif self.crossSectionType == LatticeType.Square:
+            print "self.crossSectionType == LatticeType.Square is false"
+            raise NotImplementedError
         else: # type = square
-            print "self.type == honeycomb is false"
-            pass
+            print "self.crossSectionType not recognized"
+            raise NotImplementedError
         # end else
         
         # do setting Flags last as it needs self.rect
@@ -195,18 +205,27 @@ class SliceHelixGroup(QGraphicsItem):  # was a QGraphicsObject change for Qt 4.6
         else:
             heappush(self.oddRecycleBin,n)
 
-    def addHelixToPathGroup(self, pos, number):
+    def addHelixToPathGroup(self, number):
         """Notify PathHelixGroup that a new VirtualHelix has been
         added to the part.
         pos: a QPointF identifying a slice views XY position for a helix
         number: slicehelix number
         """
         # install VirtualHelix neighbor relationships
-        self.helixAdded.emit(pos, number)
+        self.helixAdded.emit(number)
 
-    def addBasesToDnaPart(self, number):
-        """Notify PathHelixGroup"""
-        self.sliceHelixClicked.emit(number)
+    def removeHelixFromPathGroup(self, number):
+        """docstring for removeHelixFromPathGroup"""
+        self.helixRemoved.emit(number)
+
+    def addBasesToDnaPart(self, helixNumber, index):
+        """Notify PathHelixGroup bases were added at index on helixNumber."""
+        self.sliceHelixClicked.emit(helixNumber, index)
+
+    def removeBasesFromDnaPart(self, helixNumber, index):
+        """Notify PathHelixGroup bases were removed (via undo) at index
+        on helixNumber."""
+        pass
 
     def bringToFront(self):
         """collidingItems gets a list of all items that overlap. sets

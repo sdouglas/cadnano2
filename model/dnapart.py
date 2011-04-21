@@ -24,7 +24,7 @@
 """
 DNAPart.py
 """
-
+from exceptions import NotImplementedError
 import json
 from .part import Part
 from .virtualhelix import VirtualHelix
@@ -36,10 +36,14 @@ class DNAPart(Part):
         self._staples = []
         self._scaffolds = []
         self._name = kwargs.get('name', 'untitled')
-        self._crossSectionType = kwargs.get('crossSectionType', 'honeycomb')
+        self._crossSectionType = kwargs.get('crossSectionType', LatticeType.Honeycomb)
         # FIX: defaults should be read from a config file
-        if (self._crossSectionType == 'honeycomb'):
+        if (self._crossSectionType == LatticeType.Honeycomb):
             self._canvasSize = 42
+        elif (self._crossSectionType == LatticeType.Square):
+            self._crossSectionType = 32
+        else:
+            raise NotImplementedError
 
     def simpleRep(self, encoder):
         """
@@ -82,11 +86,26 @@ class DNAPart(Part):
                               col=slicehelix.col(),\
                               size=self._canvasSize)
         self._virtualHelices[slicehelix.number()] = vhelix
+        return vhelix
+
+    def removeVirtualHelix(self, number):
+        """Called by SliceHelix.removeVirtualHelix() to update data."""
+        del self._virtualHelices[number]
 
     def getVirtualHelix(self, number):
         """Look up and return reference to a VirtualHelix"""
         return self._virtualHelices[number]
 
+    def hasVirtualHelix(self, number):
+        if number in self._virtualHelices:
+            return True
+        else:
+            return False
+
     def getVirtualHelixCount(self):
         """docstring for getVirtualHelixList"""
         return len(self._virtualHelices)
+
+class LatticeType:
+    Honeycomb = 0
+    Square = 1

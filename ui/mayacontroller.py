@@ -145,7 +145,6 @@ class DocumentController():
 
     def hcombClicked(self):
         """docstring for hcombClicked"""
-        print "+honeycomb clicked"
         self.addHoneycombHelixGroup()
     # end def
 
@@ -158,9 +157,8 @@ class DocumentController():
         """docstring for addHoneycombHelixGroup"""
         # Create a new DNA part
         objId = self.idbank.get()
-        instId = objId#self.idbank.get()
-        dnaPartInst = self.doc.addDnaPart(objId, instId,\
-                                          crossSectionType='honeycomb')
+        
+        dnaPartInst = self.doc.addDnaPart(objId, crossSectionType='honeycomb')
         # Add the part to the Tree view
         name = "Part.%d" % objId 
         self.treeController.addPartNode(name, dnaPartInst)
