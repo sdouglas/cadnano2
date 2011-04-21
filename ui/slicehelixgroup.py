@@ -57,7 +57,6 @@ class SliceHelixGroup(QGraphicsItem):  # was a QGraphicsObject change for Qt 4.6
     for slices.
     """
     def __init__(self, dnaPartInst, nrows=3, ncolumns=6,\
-                defaultheight=None, \
                 controller=None, parent=None):
         super(SliceHelixGroup, self).__init__(parent)
         # data related
@@ -136,10 +135,7 @@ class SliceHelixGroup(QGraphicsItem):  # was a QGraphicsObject change for Qt 4.6
         # do setting Flags last as it needs self.rect
         #self.setFlags(QGraphicsItem.ItemIsSelectable)
         
-        # self.rect = QRectF()
-        
-        self.zoomToFit(defaultheight)
-        # self.zoomToFit()
+        self.zoomToFit()
     # end def
 
     def paint(self, painter, option, widget=None):
@@ -148,18 +144,11 @@ class SliceHelixGroup(QGraphicsItem):  # was a QGraphicsObject change for Qt 4.6
     def boundingRect(self):
         return self.rect
 
-    def zoomToFit(self, h=None):
+    def zoomToFit(self):
         # Auto zoom to center the scene
         thescene = self.scene()
         theview = thescene.views()[0]
-        if h == None:
-            #height_old = thescene.sceneRect().height()
-            height_old = self.rect.height()
-        else:
-            height_old = h
-        theview.fitInView(self.rect, Qt.KeepAspectRatio)
-        # print height_old, thescene.sceneRect().height()
-        theview.resetScale(height_old,self.rect.height())
+        theview.zoomToFit()
     # end def
 
     def reserveLabelForHelix(self, helix, num=None):

@@ -44,7 +44,7 @@ class ActiveSliceHandle(QGraphicsItem):
     brush = QBrush(styles.orangefill)
     pen = QPen(styles.orangestroke, styles.SLICE_HANDLE_STROKE_WIDTH)
 
-    def __init__(self, part, startBase, parent=None):
+    def __init__(self, part, offsetX, startBase, parent=None):
         super(ActiveSliceHandle, self).__init__(parent)
         
         self.part = part
@@ -54,7 +54,7 @@ class ActiveSliceHandle(QGraphicsItem):
         self.rect = QRectF(0, 0, self.baseWidth, self.height)
         self.baseIndex = startBase
         self.tempIndex = startBase
-        self.x0 = startBase * self.baseWidth
+        self.x0 = (startBase * self.baseWidth) + offsetX
         self.y0 = -1 * (styles.PATH_HELIX_PADDING)
         self.minIndex = 0
         self.maxIndex = part.getCanvasSize()-1

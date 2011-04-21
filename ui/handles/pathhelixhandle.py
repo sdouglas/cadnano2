@@ -86,6 +86,7 @@ class PathHelixHandle(QGraphicsItem):
             # self.label.setHtml("<p style='align: center;'>")
             self.label.setFont(self.font)
             self.label.setParentItem(self)
+            
         # y_val = self.radius / 2
         y_val = self.radius / 3
         if self.number < 10:
@@ -96,7 +97,7 @@ class PathHelixHandle(QGraphicsItem):
             self.label.setPos(self.radius / 3, y_val)
         else:  # added for bigger than 100 by NC
             # self.label.setPos(self.radius / 4, y_val)
-            self.label.setPos(self.radius / 4, y_val)
+            self.label.setPos(0, y_val)
 
     class FocusRingPainter(QGraphicsItem):
         """Draws a focus ring around helix in parent"""

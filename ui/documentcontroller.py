@@ -166,7 +166,6 @@ class DocumentController():
         # Create a Slice view of part
         shg = SliceHelixGroup(dnaPartInst, nrows, ncolumns,\
                               controller=self.win.sliceController,\
-                              defaultheight=self.win.sliceGraphicsView.frameSize().height(), \
                               parent=self.win.sliceroot)
         #self.win.slicescene.addItem(shg)
 
@@ -174,7 +173,6 @@ class DocumentController():
         # used the divide by 1.7
         phg = PathHelixGroup(dnaPartInst, \
                              controller=self.win.pathController,\
-                             defaultheight=self.win.pathGraphicsView.frameSize().height()/1.7, \
                              parent=self.win.pathroot)
         #self.win.pathscene.addItem(phg)
 

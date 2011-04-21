@@ -60,7 +60,6 @@ class PathHelixGroup(QGraphicsItem):
     handleRadius = styles.SLICE_HELIX_RADIUS
     
     def __init__(self, dnaPartInst, type="honeycomb", controller=None,\
-                    defaultheight=None, \
                  parent=None):
         super(PathHelixGroup, self).__init__(parent)
         self.dnaPartInst = dnaPartInst
@@ -75,7 +74,7 @@ class PathHelixGroup(QGraphicsItem):
         self.crossSectionType = self.dnaPartInst.part().getCrossSectionType()
         if self.crossSectionType == "honeycomb":
             # set honeycomb parameters
-            self.rect = QRectF(0, 0, 1000, 1000)
+            self.rect = QRectF(0, 0, 800, 1000)
             self.pathCanvasWidth = 42 # FIX: set from config file
             self.startBase = 21
         else:
@@ -93,8 +92,10 @@ class PathHelixGroup(QGraphicsItem):
         self.scaffoldChange = self.qObject.scaffoldChange
         
         # self.height_old = defaultheight
-        self.zoomToFit(defaultheight)
-        # self.zoomToFit()
+        # self.h = defaultheight
+        # # self.zoomToFit(defaultheight)
+        
+        self.zoomToFit()
     # end def
 
     def paint(self, painter, option, widget=None):
@@ -114,18 +115,20 @@ class PathHelixGroup(QGraphicsItem):
         vh = self.part.getVirtualHelix(number)
         count = self.part.getVirtualHelixCount()
         # add PathHelixHandle
-        x = -5*self.handleRadius
+        x = 0#5*self.handleRadius
+        xoff = 5*self.handleRadius
         y = count * (styles.PATH_BASE_HEIGHT + styles.PATH_HELIX_PADDING)
         phhY = ((styles.PATH_BASE_HEIGHT-(styles.PATHHELIXHANDLE_RADIUS*2))/2)
         phh = PathHelixHandle(vh, QPointF(x, y+phhY), self)
         phh.setParentItem(self)
         # add PathHelix
-        ph = PathHelix(vh, QPointF(0, y), self)
+        ph = PathHelix(vh, QPointF(xoff, y), self)
         ph.setParentItem(self)
         self.numToPathHelix[number] = ph
         # update activeslicehandle
         if count == 1: # first vhelix added by mouse click
             self.activeslicehandle = ActiveSliceHandle(self.part,\
+                                                        xoff, \
                                                        self.startBase,\
                                                        self)
             self.activeslicehandle.setParentItem(self)
@@ -133,24 +136,17 @@ class PathHelixGroup(QGraphicsItem):
             self.activeslicehandle.resize(count)
         
         # Auto zoom to center the scene
-        # self.zoomToFit()
+        self.zoomToFit()
+
     # end def
     
-    def zoomToFit(self, h=None):
+    def zoomToFit(self):
         # Auto zoom to center the scene
         thescene = self.scene()
         theview = thescene.views()[0]
-        # new_rect = thescene.sceneRect()
-        new_rect = self.rect
-        
-        if h == None:
-            # height_old = thescene.sceneRect().height()
-            height_old = new_rect.height()
-        else:
-            height_old = h
-        theview.fitInView(self.rect, Qt.KeepAspectRatio)    
-        theview.resetScale(height_old,self.rect.height())
+        theview.zoomToFit()
     # end def
+ 
 
     @pyqtSlot('QPointF', int)
     def handleSliceHelixClick(self, number):

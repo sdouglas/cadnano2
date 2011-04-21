@@ -426,13 +426,36 @@ class CustomQGraphicsView(QGraphicsView):
         # end if
     # end def
     
-    def resetScale(self, height_old, height_new):
+    def resetScale(self):
         """
         reset the scale to 1
         """
-        self._scale_size *= (height_old/height_new)
-        self._scale_limit_min = 0.41*self._scale_size
-        self._scale_limit_max = 3.0*self._scale_size
-        self._last_scale_factor *= (height_old/height_new)    
+        # use the transform value if you want to get how much the view 
+        # has been scaled
+        self._scale_size = self.transform().m11() 
+        
+        # self._scale_limit_min = 0.41*self._scale_size
+        # make it so fitting in view is zoomed minimum
+        self._scale_limit_min = self._scale_size
+        
+        # use this if you want to reset the zoom in limit
+        # self._scale_limit_max = 3.0*self._scale_size
+        
+        self._last_scale_factor = self._scale_size    
+    # end def
+    
+    def zoomToFit(self):
+        # Auto zoom to center the scene
+        thescene = self.sceneRootItem.scene()
+        scene_rect = thescene.sceneRect()
+
+        self.sceneRootItem.resetTransform() # zero out translations
+        self.resetTransform() # zero out scaling
+        
+        self.fitInView(scene_rect, Qt.KeepAspectRatio) # fit in view
+        # theview.ensureVisible(self.mapRectToScene(new_rect))
+        #theview.ensureVisible(scene_rect)
+
+        self.resetScale() # adjust scaling so that translation works
     # end def
 #end class
