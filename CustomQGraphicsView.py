@@ -221,10 +221,6 @@ class CustomQGraphicsView(QGraphicsView):
                 yf = event.posF().y()
                 self.sceneRootItem.translate((xf - self._x0)/self._scale_size,\
                                             (yf - self._y0)/self._scale_size)
-                # self.sceneRootItem.translate(2*(xf - self._x0)/self._scale_size,\
-                #                             2*(yf - self._y0)/self._scale_size)
-                # self.sceneRootItem.translate(1*(xf - self._x0)/1,\
-                #             1*(yf - self._y0)/1)
                 self._x0 = xf
                 self._y0 = yf
             elif self._dollyZoomEnable == True:
