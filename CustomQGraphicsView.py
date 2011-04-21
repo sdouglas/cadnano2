@@ -447,8 +447,16 @@ class CustomQGraphicsView(QGraphicsView):
         # order matters?
         self.sceneRootItem.resetTransform() # zero out translations
         self.resetTransform() # zero out scaling
+        
+        # in case of deletions/undos, recalculate bounding area
+        # itemsBoundingRect is slow, so maybe easier to keep track of the scenes
+        # boundingRect on the undo/redo stack and push that
+        thescene.setSceneRect(thescene.itemsBoundingRect()) 
+        
         scene_rect = thescene.sceneRect()
-        self.updateSceneRect(scene_rect)
+        
+        # debug
+        print "The scene rect width, height:", scene_rect.width(), scene_rect.height()
         
         self.fitInView(scene_rect, Qt.KeepAspectRatio) # fit in view
         # theview.ensureVisible(self.mapRectToScene(new_rect))
