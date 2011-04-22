@@ -62,7 +62,14 @@ class PathHelixHandle(QGraphicsItem):
         
         self.setNumber()
         
-
+        # required to enable simple moving
+        self.setFlag(QGraphicsItem.ItemIsMovable)
+        # required for selection in QGraphicsView
+        self.setFlag(QGraphicsItem.ItemIsSelectable)
+        # required for itemChange() to fire
+        self.setFlag(QGraphicsItem.ItemSendsScenePositionChanges)
+    # end def
+        
     def boundingRect(self):
         return self.rect
 
@@ -138,6 +145,25 @@ class PathHelixHandle(QGraphicsItem):
             self.focusRing.setParentItem(None)
             self.focusRing = None
         self.update(self.rect)
+    # end def
+    
+    def itemChange(self, change, value):
+        # for selection changes test against QGraphicsItem.ItemSelectedChange
+        if change == QGraphicsItem.ItemScenePositionHasChanged and self.scene():
+            # value is the new position.
+            newPos = value.toPointF()
+            print "I moooooved", newPos.x(), newPos.y()
+            # rect = self.scene().sceneRect()
+            # if not rect.contains(newPos):
+            #     # Keep the item inside the scene rect.
+            #     newPos.setX(min(rect.right(), max(newPos.x(), rect.left())))
+            #     newPos.setY(min(rect.bottom(), max(newPos.y(), rect.top())))
+            #     return newPos
+            # # end if
+        # end if
+        elif change == QGraphicsItem.ItemSelectedChange and self.scene():
+            print "I am selected"
+        return QGraphicsItem.itemChange(self,change, value)
     # end def
 
 def bringToFront(self):

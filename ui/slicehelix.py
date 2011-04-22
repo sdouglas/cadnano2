@@ -69,6 +69,7 @@ class SliceHelix(QGraphicsItem):
         self.setAcceptsHoverEvents(True)
         self.setPos(position)
         self.undoStack = self.parent.sliceController.mainWindow.undoStack
+        self.setFlag(QGraphicsItem.ItemIsSelectable)
 
     class FocusRingPainter(QGraphicsItem):
         """Draws a focus ring around helix in parent"""
@@ -263,6 +264,26 @@ class SliceHelix(QGraphicsItem):
             self.undoStack.push(SliceHelix.AddBasesToHelixCommand(self, self._number, index))
             self.undoStack.endMacro()
     # end def
+    
+    def itemChange(self, change, value):
+        # for selection changes test against QGraphicsItem.ItemSelectedChange
+        # if change == QGraphicsItem.ItemScenePositionHasChanged and self.scene():
+        #     # value is the new position.
+        #     newPos = value.toPointF()
+        #     print "I moooooved", newPos.x(), newPos.y()
+        #     # rect = self.scene().sceneRect()
+        #     # if not rect.contains(newPos):
+        #     #     # Keep the item inside the scene rect.
+        #     #     newPos.setX(min(rect.right(), max(newPos.x(), rect.left())))
+        #     #     newPos.setY(min(rect.bottom(), max(newPos.y(), rect.top())))
+        #     #     return newPos
+        #     # # end if
+        # # end if
+        if change == QGraphicsItem.ItemSelectedChange and self.scene():
+            print "I am slice selected ", self._number
+        return QGraphicsItem.itemChange(self,change, value)
+    # end def
+    
 # end class
 
 def bringToFront(self):

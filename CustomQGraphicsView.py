@@ -85,7 +85,8 @@ class CustomQGraphicsView(QGraphicsView):
         """
         super(QGraphicsView, self).__init__(parent)
 
-        self._noDrag = QGraphicsView.NoDrag
+        # self._noDrag = QGraphicsView.NoDrag
+        self._noDrag = QGraphicsView.RubberBandDrag
         self._yesDrag = QGraphicsView.ScrollHandDrag
         self.setDragMode(self._noDrag)
         self._transformEnable = False
@@ -112,6 +113,10 @@ class CustomQGraphicsView(QGraphicsView):
         self.setStyleSheet("QGraphicsView { background-color: rgb(96.5%, 96.5%, 96.5%); }")
         # self.setStyleSheet("QGraphicsView { background-color: #FF0000; }")
         # self.setStyleSheet("QGraphicsView { background-color: rgba(255, 0, 0, 75%); }")
+        
+        # Qt.IntersectsItemBoundingRect
+        # Qt.ContainsItemBoundingRect
+        self.setRubberBandSelectionMode(Qt.ContainsItemBoundingRect)
     # end def
 
     def setKeyPan(self, button):
@@ -187,6 +192,7 @@ class CustomQGraphicsView(QGraphicsView):
     
     def enterEvent(self,event):
         self.setFocus(True)
+        self.setDragMode(self._noDrag)
         QGraphicsView.enterEvent(self,event)
 
     def leaveEvent(self,event):

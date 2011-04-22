@@ -102,11 +102,11 @@ class DocumentWindow(QMainWindow, ui_mainwindow.Ui_MainWindow):
     def focusInEvent(self):
        app().undoGroup.setActiveStack(self.controller.undoStack)
 
-    def resizeEvent(self,event):
-        if self.times == 1:
-            h_new = event.size().height()
-            h_old = event.oldSize().height()
-            self.sliceGraphicsView.resetScale(h_old, h_new)
-            self.pathGraphicsView.resetScale(h_old, h_new)
-        self.times = 1
+    # def resizeEvent(self,event):
+    #     if self.times == 1:
+    #         h_new = event.size().height()
+    #         h_old = event.oldSize().height()
+    #         self.sliceGraphicsView.resetScale(h_old, h_new)
+    #         self.pathGraphicsView.resetScale(h_old, h_new)
+    #     self.times = 1
     #end def
