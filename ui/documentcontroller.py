@@ -162,28 +162,28 @@ class DocumentController():
         # Add the part to the Tree view
         name = "Part.%d" % objId 
         self.treeController.addPartNode(name, dnaPartInst)
-        
+
         # Create the ActiveSliceHandle
-        activeslicehandle = ActiveSliceHandle(dnaPartInst, startBase)
-        
+        ash = ActiveSliceHandle(dnaPartInst, startBase)
+
         # Create a Slice view of part
         shg = SliceHelixGroup(dnaPartInst,\
-                              activeslicehandle,\
+                              ash,\
                               nrows, ncolumns,\
                               type=LatticeType.Honeycomb,\
                               controller=self.win.sliceController,\
                               parent=self.win.sliceroot)
         # Create a Path view of the part
-        # used the divide by 1.7
         phg = PathHelixGroup(dnaPartInst,\
-                             activeslicehandle,\
+                             ash,\
                              controller=self.win.pathController,\
                              parent=self.win.pathroot)
 
-        # Connect the slice
-        shg.helixAdded.connect(phg.handleHelixAdded)
-        shg.helixRemoved.connect(phg.handleHelixRemoved)
-        shg.sliceHelixClicked.connect(phg.handleSliceHelixClick)
+        # Connect signals and slots
+        ash.activeSliceMovedSignal.connect(shg.activeSliceMovedSlot)
+        shg.helixAddedSignal.connect(phg.helixAddedSlot)
+        shg.helixRemovedSignal.connect(phg.helixRemovedSlot)
+        shg.sliceHelixClicked.connect(phg.sliceHelixClickedSlot)
         dnaPartInst.partselected.connect(shg.bringToFront)
         dnaPartInst.partselected.connect(phg.bringToFront)
     # end def

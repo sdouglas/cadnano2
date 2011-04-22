@@ -32,7 +32,7 @@ Created by Shawn on 2011-01-27.
 from PyQt4.QtCore import QRectF, QPointF, QEvent, pyqtSlot, QObject, Qt
 from PyQt4.QtCore import pyqtSignal
 from PyQt4.QtGui import QBrush
-from PyQt4.QtGui import QGraphicsItem#, QGraphicsObject
+from PyQt4.QtGui import QGraphicsItem
 from .pathhelix import PathHelix
 from handles.activeslicehandle import ActiveSliceHandle
 from handles.breakpointhandle import BreakpointHandle
@@ -92,7 +92,7 @@ class PathHelixGroup(QGraphicsItem):
         return self.rect
 
     @pyqtSlot(int)
-    def handleHelixAdded(self, number):
+    def helixAddedSlot(self, number):
         """
         Retrieve reference to new VirtualHelix vh based on number relayed
         by the signal event. Next, create a new PathHelix associated 
@@ -103,20 +103,14 @@ class PathHelixGroup(QGraphicsItem):
         count = self.part.getVirtualHelixCount()
         # add PathHelixHandle
         x = 0#5*self.handleRadius
-        xoff = -5*self.handleRadius
+        xoff = -6*self.handleRadius
         y = count * (styles.PATH_BASE_HEIGHT + styles.PATH_HELIX_PADDING)
         phhY = ((styles.PATH_BASE_HEIGHT-(styles.PATHHELIXHANDLE_RADIUS*2))/2)
         phh = PathHelixHandle(vh, QPointF(xoff, y+phhY), self)
         self.numToPathHelixHandle[number] = phh
         phh.setParentItem(self)
         # add PathHelix
-
-        #ph = PathHelix(vh, QPointF(xoff, y), self)
-        #ph.setParentItem(self)
-
-        # shawn
         ph = PathHelix(vh, QPointF(0, y), self)
-
         self.numToPathHelix[number] = ph
         ph.setParentItem(self)
         # update activeslicehandle
@@ -137,7 +131,7 @@ class PathHelixGroup(QGraphicsItem):
     # end def
 
     @pyqtSlot(int)
-    def handleHelixRemoved(self, number):
+    def helixRemovedSlot(self, number):
         scene = self.scene()
         count = self.part.getVirtualHelixCount()
         # remove PathHelix
@@ -158,8 +152,8 @@ class PathHelixGroup(QGraphicsItem):
     # end def
 
     @pyqtSlot(int, int)
-    def handleSliceHelixClick(self, number, index):
-        """docstring for handleSliceHelixClick"""
+    def sliceHelixClickedSlot(self, number, index):
+        """docstring for sliceHelixClickedSlot"""
         vh = self.part.getVirtualHelix(number)
         ph = self.numToPathHelix[number]
 

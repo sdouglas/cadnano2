@@ -104,7 +104,6 @@ class PathHelix(QGraphicsItem):
         # Major grid lines
         painter.setPen(self.majorGridPen)
         painter.drawPath(self.majorGridPainterPath)
-
         # Scaffold lines
         painter.setPen(self.scafPen)
         painter.drawLines(self.scafLines)
@@ -153,7 +152,7 @@ class PathHelix(QGraphicsItem):
 
     def addScaffoldBreakHandle(self, bh):
         """addScaffoldBreakHandle gets called by PathHelixGroup
-        when the handles are changed (e.g. by handleSliceHelixClick
+        when the handles are changed (e.g. by sliceHelixClickedSlot
         or when a crossover is added)."""
         self._scafBreaktHandles.append(bh)
 

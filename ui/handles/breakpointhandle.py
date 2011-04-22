@@ -231,7 +231,7 @@ class BreakpointHandle(QGraphicsItem):
             self.pressXoffset = self.pressX % self.baseWidth
             self.setCursor(Qt.ClosedHandCursor)
 
-    def mouseUp(self, epos):
+    def customMouseRelease(self, eventPosition):
         """Snaps to grid after mouse released. Updates vhelix data according
         to what movement took place."""
         if self.tempIndex == self.baseIndex:
@@ -241,8 +241,6 @@ class BreakpointHandle(QGraphicsItem):
                                               self.type,\
                                               self.baseIndex,\
                                               delta)
-
-
         self.undoStack.beginMacro("break move %d[%d] to %d[%d]" % \
                                     (self.vhelix.number(), self.baseIndex,\
                                      self.vhelix.number(), self.tempIndex))
@@ -254,8 +252,6 @@ class BreakpointHandle(QGraphicsItem):
         self.parent.updateBreakBounds(self.strandType)
         self.parent.redrawLines(self.strandType)
         self._dragMode = False
-
-
 
     def setDragBounds(self, minIndex, maxIndex):
         """Called by PathHelix.updateBreakBounds to notify breakpoint handle

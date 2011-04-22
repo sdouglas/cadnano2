@@ -28,14 +28,23 @@ Created by Shawn on 2011-02-05.
 
 from exceptions import IndexError
 from PyQt4.QtCore import QPointF, QRectF
-from PyQt4.QtCore import Qt
+from PyQt4.QtCore import Qt, QObject, pyqtSignal
 from PyQt4.QtGui import QBrush
 from PyQt4.QtGui import QGraphicsItem
 from PyQt4.QtGui import QGraphicsSimpleTextItem
 from PyQt4.QtGui import QPen, QDrag, QUndoCommand
 import ui.styles as styles
-
 from mmayacadnano.activeslicehandle3d import ActiveSliceHandle3D # For Campbell
+
+
+class AshObject(QObject):
+    """
+    A placeholder class until QGraphicsObject is available to allow signaling
+    """
+    activeSliceMovedSignal = pyqtSignal(int)
+    def __init__(self):
+        super(AshObject, self).__init__()
+# end class
 
 
 class ActiveSliceHandle(QGraphicsItem):
@@ -66,9 +75,10 @@ class ActiveSliceHandle(QGraphicsItem):
         self.setParentItem(parent)
         self.setCursor(Qt.OpenHandCursor)
         self.setFlag(QGraphicsItem.ItemIsMovable)
+        self.qObject = AshObject()
+        self.activeSliceMovedSignal = self.qObject.activeSliceMovedSignal
         self.activeslicehandle3D = ActiveSliceHandle3D(self) # for Campbell
-        print "ActiveSliceHandle created"
-
+        
 
     def boundingRect(self):
         """docstring for boundingRect"""
@@ -120,27 +130,35 @@ class ActiveSliceHandle(QGraphicsItem):
         self.activeslicehandle3D.dragFrom2D(self.tempIndex)
 
     def mousePressEvent(self, event):
-        self.pressX = event.scenePos().x()
-        self.pressXoffset = self.pressX % self.baseWidth
+        if event.button() != Qt.LeftButton:
+            event.ignore()
+            QGraphicsItem.mousePressEvent(self,event)
+        else:
+            self.scene().views()[0].addToPressList(self)
+            self._dragMode = True
+            self.pressX = event.scenePos().x()
+            self.pressX = event.scenePos().x()
+            self.pressXoffset = self.pressX % self.baseWidth
 
-    def mouseReleaseEvent(self, event):
+    def customMouseRelease(self, eventPosition):
         """Snaps to grid after mouse released. Updates vhelix data according
         to what movement took place."""
         if self.tempIndex == self.baseIndex:
             return
         delta = int(self.tempIndex - self.baseIndex)
         self.baseIndex = self.tempIndex
+        self.activeSliceMovedSignal.emit(self.baseIndex)
+        self._dragMode = False
 
     def updateFrom3D(self, newIndex):
         """Called by BreakpointHandle3D to notify cadnano that the
         ActiveSliceHandle has moved to a new location. All updates to the data
         structure are then handled by cadnano."""
-
         # not tested
-
         if self.baseIndex == newIndex:
             return
         self.baseIndex = newIndex
         self.x0 = self.baseIndex*self.baseWidth
         self.setPos(self.x0, self.y0)
+        self.activeSliceMovedSignal.emit(self.baseIndex)
 

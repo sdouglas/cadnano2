@@ -268,22 +268,7 @@ class CustomQGraphicsView(QGraphicsView):
     #end def
 
     def mouseReleaseEvent(self, event):
-        """This takes a QMouseEvent for the event
-
-        Args:
-           self
-           event (QMouseEvent): the event
-
-        Kwargs:
-            None
-
-        Returns:
-           None
-
-        Raises:
-           None
-        
-        """
+        """If panning, stop. If handles were pressed, release them."""
         if self._transformEnable == True:
             # QMouseEvent.button() returns the button that triggered the event
             which_button = event.button()
@@ -295,10 +280,10 @@ class CustomQGraphicsView(QGraphicsView):
                 QGraphicsView.mouseReleaseEvent(self, event)
         # end if
         else:
-            if len(self._pressList):
+            if len(self._pressList):  # Notify any pressed items to release
                 event_pos = event.pos()
                 for item in self._pressList:
-                    item.mouseUp(event_pos)
+                    item.customMouseRelease(event_pos)
                 #end for
                 self._pressList = []
             # end if 
