@@ -97,12 +97,18 @@ class CustomQGraphicsView(QGraphicsView):
         # self.horizontalScrollBar().setMaximum(800)
         # self.horizontalScrollBar().setMinimum(-800)
         #self.setSceneRect(-200,200,800,800)
+        
         self._x0 = 0
         self._y0 = 0
         self._scale_size = 1.0
         self._scale_limit_max = 3.0
         self._scale_limit_min = .41
+        self._scaleDownFactor = 0.8 # 0.95
+        self._scaleFitFactor = 0.95
+        self._scaleUpFactor = 1.25 # 100.0/95.0
         self._last_scale_factor = 0.0
+        
+        
         self._key_mod = Qt.Key_Control
         self._key_pan = Qt.LeftButton
         self._key_pan_alt = Qt.MidButton
@@ -354,23 +360,26 @@ class CustomQGraphicsView(QGraphicsView):
         
         """
         if event.delta() > 0:  # rotated away from the user
-            if self._scale_limit_max > self._scale_size:
-                self.scale(1.25, 1.25)
-                #self.centerOn(1.25*event.x(),1.25*event.y())
-                #self.centerOn(QPointF(0.8*event.globalX(),0.8*event.globalY()))
-                self._scale_size *= 1.25
-            # end if
+            self.scaleUp()
         # end if
         else:
-            if self._scale_limit_min < self._scale_size:
-                self.scale(.8, .8)
-                #self.translate(event.x(),event.y())
-                #self.centerOn(QPointF(1.25*event.globalX(),1.25*event.globalY()))
-                #self.centerOn(QPointF(0.8*event.x(),0.8*event.y()))
-                self._scale_size *= 0.8
-            # end if
+            self.scaleDown()
         # end else
     # end def
+
+    def scaleDown(self):
+        if self._scale_limit_min < self._scale_size:
+            self.scale(self._scaleDownFactor, self._scaleDownFactor)
+            self._scale_size *= self._scaleDownFactor
+        # end if
+    # end def
+    
+    def scaleUp(self):
+        if self._scale_limit_max > self._scale_size:
+            self.scale(self._scaleUpFactor, self._scaleUpFactor)
+            self._scale_size *= self._scaleUpFactor
+        # end if
+    # end def 
 
     def dollyZoom(self, event):
         """This takes a QMouseEvent for the event
@@ -399,16 +408,10 @@ class CustomQGraphicsView(QGraphicsView):
                 self._last_scale_factor = scale_factor
                 # zoom in if mouse y position is getting bigger
                 if yf - self._y0 > 0:
-                    if self._scale_limit_max > self._scale_size:
-                        self.scale(1.25, 1.25)
-                        self._scale_size *= 1.25
-                    # end if
+                    self.scaleUp()
                 # end else
                 else:  # else id smaller zoom out
-                    if self._scale_limit_min < self._scale_size:
-                        self.scale(.8, .8)
-                        self._scale_size *= 0.8
-                    # end if
+                    self.scaleDown()
                 # end else
         # end if
     # end def
@@ -424,12 +427,12 @@ class CustomQGraphicsView(QGraphicsView):
         # self._scale_limit_min = 0.41*self._scale_size
         # make it so fitting in view is zoomed minimum
         # still gives you one zoom level out before violates limit
-        self._scale_limit_min = self._scale_size
+        self._scale_limit_min = self._scale_size*self._scaleFitFactor
         
         # use this if you want to reset the zoom in limit
         # self._scale_limit_max = 3.0*self._scale_size
         
-        self._last_scale_factor = self._scale_size    
+        self._last_scale_factor = 0.0    
     # end def
     
     def zoomToFit(self):
@@ -454,5 +457,9 @@ class CustomQGraphicsView(QGraphicsView):
         #theview.ensureVisible(scene_rect)
 
         self.resetScale() # adjust scaling so that translation works
+        # adjust scaling so that the items don't fill 100% of the view 
+        # this is good for selection
+        self.scale(self._scaleFitFactor, self._scaleFitFactor)
+        self._scale_size *= self._scaleFitFactor
     # end def
 #end class

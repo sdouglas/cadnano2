@@ -68,6 +68,8 @@ class PathHelixHandle(QGraphicsItem):
         self.setFlag(QGraphicsItem.ItemIsSelectable)
         # required for itemChange() to fire
         self.setFlag(QGraphicsItem.ItemSendsScenePositionChanges)
+        
+        # self.setFlag(QGraphicsItem.ItemIgnoresTransformations)
     # end def
         
     def boundingRect(self):
