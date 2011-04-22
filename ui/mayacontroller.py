@@ -182,9 +182,9 @@ class DocumentController():
         self.solidlist.append(solhg)
         
         # Connect the slice
-        shg.helixAdded.connect(phg.handleHelixAdded)
-        shg.helixAdded.connect(solhg.handleHelixAdded)
-        shg.sliceHelixClicked.connect(phg.handleSliceHelixClick)
+        shg.helixAddedSignal.connect(phg.helixAddedSlot)
+        shg.helixAddedSignal.connect(solhg.helixAddedSlot)
+        shg.sliceHelixClicked.connect(phg.sliceHelixClickedSlot)
         
         phg.scaffoldChange.connect(solhg.handleScaffoldChange)
         

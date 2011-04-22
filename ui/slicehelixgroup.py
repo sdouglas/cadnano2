@@ -32,6 +32,7 @@ Created by Shawn Douglas on 2010-06-15.
 from exceptions import NotImplementedError
 from heapq import *
 from PyQt4.QtCore import QRectF, QPointF, QEvent, pyqtSignal, QObject, Qt
+from PyQt4.QtCore import pyqtSignal, pyqtSlot
 from PyQt4.QtGui import QBrush
 from PyQt4.QtGui import QGraphicsItem
 from handles.activeslicehandle import ActiveSliceHandle
@@ -43,8 +44,8 @@ import styles
 root3 = 1.732051
 
 class ShgObject(QObject):
-    helixAdded = pyqtSignal(int)
-    helixRemoved = pyqtSignal(int)
+    helixAddedSignal = pyqtSignal(int)
+    helixRemovedSignal = pyqtSignal(int)
     sliceHelixClicked = pyqtSignal(int, int)
     def __init__(self):
         super(ShgObject, self).__init__()
@@ -78,8 +79,8 @@ class SliceHelixGroup(QGraphicsItem):  # was a QGraphicsObject change for Qt 4.6
         self.highestUsedOdd = -1  # Used iff the recycle bin is empty and highestUsedOdd+2 is not in the reserve bin
         self.highestUsedEven = -2  # same
         self.qObject = ShgObject()
-        self.helixAdded = self.qObject.helixAdded
-        self.helixRemoved = self.qObject.helixRemoved
+        self.helixAddedSignal = self.qObject.helixAddedSignal
+        self.helixRemovedSignal = self.qObject.helixRemovedSignal
         self.sliceHelixClicked = self.qObject.sliceHelixClicked
         # drawing related
         self.radius = styles.SLICE_HELIX_RADIUS
@@ -212,11 +213,11 @@ class SliceHelixGroup(QGraphicsItem):  # was a QGraphicsObject change for Qt 4.6
         number: slicehelix number
         """
         # install VirtualHelix neighbor relationships
-        self.helixAdded.emit(number)
+        self.helixAddedSignal.emit(number)
 
     def removeHelixFromPathGroup(self, number):
         """docstring for removeHelixFromPathGroup"""
-        self.helixRemoved.emit(number)
+        self.helixRemovedSignal.emit(number)
 
     def addBasesToDnaPart(self, helixNumber, index):
         """Notify PathHelixGroup bases were added at index on helixNumber."""
@@ -225,6 +226,12 @@ class SliceHelixGroup(QGraphicsItem):  # was a QGraphicsObject change for Qt 4.6
     def removeBasesFromDnaPart(self, helixNumber, index):
         """Notify PathHelixGroup bases were removed (via undo) at index
         on helixNumber."""
+        pass
+
+    @pyqtSlot(int)
+    def activeSliceMovedSlot(self, index):
+        """docstring for activeSliceMovedSlot"""
+        # print "active slice moved to %d" % index
         pass
 
     def bringToFront(self):

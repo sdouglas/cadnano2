@@ -240,7 +240,7 @@ class SliceHelix(QGraphicsItem):
         """
         Handles user click on SliceHelix in two possible ways:
 
-        1. If the SliceHelix has never been used, reserver a new label
+        1. If the SliceHelix has never been used, reserve a new label
         from the parent SliceHelixGroup, create a new VirtualHelix vhelix,
         and notify the PathHelixGroup that it should create a new
         PathHelix that points to vhelix.
@@ -252,7 +252,7 @@ class SliceHelix(QGraphicsItem):
             # self.parent.addBasesToDnaPart(self._number)
             pass
         if self._number < 0:  # Initiate
-            self.undoStack.beginMacro("Add new SliceHelix %d" % self._number)
+            self.undoStack.beginMacro("Add new SliceHelix")
             self.undoStack.push(SliceHelix.RenumberCommand(self, self._number))
             self.undoStack.push(SliceHelix.AddHelixCommand(self, self._number))
             index = self.parent.activeslicehandle.getPosition()

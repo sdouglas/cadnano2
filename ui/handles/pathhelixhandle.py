@@ -39,11 +39,11 @@ class PathHelixHandle(QGraphicsItem):
     radius = styles.PATHHELIXHANDLE_RADIUS
     rect = QRectF(0, 0, 2*radius, 2*radius)
     defBrush = QBrush(styles.grayfill)
-    defPen = QPen(styles.graystroke, styles.SLICE_HELIX_STROKE_WIDTH)
+    defPen = QPen(styles.graystroke, styles.PATHHELIXHANDLE_STROKE_WIDTH)
     hovBrush = QBrush(styles.bluefill)
-    hovPen = QPen(styles.bluestroke, styles.SLICE_HELIX_HILIGHT_WIDTH)
+    hovPen = QPen(styles.bluestroke, styles.PATHHELIXHANDLE_STROKE_WIDTH)
     useBrush = QBrush(styles.orangefill)
-    usePen = QPen(styles.orangestroke, styles.SLICE_HELIX_STROKE_WIDTH)
+    usePen = QPen(styles.orangestroke, styles.PATHHELIXHANDLE_STROKE_WIDTH)
     
     
 
