@@ -67,7 +67,7 @@ class PathHelixHandle(QGraphicsItem):
         # required for selection in QGraphicsView
         self.setFlag(QGraphicsItem.ItemIsSelectable)
         # required for itemChange() to fire
-        self.setFlag(QGraphicsItem.ItemSendsScenePositionChanges)
+        # self.setFlag(QGraphicsItem.ItemSendsScenePositionChanges)
         
         # self.setFlag(QGraphicsItem.ItemIgnoresTransformations)
     # end def
@@ -163,6 +163,8 @@ class PathHelixHandle(QGraphicsItem):
             #     return newPos
             # # end if
         # end if
+        elif change == QGraphicsItem.ItemPositionChange and self.scene():
+            print "poop"
         elif change == QGraphicsItem.ItemSelectedChange and self.scene():
             print "I am selected"
         return QGraphicsItem.itemChange(self,change, value)
