@@ -45,9 +45,8 @@ class PathHelixHandle(QGraphicsItem):
     useBrush = QBrush(styles.orangefill)
     usePen = QPen(styles.orangestroke, styles.PATHHELIXHANDLE_STROKE_WIDTH)
 
-
     def __init__(self, vhelix, position, parent):
-        super(PathHelixHandle, self).__init__(parent)        
+        super(PathHelixHandle, self).__init__(parent)
         self.vhelix = vhelix
         self.parent = parent
         self.setParentItem(parent) 
@@ -59,16 +58,11 @@ class PathHelixHandle(QGraphicsItem):
         self.setPos(position)
         self.font = QFont("Times", 30, QFont.Bold)
         self.setNumber()
-
-        # required to enable simple moving
         self.setFlag(QGraphicsItem.ItemIsMovable)
-        # required for selection in QGraphicsView
         self.setFlag(QGraphicsItem.ItemIsSelectable)
-        # required for itemChange() to fire
         self.setFlag(QGraphicsItem.ItemSendsScenePositionChanges)
-        # self.setFlag(QGraphicsItem.ItemIgnoresTransformations)
     # end def
-        
+
     def boundingRect(self):
         return self.rect
 
@@ -91,22 +85,14 @@ class PathHelixHandle(QGraphicsItem):
         """docstring for setNumber"""
         if self.label == None:
             self.label = QGraphicsSimpleTextItem("%d" % self.number)
-            # self.label = QGraphicsTextItem("%d" % self.number)
-            # self.label.toHtml()
-            # self.label.setHtml("<p style='align: center;'>")
             self.label.setFont(self.font)
             self.label.setParentItem(self)
-            
-        # y_val = self.radius / 2
         y_val = self.radius / 3
         if self.number < 10:
-            # self.label.setPos(self.radius / 1.3, y_val)
             self.label.setPos(self.radius / 1.5, y_val)
         elif self.number < 100:
-            # self.label.setPos(self.radius / 2, y_val)
             self.label.setPos(self.radius / 3, y_val)
-        else:  # added for bigger than 100 by NC
-            # self.label.setPos(self.radius / 4, y_val)
+        else: # number >= 100
             self.label.setPos(0, y_val)
 
     class FocusRingPainter(QGraphicsItem):
@@ -121,7 +107,6 @@ class PathHelixHandle(QGraphicsItem):
         def paint(self, painter, option, widget=None):
             painter.setPen(PathHelixHandle.hovPen)
             painter.drawEllipse(self.helix.rect)
-            # bringToFront(self, self.scene)
 
         def boundingRect(self):
             return self.helix.rect
@@ -150,12 +135,23 @@ class PathHelixHandle(QGraphicsItem):
         self.update(self.rect)
     # end def
 
+    def mousePressEvent(self, event):
+        if event.button() != Qt.LeftButton:
+            event.ignore()
+            QGraphicsItem.mousePressEvent(self,event)
+        else:
+            self.scene().views()[0].addToPressList(self)
+            self.setCursor(Qt.ClosedHandCursor)
+
+    def customMouseRelease(self, eventPosition):
+        """docstring for customMouseRelease"""
+        print "%d customMouseRelease" % self.number
+
     def itemChange(self, change, value):
         # for selection changes test against QGraphicsItem.ItemSelectedChange
         if change == QGraphicsItem.ItemScenePositionHasChanged and self.scene():
-            # value is the new position.
-            newPos = value.toPointF()
-            # print "I moooooved", newPos.x(), newPos.y()
+            newPos = value.toPointF()  # value is the new position
+            # print "%d to (%d, %d)" % (self.number, newPos.x(), newPos.y())
             # rect = self.scene().sceneRect()
             # if not rect.contains(newPos):
             #     # Keep the item inside the scene rect.
@@ -181,15 +177,3 @@ class PathHelixHandle(QGraphicsItem):
 # >>>>>>> 405dbee428ef841721bd4ac995e4ab9eae227c8f
     # end def
 
-def bringToFront(self):
-    """collidingItems gets a list of all items that overlap. sets
-    this items zValue to one higher than the max."""
-    zval = 1
-    items = self.scene().items(self.boundingRect()) # the is a QList
-    for item in items:
-        temp = item.zValue()
-        if temp >= zval:
-            zval = item.zValue() + 1
-        # end if
-    # end for
-    self.setZValue(zval)

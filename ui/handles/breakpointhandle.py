@@ -263,8 +263,6 @@ class BreakpointHandle(QGraphicsItem):
         """Called by mMaya BreakpointHandle3D to notify cadnano that the
         3D handle is being dragged to a new location, and should be
         dragged in the 2D view as well. No updates are made to the model."""
-
-
         # *** not tested ***
         if newIndex < self.minIndex:
             newIndex = self.minIndex
