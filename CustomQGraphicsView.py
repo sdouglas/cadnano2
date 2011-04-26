@@ -85,45 +85,40 @@ class CustomQGraphicsView(QGraphicsView):
         """
         super(QGraphicsView, self).__init__(parent)
 
-        # self._noDrag = QGraphicsView.NoDrag
         self._noDrag = QGraphicsView.RubberBandDrag
         self._yesDrag = QGraphicsView.ScrollHandDrag
         self.setDragMode(self._noDrag)
         self._transformEnable = False
         self._dollyZoomEnable = False
-        #print self.transformationAnchor()
         self.setTransformationAnchor(QGraphicsView.AnchorUnderMouse)
-        # self.setAlignment(Qt.AlignHCenter)
-        # self.horizontalScrollBar().setMaximum(800)
-        # self.horizontalScrollBar().setMinimum(-800)
-        #self.setSceneRect(-200,200,800,800)
-        
+
         self._x0 = 0
         self._y0 = 0
         self._scale_size = 1.0
         self._scale_limit_max = 3.0
         self._scale_limit_min = .41
-        self._scaleDownFactor = 0.8 # 0.95
-        self._scaleFitFactor = 0.95
-        self._scaleUpFactor = 1.25 # 100.0/95.0
+        self._scaleDownFactor = 0.8  # 0.95
+        self._scaleFitFactor = 1  # sets initial zoom level
+        self._scaleUpFactor = 1.25  # 100.0/95.0
         self._last_scale_factor = 0.0
-        
-        
+
         self._key_mod = Qt.Key_Control
         self._key_pan = Qt.LeftButton
         self._key_pan_alt = Qt.MidButton
         self.key_zoom = Qt.RightButton
         self.sceneRootItem = None
-        
+
         self._pressList = []
         self.setStyleSheet("QGraphicsView { background-color: rgb(96.5%, 96.5%, 96.5%); }")
         # self.setStyleSheet("QGraphicsView { background-color: #FF0000; }")
         # self.setStyleSheet("QGraphicsView { background-color: rgba(255, 0, 0, 75%); }")
-        
-        # Qt.IntersectsItemBoundingRect
-        # Qt.ContainsItemBoundingRect
+
         self.setRubberBandSelectionMode(Qt.ContainsItemBoundingRect)
     # end def
+
+    def setScaleFitFactor(self, value):
+        """docstring for setScaleFitFactor"""
+        self._scaleFitFactor = value
 
     def setKeyPan(self, button):
         """Set the class pan button remotely

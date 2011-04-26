@@ -72,6 +72,7 @@ class DocumentWindow(QMainWindow, ui_mainwindow.Ui_MainWindow):
         assert self.pathroot.scene() == self.pathscene
         self.pathGraphicsView.setScene(self.pathscene)
         self.pathGraphicsView.sceneRootItem = self.pathroot
+        self.pathGraphicsView.setScaleFitFactor(0.9)
         self.pathController = pathcontroller.PathController(self)
         self.pathGraphicsView.setViewportUpdateMode(QGraphicsView.FullViewportUpdate)
         # Edit menu setup

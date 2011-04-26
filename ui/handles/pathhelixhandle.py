@@ -44,8 +44,7 @@ class PathHelixHandle(QGraphicsItem):
     hovPen = QPen(styles.bluestroke, styles.PATHHELIXHANDLE_STROKE_WIDTH)
     useBrush = QBrush(styles.orangefill)
     usePen = QPen(styles.orangestroke, styles.PATHHELIXHANDLE_STROKE_WIDTH)
-    
-    
+
 
     def __init__(self, vhelix, position, parent):
         super(PathHelixHandle, self).__init__(parent)        
@@ -59,16 +58,14 @@ class PathHelixHandle(QGraphicsItem):
         self.setAcceptsHoverEvents(True)
         self.setPos(position)
         self.font = QFont("Times", 30, QFont.Bold)
-        
         self.setNumber()
-        
+
         # required to enable simple moving
         self.setFlag(QGraphicsItem.ItemIsMovable)
         # required for selection in QGraphicsView
         self.setFlag(QGraphicsItem.ItemIsSelectable)
         # required for itemChange() to fire
-        # self.setFlag(QGraphicsItem.ItemSendsScenePositionChanges)
-        
+        self.setFlag(QGraphicsItem.ItemSendsScenePositionChanges)
         # self.setFlag(QGraphicsItem.ItemIgnoresTransformations)
     # end def
         
@@ -77,8 +74,12 @@ class PathHelixHandle(QGraphicsItem):
 
     def paint(self, painter, option, widget=None):
         if self.number >= 0:
-            painter.setBrush(self.useBrush)
-            painter.setPen(self.usePen)
+            if self.isSelected():
+                painter.setBrush(self.hovBrush)
+                painter.setPen(self.hovPen)
+            else:
+                painter.setBrush(self.useBrush)
+                painter.setPen(self.usePen)
         else:
             painter.setBrush(self.defBrush)
             painter.setPen(self.defPen)
@@ -148,13 +149,13 @@ class PathHelixHandle(QGraphicsItem):
             self.focusRing = None
         self.update(self.rect)
     # end def
-    
+
     def itemChange(self, change, value):
         # for selection changes test against QGraphicsItem.ItemSelectedChange
         if change == QGraphicsItem.ItemScenePositionHasChanged and self.scene():
             # value is the new position.
             newPos = value.toPointF()
-            print "I moooooved", newPos.x(), newPos.y()
+            # print "I moooooved", newPos.x(), newPos.y()
             # rect = self.scene().sceneRect()
             # if not rect.contains(newPos):
             #     # Keep the item inside the scene rect.
@@ -163,11 +164,21 @@ class PathHelixHandle(QGraphicsItem):
             #     return newPos
             # # end if
         # end if
-        elif change == QGraphicsItem.ItemPositionChange and self.scene():
-            print "poop"
-        elif change == QGraphicsItem.ItemSelectedChange and self.scene():
-            print "I am selected"
-        return QGraphicsItem.itemChange(self,change, value)
+# <<<<<<< HEAD
+#         elif change == QGraphicsItem.ItemPositionChange and self.scene():
+#             print "poop"
+#         elif change == QGraphicsItem.ItemSelectedChange and self.scene():
+#             print "I am selected"
+#         return QGraphicsItem.itemChange(self,change, value)
+# =======
+        elif change == QGraphicsItem.ItemSelectedHasChanged and self.scene():
+            self.update(self.rect)
+            # if self.isSelected():
+            #     print "isSelected = True", self.number
+            # else:
+            #     print "isSelected = False", self.number
+        return QGraphicsItem.itemChange(self, change, value)
+# >>>>>>> 405dbee428ef841721bd4ac995e4ab9eae227c8f
     # end def
 
 def bringToFront(self):
