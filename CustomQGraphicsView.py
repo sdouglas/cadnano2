@@ -107,7 +107,7 @@ class CustomQGraphicsView(QGraphicsView):
         self._key_pan_alt = Qt.MidButton
         self.key_zoom = Qt.RightButton
         self.sceneRootItem = None
-
+        
         self._pressList = []
         self.setStyleSheet("QGraphicsView { background-color: rgb(96.5%, 96.5%, 96.5%); }")
         # self.setStyleSheet("QGraphicsView { background-color: #FF0000; }")

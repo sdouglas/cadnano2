@@ -58,7 +58,7 @@ class PathHelixHandle(QGraphicsItem):
         self.setPos(position)
         self.font = QFont("Times", 30, QFont.Bold)
         self.setNumber()
-        self.setFlag(QGraphicsItem.ItemIsMovable)
+        #self.setFlag(QGraphicsItem.ItemIsMovable)
         self.setFlag(QGraphicsItem.ItemIsSelectable)
         self.setFlag(QGraphicsItem.ItemSendsScenePositionChanges)
     # end def
@@ -135,17 +135,17 @@ class PathHelixHandle(QGraphicsItem):
         self.update(self.rect)
     # end def
 
-    def mousePressEvent(self, event):
-        if event.button() != Qt.LeftButton:
-            event.ignore()
-            QGraphicsItem.mousePressEvent(self,event)
-        else:
-            self.scene().views()[0].addToPressList(self)
-            self.setCursor(Qt.ClosedHandCursor)
-
-    def customMouseRelease(self, eventPosition):
-        """docstring for customMouseRelease"""
-        print "%d customMouseRelease" % self.number
+    # def mousePressEvent(self, event):
+    #     if event.button() != Qt.LeftButton:
+    #         event.ignore()
+    #         QGraphicsItem.mousePressEvent(self,event)
+    #     else:
+    #         self.scene().views()[0].addToPressList(self)
+    #         self.setCursor(Qt.ClosedHandCursor)
+    # 
+    # def customMouseRelease(self, eventPosition):
+    #     """docstring for customMouseRelease"""
+    #     print "%d customMouseRelease" % self.number
 
     def itemChange(self, change, value):
         # for selection changes test against QGraphicsItem.ItemSelectedChange
@@ -160,20 +160,24 @@ class PathHelixHandle(QGraphicsItem):
             #     return newPos
             # # end if
         # end if
-# <<<<<<< HEAD
-#         elif change == QGraphicsItem.ItemPositionChange and self.scene():
-#             print "poop"
-#         elif change == QGraphicsItem.ItemSelectedChange and self.scene():
-#             print "I am selected"
-#         return QGraphicsItem.itemChange(self,change, value)
-# =======
+        # elif change == QGraphicsItem.ItemPositionChange and self.scene():
+        #     print "poop"
+        # elif change == QGraphicsItem.ItemSelectedChange and self.scene():
+        #     print "I am selected"
         elif change == QGraphicsItem.ItemSelectedHasChanged and self.scene():
+            qgigroup = self.parent.QGIGroup
+            # print "looking for a selection change..."
+            if value == True:
+                qgigroup.addToGroup(self)
+                #qgigroup.addToGroup(self.vhelix)
+                print "isSelected = True, and added", self.number
+            # end if
+            else:
+                #qgigroup.removeFromGroup(self)
+                #qgigroup.removeFromGroup(self.vhelix)
+                print "isSelected = False", self.number
+            # end else
             self.update(self.rect)
-            # if self.isSelected():
-            #     print "isSelected = True", self.number
-            # else:
-            #     print "isSelected = False", self.number
         return QGraphicsItem.itemChange(self, change, value)
-# >>>>>>> 405dbee428ef841721bd4ac995e4ab9eae227c8f
     # end def
 

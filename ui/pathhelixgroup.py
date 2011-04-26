@@ -31,8 +31,8 @@ Created by Shawn on 2011-01-27.
 
 from PyQt4.QtCore import QRectF, QPointF, QEvent, pyqtSlot, QObject, Qt
 from PyQt4.QtCore import pyqtSignal
-from PyQt4.QtGui import QBrush
-from PyQt4.QtGui import QGraphicsItem
+from PyQt4.QtGui import QBrush, QPen
+from PyQt4.QtGui import QGraphicsItem, QGraphicsItemGroup
 from .pathhelix import PathHelix
 from handles.activeslicehandle import ActiveSliceHandle
 from handles.breakpointhandle import BreakpointHandle
@@ -50,6 +50,97 @@ class PhgObject(QObject):
     scaffoldChange = pyqtSignal(int)
     def __init__(self):
         super(PhgObject, self).__init__()
+# end class
+
+class PathHelixGroupSelection(QGraphicsItemGroup):
+    def __init__(self, parent=None):
+        super(PathHelixGroupSelection, self).__init__(parent)
+        self.parent = parent
+        self.setParentItem(parent) 
+        self.setFiltersChildEvents(True)
+        self.setFlag(QGraphicsItem.ItemIsSelectable)
+        self.pen = QPen(styles.bluestroke, styles.SLICE_HELIX_HILIGHT_WIDTH)
+        self.drawMe = False
+        self.drawn = False
+    # end def
+    
+    def paint(self, painter, option, widget=None):
+        if self.drawMe == True:
+            painter.setPen(self.pen)
+            painter.drawRect(self.boundingRect())
+            self.drawn = True
+            print "drawn", self.isSelected()
+            # self.bringToFront()
+    # end def
+            
+    def bringToFront(self):
+        """collidingItems gets a list of all items that overlap. sets
+        this items zValue to one higher than the max."""
+        zval = 1
+        items = self.scene().items(self.boundingRect()) # the is a QList
+        for item in items:
+            temp = item.zValue()
+            if temp >= zval:
+                zval = item.zValue() + 1
+            # end if
+        # end for
+        self.setZValue(zval)
+    # end def
+    
+    def mousePressEvent(self, event):
+        if event.button() != Qt.LeftButton:
+            event.ignore()
+            print "this might work press plus"
+            QGraphicsItemGroup.mousePressEvent(self,event)
+        else:
+            if self.isSelected():
+            # self.setSelected(True)
+                print "this might work press"
+                self.scene().views()[0].addToPressList(self)
+    # end def
+    
+    def customMouseRelease(self, event):
+        """docstring for customMouseRelease"""
+        print "this might work release"
+        if self.isSelected():
+            print "selected!!!"
+            self.drawMe = True
+            self.drawn = False
+            self.update(self.boundingRect())
+        else:
+            self.drawMe = False
+        # QGraphicsItemGroup.mouseReleaseEvent(self,event) 
+    # end def
+    
+    def itemChange(self, change, value):
+        # for selection changes test against QGraphicsItem.ItemSelectedChange
+        # if change == QGraphicsItem.ItemScenePositionHasChanged and self.scene():
+        #     newPos = value.toPointF()  # value is the new position
+        # # end if
+        # if change == QGraphicsItem.ItemSelectedChange and self.scene():
+        #     if value == False: # becoming deselected is still selected
+        #         self.drawMe = False
+        #         for item in self.childItems():
+        #             self.removeFromGroup(item)
+        #             item.itemChange(QGraphicsItem.ItemSelectedHasChanged,False)
+        #             item.setSelected(False) 
+        #             print "removed hh", item.number
+        if change == QGraphicsItem.ItemSelectedHasChanged:
+            print "looking for a selection change..."
+            if value == False and self.drawn == True:
+                self.drawMe = False
+                print "release me!!!"
+                # self.update(self.boundingRect())
+                for item in self.childItems():
+                    if not item.isSelected():
+                        self.removeFromGroup(item)
+                        print "removed ", item.number
+                        item.setSelected(False) 
+            else:
+                print "group selected!"
+                self.drawn = False
+        return QGraphicsItemGroup.itemChange(self, change, value)
+    # end def
 # end class
 
 class PathHelixGroup(QGraphicsItem):
@@ -80,6 +171,8 @@ class PathHelixGroup(QGraphicsItem):
         self.scaffoldChange = self.qObject.scaffoldChange
         self.rect = QRectF(0, 0, 200, 200) # NC: w,h don't seem to matter
         self.zoomToFit()
+        
+        self.QGIGroup = PathHelixGroupSelection(self)
     # end def
 
     def paint(self, painter, option, widget=None):
@@ -196,6 +289,7 @@ class PathHelixGroup(QGraphicsItem):
         ph.updateBreakBounds(StrandType.Scaffold)
         ph.redrawLines(StrandType.Scaffold)
     # end def
+
 
     def bringToFront(self):
         """collidingItems gets a list of all items that overlap. sets
