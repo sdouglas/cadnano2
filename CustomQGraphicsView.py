@@ -296,12 +296,6 @@ class CustomQGraphicsView(QGraphicsView):
             # end if 
             QGraphicsView.mouseReleaseEvent(self, event)
     #end def
-    
-    # def resizeEvent(self,event):
-    #     h_new = event.size().height()
-    #     h_old = event.oldSize().height()
-    #     self.resetScale(height_old, height_new)
-    # # end def
 
     def panEnable(self):
         """Enable ScrollHandDrag Mode in QGraphicsView (displays a hand
@@ -311,9 +305,7 @@ class CustomQGraphicsView(QGraphicsView):
 
     def panDisable(self):
         """Disable ScrollHandDrag Mode in QGraphicsView (displays a hand
-        pointer)
-        
-        """
+        pointer)"""
         self.setDragMode(self._noDrag)
     # end def
 
@@ -417,17 +409,17 @@ class CustomQGraphicsView(QGraphicsView):
         """
         # use the transform value if you want to get how much the view 
         # has been scaled
-        self._scale_size = self.transform().m11() 
-        
+        self._scale_size = self.transform().m11()
+
         # self._scale_limit_min = 0.41*self._scale_size
         # make it so fitting in view is zoomed minimum
         # still gives you one zoom level out before violates limit
         self._scale_limit_min = self._scale_size*self._scaleFitFactor
-        
+
         # use this if you want to reset the zoom in limit
         # self._scale_limit_max = 3.0*self._scale_size
-        
-        self._last_scale_factor = 0.0    
+
+        self._last_scale_factor = 0.0
     # end def
     
     def zoomToFit(self):
@@ -436,21 +428,13 @@ class CustomQGraphicsView(QGraphicsView):
         # order matters?
         self.sceneRootItem.resetTransform() # zero out translations
         self.resetTransform() # zero out scaling
-        
+
         # in case of deletions/undos, recalculate bounding area
         # itemsBoundingRect is slow, so maybe easier to keep track of the scenes
         # boundingRect on the undo/redo stack and push that
         thescene.setSceneRect(thescene.itemsBoundingRect()) 
-        
         scene_rect = thescene.sceneRect()
-        
-        # debug
-        print "The scene rect width, height:", scene_rect.width(), scene_rect.height()
-        
         self.fitInView(scene_rect, Qt.KeepAspectRatio) # fit in view
-        # theview.ensureVisible(self.mapRectToScene(new_rect))
-        #theview.ensureVisible(scene_rect)
-
         self.resetScale() # adjust scaling so that translation works
         # adjust scaling so that the items don't fill 100% of the view 
         # this is good for selection

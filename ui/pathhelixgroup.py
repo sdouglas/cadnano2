@@ -71,17 +71,14 @@ class PathHelixGroup(QGraphicsItem):
         self.parent = parent
         self.setParentItem(parent) 
         self.numToPathHelix = {}
-
         self.numToPathHelixHandle = {}
-        self.rect = QRectF(0, 0, 200, 200) # NC: w,h don't seem to matter
-
         count = self.part.getVirtualHelixCount()
         if count > 0: # initalize if loading from file, otherwise delay
             self.activeslicehandle.setParentItem(self)
         # set up signals
         self.qObject = PhgObject()
         self.scaffoldChange = self.qObject.scaffoldChange
-        
+        self.rect = QRectF(0, 0, 200, 200) # NC: w,h don't seem to matter
         self.zoomToFit()
     # end def
 
@@ -118,9 +115,7 @@ class PathHelixGroup(QGraphicsItem):
             self.activeslicehandle.setParentItem(self)
         # end if
         self.activeslicehandle.resize(count)
-        
-        # Auto zoom to center the scene
-        self.zoomToFit()
+        self.zoomToFit()  # Auto zoom to center the scene
     # end def
 
     def zoomToFit(self):
