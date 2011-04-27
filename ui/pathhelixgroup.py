@@ -132,6 +132,7 @@ class PathHelixGroupSelection(QGraphicsItemGroup):
                 # print "this might work press"
                 self.dragEnable = True
                 self.movebox.resetTransform()
+                self.movebox.drawMe = True
                 self._y0 = event.pos().y()
                 self.scene().views()[0].addToPressList(self)
     # end def
@@ -141,8 +142,8 @@ class PathHelixGroupSelection(QGraphicsItemGroup):
             # print "nachos!!!"
             # add in translation here
             yf = event.pos().y()
-            self.movebox.translate(0,\
-                                        (yf - self._y0))
+            self.movebox.translate( 0,\
+                                    (yf - self._y0))
             self._y0 = yf
         else:
             print "this might work move plus", event.button()
