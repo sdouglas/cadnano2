@@ -60,8 +60,9 @@ class BreakpointHandle(QGraphicsItem):
         drawn in the correct orientation depending on parity and whether
         it's a 5' end or a 3' end."""
         super(BreakpointHandle, self).__init__(parent)
-        self.parent = parent
-        self.undoStack = parent.parent.pathController.mainWindow.undoStack
+        # self.parent = parent
+        self.restoreParentItem = parent
+        self.undoStack = parent.parentItem().pathController.mainWindow.undoStack
         self.setParentItem(parent) 
         self.vhelix = vhelix
         self.endType = endType
@@ -82,7 +83,16 @@ class BreakpointHandle(QGraphicsItem):
         self.setCursor(Qt.OpenHandCursor)
         self._dragMode = False
         self.setFlag(QGraphicsItem.ItemIsMovable)
+        self.setFlag(QGraphicsItem.ItemIsSelectable)
         self.breakpoint3D = BreakpointHandle3D(self)  # for Campbell
+
+    def restoreParent(self):
+        # print "restore: ", self.restoreParentItem
+        #self.parent = self.restoreParentItem
+        tempP = self.restoreParentItem.mapFromItem(self.parentItem(),self.pos())
+        self.setParentItem(self.restoreParentItem)
+        self.setPos(tempP)
+    # end def
 
     class MoveCommand(QUndoCommand):
         def __init__(self, breakpointhandle, fromIndex, toIndex):
@@ -108,6 +118,7 @@ class BreakpointHandle(QGraphicsItem):
         painter.setBrush(self.nobrush)
         painter.setPen(self.pen)
         painter.drawRect(self.rect)
+        # print self.pos().y()
 
     def setParity(self):
         """docstring for setParity"""
@@ -225,6 +236,7 @@ class BreakpointHandle(QGraphicsItem):
             event.ignore()
             QGraphicsItem.mousePressEvent(self,event)
         else:
+            # if self.parentItem() == self.restoreParentItem:
             self.scene().views()[0].addToPressList(self)
             self._dragMode = True
             self.pressX = event.scenePos().x()
@@ -249,9 +261,10 @@ class BreakpointHandle(QGraphicsItem):
                                                          self.tempIndex))
         self.undoStack.endMacro()
         self.baseIndex = self.tempIndex
-        self.parent.updateBreakBounds(self.strandType)
-        self.parent.redrawLines(self.strandType)
+        self.parentItem().updateBreakBounds(self.strandType)
+        self.parentItem().redrawLines(self.strandType)
         self._dragMode = False
+        # print "released a dog"#, self.parentItem(), '\n',self.restoreParentItem
 
     def setDragBounds(self, minIndex, maxIndex):
         """Called by PathHelix.updateBreakBounds to notify breakpoint handle
@@ -295,11 +308,35 @@ class BreakpointHandle(QGraphicsItem):
         self.baseIndex = newIndex
         self.x0 = newIndex * self.baseWidth # determine new location
         self.setPos(self.x0, self.y0) # move there
-        self.parent.updateBreakBounds(self.strandType) # new breakpoint bounds
-        self.parent.redrawLines(self.strandType) # new 2D lines
+        self.parentItem().updateBreakBounds(self.strandType) # new breakpoint bounds
+        self.parentItem().redrawLines(self.strandType) # new 2D lines
 
     def actionFrom3D(self, actionType):
         """Called by mMaya BreakpointHandle3D to notify cadnano that the
         3D handle has received a user action. All updates to the data
         structure are then handled by cadnano on the 2D side."""
         raise NotImplementedError
+        
+    def itemChange(self, change, value):
+        # for selection changes test against QGraphicsItem.ItemSelectedChange
+        if change == QGraphicsItem.ItemSelectedChange and self.scene():
+        # if change == QGraphicsItem.ItemSelectedHasChanged and self.scene():
+            qgigroup = self.parentItem().parentItem().QGIGroupBreakPoint
+            # print "looking for a selection change..."
+            if value == True:
+                # print "original: ", self.parentItem()
+                qgigroup.addToGroup(self)
+                #qgigroup.addToGroup(self.vhelix)
+                print "BP isSelected = True, and added"
+                return QGraphicsItem.itemChange(self, change, False)
+            # end if
+            else:
+                pass
+                #qgigroup.removeFromGroup(self)
+                #qgigroup.removeFromGroup(self.vhelix)
+                print "BP isSelected = False"
+            # end else
+            self.update(self.rect)
+        return QGraphicsItem.itemChange(self, change, value)
+    # end def
+

@@ -63,6 +63,12 @@ class PathHelixHandle(QGraphicsItem):
         self.setFlag(QGraphicsItem.ItemSendsScenePositionChanges)
     # end def
 
+    def restoreParent(self):
+        pass
+        # self.parent = self.restoreParentItem
+        # self.setParentItem(self.restoreParentItem) 
+    # end def
+
     def boundingRect(self):
         return self.rect
 
@@ -135,18 +141,6 @@ class PathHelixHandle(QGraphicsItem):
         self.update(self.rect)
     # end def
 
-    # def mousePressEvent(self, event):
-    #     if event.button() != Qt.LeftButton:
-    #         event.ignore()
-    #         QGraphicsItem.mousePressEvent(self,event)
-    #     else:
-    #         self.scene().views()[0].addToPressList(self)
-    #         self.setCursor(Qt.ClosedHandCursor)
-    # 
-    # def customMouseRelease(self, eventPosition):
-    #     """docstring for customMouseRelease"""
-    #     print "%d customMouseRelease" % self.number
-
     def itemChange(self, change, value):
         # for selection changes test against QGraphicsItem.ItemSelectedChange
         if change == QGraphicsItem.ItemScenePositionHasChanged and self.scene():
@@ -160,13 +154,10 @@ class PathHelixHandle(QGraphicsItem):
             #     return newPos
             # # end if
         # end if
-        # elif change == QGraphicsItem.ItemPositionChange and self.scene():
-        #     print "poop"
-        
         # intercept the change instead of the has changed to enable features.
         elif change == QGraphicsItem.ItemSelectedChange and self.scene():
         # elif change == QGraphicsItem.ItemSelectedHasChanged and self.scene():
-            qgigroup = self.parent.QGIGroup
+            qgigroup = self.parent.QGIGroupPathHelix
             # print "looking for a selection change..."
             if value == True:
                 qgigroup.addToGroup(self)

@@ -52,8 +52,60 @@ class PhgObject(QObject):
         super(PhgObject, self).__init__()
 # end class
 
+class RoundMoveBox(QGraphicsItem):
+    radius = styles.PATHHELIXHANDLE_RADIUS
+    def __init__(self, rect, parent=None):
+        super(RoundMoveBox, self).__init__(parent)
+        self.parent = parent
+        self.setParentItem(parent) 
+        self.rect = rect
+        self.drawMe = False
+        # self.setFlag(QGraphicsItem.ItemIsMovable)
+        self.pen = QPen(styles.bluestroke, styles.SLICE_HELIX_HILIGHT_WIDTH)
+    # end def
+
+    def paint(self, painter, option, widget=None):
+        if self.drawMe == True:
+            painter.setPen(self.pen)
+            painter.drawRoundedRect(self.boundingRect(), self.radius, self.radius)
+    # end def
+
+    def boundingRect(self):
+        return self.rect
+    # end def
+
+    def setRect(self, rect):
+        self.rect = rect
+# end class
+
+class SquareMoveBox(QGraphicsItem):
+    # radius = styles.PATHHELIXHANDLE_RADIUS
+    def __init__(self, rect, parent=None):
+        super(SquareMoveBox, self).__init__(parent)
+        self.parent = parent
+        self.setParentItem(parent) 
+        self.rect = rect
+        self.drawMe = False
+        # self.setFlag(QGraphicsItem.ItemIsMovable)
+        self.pen = QPen(styles.bluestroke, styles.SLICE_HELIX_HILIGHT_WIDTH)
+    # end def
+
+    def paint(self, painter, option, widget=None):
+        if self.drawMe == True:
+            painter.setPen(self.pen)
+            painter.drawRect(self.boundingRect())
+    # end def
+
+    def boundingRect(self):
+        return self.rect
+    # end def
+
+    def setRect(self, rect):
+        self.rect = rect
+# end class
+
 class PathHelixGroupSelection(QGraphicsItemGroup):
-    def __init__(self, parent=None):
+    def __init__(self, boxtype=RoundMoveBox, constraint='y',parent=None):
         super(PathHelixGroupSelection, self).__init__(parent)
         self.parent = parent
         self.setParentItem(parent) 
@@ -64,36 +116,32 @@ class PathHelixGroupSelection(QGraphicsItemGroup):
         self.drawMe = False
         self.drawn = False
         # make its parent not itself so we can translate it independently
-        self.movebox = PathHelixGroupSelection.MoveBox(self.boundingRect(), parent)
+        self.movebox = boxtype(self.boundingRect(), parent)
         self.dragEnable = False
-        self._y0 = 0
+        self._r0 = 0
+        if constraint == 'y':    
+            self.getR = self.getY
+            self.translateR = self.translateY
+        else:
+            self.getR = self.getX
+            self.translateR = self.translateX
     # end def
-
-    class MoveBox(QGraphicsItem):
-        radius = styles.PATHHELIXHANDLE_RADIUS
-        def __init__(self, rect, parent=None):
-            super(PathHelixGroupSelection.MoveBox, self).__init__(parent)
-            self.parent = parent
-            self.setParentItem(parent) 
-            self.rect = rect
-            self.drawMe = False
-            # self.setFlag(QGraphicsItem.ItemIsMovable)
-            self.pen = QPen(styles.bluestroke, styles.SLICE_HELIX_HILIGHT_WIDTH)
-        # end def
-
-        def paint(self, painter, option, widget=None):
-            if self.drawMe == True:
-                painter.setPen(self.pen)
-                painter.drawRoundedRect(self.boundingRect(), self.radius, self.radius)
-        # end def
-
-        def boundingRect(self):
-            return self.rect
-        # end def
-
-        def setRect(self, rect):
-            self.rect = rect
-    # end class
+    
+    def getY(self, event):
+        return event.pos().y()
+    # end def
+    
+    def getX(self, event):
+        return event.pos().x()
+    # end def
+    
+    def translateY(self,yf):
+        self.movebox.translate( 0,(yf - self._r0))
+    # end def
+    
+    def translateX(self,xf):
+        self.movebox.translate( (xf - self._r0),0)
+    # end def
     
     def paint(self, painter, option, widget=None):
         pass
@@ -122,17 +170,17 @@ class PathHelixGroupSelection(QGraphicsItemGroup):
     
     def mousePressEvent(self, event):
         if event.button() != Qt.LeftButton:
-            event.ignore()
             # print "this might work press plus"
             QGraphicsItemGroup.mousePressEvent(self,event)
         else:
+            # print "whoops"
             if self.isSelected():
                 # print "this might work press"
                 self.dragEnable = True
                 self.movebox.resetTransform()
                 self.movebox.drawMe = True
                 self.movebox.setRect(self.boundingRect())
-                self._y0 = event.pos().y()
+                self._r0 = self.getR(event) 
                 self.scene().views()[0].addToPressList(self)
     # end def
     
@@ -140,10 +188,9 @@ class PathHelixGroupSelection(QGraphicsItemGroup):
         if self.isSelected() and self.dragEnable == True:
             # print "nachos!!!"
             # add in translation here
-            yf = event.pos().y()
-            self.movebox.translate( 0,\
-                                    (yf - self._y0))
-            self._y0 = yf
+            rf = self.getR(event) 
+            self.translateR(rf)
+            self._r0 = rf
         else:
             print "this might work move plus", event.button()
             QGraphicsItemGroup.mouseMoveEvent(self,event)
@@ -160,12 +207,14 @@ class PathHelixGroupSelection(QGraphicsItemGroup):
             # self.update(self.boundingRect())
             
             self.movebox.drawMe = False
-            self.movebox.setRect(self.boundingRect())
-            self.movebox.update(self.boundingRect())
+            self.movebox.resetTransform()
+            # self.movebox.setRect(self.boundingRect())
+            # self.movebox.update(self.boundingRect())
         # end if
         else:
             # self.drawMe = False
             self.movebox.drawMe = False
+            self.movebox.resetTransform()
         # end else
         self.dragEnable = False
     # end def
@@ -178,13 +227,22 @@ class PathHelixGroupSelection(QGraphicsItemGroup):
             if value == False:# and qApp.mouseButtons() != Qt.LeftButton:# self.drawn == True:
                 # self.drawMe = False
                 self.movebox.drawMe = False
-                print "release me!!!"
-                # self.update(self.boundingRect())
+                self.movebox.resetTransform()
+                
                 for item in self.childItems():
                     if not item.isSelected():
+                        # print "before", item.parentItem()
                         self.removeFromGroup(item)
-                        print "removed ", item.number
+                        # print "after", item.parentItem()
+                        try:
+                            item.restoreParent()
+                        except ValueError:
+                            pass
+                        #print "removed ", item.number
                         item.setSelected(False) 
+                    # end if
+                # end for
+            # end if
             else:
                 print "group selected!"
                 # self.drawn = False
@@ -221,7 +279,11 @@ class PathHelixGroup(QGraphicsItem):
         self.rect = QRectF(0, 0, 200, 200) # NC: w,h don't seem to matter
         self.zoomToFit()
         
-        self.QGIGroup = PathHelixGroupSelection(self)
+        self.QGIGroupPathHelix = PathHelixGroupSelection(constraint='y', \
+                                                        parent=self)
+        self.QGIGroupBreakPoint = PathHelixGroupSelection(boxtype=SquareMoveBox, \
+                                                            constraint='x', \
+                                                            parent=self)
     # end def
 
     def paint(self, painter, option, widget=None):
