@@ -71,7 +71,7 @@ class PathHelix(QGraphicsItem):
         # Here's where cadnano gets the reference to mMaya's 3D equivalent
         # of the PathHelix (while passing a handy reference to itself)
         self.PathHelix3D = PathHelix3D(self)
-
+        self.setZValue(styles.ZPATHHELIX)
         self.rect = QRectF()
         self.updateRect()
 
@@ -107,7 +107,8 @@ class PathHelix(QGraphicsItem):
         # Scaffold lines
         painter.setPen(self.scafPen)
         painter.drawLines(self.scafLines)
-
+    # end def
+    
     def getMinorGridPainterPath(self):
         """
         Returns a QPainterPath object for the minor grid lines.
@@ -240,6 +241,7 @@ class PathHelix(QGraphicsItem):
             x1 = (startIndex * self.baseWidth) + (self.baseWidth >> 1)
             x2 = (endIndex * self.baseWidth) + (self.baseWidth >> 1)
             self.scafLines.append(QLine(x1,y,x2,y))  # create QLine list
+        # end for
         self.update(self.rect)
         self.PathHelix3D.updateDNA(strandType, endpoints)
 

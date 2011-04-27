@@ -78,7 +78,7 @@ class ActiveSliceHandle(QGraphicsItem):
         self.qObject = AshObject()
         self.activeSliceMovedSignal = self.qObject.activeSliceMovedSignal
         self.activeslicehandle3D = ActiveSliceHandle3D(self) # for Campbell
-        
+        self.setZValue(styles.ZACTIVESLICEHANDLE)
 
     def boundingRect(self):
         """docstring for boundingRect"""
@@ -161,4 +161,3 @@ class ActiveSliceHandle(QGraphicsItem):
         self.x0 = self.baseIndex*self.baseWidth
         self.setPos(self.x0, self.y0)
         self.activeSliceMovedSignal.emit(self.baseIndex)
-

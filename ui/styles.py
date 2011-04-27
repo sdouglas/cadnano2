@@ -37,6 +37,7 @@ SLICE_HELIX_HILIGHT_WIDTH = 1.5
 # Slice Colors
 bluefill = QColor(153, 204, 255)  # 99ccff
 bluestroke = QColor(0, 102, 204)  # 0066cc
+bluishstroke = QColor(0, 182, 250)  # 
 orangefill = QColor(255, 204, 153)  # ffcc99
 orangestroke = QColor(204, 102, 51)  # cc6633
 # grayfill = QColor(161, 161, 161)  # a1a1a1
@@ -63,6 +64,10 @@ scafstroke = QColor(0, 102, 204)  # 0066cc
 handlefill = QColor(0, 102, 204)  # 0066cc
 # handlestroke = QColor(0, 102, 204)  # 0066cc
 
+#layer limits
+ZBREAKPOINTHANDLE= -9
+ZPATHHELIX = -11
+ZACTIVESLICEHANDLE = -12
 
 # Overwrite for Maya
 # majorgridstroke = QColor(255, 255, 255)  # ffffff for maya

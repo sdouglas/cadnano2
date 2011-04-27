@@ -52,6 +52,7 @@ class BreakpointHandle(QGraphicsItem):
     pen = QPen(styles.minorgridstroke, styles.PATH_GRID_STROKE_WIDTH)
     nopen = QPen(Qt.NoPen)
     brush = QBrush(styles.bluestroke)
+    selectbrush = QBrush(styles.bluishstroke)
     nobrush = QBrush(Qt.NoBrush)
     baseWidth = styles.PATH_BASE_WIDTH
 
@@ -85,6 +86,7 @@ class BreakpointHandle(QGraphicsItem):
         self.setFlag(QGraphicsItem.ItemIsMovable)
         self.setFlag(QGraphicsItem.ItemIsSelectable)
         self.breakpoint3D = BreakpointHandle3D(self)  # for Campbell
+        self.setZValue(styles.ZBREAKPOINTHANDLE)
 
     def restoreParent(self):
         # print "restore: ", self.restoreParentItem
@@ -112,13 +114,17 @@ class BreakpointHandle(QGraphicsItem):
         return self.rect
 
     def paint(self, painter, option, widget=None):
-        painter.setBrush(self.brush)
-        painter.setPen(self.nopen)
+        if self.isSelected():
+            painter.setBrush(self.selectbrush)
+            painter.setPen(self.nopen)
+        else:
+            painter.setBrush(self.brush)
+            painter.setPen(self.nopen)
         painter.drawPath(self.painterpath)
-        painter.setBrush(self.nobrush)
-        painter.setPen(self.pen)
-        painter.drawRect(self.rect)
-        # print self.pos().y()
+        #painter.setBrush(self.nobrush)
+        #painter.setPen(self.pen)
+        # painter.drawRect(self.rect)
+    # end def
 
     def setParity(self):
         """docstring for setParity"""
@@ -242,6 +248,7 @@ class BreakpointHandle(QGraphicsItem):
             self.pressX = event.scenePos().x()
             self.pressXoffset = self.pressX % self.baseWidth
             self.setCursor(Qt.ClosedHandCursor)
+    # end def
 
     def customMouseRelease(self, eventPosition):
         """Snaps to grid after mouse released. Updates vhelix data according
@@ -264,7 +271,8 @@ class BreakpointHandle(QGraphicsItem):
         self.parentItem().updateBreakBounds(self.strandType)
         self.parentItem().redrawLines(self.strandType)
         self._dragMode = False
-        # print "released a dog"#, self.parentItem(), '\n',self.restoreParentItem
+        self.setCursor(Qt.OpenHandCursor)
+    # end def
 
     def setDragBounds(self, minIndex, maxIndex):
         """Called by PathHelix.updateBreakBounds to notify breakpoint handle
@@ -326,6 +334,7 @@ class BreakpointHandle(QGraphicsItem):
             if value == True:
                 # print "original: ", self.parentItem()
                 qgigroup.addToGroup(self)
+                # self.bringToFront()
                 #qgigroup.addToGroup(self.vhelix)
                 print "BP isSelected = True, and added"
                 return QGraphicsItem.itemChange(self, change, False)
