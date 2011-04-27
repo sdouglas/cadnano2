@@ -31,7 +31,7 @@ Created by Shawn on 2011-01-27.
 
 from PyQt4.QtCore import QRectF, QPointF, QEvent, pyqtSlot, QObject, Qt
 from PyQt4.QtCore import pyqtSignal
-from PyQt4.QtGui import QBrush, QPen
+from PyQt4.QtGui import QBrush, QPen, qApp
 from PyQt4.QtGui import QGraphicsItem, QGraphicsItemGroup
 from .pathhelix import PathHelix
 from handles.activeslicehandle import ActiveSliceHandle
@@ -58,19 +58,54 @@ class PathHelixGroupSelection(QGraphicsItemGroup):
         self.parent = parent
         self.setParentItem(parent) 
         self.setFiltersChildEvents(True)
+        # self.setFlag(QGraphicsItem.ItemIsMovable)
         self.setFlag(QGraphicsItem.ItemIsSelectable)
         self.pen = QPen(styles.bluestroke, styles.SLICE_HELIX_HILIGHT_WIDTH)
         self.drawMe = False
         self.drawn = False
+        
+        # make its parent not itself so we can translate it independently
+        self.movebox = PathHelixGroupSelection.MoveBox(self.boundingRect(), parent)
+        self.dragEnable = False
+        self._y0 = 0
     # end def
     
+    class MoveBox(QGraphicsItem):
+        def __init__(self, rect, parent=None):
+            super(PathHelixGroupSelection.MoveBox, self).__init__(parent)
+            self.parent = parent
+            self.setParentItem(parent) 
+            self.rect = rect
+            self.drawMe = False
+            # self.setFlag(QGraphicsItem.ItemIsMovable)
+            self.pen = QPen(styles.bluestroke, styles.SLICE_HELIX_HILIGHT_WIDTH)
+        # end def
+        
+        def paint(self, painter, option, widget=None):
+            if self.drawMe == True:
+                painter.setPen(self.pen)
+                painter.drawRect(self.boundingRect())
+                # print "drawn", self.isSelected()
+                # self.bringToFront()
+        # end def
+    
+        def boundingRect(self):
+            return self.rect
+        # end def
+        
+        def setRect(self, rect):
+            self.rect = rect
+    # end class
+    
     def paint(self, painter, option, widget=None):
-        if self.drawMe == True:
-            painter.setPen(self.pen)
-            painter.drawRect(self.boundingRect())
-            self.drawn = True
-            print "drawn", self.isSelected()
-            # self.bringToFront()
+        pass
+        # self.movebox.paint(painter, option, widget=None)
+        # if self.drawMe == True:
+        #     painter.setPen(self.pen)
+        #     painter.drawRect(self.boundingRect())
+        #     self.drawn = True
+        #     print "drawn", self.isSelected()
+        #     # self.bringToFront()
     # end def
             
     def bringToFront(self):
@@ -90,45 +125,59 @@ class PathHelixGroupSelection(QGraphicsItemGroup):
     def mousePressEvent(self, event):
         if event.button() != Qt.LeftButton:
             event.ignore()
-            print "this might work press plus"
+            # print "this might work press plus"
             QGraphicsItemGroup.mousePressEvent(self,event)
         else:
             if self.isSelected():
-            # self.setSelected(True)
-                print "this might work press"
+                # print "this might work press"
+                self.dragEnable = True
+                self.movebox.resetTransform()
+                self._y0 = event.pos().y()
                 self.scene().views()[0].addToPressList(self)
+    # end def
+    
+    def mouseMoveEvent(self, event):
+        if self.isSelected() and self.dragEnable == True:
+            # print "nachos!!!"
+            # add in translation here
+            yf = event.pos().y()
+            self.movebox.translate(0,\
+                                        (yf - self._y0))
+            self._y0 = yf
+        else:
+            print "this might work move plus", event.button()
+            QGraphicsItemGroup.mouseMoveEvent(self,event)
+
     # end def
     
     def customMouseRelease(self, event):
         """docstring for customMouseRelease"""
         print "this might work release"
         if self.isSelected():
-            print "selected!!!"
-            self.drawMe = True
-            self.drawn = False
-            self.update(self.boundingRect())
+            # print "selected!!!"
+            # self.drawMe = True
+            # self.drawn = False
+            # self.update(self.boundingRect())
+            
+            self.movebox.drawMe = True
+            self.movebox.setRect(self.boundingRect())
+            self.movebox.update(self.boundingRect())
+        # end if
         else:
-            self.drawMe = False
-        # QGraphicsItemGroup.mouseReleaseEvent(self,event) 
+            # self.drawMe = False
+            self.movebox.drawMe = False
+        # end else
+        self.dragEnable = False
     # end def
     
     def itemChange(self, change, value):
-        # for selection changes test against QGraphicsItem.ItemSelectedChange
-        # if change == QGraphicsItem.ItemScenePositionHasChanged and self.scene():
-        #     newPos = value.toPointF()  # value is the new position
-        # # end if
-        # if change == QGraphicsItem.ItemSelectedChange and self.scene():
-        #     if value == False: # becoming deselected is still selected
-        #         self.drawMe = False
-        #         for item in self.childItems():
-        #             self.removeFromGroup(item)
-        #             item.itemChange(QGraphicsItem.ItemSelectedHasChanged,False)
-        #             item.setSelected(False) 
-        #             print "removed hh", item.number
+        """"""
         if change == QGraphicsItem.ItemSelectedHasChanged:
             print "looking for a selection change..."
-            if value == False and self.drawn == True:
-                self.drawMe = False
+            
+            if value == False:# and qApp.mouseButtons() != Qt.LeftButton:# self.drawn == True:
+                # self.drawMe = False
+                self.movebox.drawMe = False
                 print "release me!!!"
                 # self.update(self.boundingRect())
                 for item in self.childItems():
@@ -138,7 +187,7 @@ class PathHelixGroupSelection(QGraphicsItemGroup):
                         item.setSelected(False) 
             else:
                 print "group selected!"
-                self.drawn = False
+                # self.drawn = False
         return QGraphicsItemGroup.itemChange(self, change, value)
     # end def
 # end class

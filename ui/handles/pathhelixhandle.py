@@ -162,15 +162,17 @@ class PathHelixHandle(QGraphicsItem):
         # end if
         # elif change == QGraphicsItem.ItemPositionChange and self.scene():
         #     print "poop"
-        # elif change == QGraphicsItem.ItemSelectedChange and self.scene():
-        #     print "I am selected"
-        elif change == QGraphicsItem.ItemSelectedHasChanged and self.scene():
+        
+        # intercept the change instead of the has changed to enable features.
+        elif change == QGraphicsItem.ItemSelectedChange and self.scene():
+        # elif change == QGraphicsItem.ItemSelectedHasChanged and self.scene():
             qgigroup = self.parent.QGIGroup
             # print "looking for a selection change..."
             if value == True:
                 qgigroup.addToGroup(self)
                 #qgigroup.addToGroup(self.vhelix)
                 print "isSelected = True, and added", self.number
+                return QGraphicsItem.itemChange(self, change, False)
             # end if
             else:
                 #qgigroup.removeFromGroup(self)
