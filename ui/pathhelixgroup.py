@@ -133,6 +133,7 @@ class PathHelixGroupSelection(QGraphicsItemGroup):
                 self.dragEnable = True
                 self.movebox.resetTransform()
                 self.movebox.drawMe = True
+                self.movebox.setRect(self.boundingRect())
                 self._y0 = event.pos().y()
                 self.scene().views()[0].addToPressList(self)
     # end def
