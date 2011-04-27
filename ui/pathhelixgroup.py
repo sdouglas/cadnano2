@@ -63,14 +63,14 @@ class PathHelixGroupSelection(QGraphicsItemGroup):
         self.pen = QPen(styles.bluestroke, styles.SLICE_HELIX_HILIGHT_WIDTH)
         self.drawMe = False
         self.drawn = False
-        
         # make its parent not itself so we can translate it independently
         self.movebox = PathHelixGroupSelection.MoveBox(self.boundingRect(), parent)
         self.dragEnable = False
         self._y0 = 0
     # end def
-    
+
     class MoveBox(QGraphicsItem):
+        radius = styles.PATHHELIXHANDLE_RADIUS
         def __init__(self, rect, parent=None):
             super(PathHelixGroupSelection.MoveBox, self).__init__(parent)
             self.parent = parent
@@ -80,19 +80,17 @@ class PathHelixGroupSelection(QGraphicsItemGroup):
             # self.setFlag(QGraphicsItem.ItemIsMovable)
             self.pen = QPen(styles.bluestroke, styles.SLICE_HELIX_HILIGHT_WIDTH)
         # end def
-        
+
         def paint(self, painter, option, widget=None):
             if self.drawMe == True:
                 painter.setPen(self.pen)
-                painter.drawRect(self.boundingRect())
-                # print "drawn", self.isSelected()
-                # self.bringToFront()
+                painter.drawRoundedRect(self.boundingRect(), self.radius, self.radius)
         # end def
-    
+
         def boundingRect(self):
             return self.rect
         # end def
-        
+
         def setRect(self, rect):
             self.rect = rect
     # end class
