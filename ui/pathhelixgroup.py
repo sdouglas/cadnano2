@@ -154,14 +154,14 @@ class PathHelixGroupSelection(QGraphicsItemGroup):
     
     def customMouseRelease(self, event):
         """docstring for customMouseRelease"""
-        print "this might work release"
+        # print "this might work release"
         if self.isSelected():
             # print "selected!!!"
             # self.drawMe = True
             # self.drawn = False
             # self.update(self.boundingRect())
             
-            self.movebox.drawMe = True
+            self.movebox.drawMe = False
             self.movebox.setRect(self.boundingRect())
             self.movebox.update(self.boundingRect())
         # end if
