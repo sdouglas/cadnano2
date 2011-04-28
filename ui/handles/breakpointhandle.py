@@ -245,6 +245,7 @@ class BreakpointHandle(QGraphicsItem):
             # if self.parentItem() == self.restoreParentItem:
             self.scene().views()[0].addToPressList(self)
             self._dragMode = True
+            self.scene().clearSelection()
             self.pressX = event.scenePos().x()
             self.pressXoffset = self.pressX % self.baseWidth
             self.setCursor(Qt.ClosedHandCursor)

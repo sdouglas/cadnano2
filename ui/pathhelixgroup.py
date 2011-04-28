@@ -31,7 +31,7 @@ Created by Shawn on 2011-01-27.
 
 from PyQt4.QtCore import QRectF, QPointF, QEvent, pyqtSlot, QObject, Qt
 from PyQt4.QtCore import pyqtSignal
-from PyQt4.QtGui import QBrush, QPen, qApp
+from PyQt4.QtGui import QBrush, QPen, qApp, QGraphicsSimpleTextItem, QFont
 from PyQt4.QtGui import QGraphicsItem, QGraphicsItemGroup
 from .pathhelix import PathHelix
 from handles.activeslicehandle import ActiveSliceHandle
@@ -115,6 +115,13 @@ class PathHelixGroupSelection(QGraphicsItemGroup):
         self.pen = QPen(styles.bluestroke, styles.SLICE_HELIX_HILIGHT_WIDTH)
         self.drawMe = False
         self.drawn = False
+        
+        self.font = QFont("Times", 30, QFont.Bold)
+        self.label = QGraphicsSimpleTextItem("Part 1")
+        self.label.setFont(self.font)
+        self.label.setParentItem(self)
+        self.label.setPos(0,0)
+        
         # make its parent not itself so we can translate it independently
         self.movebox = boxtype(self.boundingRect(), parent)
         self.dragEnable = False
