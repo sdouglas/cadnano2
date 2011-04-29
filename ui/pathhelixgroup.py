@@ -31,7 +31,7 @@ Created by Shawn on 2011-01-27.
 
 from PyQt4.QtCore import QRectF, QPointF, QEvent, pyqtSlot, QObject, Qt
 from PyQt4.QtCore import pyqtSignal
-from PyQt4.QtGui import QBrush, QPen, qApp, QGraphicsSimpleTextItem, QFont
+from PyQt4.QtGui import QBrush, QPen, qApp, QGraphicsTextItem, QFont
 from PyQt4.QtGui import QGraphicsItem, QGraphicsItemGroup
 from .pathhelix import PathHelix
 from handles.activeslicehandle import ActiveSliceHandle
@@ -292,13 +292,23 @@ class PathHelixGroup(QGraphicsItem):
                                                             constraint='x', \
                                                             parent=self)
         self.font = QFont("Times", 30, QFont.Bold)
-        self.label = QGraphicsSimpleTextItem("Part 1")
+        self.label = QGraphicsTextItem("Part 1")
+        self.label.setVisible(False) 
         self.label.setFont(self.font)
         self.label.setParentItem(self)
         self.label.setPos(0,0)
+        self.label.setTextInteractionFlags(Qt.TextEditorInteraction)
+        # example of how we might handle changes to the name in the editor
+        self.label.inputMethodEvent = self.awesome
         
         self.selectionLock = None
     # end def
+
+    def awesome(self,event):
+        print "dope", self.label.toPlainText()
+        # self.label.setPlainText(self.label.toPlainText() + " cool")
+        # QGraphicsTextItem.inputMethodEvent(self.label,event)
+    # end def 
 
     def paint(self, painter, option, widget=None):
         pass
@@ -314,6 +324,8 @@ class PathHelixGroup(QGraphicsItem):
         with vh and draw it on the screen. Finally, create or update
         the ActiveSliceHandle.
         """
+        self.label.setVisible(True) 
+        
         vh = self.part.getVirtualHelix(number)
         count = self.part.getVirtualHelixCount()
         # add PathHelixHandle
