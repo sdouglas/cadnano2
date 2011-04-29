@@ -231,6 +231,7 @@ class PathHelixGroupSelection(QGraphicsItemGroup):
                 self.movebox.drawMe = False
                 self.movebox.resetTransform()
                 self.removeSelectedItems()
+                self.parentItem().selectionLock = None
             # end if
             else:
                 print "group selected!"
@@ -295,6 +296,8 @@ class PathHelixGroup(QGraphicsItem):
         self.label.setFont(self.font)
         self.label.setParentItem(self)
         self.label.setPos(0,0)
+        
+        self.selectionLock = None
     # end def
 
     def paint(self, painter, option, widget=None):

@@ -143,7 +143,6 @@ class PathHelixHandle(QGraphicsItem):
     # end def
 
     def mousePressEvent(self, event):
-        print "a press here"
         qgigroup = self.group()
         if qgigroup == None:
             qgigroup = self.parent.QGIGroupPathHelix
@@ -158,12 +157,15 @@ class PathHelixHandle(QGraphicsItem):
     def itemChange(self, change, value):
         # for selection changes test against QGraphicsItem.ItemSelectedChange
         # intercept the change instead of the has changed to enable features.
-        if change == QGraphicsItem.ItemSelectedHasChanged and self.scene():
-        # if change == QGraphicsItem.ItemSelectedChange and self.scene():
+        # if change == QGraphicsItem.ItemSelectedHasChanged and self.scene():
+        if change == QGraphicsItem.ItemSelectedChange and self.scene():
             qgigroup = self.parent.QGIGroupPathHelix
             # print "looking for a selection change..."
-            if value == True:
+            lock = qgigroup.parentItem().selectionLock
+            if value == True and ( lock == None or lock == qgigroup ):
                 qgigroup.addToGroup(self)
+                # print "who", qgigroup.parentItem().selectionLock
+                qgigroup.parentItem().selectionLock = qgigroup
                 # qgigroup.setSelected(True)
                 #qgigroup.addToGroup(self.vhelix)
                 # qgigroup = self.parent.QGIGroupPathHelix
@@ -173,12 +175,13 @@ class PathHelixHandle(QGraphicsItem):
                 # else:
                 #     print "Not first"
                 # print "isSelected = True, and added", self.number
-                # return QGraphicsItem.itemChange(self, change, True)
+                return QGraphicsItem.itemChange(self,change, True)
             # end if
             else:
                 #qgigroup.removeFromGroup(self)
                 #qgigroup.removeFromGroup(self.vhelix)
                 print "isSelected = False", self.number
+                return QGraphicsItem.itemChange(self,change, False)
             # end else
             self.update(self.boundingRect())
         return QGraphicsItem.itemChange(self, change, value)
