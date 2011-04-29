@@ -70,6 +70,7 @@ class SliceHelix(QGraphicsItem):
         self.setPos(position)
         self.undoStack = self.parent.sliceController.mainWindow.undoStack
         self.setFlag(QGraphicsItem.ItemIsSelectable)
+        self.setZValue(styles.ZSLICEHELIX)
 
     class FocusRingPainter(QGraphicsItem):
         """Draws a focus ring around helix in parent"""
@@ -78,15 +79,19 @@ class SliceHelix(QGraphicsItem):
             self.parent = parent
             self.scene = scene
             self.helix = helix
+            # returns a new QRect that is bigger all around by 1 pixel
+            # but in the same spot as the original
+            # good for getting rid of line width artifacts
+            self.rect = self.helix.rect.adjusted(-1,-1,2,2)
             self.setPos(helix.pos())
+            self.setZValue(styles.ZFOCUSRING)
 
         def paint(self, painter, option, widget=None):
             painter.setPen(SliceHelix.hovPen)
             painter.drawEllipse(self.helix.rect)
-            bringToFront(self)
 
         def boundingRect(self):
-            return self.helix.rect
+             return self.rect
     # end class
 
     class RenumberCommand(QUndoCommand):
@@ -203,9 +208,9 @@ class SliceHelix(QGraphicsItem):
         QDrag(self.parent.parentWidget())
     # end def
 
-    def dragEnterEvent(self, e):
+    def dragEnterEvent(self, event):
         self.setUsed(not self._number >= 0)
-        e.acceptProposedAction()
+        event.acceptProposedAction()
     # end def
 
     def setNumber(self, n):
@@ -233,7 +238,7 @@ class SliceHelix(QGraphicsItem):
             self.label.setPos(self.radius/2, y_val)
         else:
             self.label.setPos(self.radius/4, y_val)
-        bringToFront(self)
+        # bringToFront(self)
     # end def
 
     def setUsed(self, u):
