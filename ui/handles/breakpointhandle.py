@@ -239,7 +239,6 @@ class BreakpointHandle(QGraphicsItem):
 
     def mousePressEvent(self, event):
         if event.button() != Qt.LeftButton:
-            event.ignore()
             QGraphicsItem.mousePressEvent(self,event)
         else:
             # if self.parentItem() == self.restoreParentItem:
@@ -333,7 +332,7 @@ class BreakpointHandle(QGraphicsItem):
             qgigroup = self.parentItem().parentItem().QGIGroupBreakPoint
             # print "looking for a selection change..."
             if value == True:
-                # print "original: ", self.parentItem()
+                # print "original: ", self.parentItem()                
                 qgigroup.addToGroup(self)
                 # self.bringToFront()
                 #qgigroup.addToGroup(self.vhelix)

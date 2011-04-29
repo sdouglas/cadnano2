@@ -49,6 +49,7 @@ class PathHelixHandle(QGraphicsItem):
         super(PathHelixHandle, self).__init__(parent)
         self.vhelix = vhelix
         self.parent = parent
+        self.restoreParentItem = parent
         self.setParentItem(parent) 
         self.number = self.vhelix.number()
         self.label = None
@@ -64,9 +65,9 @@ class PathHelixHandle(QGraphicsItem):
     # end def
 
     def restoreParent(self):
-        pass
-        # self.parent = self.restoreParentItem
-        # self.setParentItem(self.restoreParentItem) 
+        tempP = self.restoreParentItem.mapFromItem(self.parentItem(),self.pos())
+        self.setParentItem(self.restoreParentItem)
+        self.setPos(tempP)
     # end def
 
     def boundingRect(self):
@@ -141,36 +142,45 @@ class PathHelixHandle(QGraphicsItem):
         self.update(self.rect)
     # end def
 
+    def mousePressEvent(self, event):
+        print "a press here"
+        qgigroup = self.group()
+        if qgigroup == None:
+            qgigroup = self.parent.QGIGroupPathHelix
+        qgigroup.setSelected(False)
+        qgigroup.addToGroup(self)
+        self.setSelected(True)
+        # self.update(self.boundingRect())
+        qgigroup.mousePressEvent(event)
+    # end def
+
+
     def itemChange(self, change, value):
         # for selection changes test against QGraphicsItem.ItemSelectedChange
-        if change == QGraphicsItem.ItemScenePositionHasChanged and self.scene():
-            newPos = value.toPointF()  # value is the new position
-            # print "%d to (%d, %d)" % (self.number, newPos.x(), newPos.y())
-            # rect = self.scene().sceneRect()
-            # if not rect.contains(newPos):
-            #     # Keep the item inside the scene rect.
-            #     newPos.setX(min(rect.right(), max(newPos.x(), rect.left())))
-            #     newPos.setY(min(rect.bottom(), max(newPos.y(), rect.top())))
-            #     return newPos
-            # # end if
-        # end if
         # intercept the change instead of the has changed to enable features.
-        elif change == QGraphicsItem.ItemSelectedChange and self.scene():
-        # elif change == QGraphicsItem.ItemSelectedHasChanged and self.scene():
+        if change == QGraphicsItem.ItemSelectedHasChanged and self.scene():
+        # if change == QGraphicsItem.ItemSelectedChange and self.scene():
             qgigroup = self.parent.QGIGroupPathHelix
             # print "looking for a selection change..."
             if value == True:
                 qgigroup.addToGroup(self)
+                # qgigroup.setSelected(True)
                 #qgigroup.addToGroup(self.vhelix)
-                print "isSelected = True, and added", self.number
-                return QGraphicsItem.itemChange(self, change, False)
+                # qgigroup = self.parent.QGIGroupPathHelix
+                # if len(qgigroup.childItems()) < 2:
+                #     print "First!", qgigroup.childItems()[0]
+                #     return QGraphicsItem.itemChange(self, change, True)
+                # else:
+                #     print "Not first"
+                # print "isSelected = True, and added", self.number
+                # return QGraphicsItem.itemChange(self, change, True)
             # end if
             else:
                 #qgigroup.removeFromGroup(self)
                 #qgigroup.removeFromGroup(self.vhelix)
                 print "isSelected = False", self.number
             # end else
-            self.update(self.rect)
+            self.update(self.boundingRect())
         return QGraphicsItem.itemChange(self, change, value)
     # end def
 

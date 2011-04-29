@@ -116,16 +116,12 @@ class PathHelixGroupSelection(QGraphicsItemGroup):
         self.drawMe = False
         self.drawn = False
         
-        self.font = QFont("Times", 30, QFont.Bold)
-        self.label = QGraphicsSimpleTextItem("Part 1")
-        self.label.setFont(self.font)
-        self.label.setParentItem(self)
-        self.label.setPos(0,0)
-        
         # make its parent not itself so we can translate it independently
         self.movebox = boxtype(self.boundingRect(), parent)
         self.dragEnable = False
         self._r0 = 0
+        self.clickItem = None
+        
         if constraint == 'y':    
             self.getR = self.getY
             self.translateR = self.translateY
@@ -134,12 +130,12 @@ class PathHelixGroupSelection(QGraphicsItemGroup):
             self.translateR = self.translateX
     # end def
     
-    def getY(self, event):
-        return event.pos().y()
+    def getY(self, pos):
+        return pos.y()
     # end def
     
-    def getX(self, event):
-        return event.pos().x()
+    def getX(self, pos):
+        return pos.x()
     # end def
     
     def translateY(self,yf):
@@ -181,25 +177,24 @@ class PathHelixGroupSelection(QGraphicsItemGroup):
             QGraphicsItemGroup.mousePressEvent(self,event)
         else:
             # print "whoops"
-            if self.isSelected():
-                # print "this might work press"
+            # if self.isSelected():
                 self.dragEnable = True
                 self.movebox.resetTransform()
                 self.movebox.drawMe = True
                 self.movebox.setRect(self.boundingRect())
-                self._r0 = self.getR(event) 
+                self._r0 = self.getR(event.scenePos()) 
                 self.scene().views()[0].addToPressList(self)
+                self.clickItem = None
+                # self.update(self.boundingRect())
     # end def
     
     def mouseMoveEvent(self, event):
-        if self.isSelected() and self.dragEnable == True:
-            # print "nachos!!!"
-            # add in translation here
-            rf = self.getR(event) 
+        if self.dragEnable == True: #and self.isSelected()
+            rf = self.getR(event.scenePos()) 
             self.translateR(rf)
             self._r0 = rf
         else:
-            print "this might work move plus", event.button()
+            # print "this might work move plus", event.button()
             QGraphicsItemGroup.mouseMoveEvent(self,event)
 
     # end def
@@ -229,31 +224,35 @@ class PathHelixGroupSelection(QGraphicsItemGroup):
     def itemChange(self, change, value):
         """"""
         if change == QGraphicsItem.ItemSelectedHasChanged:
-            print "looking for a selection change..."
+            # print "looking for a selection change..."
             
             if value == False:# and qApp.mouseButtons() != Qt.LeftButton:# self.drawn == True:
                 # self.drawMe = False
                 self.movebox.drawMe = False
                 self.movebox.resetTransform()
-                
-                for item in self.childItems():
-                    if not item.isSelected():
-                        # print "before", item.parentItem()
-                        self.removeFromGroup(item)
-                        # print "after", item.parentItem()
-                        try:
-                            item.restoreParent()
-                        except ValueError:
-                            pass
-                        #print "removed ", item.number
-                        item.setSelected(False) 
-                    # end if
-                # end for
+                self.removeSelectedItems()
             # end if
             else:
                 print "group selected!"
                 # self.drawn = False
+            self.update(self.boundingRect())
         return QGraphicsItemGroup.itemChange(self, change, value)
+    # end def
+    
+    def removeSelectedItems(self):
+        for item in self.childItems():
+            if not item.isSelected():
+                # print "before", item.parentItem()
+                self.removeFromGroup(item)
+                # print "after", item.parentItem()
+                try:
+                    item.restoreParent()
+                except:
+                    pass
+                    # print item.
+                item.setSelected(False) 
+            # end if
+        # end for
     # end def
 # end class
 
@@ -291,6 +290,11 @@ class PathHelixGroup(QGraphicsItem):
         self.QGIGroupBreakPoint = PathHelixGroupSelection(boxtype=SquareMoveBox, \
                                                             constraint='x', \
                                                             parent=self)
+        self.font = QFont("Times", 30, QFont.Bold)
+        self.label = QGraphicsSimpleTextItem("Part 1")
+        self.label.setFont(self.font)
+        self.label.setParentItem(self)
+        self.label.setPos(0,0)
     # end def
 
     def paint(self, painter, option, widget=None):
