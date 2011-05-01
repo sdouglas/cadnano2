@@ -340,14 +340,14 @@ class BreakpointHandle(QGraphicsItem):
                 # print "original: ", self.parentItem()                
                 # self.bringToFront()
                 #qgigroup.addToGroup(self.vhelix)
-                print "BP isSelected = True, and added"
+                # print "BP isSelected = True, and added"
                 return QGraphicsItem.itemChange(self, change, False)
             # end if
             else:
                 pass
                 #qgigroup.removeFromGroup(self)
                 #qgigroup.removeFromGroup(self.vhelix)
-                print "BP isSelected = False"
+                # print "BP isSelected = False"
                 return QGraphicsItem.itemChange(self, change, False)
             # end else
             self.update(self.rect)
