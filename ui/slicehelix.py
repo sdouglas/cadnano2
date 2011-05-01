@@ -82,7 +82,7 @@ class SliceHelix(QGraphicsItem):
             # returns a new QRect that is bigger all around by 1 pixel
             # but in the same spot as the original
             # good for getting rid of line width artifacts
-            self.rect = self.helix.rect.adjusted(-1,-1,2,2)
+            self.rect = helix.rect.adjusted(-1,-1,2,2)
             self.setPos(helix.pos())
             self.setZValue(styles.ZFOCUSRING)
 
@@ -204,8 +204,9 @@ class SliceHelix(QGraphicsItem):
     # end def
 
     def mousePressEvent(self, event):
-        self.setUsed(not self._number >= 0)
-        QDrag(self.parent.parentWidget())
+        if not self._number >= 0:
+            self.setUsed(not self._number >= 0)
+            QDrag(self.parent.parentWidget())
     # end def
 
     def dragEnterEvent(self, event):
