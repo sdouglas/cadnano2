@@ -102,6 +102,7 @@ class SquareMoveBox(QGraphicsItem):
     # end def
 
     def setRect(self, rect):
+        self.prepareGeometryChange()
         self.rect = rect
 # end class
 
@@ -117,7 +118,7 @@ class PathHelixGroupSelection(QGraphicsItemGroup):
         self.pen = QPen(styles.bluestroke, styles.PATH_SELECTBOX_STROKE_WIDTH)
         self.drawMe = False
         self.drawn = False
-        # make its parent not itself so we can translate it independently
+        # make the movebox parent not itself so we can translate it independently
         self.movebox = boxtype(self.boundingRect(), parent)
         self.dragEnable = False
         self._r0 = 0  # save original mousedown
@@ -172,8 +173,16 @@ class PathHelixGroupSelection(QGraphicsItemGroup):
         else:
             self.dragEnable = True
             self.movebox.resetTransform()
-            self.movebox.drawMe = True
+            
+            # this code block is a HACK to update the boundingbox of the group
+            if self.childItems()[0] != None:
+                item = self.childItems()[0] 
+                self.removeFromGroup(item)
+                item.restoreParent()
+                self.addToGroup(item)
+                
             self.movebox.setRect(self.boundingRect())
+            self.movebox.drawMe = True
             self._r0 = self.getR(event.scenePos()) 
             self._r = self._r0
             self.scene().views()[0].addToPressList(self)
@@ -210,6 +219,7 @@ class PathHelixGroupSelection(QGraphicsItemGroup):
             # sort on y() to determine selection group boundaries
             items = sorted(self.childItems(), key=lambda phh: phh.y())
             self.parent.reorderHelices(items[0].number(), items[-1].number(), delta)
+            
         # end if
         else:
             self.movebox.drawMe = False
