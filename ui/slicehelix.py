@@ -285,7 +285,8 @@ class SliceHelix(QGraphicsItem):
         #     # # end if
         # # end if
         if change == QGraphicsItem.ItemSelectedChange and self.scene():
-            print "I am slice selected ", self._number
+            # print "I am slice selected ", self._number
+            pass
         return QGraphicsItem.itemChange(self,change, value)
     # end def
     

@@ -51,7 +51,7 @@ class PathHelixHandle(QGraphicsItem):
         self.parent = parent
         self.restoreParentItem = parent
         self.setParentItem(parent) 
-        self.number = self.vhelix.number()
+        self._number = self.vhelix.number()
         self.label = None
         self.focusRing = None
         self.beingHoveredOver = False
@@ -74,7 +74,7 @@ class PathHelixHandle(QGraphicsItem):
         return self.rect
 
     def paint(self, painter, option, widget=None):
-        if self.number >= 0:
+        if self._number >= 0:
             if self.isSelected():
                 painter.setBrush(self.hovBrush)
                 painter.setPen(self.hovPen)
@@ -91,16 +91,20 @@ class PathHelixHandle(QGraphicsItem):
     def setNumber(self):
         """docstring for setNumber"""
         if self.label == None:
-            self.label = QGraphicsSimpleTextItem("%d" % self.number)
+            self.label = QGraphicsSimpleTextItem("%d" % self._number)
             self.label.setFont(self.font)
             self.label.setParentItem(self)
         y_val = self.radius / 3
-        if self.number < 10:
+        if self._number < 10:
             self.label.setPos(self.radius / 1.5, y_val)
-        elif self.number < 100:
+        elif self._number < 100:
             self.label.setPos(self.radius / 3, y_val)
-        else: # number >= 100
+        else: # _number >= 100
             self.label.setPos(0, y_val)
+
+    def number(self):
+        """docstring for number"""
+        return self._number
 
     class FocusRingPainter(QGraphicsItem):
         """Draws a focus ring around helix in parent"""
@@ -174,13 +178,13 @@ class PathHelixHandle(QGraphicsItem):
                 #     return QGraphicsItem.itemChange(self, change, True)
                 # else:
                 #     print "Not first"
-                # print "isSelected = True, and added", self.number
+                # print "isSelected = True, and added", self._number
                 return QGraphicsItem.itemChange(self,change, True)
             # end if
             else:
                 #qgigroup.removeFromGroup(self)
                 #qgigroup.removeFromGroup(self.vhelix)
-                print "isSelected = False", self.number
+                # print "isSelected = False", self._number
                 return QGraphicsItem.itemChange(self,change, False)
             # end else
             self.update(self.boundingRect())
