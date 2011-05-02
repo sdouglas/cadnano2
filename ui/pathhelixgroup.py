@@ -219,7 +219,7 @@ class PathHelixGroupSelection(QGraphicsItemGroup):
             # sort on y() to determine selection group boundaries
             items = sorted(self.childItems(), key=lambda phh: phh.y())
             self.parent.reorderHelices(items[0].number(), items[-1].number(), delta)
-            
+            print "delta is: ", delta, rd, midHeight, rd - midHeight, (rd - midHeight)/self.helixHeight, int((rd - midHeight)/self.helixHeight)
         # end if
         else:
             self.movebox.drawMe = False
@@ -449,12 +449,19 @@ class PathHelixGroup(QGraphicsItem):
                                  self.pathHelixList[lastIndex:newIndex] +\
                                  self.pathHelixList[firstIndex:lastIndex] +\
                                  self.pathHelixList[newIndex:]
-        for i in range(len(self.pathHelixList)):
-            num = self.pathHelixList[i]
+        # for i in range(len(self.pathHelixList)):
+        #     num = self.pathHelixList[i]
+        #     y = (i+1) * (styles.PATH_BASE_HEIGHT + styles.PATH_HELIX_PADDING)
+        #     phhY = ((styles.PATH_BASE_HEIGHT-(styles.PATHHELIXHANDLE_RADIUS*2))/2)
+        #     self.numToPathHelixHandle[num].setY(y+phhY)
+        #     self.numToPathHelix[num].setY(y)
+        i = 0
+        for num in self.pathHelixList:
             y = (i+1) * (styles.PATH_BASE_HEIGHT + styles.PATH_HELIX_PADDING)
             phhY = ((styles.PATH_BASE_HEIGHT-(styles.PATHHELIXHANDLE_RADIUS*2))/2)
             self.numToPathHelixHandle[num].setY(y+phhY)
             self.numToPathHelix[num].setY(y)
+            i += 1
             
     def handleLabelChange(self, event):
         """handleLabelChange is example of how we might handle changes
