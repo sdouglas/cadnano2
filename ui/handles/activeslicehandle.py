@@ -58,7 +58,7 @@ class ActiveSliceHandle(QGraphicsItem):
         self.dnaPartInst = dnaPartInst
         self.part = dnaPartInst.part()
         helixCount = self.part.getVirtualHelixCount()
-        self.height = (helixCount + 2) * (styles.PATH_BASE_HEIGHT + \
+        self.height = (helixCount + 2) * (styles.PATH_HELIX_HEIGHT + \
                                           styles.PATH_HELIX_PADDING)
         self.rect = QRectF(0, 0, self.baseWidth, self.height)
         self.baseIndex = startBase
@@ -104,7 +104,7 @@ class ActiveSliceHandle(QGraphicsItem):
 
     def resize(self, helixCount):
         """Call after adding or removing a virtualhelix"""
-        height = (helixCount + 2) * (styles.PATH_BASE_HEIGHT + \
+        height = (helixCount + 2) * (styles.PATH_HELIX_HEIGHT + \
                                      styles.PATH_HELIX_PADDING)
         self.rect.setHeight(height)
         self.update(self.rect)

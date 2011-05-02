@@ -52,15 +52,22 @@ class PhgObject(QObject):
         super(PhgObject, self).__init__()
 # end class
 
-class RoundMoveBox(QGraphicsItem):
+class PathHelixHandleSelectionBox(QGraphicsItem):
+    """
+    Once PathHeliceHandles have been selected, they are 
+    """
+    helixHeight = styles.PATH_HELIX_HEIGHT + styles.PATH_HELIX_PADDING
     radius = styles.PATHHELIXHANDLE_RADIUS
-    def __init__(self, rect, parent=None):
-        super(RoundMoveBox, self).__init__(parent)
-        self.parent = parent
-        self.setParentItem(parent) 
-        self.rect = rect
+    penWidth = styles.SLICE_HELIX_HILIGHT_WIDTH
+
+    def __init__(self, itemGroup, parent=None):
+        super(PathHelixHandleSelectionBox, self).__init__(parent)
+        self.itemGroup = itemGroup
+        self.rect = itemGroup.boundingRect()
+        self.parent = itemGroup.parent
+        self.setParentItem(self.parent)
         self.drawMe = False
-        self.pen = QPen(styles.bluestroke, styles.SLICE_HELIX_HILIGHT_WIDTH)
+        self.pen = QPen(styles.bluestroke, self.penWidth)
     # end def
 
     def paint(self, painter, option, widget=None):
@@ -79,14 +86,32 @@ class RoundMoveBox(QGraphicsItem):
 
     def setRect(self, rect):
         self.rect = rect
+
+    def processSelectedItems(self, rStart, rEnd):
+        """docstring for processSelectedItems"""
+        delta = (rEnd - rStart) # r delta
+        midHeight = (self.boundingRect().height())/2
+        if abs(delta) < midHeight:  # move is too short for reordering
+            return
+        if delta > 0:  # moved down, delta is positive
+            indexDelta = int((delta - midHeight)/self.helixHeight)
+        else:  # moved up, delta is negative
+            indexDelta = int((delta + midHeight)/self.helixHeight)
+        # sort on y to determine the extremes of the selection group
+        items = sorted(self.itemGroup.childItems(), key=lambda phh: phh.y())
+        self.parent.reorderHelices(items[0].number(),\
+                                   items[-1].number(),\
+                                   indexDelta)
+    # end def
 # end class
 
-class SquareMoveBox(QGraphicsItem):
-    def __init__(self, rect, parent=None):
-        super(SquareMoveBox, self).__init__(parent)
-        self.parent = parent
-        self.setParentItem(parent) 
-        self.rect = rect
+class BreakpointHandleSelectionBox(QGraphicsItem):
+    def __init__(self, itemGroup, parent=None):
+        super(BreakpointHandleSelectionBox, self).__init__(parent)
+        self.itemGroup = itemGroup
+        self.rect = itemGroup.boundingRect()
+        self.parent = itemGroup.parent
+        self.setParentItem(self.parent)
         self.drawMe = False
         self.pen = QPen(styles.bluestroke, styles.PATH_SELECTBOX_STROKE_WIDTH)
     # end def
@@ -104,13 +129,18 @@ class SquareMoveBox(QGraphicsItem):
     def setRect(self, rect):
         self.prepareGeometryChange()
         self.rect = rect
+
+    def processSelectedItems(self, rStart, rEnd):
+        """docstring for processSelectedItems"""
+        pass
 # end class
 
-class PathHelixGroupSelection(QGraphicsItemGroup):
-    helixHeight = styles.PATH_BASE_HEIGHT + styles.PATH_HELIX_PADDING
-    
-    def __init__(self, boxtype=RoundMoveBox, constraint='y', parent=None):
-        super(PathHelixGroupSelection, self).__init__(parent)
+class SelectionItemGroup(QGraphicsItemGroup):
+    """
+    SelectionItemGroup
+    """
+    def __init__(self, boxtype, constraint='y', parent=None):
+        super(SelectionItemGroup, self).__init__(parent)
         self.parent = parent
         self.setParentItem(parent) 
         self.setFiltersChildEvents(True)
@@ -118,8 +148,8 @@ class PathHelixGroupSelection(QGraphicsItemGroup):
         self.pen = QPen(styles.bluestroke, styles.PATH_SELECTBOX_STROKE_WIDTH)
         self.drawMe = False
         self.drawn = False
-        # make the movebox parent not itself so we can translate it independently
-        self.movebox = boxtype(self.boundingRect(), parent)
+        # make the selectionbox parent not itself so we can translate it independently
+        self.selectionbox = boxtype(self)
         self.dragEnable = False
         self._r0 = 0  # save original mousedown
         self._r = 0  # latest position for moving
@@ -142,11 +172,11 @@ class PathHelixGroupSelection(QGraphicsItemGroup):
     # end def
     
     def translateY(self, yf):
-        self.movebox.translate(0, (yf - self._r))
+        self.selectionbox.translate(0, (yf - self._r))
     # end def
     
     def translateX(self, xf):
-        self.movebox.translate((xf - self._r), 0)
+        self.selectionbox.translate((xf - self._r), 0)
     # end def
     
     def paint(self, painter, option, widget=None):
@@ -172,18 +202,18 @@ class PathHelixGroupSelection(QGraphicsItemGroup):
             QGraphicsItemGroup.mousePressEvent(self, event)
         else:
             self.dragEnable = True
-            self.movebox.resetTransform()
+            self.selectionbox.resetTransform()
             
             # this code block is a HACK to update the boundingbox of the group
             if self.childItems()[0] != None:
-                item = self.childItems()[0] 
+                item = self.childItems()[0]
                 self.removeFromGroup(item)
                 item.restoreParent()
                 self.addToGroup(item)
                 
-            self.movebox.setRect(self.boundingRect())
-            self.movebox.drawMe = True
-            self._r0 = self.getR(event.scenePos()) 
+            self.selectionbox.setRect(self.boundingRect())
+            self.selectionbox.drawMe = True
+            self._r0 = self.getR(event.scenePos())
             self._r = self._r0
             self.scene().views()[0].addToPressList(self)
             self.clickItem = None
@@ -195,71 +225,45 @@ class PathHelixGroupSelection(QGraphicsItemGroup):
             self.translateR(rf)
             self._r = rf
         else:
-            # print "this might work move plus", event.button()
             QGraphicsItemGroup.mouseMoveEvent(self,event)
-
     # end def
     
     def customMouseRelease(self, event):
         """docstring for customMouseRelease"""
         if self.isSelected():
-            rd = (self._r - self._r0) # r delta
-            # tick mark in middle of the movebox determines where
-            # a group gets reinserted into the list
-            midHeight = self.movebox.boundingRect().height()/2
-            if rd >= 0:  # moved down, delta is postiive
-                delta = int((rd - midHeight)/self.helixHeight)
-            else:  # moved up, delta is negative
-                delta = int((rd + midHeight)/self.helixHeight)
-            self.movebox.drawMe = False
-            self.movebox.resetTransform()
-            self.dragEnable = False
-            if delta == 0:  # no change
-                return
-            # sort on y() to determine selection group boundaries
-            items = sorted(self.childItems(), key=lambda phh: phh.y())
-            self.parent.reorderHelices(items[0].number(), items[-1].number(), delta)
-            
+            self.selectionbox.processSelectedItems(self._r0, self._r)
         # end if
-        else:
-            self.movebox.drawMe = False
-            self.movebox.resetTransform()
-            self.dragEnable = False
-        # end else
+        self.selectionbox.drawMe = False
+        self.selectionbox.resetTransform()
+        self.dragEnable = False
     # end def
     
     def itemChange(self, change, value):
-        """"""
+        """docstring for itemChange"""
         if change == QGraphicsItem.ItemSelectedHasChanged:
-            # print "looking for a selection change..."
-            
-            if value == False:# and qApp.mouseButtons() != Qt.LeftButton:# self.drawn == True:
+            if value == False:
                 # self.drawMe = False
-                self.movebox.drawMe = False
-                self.movebox.resetTransform()
+                self.selectionbox.drawMe = False
+                self.selectionbox.resetTransform()
                 self.removeSelectedItems()
                 self.parentItem().selectionLock = None
             # end if
             else:
                 pass
-                # print "group selected!"
-                # self.drawn = False
             self.update(self.boundingRect())
         return QGraphicsItemGroup.itemChange(self, change, value)
     # end def
     
     def removeSelectedItems(self):
+        """docstring for removeSelectedItems"""
         for item in self.childItems():
             if not item.isSelected():
-                # print "before", item.parentItem()
                 self.removeFromGroup(item)
-                # print "after", item.parentItem()
                 try:
                     item.restoreParent()
                 except:
                     pass
-                    # print item.
-                item.setSelected(False) 
+                item.setSelected(False)
             # end if
         # end for
     # end def
@@ -294,9 +298,10 @@ class PathHelixGroup(QGraphicsItem):
         self.scaffoldChange = self.qObject.scaffoldChange
         self.rect = QRectF(0, 0, 200, 200) # NC: w,h don't seem to matter
         self.zoomToFit()
-        self.QGIGroupPathHelix = PathHelixGroupSelection(constraint='y', \
-                                                         parent=self)
-        self.QGIGroupBreakPoint = PathHelixGroupSelection(boxtype=SquareMoveBox,\
+        self.phhSelectionGroup = SelectionItemGroup(boxtype=PathHelixHandleSelectionBox,\
+                                                           constraint='y', \
+                                                           parent=self)
+        self.bphSelectionGroup = SelectionItemGroup(boxtype=BreakpointHandleSelectionBox,\
                                                           constraint='x',\
                                                           parent=self)
         self.font = QFont("Times", 30, QFont.Bold)
@@ -331,8 +336,8 @@ class PathHelixGroup(QGraphicsItem):
         # add PathHelixHandle
         x = 0#5*self.handleRadius
         xoff = -6*self.handleRadius
-        y = count * (styles.PATH_BASE_HEIGHT + styles.PATH_HELIX_PADDING)
-        phhY = ((styles.PATH_BASE_HEIGHT-(styles.PATHHELIXHANDLE_RADIUS*2))/2)
+        y = count * (styles.PATH_HELIX_HEIGHT + styles.PATH_HELIX_PADDING)
+        phhY = ((styles.PATH_HELIX_HEIGHT-(styles.PATHHELIXHANDLE_RADIUS*2))/2)
         phh = PathHelixHandle(vh, QPointF(xoff, y+phhY), self)
         self.numToPathHelixHandle[number] = phh
         self.pathHelixList.append(number)
@@ -429,7 +434,7 @@ class PathHelixGroup(QGraphicsItem):
         ph.redrawLines(StrandType.Scaffold)
     # end def
 
-    def reorderHelices(self, first, last, delta):
+    def reorderHelices(self, first, last, indexDelta):
         """
         Reorder helices by moving helices pathHelixList[first:last]
         by a distance delta in the list. Notify each PathHelix and
@@ -437,25 +442,25 @@ class PathHelixGroup(QGraphicsItem):
         """
         firstIndex = self.pathHelixList.index(first)
         lastIndex = self.pathHelixList.index(last)+1
-        if delta < 0:  # move group earlier in the list
-            newIndex = max(0, delta+firstIndex)
+        if indexDelta < 0:  # move group earlier in the list
+            newIndex = max(0, indexDelta+firstIndex)
             self.pathHelixList = self.pathHelixList[0:newIndex] +\
                                  self.pathHelixList[firstIndex:lastIndex] +\
                                  self.pathHelixList[newIndex:firstIndex] +\
                                  self.pathHelixList[lastIndex:]
         else: # move group later in list
-            newIndex = min(len(self.pathHelixList), delta+lastIndex)
+            newIndex = min(len(self.pathHelixList), indexDelta+lastIndex)
             self.pathHelixList = self.pathHelixList[:firstIndex] +\
                                  self.pathHelixList[lastIndex:newIndex] +\
                                  self.pathHelixList[firstIndex:lastIndex] +\
                                  self.pathHelixList[newIndex:]
         for i in range(len(self.pathHelixList)):
             num = self.pathHelixList[i]
-            y = (i+1) * (styles.PATH_BASE_HEIGHT + styles.PATH_HELIX_PADDING)
-            phhY = ((styles.PATH_BASE_HEIGHT-(styles.PATHHELIXHANDLE_RADIUS*2))/2)
+            y = (i+1) * (styles.PATH_HELIX_HEIGHT + styles.PATH_HELIX_PADDING)
+            phhY = ((styles.PATH_HELIX_HEIGHT-(styles.PATHHELIXHANDLE_RADIUS*2))/2)
             self.numToPathHelixHandle[num].setY(y+phhY)
             self.numToPathHelix[num].setY(y)
-            
+
     def handleLabelChange(self, event):
         """handleLabelChange is example of how we might handle changes
         to the name in the editor"""
