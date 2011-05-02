@@ -90,7 +90,8 @@ class PathHelixHandleSelectionBox(QGraphicsItem):
     def processSelectedItems(self, rStart, rEnd):
         """docstring for processSelectedItems"""
         delta = (rEnd - rStart) # r delta
-        midHeight = (self.boundingRect().height())/2
+        midHeight = (self.boundingRect().height() -\
+                     styles.PATHHELIXHANDLE_RADIUS*2)/2
         if abs(delta) < midHeight:  # move is too short for reordering
             return
         if delta > 0:  # moved down, delta is positive
