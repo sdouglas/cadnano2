@@ -78,6 +78,10 @@ class VirtualHelix(object):
         """return VirtualHelix number"""
         return self._number
 
+    def size(self):
+        """docstring for size"""
+        return self._size
+
     def row(self):
         """return VirtualHelix helical-axis row"""
         return self._row

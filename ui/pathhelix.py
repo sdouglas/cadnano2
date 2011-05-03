@@ -35,6 +35,7 @@ from PyQt4.QtGui import QGraphicsSimpleTextItem
 from PyQt4.QtGui import QPainter, QPainterPath
 from PyQt4.QtGui import QPen, QDrag, QUndoCommand
 import styles
+from model.dnapart import LatticeType
 from model.virtualhelix import VirtualHelix, StrandType, Parity
 from handles.breakpointhandle import BreakpointHandle
 
@@ -67,6 +68,12 @@ class PathHelix(QGraphicsItem):
         self.minorGridPainterPath = self.getMinorGridPainterPath()
         self.majorGridPainterPath = self.getMajorGridPainterPath()
         self.setParentItem(parent) 
+        # for precrossover 
+        if parent.crossSectionType == LatticeType.Honeycomb:
+            self.repeat = 21
+        elif parent.crossSectionType == LatticeType.Square:
+            self.repeat = 32
+
         # For Campbell
         # Here's where cadnano gets the reference to mMaya's 3D equivalent
         # of the PathHelix (while passing a handy reference to itself)
@@ -143,34 +150,49 @@ class PathHelix(QGraphicsItem):
                 path.moveTo(self.baseWidth*i,0)
                 path.lineTo(self.baseWidth*i,2*self.baseWidth)
         return path
+    # end def
     
     def mousePressEvent(self, event):
         """Activate this item as the current helix"""
-        # get the index of the click in the helix
         eventIndex = int(event.pos().x()/styles.PATH_BASE_WIDTH)
-        # print int(eventIndex)
-        
-        # get the PHG's currently selected activeHelix
-        deactivateHelix = self.parentItem().activeHelix
-        # check to see that it is not None
-        if deactivateHelix != None:
-            # call the function that hides items
-            deactivateHelix.hideCrossOvers()
-        # end if
-        # set the PHG to point to self
-        self.parentItem().activeHelix = self
-        # call the function to show items
-        self.showCrossOvers()
+        if self.parentItem().activeHelix != None:  # deactivate old
+            self.parentItem().activeHelix.hidePreCrossoverHandles()
+        self.parentItem().activeHelix = self  # activate new
+        self.showPreCrossoverHandles(eventIndex)
         self.update(self.boundingRect())
     # end def
-    
-        
-    def showCrossOvers(self):
-        print "XO selected %d" % self.number()
+
+    def showPreCrossoverHandles(self, index=None):
+        """
+        Update a PathHelix after mouseclick to display local features for
+        editing. 1. Overlay PreCrossoverHandles according to hard-coded
+        standard crossover positions: p0, p1, p2 (and p3 for square lattice).
+        2. Populate the 21-base segment containing pos, along with the two 
+        flanking 21-base segments (32 bases for square). 3. If index is
+        omitted, populate full length of PathHelix (for Auto-Stapling).
+        """
+        print "XO selected %d[%d]" % (self.number(), index)
+        # create a list of precrossover handles
+
+        # determine range to draw
+        if index == None:  # auto staple
+            start = 0
+            end = self._vhelix.size()
+        else: # user mouse click
+            start = max(0, index - (index % self.repeat) - self.repeat)
+            end = min(self._vhelix.size(), index - (index % self.repeat) + self.repeat*2)
+        print "start = %d, end = %d" % (start, end)
+
+        if parent.crossSectionType == LatticeType.Honeycomb:
+            pass
+        elif parent.crossSectionType == LatticeType.Square:
+            pass
+
+
     # end def
-    
-    def hideCrossOvers(self):
-        print "XO deselected %d" % self.number()
+
+    def hidePreCrossoverHandles(self):
+        pass
     # end def
 
     def getScaffoldBreakHandles(self):
