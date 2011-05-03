@@ -88,7 +88,7 @@ class SliceHelixGroup(QGraphicsItem):  # was a QGraphicsObject change for Qt 4.6
         self.ncolumns = ncolumns
         self.handleSize = 15 # FIX: read from config file
         self.helixhash = {}
-        self._activeSlice = activeslicehandle.baseIndex
+        self._activeSliceIndex = activeslicehandle.baseIndex
 
         if self.crossSectionType == LatticeType.Honeycomb:
             self.rect = QRectF(0, 0,\
@@ -232,10 +232,10 @@ class SliceHelixGroup(QGraphicsItem):  # was a QGraphicsObject change for Qt 4.6
     @pyqtSlot(int)
     def activeSliceMovedSlot(self, index):
         self.update()
-        self._activeSlice = index
+        self._activeSliceIndex = index
     
-    def activeSlice(self):
-        return self._activeSlice
+    def activeSliceIndex(self):
+        return self._activeSliceIndex
 
     def bringToFront(self):
         """collidingItems gets a list of all items that overlap. sets

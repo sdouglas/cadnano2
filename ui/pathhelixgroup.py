@@ -89,10 +89,8 @@ class PathHelixHandleSelectionBox(QGraphicsItem):
 
     def processSelectedItems(self, rStart, rEnd):
         """docstring for processSelectedItems"""
-        # margin for where transition happens
         margin = styles.PATHHELIXHANDLE_RADIUS
-
-        delta = (rEnd - rStart) # r delta
+        delta = (rEnd - rStart)  # r delta
         midHeight = (self.boundingRect().height())/2-margin
         if abs(delta) < midHeight:  # move is too short for reordering
             return
@@ -337,8 +335,9 @@ class PathHelixGroup(QGraphicsItem):
         
         vh = self.part.getVirtualHelix(number)
         count = self.part.getVirtualHelixCount()
+
         # add PathHelixHandle
-        x = 0#5*self.handleRadius
+        x = 0 #5*self.handleRadius
         xoff = -6*self.handleRadius
         y = count * (styles.PATH_HELIX_HEIGHT + styles.PATH_HELIX_PADDING)
         phhY = ((styles.PATH_HELIX_HEIGHT-(styles.PATHHELIXHANDLE_RADIUS*2))/2)
@@ -346,14 +345,15 @@ class PathHelixGroup(QGraphicsItem):
         self.numToPathHelixHandle[number] = phh
         self.pathHelixList.append(number)
         phh.setParentItem(self)
+
         # add PathHelix
         ph = PathHelix(vh, QPointF(0, y), self)
         self.numToPathHelix[number] = ph
         ph.setParentItem(self)
+
         # update activeslicehandle
         if count == 1: # first vhelix added by mouse click
             self.activeslicehandle.setParentItem(self)
-        # end if
         self.activeslicehandle.resize(count)
         self.zoomToFit()  # Auto zoom to center the scene
     # end def

@@ -94,18 +94,14 @@ class VirtualHelix(object):
         """docstring for scaffoldBase"""
         return self._scaffoldBases[index]
     
-    def baseIsInPath(self, base):
-        """returns true iff base is between a 5' and a 3' end"""
-        #Efficiency, who needs it?
-        ret = False
-        for b in xrange(base):
-            bb = self._scaffoldBases[b]
-            if bb.is5primeEnd() or bb.is3primeEnd():
-                ret = not ret
-        bb = self._scaffoldBases[base]
-        if bb.is5primeEnd() or bb.is3primeEnd():
-            ret = True
-        return ret
+    def hasScaf(self, index):
+        """Returns true if a scaffold base is present at index"""
+        if index > self._size:
+            return False
+        base = self._scaffoldBases[index]
+        if not base.isNull():
+            return True
+        return False
 
     def getScaffoldHandleIndexList(self):
         """
@@ -128,7 +124,6 @@ class VirtualHelix(object):
         for i in range(len(self._scaffoldBases)):
             if self._scaffoldBases[i].is5primeEnd():
                 ret.append(i)
-        print "5'  "+" ".join((str(i) for i in ret))
         return ret
 
     def getScaffold3PrimeEnds(self):
@@ -137,7 +132,6 @@ class VirtualHelix(object):
         for i in range(len(self._scaffoldBases)):
             if self._scaffoldBases[i].is3primeEnd():
                 ret.append(i)
-        print "3'  "+" ".join((str(i) for i in ret))
         return ret
     
     def updateObservers(self):

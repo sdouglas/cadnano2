@@ -100,16 +100,25 @@ class Base(object):
         """docstring for vhelixNum"""
         return self._vhelix.number()
 
+    def isNull(self):
+        if self._prevBase == Base._null and\
+           self._nextBase == Base._null:
+            return True
+        else:
+            return False
+
     def is5primeEnd(self):
         """Return True if no prevBase, but nextBase exists."""
-        if self._prevBase == Base._null and self._nextBase != Base._null:
+        if self._prevBase == Base._null and\
+           self._nextBase != Base._null:
             return True
         else:
             return False
 
     def is3primeEnd(self):
         """Return True if no nextBase, but prevBase exists."""
-        if self._prevBase != Base._null and self._nextBase == Base._null:
+        if self._prevBase != Base._null and\
+           self._nextBase == Base._null:
             return True
         else:
             return False

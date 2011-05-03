@@ -79,13 +79,15 @@ class DNAPart(Part):
         return self._canvasSize
 
     def addVirtualHelix(self, slicehelix):
-        """Adds a new VirtualHelix to the part in response to user input."""
+        """Adds a new VirtualHelix to the part in response to user input and
+        adds slicehelix as an observer."""
         vhelix = VirtualHelix(part=self,\
                               number=slicehelix.number(),\
                               row=slicehelix.row(),\
                               col=slicehelix.col(),\
                               size=self._canvasSize)
         self._virtualHelices[slicehelix.number()] = vhelix
+        vhelix.addObserver(slicehelix)
         return vhelix
 
     def removeVirtualHelix(self, number):
@@ -94,7 +96,7 @@ class DNAPart(Part):
 
     def getVirtualHelix(self, number, returnNoneIfAbsent=True):
         """Look up and return reference to a VirtualHelix"""
-        return self._virtualHelices.get(number,None)
+        return self._virtualHelices.get(number, None)
 
     def hasVirtualHelix(self, number):
         if number in self._virtualHelices:

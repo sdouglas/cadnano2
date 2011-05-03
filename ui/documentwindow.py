@@ -34,11 +34,10 @@ import pathcontroller
 import slicecontroller
 from cadnano import app
 
+
 class SceneRoot(QGraphicsItem):
-    def __init__(self,rectsource=None):
+    def __init__(self, rectsource=None):
         super(SceneRoot, self).__init__()
-        # self.parent = parent 
-        # self.scene = scene
         # this sets the rect of itself to the QGraphicsScene bounding volume
         self.rect = rectsource.sceneRect()
 
@@ -55,8 +54,6 @@ class DocumentWindow(QMainWindow, ui_mainwindow.Ui_MainWindow):
         super(DocumentWindow, self).__init__(parent)
         self.controller = docCtrlr
         self.setupUi(self)
-        self.times = 0
-        
         # Slice setup
         self.slicescene = QGraphicsScene(parent=self.sliceGraphicsView)
         self.sliceroot = SceneRoot(rectsource=self.slicescene)
@@ -74,7 +71,8 @@ class DocumentWindow(QMainWindow, ui_mainwindow.Ui_MainWindow):
         self.pathGraphicsView.sceneRootItem = self.pathroot
         self.pathGraphicsView.setScaleFitFactor(0.9)
         self.pathController = pathcontroller.PathController(self)
-        self.pathGraphicsView.setViewportUpdateMode(QGraphicsView.FullViewportUpdate)
+        self.pathGraphicsView.setViewportUpdateMode(\
+                    QGraphicsView.FullViewportUpdate)
         # Edit menu setup
         self.undoStack = docCtrlr.undoStack
         self.actionUndo = docCtrlr.undoStack.createUndoAction(self)
@@ -89,7 +87,7 @@ class DocumentWindow(QMainWindow, ui_mainwindow.Ui_MainWindow):
         self.menuEdit.insertAction(self.sep, self.actionRedo)
         self.menuEdit.insertAction(self.actionRedo, self.actionUndo)
         # self.showSizes()
-    
+
     def showSizes(self):
         myheight = self.splitter.frameRect().width()
         myheight = self.centralwidget.size()
@@ -99,15 +97,6 @@ class DocumentWindow(QMainWindow, ui_mainwindow.Ui_MainWindow):
         print "my slice scene  widget is tall ", self.slicescene.sceneRect().height()
         print "my path scen is tall ", self.pathscene.sceneRect().height()
     # end def
-    
-    def focusInEvent(self):
-       app().undoGroup.setActiveStack(self.controller.undoStack)
 
-    # def resizeEvent(self,event):
-    #     if self.times == 1:
-    #         h_new = event.size().height()
-    #         h_old = event.oldSize().height()
-    #         self.sliceGraphicsView.resetScale(h_old, h_new)
-    #         self.pathGraphicsView.resetScale(h_old, h_new)
-    #     self.times = 1
-    #end def
+    def focusInEvent(self):
+        app().undoGroup.setActiveStack(self.controller.undoStack)

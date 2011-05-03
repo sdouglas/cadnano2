@@ -76,11 +76,11 @@ class SliceHelix(QGraphicsItem):
     
     def virtualHelix(self):
         return self.part.getVirtualHelix(self._number, returnNoneIfAbsent=True)
-        
+
     def intersectsActiveSlice(self):
-        activeSlice = self.parent.activeSlice()
-        return self.virtualHelix().baseIsInPath(activeSlice)
-        
+        index = self.parent.activeSliceIndex()
+        return self.virtualHelix().hasScaf(index)
+
     class FocusRingPainter(QGraphicsItem):
         """Draws a focus ring around helix in parent"""
         def __init__(self, helix, scene, parent=None):

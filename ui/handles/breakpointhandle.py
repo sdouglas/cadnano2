@@ -318,7 +318,7 @@ class BreakpointHandle(QGraphicsItem):
         self.setPos(self.x0, self.y0) # move there
         self.parentItem().updateBreakBounds(self.strandType) # new breakpoint bounds
         self.parentItem().redrawLines(self.strandType) # new 2D lines
-        #vhelix.updateObservers()
+        self.vhelix.updateObservers()
 
     def actionFrom3D(self, actionType):
         """Called by mMaya BreakpointHandle3D to notify cadnano that the
