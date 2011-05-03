@@ -92,9 +92,9 @@ class DNAPart(Part):
         """Called by SliceHelix.removeVirtualHelix() to update data."""
         del self._virtualHelices[number]
 
-    def getVirtualHelix(self, number):
+    def getVirtualHelix(self, number, returnNoneIfAbsent=True):
         """Look up and return reference to a VirtualHelix"""
-        return self._virtualHelices[number]
+        return self._virtualHelices.get(number,None)
 
     def hasVirtualHelix(self, number):
         if number in self._virtualHelices:

@@ -47,6 +47,8 @@ class SliceHelix(QGraphicsItem):
     useBrush = QBrush(styles.orangefill)
     usePen = QPen(styles.orangestroke, styles.SLICE_HELIX_STROKE_WIDTH)
     radius = styles.SLICE_HELIX_RADIUS
+    outOfSlicePen = QPen(styles.lightorangestroke, styles.SLICE_HELIX_STROKE_WIDTH)
+    outOfSliceBrush = QBrush(styles.lightorangefill)
     rect = QRectF(0, 0, 2 * radius, 2 * radius)
 
     def __init__(self, row, col, position, parent=None):
@@ -71,7 +73,14 @@ class SliceHelix(QGraphicsItem):
         self.undoStack = self.parent.sliceController.mainWindow.undoStack
         self.setFlag(QGraphicsItem.ItemIsSelectable)
         self.setZValue(styles.ZSLICEHELIX)
-
+    
+    def virtualHelix(self):
+        return self.part.getVirtualHelix(self._number, returnNoneIfAbsent=True)
+        
+    def intersectsActiveSlice(self):
+        activeSlice = self.parent.activeSlice()
+        return self.virtualHelix().baseIsInPath(activeSlice)
+        
     class FocusRingPainter(QGraphicsItem):
         """Draws a focus ring around helix in parent"""
         def __init__(self, helix, scene, parent=None):
@@ -171,8 +180,12 @@ class SliceHelix(QGraphicsItem):
 
     def paint(self, painter, option, widget=None):
         if self._number >= 0:
-            painter.setBrush(self.useBrush)
-            painter.setPen(self.usePen)
+            if self.intersectsActiveSlice(): 
+                painter.setBrush(self.useBrush)
+                painter.setPen(self.usePen)
+            else:
+                painter.setBrush(self.outOfSliceBrush)
+                painter.setPen(self.outOfSlicePen)
         else:
             painter.setBrush(self.defBrush)
             painter.setPen(self.defPen)
