@@ -154,7 +154,6 @@ class SelectionItemGroup(QGraphicsItemGroup):
         self.dragEnable = False
         self._r0 = 0  # save original mousedown
         self._r = 0  # latest position for moving
-        self.clickItem = None
         
         if constraint == 'y':
             self.getR = self.getY
@@ -217,7 +216,6 @@ class SelectionItemGroup(QGraphicsItemGroup):
             self._r0 = self.getR(event.scenePos())
             self._r = self._r0
             self.scene().views()[0].addToPressList(self)
-            self.clickItem = None
     # end def
     
     def mouseMoveEvent(self, event):
