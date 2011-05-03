@@ -74,7 +74,7 @@ class PathHelix(QGraphicsItem):
         self.setZValue(styles.ZPATHHELIX)
         self.rect = QRectF()
         self.updateRect()
-        # self.setFlag(QGraphicsItem.ItemIsSelectable)
+    # end def
 
     def number(self):
         return self._vhelix.number()
@@ -143,19 +143,6 @@ class PathHelix(QGraphicsItem):
                 path.moveTo(self.baseWidth*i,0)
                 path.lineTo(self.baseWidth*i,2*self.baseWidth)
         return path
-
-    def itemChange(self, change, value):
-        """docstring for itemChange"""
-        if change == QGraphicsItem.ItemSelectedHasChanged:
-            if value == True:
-                self.parent.activeHelix = self
-                self.showCrossOvers()
-                self.update(self.boundingRect())
-            else:
-                self.hideCrossOvers()
-                self.update(self.boundingRect())
-        return QGraphicsItem.itemChange(self, change, value)
-    # end def
     
     def mousePressEvent(self, event):
         """Activate this item as the current helix"""
