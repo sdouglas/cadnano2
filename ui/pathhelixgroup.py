@@ -288,6 +288,7 @@ class PathHelixGroup(QGraphicsItem):
         self.part = dnaPartInst.part()
         self.pathController = controller
         self.activeslicehandle = activeslicehandle
+        self.activeHelix = None
         self.parent = parent
         self.setParentItem(parent) 
         self.numToPathHelix = {}

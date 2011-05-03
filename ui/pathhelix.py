@@ -74,6 +74,7 @@ class PathHelix(QGraphicsItem):
         self.setZValue(styles.ZPATHHELIX)
         self.rect = QRectF()
         self.updateRect()
+        # self.setFlag(QGraphicsItem.ItemIsSelectable)
 
     def number(self):
         return self._vhelix.number()
@@ -142,6 +143,48 @@ class PathHelix(QGraphicsItem):
                 path.moveTo(self.baseWidth*i,0)
                 path.lineTo(self.baseWidth*i,2*self.baseWidth)
         return path
+
+    def itemChange(self, change, value):
+        """docstring for itemChange"""
+        if change == QGraphicsItem.ItemSelectedHasChanged:
+            if value == True:
+                self.parent.activeHelix = self
+                self.showCrossOvers()
+                self.update(self.boundingRect())
+            else:
+                self.hideCrossOvers()
+                self.update(self.boundingRect())
+        return QGraphicsItem.itemChange(self, change, value)
+    # end def
+    
+    def mousePressEvent(self, event):
+        """Activate this item as the current helix"""
+        # get the index of the click in the helix
+        eventIndex = int(event.pos().x()/styles.PATH_BASE_WIDTH)
+        # print int(eventIndex)
+        
+        # get the PHG's currently selected activeHelix
+        deactivateHelix = self.parentItem().activeHelix
+        # check to see that it is not None
+        if deactivateHelix != None:
+            # call the function that hides items
+            deactivateHelix.hideCrossOvers()
+        # end if
+        # set the PHG to point to self
+        self.parentItem().activeHelix = self
+        # call the function to show items
+        self.showCrossOvers()
+        self.update(self.boundingRect())
+    # end def
+    
+        
+    def showCrossOvers(self):
+        print "XO selected %d" % self.number()
+    # end def
+    
+    def hideCrossOvers(self):
+        print "XO deselected %d" % self.number()
+    # end def
 
     def getScaffoldBreakHandles(self):
         """docstring for getScaffoldBreakHandles"""
