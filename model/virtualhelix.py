@@ -27,6 +27,7 @@ virtualhelix.py
 Created by Jonathan deWerd on 2011-01-26.
 """
 from .base import Base
+import sys, weakref
 
 class VirtualHelix(object):
     """Stores staple and scaffold routing information."""
@@ -39,6 +40,7 @@ class VirtualHelix(object):
         self._size = kwargs.get('size', 0)
         self._stapleBases = [Base(self, n) for n in range(self._size)]
         self._scaffoldBases = [Base(self, n) for n in range(self._size)]
+        self._observers = []
 
     def simpleRep(self, encoder):
         """Returns a representation in terms of simple JSON-encodable types
@@ -91,6 +93,19 @@ class VirtualHelix(object):
     def scaffoldBase(self, index):
         """docstring for scaffoldBase"""
         return self._scaffoldBases[index]
+    
+    def baseIsInPath(self, base):
+        """returns true iff base is between a 5' and a 3' end"""
+        #Efficiency, who needs it?
+        ret = False
+        for b in xrange(base):
+            bb = self._scaffoldBases[b]
+            if bb.is5primeEnd() or bb.is3primeEnd():
+                ret = not ret
+        bb = self._scaffoldBases[base]
+        if bb.is5primeEnd() or bb.is3primeEnd():
+            ret = True
+        return ret
 
     def getScaffoldHandleIndexList(self):
         """
@@ -113,6 +128,7 @@ class VirtualHelix(object):
         for i in range(len(self._scaffoldBases)):
             if self._scaffoldBases[i].is5primeEnd():
                 ret.append(i)
+        print "5'  "+" ".join((str(i) for i in ret))
         return ret
 
     def getScaffold3PrimeEnds(self):
@@ -121,8 +137,17 @@ class VirtualHelix(object):
         for i in range(len(self._scaffoldBases)):
             if self._scaffoldBases[i].is3primeEnd():
                 ret.append(i)
+        print "3'  "+" ".join((str(i) for i in ret))
         return ret
-
+    
+    def updateObservers(self):
+        for o in self._observers:
+            if o():
+                o().update()
+    
+    def addObserver(self, obs):
+        self._observers.append(weakref.ref(obs, lambda x: self._observers.remove(x)))
+    
     def updateAfterBreakpointMove(self, strandType, breakType, \
                                   startIndex, delta):
         """Called by a BreakpointHandle mouseReleaseEvent to update
