@@ -147,45 +147,29 @@ class PathHelixHandle(QGraphicsItem):
     # end def
 
     def mousePressEvent(self, event):
-        qgigroup = self.group()
-        if qgigroup == None:
-            qgigroup = self.parent.QGIGroupPathHelix
-        qgigroup.setSelected(False)
-        qgigroup.addToGroup(self)
+        selectionGroup = self.group()
+        if selectionGroup == None:
+            selectionGroup = self.parent.phhSelectionGroup
+        selectionGroup.setSelected(False)
+        selectionGroup.addToGroup(self)
         self.setSelected(True)
-        # self.update(self.boundingRect())
-        qgigroup.mousePressEvent(event)
+        selectionGroup.mousePressEvent(event)
     # end def
-
 
     def itemChange(self, change, value):
         # for selection changes test against QGraphicsItem.ItemSelectedChange
         # intercept the change instead of the has changed to enable features.
         # if change == QGraphicsItem.ItemSelectedHasChanged and self.scene():
         if change == QGraphicsItem.ItemSelectedChange and self.scene():
-            qgigroup = self.parent.QGIGroupPathHelix
-            # print "looking for a selection change..."
-            lock = qgigroup.parentItem().selectionLock
-            if value == True and ( lock == None or lock == qgigroup ):
-                qgigroup.addToGroup(self)
-                # print "who", qgigroup.parentItem().selectionLock
-                qgigroup.parentItem().selectionLock = qgigroup
-                # qgigroup.setSelected(True)
-                #qgigroup.addToGroup(self.vhelix)
-                # qgigroup = self.parent.QGIGroupPathHelix
-                # if len(qgigroup.childItems()) < 2:
-                #     print "First!", qgigroup.childItems()[0]
-                #     return QGraphicsItem.itemChange(self, change, True)
-                # else:
-                #     print "Not first"
-                # print "isSelected = True, and added", self._number
-                return QGraphicsItem.itemChange(self,change, True)
+            selectionGroup = self.parent.phhSelectionGroup
+            lock = selectionGroup.parentItem().selectionLock
+            if value == True and (lock == None or lock == selectionGroup):
+                selectionGroup.addToGroup(self)
+                selectionGroup.parentItem().selectionLock = selectionGroup
+                return QGraphicsItem.itemChange(self, change, True)
             # end if
             else:
-                #qgigroup.removeFromGroup(self)
-                #qgigroup.removeFromGroup(self.vhelix)
-                # print "isSelected = False", self._number
-                return QGraphicsItem.itemChange(self,change, False)
+                return QGraphicsItem.itemChange(self, change, False)
             # end else
             self.update(self.boundingRect())
         return QGraphicsItem.itemChange(self, change, value)

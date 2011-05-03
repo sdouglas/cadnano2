@@ -329,24 +329,24 @@ class BreakpointHandle(QGraphicsItem):
         # for selection changes test against QGraphicsItem.ItemSelectedChange
         if change == QGraphicsItem.ItemSelectedChange and self.scene():
         # if change == QGraphicsItem.ItemSelectedHasChanged and self.scene():
-            qgigroup = self.parentItem().parentItem().QGIGroupBreakPoint
-            lock = qgigroup.parentItem().selectionLock
+            selectionGroup = self.parentItem().parentItem().bphSelectionGroup
+            lock = selectionGroup.parentItem().selectionLock
             # print "looking for a selection change..."
             # if value == True:
-            if value == True and ( lock == None or lock == qgigroup ):
-                qgigroup.addToGroup(self)
-                # print "what", qgigroup.parentItem().selectionLock
-                qgigroup.parentItem().selectionLock = qgigroup
+            if value == True and ( lock == None or lock == selectionGroup ):
+                selectionGroup.addToGroup(self)
+                # print "what", selectionGroup.parentItem().selectionLock
+                selectionGroup.parentItem().selectionLock = selectionGroup
                 # print "original: ", self.parentItem()                
                 # self.bringToFront()
-                #qgigroup.addToGroup(self.vhelix)
+                #selectionGroup.addToGroup(self.vhelix)
                 # print "BP isSelected = True, and added"
                 return QGraphicsItem.itemChange(self, change, False)
             # end if
             else:
                 pass
-                #qgigroup.removeFromGroup(self)
-                #qgigroup.removeFromGroup(self.vhelix)
+                #selectionGroup.removeFromGroup(self)
+                #selectionGroup.removeFromGroup(self.vhelix)
                 # print "BP isSelected = False"
                 return QGraphicsItem.itemChange(self, change, False)
             # end else
