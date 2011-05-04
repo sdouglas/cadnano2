@@ -108,6 +108,7 @@ class PreCrossoverHandle(QGraphicsItem):
         self.label.setPos(0, 0)
         self.label.setFont(self.font)
         self.label.hide()
+        self.textOffset = 30
         self.hide()
         
     def configure(self, strandtype, fiveorthree, index, parity, partner):
