@@ -33,8 +33,7 @@ from PyQt4.QtGui import QGraphicsItem
 from PyQt4.QtGui import QPainterPath
 from PyQt4.QtGui import QPolygonF
 from PyQt4.QtGui import QPen, QDrag, QUndoCommand
-from model.base import EndType
-from model.virtualhelix import StrandType, Parity, BreakType
+from model.enum import EndType, StrandType, Parity, BreakType
 import ui.styles as styles
 
 from mmayacadnano.breakpointhandle3d import BreakpointHandle3D # For Campbell

@@ -126,17 +126,17 @@ class Base(object):
     def isCrossover(self):
         """Return True if the part id or vhelix number of the prev or
         next base does not match the same for this base."""
-        if self.vhelixNum() != self._prevBase.vhelixNum():
-            return True
-        elif self.vhelixNum() != self._nextBase.vhelixNum():
-            return True
-        elif self.partId() != self._prevBase.partId():
-            return True
-        elif self.partId() != self._nextBase.partId():
-            return True
-        else:
+        if self.isNull():
             return False
 
-class EndType:
-    FivePrime = 0
-    ThreePrime = 1
+        if self._prevBase != Base._null:
+            if self.vhelixNum() != self._prevBase.vhelixNum():
+                return True
+            elif self.partId() != self._prevBase.partId():
+                return True
+        if self._nextBase != Base._null:
+            if self.vhelixNum() != self._nextBase.vhelixNum():
+                return True
+            elif self.partId() != self._nextBase.partId():
+                return True
+        return False

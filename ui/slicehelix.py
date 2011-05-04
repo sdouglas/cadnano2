@@ -64,6 +64,7 @@ class SliceHelix(QGraphicsItem):
         self.p0neighbor = None
         self.p1neighbor = None
         self.p2neighbor = None
+        self.p3neighbor = None
         self.label = None
         # drawing related
         self.focusRing = None
@@ -79,7 +80,20 @@ class SliceHelix(QGraphicsItem):
 
     def intersectsActiveSlice(self):
         index = self.parent.activeSliceIndex()
-        return self.virtualHelix().hasScaf(index)
+        return self.virtualHelix().hasScafAt(index)
+
+    def getNeighboringVirtualHelixList(self):
+        """docstring for getNeighboringVirtualHelixList"""
+        ret = [None, None, None, None]
+        if self.p0neighbor != None:
+            ret[0] = self.p0neighbor.virtualHelix()
+        if self.p1neighbor != None:
+            ret[1] = self.p1neighbor.virtualHelix()
+        if self.p2neighbor != None:
+            ret[2] = self.p2neighbor.virtualHelix()
+        if self.p3neighbor != None:
+            ret[3] = self.p3neighbor.virtualHelix()
+        return ret
 
     class FocusRingPainter(QGraphicsItem):
         """Draws a focus ring around helix in parent"""

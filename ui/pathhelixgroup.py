@@ -37,9 +37,7 @@ from .pathhelix import PathHelix
 from handles.activeslicehandle import ActiveSliceHandle
 from handles.breakpointhandle import BreakpointHandle
 from handles.pathhelixhandle import PathHelixHandle
-from model.base import EndType
-from model.virtualhelix import StrandType
-from model.dnapart import LatticeType
+from model.enum import EndType, LatticeType, StrandType
 import styles
 
 
@@ -285,7 +283,7 @@ class PathHelixGroup(QGraphicsItem):
         self.pathController = controller
         self.activeslicehandle = activeslicehandle
         self.activeHelix = None
-        self.crossSectionType = self.dnaPartInst.part().getCrossSectionType()
+        self.crossSectionType = self.dnaPartInst.part().crossSectionType()
         self.parent = parent
         self.setParentItem(parent) 
         self.numToPathHelix = {}

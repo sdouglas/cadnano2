@@ -33,8 +33,7 @@ from PyQt4.QtGui import QGraphicsItem, QGraphicsSimpleTextItem
 from PyQt4.QtGui import QPainterPath
 from PyQt4.QtGui import QPolygonF
 from PyQt4.QtGui import QPen, QUndoCommand
-from model.base import EndType
-from model.virtualhelix import StrandType, Parity, BreakType
+from model.enum import EndType, StrandType, Parity, BreakType
 import ui.styles as styles
 
 class PreCrossoverHandleGroup(QGraphicsItem):
@@ -46,28 +45,32 @@ class PreCrossoverHandleGroup(QGraphicsItem):
         self.count = 0
         self.helix = None
     # end def
-    
+
+    def addPair(self, strandtype, ):
+        """docstring for addPair"""
+        pass
+
     def updateActiveHelix(self, helix_new, index):
         """ 
         Takes a new helix and an index around which to populate
         precrossovers
         """
         new_count = 0 # the number of precrossovershandles to display
-        
+
         # get the index and other data for a precrossover
         # FILL IN CODE
         for i in range(new_count):
             self.handles[i].configure(  strandtype, \
-                                        fiveorthree, index, parity, partner)
+                                        endtype, index, parity, partner)
         # end for
-        
+
         # hide extra precrossoverhandles as necessary
         if self.count > new_count:
             for i in range(new_count, self.count):
                 self.handles[i].hide()
             # end for
         # end if
-        
+
         # update state
         self.helix = helix_new
         self.count = new_count
@@ -95,14 +98,14 @@ class PreCrossoverHandle(QGraphicsItem):
         it's a 5' end or a 3' end."""
         super(PreCrossoverHandle, self).__init__(parent)
         self.undoStack = parent.parentItem().pathController.mainWindow.undoStack
-        self.rect = QRectF(0, 0, styles.PATH_BASE_WIDTH , styles.PATH_BASE_WIDTH )
+        self.rect = QRectF(0, 0, styles.PATH_BASE_WIDTH, styles.PATH_BASE_WIDTH)
         self.type = None
-        self.fiveorthree= None
+        self.endtype = None
         self.index = None
         self.parity = None
         self.partner = None
         self.setZValue(styles.ZPRECROSSOVERHANDLE)
-        
+
         self.font = QFont("Times", 30, QFont.Bold)
         self.label = QGraphicsSimpleTextItem("", parent=self)
         self.label.setPos(0, 0)
@@ -110,73 +113,73 @@ class PreCrossoverHandle(QGraphicsItem):
         self.label.hide()
         self.textOffset = 30
         self.hide()
-        
-    def configure(self, strandtype, fiveorthree, index, parity, partner):
+
+    def configure(self, strandtype, endtype, index, parity, partner):
         """"""
         self.type = strandtype
-        self.fiveorthree = fiveorthree
+        self.endtype = endtype
         self.index = index
         self.parity = parity
         self.partner = partner
         self.label.setText("%d" % self.partner.number())
         self.setX(self.baseWidth*index)
-        
+
         if strandtype == StrandType.Scaffold:
-            if parity == Parity.Odd and fiveorthree == EndType.ThreePrime: 
+            if parity == Parity.Odd and endtype == EndType.ThreePrime:
                 self.handlePainter = drawRightDown
-            elif parity == Parity.Odd and fiveorthree == EndType.FivePrime:
+            elif parity == Parity.Odd and endtype == EndType.FivePrime:
                 self.handlePainter = drawLeftDown
-            elif parity == Parity.Even and fiveorthree == EndType.ThreePrime: 
+            elif parity == Parity.Even and endtype == EndType.ThreePrime:
                 self.handlePainter = drawLeftUp
-            elif parity == Parity.Even and fiveorthree == EndType.FivePrime:
+            elif parity == Parity.Even and endtype == EndType.FivePrime:
                 self.handlePainter = drawRightUp
             else:
                 print "problem!!! PreCrossoverHandle.configure Scaffold"
         elif strandtype == StrandType.Staple:
-            if parity == Parity.Odd and fiveorthree == EndType.ThreePrime: 
+            if parity == Parity.Odd and endtype == EndType.ThreePrime:
                 self.handlePainter = drawLeftUp
-            elif parity == Parity.Odd and fiveorthree == EndType.FivePrime: 
+            elif parity == Parity.Odd and endtype == EndType.FivePrime:
                 self.handlePainter = drawRightUp
-            elif parity == Parity.Even and fiveorthree == EndType.ThreePrime: 
+            elif parity == Parity.Even and endtype == EndType.ThreePrime:
                 self.handlePainter = drawRightDown
-            elif parity == Parity.Even and fiveorthree == EndType.FivePrime:
+            elif parity == Parity.Even and endtype == EndType.FivePrime:
                 self.handlePainter = drawLeftDown
             else:
                 print "problem!!! PreCrossoverHandle.configure Staple"
         else:
             print "Invalid argument, PreCrossoverHandle.configure"
         self.show()
-        self.label.show()            
+        self.label.show()
     # end def
-    
+
     def drawLeftUp(self,painter):
         self.label.setY(-self.baseWidth-self.textOffset)
         self.setY(-self.baseWidth)
         painter.drawLine(self.rect.bottomLeft(),self.rect.bottomRight())
         painter.drawLine(self.rect.bottomRight(),self.rect.topRight())
     # end def
-    
+
     def drawLeftDown(self,painter):
         self.label.setY(2*self.baseWidth+self.textOffset)
         self.setY(2*self.baseWidth) 
         painter.drawLine(self.rect.topLeft(),self.rect.topRight())
         painter.drawLine(self.rect.bottomRight(),self.rect.topRight())
     # end def
-    
+
     def drawRightUp(self,painter):
         self.label.setY(-self.baseWidth-self.textOffset)
         self.setY(-self.baseWidth)
         painter.drawLine(self.rect.bottomLeft(),self.rect.bottomRight())
         painter.drawLine(self.rect.bottomLeft(),self.rect.topLeft())
     # end def
-    
+
     def drawRightDown(self,painter):
         self.label.setY(2*self.baseWidth+self.textOffset)
         self.setY(2*self.baseWidth) 
         painter.drawLine(self.rect.topLeft(),self.rect.topRight())
         painter.drawLine(self.rect.bottomLeft(),self.rect.topLeft())
     # end def
-    
+
     def boundingRect(self):
         return self.rect
 

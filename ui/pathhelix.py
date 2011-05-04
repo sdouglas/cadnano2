@@ -35,10 +35,9 @@ from PyQt4.QtGui import QGraphicsSimpleTextItem
 from PyQt4.QtGui import QPainter, QPainterPath
 from PyQt4.QtGui import QPen, QDrag, QUndoCommand
 import styles
-from model.dnapart import LatticeType
-from model.virtualhelix import VirtualHelix, StrandType, Parity
+from model.enum import LatticeType, StrandType, Parity
+from model.virtualhelix import VirtualHelix
 from handles.breakpointhandle import BreakpointHandle
-
 from mmayacadnano.pathhelix3d import PathHelix3D  # For Campbell
 
 class PathHelix(QGraphicsItem):
@@ -70,9 +69,9 @@ class PathHelix(QGraphicsItem):
         self.setParentItem(parent) 
         # for precrossover 
         if parent.crossSectionType == LatticeType.Honeycomb:
-            self.repeat = 21
+            self.step = 21
         elif parent.crossSectionType == LatticeType.Square:
-            self.repeat = 32
+            self.step = 32
 
         # For Campbell
         # Here's where cadnano gets the reference to mMaya's 3D equivalent
@@ -158,37 +157,8 @@ class PathHelix(QGraphicsItem):
         if self.parentItem().activeHelix != None:  # deactivate old
             self.parentItem().activeHelix.hidePreCrossoverHandles()
         self.parentItem().activeHelix = self  # activate new
-        self.showPreCrossoverHandles(eventIndex)
+        self._vhelix.updatePreCrossoverPositions(eventIndex)
         self.update(self.boundingRect())
-    # end def
-
-    def showPreCrossoverHandles(self, index=None):
-        """
-        Update a PathHelix after mouseclick to display local features for
-        editing. 1. Overlay PreCrossoverHandles according to hard-coded
-        standard crossover positions: p0, p1, p2 (and p3 for square lattice).
-        2. Populate the 21-base segment containing pos, along with the two 
-        flanking 21-base segments (32 bases for square). 3. If index is
-        omitted, populate full length of PathHelix (for Auto-Stapling).
-        """
-        print "XO selected %d[%d]" % (self.number(), index)
-        # create a list of precrossover handles
-
-        # determine range to draw
-        if index == None:  # auto staple
-            start = 0
-            end = self._vhelix.size()
-        else: # user mouse click
-            start = max(0, index - (index % self.repeat) - self.repeat)
-            end = min(self._vhelix.size(), index - (index % self.repeat) + self.repeat*2)
-        print "start = %d, end = %d" % (start, end)
-
-        if parent.crossSectionType == LatticeType.Honeycomb:
-            pass
-        elif parent.crossSectionType == LatticeType.Square:
-            pass
-
-
     # end def
 
     def hidePreCrossoverHandles(self):

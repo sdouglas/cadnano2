@@ -29,7 +29,7 @@ Created by Shawn on 2011-03-30.
 """
 
 from ui.handles.breakpointhandle import BreakpointHandle
-from model.virtualhelix import StrandType
+from model.enum import StrandType
 from breakpointhandle3d import BreakpointHandle3D
 
 

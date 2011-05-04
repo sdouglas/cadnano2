@@ -33,7 +33,7 @@ from .pathhelixgroup import PathHelixGroup
 from .slicehelixgroup import SliceHelixGroup
 from .treecontroller import TreeController
 from handles.activeslicehandle import ActiveSliceHandle
-from model.dnapart import LatticeType
+from model.enum import LatticeType
 
 
 class DocumentController():

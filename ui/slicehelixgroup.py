@@ -36,7 +36,7 @@ from PyQt4.QtCore import pyqtSignal, pyqtSlot
 from PyQt4.QtGui import QBrush
 from PyQt4.QtGui import QGraphicsItem
 from handles.activeslicehandle import ActiveSliceHandle
-from model.dnapart import LatticeType
+from model.enum import LatticeType
 from .slicehelix import SliceHelix
 import styles
 
@@ -68,7 +68,7 @@ class SliceHelixGroup(QGraphicsItem):  # was a QGraphicsObject change for Qt 4.6
         # data related
         self.dnaPartInst = dnaPartInst
         self.activeslicehandle = activeslicehandle
-        self.crossSectionType = self.dnaPartInst.part().getCrossSectionType()
+        self.crossSectionType = self.dnaPartInst.part().crossSectionType()
         self.sliceController = controller
         self.parent = parent
         self.setParentItem(parent)

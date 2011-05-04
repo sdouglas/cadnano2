@@ -28,6 +28,7 @@ from exceptions import NotImplementedError
 import json
 from .part import Part
 from .virtualhelix import VirtualHelix
+from .enum import LatticeType
 
 class DNAPart(Part):
     def __init__(self, *args, **kwargs):
@@ -70,7 +71,7 @@ class DNAPart(Part):
         pass  # DNAPart owns its virtual helices, staples, and scaffods
               # so we don't need to make weak refs to them
 
-    def getCrossSectionType(self):
+    def crossSectionType(self):
         """Returns the cross-section type of the DNA part."""
         return self._crossSectionType
 
@@ -87,6 +88,8 @@ class DNAPart(Part):
                               col=slicehelix.col(),\
                               size=self._canvasSize)
         self._virtualHelices[slicehelix.number()] = vhelix
+        [p0, p1, p2, p3] = slicehelix.getNeighboringVirtualHelixList()
+        vhelix.connectNeighbors(p0, p1, p2, p3)
         vhelix.addObserver(slicehelix)
         return vhelix
 
@@ -107,7 +110,3 @@ class DNAPart(Part):
     def getVirtualHelixCount(self):
         """docstring for getVirtualHelixList"""
         return len(self._virtualHelices)
-
-class LatticeType:
-    Honeycomb = 0
-    Square = 1

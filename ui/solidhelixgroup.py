@@ -39,7 +39,7 @@ import sys
 import styles
 import maya.OpenMayaUI as mui
 import maya.OpenMaya as mo	
-from model.dnapart import LatticeType
+from model.enum import LatticeType
 
 
 X, Y, Z = range(3) # enumerate unit direction indices
