@@ -27,15 +27,53 @@ Created by Shawn on 2011-02-06.
 """
 
 from exceptions import AttributeError, NotImplementedError
-from PyQt4.QtCore import QPointF, QRectF, Qt, SIGNAL, QMimeData
+from PyQt4.QtCore import QPointF, QRectF, Qt
 from PyQt4.QtGui import QBrush
-from PyQt4.QtGui import QGraphicsItem
+from PyQt4.QtGui import QGraphicsItem, QGraphicsSimpleTextItem
 from PyQt4.QtGui import QPainterPath
 from PyQt4.QtGui import QPolygonF
 from PyQt4.QtGui import QPen, QUndoCommand
 from model.base import EndType
 from model.virtualhelix import StrandType, Parity, BreakType
 import ui.styles as styles
+
+class PreCrossoverHandleGroup(QGraphicsItem):
+    def __init__(self, parent=None):
+        super(PreCrossoverHandleGroup, self).__init__(parent)
+        for i in range(256):
+            self.handles[i] = PreCrossoverHandle(parent=self)
+        # end for
+        self.count = 0
+        self.helix = None
+    # end def
+    
+    def updateActiveHelix(self, helix_new, index):
+        """ 
+        Takes a new helix and an index around which to populate
+        precrossovers
+        """
+        new_count = 0 # the number of precrossovershandles to display
+        
+        # get the index and other data for a precrossover
+        # FILL IN CODE
+        for i in range(new_count):
+            self.handles[i].configure(  strandtype, \
+                                        fiveorthree, index, parity, partner)
+        # end for
+        
+        # hide extra precrossoverhandles as necessary
+        if self.count > new_count:
+            for i in range(new_count, self.count):
+                self.handles[i].hide()
+            # end for
+        # end if
+        
+        # update state
+        self.helix = helix_new
+        self.count = new_count
+    # end def
+# end class
+
 
 class PreCrossoverHandle(QGraphicsItem):
     """
@@ -65,6 +103,12 @@ class PreCrossoverHandle(QGraphicsItem):
         self.partner = None
         self.setZValue(styles.ZPRECROSSOVERHANDLE)
         
+        self.font = QFont("Times", 30, QFont.Bold)
+        self.label = QGraphicsSimpleTextItem("", parent=self)
+        self.label.setPos(0, 0)
+        self.label.setFont(self.font)
+        self.hide()
+        
     def configure(self, strandtype, fiveorthree, index, parity, partner):
         """"""
         self.type = strandtype
@@ -72,6 +116,7 @@ class PreCrossoverHandle(QGraphicsItem):
         self.index = index
         self.parity = parity
         self.partner = partner
+        self.label.setText("%d" % self.partner.number())
         self.rect.setX(self.baseWidth*index)
         
         if strandtype == StrandType.Scaffold:
@@ -105,7 +150,8 @@ class PreCrossoverHandle(QGraphicsItem):
             else:
                 print "problem!!! PreCrossoverHandle.configure Staple"
         else:
-            print "Invalid argument, PreCrossoverHandle.configure"            
+            print "Invalid argument, PreCrossoverHandle.configure"
+        self.show()            
     # end def
     
     def drawLeftUp(self,painter):
@@ -135,36 +181,13 @@ class PreCrossoverHandle(QGraphicsItem):
         self.handlePainter(painter)
     # end def
 
-    def setParity(self):
-        """docstring for setParity"""
-        if self.vhelix.number() % 2 == 0:
-            self.parity = Parity.Even
-        else:
-            self.parity = Parity.Odd
-
-    def getYoffset(self):
-        """
-        This function returns the appropriate Y offset according to the
-        rule that even-parity staples and odd-parity scaffolds run in the
-        negative-z direction and are drawn in the lower half of the
-        path helix grid.
-        """
-        if (self.parity == Parity.Even and self.strandType == StrandType.Staple) or \
-           (self.parity == Parity.Odd and self.strandType == StrandType.Scaffold):
-            return self.baseWidth
-        else:
-            return 0
-
     def mousePressEvent(self, event):
         if event.button() != Qt.LeftButton:
             QGraphicsItem.mousePressEvent(self,event)
+        # end else
         else:
-            # if self.parentItem() == self.restoreParentItem:
-            self.scene().views()[0].addToPressList(self)
-            self._dragMode = True
-            self.scene().clearSelection()
-            self.pressX = event.scenePos().x()
-            self.pressXoffset = self.pressX % self.baseWidth
-            self.setCursor(Qt.ClosedHandCursor)
+            # install crossover
+            # FILL IN
+        # end else
     # end def
 
