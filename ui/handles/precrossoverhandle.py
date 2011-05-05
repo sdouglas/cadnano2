@@ -38,6 +38,12 @@ import ui.styles as styles
 
 class PreCrossoverHandleGroup(QGraphicsItem):
     def __init__(self, parent=None):
+        """
+        Merely initialize a PreCrossoverHandle buffer
+        sets the group's parent to preferably a PathHelixGroup
+        sets each PreCrossoverHandle's parent in the buffer initially to 
+            the group
+        """
         super(PreCrossoverHandleGroup, self).__init__(parent)
         for i in range(256):
             self.handles[i] = PreCrossoverHandle(parent=self)
@@ -50,7 +56,7 @@ class PreCrossoverHandleGroup(QGraphicsItem):
         """docstring for addPair"""
         pass
 
-    def updateActiveHelix(self, helix_new, index):
+    def updateActiveHelix(self, helix_new):
         """ 
         Takes a new helix and an index around which to populate
         precrossovers
@@ -94,9 +100,12 @@ class PreCrossoverHandle(QGraphicsItem):
     baseWidth = styles.PATH_BASE_WIDTH
 
     def __init__(self, parent=None):
-        """Determine parity from vhelix. Make sure the breakpoint is
-        drawn in the correct orientation depending on parity and whether
-        it's a 5' end or a 3' end."""
+        """
+        Merely initialize a PreCrossoverHandle and some basic details
+        like it's label and rectangle
+        
+        initially these are all hidden as well
+        """
         super(PreCrossoverHandle, self).__init__(parent)
         self.undoStack = parent.parentItem().pathController.mainWindow.undoStack
         self.rect = QRectF(0, 0, styles.PATH_BASE_WIDTH, styles.PATH_BASE_WIDTH)
@@ -116,6 +125,11 @@ class PreCrossoverHandle(QGraphicsItem):
 
     def configure(self, strandtype, endtype, index, parity, partner, parent):
         """
+        sets up the PCH to be tied to a helix as its parent such that
+            when a helix is repostioned, it will redraw correctly
+        gives it a partner to know who it needs to be connected to
+        figures out the orientation to draw the PCH on the helix
+        
         """
         self.setParentItem(parent)
         self.type = strandtype
@@ -124,7 +138,7 @@ class PreCrossoverHandle(QGraphicsItem):
         self.parity = parity
         self.partner = partner
         self.label.setText("%d" % self.partner.number())
-        self.setX(self.baseWidth*index)
+        self.setX(self.baseWidth*index) # the position on the helix to draw
 
         if strandtype == StrandType.Scaffold:
             if parity == Parity.Odd and endtype == EndType.ThreePrime:
@@ -201,6 +215,9 @@ class PreCrossoverHandle(QGraphicsItem):
     # end def
 
     def mousePressEvent(self, event):
+        """
+        This handles installing crossovers
+        """
         if event.button() != Qt.LeftButton:
             QGraphicsItem.mousePressEvent(self,event)
         # end else
