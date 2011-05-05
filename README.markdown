@@ -28,14 +28,14 @@ http://www.opensource.org/licenses/mit-license.php
 
 ## Installion
 
-For now just just run from the terminal with python main.py
+For now just run from the terminal with python main.py
 We're still working out the bugs
 
 ### Dependencies
 
-    * [Qt 4.7](http://qt.nokia.com/products/)
-    * [PySide] (http://www.pyside.org/)
-    * Maya 2012
+* [Qt 4.7](http://qt.nokia.com/products/)
+* [PySide] (http://www.pyside.org/)
+* Maya 2012
 
 ## Links
 * [CADnano.org](http://cadnano.org/)
