@@ -123,7 +123,7 @@ class PreCrossoverHandle(QGraphicsItem):
         self.textOffset = 30
         self.hide()
 
-    def configure(self, strandtype, endtype, index, parity, partner, parent):
+    def configure(self, strandtype, orientation, index, partner, parent):
         """
         sets up the PCH to be tied to a helix as its parent such that
             when a helix is repostioned, it will redraw correctly
@@ -133,45 +133,26 @@ class PreCrossoverHandle(QGraphicsItem):
         """
         self.setParentItem(parent)
         self.type = strandtype
-        self.endtype = endtype
+        self.orientation = orientation
         self.index = index
-        self.parity = parity
         self.partner = partner
         self.label.setText("%d" % self.partner.number())
         self.setX(self.baseWidth*index) # the position on the helix to draw
 
-        if strandtype == StrandType.Scaffold:
-            if parity == Parity.Odd and endtype == EndType.ThreePrime:
-                self.downDrawConfig()
-                self.handlePainter = drawRightDown
-            elif parity == Parity.Odd and endtype == EndType.FivePrime:
-                self.downDrawConfig()
-                self.handlePainter = drawLeftDown
-            elif parity == Parity.Even and endtype == EndType.ThreePrime:
-                self.upDrawConfig()
-                self.handlePainter = drawLeftUp
-            elif parity == Parity.Even and endtype == EndType.FivePrime:
-                self.upDrawConfig()
-                self.handlePainter = drawRightUp
-            else:
-                print "problem!!! PreCrossoverHandle.configure Scaffold"
-        elif strandtype == StrandType.Staple:
-            if parity == Parity.Odd and endtype == EndType.ThreePrime:
-                self.upDrawConfig()
-                self.handlePainter = drawLeftUp
-            elif parity == Parity.Odd and endtype == EndType.FivePrime:
-                self.upDrawConfig()
-                self.handlePainter = drawRightUp
-            elif parity == Parity.Even and endtype == EndType.ThreePrime:
-                self.downDrawConfig()
-                self.handlePainter = drawRightDown
-            elif parity == Parity.Even and endtype == EndType.FivePrime:
-                self.downDrawConfig()
-                self.handlePainter = drawLeftDown
-            else:
-                print "problem!!! PreCrossoverHandle.configure Staple"
+        if orientation == HandleOrient.RightDown
+            self.downDrawConfig()
+            self.handlePainter = drawRightDown
+        if orientation == HandleOrient.LeftDown
+            self.downDrawConfig()
+            self.handlePainter = drawLeftDown
+        elif orientation == HandleOrient.LeftUp
+            self.upDrawConfig()
+            self.handlePainter = drawLeftUp
+        elif orientation == HandleOrient.RightUp
+            self.upDrawConfig()
+            self.handlePainter = drawRightUp
         else:
-            print "Invalid argument, PreCrossoverHandle.configure"
+            print "problem!!! PreCrossoverHandle.configure Scaffold"
         self.show()
         self.label.show()
     # end def
