@@ -22,8 +22,8 @@
 #
 # http://www.opensource.org/licenses/mit-license.php
 """
-pathhelixhandle.py
-Created by Shawn on 2011-02-06.
+precrossoverhandle.py
+Created by Nick on 2011-05-03.
 """
 
 from exceptions import AttributeError, NotImplementedError
