@@ -61,7 +61,8 @@ class PreCrossoverHandleGroup(QGraphicsItem):
         # FILL IN CODE
         for i in range(new_count):
             self.handles[i].configure(  strandtype, \
-                                        endtype, index, parity, partner)
+                                        endtype, index, \
+                                        parity, partner, parent)
         # end for
 
         # hide extra precrossoverhandles as necessary
@@ -105,7 +106,6 @@ class PreCrossoverHandle(QGraphicsItem):
         self.parity = None
         self.partner = None
         self.setZValue(styles.ZPRECROSSOVERHANDLE)
-
         self.font = QFont("Times", 30, QFont.Bold)
         self.label = QGraphicsSimpleTextItem("", parent=self)
         self.label.setPos(0, 0)
@@ -114,8 +114,10 @@ class PreCrossoverHandle(QGraphicsItem):
         self.textOffset = 30
         self.hide()
 
-    def configure(self, strandtype, endtype, index, parity, partner):
-        """"""
+    def configure(self, strandtype, endtype, index, parity, partner, parent):
+        """
+        """
+        self.setParentItem(parent)
         self.type = strandtype
         self.endtype = endtype
         self.index = index
@@ -126,23 +128,31 @@ class PreCrossoverHandle(QGraphicsItem):
 
         if strandtype == StrandType.Scaffold:
             if parity == Parity.Odd and endtype == EndType.ThreePrime:
+                self.downDrawConfig()
                 self.handlePainter = drawRightDown
             elif parity == Parity.Odd and endtype == EndType.FivePrime:
+                self.downDrawConfig()
                 self.handlePainter = drawLeftDown
             elif parity == Parity.Even and endtype == EndType.ThreePrime:
+                self.upDrawConfig()
                 self.handlePainter = drawLeftUp
             elif parity == Parity.Even and endtype == EndType.FivePrime:
+                self.upDrawConfig()
                 self.handlePainter = drawRightUp
             else:
                 print "problem!!! PreCrossoverHandle.configure Scaffold"
         elif strandtype == StrandType.Staple:
             if parity == Parity.Odd and endtype == EndType.ThreePrime:
+                self.upDrawConfig()
                 self.handlePainter = drawLeftUp
             elif parity == Parity.Odd and endtype == EndType.FivePrime:
+                self.upDrawConfig()
                 self.handlePainter = drawRightUp
             elif parity == Parity.Even and endtype == EndType.ThreePrime:
+                self.downDrawConfig()
                 self.handlePainter = drawRightDown
             elif parity == Parity.Even and endtype == EndType.FivePrime:
+                self.downDrawConfig()
                 self.handlePainter = drawLeftDown
             else:
                 print "problem!!! PreCrossoverHandle.configure Staple"
@@ -152,30 +162,32 @@ class PreCrossoverHandle(QGraphicsItem):
         self.label.show()
     # end def
 
-    def drawLeftUp(self,painter):
+    def upDrawConfig(self):
         self.label.setY(-self.baseWidth-self.textOffset)
-        self.setY(-self.baseWidth)
+        self.setY(-self.baseWidth)     
+    #end def
+    
+    def downDrawConfig(self):
+        self.label.setY(2*self.baseWidth+self.textOffset)
+        self.setY(2*self.baseWidth) 
+    #end def
+
+    def drawLeftUp(self,painter):
         painter.drawLine(self.rect.bottomLeft(),self.rect.bottomRight())
         painter.drawLine(self.rect.bottomRight(),self.rect.topRight())
     # end def
 
     def drawLeftDown(self,painter):
-        self.label.setY(2*self.baseWidth+self.textOffset)
-        self.setY(2*self.baseWidth) 
         painter.drawLine(self.rect.topLeft(),self.rect.topRight())
         painter.drawLine(self.rect.bottomRight(),self.rect.topRight())
     # end def
 
     def drawRightUp(self,painter):
-        self.label.setY(-self.baseWidth-self.textOffset)
-        self.setY(-self.baseWidth)
         painter.drawLine(self.rect.bottomLeft(),self.rect.bottomRight())
         painter.drawLine(self.rect.bottomLeft(),self.rect.topLeft())
     # end def
 
     def drawRightDown(self,painter):
-        self.label.setY(2*self.baseWidth+self.textOffset)
-        self.setY(2*self.baseWidth) 
         painter.drawLine(self.rect.topLeft(),self.rect.topRight())
         painter.drawLine(self.rect.bottomLeft(),self.rect.topLeft())
     # end def
@@ -184,6 +196,7 @@ class PreCrossoverHandle(QGraphicsItem):
         return self.rect
 
     def paint(self, painter, option, widget=None):
+        painter.setPen(self.pen)
         self.handlePainter(painter)
     # end def
 
