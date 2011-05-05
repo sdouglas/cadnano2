@@ -110,9 +110,8 @@ class PreCrossoverHandle(QGraphicsItem):
         self.undoStack = parent.parentItem().pathController.mainWindow.undoStack
         self.rect = QRectF(0, 0, styles.PATH_BASE_WIDTH, styles.PATH_BASE_WIDTH)
         self.type = None
-        self.endtype = None
         self.index = None
-        self.parity = None
+        self.orientation = None
         self.partner = None
         self.setZValue(styles.ZPRECROSSOVERHANDLE)
         self.font = QFont("Times", 30, QFont.Bold)
