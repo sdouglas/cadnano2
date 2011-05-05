@@ -28,59 +28,101 @@ Created by Nick on 2011-05-03.
 
 from exceptions import AttributeError, NotImplementedError
 from PyQt4.QtCore import QPointF, QRectF, Qt
-from PyQt4.QtGui import QBrush
+from PyQt4.QtGui import QBrush, QFont
 from PyQt4.QtGui import QGraphicsItem, QGraphicsSimpleTextItem
 from PyQt4.QtGui import QPainterPath
 from PyQt4.QtGui import QPolygonF
 from PyQt4.QtGui import QPen, QUndoCommand
-from model.enum import EndType, StrandType, Parity, BreakType
+from model.enum import StrandType, Parity, BreakType, HandleOrient
 import ui.styles as styles
+
 
 class PreCrossoverHandleGroup(QGraphicsItem):
     def __init__(self, parent=None):
         """
         Merely initialize a PreCrossoverHandle buffer
-        sets the group's parent to preferably a PathHelixGroup
-        sets each PreCrossoverHandle's parent in the buffer initially to 
-            the group
+        sets the group's parent to preferably a PathHelixGroup sets each
+        PreCrossoverHandle's parent in the buffer initially to the group
         """
         super(PreCrossoverHandleGroup, self).__init__(parent)
+        self.rect = QRectF(0, 0, 0, 0)
+        self.handles = []
         for i in range(256):
-            self.handles[i] = PreCrossoverHandle(parent=self)
+            self.handles.append(PreCrossoverHandle(parent=self))
         # end for
-        self.count = 0
-        self.helix = None
+        self.activeCount = 0
     # end def
 
-    def addPair(self, strandtype, ):
-        """docstring for addPair"""
+    def boundingRect(self):
+        return self.rect
+    # end def
+
+    def paint(self, painter, option, widget=None):
         pass
+    # end def
 
-    def updateActiveHelix(self, helix_new):
-        """ 
-        Takes a new helix and an index around which to populate
-        precrossovers
+    def updateActiveHelix(self, vhelix):
         """
-        new_count = 0 # the number of precrossovershandles to display
+        Collects the locations of each type of PreCrossover from the
+        recently activated VirtualHelix vhelix. Each index corresponds
+        to a pair of PreCrossoverHandle that must be updated and displayed.
+        """
+        scafL = vhelix.getLeftScafPreCrossoverIndexList()
+        scafR = vhelix.getRightScafPreCrossoverIndexList()
+        stapL = vhelix.getLeftStapPreCrossoverIndexList()
+        stapR = vhelix.getRightStapPreCrossoverIndexList()
+        count = sum([len(scafL), len(scafR), len(stapL), len(stapR)])
 
-        # get the index and other data for a precrossover
-        # FILL IN CODE
-        for i in range(new_count):
-            self.handles[i].configure(  strandtype, \
-                                        endtype, index, \
-                                        parity, partner, parent)
-        # end for
+        # Procees Scaffold PreCrossoverHandles
+        strandtype = StrandType.Scaffold
+        ph1 = self.parentItem().getPathHelix(vhelix)
+        i = 0
+        for [neighbor, index] in scafL:
+            if vhelix.parity() == Parity.Even:
+                orient = HandleOrient.LeftUp
+            else:
+                orient = HandleOrient.LeftDown
+            ph2 = self.parentItem().getPathHelix(neighbor)
+            self.handles[i].configure(strandtype, orient, index, ph2, ph1)
+            self.handles[i+1].configure(strandtype, orient, index, ph1, ph2)
+            i += 2
+        for [neighbor, index] in scafR:
+            if vhelix.parity() == Parity.Even:
+                orient = HandleOrient.RightUp
+            else:
+                orient = HandleOrient.RightDown
+            ph2 = self.parentItem().getPathHelix(neighbor)
+            self.handles[i].configure(strandtype, orient, index, ph2, ph1)
+            self.handles[i+1].configure(strandtype, orient, index, ph1, ph2)
+            i += 2
+        # Process Staple PreCrossoverHandles
+        strandtype = StrandType.Staple
+        for [neighbor, index] in stapL:
+            if vhelix.parity() == Parity.Even:
+                orient = HandleOrient.LeftUp
+            else:
+                orient = HandleOrient.LeftDown
+            ph2 = self.parentItem().getPathHelix(neighbor)
+            self.handles[i].configure(strandtype, orient, index, ph2, ph1)
+            self.handles[i+1].configure(strandtype, orient, index, ph1, ph2)
+            i += 2
+        for [neighbor, index] in stapR:
+            if vhelix.parity() == Parity.Even:
+                orient = HandleOrient.RightUp
+            else:
+                orient = HandleOrient.RightDown
+            ph2 = self.parentItem().getPathHelix(neighbor)
+            self.handles[i].configure(strandtype, orient, index, ph2, ph1)
+            self.handles[i+1].configure(strandtype, orient, index, ph1, ph2)
+            i += 2
 
         # hide extra precrossoverhandles as necessary
-        if self.count > new_count:
-            for i in range(new_count, self.count):
+        if self.activeCount > count:
+            for i in range(count, self.activeCount):
                 self.handles[i].hide()
             # end for
         # end if
-
-        # update state
-        self.helix = helix_new
-        self.count = new_count
+        self.activeCount = count
     # end def
 # end class
 
@@ -89,7 +131,7 @@ class PreCrossoverHandle(QGraphicsItem):
     """
     PreCrossoverHandle responds to mouse input and serves as an interface
     for adding scaffold crossovers
-    
+
     Each handle is created by the PathController. Its parent is a PathHelix
     """
     pen = QPen(styles.minorgridstroke, styles.PATH_GRID_STROKE_WIDTH)
@@ -113,6 +155,7 @@ class PreCrossoverHandle(QGraphicsItem):
         self.index = None
         self.orientation = None
         self.partner = None
+        self.handlePainter = self.drawLeftUp
         self.setZValue(styles.ZPRECROSSOVERHANDLE)
         self.font = QFont("Times", 30, QFont.Bold)
         self.label = QGraphicsSimpleTextItem("", parent=self)
@@ -138,18 +181,18 @@ class PreCrossoverHandle(QGraphicsItem):
         self.label.setText("%d" % self.partner.number())
         self.setX(self.baseWidth*index) # the position on the helix to draw
 
-        if orientation == HandleOrient.RightDown
+        if orientation == HandleOrient.RightDown:
             self.downDrawConfig()
-            self.handlePainter = drawRightDown
-        if orientation == HandleOrient.LeftDown
+            self.handlePainter = self.drawRightDown
+        if orientation == HandleOrient.LeftDown:
             self.downDrawConfig()
-            self.handlePainter = drawLeftDown
-        elif orientation == HandleOrient.LeftUp
+            self.handlePainter = self.drawLeftDown
+        elif orientation == HandleOrient.LeftUp:
             self.upDrawConfig()
-            self.handlePainter = drawLeftUp
-        elif orientation == HandleOrient.RightUp
+            self.handlePainter = self.drawLeftUp
+        elif orientation == HandleOrient.RightUp:
             self.upDrawConfig()
-            self.handlePainter = drawRightUp
+            self.handlePainter = self.drawRightUp
         else:
             print "problem!!! PreCrossoverHandle.configure Scaffold"
         self.show()
@@ -166,24 +209,24 @@ class PreCrossoverHandle(QGraphicsItem):
         self.setY(2*self.baseWidth) 
     #end def
 
-    def drawLeftUp(self,painter):
-        painter.drawLine(self.rect.bottomLeft(),self.rect.bottomRight())
-        painter.drawLine(self.rect.bottomRight(),self.rect.topRight())
+    def drawLeftUp(self, painter):
+        painter.drawLine(self.rect.bottomLeft(), self.rect.bottomRight())
+        painter.drawLine(self.rect.bottomRight(), self.rect.topRight())
     # end def
 
-    def drawLeftDown(self,painter):
-        painter.drawLine(self.rect.topLeft(),self.rect.topRight())
-        painter.drawLine(self.rect.bottomRight(),self.rect.topRight())
+    def drawLeftDown(self, painter):
+        painter.drawLine(self.rect.topLeft(), self.rect.topRight())
+        painter.drawLine(self.rect.bottomRight(), self.rect.topRight())
     # end def
 
-    def drawRightUp(self,painter):
-        painter.drawLine(self.rect.bottomLeft(),self.rect.bottomRight())
-        painter.drawLine(self.rect.bottomLeft(),self.rect.topLeft())
+    def drawRightUp(self, painter):
+        painter.drawLine(self.rect.bottomLeft(), self.rect.bottomRight())
+        painter.drawLine(self.rect.bottomLeft(), self.rect.topLeft())
     # end def
 
-    def drawRightDown(self,painter):
-        painter.drawLine(self.rect.topLeft(),self.rect.topRight())
-        painter.drawLine(self.rect.bottomLeft(),self.rect.topLeft())
+    def drawRightDown(self, painter):
+        painter.drawLine(self.rect.topLeft(), self.rect.topRight())
+        painter.drawLine(self.rect.bottomLeft(), self.rect.topLeft())
     # end def
 
     def boundingRect(self):
@@ -202,8 +245,8 @@ class PreCrossoverHandle(QGraphicsItem):
             QGraphicsItem.mousePressEvent(self,event)
         # end else
         else:
+            pass
             # install crossover
             # FILL IN
         # end else
     # end def
-
