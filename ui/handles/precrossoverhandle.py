@@ -204,6 +204,7 @@ class PreCrossoverHandle(QGraphicsItem):
         else:
             # install crossover
             # FILL IN
+            pass
         # end else
     # end def
-
+# end class
