@@ -180,7 +180,6 @@ class PreCrossoverHandle(QGraphicsItem):
         self.index = None
         self.orientation = None
         self.partner = None
-        self.handlePainter = self.drawLeftUp
         self.setZValue(styles.ZPRECROSSOVERHANDLE)
         self.font = QFont("Times", 10, QFont.Bold)
         self.label = QGraphicsSimpleTextItem("", parent=self)
@@ -212,23 +211,19 @@ class PreCrossoverHandle(QGraphicsItem):
             self.setX(self.baseWidth*index+styles.PATH_BASE_WIDTH/2)
             self.rightDrawConfig()
             self.downDrawConfig()
-            self.handlePainter = self.drawRightDown
             self.painterpath = paintPathRD
         elif orientation == HandleOrient.LeftDown:
             self.leftDrawConfig()
             self.downDrawConfig()
-            self.handlePainter = self.drawLeftDown
             self.painterpath = paintPathLD
         elif orientation == HandleOrient.LeftUp:
             self.leftDrawConfig()
             self.upDrawConfig()
-            self.handlePainter = self.drawLeftUp
             self.painterpath = paintPathLU
         elif orientation == HandleOrient.RightUp:
             self.rightDrawConfig()
             self.setX(self.baseWidth*index+styles.PATH_BASE_WIDTH/2)
             self.upDrawConfig()
-            self.handlePainter = self.drawRightUp
             self.painterpath = paintPathRU
         else:
             print "problem!!! PreCrossoverHandle.configure Scaffold"
@@ -257,26 +252,6 @@ class PreCrossoverHandle(QGraphicsItem):
         self.label.setY(0.48*self.baseWidth) 
         self.setY(2.25*self.baseWidth)
     #end def 
-
-    def drawLeftUp(self, painter):
-        painter.drawLine(self.rect.bottomLeft(), self.rect.bottomRight())
-        painter.drawLine(self.rect.bottomRight(), self.rect.topRight())
-    # end def
-
-    def drawLeftDown(self, painter):
-        painter.drawLine(self.rect.topLeft(), self.rect.topRight())
-        painter.drawLine(self.rect.bottomRight(), self.rect.topRight())
-    # end def
-
-    def drawRightUp(self, painter):
-        painter.drawLine(self.rect.bottomLeft(), self.rect.bottomRight())
-        painter.drawLine(self.rect.bottomLeft(), self.rect.topLeft())
-    # end def
-
-    def drawRightDown(self, painter):
-        painter.drawLine(self.rect.topLeft(), self.rect.topRight())
-        painter.drawLine(self.rect.bottomLeft(), self.rect.topLeft())
-    # end def
 
     def boundingRect(self):
         return self.rect
