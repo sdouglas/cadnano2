@@ -28,7 +28,7 @@ http://www.opensource.org/licenses/mit-license.php
 
 CADnano is DNA origami design software, check out the [wiki](http://en.wikipedia.org/wiki/DNA_origami)
 
-## Installion
+## Installation
 
 For now just run from the terminal with python main.py
 We're still working out the bugs
