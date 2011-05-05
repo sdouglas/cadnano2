@@ -36,6 +36,24 @@ from PyQt4.QtGui import QPen, QUndoCommand
 from model.enum import StrandType, Parity, BreakType, HandleOrient
 import ui.styles as styles
 
+# construct paths for breakpoint handles
+paintRect = QRectF(0, 0, styles.PATH_BASE_WIDTH/2, styles.PATH_BASE_WIDTH/2)
+paintPathLU = QPainterPath()
+paintPathLU.moveTo(paintRect.bottomLeft())
+paintPathLU.lineTo(paintRect.bottomRight())
+paintPathLU.lineTo(paintRect.topRight())
+paintPathRU = QPainterPath()
+paintPathRU.moveTo(paintRect.bottomRight())
+paintPathRU.lineTo(paintRect.bottomLeft())
+paintPathRU.lineTo(paintRect.topLeft())
+paintPathRD = QPainterPath()
+paintPathRD.moveTo(paintRect.topRight())
+paintPathRD.lineTo(paintRect.topLeft())
+paintPathRD.lineTo(paintRect.bottomLeft())
+paintPathLD = QPainterPath()
+paintPathLD.moveTo(paintRect.topLeft())
+paintPathLD.lineTo(paintRect.topRight())
+paintPathLD.lineTo(paintRect.bottomRight())
 
 class PreCrossoverHandleGroup(QGraphicsItem):
     def __init__(self, parent=None):
@@ -143,11 +161,10 @@ class PreCrossoverHandle(QGraphicsItem):
     Each handle is created by the PathController. Its parent is a PathHelix
     """
     pen = QPen(styles.bluestroke , 2)
-    # nopen = QPen(Qt.NoPen)
-    #     brush = QBrush(styles.bluestroke)
-    #     selectbrush = QBrush(styles.bluishstroke)
-    #     nobrush = QBrush(Qt.NoBrush)
+    pen.setCapStyle(Qt.RoundCap)
+    pen.setJoinStyle(Qt.RoundJoin)
     baseWidth = styles.PATH_BASE_WIDTH
+    
 
     def __init__(self, parent=None):
         """
@@ -171,8 +188,8 @@ class PreCrossoverHandle(QGraphicsItem):
         self.label.setPos(0, 0)
         self.label.setFont(self.font)
         self.label.hide()
-        self.textOffset = 30
         self.hide()
+        self.painterpath = paintPathLD
 
     def configure(self, strandtype, orientation, index, partner, parent):
         """
@@ -196,19 +213,23 @@ class PreCrossoverHandle(QGraphicsItem):
             self.rightDrawConfig()
             self.downDrawConfig()
             self.handlePainter = self.drawRightDown
+            self.painterpath = paintPathRD
         elif orientation == HandleOrient.LeftDown:
             self.leftDrawConfig()
             self.downDrawConfig()
             self.handlePainter = self.drawLeftDown
+            self.painterpath = paintPathLD
         elif orientation == HandleOrient.LeftUp:
             self.leftDrawConfig()
             self.upDrawConfig()
             self.handlePainter = self.drawLeftUp
+            self.painterpath = paintPathLU
         elif orientation == HandleOrient.RightUp:
             self.rightDrawConfig()
             self.setX(self.baseWidth*index+styles.PATH_BASE_WIDTH/2)
             self.upDrawConfig()
             self.handlePainter = self.drawRightUp
+            self.painterpath = paintPathRU
         else:
             print "problem!!! PreCrossoverHandle.configure Scaffold"
         self.show()
@@ -216,12 +237,15 @@ class PreCrossoverHandle(QGraphicsItem):
     # end def
 
     def rightDrawConfig(self):
-        self.label.setX(-0.15*self.baseWidth) 
+        offset = self.label.boundingRect().width()/2
+        self.label.setX(-offset)
+        # self.label.setX(-0.15*self.baseWidth) 
     # end def
 
     def leftDrawConfig(self):
-        offset = -self.label.boundingRect().width()/2
-        self.label.setX(.35*self.baseWidth)
+        offset = self.label.boundingRect().width()/2
+        self.label.setX(self.baseWidth/2 - offset)
+        #self.label.setX(.35*self.baseWidth)
     # end def
 
     def upDrawConfig(self):
@@ -232,7 +256,7 @@ class PreCrossoverHandle(QGraphicsItem):
     def downDrawConfig(self):
         self.label.setY(0.48*self.baseWidth) 
         self.setY(2.25*self.baseWidth)
-    #end def
+    #end def 
 
     def drawLeftUp(self, painter):
         painter.drawLine(self.rect.bottomLeft(), self.rect.bottomRight())
@@ -259,7 +283,8 @@ class PreCrossoverHandle(QGraphicsItem):
 
     def paint(self, painter, option, widget=None):
         painter.setPen(self.pen)
-        self.handlePainter(painter)
+        painter.drawPath(self.painterpath)
+        # self.handlePainter(painter)
     # end def
 
     def mousePressEvent(self, event):
