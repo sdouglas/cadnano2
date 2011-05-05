@@ -54,9 +54,9 @@ class PathHelix(QGraphicsItem):
     baseWidth = styles.PATH_BASE_WIDTH
     
     def __init__(self, vhelix, position, parent):
-        super(PathHelix, self).__init__()
+        super(PathHelix, self).__init__(parent)
         self._vhelix = vhelix
-        self.parent = parent
+        # self.parent = parent
         self._scafBreaktHandles = []
         self._stapBreaktHandles = []
         self._scafCrossoverHandles = []
@@ -158,6 +158,7 @@ class PathHelix(QGraphicsItem):
             self.parentItem().activeHelix.hidePreCrossoverHandles()
         self.parentItem().activeHelix = self  # activate new
         self._vhelix.updatePreCrossoverPositions(eventIndex)
+        self.parentItem().notifyPreCrossoverGroupAfterUpdate(self._vhelix)
         self.update(self.boundingRect())
     # end def
 

@@ -90,7 +90,7 @@ class BreakpointHandle(QGraphicsItem):
     def restoreParent(self):
         # print "restore: ", self.restoreParentItem
         #self.parent = self.restoreParentItem
-        tempP = self.restoreParentItem.mapFromItem(self.parentItem(),self.pos())
+        tempP = self.restoreParentItem.mapFromItem(self.parentItem(), self.pos())
         self.setParentItem(self.restoreParentItem)
         self.setPos(tempP)
     # end def

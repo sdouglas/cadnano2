@@ -37,6 +37,7 @@ from .pathhelix import PathHelix
 from handles.activeslicehandle import ActiveSliceHandle
 from handles.breakpointhandle import BreakpointHandle
 from handles.pathhelixhandle import PathHelixHandle
+from handles.precrossoverhandle import PreCrossoverHandleGroup
 from model.enum import EndType, LatticeType, StrandType
 import styles
 
@@ -285,7 +286,7 @@ class PathHelixGroup(QGraphicsItem):
         self.activeHelix = None
         self.crossSectionType = self.dnaPartInst.part().crossSectionType()
         self.parent = parent
-        self.setParentItem(parent) 
+        self.setParentItem(parent)
         self.numToPathHelix = {}
         self.numToPathHelixHandle = {}
         self.pathHelixList = []
@@ -297,12 +298,15 @@ class PathHelixGroup(QGraphicsItem):
         self.scaffoldChange = self.qObject.scaffoldChange
         self.rect = QRectF(0, 0, 200, 200) # NC: w,h don't seem to matter
         self.zoomToFit()
-        self.phhSelectionGroup = SelectionItemGroup(boxtype=PathHelixHandleSelectionBox,\
-                                                           constraint='y', \
-                                                           parent=self)
-        self.bphSelectionGroup = SelectionItemGroup(boxtype=BreakpointHandleSelectionBox,\
-                                                          constraint='x',\
-                                                          parent=self)
+        self.phhSelectionGroup = SelectionItemGroup(\
+                                         boxtype=PathHelixHandleSelectionBox,\
+                                         constraint='y',\
+                                         parent=self)
+        self.bphSelectionGroup = SelectionItemGroup(
+                                         boxtype=BreakpointHandleSelectionBox,\
+                                         constraint='x',\
+                                         parent=self)
+        self.pchGroup = PreCrossoverHandleGroup(self)
         self.font = QFont("Times", 30, QFont.Bold)
         self.label = QGraphicsTextItem("Part 1")
         self.label.setVisible(False) 
@@ -434,6 +438,19 @@ class PathHelixGroup(QGraphicsItem):
         ph.updateBreakBounds(StrandType.Scaffold)
         ph.redrawLines(StrandType.Scaffold)
     # end def
+
+    def getPathHelix(self, vhelix):
+        """Given the helix number, return a reference to the PathHelix."""
+        number = vhelix.number()
+        if number in self.numToPathHelix:
+            return self.numToPathHelix[number]
+        else:
+            raise IndexError
+
+    def notifyPreCrossoverGroupAfterUpdate(self, virtualhelix):
+        """Called by PathHelix.mousePressEvent after the vhelix has calculated
+        its new PreCrossoverHandle positions."""
+        self.pchGroup.updateActiveHelix(virtualhelix)
 
     def reorderHelices(self, first, last, indexDelta):
         """

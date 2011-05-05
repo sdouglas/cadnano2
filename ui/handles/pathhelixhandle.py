@@ -65,7 +65,7 @@ class PathHelixHandle(QGraphicsItem):
     # end def
 
     def restoreParent(self):
-        tempP = self.restoreParentItem.mapFromItem(self.parentItem(),self.pos())
+        tempP = self.restoreParentItem.mapFromItem(self.parentItem(), self.pos())
         self.setParentItem(self.restoreParentItem)
         self.setPos(tempP)
     # end def

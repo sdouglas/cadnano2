@@ -67,12 +67,12 @@ handlefill = QColor(0, 102, 204)  # 0066cc
 # handlestroke = QColor(0, 102, 204)  # 0066cc
 
 #layer limits
+ZPRECROSSOVERHANDLE = 1
+ZFOCUSRING = 0.0
+ZSLICEHELIX = -1.0
 ZBREAKPOINTHANDLE= -9
 ZPATHHELIX = -11
 ZACTIVESLICEHANDLE = -12
-
-ZFOCUSRING = 0.0
-ZSLICEHELIX = -1.0
 
 # Overwrite for Maya
 # majorgridstroke = QColor(255, 255, 255)  # ffffff for maya

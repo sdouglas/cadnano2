@@ -44,9 +44,9 @@ class VirtualHelix(object):
         self._stapleBases = [Base(self, n) for n in range(self._size)]
         self._scaffoldBases = [Base(self, n) for n in range(self._size)]
         self._observers = []
-        self._p0 = None  # honeycomb: \  square: ?
-        self._p1 = None  # honeycomb: |  square: ?
-        self._p2 = None  # honeycomb: /  square: ?
+        self._p0 = None  # honeycomb: \, square: ?
+        self._p1 = None  # honeycomb: |, square: ?
+        self._p2 = None  # honeycomb: /, square: ?
         self._p3 = None  #               square: ?
         self._scafLeftPreXoList = []  # locations for PreCrossoverHandles
         self._scafRightPreXoList = []
@@ -395,9 +395,9 @@ class VirtualHelix(object):
     def getRightScafPreCrossoverIndexList(self):
         return self._scafRightPreXoList
 
-    def getLeftScafPreCrossoverIndexList(self):
+    def getLeftStapPreCrossoverIndexList(self):
         return self._stapLeftPreXoList
 
-    def getRightScafPreCrossoverIndexList(self):
+    def getRightStapPreCrossoverIndexList(self):
         return self._stapRightPreXoList
 
