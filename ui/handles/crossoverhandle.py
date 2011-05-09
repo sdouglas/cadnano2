@@ -60,8 +60,8 @@ class CrossoverHandle(QGraphicsItem):
         self.type = None
         self.index = None
         self.orientation = None     # Left or right
-        self.pointA = CrossOverPoint(indexA, helixA)
-        self.pointB = CrossOverPoint(indexB, helixB)
+        self.pointA = CrossoverPoint(indexA, helixA)
+        self.pointB = CrossbverPoint(indexB, helixB)
         self.painterpath = QPainter()
         self.setZValue(styles.ZCROSSOVERHANDLE)
         self.painterpath = paintPathLD
