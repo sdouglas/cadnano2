@@ -361,8 +361,8 @@ class VirtualHelix(object):
                 if self.possibleStapCrossoverAt(index, neighbor):
                     self._stapRightPreXoList.append([neighbor, index])
 
-        print "scafLeft:", self._scafLeftPreXoList
-        print "scafRight:", self._scafRightPreXoList
+        # print "scafLeft:", self._scafLeftPreXoList
+        # print "scafRight:", self._scafRightPreXoList
         # print "stapLeft:", self._stapLeftPreXoList
         # print "stapRight:", self._stapRightPreXoList
     # end def

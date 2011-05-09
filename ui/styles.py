@@ -57,14 +57,17 @@ PATH_GRID_STROKE_WIDTH = 0.5
 SLICE_HANDLE_STROKE_WIDTH = 1
 PATH_STRAND_STROKE_WIDTH = 2
 PATH_SELECTBOX_STROKE_WIDTH = 1.5
+PCH_BORDER_PADDING = 1
 
 # Path Colors
 minorgridstroke = QColor(153, 153, 153)  # 999999
 majorgridstroke = QColor(51, 51, 51)  # 333333
 scafstroke = QColor(0, 102, 204)  # 0066cc
-
 handlefill = QColor(0, 102, 204)  # 0066cc
 # handlestroke = QColor(0, 102, 204)  # 0066cc
+pchstroke = QColor(0, 102, 204, 153)
+
+
 
 #layer limits
 ZPRECROSSOVERHANDLE = 1

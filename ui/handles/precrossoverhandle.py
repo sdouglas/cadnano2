@@ -37,23 +37,24 @@ from model.enum import StrandType, Parity, BreakType, HandleOrient
 import ui.styles as styles
 
 # construct paths for breakpoint handles
-paintRect = QRectF(0, 0, styles.PATH_BASE_WIDTH/2, styles.PATH_BASE_WIDTH/2)
-paintPathLU = QPainterPath()
-paintPathLU.moveTo(paintRect.bottomLeft())
-paintPathLU.lineTo(paintRect.bottomRight())
-paintPathLU.lineTo(paintRect.topRight())
-paintPathRU = QPainterPath()
-paintPathRU.moveTo(paintRect.bottomRight())
-paintPathRU.lineTo(paintRect.bottomLeft())
-paintPathRU.lineTo(paintRect.topLeft())
-paintPathRD = QPainterPath()
-paintPathRD.moveTo(paintRect.topRight())
-paintPathRD.lineTo(paintRect.topLeft())
-paintPathRD.lineTo(paintRect.bottomLeft())
-paintPathLD = QPainterPath()
-paintPathLD.moveTo(paintRect.topLeft())
-paintPathLD.lineTo(paintRect.topRight())
-paintPathLD.lineTo(paintRect.bottomRight())
+
+ppRect = QRectF(0, 0, styles.PATH_BASE_WIDTH/2, styles.PATH_BASE_WIDTH/2)
+ppathLU = QPainterPath()
+ppathLU.moveTo(ppRect.bottomLeft())
+ppathLU.lineTo(ppRect.bottomRight())
+ppathLU.lineTo(ppRect.topRight())
+ppathRU = QPainterPath()
+ppathRU.moveTo(ppRect.bottomRight())
+ppathRU.lineTo(ppRect.bottomLeft())
+ppathRU.lineTo(ppRect.topLeft())
+ppathRD = QPainterPath()
+ppathRD.moveTo(ppRect.topRight())
+ppathRD.lineTo(ppRect.topLeft())
+ppathRD.lineTo(ppRect.bottomLeft())
+ppathLD = QPainterPath()
+ppathLD.moveTo(ppRect.topLeft())
+ppathLD.lineTo(ppRect.topRight())
+ppathLD.lineTo(ppRect.bottomRight())
 
 class PreCrossoverHandleGroup(QGraphicsItem):
     def __init__(self, parent=None):
@@ -160,8 +161,8 @@ class PreCrossoverHandle(QGraphicsItem):
 
     Each handle is created by the PathController. Its parent is a PathHelix
     """
-    pen = QPen(styles.bluestroke , 2)
-    pen.setCapStyle(Qt.RoundCap)
+    pen = QPen(styles.pchstroke, styles.PATH_STRAND_STROKE_WIDTH)
+    pen.setCapStyle(Qt.FlatCap)  # or Qt.RoundCap
     pen.setJoinStyle(Qt.RoundJoin)
     baseWidth = styles.PATH_BASE_WIDTH
     
@@ -188,7 +189,7 @@ class PreCrossoverHandle(QGraphicsItem):
         self.label.setFont(self.font)
         self.label.hide()
         self.hide()
-        self.painterpath = paintPathLD
+        self.painterpath = ppathLD
 
     def configure(self, strandtype, orientation, index, partner, parent):
         """
@@ -204,52 +205,49 @@ class PreCrossoverHandle(QGraphicsItem):
         self.index = index
         self.partner = partner
         self.label.setText("%d" % (self.partner.number()))
-        self.setX(self.baseWidth*index) # the position on the helix to draw
-        # self.setX(0) # the position on the helix to draw
 
         if orientation == HandleOrient.RightDown:
-            self.setX(self.baseWidth*index+styles.PATH_BASE_WIDTH/2)
             self.rightDrawConfig()
             self.downDrawConfig()
-            self.painterpath = paintPathRD
+            self.painterpath = ppathRD
         elif orientation == HandleOrient.LeftDown:
             self.leftDrawConfig()
             self.downDrawConfig()
-            self.painterpath = paintPathLD
+            self.painterpath = ppathLD
         elif orientation == HandleOrient.LeftUp:
             self.leftDrawConfig()
             self.upDrawConfig()
-            self.painterpath = paintPathLU
+            self.painterpath = ppathLU
         elif orientation == HandleOrient.RightUp:
             self.rightDrawConfig()
             self.setX(self.baseWidth*index+styles.PATH_BASE_WIDTH/2)
             self.upDrawConfig()
-            self.painterpath = paintPathRU
+            self.painterpath = ppathRU
         else:
-            print "problem!!! PreCrossoverHandle.configure Scaffold"
+            raise AttributeError("PCH orientation not recognized")
         self.show()
         self.label.show()
     # end def
 
     def rightDrawConfig(self):
+        self.setX(self.baseWidth*self.index + styles.PATH_BASE_WIDTH/2)
         offset = self.label.boundingRect().width()/2
         self.label.setX(-offset)
-        # self.label.setX(-0.15*self.baseWidth) 
     # end def
 
     def leftDrawConfig(self):
+        self.setX(self.baseWidth*self.index)
         offset = self.label.boundingRect().width()/2
         self.label.setX(self.baseWidth/2 - offset)
-        #self.label.setX(.35*self.baseWidth)
     # end def
 
     def upDrawConfig(self):
-        self.label.setY(-0.57*self.baseWidth) 
-        self.setY(-0.75*self.baseWidth)    
+        self.label.setY(-0.57*self.baseWidth)
+        self.setY(-0.75*self.baseWidth)
     #end def
     
     def downDrawConfig(self):
-        self.label.setY(0.48*self.baseWidth) 
+        self.label.setY(0.48*self.baseWidth)
         self.setY(2.25*self.baseWidth)
     #end def 
 

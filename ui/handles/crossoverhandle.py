@@ -214,7 +214,7 @@ class CrossoverHandle(QGraphicsItem):
         elif orientation == HandleOrient.LeftDown:
             self.leftDrawConfig()
         else:
-            print "problem!!! PreCrossoverHandle.configure Scaffold"
+            raise AttributeError("CH orientation not recognized")
         self.show()
         self.label.show()
     # end def
