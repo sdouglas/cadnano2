@@ -64,10 +64,9 @@ class CrossoverHandle(QGraphicsItem):
         self.pointB = CrossbverPoint(indexB, helixB)
         self.painterpath = QPainter()
         self.setZValue(styles.ZCROSSOVERHANDLE)
-        self.painterpath = paintPathLD
         self.refreshPath = self.rightDrawConfig
 
-    def configure(self, orientation, index, partner, parent):
+    def configure(self, orientation, index):
         """
         sets up the PCH to be tied to a helix as its parent such that
             when a helix is repostioned, it will redraw correctly
@@ -75,10 +74,7 @@ class CrossoverHandle(QGraphicsItem):
         figures out the orientation to draw the PCH on the helix
         
         """
-        self.setParentItem(parent)
         self.orientation = orientation
-        self.index = index
-        self.partner = partner
         self.label.setText("%d" % (self.partner.number()))
         self.setX(self.baseWidth*index) # the position on the helix to draw
         # self.setX(0) # the position on the helix to draw
