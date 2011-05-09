@@ -177,8 +177,9 @@ class CrossoverHandle(QGraphicsItem):
         self.rect = QRectF(0, 0, styles.PATH_BASE_WIDTH/2, styles.PATH_BASE_WIDTH/2)
         self.type = None
         self.index = None
-        self.orientation = None
+        self.orientation = None     # Left or right
         self.partner = None
+        self.painterpath = QPainter()
         self.setZValue(styles.ZCROSSOVERHANDLE)
         self.font = QFont("Times", 10, QFont.Bold)
         self.label = QGraphicsSimpleTextItem("", parent=self)
@@ -188,6 +189,7 @@ class CrossoverHandle(QGraphicsItem):
         self.label.hide()
         self.hide()
         self.painterpath = paintPathLD
+        
 
     def configure(self, strandtype, orientation, index, partner, parent):
         """
@@ -209,21 +211,8 @@ class CrossoverHandle(QGraphicsItem):
         if orientation == HandleOrient.RightDown:
             self.setX(self.baseWidth*index+styles.PATH_BASE_WIDTH/2)
             self.rightDrawConfig()
-            self.downDrawConfig()
-            self.painterpath = paintPathRD
         elif orientation == HandleOrient.LeftDown:
             self.leftDrawConfig()
-            self.downDrawConfig()
-            self.painterpath = paintPathLD
-        elif orientation == HandleOrient.LeftUp:
-            self.leftDrawConfig()
-            self.upDrawConfig()
-            self.painterpath = paintPathLU
-        elif orientation == HandleOrient.RightUp:
-            self.rightDrawConfig()
-            self.setX(self.baseWidth*index+styles.PATH_BASE_WIDTH/2)
-            self.upDrawConfig()
-            self.painterpath = paintPathRU
         else:
             print "problem!!! PreCrossoverHandle.configure Scaffold"
         self.show()
@@ -233,24 +222,17 @@ class CrossoverHandle(QGraphicsItem):
     def rightDrawConfig(self):
         offset = self.label.boundingRect().width()/2
         self.label.setX(-offset)
-        # self.label.setX(-0.15*self.baseWidth) 
+        self.painterpath.moveTo()
+        self.painterpath.cubicTo()
+        
     # end def
 
     def leftDrawConfig(self):
         offset = self.label.boundingRect().width()/2
         self.label.setX(self.baseWidth/2 - offset)
-        #self.label.setX(.35*self.baseWidth)
+        self.painterpath.moveTo()
+        self.painterpath.cubicTo()
     # end def
-
-    def upDrawConfig(self):
-        self.label.setY(-0.57*self.baseWidth) 
-        self.setY(-0.75*self.baseWidth)    
-    #end def
-    
-    def downDrawConfig(self):
-        self.label.setY(0.48*self.baseWidth) 
-        self.setY(2.25*self.baseWidth)
-    #end def 
 
     def boundingRect(self):
         return self.rect
