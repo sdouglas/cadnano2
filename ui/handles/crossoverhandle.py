@@ -95,8 +95,8 @@ class CrossoverHandle(QGraphicsItem):
 
     def rightDrawConfig(self):
         
-        pA = self.mapFromItem(self.pointA,self.pointA.pos())
-        pB =self.mapFromItem(self.pointB,self.pointB.pos())
+        pA = self.mapFromItem(self.pointA,self.pointA.endPoint)
+        pB =self.mapFromItem(self.pointB,self.pointB.endPoint)
         c1 = QPointF( (pA.x()+pB.x()) /2,  (pA.y()+pB.y()) /2) 
         self.painterpath.moveTo(pA)
         self.painterpath.cubicTo(c1, c1, pB)
@@ -104,8 +104,8 @@ class CrossoverHandle(QGraphicsItem):
 
     def leftDrawConfig(self):
         
-        pA = self.mapFromItem(self.pointA,self.pointA.pos())
-        pB = self.mapFromItem(self.pointB,self.pointB.pos())
+        pA = self.mapFromItem(self.pointA,self.pointA.endPoint)
+        pB = self.mapFromItem(self.pointB,self.pointB.endPoint)
         c1 = QPointF( (pA.x()+pB.x()) /2,  (pA.y()+pB.y()) /2) 
         self.painterpath.moveTo(pA)
         self.painterpath.cubicTo(c1, c1, pB)
@@ -184,19 +184,25 @@ class CrossoverPoint(QGraphicsItem):
     # end def
     
     def configure(orientation, index):
+        """
+        Configure has for options for displaying hash marks
+        """
         if orientation  == ???:
             # set postion to the top grid box
             self._painterpath = self._ppathLU
             self.setPos(index*styles.PATH_BASE_WIDTH, 0)
-            self.endPoint = QPointF()
+            self.endPoint = self._pathUp
             self._label.setPos(0, 1.48*styles.PATH_BASE_WIDTH) # label below
         else:
             # set postion to the bottom grid box for down
             self._painterpath = self._ppathLD
             self.setPos(index*styles.PATH_BASE_WIDTH, styles.PATH_BASE_WIDTH)
-            self.endPoint = QPointF()
+            self.endPoint = self._pathDown
             self._label.setPos(0,-1.57*styles.PATH_BASE_WIDTH) # label on top
     # end def
+    
+    
+    # end
     
     def setLabel(number):
         self._label.setText("%d" % number)
