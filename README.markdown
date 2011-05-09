@@ -21,3 +21,24 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 
 http://www.opensource.org/licenses/mit-license.php
+
+# CADnano DNA Origami Software
+
+## Overview
+
+CADnano is DNA origami design software, check out the [wiki](http://en.wikipedia.org/wiki/DNA_origami)
+
+## Installation
+
+For now just run from the terminal with python main.py
+We're still working out the bugs
+
+### Dependencies
+
+* [Qt 4.7](http://qt.nokia.com/products/)
+* [PySide] (http://www.pyside.org/)
+* Maya 2012
+
+## Links
+* [CADnano.org](http://cadnano.org/)
+* [Maya 2012](http://usa.autodesk.com/maya/)
