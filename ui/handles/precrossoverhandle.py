@@ -81,7 +81,7 @@ class PreCrossoverHandleGroup(QGraphicsItem):
     def updateActiveHelix(self, vhelix):
         """
         Collects the locations of each type of PreCrossover from the
-        recently activated VirtualHelix vhelix. Each index corresponds
+        recently activated VirtualHelix vhelix. Each self._index corresponds
         to a pair of PreCrossoverHandle that must be updated and displayed.
         """
         scafL = vhelix.getLeftScafPreCrossoverIndexList()
@@ -171,13 +171,17 @@ class PreCrossoverHandle(QGraphicsItem):
         like it's label and rectangle
         
         initially these are all hidden as well
+        
+        the initialization parent should always be a PreCrossoverHandleGroup
+        whose parent is a PathHelixGroup!!!
         """
         super(PreCrossoverHandle, self).__init__(parent)
+        self.phg = parent.parentItem()  # this should be a PathHelixGroup
         self.undoStack = parent.parentItem().pathController.mainWindow.undoStack
         self.rect = QRectF(0, 0, styles.PATH_BASE_WIDTH/2, styles.PATH_BASE_WIDTH/2)
         self.type = None
-        self.index = None
-        self.orientation = None
+        self._index = None
+        self._orientation = None
         self.partner = None
         self.setZValue(styles.ZPRECROSSOVERHANDLE)
         self.label = QGraphicsSimpleTextItem("", parent=self)
@@ -187,6 +191,18 @@ class PreCrossoverHandle(QGraphicsItem):
         self.label.hide()
         self.hide()
         self.painterpath = ppathLD
+    
+    def helix(self):
+        return self.parentItem()
+    # end def
+    
+    def index(self):
+        return self._index
+    # end def
+
+    def orientation(self):
+        return self._orientation
+    # end def
 
     def configure(self, strandtype, orientation, index, partner, parent):
         """
@@ -198,8 +214,8 @@ class PreCrossoverHandle(QGraphicsItem):
         """
         self.setParentItem(parent)
         self.type = strandtype
-        self.orientation = orientation
-        self.index = index
+        self._orientation = orientation
+        self._index = index
         self.partner = partner
         self.label.setText("%d" % (self.partner.number()))
 
@@ -227,13 +243,13 @@ class PreCrossoverHandle(QGraphicsItem):
     # end def
 
     def rightDrawConfig(self):
-        self.setX(self.baseWidth*self.index + styles.PATH_BASE_WIDTH/2)
+        self.setX(self.baseWidth*self._index + styles.PATH_BASE_WIDTH/2)
         offset = self.label.boundingRect().width()/2
         self.label.setX(-offset)
     # end def
 
     def leftDrawConfig(self):
-        self.setX(self.baseWidth*self.index)
+        self.setX(self.baseWidth*self._index)
         offset = self.label.boundingRect().width()/2
         self.label.setX(self.baseWidth/2 - offset)
     # end def
@@ -267,7 +283,7 @@ class PreCrossoverHandle(QGraphicsItem):
         else:
             pass
             # install crossover
-            # FILL IN
+            CrossOverHandle(self, self, self.partner, parent=self.phg)
         # end else
     # end def
 # end class
