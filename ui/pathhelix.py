@@ -46,6 +46,8 @@ class PathHelix(QGraphicsItem):
     It manages the ui interactions from the user, such as
     dragging breakpoints or crossovers addition/removal,
     and updates the data model accordingly.
+    
+    parent should be set to...
     """
     minorGridPen = QPen(styles.minorgridstroke, styles.PATH_GRID_STROKE_WIDTH)
     majorGridPen = QPen(styles.majorgridstroke, styles.PATH_GRID_STROKE_WIDTH)

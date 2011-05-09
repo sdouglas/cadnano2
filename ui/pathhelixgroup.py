@@ -306,7 +306,10 @@ class PathHelixGroup(QGraphicsItem):
                                          boxtype=BreakpointHandleSelectionBox,\
                                          constraint='x',\
                                          parent=self)
+                                         
         self.pchGroup = PreCrossoverHandleGroup(self)
+        # self.XOvers = []
+        
         self.font = QFont("Times", 30, QFont.Bold)
         self.label = QGraphicsTextItem("Part 1")
         self.label.setVisible(False) 

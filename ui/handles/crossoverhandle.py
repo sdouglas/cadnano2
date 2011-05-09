@@ -32,7 +32,7 @@ from PyQt4.QtGui import QGraphicsItem, QGraphicsSimpleTextItem
 from PyQt4.QtGui import QPainterPath
 from PyQt4.QtGui import QPolygonF
 from PyQt4.QtGui import QPen, QUndoCommand
-from model.enum import StrandType, Parity, BreakType, HandleOrient
+from model.enum import HandleOrient
 import ui.styles as styles
 
 class CrossoverHandle(QGraphicsItem):
@@ -48,65 +48,48 @@ class CrossoverHandle(QGraphicsItem):
     baseWidth = styles.PATH_BASE_WIDTH
     
 
-    def __init__(self, indexA, helixA, indexB, helixB, parent=None):
+    def __init__(self, preXoverA, preXoverB, parent=None):
         """
         Initialize a CrossoverHandle
         
         parent should be the PathHelixGroup and not a PathHelix
         """
         super(CrossoverHandle, self).__init__(parent)
-        self.undoStack = parent.parentItem().pathController.mainWindow.undoStack
-        self.rect = QRectF()
+        self.setParentItem(parent)
+        # self.undoStack = parent.parentItem().pathController.mainWindow.undoStack
         
         # generate the points where the action happens
-        self.pointA = CrossoverPoint(orientation,indexA, self, helixA,)
-        self.pointB = CrossoverPoint(orientation,indexB, self, helixB)
-        self.pointA.setLabel(self.helixB.number())
-        self.pointB.setLabel(self.helixA.number())
         
-        self.orientation = None     # Left or right
-        self.configure(orientation)
+        self.pointA = CrossoverPoint(preXoverA.orientation(),\
+                                        preXoverA.index(), \
+                                        self, \
+                                        preXoverA.helix())
+        self.pointB = CrossoverPoint(preXoverB.orientation(),\
+                                        preXoverB.index(), \
+                                        self, \
+                                        preXoverB.helix())
+        self.pointA.setLabel(preXoverB.helix().number())
+        self.pointB.setLabel(preXoverA.helix().number())
+        
+        rectA = self.mapRectFromItem(self.pointA, self.pointA.boundingRect())
+        rectB = self.mapRectFromItem(self.pointB, self.pointB.boundingRect())
+        self.rect = rectA.united(rectB)
         
         # handle drawing the cubic spline linker
-        self.refreshPath = self.rightDrawConfig
-        self.painterpath = QPainterPath()
+        self.painterpath = None
         self.setZValue(styles.ZCROSSOVERHANDLE)
-
-    def configure(self, orientation):
-        """
-        sets up the PCH to be tied to a helix as its parent such that
-            when a helix is repostioned, it will redraw correctly
-        gives it a partner to know who it needs to be connected to
-        figures out the orientation to draw the PCH on the helix
-        
-        """
-        self.orientation = orientation
-        self.setX(self.baseWidth*index) # the position on the helix to draw
-        # self.setX(0) # the position on the helix to draw
-
-        if orientation == HandleOrient.RightDown:
-            self.setX(self.baseWidth*index+styles.PATH_BASE_WIDTH/2)
-            self.refreshPath = self.rightDrawConfig
-        elif orientation == HandleOrient.LeftDown:
-            self.refreshPath = self.leftDrawConfig
-        else:
-            raise AttributeError("CH orientation not recognized")
     # end def
 
-    def rightDrawConfig(self):
-        
-        pA = self.mapFromItem(self.pointA,self.pointA.endPoint)
-        pB =self.mapFromItem(self.pointB,self.pointB.endPoint)
-        c1 = QPointF( (pA.x()+pB.x()) /2,  (pA.y()+pB.y()) /2) 
-        self.painterpath.moveTo(pA)
-        self.painterpath.cubicTo(c1, c1, pB)
-    # end def
-
-    def leftDrawConfig(self):
-        
+    def refreshPath(self):
+        self.painterpath = QPainterPath()
         pA = self.mapFromItem(self.pointA,self.pointA.endPoint)
         pB = self.mapFromItem(self.pointB,self.pointB.endPoint)
-        c1 = QPointF( (pA.x()+pB.x()) /2,  (pA.y()+pB.y()) /2) 
+        
+        rectA = self.mapRectFromItem(self.pointA, self.pointA.boundingRect())
+        rectB = self.mapRectFromItem(self.pointB, self.pointB.boundingRect())
+        self.rect = rectA.united(rectB)
+        
+        c1 = QPointF( 0.35*pA.x()+0.65*pB.x(),  0.5*pA.y()+0.5*pB.y() ) 
         self.painterpath.moveTo(pA)
         self.painterpath.cubicTo(c1, c1, pB)
     # end def
@@ -141,7 +124,7 @@ class CrossoverPoint(QGraphicsItem):
     _myRect = QRectF(0, 0, styles.PATH_BASE_WIDTH, styles.PATH_BASE_WIDTH)
     _pen = QPen(styles.bluestroke , 2)
     
-    def hashMarkGen(path, p1, p2, p3):
+    def _hashMarkGen(path, p1, p2, p3):
         path.moveTo(p1)
         path.lineTo(p2)
         path.lineTo(p3)
@@ -180,31 +163,43 @@ class CrossoverPoint(QGraphicsItem):
         self._label.setFont(self._myfont)
         self._painterpath = None
         self.configure(orientation, index)
-        
+        self.setZValue(styles.ZCROSSOVERHANDLE)
     # end def
     
-    def configure(orientation, index):
+    def configure(self, orientation, index):
         """
         Configure has for options for displaying hash marks
         """
-        if orientation  == ???:
+        if orientation  == HandleOrient.LeftUp:
             # set postion to the top grid box
             self._painterpath = self._ppathLU
             self.setPos(index*styles.PATH_BASE_WIDTH, 0)
             self.endPoint = self._pathUp
-            self._label.setPos(0, 1.48*styles.PATH_BASE_WIDTH) # label below
-        else:
+            self._label.setPos(0,-1.57*styles.PATH_BASE_WIDTH) # label on top
+        elif orientation  == HandleOrient.RightUp:
+            # set postion to the bottom grid box for down
+            self._painterpath = self._ppathRU
+            self.setPos(index*styles.PATH_BASE_WIDTH, 0)
+            self.endPoint = self._pathUp
+            self._label.setPos(0,-1.57*styles.PATH_BASE_WIDTH) # label on top
+        elif orientation  == HandleOrient.LeftDown:
             # set postion to the bottom grid box for down
             self._painterpath = self._ppathLD
             self.setPos(index*styles.PATH_BASE_WIDTH, styles.PATH_BASE_WIDTH)
             self.endPoint = self._pathDown
-            self._label.setPos(0,-1.57*styles.PATH_BASE_WIDTH) # label on top
+            self._label.setPos(0, 1.48*styles.PATH_BASE_WIDTH) # label below
+        elif orientation  == HandleOrient.RightDown:
+            # set postion to the bottom grid box for down
+            self._painterpath = self._ppathRD
+            self.setPos(index*styles.PATH_BASE_WIDTH, styles.PATH_BASE_WIDTH)
+            self.endPoint = self._pathDown
+            self._label.setPos(0, 1.48*styles.PATH_BASE_WIDTH) # label below
     # end def
     
     
     # end
     
-    def setLabel(number):
+    def setLabel(self,number):
         self._label.setText("%d" % number)
     # end def
     
@@ -213,7 +208,7 @@ class CrossoverPoint(QGraphicsItem):
 
     def paint(self, painter, option, widget=None):
         painter.setPen(self._pen)
-        paint.drawPath(self._painterpath)
+        painter.drawPath(self._painterpath)
     # end def
     
     def mousePressEvent(self, event):
