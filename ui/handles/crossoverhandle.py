@@ -57,14 +57,20 @@ class CrossoverHandle(QGraphicsItem):
         super(CrossoverHandle, self).__init__(parent)
         self.undoStack = parent.parentItem().pathController.mainWindow.undoStack
         self.rect = QRectF()
+        
+        # generate the points where the action happens
+        self.pointA = CrossoverPoint(orientation,indexA, self, helixA,)
+        self.pointB = CrossoverPoint(orientation,indexB, self, helixB)
+        
         self.orientation = None     # Left or right
-        self.pointA = CrossoverPoint(indexA, helixA)
-        self.pointB = CrossbverPoint(indexB, helixB)
+        self.configure(orientation)
+        
+        # handle drawing the cubic spline linker
+        self.refreshPath = self.rightDrawConfig
         self.painterpath = QPainterPath()
         self.setZValue(styles.ZCROSSOVERHANDLE)
-        self.refreshPath = self.rightDrawConfig
 
-    def configure(self, orientation, index):
+    def configure(self, orientation):
         """
         sets up the PCH to be tied to a helix as its parent such that
             when a helix is repostioned, it will redraw correctly
@@ -116,7 +122,7 @@ class CrossoverHandle(QGraphicsItem):
 
     def mousePressEvent(self, event):
         """
-        This handles installing crossovers
+        This handles manipulating crossovers somehow
         """
         if event.button() != Qt.LeftButton:
             QGraphicsItem.mousePressEvent(self,event)
@@ -131,7 +137,28 @@ class CrossoverHandle(QGraphicsItem):
 
 class CrossoverPoint(QGraphicsItem):
     _myfont = QFont("Times", 10, QFont.Bold)
-    _myRect = QRectF(0, 0, styles.PATH_BASE_WIDTH, styles.PATH_BASE_WIDTH)    
+    _myRect = QRectF(0, 0, styles.PATH_BASE_WIDTH, styles.PATH_BASE_WIDTH)
+    
+    def hashMarkGen(path, p1, p2, p3):
+        path.moveTo(p1)
+        path.lineTo(p2)
+        path.lineTo(p3)
+    # end
+    
+    pathCenter = QPointF(styles.PATH_BASE_WIDTH/2, styles.PATH_BASE_WIDTH/2)
+    pathLeft = QPointF(0, styles.PATH_BASE_WIDTH/2)
+    pathUp = QPointF(styles.PATH_BASE_WIDTH/2, 0)
+    pathRight = QPointF(styles.PATH_BASE_WIDTH, styles.PATH_BASE_WIDTH/2)
+    pathDown = QPointF(styles.PATH_BASE_WIDTH/2, styles.PATH_BASE_WIDTH)
+    ppathLU = QPainterPath()
+    hashMarkGen(ppathLU, pathLeft,pathCenter, pathUp)
+    ppathRU = QPainterPath()
+    hashMarkGen(ppathRU, pathRight,pathCenter, pathUp)
+    ppathRD = QPainterPath()
+    hashMarkGen(ppathRD, pathRight, pathCenter, pathDown)
+    ppathLD = QPainterPath()
+    hashMarkGen(ppathLD, pathLeft, pathCenter, pathDown)
+    
     def __init__(self, orientation, index, xhandle, parent=None):
         """
         Merely initialize a CrossoverPoint
@@ -144,14 +171,25 @@ class CrossoverPoint(QGraphicsItem):
         parent should be the path helix it is on
         """
         super(CrossoverPoint, self).__init__(parent)
-        self.setPos(index*styles.PATH_BASE_WIDTH, 0)
+        
         self._xoverhandle = xhandle
         self._label = QGraphicsSimpleTextItem("", parent=self)
         self._label.setParentItem(self)
-        self._label.setPos(0, 0)
-        self.label.setFont(self._myfont)
-        self.endPoint = QPointF()
-        # self.label.hide()
+        self._label.setFont(self._myfont)
+        self.configure(orientation, index)
+    # end def
+    
+    def configure(orientation, index):
+        if orientation  == ???:
+            # set postion to the top grid box
+            self.setPos(index*styles.PATH_BASE_WIDTH, 0)
+            self.endPoint = QPointF()
+            self._label.setPos(0, 1.48*styles.PATH_BASE_WIDTH) # label below
+        else:
+            # set postion to the bottom grid box for down
+            self.setPos(index*styles.PATH_BASE_WIDTH, styles.PATH_BASE_WIDTH)
+            self.endPoint = QPointF()
+            self._label.setPos(0,-1.57*styles.PATH_BASE_WIDTH) # label on top
     # end def
     
     def boundingRect(self):
@@ -159,5 +197,19 @@ class CrossoverPoint(QGraphicsItem):
 
     def paint(self, painter, option, widget=None):
         pass
+    # end def
+    
+    def mousePressEvent(self, event):
+        """
+        This handles manipulating crossovers
+        """
+        if event.button() != Qt.LeftButton:
+            QGraphicsItem.mousePressEvent(self,event)
+        # end else
+        else:
+            pass
+            # install crossover
+            # FILL IN
+        # end else
     # end def
 # end class

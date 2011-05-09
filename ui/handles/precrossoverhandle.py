@@ -37,24 +37,22 @@ from model.enum import StrandType, Parity, BreakType, HandleOrient
 import ui.styles as styles
 
 # construct paths for breakpoint handles
+def hashMarkGen(path, p1, p2, p3):
+    path.moveTo(p1)
+    path.lineTo(p2)
+    path.lineTo(p3)
+# end
 
 ppRect = QRectF(0, 0, styles.PATH_BASE_WIDTH/2, styles.PATH_BASE_WIDTH/2)
 ppathLU = QPainterPath()
-ppathLU.moveTo(ppRect.bottomLeft())
-ppathLU.lineTo(ppRect.bottomRight())
-ppathLU.lineTo(ppRect.topRight())
+hashMarkGen(ppathLU,ppRect.bottomLeft(),ppRect.bottomRight(),ppRect.topRight())
 ppathRU = QPainterPath()
-ppathRU.moveTo(ppRect.bottomRight())
-ppathRU.lineTo(ppRect.bottomLeft())
-ppathRU.lineTo(ppRect.topLeft())
+hashMarkGen(ppathRU,ppRect.bottomRight(),ppRect.bottomLeft(),ppRect.topLeft())
 ppathRD = QPainterPath()
-ppathRD.moveTo(ppRect.topRight())
-ppathRD.lineTo(ppRect.topLeft())
-ppathRD.lineTo(ppRect.bottomLeft())
+hashMarkGen(ppathRD,ppRect.topRight(),ppRect.topLeft(),ppRect.bottomLeft())
 ppathLD = QPainterPath()
-ppathLD.moveTo(ppRect.topLeft())
-ppathLD.lineTo(ppRect.topRight())
-ppathLD.lineTo(ppRect.bottomRight())
+hashMarkGen(ppathLD,ppRect.topLeft(),ppRect.topRight(),ppRect.bottomRight())
+
 
 class PreCrossoverHandleGroup(QGraphicsItem):
     def __init__(self, parent=None):
@@ -165,7 +163,7 @@ class PreCrossoverHandle(QGraphicsItem):
     pen.setCapStyle(Qt.FlatCap)  # or Qt.RoundCap
     pen.setJoinStyle(Qt.RoundJoin)
     baseWidth = styles.PATH_BASE_WIDTH
-    
+    _myfont = QFont("Times", 10, QFont.Bold)
 
     def __init__(self, parent=None):
         """
@@ -182,11 +180,10 @@ class PreCrossoverHandle(QGraphicsItem):
         self.orientation = None
         self.partner = None
         self.setZValue(styles.ZPRECROSSOVERHANDLE)
-        self.font = QFont("Times", 10, QFont.Bold)
         self.label = QGraphicsSimpleTextItem("", parent=self)
         self.label.setParentItem(self)
         self.label.setPos(0, 0)
-        self.label.setFont(self.font)
+        self.label.setFont(self._myfont)
         self.label.hide()
         self.hide()
         self.painterpath = ppathLD
