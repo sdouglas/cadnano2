@@ -61,6 +61,8 @@ class CrossoverHandle(QGraphicsItem):
         # generate the points where the action happens
         self.pointA = CrossoverPoint(orientation,indexA, self, helixA,)
         self.pointB = CrossoverPoint(orientation,indexB, self, helixB)
+        self.pointA.setLabel(self.helixB.number())
+        self.pointB.setLabel(self.helixA.number())
         
         self.orientation = None     # Left or right
         self.configure(orientation)
@@ -79,7 +81,6 @@ class CrossoverHandle(QGraphicsItem):
         
         """
         self.orientation = orientation
-        self.label.setText("%d" % (self.partner.number()))
         self.setX(self.baseWidth*index) # the position on the helix to draw
         # self.setX(0) # the position on the helix to draw
 
@@ -195,6 +196,10 @@ class CrossoverPoint(QGraphicsItem):
             self.setPos(index*styles.PATH_BASE_WIDTH, styles.PATH_BASE_WIDTH)
             self.endPoint = QPointF()
             self._label.setPos(0,-1.57*styles.PATH_BASE_WIDTH) # label on top
+    # end def
+    
+    def setLabel(number):
+        self._label.setText("%d" % number)
     # end def
     
     def boundingRect(self):
