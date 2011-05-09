@@ -42,9 +42,9 @@ class CrossoverHandle(QGraphicsItem):
 
     Each handle is created by the PathController. Its parent is a PathHelix
     """
-    pen = QPen(styles.bluestroke , 2)
-    pen.setCapStyle(Qt.RoundCap)
-    pen.setJoinStyle(Qt.RoundJoin)
+    _pen = QPen(styles.bluestroke , 2)
+    _pen.setCapStyle(Qt.RoundCap)
+    _pen.setJoinStyle(Qt.RoundJoin)
     baseWidth = styles.PATH_BASE_WIDTH
     
 
@@ -114,7 +114,7 @@ class CrossoverHandle(QGraphicsItem):
         return self.rect
 
     def paint(self, painter, option, widget=None):
-        painter.setPen(self.pen)
+        painter.setPen(self._pen)
         self.refreshPath()
         painter.drawPath(self.painterpath)
         # self.handlePainter(painter)
@@ -138,6 +138,7 @@ class CrossoverHandle(QGraphicsItem):
 class CrossoverPoint(QGraphicsItem):
     _myfont = QFont("Times", 10, QFont.Bold)
     _myRect = QRectF(0, 0, styles.PATH_BASE_WIDTH, styles.PATH_BASE_WIDTH)
+    _pen = QPen(styles.bluestroke , 2)
     
     def hashMarkGen(path, p1, p2, p3):
         path.moveTo(p1)
@@ -145,19 +146,19 @@ class CrossoverPoint(QGraphicsItem):
         path.lineTo(p3)
     # end
     
-    pathCenter = QPointF(styles.PATH_BASE_WIDTH/2, styles.PATH_BASE_WIDTH/2)
-    pathLeft = QPointF(0, styles.PATH_BASE_WIDTH/2)
-    pathUp = QPointF(styles.PATH_BASE_WIDTH/2, 0)
-    pathRight = QPointF(styles.PATH_BASE_WIDTH, styles.PATH_BASE_WIDTH/2)
-    pathDown = QPointF(styles.PATH_BASE_WIDTH/2, styles.PATH_BASE_WIDTH)
-    ppathLU = QPainterPath()
-    hashMarkGen(ppathLU, pathLeft,pathCenter, pathUp)
-    ppathRU = QPainterPath()
-    hashMarkGen(ppathRU, pathRight,pathCenter, pathUp)
-    ppathRD = QPainterPath()
-    hashMarkGen(ppathRD, pathRight, pathCenter, pathDown)
-    ppathLD = QPainterPath()
-    hashMarkGen(ppathLD, pathLeft, pathCenter, pathDown)
+    _pathCenter = QPointF(styles.PATH_BASE_WIDTH/2, styles.PATH_BASE_WIDTH/2)
+    _pathLeft = QPointF(0, styles.PATH_BASE_WIDTH/2)
+    _pathUp = QPointF(styles.PATH_BASE_WIDTH/2, 0)
+    _pathRight = QPointF(styles.PATH_BASE_WIDTH, styles.PATH_BASE_WIDTH/2)
+    _pathDown = QPointF(styles.PATH_BASE_WIDTH/2, styles.PATH_BASE_WIDTH)
+    _ppathLU = QPainterPath()
+    _hashMarkGen(_ppathLU, _pathLeft, _pathCenter, _pathUp)
+    _ppathRU = QPainterPath()
+    _hashMarkGen(_ppathRU, _pathRight, _pathCenter, _pathUp)
+    _ppathRD = QPainterPath()
+    _hashMarkGen(_ppathRD, _pathRight, _pathCenter, _pathDown)
+    _ppathLD = QPainterPath()
+    _hashMarkGen(_ppathLD, _pathLeft, _pathCenter, _pathDown)
     
     def __init__(self, orientation, index, xhandle, parent=None):
         """
@@ -176,17 +177,21 @@ class CrossoverPoint(QGraphicsItem):
         self._label = QGraphicsSimpleTextItem("", parent=self)
         self._label.setParentItem(self)
         self._label.setFont(self._myfont)
+        self._painterpath = None
         self.configure(orientation, index)
+        
     # end def
     
     def configure(orientation, index):
         if orientation  == ???:
             # set postion to the top grid box
+            self._painterpath = self._ppathLU
             self.setPos(index*styles.PATH_BASE_WIDTH, 0)
             self.endPoint = QPointF()
             self._label.setPos(0, 1.48*styles.PATH_BASE_WIDTH) # label below
         else:
             # set postion to the bottom grid box for down
+            self._painterpath = self._ppathLD
             self.setPos(index*styles.PATH_BASE_WIDTH, styles.PATH_BASE_WIDTH)
             self.endPoint = QPointF()
             self._label.setPos(0,-1.57*styles.PATH_BASE_WIDTH) # label on top
@@ -196,7 +201,8 @@ class CrossoverPoint(QGraphicsItem):
         return self._myRect
 
     def paint(self, painter, option, widget=None):
-        pass
+        painter.setPen(self._pen)
+        paint.drawPath(self._painterpath)
     # end def
     
     def mousePressEvent(self, event):
