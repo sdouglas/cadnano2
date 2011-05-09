@@ -158,7 +158,7 @@ class BreakpointHandle(QGraphicsItem):
                 self.type = BreakType.Right3Prime
                 self.painterpath = self.getRight3PrimePainterPath()
             else:
-                raise AttributeError
+                raise AttributeError("BPH: EndType not recognized")
         elif self.parity == Parity.Odd:
             if self.endType == EndType.FivePrime:
                 self.type = BreakType.Right5Prime
@@ -167,9 +167,9 @@ class BreakpointHandle(QGraphicsItem):
                 self.type = BreakType.Left3Prime
                 self.painterpath = self.getLeft3PrimePainterPath()
             else:
-                raise AttributeError
+                raise AttributeError("BPH: EndType not recognized")
         else:
-            raise AttributeError
+            raise AttributeError("BPH: Parity not recognized")
 
     def getLeft5PrimePainterPath(self):
         """Return a QPainterPath that draws a rectangle that is shifted
@@ -201,7 +201,6 @@ class BreakpointHandle(QGraphicsItem):
         to the left such that the base path line should extend to the left,
         i.e. the breakpoint sits at the right edge of a path."""
         pp = QPainterPath()
-        # pp.addRect(0, 0, self.baseWidth, self.baseWidth)
         pp.addRect(0, 0.125*self.baseWidth, 0.75*self.baseWidth, 0.75*self.baseWidth)
         return pp
 
@@ -317,6 +316,7 @@ class BreakpointHandle(QGraphicsItem):
         self.setPos(self.x0, self.y0) # move there
         self.parentItem().updateBreakBounds(self.strandType) # new breakpoint bounds
         self.parentItem().redrawLines(self.strandType) # new 2D lines
+        self.parentItem().updateAsActiveHelix(newIndex)
         self.vhelix.updateObservers()
 
     def actionFrom3D(self, actionType):

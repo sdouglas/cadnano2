@@ -89,9 +89,7 @@ class CrossoverHandle(QGraphicsItem):
         elif orientation == HandleOrient.LeftDown:
             self.refreshPath = self.leftDrawConfig
         else:
-            print "problem!!! CrossoverHandle.configure"
-        self.show()
-        self.label.show()
+            raise AttributeError("CH orientation not recognized")
     # end def
 
     def rightDrawConfig(self):

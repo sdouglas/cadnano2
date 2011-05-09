@@ -103,7 +103,6 @@ class PathHelix(QGraphicsItem):
         return self.rect
 
     def paint(self, painter, option, widget=None):
-        # FIX: should draw gridlines in background
         # Minor grid lines
         painter.setBrush(self.nobrush)
         painter.setPen(self.minorGridPen)
@@ -154,12 +153,7 @@ class PathHelix(QGraphicsItem):
     def mousePressEvent(self, event):
         """Activate this item as the current helix"""
         eventIndex = int(event.pos().x()/styles.PATH_BASE_WIDTH)
-        if self.parentItem().activeHelix != None:  # deactivate old
-            self.parentItem().activeHelix.hidePreCrossoverHandles()
-        self.parentItem().activeHelix = self  # activate new
-        self._vhelix.updatePreCrossoverPositions(eventIndex)
-        self.parentItem().notifyPreCrossoverGroupAfterUpdate(self._vhelix)
-        self.update(self.boundingRect())
+        self.updateAsActiveHelix(eventIndex)
     # end def
 
     def hidePreCrossoverHandles(self):
@@ -183,6 +177,14 @@ class PathHelix(QGraphicsItem):
     def addStapleBreakHandle(self, bh):
         """docstring for addStapleBreakHandle"""
         self._stapBreaktHandles.append(bh)
+
+    def updateAsActiveHelix(self, index):
+        if self.parentItem().activeHelix != None:  # deactivate old
+            self.parentItem().activeHelix.hidePreCrossoverHandles()
+        self.parentItem().activeHelix = self  # activate new
+        self._vhelix.updatePreCrossoverPositions(index)
+        self.parentItem().notifyPreCrossoverGroupAfterUpdate(self._vhelix)
+        self.update(self.boundingRect())
 
     def updateBreakBounds(self, strandType):
         """Sorts a list of all breakpoint and crossover handles, and then
