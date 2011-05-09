@@ -56,13 +56,11 @@ class CrossoverHandle(QGraphicsItem):
         """
         super(CrossoverHandle, self).__init__(parent)
         self.undoStack = parent.parentItem().pathController.mainWindow.undoStack
-        self.rect = QRectF(0, 0, styles.PATH_BASE_WIDTH/2, styles.PATH_BASE_WIDTH/2)
-        self.type = None
-        self.index = None
+        self.rect = QRectF()
         self.orientation = None     # Left or right
         self.pointA = CrossoverPoint(indexA, helixA)
         self.pointB = CrossbverPoint(indexB, helixB)
-        self.painterpath = QPainter()
+        self.painterpath = QPainterPath()
         self.setZValue(styles.ZCROSSOVERHANDLE)
         self.refreshPath = self.rightDrawConfig
 
@@ -89,8 +87,6 @@ class CrossoverHandle(QGraphicsItem):
     # end def
 
     def rightDrawConfig(self):
-        offset = self.label.boundingRect().width()/2
-        self.label.setX(self.baseWidth/2)
         
         pA = self.mapFromItem(self.pointA,self.pointA.pos())
         pB =self.mapFromItem(self.pointB,self.pointB.pos())
@@ -100,8 +96,6 @@ class CrossoverHandle(QGraphicsItem):
     # end def
 
     def leftDrawConfig(self):
-        offset = self.label.boundingRect().width()/2
-        self.label.setX(self.baseWidth/2)
         
         pA = self.mapFromItem(self.pointA,self.pointA.pos())
         pB = self.mapFromItem(self.pointB,self.pointB.pos())
@@ -136,9 +130,9 @@ class CrossoverHandle(QGraphicsItem):
 # end class
 
 class CrossoverPoint(QGraphicsItem):
-    myfont = QFont("Times", 10, QFont.Bold)
-        
-    def __init__(self, orientation, index, parent=None):
+    _myfont = QFont("Times", 10, QFont.Bold)
+    _myRect = QRectF(0, 0, styles.PATH_BASE_WIDTH, styles.PATH_BASE_WIDTH)    
+    def __init__(self, orientation, index, xhandle, parent=None):
         """
         Merely initialize a CrossoverPoint
         This is a shell class that provides a lable and can be parented
@@ -150,15 +144,18 @@ class CrossoverPoint(QGraphicsItem):
         parent should be the path helix it is on
         """
         super(CrossoverPoint, self).__init__(parent)
-        self.label = QGraphicsSimpleTextItem("", parent=self)
-        self.label.setParentItem(self)
-        self.label.setPos(index*styles.PATH_BASE_WIDTH, 0)
-        self.label.setFont(self.myfont)
+        self.setPos(index*styles.PATH_BASE_WIDTH, 0)
+        self._xoverhandle = xhandle
+        self._label = QGraphicsSimpleTextItem("", parent=self)
+        self._label.setParentItem(self)
+        self._label.setPos(0, 0)
+        self.label.setFont(self._myfont)
+        self.endPoint = QPointF()
         # self.label.hide()
     # end def
     
     def boundingRect(self):
-        return self.rect
+        return self._myRect
 
     def paint(self, painter, option, widget=None):
         pass
