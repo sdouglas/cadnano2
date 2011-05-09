@@ -38,6 +38,27 @@ import ui.styles as styles
 
 from mmayacadnano.breakpointhandle3d import BreakpointHandle3D # For Campbell
 
+baseWidth = styles.PATH_BASE_WIDTH
+ppL5 = QPainterPath()  # Left 5' PainterPath
+ppR5 = QPainterPath()  # Right 5' PainterPath
+ppL3 = QPainterPath()  # Left 3' PainterPath
+ppR3 = QPainterPath()  # Right 3' PainterPath
+# set up ppL5
+ppL5.addRect(0.25*baseWidth, 0.125*baseWidth, 0.75*baseWidth, 0.75*baseWidth)
+# set up ppR5
+ppR5.addRect(0, 0.125*baseWidth, 0.75*baseWidth, 0.75*baseWidth)
+# set up ppL3
+l3poly = QPolygonF()
+l3poly.append(QPointF(baseWidth, 0))
+l3poly.append(QPointF(0.25*baseWidth, 0.5*baseWidth))
+l3poly.append(QPointF(baseWidth, baseWidth))
+ppL3.addPolygon(l3poly)
+# set up ppR3
+r3poly = QPolygonF()
+r3poly.append(QPointF(0, 0))
+r3poly.append(QPointF(0.75*baseWidth, 0.5*baseWidth))
+r3poly.append(QPointF(0, baseWidth))
+ppR3.addPolygon(r3poly)
 
 class BreakpointHandle(QGraphicsItem):
     """
@@ -53,7 +74,6 @@ class BreakpointHandle(QGraphicsItem):
     brush = QBrush(styles.bluestroke)
     selectbrush = QBrush(styles.bluishstroke)
     nobrush = QBrush(Qt.NoBrush)
-    baseWidth = styles.PATH_BASE_WIDTH
 
     def __init__(self, vhelix, endType, strandType, baseIndex, parent=None):
         """Determine parity from vhelix. Make sure the breakpoint is
@@ -72,9 +92,9 @@ class BreakpointHandle(QGraphicsItem):
         self.tempIndex = baseIndex
         self.minIndex = 0
         self.maxIndex = (vhelix.part().getCanvasSize()-1)
-        self.rect = QRectF(0, 0, self.baseWidth, self.baseWidth)
+        self.rect = QRectF(0, 0, baseWidth, baseWidth)
         self.setParity()
-        self.x0 = baseIndex * self.baseWidth
+        self.x0 = baseIndex * baseWidth
         self.y0 = self.getYoffset()
         self.setPos(QPointF(self.x0, self.y0))
         self.setPainterPathType()
@@ -141,7 +161,7 @@ class BreakpointHandle(QGraphicsItem):
         """
         if (self.parity == Parity.Even and self.strandType == StrandType.Staple) or \
            (self.parity == Parity.Odd and self.strandType == StrandType.Scaffold):
-            return self.baseWidth
+            return baseWidth
         else:
             return 0
 
@@ -153,19 +173,19 @@ class BreakpointHandle(QGraphicsItem):
         if self.parity == Parity.Even:
             if self.endType == EndType.FivePrime:
                 self.type = BreakType.Left5Prime
-                self.painterpath = self.getLeft5PrimePainterPath()
+                self.painterpath = ppL5  # self.getLeft5PrimePainterPath()
             elif self.endType == EndType.ThreePrime:
                 self.type = BreakType.Right3Prime
-                self.painterpath = self.getRight3PrimePainterPath()
+                self.painterpath = ppR3  # self.getRight3PrimePainterPath()
             else:
                 raise AttributeError("BPH: EndType not recognized")
         elif self.parity == Parity.Odd:
             if self.endType == EndType.FivePrime:
                 self.type = BreakType.Right5Prime
-                self.painterpath = self.getRight5PrimePainterPath()
+                self.painterpath = ppR5  # self.getRight5PrimePainterPath()
             elif self.endType == EndType.ThreePrime:
                 self.type = BreakType.Left3Prime
-                self.painterpath = self.getLeft3PrimePainterPath()
+                self.painterpath = ppL3  # self.getLeft3PrimePainterPath()
             else:
                 raise AttributeError("BPH: EndType not recognized")
         else:
@@ -179,8 +199,8 @@ class BreakpointHandle(QGraphicsItem):
         position of the breakpointhandle relative to the rest of the path).
         """
         pp = QPainterPath()
-        pp.addRect(0.25*self.baseWidth, 0.125*self.baseWidth,\
-                   0.75*self.baseWidth, 0.75*self.baseWidth)
+        pp.addRect(0.25*baseWidth, 0.125*baseWidth,\
+                   0.75*baseWidth, 0.75*baseWidth)
         return pp
 
     def getLeft3PrimePainterPath(self):
@@ -189,9 +209,9 @@ class BreakpointHandle(QGraphicsItem):
         extend to the right, i.e. the breakpoint sits at the left edge of a
         path."""
         poly = QPolygonF()
-        poly.append(QPointF(self.baseWidth,0))
-        poly.append(QPointF(0.25*self.baseWidth,0.5*self.baseWidth))
-        poly.append(QPointF(self.baseWidth,self.baseWidth))
+        poly.append(QPointF(baseWidth,0))
+        poly.append(QPointF(0.25*baseWidth,0.5*baseWidth))
+        poly.append(QPointF(baseWidth,baseWidth))
         pp = QPainterPath()
         pp.addPolygon(poly)
         return pp
@@ -201,7 +221,7 @@ class BreakpointHandle(QGraphicsItem):
         to the left such that the base path line should extend to the left,
         i.e. the breakpoint sits at the right edge of a path."""
         pp = QPainterPath()
-        pp.addRect(0, 0.125*self.baseWidth, 0.75*self.baseWidth, 0.75*self.baseWidth)
+        pp.addRect(0, 0.125*baseWidth, 0.75*baseWidth, 0.75*baseWidth)
         return pp
 
     def getRight3PrimePainterPath(self):
@@ -211,8 +231,8 @@ class BreakpointHandle(QGraphicsItem):
         path."""
         poly = QPolygonF()
         poly.append(QPointF(0, 0))
-        poly.append(QPointF(0.75*self.baseWidth, 0.5*self.baseWidth))
-        poly.append(QPointF(0, self.baseWidth))
+        poly.append(QPointF(0.75*baseWidth, 0.5*baseWidth))
+        poly.append(QPointF(0, baseWidth))
         pp = QPainterPath()
         pp.addPolygon(poly)
         return pp
@@ -222,13 +242,13 @@ class BreakpointHandle(QGraphicsItem):
         if self._dragMode == True:
             moveX = event.scenePos().x()
             delta = moveX-self.pressX
-            self.tempIndex = int((self.baseIndex*self.baseWidth+\
-                              self.pressXoffset+delta) / self.baseWidth)
+            self.tempIndex = int((self.baseIndex*baseWidth+\
+                              self.pressXoffset+delta) / baseWidth)
             if self.tempIndex < self.minIndex:
                 self.tempIndex = self.minIndex
             elif self.tempIndex > self.maxIndex:
                 self.tempIndex = self.maxIndex
-            self.x0 = self.tempIndex * self.baseWidth
+            self.x0 = self.tempIndex * baseWidth
             self.setPos(self.x0, self.y0)
             self.setCursor(Qt.OpenHandCursor)
             self.breakpoint3D.dragFrom2D(self.tempIndex)
@@ -244,7 +264,7 @@ class BreakpointHandle(QGraphicsItem):
             self._dragMode = True
             self.scene().clearSelection()
             self.pressX = event.scenePos().x()
-            self.pressXoffset = self.pressX % self.baseWidth
+            self.pressXoffset = self.pressX % baseWidth
             self.setCursor(Qt.ClosedHandCursor)
     # end def
 
@@ -287,7 +307,7 @@ class BreakpointHandle(QGraphicsItem):
             newIndex = self.minIndex
         elif newIndex > self.maxIndex:
             newIndex = self.maxIndex
-        self.x0 = newIndex * self.baseWidth # determine new location
+        self.x0 = newIndex * baseWidth # determine new location
         self.setPos(self.x0, self.y0) # move there
         self.baseIndex = newIndex
 
@@ -312,7 +332,7 @@ class BreakpointHandle(QGraphicsItem):
                                               self.baseIndex,\
                                               delta)
         self.baseIndex = newIndex
-        self.x0 = newIndex * self.baseWidth # determine new location
+        self.x0 = newIndex * baseWidth # determine new location
         self.setPos(self.x0, self.y0) # move there
         self.parentItem().updateBreakBounds(self.strandType) # new breakpoint bounds
         self.parentItem().redrawLines(self.strandType) # new 2D lines
