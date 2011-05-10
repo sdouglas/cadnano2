@@ -67,7 +67,9 @@ handlefill = QColor(0, 102, 204)  # 0066cc
 # handlestroke = QColor(0, 102, 204)  # 0066cc
 pchstroke = QColor(0, 102, 204, 153)
 
-
+# Path Drawing
+PATH_XOVER_LINE_SCALE_X = 0.035
+PATH_XOVER_LINE_SCALE_Y = 0.035
 
 #layer limits
 ZPREXOVERHANDLE = 1

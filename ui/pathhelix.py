@@ -58,13 +58,12 @@ class PathHelix(QGraphicsItem):
     def __init__(self, vhelix, position, parent):
         super(PathHelix, self).__init__(parent)
         self._vhelix = vhelix
-        # self.parent = parent
+        self._parity = self._vhelix.parity()
         self._scafBreaktHandles = []
         self._stapBreaktHandles = []
         self._scafXoverHandlePairs = []
         self._stapXoverHandlePairs = []
         self.scafLines = []
-        self.setParity()
         self.setPos(position)
         self.minorGridPainterPath = self.getMinorGridPainterPath()
         self.majorGridPainterPath = self.getMajorGridPainterPath()
@@ -92,6 +91,9 @@ class PathHelix(QGraphicsItem):
 
     def col(self):
         return self._vhelix.col()
+
+    def parity(self):
+        return self._parity
 
     def updateRect(self):
         """Sets rect width to reflect number of bases in vhelix. Sets
@@ -217,13 +219,6 @@ class PathHelix(QGraphicsItem):
                                            maxIndex)
     # end def
 
-    def setParity(self):
-        """docstring for setParity"""
-        if self._vhelix.number() % 2 == 0:
-            self.parity = Parity.Even
-        else:
-            self.parity = Parity.Odd
-
     def getYoffset(self, strandType):
         """
         This function returns the appropriate Y offset according to the
@@ -231,8 +226,8 @@ class PathHelix(QGraphicsItem):
         negative-z direction and are drawn in the lower half of the
         path helix grid.
         """
-        if (self.parity == Parity.Even and strandType == StrandType.Staple) or \
-           (self.parity == Parity.Odd and strandType == StrandType.Scaffold):
+        if (self._parity == Parity.Even and strandType == StrandType.Staple) or \
+           (self._parity == Parity.Odd and strandType == StrandType.Scaffold):
             return self.baseWidth + (self.baseWidth >> 1)
         else:
             return self.baseWidth >> 1

@@ -35,6 +35,7 @@ from PyQt4.QtGui import QGraphicsSimpleTextItem
 from PyQt4.QtGui import QPen, QDrag, QUndoCommand
 import styles
 from model.virtualhelix import VirtualHelix
+from model.enum import Parity
 
 
 class SliceHelix(QGraphicsItem):
@@ -60,7 +61,10 @@ class SliceHelix(QGraphicsItem):
         self._number = -1
         self._row = row
         self._col = col
-        self.parity = (row % 2) ^ (col % 2)
+        if (row % 2) ^ (col % 2) == 1:
+            self._parity = Parity.Odd
+        else:
+            self._parity = Parity.Even
         self.p0neighbor = None
         self.p1neighbor = None
         self.p2neighbor = None
@@ -77,6 +81,10 @@ class SliceHelix(QGraphicsItem):
     
     def virtualHelix(self):
         return self.part.getVirtualHelix(self._number, returnNoneIfAbsent=True)
+
+    def parity(self):
+        """docstring for parity"""
+        return self._parity
 
     def intersectsActiveSlice(self):
         index = self.parent.activeSliceIndex()

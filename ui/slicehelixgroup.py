@@ -36,7 +36,7 @@ from PyQt4.QtCore import pyqtSignal, pyqtSlot
 from PyQt4.QtGui import QBrush
 from PyQt4.QtGui import QGraphicsItem
 from handles.activeslicehandle import ActiveSliceHandle
-from model.enum import LatticeType
+from model.enum import LatticeType, Parity
 from .slicehelix import SliceHelix
 import styles
 
@@ -111,7 +111,7 @@ class SliceHelixGroup(QGraphicsItem):  # was a QGraphicsObject change for Qt 4.6
                 for row in range(nrows):
                     index = (row, column)
                     helix = self.helixhash[index]
-                    if helix.parity: # odd parity
+                    if helix.parity() == Parity.Odd:
                         if column > 0: # if col-1 exists, set P0
                             helix.p0neighbor = self.helixhash[(row,column-1)]
                         # end if
@@ -180,7 +180,7 @@ class SliceHelixGroup(QGraphicsItem):  # was a QGraphicsObject change for Qt 4.6
             self.reserveBin.add(num)
             return num
         # Find an arbitrary index (subject to parity constraints)
-        if helix.parity == 1:
+        if helix.parity() == Parity.Odd:
             if len(self.oddRecycleBin):
                 return heappop(self.oddRecycleBin)
             else:
@@ -250,6 +250,3 @@ class SliceHelixGroup(QGraphicsItem):  # was a QGraphicsObject change for Qt 4.6
         # end for
         self.setZValue(zval)
     # end def
-    
-
-                    

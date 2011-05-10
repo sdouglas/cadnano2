@@ -87,7 +87,8 @@ class BreakpointHandle(QGraphicsItem):
             parent.parentItem().pathController.mainWindow.undoStack
         self.restoreParentItem = parent
         self.setParentItem(parent)
-        self.vhelix = vhelix
+        self._vhelix = vhelix
+        self._parity = vhelix.parity()
         self.endType = endType
         self.strandType = strandType
         self.type = None  # direction + end type (see mouseReleaseEvent)
@@ -96,7 +97,6 @@ class BreakpointHandle(QGraphicsItem):
         self.minIndex = 0
         self.maxIndex = (vhelix.part().getCanvasSize() - 1)
         self.rect = QRectF(0, 0, baseWidth, baseWidth)
-        self.setParity()
         self.x0 = baseIndex * baseWidth
         self.y0 = self.getYoffset()
         self.setPos(QPointF(self.x0, self.y0))
@@ -149,10 +149,10 @@ class BreakpointHandle(QGraphicsItem):
 
     def setParity(self):
         """docstring for setParity"""
-        if self.vhelix.number() % 2 == 0:
-            self.parity = Parity.Even
+        if self._vhelix.number() % 2 == 0:
+            self._parity = Parity.Even
         else:
-            self.parity = Parity.Odd
+            self._parity = Parity.Odd
 
     def getYoffset(self):
         """
@@ -161,9 +161,9 @@ class BreakpointHandle(QGraphicsItem):
         negative-z direction and are drawn in the lower half of the
         path helix grid.
         """
-        if (self.parity == Parity.Even and\
+        if (self._parity == Parity.Even and\
             self.strandType == StrandType.Staple) or \
-           (self.parity == Parity.Odd and\
+           (self._parity == Parity.Odd and\
             self.strandType == StrandType.Scaffold):
             return baseWidth
         else:
@@ -174,7 +174,7 @@ class BreakpointHandle(QGraphicsItem):
         This function determines the correct appearance based on endType
         (5' or 3'), strandType (scaffold or staple), and helix parity
         (even or odd)."""
-        if self.parity == Parity.Even:
+        if self._parity == Parity.Even:
             if self.endType == EndType.FivePrime:
                 self.type = BreakType.Left5Prime
                 self.painterpath = ppL5
@@ -183,7 +183,7 @@ class BreakpointHandle(QGraphicsItem):
                 self.painterpath = ppR3
             else:
                 raise AttributeError("BPH: EndType not recognized")
-        elif self.parity == Parity.Odd:
+        elif self._parity == Parity.Odd:
             if self.endType == EndType.FivePrime:
                 self.type = BreakType.Right5Prime
                 self.painterpath = ppR5
@@ -232,13 +232,13 @@ class BreakpointHandle(QGraphicsItem):
         if self.tempIndex == self.baseIndex:
             return
         delta = int(self.tempIndex - self.baseIndex)
-        self.vhelix.updateAfterBreakpointMove(self.strandType,\
+        self._vhelix.updateAfterBreakpointMove(self.strandType,\
                                               self.type,\
                                               self.baseIndex,\
                                               delta)
         self.undoStack.beginMacro("break move %d[%d] to %d[%d]" % \
-                                    (self.vhelix.number(), self.baseIndex,\
-                                     self.vhelix.number(), self.tempIndex))
+                                    (self._vhelix.number(), self.baseIndex,\
+                                     self._vhelix.number(), self.tempIndex))
         self.undoStack.push(BreakpointHandle.MoveCommand(self,\
                                                          self.baseIndex,\
                                                          self.tempIndex))
@@ -284,7 +284,7 @@ class BreakpointHandle(QGraphicsItem):
             return
         delta = int(newIndex - self.baseIndex)
         # update data stucture after move
-        self.vhelix.updateAfterBreakpointMove(self.strandType,\
+        self._vhelix.updateAfterBreakpointMove(self.strandType,\
                                               self.type,\
                                               self.baseIndex,\
                                               delta)
@@ -294,7 +294,7 @@ class BreakpointHandle(QGraphicsItem):
         self.parentItem().updateBreakBounds(self.strandType)
         self.parentItem().redrawLines(self.strandType)  # new 2D lines
         self.parentItem().updateAsActiveHelix(newIndex)
-        self.vhelix.updateObservers()
+        self._vhelix.updateObservers()
 
     def actionFrom3D(self, actionType):
         """Called by mMaya BreakpointHandle3D to notify cadnano that the

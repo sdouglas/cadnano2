@@ -48,7 +48,7 @@ class VirtualHelix(object):
         self._p1 = None  # honeycomb: |, square: ?
         self._p2 = None  # honeycomb: /, square: ?
         self._p3 = None  #               square: ?
-        self._scafLeftPreXoList = []  # locations for PreCrossoverHandles
+        self._scafLeftPreXoList = []  # locations for PreXoverHandles
         self._scafRightPreXoList = []
         self._stapLeftPreXoList = []
         self._stapRightPreXoList = []

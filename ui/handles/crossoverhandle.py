@@ -47,6 +47,8 @@ class XoverHandlePair(QGraphicsItem):
     _pen.setCapStyle(Qt.RoundCap)
     _pen.setJoinStyle(Qt.RoundJoin)
     baseWidth = styles.PATH_BASE_WIDTH
+    xScale = styles.PATH_XOVER_LINE_SCALE_X  # control point x constant
+    yScale = styles.PATH_XOVER_LINE_SCALE_Y  # control point y constant
 
     def __init__(self, preXoverA, preXoverB, parent=None):
         """
@@ -60,50 +62,54 @@ class XoverHandlePair(QGraphicsItem):
         # parent.parentItem().pathController.mainWindow.undoStack
 
         # generate the points where the action happens
-
-        self.pointA = CrossoverPoint(preXoverA.orientation(),\
-                                        preXoverA.index(), \
-                                        self, \
-                                        preXoverA.helix())
-        self.pointB = CrossoverPoint(preXoverB.orientation(),\
-                                        preXoverB.index(), \
-                                        self, \
-                                        preXoverB.helix())
-        self.pointA.setLabel(preXoverB.helix().number())
-        self.pointB.setLabel(preXoverA.helix().number())
-
-        rectA = self.mapRectFromItem(self.pointA, self.pointA.boundingRect())
-        rectB = self.mapRectFromItem(self.pointB, self.pointB.boundingRect())
+        self.xoverA = XoverHandle(self, preXoverA, preXoverA.helix())
+        self.xoverB = XoverHandle(self, preXoverB, preXoverB.helix())
+        self.xoverA.setLabel(preXoverB.helix().number())
+        self.xoverB.setLabel(preXoverA.helix().number())
+        rectA = self.mapRectFromItem(self.xoverA, self.xoverA.boundingRect())
+        rectB = self.mapRectFromItem(self.xoverB, self.xoverB.boundingRect())
         self.rect = rectA.united(rectB)
-
         # handle drawing the cubic spline linker
         self.painterpath = None
+        self._c1 = QPointF()
         self.setZValue(styles.ZXOVERHANDLEPAIR)
     # end def
 
     def refreshPath(self):
         self.painterpath = QPainterPath()
         # if we need to speed this up, we could keep track if pA changed?
-        pA = self.mapFromItem(self.pointA, self.pointA.endPoint)
-        pB = self.mapFromItem(self.pointB, self.pointB.endPoint)
+        pA = self.mapFromItem(self.xoverA, self.xoverA.endPoint)
+        pB = self.mapFromItem(self.xoverB, self.xoverB.endPoint)
 
-        rectA = self.mapRectFromItem(self.pointA, self.pointA.boundingRect())
-        rectB = self.mapRectFromItem(self.pointB, self.pointB.boundingRect())
+        rectA = self.mapRectFromItem(self.xoverA, self.xoverA.boundingRect())
+        rectB = self.mapRectFromItem(self.xoverB, self.xoverB.boundingRect())
         self.rect = rectA.united(rectB)
 
         # case 1: same strand
-
-        cx = (pA.x() + pB.x())*0.5;
-        dx = pB.x()-pA.x();
-        if (dx < 0):
-            dx = -dx
-        cy = pA.y()+yc*xdiff;
-
-
-        c1 = QPointF(0.35 * pA.x() + 0.65 * pB.x(),\
-                     0.50 * pA.y() + 0.50 * pB.y())
+        if self.xoverA.helixNumber() == self.xoverB.helixNumber():
+            if pA.x() < pB.x(): # draw only from left
+                if self.xoverA.orientation() == HandleOrient.LeftUp or\
+                   self.xoverA.orientation() == HandleOrient.RightUp:
+                    dx = abs(pB.x()-pA.x())
+                    self._c1.setX(0.5 * (pA.x() + pB.x()))
+                    self._c1.setY(pA.y() - self.yScale*dx)
+                # end if
+            # end if
+        # case 2: same parity
+        elif self.xoverA.parity() == self.xoverB.parity():
+            dy = abs(pB.y() - pA.y())
+            self._c1.setX(pA.x() + self.xScale*dy)
+            self._c1.setY(0.5 * (pA.y() + pB.y()))
+        # case 3: default
+        else:
+            if self.xoverA.orientation() == HandleOrient.LeftUp or\
+               self.xoverA.orientation() == HandleOrient.LeftDown:
+                self._c1.setX(pA.x() - self.xScale*abs(pB.y() - pA.y()))
+            else:
+                self._c1.setX(pA.x() + self.xScale*abs(pB.y() - pA.y()))
+            self._c1.setY(0.5 * (pA.y() + pB.y()))
         self.painterpath.moveTo(pA)
-        self.painterpath.cubicTo(c1, c1, pB)
+        self.painterpath.cubicTo(self._c1, self._c1, pB)
     # end def
 
     def boundingRect(self):
@@ -132,7 +138,13 @@ class XoverHandlePair(QGraphicsItem):
 # end class
 
 
-class CrossoverPoint(QGraphicsItem):
+class XoverHandle(QGraphicsItem):
+    """
+    The XoverHandle is a QGraphicsItem that handles the drawing and mouse
+    events for crossovers in the Path interface. Every XoverHandle is 
+    created by a XoverHandlePair, which draws the line between the two
+    handles.
+    """
     _myfont = QFont("Times", 10, QFont.Bold)
     _myRect = QRectF(0, 0, styles.PATH_BASE_WIDTH, styles.PATH_BASE_WIDTH)
     _pen = QPen(styles.bluestroke, 2)
@@ -158,27 +170,39 @@ class CrossoverPoint(QGraphicsItem):
     _ppathLD = QPainterPath()
     _hashMarkGen(_ppathLD, _pathLeft, _pathCenter, _pathDown)
 
-    def __init__(self, orientation, index, xhandle, parent=None):
+    def __init__(self, xoverpair, prexover, parent=None):
         """
-        Merely initialize a CrossoverPoint
-        This is a shell class that provides a label and can be parented
-        to a PathHelix to allow easy redrawing of a crossover when a pathhelix
-        is repositioned
-
+        Merely initialize a XoverHandle
         orientation specs the where the label is above or below the helix
         index is the the helix index the crossover is at
         parent should be the path helix it is on
         """
-        super(CrossoverPoint, self).__init__(parent)
-
-        self._xoverhandle = xhandle
+        super(XoverHandle, self).__init__(parent)
+        self._xoverpair = xoverpair
+        self._orientation = prexover.orientation()
+        self._index = prexover.index()
+        self._helix = prexover.helix()
+        self._helixNumber = prexover.helix().number()
+        self._parity = prexover.helix().parity()
         self._label = QGraphicsSimpleTextItem("", parent=self)
         self._label.setParentItem(self)
         self._label.setFont(self._myfont)
         self._painterpath = None
-        self.configure(orientation, index)
+        self.configure(self._orientation, self._index)
         self.setZValue(styles.ZXOVERHANDLEPAIR)
     # end def
+
+    def helixNumber(self):
+        """docstring for number"""
+        return self._helixNumber
+
+    def orientation(self):
+        """docstring for orientation"""
+        return self._orientation
+
+    def parity(self):
+        """docstring for parity"""
+        return self._parity
 
     def configure(self, orientation, index):
         """
