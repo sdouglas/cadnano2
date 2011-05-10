@@ -223,7 +223,7 @@ class SelectionItemGroup(QGraphicsItemGroup):
             self.translateR(rf)
             self._r = rf
         else:
-            QGraphicsItemGroup.mouseMoveEvent(self,event)
+            QGraphicsItemGroup.mouseMoveEvent(self, event)
     # end def
     
     def customMouseRelease(self, event):

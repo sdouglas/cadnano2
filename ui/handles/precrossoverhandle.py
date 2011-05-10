@@ -197,11 +197,11 @@ class PreCrossoverHandle(QGraphicsItem):
         self.type = None
         self._index = None
         self._orientation = None
-        
+
         # this is a pointer towards it's complementary PreCrossoverHandle
         # for they are paired
         self.partner = None
-        
+
         self.setZValue(styles.ZPRECROSSOVERHANDLE)
         self.label = QGraphicsSimpleTextItem("", parent=self)
         self.label.setParentItem(self)
@@ -211,18 +211,18 @@ class PreCrossoverHandle(QGraphicsItem):
         self.hide()
         self.painterpath = ppathLD
     # end def
-    
+
     def setPartner(self, pch):
         """
         create a pointer towards it's complementary PreCrossoverHandle
         """
         self.partner = pch
     # end def
-    
+
     def helix(self):
         return self.parentItem()
     # end def
-    
+
     def index(self):
         return self._index
     # end def
@@ -230,11 +230,11 @@ class PreCrossoverHandle(QGraphicsItem):
     def orientation(self):
         return self._orientation
     # end def
-    
-    def setLabel(self):    
+
+    def setLabel(self):
         self.label.setText("%d" % (self.partner.helix().number()))
     # end def
-    
+
     def configure(self, strandtype, orientation, index, parent):
         """
         sets up the PCH to be tied to a helix as its parent such that
@@ -306,7 +306,7 @@ class PreCrossoverHandle(QGraphicsItem):
         This handles installing crossovers
         """
         if event.button() != Qt.LeftButton:
-            QGraphicsItem.mousePressEvent(self,event)
+            QGraphicsItem.mousePressEvent(self, event)
         # end else
         else:
             pass

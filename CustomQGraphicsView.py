@@ -191,14 +191,14 @@ class CustomQGraphicsView(QGraphicsView):
         # end else
     # end def
     
-    def enterEvent(self,event):
+    def enterEvent(self, event):
         self.setFocus(True)
         self.setDragMode(self._noDrag)
-        QGraphicsView.enterEvent(self,event)
+        QGraphicsView.enterEvent(self, event)
 
-    def leaveEvent(self,event):
+    def leaveEvent(self, event):
         self.setFocus(False)
-        QGraphicsView.leaveEvent(self,event)
+        QGraphicsView.leaveEvent(self, event)
 
     def mouseMoveEvent(self, event):
         """Must reimplement mouseMoveEvent of QGraphicsView to allow

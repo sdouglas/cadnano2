@@ -132,7 +132,7 @@ class ActiveSliceHandle(QGraphicsItem):
     def mousePressEvent(self, event):
         if event.button() != Qt.LeftButton:
             event.ignore()
-            QGraphicsItem.mousePressEvent(self,event)
+            QGraphicsItem.mousePressEvent(self, event)
         else:
             self.scene().views()[0].addToPressList(self)
             self._dragMode = True
