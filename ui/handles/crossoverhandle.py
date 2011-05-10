@@ -109,7 +109,7 @@ class XoverHandlePair(QGraphicsItem):
                 self._c1.setX(pA.x() + self.xScale*abs(pB.y() - pA.y()))
             self._c1.setY(0.5 * (pA.y() + pB.y()))
         self.painterpath.moveTo(pA)
-        self.painterpath.cubicTo(self._c1, self._c1, pB)
+        self.painterpath.quadTo(self._c1, pB)
     # end def
 
     def boundingRect(self):
