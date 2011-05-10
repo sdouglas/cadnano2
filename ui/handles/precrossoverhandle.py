@@ -34,7 +34,7 @@ from PyQt4.QtGui import QPainterPath
 from PyQt4.QtGui import QPolygonF
 from PyQt4.QtGui import QPen, QUndoCommand
 from model.enum import StrandType, Parity, BreakType, HandleOrient
-from crossoverhandle import CrossoverHandle
+from crossoverhandle import XoverHandlePair
 import ui.styles as styles
 
 # construct paths for breakpoint handles
@@ -55,20 +55,20 @@ ppathLD = QPainterPath()
 hashMarkGen(ppathLD,ppRect.topLeft(),ppRect.topRight(),ppRect.bottomRight())
 
 
-class PreCrossoverHandleGroup(QGraphicsItem):
+class PreXoverHandleGroup(QGraphicsItem):
     def __init__(self, parent=None):
         """
-        Merely initialize a PreCrossoverHandle buffer
+        Merely initialize a PreXoverHandle buffer
         sets the group's parent to preferably a PathHelixGroup sets each
-        PreCrossoverHandle's parent in the buffer initially to the group
+        PreXoverHandle's parent in the buffer initially to the group
         """
-        super(PreCrossoverHandleGroup, self).__init__(parent)
+        super(PreXoverHandleGroup, self).__init__(parent)
         self.rect = QRectF(0, 0, 0, 0)
         self.handlesA = []
         self.handlesB = []
         for i in range(128):
-            self.handlesA.append(PreCrossoverHandle(parent=self))
-            self.handlesB.append(PreCrossoverHandle(parent=self))
+            self.handlesA.append(PreXoverHandle(parent=self))
+            self.handlesB.append(PreXoverHandle(parent=self))
             # point the two to each other
             self.handlesA[i].setPartner(self.handlesB[i])
             self.handlesB[i].setPartner(self.handlesA[i])
@@ -88,7 +88,7 @@ class PreCrossoverHandleGroup(QGraphicsItem):
         """
         Collects the locations of each type of PreCrossover from the
         recently activated VirtualHelix vhelix. Each self._index corresponds
-        to a pair of PreCrossoverHandle that must be updated and displayed.
+        to a pair of PreXoverHandle that must be updated and displayed.
         """
         scafL = vhelix.getLeftScafPreCrossoverIndexList()
         scafR = vhelix.getRightScafPreCrossoverIndexList()
@@ -96,7 +96,7 @@ class PreCrossoverHandleGroup(QGraphicsItem):
         stapR = vhelix.getRightStapPreCrossoverIndexList()
         count = sum([len(scafL), len(scafR), len(stapL), len(stapR)])
 
-        # Process Scaffold PreCrossoverHandles
+        # Process Scaffold PreXoverHandles
         strandtype = StrandType.Scaffold
         ph1 = self.parentItem().getPathHelix(vhelix)
         i = 0
@@ -126,7 +126,7 @@ class PreCrossoverHandleGroup(QGraphicsItem):
             self.handlesA[i].setLabel()
             self.handlesB[i].setLabel()
             i += 1
-        # Process Staple PreCrossoverHandles
+        # Process Staple PreXoverHandles
         strandtype = StrandType.Staple
         for [neighbor, index] in stapL:
             if vhelix.parity() == Parity.Even:
@@ -167,9 +167,9 @@ class PreCrossoverHandleGroup(QGraphicsItem):
 # end class
 
 
-class PreCrossoverHandle(QGraphicsItem):
+class PreXoverHandle(QGraphicsItem):
     """
-    PreCrossoverHandle responds to mouse input and serves as an interface
+    PreXoverHandle responds to mouse input and serves as an interface
     for adding scaffold crossovers
 
     Each handle is created by the PathController. Its parent is a PathHelix
@@ -182,15 +182,15 @@ class PreCrossoverHandle(QGraphicsItem):
 
     def __init__(self, parent=None):
         """
-        Merely initialize a PreCrossoverHandle and some basic details
+        Merely initialize a PreXoverHandle and some basic details
         like it's label and rectangle
         
         initially these are all hidden as well
         
-        the initialization parent should always be a PreCrossoverHandleGroup
+        the initialization parent should always be a PreXoverHandleGroup
         whose parent is a PathHelixGroup!!!
         """
-        super(PreCrossoverHandle, self).__init__(parent)
+        super(PreXoverHandle, self).__init__(parent)
         self.phg = parent.parentItem()  # this should be a PathHelixGroup
         self.undoStack = parent.parentItem().pathController.mainWindow.undoStack
         self.rect = QRectF(0, 0, styles.PATH_BASE_WIDTH/2, styles.PATH_BASE_WIDTH/2)
@@ -198,11 +198,11 @@ class PreCrossoverHandle(QGraphicsItem):
         self._index = None
         self._orientation = None
 
-        # this is a pointer towards it's complementary PreCrossoverHandle
+        # this is a pointer towards it's complementary PreXoverHandle
         # for they are paired
         self.partner = None
 
-        self.setZValue(styles.ZPRECROSSOVERHANDLE)
+        self.setZValue(styles.ZPREXOVERHANDLE)
         self.label = QGraphicsSimpleTextItem("", parent=self)
         self.label.setParentItem(self)
         self.label.setPos(0, 0)
@@ -214,7 +214,7 @@ class PreCrossoverHandle(QGraphicsItem):
 
     def setPartner(self, pch):
         """
-        create a pointer towards it's complementary PreCrossoverHandle
+        create a pointer towards it's complementary PreXoverHandle
         """
         self.partner = pch
     # end def
@@ -309,11 +309,7 @@ class PreCrossoverHandle(QGraphicsItem):
             QGraphicsItem.mousePressEvent(self, event)
         # end else
         else:
-            pass
-            # install crossover
-            print "CrossOver!!!!!!"
-            # self.phg.XOvers.append(CrossoverHandle(self, self.partner, parent=self.phg))
-            CrossoverHandle(self, self.partner, parent=self.phg)
+            XoverHandlePair(self, self.partner, parent=self.phg)
         # end else
     # end def
 # end class

@@ -61,8 +61,8 @@ class PathHelix(QGraphicsItem):
         # self.parent = parent
         self._scafBreaktHandles = []
         self._stapBreaktHandles = []
-        self._scafCrossoverHandles = []
-        self._stapCrossoverHandles = []
+        self._scafXoverHandlePairs = []
+        self._stapXoverHandlePairs = []
         self.scafLines = []
         self.setParity()
         self.setPos(position)
@@ -158,7 +158,7 @@ class PathHelix(QGraphicsItem):
         self.updateAsActiveHelix(eventIndex)
     # end def
 
-    def hidePreCrossoverHandles(self):
+    def hidePreXoverHandles(self):
         pass
     # end def
 
@@ -182,7 +182,7 @@ class PathHelix(QGraphicsItem):
 
     def updateAsActiveHelix(self, index):
         if self.parentItem().activeHelix != None:  # deactivate old
-            self.parentItem().activeHelix.hidePreCrossoverHandles()
+            self.parentItem().activeHelix.hidePreXoverHandles()
         self.parentItem().activeHelix = self  # activate new
         self._vhelix.updatePreCrossoverPositions(index)
         self.parentItem().notifyPreCrossoverGroupAfterUpdate(self._vhelix)
@@ -194,11 +194,11 @@ class PathHelix(QGraphicsItem):
         breakpoint handles."""
         if strandType == StrandType.Scaffold:
             handles = sorted(self._scafBreaktHandles +\
-                             self._scafCrossoverHandles,\
+                             self._scafXoverHandlePairs,\
                              key=lambda handle: handle.baseIndex)
         elif strandType == StrandType.Staple:
             handles = sorted(self._stapBreaktHandles +\
-                             self._stapCrossoverHandles,\
+                             self._stapXoverHandlePairs,\
                              key=lambda handle: handle.baseIndex)
         else:
             raise AttributeError
@@ -243,11 +243,11 @@ class PathHelix(QGraphicsItem):
         endpoints = []
         if strandType == StrandType.Scaffold:
             handles = sorted(self._scafBreaktHandles +\
-                             self._scafCrossoverHandles,\
+                             self._scafXoverHandlePairs,\
                              key=lambda handle: handle.baseIndex)
         elif strandType == StrandType.Staple:
             handles = sorted(self._stapBreaktHandles +\
-                             self._stapCrossoverHandles,\
+                             self._stapXoverHandlePairs,\
                              key=lambda handle: handle.baseIndex)
         else:
             raise AttributeError

@@ -37,7 +37,7 @@ from .pathhelix import PathHelix
 from handles.activeslicehandle import ActiveSliceHandle
 from handles.breakpointhandle import BreakpointHandle
 from handles.pathhelixhandle import PathHelixHandle
-from handles.precrossoverhandle import PreCrossoverHandleGroup
+from handles.precrossoverhandle import PreXoverHandleGroup
 from model.enum import EndType, LatticeType, StrandType
 import styles
 
@@ -161,27 +161,27 @@ class SelectionItemGroup(QGraphicsItemGroup):
             self.getR = self.getX
             self.translateR = self.translateX
     # end def
-    
+
     def getY(self, pos):
         return pos.y()
     # end def
-    
+
     def getX(self, pos):
         return pos.x()
     # end def
-    
+
     def translateY(self, yf):
         self.selectionbox.translate(0, (yf - self._r))
     # end def
-    
+
     def translateX(self, xf):
         self.selectionbox.translate((xf - self._r), 0)
     # end def
-    
+
     def paint(self, painter, option, widget=None):
         pass
     # end def
-            
+
     def bringToFront(self):
         """collidingItems gets a list of all items that overlap. sets
         this items zValue to one higher than the max."""
@@ -307,7 +307,7 @@ class PathHelixGroup(QGraphicsItem):
                                          constraint='x',\
                                          parent=self)
                                          
-        self.pchGroup = PreCrossoverHandleGroup(self)
+        self.pchGroup = PreXoverHandleGroup(self)
         # self.XOvers = []
         
         self.font = QFont("Times", 30, QFont.Bold)
@@ -452,7 +452,7 @@ class PathHelixGroup(QGraphicsItem):
 
     def notifyPreCrossoverGroupAfterUpdate(self, virtualhelix):
         """Called by PathHelix.mousePressEvent after the vhelix has calculated
-        its new PreCrossoverHandle positions."""
+        its new PreXoverHandle positions."""
         self.pchGroup.updateActiveHelix(virtualhelix)
 
     def reorderHelices(self, first, last, indexDelta):

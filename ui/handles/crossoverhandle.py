@@ -36,9 +36,9 @@ from model.enum import HandleOrient
 import ui.styles as styles
 
 
-class CrossoverHandle(QGraphicsItem):
+class XoverHandlePair(QGraphicsItem):
     """
-    CrossoverHandle responds to mouse input and serves as an interface
+    XoverHandlePair responds to mouse input and serves as an interface
     for adding scaffold crossovers
 
     Each handle is created by the PathController. Its parent is a PathHelix
@@ -50,11 +50,11 @@ class CrossoverHandle(QGraphicsItem):
 
     def __init__(self, preXoverA, preXoverB, parent=None):
         """
-        Initialize a CrossoverHandle
+        Initialize a XoverHandlePair
 
         parent should be the PathHelixGroup and not a PathHelix
         """
-        super(CrossoverHandle, self).__init__(parent)
+        super(XoverHandlePair, self).__init__(parent)
         self.setParentItem(parent)
         # self.undoStack = \
         # parent.parentItem().pathController.mainWindow.undoStack
@@ -78,7 +78,7 @@ class CrossoverHandle(QGraphicsItem):
 
         # handle drawing the cubic spline linker
         self.painterpath = None
-        self.setZValue(styles.ZCROSSOVERHANDLE)
+        self.setZValue(styles.ZXOVERHANDLEPAIR)
     # end def
 
     def refreshPath(self):
@@ -90,6 +90,15 @@ class CrossoverHandle(QGraphicsItem):
         rectA = self.mapRectFromItem(self.pointA, self.pointA.boundingRect())
         rectB = self.mapRectFromItem(self.pointB, self.pointB.boundingRect())
         self.rect = rectA.united(rectB)
+
+        # case 1: same strand
+
+        cx = (pA.x() + pB.x())*0.5;
+        dx = pB.x()-pA.x();
+        if (dx < 0):
+            dx = -dx
+        cy = pA.y()+yc*xdiff;
+
 
         c1 = QPointF(0.35 * pA.x() + 0.65 * pB.x(),\
                      0.50 * pA.y() + 0.50 * pB.y())
@@ -152,7 +161,7 @@ class CrossoverPoint(QGraphicsItem):
     def __init__(self, orientation, index, xhandle, parent=None):
         """
         Merely initialize a CrossoverPoint
-        This is a shell class that provides a lable and can be parented
+        This is a shell class that provides a label and can be parented
         to a PathHelix to allow easy redrawing of a crossover when a pathhelix
         is repositioned
 
@@ -168,7 +177,7 @@ class CrossoverPoint(QGraphicsItem):
         self._label.setFont(self._myfont)
         self._painterpath = None
         self.configure(orientation, index)
-        self.setZValue(styles.ZCROSSOVERHANDLE)
+        self.setZValue(styles.ZXOVERHANDLEPAIR)
     # end def
 
     def configure(self, orientation, index):
