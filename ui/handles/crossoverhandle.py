@@ -82,6 +82,7 @@ class CrossoverHandle(QGraphicsItem):
 
     def refreshPath(self):
         self.painterpath = QPainterPath()
+        # if we need to speed this up, we could keep track if pA changed?
         pA = self.mapFromItem(self.pointA,self.pointA.endPoint)
         pB = self.mapFromItem(self.pointB,self.pointB.endPoint)
         
@@ -173,31 +174,33 @@ class CrossoverPoint(QGraphicsItem):
         if orientation  == HandleOrient.LeftUp:
             # set postion to the top grid box
             self._painterpath = self._ppathLU
-            self.setPos(index*styles.PATH_BASE_WIDTH, 0)
-            self.endPoint = self._pathUp
-            self._label.setPos(0,-1.57*styles.PATH_BASE_WIDTH) # label on top
+            self.configUp(index)
         elif orientation  == HandleOrient.RightUp:
             # set postion to the bottom grid box for down
             self._painterpath = self._ppathRU
-            self.setPos(index*styles.PATH_BASE_WIDTH, 0)
-            self.endPoint = self._pathUp
-            self._label.setPos(0,-1.57*styles.PATH_BASE_WIDTH) # label on top
+            self.configUp(index)
         elif orientation  == HandleOrient.LeftDown:
             # set postion to the bottom grid box for down
             self._painterpath = self._ppathLD
-            self.setPos(index*styles.PATH_BASE_WIDTH, styles.PATH_BASE_WIDTH)
-            self.endPoint = self._pathDown
-            self._label.setPos(0, 1.48*styles.PATH_BASE_WIDTH) # label below
+            self.configDown(index)
         elif orientation  == HandleOrient.RightDown:
             # set postion to the bottom grid box for down
             self._painterpath = self._ppathRD
-            self.setPos(index*styles.PATH_BASE_WIDTH, styles.PATH_BASE_WIDTH)
-            self.endPoint = self._pathDown
-            self._label.setPos(0, 1.48*styles.PATH_BASE_WIDTH) # label below
+            self.configDown(index)
     # end def
     
     
-    # end
+    def configUp(self,index):
+        self.setPos(index*styles.PATH_BASE_WIDTH, 0)
+        self.endPoint = self._pathUp
+        self._label.setPos(0.3*styles.PATH_BASE_WIDTH,-0.9*styles.PATH_BASE_WIDTH) # label on top
+    # end def
+    
+    def configDown(self,index):
+        self.setPos(index*styles.PATH_BASE_WIDTH, styles.PATH_BASE_WIDTH)
+        self.endPoint = self._pathDown
+        self._label.setPos(0.3*styles.PATH_BASE_WIDTH, 1.27*styles.PATH_BASE_WIDTH) # label below 
+    # end def
     
     def setLabel(self,number):
         self._label.setText("%d" % number)
