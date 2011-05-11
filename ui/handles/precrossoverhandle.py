@@ -44,15 +44,20 @@ def hashMarkGen(path, p1, p2, p3):
     path.lineTo(p3)
 # end
 
-ppRect = QRectF(0, 0, styles.PATH_BASE_WIDTH/2, styles.PATH_BASE_WIDTH/2)
-ppathLU = QPainterPath()
-hashMarkGen(ppathLU,ppRect.bottomLeft(),ppRect.bottomRight(),ppRect.topRight())
-ppathRU = QPainterPath()
-hashMarkGen(ppathRU,ppRect.bottomRight(),ppRect.bottomLeft(),ppRect.topLeft())
-ppathRD = QPainterPath()
-hashMarkGen(ppathRD,ppRect.topRight(),ppRect.topLeft(),ppRect.bottomLeft())
-ppathLD = QPainterPath()
-hashMarkGen(ppathLD,ppRect.topLeft(),ppRect.topRight(),ppRect.bottomRight())
+# create hash marks QPainterPaths only once
+_ppRect = QRectF(0, 0, styles.PATH_BASE_WIDTH, styles.PATH_BASE_WIDTH)
+_pathCenter = QPointF(styles.PATH_BASE_WIDTH / 2,\
+                          styles.PATH_BASE_WIDTH / 2)
+_pathUCenter = QPointF(styles.PATH_BASE_WIDTH / 2, 0)
+_pathDCenter = QPointF(styles.PATH_BASE_WIDTH / 2, styles.PATH_BASE_WIDTH)
+_ppathLU = QPainterPath()
+hashMarkGen(_ppathLU,_ppRect.bottomLeft(),_pathDCenter,_pathCenter)
+_ppathRU = QPainterPath()
+hashMarkGen(_ppathRU,_ppRect.bottomRight(),_pathDCenter,_pathCenter)
+_ppathRD = QPainterPath()
+hashMarkGen(_ppathRD,_ppRect.topRight(),_pathUCenter,_pathCenter)
+_ppathLD = QPainterPath()
+hashMarkGen(_ppathLD,_ppRect.topLeft(),_pathUCenter,_pathCenter)
 
 
 class PreXoverHandleGroup(QGraphicsItem):
@@ -193,8 +198,8 @@ class PreXoverHandle(QGraphicsItem):
         super(PreXoverHandle, self).__init__(parent)
         self.phg = parent.parentItem()  # this should be a PathHelixGroup
         self.undoStack = parent.parentItem().pathController.mainWindow.undoStack
-        self.rect = QRectF(0, 0, styles.PATH_BASE_WIDTH/2, styles.PATH_BASE_WIDTH/2)
-        self.type = None
+        self.rect = QRectF(0, 0, styles.PATH_BASE_WIDTH, styles.PATH_BASE_WIDTH)
+        self._type = None
         self._index = None
         self._orientation = None
 
@@ -203,13 +208,13 @@ class PreXoverHandle(QGraphicsItem):
         self.partner = None
 
         self.setZValue(styles.ZPREXOVERHANDLE)
-        self.label = QGraphicsSimpleTextItem("", parent=self)
-        self.label.setParentItem(self)
-        self.label.setPos(0, 0)
-        self.label.setFont(self._myfont)
-        self.label.hide()
+        self._label = QGraphicsSimpleTextItem("", parent=self)
+        # self._label.setParentItem(self)
+        self._label.setPos(0, 0)
+        self._label.setFont(self._myfont)
+        self._label.hide()
         self.hide()
-        self.painterpath = ppathLD
+        self.painterpath = _ppathLD
     # end def
 
     def setPartner(self, pch):
@@ -232,7 +237,27 @@ class PreXoverHandle(QGraphicsItem):
     # end def
 
     def setLabel(self):
-        self.label.setText("%d" % (self.partner.helix().number()))
+        self._label.setText("%d" % (self.partner.helix().number()))
+        if self._orientation == HandleOrient.RightDown:
+            self.rightDrawConfig()
+            self.downDrawConfig()
+            self.painterpath = _ppathRD
+        elif self._orientation == HandleOrient.LeftDown:
+            self.leftDrawConfig()
+            self.downDrawConfig()
+            self.painterpath = _ppathLD
+        elif self._orientation == HandleOrient.LeftUp:
+            self.leftDrawConfig()
+            self.upDrawConfig()
+            self.painterpath = _ppathLU
+        elif self._orientation == HandleOrient.RightUp:
+            self.rightDrawConfig()
+            self.upDrawConfig()
+            self.painterpath = _ppathRU
+        else:
+            raise AttributeError("PCH orientation not recognized")
+        self._label.show()
+        self.show()
     # end def
 
     def configure(self, strandtype, orientation, index, parent):
@@ -243,53 +268,31 @@ class PreXoverHandle(QGraphicsItem):
         
         """
         self.setParentItem(parent)
-        self.type = strandtype
+        self._type = strandtype
         self._orientation = orientation
         self._index = index
-
-        if orientation == HandleOrient.RightDown:
-            self.rightDrawConfig()
-            self.downDrawConfig()
-            self.painterpath = ppathRD
-        elif orientation == HandleOrient.LeftDown:
-            self.leftDrawConfig()
-            self.downDrawConfig()
-            self.painterpath = ppathLD
-        elif orientation == HandleOrient.LeftUp:
-            self.leftDrawConfig()
-            self.upDrawConfig()
-            self.painterpath = ppathLU
-        elif orientation == HandleOrient.RightUp:
-            self.rightDrawConfig()
-            self.setX(self.baseWidth*index+styles.PATH_BASE_WIDTH/2)
-            self.upDrawConfig()
-            self.painterpath = ppathRU
-        else:
-            raise AttributeError("PCH orientation not recognized")
-        self.show()
-        self.label.show()
     # end def
 
     def rightDrawConfig(self):
-        self.setX(self.baseWidth*self._index + styles.PATH_BASE_WIDTH/2)
-        offset = self.label.boundingRect().width()/2
-        self.label.setX(-offset)
+        self.setX(self.baseWidth*self._index)
+        offset = -self._label.boundingRect().width()/2 + self.baseWidth/2
+        self._label.setX(offset)
     # end def
 
     def leftDrawConfig(self):
         self.setX(self.baseWidth*self._index)
-        offset = self.label.boundingRect().width()/2
-        self.label.setX(self.baseWidth/2 - offset)
+        offset = self._label.boundingRect().width()/2
+        self._label.setX(self.baseWidth/2 - offset)
     # end def
 
     def upDrawConfig(self):
-        self.label.setY(-0.57*self.baseWidth)
-        self.setY(-0.75*self.baseWidth)
+        self.setY(-1.25*self.baseWidth)
+        self._label.setY(-0.10*self.baseWidth)
     #end def
     
     def downDrawConfig(self):
-        self.label.setY(0.48*self.baseWidth)
         self.setY(2.25*self.baseWidth)
+        self._label.setY(0.48*self.baseWidth)
     #end def 
 
     def boundingRect(self):
@@ -298,7 +301,6 @@ class PreXoverHandle(QGraphicsItem):
     def paint(self, painter, option, widget=None):
         painter.setPen(self.pen)
         painter.drawPath(self.painterpath)
-        # self.handlePainter(painter)
     # end def
 
     def mousePressEvent(self, event):
