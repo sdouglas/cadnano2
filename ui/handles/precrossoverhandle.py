@@ -37,6 +37,7 @@ from model.enum import StrandType, Parity, BreakType, HandleOrient
 from crossoverhandle import XoverHandlePair
 import ui.styles as styles
 
+
 # construct paths for breakpoint handles
 def hashMarkGen(path, p1, p2, p3):
     path.moveTo(p1)
@@ -51,13 +52,13 @@ _pathCenter = QPointF(styles.PATH_BASE_WIDTH / 2,\
 _pathUCenter = QPointF(styles.PATH_BASE_WIDTH / 2, 0)
 _pathDCenter = QPointF(styles.PATH_BASE_WIDTH / 2, styles.PATH_BASE_WIDTH)
 _ppathLU = QPainterPath()
-hashMarkGen(_ppathLU,_ppRect.bottomLeft(),_pathDCenter,_pathCenter)
+hashMarkGen(_ppathLU, _ppRect.bottomLeft(), _pathDCenter, _pathCenter)
 _ppathRU = QPainterPath()
-hashMarkGen(_ppathRU,_ppRect.bottomRight(),_pathDCenter,_pathCenter)
+hashMarkGen(_ppathRU, _ppRect.bottomRight(), _pathDCenter, _pathCenter)
 _ppathRD = QPainterPath()
-hashMarkGen(_ppathRD,_ppRect.topRight(),_pathUCenter,_pathCenter)
+hashMarkGen(_ppathRD, _ppRect.topRight(), _pathUCenter, _pathCenter)
 _ppathLD = QPainterPath()
-hashMarkGen(_ppathLD,_ppRect.topLeft(),_pathUCenter,_pathCenter)
+hashMarkGen(_ppathLD, _ppRect.topLeft(), _pathUCenter, _pathCenter)
 
 
 class PreXoverHandleGroup(QGraphicsItem):
@@ -176,8 +177,6 @@ class PreXoverHandle(QGraphicsItem):
     """
     PreXoverHandle responds to mouse input and serves as an interface
     for adding scaffold crossovers
-
-    Each handle is created by the PathController. Its parent is a PathHelix
     """
     pen = QPen(styles.pchstroke, styles.PATH_STRAND_STROKE_WIDTH)
     pen.setCapStyle(Qt.FlatCap)  # or Qt.RoundCap
@@ -187,29 +186,22 @@ class PreXoverHandle(QGraphicsItem):
 
     def __init__(self, parent=None):
         """
-        Merely initialize a PreXoverHandle and some basic details
-        like it's label and rectangle
-        
-        initially these are all hidden as well
-        
-        the initialization parent should always be a PreXoverHandleGroup
-        whose parent is a PathHelixGroup!!!
+        Set up a hidden label and boundingbox for PreXoverHandle. Parent
+        should always be a PreXoverHandleGroup, whose own parent is a
+        PathHelixGroup.
         """
         super(PreXoverHandle, self).__init__(parent)
         self.phg = parent.parentItem()  # this should be a PathHelixGroup
-        self.undoStack = parent.parentItem().pathController.mainWindow.undoStack
-        self.rect = QRectF(0, 0, styles.PATH_BASE_WIDTH, styles.PATH_BASE_WIDTH)
+        pathController = parent.parentItem().pathController
+        self.undoStack = pathController.mainWindow.undoStack
+        self.rect = QRectF(0, 0, styles.PATH_BASE_WIDTH,\
+                                 styles.PATH_BASE_WIDTH)
         self._type = None
         self._index = None
         self._orientation = None
-
-        # this is a pointer towards it's complementary PreXoverHandle
-        # for they are paired
-        self.partner = None
-
+        self.partner = None  # partner PreXoverHandle in the pair
         self.setZValue(styles.ZPREXOVERHANDLE)
         self._label = QGraphicsSimpleTextItem("", parent=self)
-        # self._label.setParentItem(self)
         self._label.setPos(0, 0)
         self._label.setFont(self._myfont)
         self._label.hide()
@@ -224,7 +216,7 @@ class PreXoverHandle(QGraphicsItem):
         self.partner = pch
     # end def
 
-    def helix(self):
+    def pathHelix(self):
         return self.parentItem()
     # end def
 
@@ -237,7 +229,7 @@ class PreXoverHandle(QGraphicsItem):
     # end def
 
     def setLabel(self):
-        self._label.setText("%d" % (self.partner.helix().number()))
+        self._label.setText("%d" % (self.partner.pathHelix().number()))
         if self._orientation == HandleOrient.RightDown:
             self.rightDrawConfig()
             self.downDrawConfig()
@@ -262,10 +254,9 @@ class PreXoverHandle(QGraphicsItem):
 
     def configure(self, strandtype, orientation, index, parent):
         """
-        sets up the PCH to be tied to a helix as its parent such that
-            when a helix is repostioned, it will redraw correctly
-        figures out the orientation to draw the PCH on the helix
-        
+        Sets the parent of the PreXoverHandle to its PathHelix, so upon
+        reordering of that PathHelix, the PreXoverHandle will redraw
+        correctly.
         """
         self.setParentItem(parent)
         self._type = strandtype
@@ -274,26 +265,26 @@ class PreXoverHandle(QGraphicsItem):
     # end def
 
     def rightDrawConfig(self):
-        self.setX(self.baseWidth*self._index)
-        offset = -self._label.boundingRect().width()/2 + self.baseWidth/2
+        self.setX(self.baseWidth * self._index)
+        offset = -self._label.boundingRect().width() / 2 + self.baseWidth / 2
         self._label.setX(offset)
     # end def
 
     def leftDrawConfig(self):
-        self.setX(self.baseWidth*self._index)
-        offset = self._label.boundingRect().width()/2
-        self._label.setX(self.baseWidth/2 - offset)
+        self.setX(self.baseWidth * self._index)
+        offset = self._label.boundingRect().width() / 2
+        self._label.setX(self.baseWidth / 2 - offset)
     # end def
 
     def upDrawConfig(self):
-        self.setY(-1.25*self.baseWidth)
-        self._label.setY(-0.10*self.baseWidth)
+        self.setY(-1.25 * self.baseWidth)
+        self._label.setY(-0.10 * self.baseWidth)
     #end def
-    
+
     def downDrawConfig(self):
-        self.setY(2.25*self.baseWidth)
-        self._label.setY(0.48*self.baseWidth)
-    #end def 
+        self.setY(2.25 * self.baseWidth)
+        self._label.setY(0.48 * self.baseWidth)
+    #end def
 
     def boundingRect(self):
         return self.rect

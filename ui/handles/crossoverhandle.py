@@ -31,7 +31,7 @@ from PyQt4.QtGui import QBrush, QFont
 from PyQt4.QtGui import QGraphicsItem, QGraphicsSimpleTextItem
 from PyQt4.QtGui import QPainterPath
 from PyQt4.QtGui import QPolygonF
-from PyQt4.QtGui import QPen, QUndoCommand
+from PyQt4.QtGui import QPen
 from model.enum import HandleOrient
 import ui.styles as styles
 
@@ -52,20 +52,15 @@ class XoverHandlePair(QGraphicsItem):
 
     def __init__(self, preXoverA, preXoverB, parent=None):
         """
-        Initialize a XoverHandlePair
-
-        parent should be the PathHelixGroup and not a PathHelix
+        Create XoverHandlePair (parented to the PathHelixGroup)
         """
         super(XoverHandlePair, self).__init__(parent)
         self.setParentItem(parent)
-        # self.undoStack = \
-        # parent.parentItem().pathController.mainWindow.undoStack
-
         # generate the points where the action happens
-        self.xoverA = XoverHandle(self, preXoverA, preXoverA.helix())
-        self.xoverB = XoverHandle(self, preXoverB, preXoverB.helix())
-        self.xoverA.setLabel(preXoverB.helix().number())
-        self.xoverB.setLabel(preXoverA.helix().number())
+        self.xoverA = XoverHandle(self, preXoverA, preXoverA.pathHelix())
+        self.xoverB = XoverHandle(self, preXoverB, preXoverB.pathHelix())
+        self.xoverA.setLabel(preXoverB.pathHelix().number())
+        self.xoverB.setLabel(preXoverA.pathHelix().number())
         rectA = self.mapRectFromItem(self.xoverA, self.xoverA.boundingRect())
         rectB = self.mapRectFromItem(self.xoverB, self.xoverB.boundingRect())
         self.rect = rectA.united(rectB)
@@ -73,6 +68,7 @@ class XoverHandlePair(QGraphicsItem):
         self.painterpath = None
         self._c1 = QPointF()
         self.setZValue(styles.ZXOVERHANDLEPAIR)
+
     # end def
 
     def refreshPath(self):
@@ -141,7 +137,7 @@ class XoverHandlePair(QGraphicsItem):
 class XoverHandle(QGraphicsItem):
     """
     The XoverHandle is a QGraphicsItem that handles the drawing and mouse
-    events for crossovers in the Path interface. Every XoverHandle is 
+    events for crossovers in the Path interface. Every XoverHandle is
     created by a XoverHandlePair, which draws the line between the two
     handles.
     """
@@ -172,18 +168,17 @@ class XoverHandle(QGraphicsItem):
 
     def __init__(self, xoverpair, prexover, parent=None):
         """
-        Merely initialize a XoverHandle
-        orientation specs the where the label is above or below the helix
-        index is the the helix index the crossover is at
+        xoverpair is the XoverHandlePair that created this handle,
+        orientation determines painterpath and label offset, index is the helix index the crossover is at
         parent should be the path helix it is on
         """
         super(XoverHandle, self).__init__(parent)
         self._xoverpair = xoverpair
         self._orientation = prexover.orientation()
         self._index = prexover.index()
-        self._helix = prexover.helix()
-        self._helixNumber = prexover.helix().number()
-        self._parity = prexover.helix().parity()
+        self._pathHelix = prexover.pathHelix()
+        self._helixNumber = prexover.pathHelix().number()
+        self._parity = prexover.pathHelix().parity()
         self._label = QGraphicsSimpleTextItem("", parent=self)
         self._label.setParentItem(self)
         self._label.setFont(self._myfont)

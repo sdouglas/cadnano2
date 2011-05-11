@@ -97,6 +97,14 @@ class VirtualHelix(object):
         self._p3 = idToObj[self.p3ID]
         del self.p3ID
 
+    def updateObservers(self):
+        for o in self._observers:
+            if o():
+                o().update()
+
+    def addObserver(self, obs):
+        self._observers.append(weakref.ref(obs, lambda x: self._observers.remove(x)))
+
     def part(self):
         """docstring for part"""
         return self._part
@@ -248,14 +256,6 @@ class VirtualHelix(object):
                 ret.append(i)
         return ret
 
-    def updateObservers(self):
-        for o in self._observers:
-            if o():
-                o().update()
-
-    def addObserver(self, obs):
-        self._observers.append(weakref.ref(obs, lambda x: self._observers.remove(x)))
-
     def updateAfterBreakpointMove(self, strandType, breakType, \
                                   startIndex, delta):
         """Called by a BreakpointHandle mouseReleaseEvent to update
@@ -343,22 +343,22 @@ class VirtualHelix(object):
             # Scaffold Left
             for i,j in product(range(start, end, step), scafL[p]):
                 index = i+j
-                if self.possibleScafCrossoverAt(index, neighbor):
+                if self.possibleScafCrossoverAt(index, neighbor, index):
                     self._scafLeftPreXoList.append([neighbor, index])
             # Scaffold Right
             for i,j in product(range(start, end, step), scafR[p]):
                 index = i+j
-                if self.possibleScafCrossoverAt(index, neighbor):
+                if self.possibleScafCrossoverAt(index, neighbor, index):
                     self._scafRightPreXoList.append([neighbor, index])
             # Staple Left
             for i,j in product(range(start, end, step), stapL[p]):
                 index = i+j
-                if self.possibleStapCrossoverAt(index, neighbor):
+                if self.possibleStapCrossoverAt(index, neighbor, index):
                     self._stapLeftPreXoList.append([neighbor, index])
             # Staple Right
             for i,j in product(range(start, end, step), stapR[p]):
                 index = i+j
-                if self.possibleStapCrossoverAt(index, neighbor):
+                if self.possibleStapCrossoverAt(index, neighbor, index):
                     self._stapRightPreXoList.append([neighbor, index])
 
         # print "scafLeft:", self._scafLeftPreXoList
@@ -367,27 +367,65 @@ class VirtualHelix(object):
         # print "stapRight:", self._stapRightPreXoList
     # end def
 
-    def possibleScafCrossoverAt(self, index, neighbor):
+    def possibleScafCrossoverAt(self, fromIndex, neighbor, toIndex):
         """Return true if scaffold could crossover to neighbor at index"""
-        if self.scaffoldBase(index).isCrossover():
+        if self.scaffoldBase(fromIndex).isCrossover():
             return False
-        if neighbor.scaffoldBase(index).isCrossover():
+        if neighbor.scaffoldBase(toIndex).isCrossover():
             return False
-        if not self.scaffoldBase(index).isNull() and\
-           not neighbor.scaffoldBase(index).isNull():
+        if not self.scaffoldBase(fromIndex).isNull() and\
+           not neighbor.scaffoldBase(toIndex).isNull():
             return True
         return False
 
-    def possibleStapCrossoverAt(self, index, neighbor):
+    def possibleStapCrossoverAt(self, fromIndex, neighbor, toIndex):
         """Return true if scaffold could crossover to neighbor at index"""
-        if self.stapleBase(index).isCrossover():
+        if self.stapleBase(fromIndex).isCrossover():
             return False
-        if neighbor.stapleBase(index).isCrossover():
+        if neighbor.stapleBase(toIndex).isCrossover():
             return False
-        if not self.stapleBase(index).isNull() and\
-           not neighbor.stapleBase(index).isNull():
+        if not self.stapleBase(fromIndex).isNull() and\
+           not neighbor.stapleBase(toIndex).isNull():
             return True
         return False
+
+    def installXoverTo(self, type, fromIndex, toVhelix, toIndex):
+        """docstring for installXoverTo"""
+        if type == StrandType.Scaffold:
+            if possibleScafCrossoverAt(fromIndex, toVhelix, toIndex):
+                fromBase = self.scaffoldBase(fromIndex)
+                toBase = toVhelix.scaffoldBase(toIndex)
+                fromBase.setNext(toBase)
+                toBase.setPrev(fromBase)
+            else:
+                raise IndexError("Could not install scaffold crossover")
+        elif type == StrandType.Staple:
+            if possibleStapCrossoverAt(fromIndex, toVhelix, toIndex):
+                fromBase = self.stapleBase(fromIndex)
+                toBase = toVhelix.stapleBase(toIndex)
+                fromBase.setNext(toBase)
+                toBase.setPrev(fromBase)
+            else:
+                raise IndexError("Could not install staple crossover")
+
+    def removeXoverTo(self, type, fromIndex, toVhelix, toIndex):
+        """docstring for installXoverTo"""
+        if type == StrandType.Scaffold:
+            fromBase = self.scaffoldBase(fromIndex)
+            toBase = toVhelix.scaffoldBase(toIndex)
+            if fromBase.getNext() == toBase and fromBase == toBase.getPrev():
+                fromBase.clearNext()
+                toBase.clearPrev()
+            else:
+                raise IndexError("Crossover does not exist to be removed.")
+        elif type == StrandType.Staple:
+            fromBase = self.stapleBase(fromIndex)
+            toBase = toVhelix.stapleBase(toIndex)
+            if fromBase.getNext() == toBase and fromBase == toBase.getPrev():
+                fromBase.clearNext()
+                toBase.clearPrev()
+            else:
+                raise IndexError("Crossover does not exist to be removed.")
 
     def getLeftScafPreCrossoverIndexList(self):
         return self._scafLeftPreXoList
