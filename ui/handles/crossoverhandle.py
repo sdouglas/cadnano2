@@ -119,7 +119,7 @@ class XoverHandlePair(QGraphicsItem):
         painter.setPen(self._pen)
         self.refreshPath()
         painter.drawPath(self.painterpath)
-        # self.handlePainter(painter)
+        # print "XO ", self.zValue()
     # end def
 
     def mousePressEvent(self, event):
@@ -130,7 +130,7 @@ class XoverHandlePair(QGraphicsItem):
             QGraphicsItem.mousePressEvent(self, event)
         # end else
         else:
-            pass
+            QGraphicsItem.mousePressEvent(self, event)
             # install crossover
             # FILL IN
         # end else
@@ -260,7 +260,7 @@ class XoverHandle(QGraphicsItem):
             QGraphicsItem.mousePressEvent(self, event)
         # end else
         else:
-            pass
+            QGraphicsItem.mousePressEvent(self, event)
             # install crossover
             # FILL IN
         # end else
