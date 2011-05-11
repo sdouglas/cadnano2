@@ -117,7 +117,7 @@ class PathHelixGroup(QGraphicsItem):
         the view to add a XoverHandlePair."""
         def __init__(self, phg, strandType, fromHelixNum, fromIndex,\
                      toHelixNum, toIndex):
-            super(XoverHandlePair.InstallXoverCommand, self).__init__()
+            super(PathHelixGroup.InstallXoverCommand, self).__init__()
             self.phg = phg
             self.strandType = strandType
             self.fromHelixNum = fromHelixNum
@@ -131,16 +131,19 @@ class PathHelixGroup(QGraphicsItem):
                                   self.fromIndex,\
                                   self.toHelixNum,\
                                   self.toIndex)
-
+            # ph.updateBreakBounds(StrandType.Scaffold)
+            # ph.redrawLines(StrandType.Scaffold)
         def undo(self):
             self.phg.removeXover(self.strandType,\
                                  self.fromHelixNum,\
                                  self.fromIndex,\
                                  self.toHelixNum,\
                                  self.toIndex)
+            # ph.updateBreakBounds(StrandType.Scaffold)
+            # ph.redrawLines(StrandType.Scaffold)
     # end class
 
-    def installXover(self, type, fromHelixNum, fromIndex, toHelix, toIndex):
+    def installXover(self, type, fromHelixNum, fromIndex, toHelixNum, toIndex):
         """Updates model with crossover from a 3' base to a 5' base.
         Crossovers have a directionality, so the order matters."""
         try:
@@ -149,10 +152,9 @@ class PathHelixGroup(QGraphicsItem):
         except IndexError:
             print "IndexError: PathHelix %d or %d not found." %\
                                                 (fromHelixNum, toHelixNum)
-        vhelix3.installXoverTo(self.strandType, self.fromIndex, vhelix5,\
-                               self.toIndex)
+        vhelix3.installXoverTo(type, fromIndex, vhelix5, toIndex)
 
-    def removeXover(self, type, fromHelixNum, fromIndex, toHelix, toIndex):
+    def removeXover(self, type, fromHelixNum, fromIndex, toHelixNum, toIndex):
         """Removes the crossover from a 3' base (fromHelix[fromIndex])
         to a 5' base (toHelix[toIndex]). Crossovers have a directionality,
         so the order matters."""
@@ -162,8 +164,7 @@ class PathHelixGroup(QGraphicsItem):
         except IndexError:
             print "IndexError: PathHelix %d or %d not found." %\
                                                 (fromHelixNum, toHelixNum)
-        vhelix3.removeXoverTo(self.strandType, self.fromIndex, vhelix5,\
-                              self.toIndex)
+        vhelix3.removeXoverTo(type, fromIndex, vhelix5, toIndex)
 
     @pyqtSlot(int)
     def helixAddedSlot(self, number):
