@@ -196,7 +196,7 @@ class PreXoverHandle(QGraphicsItem):
         self.undoStack = pathController.mainWindow.undoStack
         self.rect = QRectF(0, 0, styles.PATH_BASE_WIDTH,\
                                  styles.PATH_BASE_WIDTH)
-        self._type = None
+        self._strandType = None
         self._index = None
         self._orientation = None
         self.partner = None  # partner PreXoverHandle in the pair
@@ -259,7 +259,7 @@ class PreXoverHandle(QGraphicsItem):
         correctly.
         """
         self.setParentItem(parent)
-        self._type = strandtype
+        self._strandType = strandtype
         self._orientation = orientation
         self._index = index
     # end def
@@ -302,7 +302,27 @@ class PreXoverHandle(QGraphicsItem):
             QGraphicsItem.mousePressEvent(self, event)
         # end else
         else:
-            XoverHandlePair(self, self.partner, parent=self.phg)
+            self.installCrossover()
         # end else
     # end def
+
+    def installCrossover(self):
+        """docstring for installCrossover"""
+        fromHelixNum = self.pathHelix().number()
+        fromIndex = self.index()
+        toHelixNum = self.partner.pathHelix().number()
+        toIndex = self.partner.index()
+        
+        self.undoStack.beginMacro("Crossover from %d[%d] to %d[%d]" %\
+                              (fromHelixNum, fromIndex, toHelixNum, toIndex))
+        self.undoStack.push(self.phg.InstallXoverCommand(self.phg,\
+                                                         self._strandType,\
+                                                         fromHelixNum,\
+                                                         fromIndex,\
+                                                         toHelixNum,\
+                                                         toIndex))
+        self.undoStack.endMacro()
+        XoverHandlePair(self, self.partner, parent=self.phg)
+
+
 # end class

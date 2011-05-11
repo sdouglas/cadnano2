@@ -83,26 +83,26 @@ class XoverHandlePair(QGraphicsItem):
 
         # case 1: same strand
         if self.xoverA.helixNumber() == self.xoverB.helixNumber():
-            if pA.x() < pB.x(): # draw only from left
+            if pA.x() < pB.x():  # draw only from left
                 if self.xoverA.orientation() == HandleOrient.LeftUp or\
                    self.xoverA.orientation() == HandleOrient.RightUp:
-                    dx = abs(pB.x()-pA.x())
+                    dx = abs(pB.x() - pA.x())
                     self._c1.setX(0.5 * (pA.x() + pB.x()))
-                    self._c1.setY(pA.y() - self.yScale*dx)
+                    self._c1.setY(pA.y() - self.yScale * dx)
                 # end if
             # end if
         # case 2: same parity
         elif self.xoverA.parity() == self.xoverB.parity():
             dy = abs(pB.y() - pA.y())
-            self._c1.setX(pA.x() + self.xScale*dy)
+            self._c1.setX(pA.x() + self.xScale * dy)
             self._c1.setY(0.5 * (pA.y() + pB.y()))
         # case 3: default
         else:
             if self.xoverA.orientation() == HandleOrient.LeftUp or\
                self.xoverA.orientation() == HandleOrient.LeftDown:
-                self._c1.setX(pA.x() - self.xScale*abs(pB.y() - pA.y()))
+                self._c1.setX(pA.x() - self.xScale * abs(pB.y() - pA.y()))
             else:
-                self._c1.setX(pA.x() + self.xScale*abs(pB.y() - pA.y()))
+                self._c1.setX(pA.x() + self.xScale * abs(pB.y() - pA.y()))
             self._c1.setY(0.5 * (pA.y() + pB.y()))
         self.painterpath.moveTo(pA)
         self.painterpath.quadTo(self._c1, pB)
@@ -169,8 +169,8 @@ class XoverHandle(QGraphicsItem):
     def __init__(self, xoverpair, prexover, parent=None):
         """
         xoverpair is the XoverHandlePair that created this handle,
-        orientation determines painterpath and label offset, index is the helix index the crossover is at
-        parent should be the path helix it is on
+        and prexover is one of the PreXoverHandles that are part of the
+        XoverHandlePair.
         """
         super(XoverHandle, self).__init__(parent)
         self._xoverpair = xoverpair

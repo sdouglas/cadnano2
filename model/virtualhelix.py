@@ -392,7 +392,7 @@ class VirtualHelix(object):
     def installXoverTo(self, type, fromIndex, toVhelix, toIndex):
         """docstring for installXoverTo"""
         if type == StrandType.Scaffold:
-            if possibleScafCrossoverAt(fromIndex, toVhelix, toIndex):
+            if self.possibleScafCrossoverAt(fromIndex, toVhelix, toIndex):
                 fromBase = self.scaffoldBase(fromIndex)
                 toBase = toVhelix.scaffoldBase(toIndex)
                 fromBase.setNext(toBase)
@@ -400,7 +400,7 @@ class VirtualHelix(object):
             else:
                 raise IndexError("Could not install scaffold crossover")
         elif type == StrandType.Staple:
-            if possibleStapCrossoverAt(fromIndex, toVhelix, toIndex):
+            if self.possibleStapCrossoverAt(fromIndex, toVhelix, toIndex):
                 fromBase = self.stapleBase(fromIndex)
                 toBase = toVhelix.stapleBase(toIndex)
                 fromBase.setNext(toBase)
