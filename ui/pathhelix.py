@@ -83,6 +83,9 @@ class PathHelix(QGraphicsItem):
         self.updateRect()
     # end def
 
+    def vhelix(self):
+        return self._vhelix
+
     def number(self):
         return self._vhelix.number()
 
