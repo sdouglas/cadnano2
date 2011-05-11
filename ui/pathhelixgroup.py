@@ -77,6 +77,9 @@ class PathHelixGroup(QGraphicsItem):
         self.numToPathHelix = {}
         self.numToPathHelixHandle = {}
         self.pathHelixList = []
+        
+        self.xovers = {}
+        
         count = self.part.getVirtualHelixCount()
         if count > 0:  # initalize if loading from file, otherwise delay
             self.activeslicehandle.setParentItem(self)
