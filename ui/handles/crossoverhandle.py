@@ -70,13 +70,6 @@ class XoverHandlePair(QGraphicsItem):
         self.setZValue(styles.ZXOVERHANDLEPAIR)
 
     # end def
-    
-    def destruct(self):
-        del self.xoverA
-        del self.xoverB
-    # end def
-        
-    # end def
 
     def refreshPath(self):
         self.painterpath = QPainterPath()
