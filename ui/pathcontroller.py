@@ -24,7 +24,7 @@
 
 from PyQt4.QtCore import *
 from PyQt4.QtGui import *
-from looptool import BaseTool
+from ui.tools.looptool import BaseTool
 
 class PathController():
     """
