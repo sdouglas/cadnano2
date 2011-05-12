@@ -1,4 +1,4 @@
-# The MIT License
+    # The MIT License
 #
 # Copyright (c) 2011 Wyss Institute at Harvard University
 #
@@ -62,8 +62,10 @@ class PathTool(QGraphicsItem):
             
             # self.x0 = baseIndex * baseWidth
             # self.y0 = self.getYoffset()
+            # self
             # self.pressX = 0
             # self.pressXoffset = 0
+            self.baseWidth = styles.PATH_BASE_WIDTH
             self.hide()
         # end def
         
@@ -103,35 +105,12 @@ class PathTool(QGraphicsItem):
         # end def
         
         def toolHoverMove(self, item, event):
-                posScene = event.scenePos()
-                posItem = event.pos()
-                # posItem = self.mapFromScene(posItem)
-                
-                self.setPos(posItem)
-                # moveX = posScene.x()
-                # deltaX = moveX - self.pressX
-                # self.tempIndex = int((self.baseIndex * baseWidth +\
-                #                       self.pressXoffset + deltaX) / baseWidth)
-                # if self.tempIndex < self.minIndex:
-                #     self.tempIndex = self.minIndex
-                # elif self.tempIndex > self.maxIndex:
-                #     self.tempIndex = self.maxIndex
-                # self.x0 = self.tempIndex * baseWidth
-                # 
-                # self.setPos(self.x0, self.y0)
-                
+            # posScene = event.scenePos()
+            posItem = event.pos()
+            x = int(posItem.x()/self.baseWidth)*self.baseWidth
+            y = int(posItem.y()/self.baseWidth)*self.baseWidth
+            self.setPos(x, y)
         # end def
         
         
 # end class         
-
-
-# class LoopTool(QGraphicsItem):
-#     """
-#     XoverHandlePair responds to mouse input and serves as an interface
-#     for adding scaffold crossovers
-# 
-#     Each handle is created by the PathController. Its parent is a PathHelix
-#     """
-#     _pen = QPen(styles.bluestroke, 2)
-# # end class
