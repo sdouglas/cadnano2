@@ -66,6 +66,8 @@ scafstroke = QColor(0, 102, 204)  # 0066cc
 handlefill = QColor(0, 102, 204)  # 0066cc
 # handlestroke = QColor(0, 102, 204)  # 0066cc
 pchstroke = QColor(0, 102, 204, 153)
+redstroke = QColor(200, 0, 0)  
+PATH_BASE_HL_STROKE_WIDTH = 2
 
 # Path Drawing
 PATH_XOVER_LINE_SCALE_X = 0.035

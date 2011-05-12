@@ -24,7 +24,7 @@
 
 from PyQt4.QtCore import *
 from PyQt4.QtGui import *
-
+from looptool import BaseTool
 
 class PathController():
     """
@@ -50,6 +50,16 @@ class PathController():
         ag.setExclusive(True)
         self.currentTool = None
         self.chooseSelectTool()
+        
+        self.toolUse = False    # flag for using a specfic tool in the scene
+        self.toolHoverEnter = None
+        self.toolHoverLeave = None
+        self.toolHoverMove = None
+        self.toolPress = None
+        
+        self.insertionTool = BaseTool(pathcontroller=self,parent=None)
+        
+    # end def
 
     def chooseSelectTool(self):
         widget = self.mainWindow.actionPathSelect
@@ -57,6 +67,7 @@ class PathController():
             return
         else:
             self.currentTool = widget
+        self.toolUse = False
         widget.setChecked(True)
 
     def chooseMoveTool(self):
@@ -97,6 +108,11 @@ class PathController():
             return
         else:
             self.currentTool = widget
+        self.toolUse = True
+        self.toolPress = self.insertionTool.toolPress
+        self.toolHoverEnter = self.insertionTool.toolHoverEnter
+        self.toolHoverLeave = self.insertionTool.toolHoverLeave
+        self.toolHoverMove = self.insertionTool.toolHoverMove
         widget.setChecked(True)
 
     def chooseSkipTool(self):

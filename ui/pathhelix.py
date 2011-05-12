@@ -75,6 +75,10 @@ class PathHelix(QGraphicsItem):
         elif parent.crossSectionType == LatticeType.Square:
             self.step = 32
 
+        # assumes parent is a PathHelixGroup
+        self.pathController = parent.pathController
+        
+        
         # For Campbell
         # Here's where cadnano gets the reference to mMaya's 3D equivalent
         # of the PathHelix (while passing a handy reference to itself)
@@ -82,6 +86,9 @@ class PathHelix(QGraphicsItem):
         self.setZValue(styles.ZPATHHELIX)
         self.rect = QRectF()
         self.updateRect()
+        
+        # allow hover events to be accepted
+        self.setAcceptHoverEvents(True)
     # end def
 
     def vhelix(self):
@@ -157,9 +164,32 @@ class PathHelix(QGraphicsItem):
                 path.lineTo(self.baseWidth * i, 2 * self.baseWidth)
         return path
     # end def
+    
+    def hoverEnterEvent(self, event):
+        if self.pathController.toolUse == True:
+            self.pathController.toolHoverEnter(self,event)
+        else:
+            QGraphicsItem.hoverEnterEvent(self,event)
+    # end def
+    
+    def hoverLeaveEvent(self, event):
+        if self.pathController.toolUse == True:
+            self.pathController.toolHoverLeave(self,event)
+        else:
+            QGraphicsItem.hoverLeaveEvent(self,event)
+    # end def
+    
+    def hoverMoveEvent(self, event):
+        if self.pathController.toolUse == True:
+            self.pathController.toolHoverMove(self,event)
+        else:
+            QGraphicsItem.hoverMoveEvent(self,event)
+    # end def
 
     def mousePressEvent(self, event):
         """Activate this item as the current helix"""
+        if self.pathController.toolUse == True:
+            self.pathController.toolPress(self,event)
         eventIndex = int(event.pos().x() / styles.PATH_BASE_WIDTH)
         self.updateAsActiveHelix(eventIndex)
     # end def
