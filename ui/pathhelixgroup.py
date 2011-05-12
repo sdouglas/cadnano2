@@ -134,40 +134,46 @@ class PathHelixGroup(QGraphicsItem):
                                   self.fromIndex,\
                                   self.toHelixNum,\
                                   self.toIndex)
-            # ph.updateBreakBounds(StrandType.Scaffold)
-            # ph.redrawLines(StrandType.Scaffold)
         def undo(self):
             self.phg.removeXover(self.strandType,\
                                  self.fromHelixNum,\
                                  self.fromIndex,\
                                  self.toHelixNum,\
                                  self.toIndex)
-            # ph.updateBreakBounds(StrandType.Scaffold)
-            # ph.redrawLines(StrandType.Scaffold)
     # end class
 
-    def installXover(self, type, fromHelixNum, fromIndex, toHelixNum, toIndex):
+    def installXover(self, strandType, fromHelixNum, fromIndex, toHelixNum,\
+                     toIndex):
         """Updates model with crossover from a 3' base to a 5' base.
         Crossovers have a directionality, so the order matters."""
         try:
-            vhelix3 = self.numToPathHelix[fromHelixNum].vhelix()
-            vhelix5 = self.numToPathHelix[toHelixNum].vhelix()
+            ph3 = self.numToPathHelix[fromHelixNum]
+            ph5 = self.numToPathHelix[toHelixNum]
         except IndexError:
             print "IndexError: PathHelix %d or %d not found." %\
                                                 (fromHelixNum, toHelixNum)
-        vhelix3.installXoverTo(type, fromIndex, vhelix5, toIndex)
+        ph3.vhelix().installXoverTo(strandType, fromIndex, ph5.vhelix(), toIndex)
+        ph3.updateBreakBounds(strandType)
+        ph3.redrawLines(strandType)
+        ph5.updateBreakBounds(strandType)
+        ph5.redrawLines(strandType)
 
-    def removeXover(self, type, fromHelixNum, fromIndex, toHelixNum, toIndex):
+    def removeXover(self, strandType, fromHelixNum, fromIndex, toHelixNum,\
+                    toIndex):
         """Removes the crossover from a 3' base (fromHelix[fromIndex])
         to a 5' base (toHelix[toIndex]). Crossovers have a directionality,
         so the order matters."""
         try:
-            vhelix3 = self.numToPathHelix[fromHelixNum].vhelix()
-            vhelix5 = self.numToPathHelix[toHelixNum].vhelix()
+            ph3 = self.numToPathHelix[fromHelixNum]
+            ph5 = self.numToPathHelix[toHelixNum]
         except IndexError:
             print "IndexError: PathHelix %d or %d not found." %\
                                                 (fromHelixNum, toHelixNum)
-        vhelix3.removeXoverTo(type, fromIndex, vhelix5, toIndex)
+        ph3.vhelix().removeXoverTo(strandType, fromIndex, ph5.vhelix(), toIndex)
+        ph3.updateBreakBounds(strandType)
+        ph3.redrawLines(strandType)
+        ph5.updateBreakBounds(strandType)
+        ph5.redrawLines(strandType)
 
     @pyqtSlot(int)
     def helixAddedSlot(self, number):

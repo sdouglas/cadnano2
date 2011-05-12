@@ -24,13 +24,13 @@
 
 from PyQt4.QtCore import *
 from PyQt4.QtGui import *
-from ui.tools.looptool import BaseTool
+from tools.pathtool import PathTool
+
 
 class PathController():
     """
     Manages the interactions between Path widgets / UI elements and the model
     """
-
     def __init__(self, win):
         self.mainWindow = win
         win.actionPathSelect.triggered.connect(self.chooseSelectTool)
@@ -50,15 +50,12 @@ class PathController():
         ag.setExclusive(True)
         self.currentTool = None
         self.chooseSelectTool()
-        
         self.toolUse = False    # flag for using a specfic tool in the scene
         self.toolHoverEnter = None
         self.toolHoverLeave = None
         self.toolHoverMove = None
         self.toolPress = None
-        
-        self.insertionTool = BaseTool(pathcontroller=self,parent=None)
-        
+        self.insertionTool = PathTool(pathcontroller=self, parent=None)
     # end def
 
     def chooseSelectTool(self):
