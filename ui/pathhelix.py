@@ -164,7 +164,7 @@ class PathHelix(QGraphicsItem):
                 path.lineTo(self.baseWidth * i, 2 * self.baseWidth)
         return path
     # end def
-    
+
     def hoverEnterEvent(self, event):
         if self.pathController.toolUse == True:
             self.pathController.toolHoverEnter(self,event)

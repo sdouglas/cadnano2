@@ -53,7 +53,7 @@ class ActiveSliceHandle(QGraphicsItem):
     brush = QBrush(styles.orangefill)
     pen = QPen(styles.orangestroke, styles.SLICE_HANDLE_STROKE_WIDTH)
 
-    def __init__(self, dnaPartInst, startBase, parent=None):
+    def __init__(self, dnaPartInst, startBase, controller=None, parent=None):
         super(ActiveSliceHandle, self).__init__(parent)
         self.dnaPartInst = dnaPartInst
         self.part = dnaPartInst.part()
@@ -73,11 +73,15 @@ class ActiveSliceHandle(QGraphicsItem):
         self.pressX = 0
         self.pressXoffset = 0
         self.setParentItem(parent)
-        self.setCursor(Qt.OpenHandCursor)
+        # self.setCursor(Qt.OpenHandCursor)
         self.setFlag(QGraphicsItem.ItemIsMovable)
         self.qObject = AshObject()
         self.activeSliceMovedSignal = self.qObject.activeSliceMovedSignal
         self.activeslicehandle3D = ActiveSliceHandle3D(self) # for Campbell
+        
+        self.pathController = controller
+        self.setAcceptHoverEvents(True)
+        
         self.setZValue(styles.ZACTIVESLICEHANDLE)
 
     def boundingRect(self):
@@ -114,6 +118,25 @@ class ActiveSliceHandle(QGraphicsItem):
         self.maxBase = maxBase
         self.maxX = (maxBase-1) * self.baseWidth
 
+    def hoverEnterEvent(self,event):
+        if self.pathController.toolUse == False:
+            self.setCursor(Qt.OpenHandCursor)
+        QGraphicsItem.hoverEnterEvent(self,event)
+    # end def
+    
+    def hoverMoveEvent(self,event):
+        if self.pathController.toolUse == True:
+            # pass None, but if needed pass self for having a special 
+            # behavior for the slice helix
+            self.pathController.toolHoverMove(None, event,flag=True)
+        QGraphicsItem.hoverMoveEvent(self,event)
+    # end def
+    
+    def hoverLeaveEvent(self,event):
+        self.setCursor(Qt.ArrowCursor)
+        QGraphicsItem.hoverLeaveEvent(self,event)
+    # end def
+
     def mouseMoveEvent(self, event):
         """Snaps handle into place when dragging."""
         moveX = event.scenePos().x()
@@ -134,11 +157,14 @@ class ActiveSliceHandle(QGraphicsItem):
             event.ignore()
             QGraphicsItem.mousePressEvent(self, event)
         else:
-            self.scene().views()[0].addToPressList(self)
-            self._dragMode = True
-            self.pressX = event.scenePos().x()
-            self.pressX = event.scenePos().x()
-            self.pressXoffset = self.pressX % self.baseWidth
+            if self.pathController.toolUse == False:
+                self.scene().views()[0].addToPressList(self)
+                self._dragMode = True
+                self.pressX = event.scenePos().x()
+                self.pressX = event.scenePos().x()
+                self.pressXoffset = self.pressX % self.baseWidth
+            else:
+                self.pathController.toolPress(None, event)
 
     def customMouseRelease(self, eventPosition):
         """Snaps to grid after mouse released. Updates vhelix data according

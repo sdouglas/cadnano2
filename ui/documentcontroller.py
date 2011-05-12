@@ -164,7 +164,9 @@ class DocumentController():
         self.treeController.addPartNode(name, dnaPartInst)
 
         # Create the ActiveSliceHandle
-        ash = ActiveSliceHandle(dnaPartInst, startBase)
+        ash = ActiveSliceHandle(dnaPartInst, \
+                                startBase, \
+                                controller=self.win.pathController)
 
         # Create a Slice view of part
         shg = SliceHelixGroup(dnaPartInst,\

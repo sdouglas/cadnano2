@@ -83,8 +83,10 @@ class BreakpointHandle(QGraphicsItem):
         drawn in the correct orientation depending on parity and whether
         it's a 5' end or a 3' end."""
         super(BreakpointHandle, self).__init__(parent)
+        self.pathController = parent.parentItem().pathController
         self.undoStack =\
-            parent.parentItem().pathController.mainWindow.undoStack
+            self.pathController.mainWindow.undoStack
+        
         self.restoreParentItem = parent
         self.setParentItem(parent)
         self._vhelix = vhelix
@@ -103,13 +105,17 @@ class BreakpointHandle(QGraphicsItem):
         self.setPainterPathType()
         self.pressX = 0
         self.pressXoffset = 0
-        self.setCursor(Qt.OpenHandCursor)
+        # self.setCursor(Qt.OpenHandCursor)
         self._dragMode = False
         self.setFlag(QGraphicsItem.ItemIsMovable)
         self.setFlag(QGraphicsItem.ItemIsSelectable)
         self.breakpoint3D = BreakpointHandle3D(self)  # for Campbell
         self.setZValue(styles.ZBREAKPOINTHANDLE)
-
+        
+        # allow hover events to be accepted
+        self.setAcceptHoverEvents(True)
+    # end def
+        
     def restoreParent(self):
         tempP = self.restoreParentItem.mapFromItem(self.parentItem(),\
                                                    self.pos())
@@ -194,6 +200,24 @@ class BreakpointHandle(QGraphicsItem):
                 raise AttributeError("BPH: EndType not recognized")
         else:
             raise AttributeError("BPH: Parity not recognized")
+    
+    def hoverEnterEvent(self,event):
+        if self.pathController.toolUse == False:
+            self.setCursor(Qt.OpenHandCursor)
+        QGraphicsItem.hoverEnterEvent(self,event)
+    # end def
+    
+    def hoverMoveEvent(self,event):
+        if self.pathController.toolUse == True:
+            # pass None, but if needed pass self.restoreParentItem
+            self.pathController.toolHoverMove(None, event,flag=True)
+        QGraphicsItem.hoverMoveEvent(self,event)
+    # end def
+    
+    def hoverLeaveEvent(self,event):
+        self.setCursor(Qt.ArrowCursor)
+        QGraphicsItem.hoverLeaveEvent(self,event)
+    # end def
 
     def mouseMoveEvent(self, event):
         """Snaps handle into place when dragging."""
@@ -217,13 +241,15 @@ class BreakpointHandle(QGraphicsItem):
         if event.button() != Qt.LeftButton:
             QGraphicsItem.mousePressEvent(self, event)
         else:
-            # if self.parentItem() == self.restoreParentItem:
-            self.scene().views()[0].addToPressList(self)
-            self._dragMode = True
-            self.scene().clearSelection()
-            self.pressX = event.scenePos().x()
-            self.pressXoffset = self.pressX % baseWidth
-            self.setCursor(Qt.ClosedHandCursor)
+            if self.pathController.toolUse == False:
+                self.scene().views()[0].addToPressList(self)
+                self._dragMode = True
+                self.scene().clearSelection()
+                self.pressX = event.scenePos().x()
+                self.pressXoffset = self.pressX % baseWidth
+                self.setCursor(Qt.ClosedHandCursor)
+            else:
+                self.pathController.toolPress(None, event)
     # end def
 
     def customMouseRelease(self, eventPosition):

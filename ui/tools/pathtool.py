@@ -52,21 +52,14 @@ class PathTool(QGraphicsItem):
             A base class, no pun intended to display a highlight tool for 
             selecting an individual base in the path view
             
-            it's parent should be 
+            it's parent should be *always* be a PathHelix
             """
             super(PathTool, self).__init__(parent)
             
             # self.undoStack = pathcontroller.mainWindow.undoStack
-            # self._enabled = False
-            # self.setFlag(QGraphicsItem.ItemIsMovable)
-            
-            # self.x0 = baseIndex * baseWidth
-            # self.y0 = self.getYoffset()
-            # self
-            # self.pressX = 0
-            # self.pressXoffset = 0
             self.baseWidth = styles.PATH_BASE_WIDTH
             self.hide()
+            self.setZValue(styles.ZPATHTOOL)
         # end def
         
         def paint(self, painter, option, widget=None):
@@ -83,16 +76,11 @@ class PathTool(QGraphicsItem):
         # end def
         
         def toolPress(self, item, event):
-            pass
-        #     if event.button() != Qt.LeftButton:
-        #         QGraphicsItem.mousePressEvent(self, event)
-        #     else:
-        #         # if self.parentItem() == self.restoreParentItem:
-        #         self.scene().views()[0].addToPressList(self)
-        #         self._dragMode = True
-        #         self.scene().clearSelection()
-        #         self.pressX = event.scenePos().x()
-        #         self.pressXoffset = self.pressX % baseWidth
+            posScene = event.scenePos()
+            posItem = self.parentItem().mapFromScene(posScene)
+            indexp = self.helixIndex(posItem)
+            print "PathTool clicked at: (%d, %d) on helix %d" % \
+                (indexp[0], indexp[1], self.parentItem().number())
         # end def
         
         def toolHoverEnter(self,item,event):
@@ -104,13 +92,27 @@ class PathTool(QGraphicsItem):
             self.hide()
         # end def
         
-        def toolHoverMove(self, item, event):
-            # posScene = event.scenePos()
+        def toolHoverMove(self, item, event, flag=None):
+            """
+            flag is for the case where an item in the path also needs to 
+            implement the hover method
+            """
             posItem = event.pos()
-            x = int(posItem.x()/self.baseWidth)*self.baseWidth
-            y = int(posItem.y()/self.baseWidth)*self.baseWidth
-            self.setPos(x, y)
+            if flag != None:
+                posScene = event.scenePos()
+                posItem = self.parentItem().mapFromScene(posScene)
+            self.setPos(self.helixPos(posItem))
         # end def
         
+        def helixIndex(self, point):
+            x = int(point.x()/self.baseWidth)
+            y = int(point.y()/self.baseWidth)
+            return (x,y)
+        # end def
         
+        def helixPos(self, point):
+            x = int(point.x()/self.baseWidth)*self.baseWidth
+            y = int(point.y()/self.baseWidth)*self.baseWidth
+            return QPointF(x,y)
+        # end def
 # end class         
