@@ -63,8 +63,9 @@ class XoverHandlePair(QGraphicsItem):
         self.xoverB.setLabel(preXoverA.pathHelix().number())
         rectA = self.mapRectFromItem(self.xoverA, self.xoverA.boundingRect())
         rectB = self.mapRectFromItem(self.xoverB, self.xoverB.boundingRect())
+        preXoverA.pathHelix().addScaffoldXoverHandle(self.xoverA)
+        preXoverB.pathHelix().addScaffoldXoverHandle(self.xoverB)
         self.rect = rectA.united(rectB)
-        # handle drawing the cubic spline linker
         self.painterpath = None
         self._c1 = QPointF()
         self.setZValue(styles.ZXOVERHANDLEPAIR)
@@ -175,15 +176,16 @@ class XoverHandle(QGraphicsItem):
         super(XoverHandle, self).__init__(parent)
         self._xoverpair = xoverpair
         self._orientation = prexover.orientation()
-        self._index = prexover.index()
-        self._pathHelix = prexover.pathHelix()
         self._helixNumber = prexover.pathHelix().number()
         self._parity = prexover.pathHelix().parity()
+        self._minIndex = 0
+        self._maxIndex = 0
         self._label = QGraphicsSimpleTextItem("", parent=self)
         self._label.setParentItem(self)
         self._label.setFont(self._myfont)
         self._painterpath = None
-        self.configure(self._orientation, self._index)
+        self.baseIndex = prexover.index()  # public
+        self.configure(self._orientation, self.baseIndex)
         self.setZValue(styles.ZXOVERHANDLEPAIR)
     # end def
 
@@ -259,5 +261,12 @@ class XoverHandle(QGraphicsItem):
             # install crossover
             # FILL IN
         # end else
+    # end def
+
+    def setDragBounds(self, minIndex, maxIndex):
+        """Called by PathHelix.updateDragBounds to notify breakpoint handle
+        of where it can legally move along the vhelix."""
+        self._minIndex = minIndex
+        self._maxIndex = maxIndex
     # end def
 # end class

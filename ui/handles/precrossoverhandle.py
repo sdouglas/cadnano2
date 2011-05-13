@@ -322,9 +322,10 @@ class PreXoverHandle(QGraphicsItem):
                                                          toHelixNum,\
                                                          toIndex))
         self.undoStack.endMacro()
-        temp = XoverHandlePair(self, self.partner, parent=self.phg)
-        self.phg.xovers[((fromIndex, fromHelixNum), (toIndex, toHelixNum))] = temp
-        self.phg.xovers[((toIndex, toHelixNum), (fromIndex, fromHelixNum))] = temp
-
-
+        xhpair = XoverHandlePair(self, self.partner, parent=self.phg)
+        self.phg.xovers[((fromIndex, fromHelixNum),\
+                         (toIndex, toHelixNum))] = xhpair
+        self.phg.xovers[((toIndex, toHelixNum),\
+                         (fromIndex, fromHelixNum))] = xhpair
+    # end def
 # end class

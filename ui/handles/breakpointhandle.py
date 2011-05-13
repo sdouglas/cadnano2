@@ -110,6 +110,10 @@ class BreakpointHandle(QGraphicsItem):
         self.breakpoint3D = BreakpointHandle3D(self)  # for Campbell
         self.setZValue(styles.ZBREAKPOINTHANDLE)
 
+    def destroy(self):
+        """docstring for destroy"""
+        self.hide()
+
     def restoreParent(self):
         tempP = self.restoreParentItem.mapFromItem(self.parentItem(),\
                                                    self.pos())
@@ -244,14 +248,14 @@ class BreakpointHandle(QGraphicsItem):
                                                          self.tempIndex))
         self.undoStack.endMacro()
         self.baseIndex = self.tempIndex
-        self.parentItem().updateBreakBounds(self.strandType)
+        self.parentItem().updateDragBounds(self.strandType)
         self.parentItem().redrawLines(self.strandType)
         self._dragMode = False
         self.setCursor(Qt.OpenHandCursor)
     # end def
 
     def setDragBounds(self, minIndex, maxIndex):
-        """Called by PathHelix.updateBreakBounds to notify breakpoint handle
+        """Called by PathHelix.updateDragBounds to notify breakpoint handle
         of where it can legally move along the vhelix."""
         self.minIndex = minIndex
         self.maxIndex = maxIndex
@@ -291,7 +295,7 @@ class BreakpointHandle(QGraphicsItem):
         self.baseIndex = newIndex
         self.x0 = newIndex * baseWidth  # determine new location
         self.setPos(self.x0, self.y0)  # move there
-        self.parentItem().updateBreakBounds(self.strandType)
+        self.parentItem().updateDragBounds(self.strandType)
         self.parentItem().redrawLines(self.strandType)  # new 2D lines
         self.parentItem().updateAsActiveHelix(newIndex)
         self._vhelix.updateObservers()

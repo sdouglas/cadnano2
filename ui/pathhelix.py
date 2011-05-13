@@ -35,7 +35,7 @@ from PyQt4.QtGui import QGraphicsSimpleTextItem
 from PyQt4.QtGui import QPainter, QPainterPath
 from PyQt4.QtGui import QPen, QDrag, QUndoCommand
 import styles
-from model.enum import LatticeType, StrandType, Parity
+from model.enum import EndType, LatticeType, StrandType, Parity
 from model.virtualhelix import VirtualHelix
 from handles.breakpointhandle import BreakpointHandle
 from mmayacadnano.pathhelix3d import PathHelix3D  # For Campbell
@@ -58,12 +58,13 @@ class PathHelix(QGraphicsItem):
 
     def __init__(self, vhelix, position, parent):
         super(PathHelix, self).__init__(parent)
+        self.setAcceptHoverEvents(True)  # for pathtools
         self._vhelix = vhelix
         self._parity = self._vhelix.parity()
-        self._scafBreaktHandles = []
-        self._stapBreaktHandles = []
-        self._scafXoverHandlePairs = []
-        self._stapXoverHandlePairs = []
+        self._scafBreakpointHandles = []
+        self._stapBreakpointHandles = []
+        self._scafXoverHandles = []
+        self._stapXoverHandles = []
         self.scafLines = []
         self.setPos(position)
         self.minorGridPainterPath = self.getMinorGridPainterPath()
@@ -74,21 +75,13 @@ class PathHelix(QGraphicsItem):
             self.step = 21
         elif parent.crossSectionType == LatticeType.Square:
             self.step = 32
-
-        # assumes parent is a PathHelixGroup
-        self.pathController = parent.pathController
-        
-        
-        # For Campbell
-        # Here's where cadnano gets the reference to mMaya's 3D equivalent
-        # of the PathHelix (while passing a handy reference to itself)
-        self.PathHelix3D = PathHelix3D(self)
+        self.pathController = parent.pathController  # assumes parent is phg
         self.setZValue(styles.ZPATHHELIX)
         self.rect = QRectF()
         self.updateRect()
-        
-        # allow hover events to be accepted
-        self.setAcceptHoverEvents(True)
+        # Here's where cadnano gets the reference to mMaya's 3D equivalent
+        # of the PathHelix (while passing a handy reference to itself)
+        self.PathHelix3D = PathHelix3D(self)  # For Campbell
     # end def
 
     def vhelix(self):
@@ -118,16 +111,13 @@ class PathHelix(QGraphicsItem):
         return self.rect
 
     def paint(self, painter, option, widget=None):
-        # Minor grid lines
         painter.setBrush(self.nobrush)
         painter.setPen(self.minorGridPen)
-        painter.drawPath(self.minorGridPainterPath)
-        # Major grid lines
+        painter.drawPath(self.minorGridPainterPath)  # Minor grid lines
         painter.setPen(self.majorGridPen)
-        painter.drawPath(self.majorGridPainterPath)
-        # Scaffold lines
+        painter.drawPath(self.majorGridPainterPath)  # Major grid lines
         painter.setPen(self.scafPen)
-        painter.drawLines(self.scafLines)
+        painter.drawLines(self.scafLines)  # Scaffold lines
     # end def
 
     def getMinorGridPainterPath(self):
@@ -198,23 +188,41 @@ class PathHelix(QGraphicsItem):
         pass
     # end def
 
-    def getScaffoldBreakHandles(self):
-        """docstring for getScaffoldBreakHandles"""
-        return self._scafBreaktHandles
-
-    def getStapleBreakHandles(self):
-        """docstring for getStapleBreakHandles"""
-        return self._stapBreaktHandles
+    # def getScaffoldBreakHandles(self):
+    #     """docstring for getScaffoldBreakHandles"""
+    #     return self._scafBreakpointHandles
+    # 
+    # def getStapleBreakHandles(self):
+    #     """docstring for getStapleBreakHandles"""
+    #     return self._stapBreakpointHandles
 
     def addScaffoldBreakHandle(self, bh):
         """addScaffoldBreakHandle gets called by PathHelixGroup
         when the handles are changed (e.g. by sliceHelixClickedSlot
         or when a crossover is added)."""
-        self._scafBreaktHandles.append(bh)
+        self._scafBreakpointHandles.append(bh)
 
     def addStapleBreakHandle(self, bh):
         """docstring for addStapleBreakHandle"""
-        self._stapBreaktHandles.append(bh)
+        self._stapBreakpointHandles.append(bh)
+
+    # def getScaffoldXoverHandles(self):
+    #     """docstring for getScaffoldXoverHandles"""
+    #     return self._scafXoverHandles
+    # 
+    # def getStapleXoverHandles(self):
+    #     """docstring for getStapleXoverHandles"""
+    #     return self._stapXoverHandles
+
+    def addScaffoldXoverHandle(self, xh):
+        """addScaffoldXoverHandle gets called by PathHelixGroup
+        when the handles are changed (e.g. by sliceHelixClickedSlot
+        or when a crossover is added)."""
+        self._scafXoverHandles.append(xh)
+
+    def addStapleXoverHandle(self, xh):
+        """docstring for addStapleXoverHandle"""
+        self._stapXoverHandles.append(xh)
 
     def updateAsActiveHelix(self, index):
         if self.parentItem().activeHelix != None:  # deactivate old
@@ -224,17 +232,44 @@ class PathHelix(QGraphicsItem):
         self.parentItem().notifyPreCrossoverGroupAfterUpdate(self._vhelix)
         self.update(self.boundingRect())
 
-    def updateBreakBounds(self, strandType):
+    def refreshBreakpoints(self, strandType):
+        """docstring for refreshBreakpoints"""
+        print "refreshBreakpoints"
+        if strandType == StrandType.Scaffold:
+            handles = self._scafBreakpointHandles
+            ends5p = self.vhelix().getScaffold5PrimeEnds()
+            ends3p = self.vhelix().getScaffold3PrimeEnds()
+        elif strandType == StrandType.Staple:
+            handles = self._stapBreakpointHandles
+            ends5p = self.vhelix().getStaple5PrimeEnds()
+            ends3p = self.vhelix().getStaple3PrimeEnds()
+        for bh in handles:
+            bh.destroy()
+        handles = []
+
+        print "5-prime ", ends5p
+        print "3-prime ", ends3p
+        for baseIndex in ends5p:
+            bh = BreakpointHandle(self.vhelix(), EndType.FivePrime,\
+                                  strandType, baseIndex, parent=self)
+            self.addScaffoldBreakHandle(bh)
+        for baseIndex in ends3p:
+            bh = BreakpointHandle(self.vhelix(), EndType.ThreePrime,\
+                                  strandType, baseIndex, parent=self)
+            self.addScaffoldBreakHandle(bh)
+        self.updateDragBounds(strandType)
+
+    def updateDragBounds(self, strandType):
         """Sorts a list of all breakpoint and crossover handles, and then
         iterates over those handles and sets dragging boundaries for
         breakpoint handles."""
         if strandType == StrandType.Scaffold:
-            handles = sorted(self._scafBreaktHandles +\
-                             self._scafXoverHandlePairs,\
+            handles = sorted(self._scafBreakpointHandles +\
+                             self._scafXoverHandles,\
                              key=lambda handle: handle.baseIndex)
         elif strandType == StrandType.Staple:
-            handles = sorted(self._stapBreaktHandles +\
-                             self._stapXoverHandlePairs,\
+            handles = sorted(self._stapBreakpointHandles +\
+                             self._stapXoverHandles,\
                              key=lambda handle: handle.baseIndex)
         else:
             raise AttributeError
@@ -272,12 +307,12 @@ class PathHelix(QGraphicsItem):
            is present"""
         endpoints = []
         if strandType == StrandType.Scaffold:
-            handles = sorted(self._scafBreaktHandles +\
-                             self._scafXoverHandlePairs,\
+            handles = sorted(self._scafBreakpointHandles +\
+                             self._scafXoverHandles,\
                              key=lambda handle: handle.baseIndex)
         elif strandType == StrandType.Staple:
-            handles = sorted(self._stapBreaktHandles +\
-                             self._stapXoverHandlePairs,\
+            handles = sorted(self._stapBreakpointHandles +\
+                             self._stapXoverHandles,\
                              key=lambda handle: handle.baseIndex)
         else:
             raise AttributeError

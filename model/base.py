@@ -74,6 +74,8 @@ class Base(object):
 
     def setPrev(self, base):
         """Set base as prevBase"""
+        if self._prevBase != Base._null:
+            self._prevBase.clearNext()
         self._prevBase = base
 
     def getNext(self):
@@ -82,6 +84,8 @@ class Base(object):
 
     def setNext(self, base):
         """Set base as nextBase"""
+        if self._nextBase != Base._null:
+            self._nextBase.clearPrev()
         self._nextBase = base
 
     def clearPrev(self):
