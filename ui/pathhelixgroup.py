@@ -128,7 +128,6 @@ class PathHelixGroup(QGraphicsItem):
             self.toHelixNum = toHelixNum
             self.toIndex = toIndex
         # end def
-
         def redo(self):
             self.phg.installXover(self.strandType,\
                                   self.fromHelixNum,\
@@ -142,6 +141,36 @@ class PathHelixGroup(QGraphicsItem):
                                  self.fromIndex,\
                                  self.toHelixNum,\
                                  self.toIndex)
+        # end def
+    # end class
+
+    class RemoveXoverCommand(QUndoCommand):
+        """InstallXoverCommand is called after a PreXoverHandle is clicked
+        in order to update the model. The PreXoverHandle separately notifies
+        the view to add a XoverHandlePair."""
+        def __init__(self, phg, strandType, fromHelixNum, fromIndex,\
+                     toHelixNum, toIndex):
+            super(PathHelixGroup.RemoveXoverCommand, self).__init__()
+            self.phg = phg
+            self.strandType = strandType
+            self.fromHelixNum = fromHelixNum
+            self.fromIndex = fromIndex
+            self.toHelixNum = toHelixNum
+            self.toIndex = toIndex
+        # end def
+        def redo(self):
+            self.phg.removeXover(self.strandType,\
+                                 self.fromHelixNum,\
+                                 self.fromIndex,\
+                                 self.toHelixNum,\
+                                 self.toIndex)
+        # end def
+        def undo(self):
+            self.phg.installXover(self.strandType,\
+                                  self.fromHelixNum,\
+                                  self.fromIndex,\
+                                  self.toHelixNum,\
+                                  self.toIndex)
         # end def
     # end class
 
@@ -176,12 +205,13 @@ class PathHelixGroup(QGraphicsItem):
             vhelix3 = ph3.vhelix()
             vhelix5 = ph5.vhelix()
         except IndexError:
-            print "IndexError: PathHelix %d or %d not found." %\
-                                                (fromHelixNum, toHelixNum)
+            print "PathHelix %d or %d not found." % (fromHelixNum, toHelixNum)
         vhelix3.removeXoverTo(strandType, fromIndex, vhelix5, toIndex)
-        ph3.updateDragBounds(strandType)
+        vhelix3.updatePreCrossoverPositions(fromIndex)
+        self.notifyPreCrossoverGroupAfterUpdate(vhelix3)
+        ph3.refreshBreakpoints(strandType)
         ph3.redrawLines(strandType)
-        ph5.updateDragBounds(strandType)
+        ph5.refreshBreakpoints(strandType)
         ph5.redrawLines(strandType)
 
     @pyqtSlot(int)
@@ -284,14 +314,14 @@ class PathHelixGroup(QGraphicsItem):
                                   StrandType.Scaffold,\
                                   index,\
                                   parent=ph)
-            ph.addScaffoldBreakHandle(bh)
+            ph.addBreakpointHandle(bh, StrandType.Scaffold)
         for index in vh.getScaffold3PrimeEnds():
             bh = BreakpointHandle(vh,\
                                   EndType.ThreePrime,\
                                   StrandType.Scaffold,\
                                   index,\
                                   parent=ph)
-            ph.addScaffoldBreakHandle(bh)
+            ph.addBreakpointHandle(bh, StrandType.Scaffold)
         ph.updateDragBounds(StrandType.Scaffold)
         ph.redrawLines(StrandType.Scaffold)
     # end def

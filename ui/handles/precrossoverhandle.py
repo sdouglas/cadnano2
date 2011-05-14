@@ -307,25 +307,36 @@ class PreXoverHandle(QGraphicsItem):
     # end def
 
     def installCrossover(self):
-        """docstring for installCrossover"""
-        fromHelixNum = self.pathHelix().number()
-        fromIndex = self.index()
-        toHelixNum = self.partner.pathHelix().number()
-        toIndex = self.partner.index()
-        
+        """Install a crossover: determine which is the upstream (3') base,
+        create the corresponding XoverHandlePair, and then push
+        the InstallXoverCommand to the undostack, which updates the model
+        and causes the ui refresh."""
+        # Determine upstream base
+        if self._orientation in [HandleOrient.LeftUp,\
+                                 HandleOrient.RightDown]:  # 3-prime clicked
+            fromHelixNum = self.pathHelix().number()
+            fromIndex = self.index()
+            toHelixNum = self.partner.pathHelix().number()
+            toIndex = self.partner.index()
+        else:  # 5-prime clicked
+            toHelixNum = self.pathHelix().number()
+            toIndex = self.index()
+            fromHelixNum = self.partner.pathHelix().number()
+            fromIndex = self.partner.index()
+        # Create XoverHandlePair and store references
+        xhpair = XoverHandlePair(self, self.partner, self._strandType,\
+                                                      parent=self.phg)
+        key = ((fromIndex, fromHelixNum), (toIndex, toHelixNum))
+        self.phg.xovers[key] = xhpair
+        # self.phg.xovers[((toIndex, toHelixNum),\
+        #                  (fromIndex, fromHelixNum))] = xhpair
+        # Update data structure and redraw via InstallXoverCommand
         self.undoStack.beginMacro("Crossover from %d[%d] to %d[%d]" %\
-                              (fromHelixNum, fromIndex, toHelixNum, toIndex))
-        self.undoStack.push(self.phg.InstallXoverCommand(self.phg,\
-                                                         self._strandType,\
-                                                         fromHelixNum,\
-                                                         fromIndex,\
-                                                         toHelixNum,\
-                                                         toIndex))
+                       (fromHelixNum, fromIndex, toHelixNum, toIndex))
+        self.undoStack.push(\
+             self.phg.InstallXoverCommand(self.phg, self._strandType,\
+                                          fromHelixNum, fromIndex,\
+                                          toHelixNum, toIndex))
         self.undoStack.endMacro()
-        xhpair = XoverHandlePair(self, self.partner, parent=self.phg)
-        self.phg.xovers[((fromIndex, fromHelixNum),\
-                         (toIndex, toHelixNum))] = xhpair
-        self.phg.xovers[((toIndex, toHelixNum),\
-                         (fromIndex, fromHelixNum))] = xhpair
     # end def
 # end class

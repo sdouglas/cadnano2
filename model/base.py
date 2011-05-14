@@ -70,7 +70,7 @@ class Base(object):
 
     def getPrev(self):
         """Return reference to previous base, or _null."""
-        return _prevBase
+        return self._prevBase
 
     def setPrev(self, base):
         """Set base as prevBase"""
@@ -80,7 +80,7 @@ class Base(object):
 
     def getNext(self):
         """Return reference to next base, or _null."""
-        return _nextBase
+        return self._nextBase
 
     def setNext(self, base):
         """Set base as nextBase"""

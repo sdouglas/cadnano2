@@ -188,76 +188,85 @@ class PathHelix(QGraphicsItem):
         pass
     # end def
 
-    # def getScaffoldBreakHandles(self):
-    #     """docstring for getScaffoldBreakHandles"""
-    #     return self._scafBreakpointHandles
-    # 
-    # def getStapleBreakHandles(self):
-    #     """docstring for getStapleBreakHandles"""
-    #     return self._stapBreakpointHandles
-
-    def addScaffoldBreakHandle(self, bh):
+    def addBreakpointHandle(self, bh, strandType):
         """addScaffoldBreakHandle gets called by PathHelixGroup
         when the handles are changed (e.g. by sliceHelixClickedSlot
         or when a crossover is added)."""
-        self._scafBreakpointHandles.append(bh)
+        if strandType == StrandType.Scaffold:
+            self._scafBreakpointHandles.append(bh)
+        elif strandType == StrandType.StrandType:
+            self._stapBreakpointHandles.append(bh)
+        else:
+            raise AttributeError("strandType not recognized.")
+    # end def
 
-    def addStapleBreakHandle(self, bh):
-        """docstring for addStapleBreakHandle"""
-        self._stapBreakpointHandles.append(bh)
-
-    # def getScaffoldXoverHandles(self):
-    #     """docstring for getScaffoldXoverHandles"""
-    #     return self._scafXoverHandles
-    # 
-    # def getStapleXoverHandles(self):
-    #     """docstring for getStapleXoverHandles"""
-    #     return self._stapXoverHandles
-
-    def addScaffoldXoverHandle(self, xh):
-        """addScaffoldXoverHandle gets called by PathHelixGroup
+    def addXoverHandle(self, xh, strandType):
+        """addXoverHandle gets called by PathHelixGroup
         when the handles are changed (e.g. by sliceHelixClickedSlot
         or when a crossover is added)."""
-        self._scafXoverHandles.append(xh)
+        if strandType == StrandType.Scaffold:
+            self._scafXoverHandles.append(xh)
+        elif strandType == StrandType.StrandType:
+            self._stapXoverHandles.append(xh)
+        else:
+            raise AttributeError("strandType not recognized.")
+    # end def
 
-    def addStapleXoverHandle(self, xh):
-        """docstring for addStapleXoverHandle"""
-        self._stapXoverHandles.append(xh)
+    def removeXoverHandle(self, xh, strandType):
+        """addXoverHandle gets called by PathHelixGroup
+        when the handles are changed (e.g. by sliceHelixClickedSlot
+        or when a crossover is added)."""
+        if strandType == StrandType.Scaffold:
+            self._scafXoverHandles.remove(xh)
+        elif strandType == StrandType.StrandType:
+            self._stapXoverHandles.remove(xh)
+        else:
+            raise AttributeError("strandType not recognized.")
+    # end def
 
     def updateAsActiveHelix(self, index):
         if self.parentItem().activeHelix != None:  # deactivate old
             self.parentItem().activeHelix.hidePreXoverHandles()
+        # end if
         self.parentItem().activeHelix = self  # activate new
         self._vhelix.updatePreCrossoverPositions(index)
         self.parentItem().notifyPreCrossoverGroupAfterUpdate(self._vhelix)
         self.update(self.boundingRect())
+    # end def
 
     def refreshBreakpoints(self, strandType):
         """docstring for refreshBreakpoints"""
-        print "refreshBreakpoints"
         if strandType == StrandType.Scaffold:
             handles = self._scafBreakpointHandles
             ends5p = self.vhelix().getScaffold5PrimeEnds()
             ends3p = self.vhelix().getScaffold3PrimeEnds()
+            for bh in self._scafBreakpointHandles:
+                bh.destroy()
+            self._scafBreakpointHandles = []
+        # end if
         elif strandType == StrandType.Staple:
             handles = self._stapBreakpointHandles
             ends5p = self.vhelix().getStaple5PrimeEnds()
             ends3p = self.vhelix().getStaple3PrimeEnds()
-        for bh in handles:
-            bh.destroy()
-        handles = []
-
-        print "5-prime ", ends5p
-        print "3-prime ", ends3p
+            for bh in self._stapBreakpointHandles:
+                bh.destroy()
+            self._stapBreakpointHandles = []
+        # end elif
+        else:
+            raise AttributeError("StrandType not recognized")
+        # end else
         for baseIndex in ends5p:
             bh = BreakpointHandle(self.vhelix(), EndType.FivePrime,\
                                   strandType, baseIndex, parent=self)
-            self.addScaffoldBreakHandle(bh)
+            self.addBreakpointHandle(bh, strandType)
+        # end for
         for baseIndex in ends3p:
             bh = BreakpointHandle(self.vhelix(), EndType.ThreePrime,\
                                   strandType, baseIndex, parent=self)
-            self.addScaffoldBreakHandle(bh)
+            self.addBreakpointHandle(bh, strandType)
+        # end for
         self.updateDragBounds(strandType)
+    # end def
 
     def updateDragBounds(self, strandType):
         """Sorts a list of all breakpoint and crossover handles, and then
@@ -272,7 +281,7 @@ class PathHelix(QGraphicsItem):
                              self._stapXoverHandles,\
                              key=lambda handle: handle.baseIndex)
         else:
-            raise AttributeError
+            raise AttributeError("StrandType not recognized")
         count = len(handles)
         if count == 0:
             return
@@ -284,8 +293,8 @@ class PathHelix(QGraphicsItem):
             for i in range(len(handles[1:-1])):
                 handles[i].setDragBounds(handles[i - 1].baseIndex + 1,\
                                          handles[i + 1].baseIndex - 1)
-            handles[count - 1].setDragBounds(handles[count - 2].baseIndex + 1,\
-                                           maxIndex)
+            handles[count - 1].setDragBounds(\
+                               handles[count - 2].baseIndex + 1, maxIndex)
     # end def
 
     def getYoffset(self, strandType):
@@ -320,7 +329,8 @@ class PathHelix(QGraphicsItem):
         if count == 0:
             return
         if count % 2 == 1:
-            raise ValueError  # should always be even
+            print ' '.join(["%d" % h.baseIndex for h in handles])
+            raise ValueError("%d handles" % count)  # should always be even
         else:
             for i in range(0, len(handles), 2):
                 # collect endpoints

@@ -32,16 +32,14 @@ from PyQt4.QtGui import QGraphicsItem, QGraphicsSimpleTextItem
 from PyQt4.QtGui import QPainterPath
 from PyQt4.QtGui import QPolygonF
 from PyQt4.QtGui import QPen
-from model.enum import HandleOrient
+from model.enum import HandleOrient, StrandType
 import ui.styles as styles
 
 
 class XoverHandlePair(QGraphicsItem):
     """
     XoverHandlePair responds to mouse input and serves as an interface
-    for adding scaffold crossovers
-
-    Each handle is created by the PathController. Its parent is a PathHelix
+    for adding scaffold crossovers.
     """
     _pen = QPen(styles.bluestroke, 2)
     _pen.setCapStyle(Qt.RoundCap)
@@ -50,27 +48,36 @@ class XoverHandlePair(QGraphicsItem):
     xScale = styles.PATH_XOVER_LINE_SCALE_X  # control point x constant
     yScale = styles.PATH_XOVER_LINE_SCALE_Y  # control point y constant
 
-    def __init__(self, preXoverA, preXoverB, parent=None):
+    def __init__(self, preXoverA, preXoverB, strandType, parent=None):
         """
         Create XoverHandlePair (parented to the PathHelixGroup)
         """
         super(XoverHandlePair, self).__init__(parent)
         self.setParentItem(parent)
-        # generate the points where the action happens
+        self.phg = parent  # this should be a PathHelixGroup
+        self.undoStack = parent.pathController.mainWindow.undoStack
+        self._strandType = strandType
         self.xoverA = XoverHandle(self, preXoverA, preXoverA.pathHelix())
         self.xoverB = XoverHandle(self, preXoverB, preXoverB.pathHelix())
         self.xoverA.setLabel(preXoverB.pathHelix().number())
         self.xoverB.setLabel(preXoverA.pathHelix().number())
         rectA = self.mapRectFromItem(self.xoverA, self.xoverA.boundingRect())
         rectB = self.mapRectFromItem(self.xoverB, self.xoverB.boundingRect())
-        preXoverA.pathHelix().addScaffoldXoverHandle(self.xoverA)
-        preXoverB.pathHelix().addScaffoldXoverHandle(self.xoverB)
+        preXoverA.pathHelix().addXoverHandle(self.xoverA, self._strandType)
+        preXoverB.pathHelix().addXoverHandle(self.xoverB, self._strandType)
         self.rect = rectA.united(rectB)
         self.painterpath = None
         self._c1 = QPointF()
         self.setZValue(styles.ZXOVERHANDLEPAIR)
-
     # end def
+
+    def destroy(self):
+        """docstring for destroy"""
+        self.xoverA.hide()
+        self.xoverA = None
+        self.xoverB.hide()
+        self.xoverB = None
+        self.hide()
 
     def refreshPath(self):
         self.painterpath = QPainterPath()
@@ -116,7 +123,6 @@ class XoverHandlePair(QGraphicsItem):
         painter.setPen(self._pen)
         self.refreshPath()
         painter.drawPath(self.painterpath)
-        # print "XO ", self.zValue()
     # end def
 
     def mousePressEvent(self, event):
@@ -127,11 +133,50 @@ class XoverHandlePair(QGraphicsItem):
             QGraphicsItem.mousePressEvent(self, event)
         # end else
         else:
-            QGraphicsItem.mousePressEvent(self, event)
-            # install crossover
-            # FILL IN
+            self.removeCrossover()
         # end else
     # end def
+
+    def removeCrossover(self):
+        """
+        Remove a crossover: determine which is the upstream (3') base,
+        remove the XoverHandlePair, and then push the RemoveXoverCommand
+        to the undostack, which updates the model and causes the ui refresh.
+        """
+        # Determine upstream base
+        if self.xoverA.orientation() in [HandleOrient.LeftUp,\
+                                         HandleOrient.RightDown]:
+            fromHelixNum = self.xoverA.helixNumber()
+            fromIndex = self.xoverA.baseIndex
+            toHelixNum = self.xoverB.helixNumber()
+            toIndex = self.xoverB.baseIndex
+            phA = self.phg.numToPathHelix[fromHelixNum]
+            phB = self.phg.numToPathHelix[toHelixNum]
+        elif self.xoverB.orientation() in [HandleOrient.LeftUp,\
+                                         HandleOrient.RightDown]:
+            fromHelixNum = self.xoverB.helixNumber()
+            fromIndex = self.xoverB.baseIndex
+            toHelixNum = self.xoverA.helixNumber()
+            toIndex = self.xoverA.baseIndex
+            phB = self.phg.numToPathHelix[fromHelixNum]
+            phA = self.phg.numToPathHelix[toHelixNum]
+        else:
+            raise AttributeError("Upstream Xover could not be determined.")
+        # Remove XoverHandles from PathHelices
+        phA.removeXoverHandle(self.xoverA, self._strandType)
+        phB.removeXoverHandle(self.xoverB, self._strandType)
+        # Remove XoverHandlePair
+        key = ((fromIndex, fromHelixNum), (toIndex, toHelixNum))
+        self.phg.xovers[key].destroy()
+        del self.phg.xovers[key]
+        # Push RemoveXoverCommand to undostack.
+        self.undoStack.beginMacro("Remove Crossover from %d[%d] to %d[%d]" %\
+                       (fromHelixNum, fromIndex, toHelixNum, toIndex))
+        self.undoStack.push(\
+             self.phg.RemoveXoverCommand(self.phg, self._strandType,\
+                                          fromHelixNum, fromIndex,\
+                                          toHelixNum, toIndex))
+        self.undoStack.endMacro()
 # end class
 
 
