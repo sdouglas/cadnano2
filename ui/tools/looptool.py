@@ -22,116 +22,60 @@
 #
 # http://www.opensource.org/licenses/mit-license.php
 """
-crossoverhandle.py
-Created by Shawn on 2011-05-03.
+looptool.py
+Created by Nick on 2011-05-03.
 """
 from exceptions import AttributeError, NotImplementedError
 from PyQt4.QtCore import QPointF, QRectF, Qt
 from PyQt4.QtGui import QBrush, QFont
 from PyQt4.QtGui import QGraphicsItem, QGraphicsSimpleTextItem
 from PyQt4.QtGui import QPainterPath
-from PyQt4.QtGui import QPolygonF
 from PyQt4.QtGui import QPen
 from model.enum import HandleOrient
 import ui.styles as styles
 from ui.pathhelix import PathHelix
+from pathtool import PathTool
+from ui.handles.loophandle import LoopItem, LoopHandle
 
 
-class BaseTool(QGraphicsItem):
-        _toolRect = QRectF(0,0, \
-                            styles.PATH_BASE_WIDTH, \
-                            styles.PATH_BASE_WIDTH )
-        _rect = QRectF(0,0, \
-                            styles.PATH_BASE_WIDTH + \
-                            styles.PATH_BASE_HL_STROKE_WIDTH/2, \
-                            styles.PATH_BASE_WIDTH + \
-                            styles.PATH_BASE_HL_STROKE_WIDTH/2 )
-        _pen = QPen(styles.redstroke, styles.PATH_BASE_HL_STROKE_WIDTH)
-        def __init__(self, pathcontroller=None, parent=None):
-            """
-            A base class, no pun intended to display a highlight tool for 
-            selecting an individual base in the path view
-            
-            it's parent should be 
-            """
-            super(BaseTool, self).__init__(parent)
-            
-            # self.undoStack = pathcontroller.mainWindow.undoStack
-            # self._enabled = False
-            # self.setFlag(QGraphicsItem.ItemIsMovable)
-            
-            # self.x0 = baseIndex * baseWidth
-            # self.y0 = self.getYoffset()
-            # self.pressX = 0
-            # self.pressXoffset = 0
-            self.hide()
-        # end def
-        
-        def paint(self, painter, option, widget=None):
-            painter.setPen(self._pen)
-            painter.drawRect(self._toolRect)
-        # end def
-        
-        def boundingRect(self):
-            return self._rect
-        # end def
-        
-        def setEnableTool(self,mode):
-            self._enabled = mode
-        # end def
-        
-        def toolPress(self, item, event):
-            pass
-        #     if event.button() != Qt.LeftButton:
-        #         QGraphicsItem.mousePressEvent(self, event)
-        #     else:
-        #         # if self.parentItem() == self.restoreParentItem:
-        #         self.scene().views()[0].addToPressList(self)
-        #         self._dragMode = True
-        #         self.scene().clearSelection()
-        #         self.pressX = event.scenePos().x()
-        #         self.pressXoffset = self.pressX % baseWidth
-        # end def
-        
-        def toolHoverEnter(self,item,event):
-            self.setParentItem(item)
-            self.show()
-        # end def
-        
-        def toolHoverLeave(self,item,event):
-            self.hide()
-        # end def
-        
-        def toolHoverMove(self, item, event):
-                posScene = event.scenePos()
-                posItem = event.pos()
-                # posItem = self.mapFromScene(posItem)
-                
-                self.setPos(posItem)
-                # moveX = posScene.x()
-                # deltaX = moveX - self.pressX
-                # self.tempIndex = int((self.baseIndex * baseWidth +\
-                #                       self.pressXoffset + deltaX) / baseWidth)
-                # if self.tempIndex < self.minIndex:
-                #     self.tempIndex = self.minIndex
-                # elif self.tempIndex > self.maxIndex:
-                #     self.tempIndex = self.maxIndex
-                # self.x0 = self.tempIndex * baseWidth
-                # 
-                # self.setPos(self.x0, self.y0)
-                
-        # end def
-        
-        
-# end class         
-
-
-# class LoopTool(QGraphicsItem):
-#     """
-#     XoverHandlePair responds to mouse input and serves as an interface
-#     for adding scaffold crossovers
-# 
-#     Each handle is created by the PathController. Its parent is a PathHelix
-#     """
-#     _pen = QPen(styles.bluestroke, 2)
-# # end class
+class LoopTool(PathTool):
+    def __init__(self, pathcontroller=None, parent=None):
+        """
+        A base class, no pun intended to display a highlight tool for 
+        selecting an individual base in the path view
+    
+        it's parent should be *always* be a PathHelix
+        """
+        super(LoopTool, self).__init__(parent)
+        self._loopItem = LoopItem(orient="Up",parent=self)
+        _pen = QPen(styles.bluestroke, 2)
+        self.baseWidth = styles.PATH_BASE_WIDTH
+        self.hide()
+        self.setZValue(styles.ZPATHTOOL)
+    # end def
+    
+    def toolHoverMove(self, item, event, flag=None):
+        """
+        flag is for the case where an item in the path also needs to 
+        implement the hover method
+        """
+        posItem = event.pos()
+        if flag != None:
+            posScene = event.scenePos()
+            posItem = self.parentItem().mapFromScene(posScene)
+        if self.helixIndex(posItem)[1] == 1:
+            self._loopItem.setOrient("Down")
+        else:
+            self._loopItem.setOrient("Up")
+        self.setPos(self.helixPos(posItem))
+    # end def
+    
+    def toolPress(self, item, event):
+        posScene = event.scenePos()
+        posItem = self.parentItem().mapFromScene(posScene)
+        indexp = self.helixIndex(posItem)
+        print "LoopTool clicked at: (%d, %d) on helix %d" % \
+            (indexp[0], indexp[1], self.parentItem().number())
+        # create a new LoopHandle by adding through the     parentItem
+    # end def
+# end class

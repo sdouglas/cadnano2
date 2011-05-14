@@ -25,7 +25,7 @@
 from PyQt4.QtCore import *
 from PyQt4.QtGui import *
 from tools.pathtool import PathTool
-
+from tools.looptool import LoopTool
 
 class PathController():
     """
@@ -55,7 +55,8 @@ class PathController():
         self.toolHoverLeave = None
         self.toolHoverMove = None
         self.toolPress = None
-        self.insertionTool = PathTool(pathcontroller=self, parent=None)
+        self.insertionTool = LoopTool(pathcontroller=self, parent=None)
+        # self.insertionTool = PathTool(pathcontroller=self, parent=None)
     # end def
 
     def chooseSelectTool(self):
