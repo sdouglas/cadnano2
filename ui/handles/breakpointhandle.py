@@ -86,7 +86,6 @@ class BreakpointHandle(QGraphicsItem):
         self.pathController = parent.parentItem().pathController
         self.undoStack =\
             self.pathController.mainWindow.undoStack
-        
         self.restoreParentItem = parent
         self.setParentItem(parent)
         self._vhelix = vhelix
@@ -105,17 +104,19 @@ class BreakpointHandle(QGraphicsItem):
         self.setPainterPathType()
         self.pressX = 0
         self.pressXoffset = 0
-        # self.setCursor(Qt.OpenHandCursor)
         self._dragMode = False
         self.setFlag(QGraphicsItem.ItemIsMovable)
         self.setFlag(QGraphicsItem.ItemIsSelectable)
         self.breakpoint3D = BreakpointHandle3D(self)  # for Campbell
         self.setZValue(styles.ZBREAKPOINTHANDLE)
-        
-        # allow hover events to be accepted
         self.setAcceptHoverEvents(True)
     # end def
-        
+
+    def destroy(self):
+        """docstring for destroy"""
+        self.hide()
+    # end def
+
     def restoreParent(self):
         tempP = self.restoreParentItem.mapFromItem(self.parentItem(),\
                                                    self.pos())
@@ -270,14 +271,14 @@ class BreakpointHandle(QGraphicsItem):
                                                          self.tempIndex))
         self.undoStack.endMacro()
         self.baseIndex = self.tempIndex
-        self.parentItem().updateBreakBounds(self.strandType)
+        self.parentItem().updateDragBounds(self.strandType)
         self.parentItem().redrawLines(self.strandType)
         self._dragMode = False
         self.setCursor(Qt.OpenHandCursor)
     # end def
 
     def setDragBounds(self, minIndex, maxIndex):
-        """Called by PathHelix.updateBreakBounds to notify breakpoint handle
+        """Called by PathHelix.updateDragBounds to notify breakpoint handle
         of where it can legally move along the vhelix."""
         self.minIndex = minIndex
         self.maxIndex = maxIndex
@@ -317,7 +318,7 @@ class BreakpointHandle(QGraphicsItem):
         self.baseIndex = newIndex
         self.x0 = newIndex * baseWidth  # determine new location
         self.setPos(self.x0, self.y0)  # move there
-        self.parentItem().updateBreakBounds(self.strandType)
+        self.parentItem().updateDragBounds(self.strandType)
         self.parentItem().redrawLines(self.strandType)  # new 2D lines
         self.parentItem().updateAsActiveHelix(newIndex)
         self._vhelix.updateObservers()
