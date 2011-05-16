@@ -22,7 +22,7 @@
 #
 # http://www.opensource.org/licenses/mit-license.php
 """
-looptool.py
+skiptool.py
 Created by Nick on 2011-05-03.
 """
 from exceptions import AttributeError, NotImplementedError
@@ -35,49 +35,33 @@ from model.enum import HandleOrient
 import ui.styles as styles
 from ui.pathhelix import PathHelix
 from pathtool import PathTool
-from ui.handles.loophandle import LoopItem, LoopHandle
+from ui.handles.skiphandle import SkipItem, SkipHandle
 
 
-class LoopTool(PathTool):
+class SkipTool(PathTool):
     def __init__(self, pathcontroller=None, parent=None):
         """
         This class inherits from the PathTool class for the majority of 
         methods/behaviours.  Essentially it adds merely decorator graphics
         custimazation of behaviour and data structure access particular to
-        loop insertion on a mouseclick
+        skip insertion on a mouseclick
     
         it's parent should be *always* be a PathHelix
         """
-        super(LoopTool, self).__init__(parent)
-        self._loopItem = LoopItem(orient="Up",parent=self)
-        _pen = QPen(styles.bluestroke, 2)
+        super(SkipTool, self).__init__(parent)
+        self._skipItem = SkipItem(parent=self)
+        _pen = QPen(styles.redstroke, 2)
         self.baseWidth = styles.PATH_BASE_WIDTH
         self.hide()
         self.setZValue(styles.ZPATHTOOL)
-    # end def
-    
-    def toolHoverMove(self, item, event, flag=None):
-        """
-        flag is for the case where an item in the path also needs to 
-        implement the hover method
-        """
-        posItem = event.pos()
-        if flag != None:
-            posScene = event.scenePos()
-            posItem = self.parentItem().mapFromScene(posScene)
-        if self.helixIndex(posItem)[1] == 1:
-            self._loopItem.setOrient("Down")
-        else:
-            self._loopItem.setOrient("Up")
-        self.setPos(self.helixPos(posItem))
     # end def
     
     def toolPress(self, item, event):
         posScene = event.scenePos()
         posItem = self.parentItem().mapFromScene(posScene)
         indexp = self.helixIndex(posItem)
-        print "LoopTool clicked at: (%d, %d) on helix %d" % \
+        print "SkipTool clicked at: (%d, %d) on helix %d" % \
             (indexp[0], indexp[1], self.parentItem().number())
-        # create a new LoopHandle by adding through the     parentItem
+        # create a new SkipHandle by adding through the parentItem
     # end def
 # end class

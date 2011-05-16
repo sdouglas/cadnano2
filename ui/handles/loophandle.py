@@ -107,7 +107,7 @@ class LoopHandle(QGraphicsItem):
         # appearance
 
         self._label = QGraphicsSimpleTextItem("%d" % loopSize, parent=self)
-        self._label.setFont(self._myfont)
+        # self._label.setFont(self._myfont)
         
         self.setZValue(styles.ZLOOPHANDLE)
     # end def
