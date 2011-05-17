@@ -23,40 +23,14 @@
 # http://www.opensource.org/licenses/mit-license.php
 
 """
-assemblynode.py
+solidcontroller.py
 
-Created by Nick Conway on 2011-01-19.
+Created by Nick Conway on 2011-02-04.
+For use controlling 3D solid models generated in Maya
 """
 
-from ui.treeview.treemodel import Node
-
-class AssemblyNode(Node):
+class SolidController():
     """
+    Manages interactions between the slice widgets/UI and the model.
     """
-    ntype = "assembly" # the type of node i.e. Assembly, Part, etc
     
-    def __init__(self, name="", obj_inst=None,node_attribute=None, parent=None):
-        """
-        """
-        
-        super(AssemblyNode,self).__init__(parent)    
-        self.parent = parent
-        self.children = []
-        
-        if name == "":
-            self.name = "Assembly.1"
-            #print "adding Asm"
-        #end if
-        else:
-            self.name = name
-        # end else
-        
-        if self.parent != None:
-            #print "added Asm!"
-            self.parent.addChild(self)
-        #end if
-        
-        self.object_instance = obj_inst
-    # end def
-        
-# end class

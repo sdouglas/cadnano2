@@ -28,7 +28,7 @@ PathHelix3D.py
 Created by Shawn on 2011-03-30.
 """
 
-from ui.handles.breakpointhandle import BreakpointHandle
+from ui.pathview.handles.breakpointhandle import BreakpointHandle
 from model.enum import StrandType
 from breakpointhandle3d import BreakpointHandle3D
 

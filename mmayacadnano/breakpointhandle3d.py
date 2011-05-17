@@ -26,7 +26,7 @@ class BreakpointHandle3D(object):
     """docstring for BreakpointHandle3D"""
     def __init__(self, breakpointhandle):
         super(BreakpointHandle3D, self).__init__()
-        from ui.handles.breakpointhandle import BreakpointHandle
+        from ui.pathview.handles.breakpointhandle import BreakpointHandle
         self.breakpointhandle = breakpointhandle
 
     # Receive notifications from 2D partner

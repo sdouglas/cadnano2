@@ -30,10 +30,10 @@ from idbank import IdBank
 from model.document import Document
 from model.encoder import encode
 from .mayawindow import DocumentWindow
-from .pathhelixgroup import PathHelixGroup
-from .solidhelixgroup import SolidHelixGroup
-from .slicehelixgroup import SliceHelixGroup
-from .treecontroller import TreeController
+from pathview.pathhelixgroup import PathHelixGroup
+from solidview.solidhelixgroup import SolidHelixGroup
+from sliceview.slicehelixgroup import SliceHelixGroup
+from treeview.treecontroller import TreeController
 
 class DocumentController():
     """

@@ -29,10 +29,10 @@ from idbank import IdBank
 from model.document import Document
 from model.encoder import encode
 from .documentwindow import DocumentWindow
-from .pathhelixgroup import PathHelixGroup
-from .slicehelixgroup import SliceHelixGroup
-from .treecontroller import TreeController
-from handles.activeslicehandle import ActiveSliceHandle
+from pathview.pathhelixgroup import PathHelixGroup
+from sliceview.slicehelixgroup import SliceHelixGroup
+from treeview.treecontroller import TreeController
+from pathview.handles.activeslicehandle import ActiveSliceHandle
 from model.enum import LatticeType
 
 

@@ -22,41 +22,42 @@
 #
 # http://www.opensource.org/licenses/mit-license.php
 
-"""
-assemblynode.py
+from PyQt4.QtCore import *
+from PyQt4.QtGui import *
 
-Created by Nick Conway on 2011-01-19.
-"""
 
-from ui.treeview.treemodel import Node
-
-class AssemblyNode(Node):
+class SliceController():
     """
+    Manages interactions between the slice widgets/UI and the model.
     """
-    ntype = "assembly" # the type of node i.e. Assembly, Part, etc
-    
-    def __init__(self, name="", obj_inst=None,node_attribute=None, parent=None):
-        """
-        """
-        
-        super(AssemblyNode,self).__init__(parent)    
-        self.parent = parent
-        self.children = []
-        
-        if name == "":
-            self.name = "Assembly.1"
-            #print "adding Asm"
-        #end if
+    # We store mainWindow because a controller's got to have
+    # references to both the layer above (UI) and the layer below (model)
+    def __init__(self, win):
+        self.mainWindow = win
+
+        win.actionSliceSelect.triggered.connect(self.chooseSelectTool)
+        win.actionSliceMove.triggered.connect(self.chooseMoveTool)
+
+        self.toolset = set((win.actionSliceSelect, win.actionSliceMove))
+        ag = QActionGroup(win)
+        for a in self.toolset:
+            ag.addAction(a)
+        ag.setExclusive(True)
+        self.currentTool = None
+        self.chooseSelectTool()
+
+    def chooseSelectTool(self):
+        widget = self.mainWindow.actionSliceSelect
+        if self.currentTool is widget:
+            return
         else:
-            self.name = name
-        # end else
-        
-        if self.parent != None:
-            #print "added Asm!"
-            self.parent.addChild(self)
-        #end if
-        
-        self.object_instance = obj_inst
-    # end def
-        
-# end class
+            self.currentTool = widget
+        widget.setChecked(True)
+
+    def chooseMoveTool(self):
+        widget = self.mainWindow.actionSliceMove
+        if self.currentTool is widget:
+            return
+        else:
+            self.currentTool = widget
+        widget.setChecked(True)

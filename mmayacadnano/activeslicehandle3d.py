@@ -27,7 +27,7 @@ class ActiveSliceHandle3D(object):
     """docstring for ActiveSliceHandle3D"""
     def __init__(self, activeslicehandle):
         super(ActiveSliceHandle3D, self).__init__()
-        from ui.handles.activeslicehandle import ActiveSliceHandle
+        from ui.pathview.handles.activeslicehandle import ActiveSliceHandle
         self.activeslicehandle = activeslicehandle
 
     def dragFrom2D(self, newIndex):

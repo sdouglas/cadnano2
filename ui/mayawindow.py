@@ -32,9 +32,9 @@ import PyQt4.QtGui as QtGui
 import sip
 
 import ui_mainwindow
-import slicehelixgroup
-import pathcontroller
-import slicecontroller
+import sliceview.slicehelixgroup
+import pathview.pathcontroller
+import sliceview.slicecontroller
 from cadnanomaya import app
 
 def getMayaWindow():

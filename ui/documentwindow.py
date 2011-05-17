@@ -29,9 +29,9 @@ documentwindow.py
 from PyQt4.QtCore import *
 from PyQt4.QtGui import *
 import ui_mainwindow
-import slicehelixgroup
-import pathcontroller
-import slicecontroller
+import sliceview.slicehelixgroup
+import pathview.pathcontroller as pathcontroller
+import sliceview.slicecontroller as slicecontroller
 from cadnano import app
 
 

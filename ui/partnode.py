@@ -28,7 +28,7 @@ partnode.py
 Created by Nick Conway on 2011-01-19.
 """
 
-from ui.treemodel import Node
+from ui.treeview.treemodel import Node
 
 class PartNode(Node):
     """
