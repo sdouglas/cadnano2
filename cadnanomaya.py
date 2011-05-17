@@ -30,26 +30,14 @@ modified from cadnano.py
 from PyQt4 import QtCore
 from PyQt4 import QtGui
 import pymel.core as pc
+import cadnano
 
-
-class caDNAno(QtCore.QObject):
-    sharedApp = None  # This class is a singleton.
+class caDNAnoMaya(cadnano.caDNAno):
     def __init__(self):
-        super(caDNAno, self).__init__()
-        assert(not caDNAno.sharedApp)
-        self.configMaya()
-        caDNAno.sharedApp = self
-        self.app = QtGui.qApp
-        #self.setWindowIcon(QIcon('ui/images/cadnano2-app-icon.png'))
-        self.undoGroup = QtGui.QUndoGroup()
-        #self.setApplicationName(QString("caDNAno"))
-        self.documentControllers = set() # Open documents
-        self.newDocument()
-
-    def newDocument(self):
-        from ui.mayacontroller import DocumentController
-        DocumentController() # DocumentController is responsible for adding
-                             # itself to app.documentControllers
+        super(caDNAnoMaya, self).__init__()
+	
+	def isInMaya(self):
+		return True
 
     def configMaya(self):
         # delete all objects in the scene
@@ -88,6 +76,4 @@ class caDNAno(QtCore.QObject):
         # finish setting up panels
     # end def
 
-# Convenience. No reason to feel guilty using it - caDNAno is a singleton.
-def app():
-    return caDNAno.sharedApp
+app = cadnano.app

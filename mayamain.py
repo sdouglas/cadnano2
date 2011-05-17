@@ -31,11 +31,8 @@ mayamain.py
 Created by Shawn Douglas on 2010-09-26.
 """
 
-import sys
-pathadder = '/Users/shawn/Desktop/cadnano2'
-if pathadder not in sys.path:
-        sys.path.append(pathadder)
-# end if
+import sys, os
+pathadder = os.path.dirname(__file__)
 
 def getDefaultModules():
     """

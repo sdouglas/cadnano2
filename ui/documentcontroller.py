@@ -34,7 +34,11 @@ from sliceview.slicehelixgroup import SliceHelixGroup
 from treeview.treecontroller import TreeController
 from pathview.handles.activeslicehandle import ActiveSliceHandle
 from model.enum import LatticeType
-
+print dir(app())
+print app()
+if app().isInMaya():
+	from .mayawindow import DocumentWindow
+	from solidview.solidhelixgroup import SolidHelixGroup
 
 class DocumentController():
     """
@@ -181,6 +185,12 @@ class DocumentController():
                              controller=self.win.pathController,\
                              parent=self.win.pathroot)
 
+        if app().isInMaya():
+            solhg = SolidHelixGroup(dnaPartInst,controller=self.win.pathController)
+            # need to create a permanent class level reference to this so that it doesn't get garbage collected
+            self.solidlist.append(solhg)
+            phg.scaffoldChange.connect(solhg.handleScaffoldChange)
+        
         # Connect signals and slots
         ash.activeSliceMovedSignal.connect(shg.activeSliceMovedSlot)
         shg.helixAddedSignal.connect(phg.helixAddedSlot)

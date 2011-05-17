@@ -40,7 +40,10 @@ class caDNAno(QApplication):
         #self.setApplicationName(QString("caDNAno"))
         self.documentControllers = set() # Open documents
         self.newDocument()
-
+        
+    def isInMaya(self):
+        return False
+        
     def newDocument(self):
         from ui.documentcontroller import DocumentController
         DocumentController() # DocumentController is responsible for adding
@@ -48,4 +51,6 @@ class caDNAno(QApplication):
 
 # Convenience. No reason to feel guilty using it - caDNAno is a singleton.
 def app():
+    if not caDNAno.sharedApp:
+        caDNAno.sharedApp = caDNAno()
     return caDNAno.sharedApp
