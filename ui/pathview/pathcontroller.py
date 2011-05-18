@@ -27,6 +27,7 @@ from PyQt4.QtGui import *
 from tools.pathtool import PathTool
 from tools.looptool import LoopTool
 from tools.skiptool import SkipTool
+from tools.breaktool import BreakTool
 
 class PathController():
     """
@@ -58,6 +59,7 @@ class PathController():
         self.toolPress = None
         self.insertionTool = LoopTool(pathcontroller=self, parent=None)
         self.skipTool = SkipTool(pathcontroller=self, parent=None)
+        self.breakTool = BreakTool(pathcontroller=self, parent=None)
     # end def
 
     def chooseSelectTool(self):
@@ -83,6 +85,7 @@ class PathController():
             return
         else:
             self.currentTool = widget
+        self.enableTool(self.breakTool)
         widget.setChecked(True)
 
     def chooseEraseTool(self):
