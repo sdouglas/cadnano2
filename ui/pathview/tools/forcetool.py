@@ -39,10 +39,14 @@ from model.enum import HandleOrient
 import ui.styles as styles
 from ui.pathview.pathhelix import PathHelix
 from pathtool import PathTool
-from ui.pathview.handles.loophandle import LoopItem, LoopHandle
-
 
 class ForceTool(PathTool):
+    
+    _pen = QPen(styles.bluestroke, 2)
+    _pen.setCapStyle(Qt.RoundCap)
+    _pen.setJoinStyle(Qt.RoundJoin)
+    _brush = QBrush(styles.forcefill)
+    
     def __init__(self, pathcontroller=None, parent=None):
         """
         This class inherits from the PathTool class for the majority of 
@@ -53,27 +57,8 @@ class ForceTool(PathTool):
         it's parent should be *always* be a PathHelix
         """
         super(ForceTool, self).__init__(parent)
-        self._loopItem = LoopItem(orient="Up",parent=self)
-        _pen = QPen(styles.bluestroke, 2)
-        self.baseWidth = styles.PATH_BASE_WIDTH
         self.hide()
         self.setZValue(styles.ZPATHTOOL)
-    # end def
-    
-    def toolHoverMove(self, item, event, flag=None):
-        """
-        flag is for the case where an item in the path also needs to 
-        implement the hover method
-        """
-        posItem = event.pos()
-        if flag != None:
-            posScene = event.scenePos()
-            posItem = self.parentItem().mapFromScene(posScene)
-        if self.helixIndex(posItem)[1] == 1:
-            self._loopItem.setOrient("Down")
-        else:
-            self._loopItem.setOrient("Up")
-        self.setPos(self.helixPos(posItem))
     # end def
     
     def toolPress(self, item, event):

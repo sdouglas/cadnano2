@@ -68,6 +68,8 @@ handlefill = QColor(0, 102, 204)  # 0066cc
 pchstroke = QColor(0, 102, 204, 153)
 redstroke = QColor(200, 0, 0)  
 PATH_BASE_HL_STROKE_WIDTH = 2
+erasefill = QColor ( 255, 0 , 0, 63 )
+forcefill = QColor ( 0, 255 , 255, 63 )
 
 # Path Drawing
 PATH_XOVER_LINE_SCALE_X = 0.035

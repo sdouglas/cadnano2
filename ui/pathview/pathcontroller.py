@@ -28,6 +28,8 @@ from tools.pathtool import PathTool
 from tools.looptool import LoopTool
 from tools.skiptool import SkipTool
 from tools.breaktool import BreakTool
+from tools.erasetool import EraseTool
+from tools.forcetool import ForceTool
 
 class PathController():
     """
@@ -60,6 +62,8 @@ class PathController():
         self.insertionTool = LoopTool(pathcontroller=self, parent=None)
         self.skipTool = SkipTool(pathcontroller=self, parent=None)
         self.breakTool = BreakTool(pathcontroller=self, parent=None)
+        self.eraseTool = EraseTool(pathcontroller=self, parent=None)
+        self.forceTool = ForceTool(pathcontroller=self, parent=None)
     # end def
 
     def chooseSelectTool(self):
@@ -94,6 +98,7 @@ class PathController():
             return
         else:
             self.currentTool = widget
+        self.enableTool(self.eraseTool)
         widget.setChecked(True)
 
     def chooseForceTool(self):
@@ -102,6 +107,7 @@ class PathController():
             return
         else:
             self.currentTool = widget
+        self.enableTool(self.forceTool)
         widget.setChecked(True)
 
     def chooseInsertTool(self):

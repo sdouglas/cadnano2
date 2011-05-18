@@ -39,7 +39,6 @@ from model.enum import HandleOrient
 import ui.styles as styles
 from ui.pathview.pathhelix import PathHelix
 from pathtool import PathTool
-from ui.pathview.handles.loophandle import LoopItem, LoopHandle
 
 class BreakItem(QGraphicsItem):
     """
@@ -124,7 +123,6 @@ class BreakTool(PathTool):
         """
         super(BreakTool, self).__init__(parent)
         self._breakItem = BreakItem(parent=self)
-        _pen = QPen(styles.bluestroke, 2)
         self.baseWidth = styles.PATH_BASE_WIDTH
         self.hide()
         self.setZValue(styles.ZPATHTOOL)
