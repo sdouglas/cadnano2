@@ -31,11 +31,12 @@ from tools.breaktool import BreakTool
 from tools.erasetool import EraseTool
 from tools.forcetool import ForceTool
 
-class PathController():
+class PathController(QObject):
     """
     Manages the interactions between Path widgets / UI elements and the model
     """
     def __init__(self, win):
+        super(PathController, self).__init__()
         self.mainWindow = win
         win.actionPathSelect.triggered.connect(self.chooseSelectTool)
         win.actionPathMove.triggered.connect(self.chooseMoveTool)
@@ -64,6 +65,8 @@ class PathController():
         self.breakTool = BreakTool(pathcontroller=self, parent=None)
         self.eraseTool = EraseTool(pathcontroller=self, parent=None)
         self.forceTool = ForceTool(pathcontroller=self, parent=None)
+
+        
     # end def
 
     def chooseSelectTool(self):

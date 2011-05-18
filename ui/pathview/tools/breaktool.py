@@ -46,6 +46,7 @@ class BreakItem(QGraphicsItem):
     """
     _myRect = QRectF(0, 0, styles.PATH_BASE_WIDTH, styles.PATH_BASE_WIDTH)
     _pen = QPen(styles.redstroke, 2)
+    _brush = QBrush(styles.breakfill)
     baseWidth = styles.PATH_BASE_WIDTH
     halfbaseWidth = baseWidth/2
     
@@ -107,6 +108,7 @@ class BreakItem(QGraphicsItem):
 
     def paint(self, painter, option, widget=None):
         painter.setPen(self._pen)
+        painter.setBrush(self._brush)
         painter.drawPath(self.painterPath)
     # end def
 # end class
