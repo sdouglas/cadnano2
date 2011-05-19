@@ -71,6 +71,8 @@ class DocumentWindow(QMainWindow, ui_mainwindow.Ui_MainWindow):
         self.pathGraphicsView.sceneRootItem = self.pathroot
         self.pathGraphicsView.setScaleFitFactor(0.9)
         self.pathController = pathcontroller.PathController(self)
+        self.sliceController.pathController = self.pathController
+        self.pathController.sliceController = self.sliceController
         self.pathGraphicsView.setViewportUpdateMode(\
                     QGraphicsView.FullViewportUpdate)
         # Edit menu setup

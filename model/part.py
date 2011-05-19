@@ -27,9 +27,11 @@ part
 Created by Jonathan deWerd on 2011-01-26.
 """
 from exceptions import NotImplementedError
+from PyQt4.QtCore import QObject
 
-class Part(object):
+class Part(QObject):
     def __init__(self, id, *args, **kargs):
+        super(Part, self).__init__(*args, **kargs)
         self._id = id
         
     def simpleRep(self, encoder):

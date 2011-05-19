@@ -32,13 +32,8 @@ Created by Shawn Douglas on 2010-09-26.
 """
 
 import sys
-from cadnano import caDNAno
+from cadnano import app as getAppInstance
 
-def main():
-    app = caDNAno(sys.argv)
-    app.exec_()
-
+app = getAppInstance(sys.argv)
 if __name__ == '__main__':
-    main()
-else:  # Otherwise drop back to prompt in the interactive interpreter
-    app = caDNAno(sys.argv)
+    app.exec_()

@@ -28,7 +28,7 @@ from tools.pathtool import PathTool
 from tools.looptool import LoopTool
 from tools.skiptool import SkipTool
 
-class PathController():
+class PathController(QObject):
     """
     Manages the interactions between Path widgets / UI elements and the model
     """

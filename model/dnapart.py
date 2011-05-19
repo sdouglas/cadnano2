@@ -29,23 +29,34 @@ import json
 from .part import Part
 from .virtualhelix import VirtualHelix
 from .enum import LatticeType
+from PyQt4.QtCore import pyqtSignal, QObject
+
 
 class DNAPart(Part):
+    changed = pyqtSignal()
+    tweaked = pyqtSignal()
+
     def __init__(self, *args, **kwargs):
         super(DNAPart, self).__init__(self, *args, **kwargs)
-        self._virtualHelices = {}
+        self._numberToVirtualHelix = {}  # number -> VirutalHelix
+        self._coordToVirtualHelix = {}  # (row,col) -> VirtualHelix
         self._staples = []
         self._scaffolds = []
         self._name = kwargs.get('name', 'untitled')
         self._crossSectionType = kwargs.get('crossSectionType', LatticeType.Honeycomb)
-        # FIX: defaults should be read from a config file
         if (self._crossSectionType == LatticeType.Honeycomb):
             self._canvasSize = 42
         elif (self._crossSectionType == LatticeType.Square):
             self._crossSectionType = 32
         else:
             raise NotImplementedError
+        # Signals
 
+    def getCanvasSize(self):
+        """Returns the current canvas size (# of bases) for the DNA part."""
+        return self._canvasSize
+        
+    ############################# Archiving/Unarchiving #############################
     def simpleRep(self, encoder):
         """
         Provides a representation of the receiver in terms of simple
@@ -57,7 +68,7 @@ class DNAPart(Part):
         ret['staples'] = self._staples
         ret['scaffolds'] = self._scaffolds
         return ret
-
+    
     @classmethod
     def fromSimpleRep(cls, rep):
         ret = DNAPart()
@@ -66,47 +77,83 @@ class DNAPart(Part):
         ret._staples = rep['staples']
         ret._scaffolds = rep['scaffolds']
         return ret
-
-    def resolveSimpleRepIDs(self,idToObj):
-        pass  # DNAPart owns its virtual helices, staples, and scaffods
-              # so we don't need to make weak refs to them
-
-    def crossSectionType(self):
-        """Returns the cross-section type of the DNA part."""
-        return self._crossSectionType
-
-    def getCanvasSize(self):
-        """Returns the current canvas size (# of bases) for the DNA part."""
-        return self._canvasSize
+    
+    ############################# VirtualHelix CRUD #############################
+    # Take note: vhrefs are the shiny new way to talk to dnapart about its constituent
+    # virtualhelices. Wherever you see f(vhref) you can
+    # f(27)         use the virtualhelix's id number
+    # f(vh)         use an actual virtualhelix
+    # f((1,42))     use the coordinate representation of its position
+    def getVirtualHelix(self, vhref, returnNoneIfAbsent=True):
+        """A vhref is the number of a virtual helix, the (row, col) of a virtual helix,
+        or the virtual helix itself. For conveniece, CRUD should now work with any of them."""
+        vh = None
+        if type(vhref) in ('int', 'long'):
+            vh = self._numberToVirtualHelix.get(number, None)
+        elif type(vhref) == 'tuple':
+            vh = self._coordToVirtualHelix(vh, None)
+        if not isinstance(vh, VirtualHelix):
+            if returnNoneIfAbsent:
+                return None
+            else:
+                raise IndexError("Couldn't find the virtual helix in part %s referenced by index %s"%(self, vhref))
+        return vh
 
     def addVirtualHelix(self, slicehelix):
         """Adds a new VirtualHelix to the part in response to user input and
         adds slicehelix as an observer."""
+        row, col = slicehelix.row(), slicehelix.col()
         vhelix = VirtualHelix(part=self,\
                               number=slicehelix.number(),\
-                              row=slicehelix.row(),\
-                              col=slicehelix.col(),\
+                              row=row,\
+                              col=col,\
                               size=self._canvasSize)
-        self._virtualHelices[slicehelix.number()] = vhelix
-        [p0, p1, p2, p3] = slicehelix.getNeighboringVirtualHelixList()
-        vhelix.connectNeighbors(p0, p1, p2, p3)
-        vhelix.addObserver(slicehelix)
+        self._numberToVirtualHelix[slicehelix.number()] = vhelix
+        self._coordToVirtualHelix[(row, col)] = vhelix
+        self.changed.emit()
         return vhelix
 
-    def removeVirtualHelix(self, number):
+    def removeVirtualHelix(self, vhref, failIfAbsent=True):
         """Called by SliceHelix.removeVirtualHelix() to update data."""
-        del self._virtualHelices[number]
-
-    def getVirtualHelix(self, number, returnNoneIfAbsent=True):
-        """Look up and return reference to a VirtualHelix"""
-        return self._virtualHelices.get(number, None)
-
-    def hasVirtualHelix(self, number):
-        if number in self._virtualHelices:
-            return True
-        else:
-            return False
+        vh = getVirtualHelix(vhref, returnNoneIfAbsent = True)
+        if not vh:
+            if failIfAbsent:
+                raise IndexError('Couldn\'t find virtual helix %s for removal'%str(vhref))
+            else:
+                return
+        del self._coordToVirtualHelix[vh.coord()]
+        del self._numberToVirtualHelix[vh.number()]
+        self.changed.emit()
 
     def getVirtualHelixCount(self):
         """docstring for getVirtualHelixList"""
-        return len(self._virtualHelices)
+        return len(self._numberToVirtualHelix)
+
+    ############################# VirtualHelix Arrangement (@todo: move into DNAHoneycombPart subclass) #############################
+    def virtualHelixParityEven(self, vhref):
+        """A property of the part, because the part is responsible for laying out
+        the virtualhelices and parity is a property of the layout more than it is a
+        property of a helix (maybe a non-honeycomb layout could support a different
+        notion of parity?)"""
+        vh = self.getVirtualHelix(vhref, returnNoneIfAbsent=False)
+        return vh.number() % 2 == 0;
+        
+    def getVirtualHelixNeighbors(self, vhref):
+        neighbors = []
+        vh = self.getVirtualHelix(vhref, returnNoneIfAbsent=False)
+        (r,c) = vh.coord()
+        if self.virtualHelixParityEven(vh):
+            neighbors.append(self.getVirtualHelix((r,c+1)))  # p0 neighbor (p0 is a direction)
+            neighbors.append(self.getVirtualHelix((r-1,c)))  # p1 neighbor
+            neighbors.append(self.getVirtualHelix((r,c-1)))  # p2 neighbor
+        else:
+            neighbors.append(self.getVirtualHelix((r,c-1)))  # p0 neighbor (p0 is a direction)
+            neighbors.append(self.getVirtualHelix((r+1,c)))  # p1 neighbor
+            neighbors.append(self.getVirtualHelix((r,c+1)))  # p2 neighbor
+        return neighbors  # Note: the order and presence of Nones is important
+        # If you need the indices of potential neighbors use range(0,len(neighbors))
+
+    #  @todo eliminate via subclassing
+    def crossSectionType(self):
+        """Returns the cross-section type of the DNA part."""
+        return self._crossSectionType

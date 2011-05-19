@@ -23,34 +23,14 @@
 # http://www.opensource.org/licenses/mit-license.php
 
 """
-cadnano
-Created by Jonathan deWerd on 2011-01-29.
+util
+Created by Jonathan deWerd.
 """
-from PyQt4.QtCore import *
-from PyQt4.QtGui import *
 
-class caDNAno(QApplication):
-    sharedApp = None  # This class is a singleton.
-    def __init__(self,argv):
-        super(caDNAno, self).__init__(argv)
-        assert(not caDNAno.sharedApp)
-        caDNAno.sharedApp = self
-        self.setWindowIcon(QIcon('ui/images/cadnano2-app-icon.png'))
-        self.undoGroup = QUndoGroup()
-        #self.setApplicationName(QString("caDNAno"))
-        self.documentControllers = set() # Open documents
-        self.newDocument()
-        
-    def isInMaya(self):
-        return False
-        
-    def newDocument(self):
-        from ui.documentcontroller import DocumentController
-        DocumentController() # DocumentController is responsible for adding
-                             # itself to app.documentControllers
-
-# Convenience. No reason to feel guilty using it - caDNAno is a singleton.
-def app(appArgs=None):
-    if not caDNAno.sharedApp:
-        caDNAno.sharedApp = caDNAno(appArgs)
-    return caDNAno.sharedApp
+def clamp(x, minX, maxX):
+    if x < minX:
+        return minX
+    if x > maxX:
+        return maxX
+    else:
+        return x

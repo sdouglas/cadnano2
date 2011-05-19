@@ -42,20 +42,25 @@ class Decoder(object):
     """Has to be a class because it carries state (object ids)"""
     def __init__(self):
         self.idToObj={}
-        self.objsWthWeakRefsToResolve=[]
+        self.objsWithDeferredInit=[]
     def decode(self,str):
         rootObj = json.loads(str, object_hook=lambda x: self.decodeObj(self,x))
         for o in self.objsWthWeakRefsToResolve:
             o.resolveSimpleRepIDs(self.idToObj)
     def decodeObj(self,dct):
         if '.class' in dct:
-            obj = classNameToClassMap[dct['.class']].fromSimpleRep(dct)
-            objsWthWeakRefsToResolve.append(obj)
+            obj = classNameToClassMap[dct['.class']](deferInit=True)
+            self.objsWithDeferredInit.append(obj)
             if '.id' in dct:
                 ii = dct['id']
                 assert(ii not in self.idToObj)
                 self.idToObj[dct['.id']] = obj
+            return obj
+        elif '.id' in dct:
+            return self.
         return dct
+    def objectForId(idNumber):
+        return self.idToObj(idNumber)
 
 
 def decode(str):

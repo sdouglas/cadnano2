@@ -26,13 +26,15 @@
 virtualhelix.py
 Created by Jonathan deWerd on 2011-01-26.
 """
-import sys, weakref
+import sys
 from exceptions import AttributeError, IndexError
 from itertools import product
-from .base import Base
 from .enum import LatticeType, Parity, StrandType, BreakType, Crossovers
+from observable import Observable
+from PyQt4.QtCore import pyqtSignal, QObject
+from .base import Base
 
-class VirtualHelix(object):
+class VirtualHelix(QObject):   
     """Stores staple and scaffold routing information."""
     def __init__(self, *args, **kwargs):
         super(VirtualHelix, self).__init__()
@@ -43,15 +45,14 @@ class VirtualHelix(object):
         self._size = kwargs.get('size', 0)
         self._stapleBases = [Base(self, n) for n in range(self._size)]
         self._scaffoldBases = [Base(self, n) for n in range(self._size)]
-        self._observers = []
-        self._p0 = None  # honeycomb: \, square: ?
-        self._p1 = None  # honeycomb: |, square: ?
-        self._p2 = None  # honeycomb: /, square: ?
-        self._p3 = None  #               square: ?
         self._scafLeftPreXoList = []  # locations for PreXoverHandles
         self._scafRightPreXoList = []
         self._stapLeftPreXoList = []
         self._stapRightPreXoList = []
+        self.isValid = True  # If loaded from a simple rep, isValid is false until all pointers are resolved
+        # Signals
+        self.changed = pyqtSignal()  # Some aspect of permanent, saveable state changed
+        self.tweaked = pyqtSignal()  # Something relevant to the UI but not the underlying data changed
 
     def simpleRep(self, encoder):
         """Returns a representation in terms of simple JSON-encodable types
@@ -62,10 +63,6 @@ class VirtualHelix(object):
         ret['size'] = self._size
         ret['stapleBases'] = self._stapleBases
         ret['scaffoldBases'] = self._scaffoldBases
-        ret['p0'] = encoder.idForObject(self._p0)
-        ret['p1'] = encoder.idForObject(self._p1)
-        ret['p2'] = encoder.idForObject(self._p2)
-        ret['p3'] = encoder.idForObject(self._p3)
         return ret
 
     @classmethod
@@ -79,31 +76,13 @@ class VirtualHelix(object):
         ret._col = rep['col']
         ret._stapleBases = rep['stapleBases']
         ret._scaffoldBases = rep['scaffoldBases']
-        ret.p0ID = rep['p0']
-        ret.p1ID = rep['p1']
-        ret.p2ID = rep['p2']
-        ret.p3ID = rep['p3']
+        ret.isValid = False
         return ret
 
     def resolveSimpleRepIDs(self,idToObj):
         self._part = idToObj[self.partID]
         del self.partID
-        self._p0 = idToObj[self.p0ID]
-        del self.p0ID
-        self._p1 = idToObj[self.p1ID]
-        del self.p1ID
-        self._p2 = idToObj[self.p2ID]
-        del self.p2ID
-        self._p3 = idToObj[self.p3ID]
-        del self.p3ID
-
-    def updateObservers(self):
-        for o in self._observers:
-            if o():
-                o().update()
-
-    def addObserver(self, obs):
-        self._observers.append(weakref.ref(obs, lambda x: self._observers.remove(x)))
+        self.isValid = True
 
     def part(self):
         """docstring for part"""
@@ -112,14 +91,18 @@ class VirtualHelix(object):
     def number(self):
         """return VirtualHelix number"""
         return self._number
+    
+    def coord(self):
+        return (self._row, self._col)
 
-    def parity(self):
-        if self._number == None:
-            raise AttributeError
-        if self._number % 2 == 0:
+    def parity(self):  # @toelim
+        if self.parityEven():
             return Parity.Even
         else:
             return Parity.Odd
+    
+    def parityEven(self):
+        return self._part.virtualHelixParityEven(self)
 
     def size(self):
         """The length in bases of the virtual helix."""
@@ -141,89 +124,29 @@ class VirtualHelix(object):
         """docstring for scaffoldBase"""
         return self._scaffoldBases[index]
 
-    def setP0(self, vhelix):
-        """Sets p0 neighbor to vhelix."""
-        self._p0 = vhelix
-
-    def setP1(self, vhelix):
-        """Sets p1 neighbor to vhelix."""
-        self._p1 = vhelix
-
-    def setP2(self, vhelix):
-        """Sets p3 neighbor to vhelix."""
-        self._p2 = vhelix
-
-    def setP3(self, vhelix):
-        """Sets p3 neighbor to vhelix. Used by square lattice only."""
-        self._p3 = vhelix
-
-    def getNeighborIndexList(self):
-        """docstring for getNeighborIndexList"""
-        ret = []
-        if self._p0 != None:
-            ret.append(0)
-        if self._p1 != None:
-            ret.append(1)
-        if self._p2 != None:
-            ret.append(2)
-        if self._p3 != None:
-            ret.append(3)
-        return ret
-
-    def getNeighbor(self, num):
-        """return ref to neighbor pNum"""
-        if num in [0, 1, 2, 3]:
-            ret = [self._p0, self._p1, self._p2, self._p3][num]
-            return ret
-        else:
-            raise IndexError
-
-    def connectNeighbors(self, p0, p1, p2, p3):
-        """docstring for connectNeighbor"""
-        if p0 != None:
-            self.setP0(p0)
-            p0.setP0(self)
-        if p1 != None:
-            self.setP1(p1)
-            p1.setP1(self)
-        if p2 != None:
-            self.setP2(p2)
-            p2.setP2(self)
-        if p3 != None:  # used by square lattice only
-            self.setP3(p3)
-            p3.setP3(self)
-
     def hasScafAt(self, index):
         """Returns true if a scaffold base is present at index"""
         if index > self._size-1:
             return False
-        if self._scaffoldBases[index].isNull():
-            return False
-        return True
+        return not self._scaffoldBases[index].isNull()
 
     def hasStapAt(self, index):
         """Returns true if a staple base is present at index"""
         if index > self._size-1:
             return False
-        if self._stapleBases[index].isNull():
-            return False
-        return True
+        return not self._stapleBases[index].isNull()
 
     def hasScafCrossoverAt(self, index):
         """docstring for hasScafCrossoverAt"""
         if index > self._size-1:
             return False
-        if self._scaffoldBases[index].isCrossover():
-            return True
-        return False
+        return self._scaffoldBases[index].isCrossover()
 
     def hasStapCrossoverAt(self, index):
         """docstring for hasStapCrossoverAt"""
         if index > self._size-1:
             return False
-        if self._stapleBases[index].isCrossover():
-            return True
-        return False
+        return self._stapleBases[index].isCrossover()
 
     def getScaffoldHandleIndexList(self):
         """
@@ -308,6 +231,9 @@ class VirtualHelix(object):
                     strandBases[i-1].clearPrev()
         else:
             raise AttributeError
+    
+    def getNeighbors():
+        self._part.getVirtualHelixNeighbors(self)
 
     def updatePreCrossoverPositions(self, clickIndex=None):
         """docstring for updatePreCrossoverPositions"""
@@ -335,10 +261,12 @@ class VirtualHelix(object):
         else: # user mouse click
             start = max(0, clickIndex - (clickIndex % step) - step)
             end = min(self.size(), clickIndex - (clickIndex % step) + step*2)
-
-        neighborIndexList = self.getNeighborIndexList()
-        for p in neighborIndexList:  # [0, 1, 2]
-            neighbor = self.getNeighbor(p)
+        
+        #for neighbor in self.getNeighbors()
+        #neighborIndexList = self.getNeighborIndexList()
+        neighbors = self.getNeighbors()
+        for p in [0, 1, 2]:  # [0, 1, 2]
+            neighbor = neighbors[p]
             # num = neighbor.number()
             # Scaffold Left
             for i,j in product(range(start, end, step), scafL[p]):

@@ -35,6 +35,7 @@ from PyQt4.QtGui import QPolygonF
 from PyQt4.QtGui import QPen, QDrag, QUndoCommand
 from model.enum import EndType, StrandType, Parity, BreakType
 import ui.styles as styles
+from util import *
 
 from mmayacadnano.breakpointhandle3d import BreakpointHandle3D  # For Campbell
 
@@ -225,12 +226,8 @@ class BreakpointHandle(QGraphicsItem):
         if self._dragMode == True:
             moveX = event.scenePos().x()
             delta = moveX - self.pressX
-            self.tempIndex = int((self.baseIndex * baseWidth +\
-                                  self.pressXoffset + delta) / baseWidth)
-            if self.tempIndex < self.minIndex:
-                self.tempIndex = self.minIndex
-            elif self.tempIndex > self.maxIndex:
-                self.tempIndex = self.maxIndex
+            offset = self.baseIndex * baseWidth + self.pressXoffset + delta;
+            self.tempIndex = clamp(int(offset)/baseWidth, self.minIndex, self.maxIndex)
             self.x0 = self.tempIndex * baseWidth
             self.setPos(self.x0, self.y0)
             self.setCursor(Qt.OpenHandCursor)
@@ -321,7 +318,6 @@ class BreakpointHandle(QGraphicsItem):
         self.parentItem().updateDragBounds(self.strandType)
         self.parentItem().redrawLines(self.strandType)  # new 2D lines
         self.parentItem().updateAsActiveHelix(newIndex)
-        self._vhelix.updateObservers()
 
     def actionFrom3D(self, actionType):
         """Called by mMaya BreakpointHandle3D to notify cadnano that the

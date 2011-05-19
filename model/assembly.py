@@ -30,8 +30,9 @@ Created by Nick Conway on 2011-01-19.
 
 from collections import defaultdict
 from idbank import IdBank
+from PyQt4.QtCore import QObject
 
-class Assembly(object):
+class Assembly(QObject):
     """
     """
     def __init__(self, parent=None):

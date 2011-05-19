@@ -26,7 +26,7 @@ from PyQt4.QtCore import *
 from PyQt4.QtGui import *
 
 
-class SliceController():
+class SliceController(QObject):
     """
     Manages interactions between the slice widgets/UI and the model.
     """

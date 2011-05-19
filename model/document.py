@@ -30,9 +30,9 @@ Created by Jonathan deWerd on 2011-01-26.
 import json
 from .dnapart import DNAPart
 from .dnapartinstance import DNAPartInstance
+from PyQt4.QtCore import QObject
 
-
-class Document:
+class Document(QObject):
     def __init__(self):
         self._parts = []
         self._dnaPartInstances = []

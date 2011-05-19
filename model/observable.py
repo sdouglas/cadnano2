@@ -23,34 +23,35 @@
 # http://www.opensource.org/licenses/mit-license.php
 
 """
-cadnano
-Created by Jonathan deWerd on 2011-01-29.
+virtualhelix.py
+Created by Jonathan deWerd.
+
+AFAICS, we have two reasonable approaches to change notification:
+1) Qt Signals
+    Good: seamlessly moves between C++ and Python code
+    Bad: only works between QObject subclasses, QGraphicsObject isn't available
+2) Observer pattern
+    Good: works between any python classes
+    Bad: doesn't move between python and C++
+    Good: we could easily layer Qt Signals on top of the Observable mixin later
+        Bad: that would be a total hack
+            Good: but it would work
+Option 2 is most expedient since the problem of migration to C++ is less pressing
+for the forseeable future than the problem of not being able to use QGraphicsObject.
+I therefore Arbitrarily Decide Unless Overridden that we're going with option 2.
+- Jonathan
 """
-from PyQt4.QtCore import *
-from PyQt4.QtGui import *
+import weakref
 
-class caDNAno(QApplication):
-    sharedApp = None  # This class is a singleton.
-    def __init__(self,argv):
-        super(caDNAno, self).__init__(argv)
-        assert(not caDNAno.sharedApp)
-        caDNAno.sharedApp = self
-        self.setWindowIcon(QIcon('ui/images/cadnano2-app-icon.png'))
-        self.undoGroup = QUndoGroup()
-        #self.setApplicationName(QString("caDNAno"))
-        self.documentControllers = set() # Open documents
-        self.newDocument()
+class Observable(object):
+    def __init__(self):
+        self._observers = []
         
-    def isInMaya(self):
-        return False
-        
-    def newDocument(self):
-        from ui.documentcontroller import DocumentController
-        DocumentController() # DocumentController is responsible for adding
-                             # itself to app.documentControllers
-
-# Convenience. No reason to feel guilty using it - caDNAno is a singleton.
-def app(appArgs=None):
-    if not caDNAno.sharedApp:
-        caDNAno.sharedApp = caDNAno(appArgs)
-    return caDNAno.sharedApp
+    def notifyObservers(self, message, **kwargs):
+        for o in self._observers:
+            if o():
+                o().observedObjectDidChange(self, message, **kwargs)
+    
+    def addObserver(self, obs):
+        self._observers.append(weakref.ref(obs, lambda x: self._observers.remove(x)))
+    

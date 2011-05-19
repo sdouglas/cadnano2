@@ -39,6 +39,7 @@ from model.enum import EndType, LatticeType, StrandType, Parity
 from model.virtualhelix import VirtualHelix
 from handles.breakpointhandle import BreakpointHandle
 from mmayacadnano.pathhelix3d import PathHelix3D  # For Campbell
+from weakref import ref
 
 
 class PathHelix(QGraphicsItem):
@@ -50,9 +51,9 @@ class PathHelix(QGraphicsItem):
 
     parent should be set to...
     """
-    minorGridPen = QPen(styles.minorgridstroke, styles.PATH_GRID_STROKE_WIDTH)
-    majorGridPen = QPen(styles.majorgridstroke, styles.PATH_GRID_STROKE_WIDTH)
-    scafPen = QPen(styles.scafstroke, styles.PATH_STRAND_STROKE_WIDTH)
+    minorGridPen = QPen(styles.minorgridstroke, 1)
+    majorGridPen = QPen(styles.majorgridstroke, 2)
+    scafPen = QPen(styles.scafstroke, 0)
     nobrush = QBrush(Qt.NoBrush)
     baseWidth = styles.PATH_BASE_WIDTH
 
@@ -133,8 +134,9 @@ class PathHelix(QGraphicsItem):
         # minor tick marks
         for i in range(canvasSize):
             if (i % 7 != 0):
-                path.moveTo(self.baseWidth * i, 0)
-                path.lineTo(self.baseWidth * i, 2 * self.baseWidth)
+                x = round(self.baseWidth*i) + .5
+                path.moveTo(x, 0)
+                path.lineTo(x, 2 * self.baseWidth)
         # staple-scaffold divider
         path.moveTo(0, self.baseWidth)
         path.lineTo(self.baseWidth * canvasSize, self.baseWidth)
@@ -150,8 +152,9 @@ class PathHelix(QGraphicsItem):
         canvasSize = self._vhelix.part().getCanvasSize()
         # major tick marks
         for i in range(0, canvasSize + 1, 7):
-                path.moveTo(self.baseWidth * i, 0)
-                path.lineTo(self.baseWidth * i, 2 * self.baseWidth)
+            x = round(self.baseWidth*i) + .5
+            path.moveTo(x, .5)
+            path.lineTo(x, 2 * self.baseWidth - .5)
         return path
     # end def
 

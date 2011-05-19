@@ -34,14 +34,22 @@
 encoder.py
 """
 import json
-
+from StringIO import StringIO
 
 class Encoder(json.JSONEncoder):
     def __init__(self):
         super(Encoder,self).__init__()
-        self._nextID = 0
-        self._objToId = {}
-        self._alreadyEncoded = set()
+        self._objects = []
+        self._objToIndex = {}  # Maps objects to their index in the _objects array
+        
+    def dump(self, io):
+        io.write('{".format":"caDNAno2",.root=')
+            
+    def dumps(self):
+        out = StringIO()
+        self.dump(out)
+        return out.getvalue()
+        
     def default(self, obj):
         # If you just hit the assert below,
         # something (probably a circular strong reference) is misdesigned.
@@ -51,7 +59,7 @@ class Encoder(json.JSONEncoder):
         if hasattr(obj, "simpleRep"):
             sr = obj.simpleRep(self)
             if obj in self._objToId:
-                sr['.id'] = self._objToId[obj]
+                sr = {'.id':self._objToId[obj]}
             else:
                 sr['.id'] = self._nextID
                 self._nextID += 1
