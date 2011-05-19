@@ -28,7 +28,7 @@ Created by Shawn on 2011-02-05.
 
 from exceptions import IndexError
 from PyQt4.QtCore import QPointF, QRectF
-from PyQt4.QtCore import Qt, QObject, pyqtSignal
+from PyQt4.QtCore import Qt, QObject, pyqtSignal, pyqtSlot
 from PyQt4.QtGui import QBrush
 from PyQt4.QtGui import QGraphicsItem
 from PyQt4.QtGui import QGraphicsSimpleTextItem
@@ -139,18 +139,19 @@ class ActiveSliceHandle(QGraphicsItem):
 
     def mouseMoveEvent(self, event):
         """Snaps handle into place when dragging."""
-        moveX = event.scenePos().x()
-        delta = moveX-self.pressX
-        self.tempIndex = int((self.baseIndex*self.baseWidth+\
-                          self.pressXoffset+delta) / self.baseWidth)
-        if self.tempIndex < self.minIndex:
-            self.tempIndex = self.minIndex
-        elif self.tempIndex > self.maxIndex:
-            self.tempIndex = self.maxIndex
-        self.x0 = self.tempIndex * self.baseWidth
-        self.setPos(self.x0, self.y0)
-        # this should be fixed on only notify on changes
-        self.activeslicehandle3D.dragFrom2D(self.tempIndex)
+        if self.pathController.toolUse == False:
+            moveX = event.scenePos().x()
+            delta = moveX-self.pressX
+            self.tempIndex = int((self.baseIndex*self.baseWidth+\
+                              self.pressXoffset+delta) / self.baseWidth)
+            if self.tempIndex < self.minIndex:
+                self.tempIndex = self.minIndex
+            elif self.tempIndex > self.maxIndex:
+                self.tempIndex = self.maxIndex
+            self.x0 = self.tempIndex * self.baseWidth
+            self.setPos(self.x0, self.y0)
+            # this should be fixed on only notify on changes
+            self.activeslicehandle3D.dragFrom2D(self.tempIndex)
 
     def mousePressEvent(self, event):
         if event.button() != Qt.LeftButton:
@@ -160,7 +161,6 @@ class ActiveSliceHandle(QGraphicsItem):
             if self.pathController.toolUse == False:
                 self.scene().views()[0].addToPressList(self)
                 self._dragMode = True
-                self.pressX = event.scenePos().x()
                 self.pressX = event.scenePos().x()
                 self.pressXoffset = self.pressX % self.baseWidth
             else:
@@ -175,6 +175,28 @@ class ActiveSliceHandle(QGraphicsItem):
         self.baseIndex = self.tempIndex
         self.activeSliceMovedSignal.emit(self.baseIndex)
         self._dragMode = False
+        
+    @pyqtSlot()
+    def activeSliceLastSlot(self):
+        """Moves to the last slice position. Updates vhelix data according
+        to what movement took place."""
+        self.tempIndex = self.maxIndex
+        self.x0 = self.tempIndex * self.baseWidth
+        self.setPos(self.x0, self.y0)
+        self.baseIndex = self.tempIndex
+        self.activeSliceMovedSignal.emit(self.baseIndex)
+    # end def
+    
+    @pyqtSlot()
+    def activeSliceFirstSlot(self):
+        """Moves to the first slice position. Updates vhelix data according
+        to what movement took place."""
+        self.tempIndex = self.minIndex
+        self.x0 = self.tempIndex * self.baseWidth
+        self.setPos(self.x0, self.y0)
+        self.baseIndex = self.tempIndex
+        self.activeSliceMovedSignal.emit(self.baseIndex)
+    # end def
 
     def updateFrom3D(self, newIndex):
         """Called by BreakpointHandle3D to notify cadnano that the

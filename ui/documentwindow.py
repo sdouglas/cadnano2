@@ -75,6 +75,7 @@ class DocumentWindow(QMainWindow, ui_mainwindow.Ui_MainWindow):
         self.pathController.sliceController = self.sliceController
         self.pathGraphicsView.setViewportUpdateMode(\
                     QGraphicsView.FullViewportUpdate)
+                    
         # Edit menu setup
         self.undoStack = docCtrlr.undoStack
         self.actionUndo = docCtrlr.undoStack.createUndoAction(self)

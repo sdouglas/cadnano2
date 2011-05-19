@@ -30,14 +30,22 @@ class SliceController(QObject):
     """
     Manages interactions between the slice widgets/UI and the model.
     """
+    activeSliceLastSignal = pyqtSignal()
+    activeSliceFirstSignal = pyqtSignal()
+    
     # We store mainWindow because a controller's got to have
     # references to both the layer above (UI) and the layer below (model)
     def __init__(self, win):
+        super(SliceController, self).__init__()
         self.mainWindow = win
 
         win.actionSliceSelect.triggered.connect(self.chooseSelectTool)
         win.actionSliceMove.triggered.connect(self.chooseMoveTool)
 
+        win.actionSliceFirst.triggered.connect(self.sliceFirstClicked)
+        win.actionSliceLast.triggered.connect(self.sliceLastClicked)
+        win.actionRenumber.triggered.connect(self.renumberClicked)
+        
         self.toolset = set((win.actionSliceSelect, win.actionSliceMove))
         ag = QActionGroup(win)
         for a in self.toolset:
@@ -61,3 +69,22 @@ class SliceController(QObject):
         else:
             self.currentTool = widget
         widget.setChecked(True)
+        
+    # end def
+
+    def sliceLastClicked(self):
+        """docstring for sliceLastClicked"""
+        print "sliceLastClicked"
+        self.activeSliceLastSignal.emit()
+    # end def
+    
+    def sliceFirstClicked(self):
+        """docstring for sliceFirstClicked"""
+        print "sliceFirstClicked"
+        self.activeSliceFirstSignal.emit()
+    # end def
+    
+    def renumberClicked(self):
+        """docstring for renumberClicked"""
+        print "renumberClicked"
+    # end def

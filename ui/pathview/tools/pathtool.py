@@ -46,7 +46,10 @@ class PathTool(QGraphicsItem):
                             styles.PATH_BASE_HL_STROKE_WIDTH/2, \
                             styles.PATH_BASE_WIDTH + \
                             styles.PATH_BASE_HL_STROKE_WIDTH/2 )
+                            
         _pen = QPen(styles.redstroke, styles.PATH_BASE_HL_STROKE_WIDTH)
+        _brush = QBrush(Qt.NoBrush)
+        
         def __init__(self, pathcontroller=None, parent=None):
             """
             A base class, no pun intended to display a highlight tool for 
@@ -55,7 +58,6 @@ class PathTool(QGraphicsItem):
             it's parent should be *always* be a PathHelix
             """
             super(PathTool, self).__init__(parent)
-            
             # self.undoStack = pathcontroller.mainWindow.undoStack
             self.baseWidth = styles.PATH_BASE_WIDTH
             self.hide()
@@ -64,6 +66,7 @@ class PathTool(QGraphicsItem):
         
         def paint(self, painter, option, widget=None):
             painter.setPen(self._pen)
+            painter.setBrush(self._brush)
             painter.drawRect(self._toolRect)
         # end def
         

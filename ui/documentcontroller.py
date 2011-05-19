@@ -37,8 +37,8 @@ from model.enum import LatticeType
 print dir(app())
 print app()
 if app().isInMaya():
-	from .mayawindow import DocumentWindow
-	from solidview.solidhelixgroup import SolidHelixGroup
+    from .mayawindow import DocumentWindow
+    from solidview.solidhelixgroup import SolidHelixGroup
 
 class DocumentController():
     """
@@ -81,7 +81,7 @@ class DocumentController():
         self.win.actionSave.triggered.connect(self.saveClicked)
         self.win.actionSVG.triggered.connect(self.svgClicked)
 
-        # self.win.actionSave_As.triggered.connect(self.saveAsClicked)
+        #self.win.actionSave_As.triggered.connect(self.saveAsClicked)
         # self.win.actionQuit.triggered.connect(self.closeClicked)
         # self.win.actionAdd.triggered.connect(self.addClicked)
         # self.win.actionDelete.triggered.connect(self.deleteClicked)
@@ -91,6 +91,7 @@ class DocumentController():
         # self.win.actionMoveDown.triggered.connect(self.moveDownClicked)
         # self.win.actionPromote.triggered.connect(self.promoteClicked)
         # self.win.actionDemote.triggered.connect(self.demoteClicked)
+        
         
     # end def
 
@@ -196,6 +197,8 @@ class DocumentController():
         shg.helixAddedSignal.connect(phg.helixAddedSlot)
         shg.helixRemovedSignal.connect(phg.helixRemovedSlot)
         shg.sliceHelixClicked.connect(phg.sliceHelixClickedSlot)
+        self.win.sliceController.activeSliceLastSignal.connect(ash.activeSliceLastSlot)
+        self.win.sliceController.activeSliceFirstSignal.connect(ash.activeSliceFirstSlot)
         dnaPartInst.partselected.connect(shg.bringToFront)
         dnaPartInst.partselected.connect(phg.bringToFront)
     # end def
