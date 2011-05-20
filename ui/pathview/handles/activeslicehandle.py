@@ -67,7 +67,7 @@ class ActiveSliceHandle(QGraphicsItem):
         self.x0 = (startBase * self.baseWidth)
         self.y0 = -1 * (styles.PATH_HELIX_PADDING)
         self.minIndex = 0
-        self.maxIndex = self.part.getCanvasSize()-1
+        self.maxIndex = self.part.getNumBases()-1
         self.setPos(QPointF(self.x0, self.y0))
         self.setZValue(-10)
         self.pressX = 0

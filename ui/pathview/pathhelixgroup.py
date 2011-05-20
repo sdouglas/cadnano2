@@ -285,7 +285,7 @@ class PathHelixGroup(QGraphicsItem):
         if index == 0:
             index = 1
             self.activeslicehandle.setPosition(1)
-        elif index == self.part.getCanvasSize() - 1:
+        elif index == self.part.getNumBases() - 1:
             index -= 1
             self.activeslicehandle.setPosition(index)
 

@@ -21,20 +21,18 @@
 # THE SOFTWARE.
 #
 # http://www.opensource.org/licenses/mit-license.php
-"""
-DNAPart.py
-"""
 from exceptions import NotImplementedError
 import json
 from .part import Part
 from .virtualhelix import VirtualHelix
 from .enum import LatticeType
 from PyQt4.QtCore import pyqtSignal, QObject
+from heapq import *
 
 
 class DNAPart(Part):
-    changed = pyqtSignal()
-    tweaked = pyqtSignal()
+    changed = pyqtSignal()  # Some aspect of permanent, saveable state changed
+    tweaked = pyqtSignal()  # Something relevant to the UI but not the underlying data changed
 
     def __init__(self, *args, **kwargs):
         super(DNAPart, self).__init__(self, *args, **kwargs)
@@ -43,18 +41,15 @@ class DNAPart(Part):
         self._staples = []
         self._scaffolds = []
         self._name = kwargs.get('name', 'untitled')
-        self._crossSectionType = kwargs.get('crossSectionType', LatticeType.Honeycomb)
-        if (self._crossSectionType == LatticeType.Honeycomb):
-            self._canvasSize = 42
-        elif (self._crossSectionType == LatticeType.Square):
-            self._crossSectionType = 32
-        else:
-            raise NotImplementedError
-        # Signals
+        self._numBases = 0  # subclasses should provide a more reasonable default
+        # ID assignment infra
+        self.oddRecycleBin, self.evenRecycleBin = [], []
+        self.reserveBin = set()
+        self.highestUsedOdd = -1  # Used iff the recycle bin is empty and highestUsedOdd+2 is not in the reserve bin
+        self.highestUsedEven = -2  # same
 
-    def getCanvasSize(self):
-        """Returns the current canvas size (# of bases) for the DNA part."""
-        return self._canvasSize
+    def getNumBases(self):
+        return self._numBases
         
     ############################# Archiving/Unarchiving #############################
     def simpleRep(self, encoder):
@@ -80,18 +75,20 @@ class DNAPart(Part):
     
     ############################# VirtualHelix CRUD #############################
     # Take note: vhrefs are the shiny new way to talk to dnapart about its constituent
-    # virtualhelices. Wherever you see f(vhref) you can
-    # f(27)         use the virtualhelix's id number
-    # f(vh)         use an actual virtualhelix
-    # f((1,42))     use the coordinate representation of its position
+    # virtualhelices. Wherever you see f(...,vhref,...) you can
+    # f(...,27,...)         use the virtualhelix's id number
+    # f(...,vh,...)         use an actual virtualhelix
+    # f(...,(1,42),...)     use the coordinate representation of its position
     def getVirtualHelix(self, vhref, returnNoneIfAbsent=True):
         """A vhref is the number of a virtual helix, the (row, col) of a virtual helix,
         or the virtual helix itself. For conveniece, CRUD should now work with any of them."""
         vh = None
-        if type(vhref) in ('int', 'long'):
-            vh = self._numberToVirtualHelix.get(number, None)
-        elif type(vhref) == 'tuple':
-            vh = self._coordToVirtualHelix(vh, None)
+        if type(vhref) in (int, long):
+            vh = self._numberToVirtualHelix.get(vhref, None)
+        elif type(vhref) in (tuple, list):
+            vh = self._coordToVirtualHelix.get(vhref, None)
+        else:
+            vh = vhref
         if not isinstance(vh, VirtualHelix):
             if returnNoneIfAbsent:
                 return None
@@ -99,61 +96,100 @@ class DNAPart(Part):
                 raise IndexError("Couldn't find the virtual helix in part %s referenced by index %s"%(self, vhref))
         return vh
 
-    def addVirtualHelix(self, slicehelix):
+    def addVirtualHelixAt(self, coords):
         """Adds a new VirtualHelix to the part in response to user input and
         adds slicehelix as an observer."""
-        row, col = slicehelix.row(), slicehelix.col()
-        vhelix = VirtualHelix(part=self,\
-                              number=slicehelix.number(),\
+        row, col = coords
+        newID = self.reserveHelixIDNumber(parityEven=self.coordinateParityEven(coords))
+        vhelix = VirtualHelix(part=self,
                               row=row,\
                               col=col,\
-                              size=self._canvasSize)
-        self._numberToVirtualHelix[slicehelix.number()] = vhelix
+                              idnum=newID,\
+                              numBases=self.getNumBases())
+        self._numberToVirtualHelix[newID] = vhelix
         self._coordToVirtualHelix[(row, col)] = vhelix
         self.changed.emit()
         return vhelix
 
-    def removeVirtualHelix(self, vhref, failIfAbsent=True):
+    def removeVirtualHelix(self, vhref, returnFalseIfAbsent=False):
         """Called by SliceHelix.removeVirtualHelix() to update data."""
-        vh = getVirtualHelix(vhref, returnNoneIfAbsent = True)
-        if not vh:
-            if failIfAbsent:
-                raise IndexError('Couldn\'t find virtual helix %s for removal'%str(vhref))
+        vh = self.getVirtualHelix(vhref, returnNoneIfAbsent = True)
+        if vh == None:
+            if returnFalseIfAbsent:
+                return False
             else:
-                return
+                raise IndexError('Couldn\'t find virtual helix %s for removal'%str(vhref))
         del self._coordToVirtualHelix[vh.coord()]
         del self._numberToVirtualHelix[vh.number()]
+        self.recycleHelixIDNumber(vh.number())
         self.changed.emit()
+        return True
+    
+    def renumberVirtualHelix(self, vhref, newNumber, returnFalseIfAbsent=False):
+        vh = getVirtualHelix(vhref, returnNoneIfAbsent = True)
+        if not vh:
+            if returnFalseIfAbsent:
+                return False
+            else:
+                raise IndexError('Couldn\'t find virtual helix %s for removal'%str(vhref))
+        assert(not self.getVirtualHelix(self, newNumber))
+        del self._numberToVirtualHelix[vh.number()]
+        self._numberToVirtualHelix[newNumber] = vh
+        vh._setNumber(newNumber)
+        self.changed.emit()
+        
 
     def getVirtualHelixCount(self):
         """docstring for getVirtualHelixList"""
         return len(self._numberToVirtualHelix)
-
-    ############################# VirtualHelix Arrangement (@todo: move into DNAHoneycombPart subclass) #############################
-    def virtualHelixParityEven(self, vhref):
-        """A property of the part, because the part is responsible for laying out
-        the virtualhelices and parity is a property of the layout more than it is a
-        property of a helix (maybe a non-honeycomb layout could support a different
-        notion of parity?)"""
-        vh = self.getVirtualHelix(vhref, returnNoneIfAbsent=False)
-        return vh.number() % 2 == 0;
-        
-    def getVirtualHelixNeighbors(self, vhref):
-        neighbors = []
-        vh = self.getVirtualHelix(vhref, returnNoneIfAbsent=False)
-        (r,c) = vh.coord()
-        if self.virtualHelixParityEven(vh):
-            neighbors.append(self.getVirtualHelix((r,c+1)))  # p0 neighbor (p0 is a direction)
-            neighbors.append(self.getVirtualHelix((r-1,c)))  # p1 neighbor
-            neighbors.append(self.getVirtualHelix((r,c-1)))  # p2 neighbor
+    
+    def getVirtualHelices(self):
+        return [self._numberToVirtualHelix[n] for n in self._numberToVirtualHelix]
+    
+    ############################# VirtualHelix ID Number Management #############################
+    # Used in both square, honeycomb lattices and so it's shared here
+    def reserveHelixIDNumber(self, parityEven=True, num=None):
+        """
+        Reserves and returns a unique numerical label appropriate for a virtualhelix of
+        a given parity. If a specific index is preferable (say, for undo/redo) it can be
+        requested in num.
+        """
+        if num != None: # We are handling a request for a particular number
+            assert num >= 0, long(num) == num
+            if num in self.oddRecycleBin:
+                self.oddRecycleBin.remove(num)
+                heapify(self.oddRecycleBin)
+                return num
+            if num in self.evenRecycleBin:
+                self.evenRecycleBin.remove(num)
+                heapify(self.evenRecycleBin)
+                return num
+            self.reserveBin.add(num)
+            return num
+        # Just find any valid index (subject to parity constraints)
+        if parityEven:
+             if len(self.evenRecycleBin):
+                 return heappop(self.evenRecycleBin)
+             else:
+                 while self.highestUsedEven + 2 in self.reserveBin:
+                     self.highestUsedEven += 2
+                 self.highestUsedEven += 2
+                 return self.highestUsedEven
         else:
-            neighbors.append(self.getVirtualHelix((r,c-1)))  # p0 neighbor (p0 is a direction)
-            neighbors.append(self.getVirtualHelix((r+1,c)))  # p1 neighbor
-            neighbors.append(self.getVirtualHelix((r,c+1)))  # p2 neighbor
-        return neighbors  # Note: the order and presence of Nones is important
-        # If you need the indices of potential neighbors use range(0,len(neighbors))
+            if len(self.oddRecycleBin):
+                return heappop(self.oddRecycleBin)
+            else:
+                while self.highestUsedOdd + 2 in self.reserveBin:
+                    self.highestUsedOdd += 2
+                self.highestUsedOdd += 2
+                return self.highestUsedOdd
 
-    #  @todo eliminate via subclassing
-    def crossSectionType(self):
-        """Returns the cross-section type of the DNA part."""
-        return self._crossSectionType
+    def recycleHelixIDNumber(self, n):
+        """
+        The caller's contract is to ensure that n is not used in *any* helix
+        at the time of the calling of this function (or afterwards, unless
+        reserveLabelForHelix returns the label again)"""
+        if n % 2 == 0:
+            heappush(self.evenRecycleBin,n)
+        else:
+            heappush(self.oddRecycleBin,n)

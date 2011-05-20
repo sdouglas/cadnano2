@@ -34,51 +34,32 @@ from observable import Observable
 from PyQt4.QtCore import pyqtSignal, QObject
 from .base import Base
 
-class VirtualHelix(QObject):   
+class VirtualHelix(QObject):
     """Stores staple and scaffold routing information."""
+    changed = pyqtSignal()  # Some aspect of permanent, saveable state changed
+    tweaked = pyqtSignal()  # Something relevant to the UI but not the underlying data changed
+
     def __init__(self, *args, **kwargs):
         super(VirtualHelix, self).__init__()
         self._part = kwargs.get('part', None)
-        self._number = kwargs.get('number', None)
         self._row = kwargs.get('row', 0)
         self._col = kwargs.get('col', 0)
-        self._size = kwargs.get('size', 0)
-        self._stapleBases = [Base(self, n) for n in range(self._size)]
-        self._scaffoldBases = [Base(self, n) for n in range(self._size)]
+        self._numBases = kwargs.get('numBases', 0)
+        self._number = kwargs.get('idnum', -1)
+        self._stapleBases = [Base(self, n) for n in range(self._numBases)]
+        self._scaffoldBases = [Base(self, n) for n in range(self._numBases)]
         self._scafLeftPreXoList = []  # locations for PreXoverHandles
         self._scafRightPreXoList = []
         self._stapLeftPreXoList = []
         self._stapRightPreXoList = []
         self.isValid = True  # If loaded from a simple rep, isValid is false until all pointers are resolved
-        # Signals
-        self.changed = pyqtSignal()  # Some aspect of permanent, saveable state changed
-        self.tweaked = pyqtSignal()  # Something relevant to the UI but not the underlying data changed
+    
+    def __repr__(self):
+        return 'vh%i'%self.number()
 
-    def simpleRep(self, encoder):
-        """Returns a representation in terms of simple JSON-encodable types
-        or types that implement simpleRep"""
-        ret = {'.class': "DNAPart"}
-        ret['part'] = encoder.idForObject(self._part)
-        ret['number'] = self._number
-        ret['size'] = self._size
-        ret['stapleBases'] = self._stapleBases
-        ret['scaffoldBases'] = self._scaffoldBases
-        return ret
-
-    @classmethod
-    def fromSimpleRep(cls, rep):
-        """Instantiates one of the parent class from the simple
-        representation rep"""
-        ret = VirtualHelix()
-        ret.partID = rep['part']
-        ret._number = rep['number']
-        ret._row = rep['row']
-        ret._col = rep['col']
-        ret._stapleBases = rep['stapleBases']
-        ret._scaffoldBases = rep['scaffoldBases']
-        ret.isValid = False
-        return ret
-
+    def numBases(self):
+        return self._numBases
+        
     def resolveSimpleRepIDs(self,idToObj):
         self._part = idToObj[self.partID]
         del self.partID
@@ -92,6 +73,15 @@ class VirtualHelix(QObject):
         """return VirtualHelix number"""
         return self._number
     
+    def setNumber(self, newNumber):
+        self._part.renumberVirtualHelix(self, newNumber)
+    
+    def _setNumber(self, newNumber):
+        """_part is responsible for assigning ids, so only it gets to
+        use this method."""
+        self._number = newNumber
+        self.changed.emit()
+    
     def coord(self):
         return (self._row, self._col)
 
@@ -103,10 +93,6 @@ class VirtualHelix(QObject):
     
     def parityEven(self):
         return self._part.virtualHelixParityEven(self)
-
-    def size(self):
-        """The length in bases of the virtual helix."""
-        return self._size
 
     def row(self):
         """return VirtualHelix helical-axis row"""
@@ -126,13 +112,13 @@ class VirtualHelix(QObject):
 
     def hasScafAt(self, index):
         """Returns true if a scaffold base is present at index"""
-        if index > self._size-1:
+        if index > self.numBases()-1:
             return False
         return not self._scaffoldBases[index].isNull()
 
     def hasStapAt(self, index):
         """Returns true if a staple base is present at index"""
-        if index > self._size-1:
+        if index > self.numBases()-1:
             return False
         return not self._stapleBases[index].isNull()
 
@@ -232,8 +218,14 @@ class VirtualHelix(QObject):
         else:
             raise AttributeError
     
-    def getNeighbors():
-        self._part.getVirtualHelixNeighbors(self)
+    def getNeighbors(self):
+        """The part (which controls helix layout) decides who
+        the virtualhelix's neighbors are. A list is returned,
+        possibly containing None in some slots, so that
+        getNeighbors()[i] corresponds to the neighbor in direction
+        i (where the map between directions and indices is defined
+        by the part)"""
+        return self._part.getVirtualHelixNeighbors(self)
 
     def updatePreCrossoverPositions(self, clickIndex=None):
         """docstring for updatePreCrossoverPositions"""
@@ -257,16 +249,18 @@ class VirtualHelix(QObject):
 
         if clickIndex == None:  # auto staple
             start = 0
-            end = self.size()
+            end = self.numBases()
         else: # user mouse click
             start = max(0, clickIndex - (clickIndex % step) - step)
-            end = min(self.size(), clickIndex - (clickIndex % step) + step*2)
+            end = min(self.numBases(), clickIndex - (clickIndex % step) + step*2)
         
         #for neighbor in self.getNeighbors()
         #neighborIndexList = self.getNeighborIndexList()
         neighbors = self.getNeighbors()
-        for p in [0, 1, 2]:  # [0, 1, 2]
+        for p in range(len(neighbors)):
             neighbor = neighbors[p]
+            if not neighbor:
+                continue
             # num = neighbor.number()
             # Scaffold Left
             for i,j in product(range(start, end, step), scafL[p]):
@@ -367,3 +361,28 @@ class VirtualHelix(QObject):
     def getRightStapPreCrossoverIndexList(self):
         return self._stapRightPreXoList
 
+    ################################## Archiving / Unarchiving ##################################
+    def simpleRep(self, encoder):
+        """Returns a representation in terms of simple JSON-encodable types
+        or types that implement simpleRep"""
+        ret = {'.class': "DNAPart"}
+        ret['part'] = encoder.idForObject(self._part)
+        ret['number'] = self._number
+        ret['size'] = self._size
+        ret['stapleBases'] = self._stapleBases
+        ret['scaffoldBases'] = self._scaffoldBases
+        return ret
+
+    @classmethod
+    def fromSimpleRep(cls, rep):
+        """Instantiates one of the parent class from the simple
+        representation rep"""
+        ret = VirtualHelix()
+        ret.partID = rep['part']
+        ret._number = rep['number']
+        ret._row = rep['row']
+        ret._col = rep['col']
+        ret._stapleBases = rep['stapleBases']
+        ret._scaffoldBases = rep['scaffoldBases']
+        ret.isValid = False
+        return ret

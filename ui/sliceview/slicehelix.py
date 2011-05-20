@@ -80,7 +80,7 @@ class SliceHelix(QGraphicsItem):
         self.setZValue(styles.ZSLICEHELIX)
     
     def virtualHelix(self):
-        return self.part.getVirtualHelix(self._number, returnNoneIfAbsent=True)
+        return self.part.getVirtualHelix((self._row, self._col), returnNoneIfAbsent=True)
 
     def parity(self):
         """docstring for parity"""
@@ -144,18 +144,20 @@ class SliceHelix(QGraphicsItem):
 
     class AddHelixCommand(QUndoCommand):
         """docstring for AddHelixCommand"""
-        def __init__(self, slicehelix, number):
+        def __init__(self, part, coords, shg):
             super(SliceHelix.AddHelixCommand, self).__init__()
-            self.slicehelix = slicehelix
-            self._number = number
-
+            self.part = part
+            self.coords = coords
+            self.shg = shg
+            
         def redo(self):
-            self.slicehelix.part.addVirtualHelix(self.slicehelix)
-            self.slicehelix.parent.addHelixToPathGroup(self._number)
+            vh = self.part.addVirtualHelixAt(self.coords)
+            self.shg.addHelixToPathGroup(vh.number())
 
         def undo(self):
-            self.slicehelix.part.removeVirtualHelix(self._number)
-            self.slicehelix.parent.removeHelixFromPathGroup(self._number)
+            vh = self.part.getVirtualHelix(self.coords)
+            self.part.removeVirtualHelix(vh)
+            self.shg.removeHelixFromPathGroup(vh.number())
     # end class
 
     class AddBasesToHelixCommand(QUndoCommand):
@@ -295,7 +297,7 @@ class SliceHelix(QGraphicsItem):
         if self._number < 0:  # Initiate
             self.undoStack.beginMacro("Add new SliceHelix")
             self.undoStack.push(SliceHelix.RenumberCommand(self, self._number))
-            self.undoStack.push(SliceHelix.AddHelixCommand(self, self._number))
+            self.undoStack.push(SliceHelix.AddHelixCommand(self.part, (self._row, self._col), self.parent))
             index = self.parent.activeslicehandle.getPosition()
             self.undoStack.push(SliceHelix.AddBasesToHelixCommand(self, self._number, index))
             self.undoStack.endMacro()

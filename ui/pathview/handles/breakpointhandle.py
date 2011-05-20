@@ -97,7 +97,7 @@ class BreakpointHandle(QGraphicsItem):
         self.baseIndex = baseIndex  # public
         self.tempIndex = baseIndex
         self.minIndex = 0
-        self.maxIndex = (vhelix.part().getCanvasSize() - 1)
+        self.maxIndex = (vhelix.part().getNumBases() - 1)
         self.rect = QRectF(0, 0, baseWidth, baseWidth)
         self.x0 = baseIndex * baseWidth
         self.y0 = self.getYoffset()

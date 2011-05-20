@@ -28,7 +28,7 @@ Created by Jonathan deWerd on 2011-01-26.
 """
 
 import json
-from .dnapart import DNAPart
+from .dnahoneycombpart import DNAHoneycombPart
 from .dnapartinstance import DNAPartInstance
 from PyQt4.QtCore import QObject
 
@@ -59,7 +59,7 @@ class Document(QObject):
         """
         Create and store a new DNAPart and instance, and return the instance.
         """
-        dnapart = DNAPart(partid, crossSectionType)
+        dnapart = DNAHoneycombPart()
         self._parts.append(dnapart)
         dnainst = DNAPartInstance(dnapart)
         self._dnaPartInstances.append(dnainst)

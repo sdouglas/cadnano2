@@ -104,7 +104,7 @@ class PathHelix(QGraphicsItem):
         """Sets rect width to reflect number of bases in vhelix. Sets
         rect height to the width of two bases (one for scaffold and
         one for staple)"""
-        canvasSize = self._vhelix.part().getCanvasSize()
+        canvasSize = self._vhelix.part().getNumBases()
         self.rect.setWidth(self.baseWidth * canvasSize)
         self.rect.setHeight(2 * self.baseWidth)
 
@@ -128,7 +128,7 @@ class PathHelix(QGraphicsItem):
         dividing scaffold and staple bases.
         """
         path = QPainterPath()
-        canvasSize = self._vhelix.part().getCanvasSize()
+        canvasSize = self._vhelix.part().getNumBases()
         # border
         path.addRect(0, 0, self.baseWidth * canvasSize, 2 * self.baseWidth)
         # minor tick marks
@@ -149,7 +149,7 @@ class PathHelix(QGraphicsItem):
         pens can be used for each.
         """
         path = QPainterPath()
-        canvasSize = self._vhelix.part().getCanvasSize()
+        canvasSize = self._vhelix.part().getNumBases()
         # major tick marks
         for i in range(0, canvasSize + 1, 7):
             x = round(self.baseWidth*i) + .5
@@ -288,7 +288,7 @@ class PathHelix(QGraphicsItem):
         count = len(handles)
         if count == 0:
             return
-        maxIndex = self._vhelix.part().getCanvasSize() - 1
+        maxIndex = self._vhelix.part().getNumBases() - 1
         if count == 1:
             handles[0].setDragBounds(0, maxIndex)
         else:
