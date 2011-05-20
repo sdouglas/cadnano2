@@ -80,10 +80,9 @@ defmods = getDefaultModules()
 removeModules(defmods)
 
 # begin program
-import cadnanomaya
+from cadnanomaya import app as getAppInstance
 
-caDNAno = cadnanomaya.caDNAno
-
-#import pymel.core as pm
-caDNAno()
+app = getAppInstance(sys.argv)
+if __name__ == '__main__':
+    app.exec_()
 

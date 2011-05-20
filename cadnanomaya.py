@@ -33,11 +33,12 @@ import pymel.core as pc
 import cadnano
 
 class caDNAnoMaya(cadnano.caDNAno):
-    def __init__(self):
-        super(caDNAnoMaya, self).__init__()
-	
-	def isInMaya(self):
-		return True
+    def __init__(self, argv):
+        super(caDNAnoMaya, self).__init__(argv)
+        print "cupcake 2"
+        
+    def isInMaya(self):
+        return True
 
     def configMaya(self):
         # delete all objects in the scene

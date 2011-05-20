@@ -31,7 +31,7 @@ from PyQt4.QtGui import *
 
 class caDNAno(QApplication):
     sharedApp = None  # This class is a singleton.
-    def __init__(self,argv):
+    def __init__(self, argv):
         super(caDNAno, self).__init__(argv)
         assert(not caDNAno.sharedApp)
         caDNAno.sharedApp = self
