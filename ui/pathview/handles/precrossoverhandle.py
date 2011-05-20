@@ -265,25 +265,33 @@ class PreXoverHandle(QGraphicsItem):
     # end def
 
     def rightDrawConfig(self):
-        self.setX(self.baseWidth * self._index)
+        # self.setX(self.baseWidth * self._index)
+        self.setPos(self.baseWidth * self._index, self.y())
         offset = -self._label.boundingRect().width() / 2 + self.baseWidth / 2
-        self._label.setX(offset)
+        # self._label.setX(offset)
+        self._label.setPos(offset, self.y())
     # end def
 
     def leftDrawConfig(self):
-        self.setX(self.baseWidth * self._index)
+        # self.setX(self.baseWidth * self._index)
+        self.setPos(self.baseWidth * self._index, self.y())
         offset = self._label.boundingRect().width() / 2
-        self._label.setX(self.baseWidth / 2 - offset)
+        # self._label.setX(self.baseWidth / 2 - offset)
+        self._label.setPos(self.baseWidth / 2 - offset, self.y())
     # end def
 
     def upDrawConfig(self):
-        self.setY(-1.25 * self.baseWidth)
-        self._label.setY(-0.10 * self.baseWidth)
+        # self.setY(-1.25 * self.baseWidth)
+        # self._label.setY(-0.10 * self.baseWidth)
+        self.setPos(self.x(), -1.25 * self.baseWidth)
+        self._label.setPos(self.x(), -0.10 * self.baseWidth)
     #end def
 
     def downDrawConfig(self):
-        self.setY(2.25 * self.baseWidth)
-        self._label.setY(0.48 * self.baseWidth)
+        # self.setY(2.25 * self.baseWidth)
+        # self._label.setY(0.48 * self.baseWidth)
+        self.setPos(self.x(), 2.25 * self.baseWidth)
+        self._label.setPos(self.x(), 0.48 * self.baseWidth)
     #end def
 
     def boundingRect(self):

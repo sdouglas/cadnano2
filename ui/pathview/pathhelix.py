@@ -59,6 +59,7 @@ class PathHelix(QGraphicsItem):
 
     def __init__(self, vhelix, position, parent):
         super(PathHelix, self).__init__(parent)
+        self.rect = QRectF()
         self.setAcceptHoverEvents(True)  # for pathtools
         self._vhelix = vhelix
         self._parity = self._vhelix.parity()
@@ -78,7 +79,6 @@ class PathHelix(QGraphicsItem):
             self.step = 32
         self.pathController = parent.pathController  # assumes parent is phg
         self.setZValue(styles.ZPATHHELIX)
-        self.rect = QRectF()
         self.updateRect()
         # Here's where cadnano gets the reference to mMaya's 3D equivalent
         # of the PathHelix (while passing a handy reference to itself)
