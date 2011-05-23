@@ -404,7 +404,7 @@ class SelectionItemGroup(QGraphicsItemGroup):
         super(SelectionItemGroup, self).__init__(parent)
         self.parent = parent
         self.setParentItem(parent)
-        # self.setFiltersChildEvents(True)
+        self.setFiltersChildEvents(True)
         self.setFlag(QGraphicsItem.ItemIsSelectable)
         self.pen = QPen(styles.bluestroke, styles.PATH_SELECTBOX_STROKE_WIDTH)
         self.drawMe = False

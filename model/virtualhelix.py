@@ -55,7 +55,7 @@ class VirtualHelix(QObject):
         self.isValid = True  # If loaded from a simple rep, isValid is false until all pointers are resolved
     
     def __repr__(self):
-        return 'vh%i'%self.number()
+        return 'vh%i' % self.number()
 
     def numBases(self):
         return self._numBases

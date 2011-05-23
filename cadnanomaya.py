@@ -35,7 +35,6 @@ import cadnano
 class caDNAnoMaya(cadnano.caDNAno):
     def __init__(self, argv):
         super(caDNAnoMaya, self).__init__(argv)
-        print "cupcake 2"
         
     def isInMaya(self):
         return True

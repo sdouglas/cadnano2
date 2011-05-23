@@ -61,7 +61,7 @@ class PathHelixHandle(QGraphicsItem):
         self.setNumber()
         #self.setFlag(QGraphicsItem.ItemIsMovable)
         self.setFlag(QGraphicsItem.ItemIsSelectable)
-        # self.setFlag(QGraphicsItem.ItemSendsScenePositionChanges)
+        self.setFlag(QGraphicsItem.ItemSendsScenePositionChanges)
     # end def
 
     def restoreParent(self):
