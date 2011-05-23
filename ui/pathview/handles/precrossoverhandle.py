@@ -107,7 +107,7 @@ class PreXoverHandleGroup(QGraphicsItem):
         ph1 = self.parentItem().getPathHelix(vhelix)
         i = 0
         for [neighbor, index] in scafL:
-            if vhelix.parity() == Parity.Even:
+            if vhelix.evenParity():
                 orient1 = HandleOrient.LeftUp
                 orient2 = HandleOrient.LeftDown
             else:
@@ -120,7 +120,7 @@ class PreXoverHandleGroup(QGraphicsItem):
             self.handlesB[i].setLabel()
             i += 1
         for [neighbor, index] in scafR:
-            if vhelix.parity() == Parity.Even:
+            if vhelix.evenParity():
                 orient1 = HandleOrient.RightUp
                 orient2 = HandleOrient.RightDown
             else:
@@ -135,7 +135,7 @@ class PreXoverHandleGroup(QGraphicsItem):
         # Process Staple PreXoverHandles
         strandtype = StrandType.Staple
         for [neighbor, index] in stapL:
-            if vhelix.parity() == Parity.Even:
+            if vhelix.evenParity():
                 orient1 = HandleOrient.LeftUp
                 orient2 = HandleOrient.LeftDown
             else:
@@ -148,7 +148,7 @@ class PreXoverHandleGroup(QGraphicsItem):
             self.handlesB[i].setLabel()
             i += 1
         for [neighbor, index] in stapR:
-            if vhelix.parity() == Parity.Even:
+            if vhelix.evenParity():
                 orient1 = HandleOrient.RightUp
                 orient2 = HandleOrient.RightDown
             else:

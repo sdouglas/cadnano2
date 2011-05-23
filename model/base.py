@@ -27,105 +27,80 @@ Created by Shawn Douglas on 2011-02-08.
 """
 
 class Base(object):
-    """docstring for Base"""
-    _null = -1
-    
+    """A POD class that lives in the private API of
+    virtualhelix (Why not put it inside VirtualHelix?
+    Because it's already quite crowded in VirtualHelix)
+    and provides information about which bases
+    are connected to which other bases"""    
     def __init__(self, vhelix=None, index=None):
         super(Base, self).__init__()
-        self._prevBase = Base._null
-        self._nextBase = Base._null
+        self._prevBase = None
+        self._nextBase = None
         self._vhelix = vhelix
-        self._index = index
-
-    def simpleRep(self, encoder):
-        """
-        Provides a representation of the receiver in terms of simple
-        (container, atomic) classes and other objects implementing simpleRep
-        """
-        ret = {'.class': "Base"}
-        ret['prevBase'] = self._prevBase
-        ret['nextBase'] = self._nextBase
-        ret['vhelix'] = self._vhelix
-        ret['index'] = self._index
-        return ret
-
-    @classmethod
-    def fromSimpleRep(cls, rep):
-        """prevBase and nextBase are weak references.
-        Everything else handled as normal."""
-        b = Base()
-        b._index = rep['index']
-        b.prevID = rep['prevBase']
-        b.nextID = rep['nextBase']
-        b.vhelixID = rep['vhelixnum']
-        return b
-
-    def resolveSimpleRepIDs(self, idToObj):
-        self._prevBase = idToObj[self.prevID]
-        del self.prevID
-        self._nextBase = idToObj[self.nextID]
-        del self.nextID
-        self._vhelix = idToObj[self.vhelixID]
-        del vhelixID
-
-    def getPrev(self):
-        """Return reference to previous base, or _null."""
-        return self._prevBase
-
-    def setPrev(self, base):
-        """Set base as prevBase"""
-        if self._prevBase != Base._null:
-            self._prevBase.clearNext()
-        self._prevBase = base
-
-    def getNext(self):
-        """Return reference to next base, or _null."""
-        return self._nextBase
-
-    def setNext(self, base):
-        """Set base as nextBase"""
-        if self._nextBase != Base._null:
-            self._nextBase.clearPrev()
-        self._nextBase = base
-
-    def clearPrev(self):
-        """Set previous base reference to _null"""
-        self._prevBase = Base._null
-
-    def clearNext(self):
-        """Set previous base reference to _null"""
-        self._nextBase = Base._null
-
-    def partId(self):
-        """docstring for partNum"""
-        return self._vhelix.part().id()
-
+        self._n = index
+    
+    def __str__(self, vhelix=None, index=None):
+        p, n = '_', '_'
+        if self._nextBase:
+            if self._nextBase.vhelixNum()==self.vhelixNum():
+                n = '>'
+            else:
+                n = str(self._nextBase.vhelixNum())
+        if self._prevBase:
+            if self._prevBase.vhelixNum()==self.vhelixNum():
+                p = '<'
+            else:
+                p = str(self._prevBase.vhelixNum())
+        return p+n
+            
+    
+    def _setPrev(self, newPrevBase, oldPrevNext=None):
+        """Only VirtualHelix should call this method. Returns
+        a list l such that _setPrev(*l) undoes the command."""
+        if newPrevBase:
+            undoDat = (self._prevBase, newPrevBase._nextBase)
+        else:
+            undoDat = (self._prevBase, None)
+        if self._prevBase:
+            self._prevBase._nextBase = oldPrevNext
+        if newPrevBase:
+            newPrevBase._nextBase = self
+        self._prevBase = newPrevBase
+        return undoDat
+    
+    def _setNext(self, newNextBase, oldNextPrev=None):
+        """Only VirtualHelix should call this method. Returns
+        a list l such that _setNext(*l) undoes the command"""
+        if newNextBase:
+            undoDat = (self._nextBase, newNextBase._prevBase)
+        else:
+            undoDat = (self._nextBase, None)
+        if self._nextBase:
+            self._nextBase._prevBase = oldNextPrev
+        if newNextBase:
+            newNextBase._prevBase = self
+        self._nextBase = newNextBase
+        return undoDat
+    
     def vhelixNum(self):
-        """docstring for vhelixNum"""
         return self._vhelix.number()
 
     def isNull(self):
-        if self._prevBase == Base._null and\
-           self._nextBase == Base._null:
-            return True
-        else:
-            return False
+        return self._prevBase == None and\
+               self._nextBase == None
 
     def is5primeEnd(self):
         """Return True if no prevBase, but nextBase exists."""
-        if self._prevBase == Base._null and\
-           self._nextBase != Base._null:
-            return True
-        else:
-            return False
+        return self._prevBase == None and\
+               self._nextBase != None
 
     def is3primeEnd(self):
         """Return True if no nextBase, but prevBase exists."""
-        if self._prevBase != Base._null and\
-           self._nextBase == Base._null:
-            return True
-        else:
-            return False
+        return self._prevBase != None and\
+               self._nextBase == None
+    
+    def isEnd(self):
+        return (self._prevBase==None) ^ (self._nextBase==None)
 
     def isCrossover(self):
         """Return True if the part id or vhelix number of the prev or

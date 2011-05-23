@@ -35,7 +35,7 @@ from PyQt4.QtGui import QGraphicsSimpleTextItem
 from PyQt4.QtGui import QPainter, QPainterPath
 from PyQt4.QtGui import QPen, QDrag, QUndoCommand
 import ui.styles as styles
-from model.enum import EndType, LatticeType, StrandType, Parity
+from model.enum import EndType, LatticeType, StrandType
 from model.virtualhelix import VirtualHelix
 from handles.breakpointhandle import BreakpointHandle
 from mmayacadnano.pathhelix3d import PathHelix3D  # For Campbell
@@ -57,36 +57,37 @@ class PathHelix(QGraphicsItem):
     nobrush = QBrush(Qt.NoBrush)
     baseWidth = styles.PATH_BASE_WIDTH
 
-    def __init__(self, vhelix, position, parent):
+    def __init__(self, vhelix, parent):
         super(PathHelix, self).__init__(parent)
         self.setAcceptHoverEvents(True)  # for pathtools
-        self._vhelix = vhelix
-        self._parity = self._vhelix.parity()
         self._scafBreakpointHandles = []
         self._stapBreakpointHandles = []
         self._scafXoverHandles = []
         self._stapXoverHandles = []
-        self.scafLines = []
-        self.setPos(position)
-        self.minorGridPainterPath = self.getMinorGridPainterPath()
-        self.majorGridPainterPath = self.getMajorGridPainterPath()
+        self._segmentLines = None
+        self._minorGridPainterPath = None
+        self._majorGridPainterPath = None
         self.setParentItem(parent)
-        # for precrossover
-        if parent.crossSectionType == LatticeType.Honeycomb:
-            self.step = 21
-        elif parent.crossSectionType == LatticeType.Square:
-            self.step = 32
+        self.step = 21  # 32 for Square lattice
         self.pathController = parent.pathController  # assumes parent is phg
         self.setZValue(styles.ZPATHHELIX)
         self.rect = QRectF()
-        self.updateRect()
-        # Here's where cadnano gets the reference to mMaya's 3D equivalent
-        # of the PathHelix (while passing a handy reference to itself)
-        self.PathHelix3D = PathHelix3D(self)  # For Campbell
+        self._vhelix = None
+        self.setVHelix(vhelix)
     # end def
 
     def vhelix(self):
         return self._vhelix
+        
+    def setVHelix(self, newVH):
+        if self._vhelix:
+            self._vhelix.basesModified.disconnect(self.vhelixBasesModified)
+            self._vhelix.vhelixDimensionsModified.disconnect(self.vhelixDimensionsModified)
+        self._vhelix = newVH
+        newVH.basesModified.connect(self.vhelixBasesModified)
+        newVH.dimensionsModified.connect(self.vhelixDimensionsModified)
+        self.vhelixDimensionsModified()
+        self.vhelixBasesModified()
 
     def number(self):
         return self._vhelix.number()
@@ -97,67 +98,24 @@ class PathHelix(QGraphicsItem):
     def col(self):
         return self._vhelix.col()
 
-    def parity(self):
-        return self._parity
+    def evenParity(self):
+        return self._vhelix.evenParity()
 
-    def updateRect(self):
+    def vhelixDimensionsModified(self):
         """Sets rect width to reflect number of bases in vhelix. Sets
         rect height to the width of two bases (one for scaffold and
         one for staple)"""
-        canvasSize = self._vhelix.part().getNumBases()
+        canvasSize = self._vhelix.part().numBases()
+        self.prepareGeometryChange()
         self.rect.setWidth(self.baseWidth * canvasSize)
         self.rect.setHeight(2 * self.baseWidth)
+        self._minorGridPainterPath = None
+        self._majorGridPainterPath = None
 
     def boundingRect(self):
         return self.rect
-
-    def paint(self, painter, option, widget=None):
-        painter.setBrush(self.nobrush)
-        painter.setPen(self.minorGridPen)
-        painter.drawPath(self.minorGridPainterPath)  # Minor grid lines
-        painter.setPen(self.majorGridPen)
-        painter.drawPath(self.majorGridPainterPath)  # Major grid lines
-        painter.setPen(self.scafPen)
-        painter.drawLines(self.scafLines)  # Scaffold lines
-    # end def
-
-    def getMinorGridPainterPath(self):
-        """
-        Returns a QPainterPath object for the minor grid lines.
-        The path also includes a border outline and a midline for
-        dividing scaffold and staple bases.
-        """
-        path = QPainterPath()
-        canvasSize = self._vhelix.part().getNumBases()
-        # border
-        path.addRect(0, 0, self.baseWidth * canvasSize, 2 * self.baseWidth)
-        # minor tick marks
-        for i in range(canvasSize):
-            if (i % 7 != 0):
-                x = round(self.baseWidth*i) + .5
-                path.moveTo(x, 0)
-                path.lineTo(x, 2 * self.baseWidth)
-        # staple-scaffold divider
-        path.moveTo(0, self.baseWidth)
-        path.lineTo(self.baseWidth * canvasSize, self.baseWidth)
-        return path
-
-    def getMajorGridPainterPath(self):
-        """
-        Returns a QPainterPath object for the major grid lines.
-        This is separated from the minor grid lines so different
-        pens can be used for each.
-        """
-        path = QPainterPath()
-        canvasSize = self._vhelix.part().getNumBases()
-        # major tick marks
-        for i in range(0, canvasSize + 1, 7):
-            x = round(self.baseWidth*i) + .5
-            path.moveTo(x, .5)
-            path.lineTo(x, 2 * self.baseWidth - .5)
-        return path
-    # end def
-
+    
+    ################################ Events ################################
     def hoverEnterEvent(self, event):
         if self.pathController.toolUse == True:
             self.pathController.toolHoverEnter(self,event)
@@ -189,18 +147,6 @@ class PathHelix(QGraphicsItem):
 
     def hidePreXoverHandles(self):
         pass
-    # end def
-
-    def addBreakpointHandle(self, bh, strandType):
-        """addScaffoldBreakHandle gets called by PathHelixGroup
-        when the handles are changed (e.g. by sliceHelixClickedSlot
-        or when a crossover is added)."""
-        if strandType == StrandType.Scaffold:
-            self._scafBreakpointHandles.append(bh)
-        elif strandType == StrandType.StrandType:
-            self._stapBreakpointHandles.append(bh)
-        else:
-            raise AttributeError("strandType not recognized.")
     # end def
 
     def addXoverHandle(self, xh, strandType):
@@ -237,68 +183,81 @@ class PathHelix(QGraphicsItem):
         self.update(self.boundingRect())
     # end def
 
-    def refreshBreakpoints(self, strandType):
+    ################################ Loading and Updating State From VHelix ##########################
+    def vhelixBasesModified(self):
+        self.refreshBreakpoints()
+        self._segmentLines = None  # Clear drawing cache of lines
+
+    def refreshBreakpoints(self):
         """docstring for refreshBreakpoints"""
-        if strandType == StrandType.Scaffold:
-            handles = self._scafBreakpointHandles
-            ends5p = self.vhelix().getScaffold5PrimeEnds()
-            ends3p = self.vhelix().getScaffold3PrimeEnds()
-            for bh in self._scafBreakpointHandles:
-                bh.destroy()
-            self._scafBreakpointHandles = []
-        # end if
-        elif strandType == StrandType.Staple:
-            handles = self._stapBreakpointHandles
-            ends5p = self.vhelix().getStaple5PrimeEnds()
-            ends3p = self.vhelix().getStaple3PrimeEnds()
-            for bh in self._stapBreakpointHandles:
-                bh.destroy()
-            self._stapBreakpointHandles = []
-        # end elif
-        else:
-            raise AttributeError("StrandType not recognized")
-        # end else
-        for baseIndex in ends5p:
-            bh = BreakpointHandle(self.vhelix(), EndType.FivePrime,\
-                                  strandType, baseIndex, parent=self)
-            self.addBreakpointHandle(bh, strandType)
-        # end for
-        for baseIndex in ends3p:
-            bh = BreakpointHandle(self.vhelix(), EndType.ThreePrime,\
-                                  strandType, baseIndex, parent=self)
-            self.addBreakpointHandle(bh, strandType)
-        # end for
-        self.updateDragBounds(strandType)
+        print "refreshing breakpoints"
+        for bh in self._scafBreakpointHandles:
+            bh.setParentItem(None)
+        self._scafBreakpointHandles = []
+        for bh in self._stapBreakpointHandles:
+            bh.setParentItem(None)
+        self._stapBreakpointHandles = []
+        for strandType in (StrandType.Staple, StrandType.Scaffold):
+            for baseIndex, endType in self.vhelix().getEnds(strandType):
+                bh = BreakpointHandle(self.vhelix(), endType,\
+                                      strandType, baseIndex, parent=self)
+                if strandType == StrandType.Staple:
+                    self._stapBreakpointHandles.append(bh)
+                else:
+                    self._scafBreakpointHandles.append(bh)
+
+    ################################ Drawing ##########################
+    def paint(self, painter, option, widget=None):
+        painter.setBrush(self.nobrush)
+        painter.setPen(self.minorGridPen)
+        painter.drawPath(self.minorGridPainterPath())  # Minor grid lines
+        painter.setPen(self.majorGridPen)
+        painter.drawPath(self.majorGridPainterPath())  # Major grid lines
+        painter.setPen(self.scafPen)
+        painter.drawLines(self.segmentLines())
     # end def
 
-    def updateDragBounds(self, strandType):
-        """Sorts a list of all breakpoint and crossover handles, and then
-        iterates over those handles and sets dragging boundaries for
-        breakpoint handles."""
-        if strandType == StrandType.Scaffold:
-            handles = sorted(self._scafBreakpointHandles +\
-                             self._scafXoverHandles,\
-                             key=lambda handle: handle.baseIndex)
-        elif strandType == StrandType.Staple:
-            handles = sorted(self._stapBreakpointHandles +\
-                             self._stapXoverHandles,\
-                             key=lambda handle: handle.baseIndex)
-        else:
-            raise AttributeError("StrandType not recognized")
-        count = len(handles)
-        if count == 0:
-            return
-        maxIndex = self._vhelix.part().getNumBases() - 1
-        if count == 1:
-            handles[0].setDragBounds(0, maxIndex)
-        else:
-            handles[0].setDragBounds(0, handles[1].baseIndex - 1)
-            for i in range(len(handles[1:-1])):
-                handles[i].setDragBounds(handles[i - 1].baseIndex + 1,\
-                                         handles[i + 1].baseIndex - 1)
-            handles[count - 1].setDragBounds(\
-                               handles[count - 2].baseIndex + 1, maxIndex)
-    # end def
+    def minorGridPainterPath(self):
+        """
+        Returns a QPainterPath object for the minor grid lines.
+        The path also includes a border outline and a midline for
+        dividing scaffold and staple bases.
+        """
+        if self._minorGridPainterPath:
+            return self._minorGridPainterPath
+        path = QPainterPath()
+        canvasSize = self._vhelix.part().numBases()
+        # border
+        path.addRect(0, 0, self.baseWidth * canvasSize, 2 * self.baseWidth)
+        # minor tick marks
+        for i in range(canvasSize):
+            if (i % 7 != 0):
+                x = round(self.baseWidth*i) + .5
+                path.moveTo(x, 0)
+                path.lineTo(x, 2 * self.baseWidth)
+        # staple-scaffold divider
+        path.moveTo(0, self.baseWidth)
+        path.lineTo(self.baseWidth * canvasSize, self.baseWidth)
+        self._minorGridPainterPath = path
+        return path
+
+    def majorGridPainterPath(self):
+        """
+        Returns a QPainterPath object for the major grid lines.
+        This is separated from the minor grid lines so different
+        pens can be used for each.
+        """
+        if self._majorGridPainterPath:
+            return self._majorGridPainterPath
+        path = QPainterPath()
+        canvasSize = self._vhelix.part().numBases()
+        # major tick marks
+        for i in range(0, canvasSize + 1, 7):
+            x = round(self.baseWidth*i) + .5
+            path.moveTo(x, .5)
+            path.lineTo(x, 2 * self.baseWidth - .5)
+        self._majorGridPainterPath = path
+        return path
 
     def getYoffset(self, strandType):
         """
@@ -307,47 +266,25 @@ class PathHelix(QGraphicsItem):
         negative-z direction and are drawn in the lower half of the
         path helix grid.
         """
-        if (self._parity == Parity.Even and strandType == StrandType.Staple):
+        if (self.evenParity() and strandType == StrandType.Staple):
             return self.baseWidth + (self.baseWidth >> 1)
-        if (self._parity == Parity.Odd and strandType == StrandType.Scaffold):
+        if (not self.evenParity() and strandType == StrandType.Scaffold):
             return self.baseWidth + (self.baseWidth >> 1)
         else:
             return self.baseWidth >> 1
 
-    def redrawLines(self, strandType):
+    def segmentLines(self):
         """Draw horizontal lines where non-breakpoint, non-crossover strand
            is present"""
-        endpoints = []
-        if strandType == StrandType.Scaffold:
-            handles = sorted(self._scafBreakpointHandles +\
-                             self._scafXoverHandles,\
-                             key=lambda handle: handle.baseIndex)
-        elif strandType == StrandType.Staple:
-            handles = sorted(self._stapBreakpointHandles +\
-                             self._stapXoverHandles,\
-                             key=lambda handle: handle.baseIndex)
-        else:
-            raise AttributeError
-        count = len(handles)
-        if count == 0:
-            return
-        if count % 2 == 1:
-            print ' '.join(["%d" % h.baseIndex for h in handles])
-            raise ValueError("%d handles" % count)  # should always be even
-        else:
-            for i in range(0, len(handles), 2):
-                # collect endpoints
-                endpoints.append([handles[i].baseIndex,\
-                                  handles[i + 1].baseIndex])
-
-        self.scafLines = []  # get rid of old points
-        y = self.getYoffset(strandType)  # determine y offset
-        for [startIndex, endIndex] in endpoints:
-            x1 = (startIndex * self.baseWidth) + (self.baseWidth >> 1)
-            x2 = (endIndex * self.baseWidth) + (self.baseWidth >> 1)
-            self.scafLines.append(QLine(x1, y, x2, y))  # create QLine list
-        # end for
-        self.update(self.rect)
-        self.PathHelix3D.updateDNA(strandType, endpoints)
+        if self._segmentLines:
+            return self._segmentLines
+        self._segmentLines = []
+        for strandType in (StrandType.Scaffold, StrandType.Staple):
+            y = self.getYoffset(strandType)  # determine y offset
+            for [startIndex, endIndex] in self._vhelix.getSegments(strandType):
+                x1 = (startIndex * self.baseWidth) + (self.baseWidth >> 1)
+                x2 = (endIndex * self.baseWidth) + (self.baseWidth >> 1)
+                self._segmentLines.append(QLine(x1, y, x2, y))  # create QLine list
+        return self._segmentLines
 
 # end class

@@ -30,12 +30,11 @@ from model.document import Document
 from model.encoder import encode
 from .documentwindow import DocumentWindow
 from pathview.pathhelixgroup import PathHelixGroup
-from sliceview.slicehelixgroup import SliceHelixGroup
+from sliceview.honeycombslicegraphicsitem import HoneycombSliceGraphicsItem
 from treeview.treecontroller import TreeController
 from pathview.handles.activeslicehandle import ActiveSliceHandle
 from model.enum import LatticeType
-print dir(app())
-print app()
+
 if app().isInMaya():
     from .mayawindow import DocumentWindow
     from solidview.solidhelixgroup import SolidHelixGroup
@@ -50,7 +49,7 @@ class DocumentController():
         app().documentControllers.add(self)
         self.doc = Document()
         self.idbank = IdBank()
-        self.undoStack = QUndoStack()
+        self.undoStack = self.doc.undoStack()
         app().undoGroup.addStack(self.undoStack)
         self.win = DocumentWindow(docCtrlr=self)
         self.win.show()
@@ -158,30 +157,19 @@ class DocumentController():
 
     def addHoneycombHelixGroup(self, nrows=20, ncolumns=20):
         """docstring for addHoneycombHelixGroup"""
-        startBase = 21  # honeycomb
-        # startBase = 16  # square
-
         # Create a new DNA part
-        objId = self.idbank.get()
-        dnaPartInst = self.doc.addDnaPart(objId, crossSectionType='honeycomb')
-        # Add the part to the Tree view
-        name = "Part.%d" % objId 
-        self.treeController.addPartNode(name, dnaPartInst)
+        dnaPart = self.doc.addDnaHoneycombPart()
 
         # Create the ActiveSliceHandle
-        ash = ActiveSliceHandle(dnaPartInst, \
-                                startBase, \
+        ash = ActiveSliceHandle(dnaPart, \
                                 controller=self.win.pathController)
 
         # Create a Slice view of part
-        shg = SliceHelixGroup(dnaPartInst,\
-                              ash,\
-                              nrows, ncolumns,\
-                              type=LatticeType.Honeycomb,\
-                              controller=self.win.sliceController,\
-                              parent=self.win.sliceroot)
+        shg = HoneycombSliceGraphicsItem(dnaPart,\
+                                         controller=self.win.sliceController,\
+                                         parent=self.win.sliceroot)
         # Create a Path view of the part
-        phg = PathHelixGroup(dnaPartInst,\
+        phg = PathHelixGroup(dnaPart,\
                              ash,\
                              controller=self.win.pathController,\
                              parent=self.win.pathroot)
@@ -193,14 +181,11 @@ class DocumentController():
             phg.scaffoldChange.connect(solhg.handleScaffoldChange)
         
         # Connect signals and slots
-        ash.activeSliceMovedSignal.connect(shg.activeSliceMovedSlot)
-        shg.helixAddedSignal.connect(phg.helixAddedSlot)
-        shg.helixRemovedSignal.connect(phg.helixRemovedSlot)
-        shg.sliceHelixClicked.connect(phg.sliceHelixClickedSlot)
-        self.win.sliceController.activeSliceLastSignal.connect(ash.activeSliceLastSlot)
-        self.win.sliceController.activeSliceFirstSignal.connect(ash.activeSliceFirstSlot)
-        dnaPartInst.partselected.connect(shg.bringToFront)
-        dnaPartInst.partselected.connect(phg.bringToFront)
+        dnaPart.helixAdded.connect(phg.helixAddedSlot)
+        dnaPart.helixWillBeRemoved.connect(phg.helixRemovedSlot)
+        dnaPart.selectionWillChange.connect(phg.selectionWillChange)
+        self.win.sliceController.activeSliceLastSignal.connect(ash.moveToLastSlice)
+        self.win.sliceController.activeSliceFirstSignal.connect(ash.moveToFirstSlice)
     # end def
 
     def deleteClicked(self):

@@ -24,7 +24,7 @@ document
 
 SliceHelixGroup(QGraphicsItem):
 	helixhash[(row,col)] isa SliceHelix
-	dnaPartInst from Document.addDnaPart() isa DNAPartInstance
+	dnaPartInst from Document.addDnaHoneycombPart() isa DNAPartInstance
 
 SliceHelix(QGraphicsItem):
 	parent isa SliceHelixGroup

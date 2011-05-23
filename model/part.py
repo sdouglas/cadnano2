@@ -28,11 +28,20 @@ Created by Jonathan deWerd on 2011-01-26.
 """
 from exceptions import NotImplementedError
 from PyQt4.QtCore import QObject
+from cadnano import app
 
 class Part(QObject):
     def __init__(self, id, *args, **kargs):
-        super(Part, self).__init__(*args, **kargs)
+        super(Part, self).__init__()
         self._id = id
+        self._document = kargs.get('document', None)
+        app().p = self
+    
+    def document(self):
+        return self._document
+    
+    def undoStack(self):
+        return self.document().undoStack()
         
     def simpleRep(self, encoder):
         """Returns a representation in terms of simple JSON-encodable types

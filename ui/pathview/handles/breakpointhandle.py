@@ -33,7 +33,7 @@ from PyQt4.QtGui import QGraphicsItem
 from PyQt4.QtGui import QPainterPath
 from PyQt4.QtGui import QPolygonF
 from PyQt4.QtGui import QPen, QDrag, QUndoCommand
-from model.enum import EndType, StrandType, Parity, BreakType
+from model.enum import EndType, StrandType, BreakType
 import ui.styles as styles
 from util import *
 
@@ -90,14 +90,13 @@ class BreakpointHandle(QGraphicsItem):
         self.restoreParentItem = parent
         self.setParentItem(parent)
         self._vhelix = vhelix
-        self._parity = vhelix.parity()
         self.endType = endType
         self.strandType = strandType
         self.type = None  # direction + end type (see mouseReleaseEvent)
         self.baseIndex = baseIndex  # public
         self.tempIndex = baseIndex
         self.minIndex = 0
-        self.maxIndex = (vhelix.part().getNumBases() - 1)
+        self.maxIndex = (vhelix.part().numBases() - 1)
         self.rect = QRectF(0, 0, baseWidth, baseWidth)
         self.x0 = baseIndex * baseWidth
         self.y0 = self.getYoffset()
@@ -113,31 +112,12 @@ class BreakpointHandle(QGraphicsItem):
         self.setAcceptHoverEvents(True)
     # end def
 
-    def destroy(self):
-        """docstring for destroy"""
-        self.hide()
-    # end def
-
     def restoreParent(self):
         tempP = self.restoreParentItem.mapFromItem(self.parentItem(),\
                                                    self.pos())
         self.setParentItem(self.restoreParentItem)
         self.setPos(tempP)
     # end def
-
-    class MoveCommand(QUndoCommand):
-        def __init__(self, breakpointhandle, fromIndex, toIndex):
-            super(BreakpointHandle.MoveCommand, self).__init__()
-            self.bh = breakpointhandle
-            self.fromIndex = fromIndex
-            self.toIndex = toIndex
-
-        def redo(self):
-            self.bh.dragReleaseFrom3D(self.toIndex, pushToUndo=False)
-
-        def undo(self):
-            self.bh.dragReleaseFrom3D(self.fromIndex, pushToUndo=False)
-    # end class
 
     def boundingRect(self):
         return self.rect
@@ -155,13 +135,6 @@ class BreakpointHandle(QGraphicsItem):
         # painter.drawRect(self.rect)
     # end def
 
-    def setParity(self):
-        """docstring for setParity"""
-        if self._vhelix.number() % 2 == 0:
-            self._parity = Parity.Even
-        else:
-            self._parity = Parity.Odd
-
     def getYoffset(self):
         """
         This function returns the appropriate Y offset according to the
@@ -169,9 +142,9 @@ class BreakpointHandle(QGraphicsItem):
         negative-z direction and are drawn in the lower half of the
         path helix grid.
         """
-        if (self._parity == Parity.Even and\
+        if (self._vhelix.evenParity() and\
             self.strandType == StrandType.Staple) or \
-           (self._parity == Parity.Odd and\
+           (not self._vhelix.evenParity() and\
             self.strandType == StrandType.Scaffold):
             return baseWidth
         else:
@@ -182,7 +155,7 @@ class BreakpointHandle(QGraphicsItem):
         This function determines the correct appearance based on endType
         (5' or 3'), strandType (scaffold or staple), and helix parity
         (even or odd)."""
-        if self._parity == Parity.Even:
+        if self._vhelix.evenParity():
             if self.endType == EndType.FivePrime:
                 self.type = BreakType.Left5Prime
                 self.painterpath = ppL5
@@ -191,7 +164,7 @@ class BreakpointHandle(QGraphicsItem):
                 self.painterpath = ppR3
             else:
                 raise AttributeError("BPH: EndType not recognized")
-        elif self._parity == Parity.Odd:
+        else:
             if self.endType == EndType.FivePrime:
                 self.type = BreakType.Right5Prime
                 self.painterpath = ppR5
@@ -200,9 +173,7 @@ class BreakpointHandle(QGraphicsItem):
                 self.painterpath = ppL3
             else:
                 raise AttributeError("BPH: EndType not recognized")
-        else:
-            raise AttributeError("BPH: Parity not recognized")
-    
+  
     def hoverEnterEvent(self,event):
         if self.pathController.toolUse == False:
             self.setCursor(Qt.OpenHandCursor)
@@ -231,7 +202,6 @@ class BreakpointHandle(QGraphicsItem):
             self.x0 = self.tempIndex * baseWidth
             self.setPos(self.x0, self.y0)
             self.setCursor(Qt.OpenHandCursor)
-            self.breakpoint3D.dragFrom2D(self.tempIndex)
         else:
             QGraphicsItem.mousePressEvent(self, event)
 
@@ -273,57 +243,6 @@ class BreakpointHandle(QGraphicsItem):
         self._dragMode = False
         self.setCursor(Qt.OpenHandCursor)
     # end def
-
-    def setDragBounds(self, minIndex, maxIndex):
-        """Called by PathHelix.updateDragBounds to notify breakpoint handle
-        of where it can legally move along the vhelix."""
-        self.minIndex = minIndex
-        self.maxIndex = maxIndex
-
-    def dragFrom3D(self, newIndex):
-        """Called by mMaya BreakpointHandle3D to notify cadnano that the
-        3D handle is being dragged to a new location, and should be
-        dragged in the 2D view as well. No updates are made to the model."""
-        # *** not tested ***
-        if newIndex < self.minIndex:
-            newIndex = self.minIndex
-        elif newIndex > self.maxIndex:
-            newIndex = self.maxIndex
-        self.x0 = newIndex * baseWidth  # determine new location
-        self.setPos(self.x0, self.y0)  # move there
-        self.baseIndex = newIndex
-
-    def dragReleaseFrom3D(self, newIndex, pushToUndo=True):
-        """Called by mMaya BreakpointHandle3D to notify cadnano that the
-        3D handle has moved to a new location. All updates to the data
-        structure are then handled by cadnano on the 2D side."""
-
-        if pushToUndo:
-            self.undoStack.push(BreakpointHandle.MoveCommand(self,\
-                                                             self.baseIndex,\
-                                                             self.tempIndex))
-        # *** not tested ***
-
-        if self.baseIndex == newIndex:
-            return
-        delta = int(newIndex - self.baseIndex)
-        # update data stucture after move
-        self._vhelix.updateAfterBreakpointMove(self.strandType,\
-                                              self.type,\
-                                              self.baseIndex,\
-                                              delta)
-        self.baseIndex = newIndex
-        self.x0 = newIndex * baseWidth  # determine new location
-        self.setPos(self.x0, self.y0)  # move there
-        self.parentItem().updateDragBounds(self.strandType)
-        self.parentItem().redrawLines(self.strandType)  # new 2D lines
-        self.parentItem().updateAsActiveHelix(newIndex)
-
-    def actionFrom3D(self, actionType):
-        """Called by mMaya BreakpointHandle3D to notify cadnano that the
-        3D handle has received a user action. All updates to the data
-        structure are then handled by cadnano on the 2D side."""
-        raise NotImplementedError
 
     def itemChange(self, change, value):
         # for selection changes test against QGraphicsItem.ItemSelectedChange

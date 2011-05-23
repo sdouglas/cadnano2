@@ -30,13 +30,42 @@ Created by Jonathan deWerd on 2011-01-26.
 import json
 from .dnahoneycombpart import DNAHoneycombPart
 from .dnapartinstance import DNAPartInstance
-from PyQt4.QtCore import QObject
+from PyQt4.QtCore import QObject, pyqtSignal
+from PyQt4.QtGui import QUndoStack
 
-class Document(QObject):
+class Document(QObject):    
     def __init__(self):
+        super(Document, self).__init__()
         self._parts = []
-        self._dnaPartInstances = []
+        self._selectedPart = None
+        self._undoStack = QUndoStack()
 
+    def addDnaHoneycombPart(self):
+        """
+        Create and store a new DNAPart and instance, and return the instance.
+        """
+        dnapart = DNAHoneycombPart(document=self)
+        self._parts.append(dnapart)
+        self.setSelectedPart(dnapart)
+        return dnapart
+
+    def undoStack(self):
+        return self._undoStack
+
+    ############################ Transient (doesn't get saved) State ############################
+    selectedPartChanged = pyqtSignal(object)
+
+    def selectedPart(self):
+        return self._selectedPart
+    
+    def setSelectedPart(self, newPart):
+        if self._selectedPart == newPart:
+            return
+        self._selectedPart = newPart
+        self.selectedPartChanged.emit(newPart)
+
+
+    ############################ Archive / Unarchive ############################
     def simpleRep(self,encoder):
         """Returns a representation in terms of simple JSON-encodable types
         or types that implement simpleRep"""
@@ -55,12 +84,3 @@ class Document(QObject):
         pass  # Document owns its parts and dnaPartInstances
               # so we didn't need to make weak refs to them
 
-    def addDnaPart(self, partid, crossSectionType):
-        """
-        Create and store a new DNAPart and instance, and return the instance.
-        """
-        dnapart = DNAHoneycombPart()
-        self._parts.append(dnapart)
-        dnainst = DNAPartInstance(dnapart)
-        self._dnaPartInstances.append(dnainst)
-        return dnainst
