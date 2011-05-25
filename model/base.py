@@ -73,8 +73,8 @@ class Base(object):
     
     def _set3Prime(self, new3pBase, old3p5p=None):
         """Only VirtualHelix should call this method. Returns
-        a list l such that _setNext(*l) undoes the command"""
-        if newNextBase:
+        a list l such that _set3p(*l) undoes the command"""
+        if new3pBase:
             undoDat = (self._3pBase, new3pBase._5pBase)
         else:
             undoDat = (self._3pBase, None)
@@ -85,6 +85,19 @@ class Base(object):
         self._3pBase = new3pBase
         return undoDat
 
+    def _set5Prime(self, new5pBase, old5p3p=None):
+        """Only VirtualHelix should call this method. Returns
+        a list l such that _set5p(*l) undoes the command."""
+        if new5pBase:
+            undoDat = (self._5pBase, new5pBase._3pBase)
+        else:
+            undoDat = (self._5pBase, None)
+        if self._5pBase:
+            self._5pBase._3pBase = old5p3p
+        if new5pBase:
+            new5pBase._3pBase = self
+        self._5pBase = new5pBase
+        return undoDat
     
     def vhelixNum(self):
         return self._vhelix.number()

@@ -277,20 +277,36 @@ class VirtualHelix(QObject):
             self._strandType = strandType
             self._startIndex = startIndex
             self._endIndex = endIndex
+            
         def redo(self):
             # Sets {s.n, (s+1).np, ..., (e-2).np, (e-1).np, e.p}
             # st s, s+1, ..., e-1, e are connected
             strand = self._vh.strand(self._strandType)
             ol = self._oldLinkage = []
-            for i in range(self._startIndex, self._endIndex):
-                ol.append(strand[i]._setNext(strand[i+1]))
+            if directionOfStrandIs5to3(self._strandType)):
+                for i in range(self._startIndex, self._endIndex):
+                    ol.append(strand[i]._set3Prime(strand[i+1]))
+            # end if
+            else:
+                for i in range(self._startIndex, self._endIndex):
+                    ol.append(strand[i]._set5Prime(strand[i+1]))
+            # end else
             self._vh.basesModified.emit()
+            
         def undo(self):
             strand = self._vh.strand(self._strandType)
             ol = self._oldLinkage
             assert(ol)  # Must redo/apply before undo
-            for i in range(self._endIndex-1, self._startIndex-1, -1):
-                strand[i]._setNext(*ol[i-self._startIndex])
+            
+            if directionOfStrandIs5to3(self._strandType)):
+                for i in range(self._endIndex-1, self._startIndex-1, -1):
+                    strand[i]._set3Prime(*ol[i-self._startIndex])
+            # end if
+            else:
+                for i in range(self._endIndex-1, self._startIndex-1, -1):
+                    strand[i]._set5Prime(*ol[i-self._startIndex])
+            # end else
+            
             self._vh.basesModified.emit()
     
     class ClearStrandCommand(QUndoCommand):
@@ -300,21 +316,36 @@ class VirtualHelix(QObject):
             self._strandType = strandType
             self._startIndex = startIndex
             self._endIndex = endIndex
+
         def redo(self):
             # Clears {s.n, (s+1).np, ..., (e-1).np, e.p}
             # Be warned, start index and end index become endpoints
             # if this is called in the middle of a connected strand
             strand = self._vh.strand(self._strandType)
             ol = self._oldLinkage = []
-            for i in range(self._startIndex-1, self._endIndex):
-                ol.append(strand[i]._setNext(None))
+            
+            if directionOfStrandIs5to3(self._strandType)):
+                for i in range(self._startIndex-1, self._endIndex):
+                    ol.append(strand[i]._set3Prime(None))
+            # end if
+            else:
+                for i in range(self._startIndex-1, self._endIndex):
+                    ol.append(strand[i]._set5Prime(None))
+            # end else
             self._vh.basesModified.emit()
+
         def undo(self):
             strand = self._vh.strand(self._strandType)
             ol = self._oldLinkage
             assert(ol)  # Must redo/apply before undo
-            for i in range(self._endIndex-1, self._startIndex-2, -1):
-                strand[i]._setNext(*ol[i-self._startIndex])
+            if directionOfStrandIs5to3(self._strandType)):
+                for i in range(self._endIndex-1, self._startIndex-2, -1):
+                    strand[i]._set3Prime(*ol[i-self._startIndex])
+            # end if
+            else:
+                for i in range(self._endIndex-1, self._startIndex-2, -1):
+                    strand[i]._set5Prime(*ol[i-self._startIndex])
+            # end else
             self._vh.basesModified.emit()
     
     class ConnectBasesCommand(QUndoCommand):
@@ -325,16 +356,31 @@ class VirtualHelix(QObject):
             self._fromIndex = fromIndex
             self._toHelix = toHelix
             self._toIndex = toIndex
+            
         def redo(self):
             fromB = self._fromHelix.strand(self._strandType)[self._fromIndex]
             toB   = self._toHelix.strand(self._strandType)[self._toIndex]
-            self._undoDat = fromB._setNext(toB)
+            
+            if directionOfStrandIs5to3(self._strandType)):
+                self._undoDat = fromB._set3Prime(toB)
+            # end if
+            else:
+                self._undoDat = fromB._set5Prime(toB)
+            # end else
+            
             self._fromHelix.basesModified.emit()
             self._toHelix.basesModified.emit()
+
         def undo(self):
             fromB = self._fromHelix.strand(self._strandType)[self._fromIndex]
             assert(self._undoDat)  # Must redo/apply before undo
-            fromB._setNext(*self._undoDat)
+            if directionOfStrandIs5to3(self._strandType)):
+                fromB._set3Prime(*self._undoDat)
+            # end if
+            else:
+               fromB._set5Prime(*self._undoDat) 
+            # else
+            
             self._fromHelix.basesModified.emit()
             self._toHelix.basesModified.emit()
  
