@@ -34,6 +34,6 @@ Created by Shawn Douglas on 2010-09-26.
 import sys
 from cadnano import app as getAppInstance
 
-app = getAppInstance(sys.argv)
+app = getAppInstance(appArgs=sys.argv)
 if __name__ == '__main__':
     app.exec_()

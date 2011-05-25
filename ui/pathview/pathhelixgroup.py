@@ -121,6 +121,22 @@ class PathHelixGroup(QGraphicsItem):
 
     def boundingRect(self):
         return self.rect
+    
+    def moveHelixNumToIdx(self, num, idx):
+        """Reinserts helix with number() num such that
+        it's at position idx in pathHelixList"""
+        ph = self.numToPathHelixHandle[num]
+        self.pathHelixList.remove(ph)
+        self.pathHelixList.insert(idx, ph)
+        self.refreshPositions()
+    
+    def refreshPositions(self):
+        y = 0
+        for i in range(self.pathHelixList):
+            ph = self.pathHelixList[i]
+            phh = self.numToPathHelixHandle[ph.vhelix().number()]
+            ph.setPos(0, y)
+            y += ph.boundingRect().height()
 
     @pyqtSlot(int)
     def helixAddedSlot(self, vh):
@@ -136,17 +152,21 @@ class PathHelixGroup(QGraphicsItem):
         # Add PathHelixHandle
         x = 0
         xoff = -6 * self.handleRadius
-        y = count * (styles.PATH_HELIX_HEIGHT + styles.PATH_HELIX_PADDING)
-        phhY = ((styles.PATH_HELIX_HEIGHT -\
-                (styles.PATHHELIXHANDLE_RADIUS * 2)) / 2)
+        y = 0
+        for k in self.numToPathHelix:
+            ph = self.numToPathHelix[k]
+            y = max(y, ph.boundingRect().height() + ph.pos().y())
+        ph = PathHelix(vh, self)
+        ph.setPos(QPointF(0,y))
+        self.numToPathHelix[number] = ph
+        phhY = ph.boundingRect().height()/2 - styles.PATHHELIXHANDLE_RADIUS
+        print "phhy %i"%phhY
+        phhY=0
         phh = PathHelixHandle(vh, QPointF(xoff, y + phhY), self)
         self.numToPathHelixHandle[number] = phh
         self.pathHelixList.append(number)
         phh.setParentItem(self)
         # Add PathHelix
-        ph = PathHelix(vh, self)
-        ph.setPos(QPointF(0,y))
-        self.numToPathHelix[number] = ph
         ph.setParentItem(self)
         # Update activeslicehandle
         if count == 1:  # first vhelix added by mouse click

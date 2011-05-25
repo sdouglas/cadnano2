@@ -28,6 +28,7 @@ Created by Jonathan deWerd on 2011-01-29.
 """
 from PyQt4.QtCore import *
 from PyQt4.QtGui import *
+from code import interact
 
 class caDNAno(QApplication):
     sharedApp = None  # This class is a singleton.
@@ -39,7 +40,11 @@ class caDNAno(QApplication):
         self.undoGroup = QUndoGroup()
         #self.setApplicationName(QString("caDNAno"))
         self.documentControllers = set() # Open documents
-        self.newDocument()
+        d = self.newDocument()
+        if "-i" in argv:
+            self.d = d
+            self.v = {}  # Newly created VirtualHelix register themselves here under their idnum.
+            interact(local={'a':self, 'd':d, 'v':self.v})
         
     def isInMaya(self):
         return False

@@ -89,9 +89,9 @@ class Base(object):
     def vhelixNum(self):
         return self._vhelix.number()
 
-    def isNull(self):
-        return self._5pBase == None and\
-               self._3pBase == None
+    def isEmpty(self):
+        return self._prevBase == None and\
+               self._nextBase == None
 
     def is5primeEnd(self):
         """Return True if no 5pBase, but 3pBase exists."""
@@ -107,9 +107,9 @@ class Base(object):
         return (self._5pBase==None) ^ (self._3pBase==None)
 
     def isCrossover(self):
-        """Return True if the part id or vhelix number of the 5p or
-        3p base does not match the same for this base."""
-        if self.isNull():
+        """Return True if the part id or vhelix number of the prev or
+        next base does not match the same for this base."""
+        if self.isEmpty():
             return False
 
         if self._5pBase != Base._null:

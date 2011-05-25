@@ -29,7 +29,6 @@ Created by Jonathan deWerd on 2011-01-26.
 
 import json
 from .dnahoneycombpart import DNAHoneycombPart
-from .dnapartinstance import DNAPartInstance
 from PyQt4.QtCore import QObject, pyqtSignal
 from PyQt4.QtGui import QUndoStack
 

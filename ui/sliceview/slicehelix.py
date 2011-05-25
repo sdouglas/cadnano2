@@ -157,7 +157,7 @@ class SliceHelix(QGraphicsItem):
     def paint(self, painter, option, widget=None):
         vh = self.virtualHelix()
         if vh:
-            if vh.hasScafAt(self.part().activeSlice()): 
+            if vh.hasStapAt(self.part().activeSlice()): 
                 painter.setBrush(self.useBrush)
                 painter.setPen(self.usePen)
             else:
