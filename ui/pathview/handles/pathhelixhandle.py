@@ -32,6 +32,7 @@ from PyQt4.QtGui import QGraphicsItem
 from PyQt4.QtGui import QGraphicsSimpleTextItem, QGraphicsTextItem
 from PyQt4.QtGui import QPen, QDrag, QUndoCommand
 import ui.styles as styles
+from util import *
 
 
 class PathHelixHandle(QGraphicsItem):
@@ -45,8 +46,8 @@ class PathHelixHandle(QGraphicsItem):
     useBrush = QBrush(styles.orangefill)
     usePen = QPen(styles.orangestroke, styles.PATHHELIXHANDLE_STROKE_WIDTH)
 
-    def __init__(self, vhelix, position, parent):
-        super(PathHelixHandle, self).__init__(parent)
+    def __init__(self, vhelix):
+        super(PathHelixHandle, self).__init__()
         self.vhelix = vhelix
         self.parent = parent
         self.restoreParentItem = parent
@@ -56,14 +57,13 @@ class PathHelixHandle(QGraphicsItem):
         self.focusRing = None
         self.beingHoveredOver = False
         self.setAcceptsHoverEvents(True)
-        self.setPos(position)
         self.font = QFont("Times", 30, QFont.Bold)
         self.setNumber()
         #self.setFlag(QGraphicsItem.ItemIsMovable)
         self.setFlag(QGraphicsItem.ItemIsSelectable)
         self.setFlag(QGraphicsItem.ItemSendsScenePositionChanges)
     # end def
-
+    
     def restoreParent(self):
         tempP = self.restoreParentItem.mapFromItem(self.parentItem(), self.pos())
         self.setParentItem(self.restoreParentItem)
@@ -133,7 +133,12 @@ class PathHelixHandle(QGraphicsItem):
                                                          self.parent.scene,\
                                                          self.parent)
         self.update(self.rect)
+        print (self.pos().x(), self.pos().y())
     # end def
+    
+    def setPos(self, newPos):
+        super(PathHelixHandle, self).setPos(newPos)
+        trace(4)
 
     def hoverLeaveEvent(self, event):
         """

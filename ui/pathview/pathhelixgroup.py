@@ -65,6 +65,7 @@ class PathHelixGroup(QGraphicsItem):
                        controller=None,\
                        parent=None):
         super(PathHelixGroup, self).__init__(parent)
+        self.pathHelixList = []
         self.part = part
         self.pathController = controller
         self.activeslicehandle = activeslicehandle
@@ -73,7 +74,6 @@ class PathHelixGroup(QGraphicsItem):
         self.setParentItem(parent)
         self.numToPathHelix = {}
         self.numToPathHelixHandle = {}
-        self.pathHelixList = []
         
         self.xovers = {}
         
@@ -115,6 +115,44 @@ class PathHelixGroup(QGraphicsItem):
         newPart.helixAdded.connect(self.helixAddedSlot)
         newPart.helixWillBeRemoved.connect(self.helixRemovedSlot)
         self.part = newPart
+    
+    def displayedVHs(self):
+        """Returns the list (ordered top to bottom) of VirtualHelix
+        that the receiver is displaying"""
+        return [ph.vhelix() for ph in self.pathHelixList]
+    
+    def setDisplayedVHs(self, vhrefs):
+        """Spawns or destroys PathHelix such that displayedVHs
+        has the same VirtualHelix in the same order as vhrefs
+        (though displayedVHs always returns a list of VirtualHelix
+        while setDisplayedVHs can take any vhref)"""
+        newPathHelixList = []
+        vhToPH = dict(((ph.vhelix(), ph) for ph in self.pathHelixList))
+        for vhref in vhrefs:
+            vh = self.part().getVirtualHelix(vhref)
+            ph = vhToPathHelix.get(vh, None)
+            if ph == None:
+                ph = PathHelix(vh)
+            newPathHelixList.append(ph)
+        self._setPathHelixList(newPathHelixList)
+        
+        
+    def _pathHelixList(self):
+        return self.pathHelixList
+    
+    def _setPathHelixList(self, newList):
+        """Give me a list of PathHelix and I'll parent them
+        to myself if necessary, position them in a column, adopt
+        their handles as well, and position them too."""
+        y = 0  # How far down from the top the next PH should be
+        for ph in newList:
+            ph.setParentItem(self)
+            ph.setPos(0, y)
+            y += ph.boundingRect().height()
+            
+            
+            
+                
 
     def paint(self, painter, option, widget=None):
         pass
@@ -126,9 +164,10 @@ class PathHelixGroup(QGraphicsItem):
         """Reinserts helix with number() num such that
         it's at position idx in pathHelixList"""
         ph = self.numToPathHelixHandle[num]
-        self.pathHelixList.remove(ph)
-        self.pathHelixList.insert(idx, ph)
-        self.refreshPositions()
+        newPHL = list(self.pathHelixList)
+        newPHL.remove(ph)
+        newPHL.insert(idx, ph)
+        self.setHelixList(newPHL)
     
     def refreshPositions(self):
         y = 0

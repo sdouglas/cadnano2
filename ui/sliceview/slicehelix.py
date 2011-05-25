@@ -189,6 +189,7 @@ class SliceHelix(QGraphicsItem):
                                                          self._parent.scene,\
                                                          self._parent)
         self.update(self.rect)
+        print (self.pos().x(), self.pos().y())
     # end def
 
     def hoverLeaveEvent(self, event):

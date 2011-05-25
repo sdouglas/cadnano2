@@ -82,8 +82,8 @@ class PathHelix(QGraphicsItem):
     baseWidth = styles.PATH_BASE_WIDTH
     verticalMargin = 100
 
-    def __init__(self, vhelix, parent):
-        super(PathHelix, self).__init__(parent)
+    def __init__(self, vhelix):
+        super(PathHelix, self).__init__()
         self.setAcceptHoverEvents(True)  # for pathtools
         self._scafBreakpointHandles = []
         self._stapBreakpointHandles = []
@@ -98,6 +98,7 @@ class PathHelix(QGraphicsItem):
         self.setZValue(styles.ZPATHHELIX)
         self.rect = QRectF()
         self._vhelix = None
+        self._handle = None
         self.setVHelix(vhelix)
     # end def
 
@@ -113,6 +114,12 @@ class PathHelix(QGraphicsItem):
         newVH.dimensionsModified.connect(self.vhelixDimensionsModified)
         self.vhelixDimensionsModified()
         self.vhelixBasesModified()
+    
+    def handle(self):
+        if self._handle:
+            return self._handle
+        self._handle = PathHelixHadle()
+        return self._handle
 
     def number(self):
         return self._vhelix.number()
@@ -276,24 +283,6 @@ class PathHelix(QGraphicsItem):
         self._majorGridPainterPath = path
         return path
     
-    def strandIsTop(self, strandType):
-        return self.evenParity() and strandType==StrandType.Scaffold\
-           or not self.evenParity() and strandType == StrandType.Staple
-
-    def baseLocation(self, strandType, baseIdx, center=False):
-        """Returns the coordinates of the upper left corner of the base
-        referenced by strandType and baseIdx. If center=True, returns the
-        center of the base instead of the upper left corner."""
-        if self.strandIsTop(strandType):
-            y = 0
-        else:
-            y = self.baseWidth
-        x = baseIdx*self.baseWidth
-        if center:
-            y += self.baseWidth/2
-            x += self.baseWidth/2
-        return (x,y)
-
     def scaffoldLines(self):
         """Returns an array of lines that display the connected segments of the
         scaffold and staple strands @todo factor out staple."""
@@ -321,5 +310,23 @@ class PathHelix(QGraphicsItem):
                 e.addPath(top and ppR3.translated(*endLoc) or ppR5.translated(*endLoc))
         self._endpoints = e
         return e
+
+    def strandIsTop(self, strandType):
+        return self.evenParity() and strandType==StrandType.Scaffold\
+           or not self.evenParity() and strandType == StrandType.Staple
+
+    def baseLocation(self, strandType, baseIdx, center=False):
+        """Returns the coordinates of the upper left corner of the base
+        referenced by strandType and baseIdx. If center=True, returns the
+        center of the base instead of the upper left corner."""
+        if self.strandIsTop(strandType):
+            y = 0
+        else:
+            y = self.baseWidth
+        x = baseIdx*self.baseWidth
+        if center:
+            y += self.baseWidth/2
+            x += self.baseWidth/2
+        return (x,y)
 
 # end class

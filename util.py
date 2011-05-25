@@ -26,6 +26,9 @@
 util
 Created by Jonathan deWerd.
 """
+from traceback import extract_stack
+import sys
+from os import path
 
 def clamp(x, minX, maxX):
     if x < minX:
@@ -34,3 +37,12 @@ def clamp(x, minX, maxX):
         return maxX
     else:
         return x
+
+def trace(n):
+    """Prints a stack trace n frames deep"""
+    s = extract_stack()
+    for f in s[-n-1:-1]:
+        # f is a stack frame like
+        # ('/path/script.py', 42, 'funcname', 'current = line - of / code')
+        print (path.basename(f[0])+':%i'%f[1]).ljust(30) + f[2]
+    
