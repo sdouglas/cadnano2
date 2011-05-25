@@ -44,17 +44,18 @@ class Base(object):
     
     def __str__(self, vhelix=None, index=None):
         threeB, fiveB = '_', '_'
+        fiveTo3 = self._vhelix.directionOfStrandIs5to3(self._strandtype)
         if self._3pBase:
-            if self._3pBase.vhelixNum()==self.vhelixNum():
-                threeB = '>'
+            if self._3pBase._vhelix==self._vhelix:
+                threeB = fiveTo3 and '>' or '<'
             else:
                 threeB = str(self._3pBase.vhelixNum())
         if self._5pBase:
             if self._5pBase.vhelixNum()==self.vhelixNum():
-                fiveB = '<'
+                fiveB = fiveTo3 and '<' or '>'
             else:
                 fiveB = str(self._5pBase.vhelixNum())
-        if self._vhelix.directionOfStrandIs5to3(self._strandtype):
+        if fiveTo3:
             return fiveB+threeB
         else:
             return threeB+fiveB
