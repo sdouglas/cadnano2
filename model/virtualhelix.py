@@ -348,11 +348,11 @@ class VirtualHelix(QObject):
             assert(ol)  # Must redo/apply before undo
             if self._vh.directionOfStrandIs5to3(self._strandType):
                 for i in range(self._endIndex - 1, self._startIndex - 2, -1):
-                    strand[i]._unset3Prime(None, *ol[i - self._startIndex])
+                    strand[i]._unset3Prime(None, *ol[i - self._startIndex+1])
             # end if
             else:
                 for i in range(self._endIndex - 1, self._startIndex - 2, -1):
-                    strand[i]._unset5Prime(None, *ol[i - self._startIndex])
+                    strand[i]._unset5Prime(None, *ol[i - self._startIndex+1])
             # end else
             self._vh.basesModified.emit()
     

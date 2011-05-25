@@ -106,7 +106,8 @@ class Base(object):
     def _unset5Prime(self, toBase, fromOld5, toOld3):
         """Only VirtualHelix should call this method."""
         self._set5Prime(fromOld5)
-        toBase._set3Prime(toOld3)
+        if toOld3 != None:
+            toBase._set3Prime(toOld3)
         
     def _set3Prime(self, toBase):
         """Only VirtualHelix should call this method. Returns l
@@ -125,7 +126,8 @@ class Base(object):
     def _unset3Prime(self, toBase, fromOld3, toOld5):
         """Only VirtualHelix should call this method."""
         self._set3Prime(fromOld3)
-        toBase._set5Prime(toOld5)
+        if toOld5 != None:
+            toBase._set5Prime(toOld5)
     
     def vhelixNum(self):
         return self._vhelix.number()
