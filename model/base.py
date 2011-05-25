@@ -46,24 +46,24 @@ class Base(object):
         threeB, fiveB = '_', '_'
         fiveTo3 = self._vhelix.directionOfStrandIs5to3(self._strandtype)
         if self._3pBase:
-            if self._3pBase._vhelix==self._vhelix:
+            if self._3pBase._vhelix == self._vhelix:
                 threeB = fiveTo3 and '>' or '<'
             else:
                 threeB = str(self._3pBase.vhelixNum())
         if self._5pBase:
-            if self._5pBase.vhelixNum()==self.vhelixNum():
+            if self._5pBase.vhelixNum() == self.vhelixNum():
                 fiveB = fiveTo3 and '<' or '>'
             else:
                 fiveB = str(self._5pBase.vhelixNum())
         if fiveTo3:
-            return fiveB+threeB
+            return fiveB + threeB
         else:
-            return threeB+fiveB
+            return threeB + fiveB
             
     
     def _set5Prime(self, new5pBase, old5p3p=None):
         """Only VirtualHelix should call this method. Returns
-        a list l such that _setPrev(*l) undoes the command."""
+        a list l such that _set5p(*l) undoes the command."""
         if new5pBase:
             undoDat = (self._5pBase, new5pBase._3pBase)
         else:
@@ -93,21 +93,21 @@ class Base(object):
         return self._vhelix.number()
 
     def isEmpty(self):
-        return self._prevBase == None and\
+        return self._prevBase == None and \
                self._nextBase == None
 
     def is5primeEnd(self):
         """Return True if no 5pBase, but 3pBase exists."""
-        return self._5pBase == None and\
+        return self._5pBase == None and \
                self._3pBase != None
 
     def is3primeEnd(self):
         """Return True if no 3pBase, but 5pBase exists."""
-        return self._5pBase != None and\
+        return self._5pBase != None and \
                self._3pBase == None
     
     def isEnd(self):
-        return (self._5pBase==None) ^ (self._3pBase==None)
+        return (self._5pBase == None) ^ (self._3pBase == None)
 
     def isCrossover(self):
         """Return True if the part id or vhelix number of the prev or
