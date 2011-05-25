@@ -32,7 +32,7 @@ Created by Shawn on 2011-01-27.
 from PyQt4.QtCore import QRectF, QPointF, QEvent, pyqtSlot, QObject, Qt
 from PyQt4.QtCore import pyqtSignal
 from PyQt4.QtGui import QBrush, QPen, qApp, QGraphicsTextItem, QFont
-from PyQt4.QtGui import QGraphicsItem, QGraphicsItemGroup, QUndoCommand
+from PyQt4.QtGui import QGraphicsItem, QGraphicsObject, QGraphicsItemGroup, QUndoCommand
 from .pathhelix import PathHelix
 from handles.activeslicehandle import ActiveSliceHandle
 from handles.breakpointhandle import BreakpointHandle
@@ -44,7 +44,7 @@ from handles.pathhelixhandle import PathHelixHandle
 
 
 
-class PathHelixGroup(QGraphicsItem):
+class PathHelixGroup(QGraphicsObject):
     """
     PathHelixGroup maintains data and state for a set of object that provide
     an interface to the schematic view of a DNA part. These objects include
@@ -52,21 +52,21 @@ class PathHelixGroup(QGraphicsItem):
     """
     handleRadius = styles.SLICE_HELIX_RADIUS
 
-    def __init__(self, part, activeslicehandle,\
+    def __init__(self, part,\
                        controller=None,\
                        parent=None):
         super(PathHelixGroup, self).__init__(parent)
         self.pathHelixList = []  # Primary property
         self._part = part
-        self.pathController = controller
-        self.activeslicehandle = activeslicehandle
+        self._controller = controller
+        self._activeSliceHandle = ActiveSliceHandle(self)
         self.rect = QRectF()
         self.font = QFont("Times", 30, QFont.Bold)
         self.label = QGraphicsTextItem("Part 1")
         self.label.setVisible(True)
         self.label.setFont(self.font)
         self.label.setParentItem(self)
-        self.label.setPos(0, 0)
+        self.label.setPos(0, -40)
         self.label.setTextInteractionFlags(Qt.TextEditorInteraction)
         self.label.inputMethodEvent = None
     
@@ -80,6 +80,12 @@ class PathHelixGroup(QGraphicsItem):
         newPart.helixAdded.connect(self.helixAddedSlot)
         newPart.helixWillBeRemoved.connect(self.helixRemovedSlot)
         self.part = newPart
+    
+    def controller(self):
+        return self._controller
+    
+    def activeSliceHandle(self):
+        return self._activeSliceHandle
     
     def displayedVHs(self):
         """Returns the list (ordered top to bottom) of VirtualHelix
@@ -97,7 +103,7 @@ class PathHelixGroup(QGraphicsItem):
             vh = self.part().getVirtualHelix(vhref)
             ph = vhToPH.get(vh, None)
             if ph == None:
-                ph = PathHelix(vh, self.pathController)
+                ph = PathHelix(vh, self)
             newPathHelixList.append(ph)
         self._setPathHelixList(newPathHelixList)
         
@@ -122,7 +128,9 @@ class PathHelixGroup(QGraphicsItem):
             phh.setPos(-2*phhr.width(), y-h/2-phhr.height()/2)
             leftmostExtent = min(leftmostExtent, -2*phhr.width())
             rightmostExtent = max(rightmostExtent, ph.boundingRect().width())
-        self.rect = QRectF(leftmostExtent, 0, -leftmostExtent+rightmostExtent, y)
+        self.prepareGeometryChange()
+        self.geometryChanged.emit()
+        self.rect = QRectF(leftmostExtent, -40, -leftmostExtent+rightmostExtent, y+40)
         self.pathHelixList = newList
         self.vhToPathHelix = dict(((ph.vhelix(), ph) for ph in newList))
         self.scene().views()[0].zoomToFit()
@@ -130,7 +138,9 @@ class PathHelixGroup(QGraphicsItem):
     def paint(self, painter, option, widget=None):
         pass
 
+    geometryChanged = pyqtSignal()
     def boundingRect(self):
+        # rect set only by _setPathHelixList
         return self.rect
     
     def moveHelixNumToIdx(self, num, idx):

@@ -160,17 +160,12 @@ class DocumentController():
         # Create a new DNA part
         dnaPart = self.doc.addDnaHoneycombPart()
 
-        # Create the ActiveSliceHandle
-        ash = ActiveSliceHandle(dnaPart, \
-                                controller=self.win.pathController)
-
         # Create a Slice view of part
         shg = HoneycombSliceGraphicsItem(dnaPart,\
                                          controller=self.win.sliceController,\
                                          parent=self.win.sliceroot)
         # Create a Path view of the part
         phg = PathHelixGroup(dnaPart,\
-                             ash,\
                              controller=self.win.pathController,\
                              parent=self.win.pathroot)
 
@@ -184,6 +179,7 @@ class DocumentController():
         dnaPart.helixAdded.connect(phg.helixAddedSlot)
         dnaPart.helixWillBeRemoved.connect(phg.helixRemovedSlot)
         dnaPart.selectionWillChange.connect(phg.selectionWillChange)
+        ash = phg.activeSliceHandle()
         self.win.sliceController.activeSliceLastSignal.connect(ash.moveToLastSlice)
         self.win.sliceController.activeSliceFirstSignal.connect(ash.moveToFirstSlice)
     # end def
