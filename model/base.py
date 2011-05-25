@@ -74,11 +74,13 @@ class Base(object):
             
     def __repr__(self):
         if self._3pBase:
-            b3 = str(self._3pBase._vhelix.number())+'.'+str(self._3pBase._n)
+            b3 = str(self._3pBase._vhelix.number()) + \
+                    '.' + str(self._3pBase._n)
         else:
             b3 = ' '
         if self._5pBase:
-            b5 = str(self._5pBase._vhelix.number())+'.'+str(self._5pBase._n)
+            b5 = str(self._5pBase._vhelix.number()) + \
+                '.' + str(self._5pBase._n)
         else:
             b5 = ' '
         if self._vhelix.directionOfStrandIs5to3(self._strandtype):
