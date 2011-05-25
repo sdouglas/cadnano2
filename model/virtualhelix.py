@@ -140,13 +140,13 @@ class VirtualHelix(QObject):
         """Returns true if a scaffold base is present at index"""
         if index > self.numBases()-1:
             return False
-        return not self._scaffoldBases[index].isNull()
+        return not self._scaffoldBases[index].isEmpty()
 
     def hasStapAt(self, index):
         """Returns true if a staple base is present at index"""
         if index > self.numBases()-1:
             return False
-        return not self._stapleBases[index].isNull()
+        return not self._stapleBases[index].isEmpty()
 
     def hasCrossoverAt(self, strandType, index):
         """docstring for hasScafCrossoverAt"""
@@ -204,11 +204,10 @@ class VirtualHelix(QObject):
         # Connects sequential bases on a single strand, starting with 
         # startIndex and ending with etdIndex (inclusive)
         # Sets {s.n, (s+1).np, ..., (e-2).np, (e-1).np, e.p}
-        assert(endIndex-startIndex > 0)
         strand = self.strand(strandType)
-        assert(int(startIndex)==startIndex and int(endIndex)==endIndex)
-        assert(startIndex>=0 and startIndex<=len(strand)-1)
-        assert(endIndex>=0 and endIndex<=len(strand)-1)
+        endIndex, startIndex = int(max(startIndex,endIndex)), int(min(startIndex,endIndex))
+        startIndex = clamp(startIndex, 0, len(strand)-1)
+        endIndex = clamp(endIndex, 0, len(strand)-1)
         c = self.ConnectStrandCommand(self, strandType, startIndex, endIndex)    
         self.undoStack().push(c)
 
@@ -338,6 +337,9 @@ class VirtualHelix(QObject):
                 ret.append([neighbor, index])
         return ret
 
+    def crossoverAt(self, type, fromIndex, neighbor, toIndex):
+        return 
+
     def possibleNewCrossoverAt(self, type, fromIndex, neighbor, toIndex):
         """Return true if scaffold could crossover to neighbor at index.
         Useful for seeing if potential crossovers from potentialCrossoverList
@@ -346,8 +348,8 @@ class VirtualHelix(QObject):
         toB   = neighbor.strand(type)[toIndex]
         if fromB.isCrossover() or toB.isCrossover():
             return False
-        return  not self.scaffoldBase(fromIndex).isNull() and\
-                not neighbor.scaffoldBase(toIndex).isNull()
+        return  not self.scaffoldBase(fromIndex).isEmpty() and\
+                not neighbor.scaffoldBase(toIndex).isEmpty()
 
     def getNeighbors(self):
         """The part (which controls helix layout) decides who

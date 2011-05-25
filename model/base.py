@@ -85,7 +85,7 @@ class Base(object):
     def vhelixNum(self):
         return self._vhelix.number()
 
-    def isNull(self):
+    def isEmpty(self):
         return self._prevBase == None and\
                self._nextBase == None
 
@@ -105,7 +105,7 @@ class Base(object):
     def isCrossover(self):
         """Return True if the part id or vhelix number of the prev or
         next base does not match the same for this base."""
-        if self.isNull():
+        if self.isEmpty():
             return False
 
         if self._prevBase != Base._null:

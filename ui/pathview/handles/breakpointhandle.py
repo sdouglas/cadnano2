@@ -104,6 +104,7 @@ class BreakpointHandle(QGraphicsItem):
         self.setPainterPathType()
         self.pressX = 0
         self.pressXoffset = 0
+        self._tempVhelixCommandActive = False
         self._dragMode = False
         self.setFlag(QGraphicsItem.ItemIsMovable)
         self.setFlag(QGraphicsItem.ItemIsSelectable)
@@ -111,6 +112,9 @@ class BreakpointHandle(QGraphicsItem):
         self.setZValue(styles.ZBREAKPOINTHANDLE)
         self.setAcceptHoverEvents(True)
     # end def
+    
+    def isBeingDragged(self):
+        return self._dragMode
 
     def restoreParent(self):
         tempP = self.restoreParentItem.mapFromItem(self.parentItem(),\
@@ -123,6 +127,8 @@ class BreakpointHandle(QGraphicsItem):
         return self.rect
 
     def paint(self, painter, option, widget=None):
+        if self.isBeingDragged():
+            return
         if self.isSelected():
             painter.setBrush(self.selectbrush)
             painter.setPen(self.nopen)
@@ -202,6 +208,10 @@ class BreakpointHandle(QGraphicsItem):
             self.x0 = self.tempIndex * baseWidth
             self.setPos(self.x0, self.y0)
             self.setCursor(Qt.OpenHandCursor)
+            if self._tempVhelixCommandActive:
+                self._vhelix.undoStack().undo()
+            self._tempVhelixCommandActive = True
+            self._vhelix.connectStrand(self.strandType, self.baseIndex, self.tempIndex)
         else:
             QGraphicsItem.mousePressEvent(self, event)
 
@@ -223,25 +233,14 @@ class BreakpointHandle(QGraphicsItem):
     def customMouseRelease(self, eventPosition):
         """Snaps to grid after mouse released. Updates vhelix data according
         to what movement took place."""
-        if self.tempIndex == self.baseIndex:
-            return
-        delta = int(self.tempIndex - self.baseIndex)
-        self._vhelix.updateAfterBreakpointMove(self.strandType,\
-                                              self.type,\
-                                              self.baseIndex,\
-                                              delta)
-        self.undoStack.beginMacro("break move %d[%d] to %d[%d]" % \
-                                    (self._vhelix.number(), self.baseIndex,\
-                                     self._vhelix.number(), self.tempIndex))
-        self.undoStack.push(BreakpointHandle.MoveCommand(self,\
-                                                         self.baseIndex,\
-                                                         self.tempIndex))
-        self.undoStack.endMacro()
-        self.baseIndex = self.tempIndex
-        self.parentItem().updateDragBounds(self.strandType)
-        self.parentItem().redrawLines(self.strandType)
+        self._tempVhelixCommandActive = False
         self._dragMode = False
         self.setCursor(Qt.OpenHandCursor)
+        # We hand UI interaction over to the new generation
+        # of breakpointhandles & friends that our drag operation
+        # has produced.
+        self.setParentItem(None)
+        
     # end def
 
     def itemChange(self, change, value):
