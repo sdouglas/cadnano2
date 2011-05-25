@@ -40,17 +40,8 @@ from handles.pathhelixhandle import PathHelixHandle
 from handles.precrossoverhandle import PreXoverHandleGroup
 from model.enum import EndType, LatticeType, StrandType
 import ui.styles as styles
+from handles.pathhelixhandle import PathHelixHandle
 
-
-class PhgObject(QObject):
-    """
-    A placeholder class until QGraphicsObject is available to allow signaling
-    """
-    scaffoldChange = pyqtSignal(int)
-
-    def __init__(self):
-        super(PhgObject, self).__init__()
-# end class
 
 
 class PathHelixGroup(QGraphicsItem):
@@ -65,35 +56,11 @@ class PathHelixGroup(QGraphicsItem):
                        controller=None,\
                        parent=None):
         super(PathHelixGroup, self).__init__(parent)
-        self.pathHelixList = []
-        self.part = part
+        self.pathHelixList = []  # Primary property
+        self._part = part
         self.pathController = controller
         self.activeslicehandle = activeslicehandle
-        self.activeHelix = None
-        self.parent = parent
-        self.setParentItem(parent)
-        self.numToPathHelix = {}
-        self.numToPathHelixHandle = {}
-        
-        self.xovers = {}
-        
-        count = self.part.getVirtualHelixCount()
-        if count > 0:  # initalize if loading from file, otherwise delay
-            self.activeslicehandle.setParentItem(self)
-        # set up signals
-        self.qObject = PhgObject()
-        self.scaffoldChange = self.qObject.scaffoldChange
-        self.rect = QRectF(0, 0, 200, 200)  # NC: w,h don't seem to matter
-        self.zoomToFit()
-        self.phhSelectionGroup = SelectionItemGroup(\
-                                         boxtype=PathHelixHandleSelectionBox,\
-                                         constraint='y',\
-                                         parent=self)
-        self.bphSelectionGroup = SelectionItemGroup(
-                                         boxtype=BreakpointHandleSelectionBox,\
-                                         constraint='x',\
-                                         parent=self)
-        self.pchGroup = PreXoverHandleGroup(self)
+        self.rect = QRectF()
         self.font = QFont("Times", 30, QFont.Bold)
         self.label = QGraphicsTextItem("Part 1")
         self.label.setVisible(True)
@@ -101,12 +68,10 @@ class PathHelixGroup(QGraphicsItem):
         self.label.setParentItem(self)
         self.label.setPos(0, 0)
         self.label.setTextInteractionFlags(Qt.TextEditorInteraction)
-        self.label.inputMethodEvent = self.handleLabelChange
-        self.selectionLock = None
-    # end def
+        self.label.inputMethodEvent = None
     
     def part(self):
-        return self.part
+        return self._part
     
     def setPart(self, newPart):
         if self.part:
@@ -130,12 +95,11 @@ class PathHelixGroup(QGraphicsItem):
         vhToPH = dict(((ph.vhelix(), ph) for ph in self.pathHelixList))
         for vhref in vhrefs:
             vh = self.part().getVirtualHelix(vhref)
-            ph = vhToPathHelix.get(vh, None)
+            ph = vhToPH.get(vh, None)
             if ph == None:
-                ph = PathHelix(vh)
+                ph = PathHelix(vh, self.pathController)
             newPathHelixList.append(ph)
         self._setPathHelixList(newPathHelixList)
-        
         
     def _pathHelixList(self):
         return self.pathHelixList
@@ -143,16 +107,25 @@ class PathHelixGroup(QGraphicsItem):
     def _setPathHelixList(self, newList):
         """Give me a list of PathHelix and I'll parent them
         to myself if necessary, position them in a column, adopt
-        their handles as well, and position them too."""
+        their handles, and position them as well."""
         y = 0  # How far down from the top the next PH should be
+        leftmostExtent = 0
+        rightmostExtent = 0
         for ph in newList:
             ph.setParentItem(self)
             ph.setPos(0, y)
-            y += ph.boundingRect().height()
-            
-            
-            
-                
+            h = ph.boundingRect().height()
+            y += h
+            phh = ph.handle()
+            phh.setParentItem(self)
+            phhr = phh.boundingRect()
+            phh.setPos(-2*phhr.width(), y-h/2-phhr.height()/2)
+            leftmostExtent = min(leftmostExtent, -2*phhr.width())
+            rightmostExtent = max(rightmostExtent, ph.boundingRect().width())
+        self.rect = QRectF(leftmostExtent, 0, -leftmostExtent+rightmostExtent, y)
+        self.pathHelixList = newList
+        self.vhToPathHelix = dict(((ph.vhelix(), ph) for ph in newList))
+        self.scene().views()[0].zoomToFit()
 
     def paint(self, painter, option, widget=None):
         pass
@@ -163,98 +136,34 @@ class PathHelixGroup(QGraphicsItem):
     def moveHelixNumToIdx(self, num, idx):
         """Reinserts helix with number() num such that
         it's at position idx in pathHelixList"""
-        ph = self.numToPathHelixHandle[num]
-        newPHL = list(self.pathHelixList)
-        newPHL.remove(ph)
-        newPHL.insert(idx, ph)
-        self.setHelixList(newPHL)
-    
-    def refreshPositions(self):
-        y = 0
-        for i in range(self.pathHelixList):
-            ph = self.pathHelixList[i]
-            phh = self.numToPathHelixHandle[ph.vhelix().number()]
-            ph.setPos(0, y)
-            y += ph.boundingRect().height()
+        vhs = [vh.number() for vh in self.displayedVHs()]
+        vhs.remove(num)
+        vhs.insert(idx, num)
+        self.setDisplayedVHs(vhs)
 
     @pyqtSlot(int)
-    def helixAddedSlot(self, vh):
-        """
-        Retrieve reference to new VirtualHelix vh based on number relayed
-        by the signal event. Next, create a new PathHelix associated
-        with vh and draw it on the screen. Finally, create or update
-        the ActiveSliceHandle.
-        """
-        number = vh.number()
-        vh = self.part.getVirtualHelix(number)
-        count = self.part.getVirtualHelixCount()
-        # Add PathHelixHandle
-        x = 0
-        xoff = -6 * self.handleRadius
-        y = 0
-        for k in self.numToPathHelix:
-            ph = self.numToPathHelix[k]
-            y = max(y, ph.boundingRect().height() + ph.pos().y())
-        ph = PathHelix(vh, self)
-        ph.setPos(QPointF(0,y))
-        self.numToPathHelix[number] = ph
-        phhY = ph.boundingRect().height()/2 - styles.PATHHELIXHANDLE_RADIUS
-        print "phhy %i"%phhY
-        phhY=0
-        phh = PathHelixHandle(vh, QPointF(xoff, y + phhY), self)
-        self.numToPathHelixHandle[number] = phh
-        self.pathHelixList.append(number)
-        phh.setParentItem(self)
-        # Add PathHelix
-        ph.setParentItem(self)
-        # Update activeslicehandle
-        if count == 1:  # first vhelix added by mouse click
-            self.activeslicehandle.setParentItem(self)
-        self.activeslicehandle.resize(count)
-        self.zoomToFit()  # Auto zoom to center the scene
-    # end def
-
-    def zoomToFit(self):
-        # Auto zoom to center the scene
-        thescene = self.scene()
-        theview = thescene.views()[0]
-        theview.zoomToFit()
-    # end def
+    def helixAddedSlot(self, vhref):
+        vhs = self.displayedVHs()
+        vhs.append(vhref)
+        self.setDisplayedVHs(vhs)
 
     @pyqtSlot(int)
     def helixRemovedSlot(self, vh):
-        number = vh.number()
-        scene = self.scene()
-        count = self.part.getVirtualHelixCount()
-        # remove PathHelix
-        ph = self.numToPathHelix[number]
-        scene.removeItem(ph)
-        del self.numToPathHelix[number]
-        # remove PathHelixHandle
-        phh = self.numToPathHelixHandle[number]
-        scene.removeItem(phh)
-        del self.numToPathHelixHandle[number]
-        del self.pathHelixList[self.pathHelixList.index(number)]
-        # update or hide activeslicehandle
-        if count == 0:
-            scene.removeItem(self.activeslicehandle)
-        else:
-            rect = self.activeslicehandle.boundingRect()
-            self.activeslicehandle.resize(count)
-            self.parent.update(rect)
-    # end def
+        vhs = self.displayedVHs()
+        vhs.remove(vh)
+        self.setDisplayedVHs(vh)
 
     # Slot called when the part's selection changes
     def selectionWillChange(self, newSelection):
         pass
 
-    def getPathHelix(self, vhelix):
+    def getPathHelix(self, vhref):
         """Given the helix number, return a reference to the PathHelix."""
-        number = vhelix.number()
-        if number in self.numToPathHelix:
-            return self.numToPathHelix[number]
-        else:
-            raise IndexError
+        vh = self.part.getVirtualHelix(vhref)
+        for ph in self.pathHelixList:
+            if ph.vhelix() == vh:
+                return ph
+        return None
 
     def notifyPreCrossoverGroupAfterUpdate(self, virtualhelix):
         """Called by PathHelix.mousePressEvent after the vhelix has calculated
@@ -267,40 +176,10 @@ class PathHelixGroup(QGraphicsItem):
         by a distance delta in the list. Notify each PathHelix and
         PathHelixHandle of its new location.
         """
-        firstIndex = self.pathHelixList.index(first)
-        lastIndex = self.pathHelixList.index(last) + 1
-        if indexDelta < 0:  # move group earlier in the list
-            newIndex = max(0, indexDelta + firstIndex)
-            self.pathHelixList = self.pathHelixList[0:newIndex] +\
-                                 self.pathHelixList[firstIndex:lastIndex] +\
-                                 self.pathHelixList[newIndex:firstIndex] +\
-                                 self.pathHelixList[lastIndex:]
-        else:  # move group later in list
-            newIndex = min(len(self.pathHelixList), indexDelta + lastIndex)
-            self.pathHelixList = self.pathHelixList[:firstIndex] +\
-                                 self.pathHelixList[lastIndex:newIndex] +\
-                                 self.pathHelixList[firstIndex:lastIndex] +\
-                                 self.pathHelixList[newIndex:]
-        i = 0
-        for num in self.pathHelixList:
-            y = (i + 1) * (styles.PATH_HELIX_HEIGHT +\
-                           styles.PATH_HELIX_PADDING)
-            phhY = ((styles.PATH_HELIX_HEIGHT -\
-                    (styles.PATHHELIXHANDLE_RADIUS * 2)) / 2)
-            self.numToPathHelixHandle[num].setY(y + phhY)
-            self.numToPathHelix[num].setY(y)
-            i += 1
-        # end for
-    # end def
-
-    def handleLabelChange(self, event):
-        """handleLabelChange is example of how we might handle changes
-        to the name in the editor"""
-        pass
-        # print "", self.label.toPlainText()
-        # self.label.setPlainText(self.label.toPlainText() + " cool")
-        # QGraphicsTextItem.inputMethodEvent(self.label,event)
-    # end def
+        vhs = self.displayedVHs()
+        vhsToMove = vhs[first:last]
+        del vhs[first:last]
+        self.setDisplayedVHs(vhs[0:first+indexDelta]+vhsToMove+vhs[first+indexDelta:-1])
 
     def bringToFront(self):
         """collidingItems gets a list of all items that overlap. sets

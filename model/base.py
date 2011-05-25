@@ -133,8 +133,8 @@ class Base(object):
         return self._vhelix.number()
 
     def isEmpty(self):
-        return self._prevBase == None and \
-               self._nextBase == None
+        return self._5pBase == None and \
+               self._3pBase == None
 
     def is5primeEnd(self):
         """Return True if no 5pBase, but 3pBase exists."""
