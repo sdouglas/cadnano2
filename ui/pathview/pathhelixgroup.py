@@ -149,10 +149,6 @@ class PathHelixGroup(QGraphicsItem):
             ph.setParentItem(self)
             ph.setPos(0, y)
             y += ph.boundingRect().height()
-            
-            
-            
-                
 
     def paint(self, painter, option, widget=None):
         pass
@@ -200,7 +196,7 @@ class PathHelixGroup(QGraphicsItem):
         self.numToPathHelix[number] = ph
         phhY = ph.boundingRect().height()/2 - styles.PATHHELIXHANDLE_RADIUS
         print "phhy %i"%phhY
-        phhY=0
+        phhY = 0
         phh = PathHelixHandle(vh, QPointF(xoff, y + phhY), self)
         self.numToPathHelixHandle[number] = phh
         self.pathHelixList.append(number)
@@ -210,9 +206,7 @@ class PathHelixGroup(QGraphicsItem):
         # Update activeslicehandle
         if count == 1:  # first vhelix added by mouse click
             self.activeslicehandle.setParentItem(self)
-        self.activeslicehandle.resize(count)
-        self.zoomToFit()  # Auto zoom to center the scene
-    # end def
+        self.activeslicehandle
 
     def zoomToFit(self):
         # Auto zoom to center the scene
