@@ -65,8 +65,10 @@ class VirtualHelix(QObject):
         return 'vh%i'%self.number()
     
     def __str__(self):
-        scaf = '%-2iScaffold: '%self.number() + ' '.join((str(b) for b in self._scaffoldBases))
-        stap = '%-2iStaple:   '%self.number() + ' '.join((str(b) for b in self._stapleBases))
+        scaf = '%-2iScaffold: ' % self.number() + \
+                            ' '.join((str(b) for b in self._scaffoldBases))
+        stap = '%-2iStaple:   ' % self.number() + \
+                                ' '.join((str(b) for b in self._stapleBases))
         return scaf + '\n' + stap
 
     def numBases(self):
@@ -107,8 +109,23 @@ class VirtualHelix(QObject):
         return (self._row, self._col)
 
     def evenParity(self):
+        """
+        returns True or False
+        """
         return self._part.virtualHelixParityEven(self)
 
+    def directionOfStrandIs5to3(self,strandtype):
+        """
+        method to determine 5' to 3' or 3' to 5'
+        """
+        if self.evenParity() and strandtype == Strandtype.Scaffold:
+            return True
+        elif not self.evenParity() and strandtype == Strandtype.Staple:
+            return True
+        else:
+            return False
+    # end def
+    
     def row(self):
         """return VirtualHelix helical-axis row"""
         return self._row
@@ -190,16 +207,17 @@ class VirtualHelix(QObject):
             self._undoStack = QUndoStack()
         return self._undoStack
             
-    ################################### Public Base Modification API #############################
-    # Overview: the bases in a virtualhelix can be modified
-    # with the public methods, which under the hood just validate
-    # their arguments and push
-    # undo commands (of a similar name to the public methods)
-    # that call private methods (often of exactly the same name
-    # as the public methods except for a prefixed underscore).
-    # Outside World -> doSomething() -> DoSomethingUndoCommand -> _doSomething() -> Private API
-    # or Outside World -> doSomething() -> DoSomethingUndoCommand -> Private API
-    
+    ################## Public Base Modification API #########
+    """
+    Overview: the bases in a virtualhelix can be modified
+    with the public methods, which under the hood just validate
+    their arguments and push
+    undo commands (of a similar name to the public methods)
+    that call private methods (often of exactly the same name
+    as the public methods except for a prefixed underscore).
+    Outside World -> doSomething() -> DoSomethingUndoCommand -> _doSomething() -> Private API
+    or Outside World -> doSomething() -> DoSomethingUndoCommand -> Private API
+    """
     def connectStrand(self, strandType, startIndex, endIndex):
         # Connects sequential bases on a single strand, starting with 
         # startIndex and ending with etdIndex (inclusive)

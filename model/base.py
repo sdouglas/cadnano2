@@ -27,95 +27,99 @@ Created by Shawn Douglas on 2011-02-08.
 """
 
 class Base(object):
-    """A POD class that lives in the private API of
+    """
+    A POD class that lives in the private API of
     virtualhelix (Why not put it inside VirtualHelix?
     Because it's already quite crowded in VirtualHelix)
     and provides information about which bases
-    are connected to which other bases"""    
-    def __init__(self, vhelix=None, index=None):
+    are connected to which other bases
+    """    
+    def __init__(self, vhelix=None, strandtype=None, index=None):
         super(Base, self).__init__()
-        self._prevBase = None
-        self._nextBase = None
+        self._5pBase = None
+        self._3pBase = None
         self._vhelix = vhelix
+        self._strandtype = strandtype
         self._n = index
     
     def __str__(self, vhelix=None, index=None):
         p, n = '_', '_'
-        if self._nextBase:
-            if self._nextBase.vhelixNum()==self.vhelixNum():
+        if self._3pBase:
+            if self._3pBase.vhelixNum()==self.vhelixNum():
                 n = '>'
             else:
-                n = str(self._nextBase.vhelixNum())
-        if self._prevBase:
-            if self._prevBase.vhelixNum()==self.vhelixNum():
+                n = str(self._3pBase.vhelixNum())
+        if self._5pBase:
+            if self._5pBase.vhelixNum()==self.vhelixNum():
                 p = '<'
             else:
-                p = str(self._prevBase.vhelixNum())
+                p = str(self._5pBase.vhelixNum())
         return p+n
             
     
-    def _setPrev(self, newPrevBase, oldPrevNext=None):
+    def _set5Prime(self, new5pBase, old5p3p=None):
         """Only VirtualHelix should call this method. Returns
         a list l such that _setPrev(*l) undoes the command."""
-        if newPrevBase:
-            undoDat = (self._prevBase, newPrevBase._nextBase)
+        if new5pBase:
+            undoDat = (self._5pBase, new5pBase._3pBase)
         else:
-            undoDat = (self._prevBase, None)
-        if self._prevBase:
-            self._prevBase._nextBase = oldPrevNext
-        if newPrevBase:
-            newPrevBase._nextBase = self
-        self._prevBase = newPrevBase
+            undoDat = (self._5pBase, None)
+        if self._5pBase:
+            self._5pBase._3pBase = old5p3p
+        if new5pBase:
+            new5pBase._3pBase = self
+        self._5pBase = new5pBase
         return undoDat
     
-    def _setNext(self, newNextBase, oldNextPrev=None):
+    def _set3Prime(self, new3pBase, old3p5p=None):
         """Only VirtualHelix should call this method. Returns
         a list l such that _setNext(*l) undoes the command"""
         if newNextBase:
-            undoDat = (self._nextBase, newNextBase._prevBase)
+            undoDat = (self._3pBase, new3pBase._5pBase)
         else:
-            undoDat = (self._nextBase, None)
-        if self._nextBase:
-            self._nextBase._prevBase = oldNextPrev
-        if newNextBase:
-            newNextBase._prevBase = self
-        self._nextBase = newNextBase
+            undoDat = (self._3pBase, None)
+        if self._3pBase:
+            self._3pBase._5pBase = old3p5p
+        if new3pBase:
+            new3pBase._5pBase = self
+        self._3pBase = new3pBase
         return undoDat
+
     
     def vhelixNum(self):
         return self._vhelix.number()
 
     def isNull(self):
-        return self._prevBase == None and\
-               self._nextBase == None
+        return self._5pBase == None and\
+               self._3pBase == None
 
     def is5primeEnd(self):
-        """Return True if no prevBase, but nextBase exists."""
-        return self._prevBase == None and\
-               self._nextBase != None
+        """Return True if no 5pBase, but 3pBase exists."""
+        return self._5pBase == None and\
+               self._3pBase != None
 
     def is3primeEnd(self):
-        """Return True if no nextBase, but prevBase exists."""
-        return self._prevBase != None and\
-               self._nextBase == None
+        """Return True if no 3pBase, but 5pBase exists."""
+        return self._5pBase != None and\
+               self._3pBase == None
     
     def isEnd(self):
-        return (self._prevBase==None) ^ (self._nextBase==None)
+        return (self._5pBase==None) ^ (self._3pBase==None)
 
     def isCrossover(self):
-        """Return True if the part id or vhelix number of the prev or
-        next base does not match the same for this base."""
+        """Return True if the part id or vhelix number of the 5p or
+        3p base does not match the same for this base."""
         if self.isNull():
             return False
 
-        if self._prevBase != Base._null:
-            if self.vhelixNum() != self._prevBase.vhelixNum():
+        if self._5pBase != Base._null:
+            if self.vhelixNum() != self._5pBase.vhelixNum():
                 return True
-            elif self.partId() != self._prevBase.partId():
+            elif self.partId() != self._5pBase.partId():
                 return True
-        if self._nextBase != Base._null:
-            if self.vhelixNum() != self._nextBase.vhelixNum():
+        if self._3pBase != Base._null:
+            if self.vhelixNum() != self._3pBase.vhelixNum():
                 return True
-            elif self.partId() != self._nextBase.partId():
+            elif self.partId() != self._3pBase.partId():
                 return True
         return False
