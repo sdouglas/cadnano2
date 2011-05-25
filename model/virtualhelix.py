@@ -121,9 +121,9 @@ class VirtualHelix(QObject):
         """
         method to determine 5' to 3' or 3' to 5'
         """
-        if self.evenParity() and strandtype == Strandtype.Scaffold:
+        if self.evenParity() and strandtype == StrandType.Scaffold:
             return True
-        elif not self.evenParity() and strandtype == Strandtype.Staple:
+        elif not self.evenParity() and strandtype == StrandType.Staple:
             return True
         else:
             return False
@@ -286,7 +286,7 @@ class VirtualHelix(QObject):
             # st s, s+1, ..., e-1, e are connected
             strand = self._vh.strand(self._strandType)
             ol = self._oldLinkage = []
-            if directionOfStrandIs5to3(self._strandType)):
+            if self._vh.directionOfStrandIs5to3(self._strandType):
                 for i in range(self._startIndex, self._endIndex):
                     ol.append(strand[i]._set3Prime(strand[i+1]))
             # end if
@@ -301,7 +301,7 @@ class VirtualHelix(QObject):
             ol = self._oldLinkage
             assert(ol)  # Must redo/apply before undo
             
-            if directionOfStrandIs5to3(self._strandType)):
+            if self._vh.directionOfStrandIs5to3(self._strandType):
                 for i in range(self._endIndex-1, self._startIndex-1, -1):
                     strand[i]._set3Prime(*ol[i-self._startIndex])
             # end if
@@ -327,7 +327,7 @@ class VirtualHelix(QObject):
             strand = self._vh.strand(self._strandType)
             ol = self._oldLinkage = []
             
-            if directionOfStrandIs5to3(self._strandType)):
+            if self._vh.directionOfStrandIs5to3(self._strandType):
                 for i in range(self._startIndex-1, self._endIndex):
                     ol.append(strand[i]._set3Prime(None))
             # end if
@@ -341,7 +341,7 @@ class VirtualHelix(QObject):
             strand = self._vh.strand(self._strandType)
             ol = self._oldLinkage
             assert(ol)  # Must redo/apply before undo
-            if directionOfStrandIs5to3(self._strandType)):
+            if self._vh.directionOfStrandIs5to3(self._strandType):
                 for i in range(self._endIndex-1, self._startIndex-2, -1):
                     strand[i]._set3Prime(*ol[i-self._startIndex])
             # end if
@@ -364,7 +364,7 @@ class VirtualHelix(QObject):
             fromB = self._fromHelix.strand(self._strandType)[self._fromIndex]
             toB   = self._toHelix.strand(self._strandType)[self._toIndex]
             
-            if directionOfStrandIs5to3(self._strandType)):
+            if self._fromHelix.directionOfStrandIs5to3(self._strandType):
                 self._undoDat = fromB._set3Prime(toB)
             # end if
             else:
@@ -377,7 +377,7 @@ class VirtualHelix(QObject):
         def undo(self):
             fromB = self._fromHelix.strand(self._strandType)[self._fromIndex]
             assert(self._undoDat)  # Must redo/apply before undo
-            if directionOfStrandIs5to3(self._strandType)):
+            if self._fromHelix.directionOfStrandIs5to3(self._strandType):
                 fromB._set3Prime(*self._undoDat)
             # end if
             else:
