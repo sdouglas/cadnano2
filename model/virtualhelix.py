@@ -121,9 +121,9 @@ class VirtualHelix(QObject):
         """
         method to determine 5' to 3' or 3' to 5'
         """
-        if self.evenParity() and strandtype == Strandtype.Scaffold:
+        if self.evenParity() and strandtype == StrandType.Scaffold:
             return True
-        elif not self.evenParity() and strandtype == Strandtype.Staple:
+        elif not self.evenParity() and strandtype == StrandType.Staple:
             return True
         else:
             return False
@@ -381,7 +381,7 @@ class VirtualHelix(QObject):
                 fromB._set3Prime(*self._undoDat)
             # end if
             else:
-               fromB._set5Prime(*self._undoDat) 
+                fromB._set5Prime(*self._undoDat)
             # else
             
             self._fromHelix.basesModified.emit()
