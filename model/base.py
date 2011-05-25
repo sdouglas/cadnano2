@@ -34,7 +34,7 @@ class Base(object):
     and provides information about which bases
     are connected to which other bases
     """    
-    def __init__(self, vhelix=None, strandtype=None, index=None):
+    def __init__(self, vhelix, strandtype, index):
         super(Base, self).__init__()
         self._5pBase = None
         self._3pBase = None
@@ -42,17 +42,29 @@ class Base(object):
         self._strandtype = strandtype
         self._n = index
     
-    def __str__(self, vhelix=None, index=None):
+    def __str__(self):
         threeB, fiveB = '_', '_'
         fiveTo3 = self._vhelix.directionOfStrandIs5to3(self._strandtype)
+        if fiveTo3:
+            # If we move to self._3pBase and stay on the same 5 to 3 strand
+            # we expect self._3pBase._n = self._n+1
+            nOffsetOf3 = 1
+        else:
+            nOffsetOf3 = -1
         if self._3pBase:
             if self._3pBase._vhelix==self._vhelix:
-                threeB = fiveTo3 and '>' or '<'
+                if self._3pBase._n == self._n + nOffsetOf3:
+                    threeB = fiveTo3 and '>' or '<'
+                else:
+                    threeB = '!'
             else:
                 threeB = str(self._3pBase.vhelixNum())
         if self._5pBase:
             if self._5pBase.vhelixNum()==self.vhelixNum():
-                fiveB = fiveTo3 and '<' or '>'
+                if self._5pBase._n == self._n - nOffsetOf3:
+                    fiveB = fiveTo3 and '<' or '>'
+                else:
+                    fiveB = '!'
             else:
                 fiveB = str(self._5pBase.vhelixNum())
         if fiveTo3:
@@ -60,6 +72,20 @@ class Base(object):
         else:
             return threeB+fiveB
             
+    def __repr__(self):
+        if self._3pBase:
+            b3 = str(self._3pBase._vhelix.number())+'.'+str(self._3pBase._n)
+        else:
+            b3 = ' '
+        if self._5pBase:
+            b5 = str(self._5pBase._vhelix.number())+'.'+str(self._5pBase._n)
+        else:
+            b5 = ' '
+        if self._vhelix.directionOfStrandIs5to3(self._strandtype):
+            return str((b5, self._n, b3))
+        else:
+            return str((b3, self._n, b5))
+        
     
     def _set5Prime(self, new5pBase, old5p3p=None):
         """Only VirtualHelix should call this method. Returns

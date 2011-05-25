@@ -1,6 +1,7 @@
 #!/usr/bin/python
 from model.virtualhelix import VirtualHelix
 from model.enum import StrandType
+from code import interact
 
 print "vh = VirtualHelix(numBases=8, idnum=0)"
 vh = VirtualHelix(numBases=8, idnum=0)
@@ -26,10 +27,10 @@ print str(vh)
 print str(vh1) + "\n\n"
 
 print "vh.connectBases(StrandType.Staple, 2, vh1, 3)"
-vh.connectBases(StrandType.Staple, 2, vh1, 3)
+vh.connectBases(StrandType.Staple, 2, vh1, 2)
 print str(vh)
 print str(vh1)
-
+interact(local=locals())
 
 
 print ""
