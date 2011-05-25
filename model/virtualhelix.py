@@ -112,7 +112,10 @@ class VirtualHelix(QObject):
         """
         returns True or False
         """
-        return self._part.virtualHelixParityEven(self)
+        if self._part:
+            return self._part.virtualHelixParityEven(self)
+        else:
+            return self._number % 2 == 0
 
     def directionOfStrandIs5to3(self,strandtype):
         """
