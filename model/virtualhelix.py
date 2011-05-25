@@ -308,11 +308,11 @@ class VirtualHelix(QObject):
             
             if self._vh.directionOfStrandIs5to3(self._strandType):
                 for i in range(self._endIndex - 1, self._startIndex - 1, -1):
-                    strand[i]._set3Prime(*ol[i - self._startIndex])
+                    strand[i]._unset3Prime(strand[i + 1], *ol[i - self._startIndex])
             # end if
             else:
                 for i in range(self._endIndex - 1, self._startIndex - 1, -1):
-                    strand[i]._set5Prime(*ol[i - self._startIndex])
+                    strand[i]._unset5Prime(strand[i + 1], *ol[i - self._startIndex])
             # end else
             
             self._vh.basesModified.emit()
@@ -348,11 +348,11 @@ class VirtualHelix(QObject):
             assert(ol)  # Must redo/apply before undo
             if self._vh.directionOfStrandIs5to3(self._strandType):
                 for i in range(self._endIndex - 1, self._startIndex - 2, -1):
-                    strand[i]._set3Prime(*ol[i - self._startIndex])
+                    strand[i]._unset3Prime(None, *ol[i - self._startIndex])
             # end if
             else:
                 for i in range(self._endIndex - 1, self._startIndex - 2, -1):
-                    strand[i]._set5Prime(*ol[i - self._startIndex])
+                    strand[i]._unset5Prime(None, *ol[i - self._startIndex])
             # end else
             self._vh.basesModified.emit()
     
@@ -371,23 +371,20 @@ class VirtualHelix(QObject):
             
             if self._fromHelix.directionOfStrandIs5to3(self._strandType):
                 self._undoDat = fromB._set3Prime(toB)
-            # end if
             else:
                 self._undoDat = fromB._set5Prime(toB)
-            # end else
             
             self._fromHelix.basesModified.emit()
             self._toHelix.basesModified.emit()
 
         def undo(self):
             fromB = self._fromHelix.strand(self._strandType)[self._fromIndex]
+            toB   = self._toHelix.strand(self._strandType)[self._toIndex]
             assert(self._undoDat)  # Must redo/apply before undo
             if self._fromHelix.directionOfStrandIs5to3(self._strandType):
-                fromB._set3Prime(*self._undoDat)
-            # end if
+                fromB._unset3Prime(toB, *self._undoDat)
             else:
-                fromB._set5Prime(*self._undoDat)
-            # else
+                fromB._unset5Prime(toB, *self._undoDat)
             
             self._fromHelix.basesModified.emit()
             self._toHelix.basesModified.emit()

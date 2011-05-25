@@ -87,33 +87,43 @@ class Base(object):
             return str((b3, self._n, b5))
         
     
-    def _set5Prime(self, new5pBase, old5p3p=None):
-        """Only VirtualHelix should call this method. Returns
-        a list l such that _set5p(*l) undoes the command."""
-        if new5pBase:
-            undoDat = (self._5pBase, new5pBase._3pBase)
-        else:
-            undoDat = (self._5pBase, None)
-        if self._5pBase:
-            self._5pBase._3pBase = old5p3p
-        if new5pBase:
-            new5pBase._3pBase = self
-        self._5pBase = new5pBase
-        return undoDat
+    def _set5Prime(self, toBase):
+        """Only VirtualHelix should call this method. Returns l
+        such that self._unset5Prime(toBase, *l) undoes this command."""
+        fromOld5, toOld3 = self._5pBase, None
+        if fromOld5:
+            fromOld5._3pBase = None
+        if toBase:
+            toOld3 = toBase._3pBase
+            toBase._3pBase = self
+        if toOld3:
+            toOld3._5pBase = None
+        self._5pBase = toBase
+        return (fromOld5, toOld3)
     
-    def _set3Prime(self, new3pBase, old3p5p=None):
-        """Only VirtualHelix should call this method. Returns
-        a list l such that _set3p(*l) undoes the command"""
-        if new3pBase:
-            undoDat = (self._3pBase, new3pBase._5pBase)
-        else:
-            undoDat = (self._3pBase, None)
-        if self._3pBase:
-            self._3pBase._5pBase = old3p5p
-        if new3pBase:
-            new3pBase._5pBase = self
-        self._3pBase = new3pBase
-        return undoDat
+    def _unset5Prime(self, toBase, fromOld5, toOld3):
+        """Only VirtualHelix should call this method."""
+        self._set5Prime(fromOld5)
+        toBase._set3Prime(toOld3)
+        
+    def _set3Prime(self, toBase):
+        """Only VirtualHelix should call this method. Returns l
+        such that self._unset5Prime(toBase, *l) undoes this command."""
+        fromOld3, toOld5 = self._3pBase, None
+        if fromOld3:
+            fromOld3._5pBase = None
+        if toBase:
+            toOld5 = toBase._5pBase
+            toBase._5pBase = self
+        if toOld5:
+            toOld5._3pBase = None
+        self._3pBase = toBase
+        return (fromOld3, toOld5)
+    
+    def _unset3Prime(self, toBase, fromOld3, toOld5):
+        """Only VirtualHelix should call this method."""
+        self._set3Prime(fromOld3)
+        toBase._set5Prime(toOld5)
     
     def vhelixNum(self):
         return self._vhelix.number()
