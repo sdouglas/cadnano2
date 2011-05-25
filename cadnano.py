@@ -44,6 +44,12 @@ class caDNAno(QApplication):
         if "-i" in argv:
             self.d = d
             self.v = {}  # Newly created VirtualHelix register themselves here under their idnum.
+            print "Welcome to caDNAno's debug mode!"
+            print "Some handy locals:"
+            print "\ta\tcaDNAno.app() (the shared caDNAno application object)"
+            print "\td\tthe last created Document"
+            print "\tv\tmaps the numbers of recently created VirtualHelixes to the VHs themselves"
+            print "\tquit()\tquit (for when the menu fails)"
             interact(local={'a':self, 'd':d, 'v':self.v})
         
     def isInMaya(self):

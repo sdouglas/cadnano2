@@ -43,18 +43,21 @@ class Base(object):
         self._n = index
     
     def __str__(self, vhelix=None, index=None):
-        p, n = '_', '_'
+        threeB, fiveB = '_', '_'
         if self._3pBase:
             if self._3pBase.vhelixNum()==self.vhelixNum():
-                n = '>'
+                threeB = '>'
             else:
-                n = str(self._3pBase.vhelixNum())
+                threeB = str(self._3pBase.vhelixNum())
         if self._5pBase:
             if self._5pBase.vhelixNum()==self.vhelixNum():
-                p = '<'
+                fiveB = '<'
             else:
-                p = str(self._5pBase.vhelixNum())
-        return p+n
+                fiveB = str(self._5pBase.vhelixNum())
+        if self._vhelix.directionOfStrandIs5to3(self._strandtype):
+            return fiveB+threeB
+        else:
+            return threeB+fiveB
             
     
     def _set5Prime(self, new5pBase, old5p3p=None):
