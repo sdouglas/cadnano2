@@ -41,6 +41,7 @@ from handles.breakpointhandle import BreakpointHandle
 from mmayacadnano.pathhelix3d import PathHelix3D  # For Campbell
 from weakref import ref
 from handles.pathhelixhandle import PathHelixHandle
+from math import floor
 
 baseWidth = styles.PATH_BASE_WIDTH
 ppL5 = QPainterPath()  # Left 5' PainterPath
@@ -150,7 +151,7 @@ class PathHelix(QGraphicsItem):
     def boundingRect(self):
         return self.rect
     
-    ################################ Events ################################
+    ################################ Events ################################        
     def hoverEnterEvent(self, event):
         if self.controller().toolUse == True:
             self.controller().toolHoverEnter(self,event)
@@ -314,7 +315,11 @@ class PathHelix(QGraphicsItem):
     def strandIsTop(self, strandType):
         return self.evenParity() and strandType==StrandType.Scaffold\
            or not self.evenParity() and strandType == StrandType.Staple
-
+    
+    def baseAtLocation(self, x, y):
+        baseIdx = floor(x/self.baseWidth)
+        strandIdx = ()
+    
     def baseLocation(self, strandType, baseIdx, center=False):
         """Returns the coordinates of the upper left corner of the base
         referenced by strandType and baseIdx. If center=True, returns the

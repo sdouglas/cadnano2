@@ -51,6 +51,7 @@ class caDNAno(QApplication):
             print "\tv\tmaps the numbers of recently created VirtualHelixes to the VHs themselves"
             print "\tquit()\tquit (for when the menu fails)"
             interact(local={'a':self, 'd':d, 'v':self.v})
+
         
     def isInMaya(self):
         return False
