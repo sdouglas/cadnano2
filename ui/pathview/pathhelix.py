@@ -102,15 +102,12 @@ class PathHelix(QGraphicsItem):
         self._vhelix = None
         self._handle = None
         self._mouseDownBase = None
-        self._activeTool = PainterTool()
         self.setVHelix(vhelix)
         if app().ph != None:  # Convenience for the command line -i mode
             app().ph[vhelix.number()] = self
     # end def
     
     def activeTool(self):
-        if self._activeTool:
-            return self._activeTool
         return self.controller().activeTool()
     
     def controller(self):
@@ -336,13 +333,17 @@ class PathHelix(QGraphicsItem):
 forwardedEvents = ('hoverEnter', 'hoverLeave', 'hoverMove', 'mousePress', 'mouseMove', 'mouseRelease')
 for evName in forwardedEvents:
     delegateMethodName = evName + 'PathHelix'
-    def templateEvent(self, event):
-        activeTool = self.activeTool()
-        if activeTool:
-            delegateMethod = getattr(activeTool, delegateMethodName, None)
-            if delegateMethod:
-                activeTool.delegateMethod(self, event)
-        else:
-            QGraphicsItem.hoverLeaveEvent(self,event)
-    setattr(PathHelix, delegateMethodName, templateEvent)
+    eventMethodName = evName + 'Event'
+    def makeTemplateMethod(eventMethodName, delegateMethodName):
+        def templateMethod(self, event):
+            activeTool = self.activeTool()
+            if activeTool:
+                delegateMethod = getattr(activeTool, delegateMethodName, None)
+                if delegateMethod:
+                    delegateMethod(self, event)
+            else:
+                QGraphicsItem.hoverLeaveEvent(self,event)
+        return templateMethod
+    eventHandler = makeTemplateMethod(eventMethodName, delegateMethodName)
+    setattr(PathHelix, eventMethodName, eventHandler)
         

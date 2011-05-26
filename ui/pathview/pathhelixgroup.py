@@ -78,6 +78,9 @@ class PathHelixGroup(QGraphicsObject):
     
     def part(self):
         return self._part
+    
+    def activeTool(self):
+        return controller().activeTool()
         
     def notifyPreCrossoverGroupAfterUpdate(self, virtualhelix):
         """Called by PathHelix.mousePressEvent after the vhelix has calculated
@@ -205,7 +208,6 @@ class PathHelixGroup(QGraphicsObject):
     def notifyPreCrossoverGroupAfterUpdate(self, virtualhelix):
         """Called by PathHelix.mousePressEvent after the vhelix has calculated
         its new PreXoverHandle positions."""
-        print "updating preXOGroup"
         self.pchGroup.updateActiveHelix(virtualhelix)
 
     def reorderHelices(self, first, last, indexDelta):
