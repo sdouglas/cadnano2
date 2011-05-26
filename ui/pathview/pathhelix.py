@@ -42,6 +42,8 @@ from mmayacadnano.pathhelix3d import PathHelix3D  # For Campbell
 from weakref import ref
 from handles.pathhelixhandle import PathHelixHandle
 from math import floor
+from paintertool import PainterTool
+from cadnano import app
 
 baseWidth = styles.PATH_BASE_WIDTH
 ppL5 = QPainterPath()  # Left 5' PainterPath
@@ -100,11 +102,15 @@ class PathHelix(QGraphicsItem):
         self._vhelix = None
         self._handle = None
         self._mouseDownBase = None
-        self._activeTool = None
+        self._activeTool = PainterTool()
         self.setVHelix(vhelix)
+        if app().ph != None:  # Convenience for the command line -i mode
+            app().ph[vhelix.number()] = self
     # end def
     
     def activeTool(self):
+        if self._activeTool:
+            return self._activeTool
         return self.controller().activeTool()
     
     def controller(self):
@@ -158,68 +164,6 @@ class PathHelix(QGraphicsItem):
     def boundingRect(self):
         return self.rect
     
-    def hoverEnterEvent(self, event):
-        activeTool = self.activeTool()
-        if activeTool and hasattr(activeTool, pathHelixHoverEnter):
-            self.activeTool().pathHelixHoverEnter(self, event)
-        else:
-            QGraphicsItem.hoverEnterEvent(self,event)
-    
-    def hoverLeaveEvent(self, event):
-        if self.activeTool():
-            self.activeTool().hoverLeave(self, event)
-        else:
-            QGraphicsItem.hoverLeaveEvent(self,event)
-    
-    def hoverMoveEvent(self, event):
-        if self.activeTool():
-            self.activeTool().hoverLeave(self, event)
-        else:
-            QGraphicsItem.hoverLeaveEvent(self,event)
-
-    def mousePressEvent(self, event):
-        """Activate this item as the current helix"""
-        self._mouseDownBase = self.baseAtLocation(event.pos().x(), event.pos().y())
-        if self.controller().toolUse == True:
-            self.controller().toolPress(self,event)
-        else:
-            if self._mouseDownBase:
-                self.vhelix().setSandboxed(True)
-                self.painterToolApply(self._mouseDownBase, self._mouseDownBase)
-        self.updateAsActiveHelix(self._mouseDownBase[1])
-        # QGraphicsItem.mousePressEvent(self,event)
-    
-    def mouseMoveEvent(self, event):
-        if self.controller().toolUse == True:
-            return
-        newBase = self.baseAtLocation(event.pos().x(), event.pos().y())
-        if self._mouseDownBase and newBase:
-            self.vhelix().undoStack().undo()
-            self.painterToolApply(self._mouseDownBase, newBase)
-    
-    def mouseReleaseEvent(self, event):
-        if self.controller().toolUse == True:
-            return
-        if self._mouseDownBase:
-            self.vhelix().setSandboxed(False)
-    
-    def painterToolApply(self, fr, to):
-        """PainterTool is the default tool that lets one
-        create scaffold and staple by dragging starting on
-        an empty or endpoint base or destroy scaffold/staple
-        by dragging from a connected base. from and to take the
-        format of (strandType, base)"""
-        vh = self.vhelix()
-        fr = vh.validatedBase(*fr, raiseOnErr=False)
-        to = vh.validatedBase(*to,   raiseOnErr=False)
-        if (None, None) in (fr, to):
-            return False
-        useClearMode = self.vhelix().hasStrandAt(*fr)
-        if useClearMode:
-            self.vhelix().clearStrand(fr[0], fr[1], to[1])
-        else:
-            self.vhelix().connectStrand(fr[0], fr[1], to[1])        
-
     def hidePreXoverHandles(self):
         pass
     # end def
@@ -391,6 +335,14 @@ class PathHelix(QGraphicsItem):
 ################################ Events ################################     
 forwardedEvents = ('hoverEnter', 'hoverLeave', 'hoverMove', 'mousePress', 'mouseMove', 'mouseRelease')
 for evName in forwardedEvents:
+    delegateMethodName = evName + 'PathHelix'
     def templateEvent(self, event):
+        activeTool = self.activeTool()
+        if activeTool:
+            delegateMethod = getattr(activeTool, delegateMethodName, None)
+            if delegateMethod:
+                activeTool.delegateMethod(self, event)
+        else:
+            QGraphicsItem.hoverLeaveEvent(self,event)
+    setattr(PathHelix, delegateMethodName, templateEvent)
         
-    

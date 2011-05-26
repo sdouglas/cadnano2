@@ -41,17 +41,23 @@ class caDNAno(QApplication):
         #self.setApplicationName(QString("caDNAno"))
         self.documentControllers = set() # Open documents
         d = self.newDocument()
+        self.v = None
+        self.ph = None
+        self.phg = None
         if "-i" in argv:
             self.d = d
             self.v = {}  # Newly created VirtualHelix register themselves here under their idnum.
+            self.ph = {}
+            self.phg = None
             print "Welcome to caDNAno's debug mode!"
             print "Some handy locals:"
             print "\ta\tcaDNAno.app() (the shared caDNAno application object)"
             print "\td\tthe last created Document"
             print "\tv\tmaps the numbers of recently created VirtualHelixes to the VHs themselves"
+            print "\tph\tmaps virtual helix numbers to pathhelix"
+            print "\tphg()\tthe last initialized PathHelixGroup"
             print "\tquit()\tquit (for when the menu fails)"
-            interact(local={'a':self, 'd':d, 'v':self.v})
-
+            interact(local={'a':self, 'd':d, 'v':self.v, 'ph':self.ph, 'phg':lambda : self.phg})
         
     def isInMaya(self):
         return False

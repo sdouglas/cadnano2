@@ -122,11 +122,11 @@ class ActiveSliceHandle(QGraphicsItem):
         """Snaps handle into place when dragging."""
         if self.controller().toolUse or not self._dragMode:
             return
-        x = event.scenePos().x()-self.pos().x()
+        x = event.scenePos().x()
         dx = int((x - self.pressX)/self.baseWidth)
         if dx == 0:
             return
-        self.setActiveSlice(self.activeSlice()+dx)
+        self.setActiveSlice(self.pressBaseIdx+dx)
 
     def mousePressEvent(self, event):
         if event.button() != Qt.LeftButton:
@@ -138,7 +138,8 @@ class ActiveSliceHandle(QGraphicsItem):
             return
         self.scene().views()[0].addToPressList(self)
         self._dragMode = True
-        self.pressX = event.scenePos().x()-self.pos().x()
+        self.pressX = event.scenePos().x()
+        self.pressBaseIdx = self.activeSlice()
 
     def customMouseRelease(self, eventPosition):
         """Snaps to grid after mouse released. Updates vhelix data according

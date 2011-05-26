@@ -35,6 +35,8 @@ from PyQt4.QtCore import pyqtSignal, QObject
 from PyQt4.QtGui import QUndoCommand, QUndoStack
 from .base import Base
 from util import *
+from cadnano import app
+
 
 class VirtualHelix(QObject):
     """Stores staple and scaffold routing information."""
@@ -65,6 +67,8 @@ class VirtualHelix(QObject):
         # removed (causes undoStack() to return part.undoStac())
         # upon setSandboxed(False)
         self._sandboxed = False
+        if app().v != None:  # Command line convenience -i mode
+            app().v[self.number()] = self
     
     def __repr__(self):
         return 'vh%i' % self.number()
@@ -198,6 +202,14 @@ class VirtualHelix(QObject):
             return False
         else:
             return base.isStrand()
+    
+    def hasEndAt(self, strandType, index):
+        base = self._baseAt(strandType, index)
+        if not base:
+            return False
+        else:
+            return base.isEnd()
+        
 
     def getEnds(self, strandType):
         """Returns a list of 3' and 5' ends in the format

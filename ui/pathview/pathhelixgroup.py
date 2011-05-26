@@ -41,7 +41,7 @@ from handles.precrossoverhandle import PreXoverHandleGroup
 from model.enum import EndType, LatticeType, StrandType
 import ui.styles as styles
 from handles.pathhelixhandle import PathHelixHandle
-
+from cadnano import app
 
 
 class PathHelixGroup(QGraphicsObject):
@@ -69,10 +69,10 @@ class PathHelixGroup(QGraphicsObject):
         self.label.setPos(0, -40)
         self.label.setTextInteractionFlags(Qt.TextEditorInteraction)
         self.label.inputMethodEvent = None
-        
         self.activeHelix = None
         self.pchGroup = PreXoverHandleGroup(parent=self)
-    
+        app().phg = self  # Convenience for the command line -i mode
+
     def __str__(self):
         return "I am a PHG!"
     
@@ -193,7 +193,7 @@ class PathHelixGroup(QGraphicsObject):
     # Slot called when the part's selection changes
     def selectionWillChange(self, newSelection):
         pass
-
+    
     def getPathHelix(self, vhref):
         """Given the helix number, return a reference to the PathHelix."""
         vh = self.part().getVirtualHelix(vhref)
