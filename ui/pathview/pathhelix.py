@@ -178,13 +178,15 @@ class PathHelix(QGraphicsItem):
 
     def mousePressEvent(self, event):
         """Activate this item as the current helix"""
+        self._mouseDownBase = self.baseAtLocation(event.pos().x(), event.pos().y())
         if self.controller().toolUse == True:
             self.controller().toolPress(self,event)
-        self._mouseDownBase = self.baseAtLocation(event.pos().x(), event.pos().y())
-        if self._mouseDownBase:
-            self.vhelix().setSandboxed(True)
-            self.painterToolApply(self._mouseDownBase, self._mouseDownBase)
-        #self.updateAsActiveHelix(eventIndex)
+        else:
+            if self._mouseDownBase:
+                self.vhelix().setSandboxed(True)
+                self.painterToolApply(self._mouseDownBase, self._mouseDownBase)
+        self.updateAsActiveHelix(self._mouseDownBase[1])
+        # QGraphicsItem.mousePressEvent(self,event)
     
     def mouseMoveEvent(self, event):
         if self.controller().toolUse == True:
@@ -246,12 +248,12 @@ class PathHelix(QGraphicsItem):
     # end def
 
     def updateAsActiveHelix(self, index):
-        if self.parentItem().activeHelix != None:  # deactivate old
-            self.parentItem().activeHelix.hidePreXoverHandles()
+        if self._pathHelixGroup.activeHelix != None:  # deactivate old
+            self._pathHelixGroup.activeHelix.hidePreXoverHandles()
         # end if
-        self.parentItem().activeHelix = self  # activate new
+        self._pathHelixGroup.activeHelix = self  # activate new
         self._vhelix.updatePreCrossoverPositions(index)
-        self.parentItem().notifyPreCrossoverGroupAfterUpdate(self._vhelix)
+        self._pathHelixGroup.notifyPreCrossoverGroupAfterUpdate(self._vhelix)
         self.update(self.boundingRect())
     # end def
 
@@ -357,7 +359,7 @@ class PathHelix(QGraphicsItem):
     def baseAtLocation(self, x, y):
         """Returns the (strandType, index) under the location x,y or None."""
         baseIdx = int(floor(x/self.baseWidth))
-        if baseIdx<0 or baseIdx>=self.vhelix().numBases():
+        if baseIdx < 0 or baseIdx >= self.vhelix().numBases():
             return None
         strandIdx = floor(y*1./self.baseWidth)
         if strandIdx < 0 or strandIdx > 1: return None

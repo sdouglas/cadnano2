@@ -165,12 +165,12 @@ class VirtualHelix(QObject):
         """Makes sure the basespec (strandType,index) is valid
         and raises or returns (None, None) according to raiseOnErr if
         it isn't valid"""
-        if strandType!=StrandType.Scaffold and strandType!=StrandType.Staple:
+        if strandType != StrandType.Scaffold and strandType!=StrandType.Staple:
             if raiseOnErr:
                 raise IndexError("Base (strand:%s index:%i) Not Valid"%(strandType,index))
             return (None, None)
         index = int(index)
-        if index<0 or index>=self.numBases()-1:
+        if index < 0 or index >= self.numBases() - 1:
             if raiseOnErr:
                 raise IndexError("Base (strand:%s index:%i) Not Valid"%(strandType,index))
             return (None, None)
@@ -178,7 +178,7 @@ class VirtualHelix(QObject):
     
     def _baseAt(self, strandType, index, raiseOnErr=False):
         strandType, index = self.validatedBase(strandType, index, raiseOnErr=raiseOnErr)
-        if strandType==None:
+        if strandType == None:
             return None
         return self._strand(strandType)[index]
 
@@ -449,6 +449,10 @@ class VirtualHelix(QObject):
     def crossoverAt(self, type, fromIndex, neighbor, toIndex):
         return 
 
+    def scaffoldBase(self, index):
+        """docstring for scaffoldBase"""
+        return self._scaffoldBases[index]
+
     def possibleNewCrossoverAt(self, type, fromIndex, neighbor, toIndex):
         """Return true if scaffold could crossover to neighbor at index.
         Useful for seeing if potential crossovers from potentialCrossoverList
@@ -459,6 +463,77 @@ class VirtualHelix(QObject):
             return False
         return  not self.scaffoldBase(fromIndex).isEmpty() and \
                 not neighbor.scaffoldBase(toIndex).isEmpty()
+
+    def updatePreCrossoverPositions(self, clickIndex=None):
+        """docstring for updatePreCrossoverPositions"""
+        self._scafLeftPreXoList = []
+        self._scafRightPreXoList = []
+        self._stapLeftPreXoList = []
+        self._stapRightPreXoList = []
+
+        if self._part.crossSectionType() == LatticeType.Honeycomb:
+            step = 21
+            scafL = Crossovers.honeycombScafLeft
+            scafR = Crossovers.honeycombScafRight
+            stapL = Crossovers.honeycombStapLeft
+            stapR = Crossovers.honeycombStapRight
+        elif self._part.crossSectionType() == LatticeType.Square:
+            step = 32
+            scafL = Crossovers.squareScafLeft
+            scafR = Crossovers.squareScafRight
+            stapL = Crossovers.squareStapLeft
+            stapR = Crossovers.squareStapRight
+
+        if clickIndex == None:  # auto staple
+            start = 0
+            end = self.numBases()
+        else: # user mouse click
+            start = max(0, clickIndex - (clickIndex % step) - step)
+            end = min(self.numBases(), clickIndex - (clickIndex % step) + step*2)
+
+        neighbors = self.getNeighbors()
+        for p in range(len(neighbors)):
+            neighbor = neighbors[p]
+            if not neighbor:
+                continue
+            # Scaffold Left
+            for i,j in product(range(start, end, step), scafL[p]):
+                index = i+j
+                if self.possibleNewCrossoverAt(StrandType.Scaffold, index, neighbor, index):
+                # if self.possibleScafCrossoverAt(index, neighbor, index):
+                    self._scafLeftPreXoList.append([neighbor, index])
+            # Scaffold Right
+            for i,j in product(range(start, end, step), scafR[p]):
+                index = i+j
+                if self.possibleNewCrossoverAt(StrandType.Scaffold, index, neighbor, index):
+                # if self.possibleScafCrossoverAt(index, neighbor, index):
+                    self._scafRightPreXoList.append([neighbor, index])
+            # Staple Left
+            for i,j in product(range(start, end, step), stapL[p]):
+                index = i+j
+                if self.possibleNewCrossoverAt(StrandType.Staple, index, neighbor, index):
+                # if self.possibleStapCrossoverAt(index, neighbor, index):
+                    self._stapLeftPreXoList.append([neighbor, index])
+            # Staple Right
+            for i,j in product(range(start, end, step), stapR[p]):
+                index = i+j
+                if self.possibleNewCrossoverAt(StrandType.Staple, index, neighbor, index):
+                # if self.possibleStapCrossoverAt(index, neighbor, index):
+                    self._stapRightPreXoList.append([neighbor, index])
+
+    # end def
+    
+    def getLeftScafPreCrossoverIndexList(self):
+        return self._scafLeftPreXoList
+
+    def getRightScafPreCrossoverIndexList(self):
+        return self._scafRightPreXoList
+
+    def getLeftStapPreCrossoverIndexList(self):
+        return self._stapLeftPreXoList
+
+    def getRightStapPreCrossoverIndexList(self):
+        return self._stapRightPreXoList
 
     def getNeighbors(self):
         """The part (which controls helix layout) decides who
