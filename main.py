@@ -36,4 +36,17 @@ from cadnano import app as getAppInstance
 
 app = getAppInstance(appArgs=sys.argv)
 if __name__ == '__main__':
+    if "-p" in sys.argv:
+        import cProfile
+        cProfile.run('app.exec_()', 'caDNAnoProfileOut.tmp')
+        exit()
+    elif "-P" in sys.argv:
+        from pstats import Stats
+        s = Stats('caDNAnoProfileOut.tmp')
+        print "Internal Time Top 10:"
+        s.sort_stats('cumulative').print_stats(10)
+        print ""
+        print "Total Time Top 10:"
+        s.sort_stats('time').print_stats(10)        
+        exit()
     app.exec_()

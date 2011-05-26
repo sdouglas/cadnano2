@@ -61,6 +61,10 @@ class VirtualHelix(QObject):
         self._stapLPoXo  = []
         self._stapRPoXo = []
         self._undoStack = None
+        # Undo stack is only temporary and should be 
+        # removed (causes undoStack() to return part.undoStac())
+        # upon setSandboxed(False)
+        self._sandboxed = False
     
     def __repr__(self):
         return 'vh%i' % self.number()
@@ -138,7 +142,7 @@ class VirtualHelix(QObject):
         """return VirtualHelix helical-axis column"""
         return self._col
     
-    def strand(self, strandType):
+    def _strand(self, strandType):
         """The returned strand should be considered privately
         mutable"""
         if strandType == StrandType.Scaffold:
@@ -149,38 +153,57 @@ class VirtualHelix(QObject):
             raise IndexError
 
     ########################### Access to Bases ###################
-    def _stapleBase(self, index):
-        """private to virtualhelix"""
-        return self._stapleBases[index]
-
-    def _scaffoldBase(self, index):
-        """private to virtualhelix"""
-        return self._scaffoldBases[index]
-
-    def hasScafAt(self, index):
+    def hasBaseAt(self, strandType, index):
         """Returns true if a scaffold base is present at index"""
-        if index > self.numBases()-1:
+        base = self._baseAt(strandType, index)
+        if not base:
             return False
-        return not self._scaffoldBases[index].isEmpty()
-
-    def hasStapAt(self, index):
-        """Returns true if a staple base is present at index"""
-        if index > self.numBases()-1:
-            return False
-        return not self._stapleBases[index].isEmpty()
+        else:
+            return not base.isEmpty()
+    
+    def validatedBase(self, strandType, index, raiseOnErr=False):
+        """Makes sure the basespec (strandType,index) is valid
+        and raises or returns (None, None) according to raiseOnErr if
+        it isn't valid"""
+        if strandType!=StrandType.Scaffold and strandType!=StrandType.Staple:
+            if raiseOnErr:
+                raise IndexError("Base (strand:%s index:%i) Not Valid"%(strandType,index))
+            return (None, None)
+        index = int(index)
+        if index<0 or index>=self.numBases()-1:
+            if raiseOnErr:
+                raise IndexError("Base (strand:%s index:%i) Not Valid"%(strandType,index))
+            return (None, None)
+        return (strandType, index)
+    
+    def _baseAt(self, strandType, index, raiseOnErr=False):
+        strandType, index = self.validatedBase(strandType, index, raiseOnErr=raiseOnErr)
+        if strandType==None:
+            return None
+        return self._strand(strandType)[index]
 
     def hasCrossoverAt(self, strandType, index):
         """docstring for hasScafCrossoverAt"""
-        strand = self.strand(strandType)
-        if index >= len(strand) or index < 0:
+        base = self._baseAt(strandType, index)
+        if not base:
             return False
-        return strand[index].isCrossover()
+        else:
+            return base.isCrossover()
+    
+    def hasStrandAt(self, strandType, index):
+        """A strand base is a base that is connected to
+        other bases on both sides (possibly over a staple)"""
+        base = self._baseAt(strandType, index)
+        if not base:
+            return False
+        else:
+            return base.isStrand()
 
     def getEnds(self, strandType):
         """Returns a list of 3' and 5' ends in the format
         [(index, EndType), ...]"""
         ret = []
-        strand = self.strand(strandType)
+        strand = self._strand(strandType)
         for i in range(len(strand)):
             if strand[i].is5primeEnd():
                 ret.append((i, EndType.FivePrime))
@@ -192,7 +215,7 @@ class VirtualHelix(QObject):
         """Returns a list of segments of connected bases in the form
         [(startIdx, endIdx), ...]"""
         ret = []
-        strand = self.strand(strandType)
+        strand = self._strand(strandType)
         i, s = 0, None
         # s is the start index of the segment
         for i in range(len(strand)):
@@ -203,8 +226,20 @@ class VirtualHelix(QObject):
                 else:
                     s = i
         return ret
+    
+    def setSandboxed(self, sb):
+        if sb and not self._undoStack:
+            self._sandboxed = True
+            if not self._undoStack:
+                self._undoStack = QUndoStack()
+        else:
+            if self._sandboxed:
+                self._sandboxed = False
+                self._undoStack = None
 
     def undoStack(self):
+        if self._undoStack:
+            return self._undoStack
         if self.part():
             return self.part().undoStack()
         if not self._undoStack:
@@ -227,7 +262,7 @@ class VirtualHelix(QObject):
         # Connects sequential bases on a single strand, starting with 
         # startIndex and ending with etdIndex (inclusive)
         # Sets {s.n, (s+1).np, ..., (e-2).np, (e-1).np, e.p}
-        strand = self.strand(strandType)
+        strand = self._strand(strandType)
         endIndex, startIndex = int(max(startIndex,endIndex)), \
                                         int(min(startIndex,endIndex))
         startIndex = clamp(startIndex, 0, len(strand)-1)
@@ -236,18 +271,18 @@ class VirtualHelix(QObject):
         self.undoStack().push(c)
 
     def clearStrand(self, strandType, startIndex, endIndex):
-        startIndex, endIndex = int(startIndex), int(endIndex)
+        endIndex, startIndex = int(max(startIndex,endIndex)), \
+                                        int(min(startIndex,endIndex))
         strand = strandType == StrandType.Scaffold and \
             self._scaffoldBases or self._stapleBases
-        assert(startIndex >= 1 and startIndex <= len(strand))
-        assert(endIndex >= 1 and endIndex <= len(strand))
-        
+        startIndex = clamp(startIndex, 1, len(strand))
+        endIndex = clamp(endIndex, 1, len(strand))        
         c = self.ClearStrandCommand(self, strandType, startIndex, endIndex)
         self.undoStack().push(c)
     
     def connectBases(self, type, fromIdx, toVH, toIdx):
-        assert(0 <= fromIdx and fromIdx < len(self.strand(type)))
-        assert(0 <= toIdx and toIdx < len(toVH.strand(type)))
+        assert(0 <= fromIdx and fromIdx < len(self._strand(type)))
+        assert(0 <= toIdx and toIdx < len(toVH._strand(type)))
         c = self.ConnectBasesCommand(type, self, fromIdx, toVH, toIdx)
         self.undoStack().push(c)
     
@@ -270,9 +305,9 @@ class VirtualHelix(QObject):
 
     def removeXoverTo(self, type, fromIndex, toVhelix, toIndex):
         """docstring for installXoverTo"""
-        strand = self.strand(type)
+        strand = self._strand(type)
         fromBase = strand[fromIndex]
-        toBase = toVhelix.strand(StrandType.Scaffold)[toIndex]
+        toBase = toVhelix._strand(StrandType.Scaffold)[toIndex]
         if fromBase._nextBase != toBase or fromBase != toBase._prevBase:
             raise IndexError("Crossover does not exist to be removed.")
         toVhelix.breakStrandBeforeBase(type, toIndex)
@@ -285,11 +320,12 @@ class VirtualHelix(QObject):
             self._strandType = strandType
             self._startIndex = startIndex
             self._endIndex = endIndex
+            self._oldLinkage = None
             
         def redo(self):
             # Sets {s.n, (s+1).np, ..., (e-2).np, (e-1).np, e.p}
             # st s, s+1, ..., e-1, e are connected
-            strand = self._vh.strand(self._strandType)
+            strand = self._vh._strand(self._strandType)
             ol = self._oldLinkage = []
             if self._vh.directionOfStrandIs5to3(self._strandType):
                 for i in range(self._startIndex, self._endIndex):
@@ -302,10 +338,9 @@ class VirtualHelix(QObject):
             self._vh.basesModified.emit()
             
         def undo(self):
-            strand = self._vh.strand(self._strandType)
+            strand = self._vh._strand(self._strandType)
             ol = self._oldLinkage
-            assert(ol)  # Must redo/apply before undo
-            
+            assert(ol!=None)  # Must redo/apply before undo
             if self._vh.directionOfStrandIs5to3(self._strandType):
                 for i in range(self._endIndex - 1, self._startIndex - 1, -1):
                     strand[i]._unset3Prime(strand[i + 1], *ol[i - self._startIndex])
@@ -324,12 +359,13 @@ class VirtualHelix(QObject):
             self._strandType = strandType
             self._startIndex = startIndex
             self._endIndex = endIndex
+            self._oldLinkage = None
 
         def redo(self):
             # Clears {s.n, (s+1).np, ..., (e-1).np, e.p}
             # Be warned, start index and end index become endpoints
             # if this is called in the middle of a connected strand
-            strand = self._vh.strand(self._strandType)
+            strand = self._vh._strand(self._strandType)
             ol = self._oldLinkage = []
             
             if self._vh.directionOfStrandIs5to3(self._strandType):
@@ -343,9 +379,9 @@ class VirtualHelix(QObject):
             self._vh.basesModified.emit()
 
         def undo(self):
-            strand = self._vh.strand(self._strandType)
+            strand = self._vh._strand(self._strandType)
             ol = self._oldLinkage
-            assert(ol)  # Must redo/apply before undo
+            assert(ol!=None)  # Must redo/apply before undo
             if self._vh.directionOfStrandIs5to3(self._strandType):
                 for i in range(self._endIndex - 1, self._startIndex - 2, -1):
                     strand[i]._unset3Prime(None, *ol[i - self._startIndex+1])
@@ -366,8 +402,8 @@ class VirtualHelix(QObject):
             self._toIndex = toIndex
             
         def redo(self):
-            fromB = self._fromHelix.strand(self._strandType)[self._fromIndex]
-            toB   = self._toHelix.strand(self._strandType)[self._toIndex]
+            fromB = self._fromHelix._strand(self._strandType)[self._fromIndex]
+            toB   = self._toHelix._strand(self._strandType)[self._toIndex]
             
             if self._fromHelix.directionOfStrandIs5to3(self._strandType):
                 self._undoDat = fromB._set3Prime(toB)
@@ -378,8 +414,8 @@ class VirtualHelix(QObject):
             self._toHelix.basesModified.emit()
 
         def undo(self):
-            fromB = self._fromHelix.strand(self._strandType)[self._fromIndex]
-            toB   = self._toHelix.strand(self._strandType)[self._toIndex]
+            fromB = self._fromHelix._strand(self._strandType)[self._fromIndex]
+            toB   = self._toHelix._strand(self._strandType)[self._toIndex]
             assert(self._undoDat)  # Must redo/apply before undo
             if self._fromHelix.directionOfStrandIs5to3(self._strandType):
                 fromB._unset3Prime(toB, *self._undoDat)
@@ -417,8 +453,8 @@ class VirtualHelix(QObject):
         """Return true if scaffold could crossover to neighbor at index.
         Useful for seeing if potential crossovers from potentialCrossoverList
         should be presented as points at which new a new crossover can be formed."""
-        fromB = self.strand(type)[fromIndex]
-        toB   = neighbor.strand(type)[toIndex]
+        fromB = self._strand(type)[fromIndex]
+        toB   = neighbor._strand(type)[toIndex]
         if fromB.isCrossover() or toB.isCrossover():
             return False
         return  not self.scaffoldBase(fromIndex).isEmpty() and \

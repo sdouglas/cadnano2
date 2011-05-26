@@ -148,6 +148,10 @@ class Base(object):
     
     def isEnd(self):
         return (self._5pBase == None) ^ (self._3pBase == None)
+    
+    def isStrand(self):
+        return self._5pBase != None and\
+               self._3pBase != None
 
     def isCrossover(self):
         """Return True if the part id or vhelix number of the prev or
