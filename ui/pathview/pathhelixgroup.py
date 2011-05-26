@@ -63,7 +63,7 @@ class PathHelixGroup(QGraphicsObject):
         self.rect = QRectF()
         self.font = QFont("Times", 30, QFont.Bold)
         self.label = QGraphicsTextItem("Part 1")
-        self.label.setVisible(True)
+        self.label.setVisible(False)
         self.label.setFont(self.font)
         self.label.setParentItem(self)
         self.label.setPos(0, -40)
@@ -117,18 +117,21 @@ class PathHelixGroup(QGraphicsObject):
         y = 0  # How far down from the top the next PH should be
         leftmostExtent = 0
         rightmostExtent = 0
+        self.label.setVisible(True)
+        
         for ph in newList:
             ph.setParentItem(self)
             ph.setPos(0, y)
-
-            h = ph.boundingRect().height()
-            y += h
+            ph_height = ph.boundingRect().height()
+            step = ph_height + styles.PATH_HELIX_PADDING
             phh = ph.handle()
             phh.setParentItem(self)
             phhr = phh.boundingRect()
-            phh.setPos(-2*phhr.width(), y-h/2-phhr.height()/2)
+            phh.setPos(-2*phhr.width(), y + (ph_height-phhr.height())/2)
             leftmostExtent = min(leftmostExtent, -2*phhr.width())
             rightmostExtent = max(rightmostExtent, ph.boundingRect().width())
+            y += step
+        # end for
         self.prepareGeometryChange()
         self.geometryChanged.emit()
         self.rect = QRectF(leftmostExtent, -40, -leftmostExtent+rightmostExtent, y+40)

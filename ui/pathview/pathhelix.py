@@ -82,7 +82,6 @@ class PathHelix(QGraphicsItem):
     scafPen = QPen(styles.scafstroke, 2)
     nobrush = QBrush(Qt.NoBrush)
     baseWidth = styles.PATH_BASE_WIDTH
-    verticalMargin = 20
 
     def __init__(self, vhelix, pathHelixGroup):
         super(PathHelix, self).__init__()
@@ -148,7 +147,7 @@ class PathHelix(QGraphicsItem):
         canvasSize = self._vhelix.part().numBases()
         self.prepareGeometryChange()
         self.rect.setWidth(self.baseWidth * canvasSize)
-        self.rect.setHeight(2 * (self.baseWidth + self.verticalMargin))
+        self.rect.setHeight(2 * self.baseWidth)
         self._minorGridPainterPath = None
         self._majorGridPainterPath = None
 
@@ -269,7 +268,6 @@ class PathHelix(QGraphicsItem):
         # invalidated as the primary mechanism
         # of updating after a change in vhelix's bases
         painter.save()
-        painter.translate(0, self.verticalMargin)
         painter.setBrush(self.nobrush)
         painter.setPen(self.minorGridPen)
         painter.drawPath(self.minorGridPainterPath())  # Minor grid lines
@@ -361,8 +359,8 @@ class PathHelix(QGraphicsItem):
         baseIdx = int(floor(x/self.baseWidth))
         if baseIdx<0 or baseIdx>=self.vhelix().numBases():
             return None
-        strandIdx = floor((y-self.verticalMargin)*1./self.baseWidth)
-        if strandIdx<0 or strandIdx>1: return None
+        strandIdx = floor(y*1./self.baseWidth)
+        if strandIdx < 0 or strandIdx > 1: return None
         if self.strandIsTop(StrandType.Scaffold):
             strands = StrandType.Scaffold, StrandType.Staple
         else:

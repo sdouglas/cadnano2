@@ -124,7 +124,7 @@ class ActiveSliceHandle(QGraphicsItem):
             return
         x = event.scenePos().x()-self.pos().x()
         dx = int((x - self.pressX)/self.baseWidth)
-        if dx==0:
+        if dx == 0:
             return
         self.setActiveSlice(self.activeSlice()+dx)
 
