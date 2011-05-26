@@ -154,12 +154,16 @@ class PathHelixGroup(QGraphicsObject):
     @pyqtSlot(int)
     def helixAddedSlot(self, vhref):
         vhs = self.displayedVHs()
+        if vhref in vhs:
+            return
         vhs.append(vhref)
         self.setDisplayedVHs(vhs)
 
     @pyqtSlot(int)
     def helixRemovedSlot(self, vh):
         vhs = self.displayedVHs()
+        if not vhref in vhs:
+            return
         vhs.remove(vh)
         self.setDisplayedVHs(vh)
 

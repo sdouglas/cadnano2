@@ -101,8 +101,12 @@ class PathHelix(QGraphicsItem):
         self._vhelix = None
         self._handle = None
         self._mouseDownBase = None
+        self._activeTool = None
         self.setVHelix(vhelix)
     # end def
+    
+    def activeTool(self):
+        return self.controller().activeTool()
     
     def controller(self):
         return self._pathHelixGroup.controller()
@@ -155,68 +159,25 @@ class PathHelix(QGraphicsItem):
     def boundingRect(self):
         return self.rect
     
-    ################################ Events ################################        
     def hoverEnterEvent(self, event):
-        if self.controller().toolUse == True:
-            self.controller().toolHoverEnter(self,event)
+        activeTool = self.activeTool()
+        if activeTool and hasattr(activeTool, pathHelixHoverEnter):
+            self.activeTool().pathHelixHoverEnter(self, event)
         else:
             QGraphicsItem.hoverEnterEvent(self,event)
-    # end def
     
     def hoverLeaveEvent(self, event):
-        if self.controller().toolUse == True:
-            self.controller().toolHoverLeave(self,event)
+        if self.activeTool():
+            self.activeTool().hoverLeave(self, event)
         else:
             QGraphicsItem.hoverLeaveEvent(self,event)
-    # end def
     
     def hoverMoveEvent(self, event):
-        if self.controller().toolUse == True:
-            self.controller().toolHoverMove(self,event)
+        if self.activeTool():
+            self.activeTool().hoverLeave(self, event)
         else:
-            QGraphicsItem.hoverMoveEvent(self,event)
-    # end def
+            QGraphicsItem.hoverLeaveEvent(self,event)
 
-    def mousePressEvent(self, event):
-        """Activate this item as the current helix"""
-        if self.controller().toolUse == True:
-            self.controller().toolPress(self,event)
-        self._mouseDownBase = self.baseAtLocation(event.pos().x(), event.pos().y())
-        if self._mouseDownBase:
-            self.vhelix().setSandboxed(True)
-            self.painterToolApply(self._mouseDownBase, self._mouseDownBase)
-        #self.updateAsActiveHelix(eventIndex)
-    
-    def mouseMoveEvent(self, event):
-        if self.controller().toolUse == True:
-            return
-        newBase = self.baseAtLocation(event.pos().x(), event.pos().y())
-        if self._mouseDownBase and newBase:
-            self.vhelix().undoStack().undo()
-            self.painterToolApply(self._mouseDownBase, newBase)
-    
-    def mouseReleaseEvent(self, event):
-        if self.controller().toolUse == True:
-            return
-        if self._mouseDownBase:
-            self.vhelix().setSandboxed(False)
-    
-    def painterToolApply(self, fr, to):
-        """PainterTool is the default tool that lets one
-        create scaffold and staple by dragging starting on
-        an empty or endpoint base or destroy scaffold/staple
-        by dragging from a connected base. from and to take the
-        format of (strandType, base)"""
-        vh = self.vhelix()
-        fr = vh.validatedBase(*fr, raiseOnErr=False)
-        to = vh.validatedBase(*to,   raiseOnErr=False)
-        if (None, None) in (fr, to):
-            return False
-        useClearMode = self.vhelix().hasStrandAt(*fr)
-        if useClearMode:
-            self.vhelix().clearStrand(fr[0], fr[1], to[1])
-        else:
-            self.vhelix().connectStrand(fr[0], fr[1], to[1])        
 
     def hidePreXoverHandles(self):
         pass
@@ -346,9 +307,9 @@ class PathHelix(QGraphicsItem):
             top = self.strandIsTop(strandType)
             for (startIndex, endIndex) in self._vhelix.getSegments(strandType):
                 startLoc = self.baseLocation(strandType, startIndex)
-                e.addPath(top and ppL5.translated(*startLoc) or ppL3.translated(*startLoc))
+                e.addPath(ppL5.translated(*startLoc) if top else ppL3.translated(*startLoc))
                 endLoc = self.baseLocation(strandType, endIndex)
-                e.addPath(top and ppR3.translated(*endLoc) or ppR5.translated(*endLoc))
+                e.addPath(ppR3.translated(*endLoc) if top else r ppR5.translated(*endLoc))
         self._endpoints = e
         return e
 
@@ -382,5 +343,14 @@ class PathHelix(QGraphicsItem):
             y += self.baseWidth/2
             x += self.baseWidth/2
         return (x,y)
-
 # end class
+# but wait, there's more! Now, for an encore of Events
+# which can be more easily installed with less code duplication
+# in a dynamic way
+
+################################ Events ################################     
+forwardedEvents = ('hoverEnter', 'hoverLeave', 'hoverMove', 'mousePress', 'mouseMove', 'mouseRelease')
+for evName in forwardedEvents:
+    def templateEvent(self, event):
+        
+    
