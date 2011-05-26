@@ -69,9 +69,20 @@ class PathHelixGroup(QGraphicsObject):
         self.label.setPos(0, -40)
         self.label.setTextInteractionFlags(Qt.TextEditorInteraction)
         self.label.inputMethodEvent = None
+        
+        self.activeHelix = None
+        self.pchGroup = PreXoverHandleGroup(parent=self)
+    
+    def __str__(self):
+        return "I am a PHG!"
     
     def part(self):
         return self._part
+        
+    def notifyPreCrossoverGroupAfterUpdate(self, virtualhelix):
+        """Called by PathHelix.mousePressEvent after the vhelix has calculated
+        its new PreXoverHandle positions."""
+        self.pchGroup.updateActiveHelix(virtualhelix)
     
     def setPart(self, newPart):
         if self.part:
@@ -185,7 +196,7 @@ class PathHelixGroup(QGraphicsObject):
 
     def getPathHelix(self, vhref):
         """Given the helix number, return a reference to the PathHelix."""
-        vh = self.part.getVirtualHelix(vhref)
+        vh = self.part().getVirtualHelix(vhref)
         for ph in self.pathHelixList:
             if ph.vhelix() == vh:
                 return ph
@@ -194,6 +205,7 @@ class PathHelixGroup(QGraphicsObject):
     def notifyPreCrossoverGroupAfterUpdate(self, virtualhelix):
         """Called by PathHelix.mousePressEvent after the vhelix has calculated
         its new PreXoverHandle positions."""
+        print "updating preXOGroup"
         self.pchGroup.updateActiveHelix(virtualhelix)
 
     def reorderHelices(self, first, last, indexDelta):

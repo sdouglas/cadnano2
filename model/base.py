@@ -152,6 +152,10 @@ class Base(object):
     def isStrand(self):
         return self._5pBase != None and\
                self._3pBase != None
+    
+    def partId(self):
+       """docstring for partNum"""
+       return self._vhelix.part().id()
 
     def isCrossover(self):
         """Return True if the part id or vhelix number of the prev or
@@ -159,12 +163,12 @@ class Base(object):
         if self.isEmpty():
             return False
 
-        if self._5pBase != Base._null:
+        if self._5pBase != None:
             if self.vhelixNum() != self._5pBase.vhelixNum():
                 return True
             elif self.partId() != self._5pBase.partId():
                 return True
-        if self._3pBase != Base._null:
+        if self._3pBase != None:
             if self.vhelixNum() != self._3pBase.vhelixNum():
                 return True
             elif self.partId() != self._3pBase.partId():

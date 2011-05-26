@@ -177,6 +177,48 @@ class PathHelix(QGraphicsItem):
         else:
             QGraphicsItem.hoverLeaveEvent(self,event)
 
+    def mousePressEvent(self, event):
+        """Activate this item as the current helix"""
+        self._mouseDownBase = self.baseAtLocation(event.pos().x(), event.pos().y())
+        if self.controller().toolUse == True:
+            self.controller().toolPress(self,event)
+        else:
+            if self._mouseDownBase:
+                self.vhelix().setSandboxed(True)
+                self.painterToolApply(self._mouseDownBase, self._mouseDownBase)
+        self.updateAsActiveHelix(self._mouseDownBase[1])
+        # QGraphicsItem.mousePressEvent(self,event)
+    
+    def mouseMoveEvent(self, event):
+        if self.controller().toolUse == True:
+            return
+        newBase = self.baseAtLocation(event.pos().x(), event.pos().y())
+        if self._mouseDownBase and newBase:
+            self.vhelix().undoStack().undo()
+            self.painterToolApply(self._mouseDownBase, newBase)
+    
+    def mouseReleaseEvent(self, event):
+        if self.controller().toolUse == True:
+            return
+        if self._mouseDownBase:
+            self.vhelix().setSandboxed(False)
+    
+    def painterToolApply(self, fr, to):
+        """PainterTool is the default tool that lets one
+        create scaffold and staple by dragging starting on
+        an empty or endpoint base or destroy scaffold/staple
+        by dragging from a connected base. from and to take the
+        format of (strandType, base)"""
+        vh = self.vhelix()
+        fr = vh.validatedBase(*fr, raiseOnErr=False)
+        to = vh.validatedBase(*to,   raiseOnErr=False)
+        if (None, None) in (fr, to):
+            return False
+        useClearMode = self.vhelix().hasStrandAt(*fr)
+        if useClearMode:
+            self.vhelix().clearStrand(fr[0], fr[1], to[1])
+        else:
+            self.vhelix().connectStrand(fr[0], fr[1], to[1])        
 
     def hidePreXoverHandles(self):
         pass
@@ -207,12 +249,12 @@ class PathHelix(QGraphicsItem):
     # end def
 
     def updateAsActiveHelix(self, index):
-        if self.parentItem().activeHelix != None:  # deactivate old
-            self.parentItem().activeHelix.hidePreXoverHandles()
+        if self._pathHelixGroup.activeHelix != None:  # deactivate old
+            self._pathHelixGroup.activeHelix.hidePreXoverHandles()
         # end if
-        self.parentItem().activeHelix = self  # activate new
+        self._pathHelixGroup.activeHelix = self  # activate new
         self._vhelix.updatePreCrossoverPositions(index)
-        self.parentItem().notifyPreCrossoverGroupAfterUpdate(self._vhelix)
+        self._pathHelixGroup.notifyPreCrossoverGroupAfterUpdate(self._vhelix)
         self.update(self.boundingRect())
     # end def
 
@@ -307,7 +349,7 @@ class PathHelix(QGraphicsItem):
                 startLoc = self.baseLocation(strandType, startIndex)
                 e.addPath(ppL5.translated(*startLoc) if top else ppL3.translated(*startLoc))
                 endLoc = self.baseLocation(strandType, endIndex)
-                e.addPath(ppR3.translated(*endLoc) if top else r ppR5.translated(*endLoc))
+                e.addPath(ppR3.translated(*endLoc) if top else ppR5.translated(*endLoc))
         self._endpoints = e
         return e
 
@@ -318,7 +360,7 @@ class PathHelix(QGraphicsItem):
     def baseAtLocation(self, x, y):
         """Returns the (strandType, index) under the location x,y or None."""
         baseIdx = int(floor(x/self.baseWidth))
-        if baseIdx<0 or baseIdx>=self.vhelix().numBases():
+        if baseIdx < 0 or baseIdx >= self.vhelix().numBases():
             return None
         strandIdx = floor(y*1./self.baseWidth)
         if strandIdx < 0 or strandIdx > 1: return None
