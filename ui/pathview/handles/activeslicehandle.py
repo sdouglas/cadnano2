@@ -42,65 +42,57 @@ class ActiveSliceHandle(QGraphicsItem):
     brush = QBrush(styles.orangefill)
     pen = QPen(styles.orangestroke, styles.SLICE_HANDLE_STROKE_WIDTH)
 
-    def __init__(self, part, controller=None, parent=None):
-        super(ActiveSliceHandle, self).__init__(parent)
+    def __init__(self, pathHelixGroup):
+        super(ActiveSliceHandle, self).__init__(pathHelixGroup)
+        self._pathHelixGroup = None
+        self.setPathHelixGroup(pathHelixGroup)
         self._activeSlice = 0
-        self._part = None
-        if part:
-            helixCount = part.getVirtualHelixCount()
-        else:
-            helixCount = 0
-        self.height = (helixCount + 2) * (styles.PATH_HELIX_HEIGHT + \
-                                          styles.PATH_HELIX_PADDING)
-        self.rect = QRectF(0, 0, self.baseWidth, self.height)
-        self.setParentItem(parent)
         self.setFlag(QGraphicsItem.ItemIsMovable)
-        self.pathController = controller
         self.setAcceptHoverEvents(True)
         self.setZValue(styles.ZACTIVESLICEHANDLE)
-        self.setPart(part)
         self._dragMode = False
     
-    def part(self):
-        return self._part
+    def controller(self):
+        return self._pathHelixGroup.controller()
     
-    def setPart(self, newPart):
-        if self._part:
-            self._part.activeSliceWillChange.disconnect(self._updateActiveSlice)
-        self._part = newPart
-        self._part.activeSliceWillChange.connect(self._updateActiveSlice)
-        self._updateActiveSlice(self._part.activeSlice())
+    def part(self):
+        return self._pathHelixGroup.part()
+    
+    def pathHelixGroup(self):
+        return self._pathHelixGroup
+    
+    def setPathHelixGroup(self, newPHG):
+        if self._pathHelixGroup:
+            self._pathHelixGroup.geometryChanged.disconnect(self.prepareGeometryChange)
+        if self._pathHelixGroup and self._pathHelixGroup.part():
+            self._pathHelixGroup.part().activeSliceWillChange.disconnect(self._updateActiveSlice)
+        self._pathHelixGroup = newPHG
+        newPHG.geometryChanged.connect(self.prepareGeometryChange)
+        newPHG.part().activeSliceWillChange.connect(self._updateActiveSlice)
+        self._updateActiveSlice(newPHG.part().activeSlice())
 
     def activeSlice(self):
-        return self._part.activeSlice()
+        return self.part().activeSlice()
     
     def setActiveSlice(self, baseIndex):
-        self._part.setActiveSlice(baseIndex)
+        self.part().setActiveSlice(baseIndex)
     
     def _updateActiveSlice(self, baseIndex):
         """The slot that receives active slice changed notifications from
         the part and changes the receiver to reflect the part"""
         bi = int(baseIndex)
-        if bi < 0 or bi >= self._part.dimensions()[2]:
+        if bi < 0 or bi >= self.part().dimensions()[2]:
             raise IndexError
         self.setPos(bi*self.baseWidth, -styles.PATH_HELIX_PADDING)
         self._activeSlice = bi
     
     def boundingRect(self):
-        """docstring for boundingRect"""
-        return self.rect
+        return QRectF(0, 0, self.baseWidth, self.pathHelixGroup().boundingRect().height()+50)
 
     def paint(self, painter, option, widget=None):
         painter.setBrush(self.brush)
         painter.setPen(self.pen)
-        painter.drawRect(self.rect)
-
-    def resize(self, helixCount):
-        """Call after adding or removing a virtualhelix"""
-        height = (helixCount + 2) * (styles.PATH_HELIX_HEIGHT + \
-                                     styles.PATH_HELIX_PADDING)
-        self.rect.setHeight(height)
-        self.update(self.rect)
+        painter.drawRect(self.boundingRect())
 
     def resetBounds(self, maxBase):
         """Call after resizing virtualhelix canvas."""
@@ -108,16 +100,16 @@ class ActiveSliceHandle(QGraphicsItem):
         self.maxX = (maxBase-1) * self.baseWidth
 
     def hoverEnterEvent(self,event):
-        if self.pathController.toolUse == False:
+        if self.controller().toolUse == False:
             self.setCursor(Qt.OpenHandCursor)
         QGraphicsItem.hoverEnterEvent(self,event)
     # end def
     
     def hoverMoveEvent(self,event):
-        if self.pathController.toolUse == True:
+        if self.controller().toolUse == True:
             # pass None, but if needed pass self for having a special 
             # behavior for the slice helix
-            self.pathController.toolHoverMove(None, event,flag=True)
+            self.controller().toolHoverMove(None, event,flag=True)
         QGraphicsItem.hoverMoveEvent(self,event)
     # end def
     
@@ -128,7 +120,7 @@ class ActiveSliceHandle(QGraphicsItem):
 
     def mouseMoveEvent(self, event):
         """Snaps handle into place when dragging."""
-        if self.pathController.toolUse or not self._dragMode:
+        if self.controller().toolUse or not self._dragMode:
             return
         x = event.scenePos().x()-self.pos().x()
         dx = int((x - self.pressX)/self.baseWidth)
@@ -141,8 +133,8 @@ class ActiveSliceHandle(QGraphicsItem):
             event.ignore()
             QGraphicsItem.mousePressEvent(self, event)
             return
-        if self.pathController.toolUse:
-            self.pathController.toolPress(None, event)
+        if self.controller().toolUse:
+            self.controller().toolPress(None, event)
             return
         self.scene().views()[0].addToPressList(self)
         self._dragMode = True
@@ -155,7 +147,7 @@ class ActiveSliceHandle(QGraphicsItem):
         
     def moveToLastSlice(self):
         """Moves to the last slice position."""
-        self.setActiveSlice(self._part.dimensions()[2]-1)
+        self.setActiveSlice(self.part().numBases()-1)
     
     def moveToFirstSlice(self):
         """Moves to the last slice position."""
