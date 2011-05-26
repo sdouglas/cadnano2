@@ -100,6 +100,7 @@ class PathHelix(QGraphicsItem):
         self.rect = QRectF()
         self._vhelix = None
         self._handle = None
+        self._mouseDownBase = None
         self.setVHelix(vhelix)
     # end def
     
@@ -108,6 +109,9 @@ class PathHelix(QGraphicsItem):
 
     def vhelix(self):
         return self._vhelix
+        
+    def undoStack(self):
+        return self.vhelix().undoStack()
         
     def setVHelix(self, newVH):
         if self._vhelix:
@@ -157,7 +161,6 @@ class PathHelix(QGraphicsItem):
             self.controller().toolHoverEnter(self,event)
         else:
             QGraphicsItem.hoverEnterEvent(self,event)
-        print "%i: I've got it!"%self._vhelix.number()
     # end def
     
     def hoverLeaveEvent(self, event):
@@ -165,7 +168,6 @@ class PathHelix(QGraphicsItem):
             self.controller().toolHoverLeave(self,event)
         else:
             QGraphicsItem.hoverLeaveEvent(self,event)
-        print "%i: I've lost it :("%self._vhelix.number()
     # end def
     
     def hoverMoveEvent(self, event):
@@ -179,9 +181,42 @@ class PathHelix(QGraphicsItem):
         """Activate this item as the current helix"""
         if self.controller().toolUse == True:
             self.controller().toolPress(self,event)
-        eventIndex = int(event.pos().x() / styles.PATH_BASE_WIDTH)
-        self.updateAsActiveHelix(eventIndex)
-    # end def
+        self._mouseDownBase = self.baseAtLocation(event.pos().x(), event.pos().y())
+        if self._mouseDownBase:
+            self.vhelix().setSandboxed(True)
+            self.painterToolApply(self._mouseDownBase, self._mouseDownBase)
+        #self.updateAsActiveHelix(eventIndex)
+    
+    def mouseMoveEvent(self, event):
+        if self.controller().toolUse == True:
+            return
+        newBase = self.baseAtLocation(event.pos().x(), event.pos().y())
+        if self._mouseDownBase and newBase:
+            self.vhelix().undoStack().undo()
+            self.painterToolApply(self._mouseDownBase, newBase)
+    
+    def mouseReleaseEvent(self, event):
+        if self.controller().toolUse == True:
+            return
+        if self._mouseDownBase:
+            self.vhelix().setSandboxed(False)
+    
+    def painterToolApply(self, fr, to):
+        """PainterTool is the default tool that lets one
+        create scaffold and staple by dragging starting on
+        an empty or endpoint base or destroy scaffold/staple
+        by dragging from a connected base. from and to take the
+        format of (strandType, base)"""
+        vh = self.vhelix()
+        fr = vh.validatedBase(*fr, raiseOnErr=False)
+        to = vh.validatedBase(*to,   raiseOnErr=False)
+        if (None, None) in (fr, to):
+            return False
+        useClearMode = self.vhelix().hasStrandAt(*fr)
+        if useClearMode:
+            self.vhelix().clearStrand(fr[0], fr[1], to[1])
+        else:
+            self.vhelix().connectStrand(fr[0], fr[1], to[1])        
 
     def hidePreXoverHandles(self):
         pass
@@ -229,6 +264,10 @@ class PathHelix(QGraphicsItem):
 
     ################################ Drawing ##########################
     def paint(self, painter, option, widget=None):
+        # Note that the methods that fetch the paths
+        # cache the paths and that those caches are
+        # invalidated as the primary mechanism
+        # of updating after a change in vhelix's bases
         painter.save()
         painter.translate(0, self.verticalMargin)
         painter.setBrush(self.nobrush)
@@ -239,6 +278,7 @@ class PathHelix(QGraphicsItem):
         painter.setPen(self.scafPen)
         painter.drawLines(self.scaffoldLines())  # Blue scaffold lines
         painter.setBrush(styles.bluestroke)
+        painter.setPen(Qt.NoPen)
         painter.drawPath(self.scaffoldEndpoints())  # Blue square, triangle endpoints
         painter.restore()
 
@@ -317,8 +357,17 @@ class PathHelix(QGraphicsItem):
            or not self.evenParity() and strandType == StrandType.Staple
     
     def baseAtLocation(self, x, y):
-        baseIdx = floor(x/self.baseWidth)
-        strandIdx = ()
+        """Returns the (strandType, index) under the location x,y or None."""
+        baseIdx = int(floor(x/self.baseWidth))
+        if baseIdx<0 or baseIdx>=self.vhelix().numBases():
+            return None
+        strandIdx = floor((y-self.verticalMargin)*1./self.baseWidth)
+        if strandIdx<0 or strandIdx>1: return None
+        if self.strandIsTop(StrandType.Scaffold):
+            strands = StrandType.Scaffold, StrandType.Staple
+        else:
+            strands = StrandType.Staple, StrandType.Scaffold
+        return (strands[int(strandIdx)], baseIdx)
     
     def baseLocation(self, strandType, baseIdx, center=False):
         """Returns the coordinates of the upper left corner of the base
