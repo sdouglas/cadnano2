@@ -32,7 +32,7 @@ from itertools import product
 from .enum import LatticeType, Parity, StrandType, BreakType
 from .enum import Crossovers, EndType
 from PyQt4.QtCore import pyqtSignal, QObject
-from PyQt4.QtGui import QUndoCommand, QUndoStack
+from PyQt4.QtGui import QUndoCommand, QUndoStack, QColor
 from .base import Base
 from util import *
 from cadnano import app
@@ -209,37 +209,40 @@ class VirtualHelix(QObject):
             return False
         else:
             return base.isEnd()
-        
-
-    def getEnds(self, strandType):
-        """Returns a list of 3' and 5' ends in the format
-        [(index, EndType), ...]"""
-        ret = []
-        strand = self._strand(strandType)
-        for i in range(len(strand)):
-            if strand[i].is5primeEnd():
-                ret.append((i, EndType.FivePrime))
-            if strand[i].is3primeEnd():
-                ret.append((i, EndType.ThreePrime))
-        return ret
     
     def getSegments(self, strandType):
         """Returns a list of segments of connected bases in the form
-        [(startIdx, endIdx), ...]"""
+        [(startIdx, startIsXO, endIdx, endIsXO), ...]"""
         ret = []
         strand = self._strand(strandType)
         i, s = 0, None
         # s is the start index of the segment
         for i in range(len(strand)):
-            if strand[i].isEnd():
-                if s != None:
-                    ret.append((s,i))
-                    s = None
-                else:
-                    s = i
+            b = strand[i]
+            isXO = b.isCrossover()
+            isEnd = b.isEnd()
+            if not isXO and not isEnd:
+                continue
+            if s == None:
+                s = (i, isXO)
+            else:
+                ret.append(s+(i, isXO))
+                s = None
         return ret
     
+    def colorOfBase(self, strandType, idx):
+        if strandType==StrandType.Scaffold:
+            return QColor(44, 51, 141)
+        hue = 47*idx+31*self.number()
+        return QColor.fromHsl(hue%256, 255, 128)
+    
     def setSandboxed(self, sb):
+        """Set True to give the receiver a temporary undo stack
+        that will be deleted upon set False. Since tools can be
+        made live by repeatedly pushing and popping undo commands,
+        it occasionally happens that a bug pops many things off the
+        undo stack. The temporary undo stack prevents excessive popping
+        from reverting the document to a blank state."""
         if sb and not self._undoStack:
             self._sandboxed = True
             if not self._undoStack:

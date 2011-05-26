@@ -93,7 +93,7 @@ class PathHelix(QGraphicsItem):
         self._stapBreakpointHandles = []
         self._scafXoverHandles = []
         self._stapXoverHandles = []
-        self._scaffoldLines = None
+        self._segmentPaths = None
         self._minorGridPainterPath = None
         self._majorGridPainterPath = None
         self.step = 21  # 32 for Square lattice
@@ -202,7 +202,7 @@ class PathHelix(QGraphicsItem):
     ################################ Loading and Updating State From VHelix ##########################
     def vhelixBasesModified(self):
         self._endpoints = None  # Clear endpoint drawing cache
-        self._scaffoldLines = None  # Clear drawing cache of lines
+        self._segmentPaths = None  # Clear drawing cache of lines
         self.update()
 
     ################################ Drawing ##########################
@@ -217,11 +217,14 @@ class PathHelix(QGraphicsItem):
         painter.drawPath(self.minorGridPainterPath())  # Minor grid lines
         painter.setPen(self.majorGridPen)
         painter.drawPath(self.majorGridPainterPath())  # Major grid lines
-        painter.setPen(self.scafPen)
-        painter.drawLines(self.scaffoldLines())  # Blue scaffold lines
-        painter.setBrush(styles.bluestroke)
+        painter.setBrush(Qt.NoBrush)
+        for paintCommand in self.segmentPaths():
+            painter.setPen(paintCommand[0])
+            painter.drawPath(paintCommand[1])
         painter.setPen(Qt.NoPen)
-        painter.drawPath(self.scaffoldEndpoints())  # Blue square, triangle endpoints
+        for paintCommand in self.segmentPaths():
+            painter.setBrush(paintCommand[2])
+            painter.drawPath(paintCommand[3])
         painter.restore()
 
     def minorGridPainterPath(self):
@@ -266,33 +269,38 @@ class PathHelix(QGraphicsItem):
         self._majorGridPainterPath = path
         return path
     
-    def scaffoldLines(self):
-        """Returns an array of lines that display the connected segments of the
-        scaffold and staple strands @todo factor out staple."""
-        if self._scaffoldLines:
-            return self._scaffoldLines
-        self._scaffoldLines = []
-        for strandType in (StrandType.Scaffold, StrandType.Staple):
-            for [startIndex, endIndex] in self._vhelix.getSegments(strandType):
-                fr = self.baseLocation(strandType, startIndex, center=True)
-                to = self.baseLocation(strandType, endIndex, center=True)
-                self._scaffoldLines.append(QLine(QPoint(*fr),QPoint(*to)))
-        return self._scaffoldLines
-    
-    def scaffoldEndpoints(self):
-        """Return a QPainterPath ready to paint the endpoints of the scaffold"""
-        if self._endpoints:
-            return self._endpoints
-        e = QPainterPath()
+    def segmentPaths(self):
+        """Returns an array of (pen, penPainterPath, brush, brushPainterPath)
+        for drawing segment lines and handles."""
+        if self._segmentPaths:
+            return self._segmentPaths
+        self._segmentPaths = []
+        vh = self.vhelix()
         for strandType in (StrandType.Scaffold, StrandType.Staple):
             top = self.strandIsTop(strandType)
-            for (startIndex, endIndex) in self._vhelix.getSegments(strandType):
-                startLoc = self.baseLocation(strandType, startIndex)
-                e.addPath(ppL5.translated(*startLoc) if top else ppL3.translated(*startLoc))
-                endLoc = self.baseLocation(strandType, endIndex)
-                e.addPath(ppR3.translated(*endLoc) if top else ppR5.translated(*endLoc))
-        self._endpoints = e
-        return e
+            for [startIndex, startIsXO, endIndex, endIsXO] in self._vhelix.getSegments(strandType):
+                # Left and right centers for drawing the connecting line
+                c1 = self.baseLocation(strandType, startIndex, center=True)
+                c2 = self.baseLocation(strandType, endIndex, center=True)
+                # Upper left corners for translating the breakpoint handles
+                ul1 = self.baseLocation(strandType, startIndex)
+                ul2 = self.baseLocation(strandType, endIndex)
+                # Now we construct the path to cache
+                pp = QPainterPath()
+                pp.moveTo(*c1)
+                pp.lineTo(*c2)
+                bp = QPainterPath()
+                if not startIsXO:
+                    bp.addPath(ppL5.translated(*ul1) if top else ppL3.translated(*ul1))
+                if not endIsXO:
+                    bp.addPath(ppR3.translated(*ul2) if top else ppR5.translated(*ul2))
+                # Now we combine pen/brush information and push it to the cache
+                # _segmentPaths entries take the form
+                # (pen, painterPathToBeDrawnOnlyWithPen, brush, paintPathToBeDrawnOnlyWithBrush)
+                color = vh.colorOfBase(strandType, startIndex)
+                width = 2 if strandType==StrandType.Scaffold else 5
+                self._segmentPaths.append((QPen(color, width), pp, QBrush(color), bp))
+        return self._segmentPaths
 
     def strandIsTop(self, strandType):
         return self.evenParity() and strandType==StrandType.Scaffold\

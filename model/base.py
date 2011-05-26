@@ -87,7 +87,6 @@ class Base(object):
             return str((b5, self._n, b3))
         else:
             return str((b3, self._n, b5))
-        
     
     def _set5Prime(self, toBase):
         """Only VirtualHelix should call this method. Returns l
