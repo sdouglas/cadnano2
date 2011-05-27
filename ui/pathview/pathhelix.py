@@ -42,7 +42,7 @@ from mmayacadnano.pathhelix3d import PathHelix3D  # For Campbell
 from weakref import ref
 from handles.pathhelixhandle import PathHelixHandle
 from math import floor
-from paintertool import PainterTool
+from tools.paintertool import PainterTool
 from cadnano import app
 
 baseWidth = styles.PATH_BASE_WIDTH
