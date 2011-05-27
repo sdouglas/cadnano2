@@ -196,7 +196,7 @@ class PathHelixGroup(QGraphicsObject):
     # Slot called when the part's selection changes
     def selectionWillChange(self, newSelection):
         pass
-    
+
     def getPathHelix(self, vhref):
         """Given the helix number, return a reference to the PathHelix."""
         vh = self.part().getVirtualHelix(vhref)

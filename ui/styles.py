@@ -42,10 +42,8 @@ orangefill = QColor(255, 204, 153)  # ffcc99
 orangestroke = QColor(204, 102, 51)  # cc6633
 lightorangefill = QColor(255, 234, 183)
 lightorangestroke = QColor(234, 132, 81)
-# grayfill = QColor(161, 161, 161)  # a1a1a1
-# graystroke = QColor(61, 61, 61)  # 424242
-grayfill = QColor(238, 238, 238)  # eeeeee
-graystroke = QColor(102, 102, 102)  # 666666
+grayfill = QColor(238, 238, 238)  # eeeeee (was a1a1a1)
+graystroke = QColor(102, 102, 102)  # 666666 (was 424242)
 
 # Path Sizing
 PATHHELIXHANDLE_RADIUS = 30
@@ -58,16 +56,17 @@ SLICE_HANDLE_STROKE_WIDTH = 1
 PATH_STRAND_STROKE_WIDTH = 2
 PATH_SELECTBOX_STROKE_WIDTH = 1.5
 PCH_BORDER_PADDING = 1
+PATH_BASE_HL_STROKE_WIDTH = 2  # PathTool highlight box
+MINOR_GRID_STROKE_WIDTH = 0.5
+MAJOR_GRID_STROKE_WIDTH = 0.5
 
 # Path Colors
 minorgridstroke = QColor(153, 153, 153)  # 999999
 majorgridstroke = QColor(51, 51, 51)  # 333333
 scafstroke = QColor(0, 102, 204)  # 0066cc
 handlefill = QColor(0, 102, 204)  # 0066cc
-# handlestroke = QColor(0, 102, 204)  # 0066cc
 pchstroke = QColor(0, 102, 204, 153)
-redstroke = QColor(200, 0, 0)  
-PATH_BASE_HL_STROKE_WIDTH = 2
+redstroke = QColor(200, 0, 0)
 erasefill = QColor ( 255, 0 , 0, 63 )
 forcefill = QColor ( 0, 255 , 255, 63 )
 breakfill = QColor ( 255, 0 , 0, 255 )

@@ -36,7 +36,7 @@ from PyQt4.QtGui import QUndoCommand, QUndoStack, QColor
 from .base import Base
 from util import *
 from cadnano import app
-
+import ui.styles as styles
 
 class VirtualHelix(QObject):
     """Stores staple and scaffold routing information."""
@@ -232,7 +232,8 @@ class VirtualHelix(QObject):
     
     def colorOfBase(self, strandType, idx):
         if strandType==StrandType.Scaffold:
-            return QColor(44, 51, 141)
+            return styles.bluestroke
+            # return QColor(44, 51, 141)
         hue = 47*idx+31*self.number()
         return QColor.fromHsl(hue%256, 255, 128)
     
