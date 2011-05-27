@@ -286,14 +286,14 @@ class PathHelix(QGraphicsItem):
                 ul1 = self.baseLocation(strandType, startIndex)
                 ul2 = self.baseLocation(strandType, endIndex)
                 # Now we construct the path to cache
-                pp = QPainterPath()
-                pp.moveTo(*c1)
-                pp.lineTo(*c2)
                 bp = QPainterPath()
                 if not startIsXO:
                     bp.addPath(ppL5.translated(*ul1) if top else ppL3.translated(*ul1))
                 if not endIsXO:
                     bp.addPath(ppR3.translated(*ul2) if top else ppR5.translated(*ul2))
+                pp = QPainterPath()
+                pp.moveTo(*c1)
+                pp.lineTo(*c2)
                 # Now we combine pen/brush information and push it to the cache
                 # _segmentPaths entries take the form
                 # (pen, painterPathToBeDrawnOnlyWithPen, brush, paintPathToBeDrawnOnlyWithBrush)
