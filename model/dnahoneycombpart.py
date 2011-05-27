@@ -22,12 +22,19 @@
 #
 # http://www.opensource.org/licenses/mit-license.php
 from .dnapart import DNAPart
-from .enum import LatticeType
+from .enum import LatticeType, Crossovers
 
 class DNAHoneycombPart(DNAPart):
-    def __init__(self):
-        super(DNAHoneycombPart, self).__init__()
-        self._numBases = 42
+    step = 21  # 32 in square
+    scafL = Crossovers.honeycombScafLeft
+    scafR = Crossovers.honeycombScafRight
+    stapL = Crossovers.honeycombStapLeft
+    stapR = Crossovers.honeycombStapRight
+    
+    def __init__(self, *args, **kwargs):
+        super(DNAHoneycombPart, self).__init__(*args, **kwargs)
+        self._maxBase = 42
+        self._activeSlice = 21
         
     def __repr__(self):
         return "HoneycombPart[" + ','.join(repr(self._numberToVirtualHelix[k]) for k in self._numberToVirtualHelix) + "]"

@@ -27,120 +27,149 @@ Created by Shawn Douglas on 2011-02-08.
 """
 
 class Base(object):
-    """docstring for Base"""
-    _null = -1
-    
-    def __init__(self, vhelix=None, index=None):
+    """
+    A POD class that lives in the private API of
+    virtualhelix (Why not put it inside VirtualHelix?
+    Because it's already quite crowded in VirtualHelix)
+    and provides information about which bases
+    are connected to which other bases
+    """    
+    def __init__(self, vhelix, strandtype, index):
         super(Base, self).__init__()
-        self._prevBase = Base._null
-        self._nextBase = Base._null
+        self._5pBase = None
+        self._3pBase = None
         self._vhelix = vhelix
-        self._index = index
-
-    def simpleRep(self, encoder):
-        """
-        Provides a representation of the receiver in terms of simple
-        (container, atomic) classes and other objects implementing simpleRep
-        """
-        ret = {'.class': "Base"}
-        ret['prevBase'] = self._prevBase
-        ret['nextBase'] = self._nextBase
-        ret['vhelix'] = self._vhelix
-        ret['index'] = self._index
-        return ret
-
-    @classmethod
-    def fromSimpleRep(cls, rep):
-        """prevBase and nextBase are weak references.
-        Everything else handled as normal."""
-        b = Base()
-        b._index = rep['index']
-        b.prevID = rep['prevBase']
-        b.nextID = rep['nextBase']
-        b.vhelixID = rep['vhelixnum']
-        return b
-
-    def resolveSimpleRepIDs(self, idToObj):
-        self._prevBase = idToObj[self.prevID]
-        del self.prevID
-        self._nextBase = idToObj[self.nextID]
-        del self.nextID
-        self._vhelix = idToObj[self.vhelixID]
-        del vhelixID
-
-    def getPrev(self):
-        """Return reference to previous base, or _null."""
-        return self._prevBase
-
-    def setPrev(self, base):
-        """Set base as prevBase"""
-        if self._prevBase != Base._null:
-            self._prevBase.clearNext()
-        self._prevBase = base
-
-    def getNext(self):
-        """Return reference to next base, or _null."""
-        return self._nextBase
-
-    def setNext(self, base):
-        """Set base as nextBase"""
-        if self._nextBase != Base._null:
-            self._nextBase.clearPrev()
-        self._nextBase = base
-
-    def clearPrev(self):
-        """Set previous base reference to _null"""
-        self._prevBase = Base._null
-
-    def clearNext(self):
-        """Set previous base reference to _null"""
-        self._nextBase = Base._null
-
-    def partId(self):
-        """docstring for partNum"""
-        return self._vhelix.part().id()
-
+        self._strandtype = strandtype
+        self._n = index
+    
+    def __str__(self):
+        threeB, fiveB = '_', '_'
+        fiveTo3 = self._vhelix.directionOfStrandIs5to3(self._strandtype)
+        if fiveTo3:
+            # If we move to self._3pBase and stay on the same 5 to 3 strand
+            # we expect self._3pBase._n = self._n+1
+            nOffsetOf3 = 1
+        else:
+            nOffsetOf3 = -1
+        if self._3pBase:
+            if self._3pBase._vhelix == self._vhelix:
+                if self._3pBase._n == self._n + nOffsetOf3:
+                    threeB = fiveTo3 and '>' or '<'
+                else:
+                    threeB = '!'
+            else:
+                threeB = str(self._3pBase.vhelixNum())
+        if self._5pBase:
+            if self._5pBase.vhelixNum() == self.vhelixNum():
+                if self._5pBase._n == self._n - nOffsetOf3:
+                    fiveB = fiveTo3 and '<' or '>'
+                else:
+                    fiveB = '!'
+            else:
+                fiveB = str(self._5pBase.vhelixNum())
+        if fiveTo3:
+            return fiveB + threeB
+        else:
+            return threeB + fiveB
+            
+    def __repr__(self):
+        if self._3pBase:
+            b3 = str(self._3pBase._vhelix.number()) + \
+                    '.' + str(self._3pBase._n)
+        else:
+            b3 = ' '
+        if self._5pBase:
+            b5 = str(self._5pBase._vhelix.number()) + \
+                '.' + str(self._5pBase._n)
+        else:
+            b5 = ' '
+        if self._vhelix.directionOfStrandIs5to3(self._strandtype):
+            return str((b5, self._n, b3))
+        else:
+            return str((b3, self._n, b5))
+    
+    def _set5Prime(self, toBase):
+        """Only VirtualHelix should call this method. Returns l
+        such that self._unset5Prime(toBase, *l) undoes this command."""
+        fromOld5, toOld3 = self._5pBase, None
+        if fromOld5:
+            fromOld5._3pBase = None
+        if toBase:
+            toOld3 = toBase._3pBase
+            toBase._3pBase = self
+        if toOld3:
+            toOld3._5pBase = None
+        self._5pBase = toBase
+        return (fromOld5, toOld3)
+    
+    def _unset5Prime(self, toBase, fromOld5, toOld3):
+        """Only VirtualHelix should call this method."""
+        self._set5Prime(fromOld5)
+        if toOld3 != None:
+            toBase._set3Prime(toOld3)
+        
+    def _set3Prime(self, toBase):
+        """Only VirtualHelix should call this method. Returns l
+        such that self._unset5Prime(toBase, *l) undoes this command."""
+        fromOld3, toOld5 = self._3pBase, None
+        if fromOld3:
+            fromOld3._5pBase = None
+        if toBase:
+            toOld5 = toBase._5pBase
+            toBase._5pBase = self
+        if toOld5:
+            toOld5._3pBase = None
+        self._3pBase = toBase
+        return (fromOld3, toOld5)
+    
+    def _unset3Prime(self, toBase, fromOld3, toOld5):
+        """Only VirtualHelix should call this method."""
+        self._set3Prime(fromOld3)
+        if toOld5 != None:
+            toBase._set5Prime(toOld5)
+    
     def vhelixNum(self):
-        """docstring for vhelixNum"""
         return self._vhelix.number()
 
-    def isNull(self):
-        if self._prevBase == Base._null and\
-           self._nextBase == Base._null:
-            return True
-        else:
-            return False
+    def isEmpty(self):
+        return self._5pBase == None and \
+               self._3pBase == None
 
     def is5primeEnd(self):
-        """Return True if no prevBase, but nextBase exists."""
-        if self._prevBase == Base._null and\
-           self._nextBase != Base._null:
-            return True
-        else:
-            return False
+        """Return True if no 5pBase, but 3pBase exists."""
+        return self._5pBase == None and \
+               self._3pBase != None
 
     def is3primeEnd(self):
-        """Return True if no nextBase, but prevBase exists."""
-        if self._prevBase != Base._null and\
-           self._nextBase == Base._null:
-            return True
-        else:
-            return False
+        """Return True if no 3pBase, but 5pBase exists."""
+        return self._5pBase != None and \
+               self._3pBase == None
+    
+    def isEnd(self):
+        return (self._5pBase == None) ^ (self._3pBase == None)
+    
+    def isStrand(self):
+        return self._5pBase != None and\
+               self._3pBase != None
+    
+    def partId(self):
+       """docstring for partNum"""
+       return self._vhelix.part().id()
 
     def isCrossover(self):
         """Return True if the part id or vhelix number of the prev or
         next base does not match the same for this base."""
-        if self.isNull():
+        if self.isEmpty():
             return False
 
-        if self._prevBase != Base._null:
-            if self.vhelixNum() != self._prevBase.vhelixNum():
+        if self._5pBase != None:
+            if self.vhelixNum() != self._5pBase.vhelixNum():
                 return True
-            elif self.partId() != self._prevBase.partId():
+            elif self.partId() != self._5pBase.partId():
                 return True
-        if self._nextBase != Base._null:
-            if self.vhelixNum() != self._nextBase.vhelixNum():
+        if self._3pBase != None:
+            if self.vhelixNum() != self._3pBase.vhelixNum():
                 return True
-            elif self.partId() != self._nextBase.partId():
+            elif self.partId() != self._3pBase.partId():
                 return True
         return False

@@ -30,6 +30,7 @@ from tools.skiptool import SkipTool
 from tools.breaktool import BreakTool
 from tools.erasetool import EraseTool
 from tools.forcetool import ForceTool
+from tools.paintertool import PainterTool
 
 class PathController(QObject):
     """
@@ -60,14 +61,15 @@ class PathController(QObject):
         self.toolHoverLeave = None
         self.toolHoverMove = None
         self.toolPress = None
+        self._activeTool = PainterTool()
         self.insertionTool = LoopTool(pathcontroller=self, parent=None)
         self.skipTool = SkipTool(pathcontroller=self, parent=None)
         self.breakTool = BreakTool(pathcontroller=self, parent=None)
         self.eraseTool = EraseTool(pathcontroller=self, parent=None)
         self.forceTool = ForceTool(pathcontroller=self, parent=None)
 
-        
-    # end def
+    def activeTool(self):
+        return self._activeTool
 
     def chooseSelectTool(self):
         widget = self.mainWindow.actionPathSelect

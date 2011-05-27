@@ -32,6 +32,7 @@ from PyQt4.QtGui import QGraphicsItem
 from PyQt4.QtGui import QGraphicsSimpleTextItem, QGraphicsTextItem
 from PyQt4.QtGui import QPen, QDrag, QUndoCommand
 import ui.styles as styles
+from util import *
 
 
 class PathHelixHandle(QGraphicsItem):
@@ -45,29 +46,19 @@ class PathHelixHandle(QGraphicsItem):
     useBrush = QBrush(styles.orangefill)
     usePen = QPen(styles.orangestroke, styles.PATHHELIXHANDLE_STROKE_WIDTH)
 
-    def __init__(self, vhelix, position, parent):
-        super(PathHelixHandle, self).__init__(parent)
+    def __init__(self, vhelix):
+        super(PathHelixHandle, self).__init__()
         self.vhelix = vhelix
-        self.parent = parent
-        self.restoreParentItem = parent
-        self.setParentItem(parent) 
         self._number = self.vhelix.number()
         self.label = None
         self.focusRing = None
         self.beingHoveredOver = False
         self.setAcceptsHoverEvents(True)
-        self.setPos(position)
         self.font = QFont("Times", 30, QFont.Bold)
         self.setNumber()
         #self.setFlag(QGraphicsItem.ItemIsMovable)
         self.setFlag(QGraphicsItem.ItemIsSelectable)
         self.setFlag(QGraphicsItem.ItemSendsScenePositionChanges)
-    # end def
-
-    def restoreParent(self):
-        tempP = self.restoreParentItem.mapFromItem(self.parentItem(), self.pos())
-        self.setParentItem(self.restoreParentItem)
-        self.setPos(tempP)
     # end def
 
     def boundingRect(self):
@@ -130,9 +121,10 @@ class PathHelixHandle(QGraphicsItem):
         """
         if self.focusRing == None:
             self.focusRing = PathHelixHandle.FocusRingPainter(self,\
-                                                         self.parent.scene,\
-                                                         self.parent)
+                                                         self.scene(),\
+                                                         self.parentItem())
         self.update(self.rect)
+        print (self.pos().x(), self.pos().y())
     # end def
 
     def hoverLeaveEvent(self, event):
@@ -148,8 +140,8 @@ class PathHelixHandle(QGraphicsItem):
 
     def mousePressEvent(self, event):
         selectionGroup = self.group()
-        if selectionGroup == None:
-            selectionGroup = self.parent.phhSelectionGroup
+        #if selectionGroup == None:
+        #    selectionGroup = self.parent.phhSelectionGroup
         selectionGroup.setSelected(False)
         selectionGroup.addToGroup(self)
         self.setSelected(True)
@@ -161,7 +153,7 @@ class PathHelixHandle(QGraphicsItem):
         # intercept the change instead of the has changed to enable features.
         # if change == QGraphicsItem.ItemSelectedHasChanged and self.scene():
         if change == QGraphicsItem.ItemSelectedChange and self.scene():
-            selectionGroup = self.parent.phhSelectionGroup
+            #selectionGroup = self.parent.phhSelectionGroup
             lock = selectionGroup.parentItem().selectionLock
             if value == True and (lock == None or lock == selectionGroup):
                 selectionGroup.addToGroup(self)

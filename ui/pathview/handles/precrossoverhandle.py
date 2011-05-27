@@ -69,9 +69,11 @@ class PreXoverHandleGroup(QGraphicsItem):
         PreXoverHandle's parent in the buffer initially to the group
         """
         super(PreXoverHandleGroup, self).__init__(parent)
+        self.parent = parent
         self.rect = QRectF(0, 0, 0, 0)
         self.handlesA = []
         self.handlesB = []
+        # print parent, "coool", self.parentItem()
         for i in range(128):
             self.handlesA.append(PreXoverHandle(parent=self))
             self.handlesB.append(PreXoverHandle(parent=self))
@@ -81,6 +83,12 @@ class PreXoverHandleGroup(QGraphicsItem):
         # end for
         self.activeCount = 0
     # end def
+    
+    def parentItem(self):
+        return self.parent
+
+    def __str__(self):
+        return "I am a PXoHG!"
 
     def boundingRect(self):
         return self.rect
@@ -107,7 +115,7 @@ class PreXoverHandleGroup(QGraphicsItem):
         ph1 = self.parentItem().getPathHelix(vhelix)
         i = 0
         for [neighbor, index] in scafL:
-            if vhelix.parity() == Parity.Even:
+            if vhelix.evenParity():
                 orient1 = HandleOrient.LeftUp
                 orient2 = HandleOrient.LeftDown
             else:
@@ -120,7 +128,7 @@ class PreXoverHandleGroup(QGraphicsItem):
             self.handlesB[i].setLabel()
             i += 1
         for [neighbor, index] in scafR:
-            if vhelix.parity() == Parity.Even:
+            if vhelix.evenParity():
                 orient1 = HandleOrient.RightUp
                 orient2 = HandleOrient.RightDown
             else:
@@ -135,7 +143,7 @@ class PreXoverHandleGroup(QGraphicsItem):
         # Process Staple PreXoverHandles
         strandtype = StrandType.Staple
         for [neighbor, index] in stapL:
-            if vhelix.parity() == Parity.Even:
+            if vhelix.evenParity():
                 orient1 = HandleOrient.LeftUp
                 orient2 = HandleOrient.LeftDown
             else:
@@ -148,7 +156,7 @@ class PreXoverHandleGroup(QGraphicsItem):
             self.handlesB[i].setLabel()
             i += 1
         for [neighbor, index] in stapR:
-            if vhelix.parity() == Parity.Even:
+            if vhelix.evenParity():
                 orient1 = HandleOrient.RightUp
                 orient2 = HandleOrient.RightDown
             else:
@@ -191,11 +199,13 @@ class PreXoverHandle(QGraphicsItem):
         PathHelixGroup.
         """
         super(PreXoverHandle, self).__init__(parent)
-        self.phg = parent.parentItem()  # this should be a PathHelixGroup
-        pathController = parent.parentItem().pathController
-        self.undoStack = pathController.mainWindow.undoStack
+        self.setParentItem(parent)
         self.rect = QRectF(0, 0, styles.PATH_BASE_WIDTH,\
                                  styles.PATH_BASE_WIDTH)
+        self.painterpath = _ppathLD
+        self.phg = parent.parentItem()  # this should be a PathHelixGroup
+        pathController = parent.parentItem().controller()
+        self.undoStack = pathController.mainWindow.undoStack
         self._strandType = None
         self._index = None
         self._orientation = None
@@ -206,7 +216,6 @@ class PreXoverHandle(QGraphicsItem):
         self._label.setFont(self._myfont)
         self._label.hide()
         self.hide()
-        self.painterpath = _ppathLD
     # end def
 
     def setPartner(self, pch):

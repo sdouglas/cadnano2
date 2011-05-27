@@ -36,82 +36,63 @@ from PyQt4.QtGui import QPen, QDrag, QUndoCommand
 import ui.styles as styles
 from mmayacadnano.activeslicehandle3d import ActiveSliceHandle3D # For Campbell
 
-
-class AshObject(QObject):
-    """
-    A placeholder class until QGraphicsObject is available to allow signaling
-    """
-    activeSliceMovedSignal = pyqtSignal(int)
-    def __init__(self):
-        super(AshObject, self).__init__()
-# end class
-
-
 class ActiveSliceHandle(QGraphicsItem):
     """docstring for ActiveSliceHandle"""
     baseWidth = styles.PATH_BASE_WIDTH
     brush = QBrush(styles.orangefill)
     pen = QPen(styles.orangestroke, styles.SLICE_HANDLE_STROKE_WIDTH)
 
-    def __init__(self, dnaPartInst, startBase, controller=None, parent=None):
-        super(ActiveSliceHandle, self).__init__(parent)
-        self.dnaPartInst = dnaPartInst
-        self.part = dnaPartInst.part()
-        helixCount = self.part.getVirtualHelixCount()
-        self.height = (helixCount + 2) * (styles.PATH_HELIX_HEIGHT + \
-                                          styles.PATH_HELIX_PADDING)
-        self.rect = QRectF(0, 0, self.baseWidth, self.height)
-        self.baseIndex = startBase
-        self.tempIndex = startBase
-        
-        self.x0 = (startBase * self.baseWidth)
-        self.y0 = -1 * (styles.PATH_HELIX_PADDING)
-        self.minIndex = 0
-        self.maxIndex = self.part.getNumBases()-1
-        self.setPos(QPointF(self.x0, self.y0))
-        self.setZValue(-10)
-        self.pressX = 0
-        self.pressXoffset = 0
-        self.setParentItem(parent)
-        # self.setCursor(Qt.OpenHandCursor)
+    def __init__(self, pathHelixGroup):
+        super(ActiveSliceHandle, self).__init__(pathHelixGroup)
+        self._pathHelixGroup = None
+        self.setPathHelixGroup(pathHelixGroup)
+        self._activeSlice = 0
         self.setFlag(QGraphicsItem.ItemIsMovable)
-        self.qObject = AshObject()
-        self.activeSliceMovedSignal = self.qObject.activeSliceMovedSignal
-        self.activeslicehandle3D = ActiveSliceHandle3D(self) # for Campbell
-        
-        self.pathController = controller
         self.setAcceptHoverEvents(True)
-        
         self.setZValue(styles.ZACTIVESLICEHANDLE)
+        self._dragMode = False
+    
+    def controller(self):
+        return self._pathHelixGroup.controller()
+    
+    def part(self):
+        return self._pathHelixGroup.part()
+    
+    def pathHelixGroup(self):
+        return self._pathHelixGroup
+    
+    def setPathHelixGroup(self, newPHG):
+        if self._pathHelixGroup:
+            self._pathHelixGroup.geometryChanged.disconnect(self.prepareGeometryChange)
+        if self._pathHelixGroup and self._pathHelixGroup.part():
+            self._pathHelixGroup.part().activeSliceWillChange.disconnect(self._updateActiveSlice)
+        self._pathHelixGroup = newPHG
+        newPHG.geometryChanged.connect(self.prepareGeometryChange)
+        newPHG.part().activeSliceWillChange.connect(self._updateActiveSlice)
+        self._updateActiveSlice(newPHG.part().activeSlice())
 
+    def activeSlice(self):
+        return self.part().activeSlice()
+    
+    def setActiveSlice(self, baseIndex):
+        self.part().setActiveSlice(baseIndex)
+    
+    def _updateActiveSlice(self, baseIndex):
+        """The slot that receives active slice changed notifications from
+        the part and changes the receiver to reflect the part"""
+        bi = int(baseIndex)
+        if bi < 0 or bi >= self.part().dimensions()[2]:
+            raise IndexError
+        self.setPos(bi*self.baseWidth, -styles.PATH_HELIX_PADDING)
+        self._activeSlice = bi
+    
     def boundingRect(self):
-        """docstring for boundingRect"""
-        return self.rect
+        return QRectF(0, 0, self.baseWidth, self.pathHelixGroup().boundingRect().height()+50)
 
     def paint(self, painter, option, widget=None):
         painter.setBrush(self.brush)
         painter.setPen(self.pen)
-        painter.drawRect(self.rect)
-
-    def getPosition(self):
-        """Returns the base position"""
-        return int(self.x0 / self.baseWidth)
-
-    def setPosition(self, pos):
-        """Returns the base position"""
-        if pos >= 0 and pos <= self.maxBase:
-            xf = pos * self.baseWidth
-            self.translate(xf - self.x0, 0)
-            self.x0 = xf
-        else:
-            raise IndexError
-
-    def resize(self, helixCount):
-        """Call after adding or removing a virtualhelix"""
-        height = (helixCount + 2) * (styles.PATH_HELIX_HEIGHT + \
-                                     styles.PATH_HELIX_PADDING)
-        self.rect.setHeight(height)
-        self.update(self.rect)
+        painter.drawRect(self.boundingRect())
 
     def resetBounds(self, maxBase):
         """Call after resizing virtualhelix canvas."""
@@ -119,16 +100,16 @@ class ActiveSliceHandle(QGraphicsItem):
         self.maxX = (maxBase-1) * self.baseWidth
 
     def hoverEnterEvent(self,event):
-        if self.pathController.toolUse == False:
+        if self.controller().toolUse == False:
             self.setCursor(Qt.OpenHandCursor)
         QGraphicsItem.hoverEnterEvent(self,event)
     # end def
     
     def hoverMoveEvent(self,event):
-        if self.pathController.toolUse == True:
+        if self.controller().toolUse == True:
             # pass None, but if needed pass self for having a special 
             # behavior for the slice helix
-            self.pathController.toolHoverMove(None, event,flag=True)
+            self.controller().toolHoverMove(None, event,flag=True)
         QGraphicsItem.hoverMoveEvent(self,event)
     # end def
     
@@ -139,73 +120,36 @@ class ActiveSliceHandle(QGraphicsItem):
 
     def mouseMoveEvent(self, event):
         """Snaps handle into place when dragging."""
-        if self.pathController.toolUse == False:
-            moveX = event.scenePos().x()
-            delta = moveX-self.pressX
-            self.tempIndex = int((self.baseIndex*self.baseWidth+\
-                              self.pressXoffset+delta) / self.baseWidth)
-            if self.tempIndex < self.minIndex:
-                self.tempIndex = self.minIndex
-            elif self.tempIndex > self.maxIndex:
-                self.tempIndex = self.maxIndex
-            self.x0 = self.tempIndex * self.baseWidth
-            self.setPos(self.x0, self.y0)
-            # this should be fixed on only notify on changes
-            self.activeslicehandle3D.dragFrom2D(self.tempIndex)
+        if self.controller().toolUse or not self._dragMode:
+            return
+        x = event.scenePos().x()
+        dx = int((x - self.pressX)/self.baseWidth)
+        if dx == 0:
+            return
+        self.setActiveSlice(self.pressBaseIdx+dx)
 
     def mousePressEvent(self, event):
         if event.button() != Qt.LeftButton:
             event.ignore()
             QGraphicsItem.mousePressEvent(self, event)
-        else:
-            if self.pathController.toolUse == False:
-                self.scene().views()[0].addToPressList(self)
-                self._dragMode = True
-                self.pressX = event.scenePos().x()
-                self.pressXoffset = self.pressX % self.baseWidth
-            else:
-                self.pathController.toolPress(None, event)
+            return
+        if self.controller().toolUse:
+            self.controller().toolPress(None, event)
+            return
+        self.scene().views()[0].addToPressList(self)
+        self._dragMode = True
+        self.pressX = event.scenePos().x()
+        self.pressBaseIdx = self.activeSlice()
 
     def customMouseRelease(self, eventPosition):
         """Snaps to grid after mouse released. Updates vhelix data according
         to what movement took place."""
-        if self.tempIndex == self.baseIndex:
-            return
-        delta = int(self.tempIndex - self.baseIndex)
-        self.baseIndex = self.tempIndex
-        self.activeSliceMovedSignal.emit(self.baseIndex)
         self._dragMode = False
         
-    @pyqtSlot()
-    def activeSliceLastSlot(self):
-        """Moves to the last slice position. Updates vhelix data according
-        to what movement took place."""
-        self.tempIndex = self.maxIndex
-        self.x0 = self.tempIndex * self.baseWidth
-        self.setPos(self.x0, self.y0)
-        self.baseIndex = self.tempIndex
-        self.activeSliceMovedSignal.emit(self.baseIndex)
-    # end def
+    def moveToLastSlice(self):
+        """Moves to the last slice position."""
+        self.setActiveSlice(self.part().numBases()-1)
     
-    @pyqtSlot()
-    def activeSliceFirstSlot(self):
-        """Moves to the first slice position. Updates vhelix data according
-        to what movement took place."""
-        self.tempIndex = self.minIndex
-        self.x0 = self.tempIndex * self.baseWidth
-        self.setPos(self.x0, self.y0)
-        self.baseIndex = self.tempIndex
-        self.activeSliceMovedSignal.emit(self.baseIndex)
-    # end def
-
-    def updateFrom3D(self, newIndex):
-        """Called by BreakpointHandle3D to notify cadnano that the
-        ActiveSliceHandle has moved to a new location. All updates to the data
-        structure are then handled by cadnano."""
-        # not tested
-        if self.baseIndex == newIndex:
-            return
-        self.baseIndex = newIndex
-        self.x0 = self.baseIndex*self.baseWidth
-        self.setPos(self.x0, self.y0)
-        self.activeSliceMovedSignal.emit(self.baseIndex)
+    def moveToFirstSlice(self):
+        """Moves to the last slice position."""
+        self.setActiveSlice(0)

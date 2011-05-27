@@ -27,29 +27,44 @@ from .part import Part
 from .virtualhelix import VirtualHelix
 from .enum import LatticeType
 from PyQt4.QtCore import pyqtSignal, QObject
+from util import *
 from heapq import *
 
 
 class DNAPart(Part):
-    changed = pyqtSignal()  # Some aspect of permanent, saveable state changed
-    tweaked = pyqtSignal()  # Something relevant to the UI but not the underlying data changed
-
     def __init__(self, *args, **kwargs):
+        if self.__class__ == DNAPart:
+            raise NotImplementedError("This class is abstract. Perhaps you want DNAHoneycombPart.")
         super(DNAPart, self).__init__(self, *args, **kwargs)
         self._numberToVirtualHelix = {}  # number -> VirutalHelix
         self._coordToVirtualHelix = {}  # (row,col) -> VirtualHelix
         self._staples = []
         self._scaffolds = []
         self._name = kwargs.get('name', 'untitled')
-        self._numBases = 0  # subclasses should provide a more reasonable default
+        self._maxRow = kwargs.get('maxRow', 20)
+        self._maxCol = kwargs.get('maxCol', 20)
         # ID assignment infra
         self.oddRecycleBin, self.evenRecycleBin = [], []
         self.reserveBin = set()
         self.highestUsedOdd = -1  # Used iff the recycle bin is empty and highestUsedOdd+2 is not in the reserve bin
         self.highestUsedEven = -2  # same
-
-    def getNumBases(self):
-        return self._numBases
+        # Transient state
+        self._selection = set()
+        # self._maxBase = 0  # Abstract (honeycomb is 42)
+        # self._activeSlice = 0  # Abstract (honeycomb is 21)        
+    
+    def dimensions(self):
+        return (self._maxRow, self._maxCol, self._maxBase)
+    
+    def numBases(self):
+        return self.dimensions()[2]
+    
+    dimensionsWillChange = pyqtSignal()
+    def setDimensions(self, newDim):
+        self.dimensionsWillChange.emit(newDim)
+        self._maxRow, self._maxCol, self._maxBase = newDim
+        for n in self._numberToVirtualHelix:
+            self._numberToVirtualHelix[n].setNumBases(self._maxBase)
         
     ############################# Archiving/Unarchiving #############################
     def simpleRep(self, encoder):
@@ -96,6 +111,7 @@ class DNAPart(Part):
                 raise IndexError("Couldn't find the virtual helix in part %s referenced by index %s"%(self, vhref))
         return vh
 
+    helixAdded = pyqtSignal(object)
     def addVirtualHelixAt(self, coords):
         """Adds a new VirtualHelix to the part in response to user input and
         adds slicehelix as an observer."""
@@ -105,12 +121,13 @@ class DNAPart(Part):
                               row=row,\
                               col=col,\
                               idnum=newID,\
-                              numBases=self.getNumBases())
+                              numBases=self.dimensions()[2])
         self._numberToVirtualHelix[newID] = vhelix
         self._coordToVirtualHelix[(row, col)] = vhelix
-        self.changed.emit()
+        self.helixAdded.emit(vhelix)
         return vhelix
 
+    helixWillBeRemoved = pyqtSignal(object)
     def removeVirtualHelix(self, vhref, returnFalseIfAbsent=False):
         """Called by SliceHelix.removeVirtualHelix() to update data."""
         vh = self.getVirtualHelix(vhref, returnNoneIfAbsent = True)
@@ -119,10 +136,10 @@ class DNAPart(Part):
                 return False
             else:
                 raise IndexError('Couldn\'t find virtual helix %s for removal'%str(vhref))
+        self.helixWillBeRemoved.emit(vh)
         del self._coordToVirtualHelix[vh.coord()]
         del self._numberToVirtualHelix[vh.number()]
         self.recycleHelixIDNumber(vh.number())
-        self.changed.emit()
         return True
     
     def renumberVirtualHelix(self, vhref, newNumber, returnFalseIfAbsent=False):
@@ -193,3 +210,31 @@ class DNAPart(Part):
             heappush(self.evenRecycleBin,n)
         else:
             heappush(self.oddRecycleBin,n)
+
+    ############################# Transient State (doesn't get saved) #############################    
+    def selection(self):
+        """The set of helices that has been clicked or shift-clicked in
+        the slice view. @todo 1) implement this 2) make the selected 
+        helices more prominent in the path view (this would allow one 
+        to deal with lots and lots of helices)"""
+        return self._selection
+    
+    selectionWillChange = pyqtSignal(object)
+    def setSelection(self, newSelection):
+        ns = set(newSelection)
+        self.selectionWillChange.emit(ns)
+        self._selection = ns
+    
+    def activeSlice(self):
+        """The active slice is the index of the slice selected by the
+        vertical slider in the path view"""
+        return self._activeSlice
+    
+    activeSliceWillChange = pyqtSignal(object)
+    def setActiveSlice(self, newSliceIndex):
+        ni = clamp(newSliceIndex, 0, self.dimensions()[2]-1)
+        if self._activeSlice == ni:
+            return
+        self.activeSliceWillChange.emit(ni)
+        self._activeSlice = ni
+    
