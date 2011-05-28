@@ -79,8 +79,8 @@ class PathHelix(QGraphicsItem):
 
     parent should be set to...
     """
-    minorGridPen = QPen(styles.minorgridstroke, 1)
-    majorGridPen = QPen(styles.majorgridstroke, 2)
+    minorGridPen = QPen(styles.minorgridstroke, styles.MINOR_GRID_STROKE_WIDTH)
+    majorGridPen = QPen(styles.majorgridstroke, styles.MAJOR_GRID_STROKE_WIDTH)
     scafPen = QPen(styles.scafstroke, 2)
     nobrush = QBrush(Qt.NoBrush)
     baseWidth = styles.PATH_BASE_WIDTH
@@ -261,7 +261,7 @@ class PathHelix(QGraphicsItem):
             return self._majorGridPainterPath
         path = QPainterPath()
         canvasSize = self._vhelix.part().numBases()
-        # major tick marks
+        # major tick marks  FIX: 7 is honeycomb-specific
         for i in range(0, canvasSize + 1, 7):
             x = round(self.baseWidth*i) + .5
             path.moveTo(x, .5)
@@ -298,7 +298,8 @@ class PathHelix(QGraphicsItem):
                 # _segmentPaths entries take the form
                 # (pen, painterPathToBeDrawnOnlyWithPen, brush, paintPathToBeDrawnOnlyWithBrush)
                 color = vh.colorOfBase(strandType, startIndex)
-                width = 2 if strandType==StrandType.Scaffold else 5
+                # width = 2 if strandType==StrandType.Scaffold else 5
+                width = styles.PATH_STRAND_STROKE_WIDTH
                 self._segmentPaths.append((QPen(color, width), pp, QBrush(color), bp))
         return self._segmentPaths
 
@@ -337,8 +338,9 @@ class PathHelix(QGraphicsItem):
 # which can be more easily installed with less code duplication
 # in a dynamic way
 
-################################ Events ################################     
-forwardedEvents = ('hoverEnter', 'hoverLeave', 'hoverMove', 'mousePress', 'mouseMove', 'mouseRelease')
+################################ Events ################################
+forwardedEvents = ('hoverEnter', 'hoverLeave', 'hoverMove', 'mousePress',\
+                   'mouseMove', 'mouseRelease')
 for evName in forwardedEvents:
     delegateMethodName = evName + 'PathHelix'
     eventMethodName = evName + 'Event'
@@ -354,4 +356,4 @@ for evName in forwardedEvents:
         return templateMethod
     eventHandler = makeTemplateMethod(eventMethodName, delegateMethodName)
     setattr(PathHelix, eventMethodName, eventHandler)
-        
+

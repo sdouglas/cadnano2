@@ -27,6 +27,7 @@ paintertool
 Created by Jonathan deWerd on 2011-05-26.
 """
 
+
 class PainterTool(object):
     def __init__(self):
         super(PainterTool, self).__init__()
@@ -35,17 +36,17 @@ class PainterTool(object):
         
     def mousePressPathHelix(self, ph, event):
         """Activate this item as the current helix"""
-        self._mouseDownBase = ph.baseAtLocation(event.pos().x(), event.pos().y())
+        self._mouseDownY = event.pos().y()
+        self._mouseDownBase = ph.baseAtLocation(event.pos().x(),\
+                                                self._mouseDownY)
         if self._mouseDownBase:
             vh = ph.vhelix()
             vh.setSandboxed(True)
             self.painterToolApply(vh, self._mouseDownBase, self._mouseDownBase)
-        ph.updateAsActiveHelix(self._mouseDownBase[1])
-        # QGraphicsItem.mousePressEvent(self,event)
-    
+
     def mouseMovePathHelix(self, ph, event):
         vh = ph.vhelix()
-        newBase = ph.baseAtLocation(event.pos().x(), event.pos().y())
+        newBase = ph.baseAtLocation(event.pos().x(), self._mouseDownY)
         if self._mouseDownBase and newBase:
             self._lastValidBase = newBase
             vh.undoStack().undo()
@@ -57,6 +58,7 @@ class PainterTool(object):
             vh.undoStack().undo()
             vh.setSandboxed(False)  # vhelix should now use the document undo stack
             self.painterToolApply(vh, self._mouseDownBase, self._lastValidBase)
+        ph.updateAsActiveHelix(self._mouseDownBase[1])
 
     def painterToolApply(self, vHelix, fr, to):
         """PainterTool is the default tool that lets one
@@ -70,8 +72,8 @@ class PainterTool(object):
             return False
         startOnSegment = vHelix.hasStrandAt(*fr)
         startOnBreakpoint = vHelix.hasEndAt(*fr)
-        direction = 1 if to[1]>=fr[1] else -1
-        adj = vHelix.validatedBase(fr[0], fr[1]+direction, raiseOnErr=False)
+        direction = 1 if to[1] >= fr[1] else -1
+        adj = vHelix.validatedBase(fr[0], fr[1] + direction, raiseOnErr=False)
         useClearMode = vHelix.hasStrandAt(*adj)
         # adj: the base adjacent to fr in the same direction as to
         if adj and startOnBreakpoint and vHelix.hasStrandAt(*adj):
@@ -82,7 +84,4 @@ class PainterTool(object):
             else:
                 vHelix.clearStrand(fr[0], fr[1], to[1])
         else:
-            vHelix.connectStrand(fr[0], fr[1], to[1])        
-
-
-
+            vHelix.connectStrand(fr[0], fr[1], to[1])
