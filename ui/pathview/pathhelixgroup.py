@@ -41,6 +41,7 @@ from handles.precrossoverhandle import PreXoverHandleGroup
 from model.enum import EndType, LatticeType, StrandType
 import ui.styles as styles
 from handles.pathhelixhandle import PathHelixHandle
+from handles.crossoverhandle import XoverHandle
 from cadnano import app
 
 
@@ -51,7 +52,9 @@ class PathHelixGroup(QGraphicsObject):
     the PathHelix, PathHelixHandles, and ActiveSliceHandle.
     """
     handleRadius = styles.SLICE_HELIX_RADIUS
-
+    scafPen = QPen(styles.scafstroke, 2)
+    nobrush = QBrush(Qt.NoBrush)
+    
     def __init__(self, part,\
                        controller=None,\
                        parent=None):
@@ -72,6 +75,7 @@ class PathHelixGroup(QGraphicsObject):
         self.activeHelix = None
         self.pchGroup = PreXoverHandleGroup(parent=self)
         app().phg = self  # Convenience for the command line -i mode
+        self.xoverGet = XoverHandle()
 
     def __str__(self):
         return "I am a PHG!"
@@ -154,7 +158,30 @@ class PathHelixGroup(QGraphicsObject):
         self.scene().views()[0].zoomToFit()
 
     def paint(self, painter, option, widget=None):
-        pass
+        # painter.save()
+        painter.setBrush(self.nobrush)
+        painter.setPen(self.scafPen)
+        self.drawXovers(painter) 
+        # painter.restore()
+
+    def drawXovers(self, painter):
+        """Return a QPainterPath ready to paint the crossovers"""
+        for ph in self.pathHelixList:
+            for ((fromhelix, fromindex), (tohelix, toindex)) in \
+                                    ph.vhelix().get3PrimeXovers(StrandType.Scaffold):
+                path = self.xoverGet.getXover(self, StrandType.Scaffold, \
+                                    ph, fromindex,\
+                                    self.getPathHelix(tohelix), toindex)
+                painter.drawPath(path)
+            for ((fromhelix, fromindex), (tohelix, toindex)) in \
+                                    ph.vhelix().get3PrimeXovers(StrandType.Staple):
+                path = self.xoverGet.getXover(self, StrandType.Scaffold, \
+                                    ph, fromindex,\
+                                    self.getPathHelix(tohelix), toindex)
+                painter.drawPath(path)                        
+            # end for
+        # end for
+    # end def
 
     geometryChanged = pyqtSignal()
     def boundingRect(self):

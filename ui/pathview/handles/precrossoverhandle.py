@@ -34,7 +34,6 @@ from PyQt4.QtGui import QPainterPath
 from PyQt4.QtGui import QPolygonF
 from PyQt4.QtGui import QPen, QUndoCommand
 from model.enum import StrandType, Parity, BreakType, HandleOrient
-from crossoverhandle import XoverHandlePair
 import ui.styles as styles
 
 
@@ -331,29 +330,17 @@ class PreXoverHandle(QGraphicsItem):
         # Determine upstream base
         if self._orientation in [HandleOrient.LeftUp,\
                                  HandleOrient.RightDown]:  # 3-prime clicked
-            fromHelixNum = self.pathHelix().number()
+            fromHelix = self.pathHelix().vhelix()
             fromIndex = self.index()
-            toHelixNum = self.partner.pathHelix().number()
+            toHelix = self.partner.pathHelix().vhelix()
             toIndex = self.partner.index()
         else:  # 5-prime clicked
-            toHelixNum = self.pathHelix().number()
+            toHelix = self.pathHelix().vhelix()
             toIndex = self.index()
-            fromHelixNum = self.partner.pathHelix().number()
+            fromHelix = self.partner.pathHelix().vhelix()
             fromIndex = self.partner.index()
         # Create XoverHandlePair and store references
-        xhpair = XoverHandlePair(self, self.partner, self._strandType,\
-                                                      parent=self.phg)
-        key = ((fromIndex, fromHelixNum), (toIndex, toHelixNum))
-        self.phg.xovers[key] = xhpair
-        # self.phg.xovers[((toIndex, toHelixNum),\
-        #                  (fromIndex, fromHelixNum))] = xhpair
-        # Update data structure and redraw via InstallXoverCommand
-        self.undoStack.beginMacro("Crossover from %d[%d] to %d[%d]" %\
-                       (fromHelixNum, fromIndex, toHelixNum, toIndex))
-        self.undoStack.push(\
-             self.phg.InstallXoverCommand(self.phg, self._strandType,\
-                                          fromHelixNum, fromIndex,\
-                                          toHelixNum, toIndex))
-        self.undoStack.endMacro()
+        fromHelix.installXoverTo(StrandType.Scaffold, \
+                                        fromIndex, toHelix, toIndex)
     # end def
 # end class

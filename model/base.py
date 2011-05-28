@@ -130,6 +130,9 @@ class Base(object):
     
     def vhelixNum(self):
         return self._vhelix.number()
+        
+    def vhelix(self):
+        return self._vhelix
 
     def isEmpty(self):
         return self._5pBase == None and \
@@ -171,5 +174,18 @@ class Base(object):
             if self.vhelixNum() != self._3pBase.vhelixNum():
                 return True
             elif self.partId() != self._3pBase.partId():
+                return True
+        return False
+
+
+    def is3primeXover(self):
+        """Return True if no 3pBase, but 5pBase exists."""
+        if self._3pBase != None:
+            if self.vhelixNum() != self._3pBase.vhelixNum():
+                return True
+            elif self.partId() != self._3pBase.partId():
+                return True
+            # this case assumes the opposite of the first number case
+            elif abs(self._n - self._3pBase._n) != 1:
                 return True
         return False
