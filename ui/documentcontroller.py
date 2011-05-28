@@ -176,9 +176,6 @@ class DocumentController():
             phg.scaffoldChange.connect(solhg.handleScaffoldChange)
         
         # Connect signals and slots
-        dnaPart.helixAdded.connect(phg.helixAddedSlot)
-        dnaPart.helixWillBeRemoved.connect(phg.helixRemovedSlot)
-        dnaPart.selectionWillChange.connect(phg.selectionWillChange)
         ash = phg.activeSliceHandle()
         self.win.sliceController.activeSliceLastSignal.connect(ash.moveToLastSlice)
         self.win.sliceController.activeSliceFirstSignal.connect(ash.moveToFirstSlice)

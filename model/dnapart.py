@@ -27,11 +27,19 @@ from .part import Part
 from .virtualhelix import VirtualHelix
 from .enum import LatticeType
 from PyQt4.QtCore import pyqtSignal, QObject
+from PyQt4.QtGui import QUndoCommand
 from util import *
 from heapq import *
 
 
 class DNAPart(Part):
+    """
+    Emits:
+        dimensionsWillChange(newNumRows, newNumCols, newNumBases)
+        virtualHelixAtCoordsChanged(row, col)  # the VH at row, col will
+            * change its idnum (the dnapart owns the idnum)
+            * change its virtualhelix object (maybe from or to None)
+    """
     def __init__(self, *args, **kwargs):
         if self.__class__ == DNAPart:
             raise NotImplementedError("This class is abstract. Perhaps you want DNAHoneycombPart.")
@@ -50,14 +58,15 @@ class DNAPart(Part):
         self.highestUsedEven = -2  # same
         # Transient state
         self._selection = set()
-        # self._maxBase = 0  # Abstract (honeycomb is 42)
-        # self._activeSlice = 0  # Abstract (honeycomb is 21)        
+        # Abstract
+        # self._maxBase = 0  # honeycomb is 42
+        # self._activeSlice = 0  # honeycomb is 21
     
     def dimensions(self):
         return (self._maxRow, self._maxCol, self._maxBase)
     
     def numBases(self):
-        return self.dimensions()[2]
+        return self._maxBase
     
     dimensionsWillChange = pyqtSignal()
     def setDimensions(self, newDim):
@@ -110,51 +119,27 @@ class DNAPart(Part):
             else:
                 raise IndexError("Couldn't find the virtual helix in part %s referenced by index %s"%(self, vhref))
         return vh
-
-    helixAdded = pyqtSignal(object)
-    def addVirtualHelixAt(self, coords):
-        """Adds a new VirtualHelix to the part in response to user input and
-        adds slicehelix as an observer."""
-        row, col = coords
-        newID = self.reserveHelixIDNumber(parityEven=self.coordinateParityEven(coords))
-        vhelix = VirtualHelix(part=self,
-                              row=row,\
-                              col=col,\
-                              idnum=newID,\
-                              numBases=self.dimensions()[2])
-        self._numberToVirtualHelix[newID] = vhelix
-        self._coordToVirtualHelix[(row, col)] = vhelix
-        self.helixAdded.emit(vhelix)
-        return vhelix
-
-    helixWillBeRemoved = pyqtSignal(object)
-    def removeVirtualHelix(self, vhref, returnFalseIfAbsent=False):
-        """Called by SliceHelix.removeVirtualHelix() to update data."""
-        vh = self.getVirtualHelix(vhref, returnNoneIfAbsent = True)
-        if vh == None:
-            if returnFalseIfAbsent:
-                return False
-            else:
-                raise IndexError('Couldn\'t find virtual helix %s for removal'%str(vhref))
-        self.helixWillBeRemoved.emit(vh)
-        del self._coordToVirtualHelix[vh.coord()]
-        del self._numberToVirtualHelix[vh.number()]
-        self.recycleHelixIDNumber(vh.number())
-        return True
     
-    def renumberVirtualHelix(self, vhref, newNumber, returnFalseIfAbsent=False):
-        vh = getVirtualHelix(vhref, returnNoneIfAbsent = True)
-        if not vh:
-            if returnFalseIfAbsent:
-                return False
+    def getVirtualHelices(self):
+        return (self._numberToVirtualHelix[n] for n in self._numberToVirtualHelix)
+
+    virtualHelixAtCoordsChanged = pyqtSignal(int, int)
+    def setVirtualHelixAt(self, coords, vh, requestSpecificIdnum=None):
+        c = self.SetHelixCommand(self, coords, vh, requestSpecificIdnum)
+        self.undoStack().push(c)
+    
+    # emits virtualHelixAtCoordsChanged
+    def renumberVirtualHelix(self, vhref, newNumber, automaticallyRenumberConflictingHelix=False):
+        vh = getVirtualHelix(vhref, returnNoneIfAbsent = False)
+        helixAlreadyAtNewNum = self.getVirtualHelix(newNumber)
+        if helixAlreadyAtNewNum:
+            if automaticallyRenumberConflictingHelix:
+                n = self.reserveHelixIDNumber(parityEven=(newNumber%2==0))
+                self.recycleHelixIDNumber(n)
+                self.renumberVirtualHelix(helixAlreadyAtNewNum, n)
             else:
-                raise IndexError('Couldn\'t find virtual helix %s for removal'%str(vhref))
-        assert(not self.getVirtualHelix(self, newNumber))
-        del self._numberToVirtualHelix[vh.number()]
-        self._numberToVirtualHelix[newNumber] = vh
-        vh._setNumber(newNumber)
-        self.changed.emit()
-        
+                assert(False)  # Tried to assign an idnum belonging to another helix to vhref
+        c = self.RenumberHelixCommand(self, vh.coords(), newNumber)
 
     def getVirtualHelixCount(self):
         """docstring for getVirtualHelixList"""
@@ -162,17 +147,74 @@ class DNAPart(Part):
     
     def getVirtualHelices(self):
         return [self._numberToVirtualHelix[n] for n in self._numberToVirtualHelix]
+
+    ############################# VirtualHelix Private CRUD #############################
+    class SetHelixCommand(QUndoCommand):
+        def __init__(self, dnapart, coords, vh, requestSpecificIdnum=None):
+            super(DNAPart.SetHelixCommand, self).__init__()
+            self.row, self.col = coords
+            self.part = dnapart
+            self.vhelix = vh
+            self.requestedNum = requestSpecificIdnum
+        def redo(self, actuallyUndo=False):
+            part, vh = self.part, self.vhelix
+            currentVH = part.getVirtualHelix((self.row, self.col))
+            if actuallyUndo:
+                vh = self.oldVH
+            else:
+                self.oldVH = currentVH
+            if currentVH:
+                del self.part._coordToVirtualHelix[currentVH.coord()]
+                del self.part._numberToVirtualHelix[currentVH.number()]
+                self.recycleHelixIDNumber(currentVH.number())
+            if vh:
+                newID = part.reserveHelixIDNumber(\
+                            parityEven=self.part.coordinateParityEven((self.row, self.col)),\
+                            requestedIDnum=self.requestedNum)
+                vh._setPart(part, self.row, self.col, newID)
+                part._numberToVirtualHelix[newID] = vh
+                part._coordToVirtualHelix[(self.row, self.col)] = vh
+            part.virtualHelixAtCoordsChanged.emit(self.row, self.col)
+        def undo(self):
+            assert(self.oldVH)
+            self.redo(actuallyUndo=True)
+    
+    class RenumberHelixCommand(QUndoCommand):
+        def __init__(self, dnapart, coords, newNumber):
+            super(DNAPart.RenumberHelixCommand, self).__init__()
+            self.coords = coords
+            self.part = dnapart
+            self.newNum = newNumber
+        def redo(self, actuallyUndo=False):
+            p = self.part
+            vh = p.getVirtualHelix(self.coords, returnNoneIfAbsent = False)
+            currentNum = vh.number()
+            if actuallyUndo:
+                newNum = self.oldNum
+            else:
+                self.oldNum = currentNum
+            assert(not p.getVirtualHelix(newNum))
+            del p._numberToVirtualHelix[currentNum]
+            p._numberToVirtualHelix[newNum] = vh
+            vh._setNumber(newNum)
+            # dnapart owns the idnum of a virtualhelix, so we
+            # are the ones that send an update when it changes
+            p.virtualHelixAtCoordsChanged.emit(self.row, self.col)
+        def undo(self):
+            self.redo(actuallyUndo=True)
     
     ############################# VirtualHelix ID Number Management #############################
     # Used in both square, honeycomb lattices and so it's shared here
-    def reserveHelixIDNumber(self, parityEven=True, num=None):
+    def reserveHelixIDNumber(self, parityEven=True, requestedIDnum=None):
         """
         Reserves and returns a unique numerical label appropriate for a virtualhelix of
         a given parity. If a specific index is preferable (say, for undo/redo) it can be
         requested in num.
         """
+        num = requestedIDnum
         if num != None: # We are handling a request for a particular number
             assert num >= 0, long(num) == num
+            assert not num in _numberToVirtualHelix
             if num in self.oddRecycleBin:
                 self.oddRecycleBin.remove(num)
                 heapify(self.oddRecycleBin)

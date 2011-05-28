@@ -53,7 +53,7 @@ class SliceHelix(QGraphicsItem):
     outOfSliceBrush = QBrush(styles.lightorangefill)
     rect = QRectF(0, 0, 2 * radius, 2 * radius)
 
-    def __init__(self, row, col, position, parent=None):
+    def __init__(self, row, col, parent=None):
         """docstring for __init__"""
         super(SliceHelix, self).__init__(parent)
         self._parent = parent
@@ -63,7 +63,6 @@ class SliceHelix(QGraphicsItem):
         self.focusRing = None
         self.beingHoveredOver = False
         self.setAcceptsHoverEvents(True)
-        self.setPos(position)
         self.undoStack = self._parent.sliceController.mainWindow.undoStack
         self.setFlag(QGraphicsItem.ItemIsSelectable)
         self.setZValue(styles.ZSLICEHELIX)
@@ -98,53 +97,6 @@ class SliceHelix(QGraphicsItem):
              return self.rect
     # end class
 
-    class AddHelixCommand(QUndoCommand):
-        """docstring for AddHelixCommand"""
-        def __init__(self, part, coords, shg):
-            super(SliceHelix.AddHelixCommand, self).__init__()
-            self.part = part
-            self.coords = coords
-            self.shg = shg
-            
-        def redo(self):
-            vh = self.part.addVirtualHelixAt(self.coords)
-            nb = vh.numBases()
-            vh.connectStrand(StrandType.Scaffold, nb/2-1, nb/2+1)
-
-        def undo(self):
-            self.part.removeVirtualHelix(self.coords)
-    # end class
-
-    class AddBasesToHelixCommand(QUndoCommand):
-        """docstring for AddBasesToHelixCommand"""
-        def __init__(self, slicehelix, number, index):
-            super(SliceHelix.AddBasesToHelixCommand, self).__init__()
-            self.slicehelix = slicehelix
-            self._number = number
-            self._index = index
-
-        def redo(self):
-            self.slicehelix.parent.addBasesToDnaPart(self._number, self._index)
-
-        def undo(self):
-            self.slicehelix.parent.removeBasesFromDnaPart(self._number, self._index)
-    # end class
-
-    class DeleteHelixCommand(QUndoCommand):
-        """docstring for DeleteHelixCommand"""
-        def __init__(self, slicehelix, position, number):
-            super(SliceHelix.DeleteHelixCommand, self).__init__()
-            self.slicehelix = slicehelix
-            self._pos = position
-            self._num = number
-
-        def redo(self):
-            pass
-            
-        def undo(self):
-            pass
-    # end class
-
     def number(self):
         return self.virtualHelix().number()
 
@@ -176,65 +128,29 @@ class SliceHelix(QGraphicsItem):
             painter.setPen(self.hovPen)
             painter.setBrush(Qt.NoBrush)
             painter.drawEllipse(self.rect)
-    # end def
 
     def boundingRect(self):
         return self.rect
 
-    def hoverEnterEvent(self, event):
-        """hoverEnterEvent changes the SliceHelix brush and pen from default
-        to the hover colors if necessary."""
-        if self.focusRing == None:
-            self.focusRing = SliceHelix.FocusRingPainter(self,\
-                                                         self._parent.scene,\
-                                                         self._parent)
-        self.update(self.rect)
-    # end def
-
-    def hoverLeaveEvent(self, event):
-        """hoverEnterEvent changes the SliceHelix brush and pen from hover
-        to the default colors if necessary."""
-        if self.focusRing != None:
-            self.focusRing.setParentItem(None)
-            self.focusRing = None
-        self.update(self.rect)
-    # end def
-
     def mousePressEvent(self, event):
         self.createOrAddBasesToVirtualHelix()
-        self.part().setSelection((self.virtualHelix(),))
-    # end def
+        if event.modifiers() & Qt.ShiftModifier:
+            self.virtualHelix().setSelected(True)
+        else:
+            self.part().setSelection((self.virtualHelix(),))
 
-    def createOrAddBasesToVirtualHelix(self):
+    def createOrAddBasesToVirtualHelix(self, addToScaffold=False):
         coord = (self._row, self._col)
         vh = self.virtualHelix()
         index = self.part().activeSlice()
         if not vh:
-            self.undoStack.push(SliceHelix.AddHelixCommand(self.part(), coord, self._parent))
+            vh = VirtualHelix()
+            self.part().setVirtualHelixAt(coord, vh)
+            vh.basesModified.connect(self.update)
         else:  # Just add more bases
             vh = self.virtualHelix()
             nb = vh.numBases()
-            vh.connectBases(StrandType.Staple)
-    # end def
-    
-    def itemChange(self, change, value):
-        # for selection changes test against QGraphicsItem.ItemSelectedChange
-        # if change == QGraphicsItem.ItemScenePositionHasChanged and self.scene():
-        #     # value is the new position.
-        #     newPos = value.toPointF()
-        #     print "I moooooved", newPos.x(), newPos.y()
-        #     # rect = self.scene().sceneRect()
-        #     # if not rect.contains(newPos):
-        #     #     # Keep the item inside the scene rect.
-        #     #     newPos.setX(min(rect.right(), max(newPos.x(), rect.left())))
-        #     #     newPos.setY(min(rect.bottom(), max(newPos.y(), rect.top())))
-        #     #     return newPos
-        #     # # end if
-        # # end if
-        if change == QGraphicsItem.ItemSelectedChange and self.scene():
-            # print "I am slice selected ", self._number
-            pass
-        return QGraphicsItem.itemChange(self,change, value)
+            vh.connectStrand(StrandType.Scaffold if addToScaffold else StrandType.Staple, index-1, index+1)
     # end def
     
 # end class

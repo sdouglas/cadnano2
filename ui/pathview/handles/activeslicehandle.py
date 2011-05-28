@@ -124,8 +124,6 @@ class ActiveSliceHandle(QGraphicsItem):
             return
         x = event.scenePos().x()
         dx = int((x - self.pressX)/self.baseWidth)
-        if dx == 0:
-            return
         self.setActiveSlice(self.pressBaseIdx+dx)
 
     def mousePressEvent(self, event):

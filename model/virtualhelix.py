@@ -43,31 +43,43 @@ class VirtualHelix(QObject):
     basesModified = pyqtSignal()
     dimensionsModified = pyqtSignal()
     
-    def __init__(self, *args, **kwargs):
+    def __init__(self, numBases=21, idnum=0):
         super(VirtualHelix, self).__init__()
-        self._part = kwargs.get('part', None)
-        self._row = kwargs.get('row', 0)
-        self._col = kwargs.get('col', 0)
+        # Row, col are always owned by the parent part;
+        # they cannot be specified in a meaningful way
+        # for a detached helix (part==None). Only dnaparts 
+        # get to modify these.
+        self._row = None
+        self._col = None
+        # If self._part exists, it owns self._number
+        # in that only it may modify it through the
+        # private interface. The public interface for
+        # setNumber just routes the call to the parent
+        # dnapart if one is present. If self._part == None
+        # the vhelix owns self._number and may modify it.
+        self._number = idnum
+        # Attaching to a part via setPart gives the part ownership of
+        # the above three properties (it asks part to set them,
+        # self should no longer modify _row, _col, or _number)
+        self._part = None
+        # The base arrays are owned entirely by virtualhelix
         self._stapleBases = []
         self._scaffoldBases = []
-        self._number = kwargs.get('idnum', -1)
-        numBases = kwargs.get('numBases', None)
-        if numBases:
-            self._numBases = numBases
-        else:
-            self._numBases = None
-            numBases = self.numBases()
-        self.setNumBases(numBases)
-        self._scafLPoXo  = []  # Potential Crossover
-        self._scafRPoXo = []
-        self._stapLPoXo  = []
-        self._stapRPoXo = []
-        self._undoStack = None
-        # Undo stack is only temporary and should be 
-        # removed (causes undoStack() to return part.undoStac())
-        # upon setSandboxed(False)
+        # setSandboxed(True) gives self a private undo stack
+        # in order to insulate undo/redo on the receiver
+        # from global undo/redo (so that if a haywire tool
+        # using undo() and redo() to give a live preview of
+        # tho tool's effect calls undo() a million times it
+        # doesn't make the document disappear). setSandboxed(False)
+        # then clears _privateUndoStack at which point self
+        # goes back to using the part / document undo stack.
+        self._privateUndoStack = None
         self._sandboxed = False
-        if app().v != None:  # Command line convenience -i mode
+        # numBases is a simulated property that corresponds to the
+        # length of _stapleBases and _scaffoldBases
+        self.setNumBases(numBases, notUndoable=True)
+        # Command line convenience for -i mode
+        if app().v != None:
             app().v[self.number()] = self
     
     def __repr__(self):
@@ -79,34 +91,80 @@ class VirtualHelix(QObject):
         stap = '%-2iStaple:   ' % self.number() + \
                                 ' '.join((str(b) for b in self._stapleBases))
         return scaf + '\n' + stap
-
-    def numBases(self):
-        if self._numBases:
-            return self._numBases
-        return self._part.numBases()
     
-    def setNumBases(self, newNumBases=None):
-        # @toundo
+    def part(self):
+        return self._part;
+        
+    def _setPart(self, newPart, row, col, num):
+        """Should only be called by dnapart. Use dnapart's
+        setVirtualHelixAt to add a virtualhelix to a dnapart."""
+        if self._part:
+            self._part.setVirtualHelixAt(row, col, None)
+        self._row = row
+        self._col = col
+        self._number = num
+        self._part = newPart
+        self.setNumBases(newPart.numBases(), notUndoable=True)
+        
+    def numBases(self):
+        return len(self._stapleBases)
+    
+    def setNumBases(self, newNumBases, notUndoable=False):
+        newNumBases = int(newNumBases)
+        assert(newNumBases>=0)
+        oldNB = self.numBases()
         if self.part():
             assert(self.part().numBases()==newNumBases)
-        elif self._numBases!=None:
-            self._numBases = newNumBases
-        oldNB = len(self._stapleBases)
-        if newNumBases > oldNB:
-            for n in range(oldNB, newNumBases):
-                self._stapleBases.append(Base(self, StrandType.Staple, n))
-                self._scaffoldBases.append(Base(self, StrandType.Scaffold, n))
-        self.dimensionsModified.emit()
-
-    def part(self):
-        return self._part
-
+        if newNumBases==oldNB:
+            return
+        if newNumBases>oldNB:
+            c = self.SetNumBasesCommand(self, newNumBases)
+            if notUndoable:
+                c.redo()
+            else:
+                self.undoStack().push(c)
+        if newNumBases<oldNB:
+            c0 = self.ClearStrandCommand(self, StrandType.Scaffold, newNumBases, oldNB)
+            c1 = self.ClearStrandCommand(self, StrandType.Saple, newNumBases, oldNB)
+            c2 = self.SetNumBasesCommand(self, newNumBases)
+            if notUndoable:
+                c0.redo()
+                c1.redo()
+                c2.redo()
+            else:
+                u = self.undoStack()
+                u.beginMacro("Changing the number of bases")
+                u.push(c0)
+                u.push(c1)
+                u.push(c2)
+                u.endMacro()
+        
     def number(self):
         """return VirtualHelix number"""
         return self._number
     
     def setNumber(self, newNumber):
-        self._part.renumberVirtualHelix(self, newNumber)
+        if self.part():
+            self.part().renumberVirtualHelix(self, newNumber)
+        else:  # If we aren't attached to a part
+            self._number = newNumber
+    
+    def selected(self):
+        return self in self.part().selection()
+    
+    # dnapart owns its selection, so look there for related
+    # event emission
+    def setSelected(self, willBeSelected):
+        currentSelection = self.part().selection()
+        if willBeSelected:
+            # We're modifying part()'s selection
+            # object beneath it. I won't tell it
+            # if you don't. Safety would demand
+            # selection() returns a copy.
+            currentSelection.add(self)
+        else:
+            currentSelection.remove(self)
+        self.part().setSelection(currentSelection)
     
     def _setNumber(self, newNumber):
         """_part is responsible for assigning ids, so only it gets to
@@ -174,7 +232,7 @@ class VirtualHelix(QObject):
                 raise IndexError("Base (strand:%s index:%i) Not Valid"%(strandType,index))
             return (None, None)
         index = int(index)
-        if index < 0 or index >= self.numBases() - 1:
+        if index < 0 or index > self.numBases() - 1:
             if raiseOnErr:
                 raise IndexError("Base (strand:%s index:%i) Not Valid"%(strandType,index))
             return (None, None)
@@ -236,6 +294,9 @@ class VirtualHelix(QObject):
         hue = 47*idx+31*self.number()
         return QColor.fromHsl(hue%256, 255, 128)
     
+    def sandboxed(self):
+        return self._sandboxed
+        
     def setSandboxed(self, sb):
         """Set True to give the receiver a temporary undo stack
         that will be deleted upon set False. Since tools can be
@@ -243,23 +304,24 @@ class VirtualHelix(QObject):
         it occasionally happens that a bug pops many things off the
         undo stack. The temporary undo stack prevents excessive popping
         from reverting the document to a blank state."""
-        if sb and not self._undoStack:
+        if sb and not self._privateUndoStack:
             self._sandboxed = True
-            if not self._undoStack:
-                self._undoStack = QUndoStack()
-        else:
+            if not self._privateUndoStack:
+                self._privateUndoStack = QUndoStack()
+        elif not sb:
             if self._sandboxed:
                 self._sandboxed = False
-                self._undoStack = None
+                self._privateUndoStack = None
 
     def undoStack(self):
-        if self._undoStack:
-            return self._undoStack
-        if self.part():
+        if self._privateUndoStack != None:
+            return self._privateUndoStack
+        if self.part() != None:
             return self.part().undoStack()
-        if not self._undoStack:
-            self._undoStack = QUndoStack()
-        return self._undoStack
+        if self._privateUndoStack == None:
+            print "Creating detached undo stack for %s"%self
+            self._privateUndoStack = QUndoStack()
+        return self._privateUndoStack
             
     ################## Public Base Modification API #########
     """
@@ -326,6 +388,10 @@ class VirtualHelix(QObject):
         if fromBase._nextBase != toBase or fromBase != toBase._prevBase:
             raise IndexError("Crossover does not exist to be removed.")
         toVhelix.breakStrandBeforeBase(type, toIndex)
+    
+    def emitModificationSignal(self):
+        self.basesModified.emit()
+        #self.part().virtualHelixAtCoordsChanged.emit(*self.coord())
 
     ################ Private Base Modification API ###########################
     class ConnectStrandCommand(QUndoCommand):
@@ -350,7 +416,7 @@ class VirtualHelix(QObject):
                 for i in range(self._startIndex, self._endIndex):
                     ol.append(strand[i]._set5Prime(strand[i + 1]))
             # end else
-            self._vh.basesModified.emit()
+            self._vh.emitModificationSignal()
             
         def undo(self):
             strand = self._vh._strand(self._strandType)
@@ -365,7 +431,7 @@ class VirtualHelix(QObject):
                     strand[i]._unset5Prime(strand[i + 1], *ol[i - self._startIndex])
             # end else
             
-            self._vh.basesModified.emit()
+            self._vh.emitModificationSignal()
     
     class ClearStrandCommand(QUndoCommand):
         def __init__(self, virtualHelix, strandType, startIndex, endIndex):
@@ -391,7 +457,7 @@ class VirtualHelix(QObject):
                 for i in range(self._startIndex - 1, self._endIndex):
                     ol.append(strand[i]._set5Prime(None))
             # end else
-            self._vh.basesModified.emit()
+            self._vh.emitModificationSignal()
 
         def undo(self):
             strand = self._vh._strand(self._strandType)
@@ -405,7 +471,7 @@ class VirtualHelix(QObject):
                 for i in range(self._endIndex - 1, self._startIndex - 2, -1):
                     strand[i]._unset5Prime(None, *ol[i - self._startIndex+1])
             # end else
-            self._vh.basesModified.emit()
+            self._vh.emitModificationSignal()
     
     class ConnectBasesCommand(QUndoCommand):
         def __init__(self, type, fromHelix, fromIndex, toHelix, toIndex):
@@ -425,8 +491,8 @@ class VirtualHelix(QObject):
             else:
                 self._undoDat = fromB._set5Prime(toB)
             
-            self._fromHelix.basesModified.emit()
-            self._toHelix.basesModified.emit()
+            self._fromHelix.emitModificationSignal()
+            self._toHelix.emitModificationSignal()
 
         def undo(self):
             fromB = self._fromHelix._strand(self._strandType)[self._fromIndex]
@@ -437,8 +503,35 @@ class VirtualHelix(QObject):
             else:
                 fromB._unset5Prime(toB, *self._undoDat)
             
-            self._fromHelix.basesModified.emit()
-            self._toHelix.basesModified.emit()
+            self._fromHelix.emitModificationSignal()
+            self._toHelix.emitModificationSignal()
+    
+    class SetNumBasesCommand(QUndoCommand):
+        def __init__(self, vhelix, newNumBases):
+            super(VirtualHelix.SetNumBasesCommand, self).__init__()
+            self.vhelix = vhelix
+            self.newNumBases = newNumBases
+        def redo(self, actuallyUndo=False):
+            vh = self.vhelix
+            if actuallyUndo:
+                newNumBases, oldNB = self.oldNumBases, self.newNumBases
+            else:
+                self.oldNumBases = vh.numBases()
+                newNumBases, oldNB = self.newNumBases, self.oldNumBases
+            if vh.part():
+                # If we are attached to a dnapart we must obey its dimensions
+                assert(vh.part().numBases()==newNumBases)
+            if newNumBases > oldNB:
+                for n in range(oldNB, newNumBases):
+                    vh._stapleBases.append(Base(vh, StrandType.Staple, n))
+                    vh._scaffoldBases.append(Base(vh, StrandType.Scaffold, n))
+            else:
+                del vh._stapleBases[oldNB, -1]
+                del vh._scaffoldBases[oldNB, -1]
+            vh.dimensionsModified.emit()
+        def undo(self):
+            self.redo(actuallyUndo=True)
+            
  
     ################################### Crossovers ########################### 
     def potentialCrossoverList(self, rightNotLeft, strandType):
