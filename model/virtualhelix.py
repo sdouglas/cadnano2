@@ -230,6 +230,19 @@ class VirtualHelix(QObject):
                 s = None
         return ret
     
+    def get3PrimeXovers(self, strandType):
+        """"""
+        ret = []
+        strand = self._strand(strandType)
+        i, s = 0, None
+        for base in strand:
+            if base.is3primeXover():
+                ret.append( ( (self, base._n), \
+                    (base._3pBase.vhelix(), base._3pBase._n) ) )
+        # end for
+        return ret
+    # end def
+
     def colorOfBase(self, strandType, idx):
         if strandType==StrandType.Scaffold:
             return styles.bluestroke
@@ -296,10 +309,10 @@ class VirtualHelix(QObject):
         c = self.ClearStrandCommand(self, strandType, startIndex, endIndex)
         self.undoStack().push(c)
     
-    def connectBases(self, type, fromIdx, toVH, toIdx):
-        assert(0 <= fromIdx and fromIdx < len(self._strand(type)))
-        assert(0 <= toIdx and toIdx < len(toVH._strand(type)))
-        c = self.ConnectBasesCommand(type, self, fromIdx, toVH, toIdx)
+    def connectBases(self, strandType, fromIdx, toVH, toIdx):
+        assert(0 <= fromIdx and fromIdx < len(self._strand(strandType)))
+        assert(0 <= toIdx and toIdx < len(toVH._strand(strandType)))
+        c = self.ConnectBasesCommand(strandType, self, fromIdx, toVH, toIdx)
         self.undoStack().push(c)
     
     # Derived private API
@@ -309,24 +322,26 @@ class VirtualHelix(QObject):
         assert(breakBeforeIndex < len(strand))
         self.clearStrand(strandType, breakBeforeIndex, breakBeforeIndex)
 
-    def installXoverTo(self, type, fromIndex, toVhelix, toIndex):
+    def installXoverTo(self, strandType, fromIndex, toVhelix, toIndex):
         """docstring for installXoverTo"""
-        if type == StrandType.Scaffold:
-            assert(self.possibleNewCrossoverAt(fromIndex, toVhelix, toIndex))
-        elif type == StrandType.Staple:
-            assert(self.possibleStapCrossoverAt(fromIndex, toVhelix, toIndex))
+        if strandType == StrandType.Scaffold:
+            assert(self.possibleNewCrossoverAt(StrandType.Scaffold, \
+                                            fromIndex, toVhelix, toIndex))
+        elif strandType == StrandType.Staple:
+            assert(self.possibleStapCrossoverAt(StrandType.Staple, \
+                                            fromIndex, toVhelix, toIndex))
         else:
             raise IndexError("%s doesn't look like a StrandType" % type)
-        self.connectBases(self, strandType, fromIdx, toVH, toIdx)
+        self.connectBases(strandType, fromIndex, toVhelix, toIndex)
 
-    def removeXoverTo(self, type, fromIndex, toVhelix, toIndex):
+    def removeXoverTo(self, strandType, fromIndex, toVhelix, toIndex):
         """docstring for installXoverTo"""
-        strand = self._strand(type)
+        strand = self._strand(strandType)
         fromBase = strand[fromIndex]
         toBase = toVhelix._strand(StrandType.Scaffold)[toIndex]
         if fromBase._nextBase != toBase or fromBase != toBase._prevBase:
             raise IndexError("Crossover does not exist to be removed.")
-        toVhelix.breakStrandBeforeBase(type, toIndex)
+        toVhelix.breakStrandBeforeBase(strandType, toIndex)
 
     ################ Private Base Modification API ###########################
     class ConnectStrandCommand(QUndoCommand):
