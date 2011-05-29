@@ -171,9 +171,6 @@
     <property name="title">
      <string>Edit</string>
     </property>
-    <addaction name="actionUndo"/>
-    <addaction name="actionRedo"/>
-    <addaction name="separator"/>
     <addaction name="actionCut"/>
     <addaction name="actionCopy"/>
     <addaction name="actionPaste"/>
@@ -261,15 +258,16 @@
    <addaction name="actionPathMove"/>
    <addaction name="actionPathBreak"/>
    <addaction name="actionPathErase"/>
-   <addaction name="actionPathForce"/>
-   <addaction name="actionPathInsertion"/>
+   <addaction name="actionPencil"/>
+   <addaction name="actionPathInsert"/>
    <addaction name="actionPathSkip"/>
+   <addaction name="actionPaint"/>
    <addaction name="separator"/>
    <addaction name="actionAutoStaple"/>
   </widget>
   <action name="actionNew">
    <property name="icon">
-    <iconset resource="../../../Dropbox/cadnano2.1/shawn/ui/icons.qrc">
+    <iconset resource="icons.qrc">
      <normaloff>:/filetools/new</normaloff>:/filetools/new</iconset>
    </property>
    <property name="text">
@@ -281,7 +279,7 @@
   </action>
   <action name="actionOpen">
    <property name="icon">
-    <iconset resource="../../../Dropbox/cadnano2.1/shawn/ui/icons.qrc">
+    <iconset resource="icons.qrc">
      <normaloff>:/filetools/open</normaloff>:/filetools/open</iconset>
    </property>
    <property name="text">
@@ -301,7 +299,7 @@
   </action>
   <action name="actionSave">
    <property name="icon">
-    <iconset resource="../../../Dropbox/cadnano2.1/shawn/ui/icons.qrc">
+    <iconset resource="icons.qrc">
      <normaloff>:/filetools/save</normaloff>:/filetools/save</iconset>
    </property>
    <property name="text">
@@ -331,7 +329,7 @@
   </action>
   <action name="actionSVG">
    <property name="icon">
-    <iconset resource="../../../Dropbox/cadnano2.1/shawn/ui/icons.qrc">
+    <iconset resource="icons.qrc">
      <normaloff>:/filetools/svg</normaloff>:/filetools/svg</iconset>
    </property>
    <property name="text">
@@ -341,22 +339,6 @@
   <action name="actionX3D">
    <property name="text">
     <string>X3D</string>
-   </property>
-  </action>
-  <action name="actionUndo">
-   <property name="text">
-    <string>Undo</string>
-   </property>
-   <property name="shortcut">
-    <string>Ctrl+Z</string>
-   </property>
-  </action>
-  <action name="actionRedo">
-   <property name="text">
-    <string>Redo</string>
-   </property>
-   <property name="shortcut">
-    <string>Ctrl+Shift+Z</string>
    </property>
   </action>
   <action name="actionCut">
@@ -393,7 +375,7 @@
   </action>
   <action name="actionNewHoneycombPart">
    <property name="icon">
-    <iconset resource="../../../Dropbox/cadnano2.1/shawn/ui/icons.qrc">
+    <iconset resource="icons.qrc">
      <normaloff>:/parttools/new-honeycomb</normaloff>:/parttools/new-honeycomb</iconset>
    </property>
    <property name="text">
@@ -411,7 +393,7 @@
     <bool>false</bool>
    </property>
    <property name="icon">
-    <iconset resource="../../../Dropbox/cadnano2.1/shawn/ui/icons.qrc">
+    <iconset resource="icons.qrc">
      <normaloff>:/pathtools/break</normaloff>:/pathtools/break</iconset>
    </property>
    <property name="text">
@@ -429,7 +411,7 @@
     <bool>true</bool>
    </property>
    <property name="icon">
-    <iconset resource="../../../Dropbox/cadnano2.1/shawn/ui/icons.qrc">
+    <iconset resource="icons.qrc">
      <normaloff>:/pathtools/select</normaloff>:/pathtools/select</iconset>
    </property>
    <property name="text">
@@ -447,7 +429,7 @@
     <bool>true</bool>
    </property>
    <property name="icon">
-    <iconset resource="../../../Dropbox/cadnano2.1/shawn/ui/icons.qrc">
+    <iconset resource="icons.qrc">
      <normaloff>:/slicetools/select</normaloff>
      <selectedoff>:/slicetools/images/slice-edit.png</selectedoff>:/slicetools/select</iconset>
    </property>
@@ -460,7 +442,7 @@
   </action>
   <action name="actionSliceFirst">
    <property name="icon">
-    <iconset resource="../../../Dropbox/cadnano2.1/shawn/ui/icons.qrc">
+    <iconset resource="icons.qrc">
      <normaloff>:/slicetools/go first</normaloff>:/slicetools/go first</iconset>
    </property>
    <property name="text">
@@ -472,7 +454,7 @@
   </action>
   <action name="actionSliceLast">
    <property name="icon">
-    <iconset resource="../../../Dropbox/cadnano2.1/shawn/ui/icons.qrc">
+    <iconset resource="icons.qrc">
      <normaloff>:/slicetools/go last</normaloff>:/slicetools/go last</iconset>
    </property>
    <property name="text">
@@ -487,7 +469,7 @@
     <bool>true</bool>
    </property>
    <property name="icon">
-    <iconset resource="../../../Dropbox/cadnano2.1/shawn/ui/icons.qrc">
+    <iconset resource="icons.qrc">
      <normaloff>:/pathtools/erase</normaloff>:/pathtools/erase</iconset>
    </property>
    <property name="text">
@@ -502,7 +484,7 @@
   </action>
   <action name="actionAutoStaple">
    <property name="icon">
-    <iconset resource="../../../Dropbox/cadnano2.1/shawn/ui/icons.qrc">
+    <iconset resource="icons.qrc">
      <normaloff>:/pathtools/autostaple</normaloff>:/pathtools/autostaple</iconset>
    </property>
    <property name="text">
@@ -512,30 +494,30 @@
     <string>Click this button to generate a default set of staples.</string>
    </property>
   </action>
-  <action name="actionPathForce">
+  <action name="actionPencil">
    <property name="checkable">
     <bool>true</bool>
    </property>
    <property name="icon">
-    <iconset resource="../../../Dropbox/cadnano2.1/shawn/ui/icons.qrc">
+    <iconset resource="icons.qrc">
      <normaloff>:/pathtools/force</normaloff>:/pathtools/force</iconset>
    </property>
    <property name="text">
-    <string>Force</string>
+    <string>Pencil</string>
    </property>
    <property name="toolTip">
-    <string>Click on a start position and end position to force a path to follow a nonstandard route.</string>
+    <string>Draw strands. Right-click to force non-standard crossover</string>
    </property>
    <property name="shortcut">
-    <string>F</string>
+    <string>F, N</string>
    </property>
   </action>
-  <action name="actionPathInsertion">
+  <action name="actionPathInsert">
    <property name="checkable">
     <bool>true</bool>
    </property>
    <property name="icon">
-    <iconset resource="../../../Dropbox/cadnano2.1/shawn/ui/icons.qrc">
+    <iconset resource="icons.qrc">
      <normaloff>:/pathtools/insert</normaloff>:/pathtools/insert</iconset>
    </property>
    <property name="text">
@@ -550,7 +532,7 @@
   </action>
   <action name="actionNewSquarePart">
    <property name="icon">
-    <iconset resource="../../../Dropbox/cadnano2.1/shawn/ui/icons.qrc">
+    <iconset resource="icons.qrc">
      <normaloff>:/parttools/new-square</normaloff>:/parttools/new-square</iconset>
    </property>
    <property name="text">
@@ -565,7 +547,7 @@
     <bool>true</bool>
    </property>
    <property name="icon">
-    <iconset resource="../../../Dropbox/cadnano2.1/shawn/ui/icons.qrc">
+    <iconset resource="icons.qrc">
      <normaloff>:/pathtools/skip</normaloff>:/pathtools/skip</iconset>
    </property>
    <property name="text">
@@ -583,7 +565,7 @@
     <bool>true</bool>
    </property>
    <property name="icon">
-    <iconset resource="../../../Dropbox/cadnano2.1/shawn/ui/icons.qrc">
+    <iconset resource="icons.qrc">
      <normaloff>:/slicetools/move</normaloff>:/slicetools/move</iconset>
    </property>
    <property name="text">
@@ -592,16 +574,13 @@
    <property name="toolTip">
     <string>Move (M)</string>
    </property>
-   <property name="shortcut">
-    <string>M</string>
-   </property>
   </action>
   <action name="actionPathMove">
    <property name="checkable">
     <bool>true</bool>
    </property>
    <property name="icon">
-    <iconset resource="../../../Dropbox/cadnano2.1/shawn/ui/icons.qrc">
+    <iconset resource="icons.qrc">
      <normaloff>:/pathtools/move</normaloff>:/pathtools/move</iconset>
    </property>
    <property name="text">
@@ -616,7 +595,7 @@
   </action>
   <action name="actionRenumber">
    <property name="icon">
-    <iconset resource="../../../Dropbox/cadnano2.1/shawn/ui/icons.qrc">
+    <iconset resource="icons.qrc">
      <normaloff>:/slicetools/renumber</normaloff>:/slicetools/renumber</iconset>
    </property>
    <property name="text">
@@ -628,7 +607,7 @@
   </action>
   <action name="actionDeleteLast">
    <property name="icon">
-    <iconset resource="../../../Dropbox/cadnano2.1/shawn/ui/icons.qrc">
+    <iconset resource="icons.qrc">
      <normaloff>:/slicetools/del-last</normaloff>:/slicetools/del-last</iconset>
    </property>
    <property name="text">
@@ -638,9 +617,27 @@
     <string>Remove the highest-numbered helix if it does not connect to any other helices.</string>
    </property>
   </action>
+  <action name="actionPaint">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="icon">
+    <iconset resource="icons.qrc">
+     <normaloff>:/pathtools/paint</normaloff>:/pathtools/paint</iconset>
+   </property>
+   <property name="text">
+    <string>Paint</string>
+   </property>
+   <property name="toolTip">
+    <string>Use to color staples.</string>
+   </property>
+   <property name="shortcut">
+    <string>P</string>
+   </property>
+  </action>
  </widget>
  <resources>
-  <include location="../../../Dropbox/cadnano2.1/shawn/ui/icons.qrc"/>
+  <include location="icons.qrc"/>
  </resources>
  <connections>
   <connection>

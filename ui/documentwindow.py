@@ -29,7 +29,7 @@ documentwindow.py
 from PyQt4.QtCore import *
 from PyQt4.QtGui import *
 import ui_mainwindow
-import sliceview.slicehelixgroup
+# import sliceview.slicehelixgroup
 import pathview.pathcontroller as pathcontroller
 import sliceview.slicecontroller as slicecontroller
 from cadnano import app

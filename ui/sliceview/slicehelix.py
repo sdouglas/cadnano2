@@ -86,7 +86,7 @@ class SliceHelix(QGraphicsItem):
             # returns a new QRect that is bigger all around by 1 pixel
             # but in the same spot as the original
             # good for getting rid of line width artifacts
-            self.rect = helix.rect.adjusted(-1,-1,2,2)
+            self.rect = helix.rect.adjusted(-1, -1,2,2)
             self.setPos(helix.pos())
             self.setZValue(styles.ZFOCUSRING)
 

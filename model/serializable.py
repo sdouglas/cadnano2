@@ -78,7 +78,7 @@ class Encoder:
         elif type(obj) in ('str', 'int', 'float', 'long'):
             self.io.write(dumps(obj))
         else:
-            objId = self.objToDeferredIdMap.get(obj,-1)
+            objId = self.objToDeferredIdMap.get(obj, -1)
             if objId == -1:
                 objId = len(self.deferredObjects)
                 self.deferredObjects.append(obj)

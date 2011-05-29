@@ -18,6 +18,8 @@
     <file alias="go first">images/slice-go-first.png</file>
   </qresource>
   <qresource prefix="pathtools">
+    <file alias="pen">images/path-pen_48.png</file>
+    <file alias="paint">images/path-paint_48.png</file>
     <file alias="move">images/path-move.png</file>
     <file alias="insert">images/path-insert_48.png</file>
     <file alias="skip">images/path-skip.png</file>
