@@ -47,6 +47,6 @@ if __name__ == '__main__':
         s.sort_stats('cumulative').print_stats(10)
         print ""
         print "Total Time Top 10:"
-        s.sort_stats('time').print_stats(10)        
+        s.sort_stats('time').print_stats(10)
         exit()
     app.exec_()

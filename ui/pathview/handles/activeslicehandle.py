@@ -34,7 +34,8 @@ from PyQt4.QtGui import QGraphicsItem
 from PyQt4.QtGui import QGraphicsSimpleTextItem
 from PyQt4.QtGui import QPen, QDrag, QUndoCommand
 import ui.styles as styles
-from mmayacadnano.activeslicehandle3d import ActiveSliceHandle3D # For Campbell
+from mmayacadnano.activeslicehandle3d import ActiveSliceHandle3D
+
 
 class ActiveSliceHandle(QGraphicsItem):
     """docstring for ActiveSliceHandle"""
@@ -58,21 +59,23 @@ class ActiveSliceHandle(QGraphicsItem):
         self.setFlag(QGraphicsItem.ItemIsMovable)
         self.setAcceptHoverEvents(True)
         self.setZValue(styles.ZACTIVESLICEHANDLE)
-    
+
     def controller(self):
         return self._pathHelixGroup.controller()
-    
+
     def part(self):
         return self._pathHelixGroup.part()
-    
+
     def pathHelixGroup(self):
         return self._pathHelixGroup
-    
+
     def setPathHelixGroup(self, newPHG):
         if self._pathHelixGroup:
-            self._pathHelixGroup.geometryChanged.disconnect(self.prepareGeometryChange)
+            self._pathHelixGroup.geometryChanged.disconnect(\
+                                                   self.prepareGeometryChange)
         if self._pathHelixGroup and self._pathHelixGroup.part():
-            self._pathHelixGroup.part().activeSliceWillChange.disconnect(self._updateActiveSlice)
+            self._pathHelixGroup.part().activeSliceWillChange.disconnect(\
+                                                      self._updateActiveSlice)
         self._pathHelixGroup = newPHG
         newPHG.geometryChanged.connect(self.prepareGeometryChange)
         newPHG.part().activeSliceWillChange.connect(self._updateActiveSlice)
@@ -90,7 +93,7 @@ class ActiveSliceHandle(QGraphicsItem):
         bi = int(baseIndex)
         if bi < 0 or bi >= self.part().dimensions()[2]:
             raise IndexError
-        self.setPos(bi*self._baseWidth, -styles.PATH_HELIX_PADDING)
+        self.setPos(bi * self._baseWidth, -styles.PATH_HELIX_PADDING)
         self._activeSlice = bi
         if self._label:
             self._label.setText("%d" % bi)
@@ -113,25 +116,25 @@ class ActiveSliceHandle(QGraphicsItem):
     def resetBounds(self, maxBase):
         """Call after resizing virtualhelix canvas."""
         self.maxBase = maxBase
-        self.maxX = (maxBase-1) * self._baseWidth
+        self.maxX = (maxBase - 1) * self._baseWidth
 
-    def hoverEnterEvent(self,event):
+    def hoverEnterEvent(self, event):
         if self.controller().toolUse == False:
             self.setCursor(Qt.OpenHandCursor)
-        QGraphicsItem.hoverEnterEvent(self,event)
+        QGraphicsItem.hoverEnterEvent(self, event)
     # end def
 
-    def hoverMoveEvent(self,event):
+    def hoverMoveEvent(self, event):
         if self.controller().toolUse == True:
-            # pass None, but if needed pass self for having a special 
+            # pass None, but if needed pass self for having a special
             # behavior for the slice helix
-            self.controller().toolHoverMove(None, event,flag=True)
-        QGraphicsItem.hoverMoveEvent(self,event)
+            self.controller().toolHoverMove(None, event, flag=True)
+        QGraphicsItem.hoverMoveEvent(self, event)
     # end def
 
-    def hoverLeaveEvent(self,event):
+    def hoverLeaveEvent(self, event):
         self.setCursor(Qt.ArrowCursor)
-        QGraphicsItem.hoverLeaveEvent(self,event)
+        QGraphicsItem.hoverLeaveEvent(self, event)
     # end def
 
     def mouseMoveEvent(self, event):
@@ -142,7 +145,7 @@ class ActiveSliceHandle(QGraphicsItem):
         dx = int((x - self.pressX) / self._baseWidth)
         if dx == 0:
             return
-        bi = self.pressBaseIdx+dx  # calculate base index
+        bi = self.pressBaseIdx + dx  # calculate base index
         self.setActiveSlice(bi)
 
     def mousePressEvent(self, event):
@@ -165,7 +168,7 @@ class ActiveSliceHandle(QGraphicsItem):
 
     def moveToLastSlice(self):
         """Moves to the last slice position."""
-        self.setActiveSlice(self.part().numBases()-1)
+        self.setActiveSlice(self.part().numBases() - 1)
 
     def moveToFirstSlice(self):
         """Moves to the last slice position."""

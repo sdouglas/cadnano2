@@ -52,7 +52,6 @@ class PainterTool(object):
             self.painterToolApply(vh, self._mouseDownBase, newBase)
 
     def mouseReleasePathHelix(self, ph, event):
-        print "mouseReleasedPathHelix"
         vh = ph.vhelix()
         if self._mouseDownBase and self._lastValidBase:
             # vh.undoStack().undo()

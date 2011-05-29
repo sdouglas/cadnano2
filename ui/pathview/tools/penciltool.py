@@ -52,7 +52,6 @@ class PencilTool(object):
             self.pencilToolApply(vh, self._mouseDownBase, newBase)
 
     def mouseReleasePathHelix(self, ph, event):
-        print "mouseReleasedPathHelix"
         vh = ph.vhelix()
         if self._mouseDownBase and self._lastValidBase:
             vh.setSandboxed(False)  # vhelix now uses the document undo stack

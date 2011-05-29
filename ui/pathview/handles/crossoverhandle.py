@@ -35,77 +35,60 @@ from PyQt4.QtGui import QPen
 from model.enum import HandleOrient, StrandType
 import ui.styles as styles
 
+
 class XoverHandle(object):
     """
     XoverHandlePair responds to mouse input and serves as an interface
     for adding scaffold crossovers.
     """
-    
     _myfont = QFont("Times", 10, QFont.Bold)
     _myRect = QRectF(0, 0, styles.PATH_BASE_WIDTH, styles.PATH_BASE_WIDTH)
-    _pen = QPen(styles.bluestroke, 2)
-    
-    def _hashMarkGen(path, p1, p2, p3):
-        path.moveTo(p1)
-        path.lineTo(p2)
-        path.lineTo(p3)
-    # end
-
-    # hash mark parameters
-    _pathCenter = QPointF(0,0)
-    _pathLeft = QPointF(-styles.PATH_BASE_WIDTH / 2, 0)
-    _pathUp = QPointF(0, -styles.PATH_BASE_WIDTH / 2)
-    _pathRight = QPointF(styles.PATH_BASE_WIDTH / 2, 0)
-    _pathDown = QPointF(0, styles.PATH_BASE_WIDTH / 2)
-    _ppathLU = QPainterPath()
-    _hashMarkGen(_ppathLU, _pathLeft, _pathCenter, _pathUp)
-    _ppathRU = QPainterPath()
-    _hashMarkGen(_ppathRU, _pathRight, _pathCenter, _pathUp)
-    _ppathRD = QPainterPath()
-    _hashMarkGen(_ppathRD, _pathRight, _pathCenter, _pathDown)
-    _ppathLD = QPainterPath()
-    _hashMarkGen(_ppathLD, _pathLeft, _pathCenter, _pathDown)
-    
-    # Xover parameters
-    _pen = QPen(styles.bluestroke, 2)
+    _pen = QPen(styles.bluestroke, 2)  # FIX: use styles
     _pen.setCapStyle(Qt.RoundCap)
     _pen.setJoinStyle(Qt.RoundJoin)
-    baseWidth = styles.PATH_BASE_WIDTH
+    _baseWidth = styles.PATH_BASE_WIDTH
     xScale = styles.PATH_XOVER_LINE_SCALE_X  # control point x constant
     yScale = styles.PATH_XOVER_LINE_SCALE_Y  # control point y constant
-    
+
     def __init__(self):
-        """
-        Create XoverHandlePair (parented to the PathHelixGroup)
-        """
+        """Create XoverHandlePair (parented to the PathHelixGroup)."""
         pass
     # end def
-    
-    def getXover(self, phg, strandtype, fromHelix, fromIndex, toHelix, toIndex):
+
+    def getXover(self, phg, strandtype, fromHelix,\
+                       fromIndex, toHelix, toIndex):
+        """
+        Draws a line from the center of the fromBase (pA) to the
+        top or bottom of that same base, depending on its direction (qA),
+        then a quad curve to the top or bottom of the toBase (qB), and
+        finally to the center of the toBase (pB).
+        """
         # if we need to speed this up, we could keep track if pA changed?
- 
-        pA = QPointF(*fromHelix.baseLocation(strandtype, fromIndex, center=True))
+        pA = QPointF(*fromHelix.baseLocation(strandtype,\
+                                             fromIndex,\
+                                             center=True))
         pA = phg.mapFromItem(fromHelix, pA)
-        pB = QPointF(*toHelix.baseLocation(strandtype, toIndex, center=True))
+        pB = QPointF(*toHelix.baseLocation(strandtype,\
+                                           toIndex,\
+                                           center=True))
         pB = phg.mapFromItem(toHelix, pB)
-        c1 = QPointF()
-        
+        yA = yB = self._baseWidth / 2
         if fromHelix.vhelix().directionOfStrandIs5to3(strandtype):
             orientA = HandleOrient.LeftUp
-            pathA = self._ppathLU
-            # print "XO LeftUp", fromHelix.number()
-        else: 
+            yA = -yA
+        else:
             orientA = HandleOrient.RightDown
-            pathA = self._ppathRD
-            # print "XO RightDown"
         if toHelix.vhelix().directionOfStrandIs5to3(strandtype):
             orientB = HandleOrient.RightUp
-            pathB = self._ppathRU
+            yB = -yB
         else:
             orientB = HandleOrient.LeftDown
-            pathB = self._ppathLD
-            
-        painterpath = pathA.translated(pA)
+
+        # Determine start and end points of quad curve
+        qA = QPointF(pA.x(), pA.y() + yA)
+        qB = QPointF(pB.x(), pB.y() + yB)
+        c1 = QPointF()
+
         # case 1: same strand
         if fromHelix.number() == toHelix.number():
             if pA.x() < pB.x():  # draw only from left
@@ -123,16 +106,16 @@ class XoverHandle(object):
             c1.setY(0.5 * (pA.y() + pB.y()))
         # case 3: default
         else:
-            if orientA == HandleOrient.LeftUp:# or \
-                #orientA == HandleOrient.LeftDown:
+            if orientA == HandleOrient.LeftUp:
                 c1.setX(pA.x() - self.xScale * abs(pB.y() - pA.y()))
             else:
                 c1.setX(pA.x() + self.xScale * abs(pB.y() - pA.y()))
             c1.setY(0.5 * (pA.y() + pB.y()))
+        painterpath = QPainterPath()
         painterpath.moveTo(pA)
-        painterpath.quadTo(c1, pB)
-        painterpath.connectPath(pathB.translated(pB))
-        
+        painterpath.lineTo(qA)
+        painterpath.quadTo(c1, qB)
+        painterpath.lineTo(pB)
         return painterpath
     # end def
-# end def
+# end class

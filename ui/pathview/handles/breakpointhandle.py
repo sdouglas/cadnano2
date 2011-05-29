@@ -112,7 +112,7 @@ class BreakpointHandle(QGraphicsItem):
         self.setZValue(styles.ZBREAKPOINTHANDLE)
         self.setAcceptHoverEvents(True)
     # end def
-    
+
     def isBeingDragged(self):
         return self._dragMode
 
@@ -179,23 +179,23 @@ class BreakpointHandle(QGraphicsItem):
                 self.painterpath = ppL3
             else:
                 raise AttributeError("BPH: EndType not recognized")
-  
-    def hoverEnterEvent(self,event):
+
+    def hoverEnterEvent(self, event):
         if self.pathController.toolUse == False:
             self.setCursor(Qt.OpenHandCursor)
-        QGraphicsItem.hoverEnterEvent(self,event)
+        QGraphicsItem.hoverEnterEvent(self, event)
     # end def
-    
-    def hoverMoveEvent(self,event):
+
+    def hoverMoveEvent(self, event):
         if self.pathController.toolUse == True:
             # pass None, but if needed pass self.restoreParentItem
-            self.pathController.toolHoverMove(None, event,flag=True)
-        QGraphicsItem.hoverMoveEvent(self,event)
+            self.pathController.toolHoverMove(None, event, flag=True)
+        QGraphicsItem.hoverMoveEvent(self, event)
     # end def
-    
-    def hoverLeaveEvent(self,event):
+
+    def hoverLeaveEvent(self, event):
         self.setCursor(Qt.ArrowCursor)
-        QGraphicsItem.hoverLeaveEvent(self,event)
+        QGraphicsItem.hoverLeaveEvent(self, event)
     # end def
 
     def mouseMoveEvent(self, event):
@@ -203,15 +203,19 @@ class BreakpointHandle(QGraphicsItem):
         if self._dragMode == True:
             moveX = event.scenePos().x()
             delta = moveX - self.pressX
-            offset = self.baseIndex * baseWidth + self.pressXoffset + delta;
-            self.tempIndex = clamp(int(offset)/baseWidth, self.minIndex, self.maxIndex)
+            offset = self.baseIndex * baseWidth + self.pressXoffset + delta
+            self.tempIndex = clamp(int(offset) / baseWidth,\
+                                   self.minIndex,\
+                                   self.maxIndex)
             self.x0 = self.tempIndex * baseWidth
             self.setPos(self.x0, self.y0)
             self.setCursor(Qt.OpenHandCursor)
             if self._tempVhelixCommandActive:
                 self._vhelix.undoStack().undo()
             self._tempVhelixCommandActive = True
-            self._vhelix.connectStrand(self.strandType, self.baseIndex, self.tempIndex)
+            self._vhelix.connectStrand(self.strandType,\
+                                       self.baseIndex,\
+                                       self.tempIndex)
         else:
             QGraphicsItem.mousePressEvent(self, event)
 
@@ -240,7 +244,6 @@ class BreakpointHandle(QGraphicsItem):
         # of breakpointhandles & friends that our drag operation
         # has produced.
         self.setParentItem(None)
-        
     # end def
 
     def itemChange(self, change, value):
@@ -263,3 +266,4 @@ class BreakpointHandle(QGraphicsItem):
             self.update(self.rect)
         return QGraphicsItem.itemChange(self, change, value)
     # end def
+# end class

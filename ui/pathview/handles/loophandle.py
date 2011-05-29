@@ -34,6 +34,7 @@ from PyQt4.QtGui import QPen
 import ui.styles as styles
 from ui.pathview.pathhelix import PathHelix
 
+
 class LoopItem(QGraphicsItem):
     """
     This is just the shape of the Loop item
@@ -41,40 +42,42 @@ class LoopItem(QGraphicsItem):
     _myRect = QRectF(0, 0, styles.PATH_BASE_WIDTH, styles.PATH_BASE_WIDTH)
     _pen = QPen(styles.bluestroke, 2)
     baseWidth = styles.PATH_BASE_WIDTH
-    halfbaseWidth = baseWidth/2
-    dx = 0#0.25*baseWidth # shift to right for even parity scaffold
-    
+    halfbaseWidth = baseWidth / 2
+    dx = 0  # 0.25 * baseWidth # shift to right for even parity scaffold
+
     def _loopGen(path, start, c1, p1, c2):
         path.moveTo(start)
         path.quadTo(c1, p1)
         path.quadTo(c2, start)
     # end def
 
-    _pathStart = QPointF(halfbaseWidth+dx,halfbaseWidth)
-    _pathMidUp = QPointF(halfbaseWidth+dx, -baseWidth)
-    _pathUpUpCtrlPt = QPointF(-halfbaseWidth+dx, -baseWidth)
-    _pathUpDownCtrlPt = QPointF(1.5*baseWidth+dx, -baseWidth)
-    _pathMidDown = QPointF(halfbaseWidth+dx,2*baseWidth)
-    _pathDownDownCtrlPt = QPointF(-halfbaseWidth+dx,2*baseWidth)
-    _pathDownUpCtrlPt = QPointF(1.5*baseWidth+dx,2*baseWidth)
-    
+    _pathStart = QPointF(halfbaseWidth + dx, halfbaseWidth)
+    _pathMidUp = QPointF(halfbaseWidth + dx, -baseWidth)
+    _pathUpUpCtrlPt = QPointF(-halfbaseWidth + dx, -baseWidth)
+    _pathUpDownCtrlPt = QPointF(1.5 * baseWidth + dx, -baseWidth)
+    _pathMidDown = QPointF(halfbaseWidth + dx, 2 * baseWidth)
+    _pathDownDownCtrlPt = QPointF(-halfbaseWidth + dx, 2 * baseWidth)
+    _pathDownUpCtrlPt = QPointF(1.5 * baseWidth + dx, 2 * baseWidth)
     _loopPathUp = QPainterPath()
-    _loopGen(_loopPathUp, _pathStart, _pathUpUpCtrlPt, _pathMidUp, _pathUpDownCtrlPt)
+    _loopGen(_loopPathUp, _pathStart, _pathUpUpCtrlPt,\
+             _pathMidUp, _pathUpDownCtrlPt)
     _loopPathDown = QPainterPath()
-    _loopGen(_loopPathDown, _pathStart, _pathDownDownCtrlPt, _pathMidDown, _pathDownUpCtrlPt)
+    _loopGen(_loopPathDown, _pathStart, _pathDownDownCtrlPt,\
+             _pathMidDown, _pathDownUpCtrlPt)
+
     def __init__(self, orient, parent=None):
         super(LoopItem, self).__init__(parent)
         self.setOrient(orient)
         self.setZValue(styles.ZLOOPHANDLE)
     # end def
-    
+
     def setOrient(self, orient):
         if orient == "Up":
             self.painterPath = self._loopPathUp
         else:
             self.painterPath = self._loopPathDown
     # end def
-        
+
     def boundingRect(self):
         return self._myRect
 
@@ -84,10 +87,11 @@ class LoopItem(QGraphicsItem):
     # end def
 # end class
 
+
 class LoopHandle(QGraphicsItem):
     """
-    Loop handle consists of the LoopItem and the QLabel and manages loop 
-    manipulation
+    Loop handle consists of the LoopItem and the QLabel and manages loop
+    manipulation.
     """
     def __init__(self, vstrand, pos, loopSize, parent=None):
         super(LoopHandle, self).__init__(parent)
@@ -95,20 +99,16 @@ class LoopHandle(QGraphicsItem):
         self.vstrand = vstrand
         self.setPos(pos)
         self.name = pos.toString()
-        if vstrand.number % 2 == 0: 
-            self.loopItem = LoopItem(orient="Up",parent=self)
-        # end end if
+        if vstrand.number % 2 == 0:
+            self.loopItem = LoopItem(orient="Up", parent=self)
+        # end if
         else:
-            self.loopItem = LoopItem(orient="Down",parent=self)
-            
+            self.loopItem = LoopItem(orient="Down", parent=self)
+        # end else
         # data
-        self.vstrand.addLoop(pos,loopSize);
-    
+        self.vstrand.addLoop(pos, loopSize)
         # appearance
-
         self._label = QGraphicsSimpleTextItem("%d" % loopSize, parent=self)
-        # self._label.setFont(self._myfont)
-        
         self.setZValue(styles.ZLOOPHANDLE)
     # end def
-        
+# end class
