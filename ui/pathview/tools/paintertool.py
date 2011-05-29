@@ -58,7 +58,8 @@ class PainterTool(object):
             # vh.undoStack().undo()
             vh.setSandboxed(False)  # vhelix now uses the document undo stack
             # self.painterToolApply(vh, self._mouseDownBase, self._lastValidBase)
-        ph.updateAsActiveHelix(self._mouseDownBase[1])
+        if self._mouseDownBase != None:
+            ph.updateAsActiveHelix(self._mouseDownBase[1])
 
     def painterToolApply(self, vHelix, fr, to):
         """PainterTool is the default tool that lets one

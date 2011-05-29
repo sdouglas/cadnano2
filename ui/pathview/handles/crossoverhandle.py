@@ -93,9 +93,11 @@ class XoverHandle(object):
         if fromHelix.vhelix().directionOfStrandIs5to3(strandtype):
             orientA = HandleOrient.LeftUp
             pathA = self._ppathLU
+            # print "XO LeftUp", fromHelix.number()
         else: 
             orientA = HandleOrient.RightDown
             pathA = self._ppathRD
+            # print "XO RightDown"
         if toHelix.vhelix().directionOfStrandIs5to3(strandtype):
             orientB = HandleOrient.RightUp
             pathB = self._ppathRU
