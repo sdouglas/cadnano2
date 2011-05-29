@@ -331,7 +331,7 @@ class VirtualHelix(QObject):
             assert(self.possibleStapCrossoverAt(StrandType.Staple, \
                                             fromIndex, toVhelix, toIndex))
         else:
-            raise IndexError("%s doesn't look like a StrandType" % type)
+            raise IndexError("%s doesn't look like a StrandType" % strandType)
         self.connectBases(strandType, fromIndex, toVhelix, toIndex)
 
     def removeXoverTo(self, strandType, fromIndex, toVhelix, toIndex):
@@ -424,9 +424,9 @@ class VirtualHelix(QObject):
             self._vh.basesModified.emit()
     
     class ConnectBasesCommand(QUndoCommand):
-        def __init__(self, type, fromHelix, fromIndex, toHelix, toIndex):
+        def __init__(self, strandType, fromHelix, fromIndex, toHelix, toIndex):
             super(VirtualHelix.ConnectBasesCommand, self).__init__()
-            self._strandType = type
+            self._strandType = strandType
             self._fromHelix = fromHelix
             self._fromIndex = fromIndex
             self._toHelix = toHelix
@@ -436,10 +436,13 @@ class VirtualHelix(QObject):
             fromB = self._fromHelix._strand(self._strandType)[self._fromIndex]
             toB   = self._toHelix._strand(self._strandType)[self._toIndex]
             
-            if self._fromHelix.directionOfStrandIs5to3(self._strandType):
+            # if self._fromHelix.directionOfStrandIs5to3(self._strandType):
+            if True:
                 self._undoDat = fromB._set3Prime(toB)
+                # print "else 3d"
             else:
                 self._undoDat = fromB._set5Prime(toB)
+                # print "else 5d"
             
             self._fromHelix.basesModified.emit()
             self._toHelix.basesModified.emit()
@@ -448,7 +451,8 @@ class VirtualHelix(QObject):
             fromB = self._fromHelix._strand(self._strandType)[self._fromIndex]
             toB   = self._toHelix._strand(self._strandType)[self._toIndex]
             assert(self._undoDat)  # Must redo/apply before undo
-            if self._fromHelix.directionOfStrandIs5to3(self._strandType):
+            # if self._fromHelix.directionOfStrandIs5to3(self._strandType):
+            if True:
                 fromB._unset3Prime(toB, *self._undoDat)
             else:
                 fromB._unset5Prime(toB, *self._undoDat)
@@ -477,19 +481,19 @@ class VirtualHelix(QObject):
                 ret.append([neighbor, index])
         return ret
 
-    def crossoverAt(self, type, fromIndex, neighbor, toIndex):
+    def crossoverAt(self, strandType, fromIndex, neighbor, toIndex):
         return 
 
     def scaffoldBase(self, index):
         """docstring for scaffoldBase"""
         return self._scaffoldBases[index]
 
-    def possibleNewCrossoverAt(self, type, fromIndex, neighbor, toIndex):
+    def possibleNewCrossoverAt(self, strandType, fromIndex, neighbor, toIndex):
         """Return true if scaffold could crossover to neighbor at index.
         Useful for seeing if potential crossovers from potentialCrossoverList
         should be presented as points at which new a new crossover can be formed."""
-        fromB = self._strand(type)[fromIndex]
-        toB   = neighbor._strand(type)[toIndex]
+        fromB = self._strand(strandType)[fromIndex]
+        toB   = neighbor._strand(strandType)[toIndex]
         if fromB.isCrossover() or toB.isCrossover():
             return False
         return  not self.scaffoldBase(fromIndex).isEmpty() and \

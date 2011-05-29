@@ -178,6 +178,17 @@ class PathHelixGroup(QGraphicsObject):
                 path = self.xoverGet.getXover(self, StrandType.Scaffold, \
                                     ph, fromindex,\
                                     self.getPathHelix(tohelix), toindex)
+            # for ((fromhelix, fromindex), (tohelix, toindex)) in \
+            #                         ph.vhelix().get3PrimeXovers(StrandType.Scaffold):
+            #     path = self.xoverGet.getXover(self, StrandType.Scaffold, \
+            #                         self.getPathHelix(fromhelix), fromindex,\
+            #                         self.getPathHelix(tohelix), toindex)
+            #     painter.drawPath(path)
+            # for ((fromhelix, fromindex), (tohelix, toindex)) in \
+            #                         ph.vhelix().get3PrimeXovers(StrandType.Staple):
+            #     path = self.xoverGet.getXover(self, StrandType.Scaffold, \
+            #                         self.getPathHelix(fromhelix), fromindex,\
+            #                         self.getPathHelix(tohelix), toindex)
                 painter.drawPath(path)                        
             # end for
         # end for

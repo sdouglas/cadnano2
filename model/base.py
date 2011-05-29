@@ -184,6 +184,7 @@ class Base(object):
             if self.vhelixNum() != self._3pBase.vhelixNum():
                 return True
             elif self.partId() != self._3pBase.partId():
+                # print "something"
                 return True
             # this case assumes the opposite of the first number case
             elif abs(self._n - self._3pBase._n) != 1:
