@@ -46,9 +46,14 @@ class PathHelixHandle(QGraphicsItem):
     useBrush = QBrush(styles.orangefill)
     usePen = QPen(styles.orangestroke, styles.PATHHELIXHANDLE_STROKE_WIDTH)
 
-    def __init__(self, vhelix):
-        super(PathHelixHandle, self).__init__()
+    def __init__(self, vhelix, parent):
+        super(PathHelixHandle, self).__init__(parent)
         self.vhelix = vhelix
+        
+        self.parent = parent
+        self.restoreParentItem = parent
+        self.setParentItem(parent)
+        
         self._number = self.vhelix.number()
         self.label = None
         self.focusRing = None
@@ -140,12 +145,18 @@ class PathHelixHandle(QGraphicsItem):
 
     def mousePressEvent(self, event):
         selectionGroup = self.group()
-        #if selectionGroup == None:
-        #    selectionGroup = self.parent.phhSelectionGroup
+        if selectionGroup == None:
+            selectionGroup = self.parent.phhSelectionGroup
         selectionGroup.setSelected(False)
         selectionGroup.addToGroup(self)
         self.setSelected(True)
         selectionGroup.mousePressEvent(event)
+    # end def
+    
+    def restoreParent(self):
+        tempP = self.restoreParentItem.mapFromItem(self.parentItem(), self.pos())
+        self.setParentItem(self.restoreParentItem)
+        self.setPos(tempP)
     # end def
 
     def itemChange(self, change, value):
@@ -153,7 +164,7 @@ class PathHelixHandle(QGraphicsItem):
         # intercept the change instead of the has changed to enable features.
         # if change == QGraphicsItem.ItemSelectedHasChanged and self.scene():
         if change == QGraphicsItem.ItemSelectedChange and self.scene():
-            #selectionGroup = self.parent.phhSelectionGroup
+            selectionGroup = self.parent.phhSelectionGroup
             lock = selectionGroup.parentItem().selectionLock
             if value == True and (lock == None or lock == selectionGroup):
                 selectionGroup.addToGroup(self)

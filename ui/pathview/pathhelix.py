@@ -133,7 +133,7 @@ class PathHelix(QGraphicsItem):
     def handle(self):
         if self._handle:
             return self._handle
-        self._handle = PathHelixHandle(self.vhelix())
+        self._handle = PathHelixHandle(self.vhelix(),parent=self._pathHelixGroup)
         return self._handle
 
     def number(self):
