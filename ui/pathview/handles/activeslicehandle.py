@@ -29,43 +29,53 @@ Created by Shawn on 2011-02-05.
 from exceptions import IndexError
 from PyQt4.QtCore import QPointF, QRectF
 from PyQt4.QtCore import Qt, QObject, pyqtSignal, pyqtSlot
-from PyQt4.QtGui import QBrush
+from PyQt4.QtGui import QBrush, QFont
 from PyQt4.QtGui import QGraphicsItem
 from PyQt4.QtGui import QGraphicsSimpleTextItem
 from PyQt4.QtGui import QPen, QDrag, QUndoCommand
 import ui.styles as styles
-from mmayacadnano.activeslicehandle3d import ActiveSliceHandle3D # For Campbell
+from mmayacadnano.activeslicehandle3d import ActiveSliceHandle3D
+
 
 class ActiveSliceHandle(QGraphicsItem):
     """docstring for ActiveSliceHandle"""
-    baseWidth = styles.PATH_BASE_WIDTH
-    brush = QBrush(styles.orangefill)
-    pen = QPen(styles.orangestroke, styles.SLICE_HANDLE_STROKE_WIDTH)
+    _baseWidth = styles.PATH_BASE_WIDTH
+    _brush = QBrush(styles.orangefill)
+    _labelbrush = QBrush(styles.orangestroke)
+    _pen = QPen(styles.orangestroke, styles.SLICE_HANDLE_STROKE_WIDTH)
+    _myfont = QFont("Times", 12, QFont.Bold)
 
     def __init__(self, pathHelixGroup):
         super(ActiveSliceHandle, self).__init__(pathHelixGroup)
         self._pathHelixGroup = None
-        self.setPathHelixGroup(pathHelixGroup)
         self._activeSlice = 0
+        self._dragMode = False
+        self._label = QGraphicsSimpleTextItem("", parent=self)
+        self._label.setPos(0, -18)
+        self._label.setFont(self._myfont)
+        self._label.setBrush(self._labelbrush)
+        self._label.hide()
+        self.setPathHelixGroup(pathHelixGroup)
         self.setFlag(QGraphicsItem.ItemIsMovable)
         self.setAcceptHoverEvents(True)
         self.setZValue(styles.ZACTIVESLICEHANDLE)
-        self._dragMode = False
-    
+
     def controller(self):
         return self._pathHelixGroup.controller()
-    
+
     def part(self):
         return self._pathHelixGroup.part()
-    
+
     def pathHelixGroup(self):
         return self._pathHelixGroup
-    
+
     def setPathHelixGroup(self, newPHG):
         if self._pathHelixGroup:
-            self._pathHelixGroup.geometryChanged.disconnect(self.prepareGeometryChange)
+            self._pathHelixGroup.geometryChanged.disconnect(\
+                                                   self.prepareGeometryChange)
         if self._pathHelixGroup and self._pathHelixGroup.part():
-            self._pathHelixGroup.part().activeSliceWillChange.disconnect(self._updateActiveSlice)
+            self._pathHelixGroup.part().activeSliceWillChange.disconnect(\
+                                                      self._updateActiveSlice)
         self._pathHelixGroup = newPHG
         newPHG.geometryChanged.connect(self.prepareGeometryChange)
         newPHG.part().activeSliceWillChange.connect(self._updateActiveSlice)
@@ -73,49 +83,58 @@ class ActiveSliceHandle(QGraphicsItem):
 
     def activeSlice(self):
         return self.part().activeSlice()
-    
+
     def setActiveSlice(self, baseIndex):
         self.part().setActiveSlice(baseIndex)
-    
+
     def _updateActiveSlice(self, baseIndex):
         """The slot that receives active slice changed notifications from
         the part and changes the receiver to reflect the part"""
         bi = int(baseIndex)
         if bi < 0 or bi >= self.part().dimensions()[2]:
             raise IndexError
-        self.setPos(bi*self.baseWidth, -styles.PATH_HELIX_PADDING)
+        self.setPos(bi * self._baseWidth, -styles.PATH_HELIX_PADDING)
         self._activeSlice = bi
-    
+        if self._label:
+            self._label.setText("%d" % bi)
+            self._label.setX((self._baseWidth -\
+                              self._label.boundingRect().width()) / 2)
+
     def boundingRect(self):
-        return QRectF(0, 0, self.baseWidth, self.pathHelixGroup().boundingRect().height()+50)
+        return QRectF(0, 0, self._baseWidth,\
+                      self.pathHelixGroup().boundingRect().height())
 
     def paint(self, painter, option, widget=None):
-        painter.setBrush(self.brush)
-        painter.setPen(self.pen)
-        painter.drawRect(self.boundingRect())
+        if self.boundingRect().height() > 0:
+            painter.setBrush(self._brush)
+            painter.setPen(self._pen)
+            painter.drawRect(self.boundingRect())
+            self._label.show()
+        else:
+            self._label.hide()
 
     def resetBounds(self, maxBase):
         """Call after resizing virtualhelix canvas."""
         self.maxBase = maxBase
-        self.maxX = (maxBase-1) * self.baseWidth
+        self.maxX = (maxBase - 1) * self._baseWidth
 
-    def hoverEnterEvent(self,event):
+    def hoverEnterEvent(self, event):
         if self.controller().toolUse == False:
             self.setCursor(Qt.OpenHandCursor)
-        QGraphicsItem.hoverEnterEvent(self,event)
+        QGraphicsItem.hoverEnterEvent(self, event)
     # end def
-    
-    def hoverMoveEvent(self,event):
+
+    def hoverMoveEvent(self, event):
         if self.controller().toolUse == True:
-            # pass None, but if needed pass self for having a special 
+            # pass None, but if needed pass self for having a special
             # behavior for the slice helix
-            self.controller().toolHoverMove(None, event,flag=True)
-        QGraphicsItem.hoverMoveEvent(self,event)
+            self.controller().toolHoverMove(None, event, flag=True)
+        QGraphicsItem.hoverMoveEvent(self, event)
     # end def
-    
-    def hoverLeaveEvent(self,event):
+
+    def hoverLeaveEvent(self, event):
         self.setCursor(Qt.ArrowCursor)
-        QGraphicsItem.hoverLeaveEvent(self,event)
+        QGraphicsItem.hoverLeaveEvent(self, event)
     # end def
 
     def mouseMoveEvent(self, event):
@@ -123,10 +142,11 @@ class ActiveSliceHandle(QGraphicsItem):
         if self.controller().toolUse or not self._dragMode:
             return
         x = event.scenePos().x()
-        dx = int((x - self.pressX)/self.baseWidth)
+        dx = int((x - self.pressX) / self._baseWidth)
         if dx == 0:
             return
-        self.setActiveSlice(self.pressBaseIdx+dx)
+        bi = self.pressBaseIdx + dx  # calculate base index
+        self.setActiveSlice(bi)
 
     def mousePressEvent(self, event):
         if event.button() != Qt.LeftButton:
@@ -145,11 +165,11 @@ class ActiveSliceHandle(QGraphicsItem):
         """Snaps to grid after mouse released. Updates vhelix data according
         to what movement took place."""
         self._dragMode = False
-        
+
     def moveToLastSlice(self):
         """Moves to the last slice position."""
-        self.setActiveSlice(self.part().numBases()-1)
-    
+        self.setActiveSlice(self.part().numBases() - 1)
+
     def moveToFirstSlice(self):
         """Moves to the last slice position."""
         self.setActiveSlice(0)

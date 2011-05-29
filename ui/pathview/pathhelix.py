@@ -337,8 +337,8 @@ class PathHelix(QGraphicsItem):
             y = self.baseWidth
         x = baseIdx * self.baseWidth
         if center:
-            y += self.baseWidth / 2
             x += self.baseWidth / 2
+            y += self.baseWidth / 2
         return (x, y)
 # end class
 # but wait, there's more! Now, for an encore of Events
