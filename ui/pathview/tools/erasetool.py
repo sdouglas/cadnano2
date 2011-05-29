@@ -40,33 +40,34 @@ import ui.styles as styles
 from ui.pathview.pathhelix import PathHelix
 from pathtool import PathTool
 
+
 class EraseTool(PathTool):
     _pen = QPen(styles.redstroke, 2)
     _pen.setCapStyle(Qt.RoundCap)
     _pen.setJoinStyle(Qt.RoundJoin)
     _brush = QBrush(styles.erasefill)
-    
+
     def __init__(self, pathcontroller=None, parent=None):
         """
-        This class inherits from the PathTool class for the majority of 
+        This class inherits from the PathTool class for the majority of
         methods/behaviours.  Essentially it adds merely decorator graphics
         custimazation of behaviour and data structure access particular to
-        loop insertion on a mouseclick
-    
-        it's parent should be *always* be a PathHelix
+        loop insertion on a mouseclick.
+
+        Its parent should be *always* be a PathHelix.
         """
         super(EraseTool, self).__init__(parent)
         self.baseWidth = styles.PATH_BASE_WIDTH
         self.hide()
         self.setZValue(styles.ZPATHTOOL)
     # end def
-    
+
     def toolPress(self, item, event):
         posScene = event.scenePos()
         posItem = self.parentItem().mapFromScene(posScene)
         indexp = self.helixIndex(posItem)
         print "EraseTool clicked at: (%d, %d) on helix %d" % \
             (indexp[0], indexp[1], self.parentItem().number())
-        # create a new LoopHandle by adding through the     parentItem
+        # create a new LoopHandle by adding through the parentItem
     # end def
 # end class

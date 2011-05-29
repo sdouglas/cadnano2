@@ -32,7 +32,8 @@ Created by Shawn on 2011-01-27.
 from PyQt4.QtCore import QRectF, QPointF, QEvent, pyqtSlot, QObject, Qt
 from PyQt4.QtCore import pyqtSignal
 from PyQt4.QtGui import QBrush, QPen, qApp, QGraphicsTextItem, QFont
-from PyQt4.QtGui import QGraphicsItem, QGraphicsObject, QGraphicsItemGroup, QUndoCommand
+from PyQt4.QtGui import QGraphicsItem, QGraphicsObject
+from PyQt4.QtGui import QGraphicsItemGroup, QUndoCommand
 from .pathhelix import PathHelix
 from handles.activeslicehandle import ActiveSliceHandle
 from handles.breakpointhandle import BreakpointHandle
@@ -79,18 +80,18 @@ class PathHelixGroup(QGraphicsObject):
 
     def __str__(self):
         return "I am a PHG!"
-    
+
     def part(self):
         return self._part
-    
+
     def activeTool(self):
         return controller().activeTool()
-        
+
     def notifyPreCrossoverGroupAfterUpdate(self, virtualhelix):
         """Called by PathHelix.mousePressEvent after the vhelix has calculated
         its new PreXoverHandle positions."""
         self.pchGroup.updateActiveHelix(virtualhelix)
-    
+
     def setPart(self, newPart):
         if self.part:
             self.part.helixAdded.disconnect(self.helixAddedSlot)
@@ -98,18 +99,18 @@ class PathHelixGroup(QGraphicsObject):
         newPart.helixAdded.connect(self.helixAddedSlot)
         newPart.helixWillBeRemoved.connect(self.helixRemovedSlot)
         self.part = newPart
-    
+
     def controller(self):
         return self._controller
-    
+
     def activeSliceHandle(self):
         return self._activeSliceHandle
-    
+
     def displayedVHs(self):
         """Returns the list (ordered top to bottom) of VirtualHelix
         that the receiver is displaying"""
         return [ph.vhelix() for ph in self.pathHelixList]
-    
+
     def setDisplayedVHs(self, vhrefs):
         """Spawns or destroys PathHelix such that displayedVHs
         has the same VirtualHelix in the same order as vhrefs
@@ -124,10 +125,10 @@ class PathHelixGroup(QGraphicsObject):
                 ph = PathHelix(vh, self)
             newPathHelixList.append(ph)
         self._setPathHelixList(newPathHelixList)
-        
+
     def _pathHelixList(self):
         return self.pathHelixList
-    
+
     def _setPathHelixList(self, newList):
         """Give me a list of PathHelix and I'll parent them
         to myself if necessary, position them in a column, adopt
@@ -136,7 +137,7 @@ class PathHelixGroup(QGraphicsObject):
         leftmostExtent = 0
         rightmostExtent = 0
         self.label.setVisible(True)
-        
+
         for ph in newList:
             ph.setParentItem(self)
             ph.setPos(0, y)
@@ -145,14 +146,17 @@ class PathHelixGroup(QGraphicsObject):
             phh = ph.handle()
             phh.setParentItem(self)
             phhr = phh.boundingRect()
-            phh.setPos(-2*phhr.width(), y + (ph_height-phhr.height())/2)
-            leftmostExtent = min(leftmostExtent, -2*phhr.width())
+            phh.setPos(-2 * phhr.width(), y + (ph_height - phhr.height()) / 2)
+            leftmostExtent = min(leftmostExtent, -2 * phhr.width())
             rightmostExtent = max(rightmostExtent, ph.boundingRect().width())
             y += step
         # end for
         self.prepareGeometryChange()
         self.geometryChanged.emit()
-        self.rect = QRectF(leftmostExtent, -40, -leftmostExtent+rightmostExtent, y+40)
+        self.rect = QRectF(leftmostExtent,\
+                           -40,\
+                           -leftmostExtent + rightmostExtent,\
+                           y + 40)
         self.pathHelixList = newList
         self.vhToPathHelix = dict(((ph.vhelix(), ph) for ph in newList))
         self.scene().views()[0].zoomToFit()
@@ -195,10 +199,11 @@ class PathHelixGroup(QGraphicsObject):
     # end def
 
     geometryChanged = pyqtSignal()
+
     def boundingRect(self):
         # rect set only by _setPathHelixList
         return self.rect
-    
+
     def moveHelixNumToIdx(self, num, idx):
         """Reinserts helix with number() num such that
         it's at position idx in pathHelixList"""
@@ -213,7 +218,7 @@ class PathHelixGroup(QGraphicsObject):
         theview = thescene.views()[0]
         theview.zoomToFit()
     # end def
-    
+
     @pyqtSlot(int)
     def helixAddedSlot(self, vhref):
         vhs = self.displayedVHs()
@@ -221,7 +226,6 @@ class PathHelixGroup(QGraphicsObject):
             return
         vhs.append(vhref)
         self.setDisplayedVHs(vhs)
-
 
     @pyqtSlot(int)
     def helixRemovedSlot(self, vh):
@@ -257,7 +261,8 @@ class PathHelixGroup(QGraphicsObject):
         vhs = self.displayedVHs()
         vhsToMove = vhs[first:last]
         del vhs[first:last]
-        self.setDisplayedVHs(vhs[0:first+indexDelta]+vhsToMove+vhs[first+indexDelta:-1])
+        self.setDisplayedVHs(vhs[0:first + indexDelta] +\
+                            vhsToMove + vhs[first + indexDelta:-1])
 
     def bringToFront(self):
         """collidingItems gets a list of all items that overlap. sets

@@ -29,8 +29,9 @@ from tools.looptool import LoopTool
 from tools.skiptool import SkipTool
 from tools.breaktool import BreakTool
 from tools.erasetool import EraseTool
-from tools.forcetool import ForceTool
-from tools.paintertool import PainterTool
+from tools.penciltool import PencilTool
+from tools.painttool import PaintTool
+
 
 class PathController(QObject):
     """
@@ -43,13 +44,15 @@ class PathController(QObject):
         win.actionPathMove.triggered.connect(self.chooseMoveTool)
         win.actionPathBreak.triggered.connect(self.chooseBreakTool)
         win.actionPathErase.triggered.connect(self.chooseEraseTool)
-        win.actionPathForce.triggered.connect(self.chooseForceTool)
-        win.actionPathInsertion.triggered.connect(self.chooseInsertTool)
+        win.actionPencil.triggered.connect(self.choosePencilTool)
+        win.actionPathInsert.triggered.connect(self.chooseInsertTool)
         win.actionPathSkip.triggered.connect(self.chooseSkipTool)
+        win.actionPaint.triggered.connect(self.choosePaintTool)
+
         self.toolset = set((win.actionPathSelect, win.actionPathMove,\
                             win.actionPathBreak, win.actionPathErase,\
-                            win.actionPathForce, win.actionPathInsertion,\
-                            win.actionPathSkip))
+                            win.actionPencil, win.actionPathInsert,\
+                            win.actionPathSkip, win.actionPaint))
         ag = QActionGroup(win)
         for a in self.toolset:
             ag.addAction(a)
@@ -61,12 +64,13 @@ class PathController(QObject):
         self.toolHoverLeave = None
         self.toolHoverMove = None
         self.toolPress = None
-        self._activeTool = PainterTool()
+        self._activeTool = PencilTool()
+        self.eraseTool = EraseTool(pathcontroller=self, parent=None)
+        self.pencilTool = PencilTool()
         self.insertionTool = LoopTool(pathcontroller=self, parent=None)
         self.skipTool = SkipTool(pathcontroller=self, parent=None)
         self.breakTool = BreakTool(pathcontroller=self, parent=None)
-        self.eraseTool = EraseTool(pathcontroller=self, parent=None)
-        self.forceTool = ForceTool(pathcontroller=self, parent=None)
+        self.paintTool = PaintTool(pathcontroller=self, parent=None)
 
     def activeTool(self):
         return self._activeTool
@@ -106,17 +110,17 @@ class PathController(QObject):
         self.enableTool(self.eraseTool)
         widget.setChecked(True)
 
-    def chooseForceTool(self):
-        widget = self.mainWindow.actionPathForce
+    def choosePencilTool(self):
+        widget = self.mainWindow.actionPencil
         if self.currentTool is widget:
             return
         else:
             self.currentTool = widget
-        self.enableTool(self.forceTool)
+        self.enableTool(self.pencilTool)
         widget.setChecked(True)
 
     def chooseInsertTool(self):
-        widget = self.mainWindow.actionPathInsertion
+        widget = self.mainWindow.actionPathInsert
         if self.currentTool is widget:
             return
         else:
@@ -133,6 +137,15 @@ class PathController(QObject):
         self.enableTool(self.skipTool)
         widget.setChecked(True)
 
+    def choosePaintTool(self):
+        widget = self.mainWindow.actionPaint
+        if self.currentTool is widget:
+            return
+        else:
+            self.currentTool = widget
+        self.enableTool(self.paintTool)
+        widget.setChecked(True)
+
     def enableTool(self, tool):
         self.toolUse = True
         self.toolPress = tool.toolPress
@@ -140,3 +153,4 @@ class PathController(QObject):
         self.toolHoverLeave = tool.toolHoverLeave
         self.toolHoverMove = tool.toolHoverMove
     # end def
+# end class

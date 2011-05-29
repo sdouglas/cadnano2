@@ -42,7 +42,7 @@ from mmayacadnano.pathhelix3d import PathHelix3D  # For Campbell
 from weakref import ref
 from handles.pathhelixhandle import PathHelixHandle
 from math import floor
-from tools.paintertool import PainterTool
+from tools.penciltool import PencilTool
 from cadnano import app
 
 baseWidth = styles.PATH_BASE_WIDTH
@@ -106,29 +106,30 @@ class PathHelix(QGraphicsItem):
         if app().ph != None:  # Convenience for the command line -i mode
             app().ph[vhelix.number()] = self
     # end def
-    
+
     def activeTool(self):
         return self.controller().activeTool()
-    
+
     def controller(self):
         return self._pathHelixGroup.controller()
 
     def vhelix(self):
         return self._vhelix
-        
+
     def undoStack(self):
         return self.vhelix().undoStack()
-        
+
     def setVHelix(self, newVH):
         if self._vhelix:
             self._vhelix.basesModified.disconnect(self.vhelixBasesModified)
-            self._vhelix.vhelixDimensionsModified.disconnect(self.vhelixDimensionsModified)
+            self._vhelix.vhelixDimensionsModified.disconnect(\
+                                             self.vhelixDimensionsModified)
         self._vhelix = newVH
         newVH.basesModified.connect(self.vhelixBasesModified)
         newVH.dimensionsModified.connect(self.vhelixDimensionsModified)
         self.vhelixDimensionsModified()
         self.vhelixBasesModified()
-    
+
     def handle(self):
         if self._handle:
             return self._handle
@@ -160,7 +161,7 @@ class PathHelix(QGraphicsItem):
 
     def boundingRect(self):
         return self.rect
-    
+
     def hidePreXoverHandles(self):
         pass
     # end def
@@ -199,13 +200,13 @@ class PathHelix(QGraphicsItem):
         self.update(self.boundingRect())
     # end def
 
-    ################################ Loading and Updating State From VHelix ##########################
+    ################# Loading and Updating State From VHelix #################
     def vhelixBasesModified(self):
         self._endpoints = None  # Clear endpoint drawing cache
         self._segmentPaths = None  # Clear drawing cache of lines
         self.update()
 
-    ################################ Drawing ##########################
+    ############################# Drawing ##########################
     def paint(self, painter, option, widget=None):
         # Note that the methods that fetch the paths
         # cache the paths and that those caches are
@@ -242,7 +243,7 @@ class PathHelix(QGraphicsItem):
         # minor tick marks
         for i in range(canvasSize):
             if (i % 7 != 0):
-                x = round(self.baseWidth*i) + .5
+                x = round(self.baseWidth * i) + .5
                 path.moveTo(x, 0)
                 path.lineTo(x, 2 * self.baseWidth)
         # staple-scaffold divider
@@ -263,12 +264,12 @@ class PathHelix(QGraphicsItem):
         canvasSize = self._vhelix.part().numBases()
         # major tick marks  FIX: 7 is honeycomb-specific
         for i in range(0, canvasSize + 1, 7):
-            x = round(self.baseWidth*i) + .5
+            x = round(self.baseWidth * i) + .5
             path.moveTo(x, .5)
             path.lineTo(x, 2 * self.baseWidth - .5)
         self._majorGridPainterPath = path
         return path
-    
+
     def segmentPaths(self):
         """Returns an array of (pen, penPainterPath, brush, brushPainterPath)
         for drawing segment lines and handles."""
@@ -278,7 +279,8 @@ class PathHelix(QGraphicsItem):
         vh = self.vhelix()
         for strandType in (StrandType.Scaffold, StrandType.Staple):
             top = self.strandIsTop(strandType)
-            for [startIndex, startIsXO, endIndex, endIsXO] in self._vhelix.getSegments(strandType):
+            for [startIndex, startIsXO, endIndex, endIsXO] in\
+                                        self._vhelix.getSegments(strandType):
                 # Left and right centers for drawing the connecting line
                 c1 = self.baseLocation(strandType, startIndex, center=True)
                 c2 = self.baseLocation(strandType, endIndex, center=True)
@@ -288,38 +290,43 @@ class PathHelix(QGraphicsItem):
                 # Now we construct the path to cache
                 bp = QPainterPath()
                 if not startIsXO:
-                    bp.addPath(ppL5.translated(*ul1) if top else ppL3.translated(*ul1))
+                    bp.addPath(ppL5.translated(*ul1) if top else\
+                                                        ppL3.translated(*ul1))
                 if not endIsXO:
-                    bp.addPath(ppR3.translated(*ul2) if top else ppR5.translated(*ul2))
+                    bp.addPath(ppR3.translated(*ul2) if top else\
+                                                        ppR5.translated(*ul2))
                 pp = QPainterPath()
                 pp.moveTo(*c1)
                 pp.lineTo(*c2)
                 # Now we combine pen/brush information and push it to the cache
-                # _segmentPaths entries take the form
-                # (pen, painterPathToBeDrawnOnlyWithPen, brush, paintPathToBeDrawnOnlyWithBrush)
+                # _segmentPaths entries take the form:
+                # (pen, painterPathToBeDrawnOnlyWithPen,\
+                #  brush, paintPathToBeDrawnOnlyWithBrush)
                 color = vh.colorOfBase(strandType, startIndex)
-                # width = 2 if strandType==StrandType.Scaffold else 5
                 width = styles.PATH_STRAND_STROKE_WIDTH
-                self._segmentPaths.append((QPen(color, width), pp, QBrush(color), bp))
+                pen = QPen(color, width)
+                brush = QBrush(color)
+                self._segmentPaths.append((pen, pp, brush, bp))
         return self._segmentPaths
 
     def strandIsTop(self, strandType):
-        return self.evenParity() and strandType==StrandType.Scaffold\
+        return self.evenParity() and strandType == StrandType.Scaffold\
            or not self.evenParity() and strandType == StrandType.Staple
-    
+
     def baseAtLocation(self, x, y):
         """Returns the (strandType, index) under the location x,y or None."""
-        baseIdx = int(floor(x/self.baseWidth))
+        baseIdx = int(floor(x / self.baseWidth))
         if baseIdx < 0 or baseIdx >= self.vhelix().numBases():
             return None
-        strandIdx = floor(y*1./self.baseWidth)
-        if strandIdx < 0 or strandIdx > 1: return None
+        strandIdx = floor(y * 1. / self.baseWidth)
+        if strandIdx < 0 or strandIdx > 1:
+            return None
         if self.strandIsTop(StrandType.Scaffold):
             strands = StrandType.Scaffold, StrandType.Staple
         else:
             strands = StrandType.Staple, StrandType.Scaffold
         return (strands[int(strandIdx)], baseIdx)
-    
+
     def baseLocation(self, strandType, baseIdx, center=False):
         """Returns the coordinates of the upper left corner of the base
         referenced by strandType and baseIdx. If center=True, returns the
@@ -328,11 +335,11 @@ class PathHelix(QGraphicsItem):
             y = 0
         else:
             y = self.baseWidth
-        x = baseIdx*self.baseWidth
+        x = baseIdx * self.baseWidth
         if center:
-            y += self.baseWidth/2
-            x += self.baseWidth/2
-        return (x,y)
+            y += self.baseWidth / 2
+            x += self.baseWidth / 2
+        return (x, y)
 # end class
 # but wait, there's more! Now, for an encore of Events
 # which can be more easily installed with less code duplication
@@ -344,6 +351,7 @@ forwardedEvents = ('hoverEnter', 'hoverLeave', 'hoverMove', 'mousePress',\
 for evName in forwardedEvents:
     delegateMethodName = evName + 'PathHelix'
     eventMethodName = evName + 'Event'
+
     def makeTemplateMethod(eventMethodName, delegateMethodName):
         def templateMethod(self, event):
             activeTool = self.activeTool()
@@ -352,8 +360,8 @@ for evName in forwardedEvents:
                 if delegateMethod:
                     delegateMethod(self, event)
             else:
-                QGraphicsItem.hoverLeaveEvent(self,event)
+                QGraphicsItem.hoverLeaveEvent(self, event)
         return templateMethod
     eventHandler = makeTemplateMethod(eventMethodName, delegateMethodName)
     setattr(PathHelix, eventMethodName, eventHandler)
-
+# end class

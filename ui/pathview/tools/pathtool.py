@@ -38,24 +38,22 @@ from ui.pathview.pathhelix import PathHelix
 
 
 class PathTool(QGraphicsItem):
-        _toolRect = QRectF(0,0, \
-                            styles.PATH_BASE_WIDTH, \
-                            styles.PATH_BASE_WIDTH )
-        _rect = QRectF(0,0, \
-                            styles.PATH_BASE_WIDTH + \
-                            styles.PATH_BASE_HL_STROKE_WIDTH/2, \
-                            styles.PATH_BASE_WIDTH + \
-                            styles.PATH_BASE_HL_STROKE_WIDTH/2 )
-                            
+        _toolRect = QRectF(0, 0,\
+                           styles.PATH_BASE_WIDTH, styles.PATH_BASE_WIDTH)
+        _rect = QRectF(0, 0,\
+                       styles.PATH_BASE_WIDTH +\
+                       styles.PATH_BASE_HL_STROKE_WIDTH / 2,\
+                       styles.PATH_BASE_WIDTH +\
+                       styles.PATH_BASE_HL_STROKE_WIDTH / 2)
         _pen = QPen(styles.redstroke, styles.PATH_BASE_HL_STROKE_WIDTH)
         _brush = QBrush(Qt.NoBrush)
-        
+
         def __init__(self, pathcontroller=None, parent=None):
             """
-            A base class, no pun intended to display a highlight tool for 
-            selecting an individual base in the path view
-            
-            it's parent should be *always* be a PathHelix
+            A base class, no pun intended to display a highlight tool for
+            selecting an individual base in the path view.
+
+            Its parent should be *always* be a PathHelix.
             """
             super(PathTool, self).__init__(parent)
             # self.undoStack = pathcontroller.mainWindow.undoStack
@@ -63,21 +61,21 @@ class PathTool(QGraphicsItem):
             self.hide()
             self.setZValue(styles.ZPATHTOOL)
         # end def
-        
+
         def paint(self, painter, option, widget=None):
             painter.setPen(self._pen)
             painter.setBrush(self._brush)
             painter.drawRect(self._toolRect)
         # end def
-        
+
         def boundingRect(self):
             return self._rect
         # end def
-        
-        def setEnableTool(self,mode):
+
+        def setEnableTool(self, mode):
             self._enabled = mode
         # end def
-        
+
         def toolPress(self, item, event):
             posScene = event.scenePos()
             posItem = self.parentItem().mapFromScene(posScene)
@@ -85,20 +83,20 @@ class PathTool(QGraphicsItem):
             print "PathTool clicked at: (%d, %d) on helix %d" % \
                 (indexp[0], indexp[1], self.parentItem().number())
         # end def
-        
-        def toolHoverEnter(self,item,event):
+
+        def toolHoverEnter(self, item, event):
             self.setParentItem(item)
             self.show()
         # end def
-        
-        def toolHoverLeave(self,item,event):
+
+        def toolHoverLeave(self, item, event):
             self.hide()
         # end def
-        
+
         def toolHoverMove(self, item, event, flag=None):
             """
-            flag is for the case where an item in the path also needs to 
-            implement the hover method
+            Flag is for the case where an item in the path also needs to
+            implement the hover method.
             """
             posItem = event.pos()
             if flag != None:
@@ -106,16 +104,16 @@ class PathTool(QGraphicsItem):
                 posItem = self.parentItem().mapFromScene(posScene)
             self.setPos(self.helixPos(posItem))
         # end def
-        
+
         def helixIndex(self, point):
-            x = int(point.x()/self.baseWidth)
-            y = int(point.y()/self.baseWidth)
-            return (x,y)
+            x = int(point.x() / self.baseWidth)
+            y = int(point.y() / self.baseWidth)
+            return (x, y)
         # end def
-        
+
         def helixPos(self, point):
-            x = int(point.x()/self.baseWidth)*self.baseWidth
-            y = int(point.y()/self.baseWidth)*self.baseWidth
-            return QPointF(x,y)
+            x = int(point.x() / self.baseWidth) * self.baseWidth
+            y = int(point.y() / self.baseWidth) * self.baseWidth
+            return QPointF(x, y)
         # end def
-# end class         
+# end class

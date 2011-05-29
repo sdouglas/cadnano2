@@ -41,24 +41,24 @@ from ui.pathview.handles.loophandle import LoopItem, LoopHandle
 class LoopTool(PathTool):
     def __init__(self, pathcontroller=None, parent=None):
         """
-        This class inherits from the PathTool class for the majority of 
+        This class inherits from the PathTool class for the majority of
         methods/behaviours.  Essentially it adds merely decorator graphics
         custimazation of behaviour and data structure access particular to
-        loop insertion on a mouseclick
-    
-        it's parent should be *always* be a PathHelix
+        loop insertion on a mouseclick.
+
+        Its parent should be *always* be a PathHelix.
         """
         super(LoopTool, self).__init__(parent)
-        self._loopItem = LoopItem(orient="Up",parent=self)
+        self._loopItem = LoopItem(orient="Up", parent=self)
         _pen = QPen(styles.bluestroke, 2)
         self.baseWidth = styles.PATH_BASE_WIDTH
         self.hide()
         self.setZValue(styles.ZPATHTOOL)
     # end def
-    
+
     def toolHoverMove(self, item, event, flag=None):
         """
-        flag is for the case where an item in the path also needs to 
+        flag is for the case where an item in the path also needs to
         implement the hover method
         """
         posItem = event.pos()
@@ -71,7 +71,7 @@ class LoopTool(PathTool):
             self._loopItem.setOrient("Up")
         self.setPos(self.helixPos(posItem))
     # end def
-    
+
     def toolPress(self, item, event):
         posScene = event.scenePos()
         posItem = self.parentItem().mapFromScene(posScene)

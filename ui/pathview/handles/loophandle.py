@@ -51,9 +51,9 @@ class LoopItem(QGraphicsItem):
     # end def
 
     _pathStart = QPointF(halfbaseWidth+dx,halfbaseWidth)
-    _pathMidUp = QPointF(halfbaseWidth+dx,-baseWidth)
-    _pathUpUpCtrlPt = QPointF(-halfbaseWidth+dx,-baseWidth)
-    _pathUpDownCtrlPt = QPointF(1.5*baseWidth+dx,-baseWidth)
+    _pathMidUp = QPointF(halfbaseWidth+dx, -baseWidth)
+    _pathUpUpCtrlPt = QPointF(-halfbaseWidth+dx, -baseWidth)
+    _pathUpDownCtrlPt = QPointF(1.5*baseWidth+dx, -baseWidth)
     _pathMidDown = QPointF(halfbaseWidth+dx,2*baseWidth)
     _pathDownDownCtrlPt = QPointF(-halfbaseWidth+dx,2*baseWidth)
     _pathDownUpCtrlPt = QPointF(1.5*baseWidth+dx,2*baseWidth)
@@ -68,7 +68,7 @@ class LoopItem(QGraphicsItem):
         self.setZValue(styles.ZLOOPHANDLE)
     # end def
     
-    def setOrient(self,orient):
+    def setOrient(self, orient):
         if orient == "Up":
             self.painterPath = self._loopPathUp
         else:

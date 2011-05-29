@@ -22,10 +22,9 @@
 #
 # http://www.opensource.org/licenses/mit-license.php
 """
-skiptool.py
-Created by Nick on 2011-05-03.
+painttool.py
+Created by Shawn on 2011-05-29.
 """
-# FIX: remove unused imports
 from exceptions import AttributeError, NotImplementedError
 from PyQt4.QtCore import QPointF, QRectF, Qt
 from PyQt4.QtGui import QBrush, QFont
@@ -33,36 +32,30 @@ from PyQt4.QtGui import QGraphicsItem, QGraphicsSimpleTextItem
 from PyQt4.QtGui import QPainterPath
 from PyQt4.QtGui import QPen
 from model.enum import HandleOrient
-from pathtool import PathTool
-from ui.pathview.pathhelix import PathHelix
-from ui.pathview.handles.skiphandle import SkipItem, SkipHandle
 import ui.styles as styles
+from ui.pathview.pathhelix import PathHelix
+from pathtool import PathTool
 
 
-class SkipTool(PathTool):
+class PaintTool(PathTool):
     def __init__(self, pathcontroller=None, parent=None):
         """
         This class inherits from the PathTool class for the majority of
         methods/behaviours.  Essentially it adds merely decorator graphics
         custimazation of behaviour and data structure access particular to
-        skip insertion on a mouseclick.
+        paint insertion on a mouseclick.
 
         Its parent should be *always* be a PathHelix.
         """
-        super(SkipTool, self).__init__(parent)
-        self._skipItem = SkipItem(parent=self)
-        _pen = QPen(styles.redstroke, 2)  # FIX, use styles
-        self.baseWidth = styles.PATH_BASE_WIDTH
-        self.hide()
-        self.setZValue(styles.ZPATHTOOL)
+        super(PaintTool, self).__init__(parent)
     # end def
 
     def toolPress(self, item, event):
         posScene = event.scenePos()
         posItem = self.parentItem().mapFromScene(posScene)
         indexp = self.helixIndex(posItem)
-        print "SkipTool clicked at: (%d, %d) on helix %d" % \
+        print "PaintTool clicked at: (%d, %d) on helix %d" % \
             (indexp[0], indexp[1], self.parentItem().number())
-        # create a new SkipHandle by adding through the parentItem
+        # create a new PaintHandle by adding through the parentItem
     # end def
 # end class
