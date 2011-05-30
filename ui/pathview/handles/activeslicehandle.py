@@ -73,12 +73,15 @@ class ActiveSliceHandle(QGraphicsItem):
         if self._pathHelixGroup:
             self._pathHelixGroup.geometryChanged.disconnect(\
                                                    self.prepareGeometryChange)
+            self._pathHelixGroup.displayedVHsChanged.disconnect(self._hideIfEmptySelection)
         if self._pathHelixGroup and self._pathHelixGroup.part():
             self._pathHelixGroup.part().activeSliceWillChange.disconnect(\
                                                       self._updateActiveSlice)
         self._pathHelixGroup = newPHG
         newPHG.geometryChanged.connect(self.prepareGeometryChange)
         newPHG.part().activeSliceWillChange.connect(self._updateActiveSlice)
+        newPHG.displayedVHsChanged.connect(self._hideIfEmptySelection)
+        self._hideIfEmptySelection()
         self._updateActiveSlice(newPHG.part().activeSlice())
 
     def activeSlice(self):
@@ -86,7 +89,10 @@ class ActiveSliceHandle(QGraphicsItem):
 
     def setActiveSlice(self, baseIndex):
         self.part().setActiveSlice(baseIndex)
-
+    
+    def _hideIfEmptySelection(self):
+        self.setVisible(len(self.pathHelixGroup().displayedVHs())>0)
+    
     def _updateActiveSlice(self, baseIndex):
         """The slot that receives active slice changed notifications from
         the part and changes the receiver to reflect the part"""
@@ -142,11 +148,8 @@ class ActiveSliceHandle(QGraphicsItem):
         if self.controller().toolUse or not self._dragMode:
             return
         x = event.scenePos().x()
-        dx = int((x - self.pressX) / self._baseWidth)
-        if dx == 0:
-            return
-        bi = self.pressBaseIdx + dx  # calculate base index
-        self.setActiveSlice(bi)
+        dx = int((x - self.pressX)/self.baseWidth)
+        self.setActiveSlice(self.pressBaseIdx+dx)
 
     def mousePressEvent(self, event):
         if event.button() != Qt.LeftButton:

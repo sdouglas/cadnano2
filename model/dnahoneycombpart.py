@@ -69,4 +69,9 @@ class DNAHoneycombPart(DNAPart):
     def crossSectionType(self):
         """Returns the cross-section type of the DNA part."""
         return LatticeType.Honeycomb
+        
+    ########################## Archiving / Unarchiving #########################
+    def fillSimpleRep(self, sr):
+        super(DNAHoneycombPart, self).fillSimpleRep(sr)
+        sr['.class'] = 'DNAHoneycombPart'
     

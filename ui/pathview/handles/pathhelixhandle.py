@@ -129,7 +129,6 @@ class PathHelixHandle(QGraphicsItem):
                                                          self.scene(),\
                                                          self.parentItem())
         self.update(self.rect)
-        print (self.pos().x(), self.pos().y())
     # end def
 
     def hoverLeaveEvent(self, event):

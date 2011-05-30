@@ -33,10 +33,10 @@ from exceptions import NotImplementedError
 from heapq import *
 from PyQt4.QtCore import QRectF, QPointF, QEvent, pyqtSignal, QObject, Qt
 from PyQt4.QtCore import pyqtSignal, pyqtSlot
-from PyQt4.QtGui import QBrush
+from PyQt4.QtGui import QBrush, QPainterPath, QPen
 from PyQt4.QtGui import QGraphicsItem
 from ui.pathview.handles.activeslicehandle import ActiveSliceHandle
-from model.enum import LatticeType, Parity
+from model.enum import LatticeType, Parity, StrandType
 from .slicehelix import SliceHelix
 import ui.styles as styles
 
@@ -52,23 +52,43 @@ class HoneycombSliceGraphicsItem(QGraphicsItem):  # was a QGraphicsObject change
     of labels (these are the nonnegative integers that appear on them)
     for slices.
     """
+    radius = styles.SLICE_HELIX_RADIUS
+    sliceHelixRect = QRectF(0, 0, 2*radius, 2*radius)
+    
     def __init__(self, part, controller=None, parent=None):
-        super(HoneycombSliceGraphicsItem, self).__init__(parent)
+        super(HoneycombSliceGraphicsItem, self).__init__()
         # data related
         self._part = None
         self.sliceController = controller
         self.parent = parent
         self.setParentItem(parent)
+        self.setZValue(100)
+
+        # The deselector grabs mouse events that missed a slice
+        # and clears the selection when it gets one
+        self.deselector = HoneycombSliceGraphicsItem.Deselector(self)
+        self.deselector.setParentItem(self)
+        self.deselector.setFlag(QGraphicsItem.ItemStacksBehindParent)
+        self.deselector.setZValue(-1)
         
-        # drawing related
-        self.radius = styles.SLICE_HELIX_RADIUS
-        self.handleSize = 15
         # Invariant: keys in _helixhash = range(_nrows) x range(_ncols)
         # where x is the cartesian product
         self._helixhash = {}
         self._nrows, self._ncols = 0, 0
         self._rect = QRectF(0, 0, 0, 0)
         self.setPart(part)
+        
+        # drawing related
+        self.handleSize = 15
+                
+        # Cache of VHs that were active as of last call to
+        # activeSliceChanged. If None, all slices will be redrawn
+        # and the cache will be filled.
+        self._previouslyActiveVHs = None
+        
+        # Cache of PainterPath that draws the hilight rings around
+        # the current selection
+        self._selectionPath = None
     # end def
     
     def part(self):
@@ -80,16 +100,23 @@ class HoneycombSliceGraphicsItem(QGraphicsItem):  # was a QGraphicsObject change
             self._part.activeSliceWillChange.disconnect(self.activeSliceWillChange)
         self._setDimensions(newPart.dimensions())
         newPart.dimensionsWillChange.connect(self._setDimensions)
+        newPart.selectionWillChange.connect(self.selectionWillChange)
         newPart.activeSliceWillChange.connect(self.activeSliceChanged)
         self._part = newPart
- 
-    def _spawnSliceAt(self, row, column):
-        x = column*self.radius*root3
-        if ((row % 2) ^ (column % 2)): # odd parity
+    
+    def upperLeftCornerForCoords(self, row, col):
+        x = col*self.radius*root3
+        if ((row % 2) ^ (col % 2)): # odd parity
             y = row*self.radius*3 + self.radius
         else:                          # even parity
             y = row*self.radius*3
-        helix = SliceHelix(row, column, QPointF(x, y), self)
+        return (x, y)
+ 
+    def _spawnSliceAt(self, row, column):
+        ul = QPointF(*self.upperLeftCornerForCoords(row, column))
+        helix = SliceHelix(row, column, self)
+        helix.setFlag(QGraphicsItem.ItemStacksBehindParent, True)
+        helix.setPos(ul)
         self._helixhash[(row, column)] = helix
         
     def _killSliceAt(row, column):
@@ -124,6 +151,8 @@ class HoneycombSliceGraphicsItem(QGraphicsItem):  # was a QGraphicsObject change
                            (newCols)*self.radius*root3,\
                            (newRows)*self.radius*3)
         self.prepareGeometryChange()
+        # the Deselector copies our rect so it changes too
+        self.deselector.prepareGeometryChange()
         self.zoomToFit()
 
     def boundingRect(self):
@@ -137,10 +166,43 @@ class HoneycombSliceGraphicsItem(QGraphicsItem):  # was a QGraphicsObject change
     # end def
 
     def paint(self, painter, option, widget=None):
-        pass
+        painter.save()
+        painter.setPen(QPen(styles.bluestroke, styles.SLICE_HELIX_HILIGHT_WIDTH))
+        painter.drawPath(self.selectionPainterPath())
+        painter.restore()
+    
+    def selectionPainterPath(self):
+        if self._selectionPath:
+            return self._selectionPath
+        p = QPainterPath()
+        for vh in self.part().selection():
+            ul = self.upperLeftCornerForCoords(*vh.coord())
+            rect = self.sliceHelixRect.translated(*ul)
+            p.addEllipse(rect)
+        self._selectionPath = p
+        return p
+    
+    def selectionWillChange(self):
+        self._selectionPath = None
+        self.update()
 
     def activeSliceChanged(self, newActiveSliceZIndex):
-        self.update()
+        newlyActiveVHs = set()
+        part = self.part()
+        activeSlice = part.activeSlice()
+        if self._previouslyActiveVHs:
+            for vh in part.getVirtualHelices():
+                isActiveNow = vh.hasBaseAt(StrandType.Scaffold, activeSlice)
+                if isActiveNow != (vh in self._previouslyActiveVHs):
+                    self._helixhash[vh.coords()].update()
+                if isActiveNow:
+                    newlyActiveVHs.add(vh)
+        else:
+            for vh in part.getVirtualHelices():
+                isActiveNow = vh.hasBaseAt(StrandType.Scaffold, activeSlice)
+                if isActiveNow:
+                    newlyActiveVHs.add(vh)
+            self.update()
 
     def bringToFront(self):
         """collidingItems gets a list of all items that overlap. sets
@@ -155,3 +217,18 @@ class HoneycombSliceGraphicsItem(QGraphicsItem):  # was a QGraphicsObject change
         # end for
         self.setZValue(zval)
     # end def
+    
+    class Deselector(QGraphicsItem):
+        """The deselector lives behind all the slices
+        and observes mouse press events that miss slices,
+        emptying the selection when they do"""
+        def __init__(self, parentHGI):
+            super(HoneycombSliceGraphicsItem.Deselector, self).__init__()
+            self.parentHGI = parentHGI
+        def mousePressEvent(self, event):
+            self.parentHGI.part().setSelection(())
+            super(HoneycombSliceGraphicsItem.Deselector, self).mousePressEvent(event)
+        def boundingRect(self):
+            return self.parentHGI.boundingRect()
+        def paint(self, painter, option, widget=None):
+            pass

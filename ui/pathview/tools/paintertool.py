@@ -32,7 +32,8 @@ class PainterTool(object):
     def __init__(self):
         super(PainterTool, self).__init__()
         self._mouseDownBase = None
-
+        self._lastValidBase = None
+        
     def mousePressPathHelix(self, ph, event):
         """Activate this item as the current helix"""
         self._mouseDownY = event.pos().y()
@@ -50,15 +51,14 @@ class PainterTool(object):
             self._lastValidBase = newBase
             vh.undoStack().undo()
             self.painterToolApply(vh, self._mouseDownBase, newBase)
-
+    
     def mouseReleasePathHelix(self, ph, event):
         vh = ph.vhelix()
         if self._mouseDownBase and self._lastValidBase:
-            # vh.undoStack().undo()
-            vh.setSandboxed(False)  # vhelix now uses the document undo stack
-            # self.painterToolApply(vh, self._mouseDownBase, self._lastValidBase)
-        if self._mouseDownBase != None:
-            ph.updateAsActiveHelix(self._mouseDownBase[1])
+            vh.undoStack().undo()
+            vh.setSandboxed(False)  # vhelix should now use the document undo stack
+            self.painterToolApply(vh, self._mouseDownBase, self._lastValidBase)
+        ph.updateAsActiveHelix(self._mouseDownBase[1])
 
     def painterToolApply(self, vHelix, fr, to):
         """PainterTool is the default tool that lets one
@@ -79,6 +79,9 @@ class PainterTool(object):
         if adj and startOnBreakpoint and vHelix.hasStrandAt(*adj):
             useClearMode = True
         if useClearMode:
-            vHelix.clearStrand(fr[0], fr[1], to[1])
+            if to[1]<fr[1]:
+                vHelix.clearStrand(fr[0], fr[1], to[1]+1)
+            else:
+                vHelix.clearStrand(fr[0], fr[1], to[1])
         else:
             vHelix.connectStrand(fr[0], fr[1], to[1])

@@ -55,13 +55,15 @@ class PathHelixGroup(QGraphicsObject):
     handleRadius = styles.SLICE_HELIX_RADIUS
     scafPen = QPen(styles.scafstroke, 2)
     nobrush = QBrush(Qt.NoBrush)
+    selectAllBehavior = False
     
     def __init__(self, part,\
                        controller=None,\
                        parent=None):
         super(PathHelixGroup, self).__init__(parent)
         self.pathHelixList = []  # Primary property
-        self._part = part
+        self._part = None
+        self.setPart(part)
         self._controller = controller
         self._activeSliceHandle = ActiveSliceHandle(self)
         self.rect = QRectF()
@@ -99,13 +101,19 @@ class PathHelixGroup(QGraphicsObject):
         self.pchGroup.updateActiveHelix(virtualhelix)
 
     def setPart(self, newPart):
-        if self.part:
-            self.part.helixAdded.disconnect(self.helixAddedSlot)
-            self.part.helixWillBeRemoved.disconnect(self.helixRemovedSlot)
-        newPart.helixAdded.connect(self.helixAddedSlot)
-        newPart.helixWillBeRemoved.connect(self.helixRemovedSlot)
-        self.part = newPart
-
+        if self.selectAllBehavior:
+            if self.part:
+                self.part.helixAdded.disconnect(self.helixAddedSlot)
+                self.part.helixWillBeRemoved.disconnect(self.helixRemovedSlot)
+            newPart.helixAdded.connect(self.helixAddedSlot)
+            newPart.helixWillBeRemoved.connect(self.helixRemovedSlot)
+            self.part = newPart
+            return
+        if self._part:
+            self._part.selectionWillChange.disconnect(self.selectionWillChange)
+        newPart.selectionWillChange.connect(self.selectionWillChange)
+        self._part = newPart
+    
     def controller(self):
         return self._controller
 
@@ -116,7 +124,8 @@ class PathHelixGroup(QGraphicsObject):
         """Returns the list (ordered top to bottom) of VirtualHelix
         that the receiver is displaying"""
         return [ph.vhelix() for ph in self.pathHelixList]
-
+    
+    displayedVHsChanged = pyqtSignal()
     def setDisplayedVHs(self, vhrefs):
         """Spawns or destroys PathHelix such that displayedVHs
         has the same VirtualHelix in the same order as vhrefs
@@ -131,7 +140,8 @@ class PathHelixGroup(QGraphicsObject):
                 ph = PathHelix(vh, self)
             newPathHelixList.append(ph)
         self._setPathHelixList(newPathHelixList)
-
+        self.displayedVHsChanged.emit()
+        
     def _pathHelixList(self):
         return self.pathHelixList
 
@@ -143,7 +153,10 @@ class PathHelixGroup(QGraphicsObject):
         leftmostExtent = 0
         rightmostExtent = 0
         self.label.setVisible(True)
-
+        for ph in self.pathHelixList:
+            if not ph in newList:
+                ph.handle().setParentItem(None)
+                ph.setParentItem(None)
         for ph in newList:
             ph.setParentItem(self)
             ph.setPos(0, y)
@@ -212,7 +225,6 @@ class PathHelixGroup(QGraphicsObject):
         thescene = self.scene()
         theview = thescene.views()[0]
         theview.zoomToFit()
-    # end def
 
     @pyqtSlot(int)
     def helixAddedSlot(self, vhref):
@@ -230,9 +242,9 @@ class PathHelixGroup(QGraphicsObject):
         vhs.remove(vh)
         self.setDisplayedVHs(vh)
 
-    # Slot called when the part's selection changes
+    # Slot called when the slice view's (actually the part's) selection changes
     def selectionWillChange(self, newSelection):
-        pass
+        self.setDisplayedVHs(newSelection)
 
     def getPathHelix(self, vhref):
         """Given the helix number, return a reference to the PathHelix."""

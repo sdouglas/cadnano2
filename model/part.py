@@ -34,11 +34,14 @@ class Part(QObject):
     def __init__(self, id, *args, **kargs):
         super(Part, self).__init__()
         self._id = id
-        self._document = kargs.get('document', None)
         app().p = self
     
     def document(self):
         return self._document
+    
+    def setDocument(self, newDoc):
+        "Should only be called by Document"
+        self._document = newDoc
     
     def undoStack(self):
         return self.document().undoStack()

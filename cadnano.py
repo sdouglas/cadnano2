@@ -33,6 +33,8 @@ from code import interact
 class caDNAno(QApplication):
     sharedApp = None  # This class is a singleton.
     def __init__(self, argv):
+        if argv == None:
+            argv = ["cadnano",]
         super(caDNAno, self).__init__(argv)
         assert(not caDNAno.sharedApp)
         caDNAno.sharedApp = self
@@ -64,8 +66,9 @@ class caDNAno(QApplication):
         
     def newDocument(self):
         from ui.documentcontroller import DocumentController
-        DocumentController() # DocumentController is responsible for adding
-                             # itself to app.documentControllers
+        dc = DocumentController() # DocumentController is responsible for adding
+                                  # itself to app.documentControllers
+        return dc.document()
 
 # Convenience. No reason to feel guilty using it - caDNAno is a singleton.
 def app(appArgs=None):
