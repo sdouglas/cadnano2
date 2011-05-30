@@ -30,6 +30,7 @@ from tools.skiptool import SkipTool
 from tools.breaktool import BreakTool
 from tools.erasetool import EraseTool
 from tools.penciltool import PencilTool
+from tools.selecttool import SelectTool
 from tools.painttool import PaintTool
 
 
@@ -58,19 +59,21 @@ class PathController(QObject):
             ag.addAction(a)
         ag.setExclusive(True)
         self.currentTool = None
-        self.chooseSelectTool()
         self.toolUse = False    # flag for using a specfic tool in the scene
         self.toolHoverEnter = None
         self.toolHoverLeave = None
         self.toolHoverMove = None
         self.toolPress = None
         self._activeTool = PencilTool()
+        # self.selectTool = SelectTool()
+        self._activeTool = SelectTool()
         self.eraseTool = EraseTool(pathcontroller=self, parent=None)
         self.pencilTool = PencilTool()
         self.insertionTool = LoopTool(pathcontroller=self, parent=None)
         self.skipTool = SkipTool(pathcontroller=self, parent=None)
         self.breakTool = BreakTool(pathcontroller=self, parent=None)
         self.paintTool = PaintTool(pathcontroller=self, parent=None)
+        # self.chooseSelectTool()
 
     def activeTool(self):
         return self._activeTool
@@ -81,7 +84,8 @@ class PathController(QObject):
             return
         else:
             self.currentTool = widget
-        self.toolUse = False
+        # self.toolUse = False
+        self.enableTool(self.selectTool)
         widget.setChecked(True)
 
     def chooseMoveTool(self):

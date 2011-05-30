@@ -169,19 +169,23 @@ class VirtualHelix(QObject):
         """Makes sure the basespec (strandType,index) is valid
         and raises or returns (None, None) according to raiseOnErr if
         it isn't valid"""
-        if strandType != StrandType.Scaffold and strandType!=StrandType.Staple:
+        if strandType != StrandType.Scaffold and \
+                                            strandType != StrandType.Staple:
             if raiseOnErr:
-                raise IndexError("Base (strand:%s index:%i) Not Valid"%(strandType,index))
+                raise IndexError("Base (strand:%s index:%i) Not Valid" % \
+                                                        (strandType,index))
             return (None, None)
         index = int(index)
         if index < 0 or index >= self.numBases() - 1:
             if raiseOnErr:
-                raise IndexError("Base (strand:%s index:%i) Not Valid"%(strandType,index))
+                raise IndexError("Base (strand:%s index:%i) Not Valid" % \
+                                                        (strandType,index))
             return (None, None)
         return (strandType, index)
     
     def _baseAt(self, strandType, index, raiseOnErr=False):
-        strandType, index = self.validatedBase(strandType, index, raiseOnErr=raiseOnErr)
+        strandType, index = \
+                self.validatedBase(strandType, index, raiseOnErr=raiseOnErr)
         if strandType == None:
             return None
         return self._strand(strandType)[index]
@@ -231,7 +235,10 @@ class VirtualHelix(QObject):
         return ret
     
     def get3PrimeXovers(self, strandType):
-        """"""
+        """
+        Returns a tuple of tuples of the FROM base (3p end) the TO base
+        (5p end)
+        """
         ret = []
         strand = self._strand(strandType)
         i, s = 0, None
@@ -242,13 +249,29 @@ class VirtualHelix(QObject):
         # end for
         return ret
     # end def
+    
+    def getXover(self, strandType, idx):
+        """
+        takes an index and returns a tuple of the FROM (3p) end helix and 
+        the vhelix and index it points to on the TO (5p) end
+        """
+        strand = self._strand(strandType)
+        if strand[idx].is3primeXover():
+            print "OKKKKKKKKKKKK"
+            return ((self, idx),\
+                    (strand[idx]._3pBase.vhelix(), strand[idx]._3pBase._n) )
+        else: # its a 5 primeXover end, reverse it
+            print "PPPPPPOOOOOOOOOOPPPPPPP"
+            return ((strand[idx]._5pBase.vhelix(), strand[idx]._5pBase._n), \
+                    (self, idx) )
+    # end def
 
     def colorOfBase(self, strandType, idx):
-        if strandType==StrandType.Scaffold:
+        if strandType == StrandType.Scaffold:
             return styles.bluestroke
             # return QColor(44, 51, 141)
-        hue = 47*idx+31*self.number()
-        return QColor.fromHsl(hue%256, 255, 128)
+        hue = 47*idx + 31*self.number()
+        return QColor.fromHsl(hue % 256, 255, 128)
     
     def setSandboxed(self, sb):
         """Set True to give the receiver a temporary undo stack
@@ -319,7 +342,7 @@ class VirtualHelix(QObject):
     def breakStrandBeforeBase(self, strandType, breakBeforeIndex):
         breakBeforeIndex = int(breakBeforeIndex)
         assert(breakBeforeIndex > 0)
-        assert(breakBeforeIndex < len(strand))
+        assert(breakBeforeIndex < len(self._strand(strandType)) )
         self.clearStrand(strandType, breakBeforeIndex, breakBeforeIndex)
 
     def installXoverTo(self, strandType, fromIndex, toVhelix, toIndex):
@@ -338,10 +361,11 @@ class VirtualHelix(QObject):
         """docstring for installXoverTo"""
         strand = self._strand(strandType)
         fromBase = strand[fromIndex]
-        toBase = toVhelix._strand(StrandType.Scaffold)[toIndex]
-        if fromBase._nextBase != toBase or fromBase != toBase._prevBase:
+        toBase = toVhelix._strand(strandType)[toIndex]
+        if fromBase._3pBase != toBase or fromBase != toBase._5pBase:
             raise IndexError("Crossover does not exist to be removed.")
-        toVhelix.breakStrandBeforeBase(strandType, toIndex)
+        # toVhelix.breakStrandBeforeBase(strandType, toIndex)
+        self.breakStrandBeforeBase(strandType, fromIndex)
 
     ################ Private Base Modification API ###########################
     class ConnectStrandCommand(QUndoCommand):
@@ -399,7 +423,8 @@ class VirtualHelix(QObject):
             strand = self._vh._strand(self._strandType)
             ol = self._oldLinkage = []
             
-            if self._vh.directionOfStrandIs5to3(self._strandType):
+            # if self._vh.directionOfStrandIs5to3(self._strandType):
+            if True:
                 for i in range(self._startIndex - 1, self._endIndex):
                     ol.append(strand[i]._set3Prime(None))
             # end if
@@ -413,7 +438,8 @@ class VirtualHelix(QObject):
             strand = self._vh._strand(self._strandType)
             ol = self._oldLinkage
             assert(ol!=None)  # Must redo/apply before undo
-            if self._vh.directionOfStrandIs5to3(self._strandType):
+            # if self._vh.directionOfStrandIs5to3(self._strandType):
+            if True:
                 for i in range(self._endIndex - 1, self._startIndex - 2, -1):
                     strand[i]._unset3Prime(None, *ol[i - self._startIndex+1])
             # end if
