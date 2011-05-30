@@ -185,9 +185,12 @@ class PreXoverHandle(QGraphicsItem):
     PreXoverHandle responds to mouse input and serves as an interface
     for adding scaffold crossovers
     """
-    pen = QPen(styles.pchstroke, styles.PATH_STRAND_STROKE_WIDTH)
-    pen.setCapStyle(Qt.FlatCap)  # or Qt.RoundCap
-    pen.setJoinStyle(Qt.RoundJoin)
+    scafpen = QPen(styles.pch_scaf_stroke, styles.PATH_STRAND_STROKE_WIDTH)
+    scafpen.setCapStyle(Qt.FlatCap)  # or Qt.RoundCap
+    scafpen.setJoinStyle(Qt.RoundJoin)
+    stappen = QPen(styles.pch_stap_stroke, styles.PATH_STRAND_STROKE_WIDTH)
+    stappen.setCapStyle(Qt.FlatCap)  # or Qt.RoundCap
+    stappen.setJoinStyle(Qt.RoundJoin)
     baseWidth = styles.PATH_BASE_WIDTH
     _myfont = QFont("Times", 10, QFont.Bold)
 
@@ -310,7 +313,10 @@ class PreXoverHandle(QGraphicsItem):
         return self.rect
 
     def paint(self, painter, option, widget=None):
-        painter.setPen(self.pen)
+        if self._strandType == StrandType.Scaffold:
+            painter.setPen(self.scafpen)
+        else:
+            painter.setPen(self.stappen)
         painter.drawPath(self.painterpath)
     # end def
 
