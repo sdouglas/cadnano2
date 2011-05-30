@@ -143,11 +143,11 @@ class PreXoverHandleGroup(QGraphicsItem):
         strandtype = StrandType.Staple
         for [neighbor, index] in stapL:
             if vhelix.evenParity():
-                orient1 = HandleOrient.LeftUp
-                orient2 = HandleOrient.LeftDown
-            else:
                 orient1 = HandleOrient.LeftDown
                 orient2 = HandleOrient.LeftUp
+            else:
+                orient1 = HandleOrient.LeftUp
+                orient2 = HandleOrient.LeftDown
             ph2 = self.parentItem().getPathHelix(neighbor)
             self.handlesA[i].configure(strandtype, orient1, index, ph1)
             self.handlesB[i].configure(strandtype, orient2, index, ph2)
@@ -156,11 +156,11 @@ class PreXoverHandleGroup(QGraphicsItem):
             i += 1
         for [neighbor, index] in stapR:
             if vhelix.evenParity():
-                orient1 = HandleOrient.RightUp
-                orient2 = HandleOrient.RightDown
-            else:
                 orient1 = HandleOrient.RightDown
                 orient2 = HandleOrient.RightUp
+            else:
+                orient1 = HandleOrient.RightUp
+                orient2 = HandleOrient.RightDown
             ph2 = self.parentItem().getPathHelix(neighbor)
             self.handlesA[i].configure(strandtype, orient1, index, ph1)
             self.handlesB[i].configure(strandtype, orient2, index, ph2)
@@ -230,6 +230,10 @@ class PreXoverHandle(QGraphicsItem):
 
     def index(self):
         return self._index
+    # end def
+    
+    def strandType(self):
+        return self._strandType
     # end def
 
     def orientation(self):
@@ -340,7 +344,14 @@ class PreXoverHandle(QGraphicsItem):
             fromHelix = self.partner.pathHelix().vhelix()
             fromIndex = self.partner.index()
         # Create XoverHandlePair and store references
-        fromHelix.installXoverTo(StrandType.Scaffold, \
+        # fromHelix.installXoverTo(StrandType.Scaffold, \
+        #                                 fromIndex, toHelix, toIndex)
+        fromHelix.installXoverTo(self.strandType(), \
                                         fromIndex, toHelix, toIndex)
+        
+        if self.strandType() == StrandType.Staple:
+            print "Staple ????"
+        elif self.strandType() == StrandType.Scaffold:
+            print "A Scaffold"
     # end def
 # end class
