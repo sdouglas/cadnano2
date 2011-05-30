@@ -77,6 +77,12 @@ class PathHelixGroup(QGraphicsObject):
         self.pchGroup = PreXoverHandleGroup(parent=self)
         app().phg = self  # Convenience for the command line -i mode
         self.xoverGet = XoverHandle()
+        
+        self.phhSelectionGroup = SelectionItemGroup(\
+                                         boxtype=PathHelixHandleSelectionBox,\
+                                         constraint='y',\
+                                         parent=self)
+        self.selectionLock = None
 
     def __str__(self):
         return "I am a PHG!"
@@ -179,7 +185,7 @@ class PathHelixGroup(QGraphicsObject):
                 painter.drawPath(path)
             for ((fromhelix, fromindex), (tohelix, toindex)) in \
                                     ph.vhelix().get3PrimeXovers(StrandType.Staple):
-                path = self.xoverGet.getXover(self, StrandType.Scaffold, \
+                path = self.xoverGet.getXover(self, StrandType.Staple, \
                                     ph, fromindex,\
                                     self.getPathHelix(tohelix), toindex)
                 painter.drawPath(path)

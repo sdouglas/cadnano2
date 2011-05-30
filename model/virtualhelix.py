@@ -328,7 +328,7 @@ class VirtualHelix(QObject):
             assert(self.possibleNewCrossoverAt(StrandType.Scaffold, \
                                             fromIndex, toVhelix, toIndex))
         elif strandType == StrandType.Staple:
-            assert(self.possibleStapCrossoverAt(StrandType.Staple, \
+            assert(self.possibleNewCrossoverAt(StrandType.Staple, \
                                             fromIndex, toVhelix, toIndex))
         else:
             raise IndexError("%s doesn't look like a StrandType" % strandType)
