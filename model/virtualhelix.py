@@ -489,7 +489,7 @@ class VirtualHelix(QObject):
         return self._scaffoldBases[index]
 
     def stapleBase(self, index):
-        """docstring for scaffoldBase"""
+        """docstring for stapleBase"""
         return self._stapleBases[index]
         
     def possibleNewCrossoverAt(self, strandType, fromIndex, neighbor, toIndex):

@@ -208,7 +208,7 @@ class PreXoverHandle(QGraphicsItem):
         self._strandType = None
         self._index = None
         self._orientation = None
-        self.partner = None  # partner PreXoverHandle in the pair
+        self._partner = None  # partner PreXoverHandle in the pair
         self.setZValue(styles.ZPREXOVERHANDLE)
         self._label = QGraphicsSimpleTextItem("", parent=self)
         self._label.setPos(0, 0)
@@ -221,7 +221,7 @@ class PreXoverHandle(QGraphicsItem):
         """
         create a pointer towards it's complementary PreXoverHandle
         """
-        self.partner = pch
+        self._partner = pch
     # end def
 
     def pathHelix(self):
@@ -241,7 +241,7 @@ class PreXoverHandle(QGraphicsItem):
     # end def
 
     def setLabel(self):
-        self._label.setText("%d" % (self.partner.pathHelix().number()))
+        self._label.setText("%d" % (self._partner.pathHelix().number()))
         if self._orientation == HandleOrient.RightDown:
             self.rightDrawConfig()
             self.downDrawConfig()
@@ -336,22 +336,19 @@ class PreXoverHandle(QGraphicsItem):
                                  HandleOrient.RightDown]:  # 3-prime clicked
             fromHelix = self.pathHelix().vhelix()
             fromIndex = self.index()
-            toHelix = self.partner.pathHelix().vhelix()
-            toIndex = self.partner.index()
+            toHelix = self._partner.pathHelix().vhelix()
+            toIndex = self._partner.index()
         else:  # 5-prime clicked
             toHelix = self.pathHelix().vhelix()
             toIndex = self.index()
-            fromHelix = self.partner.pathHelix().vhelix()
-            fromIndex = self.partner.index()
+            fromHelix = self._partner.pathHelix().vhelix()
+            fromIndex = self._partner.index()
         # Create XoverHandlePair and store references
         # fromHelix.installXoverTo(StrandType.Scaffold, \
         #                                 fromIndex, toHelix, toIndex)
         fromHelix.installXoverTo(self.strandType(), \
                                         fromIndex, toHelix, toIndex)
-        
-        if self.strandType() == StrandType.Staple:
-            print "Staple ????"
-        elif self.strandType() == StrandType.Scaffold:
-            print "A Scaffold"
+        self._partner.hide()
+        self.hide()
     # end def
 # end class
