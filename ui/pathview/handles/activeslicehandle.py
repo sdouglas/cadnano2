@@ -63,12 +63,15 @@ class ActiveSliceHandle(QGraphicsItem):
     
     def setPathHelixGroup(self, newPHG):
         if self._pathHelixGroup:
+            self._pathHelixGroup.displayedVHsChanged.disconnect(self._hideIfEmptySelection)
             self._pathHelixGroup.geometryChanged.disconnect(self.prepareGeometryChange)
         if self._pathHelixGroup and self._pathHelixGroup.part():
             self._pathHelixGroup.part().activeSliceWillChange.disconnect(self._updateActiveSlice)
         self._pathHelixGroup = newPHG
         newPHG.geometryChanged.connect(self.prepareGeometryChange)
         newPHG.part().activeSliceWillChange.connect(self._updateActiveSlice)
+        newPHG.displayedVHsChanged.connect(self._hideIfEmptySelection)
+        self._hideIfEmptySelection()
         self._updateActiveSlice(newPHG.part().activeSlice())
 
     def activeSlice(self):
@@ -76,6 +79,9 @@ class ActiveSliceHandle(QGraphicsItem):
     
     def setActiveSlice(self, baseIndex):
         self.part().setActiveSlice(baseIndex)
+    
+    def _hideIfEmptySelection(self):
+        self.setVisible(len(self.pathHelixGroup().displayedVHs())>0)
     
     def _updateActiveSlice(self, baseIndex):
         """The slot that receives active slice changed notifications from

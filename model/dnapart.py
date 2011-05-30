@@ -45,9 +45,6 @@ class DNAPart(Part):
             raise NotImplementedError("This class is abstract. Perhaps you want DNAHoneycombPart.")
         super(DNAPart, self).__init__(self, *args, **kwargs)
         self._numberToVirtualHelix = {}  # number -> VirutalHelix
-        self._coordToVirtualHelix = {}  # (row,col) -> VirtualHelix
-        self._staples = []
-        self._scaffolds = []
         self._name = kwargs.get('name', 'untitled')
         self._maxRow = kwargs.get('maxRow', 20)
         self._maxCol = kwargs.get('maxCol', 20)
@@ -56,11 +53,22 @@ class DNAPart(Part):
         self.reserveBin = set()
         self.highestUsedOdd = -1  # Used iff the recycle bin is empty and highestUsedOdd+2 is not in the reserve bin
         self.highestUsedEven = -2  # same
-        # Transient state
+        # Transient and/or cached state
+        self._staples = []
+        self._scaffolds = []
         self._selection = set()
+        self._coordToVirtualHelix = {}  # (row,col) -> VirtualHelix
         # Abstract
         # self._maxBase = 0  # honeycomb is 42
         # self._activeSlice = 0  # honeycomb is 21
+    
+    def setDocument(self, newDoc):
+        """Only called by Document"""
+        super(DNAPart, self).setDocument(newDoc)
+        ctrlr = newDoc.controller()
+        if ctrlr:
+            self.dimensionsWillChange.connect(ctrlr.dirty)
+            self.virtualHelixAtCoordsChanged.connect(ctrlr.dirty)
     
     def dimensions(self):
         return (self._maxRow, self._maxCol, self._maxBase)
@@ -76,27 +84,35 @@ class DNAPart(Part):
             self._numberToVirtualHelix[n].setNumBases(self._maxBase)
         
     ############################# Archiving/Unarchiving #############################
-    def simpleRep(self, encoder):
+    def fillSimpleRep(self, sr):
         """
         Provides a representation of the receiver in terms of simple
         (container,atomic) classes and other objects implementing simpleRep
         """
-        ret = {'.class': "DNAPart"}
-        ret['virtualHelices'] = self._virtualHelices
-        ret['name'] = self._name
-        ret['staples'] = self._staples
-        ret['scaffolds'] = self._scaffolds
-        return ret
+        sr['.class'] = "DNAPart"
+        # JSON doesn't like keys that aren't strings, so we cheat and use an array
+        # Entries look like ((row,col),num,vh)
+        coordsAndNumToVH = []
+        for vh in self._coordToVirtualHelix.itervalues():
+            coordsAndNumToVH.append((vh.coord(), vh.number(), vh))
+        sr['virtualHelices'] = coordsAndNumToVH
+        sr['name'] = self._name
     
-    @classmethod
-    def fromSimpleRep(cls, rep):
-        ret = DNAPart()
-        ret._virtualHelices = rep['virtualHelices']
-        ret._name = rep['name']
-        ret._staples = rep['staples']
-        ret._scaffolds = rep['scaffolds']
-        return ret
-    
+    # First objects that are being unarchived are sent
+    # ClassNameFrom.classAttribute(incompleteArchivedDict)
+    # which has only strings and numbers in its dict and then,
+    # sometime later (with ascending finishInitPriority) they get
+    # finishInitWithArchivedDict, this time with all entries
+    finishInitPriority = 0.0
+    def finishInitWithArchivedDict(self, completeArchivedDict):
+        for coord, num, vh in completeArchivedDict['virtualHelices']:
+            if num%2:
+                self.highestUsedOdd = max(self.highestUsedOdd, num)
+            else:
+                self.highestUsedEven = max(self.highestUsedEven, num)
+            self.setVirtualHelixAt(coord, vh, requestSpecificIdnum=num, noUndo=True)
+        self._name = completeArchivedDict['name']
+            
     ############################# VirtualHelix CRUD #############################
     # Take note: vhrefs are the shiny new way to talk to dnapart about its constituent
     # virtualhelices. Wherever you see f(...,vhref,...) you can
@@ -124,9 +140,12 @@ class DNAPart(Part):
         return (self._numberToVirtualHelix[n] for n in self._numberToVirtualHelix)
 
     virtualHelixAtCoordsChanged = pyqtSignal(int, int)
-    def setVirtualHelixAt(self, coords, vh, requestSpecificIdnum=None):
+    def setVirtualHelixAt(self, coords, vh, requestSpecificIdnum=None, noUndo=False):
         c = self.SetHelixCommand(self, coords, vh, requestSpecificIdnum)
-        self.undoStack().push(c)
+        if noUndo:
+            c.redo()
+        else:
+            self.undoStack().push(c)
     
     # emits virtualHelixAtCoordsChanged
     def renumberVirtualHelix(self, vhref, newNumber, automaticallyRenumberConflictingHelix=False):
@@ -166,7 +185,7 @@ class DNAPart(Part):
             if currentVH:
                 del self.part._coordToVirtualHelix[currentVH.coord()]
                 del self.part._numberToVirtualHelix[currentVH.number()]
-                self.recycleHelixIDNumber(currentVH.number())
+                self.part.recycleHelixIDNumber(currentVH.number())
             if vh:
                 newID = part.reserveHelixIDNumber(\
                             parityEven=self.part.coordinateParityEven((self.row, self.col)),\
@@ -176,7 +195,7 @@ class DNAPart(Part):
                 part._coordToVirtualHelix[(self.row, self.col)] = vh
             part.virtualHelixAtCoordsChanged.emit(self.row, self.col)
         def undo(self):
-            assert(self.oldVH)
+            # assert(self.oldVH)  # oldVH might be None
             self.redo(actuallyUndo=True)
     
     class RenumberHelixCommand(QUndoCommand):
@@ -214,7 +233,7 @@ class DNAPart(Part):
         num = requestedIDnum
         if num != None: # We are handling a request for a particular number
             assert num >= 0, long(num) == num
-            assert not num in _numberToVirtualHelix
+            assert not num in self._numberToVirtualHelix
             if num in self.oddRecycleBin:
                 self.oddRecycleBin.remove(num)
                 heapify(self.oddRecycleBin)

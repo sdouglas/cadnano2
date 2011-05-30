@@ -37,13 +37,14 @@ from .base import Base
 from util import *
 from cadnano import app
 import ui.styles as styles
+import re
 
 class VirtualHelix(QObject):
     """Stores staple and scaffold routing information."""
     basesModified = pyqtSignal()
     dimensionsModified = pyqtSignal()
     
-    def __init__(self, numBases=21, idnum=0):
+    def __init__(self, numBases=21, idnum=0, incompleteArchivedDict=None):
         super(VirtualHelix, self).__init__()
         # Row, col are always owned by the parent part;
         # they cannot be specified in a meaningful way
@@ -77,6 +78,8 @@ class VirtualHelix(QObject):
         self._sandboxed = False
         # numBases is a simulated property that corresponds to the
         # length of _stapleBases and _scaffoldBases
+        if incompleteArchivedDict:
+            numBases = len(re.split('\s+', incompleteArchivedDict['staple']))-1
         self.setNumBases(numBases, notUndoable=True)
         # Command line convenience for -i mode
         if app().v != None:
@@ -125,7 +128,7 @@ class VirtualHelix(QObject):
                 self.undoStack().push(c)
         if newNumBases<oldNB:
             c0 = self.ClearStrandCommand(self, StrandType.Scaffold, newNumBases, oldNB)
-            c1 = self.ClearStrandCommand(self, StrandType.Saple, newNumBases, oldNB)
+            c1 = self.ClearStrandCommand(self, StrandType.Staple, newNumBases, oldNB)
             c2 = self.SetNumBasesCommand(self, newNumBases)
             if notUndoable:
                 c0.redo()
@@ -527,8 +530,8 @@ class VirtualHelix(QObject):
                     vh._stapleBases.append(Base(vh, StrandType.Staple, n))
                     vh._scaffoldBases.append(Base(vh, StrandType.Scaffold, n))
             else:
-                del vh._stapleBases[oldNB, -1]
-                del vh._scaffoldBases[oldNB, -1]
+                del vh._stapleBases[oldNB:-1]
+                del vh._scaffoldBases[oldNB:-1]
             vh.dimensionsModified.emit()
         def undo(self):
             self.redo(actuallyUndo=True)
@@ -654,27 +657,33 @@ class VirtualHelix(QObject):
         return self._part.getVirtualHelixNeighbors(self)
 
     #################### Archiving / Unarchiving #############################
-    def simpleRep(self, encoder):
-        """Returns a representation in terms of simple JSON-encodable types
-        or types that implement simpleRep"""
-        ret = {'.class': "DNAPart"}
-        ret['part'] = encoder.idForObject(self._part)
-        ret['number'] = self._number
-        ret['size'] = self._size
-        ret['stapleBases'] = self._stapleBases
-        ret['scaffoldBases'] = self._scaffoldBases
-        return ret
+    # A helper method; not part of the archive protocol
+    def encodeStrand(self, strandType):
+        strand = self._strand(strandType)
+        numBases = self.numBases()
+        strdir = "5->3" if self.directionOfStrandIs5to3(strandType) else "3->5"
+        return "(%s) "%(strdir) + " ".join(str(b) for b in strand)
+    
+    def fillSimpleRep(self, sr):
+        """Fills sr with a representation of self in terms
+        of simple types (strings, numbers, objects, and arrays/dicts
+        of objects that also implement fillSimpleRep)"""
+        sr['.class'] = "VirtualHelix"
+        sr['tentativeHelixID'] = self.number()  # Not actually used, here for readability
+        sr['staple'] = self.encodeStrand(StrandType.Staple)
+        sr['scafld'] = self.encodeStrand(StrandType.Scaffold)
 
-    @classmethod
-    def fromSimpleRep(cls, rep):
-        """Instantiates one of the parent class from the simple
-        representation rep"""
-        ret = VirtualHelix()
-        ret.partID = rep['part']
-        ret._number = rep['number']
-        ret._row = rep['row']
-        ret._col = rep['col']
-        ret._stapleBases = rep['stapleBases']
-        ret._scaffoldBases = rep['scaffoldBases']
-        ret.isValid = False
-        return ret
+    # First objects that are being unarchived are sent
+    # ClassNameFrom.classAttribute(incompleteArchivedDict)
+    # which has only strings and numbers in its dict and then,
+    # sometime later (with ascending finishInitPriority) they get
+    # finishInitWithArchivedDict, this time with all entries
+    finishInitPriority = 1.0 # AFTER DNAParts finish init
+    def finishInitWithArchivedDict(self, completeArchivedDict):
+        scaf = re.split('\s+', completeArchivedDict['scafld'])[1:]
+        stap = re.split('\s+', completeArchivedDict['staple'])[1:]
+        # The init method was supposed to have set the number of bases correctly. Did it?
+        assert(len(scaf)==len(stap) and len(stap)==self.numBases())
+        for i in range(len(scaf)):
+            self._scaffoldBases[i].setConnectsFromString(scaf[i])
+            self._stapleBases[i].setConnectsFromString(stap[i])

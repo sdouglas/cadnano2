@@ -105,6 +105,7 @@ class PathHelixGroup(QGraphicsObject):
         that the receiver is displaying"""
         return [ph.vhelix() for ph in self.pathHelixList]
     
+    displayedVHsChanged = pyqtSignal()
     def setDisplayedVHs(self, vhrefs):
         """Spawns or destroys PathHelix such that displayedVHs
         has the same VirtualHelix in the same order as vhrefs
@@ -119,6 +120,7 @@ class PathHelixGroup(QGraphicsObject):
                 ph = PathHelix(vh, self)
             newPathHelixList.append(ph)
         self._setPathHelixList(newPathHelixList)
+        self.displayedVHsChanged.emit()
         
     def _pathHelixList(self):
         return self.pathHelixList
@@ -133,6 +135,7 @@ class PathHelixGroup(QGraphicsObject):
         self.label.setVisible(True)
         for ph in self.pathHelixList:
             if not ph in newList:
+                ph.handle().setParentItem(None)
                 ph.setParentItem(None)
         for ph in newList:
             ph.setParentItem(self)

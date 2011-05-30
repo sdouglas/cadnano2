@@ -33,23 +33,38 @@ from PyQt4.QtCore import QObject, pyqtSignal
 from PyQt4.QtGui import QUndoStack
 
 class Document(QObject):    
-    def __init__(self):
+    def __init__(self, incompleteArchivedDict=None):
         super(Document, self).__init__()
         self._parts = []
         self._selectedPart = None
-        self._undoStack = QUndoStack()
+        self._controller = None
+    
+    def controller(self):
+        return self._controller
+    
+    def setController(self, cont):
+        self._controller = cont
 
     def addDnaHoneycombPart(self):
         """
         Create and store a new DNAPart and instance, and return the instance.
         """
-        dnapart = DNAHoneycombPart(document=self)
-        self._parts.append(dnapart)
-        self.setSelectedPart(dnapart)
+        dnapart = DNAHoneycombPart()
+        self.addPart(dnapart)
         return dnapart
+    
+    def parts(self):
+        return self._parts
+        
+    partAdded = pyqtSignal(object)
+    def addPart(self, part):
+        self._parts.append(part)
+        part.setDocument(self)
+        self.setSelectedPart(part)
+        self.partAdded.emit(part)
 
     def undoStack(self):
-        return self._undoStack
+        return self.controller().undoStack()
 
     ############################ Transient (doesn't get saved) State ############################
     selectedPartChanged = pyqtSignal(object)
@@ -65,21 +80,16 @@ class Document(QObject):
 
 
     ############################ Archive / Unarchive ############################
-    def simpleRep(self,encoder):
-        """Returns a representation in terms of simple JSON-encodable types
-        or types that implement simpleRep"""
-        ret = {".class": "CADNanoDocument"}
-        ret["parts"] = self._parts
-        ret["dnaPartInstances"] = self._dnaPartInstances
-        return ret
-
-    @classmethod
-    def fromSimpleRep(cls, dct):
-        ret = Document()
-        ret._parts = dct['parts']
-        ret._dnaPartInstances = dct['dnaPartInstances']
-        return ret
-    def resolveSimpleRepIDs(self,idToObj):
-        pass  # Document owns its parts and dnaPartInstances
-              # so we didn't need to make weak refs to them
-
+    def fillSimpleRep(self, sr):
+        sr['.class'] = "Document"
+        sr['parts'] = self._parts
+    
+    # First objects that are being unarchived are sent
+    # ClassNameFrom.classAttribute(incompleteArchivedDict)
+    # which has only strings and numbers in its dict and then,
+    # sometime later (with ascending finishInitPriority) they get
+    # finishInitWithArchivedDict, this time with all entries
+    finishInitPriority = 0.0
+    def finishInitWithArchivedDict(self, completeArchivedDict):
+        for part in completeArchivedDict['parts']:
+            self.addPart(part)

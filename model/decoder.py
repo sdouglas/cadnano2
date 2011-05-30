@@ -27,40 +27,74 @@ decoder
 Created by Jonathan deWerd on 2011-01-26.
 """
 import json
-from .dnapart import DNAPart
+from .dnahoneycombpart import DNAHoneycombPart
 from .document import Document
 from .partinstance import PartInstance
 from .virtualhelix import VirtualHelix
 
 classNameToClassMap = {}
-classNameToClassMap['DNAPart'] = DNAPart
-classNameToClassMap['CADNanoDocument'] = Document
-classNameToClassMap['PartInstance'] = PartInstance
+classNameToClassMap['DNAHoneycombPart'] = DNAHoneycombPart
+classNameToClassMap['Document'] = Document
 classNameToClassMap['VirtualHelix'] = VirtualHelix
 
 class Decoder(object):
     """Has to be a class because it carries state (object ids)"""
     def __init__(self):
-        self.idToObj={}
+        self.idToObj=[]
         self.objsWithDeferredInit=[]
-    def decode(self,str):
-        rootObj = json.loads(str, object_hook=lambda x: self.decodeObj(self,x))
-        for o in self.objsWthWeakRefsToResolve:
-            o.resolveSimpleRepIDs(self.idToObj)
-    def decodeObj(self,dct):
-        if '.class' in dct:
-            obj = classNameToClassMap[dct['.class']](deferInit=True)
-            self.objsWithDeferredInit.append(obj)
-            if '.id' in dct:
-                ii = dct['id']
-                assert(ii not in self.idToObj)
-                self.idToObj[dct['.id']] = obj
+    def decode(self,string):
+        packageObject = json.loads(string)
+        assert(packageObject[".format"]=="caDNAno2")
+        pkObjs = packageObject[".objects"]
+        objs = []
+        for i in range(len(pkObjs)):
+            objs.append(pkObjs[str(i)])
+        objs.append(packageObject[".root"])
+        for i in range(len(objs)):
+            archivedDict = objs[i]
+            archivedClassName = archivedDict.get('.class', None)
+            if not archivedClassName:
+                raise TypeError("trying to decode object from non-object dict (no .class) %s"%archivedDict)
+            archivedClass = classNameToClassMap.get(archivedClassName, None)
+            if archivedClass==None:
+                raise TypeError("I don't know how to unarchive a %s; it isn't in my classNameToClassMap."%archivedClassName)
+            # The dict is incomplete because obj refs haven't been resolved
+            # to point at objects yet; all objects must exist before we can reliably
+            # fetch the object that an obj ref (entry like {".":123}) points to!
+            newObj = archivedClass(incompleteArchivedDict=archivedDict)
+            self.objsWithDeferredInit.append((archivedClass, archivedDict, newObj))
+            self.idToObj.append(newObj)
+        self.objsWithDeferredInit.sort(key=lambda x: x[0].finishInitPriority)
+        for  objClass, objDict, obj in self.objsWithDeferredInit:
+            completeArchivedDict = self.resolveRefsIn(objDict)
+            # This time the argument passed is called completeArchivedDict because
+            # refs have been resolved by resolveRefsIn
+            obj.finishInitWithArchivedDict(completeArchivedDict)
+        return self.idToObj[-1]  # The root object
+            
+    def resolveRefsIn(self, obj):
+        if isinstance(obj, (int, long, float, complex, str, unicode)):
             return obj
-        elif '.id' in dct:
-            return self.
-        return dct
-    def objectForId(idNumber):
-        return self.idToObj(idNumber)
+        if isinstance(obj, dict):
+            if len(obj)==1 and obj.get(".", None)!=None:
+                return self.idToObj[obj["."]]
+            ret = {}
+            for k,v in obj.iteritems():
+                ret[k] = self.resolveRefsIn(v)
+            return ret
+        if isinstance(obj, (list, tuple)):
+            ret = []
+            for v in obj:
+                ret.append(self.resolveRefsIn(v))
+            return ret
+        raise TypeError("Cannot resolve refs in (%s)%s; unfamiliar type"%(type(obj),obj))
+                
+    
+    class DecodingStub():
+        def __init__(self, idnum):
+            self.idnum = idnum
+        def initWithDecoder(self, dec):
+            pass
 
 
 def decode(str):

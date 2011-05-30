@@ -23,7 +23,7 @@
 # http://www.opensource.org/licenses/mit-license.php
 
 from PyQt4.QtGui import *
-from PyQt4.QtCore import SIGNAL, QString
+from PyQt4.QtCore import SIGNAL, QString, QFileInfo
 from cadnano import app
 from idbank import IdBank
 from model.document import Document
@@ -34,6 +34,7 @@ from sliceview.honeycombslicegraphicsitem import HoneycombSliceGraphicsItem
 from treeview.treecontroller import TreeController
 from pathview.handles.activeslicehandle import ActiveSliceHandle
 from model.enum import LatticeType
+from model.decoder import decode
 
 if app().isInMaya():
     from .mayawindow import DocumentWindow
@@ -45,17 +46,18 @@ class DocumentController():
     submodel, etc) UI elements to their corresponding actions in the model
     """
 
-    def __init__(self):
+    def __init__(self, doc=None, fname=None):
         app().documentControllers.add(self)
-        self.doc = Document()
-        self.idbank = IdBank()
-        self.undoStack = self.doc.undoStack()
-        app().undoGroup.addStack(self.undoStack)
+        self._undoStack = QUndoStack()
+        self._filename = fname if fname else "untitled.cn2"
+        self._hasNoAssociatedFile = fname==None
         self.win = DocumentWindow(docCtrlr=self)
+        self.connectWindowEventsToSelf()
         self.win.show()
-        self._filename = "untitled.cadnano"
         self.treeController = TreeController(self.win.treeview)
-        self.createConnections()
+        self._document = None
+        self.setDocument(Document() if not doc else doc)
+        app().undoGroup.addStack(self.undoStack())
 
     def filename(self):
         return self._filename
@@ -64,10 +66,24 @@ class DocumentController():
         if self._filename == proposedFName:
             return True
         self._filename = proposedFName
+        self._hasNoAssociatedFile = False
         self.setDirty(True)
         return True
-
-    def createConnections(self):
+    
+    def document(self):
+        return self._document
+    
+    def setDocument(self, doc):
+        self._document = doc
+        doc.setController(self)
+        doc.partAdded.connect(self.docPartAddedEvent)
+        for p in doc.parts():
+            self.docPartAddedEvent(p)
+    
+    def undoStack(self):
+        return self._undoStack
+        
+    def connectWindowEventsToSelf(self):
         """
         Organizational method to collect signal/slot connectors.
         """
@@ -93,6 +109,9 @@ class DocumentController():
         
         
     # end def
+    
+    def dirty(self, *args, **kwargs):
+        self.setDirty(True)
 
     def setDirty(self, dirty=True):
         self.win.setWindowModified(dirty)
@@ -105,7 +124,9 @@ class DocumentController():
 
     def openClicked(self):
         """docstring for openClicked"""
-        print "open clicked"
+        fname = QFileDialog.getOpenFileName(None, "Open Document", "/", "caDNAno2 Files (*.cn2);; cadnano Files (*.cadnano)")
+        doc = decode(file(fname).read())
+        DocumentController(doc, fname)
     # end def
 
     def closeClicked(self):
@@ -114,16 +135,14 @@ class DocumentController():
     # end def
 
     def saveClicked(self):
-        """docstring for saveClicked"""
-        try:
-            f = open(self.filename())
-            f.write(encode(self.doc))
-            f.close()
-        except Exception:
-            print "Save "
-        return True
+        if self._hasNoAssociatedFile:
+            return self.saveAsClicked()
+        f = open(self.filename(), 'w')
+        encode(self._document, f)
+        f.close()
+        self.setDirty(False)
 
-    def saveAsClicked():
+    def saveAsClicked(self):
         filename = self.filename()
         if filename == None:
             directory = "."
@@ -132,11 +151,12 @@ class DocumentController():
         filename = QFileDialog.getSaveFileName(self.win,\
                             "%s - Save As" % QApplication.applicationName(),\
                             directory,\
-                            "%s (*.cadnano)" % QApplication.applicationName())
+                            "%s (*.cn2)" % QApplication.applicationName())
         if filename.isEmpty():
             return False
-        if not filename.toLower().endswith(".cadnano"):
-            filename += ".cadnano"
+        filename = str(filename)
+        if not filename.lower().endswith(".cn2"):
+            filename += ".cn2"
         self.setFilename(filename)
         return self.saveClicked()
 
@@ -155,17 +175,12 @@ class DocumentController():
         print "+square clicked"
     # end def
 
-    def addHoneycombHelixGroup(self, nrows=20, ncolumns=20):
-        """docstring for addHoneycombHelixGroup"""
-        # Create a new DNA part
-        dnaPart = self.doc.addDnaHoneycombPart()
-
-        # Create a Slice view of part
-        shg = HoneycombSliceGraphicsItem(dnaPart,\
+    ################# Spawning / Destroying HoneycombSliceGraphicsItems and PathHelixGroups for Parts #################
+    def docPartAddedEvent(self, part):
+        shg = HoneycombSliceGraphicsItem(part,\
                                          controller=self.win.sliceController,\
                                          parent=self.win.sliceroot)
-        # Create a Path view of the part
-        phg = PathHelixGroup(dnaPart,\
+        phg = PathHelixGroup(part,\
                              controller=self.win.pathController,\
                              parent=self.win.pathroot)
 
@@ -174,11 +189,16 @@ class DocumentController():
             # need to create a permanent class level reference to this so that it doesn't get garbage collected
             self.solidlist.append(solhg)
             phg.scaffoldChange.connect(solhg.handleScaffoldChange)
-        
-        # Connect signals and slots
+            
         ash = phg.activeSliceHandle()
         self.win.sliceController.activeSliceLastSignal.connect(ash.moveToLastSlice)
         self.win.sliceController.activeSliceFirstSignal.connect(ash.moveToFirstSlice)
+        
+        
+    def addHoneycombHelixGroup(self, nrows=20, ncolumns=20):
+        """docstring for addHoneycombHelixGroup"""
+        # Create a new DNA part
+        dnaPart = self._document.addDnaHoneycombPart()
     # end def
 
     def deleteClicked(self):

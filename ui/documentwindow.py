@@ -77,9 +77,8 @@ class DocumentWindow(QMainWindow, ui_mainwindow.Ui_MainWindow):
                     QGraphicsView.FullViewportUpdate)
                     
         # Edit menu setup
-        self.undoStack = docCtrlr.undoStack
-        self.actionUndo = docCtrlr.undoStack.createUndoAction(self)
-        self.actionRedo = docCtrlr.undoStack.createRedoAction(self)
+        self.actionUndo = docCtrlr.undoStack().createUndoAction(self)
+        self.actionRedo = docCtrlr.undoStack().createRedoAction(self)
         self.actionUndo.setText(QApplication.translate("MainWindow", "Undo", None, QApplication.UnicodeUTF8))
         self.actionUndo.setShortcut(QApplication.translate("MainWindow", "Ctrl+Z", None, QApplication.UnicodeUTF8))
         self.actionRedo.setText(QApplication.translate("MainWindow", "Redo", None, QApplication.UnicodeUTF8))
@@ -90,6 +89,9 @@ class DocumentWindow(QMainWindow, ui_mainwindow.Ui_MainWindow):
         self.menuEdit.insertAction(self.sep, self.actionRedo)
         self.menuEdit.insertAction(self.actionRedo, self.actionUndo)
         # self.showSizes()
+    
+    def undoStack(self):
+        return self.docCtrlr.undoStack()
 
     def showSizes(self):
         myheight = self.splitter.frameRect().width()
@@ -102,4 +104,4 @@ class DocumentWindow(QMainWindow, ui_mainwindow.Ui_MainWindow):
     # end def
 
     def focusInEvent(self):
-        app().undoGroup.setActiveStack(self.controller.undoStack)
+        app().undoGroup.setActiveStack(self.controller.undoStack())

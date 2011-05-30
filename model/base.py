@@ -25,6 +25,7 @@
 base.py
 Created by Shawn Douglas on 2011-02-08.
 """
+from .enum import StrandType
 
 class Base(object):
     """
@@ -43,7 +44,6 @@ class Base(object):
         self._n = index
     
     def __str__(self):
-        threeB, fiveB = '_', '_'
         fiveTo3 = self._vhelix.directionOfStrandIs5to3(self._strandtype)
         if fiveTo3:
             # If we move to self._3pBase and stay on the same 5 to 3 strand
@@ -51,26 +51,66 @@ class Base(object):
             nOffsetOf3 = 1
         else:
             nOffsetOf3 = -1
+        # What can a (3' or 5' end) look like?
+        # _     if _{3,5}pBase == None
+        # <     this base connects to the preceeding (leftward in the graphical view, can be either 3' or 5' depending on parity) base
+        # 0:12  this base connects to vhelx 0, base 12
+        # What does a base look like?
+        # (3' or 5' end)(3' or 5' end), of course
+        # Examples:
+        # <,>    a base in the middle of a segment (connected part of a strand)
+        # <,_    an endpoint of a segment (would be a triangular or square handle)
+        # 0:1,>  a crossover to vhelix 0, base 1 that is connected to a segment going rightwards
+        threeB, fiveB = '_', '_'
         if self._3pBase:
-            if self._3pBase._vhelix == self._vhelix:
-                if self._3pBase._n == self._n + nOffsetOf3:
-                    threeB = fiveTo3 and '>' or '<'
-                else:
-                    threeB = '!'
+            if self._3pBase._vhelix==self._vhelix and\
+               self._3pBase._n == self._n + nOffsetOf3:
+                    threeB = '>' if fiveTo3 else '<'
             else:
-                threeB = str(self._3pBase.vhelixNum())
+                    threeB = "%i:%i"%(self._3pBase.vhelixNum(), self._3pBase._n)
         if self._5pBase:
-            if self._5pBase.vhelixNum() == self.vhelixNum():
-                if self._5pBase._n == self._n - nOffsetOf3:
-                    fiveB = fiveTo3 and '<' or '>'
-                else:
-                    fiveB = '!'
+            if self._5pBase._vhelix==self._vhelix and\
+               self._5pBase._n == self._n - nOffsetOf3:
+                    fiveB = '<' if fiveTo3 else '>'
             else:
-                fiveB = str(self._5pBase.vhelixNum())
+                    fiveB = "%i:%i"%(self._3pBase.vhelixNum(), self._3pBase._n)
         if fiveTo3:
-            return fiveB + threeB
+            return fiveB + ',' + threeB
         else:
-            return threeB + fiveB
+            return threeB + ',' + fiveB
+    
+    def setConnectsFromString(self, string):
+        # Resets self._{5,3}pBase according to str, which
+        # is a string in the format of those returned by __str__
+        fiveTo3 = self._vhelix.directionOfStrandIs5to3(self._strandtype)
+        if self._strandtype==StrandType.Staple:
+            oppositeST = StrandType.Scaffold
+        else:
+            oppositeST = StrandType.Staple
+        direction3p = 1 if fiveTo3 else -1
+        strand = self._vhelix._strand(self._strandtype)
+        l, r = string.split(',')
+        fiveP, threeP = (l,r) if fiveTo3 else (r,l)
+        if threeP=='_':
+            self._3pBase = None
+        elif threeP==('>' if fiveTo3 else '<'):
+            self._3pBase = strand[self._n+direction3p]
+        elif threeP==('<' if fiveTo3 else '>'):
+            raise ValueError("Opposite directions on 3p of base '%s' in %s strand?!"%(string, "5->3" if fiveTo3 else "3->5"))
+        else:
+            helixNum, baseNum = threeP.split(':')
+            remoteVH = self._vhelix.part().getVirtualHelix(int(helixNum))
+            self._3pBase = remoteVH._strand(oppositeST)[int(baseNum)]
+        if fiveP=='_':
+            self._5pBase = None
+        elif fiveP==('<' if fiveTo3 else '>'):
+            self._5pBase = strand[self._n-direction3p]
+        elif fiveP==('>' if fiveTo3 else '<'):
+            raise ValueError("Opposite directions on 5p of base '%s' in %s strand?!"%(string, "5->3" if fiveTo3 else "3->5"))
+        else:
+            helixNum, baseNum = fiveP.split(':')
+            remoteVH = self._vhelix.part().getVirtualHelix(int(helixNum))
+            self._5pBase = remoteVH._strand(oppositeST)[int(baseNum)]
             
     def __repr__(self):
         if self._3pBase:
@@ -87,6 +127,7 @@ class Base(object):
             return str((b5, self._n, b3))
         else:
             return str((b3, self._n, b5))
+        
     
     def _set5Prime(self, toBase):
         """Only VirtualHelix should call this method. Returns l

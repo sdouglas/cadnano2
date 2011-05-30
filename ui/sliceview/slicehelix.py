@@ -131,6 +131,11 @@ class SliceHelix(QGraphicsItem):
 
     def boundingRect(self):
         return self.rect
+    
+    def mouseDoubleClickEvent(self, event):
+        self.createOrAddBasesToVirtualHelix(\
+            addBasesIfVHExists=True,\
+            addToScaffold=event.modifiers()&Qt.ShiftModifier>0)
 
     def mousePressEvent(self, event):
         self.createOrAddBasesToVirtualHelix()
@@ -139,7 +144,7 @@ class SliceHelix(QGraphicsItem):
         else:
             self.part().setSelection((self.virtualHelix(),))
 
-    def createOrAddBasesToVirtualHelix(self, addToScaffold=False):
+    def createOrAddBasesToVirtualHelix(self, addBasesIfVHExists=False, addToScaffold=False):
         coord = (self._row, self._col)
         vh = self.virtualHelix()
         index = self.part().activeSlice()
@@ -147,7 +152,7 @@ class SliceHelix(QGraphicsItem):
             vh = VirtualHelix()
             self.part().setVirtualHelixAt(coord, vh)
             vh.basesModified.connect(self.update)
-        else:  # Just add more bases
+        elif addBasesIfVHExists:
             vh = self.virtualHelix()
             nb = vh.numBases()
             vh.connectStrand(StrandType.Scaffold if addToScaffold else StrandType.Staple, index-1, index+1)

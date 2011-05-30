@@ -22,58 +22,149 @@
 #
 # http://www.opensource.org/licenses/mit-license.php
 
-#from model.document import Document
-#from model.encoder import encode
-#from model.decoder import decode
-#d=Document()
-#s=encode(d)
-#dd=decode(s)
-#s==encode(dd)
-
+# See bottom of file for public API
 """
 encoder.py
 """
 import json
 from StringIO import StringIO
+from util import *
+import re
 
-class Encoder(json.JSONEncoder):
-    def __init__(self):
-        super(Encoder,self).__init__()
+class Encoder(object):
+    def __init__(self, rootObj):
         self._objects = []
         self._objToIndex = {}  # Maps objects to their index in the _objects array
+        self.root = rootObj
+        self.indentLevel = 0
         
     def dump(self, io):
-        io.write('{".format":"caDNAno2",.root=')
+        self.io = io
+        io.write('{".format":"caDNAno2", ".root":')
+        self.encodeObj(self.root, useRef=False)
+        io.write(', ".objects":{\n ')
+        i=0
+        while i<len(self._objects):
+            io.write('%s"%i":'%('\n,' if i>0 else '', i))
+            self.encodeObj(self._objects[i], useRef=False)
+            i += 1
+        io.write('}}')
             
     def dumps(self):
         out = StringIO()
         self.dump(out)
         return out.getvalue()
-        
-    def default(self, obj):
-        # If you just hit the assert below,
-        # something (probably a circular strong reference) is misdesigned.
-        # Use weak references (storing IDs not objects) to break the loop.
-        assert(obj not in self._alreadyEncoded)      
-        assert(self._alreadyEncoded.add(obj) == None)
-        if hasattr(obj, "simpleRep"):
-            sr = obj.simpleRep(self)
-            if obj in self._objToId:
-                sr = {'.id':self._objToId[obj]}
+    
+    def encodeNum(self, n):
+        self.io.write(json.dumps(n))
+    def encodeStr(self, s):
+        self.io.write(json.dumps(s))
+    def encodeDict(self, d):
+        io = self.io
+        io.write('{')
+        first = True
+        self.indentLevel += 1
+        simp = self.approxStrLength(d)<50
+        for k in d:
+            if first:
+                first = False
             else:
-                sr['.id'] = self._nextID
-                self._nextID += 1
-            return sr
-        else:
-            return json.JSONEncoder.default(self, obj)
+                io.write(',')
+            if not simp:
+                io.write('\n'+'\t'*self.indentLevel)
+            self.encodeObj(k, useRef=True)
+            io.write(':')
+            self.encodeObj(d[k], useRef=True)
+        self.indentLevel -= 1
+        io.write('}')
+    def encodeArr(self, a):
+        io = self.io
+        io.write('[')
+        first = True
+        self.indentLevel += 1
+        simp = self.approxStrLength(a)<50
+        for o in a:
+            if first:
+                first = False
+            else:
+                io.write(',')
+            if not simp:
+                io.write('\n'+'\t'*self.indentLevel)
+            self.encodeObj(o, useRef=True)
+        self.indentLevel -= 1
+        io.write(']')
+    typeToOtherEncoder = {int:encodeNum, long:encodeNum,\
+                          float:encodeNum, complex:encodeNum,\
+                          str:encodeStr, dict:encodeDict,\
+                          list:encodeArr, tuple:encodeArr}
+    def encodeObj(self, o, useRef=True):
+        io = self.io
+        if o==None:
+            io.write('null')
+            return
+        otherEncoder = self.typeToOtherEncoder.get(type(o), None)
+        if otherEncoder:
+            return otherEncoder(self, o)
+        if useRef:
+            idno = self._objToIndex.get(o, None)
+            if idno == None:
+                idno = len(self._objects)
+                self._objects.append(o)
+                self._objToIndex[o] = idno
+            io.write('{".":%i}'%idno)
+            return
+        d = {}
+        o.fillSimpleRep(d)
+        self.indentLevel += 1
+        io.write('{".class":"%s"'%d[".class"])
+        del d[".class"]
+        simp = self.approxStrLength(d)<30
+        for k in d:
+            io.write(',')
+            if not simp:
+                io.write('\n'+'\t'*self.indentLevel)
+            self.encodeObj(k, useRef=True)
+            io.write(':')
+            self.encodeObj(d[k], useRef=True)
+        self.indentLevel -= 1
+        io.write('}')
 
-    def idForObject(obj):
-        if obj in self._objToId:
-            return self._objToId[obj]
-        else:
-            self._nextID += 1
-            return self._nextID-1
-
-
-def encode(root):
-    return json.dumps(root, cls=Encoder)
+    # For formatting purposes, it is often convenient to know
+    # if an array or dict should be broken over multiple lines
+    # or not.
+    def approxStrLength(self, item):
+        """Rougly estimates the number of characters required
+        to print item inline"""
+        if isinstance(item, (int, long, float, complex, type(None), type(True), type(False))):
+            return 5
+        if isinstance(item, (str, unicode)):
+            return len(item)+2
+        if isinstance(item, (tuple, list)):
+            sublength = 0
+            for o in item:
+                sublength += self.approxStrLength(o)
+            return sublength + 2 + 2*len(item)
+        if isinstance(item, dict):
+            sublength = 0
+            for k,v in item.iteritems():
+                sublength += self.approxStrLength(k) + self.approxStrLength(v)
+            return sublength + 2 + 3*len(item)
+        return 5  # Refs, mostly
+    simpleTypes = (int, long, float, complex, str, type(None))
+            
+    
+        
+    
+    
+    
+################## Public API ####################
+def encode(root, encodeIntoStream=None):
+    """Writes the serialized representation of root
+    to encodeIntoStream (by calling .write('str') on
+    it many times). If encodeIntoStream is none, returns
+    the python string of the serialized representation."""
+    e = Encoder(root)
+    if encodeIntoStream==None:
+        return e.dumps()
+    else:
+        e.dump(encodeIntoStream)
