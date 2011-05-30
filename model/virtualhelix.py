@@ -488,6 +488,10 @@ class VirtualHelix(QObject):
         """docstring for scaffoldBase"""
         return self._scaffoldBases[index]
 
+    def stapleBase(self, index):
+        """docstring for scaffoldBase"""
+        return self._stapleBases[index]
+        
     def possibleNewCrossoverAt(self, strandType, fromIndex, neighbor, toIndex):
         """Return true if scaffold could crossover to neighbor at index.
         Useful for seeing if potential crossovers from potentialCrossoverList
@@ -496,8 +500,13 @@ class VirtualHelix(QObject):
         toB   = neighbor._strand(strandType)[toIndex]
         if fromB.isCrossover() or toB.isCrossover():
             return False
-        return  not self.scaffoldBase(fromIndex).isEmpty() and \
-                not neighbor.scaffoldBase(toIndex).isEmpty()
+        else:
+            if strandType == StrandType.Scaffold:
+                return  not self.scaffoldBase(fromIndex).isEmpty() and \
+                    not neighbor.scaffoldBase(toIndex).isEmpty()
+            else:
+                return  not self.stapleBase(fromIndex).isEmpty() and \
+                    not neighbor.stapleBase(toIndex).isEmpty()
 
     def updatePreCrossoverPositions(self, clickIndex=None):
         """docstring for updatePreCrossoverPositions"""
