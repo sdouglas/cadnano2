@@ -87,8 +87,9 @@ class XoverHandle(object):
         # Determine start and end points of quad curve
         qA = QPointF(pA.x(), pA.y() + yA)
         qB = QPointF(pB.x(), pB.y() + yB)
-        c1 = QPointF()
 
+        # Determine control point of quad curve
+        c1 = QPointF()
         # case 1: same strand
         if fromHelix.number() == toHelix.number():
             if pA.x() < pB.x():  # draw only from left
@@ -111,6 +112,8 @@ class XoverHandle(object):
             else:
                 c1.setX(pA.x() + self.xScale * abs(pB.y() - pA.y()))
             c1.setY(0.5 * (pA.y() + pB.y()))
+
+        # Construct painter path
         painterpath = QPainterPath()
         painterpath.moveTo(pA)
         painterpath.lineTo(qA)
