@@ -45,4 +45,28 @@ def trace(n):
         # f is a stack frame like
         # ('/path/script.py', 42, 'funcname', 'current = line - of / code')
         print (path.basename(f[0])+':%i'%f[1]).ljust(30) + f[2]
-    
+
+def defineEventForwardingMethodsForClass(classObj, forwardedEventSuffix, eventNames):
+    """Automatically defines methods of the form eventName0Event(self, event) on
+    classObj that call self.activeTool().eventName0ForwardedEventSuffix(self, event).
+    Note that self here is the 2nd argument of eventName0ForwardedEventSuffix which 
+    will be defined with 3 arguments, the first of which will implicitly be the
+    activeTool(). If self.activeTool() does not implement eventName0ForwardedEventSuffix,
+    no error is raised.
+    """
+    for evName in eventNames:
+        delegateMethodName = evName + forwardedEventSuffix
+        eventMethodName = evName + 'Event'
+        
+        def makeTemplateMethod(eventMethodName, delegateMethodName):
+            def templateMethod(self, event):
+                activeTool = self.activeTool()
+                if activeTool:
+                    delegateMethod = getattr(activeTool, delegateMethodName, None)
+                    if delegateMethod:
+                        delegateMethod(self, event)
+                else:
+                    QGraphicsItem.hoverLeaveEvent(self, event)
+            return templateMethod
+        eventHandler = makeTemplateMethod(eventMethodName, delegateMethodName)
+        setattr(classObj, eventMethodName, eventHandler)

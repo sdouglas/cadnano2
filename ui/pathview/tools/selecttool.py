@@ -32,6 +32,10 @@ class SelectTool(object):
     def __init__(self):
         super(SelectTool, self).__init__()
         self._mouseDownBase = None
+        self._lastValidBase = None
+    
+    def toolPress(self):
+        pass
 
     def mousePressPathHelix(self, ph, event):
         """Activate this item as the current helix"""
@@ -92,6 +96,9 @@ class SelectTool(object):
         if adj and startOnBreakpoint and vHelix.hasStrandAt(*adj):
             useClearMode = True
         if useClearMode:
-            vHelix.clearStrand(fr[0], fr[1], to[1])
+            if to[1]<fr[1]:
+                vHelix.clearStrand(fr[0], fr[1], to[1]+1)
+            else:
+                vHelix.clearStrand(fr[0], fr[1], to[1])
         else:
             vHelix.connectStrand(fr[0], fr[1], to[1])
