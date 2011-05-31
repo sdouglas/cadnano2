@@ -26,8 +26,8 @@ vh1.connectStrand(StrandType.Staple, 0, 4)
 print str(vh)
 print str(vh1) + "\n\n"
 
-print "vh.connectBases(StrandType.Staple, 2, vh1, 3)"
-vh.connectBases(StrandType.Staple, 2, vh1, 2)
+print "vh.connect3To5(StrandType.Staple, 2, vh1, 3)"
+vh.connect3To5(StrandType.Staple, 2, vh1, 2)
 print str(vh)
 print str(vh1)
 interact(local=locals())

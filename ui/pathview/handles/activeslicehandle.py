@@ -148,7 +148,7 @@ class ActiveSliceHandle(QGraphicsItem):
         if self.controller().toolUse or not self._dragMode:
             return
         x = event.scenePos().x()
-        dx = int((x - self.pressX)/self.baseWidth)
+        dx = int((x - self.pressX)/self._baseWidth)
         self.setActiveSlice(self.pressBaseIdx+dx)
 
     def mousePressEvent(self, event):

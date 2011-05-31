@@ -63,6 +63,9 @@ class HoneycombSliceGraphicsItem(QGraphicsItem):  # was a QGraphicsObject change
         self.parent = parent
         self.setParentItem(parent)
         self.setZValue(100)
+        # The coords of the upper left corner of the slice being
+        # hovered over
+        self._hoverCoords = None
 
         # The deselector grabs mouse events that missed a slice
         # and clears the selection when it gets one
@@ -118,6 +121,14 @@ class HoneycombSliceGraphicsItem(QGraphicsItem):  # was a QGraphicsObject change
         helix.setFlag(QGraphicsItem.ItemStacksBehindParent, True)
         helix.setPos(ul)
         self._helixhash[(row, column)] = helix
+    
+    def hoverCoords(self):
+        return self._hoverCoords
+    
+    def setHoverCoords(self, newCoords):
+        self._selectionPath = None
+        self._hoverCoords = newCoords
+        self.update()
         
     def _killSliceAt(row, column):
         self._helixhash[(row, column)].setParentItem(None)
@@ -175,10 +186,22 @@ class HoneycombSliceGraphicsItem(QGraphicsItem):  # was a QGraphicsObject change
         if self._selectionPath:
             return self._selectionPath
         p = QPainterPath()
-        for vh in self.part().selection():
-            ul = self.upperLeftCornerForCoords(*vh.coord())
-            rect = self.sliceHelixRect.translated(*ul)
-            p.addEllipse(rect)
+        if self.part().selectAllBehavior:
+            # If the slice automatically selects everything, it makes
+            # little sense to draw focus rings around all the helices.
+            # Instead, we only draw focus rings around the helix being
+            # hovered over.
+            if self.hoverCoords():
+                ul = self.upperLeftCornerForCoords(*self.hoverCoords())
+                rect = self.sliceHelixRect.translated(*ul)
+                p.addEllipse(rect)
+        else:
+            # If the slice has a selection, it makes sense to highlight
+            # that selection.
+            for vh in self.part().selection():
+                ul = self.upperLeftCornerForCoords(*vh.coord())
+                rect = self.sliceHelixRect.translated(*ul)
+                p.addEllipse(rect)
         self._selectionPath = p
         return p
     
@@ -232,3 +255,12 @@ class HoneycombSliceGraphicsItem(QGraphicsItem):  # was a QGraphicsObject change
             return self.parentHGI.boundingRect()
         def paint(self, painter, option, widget=None):
             pass
+    
+    class SelectionPainter(QGraphicsItem):
+        """The SelectionPainter lives above the children and
+        paints their focus rings."""
+        def __init__(parent):
+            super(HoneycombSliceGraphicsItem.SelectionPainter, self).__init__()
+        def boundingRect(self):
+            pass
+        

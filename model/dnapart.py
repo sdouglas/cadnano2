@@ -40,6 +40,7 @@ class DNAPart(Part):
             * change its idnum (the dnapart owns the idnum)
             * change its virtualhelix object (maybe from or to None)
     """
+    selectAllBehavior = True  # Always select all helices in part
     def __init__(self, *args, **kwargs):
         if self.__class__ == DNAPart:
             raise NotImplementedError("This class is abstract. Perhaps you want DNAHoneycombPart.")
@@ -61,6 +62,8 @@ class DNAPart(Part):
         # Abstract
         # self._maxBase = 0  # honeycomb is 42
         # self._activeSlice = 0  # honeycomb is 21
+        if self.selectAllBehavior:
+            self.virtualHelixAtCoordsChanged.connect(self.selectAll)
     
     def setDocument(self, newDoc):
         """Only called by Document"""
@@ -282,9 +285,14 @@ class DNAPart(Part):
     
     selectionWillChange = pyqtSignal(object)
     def setSelection(self, newSelection):
+        if self.selectAllBehavior:
+            newSelection = self.getVirtualHelices()
         ns = set(newSelection)
         self.selectionWillChange.emit(ns)
         self._selection = ns
+    
+    def selectAll(self, *args, **kwargs):
+        self.setSelection(self.getVirtualHelices())
     
     def activeSlice(self):
         """The active slice is the index of the slice selected by the

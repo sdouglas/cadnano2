@@ -397,10 +397,10 @@ class VirtualHelix(QObject):
         c = self.ClearStrandCommand(self, strandType, startIndex, endIndex)
         self.undoStack().push(c)
     
-    def connectBases(self, strandType, fromIdx, toVH, toIdx):
+    def connect3To5(self, strandType, fromIdx, toVH, toIdx):
         assert(0 <= fromIdx and fromIdx < len(self._strand(strandType)))
         assert(0 <= toIdx and toIdx < len(toVH._strand(strandType)))
-        c = self.ConnectBasesCommand(strandType, self, fromIdx, toVH, toIdx)
+        c = self.Connect3To5Command(strandType, self, fromIdx, toVH, toIdx)
         self.undoStack().push(c)
     
     # Derived private API
@@ -420,7 +420,7 @@ class VirtualHelix(QObject):
                                             fromIndex, toVhelix, toIndex))
         else:
             raise IndexError("%s doesn't look like a StrandType" % strandType)
-        self.connectBases(strandType, fromIndex, toVhelix, toIndex)
+        self.connect3To5(strandType, fromIndex, toVhelix, toIndex)
 
     def removeXoverTo(self, strandType, fromIndex, toVhelix, toIndex):
         """docstring for installXoverTo"""
@@ -519,9 +519,9 @@ class VirtualHelix(QObject):
             # end else
             self._vh.emitModificationSignal()
     
-    class ConnectBasesCommand(QUndoCommand):
+    class Connect3To5Command(QUndoCommand):
         def __init__(self, strandType, fromHelix, fromIndex, toHelix, toIndex):
-            super(VirtualHelix.ConnectBasesCommand, self).__init__()
+            super(VirtualHelix.Connect3To5Command, self).__init__()
             self._strandType = strandType
             self._fromHelix = fromHelix
             self._fromIndex = fromIndex
@@ -532,13 +532,7 @@ class VirtualHelix(QObject):
             fromB = self._fromHelix._strand(self._strandType)[self._fromIndex]
             toB   = self._toHelix._strand(self._strandType)[self._toIndex]
             
-            # if self._fromHelix.directionOfStrandIs5to3(self._strandType):
-            if True:
-                self._undoDat = fromB._set3Prime(toB)
-                # print "else 3d"
-            else:
-                self._undoDat = fromB._set5Prime(toB)
-                # print "else 5d"
+            self._undoDat = fromB._set3Prime(toB)
             
             self._fromHelix.emitModificationSignal()
             self._toHelix.emitModificationSignal()
@@ -547,12 +541,9 @@ class VirtualHelix(QObject):
             fromB = self._fromHelix._strand(self._strandType)[self._fromIndex]
             toB   = self._toHelix._strand(self._strandType)[self._toIndex]
             assert(self._undoDat)  # Must redo/apply before undo
-            # if self._fromHelix.directionOfStrandIs5to3(self._strandType):
-            if True:
-                fromB._unset3Prime(toB, *self._undoDat)
-            else:
-                fromB._unset5Prime(toB, *self._undoDat)
-            
+
+            fromB._unset3Prime(toB, *self._undoDat)
+
             self._fromHelix.emitModificationSignal()
             self._toHelix.emitModificationSignal()
     

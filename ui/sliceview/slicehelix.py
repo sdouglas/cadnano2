@@ -143,6 +143,12 @@ class SliceHelix(QGraphicsItem):
             self.virtualHelix().setSelected(True)
         else:
             self.part().setSelection((self.virtualHelix(),))
+    
+    def hoverEnterEvent(self, event):
+        self._parent.setHoverCoords((self._row, self._col))
+    
+    def hoverLeaveEvent(self, event):
+        self._parent.setHoverCoords(None)
 
     def createOrAddBasesToVirtualHelix(self, addBasesIfVHExists=False, addToScaffold=False):
         coord = (self._row, self._col)

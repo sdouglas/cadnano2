@@ -55,7 +55,6 @@ class PathHelixGroup(QGraphicsObject):
     handleRadius = styles.SLICE_HELIX_RADIUS
     scafPen = QPen(styles.scafstroke, 2)
     nobrush = QBrush(Qt.NoBrush)
-    selectAllBehavior = False
     
     def __init__(self, part,\
                        controller=None,\
@@ -101,15 +100,7 @@ class PathHelixGroup(QGraphicsObject):
         self.pchGroup.updateActiveHelix(virtualhelix)
 
     def setPart(self, newPart):
-        if self.selectAllBehavior:
-            if self.part:
-                self.part.helixAdded.disconnect(self.helixAddedSlot)
-                self.part.helixWillBeRemoved.disconnect(self.helixRemovedSlot)
-            newPart.helixAdded.connect(self.helixAddedSlot)
-            newPart.helixWillBeRemoved.connect(self.helixRemovedSlot)
-            self.part = newPart
-            return
-        if self._part:
+        if self._part:   
             self._part.selectionWillChange.disconnect(self.selectionWillChange)
         newPart.selectionWillChange.connect(self.selectionWillChange)
         self._part = newPart
