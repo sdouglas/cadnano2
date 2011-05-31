@@ -42,8 +42,8 @@ from mmayacadnano.pathhelix3d import PathHelix3D  # For Campbell
 from weakref import ref
 from handles.pathhelixhandle import PathHelixHandle
 from math import floor
-from tools.penciltool import PencilTool
 from cadnano import app
+from util import *
 
 baseWidth = styles.PATH_BASE_WIDTH
 ppL5 = QPainterPath()  # Left 5' PainterPath
@@ -351,20 +351,5 @@ class PathHelix(QGraphicsItem):
 ################################ Events ################################
 forwardedEvents = ('hoverEnter', 'hoverLeave', 'hoverMove', 'mousePress',\
                    'mouseMove', 'mouseRelease')
-for evName in forwardedEvents:
-    delegateMethodName = evName + 'PathHelix'
-    eventMethodName = evName + 'Event'
-
-    def makeTemplateMethod(eventMethodName, delegateMethodName):
-        def templateMethod(self, event):
-            activeTool = self.activeTool()
-            if activeTool:
-                delegateMethod = getattr(activeTool, delegateMethodName, None)
-                if delegateMethod:
-                    delegateMethod(self, event)
-            else:
-                QGraphicsItem.hoverLeaveEvent(self, event)
-        return templateMethod
-    eventHandler = makeTemplateMethod(eventMethodName, delegateMethodName)
-    setattr(PathHelix, eventMethodName, eventHandler)
+defineEventForwardingMethodsForClass(PathHelix, 'PathHelix', forwardedEvents)
 # end class
