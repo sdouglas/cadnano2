@@ -38,7 +38,7 @@ Copyright (c) 2010 . All rights reserved.
 """
 from PyQt4.QtCore import *
 from PyQt4.QtGui import *
-
+import ui.styles as styles
 
 class CustomQGraphicsView(QGraphicsView):
     """
@@ -66,22 +66,9 @@ class CustomQGraphicsView(QGraphicsView):
     For details on these and other miscellaneous methods, see below.
     """
     def __init__(self, parent=None):
-        """on initialization we need to bind the Ctrl/command key to
-        enable manipulation of the view
-
-        Args:
-           self
-
-        Kwargs:
-           parent (QWidget): type of QWidget, such as QWidget.splitter() for the type of
-           View its has
-
-        Returns:
-           self
-
-        Raises:
-           None
-        
+        """
+        On initialization, we need to bind the Ctrl/command key to
+        enable manipulation of the view.
         """
         super(QGraphicsView, self).__init__(parent)
 
@@ -114,6 +101,8 @@ class CustomQGraphicsView(QGraphicsView):
         # self.setStyleSheet("QGraphicsView { background-color: rgba(255, 0, 0, 75%); }")
 
         self.setRubberBandSelectionMode(Qt.ContainsItemBoundingRect)
+
+        self.toolbar = None
     # end def
 
     def setScaleFitFactor(self, value):
@@ -121,44 +110,17 @@ class CustomQGraphicsView(QGraphicsView):
         self._scaleFitFactor = value
 
     def setKeyPan(self, button):
-        """Set the class pan button remotely
-
-        Args:
-           self
-           button: QtGui.Qt Namespace button identifier
-
-        Kwargs:
-            None
-
-        Returns:
-           None
-
-        Raises:
-           None
-           
-        """
+        """Set the class pan button remotely"""
         self._key_pan = button
     # end def
 
     def addToPressList(self, item):
+        """docstring for addToPressList"""
         self._pressList.append(item)
     # end def
 
     def keyPressEvent(self, event):
-        """
-        Args:
-           self
-           event (QKeyEvent): the event
-
-        Kwargs:
-            None
-
-        Returns:
-           None
-
-        Raises:
-           None
-        """
+        """docstring for keyPressEvent"""
         if event.key() == self._key_mod:
             self._transformEnable = True
         else:
@@ -167,20 +129,7 @@ class CustomQGraphicsView(QGraphicsView):
     # end def
 
     def keyReleaseEvent(self, event):
-        """
-        Args:
-           self
-           event (QKeyEvent): the event
-
-        Kwargs:
-            None
-
-        Returns:
-           None
-
-        Raises:
-           None
-        """
+        """docstring for keyReleaseEvent"""
         if event.key() == self._key_mod:
             self._transformEnable = False
             self._dollyZoomEnable = False
@@ -201,61 +150,28 @@ class CustomQGraphicsView(QGraphicsView):
         QGraphicsView.leaveEvent(self, event)
 
     def mouseMoveEvent(self, event):
-        """Must reimplement mouseMoveEvent of QGraphicsView to allow
+        """
+        Must reimplement mouseMoveEvent of QGraphicsView to allow
         ScrollHandDrag due to the fact that events are intercepted
         breaks this feature.
-
-        Args:
-           self
-           event (QMouseEvent): the event
-
-        Kwargs:
-            None
-
-        Returns:
-           None
-
-        Raises:
-           None
-        
         """
         if self._transformEnable == True:
             if self.dragMode() == self._yesDrag:
-                """
-                Add stuff to handle the pan event
-                """
+                # Add stuff to handle the pan event
                 xf = event.posF().x()
                 yf = event.posF().y()
                 self.sceneRootItem.translate((xf - self._x0)/self._scale_size,\
-                                            (yf - self._y0)/self._scale_size)
+                                             (yf - self._y0)/self._scale_size)
                 self._x0 = xf
                 self._y0 = yf
             elif self._dollyZoomEnable == True:
                 self.dollyZoom(event)
-            #else:
-            #    QGraphicsView.mouseMoveEvent(self, event)
-        #else:
         # adding this allows events to be passed to items underneath
         QGraphicsView.mouseMoveEvent(self, event)
     # end def
 
     def mousePressEvent(self, event):
-        """This takes a QMouseEvent for the event
-        Args:
-           self
-           event (QMouseEvent): the event
-
-        Kwargs:
-            None
-
-        Returns:
-           None
-
-        Raises:
-           None
-        
-        """
-        #if self._transformEnable == True:
+        """docstring for mousePressEvent"""
         if self._transformEnable == True and qApp.keyboardModifiers():
             which_buttons = event.buttons()
             if which_buttons in [self._key_pan, self._key_pan_alt]:
@@ -310,42 +226,12 @@ class CustomQGraphicsView(QGraphicsView):
     # end def
 
     def wheelEvent(self, event):
-        """This takes a QMouseEvent for the event
-
-        Args:
-           self
-           event (QMouseEvent): the event
-
-        Kwargs:
-            None
-
-        Returns:
-           None
-
-        Raises:
-           None
-        
-        """
+        """docstring for wheelEvent"""
         self.wheelZoom(event)
     #end def
 
     def wheelZoom(self, event):
-        """This takes a QMouseEvent for the event
-
-        Args:
-           self
-           event (QMouseEvent): the event
-
-        Kwargs:
-            None
-
-        Returns:
-           None
-
-        Raises:
-           None
-        
-        """
+        """docstring for wheelZoom"""
         if event.delta() > 0:  # rotated away from the user
             self.scaleUp()
         # end if
@@ -366,25 +252,10 @@ class CustomQGraphicsView(QGraphicsView):
             self.scale(self._scaleUpFactor, self._scaleUpFactor)
             self._scale_size *= self._scaleUpFactor
         # end if
-    # end def 
+    # end def
 
     def dollyZoom(self, event):
-        """This takes a QMouseEvent for the event
-
-        Args:
-           self
-           event (QMouseEvent): the event
-
-        Kwargs:
-            None
-
-        Returns:
-           None
-
-        Raises:
-           None
-        
-        """
+        """docstring for dollyZoom"""
         # QMouseEvent.y() returns the position of the mouse cursor relative
         # to the widget
         yf = event.y()
@@ -441,4 +312,16 @@ class CustomQGraphicsView(QGraphicsView):
         self.scale(self._scaleFitFactor, self._scaleFitFactor)
         self._scale_size *= self._scaleFitFactor
     # end def
+
+    def paintEvent(self, event):
+        if self.toolbar:
+            # attach to bottom right
+            # rect = self.frameSize()
+            # x = rect.width() - self.toolbar.boundingRect().width()
+            # y = rect.height() - self.toolbar.boundingRect().height()
+            # self.toolbar.setPos(self.mapToScene(x, y))
+            self.toolbar.setPos(self.mapToScene(0, 0))
+        QGraphicsView.paintEvent(self, event)
 #end class
+
+

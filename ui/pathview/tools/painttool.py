@@ -38,7 +38,7 @@ from pathtool import PathTool
 
 
 class PaintTool(PathTool):
-    def __init__(self, pathcontroller=None, parent=None):
+    def __init__(self, colorboxParent, pathcontroller=None, parent=None):
         """
         This class inherits from the PathTool class for the majority of
         methods/behaviours.  Essentially it adds merely decorator graphics
@@ -48,6 +48,17 @@ class PaintTool(PathTool):
         Its parent should be *always* be a PathHelix.
         """
         super(PaintTool, self).__init__(parent)
+    # end def
+
+    def toolHoverEnter(self, item, event):
+        print "PaintTool toolHoverEnter"
+        self.setParentItem(item)
+        self.show()
+    # end def
+
+    def toolHoverLeave(self, item, event):
+        print "PaintTool toolHoverLeave"
+        self.hide()
     # end def
 
     def toolPress(self, item, event):

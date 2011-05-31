@@ -64,15 +64,16 @@ class PathController(QObject):
         self.toolHoverLeave = None
         self.toolHoverMove = None
         self.toolPress = None
-        self._activeTool = PencilTool()
-        # self.selectTool = SelectTool()
-        self._activeTool = SelectTool()
+        self.selectTool = SelectTool()
         self.eraseTool = EraseTool(pathcontroller=self, parent=None)
         self.pencilTool = PencilTool()
         self.insertionTool = LoopTool(pathcontroller=self, parent=None)
         self.skipTool = SkipTool(pathcontroller=self, parent=None)
         self.breakTool = BreakTool(pathcontroller=self, parent=None)
-        self.paintTool = PaintTool(pathcontroller=self, parent=None)
+        self.paintTool = PaintTool(win.pathroot,\
+                                   pathcontroller=self,\
+                                   parent=None)
+        self._activeTool = PencilTool()
         # self.chooseSelectTool()
 
     def activeTool(self):
@@ -151,6 +152,10 @@ class PathController(QObject):
         widget.setChecked(True)
 
     def enableTool(self, tool):
+        if self.currentTool is self.mainWindow.actionPaint:
+            self.mainWindow.pathToolbar.show()
+        else:
+            self.mainWindow.pathToolbar.hide()
         self.toolUse = True
         self.toolPress = tool.toolPress
         self.toolHoverEnter = tool.toolHoverEnter
