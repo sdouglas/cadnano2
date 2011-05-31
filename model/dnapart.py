@@ -39,6 +39,7 @@ class DNAPart(Part):
         virtualHelixAtCoordsChanged(row, col)  # the VH at row, col will
             * change its idnum (the dnapart owns the idnum)
             * change its virtualhelix object (maybe from or to None)
+        selectionWillChange()
     """
     selectAllBehavior = True  # Always select all helices in part
     def __init__(self, *args, **kwargs):
@@ -57,13 +58,13 @@ class DNAPart(Part):
         # Transient and/or cached state
         self._staples = []
         self._scaffolds = []
-        self._selection = set()
+        self._selection = list()
         self._coordToVirtualHelix = {}  # (row,col) -> VirtualHelix
         # Abstract
         # self._maxBase = 0  # honeycomb is 42
         # self._activeSlice = 0  # honeycomb is 21
         if self.selectAllBehavior:
-            self.virtualHelixAtCoordsChanged.connect(self.selectAll)
+            self.virtualHelixAtCoordsChanged.connect(self.updateSelectionFromVHChange)
     
     def setDocument(self, newDoc):
         """Only called by Document"""
@@ -281,18 +282,30 @@ class DNAPart(Part):
         the slice view. @todo 1) implement this 2) make the selected 
         helices more prominent in the path view (this would allow one 
         to deal with lots and lots of helices)"""
-        return self._selection
+        return list(self._selection)
     
     selectionWillChange = pyqtSignal(object)
     def setSelection(self, newSelection):
         if self.selectAllBehavior:
             newSelection = self.getVirtualHelices()
-        ns = set(newSelection)
+        ns = list(newSelection)
         self.selectionWillChange.emit(ns)
         self._selection = ns
     
     def selectAll(self, *args, **kwargs):
         self.setSelection(self.getVirtualHelices())
+    
+    def updateSelectionFromVHChange(self, row, col):
+        coord = (row, col)
+        vh = self.getVirtualHelix(coord)
+        if vh:
+            s = self.selection()
+            s.append(vh)
+            self.setSelection(s)
+        else:
+            s = [vh for vh in self.selection() if vh.coord()!=coord]
+            self.setSelection(s)
+            
     
     def activeSlice(self):
         """The active slice is the index of the slice selected by the
