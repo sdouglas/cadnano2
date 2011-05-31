@@ -75,28 +75,6 @@ class SliceHelix(QGraphicsItem):
             return None
         return self.part().getVirtualHelix((self._row, self._col), returnNoneIfAbsent=True)
 
-    class FocusRingPainter(QGraphicsItem):
-        """Draws a focus ring around helix in parent"""
-        def __init__(self, helix, scene, parent=None):
-            super(SliceHelix.FocusRingPainter, self).__init__(parent)
-            self._parent = parent
-            self.scene = scene
-            self.helix = helix
-            # returns a new QRect that is bigger all around by 1 pixel
-            # but in the same spot as the original
-            # good for getting rid of line width artifacts
-            self.rect = helix.rect.adjusted(-1, -1,2,2)
-            self.setPos(helix.pos())
-            self.setZValue(styles.ZFOCUSRING)
-
-        def paint(self, painter, option, widget=None):
-            painter.setPen(SliceHelix.hovPen)
-            painter.drawEllipse(self.helix.rect)
-
-        def boundingRect(self):
-             return self.rect
-    # end class
-
     def number(self):
         return self.virtualHelix().number()
 
@@ -105,6 +83,28 @@ class SliceHelix(QGraphicsItem):
 
     def col(self):
         return self._col
+    
+    def selected(self):
+        return self.focusRing != None
+    
+    def setSelected(self, select):
+        if select and not self.focusRing:
+            self.focusRing = SliceHelix.FocusRingPainter(self.parentItem())
+            self.focusRing.setPos(self.pos())
+            self.focusRing.setZValue(styles.ZFOCUSRING)
+        if not select and self.focusRing:
+            self.focusRing.setParentItem(None)
+            self.focusRing = None
+            
+
+    ############################ Painting ############################
+    class FocusRingPainter(QGraphicsItem):
+        def paint(self, painter, option, widget=None):
+            painter.setPen(SliceHelix.hovPen)
+            painter.drawEllipse(SliceHelix.rect)
+
+        def boundingRect(self):
+             return SliceHelix.rect.adjusted(-1, -1,2,2)
 
     def paint(self, painter, option, widget=None):
         vh = self.virtualHelix()
@@ -121,6 +121,7 @@ class SliceHelix(QGraphicsItem):
             painter.setBrush(Qt.NoBrush)
             painter.drawText(0, 0, 2*self.radius, 2*self.radius, Qt.AlignHCenter+Qt.AlignVCenter, num)
         else:  # We are virtualhelix-less
+            pass
             painter.setBrush(self.defBrush)
             painter.setPen(self.defPen)
             painter.drawEllipse(self.rect)
@@ -132,6 +133,7 @@ class SliceHelix(QGraphicsItem):
     def boundingRect(self):
         return self.rect
     
+    ############################ User Interaction ############################
     def mouseDoubleClickEvent(self, event):
         self.createOrAddBasesToVirtualHelix(\
             addBasesIfVHExists=True,\
@@ -145,10 +147,15 @@ class SliceHelix(QGraphicsItem):
             self.part().setSelection((self.virtualHelix(),))
     
     def hoverEnterEvent(self, event):
-        self._parent.setHoverCoords((self._row, self._col))
+        # If the selection is configured to always select
+        # everything, we don't draw a focus ring around everything,
+        # instead we only draw a focus ring around the hovered obj.
+        if self.part().selectAllBehavior:
+            self.setSelected(True)
     
     def hoverLeaveEvent(self, event):
-        self._parent.setHoverCoords(None)
+        if self.part().selectAllBehavior:
+            self.setSelected(False)
 
     def createOrAddBasesToVirtualHelix(self, addBasesIfVHExists=False, addToScaffold=False):
         coord = (self._row, self._col)

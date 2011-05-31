@@ -159,13 +159,16 @@ class VirtualHelix(QObject):
     # event emission
     def setSelected(self, willBeSelected):
         currentSelection = self.part().selection()
-        if willBeSelected:
+        selected = self in currentSelection
+        needsSelecting = willBeSelected and not selected
+        needsDeselectig = not willBeSelected and selected
+        if needsSelecting:
             # We're modifying part()'s selection
             # object beneath it. I won't tell it
             # if you don't. Safety would demand
             # selection() returns a copy.
-            currentSelection.add(self)
-        else:
+            currentSelection.append(self)
+        elif needsDeselectig:
             currentSelection.remove(self)
         self.part().setSelection(currentSelection)
     
