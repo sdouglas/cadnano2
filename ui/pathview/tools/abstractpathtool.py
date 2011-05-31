@@ -1,4 +1,4 @@
-# The MIT License
+    # The MIT License
 #
 # Copyright (c) 2011 Wyss Institute at Harvard University
 #
@@ -22,31 +22,40 @@
 #
 # http://www.opensource.org/licenses/mit-license.php
 """
-skiptool.py
-Created by Nick on 2011-05-03.
+crossoverhandle.py
+Created by Shawn on 2011-05-03.
 """
-from abstractpathtool import AbstractPathTool
+import ui.styles as styles
 
 
-class SkipTool(AbstractPathTool):
+class AbstractPathTool(object):
+    """
+    Abstract base class to be subclassec by all other pathview tools.
+    """
+
+    _baseWidth = styles.PATH_BASE_WIDTH
+
     def __init__(self):
-        """
-        This class inherits from the PathTool class for the majority of
-        methods/behaviours.  Essentially it adds merely decorator graphics
-        custimazation of behaviour and data structure access particular to
-        skip insertion on a mouseclick.
-
-        Its parent should be *always* be a PathHelix.
-        """
-        super(SkipTool, self).__init__()
+        self._active = False
+        pass
     # end def
 
-    def toolPress(self, item, event):
-        posScene = event.scenePos()
-        posItem = self.parentItem().mapFromScene(posScene)
-        indexp = self.helixIndex(posItem)
-        print "SkipTool clicked at: (%d, %d) on helix %d" % \
-            (indexp[0], indexp[1], self.parentItem().number())
-        # create a new SkipHandle by adding through the parentItem
+    def setActive(self, bool):
+        """
+        Called by PathController.setActiveTool when the tool becomes
+        active. Used, for example, to show/hide tool-specific ui elements.
+        """
+        pass
+    # end def
+
+    def isActive(self):
+        """Returns isActive"""
+        return self._active
+    # end def
+
+    def mousePointToBaseIndex(self, point):
+        x = int(point.x() / self._baseWidth)
+        y = int(point.y() / self._baseWidth)
+        return (x, y)
     # end def
 # end class

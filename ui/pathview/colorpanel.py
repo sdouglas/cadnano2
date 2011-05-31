@@ -22,31 +22,29 @@
 #
 # http://www.opensource.org/licenses/mit-license.php
 """
-skiptool.py
-Created by Nick on 2011-05-03.
+colorpanel.py
+Created by Shawn on 2011-05-31.
 """
-from abstractpathtool import AbstractPathTool
 
+from PyQt4.QtCore import QRectF, Qt
+from PyQt4.QtGui import QBrush, QGraphicsItem
+import ui.styles as styles
 
-class SkipTool(AbstractPathTool):
-    def __init__(self):
-        """
-        This class inherits from the PathTool class for the majority of
-        methods/behaviours.  Essentially it adds merely decorator graphics
-        custimazation of behaviour and data structure access particular to
-        skip insertion on a mouseclick.
+class ColorPanel(QGraphicsItem):
+    """docstring for ColorPanel"""
+    _brush = QBrush(styles.bluefill)
+    _pen = Qt.NoPen  # QPen(styles.bluestroke, 2)
 
-        Its parent should be *always* be a PathHelix.
-        """
-        super(SkipTool, self).__init__()
-    # end def
+    def __init__(self, parent=None):
+        super(ColorPanel, self).__init__(parent)
+        self.rect = QRectF(0, 0, 20, 20)
+        self.setFlag(QGraphicsItem.ItemIgnoresTransformations)
+        self.hide()
 
-    def toolPress(self, item, event):
-        posScene = event.scenePos()
-        posItem = self.parentItem().mapFromScene(posScene)
-        indexp = self.helixIndex(posItem)
-        print "SkipTool clicked at: (%d, %d) on helix %d" % \
-            (indexp[0], indexp[1], self.parentItem().number())
-        # create a new SkipHandle by adding through the parentItem
-    # end def
-# end class
+    def boundingRect(self):
+        return self.rect
+
+    def paint(self, painter, option, widget=None):
+        painter.setBrush(self._brush)
+        painter.setPen(self._pen)
+        painter.drawRect(self.boundingRect())

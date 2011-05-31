@@ -32,7 +32,7 @@ import ui_mainwindow
 import pathview.pathcontroller as pathcontroller
 import sliceview.slicecontroller as slicecontroller
 from cadnano import app
-from toolbar import Toolbar
+from pathview.colorpanel import ColorPanel
 
 
 class SceneRoot(QGraphicsItem):
@@ -70,14 +70,14 @@ class DocumentWindow(QMainWindow, ui_mainwindow.Ui_MainWindow):
         self.pathGraphicsView.setScene(self.pathscene)
         self.pathGraphicsView.sceneRootItem = self.pathroot
         self.pathGraphicsView.setScaleFitFactor(0.9)
+        self.pathToolbar = ColorPanel()
+        self.pathGraphicsView.toolbar = self.pathToolbar
+        self.pathscene.addItem(self.pathToolbar)
         self.pathController = pathcontroller.PathController(self)
         self.sliceController.pathController = self.pathController
         self.pathController.sliceController = self.sliceController
         self.pathGraphicsView.setViewportUpdateMode(\
                     QGraphicsView.FullViewportUpdate)
-        self.pathToolbar = Toolbar()
-        self.pathGraphicsView.toolbar = self.pathToolbar
-        self.pathscene.addItem(self.pathToolbar)
 
         # Edit menu setup
         self.actionUndo = docCtrlr.undoStack().createUndoAction(self)

@@ -300,13 +300,15 @@ class CustomQGraphicsView(QGraphicsView):
         self.sceneRootItem.resetTransform() # zero out translations
         self.resetTransform() # zero out scaling
 
-        # in case of deletions/undos, recalculate bounding area
-        # itemsBoundingRect is slow, so maybe easier to keep track of the scenes
-        # boundingRect on the undo/redo stack and push that
-        thescene.setSceneRect(thescene.itemsBoundingRect()) 
+        if self.toolbar:  # HACK: move toolbar so it doesn't affect sceneRect
+            self.toolbar.setPos(0, 0)
+        thescene.setSceneRect(thescene.itemsBoundingRect())
         scene_rect = thescene.sceneRect()
+        if self.toolbar:  # HACK, pt2: move toolbar back
+            self.toolbar.setPos(self.mapToScene(0, 0))
         self.fitInView(scene_rect, Qt.KeepAspectRatio) # fit in view
         self.resetScale() # adjust scaling so that translation works
+
         # adjust scaling so that the items don't fill 100% of the view 
         # this is good for selection
         self.scale(self._scaleFitFactor, self._scaleFitFactor)
@@ -315,11 +317,6 @@ class CustomQGraphicsView(QGraphicsView):
 
     def paintEvent(self, event):
         if self.toolbar:
-            # attach to bottom right
-            # rect = self.frameSize()
-            # x = rect.width() - self.toolbar.boundingRect().width()
-            # y = rect.height() - self.toolbar.boundingRect().height()
-            # self.toolbar.setPos(self.mapToScene(x, y))
             self.toolbar.setPos(self.mapToScene(0, 0))
         QGraphicsView.paintEvent(self, event)
 #end class

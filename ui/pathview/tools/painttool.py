@@ -21,30 +21,28 @@
 # THE SOFTWARE.
 #
 # http://www.opensource.org/licenses/mit-license.php
+
 """
-toolbar.py
-Created by Shawn on 2011-05-31.
+painttool.py
+Created by Shawn Douglas on 2011-05-31.
 """
 
-from PyQt4.QtCore import QRectF, Qt
-from PyQt4.QtGui import QBrush, QGraphicsItem
-import ui.styles as styles
+from abstractpathtool import AbstractPathTool
 
-class Toolbar(QGraphicsItem):
-    """docstring for Toolbar"""
-    _brush = QBrush(styles.bluefill)
-    _pen = Qt.NoPen  # QPen(styles.bluestroke, 2)
 
-    def __init__(self, parent=None):
-        super(Toolbar, self).__init__(parent)
-        self.rect = QRectF(0, 0, 20, 20)
-        self.setFlag(QGraphicsItem.ItemIgnoresTransformations)
-        self.hide()
+class PaintTool(AbstractPathTool):
+    """Handles re-coloring of staple strands."""
+    def __init__(self, colorpanel):
+        super(PaintTool, self).__init__()
+        self.colorpanel = colorpanel
 
-    def boundingRect(self):
-        return self.rect
-
-    def paint(self, painter, option, widget=None):
-        painter.setBrush(self._brush)
-        painter.setPen(self._pen)
-        painter.drawRect(self.boundingRect())
+    def setActive(self, bool):
+        """
+        Show the ColorPicker widget when active, hide when inactive.
+        """
+        if bool:
+            self.colorpanel.show()
+        else:
+            self.colorpanel.hide()
+    # end def
+# end class
