@@ -350,9 +350,9 @@ class PreXoverHandle(QGraphicsItem):
             fromHelix = self._partner.pathHelix().vhelix()
             fromIndex = self._partner.index()
         # Create XoverHandlePair and store references
-        # fromHelix.installXoverTo(StrandType.Scaffold, \
+        # fromHelix.installXoverFrom3To5(StrandType.Scaffold, \
         #                                 fromIndex, toHelix, toIndex)
-        fromHelix.installXoverTo(self.strandType(), \
+        fromHelix.installXoverFrom3To5(self.strandType(), \
                                         fromIndex, toHelix, toIndex)
         self._partner.hide()
         self.hide()

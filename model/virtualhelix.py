@@ -215,7 +215,7 @@ class VirtualHelix(QObject):
         elif strandType == StrandType.Staple:
             return self._stapleBases
         else:
-            raise IndexError
+            raise IndexError("%s is not Scaffold=%s or Staple=%s"%(strandType, StrandType.Scaffold, StrandType.Staple))
 
     ########################### Access to Bases ###################
     def hasBaseAt(self, strandType, index):
@@ -318,11 +318,9 @@ class VirtualHelix(QObject):
         """
         strand = self._strand(strandType)
         if strand[idx].is3primeXover():
-            print "OKKKKKKKKKKKK"
             return ((self, idx),\
                     (strand[idx]._3pBase.vhelix(), strand[idx]._3pBase._n) )
         else: # its a 5 primeXover end, reverse it
-            print "PPPPPPOOOOOOOOOOPPPPPPP"
             return ((strand[idx]._5pBase.vhelix(), strand[idx]._5pBase._n), \
                     (self, idx) )
     # end def
@@ -396,22 +394,9 @@ class VirtualHelix(QObject):
         endIndex = clamp(endIndex, 1, len(strand))        
         c = self.ClearStrandCommand(self, strandType, startIndex, endIndex)
         self.undoStack().push(c)
-    
-    def connect3To5(self, strandType, fromIdx, toVH, toIdx):
-        assert(0 <= fromIdx and fromIdx < len(self._strand(strandType)))
-        assert(0 <= toIdx and toIdx < len(toVH._strand(strandType)))
-        c = self.Connect3To5Command(strandType, self, fromIdx, toVH, toIdx)
-        self.undoStack().push(c)
-    
-    # Derived private API
-    def breakStrandBeforeBase(self, strandType, breakBeforeIndex):
-        breakBeforeIndex = int(breakBeforeIndex)
-        assert(breakBeforeIndex > 0)
-        assert(breakBeforeIndex < len(self._strand(strandType)) )
-        self.clearStrand(strandType, breakBeforeIndex, breakBeforeIndex)
 
-    def installXoverTo(self, strandType, fromIndex, toVhelix, toIndex):
-        """docstring for installXoverTo"""
+    def installXoverFrom3To5(self, strandType, fromIndex, toVhelix, toIndex):
+        """The from base must provide the 3' pointer, and to must provide 5'."""
         if strandType == StrandType.Scaffold:
             assert(self.possibleNewCrossoverAt(StrandType.Scaffold, \
                                             fromIndex, toVhelix, toIndex))
@@ -420,18 +405,19 @@ class VirtualHelix(QObject):
                                             fromIndex, toVhelix, toIndex))
         else:
             raise IndexError("%s doesn't look like a StrandType" % strandType)
-        self.connect3To5(strandType, fromIndex, toVhelix, toIndex)
+        c = self.Connect3To5Command(strandType, self, fromIndex, toVhelix, toIndex)
+        self.undoStack().push(c)
 
     def removeXoverTo(self, strandType, fromIndex, toVhelix, toIndex):
-        """docstring for installXoverTo"""
+        """The from base must provide the 3' pointer, and to must provide 5'."""
         strand = self._strand(strandType)
         fromBase = strand[fromIndex]
         toBase = toVhelix._strand(strandType)[toIndex]
         if fromBase._3pBase != toBase or fromBase != toBase._5pBase:
             raise IndexError("Crossover does not exist to be removed.")
-        # toVhelix.breakStrandBeforeBase(strandType, toIndex)
-        self.breakStrandBeforeBase(strandType, fromIndex)
-        toVhelix.breakStrandBeforeBase(type, toIndex)
+        c = self.Break3To5Command(strandType, self, fromIndex)
+        self.undoStack().push(c)
+        
     
     def emitModificationSignal(self):
         self.basesModified.emit()
@@ -493,23 +479,19 @@ class VirtualHelix(QObject):
             strand = self._vh._strand(self._strandType)
             ol = self._oldLinkage = []
             
-            # if self._vh.directionOfStrandIs5to3(self._strandType):
-            if True:
+            if self._vh.directionOfStrandIs5to3(self._strandType):
                 for i in range(self._startIndex - 1, self._endIndex):
                     ol.append(strand[i]._set3Prime(None))
-            # end if
             else:
                 for i in range(self._startIndex - 1, self._endIndex):
                     ol.append(strand[i]._set5Prime(None))
-            # end else
             self._vh.emitModificationSignal()
 
         def undo(self):
             strand = self._vh._strand(self._strandType)
             ol = self._oldLinkage
             assert(ol!=None)  # Must redo/apply before undo
-            # if self._vh.directionOfStrandIs5to3(self._strandType):
-            if True:
+            if self._vh.directionOfStrandIs5to3(self._strandType):
                 for i in range(self._endIndex - 1, self._startIndex - 2, -1):
                     strand[i]._unset3Prime(None, *ol[i - self._startIndex+1])
             # end if
@@ -546,6 +528,30 @@ class VirtualHelix(QObject):
 
             self._fromHelix.emitModificationSignal()
             self._toHelix.emitModificationSignal()
+    
+    class Break3To5Command(QUndoCommand):
+        def __init__(self, strandType, vhelix, index):
+            super(VirtualHelix.Break3To5Command, self).__init__()
+            self._strandType = strandType
+            self._base = vhelix._strand(strandType)[index]
+            
+        def redo(self):
+            base = self._base
+            self._old3pBase = base._3pBase
+            base._set3Prime(None)
+            base._vhelix.emitModificationSignal()
+            otherVH = self._old3pBase._vhelix            
+            if otherVH != base._vhelix:
+                otherVH.emitModificationSignal()
+
+        def undo(self):
+            assert(self._old3pBase)
+            base = self._base
+            base._set3Prime(self._old3pBase)
+            base._vhelix.emitModificationSignal()
+            otherVH = self._old3pBase._vhelix            
+            if otherVH != base._vhelix:
+                otherVH.emitModificationSignal()
     
     class SetNumBasesCommand(QUndoCommand):
         def __init__(self, vhelix, newNumBases):
