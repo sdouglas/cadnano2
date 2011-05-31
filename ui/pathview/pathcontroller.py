@@ -67,7 +67,7 @@ class PathController(QObject):
     # The activeTool is a tool in the style of SelectTool that
     # can handle events forwarded in the style of
     # util.defineEventForwardingMethodsForClass. In other words,
-    # the activeTool() gets events from various objects in the
+    # the activeTool() gets events from various graphics objects in the
     # path view and then makes the corresponding changes to the
     # model. The displayed content then updates automatically via
     # notifications from the model.
