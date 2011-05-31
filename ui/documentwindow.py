@@ -29,10 +29,10 @@ documentwindow.py
 from PyQt4.QtCore import *
 from PyQt4.QtGui import *
 import ui_mainwindow
-# import sliceview.slicehelixgroup
 import pathview.pathcontroller as pathcontroller
 import sliceview.slicecontroller as slicecontroller
 from cadnano import app
+from toolbar import Toolbar
 
 
 class SceneRoot(QGraphicsItem):
@@ -75,7 +75,10 @@ class DocumentWindow(QMainWindow, ui_mainwindow.Ui_MainWindow):
         self.pathController.sliceController = self.sliceController
         self.pathGraphicsView.setViewportUpdateMode(\
                     QGraphicsView.FullViewportUpdate)
-                    
+        self.pathToolbar = Toolbar()
+        self.pathGraphicsView.toolbar = self.pathToolbar
+        self.pathscene.addItem(self.pathToolbar)
+
         # Edit menu setup
         self.actionUndo = docCtrlr.undoStack().createUndoAction(self)
         self.actionRedo = docCtrlr.undoStack().createRedoAction(self)

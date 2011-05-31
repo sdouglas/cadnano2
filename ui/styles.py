@@ -67,10 +67,12 @@ scafstroke = QColor(0, 102, 204)  # 0066cc
 handlefill = QColor(0, 102, 204)  # 0066cc
 pch_scaf_stroke = QColor(0, 102, 204, 153)
 pch_stap_stroke = QColor(204, 0, 0, 153)
-redstroke = QColor(200, 0, 0)
-erasefill = QColor ( 255, 0 , 0, 63 )
-forcefill = QColor ( 0, 255 , 255, 63 )
-breakfill = QColor ( 255, 0 , 0, 255 )
+redstroke = QColor(204, 0, 0)
+erasefill = QColor (255, 0, 0, 63)
+forcefill = QColor (0, 255, 255, 63)
+breakfill = QColor (255, 0, 0, 255)
+colorbox_fill = QColor(204, 0, 0)
+colorbox_stroke = QColor(102, 102, 102)
 
 # Path Drawing
 PATH_XOVER_LINE_SCALE_X = 0.035

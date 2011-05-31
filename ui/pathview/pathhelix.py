@@ -80,7 +80,10 @@ class PathHelix(QGraphicsItem):
     parent should be set to...
     """
     minorGridPen = QPen(styles.minorgridstroke, styles.MINOR_GRID_STROKE_WIDTH)
+    minorGridPen.setCosmetic(True)
     majorGridPen = QPen(styles.majorgridstroke, styles.MAJOR_GRID_STROKE_WIDTH)
+    majorGridPen.setCosmetic(True)
+    
     scafPen = QPen(styles.scafstroke, 2)
     nobrush = QBrush(Qt.NoBrush)
     baseWidth = styles.PATH_BASE_WIDTH
