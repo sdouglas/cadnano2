@@ -29,7 +29,6 @@ Created by Jonathan deWerd on 2011-01-26.
 import json
 from .dnahoneycombpart import DNAHoneycombPart
 from .document import Document
-from .partinstance import PartInstance
 from .virtualhelix import VirtualHelix
 
 classNameToClassMap = {}
