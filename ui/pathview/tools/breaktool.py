@@ -130,6 +130,23 @@ class BreakTool(AbstractPathTool):
     # end def
 
     def hoverMovePathHelix(self, item, event, flag=None):
+        pass
+    def mousePressPathHelix(self, ph, event):
+        print "mp"
+    
+    def hoverEnterPathHelix(self, ph, event):
+        if not self._graphic:
+            g = self._graphic = BreakItem(ph)
+        self.hoverMovePathHelix(self, ph, event)
+    
+    def hoverLeavePathHelix(self, ph, event):
+        if self._graphic:
+            pass
+    
+    def hoverMovePathHelix(self, ph, event):
+        pass
+    
+    def toolHoverMove(self, item, event, flag=None):
         """
         flag is for the case where an item in the path also needs to
         implement the hover method

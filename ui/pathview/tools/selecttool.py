@@ -53,10 +53,13 @@ class SelectTool(AbstractPathTool):
             if vh.hasCrossoverAt(*self._mouseDownBase):
                 # delete cross over
                 self.selectToolRemoveXover(vh, self._mouseDownBase)
+                self._mouseDownBase = self._mouseDownY = None
             else:
                 self.selectToolApply(vh, self._mouseDownBase, self._mouseDownBase)
 
     def mouseMovePathHelix(self, ph, event):
+        if self._mouseDownY==None:
+            return
         vh = ph.vhelix()
         newBase = ph.baseAtLocation(event.pos().x(), self._mouseDownY)
         if self._mouseDownBase and newBase:
@@ -65,6 +68,8 @@ class SelectTool(AbstractPathTool):
             self.selectToolApply(vh, self._mouseDownBase, newBase)
 
     def mouseReleasePathHelix(self, ph, event):
+        if self._mouseDownY==None:
+            return
         vh = ph.vhelix()
         if self._mouseDownBase and self._lastValidBase:
             vh.setSandboxed(False)  # vhelix now uses the document undo stack
