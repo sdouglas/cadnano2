@@ -53,6 +53,7 @@ class SelectTool(AbstractPathTool):
                 self._mouseDownBase = self._mouseDownY = None
             else:
                 self.selectToolApply(vh, self._mouseDownBase, self._mouseDownBase)
+        ph.makeSelfActiveHelix()
 
     def mouseMovePathHelix(self, ph, event):
         if self._mouseDownY==None:
@@ -70,7 +71,6 @@ class SelectTool(AbstractPathTool):
         vh = ph.vhelix()
         if self._mouseDownBase and self._lastValidBase:
             vh.setSandboxed(False)  # vhelix now uses the document undo stack
-        ph.updateAsActiveHelix(self._mouseDownBase[1])
 
     def selectToolRemoveXover(self,vHelix, base):
         base = vHelix.validatedBase(*base, raiseOnErr=False)

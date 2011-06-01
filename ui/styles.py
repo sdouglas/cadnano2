@@ -71,6 +71,7 @@ scafstroke = QColor(0, 102, 204)  # 0066cc
 handlefill = QColor(0, 102, 204)  # 0066cc
 pch_scaf_stroke = QColor(0, 102, 204, 153)
 pch_stap_stroke = QColor(204, 0, 0, 153)
+pch_disab_stroke = QColor(204, 204, 204, 255)
 redstroke = QColor(204, 0, 0)
 erasefill = QColor (255, 0, 0, 63)
 forcefill = QColor (0, 255, 255, 63)

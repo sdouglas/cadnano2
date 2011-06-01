@@ -37,7 +37,6 @@ from PyQt4.QtGui import QGraphicsItemGroup, QUndoCommand
 from .pathhelix import PathHelix
 from handles.activeslicehandle import ActiveSliceHandle
 from handles.pathhelixhandle import PathHelixHandle
-from handles.precrossoverhandle import PreXoverHandleGroup
 from model.enum import EndType, LatticeType, StrandType
 import ui.styles as styles
 from handles.pathhelixhandle import PathHelixHandle
@@ -73,7 +72,6 @@ class PathHelixGroup(QGraphicsObject):
         self._stapColor = QColor(0, 72, 0)
         self._stapPen = QPen(self._stapColor, 2)
         self.activeHelix = None
-        self.pchGroup = PreXoverHandleGroup(parent=self)
         self.loopHandleGroup = LoopHandleGroup(parent=self)
         self.xoverGet = XoverHandle()
         self.setZValue(styles.ZPATHHELIXGROUP)
@@ -93,16 +91,15 @@ class PathHelixGroup(QGraphicsObject):
 
     def activeTool(self):
         return controller().activeTool()
-
-    def notifyPreCrossoverGroupAfterUpdate(self, virtualhelix):
-        """Called by PathHelix.mousePressEvent after the vhelix has calculated
-        its new PreXoverHandle positions."""
-        self.pchGroup.updateActiveHelix(virtualhelix)
     
-    def notifyLoopHandleGroupAfterUpdate(self, pathhelix):
-        """Called by PathHelix.mousePressEvent after the vhelix has calculated
-        its new PreXoverHandle positions."""
-        self.loopHandleGroup.updateActiveHelix(pathhelix)
+    def activeHelix(self):
+        return self.activeHelix
+    
+    def setActiveHelix(self, newActivePH):
+        neighborVHs = newActivePH.vhelix().neighbors()
+        for ph in self._pathHelixList:
+            showHandles = ph==newActivePH or ph.vhelix() in neighborVHs
+            ph.setPreXOverHandlesVisible(showHandles)
 
     def setPart(self, newPart):
         if self._part:
@@ -276,11 +273,6 @@ class PathHelixGroup(QGraphicsObject):
             if ph.vhelix() == vh:
                 return ph
         return None
-
-    def notifyPreCrossoverGroupAfterUpdate(self, virtualhelix):
-        """Called by PathHelix.mousePressEvent after the vhelix has calculated
-        its new PreXoverHandle positions."""
-        self.pchGroup.updateActiveHelix(virtualhelix)
 
     def reorderHelices(self, first, last, indexDelta):
         """

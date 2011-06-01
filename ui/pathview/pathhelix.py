@@ -40,9 +40,11 @@ from model.virtualhelix import VirtualHelix
 from weakref import ref
 from handles.pathhelixhandle import PathHelixHandle
 from handles.loophandle import LoopItem, SkipItem
+from handles.precrossoverhandle import PreCrossoverHandle
 from math import floor
 from cadnano import app
 from util import *
+from itertools import product
 
 baseWidth = styles.PATH_BASE_WIDTH
 ppL5 = QPainterPath()  # Left 5' PainterPath
@@ -95,6 +97,7 @@ class PathHelix(QGraphicsItem):
         self._stapBreakpointHandles = []
         self._scafXoverHandles = []
         self._stapXoverHandles = []
+        self._preXOverHandles = None
         self._segmentPaths = None
         self._loopPaths = None
         self._minorGridPainterPath = None
@@ -167,45 +170,28 @@ class PathHelix(QGraphicsItem):
     def boundingRect(self):
         return self.rect
 
-    def hidePreXoverHandles(self):
-        pass
-    # end def
-
-    def addXoverHandle(self, xh, strandType):
-        """addXoverHandle gets called by PathHelixGroup
-        when the handles are changed (e.g. by sliceHelixClickedSlot
-        or when a crossover is added)."""
-        if strandType == StrandType.Scaffold:
-            self._scafXoverHandles.append(xh)
-        elif strandType == StrandType.StrandType:
-            self._stapXoverHandles.append(xh)
-        else:
-            raise AttributeError("strandType not recognized.")
-    # end def
-
-    def removeXoverHandle(self, xh, strandType):
-        """addXoverHandle gets called by PathHelixGroup
-        when the handles are changed (e.g. by sliceHelixClickedSlot
-        or when a crossover is added)."""
-        if strandType == StrandType.Scaffold:
-            self._scafXoverHandles.remove(xh)
-        elif strandType == StrandType.StrandType:
-            self._stapXoverHandles.remove(xh)
-        else:
-            raise AttributeError("strandType not recognized.")
-    # end def
-
-    def updateAsActiveHelix(self, index):
-        if self._pathHelixGroup.activeHelix != None:  # deactivate old
-            self._pathHelixGroup.activeHelix.hidePreXoverHandles()
-        # end if
-        self._pathHelixGroup.activeHelix = self  # activate new
-        self._vhelix.updatePreCrossoverPositions(index)
-        self._pathHelixGroup.notifyPreCrossoverGroupAfterUpdate(self._vhelix)
-        self._pathHelixGroup.notifyLoopHandleGroupAfterUpdate(self)
-        self.update(self.boundingRect())
-    # end def
-
+    ################# Crossover Handles #################
+    def preXOverHandlesVisible(self):
+        return self._preXOverHandles!=None
+    
+    def setPreXOverHandlesVisible(self, shouldBeVisible):
+        areVisible = self._preXOverHandles!=None
+        if areVisible and not shouldBeVisible:
+            for pch in self._preXOverHandles:
+                pch.setParentItem(None)
+            self._preXOverHandles = None
+        elif not areVisible and shouldBeVisible:
+            self._preXOverHandles = handles = []
+            for strandType, facingRight in product((StrandType.Scaffold, StrandType.Staple), (True, False)):
+                # Get potential crossovers in [neighborVirtualHelix, index] format
+                potentialXOvers = self.vhelix().potentialCrossoverList(facingRight, strandType)
+                for (neighborVH, fromIdx) in potentialXOvers:
+                    pch = PreCrossoverHandle(self, strandType, fromIdx, neighborVH, fromIdx, not facingRight)
+                    handles.append(pch)
+    
+    def makeSelfActiveHelix(self):
+        self._pathHelixGroup.setActiveHelix(self)
+    
     ################# Loading and Updating State From VHelix #################
     def vhelixBasesModified(self):
         self._endpoints = None  # Clear endpoint drawing cache

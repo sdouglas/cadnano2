@@ -25,6 +25,7 @@ from .dnapart import DNAPart
 from .enum import LatticeType, Crossovers
 
 class DNAHoneycombPart(DNAPart):
+    # Used in VirtualHelix::potentialCrossoverList
     step = 21  # 32 in square
     scafL = Crossovers.honeycombScafLeft
     scafR = Crossovers.honeycombScafRight

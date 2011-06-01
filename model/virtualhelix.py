@@ -234,7 +234,6 @@ class VirtualHelix(QObject):
         elif strandType == StrandType.Staple:
             return self._stapleBases
         else:
-<<<<<<< HEAD
             raise IndexError("%s is not Scaffold=%s or Staple=%s"%(strandType, StrandType.Scaffold, StrandType.Staple))
             
     def _loop(self, strandType):
@@ -246,10 +245,6 @@ class VirtualHelix(QObject):
             return self._stapleLoops
         else:
             raise IndexError("%s is not Scaffold=%s or Staple=%s"%(strandType, StrandType.Scaffold, StrandType.Staple))
-=======
-            raise IndexError("%s is not Scaffold=%s or Staple=%s" % \
-                         (strandType, StrandType.Scaffold, StrandType.Staple))
->>>>>>> c2243cb53b6a165c9f2a78657190f123270692d8
 
     ########################### Access to Bases ###################
     def hasBaseAt(self, strandType, index):
@@ -705,23 +700,23 @@ class VirtualHelix(QObject):
             self.redo(actuallyUndo=True)
 
     ################################ Crossovers ##############################
-    def potentialCrossoverList(self, rightNotLeft, strandType):
+    def potentialCrossoverList(self, facingRight, strandType):
         """Returns a list of [neighborVirtualHelix, index] potential
         crossovers"""
-        ret = []
-        luts = (self._part.scafL, self._part.scafR, \
-                        self._part.stapL, self._part.stapR)
+        ret = []  # LUT = Look Up Table
+        part = self._part
+        luts = (part.scafL, part.scafR, part.stapL, part.stapR)
 
         # these are the list of crossover points simplified
-        lut = luts[int(rightNotLeft) +\
+        lut = luts[int(facingRight) +\
                    2 * int(strandType == StrandType.Staple)]
 
-        neighbors = self.getNeighbors()
+        neighbors = self.neighbors()
         for p in range(len(neighbors)):
             neighbor = neighbors[p]
             if not neighbor:
                 continue
-            for i, j in product(range(0, self.numBases(), step), lut[p]):
+            for i, j in product(range(0, self.numBases(), part.step), lut[p]):
                 index = i + j
                 ret.append([neighbor, index])
         return ret
@@ -736,7 +731,7 @@ class VirtualHelix(QObject):
     def stapleBase(self, index):
         """docstring for stapleBase"""
         return self._stapleBases[index]
-
+    
     def possibleNewCrossoverAt(self, strandType, fromIndex, neighbor, toIndex):
         """
         Return true if scaffold could crossover to neighbor at index.
@@ -756,82 +751,23 @@ class VirtualHelix(QObject):
                 return  not self.stapleBase(fromIndex).isEmpty() and \
                     not neighbor.stapleBase(toIndex).isEmpty()
 
-    def updatePreCrossoverPositions(self, clickIndex=None):
-        """docstring for updatePreCrossoverPositions"""
-        self._scafLeftPreXoList = []
-        self._scafRightPreXoList = []
-        self._stapLeftPreXoList = []
-        self._stapRightPreXoList = []
-
-        if self._part.crossSectionType() == LatticeType.Honeycomb:
-            step = 21
-            scafL = Crossovers.honeycombScafLeft
-            scafR = Crossovers.honeycombScafRight
-            stapL = Crossovers.honeycombStapLeft
-            stapR = Crossovers.honeycombStapRight
-        elif self._part.crossSectionType() == LatticeType.Square:
-            step = 32
-            scafL = Crossovers.squareScafLeft
-            scafR = Crossovers.squareScafRight
-            stapL = Crossovers.squareStapLeft
-            stapR = Crossovers.squareStapRight
-
-        if clickIndex == None:  # auto staple
-            start = 0
-            end = self.numBases()
-        else:  # user mouse click
-            start = max(0, clickIndex - (clickIndex % step) - step)
-            end = min(self.numBases(),\
-                      clickIndex - (clickIndex % step) + step * 2)
-
-        neighbors = self.getNeighbors()
-        for p in range(len(neighbors)):
-            neighbor = neighbors[p]
-            if not neighbor:
-                continue
-            # Scaffold Left
-            for i, j in product(range(start, end, step), scafL[p]):
-                index = i + j
-                if self.possibleNewCrossoverAt(StrandType.Scaffold, index,\
-                                                             neighbor, index):
-                    self._scafLeftPreXoList.append([neighbor, index])
-            # Scaffold Right
-            for i, j in product(range(start, end, step), scafR[p]):
-                index = i + j
-                if self.possibleNewCrossoverAt(StrandType.Scaffold, index,\
-                                                             neighbor, index):
-                    self._scafRightPreXoList.append([neighbor, index])
-            # Staple Left
-            for i, j in product(range(start, end, step), stapL[p]):
-                index = i + j
-                if self.possibleNewCrossoverAt(StrandType.Staple, index,\
-                                                             neighbor, index):
-                    self._stapLeftPreXoList.append([neighbor, index])
-            # Staple Right
-            for i, j in product(range(start, end, step), stapR[p]):
-                index = i + j
-                if self.possibleNewCrossoverAt(StrandType.Staple, index,\
-                                                             neighbor, index):
-                    self._stapRightPreXoList.append([neighbor, index])
-    # end def
-
     def getLeftScafPreCrossoverIndexList(self):
-        return self._scafLeftPreXoList
+        return self.potentialCrossoverList(False, StrandType.Scaffold)
 
     def getRightScafPreCrossoverIndexList(self):
-        return self._scafRightPreXoList
+        return self.potentialCrossoverList(True, StrandType.Scaffold)
 
     def getLeftStapPreCrossoverIndexList(self):
-        return self._stapLeftPreXoList
+        return self.potentialCrossoverList(False, StrandType.Staple)
 
     def getRightStapPreCrossoverIndexList(self):
-        return self._stapRightPreXoList
+        return self.potentialCrossoverList(True, StrandType.Staple)
 
-    def getNeighbors(self):
+    def neighbors(self):
         """The part (which controls helix layout) decides who
         the virtualhelix's neighbors are. A list is returned,
         possibly containing None in some slots, so that
-        getNeighbors()[i] corresponds to the neighbor in direction
+        neighbors()[i] corresponds to the neighbor in direction
         i (where the map between directions and indices is defined
         by the part)"""
         return self._part.getVirtualHelixNeighbors(self)

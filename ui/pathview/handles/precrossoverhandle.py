@@ -35,6 +35,7 @@ from PyQt4.QtGui import QPolygonF
 from PyQt4.QtGui import QPen, QUndoCommand
 from model.enum import StrandType, Parity, BreakType, HandleOrient
 import ui.styles as styles
+from itertools import product
 
 
 # construct paths for breakpoint handles
@@ -59,302 +60,97 @@ hashMarkGen(_ppathRD, _ppRect.topRight(), _pathUCenter, _pathCenter)
 _ppathLD = QPainterPath()
 hashMarkGen(_ppathLD, _ppRect.topLeft(), _pathUCenter, _pathCenter)
 
-
-class PreXoverHandleGroup(QGraphicsItem):
-    def __init__(self, parent=None):
-        """
-        Merely initialize a PreXoverHandle buffer
-        sets the group's parent to preferably a PathHelixGroup sets each
-        PreXoverHandle's parent in the buffer initially to the group
-        """
-        super(PreXoverHandleGroup, self).__init__(parent)
-        self.parent = parent
-        self.rect = QRectF(0, 0, 0, 0)
-        self.handlesA = []
-        self.handlesB = []
-        # print parent, "coool", self.parentItem()
-        for i in range(128):
-            self.handlesA.append(PreXoverHandle(parent=self))
-            self.handlesB.append(PreXoverHandle(parent=self))
-            # point the two to each other
-            self.handlesA[i].setPartner(self.handlesB[i])
-            self.handlesB[i].setPartner(self.handlesA[i])
-        # end for
-        self.activeCount = 0
-    # end def
-    
-    def parentItem(self):
-        return self.parent
-
-    def __str__(self):
-        return "I am a PXoHG!"
-
-    def boundingRect(self):
-        return self.rect
-    # end def
-
-    def paint(self, painter, option, widget=None):
-        pass
-    # end def
-
-    def updateActiveHelix(self, vhelix):
-        """
-        Collects the locations of each type of PreCrossover from the
-        recently activated VirtualHelix vhelix. Each self._index corresponds
-        to a pair of PreXoverHandle that must be updated and displayed.
-        """
-        scafL = vhelix.getLeftScafPreCrossoverIndexList()
-        scafR = vhelix.getRightScafPreCrossoverIndexList()
-        stapL = vhelix.getLeftStapPreCrossoverIndexList()
-        stapR = vhelix.getRightStapPreCrossoverIndexList()
-        count = sum([len(scafL), len(scafR), len(stapL), len(stapR)])
-
-        # Process Scaffold PreXoverHandles
-        strandtype = StrandType.Scaffold
-        ph1 = self.parentItem().getPathHelix(vhelix)
-        i = 0
-        for [neighbor, index] in scafL:
-            if vhelix.evenParity():
-                orient1 = HandleOrient.LeftUp
-                orient2 = HandleOrient.LeftDown
-            else:
-                orient1 = HandleOrient.LeftDown
-                orient2 = HandleOrient.LeftUp
-            ph2 = self.parentItem().getPathHelix(neighbor)
-            self.handlesA[i].configure(strandtype, orient1, index, ph1)
-            self.handlesB[i].configure(strandtype, orient2, index, ph2)
-            self.handlesA[i].setLabel()
-            self.handlesB[i].setLabel()
-            i += 1
-        for [neighbor, index] in scafR:
-            if vhelix.evenParity():
-                orient1 = HandleOrient.RightUp
-                orient2 = HandleOrient.RightDown
-            else:
-                orient1 = HandleOrient.RightDown
-                orient2 = HandleOrient.RightUp
-            ph2 = self.parentItem().getPathHelix(neighbor)
-            self.handlesA[i].configure(strandtype, orient1, index, ph1)
-            self.handlesB[i].configure(strandtype, orient2, index, ph2)
-            self.handlesA[i].setLabel()
-            self.handlesB[i].setLabel()
-            i += 1
-        # Process Staple PreXoverHandles
-        strandtype = StrandType.Staple
-        for [neighbor, index] in stapL:
-            if vhelix.evenParity():
-                orient1 = HandleOrient.LeftDown
-                orient2 = HandleOrient.LeftUp
-            else:
-                orient1 = HandleOrient.LeftUp
-                orient2 = HandleOrient.LeftDown
-            ph2 = self.parentItem().getPathHelix(neighbor)
-            self.handlesA[i].configure(strandtype, orient1, index, ph1)
-            self.handlesB[i].configure(strandtype, orient2, index, ph2)
-            self.handlesA[i].setLabel()
-            self.handlesB[i].setLabel()
-            i += 1
-        for [neighbor, index] in stapR:
-            if vhelix.evenParity():
-                orient1 = HandleOrient.RightDown
-                orient2 = HandleOrient.RightUp
-            else:
-                orient1 = HandleOrient.RightUp
-                orient2 = HandleOrient.RightDown
-            ph2 = self.parentItem().getPathHelix(neighbor)
-            self.handlesA[i].configure(strandtype, orient1, index, ph1)
-            self.handlesB[i].configure(strandtype, orient2, index, ph2)
-            self.handlesA[i].setLabel()
-            self.handlesB[i].setLabel()
-            i += 1
-
-        # hide extra precrossoverhandles as necessary
-        if self.activeCount > count:
-            for i in range(count, self.activeCount):
-                self.handlesA[i].hide()
-                self.handlesB[i].hide()
-            # end for
-        # end if
-        self.activeCount = count
-    # end def
-# end class
-
-
-class PreXoverHandle(QGraphicsItem):
-    """
-    PreXoverHandle responds to mouse input and serves as an interface
-    for adding scaffold crossovers
-    """
+class PreCrossoverHandle(QGraphicsItem):
     scafpen = QPen(styles.pch_scaf_stroke, styles.PATH_STRAND_STROKE_WIDTH)
     scafpen.setCapStyle(Qt.FlatCap)  # or Qt.RoundCap
     scafpen.setJoinStyle(Qt.RoundJoin)
     stappen = QPen(styles.pch_stap_stroke, styles.PATH_STRAND_STROKE_WIDTH)
     stappen.setCapStyle(Qt.FlatCap)  # or Qt.RoundCap
     stappen.setJoinStyle(Qt.RoundJoin)
+    disabpen = QPen(styles.pch_disab_stroke, styles.PATH_STRAND_STROKE_WIDTH)
+    disabpen.setCapStyle(Qt.FlatCap)
+    disabpen.setJoinStyle(Qt.RoundJoin)
+    disabbrush = QBrush(styles.pch_disab_stroke)  # For the helix number label
+    enabbrush = QBrush(Qt.SolidPattern)  # Also for the helix number label
     baseWidth = styles.PATH_BASE_WIDTH
-    _myfont = QFont("Times", 10, QFont.Bold)
-
-    def __init__(self, parent=None):
-        """
-        Set up a hidden label and boundingbox for PreXoverHandle. Parent
-        should always be a PreXoverHandleGroup, whose own parent is a
-        PathHelixGroup.
-        """
-        super(PreXoverHandle, self).__init__(parent)
-        self.setParentItem(parent)
-        self.rect = QRectF(0, 0, styles.PATH_BASE_WIDTH,\
-                                 styles.PATH_BASE_WIDTH)
-        self.painterpath = _ppathLD
-        self.phg = parent.parentItem()  # this should be a PathHelixGroup
-        pathController = parent.parentItem().controller()
-        self.undoStack = pathController.mainWindow.undoStack
-        self._strandType = None
-        self._index = None
-        self._orientation = None
-        self._partner = None  # partner PreXoverHandle in the pair
-        self.setZValue(styles.ZPREXOVERHANDLE)
-        self._label = QGraphicsSimpleTextItem("", parent=self)
-        self._label.setPos(0, 0)
-        self._label.setFont(self._myfont)
-        self._label.hide()
-        self.hide()
-    # end def
-
-    def setPartner(self, pch):
-        """
-        create a pointer towards it's complementary PreXoverHandle
-        """
-        self._partner = pch
-    # end def
-
-    def pathHelix(self):
-        return self.parentItem()
-    # end def
-
-    def index(self):
-        return self._index
-    # end def
+    rect = QRectF(0, 0, styles.PATH_BASE_WIDTH, styles.PATH_BASE_WIDTH)
+    toHelixNumFont = QFont("Times", 10, QFont.Bold)
     
-    def strandType(self):
-        return self._strandType
-    # end def
-
-    def orientation(self):
-        return self._orientation
-    # end def
-
-    def setLabel(self):
-        self._label.setText("%d" % (self._partner.pathHelix().number()))
-        if self._orientation == HandleOrient.RightDown:
-            self.rightDrawConfig()
-            self.downDrawConfig()
-            self.painterpath = _ppathRD
-        elif self._orientation == HandleOrient.LeftDown:
-            self.leftDrawConfig()
-            self.downDrawConfig()
-            self.painterpath = _ppathLD
-        elif self._orientation == HandleOrient.LeftUp:
-            self.leftDrawConfig()
-            self.upDrawConfig()
-            self.painterpath = _ppathLU
-        elif self._orientation == HandleOrient.RightUp:
-            self.rightDrawConfig()
-            self.upDrawConfig()
-            self.painterpath = _ppathRU
+    def __init__(self, parentPH, fromStrand, fromIdx, toVH, toIdx, orientedLeft):
+        super(PreCrossoverHandle, self).__init__(parentPH)
+        self.fromVH = parentPH.vhelix()
+        self.fromStrand = fromStrand
+        self.fromIdx = fromIdx
+        self.toVH = toVH
+        self.toIdx = toIdx
+        self.orientedLeft = orientedLeft
+        
+        self.fromVH.basesModified.connect(self.updateVisibilityAndEnabledness)
+        self.toVH.basesModified.connect(self.updateVisibilityAndEnabledness)
+        
+        self.label = QGraphicsSimpleTextItem(str(toVH.number()), parent=self)
+        self.label.setFont(self.toHelixNumFont)
+        
+        x = self.baseWidth * self.fromIdx
+        y = (-1.25 if self.onTopStrand() else 2.25) * self.baseWidth
+        self.setPos(x, y)
+        halfLabelW = self.label.boundingRect().width() / 2
+        labelX = self.baseWidth/2 - halfLabelW
+        labelY = (-.10 if self.onTopStrand() else .48) * self.baseWidth
+        self.label.setPos(labelX, labelY)
+        self.updateVisibilityAndEnabledness()
+    
+    def onTopStrand(self):
+        return self.fromVH.evenParity() and self.fromStrand==StrandType.Scaffold or\
+               not self.fromVH.evenParity() and self.fromStrand==StrandType.Staple
+            
+    def couldFormNewCrossover(self):
+        return self.fromVH.possibleNewCrossoverAt(self.fromStrand, self.fromIdx, self.toVH, self.toIdx)
+    
+    def crossoverExists(self):
+        return self.fromVH.hasCrossoverAt(self.fromStrand, self.fromIdx)
+    
+    def is3pEndOfCrossover(self):
+        return self.orientedLeft and self.onTopStrand() or\
+               not self.orientedLeft and not self.onTopStrand
+    
+    def updateVisibilityAndEnabledness(self):
+        shouldBeVisible = not self.crossoverExists()
+        self.setVisible(shouldBeVisible)
+        self.label.setVisible(shouldBeVisible)
+        if self.couldFormNewCrossover():
+            self.label.setBrush(self.enabbrush)
         else:
-            raise AttributeError("PCH orientation not recognized")
-        self._label.show()
-        self.show()
-    # end def
-
-    def configure(self, strandtype, orientation, index, parent):
-        """
-        Sets the parent of the PreXoverHandle to its PathHelix, so upon
-        reordering of that PathHelix, the PreXoverHandle will redraw
-        correctly.
-        """
-        self.setParentItem(parent)
-        self._strandType = strandtype
-        self._orientation = orientation
-        self._index = index
-    # end def
-
-    def rightDrawConfig(self):
-        # self.setX(self.baseWidth * self._index)
-        self.setPos(self.baseWidth * self._index, self.y())
-        offset = -self._label.boundingRect().width() / 2 + self.baseWidth / 2
-        # self._label.setX(offset)
-        self._label.setPos(offset, self._label.y())
-    # end def
-
-    def leftDrawConfig(self):
-        # self.setX(self.baseWidth * self._index)
-        self.setPos(self.baseWidth * self._index, self.y())
-        offset = self._label.boundingRect().width() / 2
-        # self._label.setX(self.baseWidth / 2 - offset)
-        self._label.setPos(self.baseWidth/2 - offset, self._label.y())
-    # end def
-
-    def upDrawConfig(self):
-        # self.setY(-1.25 * self.baseWidth)
-        # self._label.setY(-0.10 * self.baseWidth)
-        self.setPos(self.x(), -1.25*self.baseWidth)
-        self._label.setPos(self._label.x(), -0.10*self.baseWidth)
-    #end def
-
-    def downDrawConfig(self):
-        # self.setY(2.25 * self.baseWidth)
-        # self._label.setY(0.48 * self.baseWidth)
-        self.setPos(self.x(), 2.25 * self.baseWidth)
-        self._label.setPos(self._label.x(), 0.48 * self.baseWidth)
-    #end def
-
+            self.label.setBrush(self.disabbrush)
+        self.update()
+    
+    def paint(self, painter, option, widget=None):
+        #Look Up Table
+        pathLUT = (_ppathRD, _ppathRU, _ppathLD, _ppathLU)
+        path = pathLUT[2*int(self.orientedLeft) + int(self.onTopStrand())]
+        pen = self.disabpen
+        if self.couldFormNewCrossover():
+            if self.fromStrand == StrandType.Scaffold:
+                pen = self.scafpen
+            else:
+                pen = self.stappen
+        painter.setPen(pen)
+        painter.drawPath(path)
+    
     def boundingRect(self):
         return self.rect
-
-    def paint(self, painter, option, widget=None):
-        if self._strandType == StrandType.Scaffold:
-            painter.setPen(self.scafpen)
-        else:
-            painter.setPen(self.stappen)
-        painter.drawPath(self.painterpath)
-    # end def
-
+    
     def mousePressEvent(self, event):
-        """
-        This handles installing crossovers
-        """
         if event.button() != Qt.LeftButton:
-            QGraphicsItem.mousePressEvent(self, event)
-        # end else
-        else:
-            self.installCrossover()
-        # end else
-    # end def
-
-    def installCrossover(self):
-        """Install a crossover: determine which is the upstream (3') base,
-        create the corresponding XoverHandlePair, and then push
-        the InstallXoverCommand to the undostack, which updates the model
-        and causes the ui refresh."""
+            return QGraphicsItem.mousePressEvent(self, event)
         # Determine upstream base
-        if self._orientation in [HandleOrient.LeftUp,\
-                                 HandleOrient.RightDown]:  # 3-prime clicked
-            fromHelix = self.pathHelix().vhelix()
-            fromIndex = self.index()
-            toHelix = self._partner.pathHelix().vhelix()
-            toIndex = self._partner.index()
-        else:  # 5-prime clicked
-            toHelix = self.pathHelix().vhelix()
-            toIndex = self.index()
-            fromHelix = self._partner.pathHelix().vhelix()
-            fromIndex = self._partner.index()
+        fromHelix, toHelix = self.fromVH, self.toVH
+        fromIdx, toIdx = self.fromIdx, self.toIdx
+        if not self.is3pEndOfCrossover():
+            fromHelix, toHelix = toHelix, fromHelix
+            fromIdx, toIdx = toIdx, fromIdx
         # Create XoverHandlePair and store references
         # fromHelix.installXoverFrom3To5(StrandType.Scaffold, \
         #                                 fromIndex, toHelix, toIndex)
-        fromHelix.installXoverFrom3To5(self.strandType(), \
-                                        fromIndex, toHelix, toIndex)
-        self._partner.hide()
-        self.hide()
-    # end def
-# end class
+        fromHelix.installXoverFrom3To5(self.fromStrand, \
+                                        fromIdx, toHelix, toIdx)
