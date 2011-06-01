@@ -26,9 +26,11 @@ crossoverhandle.py
 Created by Shawn on 2011-05-03.
 """
 import ui.styles as styles
+from PyQt4.QtGui import QGraphicsItem
+from PyQt4.QtCore import QPointF, QRectF, Qt
+from PyQt4.QtGui import QBrush, QFont, QPen
 
-
-class AbstractPathTool(object):
+class AbstractPathTool(QGraphicsItem):
     """
     Abstract base class to be subclassed by all other pathview tools.
 
@@ -49,9 +51,50 @@ class AbstractPathTool(object):
     """
 
     _baseWidth = styles.PATH_BASE_WIDTH
-
-    def __init__(self):
+    _toolRect = QRectF(0, 0,\
+                       _baseWidth, _baseWidth)
+    _rect = QRectF(0, 0,\
+                   _baseWidth +\
+                   styles.PATH_BASE_HL_STROKE_WIDTH / 2,\
+                   _baseWidth +\
+                   styles.PATH_BASE_HL_STROKE_WIDTH / 2)
+    _pen = QPen(styles.redstroke, styles.PATH_BASE_HL_STROKE_WIDTH)
+    _brush = QBrush(Qt.NoBrush)
+    
+    def __init__(self, parent=None):
         self._active = False
+        super(AbstractPathTool, self).__init__(parent)
+    # end def
+
+    def paint(self, painter, option, widget=None):
+        painter.setPen(self._pen)
+        painter.setBrush(self._brush)
+        painter.drawRect(self._toolRect)
+    # end def
+    
+    def boundingRect(self):
+        return self._rect
+    # end def
+    
+    def hoverEnterPathHelix(self, item, event):
+        self.setParentItem(item)
+        self.show()
+    # end def
+
+    def hoverLeavePathHelix(self, item, event):
+        self.hide()
+    # end def
+    
+    def hoverMovePathHelix(self, item, event, flag=None):
+        """
+        Flag is for the case where an item in the path also needs to
+        implement the hover method.
+        """
+        posItem = event.pos()
+        if flag != None:
+            posScene = event.scenePos()
+            posItem = self.parentItem().mapFromScene(posScene)
+        self.setPos(self.helixPos(posItem))
     # end def
 
     def setActive(self, bool):
@@ -71,5 +114,17 @@ class AbstractPathTool(object):
         x = int(point.x() / self._baseWidth)
         y = int(point.y() / self._baseWidth)
         return (x, y)
+    # end def
+    
+    def helixIndex(self, point):
+        x = int(point.x() / self._baseWidth)
+        y = int(point.y() / self._baseWidth)
+        return (x, y)
+    # end def
+
+    def helixPos(self, point):
+        x = int(point.x() / self._baseWidth) * self._baseWidth
+        y = int(point.y() / self._baseWidth) * self._baseWidth
+        return QPointF(x, y)
     # end def
 # end class

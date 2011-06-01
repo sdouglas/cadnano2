@@ -35,6 +35,11 @@ class PaintTool(AbstractPathTool):
     def __init__(self, colorpanel):
         super(PaintTool, self).__init__()
         self.colorpanel = colorpanel
+        self.hide()
+
+    def paint(self, painter, option, widget=None):
+        pass
+    # end def
 
     def setActive(self, bool):
         """

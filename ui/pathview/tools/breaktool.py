@@ -38,7 +38,7 @@ from PyQt4.QtGui import QPen
 from model.enum import HandleOrient
 import ui.styles as styles
 from ui.pathview.pathhelix import PathHelix
-from pathtool import PathTool
+from abstractpathtool import AbstractPathTool
 
 
 class BreakItem(QGraphicsItem):
@@ -48,8 +48,8 @@ class BreakItem(QGraphicsItem):
     _myRect = QRectF(0, 0, styles.PATH_BASE_WIDTH, styles.PATH_BASE_WIDTH)
     _pen = QPen(styles.redstroke, 2)
     _brush = QBrush(styles.breakfill)
-    baseWidth = styles.PATH_BASE_WIDTH
-    halfbaseWidth = baseWidth / 2
+    _baseWidth = styles.PATH_BASE_WIDTH
+    _halfbaseWidth = _baseWidth / 2
 
     # using this method instead of QPolygonF...
     def _polyGen(path, pointList):
@@ -61,14 +61,14 @@ class BreakItem(QGraphicsItem):
 
     # define points for arrow
     _leftX = 0
-    _leftCenterX = 0.25 * baseWidth
-    _rightCenterX = 0.75 * baseWidth
-    _rightX = baseWidth
-    _midY = halfbaseWidth
-    _topY = baseWidth
+    _leftCenterX = 0.25 * _baseWidth
+    _rightCenterX = 0.75 * _baseWidth
+    _rightX = _baseWidth
+    _midY = _halfbaseWidth
+    _topY = _baseWidth
 
     # Arrow pointing down
-    _pathStart = QPointF(halfbaseWidth, 0)
+    _pathStart = QPointF(_halfbaseWidth, 0)
     _p2 = QPointF(_leftX, -_midY)
     _p3 = QPointF(_leftCenterX, -_midY)
     _p4 = QPointF(_leftCenterX, -_topY)
@@ -80,13 +80,13 @@ class BreakItem(QGraphicsItem):
 
     # Arrow pointing up
     _pathArrowUp = QPainterPath()
-    _pathStart = QPointF(halfbaseWidth, baseWidth)
-    _p2 = QPointF(_leftX, baseWidth + _midY)
-    _p3 = QPointF(_leftCenterX, baseWidth + _midY)
-    _p4 = QPointF(_leftCenterX, baseWidth + _topY)
-    _p5 = QPointF(_rightCenterX, baseWidth + _topY)
-    _p6 = QPointF(_rightCenterX, baseWidth + _midY)
-    _p7 = QPointF(_rightX, baseWidth + _midY)
+    _pathStart = QPointF(_halfbaseWidth, _baseWidth)
+    _p2 = QPointF(_leftX, _baseWidth + _midY)
+    _p3 = QPointF(_leftCenterX, _baseWidth + _midY)
+    _p4 = QPointF(_leftCenterX, _baseWidth + _topY)
+    _p5 = QPointF(_rightCenterX, _baseWidth + _topY)
+    _p6 = QPointF(_rightCenterX, _baseWidth + _midY)
+    _p7 = QPointF(_rightX, _baseWidth + _midY)
     _polyGen(_pathArrowUp, [_pathStart, _p2, _p3, _p4, _p5, _p6, _p7])
 
     def __init__(self, parent=None):
@@ -113,10 +113,10 @@ class BreakItem(QGraphicsItem):
 # end class
 
 
-class BreakTool(PathTool):
-    def __init__(self, pathcontroller=None, parent=None):
+class BreakTool(AbstractPathTool):
+    def __init__(self, parent=None):
         """
-        This class inherits from the PathTool class for the majority of
+        This class inherits from the AbstractPathTool class for the majority of
         methods/behaviours.  Essentially it adds merely decorator graphics
         custimazation of behaviour and data structure access particular to
         loop insertion on a mouseclick.
@@ -125,12 +125,11 @@ class BreakTool(PathTool):
         """
         super(BreakTool, self).__init__(parent)
         self._breakItem = BreakItem(parent=self)
-        self.baseWidth = styles.PATH_BASE_WIDTH
         self.hide()
         self.setZValue(styles.ZPATHTOOL)
     # end def
 
-    def toolHoverMove(self, item, event, flag=None):
+    def hoverMovePathHelix(self, item, event, flag=None):
         """
         flag is for the case where an item in the path also needs to
         implement the hover method
@@ -146,7 +145,7 @@ class BreakTool(PathTool):
         self.setPos(self.helixPos(posItem))
     # end def
 
-    def toolPress(self, item, event):
+    def mousePressPathHelix(self, item, event):
         posScene = event.scenePos()
         posItem = self.parentItem().mapFromScene(posScene)
         indexp = self.helixIndex(posItem)

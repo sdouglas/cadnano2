@@ -38,6 +38,10 @@ class SelectTool(AbstractPathTool):
     def toolPress(self):
         pass
 
+    def paint(self, painter, option, widget=None):
+        pass
+    # end def
+
     def mousePressPathHelix(self, ph, event):
         """Activate this item as the current helix"""
         self._mouseDownY = event.pos().y()

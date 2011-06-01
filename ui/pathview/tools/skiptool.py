@@ -26,10 +26,12 @@ skiptool.py
 Created by Nick on 2011-05-03.
 """
 from abstractpathtool import AbstractPathTool
-
+import ui.styles as styles
+from PyQt4.QtGui import QPen
+from ui.pathview.handles.skiphandle import SkipItem
 
 class SkipTool(AbstractPathTool):
-    def __init__(self):
+    def __init__(self, parent=None):
         """
         This class inherits from the PathTool class for the majority of
         methods/behaviours.  Essentially it adds merely decorator graphics
@@ -38,10 +40,15 @@ class SkipTool(AbstractPathTool):
 
         Its parent should be *always* be a PathHelix.
         """
-        super(SkipTool, self).__init__()
+        super(SkipTool, self).__init__(parent)
+        self._skipItem = SkipItem(parent=self)
+        _pen = QPen(styles.redstroke, 2)
+        self.baseWidth = styles.PATH_BASE_WIDTH
+        self.hide()
+        self.setZValue(styles.ZPATHTOOL)
     # end def
 
-    def toolPress(self, item, event):
+    def mousePressPathHelix(self, item, event):
         posScene = event.scenePos()
         posItem = self.parentItem().mapFromScene(posScene)
         indexp = self.helixIndex(posItem)

@@ -34,12 +34,11 @@ from PyQt4.QtGui import QPen
 from model.enum import HandleOrient
 import ui.styles as styles
 from ui.pathview.pathhelix import PathHelix
-from pathtool import PathTool
 from ui.pathview.handles.loophandle import LoopItem, LoopHandle
+from abstractpathtool import AbstractPathTool
 
-
-class LoopTool(PathTool):
-    def __init__(self, pathcontroller=None, parent=None):
+class LoopTool(AbstractPathTool):
+    def __init__(self, parent=None):
         """
         This class inherits from the PathTool class for the majority of
         methods/behaviours.  Essentially it adds merely decorator graphics
@@ -56,7 +55,7 @@ class LoopTool(PathTool):
         self.setZValue(styles.ZPATHTOOL)
     # end def
 
-    def toolHoverMove(self, item, event, flag=None):
+    def hoverMovePathHelix(self, item, event, flag=None):
         """
         flag is for the case where an item in the path also needs to
         implement the hover method
@@ -72,7 +71,7 @@ class LoopTool(PathTool):
         self.setPos(self.helixPos(posItem))
     # end def
 
-    def toolPress(self, item, event):
+    def mousePressPathHelix(self, item, event):
         posScene = event.scenePos()
         posItem = self.parentItem().mapFromScene(posScene)
         indexp = self.helixIndex(posItem)

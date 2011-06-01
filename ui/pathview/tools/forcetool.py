@@ -38,16 +38,16 @@ from PyQt4.QtGui import QPen
 from model.enum import HandleOrient
 import ui.styles as styles
 from ui.pathview.pathhelix import PathHelix
-from pathtool import PathTool
+from abstractpathtool import AbstractPathTool
 
-class ForceTool(PathTool):
+class ForceTool(AbstractPathTool):
     
     _pen = QPen(styles.bluestroke, 2)
     _pen.setCapStyle(Qt.RoundCap)
     _pen.setJoinStyle(Qt.RoundJoin)
     _brush = QBrush(styles.forcefill)
     
-    def __init__(self, pathcontroller=None, parent=None):
+    def __init__(self, parent=None):
         """
         This class inherits from the PathTool class for the majority of 
         methods/behaviours.  Essentially it adds merely decorator graphics
@@ -61,7 +61,7 @@ class ForceTool(PathTool):
         self.setZValue(styles.ZPATHTOOL)
     # end def
     
-    def toolPress(self, item, event):
+    def mousePressPathHelix(self, item, event):
         posScene = event.scenePos()
         posItem = self.parentItem().mapFromScene(posScene)
         indexp = self.helixIndex(posItem)

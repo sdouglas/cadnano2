@@ -31,23 +31,19 @@ Created by Nick on 2011-05-18
 
 from exceptions import AttributeError, NotImplementedError
 from PyQt4.QtCore import QPointF, QRectF, Qt
-from PyQt4.QtGui import QBrush, QFont
-from PyQt4.QtGui import QGraphicsItem, QGraphicsSimpleTextItem
-from PyQt4.QtGui import QPainterPath
+from PyQt4.QtGui import QBrush
 from PyQt4.QtGui import QPen
-from model.enum import HandleOrient
 import ui.styles as styles
-from ui.pathview.pathhelix import PathHelix
-from pathtool import PathTool
+from abstractpathtool import AbstractPathTool
 
 
-class EraseTool(PathTool):
+class EraseTool(AbstractPathTool):
     _pen = QPen(styles.redstroke, 2)
     _pen.setCapStyle(Qt.RoundCap)
     _pen.setJoinStyle(Qt.RoundJoin)
     _brush = QBrush(styles.erasefill)
 
-    def __init__(self, pathcontroller=None, parent=None):
+    def __init__(self, parent=None):
         """
         This class inherits from the PathTool class for the majority of
         methods/behaviours.  Essentially it adds merely decorator graphics
@@ -57,12 +53,11 @@ class EraseTool(PathTool):
         Its parent should be *always* be a PathHelix.
         """
         super(EraseTool, self).__init__(parent)
-        self.baseWidth = styles.PATH_BASE_WIDTH
         self.hide()
         self.setZValue(styles.ZPATHTOOL)
     # end def
 
-    def toolPress(self, item, event):
+    def mousePressPathHelix(self, item, event):
         posScene = event.scenePos()
         posItem = self.parentItem().mapFromScene(posScene)
         indexp = self.helixIndex(posItem)
