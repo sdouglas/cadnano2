@@ -37,8 +37,6 @@ from PyQt4.QtGui import QPen, QDrag, QUndoCommand, QPolygonF
 import ui.styles as styles
 from model.enum import EndType, LatticeType, StrandType
 from model.virtualhelix import VirtualHelix
-from handles.breakpointhandle import BreakpointHandle
-from mmayacadnano.pathhelix3d import PathHelix3D  # For Campbell
 from weakref import ref
 from handles.pathhelixhandle import PathHelixHandle
 from math import floor
@@ -317,10 +315,17 @@ class PathHelix(QGraphicsItem):
            or not self.evenParity() and strandType == StrandType.Staple
 
     def baseAtLocation(self, x, y):
-        """Returns the (strandType, index) under the location x,y or None."""
+        """Returns the (strandType, index) under the location x,y or None.
+        
+        It shouldn't be possible to click outside a pathhelix and still call
+        this function. However, this sometimes happens if you click exactly
+        on the top or bottom edge, resulting in a negative y value.
+        """
         baseIdx = int(floor(x / self.baseWidth))
         if baseIdx < 0 or baseIdx >= self.vhelix().numBases():
             return None
+        if y < 0:
+            y = 0  # HACK: zero out y due to erroneous click
         strandIdx = floor(y * 1. / self.baseWidth)
         if strandIdx < 0 or strandIdx > 1:
             return None

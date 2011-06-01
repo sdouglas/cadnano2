@@ -31,12 +31,11 @@ Created by Shawn on 2011-01-27.
 
 from PyQt4.QtCore import QRectF, QPointF, QEvent, pyqtSlot, QObject, Qt
 from PyQt4.QtCore import pyqtSignal
-from PyQt4.QtGui import QBrush, QPen, qApp, QGraphicsTextItem, QFont
+from PyQt4.QtGui import QBrush, QPen, qApp, QGraphicsTextItem, QFont, QColor
 from PyQt4.QtGui import QGraphicsItem, QGraphicsObject
 from PyQt4.QtGui import QGraphicsItemGroup, QUndoCommand
 from .pathhelix import PathHelix
 from handles.activeslicehandle import ActiveSliceHandle
-from handles.breakpointhandle import BreakpointHandle
 from handles.pathhelixhandle import PathHelixHandle
 from handles.precrossoverhandle import PreXoverHandleGroup
 from model.enum import EndType, LatticeType, StrandType
@@ -53,8 +52,9 @@ class PathHelixGroup(QGraphicsObject):
     the PathHelix, PathHelixHandles, and ActiveSliceHandle.
     """
     handleRadius = styles.SLICE_HELIX_RADIUS
-    scafPen = QPen(styles.scafstroke, 2)
-    nobrush = QBrush(Qt.NoBrush)
+    _scafColor = QColor(0, 102, 204)
+    _scafPen = QPen(_scafColor, 2)
+    _nobrush = QBrush(Qt.NoBrush)
     
     def __init__(self, part,\
                        controller=None,\
@@ -69,6 +69,8 @@ class PathHelixGroup(QGraphicsObject):
         self._part = None; self.setPart(part)
         self._controller = controller
         self._activeSliceHandle = ActiveSliceHandle(self)
+        self._stapColor = QColor(0, 72, 0)
+        self._stapPen = QPen(self._stapColor, 2)
         self.activeHelix = None
         self.pchGroup = PreXoverHandleGroup(parent=self)
         self.xoverGet = XoverHandle()
@@ -96,24 +98,24 @@ class PathHelixGroup(QGraphicsObject):
         self.pchGroup.updateActiveHelix(virtualhelix)
 
     def setPart(self, newPart):
-        if self._part:   
+        if self._part:
             self._part.selectionWillChange.disconnect(self.selectionWillChange)
         newPart.selectionWillChange.connect(self.selectionWillChange)
         self._part = newPart
         if newPart:
             self.selectionWillChange(newPart.selection())
-    
+
     def controller(self):
         return self._controller
 
     def activeSliceHandle(self):
         return self._activeSliceHandle
-    
+
     def label(self):
         if self._label:
             return self._label
         font = QFont("Times", 30, QFont.Bold)
-        label = QGraphicsTextItem("Untitled Part")
+        label = QGraphicsTextItem("Part 1")
         label.setVisible(False)
         label.setFont(font)
         label.setParentItem(self)
@@ -122,13 +124,12 @@ class PathHelixGroup(QGraphicsObject):
         label.inputMethodEvent = None
         self._label = label
         return label
-        
 
     def displayedVHs(self):
         """Returns the list (ordered top to bottom) of VirtualHelix
         that the receiver is displaying"""
         return [ph.vhelix() for ph in self._pathHelixList]
-    
+
     displayedVHsChanged = pyqtSignal()
     def setDisplayedVHs(self, vhrefs):
         """Spawns or destroys PathHelix such that displayedVHs
@@ -146,7 +147,7 @@ class PathHelixGroup(QGraphicsObject):
             new_pathHelixList.append(ph)
         self._set_pathHelixList(new_pathHelixList)
         self.displayedVHsChanged.emit()
-        
+
     def __pathHelixList(self):
         return self._pathHelixList
 
@@ -187,14 +188,14 @@ class PathHelixGroup(QGraphicsObject):
 
     def paint(self, painter, option, widget=None):
         # painter.save()
-        painter.setBrush(self.nobrush)
-        painter.setPen(self.scafPen)
+        painter.setBrush(self._nobrush)
         self.drawXovers(painter)
         # painter.restore()
 
     def drawXovers(self, painter):
         """Return a QPainterPath ready to paint the crossovers"""
         for ph in self._pathHelixList:
+            painter.setPen(self._scafPen)
             for ((fromhelix, fromindex), (tohelix, toindex)) in \
                              ph.vhelix().get3PrimeXovers(StrandType.Scaffold):
                 path = self.xoverGet.getXover(self,\
@@ -205,6 +206,7 @@ class PathHelixGroup(QGraphicsObject):
                                               toindex)
                 painter.drawPath(path)
             # end for
+            painter.setPen(self._stapPen)
             for ((fromhelix, fromindex), (tohelix, toindex)) in \
                                ph.vhelix().get3PrimeXovers(StrandType.Staple):
                 path = self.xoverGet.getXover(self,\
@@ -213,6 +215,8 @@ class PathHelixGroup(QGraphicsObject):
                                               fromindex,\
                                               self.getPathHelix(tohelix),\
                                               toindex)
+                color = ph.vhelix().colorOfBase(StrandType.Staple, fromindex)
+                self._stapPen.setColor(QColor(color))
                 painter.drawPath(path)
             # end for
         # end for

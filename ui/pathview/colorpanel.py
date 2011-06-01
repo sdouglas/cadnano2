@@ -40,8 +40,10 @@ class ColorPanel(QGraphicsItem):
         self.rect = QRectF(0, 0, 20, 20)
         self.setFlag(QGraphicsItem.ItemIgnoresTransformations)
         self.colordialog = QColorDialog()
-        self._currentColor = self._colors[0]
-        self._brush = QBrush(self._currentColor)
+        self.colordialog.setOption(QColorDialog.DontUseNativeDialog)
+        self._colorIndex = 0
+        self._color = self._colors[0]
+        self._brush = QBrush(self._color)
         self.hide()
 
     def boundingRect(self):
@@ -52,6 +54,18 @@ class ColorPanel(QGraphicsItem):
         painter.setPen(self._pen)
         painter.drawRect(self.boundingRect())
 
+    def nextColor(self):
+        """docstring for nextColor"""
+        self._colorIndex += 1
+        if self._colorIndex == len(self._colors):
+            self._colorIndex = 0
+        self._color = self._colors[self._colorIndex]
+        self._brush.setColor(self._color)
+
+    def colorName(self):
+        """docstring for color"""
+        return self._color.name()
+
     def mousePressEvent(self, event):
-        self._currentColor = self.colordialog.getColor(self._currentColor)
-        self._brush = QBrush(self._currentColor)
+        self._color = self.colordialog.getColor(self._color)
+        self._brush = QBrush(self._color)
