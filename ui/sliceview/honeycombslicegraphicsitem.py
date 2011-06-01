@@ -189,20 +189,6 @@ class HoneycombSliceGraphicsItem(QGraphicsItem):  # was a QGraphicsObject change
                     newlyActiveVHs.add(vh)
             self.update()
 
-    def bringToFront(self):
-        """collidingItems gets a list of all items that overlap. sets
-        this items zValue to one higher than the max."""
-        zval = 1
-        items = self.collidingItems() # the is a QList
-        for item in items:
-            temp = item.zValue()
-            if temp >= zval:
-                zval = item.zValue() + 1
-            # end if
-        # end for
-        self.setZValue(zval)
-    # end def
-    
     class Deselector(QGraphicsItem):
         """The deselector lives behind all the slices
         and observes mouse press events that miss slices,

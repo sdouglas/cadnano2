@@ -28,7 +28,7 @@ Created by Shawn Douglas on 2011-05-31.
 """
 
 from abstractpathtool import AbstractPathTool
-
+from model.enum import StrandType
 
 class PaintTool(AbstractPathTool):
     """Handles re-coloring of staple strands."""
@@ -44,5 +44,19 @@ class PaintTool(AbstractPathTool):
             self.colorpanel.show()
         else:
             self.colorpanel.hide()
+
+    def mousePressPathHelix(self, ph, event):
+        """Activate this item as the current helix"""
+        self._mouseDownY = event.pos().y()
+        self._mouseDownBase = ph.baseAtLocation(event.pos().x(),\
+                                                self._mouseDownY)
+
+        if self._mouseDownBase:
+            if self._mouseDownBase[0] == StrandType.Staple:
+                vh = ph.vhelix()
+                if vh.hasBaseAt(*self._mouseDownBase):
+                    print "paint staple at", self._mouseDownBase[1]
+
+
     # end def
 # end class

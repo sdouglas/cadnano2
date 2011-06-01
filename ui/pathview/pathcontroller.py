@@ -36,13 +36,17 @@ from tools.selecttool import SelectTool
 
 class PathController(QObject):
     """
-    Manages the interactions between Path widgets / UI elements and the model
+    Manages the interactions between Path widgets / UI elements and the model.
+
+    _activeToolWidget indicates which tool is active and lets the user change
+    activeTool()
+
     """
     def __init__(self, win):
         super(PathController, self).__init__()
         self.mainWindow = win
         self._activeTool = None
-        self._currentToolWidget = None
+        self._activeToolWidget = None
 
         self.selectTool = SelectTool()
         self.paintTool = PaintTool(win.pathGraphicsView.toolbar)
@@ -69,27 +73,15 @@ class PathController(QObject):
         ag.setExclusive(True)
         self.chooseSelectTool()
 
-    # The activeTool is a tool in the style of SelectTool that
-    # can handle events forwarded in the style of
-    # util.defineEventForwardingMethodsForClass. In other words,
-    # the activeTool() gets events from various graphics objects in the
-    # path view and then makes the corresponding changes to the
-    # model. The displayed content then updates automatically via
-    # notifications from the model.
-    # * the activeTool gets events from graphics items and
-    #        does the work (changes the model). Possible future
-    #        configuration of the activeTool() can be done on the
-    #        instances of various tools kept in the controller, like
-    #        self.selectToo.
-    # * the _currentToolWidget indicates which activeTool is active
-    #        and lets the user change activeTool()
-    # * graphics items that make up the view sit back and watch the model,
-    #        updating when it changes
-    # NEW ACTIVETOOLS SHOULD TAKE ADVANTAGE OF SUBCLASSING, NOT
-    # COPY+PASTE CODE DUPLICATON which is a maintainance nightmare.
+
     def activeTool(self):
         return self._activeTool
-    
+
+    def isSelectToolActive(self):
+        if self._activeToolWidget is self.mainWindow.actionPathSelect:
+            return True
+        return False
+
     activeToolChanged = pyqtSignal()
     def setActiveTool(self, newActiveTool):
         if self._activeTool:
@@ -100,64 +92,64 @@ class PathController(QObject):
 
     def chooseSelectTool(self):
         widget = self.mainWindow.actionPathSelect
-        if self._currentToolWidget is widget:
+        if self._activeToolWidget is widget:
             return
         else:
-            self._currentToolWidget = widget
+            self._activeToolWidget = widget
         widget.setChecked(True)
         self.setActiveTool(self.selectTool)
 
     def choosePaintTool(self):
         widget = self.mainWindow.actionPathPaint
-        if self._currentToolWidget is widget:
+        if self._activeToolWidget is widget:
             return
         else:
-            self._currentToolWidget = widget
+            self._activeToolWidget = widget
         widget.setChecked(True)
         self.setActiveTool(self.paintTool)
 
     def chooseMoveTool(self):
         widget = self.mainWindow.actionPathMove
-        if self._currentToolWidget is widget:
+        if self._activeToolWidget is widget:
             return
         else:
-            self._currentToolWidget = widget
+            self._activeToolWidget = widget
         widget.setChecked(True)
         # self.setActiveTool(self.moveTool)
 
     def chooseBreakTool(self):
         widget = self.mainWindow.actionPathBreak
-        if self._currentToolWidget is widget:
+        if self._activeToolWidget is widget:
             return
         else:
-            self._currentToolWidget = widget
+            self._activeToolWidget = widget
         widget.setChecked(True)
         self.setActiveTool(self.breakTool)
 
     def chooseEraseTool(self):
         widget = self.mainWindow.actionPathErase
-        if self._currentToolWidget is widget:
+        if self._activeToolWidget is widget:
             return
         else:
-            self._currentToolWidget = widget
+            self._activeToolWidget = widget
         widget.setChecked(True)
         self.setActiveTool(self.eraseTool)
 
     def chooseInsertTool(self):
         widget = self.mainWindow.actionPathInsert
-        if self._currentToolWidget is widget:
+        if self._activeToolWidget is widget:
             return
         else:
-            self._currentToolWidget = widget
+            self._activeToolWidget = widget
         widget.setChecked(True)
         self.setActiveTool(self.insertionTool)
 
     def chooseSkipTool(self):
         widget = self.mainWindow.actionPathSkip
-        if self._currentToolWidget is widget:
+        if self._activeToolWidget is widget:
             return
         else:
-            self._currentToolWidget = widget
+            self._activeToolWidget = widget
         widget.setChecked(True)
         self.setActiveTool(self.skipTool)
     # end def

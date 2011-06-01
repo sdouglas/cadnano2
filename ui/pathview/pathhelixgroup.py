@@ -72,6 +72,7 @@ class PathHelixGroup(QGraphicsObject):
         self.activeHelix = None
         self.pchGroup = PreXoverHandleGroup(parent=self)
         self.xoverGet = XoverHandle()
+        self.setZValue(styles.ZPATHHELIXGROUP)
         
         self.phhSelectionGroup = SelectionItemGroup(\
                                          boxtype=PathHelixHandleSelectionBox,\
@@ -188,23 +189,30 @@ class PathHelixGroup(QGraphicsObject):
         # painter.save()
         painter.setBrush(self.nobrush)
         painter.setPen(self.scafPen)
-        self.drawXovers(painter) 
+        self.drawXovers(painter)
         # painter.restore()
 
     def drawXovers(self, painter):
         """Return a QPainterPath ready to paint the crossovers"""
         for ph in self._pathHelixList:
             for ((fromhelix, fromindex), (tohelix, toindex)) in \
-                                    ph.vhelix().get3PrimeXovers(StrandType.Scaffold):
-                path = self.xoverGet.getXover(self, StrandType.Scaffold, \
-                                    ph, fromindex,\
-                                    self.getPathHelix(tohelix), toindex)
+                             ph.vhelix().get3PrimeXovers(StrandType.Scaffold):
+                path = self.xoverGet.getXover(self,\
+                                              StrandType.Scaffold,\
+                                              ph,\
+                                              fromindex,\
+                                              self.getPathHelix(tohelix),\
+                                              toindex)
                 painter.drawPath(path)
+            # end for
             for ((fromhelix, fromindex), (tohelix, toindex)) in \
-                                    ph.vhelix().get3PrimeXovers(StrandType.Staple):
-                path = self.xoverGet.getXover(self, StrandType.Staple, \
-                                    ph, fromindex,\
-                                    self.getPathHelix(tohelix), toindex)
+                               ph.vhelix().get3PrimeXovers(StrandType.Staple):
+                path = self.xoverGet.getXover(self,\
+                                              StrandType.Staple,\
+                                              ph,\
+                                              fromindex,\
+                                              self.getPathHelix(tohelix),\
+                                              toindex)
                 painter.drawPath(path)
             # end for
         # end for
@@ -274,20 +282,6 @@ class PathHelixGroup(QGraphicsObject):
         del vhs[first:last]
         self.setDisplayedVHs(vhs[0:first + indexDelta] +\
                             vhsToMove + vhs[first + indexDelta:-1])
-
-    def bringToFront(self):
-        """collidingItems gets a list of all items that overlap. sets
-        this items zValue to one higher than the max."""
-        zval = 1
-        items = self.collidingItems()  # the is a QList
-        for item in items:
-            temp = item.zValue()
-            if temp >= zval:
-                zval = item.zValue() + 1
-            # end if
-        # end for
-        self.setZValue(zval)
-    # end def
 # end class
 
 
@@ -335,20 +329,6 @@ class SelectionItemGroup(QGraphicsItemGroup):
 
     def paint(self, painter, option, widget=None):
         pass
-    # end def
-
-    def bringToFront(self):
-        """collidingItems gets a list of all items that overlap. sets
-        this items zValue to one higher than the max."""
-        zval = 1
-        items = self.scene().items(self.boundingRect())  # the is a QList
-        for item in items:
-            temp = item.zValue()
-            if temp >= zval:
-                zval = item.zValue() + 1
-            # end if
-        # end for
-        self.setZValue(zval)
     # end def
 
     def mousePressEvent(self, event):

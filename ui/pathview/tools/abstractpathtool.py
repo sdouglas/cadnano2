@@ -30,14 +30,28 @@ import ui.styles as styles
 
 class AbstractPathTool(object):
     """
-    Abstract base class to be subclassec by all other pathview tools.
+    Abstract base class to be subclassed by all other pathview tools.
+
+    AbstractPathTool is an abstract class for tools that can handle events
+    forwarded in the style of util.defineEventForwardingMethodsForClass.
+    
+    In other words, the activeTool() gets events from various graphics objects
+    in the pathview and then makes the corresponding changes to the model.
+    
+    The displayed content then updates automatically via notifications from
+    the model.
+    * the activeTool gets events from graphics items and does the work
+      (changes the model). Possible future configuration of the activeTool()
+      can be done on the instances of various tools kept in the controller,
+      like selectTool.
+    * graphics items that make up the view sit back and watch the model,
+      updating when it changes
     """
 
     _baseWidth = styles.PATH_BASE_WIDTH
 
     def __init__(self):
         self._active = False
-        pass
     # end def
 
     def setActive(self, bool):

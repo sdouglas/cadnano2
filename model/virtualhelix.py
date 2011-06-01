@@ -222,7 +222,7 @@ class VirtualHelix(QObject):
 
     ########################### Access to Bases ###################
     def hasBaseAt(self, strandType, index):
-        """Returns true if a scaffold base is present at index"""
+        """Returns true if a base is present at index on strand strandtype."""
         base = self._baseAt(strandType, index)
         if not base:
             return False

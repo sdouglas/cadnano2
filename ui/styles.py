@@ -60,6 +60,10 @@ PATH_BASE_HL_STROKE_WIDTH = 2  # PathTool highlight box
 MINOR_GRID_STROKE_WIDTH = 0.5
 MAJOR_GRID_STROKE_WIDTH = 0.5
 
+# Path Drawing
+PATH_XOVER_LINE_SCALE_X = 0.035
+PATH_XOVER_LINE_SCALE_Y = 0.035
+
 # Path Colors
 minorgridstroke = QColor(153, 153, 153)  # 999999
 majorgridstroke = QColor(51, 51, 51)  # 333333
@@ -73,23 +77,32 @@ forcefill = QColor (0, 255, 255, 63)
 breakfill = QColor (255, 0, 0, 255)
 colorbox_fill = QColor(204, 0, 0)
 colorbox_stroke = QColor(102, 102, 102)
-
-# Path Drawing
-PATH_XOVER_LINE_SCALE_X = 0.035
-PATH_XOVER_LINE_SCALE_Y = 0.035
+stapleColors = [QColor(204, 0, 0),\
+                QColor(247, 67, 8),\
+                QColor(247, 147, 30),\
+                QColor(170, 170, 0),\
+                QColor(87, 187, 0),\
+                QColor(0, 114, 0),\
+                QColor(3, 182, 162),\
+                QColor(23, 0, 222),\
+                QColor(115, 0, 222),\
+                QColor(184, 5, 108),\
+                QColor(51, 51, 51)]
 
 #layer limits
+ZACTIVESLICEHANDLE = -12
+ZPATHHELIXGROUP = -10
+ZPATHHELIX = -5
+ZSLICEHELIX = -1.0
 ZPREXOVERHANDLE = .9
 ZXOVERHANDLEPAIR = 1
 ZFOCUSRING = 0.0
-ZSLICEHELIX = -1.0
 ZBREAKPOINTHANDLE = 2
 ZLOOPHANDLE = 2
 ZSKIPHANDLE = 2
 ZPATHTOOL = 3
 ZBREAKITEM = 2
-ZPATHHELIX = -11
-ZACTIVESLICEHANDLE = -12
+
 
 # Overwrite for Maya
 # majorgridstroke = QColor(255, 255, 255)  # ffffff for maya

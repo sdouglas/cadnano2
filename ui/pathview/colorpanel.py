@@ -27,18 +27,21 @@ Created by Shawn on 2011-05-31.
 """
 
 from PyQt4.QtCore import QRectF, Qt
-from PyQt4.QtGui import QBrush, QGraphicsItem
+from PyQt4.QtGui import QBrush, QGraphicsItem, QColorDialog
 import ui.styles as styles
 
 class ColorPanel(QGraphicsItem):
     """docstring for ColorPanel"""
-    _brush = QBrush(styles.bluefill)
+    _colors = styles.stapleColors
     _pen = Qt.NoPen  # QPen(styles.bluestroke, 2)
 
     def __init__(self, parent=None):
         super(ColorPanel, self).__init__(parent)
         self.rect = QRectF(0, 0, 20, 20)
         self.setFlag(QGraphicsItem.ItemIgnoresTransformations)
+        self.colordialog = QColorDialog()
+        self._currentColor = self._colors[0]
+        self._brush = QBrush(self._currentColor)
         self.hide()
 
     def boundingRect(self):
@@ -48,3 +51,7 @@ class ColorPanel(QGraphicsItem):
         painter.setBrush(self._brush)
         painter.setPen(self._pen)
         painter.drawRect(self.boundingRect())
+
+    def mousePressEvent(self, event):
+        self._currentColor = self.colordialog.getColor(self._currentColor)
+        self._brush = QBrush(self._currentColor)

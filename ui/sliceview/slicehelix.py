@@ -49,7 +49,8 @@ class SliceHelix(QGraphicsItem):
     useBrush = QBrush(styles.orangefill)
     usePen = QPen(styles.orangestroke, styles.SLICE_HELIX_STROKE_WIDTH)
     radius = styles.SLICE_HELIX_RADIUS
-    outOfSlicePen = QPen(styles.lightorangestroke, styles.SLICE_HELIX_STROKE_WIDTH)
+    outOfSlicePen = QPen(styles.lightorangestroke,\
+                         styles.SLICE_HELIX_STROKE_WIDTH)
     outOfSliceBrush = QBrush(styles.lightorangefill)
     rect = QRectF(0, 0, 2 * radius, 2 * radius)
 
@@ -66,14 +67,15 @@ class SliceHelix(QGraphicsItem):
         self.undoStack = self._parent.sliceController.mainWindow.undoStack
         self.setFlag(QGraphicsItem.ItemIsSelectable)
         self.setZValue(styles.ZSLICEHELIX)
-    
+
     def part(self):
         return self._parent.part()
 
     def virtualHelix(self):
         if not self.part():
             return None
-        return self.part().getVirtualHelix((self._row, self._col), returnNoneIfAbsent=True)
+        return self.part().getVirtualHelix((self._row, self._col),\
+                                            returnNoneIfAbsent=True)
 
     def number(self):
         return self.virtualHelix().number()
@@ -83,10 +85,10 @@ class SliceHelix(QGraphicsItem):
 
     def col(self):
         return self._col
-    
+
     def selected(self):
         return self.focusRing != None
-    
+
     def setSelected(self, select):
         if select and not self.focusRing:
             self.focusRing = SliceHelix.FocusRingPainter(self.parentItem())
@@ -95,7 +97,6 @@ class SliceHelix(QGraphicsItem):
         if not select and self.focusRing:
             self.focusRing.setParentItem(None)
             self.focusRing = None
-            
 
     ############################ Painting ############################
     class FocusRingPainter(QGraphicsItem):
@@ -104,12 +105,12 @@ class SliceHelix(QGraphicsItem):
             painter.drawEllipse(SliceHelix.rect)
 
         def boundingRect(self):
-             return SliceHelix.rect.adjusted(-1, -1,2,2)
+            return SliceHelix.rect.adjusted(-1, -1, 2, 2)
 
     def paint(self, painter, option, widget=None):
         vh = self.virtualHelix()
         if vh:
-            if vh.hasBaseAt(StrandType.Scaffold, self.part().activeSlice()): 
+            if vh.hasBaseAt(StrandType.Scaffold, self.part().activeSlice()):
                 painter.setBrush(self.useBrush)
                 painter.setPen(self.usePen)
             else:
@@ -119,7 +120,8 @@ class SliceHelix(QGraphicsItem):
             num = QString(str(self.virtualHelix().number()))
             painter.setPen(Qt.SolidLine)
             painter.setBrush(Qt.NoBrush)
-            painter.drawText(0, 0, 2*self.radius, 2*self.radius, Qt.AlignHCenter+Qt.AlignVCenter, num)
+            painter.drawText(0, 0, 2 * self.radius, 2 * self.radius,\
+                             Qt.AlignHCenter + Qt.AlignVCenter, num)
         else:  # We are virtualhelix-less
             pass
             painter.setBrush(self.defBrush)
@@ -132,32 +134,52 @@ class SliceHelix(QGraphicsItem):
 
     def boundingRect(self):
         return self.rect
-    
+
     ############################ User Interaction ############################
     def mouseDoubleClickEvent(self, event):
         self.createOrAddBasesToVirtualHelix(\
-            addBasesIfVHExists=True,\
-            addToScaffold=event.modifiers()&Qt.ShiftModifier>0)
+            addBases=True,\
+            addToScaffold=event.modifiers() & Qt.ShiftModifier > 0)
 
     def mousePressEvent(self, event):
-        self.createOrAddBasesToVirtualHelix()
+        # self.createOrAddBasesToVirtualHelix()
+        self.createOrAddBasesToVirtualHelix(\
+            addBases=True,\
+            addToScaffold=event.modifiers() & Qt.ShiftModifier > 0)
         if event.modifiers() & Qt.ShiftModifier:
             self.virtualHelix().setSelected(True)
         else:
             self.part().setSelection((self.virtualHelix(),))
-    
+
     def hoverEnterEvent(self, event):
         # If the selection is configured to always select
         # everything, we don't draw a focus ring around everything,
         # instead we only draw a focus ring around the hovered obj.
         if self.part().selectAllBehavior:
             self.setSelected(True)
-    
+
     def hoverLeaveEvent(self, event):
         if self.part().selectAllBehavior:
             self.setSelected(False)
 
-    def createOrAddBasesToVirtualHelix(self, addBasesIfVHExists=False, addToScaffold=False):
+    # def createOrAddBasesToVirtualHelix(self, addBasesIfVHExists=False,\
+    #                                          addToScaffold=False):
+    #     coord = (self._row, self._col)
+    #     vh = self.virtualHelix()
+    #     index = self.part().activeSlice()
+    #     if not vh:
+    #         vh = VirtualHelix()
+    #         self.part().setVirtualHelixAt(coord, vh)
+    #         vh.basesModified.connect(self.update)
+    #     elif addBasesIfVHExists:
+    #         vh = self.virtualHelix()
+    #         nb = vh.numBases()
+    #         vh.connectStrand(StrandType.Scaffold\
+    #                          if addToScaffold\
+    #                          else StrandType.Staple, index - 1, index + 1)
+
+    def createOrAddBasesToVirtualHelix(self, addBases=False,\
+                                             addToScaffold=False):
         coord = (self._row, self._col)
         vh = self.virtualHelix()
         index = self.part().activeSlice()
@@ -165,23 +187,11 @@ class SliceHelix(QGraphicsItem):
             vh = VirtualHelix()
             self.part().setVirtualHelixAt(coord, vh)
             vh.basesModified.connect(self.update)
-        elif addBasesIfVHExists:
-            vh = self.virtualHelix()
-            nb = vh.numBases()
-            vh.connectStrand(StrandType.Scaffold if addToScaffold else StrandType.Staple, index-1, index+1)
+        if addBases and addToScaffold:
+            vh.connectStrand(StrandType.Scaffold, index - 1, index + 1)
+        elif addBases and not addToScaffold:
+            vh.connectStrand(StrandType.Staple, index - 1, index + 1)
     # end def
-    
-# end class
 
-def bringToFront(self):
-    """collidingItems gets a list of all items that overlap. sets
-    this items zValue to one higher than the max."""
-    zval = 1
-    items = self.scene().items(self.boundingRect()) # the is a QList
-    for item in items:
-        temp = item.zValue()
-        if temp >= zval:
-            zval = item.zValue() + 1
-        # end if
-    # end for
-    self.setZValue(zval)
+
+# end class
