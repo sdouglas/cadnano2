@@ -457,6 +457,7 @@ class VirtualHelix(QObject):
         toBase = toVhelix._strand(strandType)[toIndex]
         if fromBase._3pBase != toBase or fromBase != toBase._5pBase:
             raise IndexError("Crossover does not exist to be removed.")
+        print "break3to5"
         c = self.Break3To5Command(strandType, self, fromIndex)
         self.undoStack().push(c)
         

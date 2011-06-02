@@ -59,7 +59,7 @@ class SelectTool(AbstractPathTool):
         if self._mouseDownY==None:
             return
         vh = ph.vhelix()
-        newBase = ph.baseAtLocation(event.pos().x(), self._mouseDownY)
+        newBase = ph.baseAtLocation(event.pos().x(), self._mouseDownY, clampX=True)
         if self._mouseDownBase and newBase:
             self._lastValidBase = newBase
             vh.undoStack().undo()

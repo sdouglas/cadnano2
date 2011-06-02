@@ -358,7 +358,7 @@ class PathHelix(QGraphicsItem):
         return self.evenParity() and strandType == StrandType.Scaffold\
            or not self.evenParity() and strandType == StrandType.Staple
 
-    def baseAtLocation(self, x, y):
+    def baseAtLocation(self, x, y, clampX=False, clampY=False):
         """Returns the (strandType, index) under the location x,y or None.
         
         It shouldn't be possible to click outside a pathhelix and still call
@@ -366,13 +366,20 @@ class PathHelix(QGraphicsItem):
         on the top or bottom edge, resulting in a negative y value.
         """
         baseIdx = int(floor(x / self.baseWidth))
-        if baseIdx < 0 or baseIdx >= self.vhelix().numBases():
-            return None
+        minBase, maxBase = 0, self.vhelix().numBases()
+        if baseIdx<minBase or baseIdx>=maxBase:
+            if clampX:
+                baseIdx = clamp(baseIdx, minBase, maxBase-1)
+            else:
+                return None
         if y < 0:
             y = 0  # HACK: zero out y due to erroneous click
         strandIdx = floor(y * 1. / self.baseWidth)
         if strandIdx < 0 or strandIdx > 1:
-            return None
+            if clampY:
+                strandIdx = int(clamp(strandIdx, 0, 1))
+            else:
+                return None
         if self.strandIsTop(StrandType.Scaffold):
             strands = StrandType.Scaffold, StrandType.Staple
         else:
