@@ -123,6 +123,10 @@ class PathHelix(QGraphicsItem):
 
     def vhelix(self):
         return self._vhelix
+        
+    def phgroup(self):
+        return self._pathHelixGroup
+    # end def
 
     def undoStack(self):
         return self.vhelix().undoStack()
@@ -197,6 +201,9 @@ class PathHelix(QGraphicsItem):
         self._endpoints = None  # Clear endpoint drawing cache
         self._segmentPaths = None  # Clear drawing cache of lines
         self._loopPaths = None
+        # Reset active helix if necessary
+        if self.phgroup().getActiveHelix() == self:
+            self.makeSelfActiveHelix()
         self.update()
 
     ############################# Drawing ##########################

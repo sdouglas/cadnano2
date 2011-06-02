@@ -92,10 +92,11 @@ class PathHelixGroup(QGraphicsObject):
     def activeTool(self):
         return controller().activeTool()
     
-    def activeHelix(self):
+    def getActiveHelix(self):
         return self.activeHelix
     
     def setActiveHelix(self, newActivePH):
+        self.activeHelix = newActivePH
         neighborVHs = newActivePH.vhelix().neighbors()
         for ph in self._pathHelixList:
             showHandles = ph==newActivePH or ph.vhelix() in neighborVHs
@@ -103,8 +104,10 @@ class PathHelixGroup(QGraphicsObject):
         self.notifyLoopHandleGroupAfterUpdate(newActivePH)
     
     def notifyLoopHandleGroupAfterUpdate(self, pathhelix):
-        """Called by PathHelix.mousePressEvent after the vhelix has calculated
-        its new PreXoverHandle positions."""
+        """
+        Called by setActiveHelix and loophandlegroup after the vhelix has 
+        calculated its new loop positions.
+        """
         self.loopHandleGroup.updateActiveHelix(pathhelix)
 
     def setPart(self, newPart):
