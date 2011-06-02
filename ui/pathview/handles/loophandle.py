@@ -146,19 +146,42 @@ class LoopHandle(QGraphicsItem):
         label.setParentItem(self)
         label.setTextInteractionFlags(Qt.TextEditorInteraction)
         label.inputMethodEvent = self.inputProcess
+        label.keyPressEvent = self.textkeyPressEvent
+        label.setTextWidth(-1)
         self._label = label
         self._label.hide()
         return label
 
+    def textkeyPressEvent(self, event):
+        """
+        Must intercept invalid input events.  Make changes here
+        """
+        a = event.key()
+        text = event.text()
+        if a == Qt.Key_Space or a == Qt.Key_Tab:
+            return
+        elif a == Qt.Key_Return:
+            self._label.setTextInteractionFlags(Qt.NoTextInteraction)
+            self.inputProcess(event)
+            self._label.setTextInteractionFlags(Qt.TextEditorInteraction)
+            return 
+        elif unicode(text).isalpha():
+            return
+        else:    
+            return QGraphicsTextItem.keyPressEvent(self._label,event)
+
+
     def inputProcess(self, event):
-        print "input changed", self._label.toPlainText()
+        """
+        This is run on the label being changed
+        """
         test = unicode(self._label.toPlainText())
-        if test.isdigit():
+        try:
             self._loopsize = int(test)
             self.parentItem().vhelix().installLoop(self._strandtype, \
                                                     self._index, \
                                                     self._loopsize)
-        else:
+        except:
             print "not an integer"
             self._label.setPlainText("%d" % (self._loopsize))
     # end def
