@@ -38,7 +38,10 @@ class DNAHoneycombPart(DNAPart):
         self._activeSlice = 21
         
     def __repr__(self):
-        return "HoneycombPart[" + ','.join(repr(self._numberToVirtualHelix[k]) for k in self._numberToVirtualHelix) + "]"
+        s = "HoneycombPart[" +\
+            ','.join(repr(self._numberToVirtualHelix[k])\
+            for k in self._numberToVirtualHelix) + "]"
+        return s
 
     def coordinateParityEven(self, coords):
         row, col = coords

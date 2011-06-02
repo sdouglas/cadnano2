@@ -69,20 +69,20 @@ class DocumentController():
         self._hasNoAssociatedFile = False
         self.setDirty(True)
         return True
-    
+
     def document(self):
         return self._document
-    
+
     def setDocument(self, doc):
         self._document = doc
         doc.setController(self)
         doc.partAdded.connect(self.docPartAddedEvent)
         for p in doc.parts():
             self.docPartAddedEvent(p)
-    
+
     def undoStack(self):
         return self._undoStack
-        
+
     def connectWindowEventsToSelf(self):
         """
         Organizational method to collect signal/slot connectors.
@@ -106,10 +106,8 @@ class DocumentController():
         # self.win.actionMoveDown.triggered.connect(self.moveDownClicked)
         # self.win.actionPromote.triggered.connect(self.promoteClicked)
         # self.win.actionDemote.triggered.connect(self.demoteClicked)
-        
-        
     # end def
-    
+
     def dirty(self, *args, **kwargs):
         self.setDirty(True)
 
@@ -189,12 +187,11 @@ class DocumentController():
             # need to create a permanent class level reference to this so that it doesn't get garbage collected
             self.solidlist.append(solhg)
             phg.scaffoldChange.connect(solhg.handleScaffoldChange)
-            
+
         ash = phg.activeSliceHandle()
         self.win.sliceController.activeSliceLastSignal.connect(ash.moveToLastSlice)
         self.win.sliceController.activeSliceFirstSignal.connect(ash.moveToFirstSlice)
-        
-        
+
     def addHoneycombHelixGroup(self, nrows=20, ncolumns=20):
         """docstring for addHoneycombHelixGroup"""
         # Create a new DNA part

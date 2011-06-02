@@ -110,7 +110,7 @@ class DNAPart(Part):
     finishInitPriority = 0.0
     def finishInitWithArchivedDict(self, completeArchivedDict):
         for coord, num, vh in completeArchivedDict['virtualHelices']:
-            if num%2:
+            if num % 2:
                 self.highestUsedOdd = max(self.highestUsedOdd, num)
             else:
                 self.highestUsedEven = max(self.highestUsedEven, num)
@@ -179,6 +179,7 @@ class DNAPart(Part):
             self.part = dnapart
             self.vhelix = vh
             self.requestedNum = requestSpecificIdnum
+
         def redo(self, actuallyUndo=False):
             part, vh = self.part, self.vhelix
             currentVH = part.getVirtualHelix((self.row, self.col))
@@ -198,6 +199,7 @@ class DNAPart(Part):
                 part._numberToVirtualHelix[newID] = vh
                 part._coordToVirtualHelix[(self.row, self.col)] = vh
             part.virtualHelixAtCoordsChanged.emit(self.row, self.col)
+
         def undo(self):
             # assert(self.oldVH)  # oldVH might be None
             self.redo(actuallyUndo=True)
