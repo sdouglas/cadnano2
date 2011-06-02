@@ -181,6 +181,7 @@ class LoopHandle(QGraphicsItem):
             self.parentItem().vhelix().installLoop(self._strandtype, \
                                                     self._index, \
                                                     self._loopsize)
+            self.resetPosition()
         except:
             print "not an integer"
             self._label.setPlainText("%d" % (self._loopsize))
@@ -198,15 +199,20 @@ class LoopHandle(QGraphicsItem):
         self._index = index
         self._strandtype = strandType
         self._label.setPlainText("%d" % (number))
-        txtOffset = self._label.boundingRect().width()/2
         self.setParentItem(ph)
-        posItem = ph.baseLocation(strandType, index, center=True)
-        if ph.strandIsTop(strandType):
-            self.setPos(posItem[0]-txtOffset, posItem[1]-1.5*self._baseWidth)
-        else:
-            self.setPos(posItem[0]-txtOffset, posItem[1]+1.5*self._baseWidth) 
+        self.resetPosition()
         self._label.show()
         self.show()
+    # end def
+    
+    def resetPosition(self):
+        txtOffset = self._label.boundingRect().width()/2
+        ph = self.parentItem()
+        posItem = ph.baseLocation(self._strandtype, self._index, center=True)
+        if ph.strandIsTop(self._strandtype):
+            self.setPos(posItem[0]-txtOffset, posItem[1]-1.5*self._baseWidth)
+        else:
+            self.setPos(posItem[0]-txtOffset, posItem[1]+0.5*self._baseWidth)
     # end def
 
 class LoopHandleGroup(QGraphicsItem):
@@ -243,20 +249,17 @@ class LoopHandleGroup(QGraphicsItem):
         """
         vhelix = ph.vhelix()
         count = 0
-        print "updating loop handles"
         # Process Scaffold PreXoverHandles
         strandtype = StrandType.Scaffold
         i = 0
         # this is summing keys in a dictionary
         countScaf = len(vhelix._loop(strandtype))
-        print countScaf, "scaf loops", vhelix._loop(strandtype)
         if countScaf > 0:
             for index, loopsize in vhelix._loop(strandtype).iteritems():
                 self.handles[i].setLabel(ph, strandtype, index, loopsize)
                 i += 1
         strandtype = StrandType.Staple
         countStap = len(vhelix._loop(strandtype))
-        print countStap, "stap loops", vhelix._loop(strandtype)
         if countStap > 0:
             for index, loopsize in vhelix._loop(strandtype).iteritems():
                 self.handles[i].setLabel(ph, strandtype, index, loopsize)

@@ -63,8 +63,8 @@ class SkipTool(AbstractPathTool):
         indexp = self.helixIndex(posItem)
         mouseDownBase = ph.baseAtLocation(posItem.x(),\
                                                 posItem.y())
-        print "SkipTool clicked at: (%d, %d) on helix %d" % \
-            (indexp[0], indexp[1], self.parentItem().number())
+        # print "SkipTool clicked at: (%d, %d) on helix %d" % \
+        #     (indexp[0], indexp[1], self.parentItem().number())
         # create a new SkipHandle by adding through the parentItem
         # create a new LoopHandle by adding through the     parentItem
         if mouseDownBase:
@@ -75,5 +75,6 @@ class SkipTool(AbstractPathTool):
                 vh.installLoop(mouseDownBase[0],mouseDownBase[1],0)
             elif vh.hasStrandAt(*mouseDownBase):
                 vh.installLoop(mouseDownBase[0],mouseDownBase[1],-1)
+            ph.makeSelfActiveHelix()
     # end def
 # end class

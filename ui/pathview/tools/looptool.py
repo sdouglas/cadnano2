@@ -87,8 +87,8 @@ class LoopTool(AbstractPathTool):
         indexp = self.helixIndex(posItem)
         mouseDownBase = ph.baseAtLocation(posItem.x(),\
                                                 posItem.y())
-        print "LoopTool clicked at: (%d, %d) on helix %d" % \
-            (indexp[0], indexp[1], self.parentItem().number())
+        # print "LoopTool clicked at: (%d, %d) on helix %d" % \
+        #     (indexp[0], indexp[1], self.parentItem().number())
         # create a new LoopHandle by adding through the     parentItem
         if mouseDownBase:
             loopsize = vh.hasLoopAt(*mouseDownBase)
@@ -98,5 +98,6 @@ class LoopTool(AbstractPathTool):
                 vh.installLoop(mouseDownBase[0],mouseDownBase[1],0)
             elif vh.hasStrandAt(*mouseDownBase):
                 vh.installLoop(mouseDownBase[0],mouseDownBase[1],1)
+            ph.makeSelfActiveHelix()
     # end def
 # end class
