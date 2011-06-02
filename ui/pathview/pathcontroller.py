@@ -25,7 +25,7 @@
 from PyQt4.QtCore import *
 from PyQt4.QtGui import *
 from PyQt4.QtCore import pyqtSignal
-from tools.pathtool import PathTool
+# from tools.pathtool import PathTool
 from tools.painttool import PaintTool
 from tools.looptool import LoopTool
 from tools.skiptool import SkipTool
@@ -102,7 +102,7 @@ class PathController(QObject):
     def choosePaintTool(self):
         widget = self.mainWindow.actionPathPaint
         if self._activeToolWidget is widget:
-            return
+            self.paintTool.nextColor()
         else:
             self._activeToolWidget = widget
         widget.setChecked(True)

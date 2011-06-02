@@ -34,7 +34,6 @@ from PyQt4.QtGui import QGraphicsItem
 from PyQt4.QtGui import QGraphicsSimpleTextItem
 from PyQt4.QtGui import QPen, QDrag, QUndoCommand
 import ui.styles as styles
-from mmayacadnano.activeslicehandle3d import ActiveSliceHandle3D
 
 
 class ActiveSliceHandle(QGraphicsItem):
@@ -157,7 +156,6 @@ class ActiveSliceHandle(QGraphicsItem):
             QGraphicsItem.mousePressEvent(self, event)
             return
         if not self.controller().isSelectToolActive():
-            self.controller().toolPress(None, event)
             return
         self.scene().views()[0].addToPressList(self)
         self._dragMode = True

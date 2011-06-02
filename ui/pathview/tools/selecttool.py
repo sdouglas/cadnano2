@@ -34,9 +34,6 @@ class SelectTool(AbstractPathTool):
         super(SelectTool, self).__init__()
         self._mouseDownBase = None
         self._lastValidBase = None
-    
-    def toolPress(self):
-        pass
 
     def paint(self, painter, option, widget=None):
         pass

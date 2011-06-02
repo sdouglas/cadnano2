@@ -28,7 +28,7 @@ Created by Nick on 2011-05-03.
 from abstractpathtool import AbstractPathTool
 import ui.styles as styles
 from PyQt4.QtGui import QPen
-from ui.pathview.handles.skiphandle import SkipItem
+from ui.pathview.handles.loophandle import SkipItem
 
 class SkipTool(AbstractPathTool):
     def __init__(self, parent=None):
@@ -41,11 +41,19 @@ class SkipTool(AbstractPathTool):
         Its parent should be *always* be a PathHelix.
         """
         super(SkipTool, self).__init__(parent)
-        self._skipItem = SkipItem(parent=self)
+        self._skipItem = SkipItem()
         _pen = QPen(styles.redstroke, 2)
         self.baseWidth = styles.PATH_BASE_WIDTH
         self.hide()
         self.setZValue(styles.ZPATHTOOL)
+    # end def
+
+    def paint(self, painter, option, widget=None):
+        painter.setPen(self._pen)
+        painter.setBrush(self._brush)
+        painter.drawRect(self._toolRect)
+        painter.setPen(self._skipItem.getPen())
+        painter.drawPath(self._skipItem.getSkip())
     # end def
 
     def mousePressPathHelix(self, item, event):
