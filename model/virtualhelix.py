@@ -607,15 +607,12 @@ class VirtualHelix(QObject):
             if self._vh.directionOfStrandIs5to3(self._strandType):
                 for i in range(self._startIndex - 1, self._endIndex):
                     ol.append(strand[i]._set3Prime(None))
-                # end for
-            # end if
+                    ol.append(strand[i+1]._set5Prime(None))
             else:
                 for i in range(self._startIndex - 1, self._endIndex):
                     ol.append(strand[i]._set5Prime(None))
-                # end for
-            # end else
+                    ol.append(strand[i+1]._set3Prime(None))
             self._vh.emitModificationSignal()
-        # end def
 
         def undo(self):
             strand = self._vh._strand(self._strandType)
@@ -623,16 +620,13 @@ class VirtualHelix(QObject):
             assert(ol != None)  # Must redo/apply before undo
             if self._vh.directionOfStrandIs5to3(self._strandType):
                 for i in range(self._endIndex - 1, self._startIndex - 2, -1):
-                    strand[i]._unset3Prime(None, *ol[i - self._startIndex + 1])
-                # end for
-            # end if
+                    strand[i+1]._unset5Prime(None, *ol.pop())
+                    strand[i]._unset3Prime(None, *ol.pop())
             else:
                 for i in range(self._endIndex - 1, self._startIndex - 2, -1):
-                    strand[i]._unset5Prime(None, *ol[i - self._startIndex + 1])
-                # end for
-            # end else
+                    strand[i+1]._unset3Prime(None, *ol.pop())
+                    strand[i]._unset5Prime(None, *ol.pop())
             self._vh.emitModificationSignal()
-        # end def
 
     class Connect3To5Command(QUndoCommand):
         def __init__(self, strandType, fromHelix, fromIndex, toHelix, toIndex):
