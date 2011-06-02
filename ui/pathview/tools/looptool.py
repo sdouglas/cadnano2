@@ -91,8 +91,11 @@ class LoopTool(AbstractPathTool):
             (indexp[0], indexp[1], self.parentItem().number())
         # create a new LoopHandle by adding through the     parentItem
         if mouseDownBase:
-            if vh.hasLoopAt(*mouseDownBase):
-                pass
+            loopsize = vh.hasLoopAt(*mouseDownBase)
+            if loopsize < 0:    # toggle from skip
+                vh.installLoop(mouseDownBase[0],mouseDownBase[1],1)
+            elif loopsize > 0:    # loop already there
+                vh.installLoop(mouseDownBase[0],mouseDownBase[1],0)
             elif vh.hasStrandAt(*mouseDownBase):
                 vh.installLoop(mouseDownBase[0],mouseDownBase[1],1)
     # end def

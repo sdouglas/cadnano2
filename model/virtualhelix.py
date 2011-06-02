@@ -461,11 +461,22 @@ class VirtualHelix(QObject):
         self.undoStack().push(c)
         
     def hasLoopAt(self, strandType, index):
-        # check for key "index" in the loop dictionary based on strandtype
-        return index in self._loop(strandType)
+        """
+        check for key "index" in the loop dictionary based on strandtype
+        returns 0 if no loop or skip and returns the length of the skip
+        otherwise
+        """
+        if index in self._loop(strandType):
+            return self._loop(strandType)[index]
+        else:
+            return 0
     # end def
         
     def installLoop(self, strandType, index, loopsize):
+        """
+        Main function for installing loops and skips
+        -1 is a skip, +N is a loop
+        """
         c = self.LoopCommand(self, strandType, index, loopsize)
         self.undoStack().push(c)
     # end def

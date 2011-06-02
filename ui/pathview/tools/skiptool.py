@@ -68,8 +68,11 @@ class SkipTool(AbstractPathTool):
         # create a new SkipHandle by adding through the parentItem
         # create a new LoopHandle by adding through the     parentItem
         if mouseDownBase:
-            if vh.hasLoopAt(*mouseDownBase):
-                pass
+            loopsize = vh.hasLoopAt(*mouseDownBase)
+            if loopsize > 0:    # toggle from loop
+                vh.installLoop(mouseDownBase[0],mouseDownBase[1],-1)
+            elif loopsize < 0:    # skip already there
+                vh.installLoop(mouseDownBase[0],mouseDownBase[1],0)
             elif vh.hasStrandAt(*mouseDownBase):
                 vh.installLoop(mouseDownBase[0],mouseDownBase[1],-1)
     # end def
