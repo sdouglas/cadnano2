@@ -32,9 +32,9 @@ from model.enum import StrandType
 
 class PaintTool(AbstractPathTool):
     """Handles re-coloring of staple strands."""
-    def __init__(self, colorpanel):
+    def __init__(self, colorPanel):
         super(PaintTool, self).__init__()
-        self.colorpanel = colorpanel
+        self._colorPanel = colorPanel
         self.hide()
 
     def paint(self, painter, option, widget=None):
@@ -46,9 +46,13 @@ class PaintTool(AbstractPathTool):
         Show the ColorPicker widget when active, hide when inactive.
         """
         if bool:
-            self.colorpanel.show()
+            self._colorPanel.show()
         else:
-            self.colorpanel.hide()
+            self._colorPanel.hide()
+
+    def nextColor(self):
+        """docstring for nextColor"""
+        self._colorPanel.nextColor()
 
     def mousePressPathHelix(self, ph, event):
         """Activate this item as the current helix"""
@@ -60,8 +64,7 @@ class PaintTool(AbstractPathTool):
             if self._mouseDownBase[0] == StrandType.Staple:
                 vh = ph.vhelix()
                 if vh.hasBaseAt(*self._mouseDownBase):
-                    print "paint staple at", self._mouseDownBase[1]
-
-
+                    vh.applyColorAt(self._colorPanel.colorName(),\
+                                   *self._mouseDownBase)
     # end def
 # end class

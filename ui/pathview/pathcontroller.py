@@ -102,7 +102,7 @@ class PathController(QObject):
     def choosePaintTool(self):
         widget = self.mainWindow.actionPathPaint
         if self._activeToolWidget is widget:
-            return
+            self.paintTool.nextColor()
         else:
             self._activeToolWidget = widget
         widget.setChecked(True)
