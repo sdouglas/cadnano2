@@ -41,6 +41,7 @@ from handles.breakpointhandle import BreakpointHandle
 from mmayacadnano.pathhelix3d import PathHelix3D  # For Campbell
 from weakref import ref
 from handles.pathhelixhandle import PathHelixHandle
+from handles.loophandle import LoopItem, SkipItem
 from math import floor
 from cadnano import app
 from util import *
@@ -97,6 +98,7 @@ class PathHelix(QGraphicsItem):
         self._scafXoverHandles = []
         self._stapXoverHandles = []
         self._segmentPaths = None
+        self._loopPaths = None
         self._minorGridPainterPath = None
         self._majorGridPainterPath = None
         self.step = 21  # 32 for Square lattice
@@ -105,6 +107,8 @@ class PathHelix(QGraphicsItem):
         self._vhelix = None
         self._handle = None
         self._mouseDownBase = None
+        self._skipitem = SkipItem()
+        self._loopitem = LoopItem()
         self.setVHelix(vhelix)
         if app().ph != None:  # Convenience for the command line -i mode
             app().ph[vhelix.number()] = self
@@ -200,6 +204,7 @@ class PathHelix(QGraphicsItem):
         self._pathHelixGroup.activeHelix = self  # activate new
         self._vhelix.updatePreCrossoverPositions(index)
         self._pathHelixGroup.notifyPreCrossoverGroupAfterUpdate(self._vhelix)
+        self._pathHelixGroup.notifyLoopHandleGroupAfterUpdate(self)
         self.update(self.boundingRect())
     # end def
 
@@ -207,6 +212,7 @@ class PathHelix(QGraphicsItem):
     def vhelixBasesModified(self):
         self._endpoints = None  # Clear endpoint drawing cache
         self._segmentPaths = None  # Clear drawing cache of lines
+        self._loopPaths = None
         self.update()
 
     ############################# Drawing ##########################
@@ -228,6 +234,13 @@ class PathHelix(QGraphicsItem):
         painter.setPen(Qt.NoPen)
         for paintCommand in self.segmentPaths():
             painter.setBrush(paintCommand[2])
+            painter.drawPath(paintCommand[3])
+        # Now draw loops and skips
+        painter.setBrush(Qt.NoBrush)
+        for paintCommand in self.loopPaths():
+            painter.setPen(paintCommand[0])
+            painter.drawPath(paintCommand[1])
+            painter.setPen(paintCommand[2])
             painter.drawPath(paintCommand[3])
         painter.restore()
 
@@ -312,6 +325,39 @@ class PathHelix(QGraphicsItem):
                 self._segmentPaths.append((pen, pp, brush, bp))
         return self._segmentPaths
 
+    def loopPaths(self):
+        """
+        Returns an array of:
+        (loopPen, loopPainterPath, skipPen, skipPainterPath)
+        for drawing loops and skips
+        """
+        if self._loopPaths:
+            return self._loopPaths
+        self._loopPaths = []
+        vh = self.vhelix()
+        lpen = self._loopitem.getPen()
+        spen = self._skipitem.getPen()
+        for strandType in (StrandType.Scaffold, StrandType.Staple):
+            top = self.strandIsTop(strandType)
+            lp = QPainterPath()
+            sp = QPainterPath()
+            count = len(vh._loop(strandType))
+            if count > 0:
+                for index, loopsize in vh._loop(strandType).iteritems(): 
+                    ul = self.baseLocation(strandType, index)
+                    if loopsize > 0:
+                        path = self._loopitem.getLoop(top)
+                        lp.addPath(path.translated(*ul))
+                    else:
+                        path = self._skipitem.getSkip()
+                        sp.addPath(path.translated(*ul))
+                # end for
+            # end if
+            self._loopPaths.append((lpen, lp, spen, sp))
+        # end for
+        return self._loopPaths
+    # end def
+    
     def strandIsTop(self, strandType):
         return self.evenParity() and strandType == StrandType.Scaffold\
            or not self.evenParity() and strandType == StrandType.Staple

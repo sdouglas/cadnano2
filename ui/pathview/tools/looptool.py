@@ -34,7 +34,7 @@ from PyQt4.QtGui import QPen
 from model.enum import HandleOrient
 import ui.styles as styles
 from ui.pathview.pathhelix import PathHelix
-from ui.pathview.handles.loophandle import LoopItem, LoopHandle
+from ui.pathview.handles.loophandle import LoopItem
 from abstractpathtool import AbstractPathTool
 
 class LoopTool(AbstractPathTool):
@@ -48,14 +48,23 @@ class LoopTool(AbstractPathTool):
         Its parent should be *always* be a PathHelix.
         """
         super(LoopTool, self).__init__(parent)
-        self._loopItem = LoopItem(orient="Up", parent=self)
+        self._loopItem = LoopItem()
         _pen = QPen(styles.bluestroke, 2)
         self.baseWidth = styles.PATH_BASE_WIDTH
         self.hide()
         self.setZValue(styles.ZPATHTOOL)
+        self._isTop = True
     # end def
 
-    def hoverMovePathHelix(self, item, event, flag=None):
+    def paint(self, painter, option, widget=None):
+        painter.setPen(self._pen)
+        painter.setBrush(self._brush)
+        painter.drawRect(self._toolRect)
+        painter.setPen(self._loopItem.getPen())
+        painter.drawPath(self._loopItem.getLoop(self._isTop))
+    # end def
+    
+    def hoverMovePathHelix(self, ph, event, flag=None):
         """
         flag is for the case where an item in the path also needs to
         implement the hover method
@@ -65,18 +74,26 @@ class LoopTool(AbstractPathTool):
             posScene = event.scenePos()
             posItem = self.parentItem().mapFromScene(posScene)
         if self.helixIndex(posItem)[1] == 1:
-            self._loopItem.setOrient("Down")
+            self._isTop = False
         else:
-            self._loopItem.setOrient("Up")
+            self._isTop = True
         self.setPos(self.helixPos(posItem))
     # end def
 
-    def mousePressPathHelix(self, item, event):
+    def mousePressPathHelix(self, ph, event):
+        vh = ph.vhelix()
         posScene = event.scenePos()
         posItem = self.parentItem().mapFromScene(posScene)
         indexp = self.helixIndex(posItem)
+        mouseDownBase = ph.baseAtLocation(posItem.x(),\
+                                                posItem.y())
         print "LoopTool clicked at: (%d, %d) on helix %d" % \
             (indexp[0], indexp[1], self.parentItem().number())
         # create a new LoopHandle by adding through the     parentItem
+        if mouseDownBase:
+            if vh.hasLoopAt(*mouseDownBase):
+                pass
+            elif vh.hasStrandAt(*mouseDownBase):
+                vh.installLoop(mouseDownBase[0],mouseDownBase[1],1)
     # end def
 # end class

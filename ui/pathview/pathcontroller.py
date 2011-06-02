@@ -25,7 +25,7 @@
 from PyQt4.QtCore import *
 from PyQt4.QtGui import *
 from PyQt4.QtCore import pyqtSignal
-from tools.pathtool import PathTool
+# from tools.pathtool import PathTool
 from tools.painttool import PaintTool
 from tools.looptool import LoopTool
 from tools.skiptool import SkipTool

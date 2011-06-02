@@ -66,6 +66,18 @@ class VirtualHelix(QObject):
         # The base arrays are owned entirely by virtualhelix
         self._stapleBases = []
         self._scaffoldBases = []
+        
+        """
+        This is for loops and skips.
+        a dictionary for loops and skips is added
+        for loops and skips
+        of the form { index: count }
+        + count indicates loop 
+        - count indicates skip
+        """
+        self._stapleLoops = {}
+        self._scaffoldLoops = {}
+        
         # setSandboxed(True) gives self a private undo stack
         # in order to insulate undo/redo on the receiver
         # from global undo/redo (so that if a haywire tool
@@ -217,6 +229,16 @@ class VirtualHelix(QObject):
             return self._scaffoldBases
         elif strandType == StrandType.Staple:
             return self._stapleBases
+        else:
+            raise IndexError("%s is not Scaffold=%s or Staple=%s"%(strandType, StrandType.Scaffold, StrandType.Staple))
+            
+    def _loop(self, strandType):
+        """The returned loop list should be considered privately
+        mutable"""
+        if strandType == StrandType.Scaffold:
+            return self._scaffoldLoops
+        elif strandType == StrandType.Staple:
+            return self._stapleLoops
         else:
             raise IndexError("%s is not Scaffold=%s or Staple=%s"%(strandType, StrandType.Scaffold, StrandType.Staple))
 
@@ -421,12 +443,60 @@ class VirtualHelix(QObject):
         c = self.Break3To5Command(strandType, self, fromIndex)
         self.undoStack().push(c)
         
+    def hasLoopAt(self, strandType, index):
+        # check for key "index" in the loop dictionary based on strandtype
+        return index in self._loop(strandType)
+    # end def
+        
+    def installLoop(self, strandType, index, loopsize):
+        c = self.LoopCommand(self, strandType, index, loopsize)
+        self.undoStack().push(c)
+    # end def
     
     def emitModificationSignal(self):
         self.basesModified.emit()
         #self.part().virtualHelixAtCoordsChanged.emit(*self.coord())
 
     ################ Private Base Modification API ###########################
+    class LoopCommand(QUndoCommand):
+        def __init__(self, virtualHelix, strandType, index, loopsize):
+            super(VirtualHelix.LoopCommand, self).__init__()
+            self._vh = virtualHelix
+            self._strandType = strandType
+            self._index = index
+            self._loopsize = loopsize
+            self._oldLoopsize = None
+            
+        def redo(self):
+            if self._vh.hasStrandAt(self._strandType, self._index):
+                loop = self._vh._loop(self._strandType)
+                self._oldLoopsize = 0
+                if self._loopsize != 0: # if we are not removing the loop
+                    if self._index in loop:
+                        self._oldLoopsize = loop[self._index]
+                    # end if
+                    loop[self._index] = self._loopsize # set the model
+                else: # trying to set the loop to zero so get rid of it! 
+                    if self._index in loop:
+                        del loop[self._index]
+                    # end if
+                # end else
+                self._vh.emitModificationSignal()
+            
+        def undo(self):
+            if self._vh.hasStrandAt(self._strandType, self._index):
+                loop = self._vh._loop(self._strandType)
+                assert(self._oldLoopsize != None)  # Must redo/apply before undo
+                if self._oldLoopsize != 0: # if we are not removing the loop
+                    if self._index in loop:
+                        loop[self._index] = self._oldLoopsize
+                else: 
+                    if self._index in loop:
+                        del loop[self._index]
+                    # end if
+                # end else
+                self._vh.emitModificationSignal()
+    
     class ConnectStrandCommand(QUndoCommand):
         def __init__(self, virtualHelix, strandType, startIndex, endIndex):
             super(VirtualHelix.ConnectStrandCommand, self).__init__()
@@ -454,7 +524,7 @@ class VirtualHelix(QObject):
         def undo(self):
             strand = self._vh._strand(self._strandType)
             ol = self._oldLinkage
-            assert(ol!=None)  # Must redo/apply before undo
+            assert(ol != None)  # Must redo/apply before undo
             if self._vh.directionOfStrandIs5to3(self._strandType):
                 for i in range(self._endIndex - 1, self._startIndex - 1, -1):
                     strand[i]._unset3Prime(strand[i + 1], *ol[i - self._startIndex])

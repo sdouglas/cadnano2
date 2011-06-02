@@ -43,6 +43,7 @@ from model.enum import EndType, LatticeType, StrandType
 import ui.styles as styles
 from handles.pathhelixhandle import PathHelixHandle
 from handles.crossoverhandle import XoverHandle
+from handles.loophandle import LoopHandleGroup
 from cadnano import app
 
 
@@ -71,6 +72,7 @@ class PathHelixGroup(QGraphicsObject):
         self._activeSliceHandle = ActiveSliceHandle(self)
         self.activeHelix = None
         self.pchGroup = PreXoverHandleGroup(parent=self)
+        self.loopHandleGroup = LoopHandleGroup(parent=self)
         self.xoverGet = XoverHandle()
         self.setZValue(styles.ZPATHHELIXGROUP)
         
@@ -94,6 +96,11 @@ class PathHelixGroup(QGraphicsObject):
         """Called by PathHelix.mousePressEvent after the vhelix has calculated
         its new PreXoverHandle positions."""
         self.pchGroup.updateActiveHelix(virtualhelix)
+    
+    def notifyLoopHandleGroupAfterUpdate(self, pathhelix):
+        """Called by PathHelix.mousePressEvent after the vhelix has calculated
+        its new PreXoverHandle positions."""
+        self.loopHandleGroup.updateActiveHelix(pathhelix)
 
     def setPart(self, newPart):
         if self._part:   
