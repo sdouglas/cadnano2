@@ -192,6 +192,11 @@ class PathHelix(QGraphicsItem):
                 for (neighborVH, fromIdx) in potentialXOvers:
                     pch = PreCrossoverHandle(self, strandType, fromIdx, neighborVH, fromIdx, not facingRight)
                     handles.append(pch)
+            self.vhelix().part().virtualHelixAtCoordsChanged.connect(self.updatePreXOverHandles)
+    
+    def updatePreXOverHandles(self):
+        self.setPreXOverHandlesVisible(False)
+        self.setPreXOverHandlesVisible(True)
     
     def makeSelfActiveHelix(self):
         self._pathHelixGroup.setActiveHelix(self)

@@ -644,6 +644,7 @@ class VirtualHelix(QObject):
             self._toIndex = toIndex
 
         def redo(self):
+            print "Connect3To5 %i:%i->%i:%i"%(self._fromHelix.number(), self._fromIndex, self._toHelix.number(), self._toIndex)
             fromB = self._fromHelix._strand(self._strandType)[self._fromIndex]
             toB = self._toHelix._strand(self._strandType)[self._toIndex]
             self._undoDat = fromB._set3Prime(toB)
