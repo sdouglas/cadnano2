@@ -99,9 +99,7 @@ class PreCrossoverHandle(QGraphicsItem):
         labelY = (-.10 if self.onTopStrand() else .48) * self.baseWidth
         self.label.setPos(labelX, labelY)
         self.updateVisibilityAndEnabledness()
-        
-        self.setAcceptHoverEvents(True)
-    
+            
     def onTopStrand(self):
         return self.fromVH.evenParity() and self.fromStrand==StrandType.Scaffold or\
                not self.fromVH.evenParity() and self.fromStrand==StrandType.Staple
@@ -113,11 +111,8 @@ class PreCrossoverHandle(QGraphicsItem):
         return self.fromVH.hasCrossoverAt(self.fromStrand, self.fromIdx)
     
     def is3pEndOfCrossover(self):
-        return self.orientedLeft and self.onTopStrand() or\
-               not self.orientedLeft and not self.onTopStrand
-    
-    def hoverEnterEvent(self, event):
-        print "ol: %s"%self.orientedLeft
+        underlyingStrand5To3 = self.fromVH.directionOfStrandIs5to3(self.fromStrand)
+        return self.orientedLeft == underlyingStrand5To3
     
     def updateVisibilityAndEnabledness(self):
         shouldBeVisible = not self.crossoverExists()
