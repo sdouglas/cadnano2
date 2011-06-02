@@ -26,9 +26,14 @@ crossoverhandle.py
 Created by Shawn on 2011-05-03.
 """
 import ui.styles as styles
-from PyQt4.QtGui import QGraphicsItem
+from PyQt4.QtGui import QGraphicsItem, QGraphicsItemGroup
 from PyQt4.QtCore import QPointF, QRectF, Qt
 from PyQt4.QtGui import QBrush, QFont, QPen
+from model.enum import StrandType
+# There's a bug where C++ will free orphaned
+# graphics items out from under pyqt. To avoid
+# this, "mother" adopts orphaned graphics items.
+mother = QGraphicsItemGroup()
 
 class AbstractPathTool(QGraphicsItem):
     """
@@ -61,10 +66,10 @@ class AbstractPathTool(QGraphicsItem):
     _pen = QPen(styles.redstroke, styles.PATH_BASE_HL_STROKE_WIDTH)
     _brush = QBrush(Qt.NoBrush)
     
-    def __init__(self, parent=None):
-        self._active = False
+    def __init__(self, controller, parent=None):
         super(AbstractPathTool, self).__init__(parent)
-    # end def
+        self._active = False
+        self._controller = controller
 
     def paint(self, painter, option, widget=None):
         painter.setPen(self._pen)
@@ -76,20 +81,22 @@ class AbstractPathTool(QGraphicsItem):
         return self._rect
     # end def
     
-    def hoverEnterPathHelix(self, item, event):
-        self.setParentItem(item)
+    def hoverEnterPathHelix(self, pathHelix, event):
+        self.setParentItem(pathHelix)
         self.show()
     # end def
 
-    def hoverLeavePathHelix(self, item, event):
+    def hoverLeavePathHelix(self, pathHelix, event):
         self.hide()
     # end def
     
-    def hoverMovePathHelix(self, item, event, flag=None):
+    def hoverMovePathHelix(self, pathHelix, event, flag=None):
         """
         Flag is for the case where an item in the path also needs to
         implement the hover method.
         """
+        self.setParentItem(pathHelix)
+        self.show()       
         posItem = event.pos()
         if flag != None:
             posScene = event.scenePos()
@@ -97,32 +104,40 @@ class AbstractPathTool(QGraphicsItem):
         self.setPos(self.helixPos(posItem))
     # end def
 
-    def setActive(self, bool):
+    def setActive(self, willBeActive):
         """
         Called by PathController.setActiveTool when the tool becomes
         active. Used, for example, to show/hide tool-specific ui elements.
         """
-        pass
-    # end def
+        if self.isActive() and not willBeActive:
+            self.setParentItem(mother)
 
     def isActive(self):
         """Returns isActive"""
-        return self._active
-    # end def
-
-    def mousePointToBaseIndex(self, point):
-        x = int(point.x() / self._baseWidth)
-        y = int(point.y() / self._baseWidth)
-        return (x, y)
-    # end def
+        return self._active!=mother
+    
+    def baseAtPoint(self, pathHelix, pt):
+        """Returns the (strandType, baseIdx) corresponding
+        to pt in pathHelix."""
+        x, strandIdx = self.helixIndex(pt)
+        vh = pathHelix.vhelix()
+        if vh.evenParity():
+            strandType = (StrandType.Scaffold, StrandType.Staple)[strandIdx]
+        else:
+            strandType = (StrandType.Staple, StrandType.Scaffold)[strandIdx]
+        return (strandType, x)
     
     def helixIndex(self, point):
+        """Returns the (row, col) of the base which point
+        lies within."""
         x = int(point.x() / self._baseWidth)
         y = int(point.y() / self._baseWidth)
         return (x, y)
     # end def
 
     def helixPos(self, point):
+        """Snaps a point to the upper left corner of the base
+        it is within."""
         x = int(point.x() / self._baseWidth) * self._baseWidth
         y = int(point.y() / self._baseWidth) * self._baseWidth
         return QPointF(x, y)

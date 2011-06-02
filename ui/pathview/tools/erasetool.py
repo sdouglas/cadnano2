@@ -43,7 +43,7 @@ class EraseTool(AbstractPathTool):
     _pen.setJoinStyle(Qt.RoundJoin)
     _brush = QBrush(styles.erasefill)
 
-    def __init__(self, parent=None):
+    def __init__(self, controller, parent=None):
         """
         This class inherits from the PathTool class for the majority of
         methods/behaviours.  Essentially it adds merely decorator graphics
@@ -52,17 +52,23 @@ class EraseTool(AbstractPathTool):
 
         Its parent should be *always* be a PathHelix.
         """
-        super(EraseTool, self).__init__(parent)
+        super(EraseTool, self).__init__(controller, parent)
         self.hide()
         self.setZValue(styles.ZPATHTOOL)
-    # end def
 
-    def mousePressPathHelix(self, item, event):
+    def mousePressPathHelix(self, pathHelix, event):
         posScene = event.scenePos()
         posItem = self.parentItem().mapFromScene(posScene)
-        indexp = self.helixIndex(posItem)
-        print "EraseTool clicked at: (%d, %d) on helix %d" % \
-            (indexp[0], indexp[1], self.parentItem().number())
-        # create a new LoopHandle by adding through the parentItem
-    # end def
-# end class
+        strandType, idx = self.baseAtPoint(pathHelix, posItem)
+        vh = self.parentItem().vhelix()
+        rightBreakIdx = leftBreakIdx = idx
+        while leftBreakIdx>1:
+            if vh.hasCrossoverAt(strandType, leftBreakIdx-1):
+                break
+            leftBreakIdx -= 1
+        while rightBreakIdx<vh.numBases():
+            if vh.hasCrossoverAt(strandType, rightBreakIdx+1):
+                break
+            rightBreakIdx += 1
+        vh.clearStrand(strandType, leftBreakIdx, rightBreakIdx)
+        print "%s-%s"%(leftBreakIdx+1, rightBreakIdx)

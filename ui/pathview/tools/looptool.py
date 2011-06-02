@@ -38,7 +38,7 @@ from ui.pathview.handles.loophandle import LoopItem
 from abstractpathtool import AbstractPathTool
 
 class LoopTool(AbstractPathTool):
-    def __init__(self, parent=None):
+    def __init__(self, controller, parent=None):
         """
         This class inherits from the PathTool class for the majority of
         methods/behaviours.  Essentially it adds merely decorator graphics
@@ -47,7 +47,7 @@ class LoopTool(AbstractPathTool):
 
         Its parent should be *always* be a PathHelix.
         """
-        super(LoopTool, self).__init__(parent)
+        super(LoopTool, self).__init__(controller, parent)
         self._loopItem = LoopItem()
         _pen = QPen(styles.bluestroke, 2)
         self.baseWidth = styles.PATH_BASE_WIDTH

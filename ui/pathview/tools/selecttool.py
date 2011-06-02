@@ -30,8 +30,8 @@ Created by Nick Conway on 2011-05-30.
 from abstractpathtool import AbstractPathTool
 
 class SelectTool(AbstractPathTool):
-    def __init__(self):
-        super(SelectTool, self).__init__()
+    def __init__(self, controller):
+        super(SelectTool, self).__init__(controller)
         self._mouseDownBase = None
         self._lastValidBase = None
 

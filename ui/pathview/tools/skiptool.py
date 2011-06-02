@@ -31,7 +31,7 @@ from PyQt4.QtGui import QPen
 from ui.pathview.handles.loophandle import SkipItem
 
 class SkipTool(AbstractPathTool):
-    def __init__(self, parent=None):
+    def __init__(self, controller, parent=None):
         """
         This class inherits from the PathTool class for the majority of
         methods/behaviours.  Essentially it adds merely decorator graphics
@@ -40,7 +40,7 @@ class SkipTool(AbstractPathTool):
 
         Its parent should be *always* be a PathHelix.
         """
-        super(SkipTool, self).__init__(parent)
+        super(SkipTool, self).__init__(controller, parent)
         self._skipItem = SkipItem()
         _pen = QPen(styles.redstroke, 2)
         self.baseWidth = styles.PATH_BASE_WIDTH

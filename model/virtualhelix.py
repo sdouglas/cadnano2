@@ -303,7 +303,7 @@ class VirtualHelix(QObject):
             return False
         else:
             return base.isEnd()
-
+    
     def getSegments(self, strandType):
         """Returns a list of segments of connected bases in the form
         [(startIdx, startIsXO, endIdx, endIsXO), ...]"""

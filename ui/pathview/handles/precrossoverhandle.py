@@ -143,6 +143,8 @@ class PreCrossoverHandle(QGraphicsItem):
     def mousePressEvent(self, event):
         if event.button() != Qt.LeftButton:
             return QGraphicsItem.mousePressEvent(self, event)
+        if not self.couldFormNewCrossover():
+            return
         # Determine upstream base
         fromHelix, toHelix = self.fromVH, self.toVH
         fromIdx, toIdx = self.fromIdx, self.toIdx

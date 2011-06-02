@@ -32,8 +32,8 @@ from model.enum import StrandType
 
 class PaintTool(AbstractPathTool):
     """Handles re-coloring of staple strands."""
-    def __init__(self, colorPanel):
-        super(PaintTool, self).__init__()
+    def __init__(self, controller, colorPanel):
+        super(PaintTool, self).__init__(controller)
         self._colorPanel = colorPanel
         self.hide()
 

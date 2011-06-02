@@ -48,12 +48,12 @@ class PathController(QObject):
         self._activeTool = None
         self._activeToolWidget = None
 
-        self.selectTool = SelectTool()
-        self.paintTool = PaintTool(win.pathGraphicsView.toolbar)
-        self.eraseTool = EraseTool()
-        self.insertionTool = LoopTool()
-        self.skipTool = SkipTool()
-        self.breakTool = BreakTool()
+        self.selectTool = SelectTool(self)
+        self.paintTool = PaintTool(self, win.pathGraphicsView.toolbar)
+        self.eraseTool = EraseTool(self)
+        self.insertionTool = LoopTool(self)
+        self.skipTool = SkipTool(self)
+        self.breakTool = BreakTool(self)
 
         win.actionPathSelect.triggered.connect(self.chooseSelectTool)
         win.actionPathPaint.triggered.connect(self.choosePaintTool)
