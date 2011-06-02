@@ -561,15 +561,22 @@ class VirtualHelix(QObject):
             # st s, s+1, ..., e-1, e are connected
             strand = self._vh._strand(self._strandType)
             ol = self._oldLinkage = []
+            concernedVH = set((self._vh,))
             if self._vh.directionOfStrandIs5to3(self._strandType):
                 for i in range(self._startIndex, self._endIndex):
-                    ol.append(strand[i]._set3Prime(strand[i + 1]))
-            # end if
+                    b = strand[i]
+                    if b._3pBase:
+                        concernedVH.add(b._3pBase._vhelix)
+                    ol.append(b._set3Prime(strand[i + 1]))
             else:
                 for i in range(self._startIndex, self._endIndex):
+                    b = strand[i]
+                    if b._5pBase:
+                        concernedVH.add(b._5pBase._vhelix)
                     ol.append(strand[i]._set5Prime(strand[i + 1]))
-            # end else
-            self._vh.emitModificationSignal()
+            self.concernedVH = concernedVH
+            for vh in concernedVH:
+                vh.emitModificationSignal()
 
         def undo(self):
             strand = self._vh._strand(self._strandType)
@@ -579,15 +586,13 @@ class VirtualHelix(QObject):
                 for i in range(self._endIndex - 1, self._startIndex - 1, -1):
                     strand[i]._unset3Prime(strand[i + 1],\
                                            *ol[i - self._startIndex])
-                # end for
-            # end if
             else:
                 for i in range(self._endIndex - 1, self._startIndex - 1, -1):
                     strand[i]._unset5Prime(strand[i + 1],\
                                            *ol[i - self._startIndex])
-                # end for
-            # end else
-            self._vh.emitModificationSignal()
+            for vh in self.concernedVH:
+                vh.emitModificationSignal()
+            
 
     class ClearStrandCommand(QUndoCommand):
         def __init__(self, virtualHelix, strandType, startIndex, endIndex):
@@ -604,16 +609,28 @@ class VirtualHelix(QObject):
             # if this is called in the middle of a connected strand
             strand = self._vh._strand(self._strandType)
             ol = self._oldLinkage = []
-
+            concernedVH = set((self._vh,))
             if self._vh.directionOfStrandIs5to3(self._strandType):
                 for i in range(self._startIndex - 1, self._endIndex):
-                    ol.append(strand[i]._set3Prime(None))
-                    ol.append(strand[i+1]._set5Prime(None))
+                    leftBase, rightBase = strand[i], strand[i+1]
+                    if leftBase._3pBase:
+                        concernedVH.add(leftBase._3pBase._vhelix)
+                    ol.append(leftBase._set3Prime(None))
+                    if rightBase._5pBase:
+                        concernedVH.add(rightBase._5pBase._vhelix)
+                    ol.append(rightBase._set5Prime(None))
             else:
                 for i in range(self._startIndex - 1, self._endIndex):
-                    ol.append(strand[i]._set5Prime(None))
-                    ol.append(strand[i+1]._set3Prime(None))
-            self._vh.emitModificationSignal()
+                    leftBase, rightBase = strand[i], strand[i+1]
+                    if leftBase._5pBase:
+                        concernedVH.add(leftBase._5pBase._vhelix)
+                    ol.append(leftBase._set5Prime(None))
+                    if rightBase._3pBase:
+                        concernedVH.add(rightBase._3pBase._vhelix)
+                    ol.append(rightBase._set3Prime(None))
+            self.concernedVH = concernedVH
+            for vh in concernedVH:
+                vh.emitModificationSignal()
 
         def undo(self):
             strand = self._vh._strand(self._strandType)
@@ -627,7 +644,8 @@ class VirtualHelix(QObject):
                 for i in range(self._endIndex - 1, self._startIndex - 2, -1):
                     strand[i+1]._unset3Prime(None, *ol.pop())
                     strand[i]._unset5Prime(None, *ol.pop())
-            self._vh.emitModificationSignal()
+            for vh in self.concernedVH:
+                vh.emitModificationSignal()
 
     class Connect3To5Command(QUndoCommand):
         def __init__(self, strandType, fromHelix, fromIndex, toHelix, toIndex):
