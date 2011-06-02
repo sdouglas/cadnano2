@@ -116,7 +116,7 @@ class VirtualHelix(QObject):
         """Should only be called by dnapart. Use dnapart's
         setVirtualHelixAt to add a virtualhelix to a dnapart."""
         if self._part:
-            self._part.setVirtualHelixAt(row, col, None)
+            self._part.setVirtualHelixAt((row, col), None)
         self._row = row
         self._col = col
         self._number = num
@@ -506,6 +506,7 @@ class VirtualHelix(QObject):
                     loop[self._index] = self._loopsize # set the model
                 else: # trying to set the loop to zero so get rid of it! 
                     if self._index in loop:
+                        self._oldLoopsize = loop[self._index]
                         del loop[self._index]
                     # end if
                 # end else
@@ -516,8 +517,7 @@ class VirtualHelix(QObject):
                 loop = self._vh._loop(self._strandType)
                 assert(self._oldLoopsize != None)  # Must redo/apply before undo
                 if self._oldLoopsize != 0: # if we are not removing the loop
-                    if self._index in loop:
-                        loop[self._index] = self._oldLoopsize
+                    loop[self._index] = self._oldLoopsize
                 else: 
                     if self._index in loop:
                         del loop[self._index]
