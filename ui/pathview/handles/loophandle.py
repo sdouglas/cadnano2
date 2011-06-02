@@ -111,7 +111,7 @@ class SkipItem(object):
     # end def
     
     def getSkip(self):
-        self._skipPath
+        return self._skipPath
     # end def
 # end class
 
