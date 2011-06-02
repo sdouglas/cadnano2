@@ -45,7 +45,7 @@ class SliceController(QObject):
         win.actionSliceFirst.triggered.connect(self.sliceFirstClicked)
         win.actionSliceLast.triggered.connect(self.sliceLastClicked)
         win.actionRenumber.triggered.connect(self.renumberClicked)
-        
+
         self.toolset = set((win.actionSliceSelect, win.actionSliceMove))
         ag = QActionGroup(win)
         for a in self.toolset:
@@ -74,17 +74,14 @@ class SliceController(QObject):
 
     def sliceLastClicked(self):
         """docstring for sliceLastClicked"""
-        print "sliceLastClicked"
         self.activeSliceLastSignal.emit()
     # end def
-    
+
     def sliceFirstClicked(self):
-        """docstring for sliceFirstClicked"""
         print "sliceFirstClicked"
         self.activeSliceFirstSignal.emit()
     # end def
-    
+
     def renumberClicked(self):
-        """docstring for renumberClicked"""
         print "renumberClicked"
     # end def

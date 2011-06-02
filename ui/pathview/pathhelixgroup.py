@@ -132,7 +132,7 @@ class PathHelixGroup(QGraphicsObject):
         label.setVisible(False)
         label.setFont(font)
         label.setParentItem(self)
-        label.setPos(0, -40)
+        label.setPos(0, -70)
         label.setTextInteractionFlags(Qt.TextEditorInteraction)
         label.inputMethodEvent = None
         self._label = label
