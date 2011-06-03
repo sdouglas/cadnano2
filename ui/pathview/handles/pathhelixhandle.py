@@ -51,7 +51,7 @@ class PathHelixHandle(QGraphicsItem):
         self.vhelix = vhelix
         
         self.parent = parent
-        self.restoreParentItem = parent
+        self._phg = parent
         self.setParentItem(parent)
         
         self._number = self.vhelix.number()
@@ -144,16 +144,18 @@ class PathHelixHandle(QGraphicsItem):
     def mousePressEvent(self, event):
         selectionGroup = self.group()
         if selectionGroup == None:
-            selectionGroup = self.parent.phhSelectionGroup
+            print "WTF?!?!"
+            selectionGroup = self._phg.phhSelectionGroup
         selectionGroup.setSelected(False)
         selectionGroup.addToGroup(self)
         self.setSelected(True)
+        print "selecting"
         selectionGroup.mousePressEvent(event)
     # end def
     
     def restoreParent(self):
-        tempP = self.restoreParentItem.mapFromItem(self.parentItem(), self.pos())
-        self.setParentItem(self.restoreParentItem)
+        tempP = self._phg.mapFromItem(self.parentItem(), self.pos())
+        self.setParentItem(self._phg)
         self.setPos(tempP)
     # end def
 
@@ -162,11 +164,12 @@ class PathHelixHandle(QGraphicsItem):
         # intercept the change instead of the has changed to enable features.
         # if change == QGraphicsItem.ItemSelectedHasChanged and self.scene():
         if change == QGraphicsItem.ItemSelectedChange and self.scene():
-            selectionGroup = self.parent.phhSelectionGroup
-            lock = selectionGroup.parentItem().selectionLock
+            selectionGroup = self._phg.phhSelectionGroup
+            lock = selectionGroup.phg().selectionLock
             if value == True and (lock == None or lock == selectionGroup):
+                print "selecting"
                 selectionGroup.addToGroup(self)
-                selectionGroup.parentItem().selectionLock = selectionGroup
+                selectionGroup.phg().selectionLock = selectionGroup
                 return QGraphicsItem.itemChange(self, change, True)
             # end if
             else:
