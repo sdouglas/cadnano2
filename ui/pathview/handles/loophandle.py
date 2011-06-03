@@ -34,6 +34,7 @@ from PyQt4.QtGui import QPen
 import ui.styles as styles
 from model.enum import StrandType
 
+
 class LoopItem(object):
     """
     This is just the shape of the Loop item
@@ -42,6 +43,7 @@ class LoopItem(object):
     _pen = QPen(styles.bluestroke, 2)
     baseWidth = styles.PATH_BASE_WIDTH
     halfbaseWidth = baseWidth / 2
+    _offset = baseWidth / 4
 
     def _loopGen(path, start, c1, p1, c2):
         path.moveTo(start)
@@ -59,19 +61,20 @@ class LoopItem(object):
     _loopPathUp = QPainterPath()
     _loopGen(_loopPathUp, _pathStart, _pathUpUpCtrlPt,\
              _pathMidUp, _pathUpDownCtrlPt)
+    _loopPathUp.translate(_offset, 0)
     _loopPathDown = QPainterPath()
     _loopGen(_loopPathDown, _pathStart, _pathDownDownCtrlPt,\
              _pathMidDown, _pathDownUpCtrlPt)
+    _loopPathDown.translate(-_offset, 0)
 
     def __init__(self):
         super(LoopItem, self).__init__()
     # end def
 
-    
     def getPen(self):
         return self._pen
     # end def
-    
+
     def getLoop(self, istop):
         if istop:
             return self._loopPathUp
@@ -80,6 +83,7 @@ class LoopItem(object):
     # end def
 # end class
 
+
 class SkipItem(object):
     """
     This is just the shape of the Loop item
@@ -87,8 +91,8 @@ class SkipItem(object):
     _myRect = QRectF(0, 0, styles.PATH_BASE_WIDTH, styles.PATH_BASE_WIDTH)
     _pen = QPen(styles.redstroke, 2)
     baseWidth = styles.PATH_BASE_WIDTH
-    halfbaseWidth = baseWidth/2
-    
+    halfbaseWidth = baseWidth / 2
+
     def _xGen(path, p1, p2, p3, p4):
         path.moveTo(p1)
         path.lineTo(p2)
@@ -96,8 +100,7 @@ class SkipItem(object):
         path.lineTo(p4)
     # end def
 
-    _pathStart = QPointF(halfbaseWidth,halfbaseWidth)
-    
+    _pathStart = QPointF(halfbaseWidth, halfbaseWidth)
     _skipPath = QPainterPath()
     _xGen(_skipPath, _myRect.bottomLeft(), _myRect.topRight(), \
                         _myRect.topLeft(), _myRect.bottomRight())
@@ -105,11 +108,11 @@ class SkipItem(object):
     def __init__(self):
         super(SkipItem, self).__init__()
     # end def
-    
+
     def getPen(self):
         return self._pen
     # end def
-    
+
     def getSkip(self):
         return self._skipPath
     # end def
@@ -123,6 +126,7 @@ class LoopHandle(QGraphicsItem):
     _myRect = QRectF(0, 0, styles.PATH_BASE_WIDTH, styles.PATH_BASE_WIDTH)
     _pen = QPen(styles.bluestroke, 2)
     _baseWidth = styles.PATH_BASE_WIDTH
+    _offset = styles.PATH_BASE_WIDTH / 4
     _halfbaseWidth = _baseWidth / 2
     _font = QFont("Times", 10, QFont.Bold)
 
@@ -158,18 +162,17 @@ class LoopHandle(QGraphicsItem):
         """
         a = event.key()
         text = event.text()
-        if a == Qt.Key_Space or a == Qt.Key_Tab:
+        if a in [Qt.Key_Space, Qt.Key_Tab]:
             return
-        elif a == Qt.Key_Return:
+        elif a in [Qt.Key_Return, Qt.Key_Enter]:
             self._label.setTextInteractionFlags(Qt.NoTextInteraction)
             self.inputProcess(event)
             self._label.setTextInteractionFlags(Qt.TextEditorInteraction)
-            return 
+            return
         elif unicode(text).isalpha():
             return
-        else:    
-            return QGraphicsTextItem.keyPressEvent(self._label,event)
-
+        else:
+            return QGraphicsTextItem.keyPressEvent(self._label, event)
 
     def inputProcess(self, event):
         """
@@ -178,8 +181,8 @@ class LoopHandle(QGraphicsItem):
         test = unicode(self._label.toPlainText())
         try:
             self._loopsize = int(test)
-            self.parentItem().vhelix().installLoop(self._strandtype, \
-                                                    self._index, \
+            self.parentItem().vhelix().installLoop(self._strandtype,\
+                                                    self._index,\
                                                     self._loopsize)
             self.resetPosition()
         except:
@@ -204,16 +207,19 @@ class LoopHandle(QGraphicsItem):
         self._label.show()
         self.show()
     # end def
-    
+
     def resetPosition(self):
-        txtOffset = self._label.boundingRect().width()/2
+        txtOffset = self._label.boundingRect().width() / 2
         ph = self.parentItem()
         posItem = ph.baseLocation(self._strandtype, self._index, center=True)
         if ph.strandIsTop(self._strandtype):
-            self.setPos(posItem[0]-txtOffset, posItem[1]-1.5*self._baseWidth)
+            self.setPos(posItem[0] - txtOffset + self._offset,\
+                        posItem[1] - 1.5 * self._baseWidth)
         else:
-            self.setPos(posItem[0]-txtOffset, posItem[1]+0.5*self._baseWidth)
+            self.setPos(posItem[0] - txtOffset - self._offset,\
+                        posItem[1] + 0.5 * self._baseWidth)
     # end def
+
 
 class LoopHandleGroup(QGraphicsItem):
     """
@@ -226,13 +232,13 @@ class LoopHandleGroup(QGraphicsItem):
         self.parent = parent
         self.rect = QRectF(0, 0, 0, 0)
         self.handles = []
-        
+
         for i in range(128):
             self.handles.append(LoopHandle(parent=self))
         # end for
         self.activeCount = 0
     # end def
-    
+
     def boundingRect(self):
         return self.rect
     # end def
@@ -240,7 +246,7 @@ class LoopHandleGroup(QGraphicsItem):
     def paint(self, painter, option, widget=None):
         pass
     # end def
-    
+
     def updateActiveHelix(self, ph):
         """
         Collects the locations of each type of LoopHandle from the
