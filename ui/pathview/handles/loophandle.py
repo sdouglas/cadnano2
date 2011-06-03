@@ -145,12 +145,13 @@ class LoopHandle(QGraphicsItem):
         if self._label:
             return self._label
         label = QGraphicsTextItem("")
+        label.setFlags(QGraphicsTextItem.ItemIsSelectable)
         label.setFont(self._font)
         label.setParentItem(self)
         label.setTextInteractionFlags(Qt.TextEditorInteraction)
         label.inputMethodEvent = self.inputProcess
         label.keyPressEvent = self.textkeyPressEvent
-        # label.mousePressEvent = label.labelMousePressEvent
+        label.mousePressEvent = self.labelMousePressEvent
         label.setTextWidth(-1)
         self._label = label
         return label
@@ -162,8 +163,8 @@ class LoopHandle(QGraphicsItem):
         """
         cursor = self._label.textCursor()
         cursor.setPosition(0)
-        cursor.setPosition(len(str(self._loopsize)), QTextCursor.KeepAnchor)
-        # QGraphicsTextItem.mousePressEvent(self._label, event)
+        cursor.movePosition(QTextCursor.End, QTextCursor.KeepAnchor)
+        self._label.setTextCursor(cursor)
 
     def textkeyPressEvent(self, event):
         """
