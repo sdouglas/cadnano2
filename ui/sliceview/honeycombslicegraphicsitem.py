@@ -120,7 +120,8 @@ class HoneycombSliceGraphicsItem(QGraphicsItem):  # was a QGraphicsObject change
         self._helixhash[(row, column)] = helix
 
     def _killSliceAt(row, column):
-        self._helixhash[(row, column)].setParentItem(None)
+        s = self._helixhash[(row, column)]
+        s.scene().removeItem(s)
         del self._helixhash[(row, column)]
 
     def _setDimensions(self, newDims):

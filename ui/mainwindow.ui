@@ -255,6 +255,7 @@
     <bool>false</bool>
    </attribute>
    <addaction name="actionPathSelect"/>
+   <addaction name="actionPathForce"/>
    <addaction name="actionPathMove"/>
    <addaction name="actionPathBreak"/>
    <addaction name="actionPathErase"/>

@@ -95,7 +95,7 @@ class SliceHelix(QGraphicsItem):
             self.focusRing.setPos(self.pos())
             self.focusRing.setZValue(styles.ZFOCUSRING)
         if not select and self.focusRing:
-            self.focusRing.setParentItem(None)
+            self.focusRing.scene().removeItem(self.focusRing)
             self.focusRing = None
 
     ############################ Painting ############################

@@ -182,7 +182,7 @@ class PathHelix(QGraphicsItem):
         areVisible = self._preXOverHandles!=None
         if areVisible and not shouldBeVisible:
             for pch in self._preXOverHandles:
-                pch.setParentItem(None)
+                pch.scene().removeItem(pch)
             self._preXOverHandles = None
         elif not areVisible and shouldBeVisible:
             self._preXOverHandles = handles = []

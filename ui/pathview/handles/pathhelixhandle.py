@@ -104,10 +104,9 @@ class PathHelixHandle(QGraphicsItem):
 
     class FocusRingPainter(QGraphicsItem):
         """Draws a focus ring around helix in parent"""
-        def __init__(self, helix, scene, parent=None):
+        def __init__(self, helix, parent=None):
             super(PathHelixHandle.FocusRingPainter, self).__init__(parent)
             self.parent = parent
-            self.scene = scene
             self.helix = helix
             self.setPos(helix.pos())
 
@@ -126,7 +125,6 @@ class PathHelixHandle(QGraphicsItem):
         """
         if self.focusRing == None:
             self.focusRing = PathHelixHandle.FocusRingPainter(self,\
-                                                         self.scene(),\
                                                          self.parentItem())
         self.update(self.rect)
     # end def
@@ -137,7 +135,8 @@ class PathHelixHandle(QGraphicsItem):
         to the default colors if necessary.
         """
         if self.focusRing != None:
-            self.focusRing.setParentItem(None)
+            scene = self.focusRing.scene()
+            scene.removeItem(self.focusRing)
             self.focusRing = None
         self.update(self.rect)
     # end def
