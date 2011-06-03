@@ -182,7 +182,8 @@ class PathHelixGroup(QGraphicsObject):
             ph_height = ph.boundingRect().height()
             step = ph_height + styles.PATH_HELIX_PADDING
             phh = ph.handle()
-            phh.setParentItem(self)
+            if phh.parentItem() != self.phhSelectionGroup:
+                phh.setParentItem(self)
             phhr = phh.boundingRect()
             phh.setPos(-2 * phhr.width(), y + (ph_height - phhr.height()) / 2)
             leftmostExtent = min(leftmostExtent, -2 * phhr.width())
@@ -280,11 +281,31 @@ class PathHelixGroup(QGraphicsObject):
         by a distance delta in the list. Notify each PathHelix and
         PathHelixHandle of its new location.
         """
-        vhs = self.displayedVHs()
-        vhsToMove = vhs[first:last]
-        del vhs[first:last]
-        self.setDisplayedVHs(vhs[0:first + indexDelta] +\
-                            vhsToMove + vhs[first + indexDelta:-1])
+        # print "called reorderHelices", first, last, indexDelta
+        # vhs = self.displayedVHs()
+        # vhsToMove = vhs[first:last]
+        # del vhs[first:last]  
+
+        helixNumbers = [ph.number() for ph in self._pathHelixList]
+        firstIndex = helixNumbers.index(first)
+        lastIndex = helixNumbers.index(last) + 1
+        # print "indices", firstIndex, lastIndex
+        if indexDelta < 0:  # move group earlier in the list
+            newIndex = max(0, indexDelta + firstIndex)
+            listPHs = self._pathHelixList[0:newIndex] +\
+                                 self._pathHelixList[firstIndex:lastIndex] +\
+                                 self._pathHelixList[newIndex:firstIndex] +\
+                                 self._pathHelixList[lastIndex:]
+        else:  # move group later in list
+            newIndex = min(len(self._pathHelixList), indexDelta + lastIndex)
+            listPHs = self._pathHelixList[:firstIndex] +\
+                                 self._pathHelixList[lastIndex:newIndex] +\
+                                 self._pathHelixList[firstIndex:lastIndex] +\
+                                 self._pathHelixList[newIndex:]
+        
+        listVHs = [ph.vhelix() for ph in listPHs]
+        self.setDisplayedVHs(listVHs)
+    # end def
 # end class
 
 
@@ -297,10 +318,12 @@ class SelectionItemGroup(QGraphicsItemGroup):
         self.parent = parent
         self.setParentItem(parent)
         self.setFiltersChildEvents(True)
+        self.setHandlesChildEvents(True)
         self.setFlag(QGraphicsItem.ItemIsSelectable)
         self.pen = QPen(styles.bluestroke, styles.PATH_SELECTBOX_STROKE_WIDTH)
         self.drawMe = False
         self.drawn = False
+        self._phg = parent
         self.selectionbox = boxtype(self)
         self.dragEnable = False
         self._r0 = 0  # save original mousedown
@@ -313,6 +336,9 @@ class SelectionItemGroup(QGraphicsItemGroup):
             self.getR = self.getX
             self.translateR = self.translateX
     # end def
+
+    def phg(self):
+        return self._phg
 
     def getY(self, pos):
         return pos.y()
@@ -382,7 +408,7 @@ class SelectionItemGroup(QGraphicsItemGroup):
                 self.selectionbox.drawMe = False
                 self.selectionbox.resetTransform()
                 self.removeSelectedItems()
-                self.parentItem().selectionLock = None
+                self.phg().selectionLock = None
             # end if
             else:
                 pass
@@ -418,8 +444,8 @@ class PathHelixHandleSelectionBox(QGraphicsItem):
         super(PathHelixHandleSelectionBox, self).__init__(parent)
         self.itemGroup = itemGroup
         self.rect = itemGroup.boundingRect()
-        self.parent = itemGroup.parent
-        self.setParentItem(self.parent)
+        self.parent = itemGroup.phg()
+        self.setParentItem(itemGroup.phg())
         self.drawMe = False
         self.pen = QPen(styles.bluestroke, self.penWidth)
     # end def
@@ -466,8 +492,8 @@ class BreakpointHandleSelectionBox(QGraphicsItem):
         super(BreakpointHandleSelectionBox, self).__init__(parent)
         self.itemGroup = itemGroup
         self.rect = itemGroup.boundingRect()
-        self.parent = itemGroup.parent
-        self.setParentItem(self.parent)
+        self.parent = itemGroup.phg()
+        self.setParentItem(itemGroup.phg())
         self.drawMe = False
         self.pen = QPen(styles.bluestroke, styles.PATH_SELECTBOX_STROKE_WIDTH)
     # end def
