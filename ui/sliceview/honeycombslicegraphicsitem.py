@@ -94,11 +94,14 @@ class HoneycombSliceGraphicsItem(QGraphicsItem):  # was a QGraphicsObject change
     def setPart(self, newPart):
         if self._part:
             self._part.dimensionsWillChange.disconnect(self._setDimensions)
+            self._part.selectionWillChange.disconnect(self.selectionWillChange)
             self._part.activeSliceWillChange.disconnect(self.activeSliceWillChange)
+            self._part.virtualHelixAtCoordsChanged.disconnect(self.vhAtCoordsChanged)
         self._setDimensions(newPart.dimensions())
         newPart.dimensionsWillChange.connect(self._setDimensions)
         newPart.selectionWillChange.connect(self.selectionWillChange)
         newPart.activeSliceWillChange.connect(self.activeSliceChanged)
+        newPart.virtualHelixAtCoordsChanged.connect(self.vhAtCoordsChanged)
         self._part = newPart
     
     def upperLeftCornerForCoords(self, row, col):
@@ -188,6 +191,9 @@ class HoneycombSliceGraphicsItem(QGraphicsItem):  # was a QGraphicsObject change
                 if isActiveNow:
                     newlyActiveVHs.add(vh)
             self.update()
+            
+    def vhAtCoordsChanged(self, row, col):
+        self._helixhash[(row, col)].update()
 
     class Deselector(QGraphicsItem):
         """The deselector lives behind all the slices

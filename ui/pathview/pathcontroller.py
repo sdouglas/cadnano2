@@ -84,11 +84,22 @@ class PathController(QObject):
 
     activeToolChanged = pyqtSignal()
     def setActiveTool(self, newActiveTool):
+        if self.lastLocation():
+            newActiveTool.updateLocation(*self.lastLocation())
+        currentPathHelix = None
         if self._activeTool:
             self._activeTool.setActive(False)
         self._activeTool = newActiveTool
         self._activeTool.setActive(True)
         self.activeToolChanged.emit()
+    
+    def lastLocation(self):
+        """(PathHelix, posInScene) or None, depending on where
+        the mouse is (basically, pathHelix and position of
+        the last event seen by the active tool)"""
+        if self._activeTool==None:
+            return None
+        return self._activeTool.lastLocation()
 
     def chooseSelectTool(self):
         widget = self.mainWindow.actionPathSelect

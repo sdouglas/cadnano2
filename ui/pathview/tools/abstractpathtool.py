@@ -70,52 +70,65 @@ class AbstractPathTool(QGraphicsItem):
         super(AbstractPathTool, self).__init__(parent)
         self._active = False
         self._controller = controller
-
+        self._lastLocation = None
+    
+    ######################## Drawing #######################################
     def paint(self, painter, option, widget=None):
         painter.setPen(self._pen)
         painter.setBrush(self._brush)
         painter.drawRect(self._toolRect)
-    # end def
     
     def boundingRect(self):
         return self._rect
-    # end def
+    
+    ######################### Positioning and Parenting ####################
+    def lastLocation(self):
+        """A tuple (PathHelix, QPoint) representing the last
+        known location of the mouse for purposes of positioning
+        the graphic of a new tool on switching tools (the tool
+        will have updateLocation(*oldTool.lastLocation()) called
+        on it)"""
+        return self._lastLocation
     
     def hoverEnterPathHelix(self, pathHelix, event):
-        self.setParentItem(pathHelix)
-        self.show()
-    # end def
+        self.updateLocation(pathHelix, event.scenePos())
 
     def hoverLeavePathHelix(self, pathHelix, event):
-        self.hide()
-    # end def
+        self.updateLocation(None, event.scenePos())
     
     def hoverMovePathHelix(self, pathHelix, event, flag=None):
-        """
-        Flag is for the case where an item in the path also needs to
-        implement the hover method.
-        """
-        self.setParentItem(pathHelix)
-        self.show()       
-        posItem = event.pos()
-        if flag != None:
-            posScene = event.scenePos()
-            posItem = self.parentItem().mapFromScene(posScene)
-        self.setPos(self.helixPos(posItem))
-    # end def
+        self.updateLocation(pathHelix, event.scenePos())
+    
+    def updateLocation(self, pathHelix, scenePos):
+        """Takes care of caching the location so that a tool switch
+        outside the context of an event will know where to
+        position the new tool and snaps self's pos to the upper
+        left hand corner of the base the user is mousing over"""
+        if pathHelix:
+            self.setParentItem(pathHelix)
+            self.show()
+            self._lastLocation = (pathHelix, scenePos)
+            posItem = self.parentItem().mapFromScene(scenePos)
+            self.setPos(self.helixPos(posItem))
+        else:
+            self._lastLocation = None
+            self.hide()
+            self.setParentItem(mother)
 
-    def setActive(self, willBeActive):
+    def setActive(self, willBeActive, oldTool=None):
         """
         Called by PathController.setActiveTool when the tool becomes
         active. Used, for example, to show/hide tool-specific ui elements.
         """
         if self.isActive() and not willBeActive:
             self.setParentItem(mother)
+            self.hide()
 
     def isActive(self):
         """Returns isActive"""
         return self._active!=mother
     
+    ####################### Coordinate Utilities ###########################
     def baseAtPoint(self, pathHelix, pt):
         """Returns the (strandType, baseIdx) corresponding
         to pt in pathHelix."""

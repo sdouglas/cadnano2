@@ -31,7 +31,7 @@ from exceptions import AttributeError, IndexError
 from itertools import product
 from .enum import LatticeType, Parity, StrandType, BreakType
 from .enum import Crossovers, EndType
-from PyQt4.QtCore import pyqtSignal, QObject
+from PyQt4.QtCore import pyqtSignal, QObject, QTimer
 from PyQt4.QtGui import QUndoCommand, QUndoStack, QColor
 from .base import Base
 from util import *
@@ -95,10 +95,7 @@ class VirtualHelix(QObject):
             numBases = len(re.split('\s+',\
                                     incompleteArchivedDict['staple'])) - 1
         self.setNumBases(numBases, notUndoable=True)
-        # Command line convenience for -i mode
-        if app().v != None:
-            app().v[self.number()] = self
-
+        
     def __repr__(self):
         return 'vh%i' % self.number()
 
@@ -122,6 +119,9 @@ class VirtualHelix(QObject):
         self._number = num
         self._part = newPart
         self.setNumBases(newPart.numBases(), notUndoable=True)
+        # Command line convenience for -i mode
+        if app().v != None:
+            app().v[self.number()] = self
 
     def numBases(self):
         return len(self._stapleBases)
@@ -374,6 +374,8 @@ class VirtualHelix(QObject):
         it occasionally happens that a bug pops many things off the
         undo stack. The temporary undo stack prevents excessive popping
         from reverting the document to a blank state."""
+        if sb and self._privateUndoStack:
+            print "WARNING: attempting to sandbox a vh that already has an undo stack!"
         if sb and not self._privateUndoStack:
             self._sandboxed = True
             if not self._privateUndoStack:
@@ -427,8 +429,8 @@ class VirtualHelix(QObject):
                                         int(min(startIndex, endIndex))
         strand = strandType == StrandType.Scaffold and \
             self._scaffoldBases or self._stapleBases
-        startIndex = clamp(startIndex, 1, len(strand))
-        endIndex = clamp(endIndex, 1, len(strand))
+        startIndex = clamp(startIndex, 1, len(strand)-1)
+        endIndex = clamp(endIndex, 1, len(strand)-1)
         c = self.ClearStrandCommand(self, strandType, startIndex, endIndex)
         self.undoStack().push(c)
 
@@ -560,15 +562,22 @@ class VirtualHelix(QObject):
             # st s, s+1, ..., e-1, e are connected
             strand = self._vh._strand(self._strandType)
             ol = self._oldLinkage = []
+            concernedVH = set((self._vh,))
             if self._vh.directionOfStrandIs5to3(self._strandType):
                 for i in range(self._startIndex, self._endIndex):
-                    ol.append(strand[i]._set3Prime(strand[i + 1]))
-            # end if
+                    b = strand[i]
+                    if b._3pBase:
+                        concernedVH.add(b._3pBase._vhelix)
+                    ol.append(b._set3Prime(strand[i + 1]))
             else:
                 for i in range(self._startIndex, self._endIndex):
+                    b = strand[i]
+                    if b._5pBase:
+                        concernedVH.add(b._5pBase._vhelix)
                     ol.append(strand[i]._set5Prime(strand[i + 1]))
-            # end else
-            self._vh.emitModificationSignal()
+            self.concernedVH = concernedVH
+            for vh in concernedVH:
+                vh.emitModificationSignal()
 
         def undo(self):
             strand = self._vh._strand(self._strandType)
@@ -578,15 +587,13 @@ class VirtualHelix(QObject):
                 for i in range(self._endIndex - 1, self._startIndex - 1, -1):
                     strand[i]._unset3Prime(strand[i + 1],\
                                            *ol[i - self._startIndex])
-                # end for
-            # end if
             else:
                 for i in range(self._endIndex - 1, self._startIndex - 1, -1):
                     strand[i]._unset5Prime(strand[i + 1],\
                                            *ol[i - self._startIndex])
-                # end for
-            # end else
-            self._vh.emitModificationSignal()
+            for vh in self.concernedVH:
+                vh.emitModificationSignal()
+            
 
     class ClearStrandCommand(QUndoCommand):
         def __init__(self, virtualHelix, strandType, startIndex, endIndex):
@@ -603,19 +610,32 @@ class VirtualHelix(QObject):
             # if this is called in the middle of a connected strand
             strand = self._vh._strand(self._strandType)
             ol = self._oldLinkage = []
-
+            concernedVH = set((self._vh,))
             if self._vh.directionOfStrandIs5to3(self._strandType):
                 for i in range(self._startIndex - 1, self._endIndex):
-                    ol.append(strand[i]._set3Prime(None))
-                # end for
-            # end if
+                    leftBase, rightBase = strand[i], strand[i+1]
+                    # Clear i.next
+                    if leftBase._3pBase:
+                        concernedVH.add(leftBase._3pBase._vhelix)
+                    ol.append(leftBase._set3Prime(None))
+                    # Clear (i+1)prev
+                    if rightBase._5pBase:
+                        concernedVH.add(rightBase._5pBase._vhelix)
+                    ol.append(rightBase._set5Prime(None))
             else:
                 for i in range(self._startIndex - 1, self._endIndex):
-                    ol.append(strand[i]._set5Prime(None))
-                # end for
-            # end else
-            self._vh.emitModificationSignal()
-        # end def
+                    leftBase, rightBase = strand[i], strand[i+1]
+                    # Clear i.next
+                    if leftBase._5pBase:
+                        concernedVH.add(leftBase._5pBase._vhelix)
+                    ol.append(leftBase._set5Prime(None))
+                    # Clear (i+1).prev
+                    if rightBase._3pBase:
+                        concernedVH.add(rightBase._3pBase._vhelix)
+                    ol.append(rightBase._set3Prime(None))
+            self.concernedVH = concernedVH
+            for vh in concernedVH:
+                vh.emitModificationSignal()
 
         def undo(self):
             strand = self._vh._strand(self._strandType)
@@ -623,16 +643,14 @@ class VirtualHelix(QObject):
             assert(ol != None)  # Must redo/apply before undo
             if self._vh.directionOfStrandIs5to3(self._strandType):
                 for i in range(self._endIndex - 1, self._startIndex - 2, -1):
-                    strand[i]._unset3Prime(None, *ol[i - self._startIndex + 1])
-                # end for
-            # end if
+                    strand[i+1]._unset5Prime(None, *ol.pop())
+                    strand[i]._unset3Prime(None, *ol.pop())
             else:
                 for i in range(self._endIndex - 1, self._startIndex - 2, -1):
-                    strand[i]._unset5Prime(None, *ol[i - self._startIndex + 1])
-                # end for
-            # end else
-            self._vh.emitModificationSignal()
-        # end def
+                    strand[i+1]._unset3Prime(None, *ol.pop())
+                    strand[i]._unset5Prime(None, *ol.pop())
+            for vh in self.concernedVH:
+                vh.emitModificationSignal()
 
     class Connect3To5Command(QUndoCommand):
         def __init__(self, strandType, fromHelix, fromIndex, toHelix, toIndex):

@@ -162,36 +162,21 @@ class SliceHelix(QGraphicsItem):
         if self.part().selectAllBehavior:
             self.setSelected(False)
 
-    # def createOrAddBasesToVirtualHelix(self, addBasesIfVHExists=False,\
-    #                                          addToScaffold=False):
-    #     coord = (self._row, self._col)
-    #     vh = self.virtualHelix()
-    #     index = self.part().activeSlice()
-    #     if not vh:
-    #         vh = VirtualHelix()
-    #         self.part().setVirtualHelixAt(coord, vh)
-    #         vh.basesModified.connect(self.update)
-    #     elif addBasesIfVHExists:
-    #         vh = self.virtualHelix()
-    #         nb = vh.numBases()
-    #         vh.connectStrand(StrandType.Scaffold\
-    #                          if addToScaffold\
-    #                          else StrandType.Staple, index - 1, index + 1)
-
     def createOrAddBasesToVirtualHelix(self, addBases=False,\
                                              addToScaffold=False):
         coord = (self._row, self._col)
         vh = self.virtualHelix()
         index = self.part().activeSlice()
+        undoStack = self.part().undoStack()
         if not vh:
+            undoStack.beginMacro("Add helix")
             vh = VirtualHelix()
             self.part().setVirtualHelixAt(coord, vh)
             vh.basesModified.connect(self.update)
+        else:
+            undoStack.beginMacro("Connect segment")
         if addBases and addToScaffold:
             vh.connectStrand(StrandType.Scaffold, index - 1, index + 1)
         elif addBases and not addToScaffold:
             vh.connectStrand(StrandType.Staple, index - 1, index + 1)
-    # end def
-
-
-# end class
+        self.undoStack().endMacro()

@@ -37,6 +37,7 @@ from ui.pathview.pathhelix import PathHelix
 from ui.pathview.handles.loophandle import LoopItem
 from abstractpathtool import AbstractPathTool
 
+
 class LoopTool(AbstractPathTool):
     def __init__(self, controller, parent=None):
         """
@@ -63,7 +64,7 @@ class LoopTool(AbstractPathTool):
         painter.setPen(self._loopItem.getPen())
         painter.drawPath(self._loopItem.getLoop(self._isTop))
     # end def
-    
+
     def hoverMovePathHelix(self, ph, event, flag=None):
         """
         flag is for the case where an item in the path also needs to
@@ -92,12 +93,12 @@ class LoopTool(AbstractPathTool):
         # create a new LoopHandle by adding through the     parentItem
         if mouseDownBase:
             loopsize = vh.hasLoopAt(*mouseDownBase)
-            if loopsize < 0:    # toggle from skip
-                vh.installLoop(mouseDownBase[0],mouseDownBase[1],1)
-            elif loopsize > 0:    # loop already there
-                vh.installLoop(mouseDownBase[0],mouseDownBase[1],0)
+            if loopsize < 0:  # toggle from skip
+                vh.installLoop(mouseDownBase[0], mouseDownBase[1], 1)
+            elif loopsize > 0:  # loop already there
+                vh.installLoop(mouseDownBase[0], mouseDownBase[1], 0)
             elif vh.hasStrandAt(*mouseDownBase):
-                vh.installLoop(mouseDownBase[0],mouseDownBase[1],1)
+                vh.installLoop(mouseDownBase[0], mouseDownBase[1], 1)
             ph.makeSelfActiveHelix()
     # end def
 # end class

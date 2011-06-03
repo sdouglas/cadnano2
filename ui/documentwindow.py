@@ -94,7 +94,7 @@ class DocumentWindow(QMainWindow, ui_mainwindow.Ui_MainWindow):
         # self.showSizes()
     
     def undoStack(self):
-        return self.docCtrlr.undoStack()
+        return self.controller.undoStack()
 
     def showSizes(self):
         myheight = self.splitter.frameRect().width()
