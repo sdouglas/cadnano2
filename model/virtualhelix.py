@@ -112,7 +112,7 @@ class VirtualHelix(QObject):
     def _setPart(self, newPart, row, col, num):
         """Should only be called by dnapart. Use dnapart's
         setVirtualHelixAt to add a virtualhelix to a dnapart."""
-        if self._part:
+        if self._part and self._part.getVirtualHelix((row, col)):
             self._part.setVirtualHelixAt((row, col), None)
         self._row = row
         self._col = col
