@@ -95,7 +95,6 @@ class AbstractPathTool(QGraphicsItem):
 
     def hoverLeavePathHelix(self, pathHelix, event):
         self.updateLocation(None, event.scenePos())
-        self.setParentItem(mother)
     
     def hoverMovePathHelix(self, pathHelix, event, flag=None):
         self.updateLocation(pathHelix, event.scenePos())
@@ -114,6 +113,7 @@ class AbstractPathTool(QGraphicsItem):
         else:
             self._lastLocation = None
             self.hide()
+            self.setParentItem(mother)
 
     def setActive(self, willBeActive, oldTool=None):
         """
@@ -122,6 +122,7 @@ class AbstractPathTool(QGraphicsItem):
         """
         if self.isActive() and not willBeActive:
             self.setParentItem(mother)
+            self.hide()
 
     def isActive(self):
         """Returns isActive"""

@@ -112,12 +112,9 @@ class BreakTool(AbstractPathTool):
         flag is for the case where an item in the path also needs to
         implement the hover method
         """
-        self.setParentItem(item)
-        self.show()
-        posItem = event.pos()
-        if flag != None:
-            posScene = event.scenePos()
-            posItem = self.parentItem().mapFromScene(posScene)
+        self.updateLocation(item, event.scenePos())
+        posScene = event.scenePos()
+        posItem = self.parentItem().mapFromScene(posScene)
         self.setOrientedDown(self.helixIndex(posItem)[1]==0)
         self.setPos(self.helixPos(posItem))
 
@@ -125,5 +122,9 @@ class BreakTool(AbstractPathTool):
         posScene = event.scenePos()
         posItem = self.parentItem().mapFromScene(posScene)
         strandType, idx = self.baseAtPoint(pathHelix, posItem)
-        pathHelix.vhelix().clearStrand(strandType, idx, idx)
+        vh = pathHelix.vhelix()
+        if vh.directionOfStrandIs5to3(strandType):
+            pathHelix.vhelix().clearStrand(strandType, idx+1, idx+1)
+        else:
+            pathHelix.vhelix().clearStrand(strandType, idx, idx)
         

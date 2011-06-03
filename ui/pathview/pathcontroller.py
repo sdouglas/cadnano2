@@ -84,11 +84,11 @@ class PathController(QObject):
 
     activeToolChanged = pyqtSignal()
     def setActiveTool(self, newActiveTool):
+        if self.lastLocation():
+            newActiveTool.updateLocation(*self.lastLocation())
         currentPathHelix = None
         if self._activeTool:
             self._activeTool.setActive(False)
-        if self.lastLocation():
-            newActiveTool.updateLocation(*self.lastLocation())
         self._activeTool = newActiveTool
         self._activeTool.setActive(True)
         self.activeToolChanged.emit()
