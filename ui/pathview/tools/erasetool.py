@@ -65,9 +65,13 @@ class EraseTool(AbstractPathTool):
         while leftBreakIdx>1:
             if vh.hasCrossoverAt(strandType, leftBreakIdx-1):
                 break
+            if vh.hasEndAt(strandType, leftBreakIdx-1):
+                break
             leftBreakIdx -= 1
         while rightBreakIdx<vh.numBases():
             if vh.hasCrossoverAt(strandType, rightBreakIdx+1):
+                break
+            if vh.hasEndAt(strandType, rightBreakIdx+1):
                 break
             rightBreakIdx += 1
         vh.clearStrand(strandType, leftBreakIdx, rightBreakIdx)

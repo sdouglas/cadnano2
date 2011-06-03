@@ -255,21 +255,12 @@ class PathHelixGroup(QGraphicsObject):
         theview = thescene.views()[0]
         theview.zoomToFit()
 
-    @pyqtSlot(int)
-    def helixAddedSlot(self, vhref):
-        vhs = self.displayedVHs()
-        if vhref in vhs:
-            return
-        vhs.append(vhref)
-        self.setDisplayedVHs(vhs)
-
-    @pyqtSlot(int)
-    def helixRemovedSlot(self, vh):
-        vhs = self.displayedVHs()
-        if not vhref in vhs:
-            return
-        vhs.remove(vh)
-        self.setDisplayedVHs(vh)
+    def virtualHelixAtCoordsChangedEvent(self, row, col):
+        c = (row, col)
+        for ph in self._pathHelixList:
+            if ph.vhelix().coord()==c:
+                ph.setParentItem(None)
+                self._pathHelixList.remove(ph)
 
     # Slot called when the slice view's (actually the part's) selection changes
     def selectionWillChange(self, newSelection):

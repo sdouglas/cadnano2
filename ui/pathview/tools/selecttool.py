@@ -33,6 +33,7 @@ class SelectTool(AbstractPathTool):
     def __init__(self, controller):
         super(SelectTool, self).__init__(controller)
         self._mouseDownBase = None
+        self._mouseDownPH = None
         self._lastValidBase = None
 
     def paint(self, painter, option, widget=None):
@@ -41,20 +42,33 @@ class SelectTool(AbstractPathTool):
 
     def mousePressPathHelix(self, ph, event):
         """Activate this item as the current helix"""
+        self.finalizeMouseDrag()
         self._mouseDownY = event.pos().y()
+        self._mouseDownPH = ph
         self._mouseDownBase = ph.baseAtLocation(event.pos().x(),\
                                                 self._mouseDownY)
         if self._mouseDownBase:
             vh = ph.vhelix()
-            vh.setSandboxed(False)  # Clear out the old sandbox if there is one
-            vh.setSandboxed(True)
             if vh.hasCrossoverAt(*self._mouseDownBase):
                 # delete cross over
                 self.selectToolRemoveXover(vh, self._mouseDownBase)
                 self._mouseDownBase = self._mouseDownY = None
             else:
+                vh.setSandboxed(True)
+                self._lastValidBase = self._mouseDownBase
                 self.selectToolApply(vh, self._mouseDownBase, self._mouseDownBase)
         ph.makeSelfActiveHelix()
+    
+    def finalizeMouseDrag(self):
+        if not self._mouseDownBase:
+            return
+        vh = self._mouseDownPH.vhelix()
+        vh.undoStack().undo()
+        vh.setSandboxed(False)
+        self.selectToolApply(vh, self._mouseDownBase, self._lastValidBase)
+        self._mouseDownBase = None
+        self._lastValidBase = None
+        self._mouseDownPH = None
 
     def mouseMovePathHelix(self, ph, event):
         if self._mouseDownY==None:
@@ -67,11 +81,7 @@ class SelectTool(AbstractPathTool):
             self.selectToolApply(vh, self._mouseDownBase, newBase)
 
     def mouseReleasePathHelix(self, ph, event):
-        if self._mouseDownY==None:
-            return
-        vh = ph.vhelix()
-        if self._mouseDownBase:
-            vh.setSandboxed(False)  # vhelix now uses the document undo stack
+        self.finalizeMouseDrag()
 
     def selectToolRemoveXover(self,vHelix, base):
         base = vHelix.validatedBase(*base, raiseOnErr=False)
