@@ -32,6 +32,7 @@ class SliceController(QObject):
     """
     activeSliceLastSignal = pyqtSignal()
     activeSliceFirstSignal = pyqtSignal()
+    renumberSignal = pyqtSignal()
     
     # We store mainWindow because a controller's got to have
     # references to both the layer above (UI) and the layer below (model)
@@ -87,4 +88,5 @@ class SliceController(QObject):
     def renumberClicked(self):
         """docstring for renumberClicked"""
         print "renumberClicked"
+        # self.renumberSignal.emit()
     # end def
