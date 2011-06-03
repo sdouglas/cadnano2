@@ -208,7 +208,11 @@ class Base(object):
                self._3pBase == None
 
     def isEnd(self):
-        return (self._5pBase == None) ^ (self._3pBase == None)
+        if self.is5primeEnd():
+            return 5
+        if self.is3primeEnd():
+            return 3
+        return False
 
     def isStrand(self):
         return self._5pBase != None and\
