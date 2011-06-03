@@ -28,7 +28,7 @@ Created by Shawn on 2011-05-03.
 
 from PyQt4.QtCore import QPointF, QRectF, Qt
 from PyQt4.QtGui import QBrush, QFont
-from PyQt4.QtGui import QGraphicsItem, QGraphicsTextItem
+from PyQt4.QtGui import QGraphicsItem, QGraphicsTextItem, QTextCursor
 from PyQt4.QtGui import QPainterPath
 from PyQt4.QtGui import QPen
 import ui.styles as styles
@@ -145,16 +145,25 @@ class LoopHandle(QGraphicsItem):
         if self._label:
             return self._label
         label = QGraphicsTextItem("")
-        label.setVisible(False)
         label.setFont(self._font)
         label.setParentItem(self)
         label.setTextInteractionFlags(Qt.TextEditorInteraction)
         label.inputMethodEvent = self.inputProcess
         label.keyPressEvent = self.textkeyPressEvent
+        # label.mousePressEvent = label.labelMousePressEvent
         label.setTextWidth(-1)
         self._label = label
-        self._label.hide()
         return label
+
+    def labelMousePressEvent(self, event):
+        """
+        This is supposed to pre-select the text for editing when you click
+        the label. Doesn't work.
+        """
+        cursor = self._label.textCursor()
+        cursor.setPosition(0)
+        cursor.setPosition(len(str(self._loopsize)), QTextCursor.KeepAnchor)
+        # QGraphicsTextItem.mousePressEvent(self._label, event)
 
     def textkeyPressEvent(self, event):
         """
@@ -204,8 +213,6 @@ class LoopHandle(QGraphicsItem):
         self._label.setPlainText("%d" % (number))
         self.setParentItem(ph)
         self.resetPosition()
-        self._label.show()
-        self.show()
     # end def
 
     def resetPosition(self):
@@ -218,6 +225,10 @@ class LoopHandle(QGraphicsItem):
         else:
             self.setPos(posItem[0] - txtOffset - self._offset,\
                         posItem[1] + 0.5 * self._baseWidth)
+        if self._loopsize > 0:
+            self.show()
+        else:
+            self.hide()
     # end def
 
 
