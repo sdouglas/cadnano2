@@ -31,7 +31,7 @@ from exceptions import AttributeError, IndexError
 from itertools import product
 from .enum import LatticeType, Parity, StrandType, BreakType
 from .enum import Crossovers, EndType
-from PyQt4.QtCore import pyqtSignal, QObject
+from PyQt4.QtCore import pyqtSignal, QObject, QTimer
 from PyQt4.QtGui import QUndoCommand, QUndoStack, QColor
 from .base import Base
 from util import *
@@ -95,10 +95,7 @@ class VirtualHelix(QObject):
             numBases = len(re.split('\s+',\
                                     incompleteArchivedDict['staple'])) - 1
         self.setNumBases(numBases, notUndoable=True)
-        # Command line convenience for -i mode
-        if app().v != None:
-            app().v[self.number()] = self
-
+        
     def __repr__(self):
         return 'vh%i' % self.number()
 
@@ -122,6 +119,9 @@ class VirtualHelix(QObject):
         self._number = num
         self._part = newPart
         self.setNumBases(newPart.numBases(), notUndoable=True)
+        # Command line convenience for -i mode
+        if app().v != None:
+            app().v[self.number()] = self
 
     def numBases(self):
         return len(self._stapleBases)
@@ -374,6 +374,8 @@ class VirtualHelix(QObject):
         it occasionally happens that a bug pops many things off the
         undo stack. The temporary undo stack prevents excessive popping
         from reverting the document to a blank state."""
+        if sb and self._privateUndoStack:
+            print "WARNING: attempting to sandbox a vh that already has an undo stack!"
         if sb and not self._privateUndoStack:
             self._sandboxed = True
             if not self._privateUndoStack:
@@ -427,8 +429,8 @@ class VirtualHelix(QObject):
                                         int(min(startIndex, endIndex))
         strand = strandType == StrandType.Scaffold and \
             self._scaffoldBases or self._stapleBases
-        startIndex = clamp(startIndex, 1, len(strand))
-        endIndex = clamp(endIndex, 1, len(strand))
+        startIndex = clamp(startIndex, 1, len(strand)-1)
+        endIndex = clamp(endIndex, 1, len(strand)-1)
         c = self.ClearStrandCommand(self, strandType, startIndex, endIndex)
         self.undoStack().push(c)
 
@@ -457,7 +459,6 @@ class VirtualHelix(QObject):
         toBase = toVhelix._strand(strandType)[toIndex]
         if fromBase._3pBase != toBase or fromBase != toBase._5pBase:
             raise IndexError("Crossover does not exist to be removed.")
-        print "break3to5"
         c = self.Break3To5Command(strandType, self, fromIndex)
         self.undoStack().push(c)
         
@@ -613,18 +614,22 @@ class VirtualHelix(QObject):
             if self._vh.directionOfStrandIs5to3(self._strandType):
                 for i in range(self._startIndex - 1, self._endIndex):
                     leftBase, rightBase = strand[i], strand[i+1]
+                    # Clear i.next
                     if leftBase._3pBase:
                         concernedVH.add(leftBase._3pBase._vhelix)
                     ol.append(leftBase._set3Prime(None))
+                    # Clear (i+1)prev
                     if rightBase._5pBase:
                         concernedVH.add(rightBase._5pBase._vhelix)
                     ol.append(rightBase._set5Prime(None))
             else:
                 for i in range(self._startIndex - 1, self._endIndex):
                     leftBase, rightBase = strand[i], strand[i+1]
+                    # Clear i.next
                     if leftBase._5pBase:
                         concernedVH.add(leftBase._5pBase._vhelix)
                     ol.append(leftBase._set5Prime(None))
+                    # Clear (i+1).prev
                     if rightBase._3pBase:
                         concernedVH.add(rightBase._3pBase._vhelix)
                     ol.append(rightBase._set3Prime(None))

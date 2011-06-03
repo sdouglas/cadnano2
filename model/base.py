@@ -75,8 +75,8 @@ class Base(object):
                self._5pBase._n == self._n - nOffsetOf3:
                     fiveB = '<' if fiveTo3 else '>'
             else:
-                    fiveB = "%i:%i" % (self._3pBase.vhelixNum(),\
-                                       self._3pBase._n)
+                    fiveB = "%i:%i" % (self._5pBase.vhelixNum(),\
+                                       self._5pBase._n)
         if fiveTo3:
             return fiveB + ',' + threeB
         else:

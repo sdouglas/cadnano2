@@ -46,6 +46,7 @@ class SelectTool(AbstractPathTool):
                                                 self._mouseDownY)
         if self._mouseDownBase:
             vh = ph.vhelix()
+            vh.setSandboxed(False)  # Clear out the old sandbox if there is one
             vh.setSandboxed(True)
             if vh.hasCrossoverAt(*self._mouseDownBase):
                 # delete cross over
@@ -69,7 +70,7 @@ class SelectTool(AbstractPathTool):
         if self._mouseDownY==None:
             return
         vh = ph.vhelix()
-        if self._mouseDownBase and self._lastValidBase:
+        if self._mouseDownBase:
             vh.setSandboxed(False)  # vhelix now uses the document undo stack
 
     def selectToolRemoveXover(self,vHelix, base):
@@ -104,8 +105,16 @@ class SelectTool(AbstractPathTool):
             useClearMode = True
         if useClearMode:
             if to[1]<fr[1]:
+                #print "cl< %s-%s"%(fr[1], to[1])
                 vHelix.clearStrand(fr[0], fr[1], to[1]+1)
-            else:
+            elif to[1]>fr[1]:
+                if vHelix.hasCrossoverAt(fr[0], fr[1]-1):
+                    fr = (fr[0], fr[1]+1)
+                #print "cl> %s-%s"%(fr[1], to[1])
                 vHelix.clearStrand(fr[0], fr[1], to[1])
+            else:
+                if not vHelix.hasCrossoverAt(fr[0], fr[1]-1):
+                    #print "cl= %s-%s"%(fr[1], to[1])
+                    vHelix.clearStrand(fr[0], fr[1], to[1])
         else:
             vHelix.connectStrand(fr[0], fr[1], to[1])
