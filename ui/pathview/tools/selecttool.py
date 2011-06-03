@@ -99,10 +99,10 @@ class SelectTool(AbstractPathTool):
         startOnBreakpoint = vHelix.hasEndAt(*fr)
         direction = 1 if to[1] >= fr[1] else -1
         adj = vHelix.validatedBase(fr[0], fr[1] + direction, raiseOnErr=False)
-        useClearMode = vHelix.hasStrandAt(*adj)
+        useClearMode = vHelix.hasStrandAt(*adj) and not vHelix.hasCrossoverAt(*adj)
         # adj: the base adjacent to fr in the same direction as to
-        if adj and startOnBreakpoint and vHelix.hasStrandAt(*adj):
-            useClearMode = True
+        #if adj and startOnBreakpoint and vHelix.hasStrandAt(*adj):
+        #    useClearMode = True
         if useClearMode:
             if to[1]<fr[1]:
                 #print "cl< %s-%s"%(fr[1], to[1])
