@@ -92,7 +92,7 @@ class SelectTool(AbstractPathTool):
         # the removepair is the ( (3p_vh, ind) , (5p_vh, ind) )
         removepair = vHelix.getXover(*base)
         removepair[0][0].removeXoverTo(base[0], removepair[0][1], \
-                                        removepair[1][0], removepair[1][1])
+                                       removepair[1][0], removepair[1][1])
     # end def
 
     def selectToolApply(self, vHelix, fr, to):

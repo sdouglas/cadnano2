@@ -109,13 +109,12 @@ class VirtualHelix(QObject):
     def part(self):
         return self._part
 
-    def _setPart(self, newPart, row, col, num):
+    def _setPart(self, newPart, coords, num):
         """Should only be called by dnapart. Use dnapart's
-        setVirtualHelixAt to add a virtualhelix to a dnapart."""
-        if self._part and self._part.getVirtualHelix((row, col)):
-            self._part.setVirtualHelixAt((row, col), None)
-        self._row = row
-        self._col = col
+        addVirtualHelixAt to add a virtualhelix to a dnapart."""
+        (self._row, self._col) = coords
+        if self._part and self._part.getVirtualHelix(coords):
+            self._part.addVirtualHelixAt(coords, None)
         self._number = num
         self._part = newPart
         self.setNumBases(newPart.numBases(), notUndoable=True)
@@ -593,7 +592,6 @@ class VirtualHelix(QObject):
                                            *ol[i - self._startIndex])
             for vh in self.concernedVH:
                 vh.emitModificationSignal()
-            
 
     class ClearStrandCommand(QUndoCommand):
         def __init__(self, virtualHelix, strandType, startIndex, endIndex):

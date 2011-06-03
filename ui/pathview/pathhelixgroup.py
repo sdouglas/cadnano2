@@ -259,7 +259,7 @@ class PathHelixGroup(QGraphicsObject):
 
     def virtualHelixAtCoordsChangedEvent(self, row, col):
         c = (row, col)
-        self._set_pathHelixList([ph for ph in self._pathHelixList if ph.vhelix().coord()!=c])            
+        self._set_pathHelixList([ph for ph in self._pathHelixList if ph.vhelix().coord()!=c])
 
     # Slot called when the slice view's (actually the part's) selection changes
     def selectionWillChange(self, newSelection):

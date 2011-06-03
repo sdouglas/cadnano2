@@ -31,12 +31,12 @@ class DNAHoneycombPart(DNAPart):
     scafR = Crossovers.honeycombScafRight
     stapL = Crossovers.honeycombStapLeft
     stapR = Crossovers.honeycombStapRight
-    
+
     def __init__(self, *args, **kwargs):
         super(DNAHoneycombPart, self).__init__(*args, **kwargs)
         self._maxBase = 42
         self._activeSlice = 21
-        
+
     def __repr__(self):
         s = "HoneycombPart[" +\
             ','.join(repr(self._numberToVirtualHelix[k])\
@@ -46,7 +46,7 @@ class DNAHoneycombPart(DNAPart):
     def coordinateParityEven(self, coords):
         row, col = coords
         return (row % 2) ^ (col % 2) == 0
-    
+
     def virtualHelixParityEven(self, vhref):
         """A property of the part, because the part is responsible for laying out
         the virtualhelices and parity is a property of the layout more than it is a
@@ -54,7 +54,7 @@ class DNAHoneycombPart(DNAPart):
         notion of parity?)"""
         vh = self.getVirtualHelix(vhref, returnNoneIfAbsent=False)
         return self.coordinateParityEven(vh.coord())
-    
+
     def getVirtualHelixNeighbors(self, vhref):
         neighbors = []
         vh = self.getVirtualHelix(vhref, returnNoneIfAbsent=False)
@@ -69,13 +69,12 @@ class DNAHoneycombPart(DNAPart):
             neighbors.append(self.getVirtualHelix((r,c+1)))  # p2 neighbor
         return neighbors  # Note: the order and presence of Nones is important
         # If you need the indices of available directions use range(0,len(neighbors))
-    
+
     def crossSectionType(self):
         """Returns the cross-section type of the DNA part."""
         return LatticeType.Honeycomb
-        
+
     ########################## Archiving / Unarchiving #########################
     def fillSimpleRep(self, sr):
         super(DNAHoneycombPart, self).fillSimpleRep(sr)
         sr['.class'] = 'DNAHoneycombPart'
-    

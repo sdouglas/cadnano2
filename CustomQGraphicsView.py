@@ -209,7 +209,7 @@ class CustomQGraphicsView(QGraphicsView):
                     item.customMouseRelease(event_pos)
                 #end for
                 self._pressList = []
-            # end if 
+            # end if
             QGraphicsView.mouseReleaseEvent(self, event)
     #end def
 
