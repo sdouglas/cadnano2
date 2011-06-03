@@ -95,6 +95,7 @@ class AbstractPathTool(QGraphicsItem):
 
     def hoverLeavePathHelix(self, pathHelix, event):
         self.updateLocation(None, event.scenePos())
+        self.setParentItem(mother)
     
     def hoverMovePathHelix(self, pathHelix, event, flag=None):
         self.updateLocation(pathHelix, event.scenePos())

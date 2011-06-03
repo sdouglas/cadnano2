@@ -167,15 +167,16 @@ class SliceHelix(QGraphicsItem):
         coord = (self._row, self._col)
         vh = self.virtualHelix()
         index = self.part().activeSlice()
-        # self.undoStack().beginMacro("Add helix")
+        undoStack = self.part().undoStack()
         if not vh:
+            undoStack.beginMacro("Add helix")
             vh = VirtualHelix()
             self.part().setVirtualHelixAt(coord, vh)
             vh.basesModified.connect(self.update)
+        else:
+            undoStack.beginMacro("Connect segment")
         if addBases and addToScaffold:
             vh.connectStrand(StrandType.Scaffold, index - 1, index + 1)
         elif addBases and not addToScaffold:
             vh.connectStrand(StrandType.Staple, index - 1, index + 1)
-        # self.undoStack().endMacro()
-    # end def
-# end class
+        self.undoStack().endMacro()
