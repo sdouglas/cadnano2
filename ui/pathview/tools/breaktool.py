@@ -42,6 +42,12 @@ from abstractpathtool import AbstractPathTool
 
 
 class BreakTool(AbstractPathTool):
+    """
+    The BreakTool is used for installing strand breaks in scaffold and 
+    staples. The tool is used by hovering over a non-terminal, non-crossover
+    base in the interface and left-clicking the mouse. A 3' end is 
+    installed at the chosen position, and a 5' end is created downstream.
+    """
     _pen = QPen(styles.redstroke, 1)
     _baseWidth = styles.PATH_BASE_WIDTH
     _halfbaseWidth = _baseWidth / 2
@@ -53,7 +59,7 @@ class BreakTool(AbstractPathTool):
     _l3poly.append(QPointF(_baseWidth, _baseWidth))
     _pathArrowLeft.addPolygon(_l3poly)
     _pathArrowRight = QPainterPath()
-    _r3poly = QPolygonF()
+    _r3poly = QPolygonF()  # right-hand 3' arr
     _r3poly.append(QPointF(0, 0))
     _r3poly.append(QPointF(0.75 * _baseWidth, 0.5 * _baseWidth))
     _r3poly.append(QPointF(0, _baseWidth))
@@ -65,13 +71,6 @@ class BreakTool(AbstractPathTool):
         self.setZValue(styles.ZPATHTOOL)
         self._isTopStrand = True
 
-    def setTopStrand(self, isTop):
-        """
-        Called in hoverMovePathHelix to set whether breaktool is hovering
-        over a top strand (goes 5' to 3' left to right) or bottom strand.
-        """
-        self._isTopStrand = isTop
-
     def paint(self, painter, option, widget=None):
         super(BreakTool, self).paint(painter, option, widget)
         painter.setPen(self._pen)
@@ -79,6 +78,13 @@ class BreakTool(AbstractPathTool):
             painter.drawPath(self._pathArrowRight)
         else:
             painter.drawPath(self._pathArrowLeft)
+
+    def setTopStrand(self, isTop):
+        """
+        Called in hoverMovePathHelix to set whether breaktool is hovering
+        over a top strand (goes 5' to 3' left to right) or bottom strand.
+        """
+        self._isTopStrand = isTop
 
     def hoverMovePathHelix(self, item, event, flag=None):
         """
@@ -95,8 +101,9 @@ class BreakTool(AbstractPathTool):
         posScene = event.scenePos()
         posItem = self.parentItem().mapFromScene(posScene)
         strandType, idx = self.baseAtPoint(pathHelix, posItem)
-        if pathHelix.vhelix().hasEndAt(strandType, idx):
-            return  # don't try to break endpoints
+        if pathHelix.vhelix().hasEndAt(strandType, idx) or\
+           pathHelix.vhelix().hasCrossoverAt(strandType, idx):
+            return  # don't try to break endpoints or crossovers
         if pathHelix.vhelix().directionOfStrandIs5to3(strandType):
             pathHelix.vhelix().clearStrand(strandType, idx + 1, idx + 1)
         else:
