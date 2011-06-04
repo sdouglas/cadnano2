@@ -245,7 +245,7 @@ class VirtualHelix(QObject):
         else:
             raise IndexError("%s is not Scaffold=%s or Staple=%s"%(strandType, StrandType.Scaffold, StrandType.Staple))
 
-    ########################### Access to Bases ###################
+    ############################## Access to Bases ###########################
     def hasBaseAt(self, strandType, index):
         """Returns true if a base is present at index on strand strandtype."""
         base = self._baseAt(strandType, index)
