@@ -67,9 +67,8 @@ class BreakTool(AbstractPathTool):
 
     def __init__(self, controller, parent=None):
         super(BreakTool, self).__init__(controller, parent)
-        self.latestHoveredBaseWasTop = True
-        self.setZValue(styles.ZPATHTOOL)
         self._isTopStrand = True
+        self.setZValue(styles.ZPATHTOOL)
 
     def paint(self, painter, option, widget=None):
         super(BreakTool, self).paint(painter, option, widget)
