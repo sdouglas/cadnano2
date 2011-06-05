@@ -47,9 +47,11 @@ class SelectTool(AbstractPathTool):
 
     def mousePressPathHelix(self, ph, event):
         """Activate this item as the current helix."""
-        self.finalizeMouseDrag()
+        # self.finalizeMouseDrag()
         self._mouseDownY = event.pos().y()
         self._mouseDownPH = ph
+        ph.scene().views()[0].addToPressList(ph)
+        
         self._mouseDownBase = ph.baseAtLocation(event.pos().x(),\
                                                 self._mouseDownY)
         if self._mouseDownBase:
@@ -65,6 +67,7 @@ class SelectTool(AbstractPathTool):
         ph.makeSelfActiveHelix()
 
     def finalizeMouseDrag(self):
+        print "poop"
         if not self._mouseDownBase:
             return
         vh = self._mouseDownPH.vhelix()
