@@ -67,7 +67,6 @@ class SelectTool(AbstractPathTool):
         ph.makeSelfActiveHelix()
 
     def finalizeMouseDrag(self):
-        print "poop"
         if not self._mouseDownBase:
             return
         vh = self._mouseDownPH.vhelix()
