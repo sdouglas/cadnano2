@@ -25,13 +25,13 @@
 from PyQt4.QtCore import *
 from PyQt4.QtGui import *
 from PyQt4.QtCore import pyqtSignal
-# from tools.pathtool import PathTool
-from tools.painttool import PaintTool
-from tools.looptool import LoopTool
-from tools.skiptool import SkipTool
 from tools.breaktool import BreakTool
 from tools.erasetool import EraseTool
+from tools.looptool import LoopTool
+from tools.painttool import PaintTool
+from tools.penciltool import PencilTool
 from tools.selecttool import SelectTool
+from tools.skiptool import SkipTool
 
 
 class PathController(QObject):
@@ -49,23 +49,25 @@ class PathController(QObject):
         self._activeToolWidget = None
 
         self.selectTool = SelectTool(self)
-        self.paintTool = PaintTool(self, win.pathGraphicsView.toolbar)
+        self.breakTool = BreakTool(self)
         self.eraseTool = EraseTool(self)
+        self.pencilTool = PencilTool(self)
         self.insertionTool = LoopTool(self)
         self.skipTool = SkipTool(self)
-        self.breakTool = BreakTool(self)
+        self.paintTool = PaintTool(self, win.pathGraphicsView.toolbar)
 
         win.actionPathSelect.triggered.connect(self.chooseSelectTool)
-        win.actionPathPaint.triggered.connect(self.choosePaintTool)
         win.actionPathMove.triggered.connect(self.chooseMoveTool)
         win.actionPathBreak.triggered.connect(self.chooseBreakTool)
         win.actionPathErase.triggered.connect(self.chooseEraseTool)
+        win.actionPathPencil.triggered.connect(self.choosePencilTool)
         win.actionPathInsert.triggered.connect(self.chooseInsertTool)
         win.actionPathSkip.triggered.connect(self.chooseSkipTool)
+        win.actionPathPaint.triggered.connect(self.choosePaintTool)
 
         self.toolset = set((win.actionPathSelect, win.actionPathPaint,\
                             win.actionPathMove, win.actionPathBreak,\
-                            win.actionPathErase, win.actionPencil,\
+                            win.actionPathErase, win.actionPathPencil,\
                             win.actionPathInsert, win.actionPathSkip))
         ag = QActionGroup(win)
         for a in self.toolset:
@@ -145,6 +147,15 @@ class PathController(QObject):
             self._activeToolWidget = widget
         widget.setChecked(True)
         self.setActiveTool(self.eraseTool)
+
+    def choosePencilTool(self):
+        widget = self.mainWindow.actionPathPencil
+        if self._activeToolWidget is widget:
+            return
+        else:
+            self._activeToolWidget = widget
+        widget.setChecked(True)
+        self.setActiveTool(self.pencilTool)
 
     def chooseInsertTool(self):
         widget = self.mainWindow.actionPathInsert

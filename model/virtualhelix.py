@@ -323,6 +323,31 @@ class VirtualHelix(QObject):
                 s = None
         return ret
 
+    def getDragLimits(self, strandType, index):
+        """
+        Return leftmost and rightmost indices (inclusive) that a breakpoint
+        handle can explore before running into another handle or the path-
+        helix edge.
+        """
+        strand = self._strand(strandType)
+        left = max(0, index - 1)
+        base = strand[left]
+        while not base.isEnd() and not base.isCrossover():
+            if left == 0:
+                left -= 1  # edge case
+                break
+            left -= 1
+            base = strand[left]
+        right = min(index + 1, len(strand) - 1)
+        base = strand[right]
+        while not base.isEnd() and not base.isCrossover():
+            if right == len(strand) - 1:
+                right += 1  # edge case
+                break
+            right += 1
+            base = strand[right]
+        return (left + 1, right - 1)  # compensate for peeking at the boundary
+
     def get3PrimeXovers(self, strandType):
         """
         Returns a tuple of tuples of the FROM base (3p end) the TO base
@@ -481,10 +506,27 @@ class VirtualHelix(QObject):
         c = self.LoopCommand(self, strandType, index, loopsize)
         self.undoStack().push(c)
     # end def
-    
-    def emitModificationSignal(self):
-        self.basesModified.emit()
-        #self.part().virtualHelixAtCoordsChanged.emit(*self.coord())
+
+    def applyColorAt(self, colorName, strandType, index):
+        """docstring for applyColorAt"""
+        strand = self._strand(strandType)
+        startBase = strand[index]
+        # traverse to 5' end
+        base = startBase
+        while not base.is5primeEnd():
+            base.setColor(colorName)
+            base = base.get5pBase()  # advance to next
+            if base == startBase:  # check for circular path
+                return
+        base.setColor(colorName)  # last 5' base
+        # traverse to 3' end
+        if not startBase.is3primeEnd():
+            base = startBase.get3pBase()  # already processed startBase
+            while not base.is3primeEnd():
+                base.setColor(colorName)
+                base = base.get3pBase()  # advance to next
+            base.setColor(colorName)  # last 3' base
+        self.emitModificationSignal()
 
     ################ Private Base Modification API ###########################
     class LoopCommand(QUndoCommand):
@@ -525,27 +567,6 @@ class VirtualHelix(QObject):
                     # end if
                 # end else
                 self._vh.emitModificationSignal()
-
-    def applyColorAt(self, colorName, strandType, index):
-        """docstring for applyColorAt"""
-        strand = self._strand(strandType)
-        startBase = strand[index]
-        # traverse to 5' end
-        base = startBase
-        while not base.is5primeEnd():
-            base.setColor(colorName)
-            base = base.get5pBase()  # advance to next
-            if base == startBase:  # check for circular path
-                return
-        base.setColor(colorName)  # last 5' base
-        # traverse to 3' end
-        if not startBase.is3primeEnd():
-            base = startBase.get3pBase()  # already processed startBase
-            while not base.is3primeEnd():
-                base.setColor(colorName)
-                base = base.get3pBase()  # advance to next
-            base.setColor(colorName)  # last 3' base
-        self.emitModificationSignal()
 
     class ConnectStrandCommand(QUndoCommand):
         def __init__(self, virtualHelix, strandType, startIndex, endIndex):

@@ -205,6 +205,7 @@ class CustomQGraphicsView(QGraphicsView):
         else:
             if len(self._pressList):  # Notify any pressed items to release
                 event_pos = event.pos()
+                print self._pressList
                 for item in self._pressList:
                     item.customMouseRelease(event_pos)
                 #end for

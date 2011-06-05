@@ -259,7 +259,7 @@
    <addaction name="actionPathMove"/>
    <addaction name="actionPathBreak"/>
    <addaction name="actionPathErase"/>
-   <addaction name="actionPencil"/>
+   <addaction name="actionPathPencil"/>
    <addaction name="actionPathInsert"/>
    <addaction name="actionPathSkip"/>
    <addaction name="actionPaint"/>
@@ -495,7 +495,7 @@
     <string>Click this button to generate a default set of staples.</string>
    </property>
   </action>
-  <action name="actionPencil">
+  <action name="actionPathPencil">
    <property name="checkable">
     <bool>true</bool>
    </property>
