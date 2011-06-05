@@ -128,6 +128,11 @@ class AbstractPathTool(QGraphicsItem):
         """Returns isActive"""
         return self._active!=mother
     
+    def widgetClicked(self):
+        """Called every time a widget representing self gets clicked,
+        not just when changing tools."""
+        pass
+    
     ####################### Coordinate Utilities ###########################
     def baseAtPoint(self, pathHelix, pt):
         """Returns the (strandType, baseIdx) corresponding

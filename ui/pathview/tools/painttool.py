@@ -53,6 +53,9 @@ class PaintTool(AbstractPathTool):
     def nextColor(self):
         """docstring for nextColor"""
         self._colorPanel.nextColor()
+    
+    def widgetClicked(self):
+        self.nextColor()
 
     def mousePressPathHelix(self, ph, event):
         """Activate this item as the current helix"""

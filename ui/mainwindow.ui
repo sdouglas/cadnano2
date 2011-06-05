@@ -52,7 +52,7 @@
         </size>
        </property>
       </widget>
-      <widget class="QGraphicsView" name="sliceGraphicsView">
+      <widget class="CustomQGraphicsView" name="sliceGraphicsView">
        <property name="sizePolicy">
         <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
          <horstretch>4</horstretch>
@@ -93,7 +93,7 @@
         <enum>QGraphicsView::MinimalViewportUpdate</enum>
        </property>
       </widget>
-      <widget class="QGraphicsView" name="pathGraphicsView">
+      <widget class="CustomQGraphicsView" name="pathGraphicsView">
        <property name="sizePolicy">
         <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
          <horstretch>4</horstretch>
@@ -262,7 +262,7 @@
    <addaction name="actionPencil"/>
    <addaction name="actionPathInsert"/>
    <addaction name="actionPathSkip"/>
-   <addaction name="actionPaint"/>
+   <addaction name="actionPathPaint"/>
    <addaction name="separator"/>
    <addaction name="actionAutoStaple"/>
   </widget>
@@ -423,6 +423,24 @@
    </property>
    <property name="shortcut">
     <string>V</string>
+   </property>
+  </action>
+  <action name="actionPathForce">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="icon">
+    <iconset resource="icons.qrc">
+     <normaloff>:/pathtools/force</normaloff>:/pathtools/force</iconset>
+   </property>
+   <property name="text">
+    <string>Force</string>
+   </property>
+   <property name="toolTip">
+    <string>Forcibly add a crossover between unusual helices/bases. The first click defines the 3' side and the second click defines the 5' side.</string>
+   </property>
+   <property name="shortcut">
+    <string>F</string>
    </property>
   </action>
   <action name="actionSliceSelect">
@@ -618,12 +636,12 @@
     <string>Remove the highest-numbered helix if it does not connect to any other helices.</string>
    </property>
   </action>
-  <action name="actionPaint">
+  <action name="actionPathPaint">
    <property name="checkable">
     <bool>true</bool>
    </property>
    <property name="icon">
-    <iconset resource="icons.qrc">
+    <iconset>
      <normaloff>:/pathtools/paint</normaloff>:/pathtools/paint</iconset>
    </property>
    <property name="text">
@@ -637,6 +655,13 @@
    </property>
   </action>
  </widget>
+ <customwidgets>
+  <customwidget>
+   <class>CustomQGraphicsView</class>
+   <extends>QGraphicsView</extends>
+   <header>customqgraphicsview.h</header>
+  </customwidget>
+ </customwidgets>
  <resources>
   <include location="icons.qrc"/>
  </resources>
