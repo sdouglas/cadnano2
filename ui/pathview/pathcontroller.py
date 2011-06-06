@@ -52,12 +52,12 @@ class PathController(QObject):
         self.selectTool = SelectTool(self)
         self.breakTool = BreakTool(self)
         self.eraseTool = EraseTool(self)
-	self.insertTool = LoopTool(self)
+        self.insertTool = LoopTool(self)
         self.skipTool = SkipTool(self)
         self.breakTool = BreakTool(self)
         self.forceTool = ForceTool(self)
         self.paintTool = PaintTool(self, win.pathGraphicsView.toolbar)
-	self.pencilTool = PencilTool(self)
+        self.pencilTool = PencilTool(self)
         self.moveTool = None
         
         def installTool(toolName, window):
@@ -76,7 +76,7 @@ class PathController(QObject):
             return toolWidget
         
         tools = ('Select', 'Paint', 'Move', 'Break', 'Erase',\
-                 'Insert', 'Skip', 'Force')
+                 'Insert', 'Skip', 'Force', 'Pencil')
         ag = QActionGroup(win)
         for toolName in tools:
             toolAction = installTool(toolName, win)

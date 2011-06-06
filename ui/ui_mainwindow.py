@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'mainwindow.ui'
 #
-# Created: Mon Jun  6 09:41:12 2011
+# Created: Mon Jun  6 14:33:37 2011
 #      by: PyQt4 UI code generator 4.8.4
 #
 # WARNING! All changes made in this file will be lost!
@@ -354,7 +354,7 @@ class Ui_MainWindow(object):
         self.actionAutoStaple.setToolTip(QtGui.QApplication.translate("MainWindow", "Click this button to generate a default set of staples.", None, QtGui.QApplication.UnicodeUTF8))
         self.actionPathPencil.setText(QtGui.QApplication.translate("MainWindow", "Pencil", None, QtGui.QApplication.UnicodeUTF8))
         self.actionPathPencil.setToolTip(QtGui.QApplication.translate("MainWindow", "Draw strands. Right-click to force non-standard crossover", None, QtGui.QApplication.UnicodeUTF8))
-        self.actionPathPencil.setShortcut(QtGui.QApplication.translate("MainWindow", "F, N", None, QtGui.QApplication.UnicodeUTF8))
+        self.actionPathPencil.setShortcut(QtGui.QApplication.translate("MainWindow", "N", None, QtGui.QApplication.UnicodeUTF8))
         self.actionPathInsert.setText(QtGui.QApplication.translate("MainWindow", "Insert", None, QtGui.QApplication.UnicodeUTF8))
         self.actionPathInsert.setToolTip(QtGui.QApplication.translate("MainWindow", "Insert extra bases at a specific position. Useful for creating curved and twisted designs.", None, QtGui.QApplication.UnicodeUTF8))
         self.actionPathInsert.setShortcut(QtGui.QApplication.translate("MainWindow", "I", None, QtGui.QApplication.UnicodeUTF8))

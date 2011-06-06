@@ -528,7 +528,7 @@
     <string>Draw strands. Right-click to force non-standard crossover</string>
    </property>
    <property name="shortcut">
-    <string>F, N</string>
+    <string>N</string>
    </property>
   </action>
   <action name="actionPathInsert">

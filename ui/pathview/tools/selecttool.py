@@ -28,12 +28,14 @@ Created by Nick Conway on 2011-05-30.
 """
 
 from abstractpathtool import AbstractPathTool
+from util import *
 
 class SelectTool(AbstractPathTool):
     """
     SelectTool is the default tool. It allows editing of breakpoints
     (by clicking and dragging) and toggling of crossovers.
     """
+    imposeDragLimits = True
     def __init__(self, controller):
         super(SelectTool, self).__init__(controller)
         self._mouseDownBase = None
@@ -83,9 +85,9 @@ class SelectTool(AbstractPathTool):
         vh = ph.vhelix()
         newBase = ph.baseAtLocation(event.pos().x(), self._mouseDownY, clampX=True)
         if self._mouseDownBase and newBase:
-            if self._lastValidBase != newBase and \
-               newBase[1] >= self._dragLimits[0] and\
-               newBase[1] <= self._dragLimits[1]:
+            if self._lastValidBase != newBase:
+                if self.imposeDragLimits:
+                    newBase = (newBase[0], clamp(newBase[1], *self._dragLimits))
                 self._lastValidBase = newBase
                 vh.undoStack().undo()
                 self.applyTool(vh, self._mouseDownBase, newBase)
@@ -131,7 +133,7 @@ class SelectTool(AbstractPathTool):
             if to[1] < fr[1]:  # dragging left
                 vHelix.clearStrand(fr[0], fr[1], to[1]+1)
             elif to[1] > fr[1]:
-                vHelix.clearStrand(fr[0], fr[1], to[1])
+                vHelix.clearStrand(fr[0], fr[1]+1, to[1])
             else:
                 pass  # shouldn't get here if newBase is actually new
         else:  # ADDING bases

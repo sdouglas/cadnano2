@@ -33,41 +33,7 @@ from selecttool import SelectTool
 class PencilTool(SelectTool):
     """PencilTool allows for creation of new staple or scaffold strands
     by clicking and dragging on empty bases."""
+    # We are just like select tool except we don't enforce drag limits
+    imposeDragLimits = False
     def __init__(self, controller):
         super(PencilTool, self).__init__(controller)
-
-    def applyTool(self, vHelix, fr, to):
-        """
-        """
-        fr = vHelix.validatedBase(*fr, raiseOnErr=False)
-        to = vHelix.validatedBase(*to, raiseOnErr=False)
-        if (None, None) in (fr, to):
-            return False
-        startOnSegment = vHelix.hasStrandAt(*fr)
-        startOnBreakpoint = vHelix.hasEndAt(*fr)
-        direction = 1 if to[1] >= fr[1] else -1
-        useClearMode = startOnSegment
-        if startOnBreakpoint:
-            is5to3 = vHelix.directionOfStrandIs5to3(fr[0])
-            if is5to3 and startOnBreakpoint==3 or\
-               not is5to3 and startOnBreakpoint==5:
-                inwardDir = -1
-            else:
-                inwardDir = 1
-            useClearMode = direction == inwardDir
-        # adj: the base adjacent to fr in the same direction as to
-        if useClearMode:
-            if to[1]<fr[1]:
-                #print "cl< %s-%s"%(fr[1], to[1])
-                vHelix.clearStrand(fr[0], fr[1], to[1]+1)
-            elif to[1]>fr[1]:
-                if vHelix.hasCrossoverAt(fr[0], fr[1]-1):
-                    fr = (fr[0], fr[1]+1)
-                #print "cl> %s-%s"%(fr[1], to[1])
-                vHelix.clearStrand(fr[0], fr[1], to[1])
-            else:
-                if not vHelix.hasCrossoverAt(fr[0], fr[1]-1):
-                    #print "cl= %s-%s"%(fr[1], to[1])
-                    vHelix.clearStrand(fr[0], fr[1], to[1])
-        else:
-            vHelix.connectStrand(fr[0], fr[1], to[1])
