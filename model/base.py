@@ -42,6 +42,7 @@ class Base(object):
         self._vhelix = vhelix
         self._strandtype = strandtype
         self._n = index
+        self._floatingXoverDestination = False
 
     def __str__(self):
         fiveTo3 = self._vhelix.directionOfStrandIs5to3(self._strandtype)
@@ -199,15 +200,17 @@ class Base(object):
 
     def is5primeEnd(self):
         """Return True if no 5pBase, but 3pBase exists."""
-        return self._5pBase == None and \
+        return (self._5pBase == None or self._5pBase._floatingXoverDestination) and \
                self._3pBase != None
 
     def is3primeEnd(self):
         """Return True if no 3pBase, but 5pBase exists."""
         return self._5pBase != None and \
-               self._3pBase == None
+               (self._3pBase == None or self._3pBase._floatingXoverDestination)
 
     def isEnd(self):
+        if self._floatingXoverDestination:
+            return False
         if self.is5primeEnd():
             return 5
         if self.is3primeEnd():
@@ -225,6 +228,8 @@ class Base(object):
     def isCrossover(self):
         """Return True if the part id or vhelix number of the prev or
         next base does not match the same for this base."""
+        if self._floatingXoverDestination:
+            return True
         if self.isEmpty():
             return False
         if self._5pBase != None:
@@ -238,9 +243,18 @@ class Base(object):
             elif self.partId() != self._3pBase.partId():
                 return True
         return False
+    
+    def floatingXoverDestination(self):
+        """When a force crossover is being added, a crossover
+        is displayed from the 3' end to the location of the mouse.
+        That's called a floating crossover and its QPoint destination
+        (the location of the mouse) is returned by this method."""
+        return self._floatingXoverDestination
 
     def is3primeXover(self):
         """Return True if no 3pBase, but 5pBase exists."""
+        if self._floatingXoverDestination:
+            return True
         if self._3pBase != None:
             if self.vhelixNum() != self._3pBase.vhelixNum():
                 return True

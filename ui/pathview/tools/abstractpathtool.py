@@ -57,7 +57,7 @@ class AbstractPathTool(QGraphicsItem):
 
     _baseWidth = styles.PATH_BASE_WIDTH
     _toolRect = QRectF(0, 0,\
-                       _baseWidth, _baseWidth)
+                       _baseWidth, _baseWidth)  # protected not private
     _rect = QRectF(0, 0,\
                    _baseWidth +\
                    styles.PATH_BASE_HL_STROKE_WIDTH / 2,\

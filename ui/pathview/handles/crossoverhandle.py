@@ -56,29 +56,41 @@ class XoverHandle(object):
     # end def
 
     def getXover(self, phg, strandtype, fromHelix,\
-                       fromIndex, toHelix, toIndex):
+                       fromIndex, toHelix, toIndex, floatPos=None):
         """
         Draws a line from the center of the fromBase (pA) to the
         top or bottom of that same base, depending on its direction (qA),
         then a quad curve to the top or bottom of the toBase (qB), and
         finally to the center of the toBase (pB).
+        
+        If floatPos!=None, this is a floatingXover and floatPos is the
+        destination point (where the mouse is) while toHelix, toIndex
+        are potentially None and represent the base at floatPos.
         """
         # if we need to speed this up, we could keep track if pA changed?
         pA = QPointF(*fromHelix.baseLocation(strandtype,\
                                              fromIndex,\
                                              center=True))
         pA = phg.mapFromItem(fromHelix, pA)
-        pB = QPointF(*toHelix.baseLocation(strandtype,\
-                                           toIndex,\
-                                           center=True))
-        pB = phg.mapFromItem(toHelix, pB)
+        if floatPos:
+            pB = floatPos
+        else:
+            pB = QPointF(*toHelix.baseLocation(strandtype,\
+                                               toIndex,\
+                                               center=True))
+            pB = phg.mapFromItem(toHelix, pB)
         yA = yB = self._baseWidth / 2
-        if fromHelix.vhelix().directionOfStrandIs5to3(strandtype):
+        from5To3 = fromHelix.vhelix().directionOfStrandIs5to3(strandtype)
+        if from5To3:
             orientA = HandleOrient.LeftUp
             yA = -yA
         else:
             orientA = HandleOrient.RightDown
-        if toHelix.vhelix().directionOfStrandIs5to3(strandtype):
+        if floatPos and not toHelix:
+            toIs5To3 = not from5To3
+        else:
+            toIs5To3 = toHelix.vhelix().directionOfStrandIs5to3(strandtype)
+        if toIs5To3:
             orientB = HandleOrient.RightUp
             yB = -yB
         else:
@@ -90,8 +102,14 @@ class XoverHandle(object):
 
         # Determine control point of quad curve
         c1 = QPointF()
+        if floatPos and not toHelix:
+            sameStrand = False
+            sameParity = False
+        else:
+            sameStrand = fromHelix.number() == toHelix.number()
+            sameParity = fromHelix.evenParity() == toHelix.evenParity()
         # case 1: same strand
-        if fromHelix.number() == toHelix.number():
+        if sameStrand:
             if pA.x() < pB.x():  # draw only from left
                 if orientA == HandleOrient.LeftUp or \
                    orientA == HandleOrient.RightUp:
@@ -101,7 +119,7 @@ class XoverHandle(object):
                 # end if
             # end if
         # case 2: same parity
-        elif fromHelix.evenParity() == toHelix.evenParity():
+        elif sameParity:
             dy = abs(pB.y() - pA.y())
             c1.setX(pA.x() + self.xScale * dy)
             c1.setY(0.5 * (pA.y() + pB.y()))

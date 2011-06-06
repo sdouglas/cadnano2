@@ -326,19 +326,23 @@ class VirtualHelix(QObject):
 
     def get3PrimeXovers(self, strandType):
         """
-        Returns a tuple of tuples of the FROM base (3p end) the TO base
-        (5p end)
+        Returns a tuple of tuples of the form 
+        ((fromVH, fromIdx), (toVH, toIdx))
+        or, in the case of a floating crossover,
+        ((fromVH, fromIdx), toQPoint)
         """
         ret = []
         strand = self._strand(strandType)
         i, s = 0, None
         for base in strand:
             if base.is3primeXover():
-                ret.append(((self, base._n),\
-                    (base._3pBase.vhelix(), base._3pBase._n)))
-        # end for
+                floatDest = base.floatingXoverDestination()
+                if floatDest:
+                    ret.append(((self, base._n), floatDest))
+                else:
+                    ret.append(((self, base._n),\
+                        (base._3pBase.vhelix(), base._3pBase._n)))
         return ret
-    # end def
 
     def getXover(self, strandType, idx):
         """
@@ -438,14 +442,6 @@ class VirtualHelix(QObject):
         """
         The from base must provide the 3' pointer, and to must provide 5'.
         """
-        if strandType == StrandType.Scaffold:
-            assert(self.possibleNewCrossoverAt(StrandType.Scaffold, \
-                                            fromIndex, toVhelix, toIndex))
-        elif strandType == StrandType.Staple:
-            assert(self.possibleNewCrossoverAt(StrandType.Staple, \
-                                            fromIndex, toVhelix, toIndex))
-        else:
-            raise IndexError("%s doesn't look like a StrandType" % strandType)
         c = self.Connect3To5Command(strandType, self, fromIndex, toVhelix,\
                                     toIndex)
         self.undoStack().push(c)

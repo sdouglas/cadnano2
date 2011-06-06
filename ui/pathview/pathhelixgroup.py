@@ -211,25 +211,40 @@ class PathHelixGroup(QGraphicsObject):
         """Return a QPainterPath ready to paint the crossovers"""
         for ph in self._pathHelixList:
             painter.setPen(self._scafPen)
-            for ((fromhelix, fromindex), (tohelix, toindex)) in \
+            for ((fromhelix, fromindex), dest) in \
                              ph.vhelix().get3PrimeXovers(StrandType.Scaffold):
+                if type(dest) in (list, tuple):
+                    toVH, toIndex = dest
+                    toPH = self.getPathHelix(toVH)
+                    floatPos = None
+                else:
+                    toPH, toindex = None, None
+                    floatPos = dest
                 path = self.xoverGet.getXover(self,\
                                               StrandType.Scaffold,\
                                               ph,\
                                               fromindex,\
-                                              self.getPathHelix(tohelix),\
-                                              toindex)
+                                              toPH,\
+                                              toIndex,\
+                                              floatPos)
                 painter.drawPath(path)
-            # end for
             painter.setPen(self._stapPen)
-            for ((fromhelix, fromindex), (tohelix, toindex)) in \
+            for ((fromhelix, fromindex), dest) in \
                                ph.vhelix().get3PrimeXovers(StrandType.Staple):
+                if type(dest) in (list, tuple):
+                    toVH, toIndex = dest
+                    toPH = self.getPathHelix(toVH)
+                    floatPos = None
+                else:
+                    toPH, toIndex = None, None
+                    floatPos = dest
                 path = self.xoverGet.getXover(self,\
                                               StrandType.Staple,\
                                               ph,\
                                               fromindex,\
-                                              self.getPathHelix(tohelix),\
-                                              toindex)
+                                              toPH,\
+                                              toIndex,\
+                                              floatPos)
                 color = ph.vhelix().colorOfBase(StrandType.Staple, fromindex)
                 self._stapPen.setColor(QColor(color))
                 painter.drawPath(path)

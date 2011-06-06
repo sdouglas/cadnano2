@@ -42,31 +42,45 @@ from abstractpathtool import AbstractPathTool
 
 class ForceTool(AbstractPathTool):
     
-    _pen = QPen(styles.bluestroke, 2)
-    _pen.setCapStyle(Qt.RoundCap)
-    _pen.setJoinStyle(Qt.RoundJoin)
-    _brush = QBrush(styles.forcefill)
+    _pen1 = QPen(styles.bluestroke, 2)
+    _pen1.setCapStyle(Qt.RoundCap)
+    _pen1.setJoinStyle(Qt.RoundJoin)
+    _brush1 = QBrush(styles.forcefill)
+    _pen2 = QPen(styles.orangestroke, 2)
+    _pen2.setCapStyle(Qt.RoundCap)
+    _pen2.setJoinStyle(Qt.RoundJoin)
+    _brush2 = QBrush(styles.orangefill)
     
     def __init__(self, parent=None):
-        """
-        This class inherits from the PathTool class for the majority of 
-        methods/behaviours.  Essentially it adds merely decorator graphics
-        custimazation of behaviour and data structure access particular to
-        loop insertion on a mouseclick
-    
-        it's parent should be *always* be a PathHelix
-        """
         super(ForceTool, self).__init__(parent)
         self.hide()
         self.setZValue(styles.ZPATHTOOL)
-    # end def
+        self.base1 = None
     
-    def mousePressPathHelix(self, item, event):
+    def paint(self, painter, option, widget=None):
+        if self.base1:
+            p, b = self._pen2, self._brush2
+        else:
+            p, b = self._pen1, self._brush1
+        painter.setPen(p)
+        painter.setBrush(b)
+        painter.drawRect(self._toolRect)
+    
+    def mousePressPathHelix(self, pathHelix, event):
         posScene = event.scenePos()
         posItem = self.parentItem().mapFromScene(posScene)
-        indexp = self.helixIndex(posItem)
-        print "ForceTool clicked at: (%d, %d) on helix %d" % \
-            (indexp[0], indexp[1], self.parentItem().number())
-        # create a new LoopHandle by adding through the     parentItem
-    # end def
-# end class
+        if self.base1==None:
+            strandType, idx = self.baseAtPoint(pathHelix, posItem)
+            self.base1 = (pathHelix.vhelix(), strandType, idx)
+            b = pathHelix.vhelix()._strand(strandType)[idx]
+            #b._floatingXoverDestination = True
+            pathHelix.vhelix().emitModificationSignal()
+            self.update()
+        else:
+            vh1, strand1, idx1 = self.base1
+            b = vh1._strand(strand1)[idx1]
+            b._floatingXoverDestination = False
+            vh2, idx2 = pathHelix.vhelix(), self.baseAtPoint(pathHelix, posItem)[1]
+            vh1.installXoverFrom3To5(strand1, idx1, vh2, idx2)
+            self.base1 = None
+        
