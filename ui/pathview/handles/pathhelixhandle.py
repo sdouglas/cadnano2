@@ -144,12 +144,10 @@ class PathHelixHandle(QGraphicsItem):
     def mousePressEvent(self, event):
         selectionGroup = self.group()
         if selectionGroup == None:
-            print "WTF?!?!"
             selectionGroup = self._phg.phhSelectionGroup
         selectionGroup.setSelected(False)
         selectionGroup.addToGroup(self)
         self.setSelected(True)
-        print "selecting"
         selectionGroup.mousePressEvent(event)
     # end def
     
@@ -167,7 +165,6 @@ class PathHelixHandle(QGraphicsItem):
             selectionGroup = self._phg.phhSelectionGroup
             lock = selectionGroup.phg().selectionLock
             if value == True and (lock == None or lock == selectionGroup):
-                print "selecting"
                 selectionGroup.addToGroup(self)
                 selectionGroup.phg().selectionLock = selectionGroup
                 return QGraphicsItem.itemChange(self, change, True)

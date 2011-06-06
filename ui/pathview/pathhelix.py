@@ -179,20 +179,20 @@ class PathHelix(QGraphicsItem):
         return self._preXOverHandles!=None
     
     def setPreXOverHandlesVisible(self, shouldBeVisible):
-        areVisible = self._preXOverHandles!=None
+        areVisible = self._preXOverHandles != None
         if areVisible and not shouldBeVisible:
             for pch in self._preXOverHandles:
                 if pch.scene():
                     pch.scene().removeItem(pch)
             self._preXOverHandles = None
         elif not areVisible and shouldBeVisible:
-            self._preXOverHandles = handles = []
+            self._preXOverHandles = []
             for strandType, facingRight in product((StrandType.Scaffold, StrandType.Staple), (True, False)):
                 # Get potential crossovers in [neighborVirtualHelix, index] format
                 potentialXOvers = self.vhelix().potentialCrossoverList(facingRight, strandType)
                 for (neighborVH, fromIdx) in potentialXOvers:
                     pch = PreCrossoverHandle(self, strandType, fromIdx, neighborVH, fromIdx, not facingRight)
-                    handles.append(pch)
+                    self._preXOverHandles.append(pch)
             self.vhelix().part().virtualHelixAtCoordsChanged.connect(self.updatePreXOverHandles)
     
     def updatePreXOverHandles(self):

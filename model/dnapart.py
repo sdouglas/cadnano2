@@ -114,7 +114,7 @@ class DNAPart(Part):
                 self.highestUsedOdd = max(self.highestUsedOdd, num)
             else:
                 self.highestUsedEven = max(self.highestUsedEven, num)
-            self.setVirtualHelixAt(coord, vh, requestSpecificIdnum=num, noUndo=True)
+            self.addVirtualHelixAt(coord, vh, requestSpecificIdnum=num, noUndo=True)
         self._name = completeArchivedDict['name']
             
     ############################# VirtualHelix CRUD #############################
@@ -137,20 +137,22 @@ class DNAPart(Part):
             if returnNoneIfAbsent:
                 return None
             else:
-                raise IndexError("Couldn't find the virtual helix in part %s referenced by index %s"%(self, vhref))
+                err = "Couldn't find the virtual helix in part %s "+\
+                      "referenced by index %s" % (self, vhref)
+                raise IndexError(err)
         return vh
-    
+
     def getVirtualHelices(self):
         return (self._numberToVirtualHelix[n] for n in self._numberToVirtualHelix)
 
     virtualHelixAtCoordsChanged = pyqtSignal(int, int)
-    def setVirtualHelixAt(self, coords, vh, requestSpecificIdnum=None, noUndo=False):
-        c = self.SetHelixCommand(self, coords, vh, requestSpecificIdnum)
+    def addVirtualHelixAt(self, coords, vh, requestSpecificIdnum=None, noUndo=False):
+        c = self.AddHelixCommand(self, coords, vh, requestSpecificIdnum)
         if noUndo:
             c.redo()
         else:
             self.undoStack().push(c)
-    
+
     # emits virtualHelixAtCoordsChanged
     def renumberVirtualHelix(self, vhref, newNumber, automaticallyRenumberConflictingHelix=False):
         vh = getVirtualHelix(vhref, returnNoneIfAbsent = False)
@@ -167,43 +169,44 @@ class DNAPart(Part):
     def getVirtualHelixCount(self):
         """docstring for getVirtualHelixList"""
         return len(self._numberToVirtualHelix)
-    
+
     def getVirtualHelices(self):
         return [self._numberToVirtualHelix[n] for n in self._numberToVirtualHelix]
 
     ############################# VirtualHelix Private CRUD #############################
-    class SetHelixCommand(QUndoCommand):
-        def __init__(self, dnapart, coords, vh, requestSpecificIdnum=None):
-            super(DNAPart.SetHelixCommand, self).__init__()
-            self.row, self.col = coords
-            self.part = dnapart
-            self.vhelix = vh
-            self.requestedNum = requestSpecificIdnum
+    class AddHelixCommand(QUndoCommand):
+        """
+        Adds a helix to dnapart. Called by self.addVirtualHelixAt().
+        """
+        def __init__(self, dnapart, coords, vhelix, requestSpecificIdnum=None):
+            super(DNAPart.AddHelixCommand, self).__init__()
+            self._part = dnapart
+            self._coords = coords  # row, col
+            self._parity = self._part.coordinateParityEven(coords)
+            self._vhelix = vhelix
+            self._requestedNum = requestSpecificIdnum
 
         def redo(self, actuallyUndo=False):
-            part, vh = self.part, self.vhelix
-            currentVH = part.getVirtualHelix((self.row, self.col))
-            if actuallyUndo:
-                vh = self.oldVH
-            else:
-                self.oldVH = currentVH
-            if currentVH:
-                del self.part._coordToVirtualHelix[currentVH.coord()]
-                del self.part._numberToVirtualHelix[currentVH.number()]
-                self.part.recycleHelixIDNumber(currentVH.number())
-            if vh:
-                newID = part.reserveHelixIDNumber(\
-                            parityEven=self.part.coordinateParityEven((self.row, self.col)),\
-                            requestedIDnum=self.requestedNum)
-                vh._setPart(part, self.row, self.col, newID)
-                part._numberToVirtualHelix[newID] = vh
-                part._coordToVirtualHelix[(self.row, self.col)] = vh
-            part.virtualHelixAtCoordsChanged.emit(self.row, self.col)
+            if self._vhelix:
+                newID = self._part.reserveHelixIDNumber(
+                                            parityEven=self._parity,\
+                                            requestedIDnum=self._requestedNum)
+                self._vhelix._setPart(self._part, self._coords, newID)
+                self._part._numberToVirtualHelix[newID] = self._vhelix
+                self._part._coordToVirtualHelix[self._coords] = self._vhelix
+            self._part.virtualHelixAtCoordsChanged.emit(self._coords[0],\
+                                                        self._coords[1])
 
         def undo(self):
-            # assert(self.oldVH)  # oldVH might be None
-            self.redo(actuallyUndo=True)
-    
+            vh = self._part.getVirtualHelix(self._coords)
+            if vh:
+                del self._part._coordToVirtualHelix[vh.coord()]
+                del self._part._numberToVirtualHelix[vh.number()]
+                self._part.recycleHelixIDNumber(vh.number())
+            self._part.virtualHelixAtCoordsChanged.emit(self._coords[0],\
+                                                        self._coords[1])
+
+
     class RenumberHelixCommand(QUndoCommand):
         def __init__(self, dnapart, coords, newNumber):
             super(DNAPart.RenumberHelixCommand, self).__init__()
@@ -278,14 +281,14 @@ class DNAPart(Part):
         else:
             heappush(self.oddRecycleBin,n)
 
-    ############################# Transient State (doesn't get saved) #############################    
+    ################## Transient State (doesn't get saved) ###################
     def selection(self):
         """The set of helices that has been clicked or shift-clicked in
         the slice view. @todo 1) implement this 2) make the selected 
         helices more prominent in the path view (this would allow one 
         to deal with lots and lots of helices)"""
         return list(self._selection)
-    
+
     selectionWillChange = pyqtSignal(object)
     def setSelection(self, newSelection):
         if self.selectAllBehavior:
@@ -293,10 +296,10 @@ class DNAPart(Part):
         ns = list(newSelection)
         self.selectionWillChange.emit(ns)
         self._selection = ns
-    
+
     def selectAll(self, *args, **kwargs):
         self.setSelection(self.getVirtualHelices())
-    
+
     def updateSelectionFromVHChange(self, row, col):
         coord = (row, col)
         vh = self.getVirtualHelix(coord)
@@ -307,13 +310,12 @@ class DNAPart(Part):
         else:
             s = [vh for vh in self.selection() if vh.coord()!=coord]
             self.setSelection(s)
-            
-    
+
     def activeSlice(self):
         """The active slice is the index of the slice selected by the
         vertical slider in the path view"""
         return self._activeSlice
-    
+
     activeSliceWillChange = pyqtSignal(object)
     def setActiveSlice(self, newSliceIndex):
         ni = clamp(newSliceIndex, 0, self.dimensions()[2]-1)

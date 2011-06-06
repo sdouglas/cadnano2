@@ -25,14 +25,14 @@
 from PyQt4.QtCore import *
 from PyQt4.QtGui import *
 from PyQt4.QtCore import pyqtSignal
-# from tools.pathtool import PathTool
-from tools.painttool import PaintTool
-from tools.looptool import LoopTool
-from tools.skiptool import SkipTool
 from tools.breaktool import BreakTool
 from tools.erasetool import EraseTool
+from tools.looptool import LoopTool
+from tools.painttool import PaintTool
+from tools.penciltool import PencilTool
 from tools.selecttool import SelectTool
 from tools.forcetool import ForceTool
+from tools.skiptool import SkipTool
 
 
 class PathController(QObject):
@@ -50,12 +50,14 @@ class PathController(QObject):
         self._activeToolWidget = None
 
         self.selectTool = SelectTool(self)
-        self.paintTool = PaintTool(self, win.pathGraphicsView.toolbar)
+        self.breakTool = BreakTool(self)
         self.eraseTool = EraseTool(self)
-        self.insertTool = LoopTool(self)
+	self.insertTool = LoopTool(self)
         self.skipTool = SkipTool(self)
         self.breakTool = BreakTool(self)
         self.forceTool = ForceTool(self)
+        self.paintTool = PaintTool(self, win.pathGraphicsView.toolbar)
+	self.pencilTool = PencilTool(self)
         self.moveTool = None
         
         def installTool(toolName, window):
@@ -110,3 +112,4 @@ class PathController(QObject):
         if self._activeTool==None:
             return None
         return self._activeTool.lastLocation()
+# end class

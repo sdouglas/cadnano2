@@ -171,7 +171,7 @@ class SliceHelix(QGraphicsItem):
         if not vh:
             undoStack.beginMacro("Add helix")
             vh = VirtualHelix()
-            self.part().setVirtualHelixAt(coord, vh)
+            self.part().addVirtualHelixAt(coord, vh)
             vh.basesModified.connect(self.update)
         else:
             undoStack.beginMacro("Connect segment")

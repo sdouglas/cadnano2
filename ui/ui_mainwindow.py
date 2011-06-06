@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'mainwindow.ui'
 #
-# Created: Sat Jun  4 00:55:54 2011
+# Created: Mon Jun  6 09:41:12 2011
 #      by: PyQt4 UI code generator 4.8.4
 #
 # WARNING! All changes made in this file will be lost!
@@ -199,10 +199,10 @@ class Ui_MainWindow(object):
         icon12.addPixmap(QtGui.QPixmap(_fromUtf8(":/pathtools/autostaple")), QtGui.QIcon.Normal, QtGui.QIcon.Off)
         self.actionAutoStaple.setIcon(icon12)
         self.actionAutoStaple.setObjectName(_fromUtf8("actionAutoStaple"))
-        self.actionPencil = QtGui.QAction(MainWindow)
-        self.actionPencil.setCheckable(True)
-        self.actionPencil.setIcon(icon7)
-        self.actionPencil.setObjectName(_fromUtf8("actionPencil"))
+        self.actionPathPencil = QtGui.QAction(MainWindow)
+        self.actionPathPencil.setCheckable(True)
+        self.actionPathPencil.setIcon(icon7)
+        self.actionPathPencil.setObjectName(_fromUtf8("actionPathPencil"))
         self.actionPathInsert = QtGui.QAction(MainWindow)
         self.actionPathInsert.setCheckable(True)
         icon13 = QtGui.QIcon()
@@ -288,7 +288,7 @@ class Ui_MainWindow(object):
         self.rightToolBar.addAction(self.actionPathMove)
         self.rightToolBar.addAction(self.actionPathBreak)
         self.rightToolBar.addAction(self.actionPathErase)
-        self.rightToolBar.addAction(self.actionPencil)
+        self.rightToolBar.addAction(self.actionPathPencil)
         self.rightToolBar.addAction(self.actionPathInsert)
         self.rightToolBar.addAction(self.actionPathSkip)
         self.rightToolBar.addAction(self.actionPathPaint)
@@ -352,9 +352,9 @@ class Ui_MainWindow(object):
         self.actionPathErase.setShortcut(QtGui.QApplication.translate("MainWindow", "E", None, QtGui.QApplication.UnicodeUTF8))
         self.actionAutoStaple.setText(QtGui.QApplication.translate("MainWindow", "Staple", None, QtGui.QApplication.UnicodeUTF8))
         self.actionAutoStaple.setToolTip(QtGui.QApplication.translate("MainWindow", "Click this button to generate a default set of staples.", None, QtGui.QApplication.UnicodeUTF8))
-        self.actionPencil.setText(QtGui.QApplication.translate("MainWindow", "Pencil", None, QtGui.QApplication.UnicodeUTF8))
-        self.actionPencil.setToolTip(QtGui.QApplication.translate("MainWindow", "Draw strands. Right-click to force non-standard crossover", None, QtGui.QApplication.UnicodeUTF8))
-        self.actionPencil.setShortcut(QtGui.QApplication.translate("MainWindow", "F, N", None, QtGui.QApplication.UnicodeUTF8))
+        self.actionPathPencil.setText(QtGui.QApplication.translate("MainWindow", "Pencil", None, QtGui.QApplication.UnicodeUTF8))
+        self.actionPathPencil.setToolTip(QtGui.QApplication.translate("MainWindow", "Draw strands. Right-click to force non-standard crossover", None, QtGui.QApplication.UnicodeUTF8))
+        self.actionPathPencil.setShortcut(QtGui.QApplication.translate("MainWindow", "F, N", None, QtGui.QApplication.UnicodeUTF8))
         self.actionPathInsert.setText(QtGui.QApplication.translate("MainWindow", "Insert", None, QtGui.QApplication.UnicodeUTF8))
         self.actionPathInsert.setToolTip(QtGui.QApplication.translate("MainWindow", "Insert extra bases at a specific position. Useful for creating curved and twisted designs.", None, QtGui.QApplication.UnicodeUTF8))
         self.actionPathInsert.setShortcut(QtGui.QApplication.translate("MainWindow", "I", None, QtGui.QApplication.UnicodeUTF8))
