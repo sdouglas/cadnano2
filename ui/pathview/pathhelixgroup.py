@@ -43,6 +43,7 @@ from handles.pathhelixhandle import PathHelixHandle
 from handles.crossoverhandle import XoverHandle
 from handles.loophandle import LoopHandleGroup
 from cadnano import app
+from util import *
 
 
 class PathHelixGroup(QGraphicsObject):
@@ -75,7 +76,7 @@ class PathHelixGroup(QGraphicsObject):
         self.loopHandleGroup = LoopHandleGroup(parent=self)
         self.xoverGet = XoverHandle()
         self.setZValue(styles.ZPATHHELIXGROUP)
-        
+        self.setAcceptHoverEvents(True)        
         self.phhSelectionGroup = SelectionItemGroup(\
                                          boxtype=PathHelixHandleSelectionBox,\
                                          constraint='y',\
@@ -218,7 +219,7 @@ class PathHelixGroup(QGraphicsObject):
                     toPH = self.getPathHelix(toVH)
                     floatPos = None
                 else:
-                    toPH, toindex = None, None
+                    toPH, toIndex = None, None
                     floatPos = dest
                 path = self.xoverGet.getXover(self,\
                                               StrandType.Scaffold,\
@@ -497,8 +498,14 @@ class PathHelixHandleSelectionBox(QGraphicsItem):
                                    items[-1].number(),\
                                    indexDelta)
     # end def
+    
+    def hoverMoveEvent(self, event):
+        print "hm"
 # end class
 
+################################ Events ################################
+forwardedEvents = ('hoverMove')
+#defineEventForwardingMethodsForClass(PathHelixGroup, 'PathHelixGroup', forwardedEvents)
 
 class BreakpointHandleSelectionBox(QGraphicsItem):
     def __init__(self, itemGroup, parent=None):

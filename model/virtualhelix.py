@@ -67,6 +67,8 @@ class VirtualHelix(QObject):
         # The base arrays are owned entirely by virtualhelix
         self._stapleBases = []
         self._scaffoldBases = []
+        # As is the floatingXoverBase if there is one
+        self.floatingXoverBase = None
         
         """
         This is for loops and skips.
@@ -302,7 +304,18 @@ class VirtualHelix(QObject):
             return False
         else:
             return base.isEnd()
-    
+        
+    def hasLoopAt(self, strandType, index):
+        """
+        check for key "index" in the loop dictionary based on strandtype
+        returns 0 if no loop or skip and returns the length of the skip
+        otherwise
+        """
+        if index in self._loop(strandType):
+            return self._loop(strandType)[index]
+        else:
+            return 0
+
     def getSegments(self, strandType):
         """Returns a list of segments of connected bases in the form
         [(startIdx, startIsXO, endIdx, endIsXO), ...]"""
@@ -437,6 +450,7 @@ class VirtualHelix(QObject):
     """
     def emitModificationSignal(self):
         self.basesModified.emit()
+        #self.part().virtualHelixAtCoordsChanged.emit(*self.coord())
 
     def connectStrand(self, strandType, startIndex, endIndex):
         """
@@ -482,18 +496,6 @@ class VirtualHelix(QObject):
         c = self.Break3To5Command(strandType, self, fromIndex)
         self.undoStack().push(c)
         
-    def hasLoopAt(self, strandType, index):
-        """
-        check for key "index" in the loop dictionary based on strandtype
-        returns 0 if no loop or skip and returns the length of the skip
-        otherwise
-        """
-        if index in self._loop(strandType):
-            return self._loop(strandType)[index]
-        else:
-            return 0
-    # end def
-        
     def installLoop(self, strandType, index, loopsize):
         """
         Main function for installing loops and skips
@@ -523,7 +525,18 @@ class VirtualHelix(QObject):
                 base = base.get3pBase()  # advance to next
             base.setColor(colorName)  # last 3' base
         self.emitModificationSignal()
-
+    
+    def setFloatingXover(self, strandType=None, fromIdx=None, toPoint=None):
+        if self.floatingXoverBase:
+            self.floatingXoverBase._floatingXoverDestination = None
+            self.floatingXoverBase = None
+        if strandType==None or fromIdx==None or toPoint==None:
+            return
+        newXoverBase = self._strand(strandType)[fromIdx]
+        newXoverBase._floatingXoverDestination = toPoint
+        self.floatingXoverBase = newXoverBase
+        self.emitModificationSignal()
+        
     ################ Private Base Modification API ###########################
     class LoopCommand(QUndoCommand):
         def __init__(self, virtualHelix, strandType, index, loopsize):

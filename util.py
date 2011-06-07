@@ -61,6 +61,7 @@ def defineEventForwardingMethodsForClass(classObj, forwardedEventSuffix, eventNa
         def makeTemplateMethod(eventMethodName, delegateMethodName):
             def templateMethod(self, event):
                 activeTool = self.activeTool()
+                #print delegateMethodName
                 if activeTool:
                     delegateMethod = getattr(activeTool, delegateMethodName, None)
                     if delegateMethod:

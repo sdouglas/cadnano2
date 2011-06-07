@@ -71,16 +71,33 @@ class ForceTool(AbstractPathTool):
         posItem = self.parentItem().mapFromScene(posScene)
         if self.base1==None:
             strandType, idx = self.baseAtPoint(pathHelix, posItem)
-            self.base1 = (pathHelix.vhelix(), strandType, idx)
-            b = pathHelix.vhelix()._strand(strandType)[idx]
-            #b._floatingXoverDestination = True
-            pathHelix.vhelix().emitModificationSignal()
-            self.update()
+            vh = pathHelix.vhelix()
+            self.base1 = (vh, strandType, idx)
+            vh.setFloatingXover(strandType, idx, posScene)
         else:
             vh1, strand1, idx1 = self.base1
-            b = vh1._strand(strand1)[idx1]
-            b._floatingXoverDestination = False
+            vh1.setFloatingXover(None)
             vh2, idx2 = pathHelix.vhelix(), self.baseAtPoint(pathHelix, posItem)[1]
             vh1.installXoverFrom3To5(strand1, idx1, vh2, idx2)
             self.base1 = None
-        
+    
+    def hoverMovePathHelix(self, pathHelix, event):
+        super(ForceTool, self).hoverMovePathHelix(pathHelix, event)
+        posScene = event.scenePos()
+        self.updateFloatingXoverLocation(posScene)
+    
+    def hoverMovePathHelixGroup(self, pathHelixGroup, event):
+        posScene = event.scenePos()
+        self.updateFloatingXoverLocation(posScene)
+    
+    def updateFloatingXoverLocation(self, posScene):
+        if self.base1:
+            vh, strandType, idx = self.base1
+            vh.setFloatingXover(strandType, idx, posScene)
+    
+    #def mouseReleasePathHelix(self, pathHelix, event):
+    #    super(ForceTool, self).mouseReleasePathHelix(pathHelix, event)
+    #    if self.base1:
+    #        vh, strandType, idx = self.base1
+    #        vh.setFloatingXover(strandType, idx, posScene)
+    #        self.base1 = None

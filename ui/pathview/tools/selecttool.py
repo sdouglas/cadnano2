@@ -36,6 +36,8 @@ class SelectTool(AbstractPathTool):
     (by clicking and dragging) and toggling of crossovers.
     """
     imposeDragLimits = True
+    mustStartOnBreakpoint = True
+
     def __init__(self, controller):
         super(SelectTool, self).__init__(controller)
         self._mouseDownBase = None
@@ -117,7 +119,7 @@ class SelectTool(AbstractPathTool):
             return False
 
         startOnBreakpoint = vHelix.hasEndAt(*fr)
-        if not startOnBreakpoint:  # must start on a breakpoint
+        if not startOnBreakpoint and self.mustStartOnBreakpoint:  # must start on a breakpoint
             return False
 
         # determine if we're adding or clearing bases
@@ -125,21 +127,28 @@ class SelectTool(AbstractPathTool):
         if (startOnBreakpoint == 5 and is5to3) or\
            (startOnBreakpoint == 3 and not is5to3):
             segmentDir = 1
-        else:
+        elif (startOnBreakpoint == 5 and not is5to3) or\
+             (startOnBreakpoint == 3 and is5to3):
             segmentDir = -1
+        else:
+            segmentDir = 0  # We aren't starting on a breakpoint; there is no segment direction
         dragDir = 1 if to[1] >= fr[1] else -1  # which way are we dragging?
-        
+       
+        if segmentDir == 0:
+            if vHelix.hasStrandAt(*fr):
+                vHelix.clearStrand(fr[0], fr[1], to[1])
+            else:
+                vHelix.connectStrand(fr[0], fr[1], to[1])   
+            return
         if dragDir == segmentDir:  # CLEARING bases
             if to[1] < fr[1]:  # dragging left
                 vHelix.clearStrand(fr[0], fr[1], to[1]+1)
             elif to[1] > fr[1]:
                 vHelix.clearStrand(fr[0], fr[1]+1, to[1])
-            else:
-                pass  # shouldn't get here if newBase is actually new
-        else:  # ADDING bases
+            return
+        if dragDir != segmentDir:  # ADDING bases
             if to[1] < fr[1]:  # dragging left
                 vHelix.connectStrand(fr[0], fr[1], to[1])
             elif to[1] > fr[1]:
                 vHelix.connectStrand(fr[0], fr[1], to[1])
-            else:
-                pass  # shouldn't get here if newBase is actually new
+            return
