@@ -123,7 +123,7 @@ class PathHelixGroup(QGraphicsObject):
         return self._controller
 
     def activeSliceHandle(self):
-        return self._activeSliceHandle
+        return self._activeSliceHandle  
 
     def label(self):
         if self._label:
