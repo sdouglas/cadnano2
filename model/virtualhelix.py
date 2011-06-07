@@ -164,10 +164,11 @@ class VirtualHelix(QObject):
         return self._number
 
     def setNumber(self, newNumber):
-        if self.part():
-            self.part().renumberVirtualHelix(self, newNumber)
-        else:  # If we aren't attached to a part
-            self._number = newNumber
+        # if self.part():
+        #     self.part().renumberVirtualHelix(self, newNumber)
+        # else:  # If we aren't attached to a part
+        self._number = newNumber
+        # print newNumber
 
     def selected(self):
         return self in self.part().selection()
