@@ -206,7 +206,7 @@ class Base(object):
     def is3primeEnd(self):
         """Return True if no 3pBase, but 5pBase exists."""
         return self._5pBase != None and \
-               (self._3pBase == None or self._3pBase._floatingXoverDestination)
+               self._3pBase == None
 
     def isEnd(self):
         if self._floatingXoverDestination:

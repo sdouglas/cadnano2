@@ -76,12 +76,12 @@ class PathHelixGroup(QGraphicsObject):
         self.loopHandleGroup = LoopHandleGroup(parent=self)
         self.xoverGet = XoverHandle()
         self.setZValue(styles.ZPATHHELIXGROUP)
-        self.setAcceptHoverEvents(True)        
         self.phhSelectionGroup = SelectionItemGroup(\
                                          boxtype=PathHelixHandleSelectionBox,\
                                          constraint='y',\
                                          parent=self)
         self.selectionLock = None
+        self.setAcceptHoverEvents(True)        
         app().phg = self  # Convenience for the command line -i mode
 
     def __str__(self):
@@ -91,7 +91,7 @@ class PathHelixGroup(QGraphicsObject):
         return self._part
 
     def activeTool(self):
-        return controller().activeTool()
+        return self.controller().activeTool()
     
     def getActiveHelix(self):
         return self.activeHelix
@@ -138,6 +138,13 @@ class PathHelixGroup(QGraphicsObject):
         label.inputMethodEvent = None
         self._label = label
         return label
+    
+    def pathHelixAtScenePos(self, pos):
+        for p in self._pathHelixList:
+            pt = p.mapFromScene(pos)
+            if p.boundingRect().contains(pt):
+                return p
+        return None
 
     def displayedVHs(self):
         """Returns the list (ordered top to bottom) of VirtualHelix
@@ -198,13 +205,17 @@ class PathHelixGroup(QGraphicsObject):
                            -40,\
                            -leftmostExtent + rightmostExtent,\
                            y + 40)
+        for ph in self._pathHelixList:
+            ph.vhelix().basesModified.disconnect(self.update)
+        for ph in newList:
+            ph.vhelix().basesModified.connect(self.update)
         self._pathHelixList = newList
         self.vhToPathHelix = dict(((ph.vhelix(), ph) for ph in newList))
         self.scene().views()[0].zoomToFit()
 
     def paint(self, painter, option, widget=None):
         # painter.save()
-        painter.setBrush(self._nobrush)
+        painter.setBrush(Qt.NoBrush)
         self.drawXovers(painter)
         # painter.restore()
 
@@ -321,6 +332,10 @@ class PathHelixGroup(QGraphicsObject):
         self.setDisplayedVHs(listVHs)
     # end def
 # end class
+
+################################ Events ################################
+forwardedEvents = ('hoverMove',)
+defineEventForwardingMethodsForClass(PathHelixGroup, 'PathHelixGroup', forwardedEvents)
 
 
 class SelectionItemGroup(QGraphicsItemGroup):
@@ -499,13 +514,7 @@ class PathHelixHandleSelectionBox(QGraphicsItem):
                                    indexDelta)
     # end def
     
-    def hoverMoveEvent(self, event):
-        print "hm"
 # end class
-
-################################ Events ################################
-forwardedEvents = ('hoverMove')
-#defineEventForwardingMethodsForClass(PathHelixGroup, 'PathHelixGroup', forwardedEvents)
 
 class BreakpointHandleSelectionBox(QGraphicsItem):
     def __init__(self, itemGroup, parent=None):

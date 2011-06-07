@@ -38,19 +38,10 @@ from PyQt4.QtGui import QPen
 from model.enum import HandleOrient
 import ui.styles as styles
 from ui.pathview.pathhelix import PathHelix
+from ui.pathview.pathhelixgroup import PathHelixGroup
 from abstractpathtool import AbstractPathTool
 
 class ForceTool(AbstractPathTool):
-    
-    _pen1 = QPen(styles.bluestroke, 2)
-    _pen1.setCapStyle(Qt.RoundCap)
-    _pen1.setJoinStyle(Qt.RoundJoin)
-    _brush1 = QBrush(styles.forcefill)
-    _pen2 = QPen(styles.orangestroke, 2)
-    _pen2.setCapStyle(Qt.RoundCap)
-    _pen2.setJoinStyle(Qt.RoundJoin)
-    _brush2 = QBrush(styles.orangefill)
-    
     def __init__(self, parent=None):
         super(ForceTool, self).__init__(parent)
         self.hide()
@@ -58,46 +49,78 @@ class ForceTool(AbstractPathTool):
         self.base1 = None
     
     def paint(self, painter, option, widget=None):
-        if self.base1:
-            p, b = self._pen2, self._brush2
-        else:
-            p, b = self._pen1, self._brush1
-        painter.setPen(p)
-        painter.setBrush(b)
-        painter.drawRect(self._toolRect)
-    
-    def mousePressPathHelix(self, pathHelix, event):
-        posScene = event.scenePos()
-        posItem = self.parentItem().mapFromScene(posScene)
-        if self.base1==None:
-            strandType, idx = self.baseAtPoint(pathHelix, posItem)
+        pass
+
+    def baseFromLocation(self, phg, posScene):
+        pathHelix = phg.pathHelixAtScenePos(posScene)
+        if pathHelix:
+            posItem = pathHelix.mapFromScene(posScene)
+            strandType, idx = pathHelix.baseAtLocation(posItem.x(), posItem.y())
             vh = pathHelix.vhelix()
-            self.base1 = (vh, strandType, idx)
-            vh.setFloatingXover(strandType, idx, posScene)
+            base2 = (vh, strandType, idx)
+        else:
+            base2 = None
+        return base2
+         
+    def mousePressPathHelix(self, pathHelix, event):
+        # Drags that are active on mouse press must end
+        self.updateDrag(pathHelix, event, mustEnd=True, canStart=True)
+    
+    def mouseMovePathHelix(self, pathHelix, event):
+        self.updateDrag(pathHelix, event)
+
+    def hoverMovePathHelix(self, pathHelix, event):
+        self.updateDrag(pathHelix, event)
+
+    def hoverMovePathHelixGroup(self, phg, event):
+        self.updateDrag(phg, event)
+    
+    def mouseReleasePathHelix(self, pathHelix, event):
+        self.updateDrag(pathHelix, event, canEnd=True)
+
+    def updateDrag(self, ph, event, canStart=False, canEnd=False, mustEnd=False):
+        scenePos = event.scenePos()
+        if isinstance(ph, PathHelix):
+            phg = ph.pathHelixGroup()
+        elif isinstance(ph, PathHelixGroup):
+            phg = ph
+        else:
+            assert(False)
+        destBase = self.baseFromLocation(phg, scenePos)
+
+        didEnd = False
+        if self.base1==None and canStart:  # Start drag
+            assert(destBase)
+            self.base1 = destBase
+            vh = destBase[0]
+            vh.setSandboxed(True)
+        elif not self.base1:
+            return
+        elif canEnd and not destBase==self.base1 or\
+             mustEnd:  # End drag
+            didEnd = True
+            vh = self.base1[0]
+            vh.setSandboxed(False)
+        else:  # In the middle of a drag
+            vh = self.base1[0]
+            sandboxUndoStack = vh.undoStack()
+            # Ensure sandboxing worked or we get mad popping of the
+            # document undo stack
+            assert(sandboxUndoStack != vh.part().undoStack())
+            sandboxUndoStack.undo()
+
+        destBase = self.baseFromLocation(phg, scenePos)
+        if destBase==None:
+            vh, strandType, idx = self.base1
+            if didEnd:
+                vh.setFloatingXover(None)
+            else:
+                vh.setFloatingXover(strandType, idx, scenePos)
         else:
             vh1, strand1, idx1 = self.base1
+            vh2, strand2, idx2 = destBase
             vh1.setFloatingXover(None)
-            vh2, idx2 = pathHelix.vhelix(), self.baseAtPoint(pathHelix, posItem)[1]
             vh1.installXoverFrom3To5(strand1, idx1, vh2, idx2)
+        
+        if didEnd:
             self.base1 = None
-    
-    def hoverMovePathHelix(self, pathHelix, event):
-        super(ForceTool, self).hoverMovePathHelix(pathHelix, event)
-        posScene = event.scenePos()
-        self.updateFloatingXoverLocation(posScene)
-    
-    def hoverMovePathHelixGroup(self, pathHelixGroup, event):
-        posScene = event.scenePos()
-        self.updateFloatingXoverLocation(posScene)
-    
-    def updateFloatingXoverLocation(self, posScene):
-        if self.base1:
-            vh, strandType, idx = self.base1
-            vh.setFloatingXover(strandType, idx, posScene)
-    
-    #def mouseReleasePathHelix(self, pathHelix, event):
-    #    super(ForceTool, self).mouseReleasePathHelix(pathHelix, event)
-    #    if self.base1:
-    #        vh, strandType, idx = self.base1
-    #        vh.setFloatingXover(strandType, idx, posScene)
-    #        self.base1 = None

@@ -408,7 +408,7 @@ class VirtualHelix(QObject):
     def sandboxed(self):
         return self._sandboxed
 
-    def setSandboxed(self, sb):
+    def setSandboxed(self, sb, mustNotShareStack=False):
         """Set True to give the receiver a temporary undo stack
         that will be deleted upon set False. Since tools can be
         made live by repeatedly pushing and popping undo commands,
@@ -416,7 +416,10 @@ class VirtualHelix(QObject):
         undo stack. The temporary undo stack prevents excessive popping
         from reverting the document to a blank state."""
         if sb and self._privateUndoStack:
-            print "WARNING: attempting to sandbox a vh that already has an undo stack!"
+            if mustNotShareStack:
+                assert(False)  # Caller needed a private undo stack; we couldn't provide one
+            else:
+                print "WARNING: attempting to sandbox a vh that already has an undo stack!"
         if sb and not self._privateUndoStack:
             self._sandboxed = True
             if not self._privateUndoStack:

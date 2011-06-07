@@ -121,6 +121,9 @@ class PathHelix(QGraphicsItem):
     def controller(self):
         return self._pathHelixGroup.controller()
 
+    def pathHelixGroup(self):
+        return self._pathHelixGroup
+
     def vhelix(self):
         return self._vhelix
         
