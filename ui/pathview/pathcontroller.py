@@ -47,6 +47,7 @@ class PathController(QObject):
         super(PathController, self).__init__()
         self.mainWindow = win
         self._activeTool = None
+        self._activePath = None
 
         self.selectTool = SelectTool(self)
         self.breakTool = BreakTool(self)
@@ -85,6 +86,12 @@ class PathController(QObject):
 
     def activeTool(self):
         return self._activeTool
+
+    def setActivePath(self, phg):
+        self._activePath = phg
+        
+    def activePath(self):
+        return self._activePath
 
     def isSelectToolActive(self):
         if self.activeTool() == self.selectTool:

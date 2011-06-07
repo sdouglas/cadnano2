@@ -368,7 +368,7 @@ class PathHelix(QGraphicsItem):
         """
         baseIdx = int(floor(x / self.baseWidth))
         minBase, maxBase = 0, self.vhelix().numBases()
-        if baseIdx<minBase or baseIdx>=maxBase:
+        if baseIdx < minBase or baseIdx >= maxBase:
             if clampX:
                 baseIdx = clamp(baseIdx, minBase, maxBase-1)
             else:

@@ -155,7 +155,7 @@ class ActiveSliceHandle(QGraphicsItem):
             event.ignore()
             QGraphicsItem.mousePressEvent(self, event)
             return
-        if not self.controller().isSelectToolActive():  
+        if not self.controller().isSelectToolActive():
             return
         self.scene().views()[0].addToPressList(self)
         self._dragMode = True
