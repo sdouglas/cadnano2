@@ -322,25 +322,51 @@ class VirtualHelix(QObject):
         else:
             return 0
 
-    def getSegments(self, strandType):
-        """Returns a list of segments of connected bases in the form
-        [(startIdx, startIsXO, endIdx, endIsXO), ...]"""
-        ret = []
+    def getSegmentsAndEndpoints(self, strandType):
+        """Returns a list of segments, endpoints of self in the format
+        ([(startIdx, endIdx), ...],
+         [3pEndIdx1, 3pEndIdx2, ...], 
+         [5pEndIdx1, ...])
+        where startIdx and endIdx can be 1.5, 2.5 etc (multiply by base
+        width to see where to draw the lines)"""
+        segments, ends3, ends5 = [], [], []
         strand = self._strand(strandType)
         i, s = 0, None
         # s is the start index of the segment
         for i in range(len(strand)):
             b = strand[i]
-            isXO = b.isCrossover()
-            isEnd = b.isEnd()
-            if not isXO and not isEnd:
-                continue
-            if s == None:
-                s = (i, isXO)
-            else:
-                ret.append(s + (i, isXO))
-                s = None
-        return ret
+            
+            #Segments
+            if b.segmentL():
+                if s==None:
+                    s = i
+                else:
+                    pass
+            else: # not b.segmentL()
+                if s==None:
+                    pass
+                else:
+                    segments.append((s,i))
+                    s = None
+            if b.segmentR():
+                if s==None:
+                    s = i+.5
+                else:
+                    pass
+            else: # not b.segmentR()
+                if s==None:
+                    pass
+                else:
+                    segments.append((s,i+.5))
+                    s = None
+            
+            #Endpoints
+            if b.is5primeEnd():
+                ends5.append(i)
+            if b.is3primeEnd():
+                ends3.append(i)
+
+        return (segments, ends3, ends5)
 
     def getDragLimits(self, strandType, index):
         """

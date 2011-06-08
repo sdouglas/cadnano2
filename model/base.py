@@ -227,6 +227,28 @@ class Base(object):
         """Return True if no 3pBase, but 5pBase exists."""
         return self._5pBase != None and \
                self._3pBase == None
+    
+    def segmentR(self):
+        """True iff we connect to the next (right, in PathHelix) base"""
+        strnd = self._vhelix._strand(self._strandtype)
+        if self._n >= len(strnd)-1:
+            return False
+        strndNext = strnd[self._n+1]
+        if self._vhelix.directionOfStrandIs5to3(self._strandtype):
+            return self._3pBase==strndNext and not self.floatingXoverDestination()
+        else:
+            return self._5pBase==strndNext and not self._5pBase.floatingXoverDestination()
+    
+    def segmentL(self):
+        """True iff we connect to the previous (left, in PathHelix) base"""
+        strnd = self._vhelix._strand(self._strandtype)
+        if self._n <= 0:
+            return False
+        strndPrev = strnd[self._n-1]
+        if self._vhelix.directionOfStrandIs5to3(self._strandtype):
+            return self._5pBase==strndPrev and not self._5pBase.floatingXoverDestination()
+        else:
+            return self._3pBase==strndPrev and not self.floatingXoverDestination()       
 
     def isEnd(self):
         if self._floatingXoverDestination:

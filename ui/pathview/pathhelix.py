@@ -99,6 +99,7 @@ class PathHelix(QGraphicsItem):
         self._stapXoverHandles = []
         self._preXOverHandles = None
         self._segmentPaths = None
+        self._endptPaths = None
         self._loopPaths = None
         self._minorGridPainterPath = None
         self._majorGridPainterPath = None
@@ -228,13 +229,16 @@ class PathHelix(QGraphicsItem):
         painter.setPen(self.majorGridPen)
         painter.drawPath(self.majorGridPainterPath())  # Major grid lines
         painter.setBrush(Qt.NoBrush)
-        for paintCommand in self.segmentPaths():
-            painter.setPen(paintCommand[0])
-            painter.drawPath(paintCommand[1])
+        segmentPaths, endptPths = self.segmentAndEndptPaths()
+        for sp in segmentPaths:
+            pen, path = sp
+            painter.setPen(pen)
+            painter.drawPath(path)
         painter.setPen(Qt.NoPen)
-        for paintCommand in self.segmentPaths():
-            painter.setBrush(paintCommand[2])
-            painter.drawPath(paintCommand[3])
+        for ep in endptPths:
+            brush, path = ep
+            painter.setBrush(brush)
+            painter.drawPath(path)
         # Now draw loops and skips
         painter.setBrush(Qt.NoBrush)
         for paintCommand in self.loopPaths():
@@ -286,45 +290,45 @@ class PathHelix(QGraphicsItem):
         self._majorGridPainterPath = path
         return path
 
-    def segmentPaths(self):
+    def segmentAndEndptPaths(self):
         """Returns an array of (pen, penPainterPath, brush, brushPainterPath)
         for drawing segment lines and handles."""
-        if self._segmentPaths:
-            return self._segmentPaths
+        if self._segmentPaths and self._endptPaths:
+            return (self._segmentPaths, self._endptPaths)
         self._segmentPaths = []
+        self._endptPaths = []
         vh = self.vhelix()
         for strandType in (StrandType.Scaffold, StrandType.Staple):
             top = self.strandIsTop(strandType)
-            for [startIndex, startIsXO, endIndex, endIsXO] in\
-                                        self._vhelix.getSegments(strandType):
-                # Left and right centers for drawing the connecting line
-                c1 = self.baseLocation(strandType, startIndex, center=True)
-                c2 = self.baseLocation(strandType, endIndex, center=True)
-                # Upper left corners for translating the breakpoint handles
-                ul1 = self.baseLocation(strandType, startIndex)
-                ul2 = self.baseLocation(strandType, endIndex)
-                # Now we construct the path to cache
-                bp = QPainterPath()
-                if not startIsXO:
-                    bp.addPath(ppL5.translated(*ul1) if top else\
-                                                        ppL3.translated(*ul1))
-                if not endIsXO:
-                    bp.addPath(ppR3.translated(*ul2) if top else\
-                                                        ppR5.translated(*ul2))
+            segments, ends3, ends5 = self._vhelix.getSegmentsAndEndpoints(strandType)
+            for (startIndex, endIndex) in segments:
+                startPt = self.baseLocation(strandType, startIndex, centerY=True)
+                endPt = self.baseLocation(strandType, endIndex, centerY=True)
                 pp = QPainterPath()
-                pp.moveTo(*c1)
-                pp.lineTo(*c2)
-                # Now we combine pen/brush information and push it to the cache
-                # _segmentPaths entries take the form:
-                # (pen, painterPathToBeDrawnOnlyWithPen,\
-                #  brush, paintPathToBeDrawnOnlyWithBrush)
-                color = vh.colorOfBase(strandType, startIndex)
+                pp.moveTo(*startPt)
+                pp.lineTo(*endPt)
+                color = vh.colorOfBase(strandType, int(startIndex))
                 width = styles.PATH_STRAND_STROKE_WIDTH
                 pen = QPen(color, width)
+                self._segmentPaths.append((pen, pp))
+            for e3 in ends3:
+                upperLeft = self.baseLocation(strandType, e3)
+                bp = QPainterPath()
+                color = vh.colorOfBase(strandType, e3)
                 brush = QBrush(color)
-                self._segmentPaths.append((pen, pp, brush, bp))
-        return self._segmentPaths
-
+                bp.addPath(ppR3.translated(*upperLeft) if top else\
+                                                    ppL3.translated(*upperLeft))
+                self._endptPaths.append((brush, bp))
+            for e5 in ends5:
+                upperLeft = self.baseLocation(strandType, e5)
+                bp = QPainterPath()
+                color = vh.colorOfBase(strandType, e5)
+                brush = QBrush(color)
+                bp.addPath(ppL5.translated(*upperLeft) if top else\
+                                                    ppR5.translated(*upperLeft))
+                self._endptPaths.append((brush, bp))
+        return (self._segmentPaths, self._endptPaths)
+ 
     def loopPaths(self):
         """
         Returns an array of:
@@ -390,7 +394,7 @@ class PathHelix(QGraphicsItem):
             strands = StrandType.Staple, StrandType.Scaffold
         return (strands[int(strandIdx)], baseIdx)
 
-    def baseLocation(self, strandType, baseIdx, center=False):
+    def baseLocation(self, strandType, baseIdx, center=False, centerY=False):
         """Returns the coordinates of the upper left corner of the base
         referenced by strandType and baseIdx. If center=True, returns the
         center of the base instead of the upper left corner."""
@@ -402,9 +406,11 @@ class PathHelix(QGraphicsItem):
         if center:
             x += self.baseWidth / 2
             y += self.baseWidth / 2
+        if centerY:
+            y += self.baseWidth / 2
         return (x, y)
 # end class
-# but wait, there's more! Now, for an encore of Events
+# but wait, there's more! Now, for Events
 # which can be more easily installed with less code duplication
 # in a dynamic way
 
