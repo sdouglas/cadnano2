@@ -98,6 +98,7 @@ class PathHelix(QGraphicsItem):
         self._scafXoverHandles = []
         self._stapXoverHandles = []
         self._preXOverHandles = None
+        self._preXOverHandleNeighbors = None
         self._segmentPaths = None
         self._loopPaths = None
         self._minorGridPainterPath = None
@@ -179,6 +180,7 @@ class PathHelix(QGraphicsItem):
         return self._preXOverHandles!=None
     
     def setPreXOverHandlesVisible(self, shouldBeVisible):
+        #trace(5)
         areVisible = self._preXOverHandles != None
         if areVisible and not shouldBeVisible:
             for pch in self._preXOverHandles:
@@ -194,10 +196,12 @@ class PathHelix(QGraphicsItem):
                     pch = PreCrossoverHandle(self, strandType, fromIdx, neighborVH, fromIdx, not facingRight)
                     self._preXOverHandles.append(pch)
             self.vhelix().part().virtualHelixAtCoordsChanged.connect(self.updatePreXOverHandles)
+        self._preXOverHandleNeighbors = self.vhelix().neighbors()
     
     def updatePreXOverHandles(self):
-        self.setPreXOverHandlesVisible(False)
-        self.setPreXOverHandlesVisible(True)
+        if self.vhelix().neighbors() != self._preXOverHandleNeighbors:
+            self.setPreXOverHandlesVisible(False)
+            self.setPreXOverHandlesVisible(True)
     
     def makeSelfActiveHelix(self):
         self._pathHelixGroup.setActiveHelix(self)
