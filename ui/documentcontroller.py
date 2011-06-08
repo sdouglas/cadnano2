@@ -50,6 +50,7 @@ class DocumentController():
         app().documentControllers.add(self)
         self._undoStack = QUndoStack()
         self._filename = fname if fname else "untitled.cn2"
+        self._activePart = None
         self._hasNoAssociatedFile = fname==None
         self.win = DocumentWindow(docCtrlr=self)
         self.connectWindowEventsToSelf()
@@ -72,6 +73,12 @@ class DocumentController():
 
     def document(self):
         return self._document
+
+    def activePart(self):
+        return self._activePart
+
+    def setActivePart(self, part):
+        self._activePart = part   
 
     def setDocument(self, doc):
         self._document = doc
@@ -191,11 +198,13 @@ class DocumentController():
         ash = phg.activeSliceHandle()
         self.win.sliceController.activeSliceLastSignal.connect(ash.moveToLastSlice)
         self.win.sliceController.activeSliceFirstSignal.connect(ash.moveToFirstSlice)
+        self.win.pathController.setActivePath(phg)
 
     def addHoneycombHelixGroup(self, nrows=20, ncolumns=20):
         """docstring for addHoneycombHelixGroup"""
         # Create a new DNA part
         dnaPart = self._document.addDnaHoneycombPart()
+        self.setActivePart(dnaPart)
     # end def
 
     def deleteClicked(self):

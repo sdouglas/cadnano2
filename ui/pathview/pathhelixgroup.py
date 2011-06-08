@@ -123,7 +123,7 @@ class PathHelixGroup(QGraphicsObject):
         return self._controller
 
     def activeSliceHandle(self):
-        return self._activeSliceHandle
+        return self._activeSliceHandle  
 
     def label(self):
         if self._label:
@@ -150,6 +150,7 @@ class PathHelixGroup(QGraphicsObject):
         has the same VirtualHelix in the same order as vhrefs
         (though displayedVHs always returns a list of VirtualHelix
         while setDisplayedVHs can take any vhref)"""
+        # print "I got called"
         assert(self.part())  # Can't display VirtualHelix that aren't there!
         new_pathHelixList = []
         vhToPH = dict(((ph.vhelix(), ph) for ph in self._pathHelixList))
@@ -159,7 +160,9 @@ class PathHelixGroup(QGraphicsObject):
             if ph == None:
                 ph = PathHelix(vh, self)
             new_pathHelixList.append(ph)
+        # print [x.number() for x in new_pathHelixList]
         self._set_pathHelixList(new_pathHelixList)
+        # print "updating disp vhs"
         self.displayedVHsChanged.emit()
 
     def __pathHelixList(self):
@@ -266,6 +269,10 @@ class PathHelixGroup(QGraphicsObject):
         vhs.remove(num)
         vhs.insert(idx, num)
         self.setDisplayedVHs(vhs)
+        
+    def renumber(self):
+        self.part().renumber(self)
+    # end def
 
     def zoomToFit(self):
         # Auto zoom to center the scene
@@ -287,6 +294,7 @@ class PathHelixGroup(QGraphicsObject):
         for ph in self._pathHelixList:
             if ph.vhelix() == vh:
                 return ph
+        print "poop getPH"
         return None
 
     def reorderHelices(self, first, last, indexDelta):
