@@ -187,6 +187,7 @@ class PathHelix(QGraphicsItem):
                 if pch.scene():
                     pch.scene().removeItem(pch)
             self._preXOverHandles = None
+            self.vhelix().part().virtualHelixAtCoordsChanged.disconnect(self.updatePreXOverHandles)
         elif not areVisible and shouldBeVisible:
             self._preXOverHandles = []
             for strandType, facingRight in product((StrandType.Scaffold, StrandType.Staple), (True, False)):
