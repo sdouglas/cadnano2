@@ -42,11 +42,12 @@ from ui.pathview.pathhelixgroup import PathHelixGroup
 from abstractpathtool import AbstractPathTool
 
 class ForceTool(AbstractPathTool):
-    def __init__(self, parent=None):
+    def __init__(self, parent=None, rightClickOnly=False):
         super(ForceTool, self).__init__(parent)
         self.hide()
         self.setZValue(styles.ZPATHTOOL)
         self.base1 = None
+        self.rightClickOnly = rightClickOnly
     
     def paint(self, painter, option, widget=None):
         pass
@@ -69,17 +70,17 @@ class ForceTool(AbstractPathTool):
     def mouseMovePathHelix(self, pathHelix, event):
         self.updateDrag(pathHelix, event)
 
+    def mouseReleasePathHelix(self, pathHelix, event):
+        self.updateDrag(pathHelix, event, canEnd=True)
+        
     def hoverMovePathHelix(self, pathHelix, event):
         self.updateDrag(pathHelix, event)
 
     def hoverMovePathHelixGroup(self, phg, event):
         self.updateDrag(phg, event)
-    
-    def mouseReleasePathHelix(self, pathHelix, event):
-        self.updateDrag(pathHelix, event, canEnd=True)
 
     def updateDrag(self, ph, event, canStart=False, canEnd=False, mustEnd=False):
-        scenePos = event.scenePos()
+        scenePos = ph.mapToScene(QPointF(event.pos()))
         if isinstance(ph, PathHelix):
             phg = ph.pathHelixGroup()
         elif isinstance(ph, PathHelixGroup):
