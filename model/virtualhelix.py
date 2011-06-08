@@ -98,6 +98,11 @@ class VirtualHelix(QObject):
                                     incompleteArchivedDict['staple'])) - 1
         self.setNumBases(numBases, notUndoable=True)
         
+        # During a single UndoCommand, many basesModified signals can be generated.
+        # basesModifiedVHs stores a set of VH that will emitModificationSignal
+        # upon a call to flushBasesModifiedSignals.
+        self.basesModifiedVHs = set()
+        
     def __repr__(self):
         return 'vh%i' % self.number()
 
@@ -453,9 +458,20 @@ class VirtualHelix(QObject):
     or Outside World -> doSomething() -> DoSomethingUndoCommand -> Private API
     """
     def emitModificationSignal(self):
-        self.basesModified.emit()
+        if self.part():
+            self.part().basesModifiedVHs.add(self)
+        else:
+            self.basesModified.emit()
+    
+    def flushBasesModifiedSignals(self):
+        if self.part():
+            for vh in self.part().basesModifiedVHs:
+                vh.basesModified.emit()
+            self.part().basesModifiedVHs.clear()
+        else:
+            self.basesModified.emit()
         #self.part().virtualHelixAtCoordsChanged.emit(*self.coord())
-
+        
     def connectStrand(self, strandType, startIndex, endIndex):
         """
         Connects sequential bases on a single strand, starting with
@@ -528,7 +544,7 @@ class VirtualHelix(QObject):
                 base.setColor(colorName)
                 base = base.get3pBase()  # advance to next
             base.setColor(colorName)  # last 3' base
-        self.emitModificationSignal()
+        self.flushBasesModifiedSignals()
     
     def setFloatingXover(self, strandType=None, fromIdx=None, toPoint=None):
         if self.floatingXoverBase:
@@ -540,6 +556,7 @@ class VirtualHelix(QObject):
         newXoverBase._floatingXoverDestination = toPoint
         self.floatingXoverBase = newXoverBase
         self.emitModificationSignal()
+        self.flushBasesModifiedSignals()
         
     ################ Private Base Modification API ###########################
     class LoopCommand(QUndoCommand):
@@ -567,6 +584,7 @@ class VirtualHelix(QObject):
                     # end if
                 # end else
                 self._vh.emitModificationSignal()
+                self._vh.flushBasesModifiedSignals()
             
         def undo(self):
             if self._vh.hasStrandAt(self._strandType, self._index):
@@ -580,6 +598,7 @@ class VirtualHelix(QObject):
                     # end if
                 # end else
                 self._vh.emitModificationSignal()
+                self._vh.flushBasesModifiedSignals()
 
     class ConnectStrandCommand(QUndoCommand):
         def __init__(self, virtualHelix, strandType, startIndex, endIndex):
@@ -595,22 +614,13 @@ class VirtualHelix(QObject):
             # st s, s+1, ..., e-1, e are connected
             strand = self._vh._strand(self._strandType)
             ol = self._oldLinkage = []
-            concernedVH = set((self._vh,))
             if self._vh.directionOfStrandIs5to3(self._strandType):
                 for i in range(self._startIndex, self._endIndex):
-                    b = strand[i]
-                    if b._3pBase:
-                        concernedVH.add(b._3pBase._vhelix)
-                    ol.append(b._set3Prime(strand[i + 1]))
+                    ol.append(strand[i]._set3Prime(strand[i + 1]))
             else:
                 for i in range(self._startIndex, self._endIndex):
-                    b = strand[i]
-                    if b._5pBase:
-                        concernedVH.add(b._5pBase._vhelix)
                     ol.append(strand[i]._set5Prime(strand[i + 1]))
-            self.concernedVH = concernedVH
-            for vh in concernedVH:
-                vh.emitModificationSignal()
+            self._vh.flushBasesModifiedSignals()
 
         def undo(self):
             strand = self._vh._strand(self._strandType)
@@ -624,8 +634,7 @@ class VirtualHelix(QObject):
                 for i in range(self._endIndex - 1, self._startIndex - 1, -1):
                     strand[i]._unset5Prime(strand[i + 1],\
                                            *ol[i - self._startIndex])
-            for vh in self.concernedVH:
-                vh.emitModificationSignal()
+            self._vh.flushBasesModifiedSignals()
 
     class ClearStrandCommand(QUndoCommand):
         def __init__(self, virtualHelix, strandType, startIndex, endIndex):
@@ -642,32 +651,21 @@ class VirtualHelix(QObject):
             # if this is called in the middle of a connected strand
             strand = self._vh._strand(self._strandType)
             ol = self._oldLinkage = []
-            concernedVH = set((self._vh,))
             if self._vh.directionOfStrandIs5to3(self._strandType):
                 for i in range(self._startIndex - 1, self._endIndex):
                     leftBase, rightBase = strand[i], strand[i+1]
                     # Clear i.next
-                    if leftBase._3pBase:
-                        concernedVH.add(leftBase._3pBase._vhelix)
                     ol.append(leftBase._set3Prime(None))
                     # Clear (i+1)prev
-                    if rightBase._5pBase:
-                        concernedVH.add(rightBase._5pBase._vhelix)
                     ol.append(rightBase._set5Prime(None))
             else:
                 for i in range(self._startIndex - 1, self._endIndex):
                     leftBase, rightBase = strand[i], strand[i+1]
                     # Clear i.next
-                    if leftBase._5pBase:
-                        concernedVH.add(leftBase._5pBase._vhelix)
                     ol.append(leftBase._set5Prime(None))
                     # Clear (i+1).prev
-                    if rightBase._3pBase:
-                        concernedVH.add(rightBase._3pBase._vhelix)
                     ol.append(rightBase._set3Prime(None))
-            self.concernedVH = concernedVH
-            for vh in concernedVH:
-                vh.emitModificationSignal()
+            self._vh.flushBasesModifiedSignals()
 
         def undo(self):
             strand = self._vh._strand(self._strandType)
@@ -681,8 +679,7 @@ class VirtualHelix(QObject):
                 for i in range(self._endIndex - 1, self._startIndex - 2, -1):
                     strand[i+1]._unset3Prime(None, *ol.pop())
                     strand[i]._unset5Prime(None, *ol.pop())
-            for vh in self.concernedVH:
-                vh.emitModificationSignal()
+            self._vh.flushBasesModifiedSignals()
 
     class Connect3To5Command(QUndoCommand):
         def __init__(self, strandType, fromHelix, fromIndex, toHelix, toIndex):
@@ -697,16 +694,14 @@ class VirtualHelix(QObject):
             fromB = self._fromHelix._strand(self._strandType)[self._fromIndex]
             toB = self._toHelix._strand(self._strandType)[self._toIndex]
             self._undoDat = fromB._set3Prime(toB)
-            self._fromHelix.emitModificationSignal()
-            self._toHelix.emitModificationSignal()
+            self._fromHelix.flushBasesModifiedSignals()
 
         def undo(self):
             fromB = self._fromHelix._strand(self._strandType)[self._fromIndex]
             toB = self._toHelix._strand(self._strandType)[self._toIndex]
             assert(self._undoDat)  # Must redo/apply before undo
             fromB._unset3Prime(toB, *self._undoDat)
-            self._fromHelix.emitModificationSignal()
-            self._toHelix.emitModificationSignal()
+            self._fromHelix.flushBasesModifiedSignals()
 
     class Break3To5Command(QUndoCommand):
         def __init__(self, strandType, vhelix, index):
@@ -718,19 +713,13 @@ class VirtualHelix(QObject):
             base = self._base
             self._old3pBase = base._3pBase
             base._set3Prime(None)
-            base._vhelix.emitModificationSignal()
-            otherVH = self._old3pBase._vhelix
-            if otherVH != base._vhelix:
-                otherVH.emitModificationSignal()
+            base._vhelix.flushBasesModifiedSignals()
 
         def undo(self):
             assert(self._old3pBase)
             base = self._base
             base._set3Prime(self._old3pBase)
-            base._vhelix.emitModificationSignal()
-            otherVH = self._old3pBase._vhelix
-            if otherVH != base._vhelix:
-                otherVH.emitModificationSignal()
+            base._vhelix.flushBasesModifiedSignals()
 
     class SetNumBasesCommand(QUndoCommand):
         def __init__(self, vhelix, newNumBases):

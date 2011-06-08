@@ -65,6 +65,9 @@ class DNAPart(Part):
         # self._activeSlice = 0  # honeycomb is 21
         if self.selectAllBehavior:
             self.virtualHelixAtCoordsChanged.connect(self.updateSelectionFromVHChange)
+        # This variable is directly used and entirely managed by
+        # virtualhelix for consolidation of basesModified signals.
+        self.basesModifiedVHs = set()
     
     def setDocument(self, newDoc):
         """Only called by Document"""

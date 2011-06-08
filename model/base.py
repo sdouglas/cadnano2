@@ -148,6 +148,11 @@ class Base(object):
         if toOld3:
             toOld3._5pBase = None
         self._5pBase = toBase
+        if toOld3:
+            toOld3._vhelix.emitModificationSignal()
+        if fromOld5:
+            fromOld5._vhelix.emitModificationSignal()
+        self._vhelix.emitModificationSignal()
         return (fromOld5, toOld3)
 
     def _unset5Prime(self, toBase, fromOld5, toOld3):
@@ -155,6 +160,11 @@ class Base(object):
         self._set5Prime(fromOld5)
         if toOld3 != None:
             toBase._set3Prime(toOld3)
+        if toOld3:
+            toOld3._vhelix.emitModificationSignal()
+        if fromOld5:
+            fromOld5._vhelix.emitModificationSignal()
+        self._vhelix.emitModificationSignal()
 
     def _set3Prime(self, toBase):
         """Only VirtualHelix should call this method. Returns l
@@ -168,6 +178,11 @@ class Base(object):
         if toOld5:
             toOld5._3pBase = None
         self._3pBase = toBase
+        if toOld5:
+            toOld5._vhelix.emitModificationSignal()
+        if fromOld3:
+            fromOld3._vhelix.emitModificationSignal()
+        self._vhelix.emitModificationSignal()
         return (fromOld3, toOld5)
 
     def _unset3Prime(self, toBase, fromOld3, toOld5):
@@ -175,6 +190,11 @@ class Base(object):
         self._set3Prime(fromOld3)
         if toOld5 != None:
             toBase._set5Prime(toOld5)
+        if toOld5:
+            toOld5._vhelix.emitModificationSignal()
+        if fromOld3:
+            fromOld3._vhelix.emitModificationSignal()
+        self._vhelix.emitModificationSignal()
 
     def vhelix(self):
         return self._vhelix
