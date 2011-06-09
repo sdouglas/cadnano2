@@ -84,7 +84,4 @@ class SliceController(QObject):
     # end def
 
     def renumberClicked(self):
-        print "renumberClicked"
-        # self.mainWindow.controller.activePart().renumber()
         self.mainWindow.pathController.activePath().renumber()
-    # end def

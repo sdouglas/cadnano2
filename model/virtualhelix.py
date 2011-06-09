@@ -167,13 +167,67 @@ class VirtualHelix(QObject):
     def number(self):
         """return VirtualHelix number"""
         return self._number
-
+    
     def setNumber(self, newNumber):
-        # if self.part():
-        #     self.part().renumberVirtualHelix(self, newNumber)
-        # else:  # If we aren't attached to a part
+        if self.part():
+            self.part().renumberVirtualHelix(self, newNumber)
+        else:
+            self._number = newNumber
+    
+    # Why two setNumber commands? Because we're faced with
+    # a bit of a connundrum. We want
+    # 1) part() to control numbering when there is a part().
+    #    Not all numbers are valid for all row, col coords (parity),
+    #    numbers must be unique in a part, etc, etc. This code
+    #    depends on the specifics of the dnapart, and so it
+    #    ought to reside in the part.
+    # 2) a VirtualHelix without a part to be able to keep track
+    #    of a number. 
+    # 3) asking a part for its number to be fast. We do it a
+    #    lot, so doing a reverse lookup is unseemly.
+    # How do we accomplish these goals?
+    # 1) We declare that dnapart has the final say on numbers.
+    #    it's the master copy. If a VH's self._number disagrees
+    #    with the dnapart, the VH is wrong (there is always EXACTLY
+    #    one "gold" copy of any data). Parts assign new numbers
+    #    to VHs when the VHs are added to them, and they recycle
+    #    numbers for deleted VHs.
+    # 2) We add a self._number variable to the VH to keep track of
+    #    a number when a VH has no part, with the proviso that this
+    #    ivar is meaningless when there is a self.part().
+    # 3) In times when we have a part, we save self._number from
+    #    uselessness by making it a cache for reverse lookups of
+    #    the number for a specific VH.
+    # So, why two setNumber commands? What is the main question 
+    # facing any user of an API? "How do I do x." This is answered
+    # by searching for a relevant method name. Once such a method
+    # name is found, the next question is "will calling this method
+    # suffice?" Wary of caches (implicit or explicit) that need updating,
+    # buffers that need flushing, and invariants that must be maintained,
+    # this question often has a very complicated answer. A very simple
+    # way to make an API user friendly is to ensure that the answer
+    # is "Yes" for *ALL* public methods.
+    #   No underscore => A caller is only responsible for is calling the method.
+    #   underscore    => The caller has to do other voodoo to get the
+    #                    suggested result (invalidate caches, flush buffers,
+    #                    maintain invariants, pet watchdogs, etc)
+    # So, in particular:
+    #   setNumber will ask the part to validate the new number,
+    #     maintain the numbering system responsible for quickly
+    #     assigning numbers to now helices, emit notifications,
+    #     and assure that the newNumber isn't already in use by
+    #     another VH. If the receiver has no part(), self._number
+    #     is a gold copy of the numbering data and can be simply
+    #     updated. The user doesn't need to worry about any of this.
+    #     In a command line script with no part(), the VH will
+    #     use its new number without question, and inside the GUI
+    #     changes will automagically appear in the interface.
+    #   _setNumber JUST updates the cached value of self._number if
+    #     self has a part. It could be skipped, but then DNAPart
+    #     would have to touch the ivar self._number directly, which
+    #     is mildly bad karma.
+    def _setNumber(self, newNumber):
         self._number = newNumber
-        # print newNumber
 
     def selected(self):
         return self in self.part().selection()
@@ -194,12 +248,6 @@ class VirtualHelix(QObject):
         elif needsDeselectig:
             currentSelection.remove(self)
         self.part().setSelection(currentSelection)
-
-    def _setNumber(self, newNumber):
-        """_part is responsible for assigning ids, so only it gets to
-        use this method."""
-        self._number = newNumber
-        self.changed.emit()
 
     def coord(self):
         return (self._row, self._col)

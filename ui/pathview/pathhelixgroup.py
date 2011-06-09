@@ -186,6 +186,9 @@ class PathHelixGroup(QGraphicsObject):
         for ph in self._pathHelixList:
             if not ph in newList:
                 scene = ph.scene()
+                handle = ph.handle()
+                if handle.focusRing:
+                    scene.removeItem(handle.focusRing)
                 scene.removeItem(ph.handle())
                 scene.removeItem(ph)
         for ph in newList:
@@ -282,7 +285,7 @@ class PathHelixGroup(QGraphicsObject):
         self.setDisplayedVHs(vhs)
         
     def renumber(self):
-        self.part().renumber(self)
+        self.part().matchHelixNumberingToPhgDisplayOrder(self)
     # end def
 
     def zoomToFit(self):
