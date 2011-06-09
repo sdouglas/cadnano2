@@ -40,13 +40,13 @@ class PencilTool(SelectTool, ForceTool):
     def __init__(self, controller):
         SelectTool.__init__(self, controller)
         ForceTool.__init__(self, rightClickOnly=True)
-         
+
     def mousePressPathHelix(self, pathHelix, event):
         if event.buttons() & Qt.LeftButton:
             SelectTool.mousePressPathHelix(self, pathHelix, event)
         elif event.button() & Qt.RightButton:
             ForceTool.mousePressPathHelix(self, pathHelix, event)
-    
+
     def mouseMovePathHelix(self, pathHelix, event):
         if event.buttons() & Qt.LeftButton:
             SelectTool.mouseMovePathHelix(self, pathHelix, event)
@@ -56,7 +56,7 @@ class PencilTool(SelectTool, ForceTool):
     def mouseReleasePathHelix(self, pathHelix, event):
         SelectTool.mouseReleasePathHelix(self, pathHelix, event)
         ForceTool.mouseReleasePathHelix(self, pathHelix, event)
-        
+
     def hoverMovePathHelix(self, pathHelix, event):
         ForceTool.hoverMovePathHelix(self, pathHelix, event)
 

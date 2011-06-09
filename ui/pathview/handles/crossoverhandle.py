@@ -110,14 +110,12 @@ class XoverHandle(object):
             sameParity = fromHelix.evenParity() == toHelix.evenParity()
         # case 1: same strand
         if sameStrand:
-            if pA.x() < pB.x():  # draw only from left
-                if orientA == HandleOrient.LeftUp or \
-                   orientA == HandleOrient.RightUp:
-                    dx = abs(pB.x() - pA.x())
-                    c1.setX(0.5 * (pA.x() + pB.x()))
-                    c1.setY(pA.y() - self.yScale * dx)
-                # end if
-            # end if
+            dx = abs(pB.x() - pA.x())
+            c1.setX(0.5 * (pA.x() + pB.x()))
+            if orientA in [HandleOrient.LeftUp, HandleOrient.RightUp]:
+                c1.setY(qA.y() - self.yScale * dx)
+            else:
+                c1.setY(qA.y() + self.yScale * dx)
         # case 2: same parity
         elif sameParity:
             dy = abs(pB.y() - pA.y())
