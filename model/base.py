@@ -272,18 +272,19 @@ class Base(object):
         next base does not match the same for this base."""
         if self._floatingXoverDestination:
             return True
-        if self.isEmpty():
-            return False
-        if self._5pBase != None:
-            if self.vhelixNum() != self._5pBase.vhelixNum():
-                return True
-            elif self.partId() != self._5pBase.partId():
-                return True
-        if self._3pBase != None:
-            if self.vhelixNum() != self._3pBase.vhelixNum():
-                return True
-            elif self.partId() != self._3pBase.partId():
-                return True
+        strand = self._vhelix._strand(self._strandtype)
+        # The previous (left) and next (right) bases we would expect
+        # if we were in the middle of a segment
+        bLeft = strand[self._n-1] if self._n!=0 else None
+        bRight = strand[self._n+1] if self._n!=len(strand)-1 else None
+        if self._vhelix.directionOfStrandIs5to3(self._strandtype):
+            b3, b5 = bRight, bLeft
+        else:
+            b3, b5 = bLeft, bRight
+        if self._3pBase not in (None, b3):
+            return True
+        if self._5pBase not in (None, b5):
+            return True
         return False
     
     def floatingXoverDestination(self):
