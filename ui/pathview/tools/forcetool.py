@@ -42,6 +42,8 @@ from ui.pathview.pathhelixgroup import PathHelixGroup
 from abstractpathtool import AbstractPathTool
 
 class ForceTool(AbstractPathTool):
+    dontAllowCrossoverToNonSegmentedBase = True
+    
     def __init__(self, parent=None, rightClickOnly=False):
         super(ForceTool, self).__init__(parent)
         self.hide()
@@ -102,6 +104,8 @@ class ForceTool(AbstractPathTool):
         of the drag methods would share a common header and footer
         anyway. It leads to shorter code to re-use them here."""
         ### Shared header
+        # We keep checking for ph/phg because it is valid to cancel
+        # a drag operation while passing None for ph, event
         if ph:
             scenePos = ph.mapToScene(QPointF(event.pos()))
         # Events come from both PathHelix and PathHelixGroup.
@@ -112,15 +116,25 @@ class ForceTool(AbstractPathTool):
         elif isinstance(ph, PathHelixGroup):
             phg = ph
         else:
-            phg = None  # Better not need it (see setActive)
+            phg = None  # Better not need it; we're probably just canceling
         if phg:
             destBase = self.baseFromLocation(phg, scenePos)
+            # Only allow crossovers to bases where installation
+            # would not produce any segment-less endpoints
+            if destBase and\
+               self.dontAllowCrossoverToNonSegmentedBase and\
+               not (destBase[0].hasStrandAt(destBase[1], destBase[2]) or\
+                    destBase[0].hasEndAt(destBase[1], destBase[2])==5):
+                destBase = None
+            # Can't connect a base to itself :)
+            if destBase == self.base1:
+                destBase = None
+                
         
         ### This is the middle, drag-operation dependent
         ### part of the code.
         didEnd = False
-        if self.base1==None and canStart:  # Start drag
-            assert(destBase)
+        if self.base1==None and canStart and destBase:  # Start drag
             self.base1 = destBase
             vh = destBase[0]
             vh.setSandboxed(True)
@@ -142,8 +156,6 @@ class ForceTool(AbstractPathTool):
             sandboxUndoStack.undo()
         
         ### Shared footer
-        if phg:
-            destBase = self.baseFromLocation(phg, scenePos)
         if not phg or destBase==None:
             # If we're hovering over thin air, we draw
             # a floatingXover (only 3' end connected to a
