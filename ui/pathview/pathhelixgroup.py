@@ -189,7 +189,7 @@ class PathHelixGroup(QGraphicsObject):
                 handle = ph.handle()
                 if handle.focusRing:
                     scene.removeItem(handle.focusRing)
-                scene.removeItem(ph.handle())
+                scene.removeItem(handle)
                 scene.removeItem(ph)
         for ph in newList:
             ph.setParentItem(self)

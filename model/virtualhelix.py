@@ -619,8 +619,13 @@ class VirtualHelix(QObject):
                 base = base.get3pBase()  # advance to next
             base.setColor(colorName)  # last 3' base
         self.flushBasesModifiedSignals()
-    
+
     def setFloatingXover(self, strandType=None, fromIdx=None, toPoint=None):
+        """The floating crossover is a GUI hack that is the
+        temporary crossover shown while the user is using the
+        force tool (pencil tool right click) that has a 3' end
+        wherever the user clicked / is dragging from and ends
+        beneath the mouse."""
         if self.floatingXoverBase:
             self.floatingXoverBase._floatingXoverDestination = None
             self.floatingXoverBase = None
@@ -631,7 +636,7 @@ class VirtualHelix(QObject):
         self.floatingXoverBase = newXoverBase
         self.emitModificationSignal()
         self.flushBasesModifiedSignals()
-        
+
     ################ Private Base Modification API ###########################
     class LoopCommand(QUndoCommand):
         def __init__(self, virtualHelix, strandType, index, loopsize):
@@ -641,7 +646,7 @@ class VirtualHelix(QObject):
             self._index = index
             self._loopsize = loopsize
             self._oldLoopsize = None
-            
+
         def redo(self):
             if self._vh.hasStrandAt(self._strandType, self._index):
                 loop = self._vh._loop(self._strandType)
@@ -659,7 +664,7 @@ class VirtualHelix(QObject):
                 # end else
                 self._vh.emitModificationSignal()
                 self._vh.flushBasesModifiedSignals()
-            
+
         def undo(self):
             if self._vh.hasStrandAt(self._strandType, self._index):
                 loop = self._vh._loop(self._strandType)

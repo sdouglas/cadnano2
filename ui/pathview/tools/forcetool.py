@@ -48,7 +48,7 @@ class ForceTool(AbstractPathTool):
         self.setZValue(styles.ZPATHTOOL)
         self.base1 = None
         self.rightClickOnly = rightClickOnly
-    
+
     def paint(self, painter, option, widget=None):
         pass
 
@@ -62,17 +62,17 @@ class ForceTool(AbstractPathTool):
         else:
             base2 = None
         return base2
-         
+
     def mousePressPathHelix(self, pathHelix, event):
         # Drags that are active on mouse press must end
         self.updateDrag(pathHelix, event, mustEnd=True, canStart=True)
-    
+
     def mouseMovePathHelix(self, pathHelix, event):
         self.updateDrag(pathHelix, event)
 
     def mouseReleasePathHelix(self, pathHelix, event):
         self.updateDrag(pathHelix, event, canEnd=True)
-        
+
     def hoverMovePathHelix(self, pathHelix, event):
         self.updateDrag(pathHelix, event)
 
@@ -122,6 +122,6 @@ class ForceTool(AbstractPathTool):
             vh2, strand2, idx2 = destBase
             vh1.setFloatingXover(None)
             vh1.installXoverFrom3To5(strand1, idx1, vh2, idx2)
-        
+
         if didEnd:
             self.base1 = None

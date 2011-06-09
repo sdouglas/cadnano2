@@ -56,6 +56,7 @@ class ActiveSliceHandle(QGraphicsItem):
         self._label.hide()
         self.setPathHelixGroup(pathHelixGroup)
         self.setFlag(QGraphicsItem.ItemIsMovable)
+        self.setFlag(QGraphicsItem.ItemStacksBehindParent)
         self.setAcceptHoverEvents(True)
         self.setZValue(styles.ZACTIVESLICEHANDLE)
 

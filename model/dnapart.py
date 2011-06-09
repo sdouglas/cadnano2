@@ -25,7 +25,7 @@ from exceptions import NotImplementedError
 import json
 from .part import Part
 from .virtualhelix import VirtualHelix
-from .enum import LatticeType
+from .enum import LatticeType, StrandType
 from PyQt4.QtCore import pyqtSignal, QObject
 from PyQt4.QtGui import QUndoCommand
 from util import *
@@ -190,6 +190,31 @@ class DNAPart(Part):
 
     def getVirtualHelices(self):
         return [self._numberToVirtualHelix[n] for n in self._numberToVirtualHelix]
+    
+    def autoStaple(self):
+        vhs = self.getVirtualHelices()
+        self.undoStack().beginMacro("Auto Staple")
+        for vh in vhs:
+            # Copy the scaffold strand's segments to the staple strand
+            vh.clearStrand(StrandType.Staple, 1, vh.numBases()-1)
+            segments, ends3, ends5 = vh.getSegmentsAndEndpoints(StrandType.Scaffold)
+            segments.sort()
+            leftEndIdx = int(segments[0][0])
+            rightEndIdx = int(segments[-1][1])
+            vh.connectStrand(StrandType.Staple, leftEndIdx, rightEndIdx)
+        for vh in vhs:
+            # We only add crossovers for which vh will have the 3' end to
+            # avoid adding each crossover twice. We can do this by adding
+            # only crossovers that face left (or right) because all crossovers
+            # with 3' crossovers (or 5') will face either left or right
+            # on a given helix.
+            facingR = not vh.directionOfStrandIs5to3(StrandType.Staple)
+            pxovers = vh.potentialCrossoverList(facingR, StrandType.Staple)
+            for toVH, idx in pxovers:  # Loop through potential xovers
+                if vh.possibleNewCrossoverAt(StrandType.Staple, idx, toVH, idx):
+                    vh.installXoverFrom3To5(StrandType.Staple, idx, toVH, idx)
+        self.undoStack().endMacro()
+            
 
     ############################# VirtualHelix Private CRUD #############################
     class AddHelixCommand(QUndoCommand):
