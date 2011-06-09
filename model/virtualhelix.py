@@ -630,6 +630,8 @@ class VirtualHelix(QObject):
             self.floatingXoverBase._floatingXoverDestination = None
             self.floatingXoverBase = None
         if strandType==None or fromIdx==None or toPoint==None:
+            self.emitModificationSignal()
+            self.flushBasesModifiedSignals()
             return
         newXoverBase = self._strand(strandType)[fromIdx]
         newXoverBase._floatingXoverDestination = toPoint

@@ -345,7 +345,7 @@ class PathHelixGroup(QGraphicsObject):
 # end class
 
 ################################ Events ################################
-forwardedEvents = ('hoverMove',)
+forwardedEvents = ('hoverMove', 'mousePress', 'mouseRelease')
 defineEventForwardingMethodsForClass(PathHelixGroup, 'PathHelixGroup', forwardedEvents)
 
 

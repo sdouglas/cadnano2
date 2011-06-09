@@ -37,6 +37,11 @@ class PencilTool(SelectTool, ForceTool):
     # We are just like select tool except we don't enforce drag limits
     imposeDragLimits = False
     mustStartOnBreakpoint = False
+    # And we actually use those PathHelixGroup events
+    mouseMovePathHelixGroupUnused = False
+    mouseReleasePathHelixGroupUnused = False
+    mousePressPathHelixGroupUnused = False
+    
     def __init__(self, controller):
         SelectTool.__init__(self, controller)
         ForceTool.__init__(self, rightClickOnly=True)
