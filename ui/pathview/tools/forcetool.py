@@ -89,7 +89,7 @@ class ForceTool(AbstractPathTool):
     
     def keyPressEvent(self, event):
         if event.key() in (Qt.Key_Escape, Qt.Key_Backspace):
-            self.updateDrag(phg, event, mustEnd=True)
+            self.updateDrag(None, None, mustEnd=True)
     
     def setActive(self, willBeActive):
         AbstractPathTool.setActive(self, willBeActive)
