@@ -102,6 +102,7 @@ class DocumentController():
         self.win.actionClose.triggered.connect(self.closeClicked)
         self.win.actionSave.triggered.connect(self.saveClicked)
         self.win.actionSVG.triggered.connect(self.svgClicked)
+        self.win.actionAutoStaple.triggered.connect(self.autoStapleClicked)
 
         #self.win.actionSave_As.triggered.connect(self.saveAsClicked)
         # self.win.actionQuit.triggered.connect(self.closeClicked)
@@ -179,6 +180,9 @@ class DocumentController():
         """docstring for squareClicked"""
         print "+square clicked"
     # end def
+    
+    def autoStapleClicked(self):
+        self.activePart().autoStaple()
 
     ################# Spawning / Destroying HoneycombSliceGraphicsItems and PathHelixGroups for Parts #################
     def docPartAddedEvent(self, part):

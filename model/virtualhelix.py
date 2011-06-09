@@ -573,6 +573,11 @@ class VirtualHelix(QObject):
         self.flushBasesModifiedSignals()
     
     def setFloatingXover(self, strandType=None, fromIdx=None, toPoint=None):
+        """The floating crossover is a GUI hack that is the
+        temporary crossover shown while the user is using the
+        force tool (pencil tool right click) that has a 3' end
+        wherever the user clicked / is dragging from and ends
+        beneath the mouse."""
         if self.floatingXoverBase:
             self.floatingXoverBase._floatingXoverDestination = None
             self.floatingXoverBase = None
