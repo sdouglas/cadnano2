@@ -126,15 +126,12 @@ class ForceTool(AbstractPathTool):
                not (destBase[0].hasStrandAt(destBase[1], destBase[2]) or\
                     destBase[0].hasEndAt(destBase[1], destBase[2])==5):
                 destBase = None
-            # Can't connect a base to itself :)
-            if destBase == self.base1:
-                destBase = None
-                
+                canStart = False                
         
         ### This is the middle, drag-operation dependent
         ### part of the code.
         didEnd = False
-        if self.base1==None and canStart and destBase:  # Start drag
+        if self.base1==None and canStart:  # Start drag
             self.base1 = destBase
             vh = destBase[0]
             vh.setSandboxed(True)
@@ -156,6 +153,13 @@ class ForceTool(AbstractPathTool):
             sandboxUndoStack.undo()
         
         ### Shared footer
+        # Can't connect a base to itself :)
+        if destBase == self.base1:
+            destBase = None
+        # Don't allow two crossovers on one base
+        if destBase and\
+           destBase[0].hasCrossoverAt(destBase[1], destBase[2]):
+            destBase = None
         if not phg or destBase==None:
             # If we're hovering over thin air, we draw
             # a floatingXover (only 3' end connected to a
