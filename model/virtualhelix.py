@@ -577,18 +577,28 @@ class VirtualHelix(QObject):
         c = self.Connect3To5Command(strandType, self, fromIndex, toVhelix,\
                                     toIndex)
         self.undoStack().push(c)
+    
+    def removeXoversAt(self, strandType, idx):
+        fromBase = self._strand(strandType)[idx]
+        self.undoStack().beginMacro("Removing Crossover")
+        for toBase in (fromBase._3pBase, fromBase._5pBase):
+            if toBase==None:
+                continue
+            if toBase._vhelix != self:
+                self.removeXoverTo(strandType, idx, toBase._vhelix, toBase._n)
+        
 
     def removeXoverTo(self, strandType, fromIndex, toVhelix, toIndex):
-        """
-        The from base must provide the 3' pointer, and to must provide 5'.
-        """
         strand = self._strand(strandType)
         fromBase = strand[fromIndex]
         toBase = toVhelix._strand(strandType)[toIndex]
+        if fromBase._5pBase == toBase:
+            fromBase, toBase = toBase, fromBase
         if fromBase._3pBase != toBase or fromBase != toBase._5pBase:
             raise IndexError("Crossover does not exist to be removed.")
-        c = self.Break3To5Command(strandType, self, fromIndex)
-        self.undoStack().push(c)
+        fromVH = fromBase._vhelix
+        c = fromVH.Break3To5Command(strandType, fromVH, fromIndex)
+        fromVH.undoStack().push(c)
         
     def installLoop(self, strandType, index, loopsize):
         """
