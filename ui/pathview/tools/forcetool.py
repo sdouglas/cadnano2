@@ -48,6 +48,7 @@ class ForceTool(AbstractPathTool):
         self.setZValue(styles.ZPATHTOOL)
         self.base1 = None
         self.rightClickOnly = rightClickOnly
+        self.setFlag(QGraphicsItem.ItemIsFocusable)
 
     def paint(self, painter, option, widget=None):
         pass
@@ -64,6 +65,7 @@ class ForceTool(AbstractPathTool):
         return base2
 
     def mousePressPathHelix(self, pathHelix, event):
+        self.setFocus()  # Receive key events
         self.updateDrag(pathHelix, event, mustEnd=True, canStart=True)
     def mousePressPathHelixGroup(self, phg, event):
         self.updateDrag(phg, event, mustEnd=True, canStart=True)
@@ -73,6 +75,7 @@ class ForceTool(AbstractPathTool):
     def mouseMovePathHelixGroup(self, phg, event):
         self.updateDrag(phg, event)
     def hoverMovePathHelix(self, pathHelix, event):
+        AbstractPathTool.hoverMovePathHelix(self, pathHelix, event)
         self.updateDrag(pathHelix, event)
     def hoverMovePathHelixGroup(self, phg, event):
         self.updateDrag(phg, event)
@@ -81,6 +84,14 @@ class ForceTool(AbstractPathTool):
         self.updateDrag(pathHelix, event, canEnd=True)
     def mouseReleasePathHelixGroup(self, phg, event):
         self.updateDrag(phg, event, canEnd=True)
+    
+    def keyPressEvent(self, event):
+        if event.key() in (Qt.Key_Escape, Qt.Key_Backspace):
+            self.updateDrag(phg, event, mustEnd=True)
+    
+    def setActive(self, willBeActive):
+        AbstractPathTool.setActive(self, willBeActive)
+        self.updateDrag(None, None, mustEnd=True)
 
     def updateDrag(self, ph, event, canStart=False, canEnd=False, mustEnd=False):
         """This is the designated method for handling ForceTool
@@ -91,7 +102,8 @@ class ForceTool(AbstractPathTool):
         of the drag methods would share a common header and footer
         anyway. It leads to shorter code to re-use them here."""
         ### Shared header
-        scenePos = ph.mapToScene(QPointF(event.pos()))
+        if ph:
+            scenePos = ph.mapToScene(QPointF(event.pos()))
         # Events come from both PathHelix and PathHelixGroup.
         # In order to service every type of event handler, we
         # have to know how to deal with both.
@@ -100,8 +112,9 @@ class ForceTool(AbstractPathTool):
         elif isinstance(ph, PathHelixGroup):
             phg = ph
         else:
-            assert(False)
-        destBase = self.baseFromLocation(phg, scenePos)
+            phg = None  # Better not need it (see setActive)
+        if phg:
+            destBase = self.baseFromLocation(phg, scenePos)
         
         ### This is the middle, drag-operation dependent
         ### part of the code.
@@ -113,7 +126,8 @@ class ForceTool(AbstractPathTool):
             vh.setSandboxed(True)
         elif not self.base1:
             return
-        elif canEnd and not destBase==self.base1 or\
+        elif not ph or not event or\
+             canEnd and not destBase==self.base1 or\
              mustEnd:  # End drag
             didEnd = True
             vh = self.base1[0]
@@ -128,8 +142,9 @@ class ForceTool(AbstractPathTool):
             sandboxUndoStack.undo()
         
         ### Shared footer
-        destBase = self.baseFromLocation(phg, scenePos)
-        if destBase==None:
+        if phg:
+            destBase = self.baseFromLocation(phg, scenePos)
+        if not phg or destBase==None:
             # If we're hovering over thin air, we draw
             # a floatingXover (only 3' end connected to a
             # segment, 5' end is beneath the mouse)
@@ -138,7 +153,7 @@ class ForceTool(AbstractPathTool):
                 vh.setFloatingXover(None)
             else:
                 vh.setFloatingXover(strandType, idx, scenePos)
-        else:
+        elif phg:
             # We're actually over a potential target base for
             # the 5' end of a force crossover, so we visualize
             # the change that would be committed if the user
