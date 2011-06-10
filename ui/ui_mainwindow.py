@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'mainwindow.ui'
 #
-# Created: Mon Jun  6 14:33:37 2011
+# Created: Thu Jun  9 06:20:48 2011
 #      by: PyQt4 UI code generator 4.8.4
 #
 # WARNING! All changes made in this file will be lost!
@@ -50,8 +50,8 @@ class Ui_MainWindow(object):
         self.sliceGraphicsView.setHorizontalScrollBarPolicy(QtCore.Qt.ScrollBarAlwaysOff)
         self.sliceGraphicsView.setRenderHints(QtGui.QPainter.Antialiasing|QtGui.QPainter.TextAntialiasing)
         self.sliceGraphicsView.setDragMode(QtGui.QGraphicsView.NoDrag)
-        self.sliceGraphicsView.setTransformationAnchor(QtGui.QGraphicsView.NoAnchor)
-        self.sliceGraphicsView.setResizeAnchor(QtGui.QGraphicsView.AnchorViewCenter)
+        self.sliceGraphicsView.setTransformationAnchor(QtGui.QGraphicsView.AnchorUnderMouse)
+        self.sliceGraphicsView.setResizeAnchor(QtGui.QGraphicsView.AnchorUnderMouse)
         self.sliceGraphicsView.setViewportUpdateMode(QtGui.QGraphicsView.MinimalViewportUpdate)
         self.sliceGraphicsView.setObjectName(_fromUtf8("sliceGraphicsView"))
         self.pathGraphicsView = CustomQGraphicsView(self.splitter)

@@ -187,7 +187,10 @@ class PathHelixGroup(QGraphicsObject):
         for ph in self._pathHelixList:
             if not ph in newList:
                 scene = ph.scene()
-                scene.removeItem(ph.handle())
+                handle = ph.handle()
+                if handle.focusRing:
+                    scene.removeItem(handle.focusRing)
+                scene.removeItem(handle)
                 scene.removeItem(ph)
         for ph in newList:
             ph.setParentItem(self)
@@ -293,7 +296,7 @@ class PathHelixGroup(QGraphicsObject):
         self.setDisplayedVHs(vhs)
         
     def renumber(self):
-        self.part().renumber(self)
+        self.part().matchHelixNumberingToPhgDisplayOrder(self)
     # end def
 
     def zoomToFit(self):
@@ -353,7 +356,7 @@ class PathHelixGroup(QGraphicsObject):
 # end class
 
 ################################ Events ################################
-forwardedEvents = ('hoverMove',)
+forwardedEvents = ('hoverMove', 'mousePress', 'mouseRelease')
 defineEventForwardingMethodsForClass(PathHelixGroup, 'PathHelixGroup', forwardedEvents)
 
 

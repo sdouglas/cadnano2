@@ -76,7 +76,7 @@ class PathController(QObject):
             return toolWidget
         
         tools = ('Select', 'Paint', 'Move', 'Break', 'Erase',\
-                 'Insert', 'Skip', 'Force', 'Pencil')
+                 'Insert', 'Skip', 'Pencil', 'Force')
         ag = QActionGroup(win)
         for toolName in tools:
             toolAction = installTool(toolName, win)

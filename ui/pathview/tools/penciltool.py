@@ -37,20 +37,25 @@ class PencilTool(SelectTool, ForceTool):
     # We are just like select tool except we don't enforce drag limits
     imposeDragLimits = False
     mustStartOnBreakpoint = False
+    # And we actually use those PathHelixGroup events
+    mouseMovePathHelixGroupUnused = False
+    mouseReleasePathHelixGroupUnused = False
+    mousePressPathHelixGroupUnused = False
+    
     def __init__(self, controller):
         SelectTool.__init__(self, controller)
         ForceTool.__init__(self, rightClickOnly=True)
 
     def mousePressPathHelix(self, pathHelix, event):
-        if event.buttons() == Qt.LeftButton:
+        if event.buttons() & Qt.LeftButton:
             SelectTool.mousePressPathHelix(self, pathHelix, event)
-        elif event.buttons() == Qt.RightButton:
+        elif event.button() & Qt.RightButton:
             ForceTool.mousePressPathHelix(self, pathHelix, event)
 
     def mouseMovePathHelix(self, pathHelix, event):
-        if event.buttons() == Qt.LeftButton:
+        if event.buttons() & Qt.LeftButton:
             SelectTool.mouseMovePathHelix(self, pathHelix, event)
-        elif event.buttons() == Qt.RightButton:
+        elif event.buttons() & Qt.RightButton:
             ForceTool.mouseMovePathHelix(self, pathHelix, event)
 
     def mouseReleasePathHelix(self, pathHelix, event):

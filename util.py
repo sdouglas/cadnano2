@@ -27,6 +27,7 @@ util
 Created by Jonathan deWerd.
 """
 from traceback import extract_stack
+from PyQt4.QtGui import QGraphicsItem
 import sys
 from os import path
 
@@ -57,16 +58,18 @@ def defineEventForwardingMethodsForClass(classObj, forwardedEventSuffix, eventNa
     for evName in eventNames:
         delegateMethodName = evName + forwardedEventSuffix
         eventMethodName = evName + 'Event'
+        forwardDisablingPropertyName = delegateMethodName + 'Unused'
         
         def makeTemplateMethod(eventMethodName, delegateMethodName):
             def templateMethod(self, event):
                 activeTool = self.activeTool()
-                if activeTool:
+                if activeTool and not getattr(activeTool, forwardDisablingPropertyName, False):
                     delegateMethod = getattr(activeTool, delegateMethodName, None)
                     if delegateMethod:
                         delegateMethod(self, event)
                 else:
-                    QGraphicsItem.hoverLeaveEvent(self, event)
+                    superMethod = getattr(QGraphicsItem, eventMethodName)
+                    superMethod(self, event)
             return templateMethod
         eventHandler = makeTemplateMethod(eventMethodName, delegateMethodName)
         setattr(classObj, eventMethodName, eventHandler)

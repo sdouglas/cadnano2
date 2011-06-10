@@ -96,6 +96,12 @@ class SelectTool(AbstractPathTool):
 
     def mouseReleasePathHelix(self, ph, event):
         self.finalizeMouseDrag()
+    
+    # Unused events should be forwarded to other items
+    # (in particular, to ActiveSliceHandle)
+    mouseMovePathHelixGroupUnused = True
+    mouseReleasePathHelixGroupUnused = True
+    mousePressPathHelixGroupUnused = True
 
     def selectToolRemoveXover(self,vHelix, base):
         base = vHelix.validatedBase(*base, raiseOnErr=False)

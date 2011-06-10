@@ -25,7 +25,7 @@ from exceptions import NotImplementedError
 import json
 from .part import Part
 from .virtualhelix import VirtualHelix
-from .enum import LatticeType
+from .enum import LatticeType, StrandType
 from PyQt4.QtCore import pyqtSignal, QObject
 from PyQt4.QtGui import QUndoCommand
 from util import *
@@ -156,29 +156,20 @@ class DNAPart(Part):
         else:
             self.undoStack().push(c)
 
-    def renumber(self, phg):
-        """
-        """
-        print "dope"
-        vhs = phg.displayedVHs()
-        even_count = 0
-        odd_count = 1
-        oldNumbers = []
-        newNumbers = []
-        for vh in vhs:
-            oldNumbers.append(vh.number())
-            if vh.number() % 2: # is odd number ? 
-                newNumbers.append(odd_count)
-                odd_count += 2
-            else: # it's an even number
-                newNumbers.append(even_count)
-                even_count += 2
-        # end for
-        print "oldnums", oldNumbers
-        print "newnums",newNumbers
+    def matchHelixNumberingToPhgDisplayOrder(self, phg):
+        evens, odds = [], []
+        for vh in phg.displayedVHs():
+            n = vh.number()
+            if n%2:
+                odds.append(n)
+            else:
+                evens.append(n)
+        oldNumbers = list(evens + odds)
+        evens.sort()
+        odds.sort()
+        newNumbers = evens + odds
         c = self.RenumberHelicesCommand(self, oldNumbers, newNumbers)
         self.undoStack().push(c)
-    # end def
 
     # emits virtualHelixAtCoordsChanged
     def renumberVirtualHelix(self, vhref, newNumber, automaticallyRenumberConflictingHelix=False):
@@ -199,6 +190,31 @@ class DNAPart(Part):
 
     def getVirtualHelices(self):
         return [self._numberToVirtualHelix[n] for n in self._numberToVirtualHelix]
+    
+    def autoStaple(self):
+        vhs = self.getVirtualHelices()
+        self.undoStack().beginMacro("Auto Staple")
+        for vh in vhs:
+            # Copy the scaffold strand's segments to the staple strand
+            vh.clearStrand(StrandType.Staple, 1, vh.numBases()-1)
+            segments, ends3, ends5 = vh.getSegmentsAndEndpoints(StrandType.Scaffold)
+            segments.sort()
+            leftEndIdx = int(segments[0][0])
+            rightEndIdx = int(segments[-1][1])
+            vh.connectStrand(StrandType.Staple, leftEndIdx, rightEndIdx)
+        for vh in vhs:
+            # We only add crossovers for which vh will have the 3' end to
+            # avoid adding each crossover twice. We can do this by adding
+            # only crossovers that face left (or right) because all crossovers
+            # with 3' crossovers (or 5') will face either left or right
+            # on a given helix.
+            facingR = not vh.directionOfStrandIs5to3(StrandType.Staple)
+            pxovers = vh.potentialCrossoverList(facingR, StrandType.Staple)
+            for toVH, idx in pxovers:  # Loop through potential xovers
+                if vh.possibleNewCrossoverAt(StrandType.Staple, idx, toVH, idx):
+                    vh.installXoverFrom3To5(StrandType.Staple, idx, toVH, idx)
+        self.undoStack().endMacro()
+            
 
     ############################# VirtualHelix Private CRUD #############################
     class AddHelixCommand(QUndoCommand):
@@ -242,6 +258,11 @@ class DNAPart(Part):
             self.newNum = newNumber
             
         def redo(self, actuallyUndo=False):
+            # Private responsibilities of renumbering vh to newNum:
+            #  1) Ensure self._numberToVirtualHelix[newNum] == vh
+            #  2) Ensure vh._number == newNum (update VH's cache)
+            #  3) Maintain "ID assignment infra"
+            #  4) Emit virtualHelixAtCoordsChanged
             p = self.part
             vh = p.getVirtualHelix(self.coords, returnNoneIfAbsent = False)
             currentNum = vh.number()
@@ -251,11 +272,12 @@ class DNAPart(Part):
                 self.oldNum = currentNum
             assert(not p.getVirtualHelix(newNum))
             del p._numberToVirtualHelix[currentNum]
-            p._numberToVirtualHelix[newNum] = vh
-            vh._setNumber(newNum)
+            p._numberToVirtualHelix[newNum] = vh  # (1)
+            vh._setNumber(newNum)  # (2)
+            self.reserveHelixIDNumber(requestedIDnum=newNum)  # (3)
             # dnapart owns the idnum of a virtualhelix, so we
             # are the ones that send an update when it changes
-            p.virtualHelixAtCoordsChanged.emit(self.row, self.col)
+            p.virtualHelixAtCoordsChanged.emit(self.row, self.col)  # (4)
         def undo(self):
             self.redo(actuallyUndo=True)
     
@@ -271,60 +293,59 @@ class DNAPart(Part):
             # self._phg = phg
             self._oldNumbers = oldNumbers
             self._newNumbers = newNumbers
+            # Ensure that the arguments are sane
+            oldNumSet = set(oldNumbers)
+            currentNumSet = set(dnapart._numberToVirtualHelix.keys())
+            newNumSet = set(newNumbers)
+            # Ensure that there are no duplicates
+            assert(len(oldNumSet)==len(oldNumbers) and len(newNumSet)==len(newNumbers))
+            # Ensure that every old number has a new number
             assert(len(self._oldNumbers) == len(self._newNumbers))
+            # Ensure that no number will be duplicated
+            self.novelNumbers = newNumSet - oldNumSet
+            assert(self.novelNumbers.isdisjoint(currentNumSet))
+            self.retiredNumbers = oldNumSet - newNumSet
             
-        def redo(self):
+        def redo(self, actuallyUndo=False):
+            # Private responsibilities of renumbering vh to newNum:
+            #  1) Ensure self._numberToVirtualHelix[newNum] == vh
+            #  2) Ensure vh._number == newNum (update VH's cache)
+            #  3) Maintain "ID assignment infra"
+            #  4) Emit virtualHelixAtCoordsChanged
             p = self._dnapart
-            # create a shallow copy of the dictionary to allow for swapping
-            dictcopy = copy.copy(p._numberToVirtualHelix)
-            # new_list = []
+            newNumToVH = copy.copy(p._numberToVirtualHelix)
+            oldNums = self._oldNumbers
+            newNums = self._newNumbers
+            if actuallyUndo:  # UNDO/REDO swap
+                oldNums, newNums = newNums, oldNums
+            changedVH = []
             for i in range(len(self._oldNumbers)):
                 oldNum = self._oldNumbers[i]
                 newNum = self._newNumbers[i]
-                print oldNum, newNum
-                # new_list.append(self._phg.getPathHelix(vh))
                 if oldNum != newNum:
                     vh = p._numberToVirtualHelix[oldNum]
+                    changedVH.append(vh)  # (4)
                     # if the newnumber is already being used 
-                    # swap the pair.
-                    dictcopy[newNum] = vh
-                    vh.setNumber(newNum)
-                    if oldNum not in self._newNumbers:
-                        del dictcopy[oldNum]
-                    # dnapart owns the idnum of a virtualhelix, so we
-                    # are the ones that send an update when it changes
-                    # p.virtualHelixAtCoordsChanged.emit(vh.row(), vh.col())
-                # end if
-            #end for
-            print "oldkeys",p._numberToVirtualHelix.keys()
-            print "newkeys",dictcopy.keys()
-            p._numberToVirtualHelix = dictcopy
-
-            # print  [x.number()  for x in new_list]
-            # self._phg.displayedVHsChanged.emit()
+                    # just overwrite it
+                    newNumToVH[newNum] = vh  # (1)
+                    vh._setNumber(newNum)  # (2)
+            novelNumbers = self.novelNumbers
+            retiredNumbers = self.retiredNumbers
+            if actuallyUndo:  # UNDO/REDO swap
+                novelNumbers, retiredNumbers = retiredNumbers, novelNumbers
+            for n in retiredNumbers:
+                del newNum[n]
+                self.recycleHelixIDNumber(n)  # (3)
+            for n in novelNumbers:
+                self.reserveHelixIDNumber(requestedIDnum=n)  # (3)
             
+            p._numberToVirtualHelix = newNumToVH  # (1)
+            
+            for vh in changedVH:  # (4)
+                p.virtualHelixAtCoordsChanged.emit(*vh.coord())
+
         def undo(self):
-            p = self._dnapart
-            # create a shallow copy of the dictionary to allow for swapping
-            dictcopy = copy.copy(p._numberToVirtualHelix)
-            for i in range(len(self._oldNumbers)):
-                oldNum = self._oldNumbers[i]
-                newNum = self._newNumbers[i]
-                if oldNum != newNum:
-                    vh = p._numberToVirtualHelix[newNum]
-                    # if the newnumber is already being used 
-                    # swap the pair.
-                    dictcopy[oldNum] = vh
-                    vh.setNumber(oldNum)
-                    if newNum not in self._oldNumbers:
-                        del dictcopy[newNum]
-                    # dnapart owns the idnum of a virtualhelix, so we
-                    # are the ones that send an update when it changes
-                    # p.virtualHelixAtCoordsChanged.emit(vh.row(), vh.col())
-                # end if
-            #end for
-            p._numberToVirtualHelix = dictcopy
-            # self._phg.displayedVHsChanged.emit()
+            self.redo(actuallyUndo=True)
     
     ############################# VirtualHelix ID Number Management #############################
     # Used in both square, honeycomb lattices and so it's shared here
