@@ -66,6 +66,7 @@ class PathHelixGroup(QGraphicsObject):
         self._label=None; self.label()  # Poke the cache so the label actually exists
         
         # Properties
+        self._XOverLabels = None
         self._pathHelixList = []  # Primary property
         self._part = None; self.setPart(part)
         self._controller = controller
@@ -224,6 +225,12 @@ class PathHelixGroup(QGraphicsObject):
 
     def drawXovers(self, painter):
         """Return a QPainterPath ready to paint the crossovers"""
+        # if self._XOverLabels:
+        #     for ch in self._XOverLabels:
+        #         if ch.scene():
+        #             ch.scene().removeItem(ch)
+        # self._XOverLabels = None
+        # self._XOverLabels = []        
         for ph in self._pathHelixList:
             painter.setPen(self._scafPen)
             for ((fromhelix, fromindex), dest) in \
@@ -242,7 +249,9 @@ class PathHelixGroup(QGraphicsObject):
                                               toPH,\
                                               toIndex,\
                                               floatPos)
-                painter.drawPath(path)
+                painter.drawPath(path[0])
+                # self._XOverLabels.append(path[1]) 
+                # self._XOverLabels.append(path[2]) 
             painter.setPen(self._stapPen)
             for ((fromhelix, fromindex), dest) in \
                                ph.vhelix().get3PrimeXovers(StrandType.Staple):
@@ -262,7 +271,9 @@ class PathHelixGroup(QGraphicsObject):
                                               floatPos)
                 color = ph.vhelix().colorOfBase(StrandType.Staple, fromindex)
                 self._stapPen.setColor(QColor(color))
-                painter.drawPath(path)
+                painter.drawPath(path[0])
+                # self._XOverLabels.append(path[1]) 
+                # self._XOverLabels.append(path[2])
             # end for
         # end for
     # end def

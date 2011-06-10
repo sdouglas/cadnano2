@@ -79,13 +79,23 @@ class XoverHandle(object):
                                                toIndex,\
                                                center=True))
             pB = phg.mapFromItem(toHelix, pB)
+        
+        # labelA = QGraphicsSimpleTextItem(str(toHelix.number()), parent=phg)
+        # labelA.setFont(self._myfont)
+        # labelAoffset = labelA.boundingRect().width()/2
+        # labelB = QGraphicsSimpleTextItem(str(fromHelix.number()), parent=phg)
+        # labelB.setFont(self._myfont)
+        # labelBoffset = labelB.boundingRect().width()/2
+        
         yA = yB = self._baseWidth / 2
         from5To3 = fromHelix.vhelix().directionOfStrandIs5to3(strandtype)
         if from5To3:
             orientA = HandleOrient.LeftUp
             yA = -yA
+            # labelA.setPos(pA.x()-labelAoffset,pA.y() - 1.5*self._baseWidth)
         else:
             orientA = HandleOrient.RightDown
+            # labelA.setPos(pA.x()-labelAoffset,pA.y() + 0.5*self._baseWidth)
         if floatPos and not toHelix:
             toIs5To3 = not from5To3
         else:
@@ -93,9 +103,11 @@ class XoverHandle(object):
         if toIs5To3:
             orientB = HandleOrient.RightUp
             yB = -yB
+            # labelB.setPos(pB.x()-labelBoffset,pB.y() - 1.5*self._baseWidth)
         else:
             orientB = HandleOrient.LeftDown
-
+            # labelB.setPos(pB.x()-labelBoffset,pB.y() + 0.5*self._baseWidth)
+            
         # Determine start and end points of quad curve
         qA = QPointF(pA.x(), pA.y() + yA)
         qB = QPointF(pB.x(), pB.y() + yB)
@@ -135,6 +147,10 @@ class XoverHandle(object):
         painterpath.lineTo(qA)
         painterpath.quadTo(c1, qB)
         painterpath.lineTo(pB)
-        return painterpath
+        
+        
+        # print fromHelix.number(), toHelix.number()
+        # return (painterpath, labelA, labelB)
+        return (painterpath, None, None)
     # end def
 # end class
