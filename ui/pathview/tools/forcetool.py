@@ -54,10 +54,16 @@ class ForceTool(AbstractPathTool):
         pass
 
     def baseFromLocation(self, phg, posScene):
+        """A more general baseAtLocation that correctly identifies
+        bases on other PathHelix, returning the most general baseref:
+        (virtualHelix, strandType, baseIdx)"""
         pathHelix = phg.pathHelixAtScenePos(posScene)
         if pathHelix:
             posItem = pathHelix.mapFromScene(posScene)
-            strandType, idx = pathHelix.baseAtLocation(posItem.x(), posItem.y())
+            base = pathHelix.baseAtLocation(posItem.x(), posItem.y())
+            if base==None:
+                return None
+            strandType, idx = base
             vh = pathHelix.vhelix()
             base2 = (vh, strandType, idx)
         else:

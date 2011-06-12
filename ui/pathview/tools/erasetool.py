@@ -61,4 +61,4 @@ class EraseTool(AbstractPathTool):
         posItem = self.parentItem().mapFromScene(posScene)
         strandType, idx = self.baseAtPoint(pathHelix, posItem)
         vh = self.parentItem().vhelix()
-        vh.eraseStrandAt(strandType, idx)
+        vh.removeConnectedStrandAt(strandType, idx)

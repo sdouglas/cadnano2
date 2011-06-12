@@ -42,6 +42,8 @@ import re
 
 class VirtualHelix(QObject):
     """Stores staple and scaffold routing information."""
+    prohibitSingleBaseCrossovers = True
+    
     basesModified = pyqtSignal()
     dimensionsModified = pyqtSignal()
 
@@ -99,7 +101,7 @@ class VirtualHelix(QObject):
         self.setNumBases(numBases, notUndoable=True)
         
         # During a single UndoCommand, many basesModified signals can be generated.
-        # basesModifiedVHs stores a set of VH that will hasBeenModified
+        # basesModifiedVHs stores a set of VH that will setHasBeenModified
         # upon a call to emitBasesModifiedIfNeeded.
         self.basesModifiedVHs = set()
         
@@ -469,6 +471,8 @@ class VirtualHelix(QObject):
             if b in bases:
                 continue
             else:
+                if b==None:
+                    continue
                 bases.add(b)
                 treeTips.append(b._3pBase)
                 treeTips.append(b._5pBase)
@@ -572,7 +576,7 @@ class VirtualHelix(QObject):
         _doSomething() -> Private API
     or Outside World -> doSomething() -> DoSomethingUndoCommand -> Private API
     """
-    def hasBeenModified(self):
+    def setHasBeenModified(self):
         if self.part():
             self.part().basesModifiedVHs.add(self)
         else:
@@ -641,6 +645,22 @@ class VirtualHelix(QObject):
             toVhelix.thoughtPolice(undoStack=undoStack)
             undoStack.endMacro()
     
+    def removeConnectedStrandAt(self, strandType, idx, macro=True, undoStack=None):
+        if not undoStack:
+            undoStack = self.undoStack()
+        if macro:
+            undoStack.beginMacro("Remove Strand")
+        bases = self._basesConnectedTo(strandType, idx)
+        c = self.RemoveBasesCommand(bases)
+        undoStack.push(c)
+        if macro:
+            affectedVH = set()
+            for b in bases:
+                affectedVH.add(b._vhelix)
+            for vh in affectedVH:
+                vh.thoughtPolice(undoStack)
+            undoStack.endMacro()
+    
     def removeXoversAt(self, strandType, idx):
         fromBase = self._strand(strandType)[idx]
         for toBase in (fromBase._3pBase, fromBase._5pBase):
@@ -653,8 +673,6 @@ class VirtualHelix(QObject):
         strand = self._strand(strandType)
         fromBase = strand[fromIndex]
         toBase = toVhelix._strand(strandType)[toIndex]
-        if fromBase._5pBase == toBase:
-            fromBase, toBase = toBase, fromBase
         if fromBase._3pBase != toBase or fromBase != toBase._5pBase:
             raise IndexError("Crossover does not exist to be removed.")
         if undoStack==None:
@@ -679,23 +697,8 @@ class VirtualHelix(QObject):
 
     def applyColorAt(self, colorName, strandType, index):
         """docstring for applyColorAt"""
-        strand = self._strand(strandType)
-        startBase = strand[index]
-        # traverse to 5' end
-        base = startBase
-        while not base.is5primeEnd():
-            base.setColor(colorName)
-            base = base.get5pBase()  # advance to next
-            if base == startBase:  # check for circular path
-                return
-        base.setColor(colorName)  # last 5' base
-        # traverse to 3' end
-        if not startBase.is3primeEnd():
-            base = startBase.get3pBase()  # already processed startBase
-            while not base.is3primeEnd():
-                base.setColor(colorName)
-                base = base.get3pBase()  # advance to next
-            base.setColor(colorName)  # last 3' base
+        for b in self._basesConnectedTo(strandType, index):
+            b.setColor(colorName)
         self.emitBasesModifiedIfNeeded()
 
     def setFloatingXover(self, strandType=None, fromIdx=None, toPoint=None):
@@ -708,18 +711,18 @@ class VirtualHelix(QObject):
             self.floatingXoverBase._floatingXoverDestination = None
             self.floatingXoverBase = None
         if strandType==None or fromIdx==None or toPoint==None:
-            self.hasBeenModified()
+            self.setHasBeenModified()
             self.emitBasesModifiedIfNeeded()
             return
         newXoverBase = self._strand(strandType)[fromIdx]
         newXoverBase._floatingXoverDestination = toPoint
         self.floatingXoverBase = newXoverBase
-        self.hasBeenModified()
+        self.setHasBeenModified()
         self.emitBasesModifiedIfNeeded()
 
     ################ Private Base Modification API ###########################
     # The Notification Responsibilities of a Command
-    #   1) Call vh.hasBeenModified() on every VirtualHelix that is modified.
+    #   1) Call vh.setHasBeenModified() on every VirtualHelix that is modified.
     #      Judiciously use this method, since all it really does is add the VH
     #      it is called on to a list of dirty VH in the dnapart.
     #   2) Call vh.emitBasesModifiedIfNeeded() when you are done with a command.
@@ -729,18 +732,19 @@ class VirtualHelix(QObject):
     
     def thoughtPolice(self, undoStack):
         """Make sure that self obeys certain limitations, force it to if it doesn't"""
-        for strandType in (StrandType.Scaffold, StrandType.Staple):
-            strand = self._strand(strandType)
-            for i in range(len(strand)):
-                b = strand[i]
-                hasNeighborL = b._hasNeighborL()
-                hasNeighborR = b._hasNeighborR() 
-                hasXoverL = b._hasCrossoverL()
-                hasXoverR = b._hasCrossoverR()
-                if hasXoverL and not hasNeighborR:
-                    self.connectStrand(strandType, i, i+1, macro=False, undoStack=undoStack)
-                if hasXoverR and not hasNeighborL:
-                    self.connectStrand(strandType, i-1, i, macro=False, undoStack=undoStack)
+        if self.prohibitSingleBaseCrossovers:
+            for strandType in (StrandType.Scaffold, StrandType.Staple):
+                strand = self._strand(strandType)
+                for i in range(len(strand)):
+                    b = strand[i]
+                    hasNeighborL = b._hasNeighborL()
+                    hasNeighborR = b._hasNeighborR() 
+                    hasXoverL = b._hasCrossoverL()
+                    hasXoverR = b._hasCrossoverR()
+                    if hasXoverL and not hasNeighborR:
+                        self.connectStrand(strandType, i, i+1, macro=False, undoStack=undoStack)
+                    if hasXoverR and not hasNeighborL:
+                        self.connectStrand(strandType, i-1, i, macro=False, undoStack=undoStack)
     
     class LoopCommand(QUndoCommand):
         def __init__(self, virtualHelix, strandType, index, loopsize):
@@ -766,7 +770,7 @@ class VirtualHelix(QObject):
                         del loop[self._index]
                     # end if
                 # end else
-                self._vh.hasBeenModified()
+                self._vh.setHasBeenModified()
                 self._vh.emitBasesModifiedIfNeeded()
 
         def undo(self):
@@ -780,8 +784,31 @@ class VirtualHelix(QObject):
                         del loop[self._index]
                     # end if
                 # end else
-                self._vh.hasBeenModified()
+                self._vh.setHasBeenModified()
                 self._vh.emitBasesModifiedIfNeeded()
+    
+    class RemoveBasesCommand(QUndoCommand):
+        def __init__(self, bases):
+            super(VirtualHelix.RemoveBasesCommand, self).__init__()
+            self.bases = list(bases)
+        def redo(self):
+            ol = self._oldLinkage = []
+            vh = None
+            for b in self.bases:
+                ol.append(b._set3Prime(None))
+                ol.append(b._set5Prime(None))
+                vh = b._vhelix
+            if vh:
+                vh.emitBasesModifiedIfNeeded()
+        def undo(self):
+            ol = self._oldLinkage
+            vh = None
+            for b in reversed(self.bases):
+                b._unset5Prime(None, ol.pop())
+                b._unset3Prime(None, ol.pop())
+                vh = b._vhelix
+            if vh:
+                vh.emitBasesModifiedIfNeeded()
 
     class ConnectStrandCommand(QUndoCommand):
         def __init__(self, virtualHelix, strandType, startIndex, endIndex):

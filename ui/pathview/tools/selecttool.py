@@ -39,6 +39,7 @@ class SelectTool(AbstractPathTool):
     """
     limitEndptDragging = True
     disallowClickBreaksStrand = True
+    drawActionPreview = False
 
     def __init__(self, controller):
         super(SelectTool, self).__init__(controller)
@@ -68,7 +69,8 @@ class SelectTool(AbstractPathTool):
         painter.drawLine(x, .25*baseW, x, .75*baseW)
 
     def paint(self, painter, option, widget=None):
-        return
+        if not self.drawActionPreview:
+            return
         loc = self.lastLocation()
         if loc==None:
             return

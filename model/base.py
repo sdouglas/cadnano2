@@ -149,12 +149,12 @@ class Base(object):
             toOld3._5pBase = None
         self._5pBase = toBase
         if toOld3:
-            toOld3._vhelix.hasBeenModified()
+            toOld3._vhelix.setHasBeenModified()
         if fromOld5:
-            fromOld5._vhelix.hasBeenModified()
-        self._vhelix.hasBeenModified()
+            fromOld5._vhelix.setHasBeenModified()
+        self._vhelix.setHasBeenModified()
         if toBase:
-            toBase._vhelix.hasBeenModified()
+            toBase._vhelix.setHasBeenModified()
         return (fromOld5, toOld3)
 
     def _unset5Prime(self, toBase, fromOld5, toOld3):
@@ -163,12 +163,12 @@ class Base(object):
         if toOld3 != None:
             toBase._set3Prime(toOld3)
         if toOld3:
-            toOld3._vhelix.hasBeenModified()
+            toOld3._vhelix.setHasBeenModified()
         if fromOld5:
-            fromOld5._vhelix.hasBeenModified()
+            fromOld5._vhelix.setHasBeenModified()
         if toBase:
-            toBase._vhelix.hasBeenModified()
-        self._vhelix.hasBeenModified()
+            toBase._vhelix.setHasBeenModified()
+        self._vhelix.setHasBeenModified()
 
     def _set3Prime(self, toBase):
         """Only VirtualHelix should call this method. Returns l
@@ -183,12 +183,12 @@ class Base(object):
             toOld5._3pBase = None
         self._3pBase = toBase
         if toOld5:
-            toOld5._vhelix.hasBeenModified()
+            toOld5._vhelix.setHasBeenModified()
         if fromOld3:
-            fromOld3._vhelix.hasBeenModified()
+            fromOld3._vhelix.setHasBeenModified()
         if toBase:
-            toBase._vhelix.hasBeenModified()
-        self._vhelix.hasBeenModified()
+            toBase._vhelix.setHasBeenModified()
+        self._vhelix.setHasBeenModified()
         return (fromOld3, toOld5)
 
     def _unset3Prime(self, toBase, fromOld3, toOld5):
@@ -197,12 +197,12 @@ class Base(object):
         if toOld5 != None:
             toBase._set5Prime(toOld5)
         if toOld5:
-            toOld5._vhelix.hasBeenModified()
+            toOld5._vhelix.setHasBeenModified()
         if fromOld3:
-            fromOld3._vhelix.hasBeenModified()
+            fromOld3._vhelix.setHasBeenModified()
         if toBase:
-            toBase._vhelix.hasBeenModified()
-        self._vhelix.hasBeenModified()
+            toBase._vhelix.setHasBeenModified()
+        self._vhelix.setHasBeenModified()
 
     def vhelix(self):
         return self._vhelix
@@ -227,7 +227,7 @@ class Base(object):
 
     def setColor(self, colorName):
         self._colorName = colorName
-        self._vhelix.hasBeenModified()
+        self._vhelix.setHasBeenModified()
 
     def getColor(self):
         return self._colorName
