@@ -99,8 +99,8 @@ class VirtualHelix(QObject):
         self.setNumBases(numBases, notUndoable=True)
         
         # During a single UndoCommand, many basesModified signals can be generated.
-        # basesModifiedVHs stores a set of VH that will emitModificationSignal
-        # upon a call to flushBasesModifiedSignals.
+        # basesModifiedVHs stores a set of VH that will hasBeenModified
+        # upon a call to emitBasesModifiedIfNeeded.
         self.basesModifiedVHs = set()
         
     def __repr__(self):
@@ -351,7 +351,7 @@ class VirtualHelix(QObject):
             return False
         else:
             return base.isStrand()
-
+    
     def hasEndAt(self, strandType, index):
         base = self._baseAt(strandType, index)
         if not base:
@@ -385,23 +385,23 @@ class VirtualHelix(QObject):
             b = strand[i]
             
             #Segments
-            if b.segmentL():
+            if b._hasSubSegmentL():
                 if s==None:
                     s = i
                 else:
                     pass
-            else: # not b.segmentL()
+            else: # not connected to base on left
                 if s==None:
                     pass
                 else:
                     segments.append((s,i))
                     s = None
-            if b.segmentR():
+            if b._hasSubSegmentR():
                 if s==None:
                     s = i+.5
                 else:
                     pass
-            else: # not b.segmentR()
+            else: # not connected to base on right
                 if s==None:
                     pass
                 else:
@@ -415,31 +415,6 @@ class VirtualHelix(QObject):
                 ends3.append(i)
 
         return (segments, ends3, ends5)
-
-    def getDragLimits(self, strandType, index):
-        """
-        Return leftmost and rightmost indices (inclusive) that a breakpoint
-        handle can explore before running into another handle or the path-
-        helix edge.
-        """
-        strand = self._strand(strandType)
-        left = max(0, index - 1)
-        base = strand[left]
-        while not base.isEnd() and not base.isCrossover():
-            if left == 0:
-                left -= 1  # edge case
-                break
-            left -= 1
-            base = strand[left]
-        right = min(index + 1, len(strand) - 1)
-        base = strand[right]
-        while not base.isEnd() and not base.isCrossover():
-            if right == len(strand) - 1:
-                right += 1  # edge case
-                break
-            right += 1
-            base = strand[right]
-        return (left + 1, right - 1)  # compensate for peeking at the boundary
 
     def get3PrimeXovers(self, strandType):
         """
@@ -484,7 +459,21 @@ class VirtualHelix(QObject):
         c = QColor(self._stapleBases[idx].getColor())
         # print "colorOfBase", idx, c.name(), self._stapleBases[idx].getColor()
         return c
-
+    
+    def _basesConnectedTo(self, strandType, idx):
+        strand = self._strand(strandType)
+        bases = set()
+        treeTips = [strand[idx]]
+        while len(treeTips):
+            b = treeTips.pop()
+            if b in bases:
+                continue
+            else:
+                bases.add(b)
+                treeTips.append(b._3pBase)
+                treeTips.append(b._5pBase)
+        return bases
+            
     def sandboxed(self):
         return self._sandboxed
 
@@ -518,6 +507,58 @@ class VirtualHelix(QObject):
             print "Creating detached undo stack for %s" % self
             self._privateUndoStack = QUndoStack()
         return self._privateUndoStack
+    
+    ################# New-Style Accessors ###################
+    # A neighbor base is one that is connected to the base represented
+    # by self through a phosphate linkage. These accessors let you get them
+    def neighbor5p(self, strandType, idx):
+        b = self._strand(strandType)[idx]._neighbor5p()
+        return (b._vhelix, b._strandtype, b._n)
+    def neighbor3p(self, strandType, idx):
+        b = self._strand(strandType)[idx]._neighbor3p()
+        return (b._vhelix, b._strandtype, b._n)
+    # Although different strands are oriented different ways inside the gui,
+    # R and L always represent the bases to the right and left of the receiver
+    # in the GUI
+    def neighborR(self, strandType, idx):
+        b = self._strand(strandType)[idx]._neighborR()
+        return (b._vhelix, b._strandtype, b._n)
+    def neighborL(self, strandType, idx):
+        b = self._strand(strandType)[idx]._neighborL()
+        return (b._vhelix, b._strandtype, b._n)
+    
+    # Test for the presence of neghbors
+    def hasNeighbor5p(self, strandType, idx):
+        return self._strand(strandType)[idx]._hasNeighbor5p()
+    def hasNeighbor3p(self, strandType, idx):
+        return self._strand(strandType)[idx]._hasNeighbor3p()
+    def hasNeighborR(self, strandType, idx):
+        return self._strand(strandType)[idx]._hasNeighborR()
+    def hasNeighborL(self, strandType, idx):
+        return self._strand(strandType)[idx]._hasNeighborL()
+    
+    # A segment is a connection between a base and its neighbor
+    # base on the same strand
+    def hasSubSegment5p(self, strandType, idx):
+        return self._strand(strandType)[idx]._hasSubSegment5p()
+    def hasSubSegment3p(self, strandType, idx):
+        return self._strand(strandType)[idx]._hasSubSegment3p()
+    def hasSubSegmentR(self, strandType, idx):
+        return self._strand(strandType)[idx]._hasSubSegmentR()
+    def hasSubSegmentL(self, strandType, idx):
+        return self._strand(strandType)[idx]._hasSubSegmentL()
+    
+    # A crossover is a connection between a base and a base
+    # that isn't its neighbor on the same strand
+    def hasCrossover5p(self, strandType, idx):
+        return self._strand(strandType)[idx]._hasCrossover5p()
+    def hasCrossover3p(self, strandType, idx):
+        return self._strand(strandType)[idx]._hasCrossover3p()
+    def hasCrossoverR(self, strandType, idx):
+        return self._strand(strandType)[idx]._hasCrossoverR()
+    def hasCrossoverL(self, strandType, idx):
+        return self._strand(strandType)[idx]._hasCrossoverL()
+    
 
     ################## Public Base Modification API #########
     """
@@ -531,13 +572,13 @@ class VirtualHelix(QObject):
         _doSomething() -> Private API
     or Outside World -> doSomething() -> DoSomethingUndoCommand -> Private API
     """
-    def emitModificationSignal(self):
+    def hasBeenModified(self):
         if self.part():
             self.part().basesModifiedVHs.add(self)
         else:
             self.basesModified.emit()
     
-    def flushBasesModifiedSignals(self):
+    def emitBasesModifiedIfNeeded(self):
         if self.part():
             for vh in self.part().basesModifiedVHs:
                 vh.basesModified.emit()
@@ -546,7 +587,7 @@ class VirtualHelix(QObject):
             self.basesModified.emit()
         #self.part().virtualHelixAtCoordsChanged.emit(*self.coord())
         
-    def connectStrand(self, strandType, startIndex, endIndex):
+    def connectStrand(self, strandType, startIndex, endIndex, macro=True, undoStack=None):
         """
         Connects sequential bases on a single strand, starting with
         startIndex and ending with etdIndex (inclusive)
@@ -557,38 +598,58 @@ class VirtualHelix(QObject):
                                         int(min(startIndex, endIndex))
         startIndex = clamp(startIndex, 0, len(strand) - 1)
         endIndex = clamp(endIndex, 0, len(strand) - 1)
+        if undoStack==None:
+            undoStack = self.undoStack()
+        if macro:
+            undoStack.beginMacro("Connect Strand")
         c = self.ConnectStrandCommand(self, strandType, startIndex, endIndex)
-        self.undoStack().push(c)
+        undoStack.push(c)
+        if macro:
+            self.thoughtPolice(undoStack)  # Check for inconsistencies, fix one-base Xovers, etc
+            undoStack.endMacro()
 
-    def clearStrand(self, strandType, startIndex, endIndex):
+    def clearStrand(self, strandType, startIndex, endIndex, macro=True, undoStack=None):
         endIndex, startIndex = int(max(startIndex, endIndex)),\
                                         int(min(startIndex, endIndex))
         strand = strandType == StrandType.Scaffold and \
             self._scaffoldBases or self._stapleBases
         startIndex = clamp(startIndex, 1, len(strand)-1)
         endIndex = clamp(endIndex, 1, len(strand)-1)
+        if undoStack==None:
+            undoStack = self.undoStack()
+        if macro:
+            undoStack.beginMacro("Clear Strand")
         c = self.ClearStrandCommand(self, strandType, startIndex, endIndex)
-        self.undoStack().push(c)
+        undoStack.push(c)
+        if macro:
+            self.thoughtPolice(undoStack)  # Check for inconsistencies, fix one-base Xovers, etc
+            undoStack.endMacro()
 
-    def installXoverFrom3To5(self, strandType, fromIndex, toVhelix, toIndex):
+    def installXoverFrom3To5(self, strandType, fromIndex, toVhelix, toIndex, macro=True, undoStack=None):
         """
         The from base must provide the 3' pointer, and to must provide 5'.
         """
+        if undoStack==None:
+            undoStack = self.undoStack()
+        if macro:
+            undoStack.beginMacro("Install 3-5 Xover")
         c = self.Connect3To5Command(strandType, self, fromIndex, toVhelix,\
                                     toIndex)
-        self.undoStack().push(c)
+        undoStack.push(c)
+        if macro:
+            self.thoughtPolice(undoStack)  # Check for inconsistencies, fix one-base Xovers, etc
+            toVhelix.thoughtPolice(undoStack=undoStack)
+            undoStack.endMacro()
     
     def removeXoversAt(self, strandType, idx):
         fromBase = self._strand(strandType)[idx]
-        self.undoStack().beginMacro("Removing Crossover")
         for toBase in (fromBase._3pBase, fromBase._5pBase):
             if toBase==None:
                 continue
             if toBase._vhelix != self:
                 self.removeXoverTo(strandType, idx, toBase._vhelix, toBase._n)
-        
 
-    def removeXoverTo(self, strandType, fromIndex, toVhelix, toIndex):
+    def removeXoverTo(self, strandType, fromIndex, toVhelix, toIndex, macro=True, undoStack=None):
         strand = self._strand(strandType)
         fromBase = strand[fromIndex]
         toBase = toVhelix._strand(strandType)[toIndex]
@@ -596,9 +657,16 @@ class VirtualHelix(QObject):
             fromBase, toBase = toBase, fromBase
         if fromBase._3pBase != toBase or fromBase != toBase._5pBase:
             raise IndexError("Crossover does not exist to be removed.")
-        fromVH = fromBase._vhelix
+        if undoStack==None:
+            undoStack = self.undoStack()
+        if macro:
+            undoStack.beginMacro("Remove Xover")
         c = fromVH.Break3To5Command(strandType, fromVH, fromIndex)
-        fromVH.undoStack().push(c)
+        undoStack.push(c)
+        if macro:
+            self.thoughtPolice(undoStack)  # Check for inconsistencies, fix one-base Xovers, etc
+            toVhelix.thoughtPolice(undoStack=undoStack)
+            undoStack.endMacro()
         
     def installLoop(self, strandType, index, loopsize):
         """
@@ -628,7 +696,7 @@ class VirtualHelix(QObject):
                 base.setColor(colorName)
                 base = base.get3pBase()  # advance to next
             base.setColor(colorName)  # last 3' base
-        self.flushBasesModifiedSignals()
+        self.emitBasesModifiedIfNeeded()
 
     def setFloatingXover(self, strandType=None, fromIdx=None, toPoint=None):
         """The floating crossover is a GUI hack that is the
@@ -640,16 +708,40 @@ class VirtualHelix(QObject):
             self.floatingXoverBase._floatingXoverDestination = None
             self.floatingXoverBase = None
         if strandType==None or fromIdx==None or toPoint==None:
-            self.emitModificationSignal()
-            self.flushBasesModifiedSignals()
+            self.hasBeenModified()
+            self.emitBasesModifiedIfNeeded()
             return
         newXoverBase = self._strand(strandType)[fromIdx]
         newXoverBase._floatingXoverDestination = toPoint
         self.floatingXoverBase = newXoverBase
-        self.emitModificationSignal()
-        self.flushBasesModifiedSignals()
+        self.hasBeenModified()
+        self.emitBasesModifiedIfNeeded()
 
     ################ Private Base Modification API ###########################
+    # The Notification Responsibilities of a Command
+    #   1) Call vh.hasBeenModified() on every VirtualHelix that is modified.
+    #      Judiciously use this method, since all it really does is add the VH
+    #      it is called on to a list of dirty VH in the dnapart.
+    #   2) Call vh.emitBasesModifiedIfNeeded() when you are done with a command.
+    #      This actually emits the signals (this way, Base can automatically
+    #      decide which VH were dirtied yet a command that affects 20 bases doesn't
+    #      result in 20 duplicate basesModified signals being emitted)
+    
+    def thoughtPolice(self, undoStack):
+        """Make sure that self obeys certain limitations, force it to if it doesn't"""
+        for strandType in (StrandType.Scaffold, StrandType.Staple):
+            strand = self._strand(strandType)
+            for i in range(len(strand)):
+                b = strand[i]
+                hasNeighborL = b._hasNeighborL()
+                hasNeighborR = b._hasNeighborR() 
+                hasXoverL = b._hasCrossoverL()
+                hasXoverR = b._hasCrossoverR()
+                if hasXoverL and not hasNeighborR:
+                    self.connectStrand(strandType, i, i+1, macro=False, undoStack=undoStack)
+                if hasXoverR and not hasNeighborL:
+                    self.connectStrand(strandType, i-1, i, macro=False, undoStack=undoStack)
+    
     class LoopCommand(QUndoCommand):
         def __init__(self, virtualHelix, strandType, index, loopsize):
             super(VirtualHelix.LoopCommand, self).__init__()
@@ -674,8 +766,8 @@ class VirtualHelix(QObject):
                         del loop[self._index]
                     # end if
                 # end else
-                self._vh.emitModificationSignal()
-                self._vh.flushBasesModifiedSignals()
+                self._vh.hasBeenModified()
+                self._vh.emitBasesModifiedIfNeeded()
 
         def undo(self):
             if self._vh.hasStrandAt(self._strandType, self._index):
@@ -688,8 +780,8 @@ class VirtualHelix(QObject):
                         del loop[self._index]
                     # end if
                 # end else
-                self._vh.emitModificationSignal()
-                self._vh.flushBasesModifiedSignals()
+                self._vh.hasBeenModified()
+                self._vh.emitBasesModifiedIfNeeded()
 
     class ConnectStrandCommand(QUndoCommand):
         def __init__(self, virtualHelix, strandType, startIndex, endIndex):
@@ -711,7 +803,7 @@ class VirtualHelix(QObject):
             else:
                 for i in range(self._startIndex, self._endIndex):
                     ol.append(strand[i]._set5Prime(strand[i + 1]))
-            self._vh.flushBasesModifiedSignals()
+            self._vh.emitBasesModifiedIfNeeded()
 
         def undo(self):
             strand = self._vh._strand(self._strandType)
@@ -725,7 +817,7 @@ class VirtualHelix(QObject):
                 for i in range(self._endIndex - 1, self._startIndex - 1, -1):
                     strand[i]._unset5Prime(strand[i + 1],\
                                            *ol[i - self._startIndex])
-            self._vh.flushBasesModifiedSignals()
+            self._vh.emitBasesModifiedIfNeeded()
 
     class ClearStrandCommand(QUndoCommand):
         def __init__(self, virtualHelix, strandType, startIndex, endIndex):
@@ -756,7 +848,7 @@ class VirtualHelix(QObject):
                     ol.append(leftBase._set5Prime(None))
                     # Clear (i+1).prev
                     ol.append(rightBase._set3Prime(None))
-            self._vh.flushBasesModifiedSignals()
+            self._vh.emitBasesModifiedIfNeeded()
 
         def undo(self):
             strand = self._vh._strand(self._strandType)
@@ -770,7 +862,7 @@ class VirtualHelix(QObject):
                 for i in range(self._endIndex - 1, self._startIndex - 2, -1):
                     strand[i+1]._unset3Prime(None, *ol.pop())
                     strand[i]._unset5Prime(None, *ol.pop())
-            self._vh.flushBasesModifiedSignals()
+            self._vh.emitBasesModifiedIfNeeded()
 
     class Connect3To5Command(QUndoCommand):
         def __init__(self, strandType, fromHelix, fromIndex, toHelix, toIndex):
@@ -785,14 +877,14 @@ class VirtualHelix(QObject):
             fromB = self._fromHelix._strand(self._strandType)[self._fromIndex]
             toB = self._toHelix._strand(self._strandType)[self._toIndex]
             self._undoDat = fromB._set3Prime(toB)
-            self._fromHelix.flushBasesModifiedSignals()
+            self._fromHelix.emitBasesModifiedIfNeeded()
 
         def undo(self):
             fromB = self._fromHelix._strand(self._strandType)[self._fromIndex]
             toB = self._toHelix._strand(self._strandType)[self._toIndex]
             assert(self._undoDat)  # Must redo/apply before undo
             fromB._unset3Prime(toB, *self._undoDat)
-            self._fromHelix.flushBasesModifiedSignals()
+            self._fromHelix.emitBasesModifiedIfNeeded()
 
     class Break3To5Command(QUndoCommand):
         def __init__(self, strandType, vhelix, index):
@@ -804,13 +896,13 @@ class VirtualHelix(QObject):
             base = self._base
             self._old3pBase = base._3pBase
             base._set3Prime(None)
-            base._vhelix.flushBasesModifiedSignals()
+            base._vhelix.emitBasesModifiedIfNeeded()
 
         def undo(self):
             assert(self._old3pBase)
             base = self._base
             base._set3Prime(self._old3pBase)
-            base._vhelix.flushBasesModifiedSignals()
+            base._vhelix.emitBasesModifiedIfNeeded()
 
     class SetNumBasesCommand(QUndoCommand):
         def __init__(self, vhelix, newNumBases):

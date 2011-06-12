@@ -149,10 +149,12 @@ class Base(object):
             toOld3._5pBase = None
         self._5pBase = toBase
         if toOld3:
-            toOld3._vhelix.emitModificationSignal()
+            toOld3._vhelix.hasBeenModified()
         if fromOld5:
-            fromOld5._vhelix.emitModificationSignal()
-        self._vhelix.emitModificationSignal()
+            fromOld5._vhelix.hasBeenModified()
+        self._vhelix.hasBeenModified()
+        if toBase:
+            toBase._vhelix.hasBeenModified()
         return (fromOld5, toOld3)
 
     def _unset5Prime(self, toBase, fromOld5, toOld3):
@@ -161,10 +163,12 @@ class Base(object):
         if toOld3 != None:
             toBase._set3Prime(toOld3)
         if toOld3:
-            toOld3._vhelix.emitModificationSignal()
+            toOld3._vhelix.hasBeenModified()
         if fromOld5:
-            fromOld5._vhelix.emitModificationSignal()
-        self._vhelix.emitModificationSignal()
+            fromOld5._vhelix.hasBeenModified()
+        if toBase:
+            toBase._vhelix.hasBeenModified()
+        self._vhelix.hasBeenModified()
 
     def _set3Prime(self, toBase):
         """Only VirtualHelix should call this method. Returns l
@@ -179,10 +183,12 @@ class Base(object):
             toOld5._3pBase = None
         self._3pBase = toBase
         if toOld5:
-            toOld5._vhelix.emitModificationSignal()
+            toOld5._vhelix.hasBeenModified()
         if fromOld3:
-            fromOld3._vhelix.emitModificationSignal()
-        self._vhelix.emitModificationSignal()
+            fromOld3._vhelix.hasBeenModified()
+        if toBase:
+            toBase._vhelix.hasBeenModified()
+        self._vhelix.hasBeenModified()
         return (fromOld3, toOld5)
 
     def _unset3Prime(self, toBase, fromOld3, toOld5):
@@ -191,10 +197,12 @@ class Base(object):
         if toOld5 != None:
             toBase._set5Prime(toOld5)
         if toOld5:
-            toOld5._vhelix.emitModificationSignal()
+            toOld5._vhelix.hasBeenModified()
         if fromOld3:
-            fromOld3._vhelix.emitModificationSignal()
-        self._vhelix.emitModificationSignal()
+            fromOld3._vhelix.hasBeenModified()
+        if toBase:
+            toBase._vhelix.hasBeenModified()
+        self._vhelix.hasBeenModified()
 
     def vhelix(self):
         return self._vhelix
@@ -204,12 +212,22 @@ class Base(object):
 
     def get5pBase(self):
         return self._5pBase
+    
+    def has5pBase(self):
+        return self._5pBase!=None
+    
+    def has3pXover(self):
+        return self.has3p
 
     def get3pBase(self):
         return self._3pBase
+    
+    def has3pBase(self):
+        return self._3pBase!=None
 
     def setColor(self, colorName):
         self._colorName = colorName
+        self._vhelix.hasBeenModified()
 
     def getColor(self):
         return self._colorName
@@ -220,42 +238,134 @@ class Base(object):
 
     def is5primeEnd(self):
         """Return True if no 5pBase, but 3pBase exists."""
-        return (self._5pBase == None or self._5pBase._floatingXoverDestination) and \
-               self._3pBase != None
+        return self._hasNeighbor3p() and not self._hasNeighbor5p()
 
     def is3primeEnd(self):
         """Return True if no 3pBase, but 5pBase exists."""
-        return self._5pBase != None and \
-               self._3pBase == None
+        return self._hasNeighbor5p() and not self._hasNeighbor3p()
     
-    def segmentR(self):
-        """True iff we connect to the next (right, in PathHelix) base"""
-        strnd = self._vhelix._strand(self._strandtype)
-        if self._n >= len(strnd)-1:
-            return False
-        strndNext = strnd[self._n+1]
+    def _neighbor5p(self):
+        n = self._5pBase
+        if n and n.floatingXoverDestination():
+            return None
+        return n
+    def _neighbor3p(self):
+        if self.floatingXoverDestination():
+            return None
+        return self._3pBase
+    def _neighborR(self):
         if self._vhelix.directionOfStrandIs5to3(self._strandtype):
-            return self._3pBase==strndNext and not self.floatingXoverDestination()
+            return self._neighbor3p()
         else:
-            return self._5pBase==strndNext and not self._5pBase.floatingXoverDestination()
+            return self._neighbor5p()
+    def _neighborL(self):
+        if self._vhelix.directionOfStrandIs5to3(self._strandtype):
+            return self._neighbor5p()
+        else:
+            return self._neighbor3p()
+
+    # A neighbor base is one that is connected to the base represented
+    # by self through a phosphate linkage
+    # When a crossover is being forcibly created (right click pencil tool
+    # or left click force tool) the base being dragged from is considered
+    # to have a "floating" destination that causes _hasNeighbor3p (and one
+    # of _hasNeighbor{L,R}) to return True but will still show up as None
+    # if _neighbor3p is called.
+    def _hasNeighbor5p(self):
+        return self._neighbor5p() != None
+    def _hasNeighbor3p(self):
+        return self._neighbor3p() != None
+    def _hasNeighborR(self):
+        if self._vhelix.directionOfStrandIs5to3(self._strandtype):
+            return self._neighbor3p()!=None or self.floatingXoverDestination()
+        else:
+            return self._neighbor5p() != None
+    def _hasNeighborL(self):
+        if self._vhelix.directionOfStrandIs5to3(self._strandtype):
+            return self._neighbor5p()!=None or self.floatingXoverDestination()
+        else:
+            return self._neighbor3p() != None
     
-    def segmentL(self):
-        """True iff we connect to the previous (left, in PathHelix) base"""
+    # A segment is a connection between a base and its neighbor
+    # base on the same strand
+    def _hasSubSegment5p(self):
         strnd = self._vhelix._strand(self._strandtype)
-        if self._n <= 0:
-            return False
-        strndPrev = strnd[self._n-1]
         if self._vhelix.directionOfStrandIs5to3(self._strandtype):
-            return self._5pBase==strndPrev and not self._5pBase.floatingXoverDestination()
+            guiLeftNeighbor = strnd[self._n-1] if self._n>0 else None
+            return self._neighbor5p() == guiLeftNeighbor
         else:
-            return self._3pBase==strndPrev and not self.floatingXoverDestination()       
+            guiRightNeighbor = strnd[self._n+1] if self._n<len(strnd)-1 else None
+            return self._neighbor5p() == guiRightNeighbor
+    def _hasSubSegment3p(self):
+        strnd = self._vhelix._strand(self._strandtype)
+        if self._vhelix.directionOfStrandIs5to3(self._strandtype):
+            guiRightNeighbor = strnd[self._n+1] if self._n<len(strnd)-1 else None
+            return self._neighbor3p() == guiRightNeighbor
+        else:
+            guiLeftNeighbor = strnd[self._n-1] if self._n>0 else None
+            return self._neighbor3p() == guiLeftNeighbor
+    def _hasSubSegmentR(self):
+        strnd = self._vhelix._strand(self._strandtype)
+        guiRightNeighbor = strnd[self._n+1] if self._n<len(strnd)-1 else None
+        if not guiRightNeighbor:
+            return False
+        if self._vhelix.directionOfStrandIs5to3(self._strandtype):
+            return self._neighbor3p() == guiRightNeighbor
+        else:
+            return self._neighbor5p() == guiRightNeighbor
+    def _hasSubSegmentL(self):
+        strnd = self._vhelix._strand(self._strandtype)
+        guiLeftNeighbor = strnd[self._n-1] if self._n>0 else None
+        if not guiLeftNeighbor:
+            return False
+        if self._vhelix.directionOfStrandIs5to3(self._strandtype):
+            return self._neighbor5p() == guiLeftNeighbor
+        else:
+            return self._neighbor3p() == guiLeftNeighbor
+    
+    # A crossover is a connection between a base and a base
+    # that isn't its neighbor on the same strand
+    def _hasCrossover5p(self):
+        strnd = self._vhelix._strand(self._strandtype)
+        if self._vhelix.directionOfStrandIs5to3(self._strandtype):
+            guiLeftNeighbor = strnd[self._n-1] if self._n>0 else None
+            return self._neighbor5p() not in (None, guiLeftNeighbor)
+        else:
+            guiRightNeighbor = strnd[self._n+1] if self._n<len(strnd)-1 else None
+            return self._neighbor5p() not in (None, guiRightNeighbor)
+    def _hasCrossover3p(self):
+        strnd = self._vhelix._strand(self._strandtype)
+        if self._vhelix.directionOfStrandIs5to3(self._strandtype):
+            guiRightNeighbor = strnd[self._n+1] if self._n<len(strnd)-1 else None
+            return self._neighbor3p() not in (None, guiRightNeighbor)
+        else:
+            guiLeftNeighbor = strnd[self._n-1] if self._n>0 else None
+            return self._neighbor3p() not in (None, guiLeftNeighbor)
+    def _hasCrossoverR(self):
+        strnd = self._vhelix._strand(self._strandtype)
+        guiRightNeighbor = strnd[self._n+1] if self._n<len(strnd)-1 else None
+        if self._vhelix.directionOfStrandIs5to3(self._strandtype):
+            if self.floatingXoverDestination():
+                return True
+            return self._neighbor3p() not in (None, guiRightNeighbor)
+        else:
+            return self._neighbor5p() not in (None, guiRightNeighbor)
+    def _hasCrossoverL(self):
+        strnd = self._vhelix._strand(self._strandtype)
+        guiLeftNeighbor = strnd[self._n-1] if self._n>0 else None
+        if self._vhelix.directionOfStrandIs5to3(self._strandtype):
+            return self._neighbor5p() not in (None, guiLeftNeighbor)
+        else:
+            if self.floatingXoverDestination():
+                return True
+            return self._neighbor3p() not in (None, guiLeftNeighbor)
+    
+    
 
     def isEnd(self):
-        if self._floatingXoverDestination:
-            return False
-        if self.is5primeEnd():
+        if self._hasNeighbor5p():
             return 5
-        if self.is3primeEnd():
+        if self._hasNeighbor3p():
             return 3
         return False
 
@@ -270,22 +380,7 @@ class Base(object):
     def isCrossover(self):
         """Return True if the part id or vhelix number of the prev or
         next base does not match the same for this base."""
-        if self._floatingXoverDestination:
-            return True
-        strand = self._vhelix._strand(self._strandtype)
-        # The previous (left) and next (right) bases we would expect
-        # if we were in the middle of a segment
-        bLeft = strand[self._n-1] if self._n!=0 else None
-        bRight = strand[self._n+1] if self._n!=len(strand)-1 else None
-        if self._vhelix.directionOfStrandIs5to3(self._strandtype):
-            b3, b5 = bRight, bLeft
-        else:
-            b3, b5 = bLeft, bRight
-        if self._3pBase not in (None, b3):
-            return True
-        if self._5pBase not in (None, b5):
-            return True
-        return False
+        return self._hasCrossover3p() or self._hasCrossover5p()
     
     def floatingXoverDestination(self):
         """When a force crossover is being added, a crossover

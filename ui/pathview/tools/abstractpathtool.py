@@ -54,6 +54,8 @@ class AbstractPathTool(QGraphicsItem):
     * graphics items that make up the view sit back and watch the model,
       updating when it changes
     """
+    
+    dontAllowCrossoverToNonSegmentedBase = False
 
     _baseWidth = styles.PATH_BASE_WIDTH
     _toolRect = QRectF(0, 0,\
@@ -99,17 +101,19 @@ class AbstractPathTool(QGraphicsItem):
     def hoverMovePathHelix(self, pathHelix, event, flag=None):
         self.updateLocation(pathHelix, event.scenePos())
     
-    def updateLocation(self, pathHelix, scenePos):
+    def updateLocation(self, pathHelix, scenePos, *varargs):
         """Takes care of caching the location so that a tool switch
         outside the context of an event will know where to
         position the new tool and snaps self's pos to the upper
         left hand corner of the base the user is mousing over"""
         if pathHelix:
             self.setParentItem(pathHelix)
-            self.show()
+            if not self.isVisible():
+                self.show()
             self._lastLocation = (pathHelix, scenePos)
             posItem = self.parentItem().mapFromScene(scenePos)
             self.setPos(self.helixPos(posItem))
+            self.update(self.boundingRect())
         else:
             self._lastLocation = None
             self.hide()
