@@ -41,9 +41,10 @@ from ui.pathview.pathhelix import PathHelix
 from ui.pathview.pathhelixgroup import PathHelixGroup
 from abstractpathtool import AbstractPathTool
 
+
 class ForceTool(AbstractPathTool):
     dontAllowCrossoverToNonSegmentedBase = True
-    
+
     def __init__(self, parent=None, rightClickOnly=False):
         super(ForceTool, self).__init__(parent)
         self.hide()
@@ -59,7 +60,8 @@ class ForceTool(AbstractPathTool):
         pathHelix = phg.pathHelixAtScenePos(posScene)
         if pathHelix:
             posItem = pathHelix.mapFromScene(posScene)
-            strandType, idx = pathHelix.baseAtLocation(posItem.x(), posItem.y())
+            strandType, idx = pathHelix.baseAtLocation(posItem.x(),\
+                                                       posItem.y())
             vh = pathHelix.vhelix()
             base2 = (vh, strandType, idx)
         else:
@@ -69,33 +71,39 @@ class ForceTool(AbstractPathTool):
     def mousePressPathHelix(self, pathHelix, event):
         self.setFocus()  # Receive key events
         self.updateDrag(pathHelix, event, mustEnd=True, canStart=True)
+
     def mousePressPathHelixGroup(self, phg, event):
         self.updateDrag(phg, event, mustEnd=True, canStart=True)
 
     def mouseMovePathHelix(self, pathHelix, event):
         self.updateDrag(pathHelix, event)
+
     def mouseMovePathHelixGroup(self, phg, event):
         self.updateDrag(phg, event)
+
     def hoverMovePathHelix(self, pathHelix, event):
         AbstractPathTool.hoverMovePathHelix(self, pathHelix, event)
         self.updateDrag(pathHelix, event)
+
     def hoverMovePathHelixGroup(self, phg, event):
         self.updateDrag(phg, event)
 
     def mouseReleasePathHelix(self, pathHelix, event):
         self.updateDrag(pathHelix, event, canEnd=True)
+
     def mouseReleasePathHelixGroup(self, phg, event):
         self.updateDrag(phg, event, canEnd=True)
-    
+
     def keyPressEvent(self, event):
         if event.key() in (Qt.Key_Escape, Qt.Key_Backspace):
             self.updateDrag(None, None, mustEnd=True)
-    
+
     def setActive(self, willBeActive):
         AbstractPathTool.setActive(self, willBeActive)
         self.updateDrag(None, None, mustEnd=True)
 
-    def updateDrag(self, ph, event, canStart=False, canEnd=False, mustEnd=False):
+    def updateDrag(self, ph, event, canStart=False,\
+                   canEnd=False, mustEnd=False):
         """This is the designated method for handling ForceTool
         dragging. Why a single method? a multitude of different
         events can have similar effects, so having a single drag
@@ -124,21 +132,21 @@ class ForceTool(AbstractPathTool):
             if destBase and\
                self.dontAllowCrossoverToNonSegmentedBase and\
                not (destBase[0].hasStrandAt(destBase[1], destBase[2]) or\
-                    destBase[0].hasEndAt(destBase[1], destBase[2])==5):
+                    destBase[0].hasEndAt(destBase[1], destBase[2]) == 5):
                 destBase = None
-                canStart = False                
-        
+                canStart = False
+
         ### This is the middle, drag-operation dependent
         ### part of the code.
         didEnd = False
-        if self.base1==None and canStart:  # Start drag
+        if self.base1 == None and canStart:  # Start drag
             self.base1 = destBase
             vh = destBase[0]
             vh.setSandboxed(True)
         elif not self.base1:
             return
         elif not ph or not event or\
-             canEnd and not destBase==self.base1 or\
+             canEnd and not destBase == self.base1 or\
              mustEnd:  # End drag
             didEnd = True
             vh = self.base1[0]
@@ -151,7 +159,7 @@ class ForceTool(AbstractPathTool):
             # document undo stack
             assert(sandboxUndoStack != vh.part().undoStack())
             sandboxUndoStack.undo()
-        
+
         ### Shared footer
         # Can't connect a base to itself :)
         if destBase == self.base1:
@@ -160,7 +168,7 @@ class ForceTool(AbstractPathTool):
         if destBase and\
            destBase[0].hasCrossoverAt(destBase[1], destBase[2]):
             destBase = None
-        if not phg or destBase==None:
+        if not phg or destBase == None:
             # If we're hovering over thin air, we draw
             # a floatingXover (only 3' end connected to a
             # segment, 5' end is beneath the mouse)

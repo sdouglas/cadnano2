@@ -59,7 +59,7 @@ class SceneRoot(QtGui.QGraphicsItem):
 # end class
 
 class DocumentWindow(QtGui.QMainWindow, ui_mainwindow.Ui_MainWindow):
-    '''docstring for DocumentWindow'''
+    """docstring for DocumentWindow"""
     def __init__(self, parent=getMayaWindow(), docCtrlr=None):
         super(DocumentWindow, self).__init__(parent)
         self.controller = docCtrlr
