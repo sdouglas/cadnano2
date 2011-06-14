@@ -26,7 +26,9 @@ base.py
 Created by Shawn Douglas on 2011-02-08.
 """
 from .enum import StrandType
-
+from random import Random
+from PyQt4.QtGui import QColor
+prng = Random()
 
 class Base(object):
     """
@@ -38,7 +40,7 @@ class Base(object):
         super(Base, self).__init__()
         self._5pBase = None
         self._3pBase = None
-        self._colorName = None
+        self._color = None
         self._vhelix = vhelix
         self._strandtype = strandtype
         self._n = index
@@ -152,6 +154,8 @@ class Base(object):
             toOld3._vhelix.setHasBeenModified()
         if fromOld5:
             fromOld5._vhelix.setHasBeenModified()
+        if self._3pBase==None and self._5pBase==None:
+            self._setColor(None)
         self._vhelix.setHasBeenModified()
         if toBase:
             toBase._vhelix.setHasBeenModified()
@@ -168,6 +172,8 @@ class Base(object):
             fromOld5._vhelix.setHasBeenModified()
         if toBase:
             toBase._vhelix.setHasBeenModified()
+        if self._3pBase==None and self._5pBase==None:
+            self._setColor(None)
         self._vhelix.setHasBeenModified()
 
     def _set3Prime(self, toBase):
@@ -188,6 +194,8 @@ class Base(object):
             fromOld3._vhelix.setHasBeenModified()
         if toBase:
             toBase._vhelix.setHasBeenModified()
+        if self._3pBase==None and self._5pBase==None:
+            self._setColor(None)
         self._vhelix.setHasBeenModified()
         return (fromOld3, toOld5)
 
@@ -202,6 +210,8 @@ class Base(object):
             fromOld3._vhelix.setHasBeenModified()
         if toBase:
             toBase._vhelix.setHasBeenModified()
+        if self._3pBase==None and self._5pBase==None:
+            self._setColor(None)
         self._vhelix.setHasBeenModified()
 
     def vhelix(self):
@@ -225,12 +235,18 @@ class Base(object):
     def has3pBase(self):
         return self._3pBase!=None
 
-    def setColor(self, colorName):
-        self._colorName = colorName
+    def _setColor(self, newColor):
+        if newColor==None:
+            newHue = prng.randint(0, 255)
+            newColor = QColor()
+            newColor.setHsv(newHue, 255, 255)
+        oldColor = self._color
+        self._color = newColor
         self._vhelix.setHasBeenModified()
+        return oldColor  # For undo
 
     def getColor(self):
-        return self._colorName
+        return self._color
 
     def isEmpty(self):
         return self._5pBase == None and \

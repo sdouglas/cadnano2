@@ -130,7 +130,7 @@ class SelectTool(AbstractPathTool):
         ph.makeSelfActiveHelix()
 
     def finalizeMouseDrag(self):
-        if not self._mouseDownBase:
+        if self._mouseDownBase == None:
             return
         vh = self._mouseDownPH.vhelix()
         vh.undoStack().undo()
@@ -141,7 +141,7 @@ class SelectTool(AbstractPathTool):
         self._mouseDownPH = None
 
     def mouseMovePathHelix(self, ph, event):
-        if self._mouseDownY == None:
+        if self._mouseDownBase == None:
             return
         vh = ph.vhelix()
         newBase = ph.baseAtLocation(event.pos().x(), self._mouseDownY, clampX=True)

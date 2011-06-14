@@ -36,8 +36,11 @@ from PyQt4.QtGui import QUndoCommand, QUndoStack, QColor
 from .base import Base
 from util import *
 from cadnano import app
+from random import Random
 import ui.styles as styles
 import re
+
+prng = Random()
 
 
 class VirtualHelix(QObject):
@@ -382,14 +385,20 @@ class VirtualHelix(QObject):
         segments, ends3, ends5 = [], [], []
         strand = self._strand(strandType)
         i, s = 0, None
+        curColor = None
         # s is the start index of the segment
+        # segColor is the color of the current segment
         for i in range(len(strand)):
             b = strand[i]
             
             #Segments
             if b._hasSubSegmentL():
+                if curColor != b.getColor():
+                    segments.append((s,i))
+                    s = i
                 if s==None:
                     s = i
+                    curColor = b.getColor()
                 else:
                     pass
             else: # not connected to base on left
@@ -401,6 +410,7 @@ class VirtualHelix(QObject):
             if b._hasSubSegmentR():
                 if s==None:
                     s = i+.5
+                    curColor = b.getColor()
                 else:
                     pass
             else: # not connected to base on right
@@ -458,9 +468,9 @@ class VirtualHelix(QObject):
             # return QColor(44, 51, 141)
         # hue = 47 * idx + 31 * self.number()
         # return QColor.fromHsl(hue % 256, 255, 128)
-        c = QColor(self._stapleBases[idx].getColor())
         # print "colorOfBase", idx, c.name(), self._stapleBases[idx].getColor()
-        return c
+        c = self._stapleBases[idx].getColor()
+        return c if c else QColor()
     
     def _basesConnectedTo(self, strandType, idx):
         strand = self._strand(strandType)
@@ -591,75 +601,65 @@ class VirtualHelix(QObject):
             self.basesModified.emit()
         #self.part().virtualHelixAtCoordsChanged.emit(*self.coord())
         
-    def connectStrand(self, strandType, startIndex, endIndex, macro=True, undoStack=None):
+    def connectStrand(self, strandType, startIndex, endIndex, undoStack=None):
         """
         Connects sequential bases on a single strand, starting with
         startIndex and ending with etdIndex (inclusive)
         Sets {s.n, (s+1).np, ..., (e-2).np, (e-1).np, e.p}
         """
         strand = self._strand(strandType)
-        endIndex, startIndex = int(max(startIndex, endIndex)),\
-                                        int(min(startIndex, endIndex))
+        startIndex, endIndex = int(startIndex), int(endIndex)
         startIndex = clamp(startIndex, 0, len(strand) - 1)
         endIndex = clamp(endIndex, 0, len(strand) - 1)
         if undoStack==None:
             undoStack = self.undoStack()
-        if macro:
-            undoStack.beginMacro("Connect Strand")
+        undoStack.beginMacro("Connect Strand")
         c = self.ConnectStrandCommand(self, strandType, startIndex, endIndex)
         undoStack.push(c)
-        if macro:
-            self.thoughtPolice(undoStack)  # Check for inconsistencies, fix one-base Xovers, etc
-            undoStack.endMacro()
+        self.thoughtPolice(undoStack)  # Check for inconsistencies, fix one-base Xovers, etc
+        undoStack.endMacro()
 
-    def clearStrand(self, strandType, startIndex, endIndex, macro=True, undoStack=None):
-        endIndex, startIndex = int(max(startIndex, endIndex)),\
-                                        int(min(startIndex, endIndex))
+    def clearStrand(self, strandType, startIndex, endIndex, undoStack=None):
+        endIndex, startIndex = int(endIndex), int(startIndex)
         strand = strandType == StrandType.Scaffold and \
             self._scaffoldBases or self._stapleBases
         startIndex = clamp(startIndex, 1, len(strand)-1)
         endIndex = clamp(endIndex, 1, len(strand)-1)
         if undoStack==None:
             undoStack = self.undoStack()
-        if macro:
-            undoStack.beginMacro("Clear Strand")
+        undoStack.beginMacro("Clear Strand")
         c = self.ClearStrandCommand(self, strandType, startIndex, endIndex)
         undoStack.push(c)
-        if macro:
-            self.thoughtPolice(undoStack)  # Check for inconsistencies, fix one-base Xovers, etc
-            undoStack.endMacro()
+        self.thoughtPolice(undoStack)  # Check for inconsistencies, fix one-base Xovers, etc
+        undoStack.endMacro()
 
-    def installXoverFrom3To5(self, strandType, fromIndex, toVhelix, toIndex, macro=True, undoStack=None):
+    def installXoverFrom3To5(self, strandType, fromIndex, toVhelix, toIndex, undoStack=None):
         """
         The from base must provide the 3' pointer, and to must provide 5'.
         """
         if undoStack==None:
             undoStack = self.undoStack()
-        if macro:
-            undoStack.beginMacro("Install 3-5 Xover")
+        undoStack.beginMacro("Install 3-5 Xover")
         c = self.Connect3To5Command(strandType, self, fromIndex, toVhelix,\
                                     toIndex)
         undoStack.push(c)
-        if macro:
-            self.thoughtPolice(undoStack)  # Check for inconsistencies, fix one-base Xovers, etc
-            toVhelix.thoughtPolice(undoStack=undoStack)
-            undoStack.endMacro()
+        self.thoughtPolice(undoStack)  # Check for inconsistencies, fix one-base Xovers, etc
+        toVhelix.thoughtPolice(undoStack=undoStack)
+        undoStack.endMacro()
     
-    def removeConnectedStrandAt(self, strandType, idx, macro=True, undoStack=None):
+    def removeConnectedStrandAt(self, strandType, idx, undoStack=None):
         if not undoStack:
             undoStack = self.undoStack()
-        if macro:
-            undoStack.beginMacro("Remove Strand")
+        undoStack.beginMacro("Remove Strand")
         bases = self._basesConnectedTo(strandType, idx)
         c = self.RemoveBasesCommand(bases)
         undoStack.push(c)
-        if macro:
-            affectedVH = set()
-            for b in bases:
-                affectedVH.add(b._vhelix)
-            for vh in affectedVH:
-                vh.thoughtPolice(undoStack)
-            undoStack.endMacro()
+        affectedVH = set()
+        for b in bases:
+            affectedVH.add(b._vhelix)
+        for vh in affectedVH:
+            vh.thoughtPolice(undoStack)
+        undoStack.endMacro()
     
     def removeXoversAt(self, strandType, idx):
         fromBase = self._strand(strandType)[idx]
@@ -669,7 +669,7 @@ class VirtualHelix(QObject):
             if toBase._vhelix != self:
                 self.removeXoverTo(strandType, idx, toBase._vhelix, toBase._n)
 
-    def removeXoverTo(self, strandType, fromIndex, toVhelix, toIndex, macro=True, undoStack=None):
+    def removeXoverTo(self, strandType, fromIndex, toVhelix, toIndex, undoStack=None):
         strand = self._strand(strandType)
         fromBase = strand[fromIndex]
         toBase = toVhelix._strand(strandType)[toIndex]
@@ -677,14 +677,12 @@ class VirtualHelix(QObject):
             raise IndexError("Crossover does not exist to be removed.")
         if undoStack==None:
             undoStack = self.undoStack()
-        if macro:
-            undoStack.beginMacro("Remove Xover")
+        undoStack.beginMacro("Remove Xover")
         c = fromVH.Break3To5Command(strandType, fromVH, fromIndex)
         undoStack.push(c)
-        if macro:
-            self.thoughtPolice(undoStack)  # Check for inconsistencies, fix one-base Xovers, etc
-            toVhelix.thoughtPolice(undoStack=undoStack)
-            undoStack.endMacro()
+        self.thoughtPolice(undoStack)  # Check for inconsistencies, fix one-base Xovers, etc
+        toVhelix.thoughtPolice(undoStack=undoStack)
+        undoStack.endMacro()
         
     def installLoop(self, strandType, index, loopsize):
         """
@@ -695,10 +693,22 @@ class VirtualHelix(QObject):
         self.undoStack().push(c)
     # end def
 
-    def applyColorAt(self, colorName, strandType, index):
-        """docstring for applyColorAt"""
-        for b in self._basesConnectedTo(strandType, index):
-            b.setColor(colorName)
+    def applyColorAt(self, color, strandType, index, undoStack=None):
+        """Determine the connected strand that passes through
+        (self, strandType, index) and apply color to every base
+        in that strand. If color is none, pick a (bright) random
+        color and apply it to every base in that strand"""
+        if undoStack==None:
+            undoStack = self.undoStack()
+        if color==None:
+            newHue = prng.randint(0, 255)
+            color = QColor()
+            color.setHsv(newHue, 255, 255)
+        undoStack.beginMacro("Apply Color")
+        bases = self._basesConnectedTo(strandType, index)
+        c = self.ApplyColorCommand(bases, color)
+        undoStack.push(c)
+        undoStack.endMacro()
         self.emitBasesModifiedIfNeeded()
 
     def setFloatingXover(self, strandType=None, fromIdx=None, toPoint=None):
@@ -742,9 +752,37 @@ class VirtualHelix(QObject):
                     hasXoverL = b._hasCrossoverL()
                     hasXoverR = b._hasCrossoverR()
                     if hasXoverL and not hasNeighborR:
-                        self.connectStrand(strandType, i, i+1, macro=False, undoStack=undoStack)
+                        self.connectStrand(strandType, i, i+1, undoStack=undoStack)
                     if hasXoverR and not hasNeighborL:
-                        self.connectStrand(strandType, i-1, i, macro=False, undoStack=undoStack)
+                        self.connectStrand(strandType, i-1, i, undoStack=undoStack)
+    
+    class ApplyColorCommand(QUndoCommand):
+        def __init__(self, bases, color):
+            super(VirtualHelix.ApplyColorCommand, self).__init__()
+            self._bases = list(bases)
+            if color==None:
+                newHue = prng.randint(0, 255)
+                newColor = QColor()
+                newColor.setHsv(newHue, 255, 255)
+            self._newColor = color
+        def redo(self):
+            oc = self._oldColors = []
+            nc = self._newColor
+            vh = None
+            for b in self._bases:
+                vh = b._vhelix
+                oc.append(b._setColor(nc))
+            if vh:
+                vh.emitBasesModifiedIfNeeded()
+        def undo(self):
+            oc = self._oldColors
+            vh = None
+            for b in reversed(self._bases):
+                vh = b._vhelix
+                b._setColor(oc.pop())
+            if vh:
+                vh.emitBasesModifiedIfNeeded()
+                
     
     class LoopCommand(QUndoCommand):
         def __init__(self, virtualHelix, strandType, index, loopsize):
@@ -818,32 +856,44 @@ class VirtualHelix(QObject):
             self._startIndex = startIndex
             self._endIndex = endIndex
             self._oldLinkage = None
+            self._colorSubCommand = None
 
         def redo(self):
             # Sets {s.n, (s+1).np, ..., (e-2).np, (e-1).np, e.p}
             # st s, s+1, ..., e-1, e are connected
             strand = self._vh._strand(self._strandType)
             ol = self._oldLinkage = []
+            firstIdx = min(self._startIndex, self._endIndex)
+            stopIdx = max(self._startIndex, self._endIndex)
             if self._vh.directionOfStrandIs5to3(self._strandType):
-                for i in range(self._startIndex, self._endIndex):
+                for i in range(firstIdx, stopIdx):
                     ol.append(strand[i]._set3Prime(strand[i + 1]))
             else:
-                for i in range(self._startIndex, self._endIndex):
+                for i in range(firstIdx, stopIdx):
                     ol.append(strand[i]._set5Prime(strand[i + 1]))
+            # Now ensure all connected bases have the same color
+            # which gets taken from the startIndex base
+            color = strand[self._startIndex].getColor()
+            bases = self._vh._basesConnectedTo(self._strandType, self._startIndex)
+            self._colorSubCommand = VirtualHelix.ApplyColorCommand(bases, color)
+            self._colorSubCommand.redo()
             self._vh.emitBasesModifiedIfNeeded()
 
         def undo(self):
             strand = self._vh._strand(self._strandType)
             ol = self._oldLinkage
+            firstIdx = min(self._startIndex, self._endIndex)
+            stopIdx = max(self._startIndex, self._endIndex)
             assert(ol != None)  # Must redo/apply before undo
             if self._vh.directionOfStrandIs5to3(self._strandType):
-                for i in range(self._endIndex - 1, self._startIndex - 1, -1):
+                for i in range(stopIdx - 1, firstIdx - 1, -1):
                     strand[i]._unset3Prime(strand[i + 1],\
-                                           *ol[i - self._startIndex])
+                                           *ol[i - firstIdx])
             else:
-                for i in range(self._endIndex - 1, self._startIndex - 1, -1):
+                for i in range(stopIdx - 1, firstIdx - 1, -1):
                     strand[i]._unset5Prime(strand[i + 1],\
-                                           *ol[i - self._startIndex])
+                                           *ol[i - firstIdx])
+            self._colorSubCommand.undo()
             self._vh.emitBasesModifiedIfNeeded()
 
     class ClearStrandCommand(QUndoCommand):
@@ -861,32 +911,51 @@ class VirtualHelix(QObject):
             # if this is called in the middle of a connected strand
             strand = self._vh._strand(self._strandType)
             ol = self._oldLinkage = []
+            startIdx = min(self._startIndex, self._endIndex)
+            endIdx = max(self._startIndex, self._endIndex)
+            createdEndpoints = []
             if self._vh.directionOfStrandIs5to3(self._strandType):
-                for i in range(self._startIndex - 1, self._endIndex):
+                for i in range(startIdx-1, endIdx):
                     leftBase, rightBase = strand[i], strand[i+1]
                     # Clear i.next
+                    createdEndpoints.append(leftBase._3pBase)
                     ol.append(leftBase._set3Prime(None))
                     # Clear (i+1)prev
+                    createdEndpoints.append(rightBase._5pBase)
                     ol.append(rightBase._set5Prime(None))
             else:
-                for i in range(self._startIndex - 1, self._endIndex):
+                for i in range(startIdx-1, endIdx):
                     leftBase, rightBase = strand[i], strand[i+1]
                     # Clear i.next
+                    createdEndpoints.append(leftBase._5pBase)
                     ol.append(leftBase._set5Prime(None))
                     # Clear (i+1).prev
+                    createdEndpoints.append(rightBase._3pBase)
                     ol.append(rightBase._set3Prime(None))
+            createdEndpoints = filter(lambda x: x!=None, createdEndpoints)
+            # Could filter out endpoints leading to the same strand if
+            # that becomes a performance issue for some reason
+            colorSubCommands = []
+            for e in createdEndpoints:
+                bases = e._vhelix._basesConnectedTo(e._strandtype, e._n)
+                # None corresponds to a pseudorandom color
+                c = VirtualHelix.ApplyColorCommand(bases, None)
+                c.redo()
+                colorSubCommands.append(c)
             self._vh.emitBasesModifiedIfNeeded()
 
         def undo(self):
             strand = self._vh._strand(self._strandType)
             ol = self._oldLinkage
             assert(ol != None)  # Must redo/apply before undo
+            startIdx = min(self._startIndex, self._endIndex)
+            endIdx = max(self._startIndex, self._endIndex)
             if self._vh.directionOfStrandIs5to3(self._strandType):
-                for i in range(self._endIndex - 1, self._startIndex - 2, -1):
+                for i in range(endIdx - 1, startIdx - 2, -1):
                     strand[i+1]._unset5Prime(None, *ol.pop())
                     strand[i]._unset3Prime(None, *ol.pop())
             else:
-                for i in range(self._endIndex - 1, self._startIndex - 2, -1):
+                for i in range(endIdx - 1, startIdx - 2, -1):
                     strand[i+1]._unset3Prime(None, *ol.pop())
                     strand[i]._unset5Prime(None, *ol.pop())
             self._vh.emitBasesModifiedIfNeeded()
