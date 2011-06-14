@@ -60,3 +60,7 @@ break it.
 If True, the select tool will draw red and green lines on the perimeter
 of the base the tool is hovering over to indicate what API operation will
 be performed by dragging in a certain direction.
+### SelectTool.colorPreview
+If True, the select tool will draw a dot on the base being hovered over
+that is the color of the underlying base (useful when you need to know
+the color of a base that doesn't have any strand to exhibit its color with)

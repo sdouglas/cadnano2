@@ -40,7 +40,7 @@ class SelectTool(AbstractPathTool):
     limitEndptDragging = True
     disallowClickBreaksStrand = True
     drawActionPreview = False
-    colorPreview = True
+    colorPreview = False
 
     def __init__(self, controller):
         super(SelectTool, self).__init__(controller)
@@ -131,6 +131,7 @@ class SelectTool(AbstractPathTool):
         # Begin a drag operation
         self._mouseDownPH = ph
         ph.scene().views()[0].addToPressList(ph)
+        self.thisDragOpsNewColor = randomBrightColor()
         
         if not self._mouseDownBase:
             return
@@ -257,10 +258,10 @@ class SelectTool(AbstractPathTool):
                     return (self.NoOperation, 0, 0)
                 if dragDir == -1:  # Dragging to the LEFT
                     handleColor = vHelix.colorOfBase(strandType, baseIdx-1)
-                    return (self.ClearStrand, 0, 1, handleColor, randomBrightColor())
+                    return (self.ClearStrand, 0, 1, handleColor, self.thisDragOpsNewColor)
                 else:              # Dragging to the RIGHT
                     handleColor = vHelix.colorOfBase(strandType, baseIdx)
-                    return (self.ClearStrand, 0, 0, randomBrightColor(), handleColor)
+                    return (self.ClearStrand, 0, 0, self.thisDragOpsNewColor, handleColor)
             elif (not startBaseHasLNeighbor) and (not startBaseHasRNeighbor):  # EMPTY STRAND
                 return (self.ConnectStrand, 0, 0)
             assert(False)
