@@ -263,19 +263,20 @@ class SelectTool(AbstractPathTool):
                     handleColor = vHelix.colorOfBase(strandType, baseIdx)
                     return (self.ClearStrand, 0, 0, self.thisDragOpsNewColor, handleColor)
             elif (not startBaseHasLNeighbor) and (not startBaseHasRNeighbor):  # EMPTY STRAND
-                return (self.ConnectStrand, 0, 0)
+                return (self.ConnectStrand, 0, 0, self.thisDragOpsNewColor, self.thisDragOpsNewColor)
             assert(False)
         # (Below) we are dragging an ENDPOINT and HAVE NOT moved
         elif dragDir == 0:
             return (self.NoOperation, 0, 0)
         # (Below) we are dragging an ENDPOINT and HAVE moved
         elif segmentDir == dragDir:
+            handleColor = vHelix.colorOfBase(strandType, baseIdx)
             if dragDir == -1:
                 # Start at RIGHT endpoint, dragging LEFT INTO segment
-                return (self.ClearStrand, 0, 1)
+                return (self.ClearStrand, 0, 1, handleColor, None)
             elif dragDir == 1:
                 # Start at LEFT endpoint, dragging RIGHT INTO segment
-                return (self.ClearStrand, 1, 0)
+                return (self.ClearStrand, 1, 0, None, handleColor)
             assert(False)
         # (Below) we are also dragging an ENDPOINT and HAVE moved
         elif segmentDir != dragDir:
