@@ -111,7 +111,7 @@ class AbstractPathTool(QGraphicsItem):
             self._lastLocation = (pathHelix, scenePos)
             posItem = self.parentItem().mapFromScene(scenePos)
             pos = self.helixPos(posItem)
-            if pos:
+            if pos != None:
                 self.setPos(pos)
                 self.update(self.boundingRect())
                 if not self.isVisible():

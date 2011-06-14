@@ -28,6 +28,7 @@ Created by Shawn Douglas on 2011-02-08.
 from .enum import StrandType
 from random import Random
 from PyQt4.QtGui import QColor
+import ui.styles as styles
 prng = Random()
 
 class Base(object):
@@ -154,8 +155,6 @@ class Base(object):
             toOld3._vhelix.setHasBeenModified()
         if fromOld5:
             fromOld5._vhelix.setHasBeenModified()
-        if self._3pBase==None and self._5pBase==None:
-            self._setColor(None)
         self._vhelix.setHasBeenModified()
         if toBase:
             toBase._vhelix.setHasBeenModified()
@@ -172,8 +171,6 @@ class Base(object):
             fromOld5._vhelix.setHasBeenModified()
         if toBase:
             toBase._vhelix.setHasBeenModified()
-        if self._3pBase==None and self._5pBase==None:
-            self._setColor(None)
         self._vhelix.setHasBeenModified()
 
     def _set3Prime(self, toBase):
@@ -194,8 +191,6 @@ class Base(object):
             fromOld3._vhelix.setHasBeenModified()
         if toBase:
             toBase._vhelix.setHasBeenModified()
-        if self._3pBase==None and self._5pBase==None:
-            self._setColor(None)
         self._vhelix.setHasBeenModified()
         return (fromOld3, toOld5)
 
@@ -210,8 +205,6 @@ class Base(object):
             fromOld3._vhelix.setHasBeenModified()
         if toBase:
             toBase._vhelix.setHasBeenModified()
-        if self._3pBase==None and self._5pBase==None:
-            self._setColor(None)
         self._vhelix.setHasBeenModified()
 
     def vhelix(self):
@@ -240,12 +233,17 @@ class Base(object):
             newHue = prng.randint(0, 255)
             newColor = QColor()
             newColor.setHsv(newHue, 255, 255)
-        oldColor = self._color
+        oldColor = self.getColor()
         self._color = newColor
         self._vhelix.setHasBeenModified()
         return oldColor  # For undo
 
     def getColor(self):
+        if self._strandtype == StrandType.Scaffold:
+            # return QColor(44, 51, 141)
+            return styles.bluestroke
+        if self._color == None:
+            self._color = QColor()
         return self._color
 
     def isEmpty(self):
@@ -304,7 +302,7 @@ class Base(object):
     
     # A segment is a connection between a base and its neighbor
     # base on the same strand
-    def _hasSubSegment5p(self):
+    def _connectsToNat5p(self):
         strnd = self._vhelix._strand(self._strandtype)
         if self._vhelix.directionOfStrandIs5to3(self._strandtype):
             guiLeftNeighbor = strnd[self._n-1] if self._n>0 else None
@@ -312,7 +310,7 @@ class Base(object):
         else:
             guiRightNeighbor = strnd[self._n+1] if self._n<len(strnd)-1 else None
             return self._neighbor5p() == guiRightNeighbor
-    def _hasSubSegment3p(self):
+    def _connectsToNat3p(self):
         strnd = self._vhelix._strand(self._strandtype)
         if self._vhelix.directionOfStrandIs5to3(self._strandtype):
             guiRightNeighbor = strnd[self._n+1] if self._n<len(strnd)-1 else None
@@ -320,7 +318,7 @@ class Base(object):
         else:
             guiLeftNeighbor = strnd[self._n-1] if self._n>0 else None
             return self._neighbor3p() == guiLeftNeighbor
-    def _hasSubSegmentR(self):
+    def _connectsToNatR(self):
         strnd = self._vhelix._strand(self._strandtype)
         guiRightNeighbor = strnd[self._n+1] if self._n<len(strnd)-1 else None
         if not guiRightNeighbor:
@@ -329,7 +327,7 @@ class Base(object):
             return self._neighbor3p() == guiRightNeighbor
         else:
             return self._neighbor5p() == guiRightNeighbor
-    def _hasSubSegmentL(self):
+    def _connectsToNatL(self):
         strnd = self._vhelix._strand(self._strandtype)
         guiLeftNeighbor = strnd[self._n-1] if self._n>0 else None
         if not guiLeftNeighbor:

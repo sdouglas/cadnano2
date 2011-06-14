@@ -30,7 +30,7 @@ Created by Nick Conway on 2011-05-30.
 from abstractpathtool import AbstractPathTool
 from util import *
 from PyQt4.QtGui import QPen, QColor
-from PyQt4.QtCore import Qt
+from PyQt4.QtCore import Qt, QPointF
 
 class SelectTool(AbstractPathTool):
     """
@@ -40,6 +40,7 @@ class SelectTool(AbstractPathTool):
     limitEndptDragging = True
     disallowClickBreaksStrand = True
     drawActionPreview = False
+    colorPreview = True
 
     def __init__(self, controller):
         super(SelectTool, self).__init__(controller)
@@ -69,8 +70,6 @@ class SelectTool(AbstractPathTool):
         painter.drawLine(x, .25*baseW, x, .75*baseW)
 
     def paint(self, painter, option, widget=None):
-        if not self.drawActionPreview:
-            return
         loc = self.lastLocation()
         if loc==None:
             return
@@ -80,6 +79,18 @@ class SelectTool(AbstractPathTool):
         base = self.baseAtPoint(ph, point)
         topStrand = ph.strandIsTop(base[0])
         if base==None:
+            return
+        
+        # Color preview
+        if self.colorPreview:
+            painter.setBrush(vh.colorOfBase(*base))
+            painter.setPen(Qt.NoPen)
+            painter.drawEllipse(\
+                QPointF(ph.baseWidth/2, ph.baseWidth/2),\
+                ph.baseWidth/4, ph.baseWidth/4)
+        
+        # Draw action preview
+        if not self.drawActionPreview:
             return
             
         opL, offsLL, offsLR = self.operationForDraggingInDirectionFromBase(-1, (vh, base[0], base[1]))
@@ -245,9 +256,11 @@ class SelectTool(AbstractPathTool):
                 if self.disallowClickBreaksStrand:
                     return (self.NoOperation, 0, 0)
                 if dragDir == -1:  # Dragging to the LEFT
-                    return (self.ClearStrand, 0, 1)
+                    handleColor = vHelix.colorOfBase(strandType, baseIdx-1)
+                    return (self.ClearStrand, 0, 1, handleColor, randomBrightColor())
                 else:              # Dragging to the RIGHT
-                    return (self.ClearStrand, 0, 0)
+                    handleColor = vHelix.colorOfBase(strandType, baseIdx)
+                    return (self.ClearStrand, 0, 0, randomBrightColor(), handleColor)
             elif (not startBaseHasLNeighbor) and (not startBaseHasRNeighbor):  # EMPTY STRAND
                 return (self.ConnectStrand, 0, 0)
             assert(False)
@@ -299,12 +312,14 @@ class SelectTool(AbstractPathTool):
         else:
             dragDir = -1
         
-        op, frOffset, toOffset = self.operationForDraggingInDirectionFromBase(dragDir, beginBase)
-                 
+        dragOp = self.operationForDraggingInDirectionFromBase(dragDir, beginBase)
+        op, frOffset, toOffset = dragOp[0:3]
+
         if op == self.ConnectStrand:
             vHelix.connectStrand(fr[0], fr[1]+frOffset, to[1]+toOffset)
         elif op == self.ClearStrand:
-            vHelix.clearStrand(fr[0], fr[1]+frOffset, to[1]+toOffset)
+            colorL, colorR = dragOp[3:5]
+            vHelix.clearStrand(fr[0], fr[1]+frOffset, to[1]+toOffset, colorL=colorL, colorR=colorR)
         elif op == self.RemoveXOver:
             vHelix.removeXoversAt(fr[0], fr[1])
         else:

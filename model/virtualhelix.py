@@ -37,11 +37,7 @@ from .base import Base
 from util import *
 from cadnano import app
 from random import Random
-import ui.styles as styles
 import re
-
-prng = Random()
-
 
 class VirtualHelix(QObject):
     """Stores staple and scaffold routing information."""
@@ -392,7 +388,7 @@ class VirtualHelix(QObject):
             b = strand[i]
             
             #Segments
-            if b._hasSubSegmentL():
+            if b._connectsToNatL():
                 if curColor != b.getColor():
                     segments.append((s,i))
                     s = i
@@ -407,7 +403,7 @@ class VirtualHelix(QObject):
                 else:
                     segments.append((s,i))
                     s = None
-            if b._hasSubSegmentR():
+            if b._connectsToNatR():
                 if s==None:
                     s = i+.5
                     curColor = b.getColor()
@@ -463,14 +459,10 @@ class VirtualHelix(QObject):
     # end def
 
     def colorOfBase(self, strandType, idx):
-        if strandType == StrandType.Scaffold:
-            return styles.bluestroke
-            # return QColor(44, 51, 141)
         # hue = 47 * idx + 31 * self.number()
         # return QColor.fromHsl(hue % 256, 255, 128)
         # print "colorOfBase", idx, c.name(), self._stapleBases[idx].getColor()
-        c = self._stapleBases[idx].getColor()
-        return c if c else QColor()
+        return self._strand(strandType)[idx].getColor()
     
     def _basesConnectedTo(self, strandType, idx):
         strand = self._strand(strandType)
@@ -553,14 +545,14 @@ class VirtualHelix(QObject):
     
     # A segment is a connection between a base and its neighbor
     # base on the same strand
-    def hasSubSegment5p(self, strandType, idx):
-        return self._strand(strandType)[idx]._hasSubSegment5p()
-    def hasSubSegment3p(self, strandType, idx):
-        return self._strand(strandType)[idx]._hasSubSegment3p()
-    def hasSubSegmentR(self, strandType, idx):
-        return self._strand(strandType)[idx]._hasSubSegmentR()
-    def hasSubSegmentL(self, strandType, idx):
-        return self._strand(strandType)[idx]._hasSubSegmentL()
+    def connectsToNat5p(self, strandType, idx):
+        return self._strand(strandType)[idx]._connectsToNat5p()
+    def connectsToNat3p(self, strandType, idx):
+        return self._strand(strandType)[idx]._connectsToNat3p()
+    def connectsToNatR(self, strandType, idx):
+        return self._strand(strandType)[idx]._connectsToNatR()
+    def connectsToNatL(self, strandType, idx):
+        return self._strand(strandType)[idx]._connectsToNatL()
     
     # A crossover is a connection between a base and a base
     # that isn't its neighbor on the same strand
@@ -619,7 +611,7 @@ class VirtualHelix(QObject):
         self.thoughtPolice(undoStack)  # Check for inconsistencies, fix one-base Xovers, etc
         undoStack.endMacro()
 
-    def clearStrand(self, strandType, startIndex, endIndex, undoStack=None):
+    def clearStrand(self, strandType, startIndex, endIndex, undoStack=None, colorL=None, colorR=None):
         endIndex, startIndex = int(endIndex), int(startIndex)
         strand = strandType == StrandType.Scaffold and \
             self._scaffoldBases or self._stapleBases
@@ -628,7 +620,7 @@ class VirtualHelix(QObject):
         if undoStack==None:
             undoStack = self.undoStack()
         undoStack.beginMacro("Clear Strand")
-        c = self.ClearStrandCommand(self, strandType, startIndex, endIndex)
+        c = self.ClearStrandCommand(self, strandType, startIndex, endIndex, colorL=colorL, colorR=colorR)
         undoStack.push(c)
         self.thoughtPolice(undoStack)  # Check for inconsistencies, fix one-base Xovers, etc
         undoStack.endMacro()
@@ -701,9 +693,7 @@ class VirtualHelix(QObject):
         if undoStack==None:
             undoStack = self.undoStack()
         if color==None:
-            newHue = prng.randint(0, 255)
-            color = QColor()
-            color.setHsv(newHue, 255, 255)
+            color = randomBrightColor()
         undoStack.beginMacro("Apply Color")
         bases = self._basesConnectedTo(strandType, index)
         c = self.ApplyColorCommand(bases, color)
@@ -760,10 +750,13 @@ class VirtualHelix(QObject):
         def __init__(self, bases, color):
             super(VirtualHelix.ApplyColorCommand, self).__init__()
             self._bases = list(bases)
-            if color==None:
-                newHue = prng.randint(0, 255)
-                newColor = QColor()
-                newColor.setHsv(newHue, 255, 255)
+            if color==None and len(self._bases):
+                b = self._bases[0]
+                newHue = 199*b._vhelix.number() +\
+                         131*int(b._strandtype) +\
+                         151*b._n
+                color = QColor()
+                color.setHsv(newHue%256, 255, 255)
             self._newColor = color
         def redo(self):
             oc = self._oldColors = []
@@ -897,13 +890,19 @@ class VirtualHelix(QObject):
             self._vh.emitBasesModifiedIfNeeded()
 
     class ClearStrandCommand(QUndoCommand):
-        def __init__(self, virtualHelix, strandType, startIndex, endIndex):
+        def __init__(self, virtualHelix, strandType, startIndex, endIndex, colorL=None, colorR=None):
             super(VirtualHelix.ClearStrandCommand, self).__init__()
             self._vh = virtualHelix
             self._strandType = strandType
-            self._startIndex = startIndex
-            self._endIndex = endIndex
+            self._startIndex = min(startIndex, endIndex)
+            self._endIndex = max(startIndex, endIndex)
             self._oldLinkage = None
+            if colorL == 'random':
+                colorL = randomBrightColor()
+            if colorR == 'random':
+                colorR = randomBrightColor()
+            self._colorL = colorL
+            self._colorR = colorR
 
         def redo(self):
             # Clears {s.n, (s+1).np, ..., (e-1).np, e.p}
@@ -918,30 +917,39 @@ class VirtualHelix(QObject):
                 for i in range(startIdx-1, endIdx):
                     leftBase, rightBase = strand[i], strand[i+1]
                     # Clear i.next
-                    createdEndpoints.append(leftBase._3pBase)
+                    createdEndpoints.extend((leftBase, leftBase._3pBase))
                     ol.append(leftBase._set3Prime(None))
                     # Clear (i+1)prev
+                    createdEndpoints.extend((rightBase._5pBase, rightBase))
                     createdEndpoints.append(rightBase._5pBase)
                     ol.append(rightBase._set5Prime(None))
             else:
                 for i in range(startIdx-1, endIdx):
                     leftBase, rightBase = strand[i], strand[i+1]
                     # Clear i.next
-                    createdEndpoints.append(leftBase._5pBase)
+                    createdEndpoints.extend((leftBase, leftBase._5pBase))
                     ol.append(leftBase._set5Prime(None))
                     # Clear (i+1).prev
-                    createdEndpoints.append(rightBase._3pBase)
+                    createdEndpoints.extend((rightBase._3pBase, rightBase))
                     ol.append(rightBase._set3Prime(None))
-            createdEndpoints = filter(lambda x: x!=None, createdEndpoints)
+            isEndpt = lambda x: x!=None and x.isEnd()
+            createdEndpoints = list(set(filter(isEndpt, createdEndpoints)))
             # Could filter out endpoints leading to the same strand if
             # that becomes a performance issue for some reason
             colorSubCommands = []
-            for e in createdEndpoints:
+            for i in range(len(createdEndpoints)):
+                e = createdEndpoints[i]
                 bases = e._vhelix._basesConnectedTo(e._strandtype, e._n)
                 # None corresponds to a pseudorandom color
-                c = VirtualHelix.ApplyColorCommand(bases, None)
+                color = None
+                if i==0 and self._colorL!=None:
+                    color = self._colorL
+                elif i==len(createdEndpoints)-1 and self._colorR!=None:
+                    color = self._colorR
+                c = VirtualHelix.ApplyColorCommand(bases, color)
                 c.redo()
                 colorSubCommands.append(c)
+            self.colorSubCommands = colorSubCommands
             self._vh.emitBasesModifiedIfNeeded()
 
         def undo(self):
@@ -950,6 +958,8 @@ class VirtualHelix(QObject):
             assert(ol != None)  # Must redo/apply before undo
             startIdx = min(self._startIndex, self._endIndex)
             endIdx = max(self._startIndex, self._endIndex)
+            for c in reversed(self.colorSubCommands):
+                c.undo()
             if self._vh.directionOfStrandIs5to3(self._strandType):
                 for i in range(endIdx - 1, startIdx - 2, -1):
                     strand[i+1]._unset5Prime(None, *ol.pop())
