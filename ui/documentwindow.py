@@ -49,7 +49,7 @@ class SceneRoot(QGraphicsItem):
 
 
 class DocumentWindow(QMainWindow, ui_mainwindow.Ui_MainWindow):
-    '''docstring for DocumentWindow'''
+    """docstring for DocumentWindow"""
     def __init__(self, parent=None, docCtrlr=None):
         super(DocumentWindow, self).__init__(parent)
         self.controller = docCtrlr

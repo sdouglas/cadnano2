@@ -67,7 +67,7 @@ class PaintTool(AbstractPathTool):
             if self._mouseDownBase[0] == StrandType.Staple:
                 vh = ph.vhelix()
                 if vh.hasBaseAt(*self._mouseDownBase):
-                    vh.applyColorAt(self._colorPanel.colorName(),\
+                    vh.applyColorAt(self._colorPanel.color(),\
                                    *self._mouseDownBase)
     # end def
 # end class

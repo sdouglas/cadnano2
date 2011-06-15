@@ -264,7 +264,8 @@ class PathHelixGroup(QGraphicsObject):
                                               toIndex,\
                                               floatPos)
                 color = ph.vhelix().colorOfBase(StrandType.Staple, fromindex)
-                self._stapPen.setColor(QColor(color))
+                self._stapPen.setColor(color)
+                painter.setPen(self._stapPen)
                 painter.drawPath(path)
             # end for
         # end for

@@ -54,6 +54,8 @@ class AbstractPathTool(QGraphicsItem):
     * graphics items that make up the view sit back and watch the model,
       updating when it changes
     """
+    
+    dontAllowCrossoverToNonSegmentedBase = False
 
     _baseWidth = styles.PATH_BASE_WIDTH
     _toolRect = QRectF(0, 0,\
@@ -99,17 +101,21 @@ class AbstractPathTool(QGraphicsItem):
     def hoverMovePathHelix(self, pathHelix, event, flag=None):
         self.updateLocation(pathHelix, event.scenePos())
     
-    def updateLocation(self, pathHelix, scenePos):
+    def updateLocation(self, pathHelix, scenePos, *varargs):
         """Takes care of caching the location so that a tool switch
         outside the context of an event will know where to
         position the new tool and snaps self's pos to the upper
         left hand corner of the base the user is mousing over"""
         if pathHelix:
             self.setParentItem(pathHelix)
-            self.show()
             self._lastLocation = (pathHelix, scenePos)
             posItem = self.parentItem().mapFromScene(scenePos)
-            self.setPos(self.helixPos(posItem))
+            pos = self.helixPos(posItem)
+            if pos != None:
+                self.setPos(pos)
+                self.update(self.boundingRect())
+                if not self.isVisible():
+                    self.show()
         else:
             self._lastLocation = None
             self.hide()
@@ -156,8 +162,10 @@ class AbstractPathTool(QGraphicsItem):
     def helixPos(self, point):
         """Snaps a point to the upper left corner of the base
         it is within."""
-        x = int(point.x() / self._baseWidth) * self._baseWidth
-        y = int(point.y() / self._baseWidth) * self._baseWidth
-        return QPointF(x, y)
+        col = int(point.x() / self._baseWidth)
+        row = int(point.y() / self._baseWidth)
+        if col<0 or row<0 or row>1:  # Doesn't know numBases, can't check if point is too far right
+            return None
+        return QPointF(col*self._baseWidth, row*self._baseWidth)
     # end def
 # end class

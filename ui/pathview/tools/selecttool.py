@@ -29,49 +29,120 @@ Created by Nick Conway on 2011-05-30.
 
 from abstractpathtool import AbstractPathTool
 from util import *
+from PyQt4.QtGui import QPen, QColor
+from PyQt4.QtCore import Qt, QPointF
 
 class SelectTool(AbstractPathTool):
     """
     SelectTool is the default tool. It allows editing of breakpoints
     (by clicking and dragging) and toggling of crossovers.
     """
-    imposeDragLimits = True
-    mustStartOnBreakpoint = True
+    limitEndptDragging = True
+    disallowClickBreaksStrand = True
+    drawActionPreview = False
+    colorPreview = False
 
     def __init__(self, controller):
         super(SelectTool, self).__init__(controller)
         self._mouseDownBase = None
         self._mouseDownPH = None
         self._lastValidBase = None
-        self._dragLimits = None
+    
+    NoOperation = 0
+    ConnectStrand = 1
+    ClearStrand   = 2
+    RemoveXOver   = 3
+    def paintOp(self, painter, op, rightSide, topStrand, baseW):
+        if op == self.NoOperation:
+            painter.setPen(Qt.NoPen)
+        elif op == self.ConnectStrand:
+            painter.setPen(QPen(QColor(0, 255, 0), 1))
+        elif op == self.ClearStrand or\
+             op == self.RemoveXOver:
+            painter.setPen(QPen(QColor(255, 0, 0), 1))
+        else:
+            painter.setPen(Qt.NoPen)
+        if op == self.RemoveXOver:
+            y = 0 if topStrand else baseW
+            painter.drawLine(baseW*.25, y-1, baseW*.75, y-1)
+            return
+        x = baseW if rightSide else 0
+        painter.drawLine(x, .25*baseW, x, .75*baseW)
 
     def paint(self, painter, option, widget=None):
-        pass
-    # end def
+        loc = self.lastLocation()
+        if loc==None:
+            return
+        ph, point = loc
+        point = ph.mapFromScene(point)
+        vh = ph.vhelix()
+        base = self.baseAtPoint(ph, point)
+        topStrand = ph.strandIsTop(base[0])
+        if base==None:
+            return
+        
+        # Color preview
+        if self.colorPreview:
+            painter.setBrush(vh.colorOfBase(*base))
+            painter.setPen(Qt.NoPen)
+            painter.drawEllipse(\
+                QPointF(ph.baseWidth/2, ph.baseWidth/2),\
+                ph.baseWidth/4, ph.baseWidth/4)
+        
+        # Draw action preview
+        if not self.drawActionPreview:
+            return
+            
+        opL, offsLL, offsLR = self.operationForDraggingInDirectionFromBase(-1, (vh, base[0], base[1]))
+        opR, offsRL, offsRR = self.operationForDraggingInDirectionFromBase(1, (vh, base[0], base[1]))
+        
+        painter.save()
+        self.paintOp(painter, opL, False, topStrand, ph.baseWidth)
+        self.paintOp(painter, opR, True, topStrand, ph.baseWidth)
+        painter.restore()
 
     def mousePressPathHelix(self, ph, event):
         """Activate this item as the current helix."""
-        # self.finalizeMouseDrag()
+        # If there is an existing drag operation
+        # and we get *another* press, the first
+        # drag operation must end
+        self.finalizeMouseDrag()
+
+        # The key property of a drag operation
+        # (if it's None, there should be no drag
+        # operation, and if it's non-None, there
+        # should be one)
         self._mouseDownY = event.pos().y()
-        self._mouseDownPH = ph
-        ph.scene().views()[0].addToPressList(ph)
-        
         self._mouseDownBase = ph.baseAtLocation(event.pos().x(),\
                                                 self._mouseDownY)
-        if self._mouseDownBase:
+        
+        # Shift to merge bases - carryover from 1.0 (also, WTF?)
+        if (event.modifiers()&Qt.ShiftModifier) and self._mouseDownBase:
+            strand, idx = self._mouseDownBase
             vh = ph.vhelix()
-            if vh.hasCrossoverAt(*self._mouseDownBase):  # remove it
-                self.selectToolRemoveXover(vh, self._mouseDownBase)
-                self._mouseDownBase = self._mouseDownY = None
-            else:
-                vh.setSandboxed(True)
-                self._dragLimits = vh.getDragLimits(*self._mouseDownBase)
-                self._lastValidBase = self._mouseDownBase
-                self.applyTool(vh, self._mouseDownBase, self._mouseDownBase)
+            if vh.hasEndAt(strand, idx):
+                if idx>0 and vh.hasEndAt(strand, idx-1):
+                    vh.connectStrand(strand, idx-1, idx)
+                if idx<vh.numBases()-1 and vh.hasEndAt(strand, idx+1):
+                    vh.connectStrand(strand, idx+1, idx)
+                self._mouseDownBase = None  # Cancel drag op
+                return
+        
+        # Begin a drag operation
+        self._mouseDownPH = ph
+        ph.scene().views()[0].addToPressList(ph)
+        self.thisDragOpsNewColor = randomBrightColor()
+        
+        if not self._mouseDownBase:
+            return
+        vh = ph.vhelix()
+        vh.setSandboxed(True)
+        self._lastValidBase = self._mouseDownBase
+        self.applyTool(vh, self._mouseDownBase, self._mouseDownBase)
         ph.makeSelfActiveHelix()
 
     def finalizeMouseDrag(self):
-        if not self._mouseDownBase:
+        if self._mouseDownBase == None:
             return
         vh = self._mouseDownPH.vhelix()
         vh.undoStack().undo()
@@ -82,14 +153,12 @@ class SelectTool(AbstractPathTool):
         self._mouseDownPH = None
 
     def mouseMovePathHelix(self, ph, event):
-        if self._mouseDownY == None:
+        if self._mouseDownBase == None:
             return
         vh = ph.vhelix()
         newBase = ph.baseAtLocation(event.pos().x(), self._mouseDownY, clampX=True)
         if self._mouseDownBase and newBase:
             if self._lastValidBase != newBase:
-                if self.imposeDragLimits:
-                    newBase = (newBase[0], clamp(newBase[1], *self._dragLimits))
                 self._lastValidBase = newBase
                 vh.undoStack().undo()
                 self.applyTool(vh, self._mouseDownBase, newBase)
@@ -114,47 +183,146 @@ class SelectTool(AbstractPathTool):
         removepair[0][0].removeXoverTo(base[0], removepair[0][1], \
                                        removepair[1][0], removepair[1][1])
     # end def
+    
+    def dragLimitsForDragOpBeginningAtBase(self, fromBase):
+        """ returns (firstAllowableIdx, lastAllowableIdx) for
+        the toBase of a drag operation beginning at fromBase.
+        fromBase = (vHelix, strandType, baseIdx)"""
+        vh, strandType, startIdx = fromBase
+        maxBase = vh.numBases()-1
+        if not self.limitEndptDragging:
+            return (0, maxBase)
+        l, r = startIdx, startIdx
+        while l > 0:
+            proposedBaseHasLNeighbor = vh.hasNeighborL(strandType, l-1)
+            proposedBaseHasRNeighbor = vh.hasNeighborR(strandType, l-1)
+            if proposedBaseHasRNeighbor == proposedBaseHasLNeighbor:
+                l = l - 1
+            else:
+                break
+        maxBase = vh.numBases()-1
+        while r < maxBase:
+            proposedBaseHasLNeighbor = vh.hasNeighborL(strandType, r+1)
+            proposedBaseHasRNeighbor = vh.hasNeighborR(strandType, r+1)
+            if proposedBaseHasRNeighbor == proposedBaseHasLNeighbor:
+                r = r + 1
+            else:
+                break
+        return (l, r)
+            
+        
+    
+    # Why add the layer of indirection between operationForDragging...
+    # and applyTool? So that we can query for the operation that *would*
+    # be performed without actually performing it.
+    #NoOperation = 0
+    #ConnectStrand = 1
+    #ClearStrand   = 2
+    #RemoveXOver   = 3
+    def operationForDraggingInDirectionFromBase(self, dragDir, base):
+        """ direction: 1 for dragging right, -1 for left, 0 for staying on the same base
+            base: a base specifier in the form (virtualHelix, strandType, baseIndex)
+            return value: (self.ConnectStrand or self.ClearStrand, fromIdxOffset, toIdxOffset)
+              add fromIdxOffset, toIdxOffset to fromIndex, toIndex to get the extents for the
+              actual operation
+        """
+        vHelix, strandType, baseIdx = base
+        
+        startBaseHasLNeighbor = vHelix.hasNeighborL(strandType, baseIdx)
+        startBaseHasRNeighbor = vHelix.hasNeighborR(strandType, baseIdx)
+        if startBaseHasLNeighbor and (not startBaseHasRNeighbor):
+            # base is at one end of a segment which stretches to the left
+            segmentDir = -1
+        elif (not startBaseHasLNeighbor) and startBaseHasRNeighbor:
+            # base is at one end of a segment which stretches to the right
+            segmentDir = 1
+        else:
+            # base is not at one end of a segment
+            segmentDir = 0
+            
+        startBaseHasLCrossover = vHelix.hasCrossoverL(strandType, baseIdx)
+        startBaseHasRCrossover = vHelix.hasCrossoverR(strandType, baseIdx)
+
+        # (Below) we are dragging starting at a CROSSOVER
+        if startBaseHasLCrossover or startBaseHasRCrossover:
+            if startBaseHasLNeighbor and startBaseHasRNeighbor:
+                # It's not a 1-base crossover
+                return (self.RemoveXOver, 0, 0)
+            else:
+                # We give 1-base crossovers a chance to get dragged out
+                pass
+        # (Below) we are dragging starting in EMPTY STRAND or in the MIDDLE of a SEGMENT
+        if segmentDir == 0:
+            if startBaseHasLNeighbor and startBaseHasRNeighbor:  # MIDDLE of a SEGMENT
+                if self.disallowClickBreaksStrand:
+                    return (self.NoOperation, 0, 0)
+                if dragDir == -1:  # Dragging to the LEFT
+                    handleColor = vHelix.colorOfBase(strandType, baseIdx-1)
+                    return (self.ClearStrand, 0, 1, handleColor, self.thisDragOpsNewColor)
+                else:              # Dragging to the RIGHT
+                    handleColor = vHelix.colorOfBase(strandType, baseIdx)
+                    return (self.ClearStrand, 0, 0, self.thisDragOpsNewColor, handleColor)
+            elif (not startBaseHasLNeighbor) and (not startBaseHasRNeighbor):  # EMPTY STRAND
+                return (self.ConnectStrand, 0, 0, self.thisDragOpsNewColor, self.thisDragOpsNewColor)
+            assert(False)
+        # (Below) we are dragging an ENDPOINT and HAVE NOT moved
+        elif dragDir == 0:
+            return (self.NoOperation, 0, 0)
+        # (Below) we are dragging an ENDPOINT and HAVE moved
+        elif segmentDir == dragDir:
+            handleColor = vHelix.colorOfBase(strandType, baseIdx)
+            if dragDir == -1:
+                # Start at RIGHT endpoint, dragging LEFT INTO segment
+                return (self.ClearStrand, 0, 1, handleColor, None)
+            elif dragDir == 1:
+                # Start at LEFT endpoint, dragging RIGHT INTO segment
+                return (self.ClearStrand, 1, 0, None, handleColor)
+            assert(False)
+        # (Below) we are also dragging an ENDPOINT and HAVE moved
+        elif segmentDir != dragDir:
+            if dragDir == -1:
+                # Start at LEFT endpoint, dragging LEFT OUT FROM segment
+                return (self.ConnectStrand, 0, 0)
+            elif dragDir == 1:
+                # Start at RIGHT endpoint, dragging RIGHT OUT FROM segment
+                return (self.ConnectStrand, 0, 0)
+            assert(False)
+        assert(False)
+        
+        
+        
+        
+        
 
     def applyTool(self, vHelix, fr, to):
         """
         fr (from) and to take the format of (strandType, base)
         """
-        fr = vHelix.validatedBase(*fr, raiseOnErr=False)
-        to = vHelix.validatedBase(*to, raiseOnErr=False)
+        fr = list(vHelix.validatedBase(*fr, raiseOnErr=False))
+        to = list(vHelix.validatedBase(*to, raiseOnErr=False))
         if (None, None) in (fr, to):  # must start and end on a valid base
             return False
-
-        startOnBreakpoint = vHelix.hasEndAt(*fr)
-        if not startOnBreakpoint and self.mustStartOnBreakpoint:  # must start on a breakpoint
-            return False
-
-        # determine if we're adding or clearing bases
-        is5to3 = vHelix.directionOfStrandIs5to3(fr[0])
-        if (startOnBreakpoint == 5 and is5to3) or\
-           (startOnBreakpoint == 3 and not is5to3):
-            segmentDir = 1
-        elif (startOnBreakpoint == 5 and not is5to3) or\
-             (startOnBreakpoint == 3 and is5to3):
-            segmentDir = -1
+        beginBase = (vHelix, fr[0], fr[1])
+        leftDragLimit, rightDragLimit = self.dragLimitsForDragOpBeginningAtBase(beginBase)
+        to[1] = clamp(to[1], leftDragLimit, rightDragLimit)
+                
+        # 1 corresponds to rightwards
+        if to[1] == fr[1]:
+            dragDir = 0
+        elif to[1] > fr[1]:
+            dragDir = 1
         else:
-            segmentDir = 0  # We aren't starting on a breakpoint; there is no segment direction
-        dragDir = 1 if to[1] >= fr[1] else -1  # which way are we dragging?
-       
-        if segmentDir == 0:
-            if vHelix.hasStrandAt(*fr):
-                vHelix.clearStrand(fr[0], fr[1], to[1])
-            else:
-                vHelix.connectStrand(fr[0], fr[1], to[1])   
-            return
-        if dragDir == segmentDir:  # CLEARING bases
-            if to[1] < fr[1]:  # dragging left
-                vHelix.clearStrand(fr[0], fr[1], to[1]+1)
-            elif to[1] > fr[1]:
-                vHelix.clearStrand(fr[0], fr[1]+1, to[1])
-            return
-        if dragDir != segmentDir:  # ADDING bases
-            if to[1] < fr[1]:  # dragging left
-                vHelix.connectStrand(fr[0], fr[1], to[1])
-            elif to[1] > fr[1]:
-                vHelix.connectStrand(fr[0], fr[1], to[1])
-            return
+            dragDir = -1
+        
+        dragOp = self.operationForDraggingInDirectionFromBase(dragDir, beginBase)
+        op, frOffset, toOffset = dragOp[0:3]
+
+        if op == self.ConnectStrand:
+            vHelix.connectStrand(fr[0], fr[1]+frOffset, to[1]+toOffset)
+        elif op == self.ClearStrand:
+            colorL, colorR = dragOp[3:5]
+            vHelix.clearStrand(fr[0], fr[1]+frOffset, to[1]+toOffset, colorL=colorL, colorR=colorR)
+        elif op == self.RemoveXOver:
+            vHelix.removeXoversAt(fr[0], fr[1])
+        else:
+            assert(op == self.NoOperation)

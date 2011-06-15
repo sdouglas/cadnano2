@@ -61,6 +61,9 @@ class ColorPanel(QGraphicsItem):
             self._colorIndex = 0
         self._color = self._colors[self._colorIndex]
         self._brush.setColor(self._color)
+    
+    def color(self):
+        return self._color
 
     def colorName(self):
         """docstring for color"""

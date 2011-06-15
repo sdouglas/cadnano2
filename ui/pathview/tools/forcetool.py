@@ -41,9 +41,7 @@ from ui.pathview.pathhelix import PathHelix
 from ui.pathview.pathhelixgroup import PathHelixGroup
 from abstractpathtool import AbstractPathTool
 
-class ForceTool(AbstractPathTool):
-    dontAllowCrossoverToNonSegmentedBase = True
-    
+class ForceTool(AbstractPathTool):    
     def __init__(self, parent=None, rightClickOnly=False):
         super(ForceTool, self).__init__(parent)
         self.hide()
@@ -56,10 +54,16 @@ class ForceTool(AbstractPathTool):
         pass
 
     def baseFromLocation(self, phg, posScene):
+        """A more general baseAtLocation that correctly identifies
+        bases on other PathHelix, returning the most general baseref:
+        (virtualHelix, strandType, baseIdx)"""
         pathHelix = phg.pathHelixAtScenePos(posScene)
         if pathHelix:
             posItem = pathHelix.mapFromScene(posScene)
-            strandType, idx = pathHelix.baseAtLocation(posItem.x(), posItem.y())
+            base = pathHelix.baseAtLocation(posItem.x(), posItem.y())
+            if base==None:
+                return None
+            strandType, idx = base
             vh = pathHelix.vhelix()
             base2 = (vh, strandType, idx)
         else:
@@ -94,7 +98,7 @@ class ForceTool(AbstractPathTool):
     def setActive(self, willBeActive):
         AbstractPathTool.setActive(self, willBeActive)
         self.updateDrag(None, None, mustEnd=True)
-
+    
     def updateDrag(self, ph, event, canStart=False, canEnd=False, mustEnd=False):
         """This is the designated method for handling ForceTool
         dragging. Why a single method? a multitude of different
@@ -131,7 +135,7 @@ class ForceTool(AbstractPathTool):
         ### This is the middle, drag-operation dependent
         ### part of the code.
         didEnd = False
-        if self.base1==None and canStart:  # Start drag
+        if self.base1==None and canStart and destBase:  # Start drag
             self.base1 = destBase
             vh = destBase[0]
             vh.setSandboxed(True)
