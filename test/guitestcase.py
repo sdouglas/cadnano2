@@ -29,7 +29,6 @@ import time
 
 main = unittest.main
 
-
 class GUITestCase(unittest.TestCase):
     __qAppInitialized = False
 

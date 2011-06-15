@@ -36,12 +36,13 @@ from PyQt4.QtGui import QUndoCommand, QUndoStack, QColor
 from .base import Base
 from util import *
 from cadnano import app
-import ui.styles as styles
+from random import Random
 import re
-
 
 class VirtualHelix(QObject):
     """Stores staple and scaffold routing information."""
+    prohibitSingleBaseCrossovers = True
+    
     basesModified = pyqtSignal()
     dimensionsModified = pyqtSignal()
 
@@ -99,8 +100,8 @@ class VirtualHelix(QObject):
         self.setNumBases(numBases, notUndoable=True)
         
         # During a single UndoCommand, many basesModified signals can be generated.
-        # basesModifiedVHs stores a set of VH that will emitModificationSignal
-        # upon a call to flushBasesModifiedSignals.
+        # basesModifiedVHs stores a set of VH that will setHasBeenModified
+        # upon a call to emitBasesModifiedIfNeeded.
         self.basesModifiedVHs = set()
         
     def __repr__(self):
@@ -351,7 +352,7 @@ class VirtualHelix(QObject):
             return False
         else:
             return base.isStrand()
-
+    
     def hasEndAt(self, strandType, index):
         base = self._baseAt(strandType, index)
         if not base:
@@ -380,28 +381,35 @@ class VirtualHelix(QObject):
         segments, ends3, ends5 = [], [], []
         strand = self._strand(strandType)
         i, s = 0, None
+        curColor = None
         # s is the start index of the segment
+        # segColor is the color of the current segment
         for i in range(len(strand)):
             b = strand[i]
             
             #Segments
-            if b.segmentL():
+            if b._connectsToNatL():
+                if curColor != b.getColor():
+                    segments.append((s,i))
+                    s = i
                 if s==None:
                     s = i
+                    curColor = b.getColor()
                 else:
                     pass
-            else: # not b.segmentL()
+            else: # not connected to base on left
                 if s==None:
                     pass
                 else:
                     segments.append((s,i))
                     s = None
-            if b.segmentR():
+            if b._connectsToNatR():
                 if s==None:
                     s = i+.5
+                    curColor = b.getColor()
                 else:
                     pass
-            else: # not b.segmentR()
+            else: # not connected to base on right
                 if s==None:
                     pass
                 else:
@@ -415,31 +423,6 @@ class VirtualHelix(QObject):
                 ends3.append(i)
 
         return (segments, ends3, ends5)
-
-    def getDragLimits(self, strandType, index):
-        """
-        Return leftmost and rightmost indices (inclusive) that a breakpoint
-        handle can explore before running into another handle or the path-
-        helix edge.
-        """
-        strand = self._strand(strandType)
-        left = max(0, index - 1)
-        base = strand[left]
-        while not base.isEnd() and not base.isCrossover():
-            if left == 0:
-                left -= 1  # edge case
-                break
-            left -= 1
-            base = strand[left]
-        right = min(index + 1, len(strand) - 1)
-        base = strand[right]
-        while not base.isEnd() and not base.isCrossover():
-            if right == len(strand) - 1:
-                right += 1  # edge case
-                break
-            right += 1
-            base = strand[right]
-        return (left + 1, right - 1)  # compensate for peeking at the boundary
 
     def get3PrimeXovers(self, strandType):
         """
@@ -476,15 +459,27 @@ class VirtualHelix(QObject):
     # end def
 
     def colorOfBase(self, strandType, idx):
-        if strandType == StrandType.Scaffold:
-            return styles.bluestroke
-            # return QColor(44, 51, 141)
         # hue = 47 * idx + 31 * self.number()
         # return QColor.fromHsl(hue % 256, 255, 128)
-        c = QColor(self._stapleBases[idx].getColor())
         # print "colorOfBase", idx, c.name(), self._stapleBases[idx].getColor()
-        return c
-
+        return self._strand(strandType)[idx].getColor()
+    
+    def _basesConnectedTo(self, strandType, idx):
+        strand = self._strand(strandType)
+        bases = set()
+        treeTips = [strand[idx]]
+        while len(treeTips):
+            b = treeTips.pop()
+            if b in bases:
+                continue
+            else:
+                if b==None:
+                    continue
+                bases.add(b)
+                treeTips.append(b._3pBase)
+                treeTips.append(b._5pBase)
+        return bases
+            
     def sandboxed(self):
         return self._sandboxed
 
@@ -518,6 +513,58 @@ class VirtualHelix(QObject):
             print "Creating detached undo stack for %s" % self
             self._privateUndoStack = QUndoStack()
         return self._privateUndoStack
+    
+    ################# New-Style Accessors ###################
+    # A neighbor base is one that is connected to the base represented
+    # by self through a phosphate linkage. These accessors let you get them
+    def neighbor5p(self, strandType, idx):
+        b = self._strand(strandType)[idx]._neighbor5p()
+        return (b._vhelix, b._strandtype, b._n)
+    def neighbor3p(self, strandType, idx):
+        b = self._strand(strandType)[idx]._neighbor3p()
+        return (b._vhelix, b._strandtype, b._n)
+    # Although different strands are oriented different ways inside the gui,
+    # R and L always represent the bases to the right and left of the receiver
+    # in the GUI
+    def neighborR(self, strandType, idx):
+        b = self._strand(strandType)[idx]._neighborR()
+        return (b._vhelix, b._strandtype, b._n)
+    def neighborL(self, strandType, idx):
+        b = self._strand(strandType)[idx]._neighborL()
+        return (b._vhelix, b._strandtype, b._n)
+    
+    # Test for the presence of neghbors
+    def hasNeighbor5p(self, strandType, idx):
+        return self._strand(strandType)[idx]._hasNeighbor5p()
+    def hasNeighbor3p(self, strandType, idx):
+        return self._strand(strandType)[idx]._hasNeighbor3p()
+    def hasNeighborR(self, strandType, idx):
+        return self._strand(strandType)[idx]._hasNeighborR()
+    def hasNeighborL(self, strandType, idx):
+        return self._strand(strandType)[idx]._hasNeighborL()
+    
+    # A segment is a connection between a base and its neighbor
+    # base on the same strand
+    def connectsToNat5p(self, strandType, idx):
+        return self._strand(strandType)[idx]._connectsToNat5p()
+    def connectsToNat3p(self, strandType, idx):
+        return self._strand(strandType)[idx]._connectsToNat3p()
+    def connectsToNatR(self, strandType, idx):
+        return self._strand(strandType)[idx]._connectsToNatR()
+    def connectsToNatL(self, strandType, idx):
+        return self._strand(strandType)[idx]._connectsToNatL()
+    
+    # A crossover is a connection between a base and a base
+    # that isn't its neighbor on the same strand
+    def hasCrossover5p(self, strandType, idx):
+        return self._strand(strandType)[idx]._hasCrossover5p()
+    def hasCrossover3p(self, strandType, idx):
+        return self._strand(strandType)[idx]._hasCrossover3p()
+    def hasCrossoverR(self, strandType, idx):
+        return self._strand(strandType)[idx]._hasCrossoverR()
+    def hasCrossoverL(self, strandType, idx):
+        return self._strand(strandType)[idx]._hasCrossoverL()
+    
 
     ################## Public Base Modification API #########
     """
@@ -531,13 +578,13 @@ class VirtualHelix(QObject):
         _doSomething() -> Private API
     or Outside World -> doSomething() -> DoSomethingUndoCommand -> Private API
     """
-    def emitModificationSignal(self):
+    def setHasBeenModified(self):
         if self.part():
             self.part().basesModifiedVHs.add(self)
         else:
             self.basesModified.emit()
     
-    def flushBasesModifiedSignals(self):
+    def emitBasesModifiedIfNeeded(self):
         if self.part():
             for vh in self.part().basesModifiedVHs:
                 vh.basesModified.emit()
@@ -546,59 +593,92 @@ class VirtualHelix(QObject):
             self.basesModified.emit()
         #self.part().virtualHelixAtCoordsChanged.emit(*self.coord())
         
-    def connectStrand(self, strandType, startIndex, endIndex):
+    def connectStrand(self, strandType, startIndex, endIndex, undoStack=None):
         """
         Connects sequential bases on a single strand, starting with
         startIndex and ending with etdIndex (inclusive)
         Sets {s.n, (s+1).np, ..., (e-2).np, (e-1).np, e.p}
         """
         strand = self._strand(strandType)
-        endIndex, startIndex = int(max(startIndex, endIndex)),\
-                                        int(min(startIndex, endIndex))
+        startIndex, endIndex = int(startIndex), int(endIndex)
         startIndex = clamp(startIndex, 0, len(strand) - 1)
         endIndex = clamp(endIndex, 0, len(strand) - 1)
+        if undoStack==None:
+            undoStack = self.undoStack()
+        undoStack.beginMacro("Connect Strand")
         c = self.ConnectStrandCommand(self, strandType, startIndex, endIndex)
-        self.undoStack().push(c)
+        undoStack.push(c)
+        self.thoughtPolice(undoStack)  # Check for inconsistencies, fix one-base Xovers, etc
+        undoStack.endMacro()
 
-    def clearStrand(self, strandType, startIndex, endIndex):
-        endIndex, startIndex = int(max(startIndex, endIndex)),\
-                                        int(min(startIndex, endIndex))
+    def clearStrand(self, strandType, startIndex, endIndex, undoStack=None, colorL=None, colorR=None):
+        endIndex, startIndex = int(endIndex), int(startIndex)
         strand = strandType == StrandType.Scaffold and \
             self._scaffoldBases or self._stapleBases
         startIndex = clamp(startIndex, 1, len(strand)-1)
         endIndex = clamp(endIndex, 1, len(strand)-1)
-        c = self.ClearStrandCommand(self, strandType, startIndex, endIndex)
-        self.undoStack().push(c)
+        if undoStack==None:
+            undoStack = self.undoStack()
+        undoStack.beginMacro("Clear Strand")
+        c = self.ClearStrandCommand(self, strandType, startIndex, endIndex, colorL=colorL, colorR=colorR)
+        undoStack.push(c)
+        self.thoughtPolice(undoStack)  # Check for inconsistencies, fix one-base Xovers, etc
+        undoStack.endMacro()
 
-    def installXoverFrom3To5(self, strandType, fromIndex, toVhelix, toIndex):
+    def installXoverFrom3To5(self, strandType, fromIndex, toVhelix, toIndex, undoStack=None, endToTakeColorFrom=3):
         """
         The from base must provide the 3' pointer, and to must provide 5'.
         """
+        if undoStack==None:
+            undoStack = self.undoStack()
+        undoStack.beginMacro("Install 3-5 Xover")
         c = self.Connect3To5Command(strandType, self, fromIndex, toVhelix,\
-                                    toIndex)
-        self.undoStack().push(c)
+                                    toIndex, endToTakeColorFrom)
+        undoStack.push(c)
+        self.thoughtPolice(undoStack)  # Check for inconsistencies, fix one-base Xovers, etc
+        toVhelix.thoughtPolice(undoStack=undoStack)
+        undoStack.endMacro()
+    
+    def removeConnectedStrandAt(self, strandType, idx, undoStack=None):
+        if not undoStack:
+            undoStack = self.undoStack()
+        undoStack.beginMacro("Remove Strand")
+        bases = self._basesConnectedTo(strandType, idx)
+        c = self.RemoveBasesCommand(bases)
+        undoStack.push(c)
+        affectedVH = set()
+        for b in bases:
+            affectedVH.add(b._vhelix)
+        for vh in affectedVH:
+            vh.thoughtPolice(undoStack)
+        undoStack.endMacro()
     
     def removeXoversAt(self, strandType, idx):
-        fromBase = self._strand(strandType)[idx]
-        self.undoStack().beginMacro("Removing Crossover")
-        for toBase in (fromBase._3pBase, fromBase._5pBase):
-            if toBase==None:
-                continue
-            if toBase._vhelix != self:
-                self.removeXoverTo(strandType, idx, toBase._vhelix, toBase._n)
+        base = self._strand(strandType)[idx]
         
+        if base._hasCrossover3p():
+            fromBase, toBase = base, base._3pBase
+            fromBase._vhelix.removeXoverTo(base._strandtype, base._n\
+                    , toBase._vhelix, toBase._n, endToKeepColor=3)
+        if base._hasCrossover5p():
+            fromBase, toBase = base._5pBase, base
+            fromBase._vhelix.removeXoverTo(base._strandtype, base._n\
+                    , toBase._vhelix, toBase._n, endToKeepColor=5)
 
-    def removeXoverTo(self, strandType, fromIndex, toVhelix, toIndex):
+    def removeXoverTo(self, strandType, fromIndex, toVhelix, toIndex, undoStack=None, endToKeepColor=3):
         strand = self._strand(strandType)
         fromBase = strand[fromIndex]
         toBase = toVhelix._strand(strandType)[toIndex]
-        if fromBase._5pBase == toBase:
-            fromBase, toBase = toBase, fromBase
         if fromBase._3pBase != toBase or fromBase != toBase._5pBase:
             raise IndexError("Crossover does not exist to be removed.")
-        fromVH = fromBase._vhelix
-        c = fromVH.Break3To5Command(strandType, fromVH, fromIndex)
-        fromVH.undoStack().push(c)
+        if undoStack==None:
+            undoStack = self.undoStack()
+        undoStack.beginMacro("Remove Xover")
+        c = self.Break3To5Command(strandType, self, fromIndex, endToKeepColor=endToKeepColor)
+        undoStack.push(c)
+        self.thoughtPolice(undoStack)  # Check for inconsistencies, fix one-base Xovers, etc
+        toVhelix.thoughtPolice(undoStack=undoStack)
+        undoStack.endMacro()
         
     def installLoop(self, strandType, index, loopsize):
         """
@@ -609,26 +689,21 @@ class VirtualHelix(QObject):
         self.undoStack().push(c)
     # end def
 
-    def applyColorAt(self, colorName, strandType, index):
-        """docstring for applyColorAt"""
-        strand = self._strand(strandType)
-        startBase = strand[index]
-        # traverse to 5' end
-        base = startBase
-        while not base.is5primeEnd():
-            base.setColor(colorName)
-            base = base.get5pBase()  # advance to next
-            if base == startBase:  # check for circular path
-                return
-        base.setColor(colorName)  # last 5' base
-        # traverse to 3' end
-        if not startBase.is3primeEnd():
-            base = startBase.get3pBase()  # already processed startBase
-            while not base.is3primeEnd():
-                base.setColor(colorName)
-                base = base.get3pBase()  # advance to next
-            base.setColor(colorName)  # last 3' base
-        self.flushBasesModifiedSignals()
+    def applyColorAt(self, color, strandType, index, undoStack=None):
+        """Determine the connected strand that passes through
+        (self, strandType, index) and apply color to every base
+        in that strand. If color is none, pick a (bright) random
+        color and apply it to every base in that strand"""
+        if undoStack==None:
+            undoStack = self.undoStack()
+        if color==None:
+            color = randomBrightColor()
+        undoStack.beginMacro("Apply Color")
+        bases = self._basesConnectedTo(strandType, index)
+        c = self.ApplyColorCommand(bases, color)
+        undoStack.push(c)
+        undoStack.endMacro()
+        self.emitBasesModifiedIfNeeded()
 
     def setFloatingXover(self, strandType=None, fromIdx=None, toPoint=None):
         """The floating crossover is a GUI hack that is the
@@ -640,16 +715,72 @@ class VirtualHelix(QObject):
             self.floatingXoverBase._floatingXoverDestination = None
             self.floatingXoverBase = None
         if strandType==None or fromIdx==None or toPoint==None:
-            self.emitModificationSignal()
-            self.flushBasesModifiedSignals()
+            self.setHasBeenModified()
+            self.emitBasesModifiedIfNeeded()
             return
         newXoverBase = self._strand(strandType)[fromIdx]
         newXoverBase._floatingXoverDestination = toPoint
         self.floatingXoverBase = newXoverBase
-        self.emitModificationSignal()
-        self.flushBasesModifiedSignals()
+        self.setHasBeenModified()
+        self.emitBasesModifiedIfNeeded()
 
     ################ Private Base Modification API ###########################
+    # The Notification Responsibilities of a Command
+    #   1) Call vh.setHasBeenModified() on every VirtualHelix that is modified.
+    #      Judiciously use this method, since all it really does is add the VH
+    #      it is called on to a list of dirty VH in the dnapart.
+    #   2) Call vh.emitBasesModifiedIfNeeded() when you are done with a command.
+    #      This actually emits the signals (this way, Base can automatically
+    #      decide which VH were dirtied yet a command that affects 20 bases doesn't
+    #      result in 20 duplicate basesModified signals being emitted)
+    
+    def thoughtPolice(self, undoStack):
+        """Make sure that self obeys certain limitations, force it to if it doesn't"""
+        if self.prohibitSingleBaseCrossovers:
+            for strandType in (StrandType.Scaffold, StrandType.Staple):
+                strand = self._strand(strandType)
+                for i in range(len(strand)):
+                    b = strand[i]
+                    hasNeighborL = b._hasNeighborL()
+                    hasNeighborR = b._hasNeighborR() 
+                    hasXoverL = b._hasCrossoverL()
+                    hasXoverR = b._hasCrossoverR()
+                    if hasXoverL and not hasNeighborR:
+                        self.connectStrand(strandType, i, i+1, undoStack=undoStack)
+                    if hasXoverR and not hasNeighborL:
+                        self.connectStrand(strandType, i-1, i, undoStack=undoStack)
+    
+    class ApplyColorCommand(QUndoCommand):
+        def __init__(self, bases, color):
+            super(VirtualHelix.ApplyColorCommand, self).__init__()
+            self._bases = list(bases)
+            if color==None and len(self._bases):
+                b = self._bases[0]
+                newHue = 199*b._vhelix.number() +\
+                         131*int(b._strandtype) +\
+                         151*b._n
+                color = QColor()
+                color.setHsv(newHue%256, 255, 255)
+            self._newColor = color
+        def redo(self):
+            oc = self._oldColors = []
+            nc = self._newColor
+            vh = None
+            for b in self._bases:
+                vh = b._vhelix
+                oc.append(b._setColor(nc))
+            if vh:
+                vh.emitBasesModifiedIfNeeded()
+        def undo(self):
+            oc = self._oldColors
+            vh = None
+            for b in reversed(self._bases):
+                vh = b._vhelix
+                b._setColor(oc.pop())
+            if vh:
+                vh.emitBasesModifiedIfNeeded()
+                
+    
     class LoopCommand(QUndoCommand):
         def __init__(self, virtualHelix, strandType, index, loopsize):
             super(VirtualHelix.LoopCommand, self).__init__()
@@ -674,8 +805,8 @@ class VirtualHelix(QObject):
                         del loop[self._index]
                     # end if
                 # end else
-                self._vh.emitModificationSignal()
-                self._vh.flushBasesModifiedSignals()
+                self._vh.setHasBeenModified()
+                self._vh.emitBasesModifiedIfNeeded()
 
         def undo(self):
             if self._vh.hasStrandAt(self._strandType, self._index):
@@ -688,8 +819,31 @@ class VirtualHelix(QObject):
                         del loop[self._index]
                     # end if
                 # end else
-                self._vh.emitModificationSignal()
-                self._vh.flushBasesModifiedSignals()
+                self._vh.setHasBeenModified()
+                self._vh.emitBasesModifiedIfNeeded()
+    
+    class RemoveBasesCommand(QUndoCommand):
+        def __init__(self, bases):
+            super(VirtualHelix.RemoveBasesCommand, self).__init__()
+            self.bases = list(bases)
+        def redo(self):
+            ol = self._oldLinkage = []
+            vh = None
+            for b in self.bases:
+                ol.append(b._set3Prime(None))
+                ol.append(b._set5Prime(None))
+                vh = b._vhelix
+            if vh:
+                vh.emitBasesModifiedIfNeeded()
+        def undo(self):
+            ol = self._oldLinkage
+            vh = None
+            for b in reversed(self.bases):
+                b._unset5Prime(None, ol.pop())
+                b._unset3Prime(None, ol.pop())
+                vh = b._vhelix
+            if vh:
+                vh.emitBasesModifiedIfNeeded()
 
     class ConnectStrandCommand(QUndoCommand):
         def __init__(self, virtualHelix, strandType, startIndex, endIndex):
@@ -699,42 +853,60 @@ class VirtualHelix(QObject):
             self._startIndex = startIndex
             self._endIndex = endIndex
             self._oldLinkage = None
+            self._colorSubCommand = None
 
         def redo(self):
             # Sets {s.n, (s+1).np, ..., (e-2).np, (e-1).np, e.p}
             # st s, s+1, ..., e-1, e are connected
             strand = self._vh._strand(self._strandType)
             ol = self._oldLinkage = []
+            firstIdx = min(self._startIndex, self._endIndex)
+            stopIdx = max(self._startIndex, self._endIndex)
             if self._vh.directionOfStrandIs5to3(self._strandType):
-                for i in range(self._startIndex, self._endIndex):
+                for i in range(firstIdx, stopIdx):
                     ol.append(strand[i]._set3Prime(strand[i + 1]))
             else:
-                for i in range(self._startIndex, self._endIndex):
+                for i in range(firstIdx, stopIdx):
                     ol.append(strand[i]._set5Prime(strand[i + 1]))
-            self._vh.flushBasesModifiedSignals()
+            # Now ensure all connected bases have the same color
+            # which gets taken from the startIndex base
+            color = strand[self._startIndex].getColor()
+            bases = self._vh._basesConnectedTo(self._strandType, self._startIndex)
+            self._colorSubCommand = VirtualHelix.ApplyColorCommand(bases, color)
+            self._colorSubCommand.redo()
+            self._vh.emitBasesModifiedIfNeeded()
 
         def undo(self):
             strand = self._vh._strand(self._strandType)
             ol = self._oldLinkage
+            firstIdx = min(self._startIndex, self._endIndex)
+            stopIdx = max(self._startIndex, self._endIndex)
             assert(ol != None)  # Must redo/apply before undo
             if self._vh.directionOfStrandIs5to3(self._strandType):
-                for i in range(self._endIndex - 1, self._startIndex - 1, -1):
+                for i in range(stopIdx - 1, firstIdx - 1, -1):
                     strand[i]._unset3Prime(strand[i + 1],\
-                                           *ol[i - self._startIndex])
+                                           *ol[i - firstIdx])
             else:
-                for i in range(self._endIndex - 1, self._startIndex - 1, -1):
+                for i in range(stopIdx - 1, firstIdx - 1, -1):
                     strand[i]._unset5Prime(strand[i + 1],\
-                                           *ol[i - self._startIndex])
-            self._vh.flushBasesModifiedSignals()
+                                           *ol[i - firstIdx])
+            self._colorSubCommand.undo()
+            self._vh.emitBasesModifiedIfNeeded()
 
     class ClearStrandCommand(QUndoCommand):
-        def __init__(self, virtualHelix, strandType, startIndex, endIndex):
+        def __init__(self, virtualHelix, strandType, startIndex, endIndex, colorL=None, colorR=None):
             super(VirtualHelix.ClearStrandCommand, self).__init__()
             self._vh = virtualHelix
             self._strandType = strandType
-            self._startIndex = startIndex
-            self._endIndex = endIndex
+            self._startIndex = min(startIndex, endIndex)
+            self._endIndex = max(startIndex, endIndex)
             self._oldLinkage = None
+            if colorL == 'random':
+                colorL = randomBrightColor()
+            if colorR == 'random':
+                colorR = randomBrightColor()
+            self._colorL = colorL
+            self._colorR = colorR
 
         def redo(self):
             # Clears {s.n, (s+1).np, ..., (e-1).np, e.p}
@@ -742,75 +914,159 @@ class VirtualHelix(QObject):
             # if this is called in the middle of a connected strand
             strand = self._vh._strand(self._strandType)
             ol = self._oldLinkage = []
+            startIdx = min(self._startIndex, self._endIndex)
+            endIdx = max(self._startIndex, self._endIndex)
+            createdEndpoints = []
             if self._vh.directionOfStrandIs5to3(self._strandType):
-                for i in range(self._startIndex - 1, self._endIndex):
+                for i in range(startIdx-1, endIdx):
                     leftBase, rightBase = strand[i], strand[i+1]
                     # Clear i.next
+                    createdEndpoints.extend((leftBase, leftBase._3pBase))
                     ol.append(leftBase._set3Prime(None))
                     # Clear (i+1)prev
+                    createdEndpoints.extend((rightBase._5pBase, rightBase))
+                    createdEndpoints.append(rightBase._5pBase)
                     ol.append(rightBase._set5Prime(None))
             else:
-                for i in range(self._startIndex - 1, self._endIndex):
+                for i in range(startIdx-1, endIdx):
                     leftBase, rightBase = strand[i], strand[i+1]
                     # Clear i.next
+                    createdEndpoints.extend((leftBase, leftBase._5pBase))
                     ol.append(leftBase._set5Prime(None))
                     # Clear (i+1).prev
+                    createdEndpoints.extend((rightBase._3pBase, rightBase))
                     ol.append(rightBase._set3Prime(None))
-            self._vh.flushBasesModifiedSignals()
+            isEndpt = lambda x: x!=None and x.isEnd()
+            createdEndpoints = list(set(filter(isEndpt, createdEndpoints)))
+            # Could filter out endpoints leading to the same strand if
+            # that becomes a performance issue for some reason
+            colorSubCommands = []
+            for i in range(len(createdEndpoints)):
+                e = createdEndpoints[i]
+                bases = e._vhelix._basesConnectedTo(e._strandtype, e._n)
+                # None corresponds to a pseudorandom color
+                color = None
+                if i==0 and self._colorL!=None:
+                    color = self._colorL
+                elif i==len(createdEndpoints)-1 and self._colorR!=None:
+                    color = self._colorR
+                c = VirtualHelix.ApplyColorCommand(bases, color)
+                c.redo()
+                colorSubCommands.append(c)
+            self.colorSubCommands = colorSubCommands
+            self._vh.emitBasesModifiedIfNeeded()
 
         def undo(self):
             strand = self._vh._strand(self._strandType)
             ol = self._oldLinkage
             assert(ol != None)  # Must redo/apply before undo
+            startIdx = min(self._startIndex, self._endIndex)
+            endIdx = max(self._startIndex, self._endIndex)
+            for c in reversed(self.colorSubCommands):
+                c.undo()
             if self._vh.directionOfStrandIs5to3(self._strandType):
-                for i in range(self._endIndex - 1, self._startIndex - 2, -1):
+                for i in range(endIdx - 1, startIdx - 2, -1):
                     strand[i+1]._unset5Prime(None, *ol.pop())
                     strand[i]._unset3Prime(None, *ol.pop())
             else:
-                for i in range(self._endIndex - 1, self._startIndex - 2, -1):
+                for i in range(endIdx - 1, startIdx - 2, -1):
                     strand[i+1]._unset3Prime(None, *ol.pop())
                     strand[i]._unset5Prime(None, *ol.pop())
-            self._vh.flushBasesModifiedSignals()
+            self._vh.emitBasesModifiedIfNeeded()
 
     class Connect3To5Command(QUndoCommand):
-        def __init__(self, strandType, fromHelix, fromIndex, toHelix, toIndex):
+        def __init__(self, strandType, fromHelix, fromIndex, toHelix, toIndex, endToTakeColorFrom=3):
             super(VirtualHelix.Connect3To5Command, self).__init__()
             self._strandType = strandType
             self._fromHelix = fromHelix
             self._fromIndex = fromIndex
             self._toHelix = toHelix
             self._toIndex = toIndex
+            self._colorEnd = endToTakeColorFrom
 
         def redo(self):
-            fromB = self._fromHelix._strand(self._strandType)[self._fromIndex]
-            toB = self._toHelix._strand(self._strandType)[self._toIndex]
+            vh, strandType = self._fromHelix, self._strandType
+            fromIdx, toIdx = self._fromIndex, self._toIndex
+            fromB = vh._strand(strandType)[fromIdx]
+            toB = self._toHelix._strand(strandType)[toIdx]
+            old3p = fromB._3pBase
+            old5p = toB._5pBase
             self._undoDat = fromB._set3Prime(toB)
-            self._fromHelix.flushBasesModifiedSignals()
+            if self._colorEnd == 3:
+                color = vh.colorOfBase(strandType, fromIdx)
+            elif self._colorEnd == 5:
+                color = self._toHelix.colorOfBase(strandType, toIdx)
+            else:
+                assert(False)
+            # Ensure that the newly joined strand is all one color
+            bases = vh._basesConnectedTo(strandType, fromIdx)
+            c = VirtualHelix.ApplyColorCommand(bases, color)
+            c.redo()
+            self._colorCommand = c
+            
+            # If we had to split a strand to make the crossover, give
+            # the resulting segment a random color
+            self._colorCommand1 = None
+            if old3p!=None:
+                bases1 = old3p._vhelix._basesConnectedTo(old3p._strandtype, old3p._n)
+                color1 = randomBrightColor()
+                c1 = VirtualHelix.ApplyColorCommand(bases1, color1)
+                c1.redo()
+                self._colorCommand1 = c1
+            self._colorCommand2 = None
+            if old5p != None:
+                bases2 = old5p._vhelix._basesConnectedTo(old5p._strandtype, old5p._n)
+                color2 = randomBrightColor()
+                c2 = VirtualHelix.ApplyColorCommand(bases2, color2)
+                c2.redo()
+                self._colorCommand2 = c2
+            vh.emitBasesModifiedIfNeeded()
 
         def undo(self):
             fromB = self._fromHelix._strand(self._strandType)[self._fromIndex]
             toB = self._toHelix._strand(self._strandType)[self._toIndex]
             assert(self._undoDat)  # Must redo/apply before undo
             fromB._unset3Prime(toB, *self._undoDat)
-            self._fromHelix.flushBasesModifiedSignals()
+            self._colorCommand.undo()
+            if self._colorCommand1:
+                self._colorCommand1.undo()
+            if self._colorCommand2:
+                self._colorCommand2.undo()
+            self._fromHelix.emitBasesModifiedIfNeeded()
 
     class Break3To5Command(QUndoCommand):
-        def __init__(self, strandType, vhelix, index):
+        def __init__(self, strandType, vhelix, index, endToKeepColor=3):
             super(VirtualHelix.Break3To5Command, self).__init__()
             self._strandType = strandType
             self._base = vhelix._strand(strandType)[index]
+            self._endToKeepColor = endToKeepColor
+            self._colorCommand = None
 
         def redo(self):
-            base = self._base
-            self._old3pBase = base._3pBase
-            base._set3Prime(None)
-            base._vhelix.flushBasesModifiedSignals()
+            threeB = self._base
+            self._old3pBase = fiveB = threeB._3pBase
+            threeB._set3Prime(None)
+            if threeB and self._endToKeepColor==5:
+                color = randomBrightColor()
+                bases = threeB._vhelix._basesConnectedTo(threeB._strandtype, threeB._n)
+                c = VirtualHelix.ApplyColorCommand(bases, color)
+                c.redo()
+                self._colorCommand = c
+            elif fiveB and self._endToKeepColor==3:
+                color = randomBrightColor()
+                bases = fiveB._vhelix._basesConnectedTo(fiveB._strandtype, fiveB._n)
+                c = VirtualHelix.ApplyColorCommand(bases, color)
+                c.redo()                
+                self._colorCommand = c
+            threeB._vhelix.emitBasesModifiedIfNeeded()
 
         def undo(self):
             assert(self._old3pBase)
             base = self._base
             base._set3Prime(self._old3pBase)
-            base._vhelix.flushBasesModifiedSignals()
+            base._vhelix.emitBasesModifiedIfNeeded()
+            if self._colorCommand:
+                self._colorCommand.undo()
 
     class SetNumBasesCommand(QUndoCommand):
         def __init__(self, vhelix, newNumBases):

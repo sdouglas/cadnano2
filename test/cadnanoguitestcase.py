@@ -29,7 +29,6 @@ from cadnano import app as getAppInstance
 
 main = test.guitestcase.main
 
-
 class CadnanoGuiTestCase(test.guitestcase.GUITestCase):
     """
     SEE: http://docs.python.org/library/unittest.html

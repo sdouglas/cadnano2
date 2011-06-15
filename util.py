@@ -27,9 +27,12 @@ util
 Created by Jonathan deWerd.
 """
 from traceback import extract_stack
-from PyQt4.QtGui import QGraphicsItem
+from PyQt4.QtGui import QGraphicsItem, QColor
+from random import Random
 import sys
 from os import path
+
+prng = Random()
 
 def clamp(x, minX, maxX):
     if x < minX:
@@ -73,3 +76,10 @@ def defineEventForwardingMethodsForClass(classObj, forwardedEventSuffix, eventNa
             return templateMethod
         eventHandler = makeTemplateMethod(eventMethodName, delegateMethodName)
         setattr(classObj, eventMethodName, eventHandler)
+
+def randomBrightColor():
+    newHue = prng.randint(0, 255)
+    newColor = QColor()
+    newColor.setHsv(newHue, 255, 255)
+    return newColor
+    

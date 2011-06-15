@@ -42,3 +42,25 @@ We're still working out the bugs
 ## Links
 * [CADnano.org](http://cadnano.org/)
 * [Maya 2012](http://usa.autodesk.com/maya/)
+
+## Configuration
+Configuration of tools (in terms of capabilities) is implemented
+using class members. Some are listed below:
+### VirtualHelix.prohibitSingleBaseCrossovers
+If True, every time a modification is made to a VirtualHelix, it will check to
+see if it has any single base crossovers and will fix them by connecting
+them to the next base on the strand.
+### SelectTool.limitEndptDragging
+If True, dragging endpoints will be constrained so that it never
+merges segments, creates segments, or destroys crossovers.
+### SelectTool.disallowClickBreaksStrand
+If True, prohibits the user from clicking in the middle of a segment to
+break it.
+### SelectTool.drawActionPreview
+If True, the select tool will draw red and green lines on the perimeter
+of the base the tool is hovering over to indicate what API operation will
+be performed by dragging in a certain direction.
+### SelectTool.colorPreview
+If True, the select tool will draw a dot on the base being hovered over
+that is the color of the underlying base (useful when you need to know
+the color of a base that doesn't have any strand to exhibit its color with)

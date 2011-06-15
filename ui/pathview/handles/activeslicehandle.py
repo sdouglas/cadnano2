@@ -125,8 +125,7 @@ class ActiveSliceHandle(QGraphicsItem):
         self.maxX = (maxBase - 1) * self._baseWidth
 
     def hoverEnterEvent(self, event):
-        if self.controller().isSelectToolActive():
-            self.setCursor(Qt.OpenHandCursor)
+        self.setCursor(Qt.OpenHandCursor)
         QGraphicsItem.hoverEnterEvent(self, event)
     # end def
 
@@ -145,7 +144,7 @@ class ActiveSliceHandle(QGraphicsItem):
 
     def mouseMoveEvent(self, event):
         """Snaps handle into place when dragging."""
-        if not self.controller().isSelectToolActive() or not self._dragMode:
+        if not self._dragMode:
             return
         x = event.scenePos().x()
         dx = int((x - self.pressX)/self._baseWidth)
@@ -155,8 +154,6 @@ class ActiveSliceHandle(QGraphicsItem):
         if event.button() != Qt.LeftButton:
             event.ignore()
             QGraphicsItem.mousePressEvent(self, event)
-            return
-        if not self.controller().isSelectToolActive():
             return
         self.scene().views()[0].addToPressList(self)
         self._dragMode = True

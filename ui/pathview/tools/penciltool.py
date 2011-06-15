@@ -35,8 +35,8 @@ class PencilTool(SelectTool, ForceTool):
     """PencilTool allows for creation of new staple or scaffold strands
     by clicking and dragging on empty bases."""
     # We are just like select tool except we don't enforce drag limits
-    imposeDragLimits = False
-    mustStartOnBreakpoint = False
+    limitEndptDragging = False
+    disallowClickBreaksStrand = False
     # And we actually use those PathHelixGroup events
     mouseMovePathHelixGroupUnused = False
     mouseReleasePathHelixGroupUnused = False

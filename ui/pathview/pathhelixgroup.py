@@ -275,6 +275,9 @@ class PathHelixGroup(QGraphicsObject):
                 color = ph.vhelix().colorOfBase(StrandType.Staple, fromindex)
                 self._stapPen.setColor(QColor(color))
                 painter.drawPath(path[0])
+                self._stapPen.setColor(color)
+                painter.setPen(self._stapPen)
+                painter.drawPath(path)
                 # self._XOverLabels.append(path[1]) 
                 # self._XOverLabels.append(path[2])
             # end for
