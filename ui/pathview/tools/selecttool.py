@@ -171,18 +171,6 @@ class SelectTool(AbstractPathTool):
     mouseMovePathHelixGroupUnused = True
     mouseReleasePathHelixGroupUnused = True
     mousePressPathHelixGroupUnused = True
-
-    def selectToolRemoveXover(self,vHelix, base):
-        base = vHelix.validatedBase(*base, raiseOnErr=False)
-        if None in base:
-            return False
-        # call of the next function assumes that the base has been vetted to be
-        # an actual crossover
-        # the removepair is the ( (3p_vh, ind) , (5p_vh, ind) )
-        removepair = vHelix.getXover(*base)
-        removepair[0][0].removeXoverTo(base[0], removepair[0][1], \
-                                       removepair[1][0], removepair[1][1])
-    # end def
     
     def dragLimitsForDragOpBeginningAtBase(self, fromBase):
         """ returns (firstAllowableIdx, lastAllowableIdx) for
@@ -244,7 +232,9 @@ class SelectTool(AbstractPathTool):
         startBaseHasRCrossover = vHelix.hasCrossoverR(strandType, baseIdx)
 
         # (Below) we are dragging starting at a CROSSOVER
+        #print "!"
         if startBaseHasLCrossover or startBaseHasRCrossover:
+            #print "."
             if startBaseHasLNeighbor and startBaseHasRNeighbor:
                 # It's not a 1-base crossover
                 return (self.RemoveXOver, 0, 0)
@@ -323,6 +313,6 @@ class SelectTool(AbstractPathTool):
             colorL, colorR = dragOp[3:5]
             vHelix.clearStrand(fr[0], fr[1]+frOffset, to[1]+toOffset, colorL=colorL, colorR=colorR)
         elif op == self.RemoveXOver:
-            vHelix.removeXoversAt(fr[0], fr[1])
+            vHelix.removeXoversAt(fr[0], fr[1], newColor=self.thisDragOpsNewColor)
         else:
             assert(op == self.NoOperation)

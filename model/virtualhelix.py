@@ -653,19 +653,19 @@ class VirtualHelix(QObject):
             vh.thoughtPolice(undoStack)
         undoStack.endMacro()
     
-    def removeXoversAt(self, strandType, idx):
+    def removeXoversAt(self, strandType, idx, newColor=None):
         base = self._strand(strandType)[idx]
         
         if base._hasCrossover3p():
             fromBase, toBase = base, base._3pBase
             fromBase._vhelix.removeXoverTo(base._strandtype, base._n\
-                    , toBase._vhelix, toBase._n, endToKeepColor=3)
+                    , toBase._vhelix, toBase._n, endToKeepColor=3, newColor=newColor)
         if base._hasCrossover5p():
             fromBase, toBase = base._5pBase, base
             fromBase._vhelix.removeXoverTo(base._strandtype, base._n\
-                    , toBase._vhelix, toBase._n, endToKeepColor=5)
+                    , toBase._vhelix, toBase._n, endToKeepColor=5, newColor=newColor)
 
-    def removeXoverTo(self, strandType, fromIndex, toVhelix, toIndex, undoStack=None, endToKeepColor=3):
+    def removeXoverTo(self, strandType, fromIndex, toVhelix, toIndex, undoStack=None, endToKeepColor=3, newColor=None):
         strand = self._strand(strandType)
         fromBase = strand[fromIndex]
         toBase = toVhelix._strand(strandType)[toIndex]
@@ -674,7 +674,7 @@ class VirtualHelix(QObject):
         if undoStack==None:
             undoStack = self.undoStack()
         undoStack.beginMacro("Remove Xover")
-        c = self.Break3To5Command(strandType, self, fromIndex, endToKeepColor=endToKeepColor)
+        c = self.Break3To5Command(strandType, self, fromIndex, endToKeepColor=endToKeepColor, newColor=newColor)
         undoStack.push(c)
         self.thoughtPolice(undoStack)  # Check for inconsistencies, fix one-base Xovers, etc
         toVhelix.thoughtPolice(undoStack=undoStack)
@@ -1035,25 +1035,28 @@ class VirtualHelix(QObject):
             self._fromHelix.emitBasesModifiedIfNeeded()
 
     class Break3To5Command(QUndoCommand):
-        def __init__(self, strandType, vhelix, index, endToKeepColor=3):
+        def __init__(self, strandType, vhelix, index, endToKeepColor=3, newColor=None):
             super(VirtualHelix.Break3To5Command, self).__init__()
             self._strandType = strandType
             self._base = vhelix._strand(strandType)[index]
             self._endToKeepColor = endToKeepColor
             self._colorCommand = None
+            if newColor==None:
+                newColor = randomBrightColor()
+            self._newColor = newColor
 
         def redo(self):
             threeB = self._base
             self._old3pBase = fiveB = threeB._3pBase
             threeB._set3Prime(None)
             if threeB and self._endToKeepColor==5:
-                color = randomBrightColor()
+                color = self._newColor
                 bases = threeB._vhelix._basesConnectedTo(threeB._strandtype, threeB._n)
                 c = VirtualHelix.ApplyColorCommand(bases, color)
                 c.redo()
                 self._colorCommand = c
             elif fiveB and self._endToKeepColor==3:
-                color = randomBrightColor()
+                color = self._newColor
                 bases = fiveB._vhelix._basesConnectedTo(fiveB._strandtype, fiveB._n)
                 c = VirtualHelix.ApplyColorCommand(bases, color)
                 c.redo()                
@@ -1172,7 +1175,6 @@ class VirtualHelix(QObject):
     #################### Archiving / Unarchiving #############################
     # A helper method; not part of the archive protocol
     def encodeStrand(self, strandType):
-        strand = self._strand(strandType)
         numBases = self.numBases()
         strdir = "5->3" if self.directionOfStrandIs5to3(strandType) else "3->5"
         return "(%s) " % (strdir) + " ".join(str(b) for b in strand)
@@ -1182,9 +1184,13 @@ class VirtualHelix(QObject):
         of simple types (strings, numbers, objects, and arrays/dicts
         of objects that also implement fillSimpleRep)"""
         sr['.class'] = "VirtualHelix"
-        sr['tentativeHelixID'] = self.number()  # Not used... for readability
+        sr['tentativeHelixID'] = self.number()  # Not used (just for readability)
+        stapleStrand = self._strand(StrandType.Staple)
         sr['staple'] = self.encodeStrand(StrandType.Staple)
+        sr['stapleColors'] = " ".join(str(b.getColor().name()) for b in stapleStrand)
+        scaffoldStrand = self._strand(StrandType.Scaffold)
         sr['scafld'] = self.encodeStrand(StrandType.Scaffold)
+        sr['scafldColors'] = " ".join(str(b.getColor().name()) for b in scafldColors)
 
     # First objects that are being unarchived are sent
     # ClassNameFrom.classAttribute(incompleteArchivedDict)
@@ -1201,3 +1207,11 @@ class VirtualHelix(QObject):
         for i in range(len(scaf)):
             self._scaffoldBases[i].setConnectsFromString(scaf[i])
             self._stapleBases[i].setConnectsFromString(stap[i])
+        # Give bases the proper colors
+        scafColors = re.split('\s+', completeArchivedDict['scafColors'])
+        for i in range(len(scaf)):
+            scaf[i]._setColor(QColor(scafColors[i]))
+        stapColors = re.split('\s+', completeArchivedDict['stapColors'])
+        for i in range(len(stap)):
+            stap[i]._setColor(QColor(stapColors[i]))
+        
