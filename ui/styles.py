@@ -27,7 +27,7 @@ styles.py
 
 Created by Shawn on 2010-06-15.
 """
-from PyQt4.QtGui import QColor
+from PyQt4.QtGui import QColor, QFont
 
 # Slice Sizing
 SLICE_HELIX_RADIUS = 15
@@ -104,6 +104,8 @@ ZSKIPHANDLE = 2
 ZPATHTOOL = 3
 ZBREAKITEM = 2
 
+XOVER_LABEL_FONT = QFont("Times", 10, QFont.Bold)
+XOVER_LABEL_COLOR = QColor(0,0,0) 
 
 # Overwrite for Maya
 # majorgridstroke = QColor(255, 255, 255)  # ffffff for maya

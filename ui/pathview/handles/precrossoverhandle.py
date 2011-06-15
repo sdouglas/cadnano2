@@ -74,7 +74,7 @@ class PreCrossoverHandle(QGraphicsItem):
     enabbrush = QBrush(Qt.SolidPattern)  # Also for the helix number label
     baseWidth = styles.PATH_BASE_WIDTH
     rect = QRectF(0, 0, styles.PATH_BASE_WIDTH, styles.PATH_BASE_WIDTH)
-    toHelixNumFont = QFont("Times", 10, QFont.Bold)
+    toHelixNumFont = styles.XOVER_LABEL_FONT
     
     def __init__(self, parentPH, fromStrand, fromIdx, toVH, toIdx, orientedLeft):
         super(PreCrossoverHandle, self).__init__(parentPH)

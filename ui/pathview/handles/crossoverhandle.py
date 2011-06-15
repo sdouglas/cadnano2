@@ -66,6 +66,9 @@ class XoverHandle(object):
         If floatPos!=None, this is a floatingXover and floatPos is the
         destination point (where the mouse is) while toHelix, toIndex
         are potentially None and represent the base at floatPos.
+        
+        returns a tuple of the (QPainter, QRectF, QRectF) representing the
+        (quad curve, the FROM label rectangle, and the TO label rectangle) 
         """
         # if we need to speed this up, we could keep track if pA changed?
         pA = QPointF(*fromHelix.baseLocation(strandtype,\
@@ -79,23 +82,21 @@ class XoverHandle(object):
                                                toIndex,\
                                                center=True))
             pB = phg.mapFromItem(toHelix, pB)
-        
-        # labelA = QGraphicsSimpleTextItem(str(toHelix.number()), parent=phg)
-        # labelA.setFont(self._myfont)
-        # labelAoffset = labelA.boundingRect().width()/2
-        # labelB = QGraphicsSimpleTextItem(str(fromHelix.number()), parent=phg)
-        # labelB.setFont(self._myfont)
-        # labelBoffset = labelB.boundingRect().width()/2
-        
+       
+        # begin calculations of how to draw labels and crossover orientations
         yA = yB = self._baseWidth / 2
         from5To3 = fromHelix.vhelix().directionOfStrandIs5to3(strandtype)
         if from5To3:
             orientA = HandleOrient.LeftUp
             yA = -yA
-            # labelA.setPos(pA.x()-labelAoffset,pA.y() - 1.5*self._baseWidth)
+            labelPosRectA = QRectF(pA.x() - 0.75*self._baseWidth, \
+                                    pA.y() - 1.5*self._baseWidth, \
+                                    self._baseWidth, self._baseWidth)
         else:
             orientA = HandleOrient.RightDown
-            # labelA.setPos(pA.x()-labelAoffset,pA.y() + 0.5*self._baseWidth)
+            labelPosRectA = QRectF(pA.x() - 0.25*self._baseWidth, \
+                                    pA.y() + 0.5*self._baseWidth, \
+                                    self._baseWidth, self._baseWidth)
         if floatPos and not toHelix:
             toIs5To3 = not from5To3
         else:
@@ -103,10 +104,15 @@ class XoverHandle(object):
         if toIs5To3:
             orientB = HandleOrient.RightUp
             yB = -yB
-            # labelB.setPos(pB.x()-labelBoffset,pB.y() - 1.5*self._baseWidth)
+            labelPosRectB = QRectF(pB.x() - 0.25*self._baseWidth, \
+                                    pB.y() - 1.5*self._baseWidth, \
+                                    self._baseWidth, self._baseWidth)
         else:
             orientB = HandleOrient.LeftDown
-            # labelB.setPos(pB.x()-labelBoffset,pB.y() + 0.5*self._baseWidth)
+            labelPosRectB = QRectF(pB.x() - 0.75*self._baseWidth, \
+                                    pB.y() + 0.5*self._baseWidth, \
+                                    self._baseWidth, self._baseWidth)
+        
             
         # Determine start and end points of quad curve
         qA = QPointF(pA.x(), pA.y() + yA)
@@ -148,9 +154,7 @@ class XoverHandle(object):
         painterpath.quadTo(c1, qB)
         painterpath.lineTo(pB)
         
-        
-        # print fromHelix.number(), toHelix.number()
-        # return (painterpath, labelA, labelB)
-        return (painterpath, None, None)
+        return (painterpath, labelPosRectA, labelPosRectB)
+        # return (painterpath, None, None)
     # end def
 # end class

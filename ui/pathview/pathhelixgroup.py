@@ -227,15 +227,8 @@ class PathHelixGroup(QGraphicsObject):
         # painter.restore()
 
     def drawXovers(self, painter):
-        """Return a QPainterPath ready to paint the crossovers"""
-        # if self._XOverLabels:
-        #     for ch in self._XOverLabels:
-        #         if ch.scene():
-        #             ch.scene().removeItem(ch)
-        # self._XOverLabels = None
-        # self._XOverLabels = []        
+        """Return a QPainterPath ready to paint the crossovers"""    
         for ph in self._pathHelixList:
-            painter.setPen(self._scafPen)
             for ((fromhelix, fromindex), dest) in \
                              ph.vhelix().get3PrimeXovers(StrandType.Scaffold):
                 if type(dest) in (list, tuple):
@@ -252,10 +245,22 @@ class PathHelixGroup(QGraphicsObject):
                                               toPH,\
                                               toIndex,\
                                               floatPos)
+                # draw the line
+                # reload scaffold strand pen 
+                painter.setPen(self._scafPen)
                 painter.drawPath(path[0])
-                # self._XOverLabels.append(path[1]) 
-                # self._XOverLabels.append(path[2]) 
-            painter.setPen(self._stapPen)
+                
+                # draw labels
+                painter.setPen(QPen(styles.XOVER_LABEL_COLOR))
+                painter.setFont(styles.XOVER_LABEL_FONT)
+                painter.drawText(path[1], Qt.AlignCenter, str(ph.number()))
+                
+                # test to see if we need to draw the to label for the xover
+                # this comes in handy when drawing forced xovers
+                if toPH != None:
+                    painter.drawText(path[2], 
+                                    Qt.AlignCenter, str(toPH.number()))
+
             for ((fromhelix, fromindex), dest) in \
                                ph.vhelix().get3PrimeXovers(StrandType.Staple):
                 if type(dest) in (list, tuple):
@@ -272,14 +277,23 @@ class PathHelixGroup(QGraphicsObject):
                                               toPH,\
                                               toIndex,\
                                               floatPos)
+                # reload staple strand pen                              
+                painter.setPen(self._stapPen)
                 color = ph.vhelix().colorOfBase(StrandType.Staple, fromindex)
-                self._stapPen.setColor(QColor(color))
-                painter.drawPath(path[0])
                 self._stapPen.setColor(color)
                 painter.setPen(self._stapPen)
-                painter.drawPath(path)
-                # self._XOverLabels.append(path[1]) 
-                # self._XOverLabels.append(path[2])
+                # draw the line
+                painter.drawPath(path[0])
+                # draw labels
+                painter.setPen(QPen(styles.XOVER_LABEL_COLOR))
+                painter.setFont(styles.XOVER_LABEL_FONT)
+                painter.drawText(path[1], Qt.AlignCenter, str(ph.number()) )
+                
+                # test to see if we need to draw the to label for the xover
+                # this comes in handy when drawing forced xovers
+                if toPH != None:
+                    painter.drawText(path[2], 
+                                    Qt.AlignCenter, str(toPH.number()))
             # end for
         # end for
     # end def
