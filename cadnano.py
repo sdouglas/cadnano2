@@ -30,8 +30,23 @@ from PyQt4.QtCore import *
 from PyQt4.QtGui import *
 from code import interact
 
+
+def usesPySide(self):
+    if self.PySide_loaded == None:
+        try:
+            import PySide
+            PySide_loaded = True
+        except ImportError:
+            PySide_loaded = False
+    return PySide_loaded
+# end def
+
+
 class caDNAno(QApplication):
     sharedApp = None  # This class is a singleton.
+    usesPySide = usesPySide     # This is bad that this can work
+    PySide_loaded = None
+    
     def __init__(self, argv):
         if argv == None:
             argv = ["cadnano",]
@@ -64,6 +79,8 @@ class caDNAno(QApplication):
                             'v':self.v,\
                             'ph':self.ph,\
                             'phg':lambda : self.phg})
+        print "Is PySide available? : ", self.usesPySide()
+    # end def
         
     def isInMaya(self):
         return False
