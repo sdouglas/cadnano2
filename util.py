@@ -98,10 +98,12 @@ def qtWrapImport(name, globaldict, fromlist):
     """
     pyWrapper = None
     if app().usesPySide():
-        pyWrapper = 'PySide'
+        # pyWrapper = 'PySide'
+        pyWrapper = 'PyQt4'
     else:
         pyWrapper = 'PyQt4'
-    _temp = __import__(pyWrapper + name, globaldict,locals(),fromlist,-1)
+    _temp = __import__(pyWrapper + '.' +  name, \
+                        globaldict, locals(), fromlist, -1)
     for key in dir(_temp):
         globaldict[key] = getattr(_temp, key)
 # end def
