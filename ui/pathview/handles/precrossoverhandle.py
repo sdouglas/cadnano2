@@ -148,11 +148,11 @@ class PreCrossoverHandle(QGraphicsItem):
         # Determine upstream base
         fromHelix, toHelix = self.fromVH, self.toVH
         fromIdx, toIdx = self.fromIdx, self.toIdx
+        endToTakeColorFrom = 3
         if not self.is3pEndOfCrossover():
             fromHelix, toHelix = toHelix, fromHelix
             fromIdx, toIdx = toIdx, fromIdx
+            endToTakeColorFrom = 5
         # Create XoverHandlePair and store references
-        # fromHelix.installXoverFrom3To5(StrandType.Scaffold, \
-        #                                 fromIndex, toHelix, toIndex)
         fromHelix.installXoverFrom3To5(self.fromStrand, \
-                                        fromIdx, toHelix, toIdx)
+                fromIdx, toHelix, toIdx, endToTakeColorFrom=endToTakeColorFrom)
