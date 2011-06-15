@@ -1013,7 +1013,7 @@ class VirtualHelix(QObject):
                 c1 = VirtualHelix.ApplyColorCommand(bases1, color1)
                 c1.redo()
                 self._colorCommand1 = c1
-            self.colorCommand2 = None
+            self._colorCommand2 = None
             if old5p != None:
                 bases2 = old5p._vhelix._basesConnectedTo(old5p._strandtype, old5p._n)
                 color2 = randomBrightColor()
