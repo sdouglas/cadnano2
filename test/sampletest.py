@@ -81,7 +81,7 @@ class SampleTests(CadnanoGuiTestCase):
     def testSecond(self):
         # Another test in this class. Note that the tests'
         # names must start with "test"
-        self.assertEqual(1, 1)
+        self.assertEqual(1, 2, "This assertion should fail... testing continuous integration")
 
 
 if __name__ == '__main__':
