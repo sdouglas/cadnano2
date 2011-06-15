@@ -60,7 +60,7 @@ class PathHelixHandle(QGraphicsItem):
         self.focusRing = None
         self.beingHoveredOver = False
         self.setAcceptsHoverEvents(True)
-        self.font = QFont("Times", 30, QFont.Bold)
+        self.font = styles.PATHHELIXHANDLE_FONT
         self.setNumber()
         #self.setFlag(QGraphicsItem.ItemIsMovable)
         self.setFlag(QGraphicsItem.ItemIsSelectable)
@@ -107,6 +107,9 @@ class PathHelixHandle(QGraphicsItem):
             self.label.setPos(self.radius / 3, y_val)
         else: # _number >= 100
             self.label.setPos(0, y_val)
+        posx = self.label.boundingRect().width()/2
+        posy = self.label.boundingRect().height()/2
+        self.label.setPos(self.radius-posx, self.radius-posy)
 
     def number(self):
         """docstring for number"""

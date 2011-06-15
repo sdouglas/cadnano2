@@ -120,6 +120,7 @@ class SliceHelix(QGraphicsItem):
             num = QString(str(self.virtualHelix().number()))
             painter.setPen(Qt.SolidLine)
             painter.setBrush(Qt.NoBrush)
+            painter.setFont(styles.SLICE_NUM_FONT)
             painter.drawText(0, 0, 2 * self.radius, 2 * self.radius,\
                              Qt.AlignHCenter + Qt.AlignVCenter, num)
         else:  # We are virtualhelix-less

@@ -95,8 +95,13 @@ class PreCrossoverHandle(QGraphicsItem):
         y = (-1.25 if self.onTopStrand() else 2.25) * self.baseWidth
         self.setPos(x, y)
         halfLabelW = self.label.boundingRect().width() / 2
+        halfLabelH = self.label.boundingRect().height() / 2
         labelX = self.baseWidth/2 - halfLabelW
-        labelY = (-.10 if self.onTopStrand() else .48) * self.baseWidth
+        # labelY = (-.10 if self.onTopStrand() else .48) * self.baseWidth
+        if self.onTopStrand():
+            labelY = -0.05*self.baseWidth
+        else:
+            labelY = halfLabelH+0.15*self.baseWidth
         self.label.setPos(labelX, labelY)
         self.updateVisibilityAndEnabledness()
             

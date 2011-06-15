@@ -104,6 +104,9 @@ ZSKIPHANDLE = 2
 ZPATHTOOL = 3
 ZBREAKITEM = 2
 
+
+SLICE_NUM_FONT = QFont("Times", 10, QFont.Bold)
+PATHHELIXHANDLE_FONT = QFont("Times", 30, QFont.Bold)
 XOVER_LABEL_FONT = QFont("Times", 10, QFont.Bold)
 XOVER_LABEL_COLOR = QColor(0,0,0) 
 
