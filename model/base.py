@@ -377,10 +377,12 @@ class Base(object):
     
 
     def isEnd(self):
-        if self._hasNeighbor5p():
-            return 5
-        if self._hasNeighbor3p():
+        if self._hasNeighbor5p() and\
+           not self._hasNeighbor3p():
             return 3
+        if self._hasNeighbor3p() and\
+           not self._hasNeighbor5p():
+            return 5
         return False
 
     def isStrand(self):
