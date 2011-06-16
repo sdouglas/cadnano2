@@ -1185,6 +1185,7 @@ class VirtualHelix(QObject):
     def encodeStrand(self, strandType):
         numBases = self.numBases()
         strdir = "5->3" if self.directionOfStrandIs5to3(strandType) else "3->5"
+        strand = self._strand(strandType)
         return "(%s) " % (strdir) + " ".join(str(b) for b in strand)
 
     def fillSimpleRep(self, sr):
@@ -1198,7 +1199,7 @@ class VirtualHelix(QObject):
         sr['stapleColors'] = " ".join(str(b.getColor().name()) for b in stapleStrand)
         scaffoldStrand = self._strand(StrandType.Scaffold)
         sr['scafld'] = self.encodeStrand(StrandType.Scaffold)
-        sr['scafldColors'] = " ".join(str(b.getColor().name()) for b in scafldColors)
+        sr['scafldColors'] = " ".join(str(b.getColor().name()) for b in scaffoldStrand)
 
     # First objects that are being unarchived are sent
     # ClassNameFrom.classAttribute(incompleteArchivedDict)
@@ -1216,10 +1217,10 @@ class VirtualHelix(QObject):
             self._scaffoldBases[i].setConnectsFromString(scaf[i])
             self._stapleBases[i].setConnectsFromString(stap[i])
         # Give bases the proper colors
-        scafColors = re.split('\s+', completeArchivedDict['scafColors'])
+        scafColors = re.split('\s+', completeArchivedDict['scafldColors'])
         for i in range(len(scaf)):
-            scaf[i]._setColor(QColor(scafColors[i]))
-        stapColors = re.split('\s+', completeArchivedDict['stapColors'])
+            self._scaffoldBases[i]._setColor(QColor(scafColors[i]))
+        stapColors = re.split('\s+', completeArchivedDict['stapleColors'])
         for i in range(len(stap)):
-            stap[i]._setColor(QColor(stapColors[i]))
+            self._stapleBases[i]._setColor(QColor(stapColors[i]))
         

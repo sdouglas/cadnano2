@@ -68,19 +68,20 @@ class PathHelixGroup(QGraphicsObject):
         # Properties
         self._XOverLabels = None
         self._pathHelixList = []  # Primary property
-        self._part = None; self.setPart(part)
-        self._controller = controller
-        self._activeSliceHandle = ActiveSliceHandle(self)
-        self._stapColor = QColor(0, 72, 0)
-        self._stapPen = QPen(self._stapColor, 2)
         self.activeHelix = None
-        self.loopHandleGroup = LoopHandleGroup(parent=self)
-        self.xoverGet = XoverHandle()
-        self.setZValue(styles.ZPATHHELIXGROUP)
+        self._part = None
         self.phhSelectionGroup = SelectionItemGroup(\
                                          boxtype=PathHelixHandleSelectionBox,\
                                          constraint='y',\
                                          parent=self)
+        self.setPart(part)
+        self._controller = controller
+        self._activeSliceHandle = ActiveSliceHandle(self)
+        self._stapColor = QColor(0, 72, 0)
+        self._stapPen = QPen(self._stapColor, 2)
+        self.loopHandleGroup = LoopHandleGroup(parent=self)
+        self.xoverGet = XoverHandle()
+        self.setZValue(styles.ZPATHHELIXGROUP)
         self.selectionLock = None
         self.setAcceptHoverEvents(True)        
         app().phg = self  # Convenience for the command line -i mode

@@ -154,7 +154,7 @@ class DNAPart(Part):
 
     virtualHelixAtCoordsChanged = pyqtSignal(int, int)
     def addVirtualHelixAt(self, coords, vh, requestSpecificIdnum=None, noUndo=False):
-        c = self.AddHelixCommand(self, coords, vh, requestSpecificIdnum)
+        c = self.AddHelixCommand(self, tuple(coords), vh, requestSpecificIdnum)
         if noUndo:
             c.redo()
         else:
