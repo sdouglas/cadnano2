@@ -29,7 +29,7 @@ Created by Nick on 2011-05-03.
 from exceptions import AttributeError, NotImplementedError
 from PyQt4.QtCore import QPointF, QRectF, Qt
 from PyQt4.QtGui import QBrush, QFont
-from PyQt4.QtGui import QGraphicsItem, QGraphicsSimpleTextItem
+from PyQt4.QtGui import QGraphicsItem, QGraphicsSimpleTextItem, QFontMetrics
 from PyQt4.QtGui import QPainterPath
 from PyQt4.QtGui import QPolygonF
 from PyQt4.QtGui import QPen, QUndoCommand
@@ -95,13 +95,15 @@ class PreCrossoverHandle(QGraphicsItem):
         y = (-1.25 if self.onTopStrand() else 2.25) * self.baseWidth
         self.setPos(x, y)
         halfLabelW = self.label.boundingRect().width() / 2
-        halfLabelH = self.label.boundingRect().height() / 2
+        fm = QFontMetrics(self.toHelixNumFont)
+        halfLabelH = fm.tightBoundingRect(self.label.text()).height()
         labelX = self.baseWidth/2 - halfLabelW
         # labelY = (-.10 if self.onTopStrand() else .48) * self.baseWidth
         if self.onTopStrand():
             labelY = -0.05*self.baseWidth
         else:
-            labelY = halfLabelH+0.15*self.baseWidth
+            labelY = halfLabelH
+        print halfLabelH
         self.label.setPos(labelX, labelY)
         self.updateVisibilityAndEnabledness()
             
@@ -141,6 +143,7 @@ class PreCrossoverHandle(QGraphicsItem):
                 pen = self.stappen
         painter.setPen(pen)
         painter.drawPath(path)
+        # painter.drawRect(self.label.boundingRect())
     
     def boundingRect(self):
         return self.rect
