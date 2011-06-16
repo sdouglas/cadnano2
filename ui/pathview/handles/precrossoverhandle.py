@@ -29,7 +29,7 @@ Created by Nick on 2011-05-03.
 from exceptions import AttributeError, NotImplementedError
 from PyQt4.QtCore import QPointF, QRectF, Qt
 from PyQt4.QtGui import QBrush, QFont
-from PyQt4.QtGui import QGraphicsItem, QGraphicsSimpleTextItem
+from PyQt4.QtGui import QGraphicsItem, QGraphicsSimpleTextItem, QFontMetrics
 from PyQt4.QtGui import QPainterPath
 from PyQt4.QtGui import QPolygonF
 from PyQt4.QtGui import QPen, QUndoCommand
@@ -74,8 +74,13 @@ class PreCrossoverHandle(QGraphicsItem):
     enabbrush = QBrush(Qt.SolidPattern)  # Also for the helix number label
     baseWidth = styles.PATH_BASE_WIDTH
     rect = QRectF(0, 0, styles.PATH_BASE_WIDTH, styles.PATH_BASE_WIDTH)
-    toHelixNumFont = QFont("Times", 10, QFont.Bold)
-    
+    toHelixNumFont = styles.XOVER_LABEL_FONT
+
+    # precalculate the height of a number font.  Assumes a fixed font
+    # and that only numbers will be used for labels
+    fm = QFontMetrics(toHelixNumFont)
+    halfLabelH = fm.tightBoundingRect("1").height()
+
     def __init__(self, parentPH, fromStrand, fromIdx, toVH, toIdx, orientedLeft):
         super(PreCrossoverHandle, self).__init__(parentPH)
         self.fromVH = parentPH.vhelix()
@@ -84,36 +89,42 @@ class PreCrossoverHandle(QGraphicsItem):
         self.toVH = toVH
         self.toIdx = toIdx
         self.orientedLeft = orientedLeft
-        
+
         self.fromVH.basesModified.connect(self.updateVisibilityAndEnabledness)
         self.toVH.basesModified.connect(self.updateVisibilityAndEnabledness)
-        
+
         self.label = QGraphicsSimpleTextItem(str(toVH.number()), parent=self)
         self.label.setFont(self.toHelixNumFont)
-        
+
         x = self.baseWidth * self.fromIdx
         y = (-1.25 if self.onTopStrand() else 2.25) * self.baseWidth
         self.setPos(x, y)
         halfLabelW = self.label.boundingRect().width() / 2
+
         labelX = self.baseWidth/2 - halfLabelW
-        labelY = (-.10 if self.onTopStrand() else .48) * self.baseWidth
+        # labelY = (-.10 if self.onTopStrand() else .48) * self.baseWidth
+        if self.onTopStrand():
+            labelY = -0.05*self.baseWidth
+        else:
+            labelY = self.halfLabelH
+
         self.label.setPos(labelX, labelY)
         self.updateVisibilityAndEnabledness()
-            
+
     def onTopStrand(self):
         return self.fromVH.evenParity() and self.fromStrand==StrandType.Scaffold or\
                not self.fromVH.evenParity() and self.fromStrand==StrandType.Staple
-            
+
     def couldFormNewCrossover(self):
         return self.fromVH.possibleNewCrossoverAt(self.fromStrand, self.fromIdx, self.toVH, self.toIdx)
-    
+
     def crossoverExists(self):
         return self.fromVH.hasCrossoverAt(self.fromStrand, self.fromIdx)
-    
+
     def is3pEndOfCrossover(self):
         underlyingStrand5To3 = self.fromVH.directionOfStrandIs5to3(self.fromStrand)
         return self.orientedLeft == underlyingStrand5To3
-    
+
     def updateVisibilityAndEnabledness(self):
         shouldBeVisible = not self.crossoverExists()
         self.setVisible(shouldBeVisible)
@@ -123,7 +134,7 @@ class PreCrossoverHandle(QGraphicsItem):
         else:
             self.label.setBrush(self.disabbrush)
         self.update()
-    
+
     def paint(self, painter, option, widget=None):
         #Look Up Table
         pathLUT = (_ppathRD, _ppathRU, _ppathLD, _ppathLU)
@@ -136,10 +147,10 @@ class PreCrossoverHandle(QGraphicsItem):
                 pen = self.stappen
         painter.setPen(pen)
         painter.drawPath(path)
-    
+
     def boundingRect(self):
         return self.rect
-    
+
     def mousePressEvent(self, event):
         if event.button() != Qt.LeftButton:
             return QGraphicsItem.mousePressEvent(self, event)

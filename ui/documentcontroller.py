@@ -59,6 +59,7 @@ class DocumentController():
         self._document = None
         self.setDocument(Document() if not doc else doc)
         app().undoGroup.addStack(self.undoStack())
+        self.win.setWindowTitle("CADnano[*]")
 
     def filename(self):
         return self._filename

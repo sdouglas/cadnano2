@@ -31,6 +31,7 @@ from PyQt4.QtGui import QGraphicsItem, QColor
 from random import Random
 import sys
 from os import path
+from cadnano import app
 
 prng = Random()
 
@@ -83,3 +84,26 @@ def randomBrightColor():
     newColor.setHsv(newHue, 255, 255)
     return newColor
     
+def qtWrapImport(name, globaldict, fromlist):
+    """
+    special function that allows for the import of PySide or PyQt modules
+    as available
+    
+    name is the name of the Qt top level class such as QtCore, or QtGui
+    
+    globaldict is a the module level global namespace dictionary returned from
+    calling the globals() method
+    
+    fromlist is a list of subclasses such as [QFont, QColor], or [QRectF]
+    """
+    pyWrapper = None
+    if app().usesPySide():
+        # pyWrapper = 'PySide'
+        pyWrapper = 'PyQt4'
+    else:
+        pyWrapper = 'PyQt4'
+    _temp = __import__(pyWrapper + '.' +  name, \
+                        globaldict, locals(), fromlist, -1)
+    for key in dir(_temp):
+        globaldict[key] = getattr(_temp, key)
+# end def
