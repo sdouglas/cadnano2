@@ -146,7 +146,7 @@ class SliceHelix(QGraphicsItem):
         # self.createOrAddBasesToVirtualHelix()
         self.createOrAddBasesToVirtualHelix(\
             addBases=True,\
-            addToScaffold=event.modifiers() & Qt.ShiftModifier > 0)
+            addToScaffold=not (int(event.modifiers())==Qt.ShiftModifier))
         if event.modifiers() & Qt.ShiftModifier:
             self.virtualHelix().setSelected(True)
         else:
