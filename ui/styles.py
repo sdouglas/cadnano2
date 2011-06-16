@@ -97,7 +97,7 @@ for i in range(len(brightColors)):
 bright_palette = Palette(brightColors)
 cadnn1_palette = Palette(cadnn1Colors)
 
-default_palette = bright_palette
+default_palette = cadnn1_palette
 
 #layer limits
 ZACTIVESLICEHANDLE = -12

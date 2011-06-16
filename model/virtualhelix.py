@@ -909,10 +909,6 @@ class VirtualHelix(QObject):
             self._startIndex = min(startIndex, endIndex)
             self._endIndex = max(startIndex, endIndex)
             self._oldLinkage = None
-            if colorL == 'random':
-                colorL = self._vh.palette()[0]
-            if colorR == 'random':
-                colorR = self._vh.palette()[1]
             self._colorL = colorL
             self._colorR = colorR
 
@@ -924,39 +920,46 @@ class VirtualHelix(QObject):
             ol = self._oldLinkage = []
             startIdx = min(self._startIndex, self._endIndex)
             endIdx = max(self._startIndex, self._endIndex)
-            createdEndpoints = []
+            potentialNewEndpoints = []
             if self._vh.directionOfStrandIs5to3(self._strandType):
                 for i in range(startIdx-1, endIdx):
                     leftBase, rightBase = strand[i], strand[i+1]
                     # Clear i.next
-                    createdEndpoints.extend((leftBase, leftBase._3pBase))
+                    potentialNewEndpoints.extend((leftBase, leftBase._3pBase))
                     ol.append(leftBase._set3Prime(None))
                     # Clear (i+1)prev
-                    createdEndpoints.extend((rightBase._5pBase, rightBase))
-                    createdEndpoints.append(rightBase._5pBase)
+                    potentialNewEndpoints.extend((rightBase._5pBase, rightBase))
+                    potentialNewEndpoints.append(rightBase._5pBase)
                     ol.append(rightBase._set5Prime(None))
             else:
                 for i in range(startIdx-1, endIdx):
                     leftBase, rightBase = strand[i], strand[i+1]
                     # Clear i.next
-                    createdEndpoints.extend((leftBase, leftBase._5pBase))
+                    potentialNewEndpoints.extend((leftBase, leftBase._5pBase))
                     ol.append(leftBase._set5Prime(None))
                     # Clear (i+1).prev
-                    createdEndpoints.extend((rightBase._3pBase, rightBase))
+                    potentialNewEndpoints.extend((rightBase._3pBase, rightBase))
                     ol.append(rightBase._set3Prime(None))
             isEndpt = lambda x: x!=None and x.isEnd()
-            createdEndpoints = list(set(filter(isEndpt, createdEndpoints)))
+            potentialNewEndpoints = list(filter(isEndpt, potentialNewEndpoints))
+            newEndpts = []
+            if len(potentialNewEndpoints):
+                newEndpts = [potentialNewEndpoints[0]]
+                for pe in potentialNewEndpoints[1:]:
+                    if pe != newEndpts[-1]:
+                        newEndpts.append(pe)
+                
             # Could filter out endpoints leading to the same strand if
             # that becomes a performance issue for some reason
             colorSubCommands = []
-            for i in range(len(createdEndpoints)):
-                e = createdEndpoints[i]
+            for i in range(len(newEndpts)):
+                e = newEndpts[i]
                 bases = e._vhelix._basesConnectedTo(e._strandtype, e._n)
                 # None corresponds to a pseudorandom color
                 color = None
                 if i==0 and self._colorL!=None:
                     color = self._colorL
-                elif i==len(createdEndpoints)-1 and self._colorR!=None:
+                elif i==len(newEndpts)-1 and self._colorR!=None:
                     color = self._colorR
                 c = VirtualHelix.ApplyColorCommand(bases, color)
                 c.redo()
