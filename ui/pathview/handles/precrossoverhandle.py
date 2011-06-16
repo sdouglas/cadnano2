@@ -103,7 +103,7 @@ class PreCrossoverHandle(QGraphicsItem):
             labelY = -0.05*self.baseWidth
         else:
             labelY = halfLabelH
-        print halfLabelH
+
         self.label.setPos(labelX, labelY)
         self.updateVisibilityAndEnabledness()
             
@@ -143,7 +143,6 @@ class PreCrossoverHandle(QGraphicsItem):
                 pen = self.stappen
         painter.setPen(pen)
         painter.drawPath(path)
-        # painter.drawRect(self.label.boundingRect())
     
     def boundingRect(self):
         return self.rect
