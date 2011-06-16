@@ -131,7 +131,6 @@ class SelectTool(AbstractPathTool):
         # Begin a drag operation
         self._mouseDownPH = ph
         ph.scene().views()[0].addToPressList(ph)
-        self.thisDragOpsNewColor = randomBrightColor()
         
         if not self._mouseDownBase:
             return
@@ -148,6 +147,7 @@ class SelectTool(AbstractPathTool):
         vh.undoStack().undo()
         vh.setSandboxed(False)
         self.applyTool(vh, self._mouseDownBase, self._lastValidBase)
+        vh.palette().shuffle()
         self._mouseDownBase = None
         self._lastValidBase = None
         self._mouseDownPH = None
@@ -248,12 +248,12 @@ class SelectTool(AbstractPathTool):
                     return (self.NoOperation, 0, 0)
                 if dragDir == -1:  # Dragging to the LEFT
                     handleColor = vHelix.colorOfBase(strandType, baseIdx-1)
-                    return (self.ClearStrand, 0, 1, handleColor, self.thisDragOpsNewColor)
+                    return (self.ClearStrand, 0, 1, handleColor, vHelix.palette()[0])
                 else:              # Dragging to the RIGHT
                     handleColor = vHelix.colorOfBase(strandType, baseIdx)
-                    return (self.ClearStrand, 0, 0, self.thisDragOpsNewColor, handleColor)
+                    return (self.ClearStrand, 0, 0, vHelix.palette()[0], handleColor)
             elif (not startBaseHasLNeighbor) and (not startBaseHasRNeighbor):  # EMPTY STRAND
-                return (self.ConnectStrand, 0, 0, self.thisDragOpsNewColor, self.thisDragOpsNewColor)
+                return (self.ConnectStrand, 0, 0, vHelix.palette()[0])
             assert(False)
         # (Below) we are dragging an ENDPOINT and HAVE NOT moved
         elif dragDir == 0:
@@ -272,10 +272,10 @@ class SelectTool(AbstractPathTool):
         elif segmentDir != dragDir:
             if dragDir == -1:
                 # Start at LEFT endpoint, dragging LEFT OUT FROM segment
-                return (self.ConnectStrand, 0, 0)
+                return (self.ConnectStrand, 0, 0, None)
             elif dragDir == 1:
                 # Start at RIGHT endpoint, dragging RIGHT OUT FROM segment
-                return (self.ConnectStrand, 0, 0)
+                return (self.ConnectStrand, 0, 0, None)
             assert(False)
         assert(False)
         
@@ -308,11 +308,12 @@ class SelectTool(AbstractPathTool):
         op, frOffset, toOffset = dragOp[0:3]
 
         if op == self.ConnectStrand:
-            vHelix.connectStrand(fr[0], fr[1]+frOffset, to[1]+toOffset)
+            color = dragOp[3]
+            vHelix.connectStrand(fr[0], fr[1]+frOffset, to[1]+toOffset, color=color)
         elif op == self.ClearStrand:
             colorL, colorR = dragOp[3:5]
             vHelix.clearStrand(fr[0], fr[1]+frOffset, to[1]+toOffset, colorL=colorL, colorR=colorR)
         elif op == self.RemoveXOver:
-            vHelix.removeXoversAt(fr[0], fr[1], newColor=self.thisDragOpsNewColor)
+            vHelix.removeXoversAt(fr[0], fr[1], newColor=vHelix.palette()[0])
         else:
             assert(op == self.NoOperation)

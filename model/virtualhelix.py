@@ -129,6 +129,9 @@ class VirtualHelix(QObject):
         # Command line convenience for -i mode
         if app().v != None:
             app().v[self.number()] = self
+    
+    def palette(self):
+        return self.part().palette()
 
     def numBases(self):
         return len(self._stapleBases)
@@ -593,7 +596,7 @@ class VirtualHelix(QObject):
             self.basesModified.emit()
         #self.part().virtualHelixAtCoordsChanged.emit(*self.coord())
         
-    def connectStrand(self, strandType, startIndex, endIndex, undoStack=None):
+    def connectStrand(self, strandType, startIndex, endIndex, undoStack=None, police=True, color=None):
         """
         Connects sequential bases on a single strand, starting with
         startIndex and ending with etdIndex (inclusive)
@@ -606,9 +609,10 @@ class VirtualHelix(QObject):
         if undoStack==None:
             undoStack = self.undoStack()
         undoStack.beginMacro("Connect Strand")
-        c = self.ConnectStrandCommand(self, strandType, startIndex, endIndex)
+        c = self.ConnectStrandCommand(self, strandType, startIndex, endIndex, color=color)
         undoStack.push(c)
-        self.thoughtPolice(undoStack)  # Check for inconsistencies, fix one-base Xovers, etc
+        if police:
+            self.thoughtPolice(undoStack)  # Check for inconsistencies, fix one-base Xovers, etc
         undoStack.endMacro()
 
     def clearStrand(self, strandType, startIndex, endIndex, undoStack=None, colorL=None, colorR=None):
@@ -697,7 +701,7 @@ class VirtualHelix(QObject):
         if undoStack==None:
             undoStack = self.undoStack()
         if color==None:
-            color = randomBrightColor()
+            color = self.palette()[0]
         undoStack.beginMacro("Apply Color")
         bases = self._basesConnectedTo(strandType, index)
         c = self.ApplyColorCommand(bases, color)
@@ -748,7 +752,7 @@ class VirtualHelix(QObject):
                     if hasXoverL and not hasNeighborR:
                         self.connectStrand(strandType, i, i+1, undoStack=undoStack)
                     if hasXoverR and not hasNeighborL:
-                        self.connectStrand(strandType, i-1, i, undoStack=undoStack)
+                        self.connectStrand(strandType, i-1, i, undoStack=undoStack, police=False)
     
     class ApplyColorCommand(QUndoCommand):
         def __init__(self, bases, color):
@@ -846,7 +850,7 @@ class VirtualHelix(QObject):
                 vh.emitBasesModifiedIfNeeded()
 
     class ConnectStrandCommand(QUndoCommand):
-        def __init__(self, virtualHelix, strandType, startIndex, endIndex):
+        def __init__(self, virtualHelix, strandType, startIndex, endIndex, color=None):
             super(VirtualHelix.ConnectStrandCommand, self).__init__()
             self._vh = virtualHelix
             self._strandType = strandType
@@ -854,6 +858,7 @@ class VirtualHelix(QObject):
             self._endIndex = endIndex
             self._oldLinkage = None
             self._colorSubCommand = None
+            self._explicitColor = color
 
         def redo(self):
             # Sets {s.n, (s+1).np, ..., (e-2).np, (e-1).np, e.p}
@@ -870,7 +875,10 @@ class VirtualHelix(QObject):
                     ol.append(strand[i]._set5Prime(strand[i + 1]))
             # Now ensure all connected bases have the same color
             # which gets taken from the startIndex base
-            color = strand[self._startIndex].getColor()
+            if self._explicitColor == None:
+                color = strand[self._startIndex].getColor()
+            else:
+                color = self._explicitColor
             bases = self._vh._basesConnectedTo(self._strandType, self._startIndex)
             self._colorSubCommand = VirtualHelix.ApplyColorCommand(bases, color)
             self._colorSubCommand.redo()
@@ -902,9 +910,9 @@ class VirtualHelix(QObject):
             self._endIndex = max(startIndex, endIndex)
             self._oldLinkage = None
             if colorL == 'random':
-                colorL = randomBrightColor()
+                colorL = self._vh.palette()[0]
             if colorR == 'random':
-                colorR = randomBrightColor()
+                colorR = self._vh.palette()[1]
             self._colorL = colorL
             self._colorR = colorR
 
@@ -1009,14 +1017,14 @@ class VirtualHelix(QObject):
             self._colorCommand1 = None
             if old3p!=None:
                 bases1 = old3p._vhelix._basesConnectedTo(old3p._strandtype, old3p._n)
-                color1 = randomBrightColor()
+                color1 = vh.palette()[0]
                 c1 = VirtualHelix.ApplyColorCommand(bases1, color1)
                 c1.redo()
                 self._colorCommand1 = c1
             self._colorCommand2 = None
             if old5p != None:
                 bases2 = old5p._vhelix._basesConnectedTo(old5p._strandtype, old5p._n)
-                color2 = randomBrightColor()
+                color2 = vh.palette()[1]
                 c2 = VirtualHelix.ApplyColorCommand(bases2, color2)
                 c2.redo()
                 self._colorCommand2 = c2
@@ -1042,7 +1050,7 @@ class VirtualHelix(QObject):
             self._endToKeepColor = endToKeepColor
             self._colorCommand = None
             if newColor==None:
-                newColor = randomBrightColor()
+                newColor = vhelix.palette()[0]
             self._newColor = newColor
 
         def redo(self):

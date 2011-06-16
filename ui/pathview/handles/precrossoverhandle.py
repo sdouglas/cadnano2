@@ -156,3 +156,4 @@ class PreCrossoverHandle(QGraphicsItem):
         # Create XoverHandlePair and store references
         fromHelix.installXoverFrom3To5(self.fromStrand, \
                 fromIdx, toHelix, toIdx, endToTakeColorFrom=endToTakeColorFrom)
+        fromHelix.palette().shuffle()

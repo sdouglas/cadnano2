@@ -128,6 +128,9 @@ class PathHelix(QGraphicsItem):
 
     def vhelix(self):
         return self._vhelix
+    
+    def palette(self):
+        return self._vhelix.palette()
         
     def phgroup(self):
         return self._pathHelixGroup

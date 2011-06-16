@@ -31,6 +31,7 @@ from PyQt4.QtGui import QUndoCommand
 from util import *
 from heapq import *
 import copy
+from ui import styles
 
 class DNAPart(Part):
     """
@@ -76,6 +77,9 @@ class DNAPart(Part):
         if ctrlr:
             self.dimensionsWillChange.connect(ctrlr.dirty)
             self.virtualHelixAtCoordsChanged.connect(ctrlr.dirty)
+    
+    def palette(self):
+        return styles.default_palette
     
     def dimensions(self):
         return (self._maxRow, self._maxCol, self._maxBase)

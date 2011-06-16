@@ -28,6 +28,7 @@ styles.py
 Created by Shawn on 2010-06-15.
 """
 from PyQt4.QtGui import QColor
+from model.palette import Palette
 
 # Slice Sizing
 SLICE_HELIX_RADIUS = 15
@@ -78,7 +79,7 @@ forcefill = QColor (0, 255, 255, 63)
 breakfill = QColor (204, 0, 0, 255)
 colorbox_fill = QColor(204, 0, 0)
 colorbox_stroke = QColor(102, 102, 102)
-stapleColors = [QColor(204, 0, 0),\
+cadnn1Colors = [QColor(204, 0, 0),\
                 QColor(247, 67, 8),\
                 QColor(247, 147, 30),\
                 QColor(170, 170, 0),\
@@ -89,6 +90,14 @@ stapleColors = [QColor(204, 0, 0),\
                 QColor(115, 0, 222),\
                 QColor(184, 5, 108),\
                 QColor(51, 51, 51)]
+stapleColors = cadnn1Colors
+brightColors = [QColor() for i in range(10)]
+for i in range(len(brightColors)):
+    brightColors[i].setHsvF(i/12.0, 1.0, 1.0)
+bright_palette = Palette(brightColors)
+cadnn1_palette = Palette(cadnn1Colors)
+
+default_palette = bright_palette
 
 #layer limits
 ZACTIVESLICEHANDLE = -12
