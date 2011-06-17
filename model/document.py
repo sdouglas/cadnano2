@@ -59,7 +59,7 @@ class Document(QObject):
     partAdded = pyqtSignal(object)
     def addPart(self, part):
         self._parts.append(part)
-        part.setDocument(self)
+        part._setDocument(self)
         self.setSelectedPart(part)
         self.partAdded.emit(part)
 

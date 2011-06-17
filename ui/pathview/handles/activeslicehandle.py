@@ -34,7 +34,7 @@ from PyQt4.QtGui import QGraphicsItem
 from PyQt4.QtGui import QGraphicsSimpleTextItem
 from PyQt4.QtGui import QPen, QDrag, QUndoCommand
 import ui.styles as styles
-
+from util import *
 
 class ActiveSliceHandle(QGraphicsItem):
     """docstring for ActiveSliceHandle"""
@@ -96,9 +96,7 @@ class ActiveSliceHandle(QGraphicsItem):
     def _updateActiveSlice(self, baseIndex):
         """The slot that receives active slice changed notifications from
         the part and changes the receiver to reflect the part"""
-        bi = int(baseIndex)
-        if bi < 0 or bi >= self.part().dimensions()[2]:
-            raise IndexError
+        bi = clamp(int(baseIndex), 0, self.part().numBases()-1)
         self.setPos(bi * self._baseWidth, -styles.PATH_HELIX_PADDING)
         self._activeSlice = bi
         if self._label:

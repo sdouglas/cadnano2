@@ -131,7 +131,9 @@ class DocumentController():
 
     def openClicked(self):
         """docstring for openClicked"""
-        fname = QFileDialog.getOpenFileName(None, "Open Document", "/", "caDNAno2 Files (*.cn2);; cadnano Files (*.cadnano)")
+        fname = QFileDialog.getOpenFileName(None, "Open Document", "/", "caDNAno2 Files (*.cn2);; cadnano Files (*.json)")
+        if fname=='':
+            return
         doc = decode(file(fname).read())
         DocumentController(doc, fname)
     # end def

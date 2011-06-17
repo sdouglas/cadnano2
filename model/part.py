@@ -33,32 +33,15 @@ from cadnano import app
 class Part(QObject):
     def __init__(self, id, *args, **kargs):
         super(Part, self).__init__()
-        self._id = id
         app().p = self
     
     def document(self):
         return self._document
     
-    def setDocument(self, newDoc):
+    def _setDocument(self, newDoc):
         "Should only be called by Document"
         self._document = newDoc
     
     def undoStack(self):
         return self.document().undoStack()
-        
-    def simpleRep(self, encoder):
-        """Returns a representation in terms of simple JSON-encodable types
-        or types that implement simpleRep"""
-        raise NotImplementedError
 
-    @classmethod
-    def fromSimpleRep(cls, rep):
-        """Instantiates one of the parent class from the simple
-        representation rep"""
-        raise NotImplementedError
-    def resolveSimpleRepIDs(self,idToObj):
-        raise NotImplementedError  # It's up to children to implement serialization
-
-    def id(self):
-        """docstring for id"""
-        return self._id

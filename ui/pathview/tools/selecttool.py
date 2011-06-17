@@ -196,6 +196,7 @@ class SelectTool(AbstractPathTool):
                 r = r + 1
             else:
                 break
+        print "limit drag %i %i"%(l, r)
         return (l, r)
             
         

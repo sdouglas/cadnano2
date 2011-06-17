@@ -373,8 +373,6 @@ class Base(object):
             if self.floatingXoverDestination():
                 return True
             return self._neighbor3p() not in (None, guiLeftNeighbor)
-    
-    
 
     def isEnd(self):
         if self._hasNeighbor5p() and\
@@ -391,7 +389,7 @@ class Base(object):
 
     def partId(self):
         """docstring for partNum"""
-        return self._vhelix.part().id()
+        return id(self._vhelix.part())
 
     def isCrossover(self):
         """Return True if the part id or vhelix number of the prev or

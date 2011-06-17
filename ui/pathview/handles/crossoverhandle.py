@@ -130,7 +130,7 @@ class XoverHandle(object):
             sameStrand = False
             sameParity = False
         else:
-            sameStrand = fromHelix.number() == toHelix.number()
+            sameStrand = fromHelix == toHelix
             sameParity = fromHelix.evenParity() == toHelix.evenParity()
         # case 1: same strand
         if sameStrand:

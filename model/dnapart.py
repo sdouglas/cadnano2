@@ -81,13 +81,21 @@ class DNAPart(Part):
     def palette(self):
         return styles.default_palette
     
+    def name(self):
+        return self._name
+    
+    nameWillChange = pyqtSignal(str)
+    def setName(self, newName):
+        self.nameWillChange.emit(newName)
+        self._name = newName
+    
     def dimensions(self):
         return (self._maxRow, self._maxCol, self._maxBase)
     
     def numBases(self):
         return self._maxBase
     
-    dimensionsWillChange = pyqtSignal()
+    dimensionsWillChange = pyqtSignal(object)
     def setDimensions(self, newDim):
         self.dimensionsWillChange.emit(newDim)
         self._maxRow, self._maxCol, self._maxBase = newDim
@@ -107,7 +115,7 @@ class DNAPart(Part):
         for vh in self._coordToVirtualHelix.itervalues():
             coordsAndNumToVH.append((vh.coord(), vh.number(), vh))
         sr['virtualHelices'] = coordsAndNumToVH
-        sr['name'] = self._name
+        sr['name'] = self.name()
     
     # First objects that are being unarchived are sent
     # ClassNameFrom.classAttribute(incompleteArchivedDict)
@@ -122,7 +130,7 @@ class DNAPart(Part):
             else:
                 self.highestUsedEven = max(self.highestUsedEven, num)
             self.addVirtualHelixAt(coord, vh, requestSpecificIdnum=num, noUndo=True)
-        self._name = completeArchivedDict['name']
+        self.setName(completeArchivedDict['name'])
             
     ############################# VirtualHelix CRUD #############################
     # Take note: vhrefs are the shiny new way to talk to dnapart about its constituent

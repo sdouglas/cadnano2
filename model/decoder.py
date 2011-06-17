@@ -30,6 +30,7 @@ import json
 from .dnahoneycombpart import DNAHoneycombPart
 from .document import Document
 from .virtualhelix import VirtualHelix
+from json_io import doc_from_legacy_dict
 
 classNameToClassMap = {}
 classNameToClassMap['DNAHoneycombPart'] = DNAHoneycombPart
@@ -43,7 +44,8 @@ class Decoder(object):
         self.objsWithDeferredInit=[]
     def decode(self,string):
         packageObject = json.loads(string)
-        assert(packageObject[".format"]=="caDNAno2")
+        if packageObject.get('.format', None) != 'caDNAno2':
+            return doc_from_legacy_dict(packageObject)
         pkObjs = packageObject[".objects"]
         objs = []
         for i in range(len(pkObjs)):

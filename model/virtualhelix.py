@@ -152,9 +152,9 @@ class VirtualHelix(QObject):
                 self.undoStack().push(c)
         if newNumBases < oldNB:
             c0 = self.ClearStrandCommand(self, StrandType.Scaffold,\
-                                         newNumBases, oldNB)
+                                         oldNB-1, newNumBases-1)
             c1 = self.ClearStrandCommand(self, StrandType.Staple,\
-                                         newNumBases, oldNB)
+                                         oldNB-1, newNumBases-1)
             c2 = self.SetNumBasesCommand(self, newNumBases)
             if notUndoable:
                 c0.redo()
@@ -632,16 +632,22 @@ class VirtualHelix(QObject):
     def installXoverFrom3To5(self, strandType, fromIndex, toVhelix, toIndex, undoStack=None, endToTakeColorFrom=3):
         """
         The from base must provide the 3' pointer, and to must provide 5'.
+        undoStack==None  use self.undoStack()
+        undoStack==False use no undo stack
         """
         if undoStack==None:
             undoStack = self.undoStack()
-        undoStack.beginMacro("Install 3-5 Xover")
+        if undoStack:
+            undoStack.beginMacro("Install 3-5 Xover")
         c = self.Connect3To5Command(strandType, self, fromIndex, toVhelix,\
                                     toIndex, endToTakeColorFrom)
-        undoStack.push(c)
-        self.thoughtPolice(undoStack)  # Check for inconsistencies, fix one-base Xovers, etc
-        toVhelix.thoughtPolice(undoStack=undoStack)
-        undoStack.endMacro()
+        if undoStack:
+            self.thoughtPolice(undoStack)  # Check for inconsistencies, fix one-base Xovers, etc
+            toVhelix.thoughtPolice(undoStack=undoStack)
+            undoStack.push(c)
+            undoStack.endMacro()
+        else:
+            c.redo()
     
     def removeConnectedStrandAt(self, strandType, idx, undoStack=None):
         if not undoStack:
@@ -684,14 +690,18 @@ class VirtualHelix(QObject):
         toVhelix.thoughtPolice(undoStack=undoStack)
         undoStack.endMacro()
         
-    def installLoop(self, strandType, index, loopsize):
+    def installLoop(self, strandType, index, loopsize, undoStack=None):
         """
         Main function for installing loops and skips
         -1 is a skip, +N is a loop
         """
+        if undoStack==None:
+            undoStack = self.undoStack()
         c = self.LoopCommand(self, strandType, index, loopsize)
-        self.undoStack().push(c)
-    # end def
+        if undoStack:
+            self.undoStack().push(c)
+        else:
+            c.redo()
 
     def applyColorAt(self, color, strandType, index, undoStack=None):
         """Determine the connected strand that passes through
@@ -702,11 +712,15 @@ class VirtualHelix(QObject):
             undoStack = self.undoStack()
         if color==None:
             color = self.palette()[0]
-        undoStack.beginMacro("Apply Color")
+        if undoStack:
+            undoStack.beginMacro("Apply Color")
         bases = self._basesConnectedTo(strandType, index)
         c = self.ApplyColorCommand(bases, color)
-        undoStack.push(c)
-        undoStack.endMacro()
+        if undoStack:
+            undoStack.push(c)
+            undoStack.endMacro()
+        else:
+            c.redo()
         self.emitBasesModifiedIfNeeded()
 
     def setFloatingXover(self, strandType=None, fromIdx=None, toPoint=None):
