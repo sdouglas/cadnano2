@@ -64,10 +64,10 @@ class XoverHandle(object):
     def getXover(self, phg, strandtype, fromHelix,\
                        fromIndex, toHelix, toIndex, floatPos=None):
         """
-        Draws a line from the center of the fromBase (pA) to the
+        Draws a line from the center of the fromBase (fromBaseCenter) to the
         top or bottom of that same base, depending on its direction (qA),
         then a quad curve to the top or bottom of the toBase (qB), and
-        finally to the center of the toBase (pB).
+        finally to the center of the toBase (toBaseCenter).
         
         If floatPos!=None, this is a floatingXover and floatPos is the
         destination point (where the mouse is) while toHelix, toIndex
@@ -76,18 +76,18 @@ class XoverHandle(object):
         returns a tuple of the (QPainter, QRectF, QRectF) representing the
         (quad curve, the FROM label rectangle, and the TO label rectangle) 
         """
-        # if we need to speed this up, we could keep track if pA changed?
-        pA = QPointF(*fromHelix.baseLocation(strandtype,\
+        # if we need to speed this up, we could keep track if fromBaseCenter changed?
+        fromBaseCenter = QPointF(*fromHelix.baseLocation(strandtype,\
                                              fromIndex,\
                                              center=True))
-        pA = phg.mapFromItem(fromHelix, pA)
+        fromBaseCenter = phg.mapFromItem(fromHelix, fromBaseCenter)
         if floatPos:
-            pB = floatPos
+            toBaseCenter = floatPos
         else:
-            pB = QPointF(*toHelix.baseLocation(strandtype,\
+            toBaseCenter = QPointF(*toHelix.baseLocation(strandtype,\
                                                toIndex,\
                                                center=True))
-            pB = phg.mapFromItem(toHelix, pB)
+            toBaseCenter = phg.mapFromItem(toHelix, toBaseCenter)
        
         # begin calculations of how to draw labels and crossover orientations
         yA = yB = self._baseWidth / 2
@@ -95,13 +95,13 @@ class XoverHandle(object):
         if from5To3:
             orientA = HandleOrient.LeftUp
             yA = -yA
-            labelPosRectA = QRectF(pA.x() - 0.75*self._baseWidth, \
-                                    pA.y() - 1.5*self._baseWidth, \
+            labelPosRectA = QRectF(fromBaseCenter.x() - 0.75*self._baseWidth, \
+                                    fromBaseCenter.y() - 1.5*self._baseWidth, \
                                     self._baseWidth, self._baseWidth)
         else:
             orientA = HandleOrient.RightDown
-            labelPosRectA = QRectF(pA.x() - 0.25*self._baseWidth, \
-                                    pA.y() + 0.5*self._baseWidth, \
+            labelPosRectA = QRectF(fromBaseCenter.x() - 0.25*self._baseWidth, \
+                                    fromBaseCenter.y() + 0.5*self._baseWidth, \
                                     self._baseWidth, self._baseWidth)
         if floatPos and not toHelix:
             toIs5To3 = not from5To3
@@ -110,19 +110,21 @@ class XoverHandle(object):
         if toIs5To3:
             orientB = HandleOrient.RightUp
             yB = -yB
-            labelPosRectB = QRectF(pB.x() - 0.25*self._baseWidth, \
-                                    pB.y() - 1.5*self._baseWidth, \
+            labelPosRectB = QRectF(toBaseCenter.x() - 0.25*self._baseWidth, \
+                                    toBaseCenter.y() - 1.5*self._baseWidth, \
                                     self._baseWidth, self._baseWidth)
         else:
             orientB = HandleOrient.LeftDown
-            labelPosRectB = QRectF(pB.x() - 0.75*self._baseWidth, \
-                                    pB.y() + 0.5*self._baseWidth, \
+            labelPosRectB = QRectF(toBaseCenter.x() - 0.75*self._baseWidth, \
+                                    toBaseCenter.y() + 0.5*self._baseWidth, \
                                     self._baseWidth, self._baseWidth)
         
             
         # Determine start and end points of quad curve
-        qA = QPointF(pA.x(), pA.y() + yA)
-        qB = QPointF(pB.x(), pB.y() + yB)
+        yOffsetFromCenterToEdge = self._baseWidth/2 * (-1 if from5To3 else 1)
+        qA = QPointF(fromBaseCenter.x(), fromBaseCenter.y() + yOffsetFromCenterToEdge)
+        yOffsetFromCenterToEdge = self._baseWidth/2 * (-1 if toIs5To3 else 1)
+        qB = QPointF(toBaseCenter.x(), toBaseCenter.y() + yOffsetFromCenterToEdge)
 
         # Determine control point of quad curve
         c1 = QPointF()
@@ -134,31 +136,31 @@ class XoverHandle(object):
             sameParity = fromHelix.evenParity() == toHelix.evenParity()
         # case 1: same strand
         if sameStrand:
-            dx = abs(pB.x() - pA.x())
-            c1.setX(0.5 * (pA.x() + pB.x()))
+            dx = abs(toBaseCenter.x() - fromBaseCenter.x())
+            c1.setX(0.5 * (fromBaseCenter.x() + toBaseCenter.x()))
             if orientA in [HandleOrient.LeftUp, HandleOrient.RightUp]:
                 c1.setY(qA.y() - self.yScale * dx)
             else:
                 c1.setY(qA.y() + self.yScale * dx)
         # case 2: same parity
         elif sameParity:
-            dy = abs(pB.y() - pA.y())
-            c1.setX(pA.x() + self.xScale * dy)
-            c1.setY(0.5 * (pA.y() + pB.y()))
+            dy = abs(toBaseCenter.y() - fromBaseCenter.y())
+            c1.setX(fromBaseCenter.x() + self.xScale * dy)
+            c1.setY(0.5 * (fromBaseCenter.y() + toBaseCenter.y()))
         # case 3: default
         else:
             if orientA == HandleOrient.LeftUp:
-                c1.setX(pA.x() - self.xScale * abs(pB.y() - pA.y()))
+                c1.setX(fromBaseCenter.x() - self.xScale * abs(toBaseCenter.y() - fromBaseCenter.y()))
             else:
-                c1.setX(pA.x() + self.xScale * abs(pB.y() - pA.y()))
-            c1.setY(0.5 * (pA.y() + pB.y()))
+                c1.setX(fromBaseCenter.x() + self.xScale * abs(toBaseCenter.y() - fromBaseCenter.y()))
+            c1.setY(0.5 * (fromBaseCenter.y() + toBaseCenter.y()))
 
         # Construct painter path
         painterpath = QPainterPath()
-        painterpath.moveTo(pA)
+        painterpath.moveTo(fromBaseCenter)
         painterpath.lineTo(qA)
         painterpath.quadTo(c1, qB)
-        painterpath.lineTo(pB)
+        painterpath.lineTo(toBaseCenter)
         
         return (painterpath, labelPosRectA, labelPosRectB)
         # return (painterpath, None, None)

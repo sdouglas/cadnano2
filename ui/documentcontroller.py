@@ -72,14 +72,14 @@ class DocumentController():
         self.setDirty(True)
         return True
 
-    def document(self):
-        return self._document
-
     def activePart(self):
         return self._activePart
 
     def setActivePart(self, part):
         self._activePart = part   
+
+    def document(self):
+        return self._document
 
     def setDocument(self, doc):
         self._document = doc
@@ -206,6 +206,8 @@ class DocumentController():
         self.win.sliceController.activeSliceLastSignal.connect(ash.moveToLastSlice)
         self.win.sliceController.activeSliceFirstSignal.connect(ash.moveToFirstSlice)
         self.win.pathController.setActivePath(phg)
+        self.dirty()
+        part.persistentDataChanged.connect(self.dirty)
 
     def addHoneycombHelixGroup(self, nrows=20, ncolumns=20):
         """docstring for addHoneycombHelixGroup"""

@@ -40,6 +40,11 @@ class DNAPart(Part):
         virtualHelixAtCoordsChanged(row, col)  # the VH at row, col will
             * change its idnum (the dnapart owns the idnum)
             * change its virtualhelix object (maybe from or to None)
+        persistentDataChanged()  # The saveable data contained in the receiver
+                                 # will or did change. This means one of
+            * virtualHelixAtCoordsChanged was triggered
+            * dimensionsWillChange was triggered
+            * basesModified was emitted by some child VH
         selectionWillChange()
     """
     selectAllBehavior = True  # Always select all helices in part
@@ -69,6 +74,13 @@ class DNAPart(Part):
         # This variable is directly used and entirely managed by
         # virtualhelix for consolidation of basesModified signals.
         self.basesModifiedVHs = set()
+        # Event propagation
+        self.virtualHelixAtCoordsChanged.connect(self.persistentDataChangedEvent)
+        self.dimensionsWillChange.connect(self.persistentDataChangedEvent)
+    
+    persistentDataChanged = pyqtSignal()
+    def persistentDataChangedEvent(self, *args, **kwargs):
+        self.persistentDataChanged.emit()
     
     def setDocument(self, newDoc):
         """Only called by Document"""
@@ -247,6 +259,7 @@ class DNAPart(Part):
                                             parityEven=self._parity,\
                                             requestedIDnum=self._requestedNum)
                 self._vhelix._setPart(self._part, self._coords, newID)
+                self._vhelix.basesModified.connect(self._part.persistentDataChangedEvent)
                 self._part._numberToVirtualHelix[newID] = self._vhelix
                 self._part._coordToVirtualHelix[self._coords] = self._vhelix
             self._part.virtualHelixAtCoordsChanged.emit(self._coords[0],\
@@ -255,6 +268,7 @@ class DNAPart(Part):
         def undo(self):
             vh = self._part.getVirtualHelix(self._coords)
             if vh:
+                vh.basesModified.disconnect(self._part.persistentDataChangedEvent)
                 del self._part._coordToVirtualHelix[vh.coord()]
                 del self._part._numberToVirtualHelix[vh.number()]
                 self._part.recycleHelixIDNumber(vh.number())
