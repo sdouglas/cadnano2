@@ -92,7 +92,8 @@ class PathHelix(QGraphicsItem):
     # The next block of code does setup necessary for
     # drawing the sequence text onto the PathView
     sequenceFont = QFont("Monaco")
-    sequenceFont.setStyleHint(QFont.Monospace)
+    if hasattr(QFont, 'Monospace'):
+        sequenceFont.setStyleHint(QFont.Monospace)
     sequenceFont.setFixedPitch(True)
     sequenceFont.setPixelSize(baseWidth/3)
     sequenceFontMetrics = QFontMetricsF(sequenceFont)
