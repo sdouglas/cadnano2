@@ -465,6 +465,9 @@ class VirtualHelix(QObject):
     def numberOfBasesConnectedTo(self, strandType, idx):
         return self._strand(strandType)[idx]._strandLength
     
+    def sequenceForVirtualStrand(self, strandType):
+        return "".join([b.sequence() for b in self._strand(strandType)])
+    
     def _basesConnectedTo(self, strandType, idx):
         """
         Private because it returns a set of Base

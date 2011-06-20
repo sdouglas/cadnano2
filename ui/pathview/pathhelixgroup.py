@@ -314,7 +314,6 @@ class PathHelixGroup(QGraphicsObject):
         for ph in self._pathHelixList:
             if ph.vhelix() == vh:
                 return ph
-        print "poop getPH"
         return None
 
     def reorderHelices(self, first, last, indexDelta):

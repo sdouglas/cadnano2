@@ -27,10 +27,10 @@ Created by Shawn on 2011-01-27.
 """
 
 from exceptions import AttributeError, ValueError
-from PyQt4.QtCore import Qt
+from PyQt4.QtCore import Qt, QRect
 from PyQt4.QtCore import QLine, QRectF, QPointF, QPoint
-from PyQt4.QtGui import QBrush, QColor
-from PyQt4.QtGui import QGraphicsItem
+from PyQt4.QtGui import QBrush, QColor, QFont
+from PyQt4.QtGui import QGraphicsItem, QFontMetricsF
 from PyQt4.QtGui import QGraphicsSimpleTextItem
 from PyQt4.QtGui import QPainter, QPainterPath
 from PyQt4.QtGui import QPen, QDrag, QUndoCommand, QPolygonF
@@ -88,6 +88,20 @@ class PathHelix(QGraphicsItem):
     scafPen = QPen(styles.scafstroke, 2)
     nobrush = QBrush(Qt.NoBrush)
     baseWidth = styles.PATH_BASE_WIDTH
+    
+    # The next block of code does setup necessary for
+    # drawing the sequence text onto the PathView
+    sequenceFont = QFont("Monaco")
+    sequenceFont.setStyleHint(QFont.Monospace)
+    sequenceFont.setFixedPitch(True)
+    sequenceFont.setPixelSize(baseWidth/3)
+    sequenceFontMetrics = QFontMetricsF(sequenceFont)
+    sequenceFontCharWidth = sequenceFontMetrics.width('A')
+    sequenceFontExtraWidth = baseWidth-sequenceFontCharWidth
+    sequenceFont.setLetterSpacing(QFont.AbsoluteSpacing,
+                                  sequenceFontExtraWidth)
+    sequenceTextXCenteringOffset = sequenceFontExtraWidth/2.  
+    sequenceTextYCenteringOffset = baseWidth/2.  
 
     def __init__(self, vhelix, pathHelixGroup):
         super(PathHelix, self).__init__()
@@ -254,6 +268,34 @@ class PathHelix(QGraphicsItem):
             painter.drawPath(paintCommand[1])
             painter.setPen(paintCommand[2])
             painter.drawPath(paintCommand[3])
+        # Draw the sequence text
+        vh = self.vhelix()
+        scafTxt = vh.sequenceForVirtualStrand(StrandType.Scaffold)
+        scafY = self.baseWidth*0 + self.sequenceTextYCenteringOffset
+        stapTxt = vh.sequenceForVirtualStrand(StrandType.Staple)
+        stapY = self.baseWidth*1 + self.sequenceTextYCenteringOffset
+        if self.strandIsTop(StrandType.Staple):
+            # We assumed scaffold was on top. Correct that.
+            scafY, stapY = stapY, scafY
+        if vh.directionOfStrandIs5to3(StrandType.Scaffold):
+            # Text goes from 5 to 3, so staple gets vertically flipped
+            shouldVFlipScaf = False
+            # We still want the text to be drawn at the same Y coordinate,
+            # just upside down, so we undo the transform as it applies
+            # to the Y coord
+            stapY = -stapY
+        else:
+            shouldVFlipScaf = True
+            scafY = -scafY
+        scafX = stapX = self.sequenceTextXCenteringOffset
+        painter.setPen(QPen(Qt.black))
+        painter.setBrush(Qt.NoBrush)
+        painter.setFont(self.sequenceFont)
+        if shouldVFlipScaf:
+            painter.scale(1, -1)
+        painter.drawText(scafX, scafY, self.baseWidth*vh.numBases(), self.baseWidth/2., Qt.AlignVCenter, scafTxt)
+        painter.scale(1, -1)
+        painter.drawText(stapX, stapY, self.baseWidth*vh.numBases(), self.baseWidth/2., Qt.AlignVCenter, stapTxt)
         painter.restore()
 
     def minorGridPainterPath(self):

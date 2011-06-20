@@ -68,7 +68,6 @@ class DocumentController():
         fname = os.path.basename(str(self.filename()))
         if not self.undoStack().isClean():
             fname += '[*]'
-        print "sfname: %s"%fname
         return fname
         
     def filename(self):

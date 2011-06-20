@@ -47,6 +47,7 @@ class Base(object):
         self._n = index
         self._floatingXoverDestination = False
         self._strandLength = 0
+        self._sequence = " "
 
     def __str__(self):
         fiveTo3 = self._vhelix.directionOfStrandIs5to3(self._strandtype)
@@ -123,6 +124,13 @@ class Base(object):
             helixNum, baseNum = fiveP.split(':')
             remoteVH = self._vhelix.part().getVirtualHelix(int(helixNum))
             self._5pBase = remoteVH._strand(oppositeST)[int(baseNum)]
+    
+    def sequence(self):
+        nonempty = self._hasNeighbor3p() or self._hasNeighbor5p()
+        if not nonempty:
+            return " "
+        else:
+            return "A"
 
     def __repr__(self):
         if self._3pBase:
