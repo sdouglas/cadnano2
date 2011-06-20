@@ -61,4 +61,18 @@ class EraseTool(AbstractPathTool):
         posItem = self.parentItem().mapFromScene(posScene)
         strandType, idx = self.baseAtPoint(pathHelix, posItem)
         vh = self.parentItem().vhelix()
-        vh.removeConnectedStrandAt(strandType, idx)
+        rightBreakIdx = leftBreakIdx = idx
+        while leftBreakIdx>1:
+            if vh.hasCrossoverAt(strandType, leftBreakIdx-1):
+                break
+            if vh.hasEndAt(strandType, leftBreakIdx-1):
+                break
+            leftBreakIdx -= 1
+        while rightBreakIdx<vh.numBases():
+            if vh.hasCrossoverAt(strandType, rightBreakIdx+1):
+                break
+            if vh.hasEndAt(strandType, rightBreakIdx) and\
+               rightBreakIdx != idx:
+                break
+            rightBreakIdx += 1
+        vh.clearStrand(strandType, leftBreakIdx, rightBreakIdx)
