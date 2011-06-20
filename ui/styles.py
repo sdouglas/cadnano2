@@ -60,6 +60,7 @@ PCH_BORDER_PADDING = 1
 PATH_BASE_HL_STROKE_WIDTH = 2  # PathTool highlight box
 MINOR_GRID_STROKE_WIDTH = 0.5
 MAJOR_GRID_STROKE_WIDTH = 0.5
+oligoLenAboveWhichDrawnDashed = 20
 
 # Path Drawing
 PATH_XOVER_LINE_SCALE_X = 0.035

@@ -116,6 +116,8 @@ class AbstractPathTool(QGraphicsItem):
                 self.update(self.boundingRect())
                 if not self.isVisible():
                     self.show()
+            #base = self.baseAtPoint(pathHelix, posItem)
+            #print pathHelix.vhelix().numberOfBasesConnectedTo(*base)
         else:
             self._lastLocation = None
             self.hide()

@@ -35,6 +35,7 @@ from treeview.treecontroller import TreeController
 from pathview.handles.activeslicehandle import ActiveSliceHandle
 from model.enum import LatticeType
 from model.decoder import decode
+import os.path
 
 if app().isInMaya():
     from .mayawindow import DocumentWindow
@@ -49,6 +50,8 @@ class DocumentController():
     def __init__(self, doc=None, fname=None):
         app().documentControllers.add(self)
         self._undoStack = QUndoStack()
+        self._undoStack.setClean()
+        self._undoStack.cleanChanged.connect(self.undoStackCleanStatusChangedSlot)
         self._filename = fname if fname else "untitled.cn2"
         self._activePart = None
         self._hasNoAssociatedFile = fname==None
@@ -59,8 +62,15 @@ class DocumentController():
         self._document = None
         self.setDocument(Document() if not doc else doc)
         app().undoGroup.addStack(self.undoStack())
-        self.win.setWindowTitle("CADnano[*]")
-
+        self.win.setWindowTitle(self.documentTitle())
+    
+    def documentTitle(self):
+        fname = os.path.basename(str(self.filename()))
+        if not self.undoStack().isClean():
+            fname += '[*]'
+        print "sfname: %s"%fname
+        return fname
+        
     def filename(self):
         return self._filename
 
@@ -69,14 +79,13 @@ class DocumentController():
             return True
         self._filename = proposedFName
         self._hasNoAssociatedFile = False
-        self.setDirty(True)
         return True
 
     def activePart(self):
         return self._activePart
 
     def setActivePart(self, part):
-        self._activePart = part   
+        self._activePart = part 
 
     def document(self):
         return self._document
@@ -116,27 +125,25 @@ class DocumentController():
         # self.win.actionPromote.triggered.connect(self.promoteClicked)
         # self.win.actionDemote.triggered.connect(self.demoteClicked)
     # end def
-
-    def dirty(self, *args, **kwargs):
-        self.setDirty(True)
-
-    def setDirty(self, dirty=True):
-        self.win.setWindowModified(dirty)
-    #end def
+    
+    def undoStackCleanStatusChangedSlot(self):
+        self.win.setWindowModified(not self.undoStack().isClean())
+        # The title changes to include [*] on modification
+        self.win.setWindowTitle(self.documentTitle())
 
     def newClicked(self):
-        """docstring for newClicked"""
-        print "new clicked"
-    # end def
+        """Create a new document window"""
+        # Will create a new Document object and will be
+        # be kept alive by the app's document list
+        DocumentController()
 
     def openClicked(self):
         """docstring for openClicked"""
-        fname = QFileDialog.getOpenFileName(None, "Open Document", "/", "caDNAno2 Files (*.cn2);; cadnano Files (*.json)")
+        fname = QFileDialog.getOpenFileName(None, "Open Document", "/", "caDNAno1 / caDNAno2 Files (*.cn2 *.json *.cadnano)")
         if fname=='':
             return
         doc = decode(file(fname).read())
         DocumentController(doc, fname)
-    # end def
 
     def closeClicked(self):
         """docstring for closeClicked"""
@@ -149,7 +156,7 @@ class DocumentController():
         f = open(self.filename(), 'w')
         encode(self._document, f)
         f.close()
-        self.setDirty(False)
+        self.undoStack().setClean()
 
     def saveAsClicked(self):
         filename = self.filename()
@@ -206,92 +213,12 @@ class DocumentController():
         self.win.sliceController.activeSliceLastSignal.connect(ash.moveToLastSlice)
         self.win.sliceController.activeSliceFirstSignal.connect(ash.moveToFirstSlice)
         self.win.pathController.setActivePath(phg)
-        self.dirty()
-        part.persistentDataChanged.connect(self.dirty)
 
     def addHoneycombHelixGroup(self, nrows=20, ncolumns=20):
         """docstring for addHoneycombHelixGroup"""
         # Create a new DNA part
         dnaPart = self._document.addDnaHoneycombPart()
         self.setActivePart(dnaPart)
-    # end def
-
-    def deleteClicked(self):
-        index = self.win.treeview.currentIndex()
-        if not index.isValid():
-            return
-        name = self.treemodel.data(index).toString()
-        rows = self.treemodel.rowCount(index)
-        if rows == 0:
-            message = "<p>Delete '%s'" % name
-        # end if
-        elif rows == 1:
-            message = "<p>Delete '%s' and its child (and " +\
-                         "grandchildren etc.)" % name
-        # end elif
-        elif rows > 1:
-            message = "<p>Delete '%s' and its %d children (and " +\
-                         "grandchildren etc.)" % (name, rows)
-
-        # end elif
-        if not self.okToDelete(this, QString("Delete"), QString(message)):
-            return
-        self.treemodel.removeRow(index.row(), index.parent())
-        self.setDirty(True)
-        self.updateUi()
-    # end def
-
-    def okToDelete(self, parent, title, text, detailedText):
-        """
-        """
-        messageBox = QMessageBox(parent)
-        if parent:
-            messageBox.setWindowModality(Qt.WindowModal)
-        # end if
-        messageBox.setIcon(QMessageBox.Question)
-        messageBox.setWindowTitle(\
-            QString("%1 - %2").arg(QApplication.applicationName()).arg(title))
-        messageBox.setText(text)
-        if not detailedText.isEmpty():
-            messageBox.setInformativeText(detailedText)
-        # end if
-        deleteButton = messageBox.addButton(QString("&Delete"),\
-                                            QMessageBox.AcceptRole)
-        messageBox.addButton(QString("Do &Not Delete"),\
-                             QMessageBox.RejectRole)
-        messageBox.setDefaultButton(deleteButton)
-        messageBox.exec_()
-        return messageBox.clickedButton() == deleteButton
-    # end def
-
-    def okToClear(self, savedata, parent, title, text, detailedText):
-        """
-        savedata is a function pointer
-        """
-        assert savedata and parent
-        messageBox = QMessageBox(parent)
-        if parent:
-            messageBox.setWindowModality(Qt.WindowModal)
-        # end if
-        messageBox.setIcon(QMessageBox.Question)
-        messageBox.setWindowTitle(\
-          QString("%1 - %2").arg(QApplication.applicationName()).arg(title))
-        messageBox.setText(text)
-        if not detailedText.isEmpty():
-            messageBox.setInformativeText(detailedText)
-        # end if
-
-        saveButton = messageBox.addButton(QMessageBox.Save)
-        messageBox.addButton(QMessageBox.Save)
-        messageBox.addButton(QMessageBox.Discard)
-        messageBox.addButton(QMessageBox.Cancel)
-        messageBox.setDefaultButton(saveButton)
-        messageBox.exec_()
-        if messageBox.clickedButton() == messageBox.button(QMessageBox.Cancel):
-            return False
-        if messageBox.clickedButton() == messageBox.button(QMessageBox.Save):
-            return parent.savedata()  # how to return the function (lambda?)
-        return True
     # end def
 
     def createAction(self, icon, text, parent, shortcutkey):
@@ -301,33 +228,7 @@ class DocumentController():
         action = QAction(QIcon(icon), text, parent)
         if not shorcutkey.isEmpty():
             action.setShortcut(shortcutkey)
-        # end if
         return action
-    # end def
-
-    def updateUi(self):
-        """
-        """
-        #self.win.actionSave.setEnabled(self.win.isWindowModified())
-
-        rows = self.treemodel.rowCount()
-
-        #self.win.actionSave_As.setEnabled(self.win.isWindowModified() or rows)
-        #self.win.actionHideOrShowItems.setEnabled(rows)
-        enable = self.win.treeview.currentIndex().isValid()
-
-        # actions = [self.win.actionDelete,\
-        #            self.win.actionMoveUp,\
-        #            self.win.actionMoveDown,\
-        #            self.win.actionCut,\
-        #            self.win.actionPromote,\
-        #            self.win.actionDemote]
-        # for action in actions:
-        #     action.setEnabled(enable)
-        # # end for
-        # self.win.actionStartOrStop.setEnabled(rows);
-        # self.win.actionPaste.setEnabled(self.treemodel.hasCutItem())
-    #end def
 
     def cutClicked(self):
         """"""

@@ -74,6 +74,11 @@ class DNAPart(Part):
         # This variable is directly used and entirely managed by
         # virtualhelix for consolidation of basesModified signals.
         self.basesModifiedVHs = set()
+        # We also keep track of the specific bases that were modified
+        # so that we can efficiently recalculate strand lengths.
+        # self.basesModified is cleared by and ONLY by dnapart's
+        # recalculateStrandLengths method.
+        self.basesModified = set()
         # Event propagation
         self.virtualHelixAtCoordsChanged.connect(self.persistentDataChangedEvent)
         self.dimensionsWillChange.connect(self.persistentDataChangedEvent)
@@ -85,11 +90,7 @@ class DNAPart(Part):
     def setDocument(self, newDoc):
         """Only called by Document"""
         super(DNAPart, self).setDocument(newDoc)
-        ctrlr = newDoc.controller()
-        if ctrlr:
-            self.dimensionsWillChange.connect(ctrlr.dirty)
-            self.virtualHelixAtCoordsChanged.connect(ctrlr.dirty)
-    
+            
     def palette(self):
         return styles.default_palette
     
@@ -241,6 +242,23 @@ class DNAPart(Part):
             
 
     ############################# VirtualHelix Private CRUD #############################
+    def _recalculateStrandLengths(self):
+        """
+        Bases cache the length of the oligo they are in. This
+        method updates that cache."""
+        modifiedBases = self.basesModified
+        while modifiedBases:
+            b = modifiedBases.pop()
+            if b==None:
+                continue
+            basesConnectedToB = b._vhelix._basesConnectedTo(b._strandtype, b._n)
+            # Remove this strand from modifiedBases
+            modifiedBases.difference_update(basesConnectedToB)
+            lengthOfStrand = len(basesConnectedToB)
+            for baseInStrand in basesConnectedToB:
+                baseInStrand._strandLength = lengthOfStrand
+            b._strandLength = lengthOfStrand
+    
     class AddHelixCommand(QUndoCommand):
         """
         Adds a helix to dnapart. Called by self.addVirtualHelixAt().

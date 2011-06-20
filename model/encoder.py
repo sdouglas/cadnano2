@@ -96,6 +96,7 @@ class Encoder(object):
     typeToOtherEncoder = {int:encodeNum, long:encodeNum,\
                           float:encodeNum, complex:encodeNum,\
                           str:encodeStr, dict:encodeDict,\
+                          unicode:encodeStr,
                           list:encodeArr, tuple:encodeArr}
     def encodeObj(self, o, useRef=True):
         io = self.io
@@ -150,7 +151,7 @@ class Encoder(object):
                 sublength += self.approxStrLength(k) + self.approxStrLength(v)
             return sublength + 2 + 3*len(item)
         return 5  # Refs, mostly
-    simpleTypes = (int, long, float, complex, str, type(None))
+    simpleTypes = (int, long, float, complex, str, unicode, type(None))
             
     
         

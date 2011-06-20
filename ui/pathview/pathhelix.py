@@ -312,12 +312,16 @@ class PathHelix(QGraphicsItem):
             for (startIndex, endIndex) in segments:
                 startPt = self.baseLocation(strandType, startIndex, centerY=True)
                 endPt = self.baseLocation(strandType, endIndex, centerY=True)
+                numBasesInOligo = vh.numberOfBasesConnectedTo(strandType, int(startIndex))
                 pp = QPainterPath()
                 pp.moveTo(*startPt)
                 pp.lineTo(*endPt)
                 color = vh.colorOfBase(strandType, int(startIndex))
                 width = styles.PATH_STRAND_STROKE_WIDTH
                 pen = QPen(color, width)
+                if numBasesInOligo > styles.oligoLenAboveWhichDrawnDashed:
+                    if strandType == StrandType.Staple:
+                        pen.setStyle(Qt.DashLine)
                 self._segmentPaths.append((pen, pp))
             for e3 in ends3:
                 upperLeft = self.baseLocation(strandType, e3)

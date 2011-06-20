@@ -33,7 +33,7 @@ from string import *
 import math
 import random
 import pymel.core as pc
-import pymel.api as pa
+import pymel.api as fromBaseCenter
 import os
 import sys
 import ui.styles as styles
@@ -120,7 +120,7 @@ class SolidHelixGroup(QObject):
         shdr.setAttr('color', colorfill.redF(),colorfill.greenF(),colorfill.blueF(), type='double3')
  
         print  pc.language.scriptJob( event=[u'SelectionChanged',self.cool])
-        #pa.MEventMessage.addEventCallback(u'SelectionChanged',self.cool)
+        #fromBaseCenter.MEventMessage.addEventCallback(u'SelectionChanged',self.cool)
     # end def
     
     def cool(self,*args):

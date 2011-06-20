@@ -99,11 +99,6 @@ class VirtualHelix(QObject):
                                     incompleteArchivedDict['staple'])) - 1
         self.setNumBases(numBases, notUndoable=True)
         
-        # During a single UndoCommand, many basesModified signals can be generated.
-        # basesModifiedVHs stores a set of VH that will setHasBeenModified
-        # upon a call to emitBasesModifiedIfNeeded.
-        self.basesModifiedVHs = set()
-        
     def __repr__(self):
         return 'vh%i' % self.number()
 
@@ -467,7 +462,14 @@ class VirtualHelix(QObject):
         # print "colorOfBase", idx, c.name(), self._stapleBases[idx].getColor()
         return self._strand(strandType)[idx].getColor()
     
+    def numberOfBasesConnectedTo(self, strandType, idx):
+        return self._strand(strandType)[idx]._strandLength
+    
     def _basesConnectedTo(self, strandType, idx):
+        """
+        Private because it returns a set of Base
+        objects
+        """
         strand = self._strand(strandType)
         bases = set()
         treeTips = [strand[idx]]
@@ -592,6 +594,7 @@ class VirtualHelix(QObject):
             for vh in self.part().basesModifiedVHs:
                 vh.basesModified.emit()
             self.part().basesModifiedVHs.clear()
+            self.part()._recalculateStrandLengths()
         else:
             self.basesModified.emit()
         #self.part().virtualHelixAtCoordsChanged.emit(*self.coord())

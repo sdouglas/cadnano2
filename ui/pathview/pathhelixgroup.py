@@ -230,72 +230,49 @@ class PathHelixGroup(QGraphicsObject):
     def drawXovers(self, painter):
         """Return a QPainterPath ready to paint the crossovers"""    
         for ph in self._pathHelixList:
-            for ((fromhelix, fromindex), dest) in \
-                             ph.vhelix().get3PrimeXovers(StrandType.Scaffold):
-                if type(dest) in (list, tuple):
-                    toVH, toIndex = dest
-                    toPH = self.getPathHelix(toVH)
-                    floatPos = None
-                else:
-                    toPH, toIndex = None, None
-                    floatPos = dest
-                path = self.xoverGet.getXover(self,\
-                                              StrandType.Scaffold,\
-                                              ph,\
-                                              fromindex,\
-                                              toPH,\
-                                              toIndex,\
-                                              floatPos)
-                # draw the line
-                # reload scaffold strand pen 
-                painter.setPen(self._scafPen)
-                painter.drawPath(path[0])
-                
-                # draw labels
-                painter.setPen(QPen(styles.XOVER_LABEL_COLOR))
-                painter.setFont(styles.XOVER_LABEL_FONT)
-                painter.drawText(path[1], Qt.AlignCenter, str(ph.number()))
-                
-                # test to see if we need to draw the to label for the xover
-                # this comes in handy when drawing forced xovers
-                if toPH != None:
-                    painter.drawText(path[2], 
-                                    Qt.AlignCenter, str(toPH.number()))
-
-            for ((fromhelix, fromindex), dest) in \
-                               ph.vhelix().get3PrimeXovers(StrandType.Staple):
-                if type(dest) in (list, tuple):
-                    toVH, toIndex = dest
-                    toPH = self.getPathHelix(toVH)
-                    floatPos = None
-                else:
-                    toPH, toIndex = None, None
-                    floatPos = dest
-                path = self.xoverGet.getXover(self,\
-                                              StrandType.Staple,\
-                                              ph,\
-                                              fromindex,\
-                                              toPH,\
-                                              toIndex,\
-                                              floatPos)
-                # reload staple strand pen                              
-                painter.setPen(self._stapPen)
-                color = ph.vhelix().colorOfBase(StrandType.Staple, fromindex)
-                self._stapPen.setColor(color)
-                painter.setPen(self._stapPen)
-                # draw the line
-                painter.drawPath(path[0])
-                # draw labels
-                painter.setPen(QPen(styles.XOVER_LABEL_COLOR))
-                painter.setFont(styles.XOVER_LABEL_FONT)
-                painter.drawText(path[1], Qt.AlignCenter, str(ph.number()) )
-                
-                # test to see if we need to draw the to label for the xover
-                # this comes in handy when drawing forced xovers
-                if toPH != None:
-                    painter.drawText(path[2], 
-                                    Qt.AlignCenter, str(toPH.number()))
-            # end for
+            for strandType in (StrandType.Scaffold, StrandType.Staple):
+                for ((fromhelix, fromindex), dest) in \
+                                 ph.vhelix().get3PrimeXovers(strandType):
+                    if type(dest) in (list, tuple):
+                        toVH, toIndex = dest
+                        toPH = self.getPathHelix(toVH)
+                        floatPos = None
+                    else:
+                        toPH, toIndex = None, None
+                        floatPos = dest
+                    path = self.xoverGet.getXover(self,\
+                                                  strandType,\
+                                                  ph,\
+                                                  fromindex,\
+                                                  toPH,\
+                                                  toIndex,\
+                                                  floatPos)
+                    # draw the line
+                    # reload scaffold strand pen
+                    if strandType==StrandType.Scaffold:
+                        pen = self._scafPen
+                    else:
+                        pen = self._stapPen
+                        color = ph.vhelix().colorOfBase(strandType, fromindex)
+                        pen.setColor(color)
+                        oligoLength = ph.vhelix().numberOfBasesConnectedTo(strandType, fromindex)
+                        tooLong = oligoLength>styles.oligoLenAboveWhichDrawnDashed
+                        pen.setStyle(Qt.DashLine if tooLong else Qt.SolidLine)
+                    painter.setPen(pen)
+                    painter.drawPath(path[0])
+                    
+                    # draw labels
+                    painter.setPen(QPen(styles.XOVER_LABEL_COLOR))
+                    painter.setFont(styles.XOVER_LABEL_FONT)
+                    painter.drawText(path[1], Qt.AlignCenter, str(ph.number()))
+                    
+                    # test to see if we need to draw the to label for the xover
+                    # this comes in handy when drawing forced xovers
+                    if toPH != None:
+                        painter.drawText(path[2], 
+                                        Qt.AlignCenter, str(toPH.number()))
+                # end for
+            # end for strandType in scaf, stap
         # end for
     # end def
 

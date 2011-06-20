@@ -46,6 +46,7 @@ class Base(object):
         self._strandtype = strandtype
         self._n = index
         self._floatingXoverDestination = False
+        self._strandLength = 0
 
     def __str__(self):
         fiveTo3 = self._vhelix.directionOfStrandIs5to3(self._strandtype)
@@ -158,6 +159,11 @@ class Base(object):
         self._vhelix.setHasBeenModified()
         if toBase:
             toBase._vhelix.setHasBeenModified()
+        part = self._vhelix.part()
+        if part:
+            part.basesModified.add(self)
+            part.basesModified.add(toOld3)
+            part.basesModified.add(fromOld5)
         return (fromOld5, toOld3)
 
     def _unset5Prime(self, toBase, fromOld5, toOld3):
@@ -171,6 +177,11 @@ class Base(object):
             fromOld5._vhelix.setHasBeenModified()
         if toBase:
             toBase._vhelix.setHasBeenModified()
+        part = self._vhelix.part()
+        if part:
+            part.basesModified.add(self)
+            part.basesModified.add(toOld3)
+            part.basesModified.add(fromOld5)
         self._vhelix.setHasBeenModified()
 
     def _set3Prime(self, toBase):
@@ -191,6 +202,11 @@ class Base(object):
             fromOld3._vhelix.setHasBeenModified()
         if toBase:
             toBase._vhelix.setHasBeenModified()
+        part = self._vhelix.part()
+        if part:
+            part.basesModified.add(self)
+            part.basesModified.add(toOld5)
+            part.basesModified.add(fromOld3)
         self._vhelix.setHasBeenModified()
         return (fromOld3, toOld5)
 
@@ -205,6 +221,11 @@ class Base(object):
             fromOld3._vhelix.setHasBeenModified()
         if toBase:
             toBase._vhelix.setHasBeenModified()
+        part = self._vhelix.part()
+        if part:
+            part.basesModified.add(self)
+            part.basesModified.add(toOld5)
+            part.basesModified.add(fromOld3)
         self._vhelix.setHasBeenModified()
 
     def vhelix(self):
