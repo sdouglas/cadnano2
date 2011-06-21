@@ -28,12 +28,6 @@ pathhelixgroup.py
 
 Created by Shawn on 2011-01-27.
 """
-
-from PyQt4.QtCore import QRectF, QPointF, QEvent, pyqtSlot, QObject, Qt
-from PyQt4.QtCore import pyqtSignal
-from PyQt4.QtGui import QBrush, QPen, qApp, QGraphicsTextItem, QFont, QColor
-from PyQt4.QtGui import QGraphicsItem, QGraphicsObject
-from PyQt4.QtGui import QGraphicsItemGroup, QUndoCommand
 from .pathhelix import PathHelix
 from handles.activeslicehandle import ActiveSliceHandle
 from handles.pathhelixhandle import PathHelixHandle
@@ -43,7 +37,24 @@ from handles.pathhelixhandle import PathHelixHandle
 from handles.crossoverhandle import XoverHandle
 from handles.loophandle import LoopHandleGroup
 from cadnano import app
+
+# from PyQt4.QtCore import QRectF, QPointF, QEvent, pyqtSlot, QObject, Qt
+# from PyQt4.QtCore import pyqtSignal
+# from PyQt4.QtGui import QBrush, QPen, qApp, QGraphicsTextItem, QFont, QColor
+# from PyQt4.QtGui import QGraphicsItem, QGraphicsObject
+# from PyQt4.QtGui import QGraphicsItemGroup, QUndoCommand
+
 import util
+# import Qt stuff into the module namespace with PySide, PyQt4 independence
+util.qtWrapImport('QtCore', globals(), ['QObject', 'pyqtSignal', 'pyqtSlot', \
+                                        'QRectF', 'QPointF', 'QEvent', \
+                                        'QObject', 'Qt'] )
+util.qtWrapImport('QtGui', globals(), [ 'QBrush', 'QPen', 'qApp', \
+                                        'QGraphicsTextItem', 'QFont', \
+                                        'QColor', 'QGraphicsItem', \
+                                        'QGraphicsObject', \
+                                        'QGraphicsItemGroup', 'QUndoCommand'])
+
 
 
 class PathHelixGroup(QGraphicsObject):

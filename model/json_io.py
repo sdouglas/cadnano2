@@ -35,8 +35,11 @@ from document import Document
 from dnahoneycombpart import DNAHoneycombPart
 from virtualhelix import VirtualHelix
 from enum import StrandType
-from PyQt4.QtGui import QColor
 
+# from PyQt4.QtGui import QColor
+import util
+# import Qt stuff into the module namespace with PySide, PyQt4 independence
+util.qtWrapImport('QtGui', globals(),  ['QColor'])
 
 NODETAG = "node"
 NAME = "name"

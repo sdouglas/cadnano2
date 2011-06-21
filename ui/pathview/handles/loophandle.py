@@ -26,14 +26,21 @@ loophandle.py
 Created by Shawn on 2011-05-03.
 """
 
-from PyQt4.QtCore import QPointF, QRectF, Qt
-from PyQt4.QtGui import QBrush, QFont
-from PyQt4.QtGui import QGraphicsItem, QGraphicsTextItem, QTextCursor
-from PyQt4.QtGui import QPainterPath
-from PyQt4.QtGui import QPen
 import ui.styles as styles
 from model.enum import StrandType
 
+# from PyQt4.QtCore import QPointF, QRectF, Qt
+# from PyQt4.QtGui import QBrush, QFont
+# from PyQt4.QtGui import QGraphicsItem, QGraphicsTextItem, QTextCursor
+# from PyQt4.QtGui import QPainterPath
+# from PyQt4.QtGui import QPen
+
+import util
+# import Qt stuff into the module namespace with PySide, PyQt4 independence
+util.qtWrapImport('QtCore', globals(), [ 'QPointF', 'QRectF', 'Qt'] )
+util.qtWrapImport('QtGui', globals(), [ 'QBrush', 'QFont', \
+                                        'QGraphicsItem', 'QGraphicsTextItem', \
+                                        'QTextCursor', 'QPainterPath', 'QPen'] )
 
 class LoopItem(object):
     """

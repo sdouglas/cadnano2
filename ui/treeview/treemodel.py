@@ -23,8 +23,17 @@
 # http://www.opensource.org/licenses/mit-license.php
 
 import bisect
-from PyQt4.QtCore import QAbstractItemModel, QModelIndex, Qt, QByteArray, QString, QStringList, QVariant
-from PyQt4.QtCore import QXmlStreamReader, QXmlStreamWriter
+
+# from PyQt4.QtCore import QAbstractItemModel, QModelIndex, Qt, QByteArray, QString, QStringList, QVariant
+# from PyQt4.QtCore import QXmlStreamReader, QXmlStreamWriter
+
+import util
+# import Qt stuff into the module namespace with PySide, PyQt4 independence
+util.qtWrapImport('QtCore', globals(), ['QAbstractItemModel', 'QModelIndex', \
+                                        'Qt', 'QByteArray', 'QString', \
+                                        'QStringList', 'QVariant', \
+                                        'QXmlStreamReader', \
+                                        'QXmlStreamWriter'] )
 
 
 NODETAG = "node"

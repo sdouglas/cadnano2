@@ -25,17 +25,17 @@
 pathhelixhandle.py
 Created by Shawn on 2011-02-05.
 """
+import ui.styles as styles
 
 # from PyQt4.QtCore import QPointF, QRectF, Qt
 # from PyQt4.QtGui import QBrush, QFont
 # from PyQt4.QtGui import QGraphicsItem
 # from PyQt4.QtGui import QGraphicsSimpleTextItem, QGraphicsTextItem
 # from PyQt4.QtGui import QPen, QDrag, QUndoCommand
-import ui.styles as styles
-from util import *
+import util
 # import Qt stuff into the module namespace with PySide, PyQt4 independence
-qtWrapImport('QtCore', globals(), ['QPointF', 'QRectF', 'Qt'])
-qtWrapImport('QtGui', globals(), [ 'QBrush', 'QFont', 'QGraphicsItem' \
+util.qtWrapImport('QtCore', globals(), ['QPointF', 'QRectF', 'Qt'])
+util.qtWrapImport('QtGui', globals(), [ 'QBrush', 'QFont', 'QGraphicsItem' \
                                         'QGraphicsSimpleTextItem', 'QPen',\
                                         'QGraphicsTextItem', 'QDrag', \
                                         'QUndoCommand' ])

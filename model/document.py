@@ -29,8 +29,12 @@ Created by Jonathan deWerd on 2011-01-26.
 
 import json
 from .dnahoneycombpart import DNAHoneycombPart
-from PyQt4.QtCore import QObject, pyqtSignal
-from PyQt4.QtGui import QUndoStack
+# from PyQt4.QtCore import QObject, pyqtSignal
+# from PyQt4.QtGui import QUndoStack
+import util
+# import Qt stuff into the module namespace with PySide, PyQt4 independence
+util.qtWrapImport('QtCore', globals(), ['pyqtSignal', 'QObject'] )
+util.qtWrapImport('QtGui', globals(), [ 'QUndoStack'] )
 
 class Document(QObject):    
     def __init__(self, incompleteArchivedDict=None):

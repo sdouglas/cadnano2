@@ -30,7 +30,13 @@ Created by Nick Conway on 2011-01-19.
 
 from collections import defaultdict
 from idbank import IdBank
-from PyQt4.QtCore import QObject
+
+# from PyQt4.QtCore import QObject
+import util
+# import Qt stuff into the module namespace with PySide, PyQt4 independence
+util.qtWrapImport('QtCore', globals(), ['QObject'] )
+
+
 
 class Assembly(QObject):
     """

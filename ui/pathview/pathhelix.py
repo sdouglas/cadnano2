@@ -27,13 +27,6 @@ Created by Shawn on 2011-01-27.
 """
 
 from exceptions import AttributeError, ValueError
-from PyQt4.QtCore import Qt, QRect
-from PyQt4.QtCore import QLine, QRectF, QPointF, QPoint
-from PyQt4.QtGui import QBrush, QColor, QFont
-from PyQt4.QtGui import QGraphicsItem, QFontMetricsF
-from PyQt4.QtGui import QGraphicsSimpleTextItem
-from PyQt4.QtGui import QPainter, QPainterPath
-from PyQt4.QtGui import QPen, QDrag, QUndoCommand, QPolygonF
 import ui.styles as styles
 from model.enum import EndType, LatticeType, StrandType
 from model.virtualhelix import VirtualHelix
@@ -43,8 +36,25 @@ from handles.loophandle import LoopItem, SkipItem
 from handles.precrossoverhandle import PreCrossoverHandle
 from math import floor, pi
 from cadnano import app
-import util
 from itertools import product
+
+
+# from PyQt4.QtCore import Qt, QRect
+# from PyQt4.QtCore import QLine, QRectF, QPointF, QPoint
+# from PyQt4.QtGui import QBrush, QColor, QFont
+# from PyQt4.QtGui import QGraphicsItem, QFontMetricsF
+# from PyQt4.QtGui import QGraphicsSimpleTextItem
+# from PyQt4.QtGui import QPainter, QPainterPath
+# from PyQt4.QtGui import QPen, QDrag, QUndoCommand, QPolygonF
+import util
+# import Qt stuff into the module namespace with PySide, PyQt4 independence
+util.qtWrapImport('QtCore', globals(), ['Qt', 'QRect', 'QLine', 'QRectF', \
+                                        'QPointF', 'QPoint'] )
+util.qtWrapImport('QtGui', globals(), [ 'QBrush', 'QColor', 'QFont', \
+                                        'QGraphicsItem', 'QFontMetricsF', \
+                                        'QGraphicsSimpleTextItem', \
+                                        'QPainter', 'QPainterPath', 'QPen', \
+                                        'QDrag', 'QPolygonF', 'QUndoCommand'] )
 
 baseWidth = styles.PATH_BASE_WIDTH
 ppL5 = QPainterPath()  # Left 5' PainterPath

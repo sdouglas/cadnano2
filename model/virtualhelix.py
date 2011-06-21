@@ -31,13 +31,18 @@ from exceptions import AttributeError, IndexError
 from itertools import product
 from .enum import LatticeType, Parity, StrandType, BreakType
 from .enum import Crossovers, EndType
-from PyQt4.QtCore import pyqtSignal, QObject, QTimer
-from PyQt4.QtGui import QUndoCommand, QUndoStack, QColor
 from .base import Base
-import util
 from cadnano import app
 from random import Random
 import re, sys
+
+# from PyQt4.QtCore import pyqtSignal, QObject, QTimer
+# from PyQt4.QtGui import QUndoCommand, QUndoStack, QColor
+import util
+# import Qt stuff into the module namespace with PySide, PyQt4 independence
+util.qtWrapImport('QtCore', globals(), ['QObject', 'pyqtSignal', 'QTimer'] )
+util.qtWrapImport('QtGui', globals(), [ 'QUndoCommand', 'QUndoStack', \
+                                        'QColor'] )
 
 class VirtualHelix(QObject):
     """Stores staple and scaffold routing information."""

@@ -26,6 +26,9 @@ crossoverhandle.py
 Created by Nick on 2011-05-25.
 """
 from exceptions import AttributeError, NotImplementedError
+from model.enum import HandleOrient, StrandType
+import ui.styles as styles
+
 # from PyQt4.QtCore import QPointF, QRectF, Qt
 # from PyQt4.QtGui import QBrush, QFont
 # from PyQt4.QtGui import QGraphicsItem, QGraphicsSimpleTextItem
@@ -38,8 +41,6 @@ util.qtWrapImport('QtCore', globals(), ['QPointF', 'QRectF', 'Qt'])
 util.qtWrapImport('QtGui', globals(), [ 'QBrush', 'QFont', 'QGraphicsItem' \
                                         'QGraphicsSimpleTextItem', 'QPen',\
                                         'QPolygonF', 'QPainterPath'])
-from model.enum import HandleOrient, StrandType
-import ui.styles as styles
 
 
 class XoverHandle(object):

@@ -26,9 +26,16 @@ colorpanel.py
 Created by Shawn on 2011-05-31.
 """
 
-from PyQt4.QtCore import QRectF, Qt
-from PyQt4.QtGui import QBrush, QGraphicsItem, QColorDialog
 import ui.styles as styles
+
+# from PyQt4.QtCore import QRectF, Qt
+# from PyQt4.QtGui import QBrush, QGraphicsItem, QColorDialog
+import util
+# import Qt stuff into the module namespace with PySide, PyQt4 independence
+util.qtWrapImport('QtCore', globals(), ['QRectF', 'Qt'] )
+util.qtWrapImport('QtGui', globals(),  ['QBrush', 'QGraphicsItem', \
+                                        'QColorDialog'])
+
 
 class ColorPanel(QGraphicsItem):
     """docstring for ColorPanel"""

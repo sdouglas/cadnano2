@@ -27,9 +27,13 @@ Created by Shawn Douglas on 2011-02-08.
 """
 from .enum import StrandType
 from random import Random
-from PyQt4.QtGui import QColor
 import ui.styles as styles
 prng = Random()
+
+from PyQt4.QtGui import QColor
+import util
+# import Qt stuff into the module namespace with PySide, PyQt4 independence
+util.qtWrapImport('QtGui', globals(), [ 'QColor'])
 
 class Base(object):
     """

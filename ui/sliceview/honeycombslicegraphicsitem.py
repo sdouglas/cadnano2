@@ -31,14 +31,23 @@ Created by Shawn Douglas on 2010-06-15.
 
 from exceptions import NotImplementedError
 from heapq import *
-from PyQt4.QtCore import QRectF, QPointF, QEvent, pyqtSignal, QObject, Qt
-from PyQt4.QtCore import pyqtSignal, pyqtSlot
-from PyQt4.QtGui import QBrush, QPainterPath, QPen
-from PyQt4.QtGui import QGraphicsItem
 from ui.pathview.handles.activeslicehandle import ActiveSliceHandle
 from model.enum import LatticeType, Parity, StrandType
 from .slicehelix import SliceHelix
 import ui.styles as styles
+
+# from PyQt4.QtCore import QRectF, QPointF, QEvent, pyqtSignal, QObject, Qt
+# from PyQt4.QtCore import pyqtSignal, pyqtSlot
+# from PyQt4.QtGui import QBrush, QPainterPath, QPen
+# from PyQt4.QtGui import QGraphicsItem
+
+import util
+# import Qt stuff into the module namespace with PySide, PyQt4 independence
+util.qtWrapImport('QtCore', globals(), ['QRectF', 'QPointF', 'QEvent', 'Qt' \
+                                        'pyqtSignal', 'pyqtSlot', 'QObject'] )
+util.qtWrapImport('QtGui', globals(), [ 'QGraphicsItem', 'QBrush', \
+                                        'QPainterPath', 'QPen'])
+
 
 root3 = 1.732051
 

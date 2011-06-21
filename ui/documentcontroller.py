@@ -22,8 +22,6 @@
 #
 # http://www.opensource.org/licenses/mit-license.php
 
-from PyQt4.QtGui import *
-from PyQt4.QtCore import SIGNAL, QString, QFileInfo
 from cadnano import app
 from idbank import IdBank
 from model.document import Document
@@ -36,6 +34,14 @@ from pathview.handles.activeslicehandle import ActiveSliceHandle
 from model.enum import LatticeType
 from model.decoder import decode
 import os.path
+
+# from PyQt4.QtGui import *
+# from PyQt4.QtCore import SIGNAL, QString, QFileInfo
+import util
+# import Qt stuff into the module namespace with PySide, PyQt4 independence
+util.qtWrapImport('QtCore', globals(), ['pyqtSignal', 'QString', 'QFileInfo'] )
+util.qtWrapImport('QtGui', globals(), [ 'QUndoStack', 'QFileDialog', \
+                                        'QAction'] )
 
 if app().isInMaya():
     from .mayawindow import DocumentWindow

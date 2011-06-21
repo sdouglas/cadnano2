@@ -28,9 +28,14 @@ Created by Nick Conway on 2011-05-30.
 """
 
 from abstractpathtool import AbstractPathTool
+# import util
+# from PyQt4.QtGui import QPen, QColor
+# from PyQt4.QtCore import Qt, QPointF
+
 import util
-from PyQt4.QtGui import QPen, QColor
-from PyQt4.QtCore import Qt, QPointF
+# import Qt stuff into the module namespace with PySide, PyQt4 independence
+util.qtWrapImport('QtCore', globals(), ['Qt', 'QPointF'] )
+util.qtWrapImport('QtGui', globals(), [ 'QPen', 'QColor'] )
 
 class SelectTool(AbstractPathTool):
     """
