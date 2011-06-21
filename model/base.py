@@ -126,11 +126,32 @@ class Base(object):
             self._5pBase = remoteVH._strand(oppositeST)[int(baseNum)]
     
     def sequence(self):
-        nonempty = self._hasNeighbor3p() or self._hasNeighbor5p()
-        if not nonempty:
+        """
+        Returns the single character sequence for the receiver (loops,
+        skips just show up as spaces).
+        This is the base that should be drawn below the segment if there
+        is one.
+        This sequence is always returned 5->3 (the first character represents
+        the base that exposes the 5' end while the last char exposes its 3' end)
+        """
+        empty = not (self._hasNeighbor3p() or self._hasNeighbor5p())
+        if empty:
             return " "
-        else:
-            return "A"
+        return "A"
+        if self._vhelix.hasLoopOrSkipAt(self._strandtype, self._n):
+            return " "
+        return self._sequence
+    
+    def sequenceOfLoop(self):
+        """
+        This sequence is always returned 5->3 (the first character represents
+        the base that exposes the 5' end while the last char exposes its 3' end)
+        """
+        actualLoopLength = self._vhelix._loop(self._strandtype)[self._n]
+        return "HELLOWORLD"*actualLoopLength
+        if len(self._sequence) != actualLoopLength:
+            return " "*actualLoopLength
+        return self._sequence
 
     def __repr__(self):
         if self._3pBase:

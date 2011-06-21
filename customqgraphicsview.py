@@ -100,7 +100,7 @@ class CustomQGraphicsView(QGraphicsView):
         # self.setStyleSheet("QGraphicsView { background-color: #FF0000; }")
         # self.setStyleSheet("QGraphicsView { background-color: rgba(255, 0, 0, 75%); }")
 
-        self.setRubberBandSelectionMode(Qt.ContainsItemBoundingRect)
+        self.setRubberBandSelectionMode(Qt.IntersectsItemShape)
 
         self.toolbar = None
     # end def

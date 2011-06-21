@@ -358,7 +358,7 @@ class VirtualHelix(QObject):
         else:
             return base.isEnd()
         
-    def hasLoopAt(self, strandType, index):
+    def hasLoopOrSkipAt(self, strandType, index):
         """
         check for key "index" in the loop dictionary based on strandtype
         returns 0 if no loop or skip and returns the length of the skip
@@ -467,6 +467,9 @@ class VirtualHelix(QObject):
     
     def sequenceForVirtualStrand(self, strandType):
         return "".join([b.sequence() for b in self._strand(strandType)])
+    
+    def sequenceForLoopAt(self, strandType, idx):
+        return self._strand(strandType)[idx].sequenceOfLoop()
     
     def _basesConnectedTo(self, strandType, idx):
         """
