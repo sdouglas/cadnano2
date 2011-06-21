@@ -63,13 +63,13 @@ class EraseTool(AbstractPathTool):
         vh = self.parentItem().vhelix()
         rightBreakIdx = leftBreakIdx = idx
         while leftBreakIdx>1:
-            if vh.hasCrossoverAt(strandType, leftBreakIdx-1):
+            if vh.hasCrossoverAt(strandType, leftBreakIdx):
                 break
             if vh.hasEndAt(strandType, leftBreakIdx-1):
                 break
             leftBreakIdx -= 1
         while rightBreakIdx<vh.numBases():
-            if vh.hasCrossoverAt(strandType, rightBreakIdx+1):
+            if vh.hasCrossoverAt(strandType, rightBreakIdx):
                 break
             if vh.hasEndAt(strandType, rightBreakIdx) and\
                rightBreakIdx != idx:

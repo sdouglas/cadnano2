@@ -398,6 +398,8 @@ class Base(object):
             guiRightNeighbor = strnd[self._n+1] if self._n<len(strnd)-1 else None
             return self._neighbor5p() not in (None, guiRightNeighbor)
     def _hasCrossover3p(self):
+        if self.floatingXoverDestination():
+            return True
         strnd = self._vhelix._strand(self._strandtype)
         if self._vhelix.directionOfStrandIs5to3(self._strandtype):
             guiRightNeighbor = strnd[self._n+1] if self._n<len(strnd)-1 else None

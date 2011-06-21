@@ -37,7 +37,7 @@ from .base import Base
 from util import *
 from cadnano import app
 from random import Random
-import re
+import re, sys
 
 class VirtualHelix(QObject):
     """Stores staple and scaffold routing information."""
@@ -646,14 +646,15 @@ class VirtualHelix(QObject):
         """
         if undoStack==None:
             undoStack = self.undoStack()
-        if undoStack:
+        if undoStack!=None:
             undoStack.beginMacro("Install 3-5 Xover")
         c = self.Connect3To5Command(strandType, self, fromIndex, toVhelix,\
                                     toIndex, endToTakeColorFrom)
-        if undoStack:
+        if undoStack!=None:
             self.thoughtPolice(undoStack)  # Check for inconsistencies, fix one-base Xovers, etc
-            toVhelix.thoughtPolice(undoStack=undoStack)
             undoStack.push(c)
+            toVhelix.thoughtPolice(undoStack=undoStack)
+            self.thoughtPolice(undoStack=undoStack)
             undoStack.endMacro()
         else:
             c.redo()
@@ -707,7 +708,7 @@ class VirtualHelix(QObject):
         if undoStack==None:
             undoStack = self.undoStack()
         c = self.LoopCommand(self, strandType, index, loopsize)
-        if undoStack:
+        if undoStack!=None:
             self.undoStack().push(c)
         else:
             c.redo()
@@ -721,11 +722,11 @@ class VirtualHelix(QObject):
             undoStack = self.undoStack()
         if color==None:
             color = self.palette()[0]
-        if undoStack:
+        if undoStack!=None:
             undoStack.beginMacro("Apply Color")
         bases = self._basesConnectedTo(strandType, index)
         c = self.ApplyColorCommand(bases, color)
-        if undoStack:
+        if undoStack!=None:
             undoStack.push(c)
             undoStack.endMacro()
         else:
@@ -773,7 +774,7 @@ class VirtualHelix(QObject):
                     hasXoverL = b._hasCrossoverL()
                     hasXoverR = b._hasCrossoverR()
                     if hasXoverL and not hasNeighborR:
-                        self.connectStrand(strandType, i, i+1, undoStack=undoStack)
+                        self.connectStrand(strandType, i, i+1, undoStack=undoStack, police=False)
                     if hasXoverR and not hasNeighborL:
                         self.connectStrand(strandType, i-1, i, undoStack=undoStack, police=False)
     
