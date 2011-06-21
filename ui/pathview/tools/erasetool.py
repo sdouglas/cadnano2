@@ -61,18 +61,21 @@ class EraseTool(AbstractPathTool):
         posItem = self.parentItem().mapFromScene(posScene)
         strandType, idx = self.baseAtPoint(pathHelix, posItem)
         vh = self.parentItem().vhelix()
+        vh.undoStack().beginMacro("Erase")
         rightBreakIdx = leftBreakIdx = idx
         while leftBreakIdx>1:
-            if vh.hasCrossoverAt(strandType, leftBreakIdx):
+            if vh.hasCrossoverAt(strandType, leftBreakIdx-1):
+                vh.removeXoversAt(strandType, leftBreakIdx-1)
                 break
             if vh.hasEndAt(strandType, leftBreakIdx-1):
                 break
             leftBreakIdx -= 1
         while rightBreakIdx<vh.numBases():
             if vh.hasCrossoverAt(strandType, rightBreakIdx):
+                vh.removeXoversAt(strandType, rightBreakIdx)
                 break
-            if vh.hasEndAt(strandType, rightBreakIdx) and\
-               rightBreakIdx != idx:
+            if vh.hasEndAt(strandType, rightBreakIdx) and rightBreakIdx != idx:
                 break
             rightBreakIdx += 1
         vh.clearStrand(strandType, leftBreakIdx, rightBreakIdx)
+        vh.undoStack().endMacro()
