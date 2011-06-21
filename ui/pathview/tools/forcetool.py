@@ -130,7 +130,9 @@ class ForceTool(AbstractPathTool):
                not (destBase[0].hasStrandAt(destBase[1], destBase[2]) or\
                     destBase[0].hasEndAt(destBase[1], destBase[2])==5):
                 destBase = None
-                canStart = False                
+                canStart = False
+        else:
+            destBase = None             
         
         ### This is the middle, drag-operation dependent
         ### part of the code.
@@ -159,10 +161,6 @@ class ForceTool(AbstractPathTool):
         ### Shared footer
         # Can't connect a base to itself :)
         if destBase == self.base1:
-            destBase = None
-        # Don't allow two crossovers on one base
-        if destBase and\
-           destBase[0].hasCrossoverAt(destBase[1], destBase[2]):
             destBase = None
         if not phg or destBase==None:
             # If we're hovering over thin air, we draw
