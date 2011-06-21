@@ -255,7 +255,6 @@
     <bool>false</bool>
    </attribute>
    <addaction name="actionPathSelect"/>
-   <addaction name="actionPathForce"/>
    <addaction name="actionPathMove"/>
    <addaction name="actionPathBreak"/>
    <addaction name="actionPathErase"/>
@@ -265,6 +264,7 @@
    <addaction name="actionPathPaint"/>
    <addaction name="separator"/>
    <addaction name="actionAutoStaple"/>
+   <addaction name="actionPathAddSeq"/>
   </widget>
   <action name="actionNew">
    <property name="icon">
@@ -406,6 +406,9 @@
    <property name="toolTip">
     <string>Click to add part with honeycomb lattice</string>
    </property>
+   <property name="shortcut">
+    <string>B</string>
+   </property>
   </action>
   <action name="actionPathSelect">
    <property name="checkable">
@@ -423,24 +426,6 @@
    </property>
    <property name="shortcut">
     <string>V</string>
-   </property>
-  </action>
-  <action name="actionPathForce">
-   <property name="checkable">
-    <bool>true</bool>
-   </property>
-   <property name="icon">
-    <iconset resource="icons.qrc">
-     <normaloff>:/pathtools/force</normaloff>:/pathtools/force</iconset>
-   </property>
-   <property name="text">
-    <string>Force</string>
-   </property>
-   <property name="toolTip">
-    <string>Forcibly add a crossover between unusual helices/bases. The first click defines the 3' side and the second click defines the 5' side.</string>
-   </property>
-   <property name="shortcut">
-    <string>F</string>
    </property>
   </action>
   <action name="actionSliceSelect">
@@ -641,7 +626,7 @@
     <bool>true</bool>
    </property>
    <property name="icon">
-    <iconset>
+    <iconset resource="icons.qrc">
      <normaloff>:/pathtools/paint</normaloff>:/pathtools/paint</iconset>
    </property>
    <property name="text">
@@ -652,6 +637,21 @@
    </property>
    <property name="shortcut">
     <string>P</string>
+   </property>
+  </action>
+  <action name="actionPathAddSeq">
+   <property name="icon">
+    <iconset resource="icons.qrc">
+     <normaloff>:/pathtools/add seq</normaloff>:/pathtools/add seq</iconset>
+   </property>
+   <property name="text">
+    <string>Add Seq</string>
+   </property>
+   <property name="toolTip">
+    <string>Click on 5' end of scaffold to apply sequence for staple generation.</string>
+   </property>
+   <property name="shortcut">
+    <string>A</string>
    </property>
   </action>
  </widget>

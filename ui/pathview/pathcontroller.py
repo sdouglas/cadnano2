@@ -31,8 +31,8 @@ from tools.looptool import LoopTool
 from tools.painttool import PaintTool
 from tools.penciltool import PencilTool
 from tools.selecttool import SelectTool
-from tools.forcetool import ForceTool
 from tools.skiptool import SkipTool
+from tools.addseqtool import AddSeqTool
 
 
 class PathController(QObject):
@@ -55,28 +55,29 @@ class PathController(QObject):
         self.insertTool = LoopTool(self)
         self.skipTool = SkipTool(self)
         self.breakTool = BreakTool(self)
-        self.forceTool = ForceTool(self)
         self.paintTool = PaintTool(self, win.pathGraphicsView.toolbar)
         self.pencilTool = PencilTool(self)
+        self.addSeqTool = AddSeqTool(self)
         self.moveTool = None
-        
+
         def installTool(toolName, window):
-            toolWidget = getattr(window, 'actionPath'+toolName)
-            lToolName = toolName[0].lower()+toolName[1:]
-            tool = getattr(self, lToolName+'Tool')
+            toolWidget = getattr(window, 'actionPath' + toolName)
+            lToolName = toolName[0].lower() + toolName[1:]
+            tool = getattr(self, lToolName + 'Tool')
+
             def clickHandler(self):
                 toolWidget.setChecked(True)
                 self.setActiveTool(tool)
                 if hasattr(tool, 'widgetClicked'):
                     tool.widgetClicked()
-            selectToolMethodName = 'choose'+toolName+'Tool'
+            selectToolMethodName = 'choose' + toolName + 'Tool'
             setattr(self.__class__, selectToolMethodName, clickHandler)
             handler = getattr(self, selectToolMethodName)
             toolWidget.triggered.connect(handler)
             return toolWidget
-        
+
         tools = ('Select', 'Paint', 'Move', 'Break', 'Erase',\
-                 'Insert', 'Skip', 'Pencil', 'Force')
+                 'Insert', 'Skip', 'Pencil', 'AddSeq')
         ag = QActionGroup(win)
         for toolName in tools:
             toolAction = installTool(toolName, win)
@@ -89,7 +90,7 @@ class PathController(QObject):
 
     def setActivePath(self, phg):
         self._activePath = phg
-        
+
     def activePath(self):
         return self._activePath
 
@@ -99,6 +100,7 @@ class PathController(QObject):
         return False
 
     activeToolChanged = pyqtSignal()
+
     def setActiveTool(self, newActiveTool):
         if newActiveTool == self._activeTool:
             return
@@ -110,12 +112,12 @@ class PathController(QObject):
         self._activeTool = newActiveTool
         self._activeTool.setActive(True)
         self.activeToolChanged.emit()
-    
+
     def lastLocation(self):
         """(PathHelix, posInScene) or None, depending on where
         the mouse is (basically, pathHelix and position of
         the last event seen by the active tool)"""
-        if self._activeTool==None:
+        if self._activeTool == None:
             return None
         return self._activeTool.lastLocation()
 # end class
