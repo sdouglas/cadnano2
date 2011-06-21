@@ -41,7 +41,7 @@ from weakref import ref
 from handles.pathhelixhandle import PathHelixHandle
 from handles.loophandle import LoopItem, SkipItem
 from handles.precrossoverhandle import PreCrossoverHandle
-from math import floor
+from math import floor, pi
 from cadnano import app
 from util import *
 from itertools import product
@@ -95,14 +95,28 @@ class PathHelix(QGraphicsItem):
     if hasattr(QFont, 'Monospace'):
         sequenceFont.setStyleHint(QFont.Monospace)
     sequenceFont.setFixedPitch(True)
-    sequenceFont.setPixelSize(baseWidth/3)
+    sequenceFontH = baseWidth/3.
+    sequenceFont.setPixelSize(sequenceFontH)
     sequenceFontMetrics = QFontMetricsF(sequenceFont)
     sequenceFontCharWidth = sequenceFontMetrics.width('A')
+    sequerceFontCharHeight = sequenceFontMetrics.height()
     sequenceFontExtraWidth = baseWidth-sequenceFontCharWidth
     sequenceFont.setLetterSpacing(QFont.AbsoluteSpacing,
                                   sequenceFontExtraWidth)
     sequenceTextXCenteringOffset = sequenceFontExtraWidth/2.  
     sequenceTextYCenteringOffset = baseWidth/2.  
+    
+    # Items that calculate paths for loops and skips
+    _skipitem = SkipItem()
+    _loopitem = LoopItem()
+    # Bases are drawn along and above the loop path.
+    # These calculations revolve around fixing the
+    # characters at a certain percentage of the total
+    # arclength.
+    # The fraction of the loop that comes before the
+    # first character and after the last character is
+    # the padding, and the rest is divided evenly.
+    fractionLoopToPad = .10
 
     def __init__(self, vhelix, pathHelixGroup):
         super(PathHelix, self).__init__()
@@ -116,7 +130,6 @@ class PathHelix(QGraphicsItem):
         self._preXOverHandleNeighbors = None
         self._segmentPaths = None
         self._endptPaths = None
-        self._loopPaths = None
         self._minorGridPainterPath = None
         self._majorGridPainterPath = None
         self.step = 21  # 32 for Square lattice
@@ -125,8 +138,6 @@ class PathHelix(QGraphicsItem):
         self._vhelix = None
         self._handle = None
         self._mouseDownBase = None
-        self._skipitem = SkipItem()
-        self._loopitem = LoopItem()
         self.setVHelix(vhelix)
         if app().ph != None:  # Convenience for the command line -i mode
             app().ph[vhelix.number()] = self
@@ -233,7 +244,6 @@ class PathHelix(QGraphicsItem):
     def vhelixBasesModified(self):
         self._endpoints = None  # Clear endpoint drawing cache
         self._segmentPaths = None  # Clear drawing cache of lines
-        self._loopPaths = None
         # Reset active helix if necessary
         if self.phgroup().getActiveHelix() == self:
             self.makeSelfActiveHelix()
@@ -262,14 +272,46 @@ class PathHelix(QGraphicsItem):
             brush, path = ep
             painter.setBrush(brush)
             painter.drawPath(path)
-        # Now draw loops and skips
-        painter.setBrush(Qt.NoBrush)
-        for paintCommand in self.loopPaths():
-            painter.setPen(paintCommand[0])
-            painter.drawPath(paintCommand[1])
-            painter.setPen(paintCommand[2])
-            painter.drawPath(paintCommand[3])
-        # Draw the sequence text
+        self.paintLoopsAndSkips(painter)
+        self.paintHorizontalBaseText(painter)
+        painter.restore()
+    
+    def paintLoopsAndSkips(self, painter):
+        vh = self.vhelix()
+        for strandType in (StrandType.Scaffold, StrandType.Staple):
+            top = self.strandIsTop(strandType)
+            for index, loopsize in vh._loop(strandType).iteritems():
+                ul = self.baseLocation(strandType, index)
+                if loopsize > 0:
+                    path = self._loopitem.getLoop(top)
+                    path = path.translated(*ul)
+                    painter.setPen(self._loopitem.getPen())
+                    painter.setPen(QPen(vh.colorOfBase(strandType, index), 2))
+                    painter.setBrush(Qt.NoBrush)
+                    painter.drawPath(path)
+                    baseText = vh.sequenceForLoopAt(strandType, index)
+                    fractionArclenPerChar = (1.-2*self.fractionLoopToPad)/(len(baseText)+1)
+                    painter.setPen(QPen(Qt.black))
+                    painter.setBrush(Qt.NoBrush)
+                    painter.setFont(self.sequenceFont)
+                    for i in range(len(baseText)):
+                        frac = self.fractionLoopToPad + (i+1)*fractionArclenPerChar
+                        pt = path.pointAtPercent(frac)
+                        tangAng = path.angleAtPercent(frac)
+                        painter.save()
+                        painter.translate(pt)
+                        painter.rotate(-tangAng)
+                        painter.translate(QPointF(-self.sequenceFontCharWidth/2.,
+                                                  -2 if top else self.sequenceFontH))
+                        painter.drawText(0, 0, baseText[i if top else -i-1])
+                        painter.restore()
+                else:  # loopsize < 0 (a skip)
+                    path = self._skipitem.getSkip()
+                    path = path.translated(*ul)
+                    painter.setPen(self._skipitem.getPen())
+                    painter.drawPath(path)
+
+    def paintHorizontalBaseText(self, painter):
         vh = self.vhelix()
         scafTxt = vh.sequenceForVirtualStrand(StrandType.Scaffold)
         scafY = self.baseWidth*0 + self.sequenceTextYCenteringOffset
@@ -297,7 +339,7 @@ class PathHelix(QGraphicsItem):
         painter.drawText(scafX, scafY, self.baseWidth*vh.numBases(), self.baseWidth/2., Qt.AlignVCenter, scafTxt)
         painter.scale(1, -1)
         painter.drawText(stapX, stapY, self.baseWidth*vh.numBases(), self.baseWidth/2., Qt.AlignVCenter, stapTxt)
-        painter.restore()
+        
 
     def minorGridPainterPath(self):
         """
@@ -383,39 +425,6 @@ class PathHelix(QGraphicsItem):
                                                     ppR5.translated(*upperLeft))
                 self._endptPaths.append((brush, bp))
         return (self._segmentPaths, self._endptPaths)
- 
-    def loopPaths(self):
-        """
-        Returns an array of:
-        (loopPen, loopPainterPath, skipPen, skipPainterPath)
-        for drawing loops and skips
-        """
-        if self._loopPaths:
-            return self._loopPaths
-        self._loopPaths = []
-        vh = self.vhelix()
-        lpen = self._loopitem.getPen()
-        spen = self._skipitem.getPen()
-        for strandType in (StrandType.Scaffold, StrandType.Staple):
-            top = self.strandIsTop(strandType)
-            lp = QPainterPath()
-            sp = QPainterPath()
-            count = len(vh._loop(strandType))
-            if count > 0:
-                for index, loopsize in vh._loop(strandType).iteritems(): 
-                    ul = self.baseLocation(strandType, index)
-                    if loopsize > 0:
-                        path = self._loopitem.getLoop(top)
-                        lp.addPath(path.translated(*ul))
-                    else:
-                        path = self._skipitem.getSkip()
-                        sp.addPath(path.translated(*ul))
-                # end for
-            # end if
-            self._loopPaths.append((lpen, lp, spen, sp))
-        # end for
-        return self._loopPaths
-    # end def
     
     def strandIsTop(self, strandType):
         return self.evenParity() and strandType == StrandType.Scaffold\
