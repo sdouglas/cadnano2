@@ -223,10 +223,8 @@ class DNAPart(Part):
             # Copy the scaffold strand's segments to the staple strand
             vh.clearStrand(StrandType.Staple, 1, vh.numBases()-1)
             segments, ends3, ends5 = vh.getSegmentsAndEndpoints(StrandType.Scaffold)
-            segments.sort()
-            leftEndIdx = int(segments[0][0])
-            rightEndIdx = int(segments[-1][1])
-            vh.connectStrand(StrandType.Staple, leftEndIdx, rightEndIdx)
+            for segStart, segEnd in segments:
+                vh.connectStrand(StrandType.Staple, segStart, segEnd)
         for vh in vhs:
             # We only add crossovers for which vh will have the 3' end to
             # avoid adding each crossover twice. We can do this by adding
