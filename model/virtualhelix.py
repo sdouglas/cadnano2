@@ -34,7 +34,7 @@ from .enum import Crossovers, EndType
 from PyQt4.QtCore import pyqtSignal, QObject, QTimer
 from PyQt4.QtGui import QUndoCommand, QUndoStack, QColor
 from .base import Base
-from util import *
+import util
 from cadnano import app
 from random import Random
 import re, sys
@@ -613,8 +613,8 @@ class VirtualHelix(QObject):
         """
         strand = self._strand(strandType)
         startIndex, endIndex = int(startIndex), int(endIndex)
-        startIndex = clamp(startIndex, 0, len(strand) - 1)
-        endIndex = clamp(endIndex, 0, len(strand) - 1)
+        startIndex = util.clamp(startIndex, 0, len(strand) - 1)
+        endIndex = util.clamp(endIndex, 0, len(strand) - 1)
         if undoStack==None:
             undoStack = self.undoStack()
         undoStack.beginMacro("Connect Strand")
@@ -628,8 +628,8 @@ class VirtualHelix(QObject):
         endIndex, startIndex = int(endIndex), int(startIndex)
         strand = strandType == StrandType.Scaffold and \
             self._scaffoldBases or self._stapleBases
-        startIndex = clamp(startIndex, 1, len(strand)-1)
-        endIndex = clamp(endIndex, 1, len(strand)-1)
+        startIndex = util.clamp(startIndex, 1, len(strand)-1)
+        endIndex = util.clamp(endIndex, 1, len(strand)-1)
         if undoStack==None:
             undoStack = self.undoStack()
         undoStack.beginMacro("Clear Strand")

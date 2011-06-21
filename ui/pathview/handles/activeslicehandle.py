@@ -27,14 +27,21 @@ Created by Shawn on 2011-02-05.
 """
 
 from exceptions import IndexError
-from PyQt4.QtCore import QPointF, QRectF
-from PyQt4.QtCore import Qt, QObject, pyqtSignal, pyqtSlot
-from PyQt4.QtGui import QBrush, QFont
-from PyQt4.QtGui import QGraphicsItem
-from PyQt4.QtGui import QGraphicsSimpleTextItem
-from PyQt4.QtGui import QPen, QDrag, QUndoCommand
+# from PyQt4.QtCore import QPointF, QRectF
+# from PyQt4.QtCore import Qt, QObject, pyqtSignal, pyqtSlot
+# from PyQt4.QtGui import QBrush, QFont
+# from PyQt4.QtGui import QGraphicsItem
+# from PyQt4.QtGui import QGraphicsSimpleTextItem
+# from PyQt4.QtGui import QPen, QDrag, QUndoCommand
 import ui.styles as styles
 from util import *
+# import Qt stuff into the module namespace with PySide, PyQt4 independence
+qtWrapImport('QtCore', globals(), ['QPointF', 'QRectF', 'Qt', 'QtCore' \
+                                    'QObject', 'pyqtSignal', 'pyqtSlot'])
+qtWrapImport('QtGui', globals(), [ 'QBrush', 'QFont', 'QGraphicsItem' \
+                                    'QGraphicsSimpleTextItem', 'QPen',\
+                                    'QDrag', 'QUndoCommand'] )
+
 
 class ActiveSliceHandle(QGraphicsItem):
     """docstring for ActiveSliceHandle"""

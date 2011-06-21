@@ -43,7 +43,7 @@ from handles.loophandle import LoopItem, SkipItem
 from handles.precrossoverhandle import PreCrossoverHandle
 from math import floor, pi
 from cadnano import app
-from util import *
+import util
 from itertools import product
 
 baseWidth = styles.PATH_BASE_WIDTH
@@ -213,7 +213,7 @@ class PathHelix(QGraphicsItem):
         return self._preXOverHandles!=None
     
     def setPreXOverHandlesVisible(self, shouldBeVisible):
-        #trace(5)
+        #util.trace(5)
         areVisible = self._preXOverHandles != None
         if areVisible and not shouldBeVisible:
             for pch in self._preXOverHandles:
@@ -441,7 +441,7 @@ class PathHelix(QGraphicsItem):
         minBase, maxBase = 0, self.vhelix().numBases()
         if baseIdx < minBase or baseIdx >= maxBase:
             if clampX:
-                baseIdx = clamp(baseIdx, minBase, maxBase-1)
+                baseIdx = util.clamp(baseIdx, minBase, maxBase-1)
             else:
                 return None
         if y < 0:
@@ -449,7 +449,7 @@ class PathHelix(QGraphicsItem):
         strandIdx = floor(y * 1. / self.baseWidth)
         if strandIdx < 0 or strandIdx > 1:
             if clampY:
-                strandIdx = int(clamp(strandIdx, 0, 1))
+                strandIdx = int(util.clamp(strandIdx, 0, 1))
             else:
                 return None
         if self.strandIsTop(StrandType.Scaffold):
@@ -481,5 +481,5 @@ class PathHelix(QGraphicsItem):
 ################################ Events ################################
 forwardedEvents = ('hoverEnter', 'hoverLeave', 'hoverMove', 'mousePress',\
                    'mouseMove', 'mouseRelease')
-defineEventForwardingMethodsForClass(PathHelix, 'PathHelix', forwardedEvents)
+util.defineEventForwardingMethodsForClass(PathHelix, 'PathHelix', forwardedEvents)
 # end class

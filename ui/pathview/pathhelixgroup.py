@@ -43,7 +43,7 @@ from handles.pathhelixhandle import PathHelixHandle
 from handles.crossoverhandle import XoverHandle
 from handles.loophandle import LoopHandleGroup
 from cadnano import app
-from util import *
+import util
 
 
 class PathHelixGroup(QGraphicsObject):
@@ -351,7 +351,7 @@ class PathHelixGroup(QGraphicsObject):
 
 ################################ Events ################################
 forwardedEvents = ('hoverMove', 'mousePress', 'mouseRelease')
-defineEventForwardingMethodsForClass(PathHelixGroup, 'PathHelixGroup', forwardedEvents)
+util.defineEventForwardingMethodsForClass(PathHelixGroup, 'PathHelixGroup', forwardedEvents)
 
 
 class SelectionItemGroup(QGraphicsItemGroup):

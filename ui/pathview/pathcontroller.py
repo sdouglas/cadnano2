@@ -22,9 +22,10 @@
 #
 # http://www.opensource.org/licenses/mit-license.php
 
-from PyQt4.QtCore import *
-from PyQt4.QtGui import *
-from PyQt4.QtCore import pyqtSignal
+# from PyQt4.QtCore import QObject
+# from PyQt4.QtGui import QActionGroup
+# from PyQt4.QtCore import pyqtSignal
+
 from tools.breaktool import BreakTool
 from tools.erasetool import EraseTool
 from tools.looptool import LoopTool
@@ -34,6 +35,10 @@ from tools.selecttool import SelectTool
 from tools.forcetool import ForceTool
 from tools.skiptool import SkipTool
 
+import util
+# import Qt stuff into the module namespace with PySide, PyQt4 independence
+util.qtWrapImport('QtCore', globals(), ['QObject', 'pyqtSignal'] )
+util.qtWrapImport('QtGui', globals(), [ 'QActionGroup'] )
 
 class PathController(QObject):
     """

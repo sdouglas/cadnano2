@@ -28,7 +28,7 @@ from .virtualhelix import VirtualHelix
 from .enum import LatticeType, StrandType
 from PyQt4.QtCore import pyqtSignal, QObject
 from PyQt4.QtGui import QUndoCommand
-from util import *
+import util
 from heapq import *
 import copy
 from ui import styles
@@ -476,7 +476,7 @@ class DNAPart(Part):
 
     activeSliceWillChange = pyqtSignal(object)
     def setActiveSlice(self, newSliceIndex):
-        ni = clamp(newSliceIndex, 0, self.dimensions()[2]-1)
+        ni = util.clamp(newSliceIndex, 0, self.dimensions()[2]-1)
         if self._activeSlice == ni:
             return
         self.activeSliceWillChange.emit(ni)
