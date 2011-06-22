@@ -28,18 +28,25 @@ solidhelixgroup.py
 Created by Nick Conway on 2011-02-04.
 For use controlling 3D solid models generated in Maya
 """
-from PyQt4.QtCore import pyqtSignal, pyqtSlot, QObject
+
 from string import *
 import math
 import random
-import pymel.core as pc
-import pymel.api as fromBaseCenter
 import os
 import sys
 import ui.styles as styles
-import maya.OpenMayaUI as mui
-import maya.OpenMaya as mo	
 from model.enum import LatticeType
+
+
+import pymel.core as pc
+import pymel.api as fromBaseCenter
+import maya.OpenMayaUI as mui
+import maya.OpenMaya as mo
+
+# from PyQt4.QtCore import pyqtSignal, pyqtSlot, QObject
+import util
+# import Qt stuff into the module namespace with PySide, PyQt4 independence
+util.qtWrapImport('QtCore', globals(), [ 'pyqtSignal', 'pyqtSlot', 'QObject'] )
 
 
 X, Y, Z = range(3) # enumerate unit direction indices

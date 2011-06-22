@@ -30,12 +30,17 @@ Created by Nick on 2011-05-18
 """
 
 from exceptions import AttributeError, NotImplementedError
-from PyQt4.QtCore import QPointF, QRectF, Qt
-from PyQt4.QtGui import QBrush
-from PyQt4.QtGui import QPen
 import ui.styles as styles
 from abstractpathtool import AbstractPathTool
 
+
+# from PyQt4.QtCore import QPointF, QRectF, Qt
+# from PyQt4.QtGui import QBrush
+# from PyQt4.QtGui import QPen
+import util
+# import Qt stuff into the module namespace with PySide, PyQt4 independence
+util.qtWrapImport('QtCore', globals(), ['QPointF', 'QRectF', 'Qt'] )
+util.qtWrapImport('QtGui', globals(), [ 'QBrush', 'QPen'])
 
 class EraseTool(AbstractPathTool):
     _pen = QPen(styles.redstroke, 2)

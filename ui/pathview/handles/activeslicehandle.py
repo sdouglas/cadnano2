@@ -27,14 +27,23 @@ Created by Shawn on 2011-02-05.
 """
 
 from exceptions import IndexError
-from PyQt4.QtCore import QPointF, QRectF
-from PyQt4.QtCore import Qt, QObject, pyqtSignal, pyqtSlot
-from PyQt4.QtGui import QBrush, QFont
-from PyQt4.QtGui import QGraphicsItem
-from PyQt4.QtGui import QGraphicsSimpleTextItem
-from PyQt4.QtGui import QPen, QDrag, QUndoCommand
 import ui.styles as styles
-from util import *
+
+# from PyQt4.QtCore import QPointF, QRectF
+# from PyQt4.QtCore import Qt, QObject, pyqtSignal, pyqtSlot
+# from PyQt4.QtGui import QBrush, QFont
+# from PyQt4.QtGui import QGraphicsItem
+# from PyQt4.QtGui import QGraphicsSimpleTextItem
+# from PyQt4.QtGui import QPen, QDrag, QUndoCommand
+
+import util
+# import Qt stuff into the module namespace with PySide, PyQt4 independence
+util.qtWrapImport('QtCore', globals(), ['QPointF', 'QRectF', 'Qt', 'QtCore' \
+                                    'QObject', 'pyqtSignal', 'pyqtSlot'])
+util.qtWrapImport('QtGui', globals(), [ 'QBrush', 'QFont', 'QGraphicsItem' \
+                                    'QGraphicsSimpleTextItem', 'QPen',\
+                                    'QDrag', 'QUndoCommand'] )
+
 
 class ActiveSliceHandle(QGraphicsItem):
     """docstring for ActiveSliceHandle"""
@@ -96,7 +105,7 @@ class ActiveSliceHandle(QGraphicsItem):
     def _updateActiveSlice(self, baseIndex):
         """The slot that receives active slice changed notifications from
         the part and changes the receiver to reflect the part"""
-        bi = clamp(int(baseIndex), 0, self.part().numBases()-1)
+        bi = util.clamp(int(baseIndex), 0, self.part().numBases()-1)
         self.setPos(bi * self._baseWidth, -styles.PATH_HELIX_PADDING)
         self._activeSlice = bi
         if self._label:

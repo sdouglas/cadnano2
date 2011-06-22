@@ -23,29 +23,15 @@
 # http://www.opensource.org/licenses/mit-license.php
 
 """
-part
-Created by Jonathan deWerd on 2011-01-26.
+selecttool
+Created by Shawn Douglas on 2011-06-21.
 """
-from exceptions import NotImplementedError
-from cadnano import app
 
-# from PyQt4.QtCore import QObject
-import util
-# import Qt stuff into the module namespace with PySide, PyQt4 independence
-util.qtWrapImport('QtCore', globals(), ['QObject'] )
+from abstractpathtool import AbstractPathTool
+from util import *
+from PyQt4.QtGui import QPen, QColor
+from PyQt4.QtCore import Qt, QPointF
 
-class Part(QObject):
-    def __init__(self, id, *args, **kargs):
-        super(Part, self).__init__()
-        app().p = self
-    
-    def document(self):
-        return self._document
-    
-    def _setDocument(self, newDoc):
-        "Should only be called by Document"
-        self._document = newDoc
-    
-    def undoStack(self):
-        return self.document().undoStack()
-
+class AddSeqTool(AbstractPathTool):
+    def __init__(self, controller, parent=None):
+        pass

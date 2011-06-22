@@ -27,16 +27,25 @@ Created by Nick on 2011-05-03.
 """
 
 from exceptions import AttributeError, NotImplementedError
-from PyQt4.QtCore import QPointF, QRectF, Qt
-from PyQt4.QtGui import QBrush, QFont
-from PyQt4.QtGui import QGraphicsItem, QGraphicsSimpleTextItem, QFontMetrics
-from PyQt4.QtGui import QPainterPath
-from PyQt4.QtGui import QPolygonF
-from PyQt4.QtGui import QPen, QUndoCommand
 from model.enum import StrandType, Parity, BreakType, HandleOrient
 import ui.styles as styles
 from itertools import product
 
+# from PyQt4.QtCore import QPointF, QRectF, Qt
+# from PyQt4.QtGui import QBrush, QFont
+# from PyQt4.QtGui import QGraphicsItem, QGraphicsSimpleTextItem, QFontMetrics
+# from PyQt4.QtGui import QPainterPath
+# from PyQt4.QtGui import QPolygonF
+# from PyQt4.QtGui import QPen, QUndoCommand
+
+import util
+# import Qt stuff into the module namespace with PySide, PyQt4 independence
+util.qtWrapImport('QtCore', globals(), ['QPointF', 'QRectF', 'Qt'] )
+util.qtWrapImport('QtGui', globals(), [ 'QBrush', 'QFont', 'QGraphicsItem', \
+                                        'QGraphicsSimpleTextItem', \
+                                        'QFontMetrics', 'QPainterPath' \
+                                        'QPolygonF', \
+                                        'QPen', 'QUndoCommand'] )
 
 # construct paths for breakpoint handles
 def hashMarkGen(path, p1, p2, p3):

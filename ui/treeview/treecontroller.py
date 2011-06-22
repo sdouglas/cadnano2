@@ -22,13 +22,18 @@
 #
 # http://www.opensource.org/licenses/mit-license.php
 
-from PyQt4.QtGui import QAbstractItemView, QTreeView
-from PyQt4.QtCore import QObject, QString, pyqtSignal
 from ui.partnode import PartNode
 from ui.assemblynode import AssemblyNode
 from treemodel import TreeModel
 from model.assembly import Assembly
 
+# from PyQt4.QtGui import QAbstractItemView, QTreeView
+# from PyQt4.QtCore import QObject, QString, pyqtSignal
+
+import util
+# import Qt stuff into the module namespace with PySide, PyQt4 independence
+util.qtWrapImport('QtCore', globals(), ['QObject', 'pyqtSignal', 'QString'] )
+util.qtWrapImport('QtGui', globals(), [ 'QAbstractItemView', 'QTreeView'])
 
 class TreeController(QObject):
 

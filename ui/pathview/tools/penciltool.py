@@ -27,9 +27,16 @@ penciltool
 Created by Nick Conway on 2011-06-04.
 """
 
-from PyQt4.QtCore import Qt
 from selecttool import SelectTool
 from forcetool import ForceTool
+
+# from PyQt4.QtCore import Qt
+import util
+# import Qt stuff into the module namespace with PySide, PyQt4 independence
+util.qtWrapImport('QtCore', globals(), ['Qt'] )
+util.qtWrapImport('QtGui', globals(), [ 'QGraphicsItem', 'QBrush', 'QFont',
+                                        'QGraphicsSimpleTextItem', 'QPen',\
+                                        'QPolygonF', 'QPainterPath'])
 
 class PencilTool(SelectTool, ForceTool):
     """PencilTool allows for creation of new staple or scaffold strands

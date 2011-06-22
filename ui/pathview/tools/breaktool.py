@@ -30,16 +30,24 @@ Created by Nick on 2011-05-18
 """
 
 from exceptions import AttributeError, NotImplementedError
-from PyQt4.QtCore import QPointF, QRectF, Qt
-from PyQt4.QtGui import QBrush, QFont, QPolygonF
-from PyQt4.QtGui import QGraphicsItem, QGraphicsSimpleTextItem
-from PyQt4.QtGui import QPainterPath
-from PyQt4.QtGui import QPen
+
 from model.enum import HandleOrient, StrandType
 import ui.styles as styles
 from ui.pathview.pathhelix import PathHelix
 from abstractpathtool import AbstractPathTool
 
+# from PyQt4.QtCore import QPointF, QRectF, Qt
+# from PyQt4.QtGui import QBrush, QFont, QPolygonF
+# from PyQt4.QtGui import QGraphicsItem, QGraphicsSimpleTextItem
+# from PyQt4.QtGui import QPainterPath
+# from PyQt4.QtGui import QPen
+
+import util
+# import Qt stuff into the module namespace with PySide, PyQt4 independence
+util.qtWrapImport('QtCore', globals(), ['QPointF', 'QRectF', 'Qt'] )
+util.qtWrapImport('QtGui', globals(), [ 'QGraphicsItem', 'QBrush', 'QFont',
+                                        'QGraphicsSimpleTextItem', 'QPen',\
+                                          'QPolygonF', 'QPainterPath'])
 
 class BreakTool(AbstractPathTool):
     """

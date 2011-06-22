@@ -36,9 +36,17 @@ CustomQGraphicsView.py
 Copyright (c) 2010 . All rights reserved.
 
 """
-from PyQt4.QtCore import *
-from PyQt4.QtGui import *
+
 import ui.styles as styles
+
+# from PyQt4.QtCore import *
+# from PyQt4.QtGui import *
+
+import util
+# import Qt stuff into the module namespace with PySide, PyQt4 independence
+util.qtWrapImport('QtCore', globals(), ['Qt'] )
+util.qtWrapImport('QtGui', globals(),  ['QGraphicsView'])
+
 
 class CustomQGraphicsView(QGraphicsView):
     """

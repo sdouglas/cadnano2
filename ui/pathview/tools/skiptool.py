@@ -27,8 +27,12 @@ Created by Nick on 2011-05-03.
 """
 from abstractpathtool import AbstractPathTool
 import ui.styles as styles
-from PyQt4.QtGui import QPen
 from ui.pathview.handles.loophandle import SkipItem
+
+# from PyQt4.QtGui import QPen
+import util
+# import Qt stuff into the module namespace with PySide, PyQt4 independence
+util.qtWrapImport('QtGui', globals(), [ 'QPen'] )
 
 class SkipTool(AbstractPathTool):
     def __init__(self, controller, parent=None):

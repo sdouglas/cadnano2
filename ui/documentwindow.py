@@ -26,14 +26,20 @@
 documentwindow.py
 """
 
-from PyQt4.QtCore import *
-from PyQt4.QtGui import *
 import ui_mainwindow
 import pathview.pathcontroller as pathcontroller
 import sliceview.slicecontroller as slicecontroller
 from cadnano import app
 from pathview.colorpanel import ColorPanel
 
+# from PyQt4.QtCore import *
+# from PyQt4.QtGui import *
+import util
+# import Qt stuff into the module namespace with PySide, PyQt4 independence
+util.qtWrapImport('QtCore', globals(), ['pyqtSignal', 'QString', 'QFileInfo'] )
+util.qtWrapImport('QtGui', globals(), [ 'QGraphicsItem', 'QMainWindow', \
+                                        'QGraphicsScene', 'QGraphicsView', \
+                                        'QApplication', 'QAction'] )
 
 class SceneRoot(QGraphicsItem):
     def __init__(self, rectsource=None):

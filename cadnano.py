@@ -26,26 +26,71 @@
 cadnano
 Created by Jonathan deWerd on 2011-01-29.
 """
-from PyQt4.QtCore import *
-from PyQt4.QtGui import *
+
 from code import interact
 
+PySide_loaded = None
 
 def usesPySide(self):
     if self.PySide_loaded == None:
         try:
             import PySide
-            PySide_loaded = True
+            self.PySide_loaded = True
         except ImportError:
-            PySide_loaded = False
+            self.PySide_loaded = False
+    return self.PySide_loaded
+# end def
+
+def usePySide():
+    try:
+        import PySide
+        PySide_loaded = True
+    except ImportError:
+        PySide_loaded = False
     return PySide_loaded
 # end def
+
+# from PyQt4.QtCore import *
+# from PyQt4.QtGui import *
+def qtWrapImport(name, globaldict, fromlist):
+    """
+    special function that allows for the import of PySide or PyQt modules
+    as available
+    
+    name is the name of the Qt top level class such as QtCore, or QtGui
+    
+    globaldict is a the module level global namespace dictionary returned from
+    calling the globals() method
+    
+    fromlist is a list of subclasses such as [QFont, QColor], or [QRectF]
+    """
+    pyWrapper = None
+    if usePySide():
+        # pyWrapper = 'PySide'
+        pyWrapper = 'PyQt4'
+    else:
+        pyWrapper = 'PyQt4'
+    _temp = __import__(pyWrapper + '.' +  name, \
+                        globaldict, locals(), fromlist, -1)
+    for key in dir(_temp):
+        if pyWrapper == 'PySide':
+            if key == 'pyqtSignal':
+                globaldict[key] = getattr(_temp, 'Signal') 
+            elif key == 'pyqtSlot':
+                globaldict[key] = getattr(_temp, 'Slot')
+        else:
+            globaldict[key] = getattr(_temp, key)
+    # end for
+# end def
+
+# import Qt stuff into the module namespace with PySide, PyQt4 independence
+qtWrapImport('QtGui', globals(),  ['QApplication', 'QUndoGroup', 'QIcon'])
 
 
 class caDNAno(QApplication):
     sharedApp = None  # This class is a singleton.
     usesPySide = usesPySide     # This is bad that this can work
-    PySide_loaded = None
+    PySide_loaded = PySide_loaded
     
     def __init__(self, argv):
         if argv == None:

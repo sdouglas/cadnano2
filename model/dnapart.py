@@ -26,12 +26,16 @@ import json
 from .part import Part
 from .virtualhelix import VirtualHelix
 from .enum import LatticeType, StrandType
-from PyQt4.QtCore import pyqtSignal, QObject
-from PyQt4.QtGui import QUndoCommand
-from util import *
 from heapq import *
 import copy
 from ui import styles
+
+# from PyQt4.QtCore import pyqtSignal, QObject
+# from PyQt4.QtGui import QUndoCommand
+import util
+# import Qt stuff into the module namespace with PySide, PyQt4 independence
+util.qtWrapImport('QtCore', globals(), ['QObject', 'pyqtSignal'] )
+util.qtWrapImport('QtGui', globals(), [ 'QUndoCommand'] )
 
 class DNAPart(Part):
     """
@@ -476,7 +480,7 @@ class DNAPart(Part):
 
     activeSliceWillChange = pyqtSignal(object)
     def setActiveSlice(self, newSliceIndex):
-        ni = clamp(newSliceIndex, 0, self.dimensions()[2]-1)
+        ni = util.clamp(newSliceIndex, 0, self.dimensions()[2]-1)
         if self._activeSlice == ni:
             return
         self.activeSliceWillChange.emit(ni)

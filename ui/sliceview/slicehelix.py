@@ -28,16 +28,23 @@ slicehelix.py
 Created by Shawn on 2010-06-15.
 """
 
+import ui.styles as styles
+from model.virtualhelix import VirtualHelix
+from model.enum import Parity, StrandType
+
 from PyQt4.QtCore import QRectF
 from PyQt4.QtGui import QBrush
 from PyQt4.QtGui import QGraphicsItem
 from PyQt4.QtGui import QGraphicsSimpleTextItem
 from PyQt4.QtGui import QPen, QDrag, QUndoCommand
 from PyQt4.QtCore import QString, Qt
-import ui.styles as styles
-from model.virtualhelix import VirtualHelix
-from model.enum import Parity, StrandType
 
+import util
+# import Qt stuff into the module namespace with PySide, PyQt4 independence
+util.qtWrapImport('QtCore', globals(), ['QString', 'QRectF', 'Qt'] )
+util.qtWrapImport('QtGui', globals(), [ 'QGraphicsItem', 'QBrush', \
+                                        'QGraphicsSimpleTextItem', 'QPen', \
+                                        'QDrag', 'QUndoCommand'])
 
 class SliceHelix(QGraphicsItem):
     """docstring for SliceHelix"""

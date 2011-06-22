@@ -31,13 +31,18 @@ from exceptions import AttributeError, IndexError
 from itertools import product
 from .enum import LatticeType, Parity, StrandType, BreakType
 from .enum import Crossovers, EndType
-from PyQt4.QtCore import pyqtSignal, QObject, QTimer
-from PyQt4.QtGui import QUndoCommand, QUndoStack, QColor
 from .base import Base
-from util import *
 from cadnano import app
 from random import Random
 import re, sys
+
+# from PyQt4.QtCore import pyqtSignal, QObject, QTimer
+# from PyQt4.QtGui import QUndoCommand, QUndoStack, QColor
+import util
+# import Qt stuff into the module namespace with PySide, PyQt4 independence
+util.qtWrapImport('QtCore', globals(), ['QObject', 'pyqtSignal', 'QTimer'] )
+util.qtWrapImport('QtGui', globals(), [ 'QUndoCommand', 'QUndoStack', \
+                                        'QColor'] )
 
 class VirtualHelix(QObject):
     """Stores staple and scaffold routing information."""
@@ -613,8 +618,8 @@ class VirtualHelix(QObject):
         """
         strand = self._strand(strandType)
         startIndex, endIndex = int(startIndex), int(endIndex)
-        startIndex = clamp(startIndex, 0, len(strand) - 1)
-        endIndex = clamp(endIndex, 0, len(strand) - 1)
+        startIndex = util.clamp(startIndex, 0, len(strand) - 1)
+        endIndex = util.clamp(endIndex, 0, len(strand) - 1)
         if undoStack==None:
             undoStack = self.undoStack()
         undoStack.beginMacro("Connect Strand")
@@ -628,8 +633,8 @@ class VirtualHelix(QObject):
         endIndex, startIndex = int(endIndex), int(startIndex)
         strand = strandType == StrandType.Scaffold and \
             self._scaffoldBases or self._stapleBases
-        startIndex = clamp(startIndex, 1, len(strand)-1)
-        endIndex = clamp(endIndex, 1, len(strand)-1)
+        startIndex = util.clamp(startIndex, 1, len(strand)-1)
+        endIndex = util.clamp(endIndex, 1, len(strand)-1)
         if undoStack==None:
             undoStack = self.undoStack()
         undoStack.beginMacro("Clear Strand")

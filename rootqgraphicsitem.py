@@ -31,8 +31,13 @@ rootqgraphicsitem.py
 Created by Nick Conway on 2011-01-17.
 Copyright (c) 2010 . All rights reserved.
 """
-from PyQt4.QtCore import Qt
-from PyQt4 import QtGui
+# from PyQt4.QtCore import Qt
+# from PyQt4 import QtGui
+
+import util
+# import Qt stuff into the module namespace with PySide, PyQt4 independence
+util.qtWrapImport('QtCore', globals(), ['Qt'] )
+util.qtWrapImport('QtGui', globals(),  ['QGraphicsItem', 'QTransform'])
 
 
 class RootQGraphicsItem(QtGui.QGraphicsItem):
@@ -134,7 +139,7 @@ class RootQGraphicsItem(QtGui.QGraphicsItem):
             #event.accept()
             self.transformEnable = True
         else:
-            QtGui.QGraphicsItem.keyPressEvent(self, event)
+            QGraphicsItem.keyPressEvent(self, event)
         # end else
     # end def
 
@@ -157,7 +162,7 @@ class RootQGraphicsItem(QtGui.QGraphicsItem):
             self.panDisable()
         # end if
         else:
-            QtGui.QGraphicsItem.keyReleaseEvent(self, event)
+            QGraphicsItem.keyReleaseEvent(self, event)
         # end else
     # end def
 
@@ -193,7 +198,7 @@ class RootQGraphicsItem(QtGui.QGraphicsItem):
                 #QGraphicsView.mouseMoveEvent(self, event)
         #else:
         # adding this allows events to be passed to items underneath
-        QtGui.QGraphicsItem.mouseMoveEvent(self, event)
+        QGraphicsItem.mouseMoveEvent(self, event)
     # end def
 
     def mousePressEvent(self, event):
@@ -225,9 +230,9 @@ class RootQGraphicsItem(QtGui.QGraphicsItem):
                 # relative to the widget
                 self.y0 = event.scenePos().y()
             else:
-                QtGui.QGraphicsItem.mousePressEvent(self, event)
+                QGraphicsItem.mousePressEvent(self, event)
         else:
-            QtGui.QGraphicsItem.mousePressEvent(self, event)
+            QGraphicsItem.mousePressEvent(self, event)
     #end def
 
     def mouseReleaseEvent(self, event):
@@ -253,10 +258,10 @@ class RootQGraphicsItem(QtGui.QGraphicsItem):
             elif which_button == self.key_zoom:
                 self.dollyZoomEnable = False
             else:
-                QtGui.QGraphicsItem.mouseReleaseEvent(self, event)
+                QGraphicsItem.mouseReleaseEvent(self, event)
         # end if
         else:
-            QtGui.QGraphicsItem.mouseReleaseEvent(self, event)
+            QGraphicsItem.mouseReleaseEvent(self, event)
     #end def
 
     def panEnable(self):
@@ -376,7 +381,7 @@ class RootQGraphicsItem(QtGui.QGraphicsItem):
         tries to translate based on scaling to keep item
         centered overthe point passed in
         """
-        r = QtGui.QTransform()
+        r = QTransform()
         r.translate(dx*(1-sx),dy*(1-sy))
         r.scale(sx,sy)
         self.setTransform(r, combine=True)

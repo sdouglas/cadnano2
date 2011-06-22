@@ -1,6 +1,13 @@
 
-from QtGui import QStyledItemDelegate, QPainter, QModelIndex, QCheckBox, QLabel, QTextDocument
-from QtCore import QObject
+# from QtGui import QStyledItemDelegate, QPainter, QModelIndex, QCheckBox, QLabel, QTextDocument
+# from QtCore import QObject
+
+import util
+# import Qt stuff into the module namespace with PySide, PyQt4 independence
+util.qtWrapImport('QtCore', globals(), ['QObject'] )
+util.qtWrapImport('QtGui', globals(),  ['QStyledItemDelegate', 'QPainter', \
+                                        'QModelIndex', 'QCheckBox', 'QLabel', \
+                                        'QTextDocument', 'QWidget'])
 
 class NodeDelegate(QStyledItemDelegate):
     def __init__(self,parent=None):

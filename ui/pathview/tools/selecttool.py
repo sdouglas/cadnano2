@@ -28,9 +28,14 @@ Created by Nick Conway on 2011-05-30.
 """
 
 from abstractpathtool import AbstractPathTool
-from util import *
-from PyQt4.QtGui import QPen, QColor
-from PyQt4.QtCore import Qt, QPointF
+# import util
+# from PyQt4.QtGui import QPen, QColor
+# from PyQt4.QtCore import Qt, QPointF
+
+import util
+# import Qt stuff into the module namespace with PySide, PyQt4 independence
+util.qtWrapImport('QtCore', globals(), ['Qt', 'QPointF'] )
+util.qtWrapImport('QtGui', globals(), [ 'QPen', 'QColor'] )
 
 class SelectTool(AbstractPathTool):
     """
@@ -294,7 +299,7 @@ class SelectTool(AbstractPathTool):
             return False
         beginBase = (vHelix, fr[0], fr[1])
         leftDragLimit, rightDragLimit = self.dragLimitsForDragOpBeginningAtBase(beginBase)
-        to[1] = clamp(to[1], leftDragLimit, rightDragLimit)
+        to[1] = util.clamp(to[1], leftDragLimit, rightDragLimit)
                 
         # 1 corresponds to rightwards
         if to[1] == fr[1]:
