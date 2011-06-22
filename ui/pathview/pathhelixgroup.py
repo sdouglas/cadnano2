@@ -362,6 +362,16 @@ class PathHelixGroup(QGraphicsObject):
         listVHs = [ph.vhelix() for ph in listPHs]
         self.setDisplayedVHs(listVHs)
     # end def
+    
+    def hoverEnterEvent(self, event):
+        pass
+        # QGraphicsItem.hoverEnterEvent(self, event)
+    # end def 
+    
+    def hoverLeaveEvent(self, event):
+        pass
+        # QGraphicsItem.hoverEnterEvent(self, event)
+    # end def
 # end class
 
 ################################ Events ################################

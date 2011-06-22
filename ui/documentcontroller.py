@@ -64,7 +64,7 @@ class DocumentController():
         self._activePart = None
         self._hasNoAssociatedFile = fname == None
         self.win = DocumentWindow(docCtrlr=self)
-        self.win.closeEvent = self.closer
+        # self.win.closeEvent = self.closer
         self.connectWindowEventsToSelf()
         self.win.show()
         self.treeController = TreeController(self.win.treeview)
