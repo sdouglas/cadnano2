@@ -75,7 +75,7 @@ class DocumentController():
 
     def closer(self, event):
         if self.win.maybeSave():
-            # closeClicked
+            self.closeClicked()
             event.accept()
         else:
             event.ignore()
