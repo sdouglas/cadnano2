@@ -62,6 +62,7 @@ class DocumentController():
         self._activePart = None
         self._hasNoAssociatedFile = fname==None
         self.win = DocumentWindow(docCtrlr=self)
+        self.win.closeEvent = self.closer
         self.connectWindowEventsToSelf()
         self.win.show()
         self.treeController = TreeController(self.win.treeview)
@@ -69,6 +70,14 @@ class DocumentController():
         self.setDocument(Document() if not doc else doc)
         app().undoGroup.addStack(self.undoStack())
         self.win.setWindowTitle(self.documentTitle())
+    
+    def closer(self, event):
+        if self.win.maybeSave():
+            closeClicked
+            event.accept()
+        else:
+            event.ignore()
+    # end def 
     
     def documentTitle(self):
         fname = os.path.basename(str(self.filename()))
