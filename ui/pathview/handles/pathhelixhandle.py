@@ -76,7 +76,6 @@ class PathHelixHandle(QGraphicsItem):
         return self.rect
 
     def paint(self, painter, option, widget=None):
-        self.setNumber()
         if self.number() >= 0:
             if self.isSelected():
                 painter.setBrush(self.hovBrush)
