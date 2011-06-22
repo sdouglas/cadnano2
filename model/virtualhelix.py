@@ -969,6 +969,13 @@ class VirtualHelix(QObject):
                     # Clear (i+1).prev
                     potentialNewEndpoints.extend((rightBase._3pBase, rightBase))
                     ol.append(rightBase._set3Prime(None))
+            erasedLoops = []
+            loopDict = self._vh._loop(self._strandType)
+            self.erasedLoopDictItems = {}
+            for i in range(startIdx, endIdx):
+                if loopDict.get(i, None) != None:
+                    self.erasedLoopDictItems[i] = loopDict[i]
+                    del loopDict[i]
             isEndpt = lambda x: x!=None and x.isEnd()
             potentialNewEndpoints = list(filter(isEndpt, potentialNewEndpoints))
             newEndpts = []
@@ -1012,6 +1019,9 @@ class VirtualHelix(QObject):
                 for i in range(endIdx - 1, startIdx - 2, -1):
                     strand[i+1]._unset3Prime(None, *ol.pop())
                     strand[i]._unset5Prime(None, *ol.pop())
+            loopDict = self._vh._loop(self._strandType)
+            for (k, v) in self.erasedLoopDictItems.iteritems():
+                loopDict[k] = v
             self._vh.emitBasesModifiedIfNeeded()
 
     class Connect3To5Command(QUndoCommand):
