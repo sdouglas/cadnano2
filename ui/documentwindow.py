@@ -98,7 +98,7 @@ class DocumentWindow(QMainWindow, ui_mainwindow.Ui_MainWindow):
         self.menuEdit.insertAction(self.sep, self.actionRedo)
         self.menuEdit.insertAction(self.actionRedo, self.actionUndo)
         # self.showSizes()
-    
+
     def undoStack(self):
         return self.controller.undoStack()
 
@@ -114,7 +114,7 @@ class DocumentWindow(QMainWindow, ui_mainwindow.Ui_MainWindow):
 
     def focusInEvent(self):
         app().undoGroup.setActiveStack(self.controller.undoStack())
-    
+
     def maybeSave(self):
         if True:    # document dirty?
             ret = QMessageBox.warning(self, "Application", \

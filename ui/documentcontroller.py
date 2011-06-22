@@ -39,13 +39,14 @@ import os.path
 # from PyQt4.QtCore import SIGNAL, QString, QFileInfo
 import util
 # import Qt stuff into the module namespace with PySide, PyQt4 independence
-util.qtWrapImport('QtCore', globals(), ['pyqtSignal', 'QString', 'QFileInfo'] )
-util.qtWrapImport('QtGui', globals(), [ 'QUndoStack', 'QFileDialog', \
-                                        'QAction'] )
+util.qtWrapImport('QtCore', globals(), ['pyqtSignal', 'QString', 'QFileInfo'])
+util.qtWrapImport('QtGui', globals(), ['QUndoStack', 'QFileDialog',\
+                                        'QAction'])
 
 if app().isInMaya():
     from .mayawindow import DocumentWindow
     from solidview.solidhelixgroup import SolidHelixGroup
+
 
 class DocumentController():
     """
@@ -57,10 +58,11 @@ class DocumentController():
         app().documentControllers.add(self)
         self._undoStack = QUndoStack()
         self._undoStack.setClean()
-        self._undoStack.cleanChanged.connect(self.undoStackCleanStatusChangedSlot)
+        self._undoStack.cleanChanged.connect(\
+            self.undoStackCleanStatusChangedSlot)
         self._filename = fname if fname else "untitled.cn2"
         self._activePart = None
-        self._hasNoAssociatedFile = fname==None
+        self._hasNoAssociatedFile = fname == None
         self.win = DocumentWindow(docCtrlr=self)
         self.win.closeEvent = self.closer
         self.connectWindowEventsToSelf()
@@ -70,21 +72,21 @@ class DocumentController():
         self.setDocument(Document() if not doc else doc)
         app().undoGroup.addStack(self.undoStack())
         self.win.setWindowTitle(self.documentTitle())
-    
+
     def closer(self, event):
         if self.win.maybeSave():
-            closeClicked
+            # closeClicked
             event.accept()
         else:
             event.ignore()
-    # end def 
-    
+    # end def
+
     def documentTitle(self):
         fname = os.path.basename(str(self.filename()))
         if not self.undoStack().isClean():
             fname += '[*]'
         return fname
-        
+
     def filename(self):
         return self._filename
 
@@ -99,7 +101,7 @@ class DocumentController():
         return self._activePart
 
     def setActivePart(self, part):
-        self._activePart = part 
+        self._activePart = part
 
     def document(self):
         return self._document
@@ -119,7 +121,6 @@ class DocumentController():
         Organizational method to collect signal/slot connectors.
         """
         self.win.actionNewHoneycombPart.triggered.connect(self.hcombClicked)
-
         self.win.actionNewSquarePart.triggered.connect(self.squareClicked)
         self.win.actionNew.triggered.connect(app().newDocument)
         self.win.actionOpen.triggered.connect(self.openClicked)
@@ -127,8 +128,7 @@ class DocumentController():
         self.win.actionSave.triggered.connect(self.saveClicked)
         self.win.actionSVG.triggered.connect(self.svgClicked)
         self.win.actionAutoStaple.triggered.connect(self.autoStapleClicked)
-
-        #self.win.actionSave_As.triggered.connect(self.saveAsClicked)
+        # self.win.actionSave_As.triggered.connect(self.saveAsClicked)
         # self.win.actionQuit.triggered.connect(self.closeClicked)
         # self.win.actionAdd.triggered.connect(self.addClicked)
         # self.win.actionDelete.triggered.connect(self.deleteClicked)
@@ -139,7 +139,7 @@ class DocumentController():
         # self.win.actionPromote.triggered.connect(self.promoteClicked)
         # self.win.actionDemote.triggered.connect(self.demoteClicked)
     # end def
-    
+
     def undoStackCleanStatusChangedSlot(self):
         self.win.setWindowModified(not self.undoStack().isClean())
         # The title changes to include [*] on modification
@@ -153,8 +153,9 @@ class DocumentController():
 
     def openClicked(self):
         """docstring for openClicked"""
-        fname = QFileDialog.getOpenFileName(None, "Open Document", "/", "caDNAno1 / caDNAno2 Files (*.cn2 *.json *.cadnano)")
-        if fname=='':
+        fname = QFileDialog.getOpenFileName(None, "Open Document", "/",\
+                    "caDNAno1 / caDNAno2 Files (*.cn2 *.json *.cadnano)")
+        if fname == '':
             return
         doc = decode(file(fname).read())
         DocumentController(doc, fname)
@@ -204,11 +205,12 @@ class DocumentController():
         """docstring for squareClicked"""
         print "+square clicked"
     # end def
-    
+
     def autoStapleClicked(self):
         self.activePart().autoStaple()
 
-    ################# Spawning / Destroying HoneycombSliceGraphicsItems and PathHelixGroups for Parts #################
+    ############# Spawning / Destroying HoneycombSliceGraphicsItems ##########
+    ##################### and PathHelixGroups for Parts ######################
     def docPartAddedEvent(self, part):
         shg = HoneycombSliceGraphicsItem(part,\
                                          controller=self.win.sliceController,\
@@ -218,14 +220,18 @@ class DocumentController():
                              parent=self.win.pathroot)
 
         if app().isInMaya():
-            solhg = SolidHelixGroup(dnaPartInst,controller=self.win.pathController)
-            # need to create a permanent class level reference to this so that it doesn't get garbage collected
+            solhg = SolidHelixGroup(dnaPartInst, \
+                                    controller=self.win.pathController)
+            # need to create a permanent class level reference to this so
+            # it doesn't get garbage collected
             self.solidlist.append(solhg)
             phg.scaffoldChange.connect(solhg.handleScaffoldChange)
 
         ash = phg.activeSliceHandle()
-        self.win.sliceController.activeSliceLastSignal.connect(ash.moveToLastSlice)
-        self.win.sliceController.activeSliceFirstSignal.connect(ash.moveToFirstSlice)
+        self.win.sliceController.activeSliceLastSignal.connect(\
+                                                          ash.moveToLastSlice)
+        self.win.sliceController.activeSliceFirstSignal.connect(\
+                                                         ash.moveToFirstSlice)
         self.win.pathController.setActivePath(phg)
 
     def addHoneycombHelixGroup(self, nrows=20, ncolumns=20):

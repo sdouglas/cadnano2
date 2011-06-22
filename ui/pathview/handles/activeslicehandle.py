@@ -38,9 +38,9 @@ import ui.styles as styles
 
 import util
 # import Qt stuff into the module namespace with PySide, PyQt4 independence
-util.qtWrapImport('QtCore', globals(), ['QPointF', 'QRectF', 'Qt', 'QtCore' \
+util.qtWrapImport('QtCore', globals(), ['QPointF', 'QRectF', 'Qt',\
                                     'QObject', 'pyqtSignal', 'pyqtSlot'])
-util.qtWrapImport('QtGui', globals(), [ 'QBrush', 'QFont', 'QGraphicsItem' \
+util.qtWrapImport('QtGui', globals(), [ 'QBrush', 'QFont', 'QGraphicsItem',\
                                     'QGraphicsSimpleTextItem', 'QPen',\
                                     'QDrag', 'QUndoCommand'] )
 

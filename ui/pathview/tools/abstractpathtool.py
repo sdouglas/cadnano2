@@ -157,9 +157,9 @@ class AbstractPathTool(QGraphicsItem):
         x, strandIdx = self.helixIndex(pt)
         vh = pathHelix.vhelix()
         if vh.evenParity():
-            strandType = (StrandType.Scaffold, StrandType.Staple)[strandIdx]
+            strandType = (StrandType.Scaffold, StrandType.Staple)[util.clamp(strandIdx, 0, 1)]
         else:
-            strandType = (StrandType.Staple, StrandType.Scaffold)[strandIdx]
+            strandType = (StrandType.Staple, StrandType.Scaffold)[util.clamp(strandIdx, 0, 1)]
         return (strandType, x)
     
     def helixIndex(self, point):

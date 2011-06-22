@@ -48,13 +48,13 @@ from itertools import product
 # from PyQt4.QtGui import QPen, QDrag, QUndoCommand, QPolygonF
 import util
 # import Qt stuff into the module namespace with PySide, PyQt4 independence
-util.qtWrapImport('QtCore', globals(), ['Qt', 'QRect', 'QLine', 'QRectF', \
-                                        'QPointF', 'QPoint'] )
-util.qtWrapImport('QtGui', globals(), [ 'QBrush', 'QColor', 'QFont', \
-                                        'QGraphicsItem', 'QFontMetricsF', \
-                                        'QGraphicsSimpleTextItem', \
-                                        'QPainter', 'QPainterPath', 'QPen', \
-                                        'QDrag', 'QPolygonF', 'QUndoCommand'] )
+util.qtWrapImport('QtCore', globals(), ['Qt', 'QRect', 'QLine', 'QRectF',\
+                                        'QPointF', 'QPoint'])
+util.qtWrapImport('QtGui', globals(), ['QBrush', 'QColor', 'QFont',\
+                                       'QGraphicsItem', 'QFontMetricsF',\
+                                       'QGraphicsSimpleTextItem',\
+                                       'QPainter', 'QPainterPath', 'QPen',\
+                                       'QDrag', 'QPolygonF', 'QUndoCommand'])
 
 baseWidth = styles.PATH_BASE_WIDTH
 ppL5 = QPainterPath()  # Left 5' PainterPath
@@ -94,28 +94,28 @@ class PathHelix(QGraphicsItem):
     minorGridPen.setCosmetic(True)
     majorGridPen = QPen(styles.majorgridstroke, styles.MAJOR_GRID_STROKE_WIDTH)
     majorGridPen.setCosmetic(True)
-    
+
     scafPen = QPen(styles.scafstroke, 2)
     nobrush = QBrush(Qt.NoBrush)
     baseWidth = styles.PATH_BASE_WIDTH
-    
+
     # The next block of code does setup necessary for
     # drawing the sequence text onto the PathView
     sequenceFont = QFont("Monaco")
     if hasattr(QFont, 'Monospace'):
         sequenceFont.setStyleHint(QFont.Monospace)
     sequenceFont.setFixedPitch(True)
-    sequenceFontH = baseWidth/3.
+    sequenceFontH = baseWidth / 3.
     sequenceFont.setPixelSize(sequenceFontH)
     sequenceFontMetrics = QFontMetricsF(sequenceFont)
     sequenceFontCharWidth = sequenceFontMetrics.width('A')
     sequerceFontCharHeight = sequenceFontMetrics.height()
-    sequenceFontExtraWidth = baseWidth-sequenceFontCharWidth
+    sequenceFontExtraWidth = baseWidth - sequenceFontCharWidth
     sequenceFont.setLetterSpacing(QFont.AbsoluteSpacing,
                                   sequenceFontExtraWidth)
-    sequenceTextXCenteringOffset = sequenceFontExtraWidth/2.  
-    sequenceTextYCenteringOffset = baseWidth/2.  
-    
+    sequenceTextXCenteringOffset = sequenceFontExtraWidth / 2.
+    sequenceTextYCenteringOffset = baseWidth / 2.
+
     # Items that calculate paths for loops and skips
     _skipitem = SkipItem()
     _loopitem = LoopItem()
@@ -164,10 +164,10 @@ class PathHelix(QGraphicsItem):
 
     def vhelix(self):
         return self._vhelix
-    
+
     def palette(self):
         return self._vhelix.palette()
-        
+
     def phgroup(self):
         return self._pathHelixGroup
     # end def
@@ -189,7 +189,8 @@ class PathHelix(QGraphicsItem):
     def handle(self):
         if self._handle:
             return self._handle
-        self._handle = PathHelixHandle(self.vhelix(),parent=self._pathHelixGroup)
+        self._handle = PathHelixHandle(self.vhelix(),\
+                                       parent=self._pathHelixGroup)
         return self._handle
 
     def number(self):
@@ -220,8 +221,8 @@ class PathHelix(QGraphicsItem):
 
     ################# Crossover Handles #################
     def preXOverHandlesVisible(self):
-        return self._preXOverHandles!=None
-    
+        return self._preXOverHandles != None
+
     def setPreXOverHandlesVisible(self, shouldBeVisible):
         #util.trace(5)
         areVisible = self._preXOverHandles != None
@@ -230,26 +231,30 @@ class PathHelix(QGraphicsItem):
                 if pch.scene():
                     pch.scene().removeItem(pch)
             self._preXOverHandles = None
-            self.vhelix().part().virtualHelixAtCoordsChanged.disconnect(self.updatePreXOverHandles)
+            self.vhelix().part().virtualHelixAtCoordsChanged.disconnect(\
+                                                   self.updatePreXOverHandles)
         elif not areVisible and shouldBeVisible:
             self._preXOverHandles = []
-            for strandType, facingRight in product((StrandType.Scaffold, StrandType.Staple), (True, False)):
+            for strandType, facingRight in\
+              product((StrandType.Scaffold, StrandType.Staple), (True, False)):
                 # Get potential crossovers in [neighborVirtualHelix, index] format
                 potentialXOvers = self.vhelix().potentialCrossoverList(facingRight, strandType)
                 for (neighborVH, fromIdx) in potentialXOvers:
-                    pch = PreCrossoverHandle(self, strandType, fromIdx, neighborVH, fromIdx, not facingRight)
+                    pch = PreCrossoverHandle(self, strandType, fromIdx,\
+                                             neighborVH, fromIdx,\
+                                             not facingRight)
                     self._preXOverHandles.append(pch)
             self.vhelix().part().virtualHelixAtCoordsChanged.connect(self.updatePreXOverHandles)
         self._preXOverHandleNeighbors = self.vhelix().neighbors()
-    
+
     def updatePreXOverHandles(self):
         if self.vhelix().neighbors() != self._preXOverHandleNeighbors:
             self.setPreXOverHandlesVisible(False)
             self.setPreXOverHandlesVisible(True)
-    
+
     def makeSelfActiveHelix(self):
         self._pathHelixGroup.setActiveHelix(self)
-    
+
     ################# Loading and Updating State From VHelix #################
     def vhelixBasesModified(self):
         self._endpoints = None  # Clear endpoint drawing cache
@@ -285,7 +290,7 @@ class PathHelix(QGraphicsItem):
         self.paintLoopsAndSkips(painter)
         self.paintHorizontalBaseText(painter)
         painter.restore()
-    
+
     def paintLoopsAndSkips(self, painter):
         vh = self.vhelix()
         for strandType in (StrandType.Scaffold, StrandType.Staple):
@@ -346,10 +351,11 @@ class PathHelix(QGraphicsItem):
         painter.setFont(self.sequenceFont)
         if shouldVFlipScaf:
             painter.scale(1, -1)
-        painter.drawText(scafX, scafY, self.baseWidth*vh.numBases(), self.baseWidth/2., Qt.AlignVCenter, scafTxt)
+        painter.drawText(scafX, scafY, self.baseWidth*vh.numBases(),\
+                         self.baseWidth/2., Qt.AlignVCenter, scafTxt)
         painter.scale(1, -1)
-        painter.drawText(stapX, stapY, self.baseWidth*vh.numBases(), self.baseWidth/2., Qt.AlignVCenter, stapTxt)
-        
+        painter.drawText(stapX, stapY, self.baseWidth*vh.numBases(),\
+                         self.baseWidth/2., Qt.AlignVCenter, stapTxt)
 
     def minorGridPainterPath(self):
         """
@@ -405,23 +411,45 @@ class PathHelix(QGraphicsItem):
             top = self.strandIsTop(strandType)
             segments, ends3, ends5 = self._vhelix.getSegmentsAndEndpoints(strandType)
             for (startIndex, endIndex) in segments:
+                numBasesInOligo = vh.numberOfBasesConnectedTo(strandType,\
+                                                              int(startIndex))
+                highlight = (numBasesInOligo > styles.oligoLenAboveWhichHighlight or\
+                             numBasesInOligo < styles.oligoLenBelowWhichHighlight) and\
+                             strandType == StrandType.Staple
+
                 startPt = self.baseLocation(strandType, startIndex, centerY=True)
                 endPt = self.baseLocation(strandType, endIndex, centerY=True)
-                numBasesInOligo = vh.numberOfBasesConnectedTo(strandType, int(startIndex))
+
+                # Only draw to the edge of non-crossovers (i.e. breakpoints).
+                if not self._vhelix.hasCrossoverAt(strandType, startIndex):
+                    startPt = (startPt[0]+styles.PATH_BASE_WIDTH/2, startPt[1])
+                elif highlight:  # is a crossover and highlighted
+                    # compensate for width of stroke in crossover path
+                    startPt = (startPt[0]+styles.PATH_STRAND_HIGHLIGHT_STROKE_WIDTH/2, startPt[1])
+                if not self._vhelix.hasCrossoverAt(strandType, endIndex):
+                    endPt = (endPt[0]-styles.PATH_BASE_WIDTH/2, endPt[1])
+                elif highlight:
+                    endPt = (endPt[0]-styles.PATH_STRAND_HIGHLIGHT_STROKE_WIDTH/2, endPt[1])
+
                 pp = QPainterPath()
                 pp.moveTo(*startPt)
                 pp.lineTo(*endPt)
                 color = vh.colorOfBase(strandType, int(startIndex))
                 width = styles.PATH_STRAND_STROKE_WIDTH
-                pen = QPen(color, width)
-                if numBasesInOligo > styles.oligoLenAboveWhichDrawnDashed:
+                if numBasesInOligo > styles.oligoLenAboveWhichHighlight or\
+                   numBasesInOligo < styles.oligoLenBelowWhichHighlight:
                     if strandType == StrandType.Staple:
-                        pen.setStyle(Qt.DashLine)
+                        color.setAlpha(128)
+                        width = styles.PATH_STRAND_HIGHLIGHT_STROKE_WIDTH
+                else:
+                    color.setAlpha(255)
+                pen = QPen(color, width, cap=Qt.FlatCap)
                 self._segmentPaths.append((pen, pp))
             for e3 in ends3:
                 upperLeft = self.baseLocation(strandType, e3)
                 bp = QPainterPath()
-                color = vh.colorOfBase(strandType, e3)
+                color = QColor(vh.colorOfBase(strandType, e3))
+                color.setAlpha(255)
                 brush = QBrush(color)
                 bp.addPath(ppR3.translated(*upperLeft) if top else\
                                                     ppL3.translated(*upperLeft))
@@ -429,13 +457,14 @@ class PathHelix(QGraphicsItem):
             for e5 in ends5:
                 upperLeft = self.baseLocation(strandType, e5)
                 bp = QPainterPath()
-                color = vh.colorOfBase(strandType, e5)
+                color = QColor(vh.colorOfBase(strandType, e5))
+                color.setAlpha(255)
                 brush = QBrush(color)
                 bp.addPath(ppL5.translated(*upperLeft) if top else\
                                                     ppR5.translated(*upperLeft))
                 self._endptPaths.append((brush, bp))
         return (self._segmentPaths, self._endptPaths)
-    
+
     def strandIsTop(self, strandType):
         return self.evenParity() and strandType == StrandType.Scaffold\
            or not self.evenParity() and strandType == StrandType.Staple
