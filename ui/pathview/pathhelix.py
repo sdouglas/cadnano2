@@ -38,14 +38,6 @@ from math import floor, pi
 from cadnano import app
 from itertools import product
 
-
-# from PyQt4.QtCore import Qt, QRect
-# from PyQt4.QtCore import QLine, QRectF, QPointF, QPoint
-# from PyQt4.QtGui import QBrush, QColor, QFont
-# from PyQt4.QtGui import QGraphicsItem, QFontMetricsF
-# from PyQt4.QtGui import QGraphicsSimpleTextItem
-# from PyQt4.QtGui import QPainter, QPainterPath
-# from PyQt4.QtGui import QPen, QDrag, QUndoCommand, QPolygonF
 import util
 # import Qt stuff into the module namespace with PySide, PyQt4 independence
 util.qtWrapImport('QtCore', globals(), ['Qt', 'QRect', 'QLine', 'QRectF',\
@@ -142,7 +134,7 @@ class PathHelix(QGraphicsItem):
         self._endptPaths = None
         self._minorGridPainterPath = None
         self._majorGridPainterPath = None
-        self.step = 21  # 32 for Square lattice
+        self.step = vhelix.part().crossSectionStep()
         self.setZValue(styles.ZPATHHELIX)
         self.rect = QRectF()
         self._vhelix = None

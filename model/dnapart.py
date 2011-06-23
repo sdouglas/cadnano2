@@ -30,8 +30,6 @@ from heapq import *
 import copy
 from ui import styles
 
-# from PyQt4.QtCore import pyqtSignal, QObject
-# from PyQt4.QtGui import QUndoCommand
 import util
 # import Qt stuff into the module namespace with PySide, PyQt4 independence
 util.qtWrapImport('QtCore', globals(), ['QObject', 'pyqtSignal'] )

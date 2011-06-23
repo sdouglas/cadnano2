@@ -32,13 +32,6 @@ import ui.styles as styles
 from model.virtualhelix import VirtualHelix
 from model.enum import Parity, StrandType
 
-from PyQt4.QtCore import QRectF
-from PyQt4.QtGui import QBrush
-from PyQt4.QtGui import QGraphicsItem
-from PyQt4.QtGui import QGraphicsSimpleTextItem
-from PyQt4.QtGui import QPen, QDrag, QUndoCommand
-from PyQt4.QtCore import QString, Qt
-
 import util
 # import Qt stuff into the module namespace with PySide, PyQt4 independence
 util.qtWrapImport('QtCore', globals(), ['QString', 'QRectF', 'Qt'] )
@@ -178,7 +171,7 @@ class SliceHelix(QGraphicsItem):
         undoStack = self.part().undoStack()
         if not vh:
             undoStack.beginMacro("Add helix")
-            vh = VirtualHelix()
+            vh = VirtualHelix(numBases=self.part().crossSectionStep())
             self.part().addVirtualHelixAt(coord, vh)
             vh.basesModified.connect(self.update)
         else:

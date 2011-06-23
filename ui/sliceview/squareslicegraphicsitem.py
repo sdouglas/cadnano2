@@ -24,9 +24,9 @@
 
 
 """
-honeycombslicegraphicsitem.py
+squareslicegraphicsitem.py
 
-Created by Shawn Douglas on 2010-06-15.
+Created by Nick Conway on 2010-06-23.
 """
 
 from exceptions import NotImplementedError
@@ -36,11 +36,6 @@ from model.enum import LatticeType, Parity, StrandType
 from .slicehelix import SliceHelix
 import ui.styles as styles
 
-# from PyQt4.QtCore import QRectF, QPointF, QEvent, pyqtSignal, QObject, Qt
-# from PyQt4.QtCore import pyqtSignal, pyqtSlot
-# from PyQt4.QtGui import QBrush, QPainterPath, QPen
-# from PyQt4.QtGui import QGraphicsItem
-
 import util
 # import Qt stuff into the module namespace with PySide, PyQt4 independence
 util.qtWrapImport('QtCore', globals(), ['QRectF', 'QPointF', 'QEvent', 'Qt' \
@@ -48,17 +43,14 @@ util.qtWrapImport('QtCore', globals(), ['QRectF', 'QPointF', 'QEvent', 'Qt' \
 util.qtWrapImport('QtGui', globals(), [ 'QGraphicsItem', 'QBrush', \
                                         'QPainterPath', 'QPen'])
 
-
-root3 = 1.732051
-
-class HoneycombSliceGraphicsItem(QGraphicsItem):  # was a QGraphicsObject change for Qt 4.6
+class SquareSliceGraphicsItem(QGraphicsItem):  # was a QGraphicsObject change for Qt 4.6
     """
-    HoneycombSliceGraphicsItem
+    SquareSliceGraphicsItem
     """
     radius = styles.SLICE_HELIX_RADIUS
     
     def __init__(self, part, controller=None, parent=None):
-        super(HoneycombSliceGraphicsItem, self).__init__()
+        super(SquareSliceGraphicsItem, self).__init__()
         # data related
         self._part = None
         self.sliceController = controller
@@ -70,7 +62,7 @@ class HoneycombSliceGraphicsItem(QGraphicsItem):  # was a QGraphicsObject change
 
         # The deselector grabs mouse events that missed a slice
         # and clears the selection when it gets one
-        self.deselector = HoneycombSliceGraphicsItem.Deselector(self)
+        self.deselector = SquareSliceGraphicsItem.Deselector(self)
         self.deselector.setParentItem(self)
         self.deselector.setFlag(QGraphicsItem.ItemStacksBehindParent)
         self.deselector.setZValue(-1)
@@ -108,11 +100,8 @@ class HoneycombSliceGraphicsItem(QGraphicsItem):  # was a QGraphicsObject change
         self._part = newPart
     
     def upperLeftCornerForCoords(self, row, col):
-        x = col*self.radius*root3
-        if ((row % 2) ^ (col % 2)): # odd parity
-            y = row*self.radius*3 + self.radius
-        else:                          # even parity
-            y = row*self.radius*3
+        x = col*2*self.radius
+        y = row*2*self.radius
         return (x, y)
  
     def _spawnSliceAt(self, row, column):
@@ -152,8 +141,8 @@ class HoneycombSliceGraphicsItem(QGraphicsItem):  # was a QGraphicsObject change
                     self._spawnSliceAt(r, c)
         self._ncols = newCols
         self._rect = QRectF(0, 0,\
-                           (newCols)*self.radius*root3,\
-                           (newRows)*self.radius*3)
+                           (newCols)*self.radius*2,\
+                           (newRows)*self.radius*2)
         self.prepareGeometryChange()
         # the Deselector copies our rect so it changes too
         self.deselector.prepareGeometryChange()
@@ -204,11 +193,11 @@ class HoneycombSliceGraphicsItem(QGraphicsItem):  # was a QGraphicsObject change
         and observes mouse press events that miss slices,
         emptying the selection when they do"""
         def __init__(self, parentHGI):
-            super(HoneycombSliceGraphicsItem.Deselector, self).__init__()
+            super(SquareSliceGraphicsItem.Deselector, self).__init__()
             self.parentHGI = parentHGI
         def mousePressEvent(self, event):
             self.parentHGI.part().setSelection(())
-            super(HoneycombSliceGraphicsItem.Deselector, self).mousePressEvent(event)
+            super(SquareSliceGraphicsItem.Deselector, self).mousePressEvent(event)
         def boundingRect(self):
             return self.parentHGI.boundingRect()
         def paint(self, painter, option, widget=None):

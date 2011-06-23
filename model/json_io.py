@@ -33,6 +33,7 @@ Houses code that parses legacy (cadnano1) files.l
 import json
 from document import Document
 from dnahoneycombpart import DNAHoneycombPart
+from dnasquarepart import DNASquarePart
 from virtualhelix import VirtualHelix
 from enum import StrandType
 
@@ -63,7 +64,7 @@ def doc_from_legacy_dict(obj):
     take a loaded legacy dictionary, returns a loaded Document
     """
     doc = Document()
-    part = DNAHoneycombPart()
+    part = DNAHoneycombPart()   # TODO must generalize
     doc.addPart(part)
     part.setName(obj["name"])
     #self.addVirtualHelixAt(coord, vh, requestSpecificIdnum=num, noUndo=True)

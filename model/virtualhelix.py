@@ -36,8 +36,6 @@ from cadnano import app
 from random import Random
 import re, sys
 
-# from PyQt4.QtCore import pyqtSignal, QObject, QTimer
-# from PyQt4.QtGui import QUndoCommand, QUndoStack, QColor
 import util
 # import Qt stuff into the module namespace with PySide, PyQt4 independence
 util.qtWrapImport('QtCore', globals(), ['QObject', 'pyqtSignal', 'QTimer'] )
@@ -116,7 +114,7 @@ class VirtualHelix(QObject):
 
     def part(self):
         return self._part
-
+    
     def _setPart(self, newPart, coords, num):
         """Should only be called by dnapart. Use dnapart's
         addVirtualHelixAt to add a virtualhelix to a dnapart."""

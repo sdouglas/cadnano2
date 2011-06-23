@@ -29,14 +29,13 @@ from model.encoder import encode
 from .documentwindow import DocumentWindow
 from pathview.pathhelixgroup import PathHelixGroup
 from sliceview.honeycombslicegraphicsitem import HoneycombSliceGraphicsItem
+from sliceview.squareslicegraphicsitem import SquareSliceGraphicsItem
 from treeview.treecontroller import TreeController
 from pathview.handles.activeslicehandle import ActiveSliceHandle
 from model.enum import LatticeType
 from model.decoder import decode
 import os.path
 
-# from PyQt4.QtGui import *
-# from PyQt4.QtCore import SIGNAL, QString, QFileInfo
 import util
 # import Qt stuff into the module namespace with PySide, PyQt4 independence
 util.qtWrapImport('QtCore', globals(), ['pyqtSignal', 'QString', 'QFileInfo'])
@@ -204,6 +203,7 @@ class DocumentController():
     def squareClicked(self):
         """docstring for squareClicked"""
         print "+square clicked"
+        self.addSquareHelixGroup()
     # end def
 
     def autoStapleClicked(self):
@@ -212,9 +212,14 @@ class DocumentController():
     ############# Spawning / Destroying HoneycombSliceGraphicsItems ##########
     ##################### and PathHelixGroups for Parts ######################
     def docPartAddedEvent(self, part):
-        shg = HoneycombSliceGraphicsItem(part,\
-                                         controller=self.win.sliceController,\
-                                         parent=self.win.sliceroot)
+        if part.crossSectionType() == LatticeType.Honeycomb:
+            shg = HoneycombSliceGraphicsItem(part,\
+                                        controller=self.win.sliceController,\
+                                        parent=self.win.sliceroot)
+        else:
+            shg = SquareSliceGraphicsItem(part,\
+                                        controller=self.win.sliceController,\
+                                        parent=self.win.sliceroot)
         phg = PathHelixGroup(part,\
                              controller=self.win.pathController,\
                              parent=self.win.pathroot)
@@ -238,6 +243,13 @@ class DocumentController():
         """docstring for addHoneycombHelixGroup"""
         # Create a new DNA part
         dnaPart = self._document.addDnaHoneycombPart()
+        self.setActivePart(dnaPart)
+    # end def
+
+    def addSquareHelixGroup(self, nrows=20, ncolumns=20):
+        """docstring for addSquareHelixGroup"""
+        # Create a new DNA part
+        dnaPart = self._document.addDnaSquarePart()
         self.setActivePart(dnaPart)
     # end def
 
