@@ -363,6 +363,9 @@ class PathHelixGroup(QGraphicsObject):
         self.setDisplayedVHs(listVHs)
     # end def
     
+    # These methods are required since hover events are accepted
+    # and no additional event handler exists in order to prevent additional
+    # phg redraws
     def hoverEnterEvent(self, event):
         pass
         # QGraphicsItem.hoverEnterEvent(self, event)
