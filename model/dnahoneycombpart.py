@@ -36,6 +36,7 @@ class DNAHoneycombPart(DNAPart):
         super(DNAHoneycombPart, self).__init__(*args, **kwargs)
         self._maxBase = 2*self.step
         self._activeSlice = self.step
+        self._majorGridLine = self.step/4
 
     def __repr__(self):
         s = "HoneycombPart[" +\
@@ -77,6 +78,9 @@ class DNAHoneycombPart(DNAPart):
     def crossSectionStep(self):
         """Returns the cross-section type of the DNA part."""
         return self.step
+        
+    def majorGrid(self):
+        return self._majorGridLine
 
     ########################## Archiving / Unarchiving #########################
     def fillSimpleRep(self, sr):

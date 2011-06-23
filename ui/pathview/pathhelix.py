@@ -363,7 +363,7 @@ class PathHelix(QGraphicsItem):
         path.addRect(0, 0, self.baseWidth * canvasSize, 2 * self.baseWidth)
         # minor tick marks
         for i in range(canvasSize):
-            if (i % 7 != 0):
+            if (i % self._vhelix.part().majorGrid() != 0):
                 x = round(self.baseWidth * i) + .5
                 path.moveTo(x, 0)
                 path.lineTo(x, 2 * self.baseWidth)
@@ -384,7 +384,7 @@ class PathHelix(QGraphicsItem):
         path = QPainterPath()
         canvasSize = self._vhelix.part().numBases()
         # major tick marks  FIX: 7 is honeycomb-specific
-        for i in range(0, canvasSize + 1, 7):
+        for i in range(0, canvasSize + 1, self._vhelix.part().majorGrid()):
             x = round(self.baseWidth * i) + .5
             path.moveTo(x, .5)
             path.lineTo(x, 2 * self.baseWidth - .5)
