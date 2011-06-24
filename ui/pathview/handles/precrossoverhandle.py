@@ -36,7 +36,7 @@ import util
 util.qtWrapImport('QtCore', globals(), ['QPointF', 'QRectF', 'Qt'] )
 util.qtWrapImport('QtGui', globals(), [ 'QBrush', 'QFont', 'QGraphicsItem', \
                                         'QGraphicsSimpleTextItem', \
-                                        'QFontMetrics', 'QPainterPath' \
+                                        'QFontMetrics', 'QPainterPath', \
                                         'QPolygonF', \
                                         'QPen', 'QUndoCommand'] )
 

@@ -85,6 +85,13 @@ class DNAPart(Part):
         self.virtualHelixAtCoordsChanged.connect(self.persistentDataChangedEvent)
         self.dimensionsWillChange.connect(self.persistentDataChangedEvent)
     
+    def destroy(self):
+        if self.selectAllBehavior == True:
+            self.virtualHelixAtCoordsChanged.disconnect(self.updateSelectionFromVHChange)
+        self.virtualHelixAtCoordsChanged.disconnect(self.persistentDataChangedEvent)
+        self.dimensionsWillChange.disconnect(self.persistentDataChangedEvent)
+    # end def
+    
     persistentDataChanged = pyqtSignal()
     def persistentDataChangedEvent(self, *args, **kwargs):
         self.persistentDataChanged.emit()

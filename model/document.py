@@ -30,11 +30,12 @@ Created by Jonathan deWerd on 2011-01-26.
 import json
 from .dnahoneycombpart import DNAHoneycombPart
 from .dnasquarepart import DNASquarePart
+from .enum import LatticeType
 
 import util
 # import Qt stuff into the module namespace with PySide, PyQt4 independence
 util.qtWrapImport('QtCore', globals(), ['pyqtSignal', 'QObject'] )
-util.qtWrapImport('QtGui', globals(), [ 'QUndoStack'] )
+util.qtWrapImport('QtGui', globals(), [ 'QUndoCommand'] )
 
 class Document(QObject):    
     def __init__(self, incompleteArchivedDict=None):
@@ -53,32 +54,70 @@ class Document(QObject):
         """
         Create and store a new DNAPart and instance, and return the instance.
         """
-        dnapart = DNAHoneycombPart()
-        self.addPart(dnapart)
+        dnapart = None
+        if len(self._parts) == 0:
+            # dnapart = DNAHoneycombPart()
+            dnapart = self.addPart(LatticeType.Honeycomb)
         return dnapart
     
     def addDnaSquarePart(self):
         """
         Create and store a new DNAPart and instance, and return the instance.
         """
-        dnapart = DNASquarePart()
-        self.addPart(dnapart)
+        dnapart = None
+        if len(self._parts) == 0:
+            # dnapart = DNASquarePart()
+            dnapart = self.addPart(LatticeType.Square)
         return dnapart
     
     def parts(self):
         return self._parts
         
     partAdded = pyqtSignal(object)
+    partReAdded = pyqtSignal(object)
     def addPart(self, part):
-        self._parts.append(part)
-        part._setDocument(self)
-        self.setSelectedPart(part)
-        self.partAdded.emit(part)
+        undoStack = self.undoStack()
+        c = self.PartCreateCommand(self, part)
+        if undoStack!=None:
+            self.undoStack().push(c)
+        else:
+            c.redo()
+        return c.part()
+        
+    class PartCreateCommand(QUndoCommand):
+        """
+        Undo ready command for deleting a part.
+        """
+        def __init__(self, document, latticeType):
+            super(Document.PartCreateCommand, self).__init__()
+            self._doc = document
+            if latticeType == LatticeType.Honeycomb:
+                self._part = DNAHoneycombPart()
+            else:
+                self._part = DNASquarePart()
+        # end def
+        
+        def part(self):
+            return self._part
+
+        def redo(self):
+            if len(self._doc._parts) == 0:
+                self._doc._parts.append(self._part)
+                self._part._setDocument(self._doc)
+                self._doc.setSelectedPart(self._part)
+                self._doc.partAdded.emit(self._part)
+
+        def undo(self):
+            # if len(self._doc._parts) > 0:
+            # self._doc.setSelectedPart(None)
+            self._part._setDocument(None)
+            self._doc._parts.remove(self._part)
+            self._part.partRemoved.emit()
 
     def undoStack(self):
         return self.controller().undoStack()
-
-    ############################ Transient (doesn't get saved) State ############################
+        
+    ############################ Transient (doesn't get saved) State #########
     selectedPartChanged = pyqtSignal(object)
 
     def selectedPart(self):
@@ -91,7 +130,7 @@ class Document(QObject):
         self.selectedPartChanged.emit(newPart)
 
 
-    ############################ Archive / Unarchive ############################
+    ############################ Archive / Unarchive #########################
     def fillSimpleRep(self, sr):
         sr['.class'] = "Document"
         sr['parts'] = self._parts

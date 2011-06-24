@@ -43,7 +43,7 @@ import ui.styles as styles
 
 import util
 # import Qt stuff into the module namespace with PySide, PyQt4 independence
-util.qtWrapImport('QtCore', globals(), ['QRectF', 'QPointF', 'QEvent', 'Qt' \
+util.qtWrapImport('QtCore', globals(), ['QRectF', 'QPointF', 'QEvent', 'Qt', \
                                         'pyqtSignal', 'pyqtSlot', 'QObject'] )
 util.qtWrapImport('QtGui', globals(), [ 'QGraphicsItem', 'QBrush', \
                                         'QPainterPath', 'QPen'])
@@ -89,6 +89,16 @@ class HoneycombSliceGraphicsItem(QGraphicsItem):  # was a QGraphicsObject change
         # activeSliceChanged. If None, all slices will be redrawn
         # and the cache will be filled.
         self._previouslyActiveVHs = None
+        
+        # connect destructor
+        # this is for removing a part from scenes
+        self._part.partRemoved.connect(self.destroy)
+    # end def
+
+    def destroy(self):
+        self._part.partRemoved.disconnect(self.destroy)
+        self.scene().removeItem(self)
+        self.setPart(None)
     # end def
     
     def part(self):
@@ -98,13 +108,14 @@ class HoneycombSliceGraphicsItem(QGraphicsItem):  # was a QGraphicsObject change
         if self._part:
             self._part.dimensionsWillChange.disconnect(self._setDimensions)
             self._part.selectionWillChange.disconnect(self.selectionWillChange)
-            self._part.activeSliceWillChange.disconnect(self.activeSliceWillChange)
+            self._part.activeSliceWillChange.disconnect(self.activeSliceChanged)
             self._part.virtualHelixAtCoordsChanged.disconnect(self.vhAtCoordsChanged)
-        self._setDimensions(newPart.dimensions())
-        newPart.dimensionsWillChange.connect(self._setDimensions)
-        newPart.selectionWillChange.connect(self.selectionWillChange)
-        newPart.activeSliceWillChange.connect(self.activeSliceChanged)
-        newPart.virtualHelixAtCoordsChanged.connect(self.vhAtCoordsChanged)
+        if newPart != None:
+            self._setDimensions(newPart.dimensions())
+            newPart.dimensionsWillChange.connect(self._setDimensions)
+            newPart.selectionWillChange.connect(self.selectionWillChange)
+            newPart.activeSliceWillChange.connect(self.activeSliceChanged)
+            newPart.virtualHelixAtCoordsChanged.connect(self.vhAtCoordsChanged)
         self._part = newPart
     
     def upperLeftCornerForCoords(self, row, col):
@@ -173,6 +184,8 @@ class HoneycombSliceGraphicsItem(QGraphicsItem):  # was a QGraphicsObject change
         pass
     
     def selectionWillChange(self, newSel):
+        if self.part() == None:
+            print "I am none honey g select", self.part()
         if self.part().selectAllBehavior:
             return
         for sh in self._helixhash.itervalues():

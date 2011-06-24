@@ -25,27 +25,24 @@ http://www.opensource.org/licenses/mit-license.php
 # CADnano DNA Origami Software
 
 ## Overview
-
-CADnano is DNA origami design software, check out the [wiki](http://en.wikipedia.org/wiki/DNA_origami)
+[CADnano](http://cadnano.org/) is software for design of 
+[DNA origami](http://en.wikipedia.org/wiki/DNA_origami) nanostructures. 
+It was written with the goal of providing a simple and user-friendly interface 
+to facilitate a process that can be complex and error-prone.
 
 ## Installation
-
 For now just run from the terminal with python main.py
 We're still working out the bugs
 
-### Dependencies
-
+### Required Dependencies
 * [Qt 4.7](http://qt.nokia.com/products/)
-* [PySide] (http://www.pyside.org/)
-* Maya 2012
+* [PyQt](http://www.riverbankcomputing.co.uk/software/pyqt/intro) or [PySide](http://www.pyside.org/)
 
-## Links
-* [CADnano.org](http://cadnano.org/)
-* [Maya 2012](http://usa.autodesk.com/maya/)
+### Optional Dependencies
+* [Maya 2012](http://usa.autodesk.com/maya/) ([free to academics](http://students.autodesk.com/))
 
-## Configuration
-Configuration of tools (in terms of capabilities) is implemented
-using class members. Some are listed below:
+## Under the hood
+Configuration of tools (in terms of capabilities) is implemented using class members. Some are listed below:
 ### VirtualHelix.prohibitSingleBaseCrossovers
 If True, every time a modification is made to a VirtualHelix, it will check to
 see if it has any single base crossovers and will fix them by connecting
