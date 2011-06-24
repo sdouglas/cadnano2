@@ -201,16 +201,12 @@ class LoopHandle(QGraphicsItem):
         This is run on the label being changed
         """
         test = unicode(self._label.toPlainText())
-        try:
-            self._loopsize = int(test)
-            self.parentItem().vhelix().installLoop(self._strandtype,\
-                                                    self._index,\
-                                                    self._loopsize)
+        self._loopsize = int(test)
+        self.parentItem().vhelix().installLoop(self._strandtype,\
+                                                self._index,\
+                                                self._loopsize)
+        if self._loopsize:
             self.resetPosition()
-        except:
-            print "not an integer"
-            self._label.setPlainText("%d" % (self._loopsize))
-    # end def
 
     def boundingRect(self):
         return self._myRect
