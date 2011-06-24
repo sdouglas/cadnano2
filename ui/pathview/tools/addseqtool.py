@@ -43,7 +43,7 @@ class AddSeqTool(AbstractPathTool):
         dialog = QInputDialog(self.window())
         dialog.setWindowFlags(Qt.Dialog | Qt.Sheet)
         dialog.setWindowModality(Qt.WindowModal)
-        dialog.setLabelText('Choose the sequence to be applied from 5\' to 3\' in the oligo you clicked on by name, or enter a sequence by hand:')
+        dialog.setLabelText('Choose the sequence to be applied from 5\' to 3\' in the\n oligo you clicked on by name, or enter a sequence by hand:')
         dialog.setWindowTitle('Choose Sequence')
         dialog.setComboBoxEditable(True)
         dialog.setComboBoxItems(sequences.keys())

@@ -33,11 +33,13 @@ CADnano is DNA origami design software, check out the [wiki](http://en.wikipedia
 For now just run from the terminal with python main.py
 We're still working out the bugs
 
-### Dependencies
+### Required Dependencies
 
 * [Qt 4.7](http://qt.nokia.com/products/)
-* [PySide] (http://www.pyside.org/)
-* Maya 2012
+* [PyQt](http://www.riverbankcomputing.co.uk/software/pyqt/intro) or [PySide](http://www.pyside.org/)
+
+### Optional Dependencies
+* Maya 2012 ([Free to students](http://students.autodesk.com/))
 
 ## Links
 * [CADnano.org](http://cadnano.org/)
