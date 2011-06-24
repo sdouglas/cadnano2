@@ -171,7 +171,9 @@ class SquareSliceGraphicsItem(QGraphicsItem):  # was a QGraphicsObject change fo
         pass
     
     def selectionWillChange(self, newSel):
-        if self.part().selectAllBehavior:
+        if self.part() == None:
+            return
+        if self.part().selectAllBehavior():
             return
         for sh in self._helixhash.itervalues():
             sh.setSelected(sh.virtualHelix() in newSel)

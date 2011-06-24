@@ -185,8 +185,8 @@ class HoneycombSliceGraphicsItem(QGraphicsItem):  # was a QGraphicsObject change
     
     def selectionWillChange(self, newSel):
         if self.part() == None:
-            print "I am none honey g select", self.part()
-        if self.part().selectAllBehavior:
+            return
+        if self.part().selectAllBehavior():
             return
         for sh in self._helixhash.itervalues():
             sh.setSelected(sh.virtualHelix() in newSel)

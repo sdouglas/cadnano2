@@ -151,16 +151,25 @@ class SliceHelix(QGraphicsItem):
             self.virtualHelix().setSelected(True)
         else:
             self.part().setSelection((self.virtualHelix(),))
+    
+    def selectAllBehavior(self):
+        # If the selection is configured to always select
+        # everything, we don't draw a focus ring around everything,
+        # instead we only draw a focus ring around the hovered obj.
+        if self.part() == None:
+            return False
+        else:
+            return self.part().selectAllBehavior()
 
     def hoverEnterEvent(self, event):
         # If the selection is configured to always select
         # everything, we don't draw a focus ring around everything,
         # instead we only draw a focus ring around the hovered obj.
-        if self.part().selectAllBehavior:
+        if self.selectAllBehavior():
             self.setSelected(True)
 
     def hoverLeaveEvent(self, event):
-        if self.part().selectAllBehavior:
+        if self.selectAllBehavior():
             self.setSelected(False)
 
     def createOrAddBasesToVirtualHelix(self, addBases=False,\
