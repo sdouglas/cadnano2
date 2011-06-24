@@ -96,6 +96,12 @@ class PathHelixGroup(QGraphicsObject):
         self.selectionLock = None
         self.setAcceptHoverEvents(True)
         app().phg = self  # Convenience for the command line -i mode
+        
+        # connect destructor
+        self._part.partRemoved.connect(self.destroy)
+
+    def destroy(self):
+        self.scene().removeItem(self)
 
     def __str__(self):
         return "I am a PHG!"

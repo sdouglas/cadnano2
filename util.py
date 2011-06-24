@@ -34,6 +34,8 @@ from cadnano import app
 
 prng = Random()
 
+
+
 def qtWrapImport(name, globaldict, fromlist):
     """
     special function that allows for the import of PySide or PyQt modules
@@ -54,7 +56,7 @@ def qtWrapImport(name, globaldict, fromlist):
         pyWrapper = 'PyQt4'
     _temp = __import__(pyWrapper + '.' +  name, \
                         globaldict, locals(), fromlist, -1)
-    for key in dir(_temp):
+    for key in fromlist: #dir(_temp):
         if pyWrapper == 'PySide':
             if key == 'pyqtSignal':
                 globaldict[key] = getattr(_temp, 'Signal') 

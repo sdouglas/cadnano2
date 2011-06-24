@@ -43,7 +43,7 @@ import ui.styles as styles
 
 import util
 # import Qt stuff into the module namespace with PySide, PyQt4 independence
-util.qtWrapImport('QtCore', globals(), ['QRectF', 'QPointF', 'QEvent', 'Qt' \
+util.qtWrapImport('QtCore', globals(), ['QRectF', 'QPointF', 'QEvent', 'Qt', \
                                         'pyqtSignal', 'pyqtSlot', 'QObject'] )
 util.qtWrapImport('QtGui', globals(), [ 'QGraphicsItem', 'QBrush', \
                                         'QPainterPath', 'QPen'])
@@ -89,6 +89,14 @@ class HoneycombSliceGraphicsItem(QGraphicsItem):  # was a QGraphicsObject change
         # activeSliceChanged. If None, all slices will be redrawn
         # and the cache will be filled.
         self._previouslyActiveVHs = None
+        
+        # connect destructor
+        # this is for removing a part from scenes
+        self._part.partRemoved.connect(self.destroy)
+    # end def
+
+    def destroy(self):
+        self.scene().removeItem(self)
     # end def
     
     def part(self):

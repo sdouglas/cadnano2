@@ -34,7 +34,7 @@ from .dnasquarepart import DNASquarePart
 import util
 # import Qt stuff into the module namespace with PySide, PyQt4 independence
 util.qtWrapImport('QtCore', globals(), ['pyqtSignal', 'QObject'] )
-util.qtWrapImport('QtGui', globals(), [ 'QUndoStack'] )
+util.qtWrapImport('QtGui', globals(), [ 'QUndoCommand'] )
 
 class Document(QObject):    
     def __init__(self, incompleteArchivedDict=None):
@@ -53,16 +53,20 @@ class Document(QObject):
         """
         Create and store a new DNAPart and instance, and return the instance.
         """
-        dnapart = DNAHoneycombPart()
-        self.addPart(dnapart)
+        dnapart = None
+        if len(self._parts) == 0:
+            dnapart = DNAHoneycombPart()
+            self.addPart(dnapart)
         return dnapart
     
     def addDnaSquarePart(self):
         """
         Create and store a new DNAPart and instance, and return the instance.
         """
-        dnapart = DNASquarePart()
-        self.addPart(dnapart)
+        dnapart = None
+        if len(self._parts) == 0:
+            dnapart = DNASquarePart()
+            self.addPart(dnapart)
         return dnapart
     
     def parts(self):
@@ -70,15 +74,41 @@ class Document(QObject):
         
     partAdded = pyqtSignal(object)
     def addPart(self, part):
-        self._parts.append(part)
-        part._setDocument(self)
-        self.setSelectedPart(part)
-        self.partAdded.emit(part)
+        undoStack = self.undoStack()
+        c = self.PartCreateCommand(self, part)
+        if undoStack!=None:
+            self.undoStack().push(c)
+        else:
+            c.redo()
+        
+    class PartCreateCommand(QUndoCommand):
+        """
+        Undo ready command for deleting a part.
+        """
+        def __init__(self, document, part):
+            super(Document.PartCreateCommand, self).__init__()
+            self._doc = document
+            self._part = part
+
+        def redo(self):
+            if len(self._doc._parts) == 0:
+                self._doc._parts.append(self._part)
+                self._part._setDocument(self._doc)
+                self._doc.setSelectedPart(self._part)
+                self._doc.partAdded.emit(self._part)
+
+        def undo(self):
+            if len(self._doc._parts) > 0:
+                self._part.partRemoved.emit()
+                self._part._setDocument(None)
+                self._doc._parts.remove(self._part)
+                self._doc.setSelectedPart(None)
+                
 
     def undoStack(self):
         return self.controller().undoStack()
-
-    ############################ Transient (doesn't get saved) State ############################
+        
+    ############################ Transient (doesn't get saved) State #########
     selectedPartChanged = pyqtSignal(object)
 
     def selectedPart(self):
@@ -91,7 +121,7 @@ class Document(QObject):
         self.selectedPartChanged.emit(newPart)
 
 
-    ############################ Archive / Unarchive ############################
+    ############################ Archive / Unarchive #########################
     def fillSimpleRep(self, sr):
         sr['.class'] = "Document"
         sr['parts'] = self._parts
