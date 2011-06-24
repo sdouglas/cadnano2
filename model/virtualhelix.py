@@ -481,20 +481,26 @@ class VirtualHelix(QObject):
         Private because it returns a set of Base
         objects
         """
-        strand = self._strand(strandType)
-        bases = set()
-        treeTips = [strand[idx]]
-        while len(treeTips):
-            b = treeTips.pop()
-            if b in bases:
-                continue
-            else:
-                if b==None:
-                    continue
-                bases.add(b)
-                treeTips.append(b._3pBase)
-                treeTips.append(b._5pBase)
-        return bases
+        ret = []
+        base = self._strand(strandType)[idx]
+        # Back track to the 5' end
+        startBase = base
+        while base._hasNeighbor5p():
+            base = base._neighbor5p()
+            if base==startBase:
+                break
+        startBase = base
+        # Move forward through the linked list,
+        # adding bases to the (not linked) list
+        # we will return
+        ret.append(base)
+        while base._hasNeighbor3p():
+            neighbor = base._neighbor3p()
+            if neighbor == startBase:
+                break
+            ret.append(neighbor)
+            base = neighbor
+        return ret
             
     def sandboxed(self):
         return self._sandboxed
@@ -713,7 +719,7 @@ class VirtualHelix(QObject):
         if undoStack==None:
             undoStack = self.undoStack()
         c = self.LoopCommand(self, strandType, index, loopsize)
-        if undoStack!=None:
+        if undoStack!=False:
             self.undoStack().push(c)
         else:
             c.redo()
@@ -737,6 +743,25 @@ class VirtualHelix(QObject):
         else:
             c.redo()
         self.emitBasesModifiedIfNeeded()
+    
+    def applySequenceAt(self, strandType, index, seqStr, undoStack=None):
+        """
+        Finds the 5' end of the oligo going through strandType,index and
+        assigns a character of seqStr to every base, traveling towards the
+        3' end
+        """
+        if undoStack==None:
+            undoStack = self.undoStack()
+        if undoStack!=False:
+            undoStack.beginMacro("Apply Sequence")
+        c = self.ApplySequenceCommand(self, strandType, index, seqStr)
+        if undoStack!=False:
+            undoStack.push(c)
+            undoStack.endMacro()
+        else:
+            c.redo()
+        self.emitBasesModifiedIfNeeded()
+            
 
     def setFloatingXover(self, strandType=None, fromIdx=None, toPoint=None):
         """The floating crossover is a GUI hack that is the
@@ -783,6 +808,92 @@ class VirtualHelix(QObject):
                     if hasXoverR and not hasNeighborL:
                         self.connectStrand(strandType, i-1, i, undoStack=undoStack, police=False)
     
+    class ApplySequenceCommand(QUndoCommand):
+        def __init__(self, vh, strandType, idx, seqStr):
+            """Applies seqStr to the oligo connected to (strandType, idx),
+            applying the first """
+            QUndoCommand.__init__(self)
+            self._vh = vh
+            self._strandType = strandType
+            self._idx = idx
+            self._seqStr = seqStr
+            
+        def redo(self):
+            vh = self._vh
+            bases = vh._basesConnectedTo(self._strandType, self._idx)
+            charactersUsedFromSeqStr = 0
+            self.oldBaseStrs = oldBaseStrs = []
+            startBase = vh._strand(self._strandType)[self._idx]
+            if startBase._strandtype == StrandType.Scaffold:
+                oppositeStrand = StrandType.Staple
+            else:
+                oppositeStrand = StrandType.Scaffold
+            startBaseComplement = vh._strand(oppositeStrand)[self._idx]
+            numBasesInBase = vh.hasLoopOrSkipAt(startBase._strandtype, startBase._n)
+            numBasesInCompBase = vh.hasLoopOrSkipAt(oppositeStrand, startBaseComplement._n)
+            if numBasesInBase!=numBasesInCompBase:
+                # We are applying to an asymmetrical loop
+                self.oldLoopSeq = startBase._sequence
+                startBase._sequence = self._seqStr
+                seqLen = len(self._seqStr)
+                if seqLen==0:
+                    del vh._loop(startBase._strandtype)[startBase._n]
+                else:
+                    vh._loop(startBase._strandtype)[startBase._n] = seqLen
+                vh.setHasBeenModified()
+                vh.emitBasesModifiedIfNeeded()
+                return
+            else:
+                # We use this variable to determine if we 
+                # need to undo an application to an asymmetrical
+                # loop or a strand application, so it always
+                # must be present
+                self.oldLoopSeq = None
+            # We aren't applying to a loop, so we must loop through
+            # the entire strand and apply to each pair of complementary
+            # bases
+            for i in range(len(bases)):
+                b = bases[i]
+                if b._strandtype == StrandType.Scaffold:
+                    oppositeStrand = StrandType.Staple
+                else:
+                    oppositeStrand = StrandType.Scaffold
+                complementary_b = vh._strand(oppositeStrand)[b._n]
+                numBasesInBase = vh.hasLoopOrSkipAt(b._strandtype, b._n)+1
+                numBasesInCompBase = vh.hasLoopOrSkipAt(oppositeStrand, b._n)+1
+                oldBaseStrs.append((b._sequence, complementary_b._sequence))
+                numBasesToUse = numBasesInBase if numBasesInBase<=1 else numBasesInBase-1
+                seq = self._seqStr[charactersUsedFromSeqStr:charactersUsedFromSeqStr+numBasesToUse]
+                if numBasesInCompBase == numBasesInBase:
+                    b._sequence = seq
+                    complementary_b._sequence = util.rcomp(seq)
+                    charactersUsedFromSeqStr += numBasesToUse
+            vh.setHasBeenModified()
+            vh.emitBasesModifiedIfNeeded()
+            
+        def undo(self):
+            vh = self._vh
+            bases = vh._basesConnectedTo(self._strandType, self._idx)
+            startBase = vh._strand(self._strandType)[self._idx]
+            if self.oldLoopSeq != None:
+                startBase._sequence = self.oldLoopSeq
+                vh.setHasBeenModified()
+                vh.emitBasesModifiedIfNeeded()
+                return
+            for i in range(len(bases)):
+                b = bases[i]
+                if b._strandtype == StrandType.Scaffold:
+                    oppositeStrand = StrandType.Staple
+                else:
+                    oppositeStrand = StrandType.Scaffold
+                complementary_b = vh._strand(oppositeStrand)[b._n]
+                bseq, b_comp_seq = self.oldBaseStrs[i]
+                b._sequence = bseq
+                complementary_b._sequence = b_comp_seq
+            vh.setHasBeenModified()
+            vh.emitBasesModifiedIfNeeded()
+                
+            
     class ApplyColorCommand(QUndoCommand):
         def __init__(self, bases, color):
             super(VirtualHelix.ApplyColorCommand, self).__init__()
@@ -972,10 +1083,19 @@ class VirtualHelix(QObject):
             erasedLoops = []
             loopDict = self._vh._loop(self._strandType)
             self.erasedLoopDictItems = {}
-            for i in range(startIdx, endIdx):
+            self.erasedSequenceItems = []
+            firstEmptiedBase = startIdx
+            if strand[startIdx-1].isEmpty():
+                firstEmptiedBase -= 1
+            lastEmptiedBase = endIdx
+            if strand[endIdx].isEmpty():
+                lastEmptiedBase += 1
+            for i in range(firstEmptiedBase, lastEmptiedBase):
                 if loopDict.get(i, None) != None:
                     self.erasedLoopDictItems[i] = loopDict[i]
                     del loopDict[i]
+                self.erasedSequenceItems.append(strand[i]._sequence)
+                strand[i]._sequence = " "
             isEndpt = lambda x: x!=None and x.isEnd()
             potentialNewEndpoints = list(filter(isEndpt, potentialNewEndpoints))
             newEndpts = []
@@ -1009,6 +1129,12 @@ class VirtualHelix(QObject):
             assert(ol != None)  # Must redo/apply before undo
             startIdx = min(self._startIndex, self._endIndex)
             endIdx = max(self._startIndex, self._endIndex)
+            firstEmptiedBase = startIdx
+            if strand[startIdx-1].isEmpty():
+                firstEmptiedBase -= 1
+            lastEmptiedBase = endIdx
+            if strand[endIdx].isEmpty():
+                lastEmptiedBase += 1
             for c in reversed(self.colorSubCommands):
                 c.undo()
             if self._vh.directionOfStrandIs5to3(self._strandType):
@@ -1022,6 +1148,8 @@ class VirtualHelix(QObject):
             loopDict = self._vh._loop(self._strandType)
             for (k, v) in self.erasedLoopDictItems.iteritems():
                 loopDict[k] = v
+            for i in reversed(range(firstEmptiedBase, lastEmptiedBase)):
+                strand[i]._sequence = self.erasedSequenceItems.pop()
             self._vh.emitBasesModifiedIfNeeded()
 
     class Connect3To5Command(QUndoCommand):

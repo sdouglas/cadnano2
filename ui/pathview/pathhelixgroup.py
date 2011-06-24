@@ -55,8 +55,6 @@ util.qtWrapImport('QtGui', globals(), [ 'QBrush', 'QPen', 'qApp', \
                                         'QGraphicsObject', \
                                         'QGraphicsItemGroup', 'QUndoCommand'])
 
-
-
 class PathHelixGroup(QGraphicsObject):
     """
     PathHelixGroup maintains data and state for a set of object that provide
@@ -94,7 +92,7 @@ class PathHelixGroup(QGraphicsObject):
         self.xoverGet = XoverHandle()
         self.setZValue(styles.ZPATHHELIXGROUP)
         self.selectionLock = None
-        self.setAcceptHoverEvents(True)        
+        self.setAcceptHoverEvents(True)
         app().phg = self  # Convenience for the command line -i mode
 
     def __str__(self):
@@ -115,7 +113,6 @@ class PathHelixGroup(QGraphicsObject):
         for ph in self._pathHelixList:
             showHandles = ph==newActivePH or ph.vhelix() in neighborVHs
             ph.setPreXOverHandlesVisible(showHandles)
-        self.notifyLoopHandleGroupAfterUpdate(newActivePH)
     
     def notifyLoopHandleGroupAfterUpdate(self, pathhelix):
         """
@@ -225,9 +222,16 @@ class PathHelixGroup(QGraphicsObject):
                            -leftmostExtent + rightmostExtent,\
                            y + 40)
         for ph in self._pathHelixList:
-            ph.vhelix().basesModified.disconnect(self.update)
+            vhbm = getattr(ph, 'vhelixBasesModifiedCallbackObj', None)
+            if vhbm:
+                ph.vhelix().basesModified.disconnect(vhbm)
         for ph in newList:
-            ph.vhelix().basesModified.connect(self.update)
+            def vhbmCallbackCreator(self, vh):
+                def vhbmCallback():
+                    self.vhelixBasesModified(vh)
+                return vhbmCallback
+            vhbm = vhbmCallbackCreator(self, ph.vhelix())
+            ph.vhelix().basesModified.connect(vhbm)
         self._pathHelixList = newList
         self.vhToPathHelix = dict(((ph.vhelix(), ph) for ph in newList))
         self.scene().views()[0].zoomToFit()
@@ -326,6 +330,11 @@ class PathHelixGroup(QGraphicsObject):
             if ph.vhelix() == vh:
                 return ph
         return None
+    
+    def vhelixBasesModified(self, vhelix):
+        self.update()
+        ph = self.getPathHelix(vhelix)
+        self.notifyLoopHandleGroupAfterUpdate(ph)
 
     def reorderHelices(self, first, last, indexDelta):
         """

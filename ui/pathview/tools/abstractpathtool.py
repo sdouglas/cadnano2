@@ -44,7 +44,7 @@ util.qtWrapImport('QtGui', globals(), [ 'QGraphicsItem', 'QGraphicsItemGroup', \
 # this, "mother" adopts orphaned graphics items.
 mother = QGraphicsItemGroup()
 
-class AbstractPathTool(QGraphicsItem):
+class AbstractPathTool(QGraphicsObject):
     """
     Abstract base class to be subclassed by all other pathview tools.
 

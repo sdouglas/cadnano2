@@ -252,12 +252,6 @@ class LoopHandleGroup(QGraphicsItem):
         self.rect = QRectF(0, 0, 0, 0)
         self.handles = []
 
-        for i in range(128):
-            self.handles.append(LoopHandle(parent=self))
-        # end for
-        self.activeCount = 0
-    # end def
-
     def boundingRect(self):
         return self.rect
     # end def
@@ -273,29 +267,19 @@ class LoopHandleGroup(QGraphicsItem):
         to a pair of LoopHandle that must be updated and displayed.
         """
         vhelix = ph.vhelix()
-        count = 0
-        # Process Scaffold PreXoverHandles
-        strandtype = StrandType.Scaffold
+        for oldHandle in self.handles:
+            oldHandle.scene().removeItem(oldHandle)
+        scafLoopDict = vhelix._loop(StrandType.Scaffold)
+        stapLoopDict = vhelix._loop(StrandType.Staple)
+        numLoopsNeeded = len(scafLoopDict) + len(stapLoopDict)
+        while len(self.handles) < numLoopsNeeded:
+            self.handles.append(LoopHandle(parent=ph))
+        while len(self.handles) > numLoopsNeeded:
+            handle = self.handles.pop()
+            handle.scene().removeItem(handle)
         i = 0
-        # this is summing keys in a dictionary
-        countScaf = len(vhelix._loop(strandtype))
-        if countScaf > 0:
+        for strandtype in (StrandType.Scaffold, StrandType.Staple):
             for index, loopsize in vhelix._loop(strandtype).iteritems():
                 self.handles[i].setLabel(ph, strandtype, index, loopsize)
                 i += 1
-        strandtype = StrandType.Staple
-        countStap = len(vhelix._loop(strandtype))
-        if countStap > 0:
-            for index, loopsize in vhelix._loop(strandtype).iteritems():
-                self.handles[i].setLabel(ph, strandtype, index, loopsize)
-                i += 1
-        # hide extra precrossoverhandles as necessary
-        count = countStap + countScaf
-        if self.activeCount > count:
-            for i in range(count, self.activeCount):
-                self.handles[i].hide()
-            # end for
-        # end if
-        self.activeCount = count
-    # end def
-# end class
+

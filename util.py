@@ -111,8 +111,15 @@ def defineEventForwardingMethodsForClass(classObj, forwardedEventSuffix, eventNa
         eventHandler = makeTemplateMethod(eventMethodName, delegateMethodName)
         setattr(classObj, eventMethodName, eventHandler)
 
-# def randomBrightColor():
-#     newHue = prng.randint(0, 255)
-#     newColor = QColor()
-#     newColor.setHsv(newHue, 255, 255)
-#     return newColor
+def strToDna(sequenceStr):
+    """
+    Returns str having been reduced to capital ACTG
+    """
+    return "".join(c.capitalize() if c in 'actgACTG' else '' for c in sequenceStr)
+
+def rcomp(seqStr):
+    """
+    Returns the reversed complement of the sequence in seqStr
+    """
+    seqStr = strToDna(seqStr)
+    return "".join({'A':'T', 'T':'A', 'C':'G', 'G':'C'}[c] for c in reversed(seqStr))
