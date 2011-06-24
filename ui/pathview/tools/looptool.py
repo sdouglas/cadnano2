@@ -46,6 +46,11 @@ util.qtWrapImport('QtGui', globals(), [ 'QGraphicsItem', 'QBrush', 'QFont',
                                         'QPainterPath'])
 
 class LoopTool(AbstractPathTool):
+    _loopItem = LoopItem()
+    _boundingRect = _loopItem._loopPathDownRect.united(\
+                        _loopItem._loopPathUpRect)
+    _boundingRect = _boundingRect.united(AbstractPathTool._rect)
+    
     def __init__(self, controller, parent=None):
         """
         This class inherits from the PathTool class for the majority of
@@ -56,7 +61,6 @@ class LoopTool(AbstractPathTool):
         Its parent should be *always* be a PathHelix.
         """
         super(LoopTool, self).__init__(controller, parent)
-        self._loopItem = LoopItem()
         _pen = QPen(styles.bluestroke, 2)
         self.baseWidth = styles.PATH_BASE_WIDTH
         self.hide()
@@ -70,7 +74,9 @@ class LoopTool(AbstractPathTool):
         painter.drawRect(self._toolRect)
         painter.setPen(self._loopItem.getPen())
         painter.drawPath(self._loopItem.getLoop(self._isTop))
-    # end def
+    
+    def boundingRect(self):
+        return self._boundingRect
 
     def hoverMovePathHelix(self, ph, event, flag=None):
         """

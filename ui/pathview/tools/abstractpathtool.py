@@ -66,11 +66,10 @@ class AbstractPathTool(QGraphicsObject):
     _baseWidth = styles.PATH_BASE_WIDTH
     _toolRect = QRectF(0, 0,\
                        _baseWidth, _baseWidth)  # protected not private
-    _rect = QRectF(0, 0,\
-                   _baseWidth +\
-                   styles.PATH_BASE_HL_STROKE_WIDTH / 2,\
-                   _baseWidth +\
-                   styles.PATH_BASE_HL_STROKE_WIDTH / 2)
+    _rect = QRectF(-styles.PATH_BASE_HL_STROKE_WIDTH,\
+                   -styles.PATH_BASE_HL_STROKE_WIDTH,\
+                   _baseWidth + 2*styles.PATH_BASE_HL_STROKE_WIDTH,\
+                   _baseWidth + 2*styles.PATH_BASE_HL_STROKE_WIDTH)
     _pen = QPen(styles.redstroke, styles.PATH_BASE_HL_STROKE_WIDTH)
     _brush = QBrush(Qt.NoBrush)
     
