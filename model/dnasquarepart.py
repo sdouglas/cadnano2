@@ -24,22 +24,22 @@
 from .dnapart import DNAPart
 from .enum import LatticeType, Crossovers
 
-class DNAHoneycombPart(DNAPart):
+class DNASquarePart(DNAPart):
     # Used in VirtualHelix::potentialCrossoverList
-    step = 21  # 32 in square
-    scafL = Crossovers.honeycombScafLeft
-    scafR = Crossovers.honeycombScafRight
-    stapL = Crossovers.honeycombStapLeft
-    stapR = Crossovers.honeycombStapRight
+    step = 32  # 21 in honeycomb
+    scafL = Crossovers.squareScafLeft
+    scafR = Crossovers.squareScafRight
+    stapL = Crossovers.squareStapLeft
+    stapR = Crossovers.squareStapRight
 
     def __init__(self, *args, **kwargs):
-        super(DNAHoneycombPart, self).__init__(*args, **kwargs)
+        super(DNASquarePart, self).__init__(*args, **kwargs)
         self._maxBase = 2*self.step
         self._activeSlice = self.step
         self._majorGridLine = self.step/4
 
     def __repr__(self):
-        s = "HoneycombPart[" +\
+        s = "SquarePart[" +\
             ','.join(repr(self._numberToVirtualHelix[k])\
             for k in self._numberToVirtualHelix) + "]"
         return s
@@ -51,7 +51,7 @@ class DNAHoneycombPart(DNAPart):
     def virtualHelixParityEven(self, vhref):
         """A property of the part, because the part is responsible for laying out
         the virtualhelices and parity is a property of the layout more than it is a
-        property of a helix (maybe a non-honeycomb layout could support a different
+        property of a helix (maybe a non-square layout could support a different
         notion of parity?)"""
         vh = self.getVirtualHelix(vhref, returnNoneIfAbsent=False)
         return self.coordinateParityEven(vh.coord())
@@ -73,8 +73,8 @@ class DNAHoneycombPart(DNAPart):
 
     def crossSectionType(self):
         """Returns the cross-section type of the DNA part."""
-        return LatticeType.Honeycomb
-
+        return LatticeType.Square
+        
     def crossSectionStep(self):
         """Returns the cross-section type of the DNA part."""
         return self.step
@@ -84,5 +84,5 @@ class DNAHoneycombPart(DNAPart):
 
     ########################## Archiving / Unarchiving #########################
     def fillSimpleRep(self, sr):
-        super(DNAHoneycombPart, self).fillSimpleRep(sr)
-        sr['.class'] = 'DNAHoneycombPart'
+        super(DNASquarePart, self).fillSimpleRep(sr)
+        sr['.class'] = 'DNASquarePart'

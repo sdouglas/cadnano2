@@ -28,12 +28,14 @@ Created by Jonathan deWerd on 2011-01-26.
 """
 import json
 from .dnahoneycombpart import DNAHoneycombPart
+from .dnasquarepart import DNASquarePart
 from .document import Document
 from .virtualhelix import VirtualHelix
 from json_io import doc_from_legacy_dict
 
 classNameToClassMap = {}
 classNameToClassMap['DNAHoneycombPart'] = DNAHoneycombPart
+classNameToClassMap['DNASquarePart'] = DNASquarePart
 classNameToClassMap['Document'] = Document
 classNameToClassMap['VirtualHelix'] = VirtualHelix
 

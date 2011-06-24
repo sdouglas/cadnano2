@@ -39,7 +39,7 @@ import util
 util.qtWrapImport('QtCore', globals(), ['pyqtSignal', 'QString', 'QFileInfo'] )
 util.qtWrapImport('QtGui', globals(), [ 'QGraphicsItem', 'QMainWindow', \
                                         'QGraphicsScene', 'QGraphicsView', \
-                                        'QApplication', 'QAction'] )
+                                        'QApplication', 'QAction', 'QMessageBox'] )
 
 class SceneRoot(QGraphicsItem):
     def __init__(self, rectsource=None):
@@ -82,8 +82,6 @@ class DocumentWindow(QMainWindow, ui_mainwindow.Ui_MainWindow):
         self.pathController = pathcontroller.PathController(self)
         self.sliceController.pathController = self.pathController
         self.pathController.sliceController = self.sliceController
-        self.pathGraphicsView.setViewportUpdateMode(\
-                    QGraphicsView.FullViewportUpdate)
 
         # Edit menu setup
         self.actionUndo = docCtrlr.undoStack().createUndoAction(self)
@@ -98,7 +96,7 @@ class DocumentWindow(QMainWindow, ui_mainwindow.Ui_MainWindow):
         self.menuEdit.insertAction(self.sep, self.actionRedo)
         self.menuEdit.insertAction(self.actionRedo, self.actionUndo)
         # self.showSizes()
-    
+
     def undoStack(self):
         return self.controller.undoStack()
 
@@ -114,3 +112,14 @@ class DocumentWindow(QMainWindow, ui_mainwindow.Ui_MainWindow):
 
     def focusInEvent(self):
         app().undoGroup.setActiveStack(self.controller.undoStack())
+
+    def maybeSave(self):
+        if True:    # document dirty?
+            ret = QMessageBox.warning(self, "Application", \
+                         "The document has been modified.\n Do you want to save your changes?", \
+                         QMessageBox.Save | QMessageBox.Discard | QMessageBox.Cancel)
+            if ret == QMessageBox.Save:
+                return save()
+            elif ret == QMessageBox.Cancel:
+                return False
+        return True

@@ -29,8 +29,8 @@ Created by Jonathan deWerd on 2011-01-26.
 
 import json
 from .dnahoneycombpart import DNAHoneycombPart
-# from PyQt4.QtCore import QObject, pyqtSignal
-# from PyQt4.QtGui import QUndoStack
+from .dnasquarepart import DNASquarePart
+
 import util
 # import Qt stuff into the module namespace with PySide, PyQt4 independence
 util.qtWrapImport('QtCore', globals(), ['pyqtSignal', 'QObject'] )
@@ -54,6 +54,14 @@ class Document(QObject):
         Create and store a new DNAPart and instance, and return the instance.
         """
         dnapart = DNAHoneycombPart()
+        self.addPart(dnapart)
+        return dnapart
+    
+    def addDnaSquarePart(self):
+        """
+        Create and store a new DNAPart and instance, and return the instance.
+        """
+        dnapart = DNASquarePart()
         self.addPart(dnapart)
         return dnapart
     

@@ -31,13 +31,6 @@ from model.enum import StrandType, Parity, BreakType, HandleOrient
 import ui.styles as styles
 from itertools import product
 
-# from PyQt4.QtCore import QPointF, QRectF, Qt
-# from PyQt4.QtGui import QBrush, QFont
-# from PyQt4.QtGui import QGraphicsItem, QGraphicsSimpleTextItem, QFontMetrics
-# from PyQt4.QtGui import QPainterPath
-# from PyQt4.QtGui import QPolygonF
-# from PyQt4.QtGui import QPen, QUndoCommand
-
 import util
 # import Qt stuff into the module namespace with PySide, PyQt4 independence
 util.qtWrapImport('QtCore', globals(), ['QPointF', 'QRectF', 'Qt'] )

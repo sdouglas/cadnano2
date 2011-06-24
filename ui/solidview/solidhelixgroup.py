@@ -43,7 +43,6 @@ import pymel.api as fromBaseCenter
 import maya.OpenMayaUI as mui
 import maya.OpenMaya as mo
 
-# from PyQt4.QtCore import pyqtSignal, pyqtSlot, QObject
 import util
 # import Qt stuff into the module namespace with PySide, PyQt4 independence
 util.qtWrapImport('QtCore', globals(), [ 'pyqtSignal', 'pyqtSlot', 'QObject'] )

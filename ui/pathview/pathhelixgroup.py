@@ -133,7 +133,7 @@ class PathHelixGroup(QGraphicsObject):
         return self._controller
 
     def activeSliceHandle(self):
-        return self._activeSliceHandle  
+        return self._activeSliceHandle
 
     def label(self):
         if self._label:
@@ -243,7 +243,7 @@ class PathHelixGroup(QGraphicsObject):
         # painter.restore()
 
     def drawXovers(self, painter):
-        """Return a QPainterPath ready to paint the crossovers"""    
+        """Return a QPainterPath ready to paint the crossovers"""
         for ph in self._pathHelixList:
             for strandType in (StrandType.Scaffold, StrandType.Staple):
                 for ((fromhelix, fromindex), dest) in \
@@ -264,15 +264,20 @@ class PathHelixGroup(QGraphicsObject):
                                                   floatPos)
                     # draw the line
                     # reload scaffold strand pen
-                    if strandType==StrandType.Scaffold:
+                    if strandType == StrandType.Scaffold:
                         pen = self._scafPen
                     else:
-                        pen = self._stapPen
-                        color = ph.vhelix().colorOfBase(strandType, fromindex)
-                        pen.setColor(color)
+                        pen = QPen(self._stapPen)
+                        color = QColor(ph.vhelix().colorOfBase(strandType, fromindex))
                         oligoLength = ph.vhelix().numberOfBasesConnectedTo(strandType, fromindex)
-                        tooLong = oligoLength>styles.oligoLenAboveWhichDrawnDashed
-                        pen.setStyle(Qt.DashLine if tooLong else Qt.SolidLine)
+                        if oligoLength > styles.oligoLenAboveWhichHighlight or\
+                           oligoLength < styles.oligoLenBelowWhichHighlight:
+                            pen.setWidth(styles.PATH_STRAND_HIGHLIGHT_STROKE_WIDTH)
+                            color.setAlpha(128)
+                        else:
+                            pen.setWidth(styles.PATH_STRAND_STROKE_WIDTH)
+                            color.setAlpha(255)
+                        pen.setColor(color)
                     painter.setPen(pen)
                     painter.drawPath(path[0])
                     
@@ -284,7 +289,7 @@ class PathHelixGroup(QGraphicsObject):
                     # test to see if we need to draw the to label for the xover
                     # this comes in handy when drawing forced xovers
                     if toPH != None:
-                        painter.drawText(path[2], 
+                        painter.drawText(path[2],
                                         Qt.AlignCenter, str(toPH.number()))
                 # end for
             # end for strandType in scaf, stap
@@ -345,7 +350,7 @@ class PathHelixGroup(QGraphicsObject):
         # print "called reorderHelices", first, last, indexDelta
         # vhs = self.displayedVHs()
         # vhsToMove = vhs[first:last]
-        # del vhs[first:last]  
+        # del vhs[first:last]
 
         helixNumbers = [ph.number() for ph in self._pathHelixList]
         firstIndex = helixNumbers.index(first)
@@ -363,9 +368,21 @@ class PathHelixGroup(QGraphicsObject):
                                  self._pathHelixList[lastIndex:newIndex] +\
                                  self._pathHelixList[firstIndex:lastIndex] +\
                                  self._pathHelixList[newIndex:]
-        
         listVHs = [ph.vhelix() for ph in listPHs]
         self.setDisplayedVHs(listVHs)
+    # end def
+    
+    # These methods are required since hover events are accepted
+    # and no additional event handler exists in order to prevent additional
+    # phg redraws
+    def hoverEnterEvent(self, event):
+        pass
+        # QGraphicsItem.hoverEnterEvent(self, event)
+    # end def 
+    
+    def hoverLeaveEvent(self, event):
+        pass
+        # QGraphicsItem.hoverEnterEvent(self, event)
     # end def
 # end class
 
@@ -549,7 +566,6 @@ class PathHelixHandleSelectionBox(QGraphicsItem):
                                    items[-1].number(),\
                                    indexDelta)
     # end def
-    
 # end class
 
 class BreakpointHandleSelectionBox(QGraphicsItem):

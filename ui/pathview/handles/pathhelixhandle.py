@@ -35,10 +35,10 @@ import ui.styles as styles
 import util
 # import Qt stuff into the module namespace with PySide, PyQt4 independence
 util.qtWrapImport('QtCore', globals(), ['QPointF', 'QRectF', 'Qt'])
-util.qtWrapImport('QtGui', globals(), [ 'QBrush', 'QFont', 'QGraphicsItem' \
-                                        'QGraphicsSimpleTextItem', 'QPen',\
-                                        'QGraphicsTextItem', 'QDrag', \
-                                        'QUndoCommand' ])
+util.qtWrapImport('QtGui', globals(), ['QBrush', 'QFont', 'QGraphicsItem',\
+                                       'QGraphicsSimpleTextItem', 'QPen',\
+                                       'QGraphicsTextItem', 'QDrag', \
+                                       'QUndoCommand'])
 
 class PathHelixHandle(QGraphicsItem):
     """docstring for PathHelixHandle"""
@@ -76,7 +76,6 @@ class PathHelixHandle(QGraphicsItem):
         return self.rect
 
     def paint(self, painter, option, widget=None):
-        self.setNumber()
         if self.number() >= 0:
             if self.isSelected():
                 painter.setBrush(self.hovBrush)

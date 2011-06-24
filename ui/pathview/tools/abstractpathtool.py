@@ -116,21 +116,26 @@ class AbstractPathTool(QGraphicsObject):
         position the new tool and snaps self's pos to the upper
         left hand corner of the base the user is mousing over"""
         if pathHelix:
-            self.setParentItem(pathHelix)
+            if self.parentItem() != pathHelix:
+                self.setParentItem(pathHelix)
             self._lastLocation = (pathHelix, scenePos)
             posItem = self.parentItem().mapFromScene(scenePos)
             pos = self.helixPos(posItem)
             if pos != None:
-                self.setPos(pos)
+                if pos != self.pos():
+                    self.setPos(pos)
                 self.update(self.boundingRect())
                 if not self.isVisible():
                     self.show()
+                    pass
             #base = self.baseAtPoint(pathHelix, posItem)
             #print pathHelix.vhelix().numberOfBasesConnectedTo(*base)
         else:
             self._lastLocation = None
-            self.hide()
-            self.setParentItem(mother)
+            if self.isVisible():
+                self.hide()
+            if self.parentItem != mother:
+                self.setParentItem(mother)
 
     def setActive(self, willBeActive, oldTool=None):
         """
@@ -157,9 +162,9 @@ class AbstractPathTool(QGraphicsObject):
         x, strandIdx = self.helixIndex(pt)
         vh = pathHelix.vhelix()
         if vh.evenParity():
-            strandType = (StrandType.Scaffold, StrandType.Staple)[strandIdx]
+            strandType = (StrandType.Scaffold, StrandType.Staple)[util.clamp(strandIdx, 0, 1)]
         else:
-            strandType = (StrandType.Staple, StrandType.Scaffold)[strandIdx]
+            strandType = (StrandType.Staple, StrandType.Scaffold)[util.clamp(strandIdx, 0, 1)]
         return (strandType, x)
     
     def helixIndex(self, point):
