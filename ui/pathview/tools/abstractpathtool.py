@@ -29,15 +29,12 @@ Created by Shawn on 2011-05-03.
 from model.enum import StrandType
 import ui.styles as styles
 
-# from PyQt4.QtGui import QGraphicsItem, QGraphicsItemGroup
-# from PyQt4.QtCore import QPointF, QRectF, Qt
-# from PyQt4.QtGui import QBrush, QFont, QPen
-
 import util
 # import Qt stuff into the module namespace with PySide, PyQt4 independence
 util.qtWrapImport('QtCore', globals(), ['QPointF', 'QRectF', 'Qt'] )
 util.qtWrapImport('QtGui', globals(), [ 'QGraphicsItem', 'QGraphicsItemGroup', \
-                                        'QBrush', 'QFont', 'QPen'])
+                                        'QBrush', 'QFont', 'QPen', \
+                                        'QGraphicsObject'])
 
 # There's a bug where C++ will free orphaned
 # graphics items out from under pyqt. To avoid

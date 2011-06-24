@@ -96,7 +96,9 @@ class HoneycombSliceGraphicsItem(QGraphicsItem):  # was a QGraphicsObject change
     # end def
 
     def destroy(self):
+        self._part.partRemoved.disconnect(self.destroy)
         self.scene().removeItem(self)
+        self.setPart(None)
     # end def
     
     def part(self):
@@ -106,13 +108,14 @@ class HoneycombSliceGraphicsItem(QGraphicsItem):  # was a QGraphicsObject change
         if self._part:
             self._part.dimensionsWillChange.disconnect(self._setDimensions)
             self._part.selectionWillChange.disconnect(self.selectionWillChange)
-            self._part.activeSliceWillChange.disconnect(self.activeSliceWillChange)
+            self._part.activeSliceWillChange.disconnect(self.activeSliceChanged)
             self._part.virtualHelixAtCoordsChanged.disconnect(self.vhAtCoordsChanged)
-        self._setDimensions(newPart.dimensions())
-        newPart.dimensionsWillChange.connect(self._setDimensions)
-        newPart.selectionWillChange.connect(self.selectionWillChange)
-        newPart.activeSliceWillChange.connect(self.activeSliceChanged)
-        newPart.virtualHelixAtCoordsChanged.connect(self.vhAtCoordsChanged)
+        if newPart != None:
+            self._setDimensions(newPart.dimensions())
+            newPart.dimensionsWillChange.connect(self._setDimensions)
+            newPart.selectionWillChange.connect(self.selectionWillChange)
+            newPart.activeSliceWillChange.connect(self.activeSliceChanged)
+            newPart.virtualHelixAtCoordsChanged.connect(self.vhAtCoordsChanged)
         self._part = newPart
     
     def upperLeftCornerForCoords(self, row, col):
@@ -181,6 +184,8 @@ class HoneycombSliceGraphicsItem(QGraphicsItem):  # was a QGraphicsObject change
         pass
     
     def selectionWillChange(self, newSel):
+        if self.part() == None:
+            print "I am none honey g select", self.part()
         if self.part().selectAllBehavior:
             return
         for sh in self._helixhash.itervalues():

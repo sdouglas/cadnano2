@@ -45,7 +45,7 @@ import ui.styles as styles
 import util
 # import Qt stuff into the module namespace with PySide, PyQt4 independence
 util.qtWrapImport('QtCore', globals(), ['Qt'] )
-util.qtWrapImport('QtGui', globals(),  ['QGraphicsView'])
+util.qtWrapImport('QtGui', globals(),  ['QGraphicsView', 'qApp'])
 
 
 class CustomQGraphicsView(QGraphicsView):

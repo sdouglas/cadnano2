@@ -86,7 +86,10 @@ class SquareSliceGraphicsItem(QGraphicsItem):  # was a QGraphicsObject change fo
     # end def
     
     def destroy(self):
+        self._part.partRemoved.disconnect(self.destroy)
         self.scene().removeItem(self)
+        self.setPart(None)
+    # end def
     
     def part(self):
         return self._part
@@ -95,13 +98,14 @@ class SquareSliceGraphicsItem(QGraphicsItem):  # was a QGraphicsObject change fo
         if self._part:
             self._part.dimensionsWillChange.disconnect(self._setDimensions)
             self._part.selectionWillChange.disconnect(self.selectionWillChange)
-            self._part.activeSliceWillChange.disconnect(self.activeSliceWillChange)
+            self._part.activeSliceWillChange.disconnect(self.activeSliceChanged)
             self._part.virtualHelixAtCoordsChanged.disconnect(self.vhAtCoordsChanged)
-        self._setDimensions(newPart.dimensions())
-        newPart.dimensionsWillChange.connect(self._setDimensions)
-        newPart.selectionWillChange.connect(self.selectionWillChange)
-        newPart.activeSliceWillChange.connect(self.activeSliceChanged)
-        newPart.virtualHelixAtCoordsChanged.connect(self.vhAtCoordsChanged)
+        if newPart != None:
+            self._setDimensions(newPart.dimensions())
+            newPart.dimensionsWillChange.connect(self._setDimensions)
+            newPart.selectionWillChange.connect(self.selectionWillChange)
+            newPart.activeSliceWillChange.connect(self.activeSliceChanged)
+            newPart.virtualHelixAtCoordsChanged.connect(self.vhAtCoordsChanged)
         self._part = newPart
     
     def upperLeftCornerForCoords(self, row, col):

@@ -30,6 +30,7 @@ Created by Jonathan deWerd on 2011-01-26.
 import json
 from .dnahoneycombpart import DNAHoneycombPart
 from .dnasquarepart import DNASquarePart
+from .enum import LatticeType
 
 import util
 # import Qt stuff into the module namespace with PySide, PyQt4 independence
@@ -55,8 +56,8 @@ class Document(QObject):
         """
         dnapart = None
         if len(self._parts) == 0:
-            dnapart = DNAHoneycombPart()
-            self.addPart(dnapart)
+            # dnapart = DNAHoneycombPart()
+            dnapart = self.addPart(LatticeType.Honeycomb)
         return dnapart
     
     def addDnaSquarePart(self):
@@ -65,14 +66,15 @@ class Document(QObject):
         """
         dnapart = None
         if len(self._parts) == 0:
-            dnapart = DNASquarePart()
-            self.addPart(dnapart)
+            # dnapart = DNASquarePart()
+            dnapart = self.addPart(LatticeType.Square)
         return dnapart
     
     def parts(self):
         return self._parts
         
     partAdded = pyqtSignal(object)
+    partReAdded = pyqtSignal(object)
     def addPart(self, part):
         undoStack = self.undoStack()
         c = self.PartCreateCommand(self, part)
@@ -80,15 +82,23 @@ class Document(QObject):
             self.undoStack().push(c)
         else:
             c.redo()
+        return c.part()
         
     class PartCreateCommand(QUndoCommand):
         """
         Undo ready command for deleting a part.
         """
-        def __init__(self, document, part):
+        def __init__(self, document, latticeType):
             super(Document.PartCreateCommand, self).__init__()
             self._doc = document
-            self._part = part
+            if latticeType == LatticeType.Honeycomb:
+                self._part = DNAHoneycombPart()
+            else:
+                self._part = DNASquarePart()
+        # end def
+        
+        def part(self):
+            return self._part
 
         def redo(self):
             if len(self._doc._parts) == 0:
@@ -98,12 +108,11 @@ class Document(QObject):
                 self._doc.partAdded.emit(self._part)
 
         def undo(self):
-            if len(self._doc._parts) > 0:
-                self._part.partRemoved.emit()
-                self._part._setDocument(None)
-                self._doc._parts.remove(self._part)
-                self._doc.setSelectedPart(None)
-                
+            # if len(self._doc._parts) > 0:
+            # self._doc.setSelectedPart(None)
+            self._part._setDocument(None)
+            self._doc._parts.remove(self._part)
+            self._part.partRemoved.emit()
 
     def undoStack(self):
         return self.controller().undoStack()

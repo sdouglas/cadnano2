@@ -29,7 +29,6 @@ Created by Jonathan deWerd on 2011-01-26.
 from exceptions import NotImplementedError
 from cadnano import app
 
-# from PyQt4.QtCore import QObject
 import util
 # import Qt stuff into the module namespace with PySide, PyQt4 independence
 util.qtWrapImport('QtCore', globals(), ['pyqtSignal', 'QObject'] )

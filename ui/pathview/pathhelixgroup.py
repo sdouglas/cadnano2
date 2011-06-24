@@ -83,6 +83,7 @@ class PathHelixGroup(QGraphicsObject):
                                          boxtype=PathHelixHandleSelectionBox,\
                                          constraint='y',\
                                          parent=self)
+
         self.setPart(part)
         self._controller = controller
         self._activeSliceHandle = ActiveSliceHandle(self)
@@ -99,7 +100,10 @@ class PathHelixGroup(QGraphicsObject):
         self._part.partRemoved.connect(self.destroy)
 
     def destroy(self):
+        self._part.partRemoved.disconnect(self.destroy)
         self.scene().removeItem(self)
+        self.setPart(None)
+    # end def
 
     def __str__(self):
         return "I am a PHG!"
@@ -130,7 +134,8 @@ class PathHelixGroup(QGraphicsObject):
     def setPart(self, newPart):
         if self._part:
             self._part.selectionWillChange.disconnect(self.selectionWillChange)
-        newPart.selectionWillChange.connect(self.selectionWillChange)
+        if newPart:
+            newPart.selectionWillChange.connect(self.selectionWillChange)
         self._part = newPart
         if newPart:
             self.selectionWillChange(newPart.selection())
@@ -173,20 +178,20 @@ class PathHelixGroup(QGraphicsObject):
         has the same VirtualHelix in the same order as vhrefs
         (though displayedVHs always returns a list of VirtualHelix
         while setDisplayedVHs can take any vhref)"""
-        # print "I got called"
-        assert(self.part())  # Can't display VirtualHelix that aren't there!
-        new_pathHelixList = []
-        vhToPH = dict(((ph.vhelix(), ph) for ph in self._pathHelixList))
-        for vhref in vhrefs:
-            vh = self.part().getVirtualHelix(vhref)
-            ph = vhToPH.get(vh, None)
-            if ph == None:
-                ph = PathHelix(vh, self)
-            new_pathHelixList.append(ph)
-        # print [x.number() for x in new_pathHelixList]
-        self._set_pathHelixList(new_pathHelixList)
-        # print "updating disp vhs"
-        self.displayedVHsChanged.emit()
+        if self.part() != None:
+            assert(self.part())  # Can't display VirtualHelix that aren't there!
+            new_pathHelixList = []
+            vhToPH = dict(((ph.vhelix(), ph) for ph in self._pathHelixList))
+            for vhref in vhrefs:
+                vh = self.part().getVirtualHelix(vhref)
+                ph = vhToPH.get(vh, None)
+                if ph == None:
+                    ph = PathHelix(vh, self)
+                new_pathHelixList.append(ph)
+            # print [x.number() for x in new_pathHelixList]
+            self._set_pathHelixList(new_pathHelixList)
+            # print "updating disp vhs"
+            self.displayedVHsChanged.emit()
 
     def __pathHelixList(self):
         return self._pathHelixList
@@ -336,16 +341,18 @@ class PathHelixGroup(QGraphicsObject):
 
     def getPathHelix(self, vhref):
         """Given the helix number, return a reference to the PathHelix."""
-        vh = self.part().getVirtualHelix(vhref)
-        for ph in self._pathHelixList:
-            if ph.vhelix() == vh:
-                return ph
+        if self.part() != None:
+            vh = self.part().getVirtualHelix(vhref)
+            for ph in self._pathHelixList:
+                if ph.vhelix() == vh:
+                    return ph
         return None
     
     def vhelixBasesModified(self, vhelix):
         self.update()
         ph = self.getPathHelix(vhelix)
-        self.notifyLoopHandleGroupAfterUpdate(ph)
+        if ph != None:
+            self.notifyLoopHandleGroupAfterUpdate(ph)
 
     def reorderHelices(self, first, last, indexDelta):
         """
