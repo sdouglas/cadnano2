@@ -606,7 +606,7 @@ class VirtualHelix(QObject):
     
     def emitBasesModifiedIfNeeded(self):
         if self.part():
-            for vh in self.part().basesModifiedVHs:
+            for vh in list(self.part().basesModifiedVHs):
                 vh.basesModified.emit()
             self.part().basesModifiedVHs.clear()
             self.part()._recalculateStrandLengths()
