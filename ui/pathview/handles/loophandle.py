@@ -201,7 +201,10 @@ class LoopHandle(QGraphicsItem):
         This is run on the label being changed
         """
         test = unicode(self._label.toPlainText())
-        self._loopsize = int(test)
+        try:
+            self._loopsize = int(test)
+        except:
+            self._loopsize = 0
         self.parentItem().vhelix().installLoop(self._strandtype,\
                                                 self._index,\
                                                 self._loopsize)
@@ -250,7 +253,7 @@ class LoopHandleGroup(QGraphicsItem):
         super(LoopHandleGroup, self).__init__(parent)
         self.setZValue(styles.ZLOOPHANDLE)
         self.parent = parent
-        self.handles = []
+        self.handles = {}
 
     def boundingRect(self):
         return QRectF()
@@ -265,17 +268,20 @@ class LoopHandleGroup(QGraphicsItem):
         to a pair of LoopHandle that must be updated and displayed.
         """
         vhelix = ph.vhelix()
+        handles = self.handles.get(vhelix,[])
+        if not handles:
+            self.handles[vhelix] = handles
         scafLoopDict = vhelix._loop(StrandType.Scaffold)
         stapLoopDict = vhelix._loop(StrandType.Staple)
         numLoopsNeeded = len(scafLoopDict) + len(stapLoopDict)
-        while len(self.handles) < numLoopsNeeded:
-            self.handles.append(LoopHandle(parent=ph))
-        while len(self.handles) > numLoopsNeeded:
-            handle = self.handles.pop()
+        while len(handles) < numLoopsNeeded:
+            handles.append(LoopHandle(parent=ph))
+        while len(handles) > numLoopsNeeded:
+            handle = handles.pop()
             handle.scene().removeItem(handle)
         i = 0
         for strandtype in (StrandType.Scaffold, StrandType.Staple):
             for index, loopsize in vhelix._loop(strandtype).iteritems():
-                self.handles[i].setLabel(ph, strandtype, index, loopsize)
+                handles[i].setLabel(ph, strandtype, index, loopsize)
                 i += 1
 
