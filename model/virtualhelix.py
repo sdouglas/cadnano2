@@ -759,7 +759,11 @@ class VirtualHelix(QObject):
         else:
             c.redo()
         self.emitBasesModifiedIfNeeded()
-            
+    
+    def baseApplyToolWouldApplyTo(self, strandType, index):
+        """
+        Returns (vh, strandType, idx) that 
+        """
 
     def setFloatingXover(self, strandType=None, fromIdx=None, toPoint=None):
         """The floating crossover is a GUI hack that is the

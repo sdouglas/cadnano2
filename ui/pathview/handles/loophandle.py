@@ -69,10 +69,12 @@ class LoopItem(object):
     _loopGen(_loopPathUp, _pathStart, _pathUpUpCtrlPt,\
              _pathMidUp, _pathUpDownCtrlPt)
     _loopPathUp.translate(_offset, 0)
+    _loopPathUpRect = _loopPathUp.boundingRect()
     _loopPathDown = QPainterPath()
     _loopGen(_loopPathDown, _pathStart, _pathDownDownCtrlPt,\
              _pathMidDown, _pathDownUpCtrlPt)
     _loopPathDown.translate(-_offset, 0)
+    _loopPathDownRect = _loopPathDown.boundingRect()
 
     def __init__(self):
         super(LoopItem, self).__init__()
@@ -131,11 +133,14 @@ class LoopHandle(QGraphicsItem):
     This is just the shape of the Loop item
     """
     _myRect = QRectF(0, 0, styles.PATH_BASE_WIDTH, styles.PATH_BASE_WIDTH)
+    _myRect = _myRect.united(LoopItem._loopPathUpRect)
+    _myRect = _myRect.united(LoopItem._loopPathDownRect)
     _pen = QPen(styles.bluestroke, 2)
     _baseWidth = styles.PATH_BASE_WIDTH
     _offset = styles.PATH_BASE_WIDTH / 4
     _halfbaseWidth = _baseWidth / 2
     _font = QFont("Times", 10, QFont.Bold)
+    _myRect.adjust(-15, -15, 30, 30)
 
     def __init__(self, parent=None):
         super(LoopHandle, self).__init__(parent)
@@ -249,16 +254,13 @@ class LoopHandleGroup(QGraphicsItem):
         super(LoopHandleGroup, self).__init__(parent)
         self.setZValue(styles.ZLOOPHANDLE)
         self.parent = parent
-        self.rect = QRectF(0, 0, 0, 0)
         self.handles = []
 
     def boundingRect(self):
-        return self.rect
-    # end def
+        return QRectF()
 
     def paint(self, painter, option, widget=None):
         pass
-    # end def
 
     def updateActiveHelix(self, ph):
         """
@@ -267,8 +269,6 @@ class LoopHandleGroup(QGraphicsItem):
         to a pair of LoopHandle that must be updated and displayed.
         """
         vhelix = ph.vhelix()
-        for oldHandle in self.handles:
-            oldHandle.scene().removeItem(oldHandle)
         scafLoopDict = vhelix._loop(StrandType.Scaffold)
         stapLoopDict = vhelix._loop(StrandType.Staple)
         numLoopsNeeded = len(scafLoopDict) + len(stapLoopDict)
