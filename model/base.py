@@ -139,9 +139,8 @@ class Base(object):
         the base that exposes the 5' end while the last char exposes its 3' end)
         """
         empty = not (self._hasNeighbor3p() or self._hasNeighbor5p())
-        if empty:
+        if empty or len(self._sequence) != 1:
             return " "
-        return "A"
         if self._vhelix.hasLoopOrSkipAt(self._strandtype, self._n):
             return " "
         return self._sequence
@@ -152,8 +151,8 @@ class Base(object):
         the base that exposes the 5' end while the last char exposes its 3' end)
         """
         actualLoopLength = self._vhelix._loop(self._strandtype)[self._n]
-        return "HELLOWORLD"*actualLoopLength
         if len(self._sequence) != actualLoopLength:
+            # print "Loop had seq %s, should have been len %i"%(self._sequence,actualLoopLength)
             return " "*actualLoopLength
         return self._sequence
 
