@@ -29,16 +29,19 @@ squareslicegraphicsitem.py
 Created by Nick Conway on 2010-06-23.
 """
 
-from honeycombslicegraphicsitem import HoneycombSliceGraphicsItem
-from PyQt4.QtCore import QRectF
+from slicegraphicsitem import SliceGraphicsItem
 
-class SquareSliceGraphicsItem(HoneycombSliceGraphicsItem):
+import util
+# import Qt stuff into the module namespace with PySide, PyQt4 independence
+util.qtWrapImport('QtCore', globals(), ['QRectF'] )
+
+class SquareSliceGraphicsItem(SliceGraphicsItem):
     """
     SquareSliceGraphicsItem
     """
     
     def __init__(self, part, controller=None, parent=None):
-        HoneycombSliceGraphicsItem.__init__(self, part, controller, parent)
+        SliceGraphicsItem.__init__(self, part, controller, parent)
 
     def upperLeftCornerForCoords(self, row, col):
         x = col*2*self.radius
