@@ -39,7 +39,7 @@ class DNAHoneycombPart(DNAPart):
         self._majorGridLine = self.step/4
 
     def __repr__(self):
-        s = "HoneycombPart[" +\
+        s = self.__class__.__name__+"[" +\
             ','.join(repr(self._numberToVirtualHelix[k])\
             for k in self._numberToVirtualHelix) + "]"
         return s
