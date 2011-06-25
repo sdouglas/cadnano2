@@ -49,7 +49,10 @@ class DNAPart(Part):
             * basesModified was emitted by some child VH
         selectionWillChange()
     """
-    selectAllBehavior = True  # Always select all helices in part
+    _selectAllBehavior = True  # Always select all helices in part
+    def selectAllBehavior(self):
+        return self._selectAllBehavior
+        
     def __init__(self, *args, **kwargs):
         if self.__class__ == DNAPart:
             raise NotImplementedError("This class is abstract. Perhaps you want DNAHoneycombPart.")
@@ -71,7 +74,7 @@ class DNAPart(Part):
         # Abstract
         # self._maxBase = 0  # honeycomb is 42
         # self._activeSlice = 0  # honeycomb is 21
-        if self.selectAllBehavior:
+        if self._selectAllBehavior:
             self.virtualHelixAtCoordsChanged.connect(self.updateSelectionFromVHChange)
         # This variable is directly used and entirely managed by
         # virtualhelix for consolidation of basesModified signals.
@@ -86,7 +89,7 @@ class DNAPart(Part):
         self.dimensionsWillChange.connect(self.persistentDataChangedEvent)
     
     def destroy(self):
-        if self.selectAllBehavior == True:
+        if self._selectAllBehavior == True:
             self.virtualHelixAtCoordsChanged.disconnect(self.updateSelectionFromVHChange)
         self.virtualHelixAtCoordsChanged.disconnect(self.persistentDataChangedEvent)
         self.dimensionsWillChange.disconnect(self.persistentDataChangedEvent)
@@ -458,7 +461,7 @@ class DNAPart(Part):
 
     selectionWillChange = pyqtSignal(object)
     def setSelection(self, newSelection):
-        if self.selectAllBehavior:
+        if self._selectAllBehavior:
             newSelection = self.getVirtualHelices()
         ns = list(newSelection)
         self.selectionWillChange.emit(ns)
