@@ -115,7 +115,9 @@ class Document(QObject):
             self._part.partRemoved.emit()
 
     def undoStack(self):
-        return self.controller().undoStack()
+        if self.controller():
+            return self.controller().undoStack()
+        return None
         
     ############################ Transient (doesn't get saved) State #########
     selectedPartChanged = pyqtSignal(object)

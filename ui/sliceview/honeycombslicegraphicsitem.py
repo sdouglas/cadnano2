@@ -162,13 +162,16 @@ class HoneycombSliceGraphicsItem(QGraphicsItem):  # was a QGraphicsObject change
                 for r in range(self._nrows):
                     self._spawnSliceAt(r, c)
         self._ncols = newCols
-        self._rect = QRectF(0, 0,\
-                           (newCols)*self.radius*root3,\
-                           (newRows)*self.radius*3)
+        self._updateGeometry(newCols, newRows)
         self.prepareGeometryChange()
         # the Deselector copies our rect so it changes too
         self.deselector.prepareGeometryChange()
         self.zoomToFit()
+    
+    def _updateGeometry(self, newCols, newRows):
+        self._rect = QRectF(0, 0,\
+                           (newCols)*self.radius*root3,\
+                           (newRows)*self.radius*3)
 
     def boundingRect(self):
         return self._rect
