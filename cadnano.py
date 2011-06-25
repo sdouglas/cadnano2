@@ -28,6 +28,7 @@ Created by Jonathan deWerd on 2011-01-29.
 """
 
 from code import interact
+import sys
 
 PySide_loaded = None
 
@@ -98,6 +99,13 @@ class caDNAno(QApplication):
         super(caDNAno, self).__init__(argv)
         assert(not caDNAno.sharedApp)
         caDNAno.sharedApp = self
+        self.guiInitialized = False
+    
+    def initGui(self):
+        if self.guiInitialized:
+            return
+        self.guiInitialized = True
+        argv = sys.argv
         self.setWindowIcon(QIcon('ui/images/cadnano2-app-icon.png'))
         self.undoGroup = QUndoGroup()
         #self.setApplicationName(QString("caDNAno"))

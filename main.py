@@ -35,6 +35,7 @@ import sys
 from cadnano import app as getAppInstance
 
 app = getAppInstance(appArgs=sys.argv)
+app.initGui()
 if __name__ == '__main__':
     if "-p" in sys.argv:
         import cProfile
