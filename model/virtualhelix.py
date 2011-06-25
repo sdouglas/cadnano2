@@ -655,11 +655,11 @@ class VirtualHelix(QObject):
         """
         if undoStack==None:
             undoStack = self.undoStack()
-        if undoStack!=None:
+        if undoStack!=False:
             undoStack.beginMacro("Install 3-5 Xover")
         c = self.Connect3To5Command(strandType, self, fromIndex, toVhelix,\
                                     toIndex, endToTakeColorFrom)
-        if undoStack!=None:
+        if undoStack!=False:
             self.thoughtPolice(undoStack)  # Check for inconsistencies, fix one-base Xovers, etc
             undoStack.push(c)
             toVhelix.thoughtPolice(undoStack=undoStack)
@@ -731,11 +731,11 @@ class VirtualHelix(QObject):
             undoStack = self.undoStack()
         if color==None:
             color = self.palette()[0]
-        if undoStack!=None:
+        if undoStack!=False:
             undoStack.beginMacro("Apply Color")
         bases = self._basesConnectedTo(strandType, index)
         c = self.ApplyColorCommand(bases, color)
-        if undoStack!=None:
+        if undoStack!=False:
             undoStack.push(c)
             undoStack.endMacro()
         else:
