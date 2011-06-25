@@ -21,15 +21,19 @@
 # THE SOFTWARE.
 #
 # http://www.opensource.org/licenses/mit-license.php
-from dnahoneycombpart import DNAHoneycombPart
+from .dnapart import DNAPart
 from .enum import LatticeType, Crossovers
 
-class DNASquarePart(DNAHoneycombPart):
+class DNASquarePart(DNAPart):
+    # Used in VirtualHelix::potentialCrossoverList
     step = 32  # 21 in honeycomb
     scafL = Crossovers.squareScafLeft
     scafR = Crossovers.squareScafRight
     stapL = Crossovers.squareStapLeft
     stapR = Crossovers.squareStapRight
+    _maxBase = 2*step
+    _activeSlice = step
+    _majorGridLine = step/4
 
     def crossSectionType(self):
         return LatticeType.Square

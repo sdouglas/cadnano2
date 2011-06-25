@@ -120,12 +120,52 @@ class DNAPart(Part):
     def numBases(self):
         return self._maxBase
     
+    def __repr__(self):
+        s = self.__class__.__name__+"[" +\
+            ','.join(repr(self._numberToVirtualHelix[k])\
+            for k in self._numberToVirtualHelix) + "]"
+        return s
+
+    def coordinateParityEven(self, coords):
+        row, col = coords
+        return (row % 2) ^ (col % 2) == 0
+
+    def virtualHelixParityEven(self, vhref):
+        """A property of the part, because the part is responsible for laying out
+        the virtualhelices and parity is a property of the layout more than it is a
+        property of a helix (maybe a non-honeycomb layout could support a different
+        notion of parity?)"""
+        vh = self.getVirtualHelix(vhref, returnNoneIfAbsent=False)
+        return self.coordinateParityEven(vh.coord())
+
+    def getVirtualHelixNeighbors(self, vhref):
+        neighbors = []
+        vh = self.getVirtualHelix(vhref, returnNoneIfAbsent=False)
+        (r,c) = vh.coord()
+        if self.virtualHelixParityEven(vh):
+            neighbors.append(self.getVirtualHelix((r,c+1)))  # p0 neighbor (p0 is a direction)
+            neighbors.append(self.getVirtualHelix((r-1,c)))  # p1 neighbor
+            neighbors.append(self.getVirtualHelix((r,c-1)))  # p2 neighbor
+        else:
+            neighbors.append(self.getVirtualHelix((r,c-1)))  # p0 neighbor (p0 is a direction)
+            neighbors.append(self.getVirtualHelix((r+1,c)))  # p1 neighbor
+            neighbors.append(self.getVirtualHelix((r,c+1)))  # p2 neighbor
+        return neighbors  # Note: the order and presence of Nones is important
+        # If you need the indices of available directions use range(0,len(neighbors))
+    
     dimensionsWillChange = pyqtSignal(object)
     def setDimensions(self, newDim):
         self.dimensionsWillChange.emit(newDim)
         self._maxRow, self._maxCol, self._maxBase = newDim
         for n in self._numberToVirtualHelix:
             self._numberToVirtualHelix[n].setNumBases(self._maxBase)
+            
+    def majorGrid(self):
+        return self._majorGridLine
+        
+    def crossSectionStep(self):
+        """Returns the cross-section type of the DNA part."""
+        return self.step
         
     ############################# Archiving/Unarchiving #############################
     def fillSimpleRep(self, sr):
