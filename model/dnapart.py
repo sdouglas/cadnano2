@@ -64,6 +64,7 @@ class DNAPart(Part):
         self._name = kwargs.get('name', 'untitled')
         self._maxRow = kwargs.get('maxRow', 20)
         self._maxCol = kwargs.get('maxCol', 20)
+        self._maxBase = 3 * self.step
 
         # ID assignment infra
         self.oddRecycleBin, self.evenRecycleBin = [], []

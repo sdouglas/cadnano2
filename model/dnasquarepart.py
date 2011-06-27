@@ -31,7 +31,6 @@ class DNASquarePart(DNAPart):
     scafR = Crossovers.squareScafRight
     stapL = Crossovers.squareStapLeft
     stapR = Crossovers.squareStapRight
-    _maxBase = 2*step
     _activeSlice = step
     _majorGridLine = step/4
 

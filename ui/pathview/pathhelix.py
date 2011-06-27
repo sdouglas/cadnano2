@@ -130,7 +130,7 @@ class PathHelix(QGraphicsItem):
         self._scafXoverHandles = []
         self._stapXoverHandles = []
         self._preXOverHandles = None
-        self._preXOverHandleNeighbors = None
+        self._XOverCacheEnvironment = None
         self._segmentPaths = None
         self._endptPaths = None
         self._minorGridPainterPath = None
@@ -232,6 +232,14 @@ class PathHelix(QGraphicsItem):
         remy = -self.removeBasesButton.boundingRect().height()
         bbr = self.removeBasesButton.boundingRect()
         self.removeBasesButton.setPos(remx, remy)
+    
+    def positionInPhgChanged(self):
+        if self._pathHelixGroup.topmostPathHelix() == self:
+            self.addBasesButton.show()
+            self.removeBasesButton.show()
+        else:
+            self.addBasesButton.hide()
+            self.removeBasesButton.hide()
 
     def boundingRect(self):
         return self.rect
@@ -241,7 +249,6 @@ class PathHelix(QGraphicsItem):
         return self._preXOverHandles != None
 
     def setPreXOverHandlesVisible(self, shouldBeVisible):
-        #util.trace(5)
         areVisible = self._preXOverHandles != None
         if areVisible and not shouldBeVisible:
             for pch in self._preXOverHandles:
@@ -262,10 +269,12 @@ class PathHelix(QGraphicsItem):
                                              not facingRight)
                     self._preXOverHandles.append(pch)
             self.vhelix().part().virtualHelixAtCoordsChanged.connect(self.updatePreXOverHandles)
-        self._preXOverHandleNeighbors = self.vhelix().neighbors()
+        self._XOverCacheEnvironment = (self.vhelix().neighbors(), self.vhelix().numBases())
 
     def updatePreXOverHandles(self):
-        if self.vhelix().neighbors() != self._preXOverHandleNeighbors:
+        cacheConstructionEnvironment = self._XOverCacheEnvironment
+        currentEnvironment = (self.vhelix().neighbors(), self.vhelix().numBases())
+        if cacheConstructionEnvironment != currentEnvironment:
             self.setPreXOverHandlesVisible(False)
             self.setPreXOverHandlesVisible(True)
 
