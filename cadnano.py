@@ -88,7 +88,7 @@ def qtWrapImport(name, globaldict, fromlist):
 qtWrapImport('QtGui', globals(),  ['QApplication', 'QUndoGroup', 'QIcon'])
 
 
-class caDNAno(QApplication):
+class CADnano(QApplication):
     sharedApp = None  # This class is a singleton.
     usesPySide = usesPySide     # This is bad that this can work
     PySide_loaded = PySide_loaded
@@ -96,9 +96,9 @@ class caDNAno(QApplication):
     def __init__(self, argv):
         if argv == None:
             argv = ["cadnano",]
-        super(caDNAno, self).__init__(argv)
-        assert(not caDNAno.sharedApp)
-        caDNAno.sharedApp = self
+        super(CADnano, self).__init__(argv)
+        assert(not CADnano.sharedApp)
+        CADnano.sharedApp = self
         self.guiInitialized = False
     
     def initGui(self):
@@ -108,7 +108,7 @@ class caDNAno(QApplication):
         argv = sys.argv
         self.setWindowIcon(QIcon('ui/images/cadnano2-app-icon.png'))
         self.undoGroup = QUndoGroup()
-        #self.setApplicationName(QString("caDNAno"))
+        #self.setApplicationName(QString("CADnano"))
         self.documentControllers = set() # Open documents
         d = self.newDocument()
         self.v = None
@@ -119,9 +119,9 @@ class caDNAno(QApplication):
             self.v = {}  # Newly created VirtualHelix register themselves here under their idnum.
             self.ph = {}
             self.phg = None
-            print "Welcome to caDNAno's debug mode!"
+            print "Welcome to CADnano's debug mode!"
             print "Some handy locals:"
-            print "\ta\tcaDNAno.app() (the shared caDNAno application object)"
+            print "\ta\tCADnano.app() (the shared CADnano application object)"
             print "\td()\tthe last created Document"
             print "\tv\tmaps the numbers of recently created VirtualHelixes to the VHs themselves"
             print "\tph\tmaps virtual helix numbers to pathhelix"
@@ -144,8 +144,8 @@ class caDNAno(QApplication):
                                   # itself to app.documentControllers
         return dc.document()
 
-# Convenience. No reason to feel guilty using it - caDNAno is a singleton.
+# Convenience. No reason to feel guilty using it - CADnano is a singleton.
 def app(appArgs=None):
-    if not caDNAno.sharedApp:
-        caDNAno.sharedApp = caDNAno(appArgs)
-    return caDNAno.sharedApp
+    if not CADnano.sharedApp:
+        CADnano.sharedApp = CADnano(appArgs)
+    return CADnano.sharedApp

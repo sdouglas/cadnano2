@@ -72,8 +72,7 @@ class PathHelixGroup(QGraphicsObject):
         super(PathHelixGroup, self).__init__(parent)
         # Subviews, GraphicsItem business
         self.rect = QRectF()  # Set by _setPathHelixList
-        self._label=None; self.label()  # Poke the cache so the label actually exists
-        
+        # self._label=None; self.label()  # Poke the cache so the label actually exists
         # Properties
         self._XOverLabels = None
         self._pathHelixes = []  # Primary property
@@ -83,7 +82,6 @@ class PathHelixGroup(QGraphicsObject):
                                          boxtype=PathHelixHandleSelectionBox,\
                                          constraint='y',\
                                          parent=self)
-
         self.setPart(part)
         self._controller = controller
         self._activeSliceHandle = ActiveSliceHandle(self)
@@ -95,9 +93,7 @@ class PathHelixGroup(QGraphicsObject):
         self.selectionLock = None
         self.setAcceptHoverEvents(True)
         app().phg = self  # Convenience for the command line -i mode
-        
-        # connect destructor
-        self._part.partRemoved.connect(self.destroy)
+        self._part.partRemoved.connect(self.destroy)  # connect destructor
 
     def destroy(self):
         self._part.partRemoved.disconnect(self.destroy)
@@ -113,17 +109,17 @@ class PathHelixGroup(QGraphicsObject):
 
     def activeTool(self):
         return self.controller().activeTool()
-    
+
     def getActiveHelix(self):
         return self.activeHelix
-    
+
     def setActiveHelix(self, newActivePH):
         self.activeHelix = newActivePH
         neighborVHs = newActivePH.vhelix().neighbors()
         for ph in self._pathHelixes:
             showHandles = ph==newActivePH or ph.vhelix() in neighborVHs
             ph.setPreXOverHandlesVisible(showHandles)
-    
+
     def notifyLoopHandleGroupAfterUpdate(self, pathhelix):
         """
         Called by setActiveHelix and loophandlegroup after the vhelix has 
@@ -148,20 +144,20 @@ class PathHelixGroup(QGraphicsObject):
     def activeSliceHandle(self):
         return self._activeSliceHandle
 
-    def label(self):
-        if self._label:
-            return self._label
-        font = QFont("Times", 30, QFont.Bold)
-        label = QGraphicsTextItem("Part 1")
-        label.setVisible(False)
-        label.setFont(font)
-        label.setParentItem(self)
-        label.setPos(0, -70)
-        label.setTextInteractionFlags(Qt.TextEditorInteraction)
-        label.inputMethodEvent = None
-        self._label = label
-        return label
-    
+    # def label(self):
+    #     if self._label:
+    #         return self._label
+    #     font = QFont("Times", 30, QFont.Bold)
+    #     label = QGraphicsTextItem("Part 1")
+    #     label.setVisible(False)
+    #     label.setFont(font)
+    #     label.setParentItem(self)
+    #     label.setPos(0, -70)
+    #     label.setTextInteractionFlags(Qt.TextEditorInteraction)
+    #     label.inputMethodEvent = None
+    #     self._label = label
+    #     return label
+
     def pathHelixAtScenePos(self, pos):
         for p in self._pathHelixes:
             pt = p.mapFromScene(pos)
@@ -194,7 +190,7 @@ class PathHelixGroup(QGraphicsObject):
             self._setPathHelixList(new_pathHelixList)
             # print "updating disp vhs"
             self.displayedVHsChanged.emit()
-    
+
     def partDimensionsChanged(self):
         self._setPathHelixList(self._pathHelixList())
 
@@ -208,7 +204,7 @@ class PathHelixGroup(QGraphicsObject):
         y = 0  # How far down from the top the next PH should be
         leftmostExtent = 0
         rightmostExtent = 0
-        self.label().setVisible(True)
+        # self.label().setVisible(True)
         for ph in self._pathHelixes:
             if not ph in newList:
                 scene = ph.scene()
@@ -352,7 +348,7 @@ class PathHelixGroup(QGraphicsObject):
                 if ph.vhelix() == vh:
                     return ph
         return None
-    
+
     def vhelixBasesModified(self, vhelix):
         self.update()
         ph = self.getPathHelix(vhelix)
@@ -389,14 +385,14 @@ class PathHelixGroup(QGraphicsObject):
         listVHs = [ph.vhelix() for ph in listPHs]
         self.setDisplayedVHs(listVHs)
     # end def
-    
+
     # These methods are required since hover events are accepted
     # and no additional event handler exists in order to prevent additional
     # phg redraws
     def hoverEnterEvent(self, event):
         pass
         # QGraphicsItem.hoverEnterEvent(self, event)
-    # end def 
+    # end def
     
     def hoverLeaveEvent(self, event):
         pass

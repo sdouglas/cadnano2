@@ -32,9 +32,9 @@ from PyQt4 import QtGui
 import pymel.core as pc
 import cadnano
 
-class caDNAnoMaya(cadnano.caDNAno):
+class CADnanoMaya(cadnano.CADnano):
     def __init__(self, argv):
-        super(caDNAnoMaya, self).__init__(argv)
+        super(CADnanoMaya, self).__init__(argv)
         
     def isInMaya(self):
         return True
