@@ -117,6 +117,8 @@ class DocumentWindow(QMainWindow, ui_mainwindow.Ui_MainWindow):
         """
         Save on quit, check if document changes have occured.
         """
+        if app().dontAskAndJustDiscardUnsavedChanges:
+            return True
         if not self.undoStack().isClean():    # document dirty?
             savebox = QMessageBox( QMessageBox.Warning,   "Application", \
                 "The document has been modified.\n Do you want to save your changes?",
