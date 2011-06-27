@@ -1,4 +1,4 @@
-<RCC>
+<!DOCTYPE RCC><RCC version="1.0">
   <qresource prefix="filetools">
     <file alias="svg">images/data-svg.png</file>
     <file alias="new">images/data-new_32.png</file>
@@ -18,6 +18,8 @@
     <file alias="go first">images/slice-go-first.png</file>
   </qresource>
   <qresource prefix="pathtools">
+    <file alias="add-bases">images/add-bases.svg</file>
+    <file alias="remove-bases">images/remove-bases.svg</file>
     <file alias="insert">images/path-insert.png</file>
     <file alias="pen">images/path-pen_48.png</file>
     <file alias="paint">images/path-paint_48.png</file>

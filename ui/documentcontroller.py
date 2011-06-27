@@ -30,7 +30,6 @@ from .documentwindow import DocumentWindow
 from pathview.pathhelixgroup import PathHelixGroup
 from sliceview.honeycombslicegraphicsitem import HoneycombSliceGraphicsItem
 from sliceview.squareslicegraphicsitem import SquareSliceGraphicsItem
-from treeview.treecontroller import TreeController
 from pathview.handles.activeslicehandle import ActiveSliceHandle
 from model.enum import LatticeType
 from model.decoder import decode
@@ -66,7 +65,6 @@ class DocumentController():
         self.win.closeEvent = self.closer
         self.connectWindowEventsToSelf()
         self.win.show()
-        self.treeController = TreeController(self.win.treeview)
         self._document = None
         self.setDocument(Document() if not doc else doc)
         app().undoGroup.addStack(self.undoStack())
@@ -212,7 +210,6 @@ class DocumentController():
 
     def squareClicked(self):
         """docstring for squareClicked"""
-        print "+square clicked"
         self.addSquareHelixGroup()
     # end def
 
@@ -271,39 +268,4 @@ class DocumentController():
         if not shorcutkey.isEmpty():
             action.setShortcut(shortcutkey)
         return action
-
-    def cutClicked(self):
-        """"""
-        self.win.actionPaste.setEnabled(self.treeController.cut())
-    # end def
-
-    def pasteClicked(self):
-        """"""
-        self.treeController.paste()
-    # end def
-
-    def moveUpClicked(self):
-        """"""
-        self.treeController.moveUp()
-    # end def
-
-    def moveDownClicked(self):
-        """"""
-        self.treeController.moveDown()
-    # end def
-
-    def promoteClicked(self):
-        """"""
-        self.treeController.promote()
-    #end def
-
-    def demoteClicked(self):
-        """"""
-        self.treeController.demote()
-    #end def
-
-    def hideOrShowNode(self, hide, index):
-        """"""
-        self.treeController.hideOrShowNode()
-    # end def
 # end class
