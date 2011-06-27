@@ -46,6 +46,7 @@ class SampleTests(CadnanoGuiTestCase):
         CadnanoGuiTestCase.setUp(self)
         # Add your initialization here
         # self.app gives you a pointer to the application object
+        getAppInstance().initGui()
         pass
 
     def tearDown(self):
