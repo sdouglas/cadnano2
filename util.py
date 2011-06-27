@@ -31,6 +31,7 @@ from random import Random
 import sys
 from os import path
 from cadnano import app
+import platform
 
 prng = Random()
 
@@ -125,3 +126,21 @@ def rcomp(seqStr):
     """
     seqStr = strToDna(seqStr)
     return "".join({'A':'T', 'T':'A', 'C':'G', 'G':'C'}[c] for c in reversed(seqStr))
+
+def isWindows():
+    if platform.system() == 'Windows':
+        return True
+    else:
+        return False
+
+def isMac():
+    if platform.system() == 'Darwin':
+        return True
+    else:
+        return False
+        
+def isLinux():
+    if platform.system() == 'Linux':
+        return True
+    else:
+        return False
