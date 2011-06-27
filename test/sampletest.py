@@ -28,7 +28,7 @@ import test.cadnanoguitestcase
 from test.cadnanoguitestcase import CadnanoGuiTestCase
 import time
 from cadnano import app as getAppInstance
-
+from model.virtualhelix import VirtualHelix
 
 class SampleTests(CadnanoGuiTestCase):
     """
@@ -46,8 +46,8 @@ class SampleTests(CadnanoGuiTestCase):
         CadnanoGuiTestCase.setUp(self)
         # Add your initialization here
         # self.app gives you a pointer to the application object
+        getAppInstance().dontAskAndJustDiscardUnsavedChanges = True
         getAppInstance().initGui()
-        pass
 
     def tearDown(self):
         """
@@ -83,6 +83,57 @@ class SampleTests(CadnanoGuiTestCase):
         # Another test in this class. Note that the tests'
         # names must start with "test"
         self.assertEqual(1, 1)
+        print "2"
+
+    def testVH(self):
+        """
+        Perform the VirtualHelix tutorial and make sure that the
+        expected changes occur to the sample VirtualHelix
+        """
+        vh = VirtualHelix(numBases=8, idnum=0)
+        self.assertEqual(str(vh), '0 Scaffold: _,_ _,_ _,_ _,_ _,_ _,_ _,_ _,_\n0 Staple:   _,_ _,_ _,_ _,_ _,_ _,_ _,_ _,_')
+
+        vh.connectStrand(StrandType.Scaffold,2,6)
+        vh.connectStrand(StrandType.Staple,0,7)
+        self.assertEqual(str(vh), '0 Scaffold: _,_ _,_ _,> <,> <,> <,> <,_ _,_\n0 Staple:   _,> <,> <,> <,> <,> <,> <,> <,_')
+
+        vh.clearStrand(StrandType.Scaffold,4,4)
+        vh.clearStrand(StrandType.Staple,3,5)
+        self.assertEqual(str(vh), '0 Scaffold: _,_ _,_ _,> <,_ _,> <,> <,_ _,_\n0 Staple:   _,> <,> <,_ _,_ _,_ _,> <,> <,_')
+
+        vh1 = VirtualHelix(numBases=5, idnum=1)
+        vh1.connectStrand(StrandType.Staple, 0, 4)
+        self.assertEqual(str(vh), '0 Scaffold: _,_ _,_ _,> <,_ _,> <,> <,_ _,_\n0 Staple:   _,> <,> <,_ _,_ _,_ _,> <,> <,_')
+        self.assertEqual(str(vh1), '1 Scaffold: _,_ _,_ _,_ _,_ _,_\n1 Staple:   _,> <,> <,> <,> <,_')
+
+        vh.connect3To5(StrandType.Staple, 2, vh1, 3)
+        self.assertEqual(str(vh), '0 Scaffold: _,_ _,_ _,> <,_ _,> <,> <,_ _,_\n0 Staple:   _,> <,_ 1:2,> <,_ _,_ _,> <,> <,_')
+        self.assertEqual(str(vh1), '1 Scaffold: _,_ _,_ _,_ _,_ _,_\n1 Staple:   _,> <,_ 0:2,> <,> <,_')
+
+        vh.undoStack().undo()
+        self.assertEqual(str(vh), '0 Scaffold: _,_ _,_ _,> <,_ _,> <,> <,_ _,_\n0 Staple:   _,> <,> <,_ _,_ _,_ _,> <,> <,_')
+        self.assertEqual(str(vh1), '1 Scaffold: _,_ _,_ _,_ _,_ _,_\n1 Staple:   _,> <,> <,> <,> <,_')
+
+        vh1.undoStack().undo()
+        self.assertEqual(str(vh), '0 Scaffold: _,_ _,_ _,> <,_ _,> <,> <,_ _,_\n0 Staple:   _,> <,> <,_ _,_ _,_ _,> <,> <,_')
+        self.assertEqual(str(vh1), '1 Scaffold: _,_ _,_ _,_ _,_ _,_\n1 Staple:   _,_ _,_ _,_ _,_ _,_')
+
+        vh.undoStack().undo()
+        self.assertEqual(str(vh), '0 Scaffold: _,_ _,_ _,> <,_ _,> <,> <,_ _,_\n0 Staple:   _,> <,> <,> <,> <,> <,> <,> <,_')
+
+        vh.undoStack().undo()
+        self.assertEqual(str(vh), '0 Scaffold: _,_ _,_ _,> <,> <,> <,> <,_ _,_\n0 Staple:   _,> <,> <,> <,> <,> <,> <,> <,_')
+
+        vh.undoStack().undo()
+        self.assertEqual(str(vh), '0 Scaffold: _,_ _,_ _,> <,> <,> <,> <,_ _,_\n0 Staple:   _,_ _,_ _,_ _,_ _,_ _,_ _,_ _,_')
+
+        vh.undoStack().undo()
+        self.assertEqual(str(vh), '0 Scaffold: _,_ _,_ _,_ _,_ _,_ _,_ _,_ _,_\n0 Staple:   _,_ _,_ _,_ _,_ _,_ _,_ _,_ _,_')
+
+        vh.connectStrand(StrandType.Scaffold, 2, 4)
+        vh.connectStrand(StrandType.Scaffold, 0, 7)
+        vh.undoStack().undo()
+        self.assertEqual(str(vh), '0 Scaffold: _,_ _,_ _,> <,> <,_ _,_ _,_ _,_\n0 Staple:   _,_ _,_ _,_ _,_ _,_ _,_ _,_ _,_')
 
 
 if __name__ == '__main__':

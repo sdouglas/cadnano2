@@ -91,6 +91,7 @@ qtWrapImport('QtGui', globals(),  ['QApplication', 'QUndoGroup', 'QIcon'])
 class CADnano(QApplication):
     sharedApp = None  # This class is a singleton.
     usesPySide = usesPySide     # This is bad that this can work
+    dontAskAndJustDiscardUnsavedChanges = False
     PySide_loaded = PySide_loaded
     
     def __init__(self, argv):

@@ -35,6 +35,7 @@ from .base import Base
 from cadnano import app
 from random import Random
 import re, sys
+from ui import styles
 
 import util
 # import Qt stuff into the module namespace with PySide, PyQt4 independence
@@ -129,7 +130,9 @@ class VirtualHelix(QObject):
             app().v[self.number()] = self
     
     def palette(self):
-        return self.part().palette()
+        if self.part():
+            return self.part().palette()
+        return styles.default_palette
 
     def numBases(self):
         return len(self._stapleBases)
