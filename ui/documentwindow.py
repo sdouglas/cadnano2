@@ -124,8 +124,9 @@ class DocumentWindow(QMainWindow, ui_mainwindow.Ui_MainWindow):
                 self, 
                 Qt.Dialog | Qt.MSWindowsFixedSizeDialogHint | Qt.Sheet)
             savebox.setWindowModality(Qt.WindowModal)
-            # ret = savebox.exec_()
-            ret = savebox.show()
+            ret = savebox.exec_()
+            del savebox
+            # ret = savebox.show()
             #ret = savebox.open()
             if ret == QMessageBox.Save:
                 return self.controller.saveAsClicked()
