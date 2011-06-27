@@ -154,11 +154,13 @@ class DNAPart(Part):
         # If you need the indices of available directions use range(0,len(neighbors))
     
     dimensionsWillChange = pyqtSignal(object)
+    dimensionsDidChange = pyqtSignal()
     def setDimensions(self, newDim):
         self.dimensionsWillChange.emit(newDim)
         self._maxRow, self._maxCol, self._maxBase = newDim
         for n in self._numberToVirtualHelix:
             self._numberToVirtualHelix[n].setNumBases(self._maxBase)
+        self.dimensionsDidChange.emit()
             
     def majorGrid(self):
         return self._majorGridLine
