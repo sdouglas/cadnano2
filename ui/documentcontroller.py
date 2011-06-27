@@ -22,6 +22,7 @@
 #
 # http://www.opensource.org/licenses/mit-license.php
 
+import os.path
 from cadnano import app
 from idbank import IdBank
 from model.document import Document
@@ -33,7 +34,7 @@ from sliceview.squareslicegraphicsitem import SquareSliceGraphicsItem
 from pathview.handles.activeslicehandle import ActiveSliceHandle
 from model.enum import LatticeType
 from model.decoder import decode
-import os.path
+import ui.styles as styles
 
 import util
 # import Qt stuff into the module namespace with PySide, PyQt4 independence
@@ -114,9 +115,7 @@ class DocumentController():
         return self._undoStack
 
     def connectWindowEventsToSelf(self):
-        """
-        Organizational method to collect signal/slot connectors.
-        """
+        """Organizational method to collect signal/slot connectors."""
         self.win.actionNewHoneycombPart.triggered.connect(self.hcombClicked)
         self.win.actionNewSquarePart.triggered.connect(self.squareClicked)
         self.win.actionNew.triggered.connect(app().newDocument)
@@ -160,7 +159,6 @@ class DocumentController():
     def closeClicked(self):
         """docstring for closeClicked"""
         print "close clicked"
-    # end def
 
     def saveClicked(self):
         if self._hasNoAssociatedFile:
@@ -177,20 +175,15 @@ class DocumentController():
         else:
             directory = QFileInfo(filename).path()
         fdialog = QFileDialog ( self.win, \
-                            "%s - Save As" % QApplication.applicationName(), \
+                            "%s - Save As" % QApplication.applicationName(),\
                             directory, \
-                            "%s (*.cn2)" % QApplication.applicationName() )
+                            "%s (*.cn2)" % QApplication.applicationName())
         fdialog.setWindowFlags(Qt.MSWindowsFixedSizeDialogHint | Qt.Sheet)
         fdialog.setWindowModality(Qt.WindowModal)
-        
-        fdialog.exec_() # or .show(), or .open()
-        
+        fdialog.exec_()  # or .show(), or .open()
         filename = fdialog.selectedFiles()[0]
-        del fdialog
-        # filename = QFileDialog.getSaveFileName(self.win,\
-        #                     "%s - Save As" % QApplication.applicationName(),\
-        #                     directory,\
-        #                     "%s (*.cn2)" % QApplication.applicationName())
+        del fdialog  # manual garbage collection to prevent hang (in osx)
+
         if filename.isEmpty() or os.path.isdir(filename):
             print "Not saving"
             return False
@@ -248,16 +241,16 @@ class DocumentController():
                                                          ash.moveToFirstSlice)
         self.win.pathController.setActivePath(phg)
 
-    def addHoneycombHelixGroup(self, nrows=20, ncolumns=20):
-        """docstring for addHoneycombHelixGroup"""
-        # Create a new DNA part
+    def addHoneycombHelixGroup(self):
+        """Adds a honeycomb DNA part to the document. Dimensions are set by
+        the Document addDnaHoneycombPart method."""
         dnaPart = self._document.addDnaHoneycombPart()
         self.setActivePart(dnaPart)
     # end def
 
-    def addSquareHelixGroup(self, nrows=20, ncolumns=20):
-        """docstring for addSquareHelixGroup"""
-        # Create a new DNA part
+    def addSquareHelixGroup(self):
+        """Adds a square DNA part to the document. Dimensions are set by
+        the Document addDnaSquarePart method."""
         dnaPart = self._document.addDnaSquarePart()
         self.setActivePart(dnaPart)
     # end def
@@ -267,7 +260,7 @@ class DocumentController():
         returns a QAction object
         """
         action = QAction(QIcon(icon), text, parent)
-        if not shorcutkey.isEmpty():
+        if not shortcutkey.isEmpty():
             action.setShortcut(shortcutkey)
         return action
 # end class

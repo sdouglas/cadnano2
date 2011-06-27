@@ -28,10 +28,6 @@ Created by Nick Conway on 2011-05-30.
 """
 
 from abstractpathtool import AbstractPathTool
-# import util
-# from PyQt4.QtGui import QPen, QColor
-# from PyQt4.QtCore import Qt, QPointF
-
 import util
 # import Qt stuff into the module namespace with PySide, PyQt4 independence
 util.qtWrapImport('QtCore', globals(), ['Qt', 'QPointF'] )
@@ -52,7 +48,7 @@ class SelectTool(AbstractPathTool):
         self._mouseDownBase = None
         self._mouseDownPH = None
         self._lastValidBase = None
-    
+
     NoOperation = 0
     ConnectStrand = 1
     ClearStrand   = 2
@@ -85,7 +81,6 @@ class SelectTool(AbstractPathTool):
         topStrand = ph.strandIsTop(base[0])
         if base==None:
             return
-        
         # Color preview
         if self.colorPreview:
             painter.setBrush(vh.colorOfBase(*base))
@@ -93,11 +88,10 @@ class SelectTool(AbstractPathTool):
             painter.drawEllipse(\
                 QPointF(ph.baseWidth/2, ph.baseWidth/2),\
                 ph.baseWidth/4, ph.baseWidth/4)
-        
         # Draw action preview
         if not self.drawActionPreview:
             return
-            
+
         opL, offsLL, offsLR = self.operationForDraggingInDirectionFromBase(-1, (vh, base[0], base[1]))
         opR, offsRL, offsRR = self.operationForDraggingInDirectionFromBase(1, (vh, base[0], base[1]))
         
@@ -120,7 +114,7 @@ class SelectTool(AbstractPathTool):
         self._mouseDownY = event.pos().y()
         self._mouseDownBase = ph.baseAtLocation(event.pos().x(),\
                                                 self._mouseDownY)
-        
+
         # Shift to merge bases - carryover from 1.0 (also, WTF?)
         if (event.modifiers()&Qt.ShiftModifier) and self._mouseDownBase:
             strand, idx = self._mouseDownBase
@@ -132,7 +126,7 @@ class SelectTool(AbstractPathTool):
                     vh.connectStrand(strand, idx+1, idx)
                 self._mouseDownBase = None  # Cancel drag op
                 return
-        
+
         # Begin a drag operation
         self._mouseDownPH = ph
         ph.scene().views()[0].addToPressList(ph)
@@ -170,13 +164,13 @@ class SelectTool(AbstractPathTool):
 
     def mouseReleasePathHelix(self, ph, event):
         self.finalizeMouseDrag()
-    
+
     # Unused events should be forwarded to other items
     # (in particular, to ActiveSliceHandle)
     mouseMovePathHelixGroupUnused = True
     mouseReleasePathHelixGroupUnused = True
     mousePressPathHelixGroupUnused = True
-    
+
     def dragLimitsForDragOpBeginningAtBase(self, fromBase):
         """ returns (firstAllowableIdx, lastAllowableIdx) for
         the toBase of a drag operation beginning at fromBase.
@@ -202,9 +196,7 @@ class SelectTool(AbstractPathTool):
             else:
                 break
         return (l, r)
-            
-        
-    
+
     # Why add the layer of indirection between operationForDragging...
     # and applyTool? So that we can query for the operation that *would*
     # be performed without actually performing it.
@@ -283,11 +275,6 @@ class SelectTool(AbstractPathTool):
                 return (self.ConnectStrand, 0, 0, None)
             assert(False)
         assert(False)
-        
-        
-        
-        
-        
 
     def applyTool(self, vHelix, fr, to):
         """
@@ -300,7 +287,7 @@ class SelectTool(AbstractPathTool):
         beginBase = (vHelix, fr[0], fr[1])
         leftDragLimit, rightDragLimit = self.dragLimitsForDragOpBeginningAtBase(beginBase)
         to[1] = util.clamp(to[1], leftDragLimit, rightDragLimit)
-                
+
         # 1 corresponds to rightwards
         if to[1] == fr[1]:
             dragDir = 0
@@ -308,7 +295,7 @@ class SelectTool(AbstractPathTool):
             dragDir = 1
         else:
             dragDir = -1
-        
+
         dragOp = self.operationForDraggingInDirectionFromBase(dragDir, beginBase)
         op, frOffset, toOffset = dragOp[0:3]
 

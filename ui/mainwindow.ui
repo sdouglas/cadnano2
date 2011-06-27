@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1108</width>
+    <width>1100</width>
     <height>800</height>
    </rect>
   </property>
@@ -16,8 +16,11 @@
   <property name="statusTip">
    <string/>
   </property>
-  <property name="tabShape">
-   <enum>QTabWidget::Rounded</enum>
+  <property name="iconSize">
+   <size>
+    <width>32</width>
+    <height>32</height>
+   </size>
   </property>
   <property name="dockNestingEnabled">
    <bool>true</bool>
@@ -62,7 +65,7 @@
        </property>
        <property name="minimumSize">
         <size>
-         <width>300</width>
+         <width>0</width>
          <height>0</height>
         </size>
        </property>
@@ -112,7 +115,7 @@
        </property>
        <property name="minimumSize">
         <size>
-         <width>300</width>
+         <width>0</width>
          <height>0</height>
         </size>
        </property>
@@ -144,7 +147,7 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>1108</width>
+     <width>1100</width>
      <height>22</height>
     </rect>
    </property>
@@ -213,7 +216,6 @@
     <bool>false</bool>
    </attribute>
    <addaction name="actionSliceSelect"/>
-   <addaction name="actionSliceMove"/>
    <addaction name="separator"/>
    <addaction name="actionSliceFirst"/>
    <addaction name="actionSliceLast"/>
@@ -271,13 +273,12 @@
     <bool>false</bool>
    </attribute>
    <addaction name="actionPathSelect"/>
-   <addaction name="actionPathMove"/>
+   <addaction name="actionPathPencil"/>
    <addaction name="actionPathBreak"/>
    <addaction name="actionPathErase"/>
-   <addaction name="actionPathPencil"/>
+   <addaction name="actionPathPaint"/>
    <addaction name="actionPathInsert"/>
    <addaction name="actionPathSkip"/>
-   <addaction name="actionPathPaint"/>
    <addaction name="separator"/>
    <addaction name="actionAutoStaple"/>
    <addaction name="actionPathAddSeq"/>
@@ -420,7 +421,7 @@
     <string>Break</string>
    </property>
    <property name="toolTip">
-    <string>Click to add part with honeycomb lattice</string>
+    <string>(B)reak Tool</string>
    </property>
    <property name="shortcut">
     <string>B</string>
@@ -437,8 +438,11 @@
    <property name="text">
     <string>Select</string>
    </property>
+   <property name="iconText">
+    <string>Select</string>
+   </property>
    <property name="toolTip">
-    <string>Selection Tool</string>
+    <string>Select Tool (v)</string>
    </property>
    <property name="shortcut">
     <string>V</string>
@@ -496,7 +500,7 @@
     <string>Erase</string>
    </property>
    <property name="toolTip">
-    <string>Select this tool and then click on a path to erase it from the design.</string>
+    <string>(E)rase Tool</string>
    </property>
    <property name="shortcut">
     <string>E</string>
@@ -526,7 +530,7 @@
     <string>Pencil</string>
    </property>
    <property name="toolTip">
-    <string>Draw strands. Right-click to force non-standard crossover</string>
+    <string>Pe(n)cil Tool</string>
    </property>
    <property name="shortcut">
     <string>N</string>
@@ -544,7 +548,7 @@
     <string>Insert</string>
    </property>
    <property name="toolTip">
-    <string>Insert extra bases at a specific position. Useful for creating curved and twisted designs.</string>
+    <string>(I)nsert Tool</string>
    </property>
    <property name="shortcut">
     <string>I</string>
@@ -574,43 +578,10 @@
     <string>Skip</string>
    </property>
    <property name="toolTip">
-    <string>Leave out specified bases during assigning scaffold and staple bases. Useful for making curved and twisted designs.</string>
+    <string>(S)kip Tool</string>
    </property>
    <property name="shortcut">
     <string>S</string>
-   </property>
-  </action>
-  <action name="actionSliceMove">
-   <property name="checkable">
-    <bool>true</bool>
-   </property>
-   <property name="icon">
-    <iconset resource="icons.qrc">
-     <normaloff>:/slicetools/move</normaloff>:/slicetools/move</iconset>
-   </property>
-   <property name="text">
-    <string>Move</string>
-   </property>
-   <property name="toolTip">
-    <string>Move (M)</string>
-   </property>
-  </action>
-  <action name="actionPathMove">
-   <property name="checkable">
-    <bool>true</bool>
-   </property>
-   <property name="icon">
-    <iconset resource="icons.qrc">
-     <normaloff>:/pathtools/move</normaloff>:/pathtools/move</iconset>
-   </property>
-   <property name="text">
-    <string>Move</string>
-   </property>
-   <property name="toolTip">
-    <string>Move (M)</string>
-   </property>
-   <property name="shortcut">
-    <string>M</string>
    </property>
   </action>
   <action name="actionRenumber">
@@ -649,13 +620,16 @@
     <string>Paint</string>
    </property>
    <property name="toolTip">
-    <string>Use to color staples.</string>
+    <string>(P)aint Tool</string>
    </property>
    <property name="shortcut">
     <string>P</string>
    </property>
   </action>
   <action name="actionPathAddSeq">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
    <property name="icon">
     <iconset resource="icons.qrc">
      <normaloff>:/pathtools/add seq</normaloff>:/pathtools/add seq</iconset>
@@ -664,7 +638,7 @@
     <string>Add Seq</string>
    </property>
    <property name="toolTip">
-    <string>Click on 5' end of scaffold to apply sequence for staple generation.</string>
+    <string>(A)dd Sequence Tool</string>
    </property>
    <property name="shortcut">
     <string>A</string>

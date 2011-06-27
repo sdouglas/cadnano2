@@ -30,15 +30,12 @@ from tools.penciltool import PencilTool
 from tools.selecttool import SelectTool
 from tools.skiptool import SkipTool
 from tools.addseqtool import AddSeqTool
-
-# from PyQt4.QtCore import QObject
-# from PyQt4.QtGui import QActionGroup
-# from PyQt4.QtCore import pyqtSignal
-
 import util
+
 # import Qt stuff into the module namespace with PySide, PyQt4 independence
 util.qtWrapImport('QtCore', globals(), ['QObject', 'pyqtSignal'] )
 util.qtWrapImport('QtGui', globals(), [ 'QActionGroup'] )
+
 
 class PathController(QObject):
     """
@@ -81,8 +78,8 @@ class PathController(QObject):
             toolWidget.triggered.connect(handler)
             return toolWidget
 
-        tools = ('Select', 'Paint', 'Move', 'Break', 'Erase',\
-                 'Insert', 'Skip', 'Pencil', 'AddSeq')
+        tools = ('Select', 'Paint', 'Break', 'Erase', 'Insert', 'Skip',\
+                 'Pencil', 'AddSeq')
         ag = QActionGroup(win)
         for toolName in tools:
             toolAction = installTool(toolName, win)
