@@ -183,7 +183,8 @@ class DocumentController():
         fdialog.setWindowFlags(Qt.MSWindowsFixedSizeDialogHint | Qt.Sheet)
         fdialog.setWindowModality(Qt.WindowModal)
         
-        fdialog.exec_()
+        # fdialog.exec_()
+        fdialog.show()
         filename = fdialog.selectedFiles()[0]
         # filename = QFileDialog.getSaveFileName(self.win,\
         #                     "%s - Save As" % QApplication.applicationName(),\
