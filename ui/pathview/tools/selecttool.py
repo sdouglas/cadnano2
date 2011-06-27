@@ -237,9 +237,7 @@ class SelectTool(AbstractPathTool):
         startBaseHasRCrossover = vHelix.hasCrossoverR(strandType, baseIdx)
 
         # (Below) we are dragging starting at a CROSSOVER
-        #print "!"
         if startBaseHasLCrossover or startBaseHasRCrossover:
-            #print "."
             if startBaseHasLNeighbor and startBaseHasRNeighbor:
                 # It's not a 1-base crossover
                 return (self.RemoveXOver, 0, 0)

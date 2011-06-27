@@ -39,7 +39,8 @@ import util
 util.qtWrapImport('QtCore', globals(), ['pyqtSignal', 'QString', 'QFileInfo', 'Qt'] )
 util.qtWrapImport('QtGui', globals(), [ 'QGraphicsItem', 'QMainWindow', \
                                         'QGraphicsScene', 'QGraphicsView', \
-                                        'QApplication', 'QAction', 'QMessageBox'] )
+                                        'QApplication', 'QAction', 'QMessageBox',
+                                        'QKeySequence'] )
 
 class SceneRoot(QGraphicsItem):
     def __init__(self, rectsource=None):
@@ -126,6 +127,12 @@ class DocumentWindow(QMainWindow, ui_mainwindow.Ui_MainWindow):
                 self, 
                 Qt.Dialog | Qt.MSWindowsFixedSizeDialogHint | Qt.Sheet)
             savebox.setWindowModality(Qt.WindowModal)
+            save = savebox.button(QMessageBox.Save)
+            discard = savebox.button(QMessageBox.Discard)
+            cancel = savebox.button(QMessageBox.Cancel)
+            save.setShortcut(QKeySequence("S,Ctrl+S"))
+            discard.setShortcut(QKeySequence("D,Ctrl+D"))
+            cancel.setShortcut(QKeySequence("C,Ctrl+C,.,Ctrl+."))
             ret = savebox.exec_()
             del savebox  # manual garbage collection to prevent hang (in osx)
             if ret == QMessageBox.Save:

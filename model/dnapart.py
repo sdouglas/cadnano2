@@ -39,6 +39,7 @@ class DNAPart(Part):
     """
     Emits:
         dimensionsWillChange(newNumRows, newNumCols, newNumBases)
+        dimensionsDidChange()
         virtualHelixAtCoordsChanged(row, col)  # the VH at row, col will
             * change its idnum (the dnapart owns the idnum)
             * change its virtualhelix object (maybe from or to None)
@@ -64,6 +65,7 @@ class DNAPart(Part):
         self._name = kwargs.get('name', 'untitled')
         self._maxRow = kwargs.get('maxRow', 20)
         self._maxCol = kwargs.get('maxCol', 20)
+        self._maxBase = 2 * self.step
 
         # ID assignment infra
         self.oddRecycleBin, self.evenRecycleBin = [], []
@@ -94,6 +96,7 @@ class DNAPart(Part):
         # Event propagation
         self.virtualHelixAtCoordsChanged.connect(self.persistentDataChangedEvent)
         self.dimensionsWillChange.connect(self.persistentDataChangedEvent)
+        self.dimensionsDidChange.connect(self.ensureActiveBaseIsWithinNewDims)
 
     def destroy(self):
         if self._selectAllBehavior == True:
@@ -552,3 +555,5 @@ class DNAPart(Part):
         self.activeSliceWillChange.emit(ni)
         self._activeSlice = ni
     
+    def ensureActiveBaseIsWithinNewDims(self):
+        self.setActiveSlice(self.activeSlice())

@@ -190,6 +190,11 @@ class PathHelixGroup(QGraphicsObject):
 
     def _pathHelixList(self):
         return self._pathHelixes
+    
+    def topmostPathHelix(self):
+        if len(self._pathHelixList())==0:
+            return None
+        return self._pathHelixList()[0]
 
     def _setPathHelixList(self, newList):
         """Give me a list of PathHelix and I'll parent them
@@ -220,6 +225,8 @@ class PathHelixGroup(QGraphicsObject):
             leftmostExtent = min(leftmostExtent, -2 * phhr.width())
             rightmostExtent = max(rightmostExtent, ph.boundingRect().width())
             y += step
+            ph.positionInPhgChanged()
+            ph.updatePreXOverHandles()
         # end for
         self.prepareGeometryChange()
         self.rect = QRectF(leftmostExtent,\
