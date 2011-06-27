@@ -56,8 +56,8 @@ class Document(QObject):
         """
         dnapart = None
         if len(self._parts) == 0:
-            # dnapart = DNAHoneycombPart()
-            dnapart = self.addPart(LatticeType.Honeycomb)
+            dnapart = DNAHoneycombPart()
+            self.addPart(dnapart)
         return dnapart
     
     def addDnaSquarePart(self):
@@ -66,36 +66,31 @@ class Document(QObject):
         """
         dnapart = None
         if len(self._parts) == 0:
-            # dnapart = DNASquarePart()
-            dnapart = self.addPart(LatticeType.Square)
+            dnapart = DNASquarePart()
+            self.addPart(dnapart)
         return dnapart
     
     def parts(self):
         return self._parts
         
     partAdded = pyqtSignal(object)
-    partReAdded = pyqtSignal(object)
     def addPart(self, part):
         undoStack = self.undoStack()
-        c = self.PartCreateCommand(self, part)
+        c = self.AddPartCommand(self, part)
         if undoStack!=None:
             self.undoStack().push(c)
         else:
             c.redo()
         return c.part()
         
-    class PartCreateCommand(QUndoCommand):
+    class AddPartCommand(QUndoCommand):
         """
         Undo ready command for deleting a part.
         """
-        def __init__(self, document, latticeType):
-            super(Document.PartCreateCommand, self).__init__()
+        def __init__(self, document, part):
+            QUndoCommand.__init__(self)
             self._doc = document
-            if latticeType == LatticeType.Honeycomb:
-                self._part = DNAHoneycombPart()
-            else:
-                self._part = DNASquarePart()
-        # end def
+            self._part = part
         
         def part(self):
             return self._part
