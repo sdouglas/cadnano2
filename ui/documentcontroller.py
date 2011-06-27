@@ -73,7 +73,6 @@ class DocumentController():
 
     def closer(self, event):
         if self.win.maybeSave():
-            self.closeClicked()
             event.accept()
         else:
             event.ignore()
@@ -157,8 +156,9 @@ class DocumentController():
         DocumentController(doc, fname)
 
     def closeClicked(self):
-        """docstring for closeClicked"""
+        """This will trigger a Window closeEvent"""
         print "close clicked"
+        self.win.close()
 
     def saveClicked(self):
         if self._hasNoAssociatedFile:
