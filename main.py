@@ -39,11 +39,11 @@ app.initGui()
 if __name__ == '__main__':
     if "-p" in sys.argv:
         import cProfile
-        cProfile.run('app.exec_()', 'caDNAnoProfileOut.tmp')
+        cProfile.run('app.exec_()', 'CADnanoProfileOut.tmp')
         exit()
     elif "-P" in sys.argv:
         from pstats import Stats
-        s = Stats('caDNAnoProfileOut.tmp')
+        s = Stats('CADnanoProfileOut.tmp')
         print "Internal Time Top 10:"
         s.sort_stats('cumulative').print_stats(10)
         print ""
