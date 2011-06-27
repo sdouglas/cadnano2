@@ -96,7 +96,7 @@ class PathHelixGroup(QGraphicsObject):
     # end def
 
     def __str__(self):
-        return "I am a PHG!"
+        return "I am a PathHelixGroup!"
 
     def part(self):
         return self._part
