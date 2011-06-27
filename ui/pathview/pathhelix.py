@@ -37,6 +37,7 @@ from handles.precrossoverhandle import PreCrossoverHandle
 from math import floor, pi
 from cadnano import app
 from itertools import product
+from ui.svgbutton import SVGButton
 
 import util
 # import Qt stuff into the module namespace with PySide, PyQt4 independence
@@ -118,7 +119,7 @@ class PathHelix(QGraphicsItem):
     # The fraction of the loop that comes before the
     # first character and after the last character is
     # the padding, and the rest is divided evenly.
-    fractionLoopToPad = .10
+    fractionLoopToPad = .10    
 
     def __init__(self, vhelix, pathHelixGroup):
         super(PathHelix, self).__init__()
@@ -140,6 +141,10 @@ class PathHelix(QGraphicsItem):
         self._vhelix = None
         self._handle = None
         self._mouseDownBase = None
+        self.addBasesButton = SVGButton(":/pathtools/add-bases", self)
+        self.addBasesButton.clicked.connect(self.addBasesClicked)
+        self.removeBasesButton = SVGButton(":/pathtools/remove-bases", self)
+        self.removeBasesButton.clicked.connect(self.removeBasesClicked)
         self.setVHelix(vhelix)
         if app().ph != None:  # Convenience for the command line -i mode
             app().ph[vhelix.number()] = self
@@ -196,6 +201,18 @@ class PathHelix(QGraphicsItem):
 
     def evenParity(self):
         return self._vhelix.evenParity()
+    
+    def addBasesClicked(self):
+        part = self.vhelix().part()
+        dim = list(part.dimensions())
+        part.setDimensions((dim[0], dim[1], dim[2]+part.baseAdditionAndRemovalUnit))
+
+    def removeBasesClicked(self):
+        part = self.vhelix().part()
+        dim = list(part.dimensions())
+        if dim[2] <= part.step:
+            return
+        part.setDimensions((dim[0], dim[1], dim[2]-part.baseAdditionAndRemovalUnit))
 
     def vhelixDimensionsModified(self):
         """Sets rect width to reflect number of bases in vhelix. Sets
@@ -207,6 +224,14 @@ class PathHelix(QGraphicsItem):
         self.rect.setHeight(2 * self.baseWidth)
         self._minorGridPainterPath = None
         self._majorGridPainterPath = None
+        addx = self.rect.width()
+        addy = -self.addBasesButton.boundingRect().height()
+        self.addBasesButton.setPos(addx, addy)
+        self.addBasesButton.show()
+        remx = self.rect.width()-self.removeBasesButton.boundingRect().width()
+        remy = -self.removeBasesButton.boundingRect().height()
+        bbr = self.removeBasesButton.boundingRect()
+        self.removeBasesButton.setPos(remx, remy)
 
     def boundingRect(self):
         return self.rect
