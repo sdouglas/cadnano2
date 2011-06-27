@@ -31,10 +31,9 @@ class DNAHoneycombPart(DNAPart):
     scafR = Crossovers.honeycombScafRight
     stapL = Crossovers.honeycombStapLeft
     stapR = Crossovers.honeycombStapRight
-    _maxBase = 2*step
     _activeSlice = step
     _majorGridLine = step/3
-
+    
     def crossSectionType(self):
         """Returns the cross-section type of the DNA part."""
         return LatticeType.Honeycomb

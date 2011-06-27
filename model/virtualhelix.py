@@ -135,6 +135,7 @@ class VirtualHelix(QObject):
         return styles.default_palette
 
     def numBases(self):
+        assert(len(self._stapleBases) == len(self._scaffoldBases))
         return len(self._stapleBases)
 
     def setNumBases(self, newNumBases, notUndoable=False):
@@ -1275,8 +1276,9 @@ class VirtualHelix(QObject):
                     vh._stapleBases.append(Base(vh, StrandType.Staple, n))
                     vh._scaffoldBases.append(Base(vh, StrandType.Scaffold, n))
             else:
-                del vh._stapleBases[oldNB:-1]
-                del vh._scaffoldBases[oldNB:-1]
+                del vh._stapleBases[newNumBases:]
+                del vh._scaffoldBases[newNumBases:]
+            assert(vh.numBases() == newNumBases)
             vh.dimensionsModified.emit()
 
         def undo(self):
@@ -1301,7 +1303,8 @@ class VirtualHelix(QObject):
                 continue
             for i, j in product(range(0, self.numBases(), part.step), lut[p]):
                 index = i + j
-                ret.append([neighbor, index])
+                if index < self.numBases():
+                    ret.append([neighbor, index])
         return ret
 
     def crossoverAt(self, strandType, fromIndex, neighbor, toIndex):
@@ -1322,6 +1325,9 @@ class VirtualHelix(QObject):
         should be presented as points at which new a new crossover can be
         formed.
         """
+        if fromIndex >= self.numBases() or\
+           toIndex >= neighbor.numBases():
+            return False
         fromB = self._strand(strandType)[fromIndex]
         toB = neighbor._strand(strandType)[toIndex]
         if fromB.isCrossover() or toB.isCrossover():
