@@ -6,15 +6,24 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1105</width>
-    <height>809</height>
+    <width>1108</width>
+    <height>800</height>
    </rect>
   </property>
   <property name="windowTitle">
-   <string>caDNAno</string>
+   <string>CADnano</string>
+  </property>
+  <property name="statusTip">
+   <string/>
+  </property>
+  <property name="tabShape">
+   <enum>QTabWidget::Rounded</enum>
+  </property>
+  <property name="dockNestingEnabled">
+   <bool>true</bool>
   </property>
   <property name="dockOptions">
-   <set>QMainWindow::AllowTabbedDocks|QMainWindow::AnimatedDocks</set>
+   <set>QMainWindow::AllowNestedDocks|QMainWindow::AllowTabbedDocks|QMainWindow::AnimatedDocks</set>
   </property>
   <widget class="QWidget" name="centralwidget">
    <property name="autoFillBackground">
@@ -23,45 +32,43 @@
    <layout class="QGridLayout" name="gridLayout">
     <item row="0" column="0">
      <widget class="QSplitter" name="splitter">
+      <property name="sizePolicy">
+       <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+        <horstretch>0</horstretch>
+        <verstretch>0</verstretch>
+       </sizepolicy>
+      </property>
+      <property name="frameShape">
+       <enum>QFrame::NoFrame</enum>
+      </property>
+      <property name="frameShadow">
+       <enum>QFrame::Plain</enum>
+      </property>
       <property name="orientation">
        <enum>Qt::Horizontal</enum>
       </property>
-      <widget class="QTreeView" name="treeview">
+      <property name="opaqueResize">
+       <bool>true</bool>
+      </property>
+      <property name="handleWidth">
+       <number>7</number>
+      </property>
+      <widget class="CustomQGraphicsView" name="sliceGraphicsView">
        <property name="sizePolicy">
         <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
-         <horstretch>1</horstretch>
+         <horstretch>0</horstretch>
          <verstretch>0</verstretch>
         </sizepolicy>
        </property>
        <property name="minimumSize">
         <size>
-         <width>100</width>
+         <width>300</width>
          <height>0</height>
-        </size>
-       </property>
-       <property name="maximumSize">
-        <size>
-         <width>150</width>
-         <height>16777215</height>
         </size>
        </property>
        <property name="baseSize">
         <size>
-         <width>0</width>
-         <height>0</height>
-        </size>
-       </property>
-      </widget>
-      <widget class="CustomQGraphicsView" name="sliceGraphicsView">
-       <property name="sizePolicy">
-        <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
-         <horstretch>4</horstretch>
-         <verstretch>0</verstretch>
-        </sizepolicy>
-       </property>
-       <property name="minimumSize">
-        <size>
-         <width>400</width>
+         <width>480</width>
          <height>0</height>
         </size>
        </property>
@@ -70,6 +77,9 @@
        </property>
        <property name="focusPolicy">
         <enum>Qt::WheelFocus</enum>
+       </property>
+       <property name="frameShadow">
+        <enum>QFrame::Sunken</enum>
        </property>
        <property name="verticalScrollBarPolicy">
         <enum>Qt::ScrollBarAlwaysOff</enum>
@@ -96,7 +106,7 @@
       <widget class="CustomQGraphicsView" name="pathGraphicsView">
        <property name="sizePolicy">
         <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
-         <horstretch>4</horstretch>
+         <horstretch>0</horstretch>
          <verstretch>0</verstretch>
         </sizepolicy>
        </property>
@@ -134,7 +144,7 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>1105</width>
+     <width>1108</width>
      <height>22</height>
     </rect>
    </property>
@@ -211,6 +221,12 @@
    <addaction name="actionDeleteLast"/>
   </widget>
   <widget class="QToolBar" name="topToolBar">
+   <property name="baseSize">
+    <size>
+     <width>0</width>
+     <height>0</height>
+    </size>
+   </property>
    <property name="windowTitle">
     <string>topToolBar</string>
    </property>
