@@ -36,7 +36,7 @@ from pathview.colorpanel import ColorPanel
 # from PyQt4.QtGui import *
 import util
 # import Qt stuff into the module namespace with PySide, PyQt4 independence
-util.qtWrapImport('QtCore', globals(), ['pyqtSignal', 'QString', 'QFileInfo'] )
+util.qtWrapImport('QtCore', globals(), ['pyqtSignal', 'QString', 'QFileInfo', 'Qt'] )
 util.qtWrapImport('QtGui', globals(), [ 'QGraphicsItem', 'QMainWindow', \
                                         'QGraphicsScene', 'QGraphicsView', \
                                         'QApplication', 'QAction', 'QMessageBox'] )
@@ -114,12 +114,20 @@ class DocumentWindow(QMainWindow, ui_mainwindow.Ui_MainWindow):
         app().undoGroup.setActiveStack(self.controller.undoStack())
 
     def maybeSave(self):
-        if True:    # document dirty?
-            ret = QMessageBox.warning(self, "Application", \
-                         "The document has been modified.\n Do you want to save your changes?", \
-                         QMessageBox.Save | QMessageBox.Discard | QMessageBox.Cancel)
+        """
+        Save on quit, check if document changes have occured.
+        """
+        if not self.undoStack().isClean():    # document dirty?
+            savebox = QMessageBox( QMessageBox.Warning,   "Application", \
+                "The document has been modified.\n Do you want to save your changes?",
+                QMessageBox.Save | QMessageBox.Discard | QMessageBox.Cancel, 
+                self, 
+                Qt.Dialog | Qt.MSWindowsFixedSizeDialogHint | Qt.Sheet)
+            savebox.setWindowModality(Qt.WindowModal)
+            ret = savebox.exec_()
+            #ret = savebox.open()
             if ret == QMessageBox.Save:
-                return save()
+                return self.controller.saveAsClicked()
             elif ret == QMessageBox.Cancel:
                 return False
         return True

@@ -38,9 +38,9 @@ import os.path
 
 import util
 # import Qt stuff into the module namespace with PySide, PyQt4 independence
-util.qtWrapImport('QtCore', globals(), ['pyqtSignal', 'QString', 'QFileInfo'])
+util.qtWrapImport('QtCore', globals(), ['pyqtSignal', 'QString', 'QFileInfo', 'Qt'])
 util.qtWrapImport('QtGui', globals(), ['QUndoStack', 'QFileDialog',\
-                                        'QAction'])
+                                        'QAction', 'QApplication'])
 
 if app().isInMaya():
     from .mayawindow import DocumentWindow
@@ -63,7 +63,7 @@ class DocumentController():
         self._activePart = None
         self._hasNoAssociatedFile = fname == None
         self.win = DocumentWindow(docCtrlr=self)
-        # self.win.closeEvent = self.closer
+        self.win.closeEvent = self.closer
         self.connectWindowEventsToSelf()
         self.win.show()
         self.treeController = TreeController(self.win.treeview)
@@ -178,11 +178,21 @@ class DocumentController():
             directory = "."
         else:
             directory = QFileInfo(filename).path()
-        filename = QFileDialog.getSaveFileName(self.win,\
-                            "%s - Save As" % QApplication.applicationName(),\
-                            directory,\
-                            "%s (*.cn2)" % QApplication.applicationName())
-        if filename.isEmpty():
+        fdialog = QFileDialog ( self.win, \
+                            "%s - Save As" % QApplication.applicationName(), \
+                            directory, \
+                            "%s (*.cn2)" % QApplication.applicationName() )
+        fdialog.setWindowFlags(Qt.MSWindowsFixedSizeDialogHint | Qt.Sheet)
+        fdialog.setWindowModality(Qt.WindowModal)
+        
+        fdialog.exec_()
+        filename = fdialog.selectedFiles()[0]
+        # filename = QFileDialog.getSaveFileName(self.win,\
+        #                     "%s - Save As" % QApplication.applicationName(),\
+        #                     directory,\
+        #                     "%s (*.cn2)" % QApplication.applicationName())
+        if filename.isEmpty() or os.path.isdir(filename):
+            print "Not saving"
             return False
         filename = str(filename)
         if not filename.lower().endswith(".cn2"):
