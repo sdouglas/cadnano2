@@ -95,7 +95,7 @@ class DocumentWindow(QMainWindow, ui_mainwindow.Ui_MainWindow):
         self.menuEdit.insertAction(self.actionCut, self.sep)
         self.menuEdit.insertAction(self.sep, self.actionRedo)
         self.menuEdit.insertAction(self.actionRedo, self.actionUndo)
-        # self.showSizes()
+        self.splitter.setSizes([400,400])  # balance splitter size
 
     def undoStack(self):
         return self.controller.undoStack()
