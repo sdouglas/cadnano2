@@ -22,9 +22,6 @@
 #
 # http://www.opensource.org/licenses/mit-license.php
 
-# from PyQt4.QtCore import *
-# from PyQt4.QtGui import *
-
 import util
 # import Qt stuff into the module namespace with PySide, PyQt4 independence
 util.qtWrapImport('QtCore', globals(), ['pyqtSignal', 'QObject'] )
@@ -36,22 +33,21 @@ class SliceController(QObject):
     """
     activeSliceLastSignal = pyqtSignal()
     activeSliceFirstSignal = pyqtSignal()
-    # renumberSignal = pyqtSignal()
     
-    # We store mainWindow because a controller's got to have
-    # references to both the layer above (UI) and the layer below (model)
     def __init__(self, win):
+        """
+        We store mainWindow because a controller's got to have
+        references to both the layer above (UI) and the layer below (model)
+        """
         super(SliceController, self).__init__()
         self.mainWindow = win
-
         win.actionSliceSelect.triggered.connect(self.chooseSelectTool)
-        win.actionSliceMove.triggered.connect(self.chooseMoveTool)
-
+        # win.actionSliceMove.triggered.connect(self.chooseMoveTool)
         win.actionSliceFirst.triggered.connect(self.sliceFirstClicked)
         win.actionSliceLast.triggered.connect(self.sliceLastClicked)
         win.actionRenumber.triggered.connect(self.renumberClicked)
 
-        self.toolset = set((win.actionSliceSelect, win.actionSliceMove))
+        self.toolset =[win.actionSliceSelect]  # win.actionSliceMove
         ag = QActionGroup(win)
         for a in self.toolset:
             ag.addAction(a)
@@ -67,14 +63,13 @@ class SliceController(QObject):
             self.currentTool = widget
         widget.setChecked(True)
 
-    def chooseMoveTool(self):
-        widget = self.mainWindow.actionSliceMove
-        if self.currentTool is widget:
-            return
-        else:
-            self.currentTool = widget
-        widget.setChecked(True)
-        
+    # def chooseMoveTool(self):
+    #     widget = self.mainWindow.actionSliceMove
+    #     if self.currentTool is widget:
+    #         return
+    #     else:
+    #         self.currentTool = widget
+    #     widget.setChecked(True)
     # end def
 
     def sliceLastClicked(self):

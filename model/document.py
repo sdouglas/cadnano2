@@ -28,6 +28,7 @@ Created by Jonathan deWerd on 2011-01-26.
 """
 
 import json
+import ui.styles as styles
 from .dnahoneycombpart import DNAHoneycombPart
 from .dnasquarepart import DNASquarePart
 from .enum import LatticeType
@@ -37,16 +38,16 @@ import util
 util.qtWrapImport('QtCore', globals(), ['pyqtSignal', 'QObject'] )
 util.qtWrapImport('QtGui', globals(), [ 'QUndoCommand'] )
 
-class Document(QObject):    
+class Document(QObject):
     def __init__(self, incompleteArchivedDict=None):
         super(Document, self).__init__()
         self._parts = []
         self._selectedPart = None
         self._controller = None
-    
+
     def controller(self):
         return self._controller
-    
+
     def setController(self, cont):
         self._controller = cont
 
@@ -56,23 +57,25 @@ class Document(QObject):
         """
         dnapart = None
         if len(self._parts) == 0:
-            dnapart = DNAHoneycombPart()
+            dnapart = DNAHoneycombPart(maxRow=styles.HONEYCOMB_PART_MAXROWS,\
+                                       maxCol=styles.HONEYCOMB_PART_MAXCOLS)
             self.addPart(dnapart)
         return dnapart
-    
+
     def addDnaSquarePart(self):
         """
         Create and store a new DNAPart and instance, and return the instance.
         """
         dnapart = None
         if len(self._parts) == 0:
-            dnapart = DNASquarePart()
+            dnapart = DNASquarePart(maxRow=styles.SQUARE_PART_MAXROWS,\
+                                    maxCol=styles.SQUARE_PART_MAXCOLS)
             self.addPart(dnapart)
         return dnapart
-    
+
     def parts(self):
         return self._parts
-        
+
     partAdded = pyqtSignal(object)
     def addPart(self, part):
         undoStack = self.undoStack()
@@ -82,7 +85,7 @@ class Document(QObject):
         else:
             c.redo()
         return c.part()
-        
+
     class AddPartCommand(QUndoCommand):
         """
         Undo ready command for deleting a part.
@@ -91,7 +94,7 @@ class Document(QObject):
             QUndoCommand.__init__(self)
             self._doc = document
             self._part = part
-        
+
         def part(self):
             return self._part
 
@@ -103,8 +106,6 @@ class Document(QObject):
                 self._doc.partAdded.emit(self._part)
 
         def undo(self):
-            # if len(self._doc._parts) > 0:
-            # self._doc.setSelectedPart(None)
             self._part._setDocument(None)
             self._doc._parts.remove(self._part)
             self._part.partRemoved.emit()
@@ -113,25 +114,24 @@ class Document(QObject):
         if self.controller():
             return self.controller().undoStack()
         return None
-        
-    ############################ Transient (doesn't get saved) State #########
+
+    ################### Transient (doesn't get saved) State ##################
     selectedPartChanged = pyqtSignal(object)
 
     def selectedPart(self):
         return self._selectedPart
-    
+
     def setSelectedPart(self, newPart):
         if self._selectedPart == newPart:
             return
         self._selectedPart = newPart
         self.selectedPartChanged.emit(newPart)
 
-
-    ############################ Archive / Unarchive #########################
+    ########################## Archive / Unarchive ###########################
     def fillSimpleRep(self, sr):
         sr['.class'] = "Document"
         sr['parts'] = self._parts
-    
+
     # First objects that are being unarchived are sent
     # ClassNameFrom.classAttribute(incompleteArchivedDict)
     # which has only strings and numbers in its dict and then,

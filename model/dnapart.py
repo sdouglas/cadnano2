@@ -55,7 +55,7 @@ class DNAPart(Part):
     baseAdditionAndRemovalUnit = 7
     def selectAllBehavior(self):
         return self._selectAllBehavior
-        
+
     def __init__(self, *args, **kwargs):
         if self.__class__ == DNAPart:
             raise NotImplementedError("This class is abstract. Perhaps you want DNAHoneycombPart.")
@@ -64,65 +64,69 @@ class DNAPart(Part):
         self._name = kwargs.get('name', 'untitled')
         self._maxRow = kwargs.get('maxRow', 20)
         self._maxCol = kwargs.get('maxCol', 20)
+
         # ID assignment infra
         self.oddRecycleBin, self.evenRecycleBin = [], []
         self.reserveBin = set()
         self.highestUsedOdd = -1  # Used iff the recycle bin is empty and highestUsedOdd+2 is not in the reserve bin
         self.highestUsedEven = -2  # same
+
         # Transient and/or cached state
         self._staples = []
         self._scaffolds = []
         self._selection = list()
         self._coordToVirtualHelix = {}  # (row,col) -> VirtualHelix
+
         # Abstract
-        # self._maxBase = 0  # honeycomb is 42
-        # self._activeSlice = 0  # honeycomb is 21
         if self._selectAllBehavior:
             self.virtualHelixAtCoordsChanged.connect(self.updateSelectionFromVHChange)
+
         # This variable is directly used and entirely managed by
         # virtualhelix for consolidation of basesModified signals.
         self.basesModifiedVHs = set()
+
         # We also keep track of the specific bases that were modified
         # so that we can efficiently recalculate strand lengths.
         # self.basesModified is cleared by and ONLY by dnapart's
         # recalculateStrandLengths method.
         self.basesModified = set()
+
         # Event propagation
         self.virtualHelixAtCoordsChanged.connect(self.persistentDataChangedEvent)
         self.dimensionsWillChange.connect(self.persistentDataChangedEvent)
-    
+
     def destroy(self):
         if self._selectAllBehavior == True:
             self.virtualHelixAtCoordsChanged.disconnect(self.updateSelectionFromVHChange)
         self.virtualHelixAtCoordsChanged.disconnect(self.persistentDataChangedEvent)
         self.dimensionsWillChange.disconnect(self.persistentDataChangedEvent)
     # end def
-    
+
     persistentDataChanged = pyqtSignal()
     def persistentDataChangedEvent(self, *args, **kwargs):
         self.persistentDataChanged.emit()
-    
+
     def setDocument(self, newDoc):
         """Only called by Document"""
         super(DNAPart, self).setDocument(newDoc)
-            
+
     def palette(self):
         return styles.default_palette
-    
+
     def name(self):
         return self._name
-    
+
     nameWillChange = pyqtSignal(str)
     def setName(self, newName):
         self.nameWillChange.emit(newName)
         self._name = newName
-    
+
     def dimensions(self):
         return (self._maxRow, self._maxCol, self._maxBase)
-    
+
     def numBases(self):
         return self._maxBase
-    
+
     def __repr__(self):
         s = self.__class__.__name__+"[" +\
             ','.join(repr(self._numberToVirtualHelix[k])\
@@ -155,7 +159,7 @@ class DNAPart(Part):
             neighbors.append(self.getVirtualHelix((r,c+1)))  # p2 neighbor
         return neighbors  # Note: the order and presence of Nones is important
         # If you need the indices of available directions use range(0,len(neighbors))
-    
+
     dimensionsWillChange = pyqtSignal(object)
     dimensionsDidChange = pyqtSignal()
     def setDimensions(self, newDim):
@@ -164,14 +168,14 @@ class DNAPart(Part):
         for n in self._numberToVirtualHelix:
             self._numberToVirtualHelix[n].setNumBases(self._maxBase)
         self.dimensionsDidChange.emit()
-            
+
     def majorGrid(self):
         return self._majorGridLine
-        
+
     def crossSectionStep(self):
         """Returns the cross-section type of the DNA part."""
         return self.step
-        
+
     ############################# Archiving/Unarchiving #############################
     def fillSimpleRep(self, sr):
         """
@@ -186,7 +190,7 @@ class DNAPart(Part):
             coordsAndNumToVH.append((vh.coord(), vh.number(), vh))
         sr['virtualHelices'] = coordsAndNumToVH
         sr['name'] = self.name()
-    
+
     # First objects that are being unarchived are sent
     # ClassNameFrom.classAttribute(incompleteArchivedDict)
     # which has only strings and numbers in its dict and then,
@@ -201,7 +205,7 @@ class DNAPart(Part):
                 self.highestUsedEven = max(self.highestUsedEven, num)
             self.addVirtualHelixAt(coord, vh, requestSpecificIdnum=num, noUndo=True)
         self.setName(completeArchivedDict['name'])
-            
+
     ############################# VirtualHelix CRUD #############################
     # Take note: vhrefs are the shiny new way to talk to dnapart about its constituent
     # virtualhelices. Wherever you see f(...,vhref,...) you can
@@ -272,7 +276,7 @@ class DNAPart(Part):
 
     def getVirtualHelices(self):
         return [self._numberToVirtualHelix[n] for n in self._numberToVirtualHelix]
-    
+
     def autoStaple(self):
         vhs = self.getVirtualHelices()
         self.undoStack().beginMacro("Auto Staple")
@@ -294,7 +298,6 @@ class DNAPart(Part):
                 if vh.possibleNewCrossoverAt(StrandType.Staple, idx, toVH, idx):
                     vh.installXoverFrom3To5(StrandType.Staple, idx, toVH, idx)
         self.undoStack().endMacro()
-            
 
     ############################# VirtualHelix Private CRUD #############################
     def _recalculateStrandLengths(self):
@@ -313,7 +316,7 @@ class DNAPart(Part):
             for baseInStrand in basesConnectedToB:
                 baseInStrand._strandLength = lengthOfStrand
             b._strandLength = lengthOfStrand
-    
+
     class AddHelixCommand(QUndoCommand):
         """
         Adds a helix to dnapart. Called by self.addVirtualHelixAt().
@@ -355,7 +358,7 @@ class DNAPart(Part):
             self.coords = coords
             self.part = dnapart
             self.newNum = newNumber
-            
+
         def redo(self, actuallyUndo=False):
             # Private responsibilities of renumbering vh to newNum:
             #  1) Ensure self._numberToVirtualHelix[newNum] == vh
@@ -377,10 +380,11 @@ class DNAPart(Part):
             # dnapart owns the idnum of a virtualhelix, so we
             # are the ones that send an update when it changes
             p.virtualHelixAtCoordsChanged.emit(self.row, self.col)  # (4)
+
         def undo(self):
             self.redo(actuallyUndo=True)
-    
-    
+
+
     class RenumberHelicesCommand(QUndoCommand):
         """
         This command undoably renumbers a list of vhs.  It can undo/redo 
@@ -437,9 +441,9 @@ class DNAPart(Part):
                 self.recycleHelixIDNumber(n)  # (3)
             for n in novelNumbers:
                 self.reserveHelixIDNumber(requestedIDnum=n)  # (3)
-            
+
             p._numberToVirtualHelix = newNumToVH  # (1)
-            
+
             for vh in changedVH:  # (4)
                 p.virtualHelixAtCoordsChanged.emit(*vh.coord())
 
