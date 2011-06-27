@@ -29,7 +29,7 @@ vh1.connectStrand(StrandType.Staple, 0, 4)
 print repr(str(vh))
 print repr(str(vh1)) + "\n\n"
 
-print "vh.connect3To5(StrandType.Staple, 2, vh1, 3)"
+print "vh.installXoverFrom3To5(StrandType.Staple, 2, vh1, 2)"
 vh.installXoverFrom3To5(StrandType.Staple, 2, vh1, 2)
 print repr(str(vh))
 print repr(str(vh1))

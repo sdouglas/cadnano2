@@ -29,6 +29,7 @@ from test.cadnanoguitestcase import CadnanoGuiTestCase
 import time
 from cadnano import app as getAppInstance
 from model.virtualhelix import VirtualHelix
+from model.enum import StrandType
 
 class SampleTests(CadnanoGuiTestCase):
     """
@@ -106,7 +107,7 @@ class SampleTests(CadnanoGuiTestCase):
         self.assertEqual(str(vh), '0 Scaffold: _,_ _,_ _,> <,_ _,> <,> <,_ _,_\n0 Staple:   _,> <,> <,_ _,_ _,_ _,> <,> <,_')
         self.assertEqual(str(vh1), '1 Scaffold: _,_ _,_ _,_ _,_ _,_\n1 Staple:   _,> <,> <,> <,> <,_')
 
-        vh.connect3To5(StrandType.Staple, 2, vh1, 3)
+        vh.installXoverFrom3To5(StrandType.Staple, 2, vh1, 2)
         self.assertEqual(str(vh), '0 Scaffold: _,_ _,_ _,> <,_ _,> <,> <,_ _,_\n0 Staple:   _,> <,_ 1:2,> <,_ _,_ _,> <,> <,_')
         self.assertEqual(str(vh1), '1 Scaffold: _,_ _,_ _,_ _,_ _,_\n1 Staple:   _,> <,_ 0:2,> <,> <,_')
 
