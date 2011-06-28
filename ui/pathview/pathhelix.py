@@ -42,12 +42,14 @@ from ui.svgbutton import SVGButton
 import util
 # import Qt stuff into the module namespace with PySide, PyQt4 independence
 util.qtWrapImport('QtCore', globals(), ['Qt', 'QRect', 'QLine', 'QRectF',\
-                                        'QPointF', 'QPoint'])
+                                        'QPointF', 'QPoint', 'pyqtSlot',
+                                        'SLOT'])
 util.qtWrapImport('QtGui', globals(), ['QBrush', 'QColor', 'QFont',\
-                                       'QGraphicsItem', 'QFontMetricsF',\
+                                       'QGraphicsObject', 'QFontMetricsF',\
                                        'QGraphicsSimpleTextItem',\
                                        'QPainter', 'QPainterPath', 'QPen',\
-                                       'QDrag', 'QPolygonF', 'QUndoCommand'])
+                                       'QDrag', 'QPolygonF', 'QUndoCommand',
+                                       'QInputDialog'])
 
 baseWidth = styles.PATH_BASE_WIDTH
 ppL5 = QPainterPath()  # Left 5' PainterPath
@@ -74,7 +76,7 @@ r3poly.append(QPointF(0, baseWidth))
 ppR3.addPolygon(r3poly)
 
 
-class PathHelix(QGraphicsItem):
+class PathHelix(QGraphicsObject):
     """
     PathHelix is the primary "view" of the VirtualHelix data.
     It manages the ui interactions from the user, such as
@@ -204,8 +206,25 @@ class PathHelix(QGraphicsItem):
     
     def addBasesClicked(self):
         part = self.vhelix().part()
+        dlg = QInputDialog(self.window())
+        dlg.setInputMode(QInputDialog.IntInput)
+        dlg.setIntMinimum(2)
+        dlg.setLabelText(( "Number of bases to add to the existing"\
+                         + " %i bases (will be rounded towards zero"
+                         + " to a multiple of %i)")\
+                         % (part.numBases(),part.step))
+        dlg.intValueSelected.connect(self.userChoseToAddNBases)
+        dlg.open()
+        self.addBasesDialog = dlg  # Prevent GC from eating it
+    
+    @pyqtSlot(int)
+    def userChoseToAddNBases(self, numBases):
+        part = self.vhelix().part()
         dim = list(part.dimensions())
-        part.setDimensions((dim[0], dim[1], dim[2]+part.baseAdditionAndRemovalUnit))
+        numBases = int(numBases) / 21 * 21
+        part.setDimensions((dim[0], dim[1], dim[2]+numBases))
+        self.addBasesDialog.intValueSelected.disconnect(self.userChoseToAddNBases)
+        del self.addBasesDialog
 
     def removeBasesClicked(self):
         part = self.vhelix().part()

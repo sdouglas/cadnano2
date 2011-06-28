@@ -61,3 +61,13 @@ be performed by dragging in a certain direction.
 If True, the select tool will draw a dot on the base being hovered over
 that is the color of the underlying base (useful when you need to know
 the color of a base that doesn't have any strand to exhibit its color with)
+
+## Environment options
+Some environment variables convenient for debugging (or customizing to personal taste).
+### CADNANO_PENCIL_FIRST
+Activates the pencil tool on document open instead of the select tool.
+### CADNANO_DISCARD_UNSAVED
+Don't prompt the user to save unsaved changes; just exit.
+### CADNANO_DEFAULT_DOCUMENT
+On creation of the default document, open the named file (put a path to the file
+in the value of the environment variable) instead of a blank document.

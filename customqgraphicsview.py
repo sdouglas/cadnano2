@@ -92,9 +92,9 @@ class CustomQGraphicsView(QGraphicsView):
         self._scale_size = 1.0
         self._scale_limit_max = 3.0
         self._scale_limit_min = .41
-        self._scaleDownFactor = 0.8  # 0.95
+        self._scaleDownRate = 0.02  # 0.95
         self._scaleFitFactor = 1  # sets initial zoom level
-        self._scaleUpFactor = 1.25  # 100.0/95.0
+        self._scaleUpRate = .02  # 100.0/95.0
         self._last_scale_factor = 0.0
 
         self._key_mod = Qt.Key_Control
@@ -244,27 +244,24 @@ class CustomQGraphicsView(QGraphicsView):
 
     def wheelZoom(self, event):
         """docstring for wheelZoom"""
-        if event.delta() > 0:  # rotated away from the user
-            self.scaleUp()
-        # end if
-        else:
-            self.scaleDown()
-        # end else
-    # end def
+        self.safeScale(event.delta())
 
-    def scaleDown(self):
-        if self._scale_limit_min < self._scale_size:
-            self.scale(self._scaleDownFactor, self._scaleDownFactor)
-            self._scale_size *= self._scaleDownFactor
-        # end if
-    # end def
+    def safeScale(self, delta):
+        currentScaleLevel = self.transform().m11()
+        scaleFactor = 1 + delta * \
+           (self._scaleDownRate if delta < 0 else self._scaleUpRate)
+        newScaleLevel = currentScaleLevel * scaleFactor
+        newScaleLevel = util.clamp(currentScaleLevel * scaleFactor,\
+                              self._scale_limit_min,\
+                              self._scale_limit_max)
+        scaleChange = newScaleLevel / currentScaleLevel
+        self.scale(scaleChange, scaleChange)
     
-    def scaleUp(self):
+    def scaleUp(self, factor):
         if self._scale_limit_max > self._scale_size:
-            self.scale(self._scaleUpFactor, self._scaleUpFactor)
-            self._scale_size *= self._scaleUpFactor
-        # end if
-    # end def
+            scaleFactor = factor * self._scaleUpRate
+            self.scale(scaleFactor, scaleFactor)
+            self._scale_size *= self.scaleFactor
 
     def dollyZoom(self, event):
         """docstring for dollyZoom"""
