@@ -28,8 +28,8 @@ Created by Jonathan deWerd on 2011-01-29.
 """
 
 from code import interact
-import sys
-
+import sys, os
+from os import path
 PySide_loaded = None
 
 def usesPySide(self):
@@ -92,6 +92,7 @@ class CADnano(QApplication):
     sharedApp = None  # This class is a singleton.
     usesPySide = usesPySide     # This is bad that this can work
     dontAskAndJustDiscardUnsavedChanges = False
+    shouldPerformBoilerplateStartupScript = False
     PySide_loaded = PySide_loaded
     
     def __init__(self, argv):
@@ -111,7 +112,6 @@ class CADnano(QApplication):
         self.undoGroup = QUndoGroup()
         #self.setApplicationName(QString("CADnano"))
         self.documentControllers = set() # Open documents
-        d = self.newDocument()
         self.v = None
         self.ph = None
         self.phg = None
@@ -133,6 +133,7 @@ class CADnano(QApplication):
                             'v':self.v,\
                             'ph':self.ph,\
                             'phg':lambda : self.phg})
+        d = self.newDocument()
         print "Is PySide available? : ", self.usesPySide()
     # end def
         
@@ -141,12 +142,24 @@ class CADnano(QApplication):
         
     def newDocument(self):
         from ui.documentcontroller import DocumentController
-        dc = DocumentController() # DocumentController is responsible for adding
-                                  # itself to app.documentControllers
+        defaultFile = os.environ.get('CADNANO_DEFAULT_DOCUMENT', None)
+        if defaultFile:
+            defaultFile = path.expanduser(defaultFile)
+            defaultFile = path.expandvars(defaultFile)
+            from model.decoder import decode
+            doc = decode(file(defaultFile).read())
+            dc = DocumentController(doc, defaultFile)
+        else:
+            dc = DocumentController()  # DocumentController is responsible for adding
+                                       # itself to app.documentControllers
         return dc.document()
 
 # Convenience. No reason to feel guilty using it - CADnano is a singleton.
 def app(appArgs=None):
     if not CADnano.sharedApp:
         CADnano.sharedApp = CADnano(appArgs)
+    if os.environ.get('CADNANO_DISCARD_UNSAVED', False):
+        CADnano.sharedApp.dontAskAndJustDiscardUnsavedChanges = True
+    if os.environ.get('CADNANO_DEFAULT_DOCUMENT', False):
+        CADnano.sharedApp.shouldPerformBoilerplateStartupScript = True
     return CADnano.sharedApp

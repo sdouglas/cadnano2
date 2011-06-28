@@ -31,6 +31,7 @@ from tools.selecttool import SelectTool
 from tools.skiptool import SkipTool
 from tools.addseqtool import AddSeqTool
 import util
+import os
 
 # import Qt stuff into the module namespace with PySide, PyQt4 independence
 util.qtWrapImport('QtCore', globals(), ['QObject', 'pyqtSignal'] )
@@ -85,7 +86,10 @@ class PathController(QObject):
             toolAction = installTool(toolName, win)
             ag.addAction(toolAction)
         ag.setExclusive(True)
-        self.chooseSelectTool()
+        if os.environ.get('CADNANO_PENCIL_FIRST', False):
+            self.choosePencilTool()
+        else:
+            self.chooseSelectTool()
 
     def activeTool(self):
         return self._activeTool
