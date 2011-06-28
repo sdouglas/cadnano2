@@ -92,9 +92,9 @@ class CustomQGraphicsView(QGraphicsView):
         self._scale_size = 1.0
         self._scale_limit_max = 3.0
         self._scale_limit_min = .41
-        self._scaleDownRate = 0.02  # 0.95
+        self._scaleDownRate = 0.001  # 0.95
         self._scaleFitFactor = 1  # sets initial zoom level
-        self._scaleUpRate = .02  # 100.0/95.0
+        self._scaleUpRate = .001  # 100.0/95.0
         self._last_scale_factor = 0.0
 
         self._key_mod = Qt.Key_Control
@@ -168,8 +168,8 @@ class CustomQGraphicsView(QGraphicsView):
                 # Add stuff to handle the pan event
                 xf = event.posF().x()
                 yf = event.posF().y()
-                self.sceneRootItem.translate((xf - self._x0)/self._scale_size,\
-                                             (yf - self._y0)/self._scale_size)
+                self.sceneRootItem.translate((xf - self._x0)/self.transform().m11(),\
+                                             (yf - self._y0)/self.transform().m11())
                 self._x0 = xf
                 self._y0 = yf
             elif self._dollyZoomEnable == True:
