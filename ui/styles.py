@@ -126,7 +126,9 @@ ZBREAKITEM = 2
 if util.isMac():
     thefont = "Times"
 elif util.isWindows():
-    thefont = "Times"
+    thefont = "Segoe UI"
+    thefont = "Calibri"
+    #thefont = "Arial"
 else:
     thefont = "Times"
      
