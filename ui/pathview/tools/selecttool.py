@@ -115,22 +115,30 @@ class SelectTool(AbstractPathTool):
         self._mouseDownBase = ph.baseAtLocation(event.pos().x(),\
                                                 self._mouseDownY)
 
-        # Shift to merge bases - carryover from 1.0 (also, WTF?)
-        if (event.modifiers()&Qt.ShiftModifier) and self._mouseDownBase:
+        # Shift to merge bases - carryover from 1.0
+        if (event.modifiers() & Qt.ShiftModifier) and self._mouseDownBase:
             strand, idx = self._mouseDownBase
             vh = ph.vhelix()
             if vh.hasEndAt(strand, idx):
-                if idx>0 and vh.hasEndAt(strand, idx-1):
+                if idx > 0 and vh.hasEndAt(strand, idx-1):
                     vh.connectStrand(strand, idx-1, idx)
-                if idx<vh.numBases()-1 and vh.hasEndAt(strand, idx+1):
+                if idx < vh.numBases()-1 and vh.hasEndAt(strand, idx+1):
                     vh.connectStrand(strand, idx+1, idx)
                 self._mouseDownBase = None  # Cancel drag op
                 return
 
+        # Alt to extend bases - carryover from 1.0
+        if (event.modifiers() & Qt.AltModifier) and self._mouseDownBase:
+            strand, idx = self._mouseDownBase
+            vh = ph.vhelix()
+            if vh.hasEndAt(strand, idx):
+                vh.autoDragToBoundary(strand, idx)
+            self._mouseDownBase = None  # Cancel drag op
+            return
+
         # Begin a drag operation
         self._mouseDownPH = ph
         ph.scene().views()[0].addToPressList(ph)
-        
         if not self._mouseDownBase:
             return
         vh = ph.vhelix()

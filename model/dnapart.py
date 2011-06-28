@@ -302,6 +302,15 @@ class DNAPart(Part):
                     vh.installXoverFrom3To5(StrandType.Staple, idx, toVH, idx)
         self.undoStack().endMacro()
 
+    def autoDragAllBreakpoints(self):
+        """Carryover from cadnano1. Shift+Alt+Click on activeslichandle tells
+        all breakpoints to extend as far as possible."""
+        vhs = self.getVirtualHelices()
+        self.undoStack().beginMacro("Auto-drag Scaffold(s)")
+        for vh in vhs:
+            vh.autoDragAllBreakpoints(StrandType.Scaffold)
+        self.undoStack().endMacro()
+
     ############################# VirtualHelix Private CRUD #############################
     def _recalculateStrandLengths(self):
         """

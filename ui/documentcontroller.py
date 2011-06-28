@@ -69,7 +69,7 @@ class DocumentController():
         self._document = None
         self.setDocument(Document() if not doc else doc)
         app().undoGroup.addStack(self.undoStack())
-        self.win.setWindowTitle(self.documentTitle())
+        self.win.setWindowTitle(self.documentTitle()+'[*]')
 
     def closer(self, event):
         if self.win.maybeSave():
@@ -175,15 +175,23 @@ class DocumentController():
             directory = "."
         else:
             directory = QFileInfo(filename).path()
-        fdialog = QFileDialog ( self.win, \
-                            "%s - Save As" % QApplication.applicationName(),\
-                            directory, \
-                            "%s (*.cn2)" % QApplication.applicationName())
-        fdialog.setWindowFlags(Qt.MSWindowsFixedSizeDialogHint | Qt.Sheet)
-        fdialog.setWindowModality(Qt.WindowModal)
-        fdialog.exec_()  # or .show(), or .open()
-        filename = fdialog.selectedFiles()[0]
-        del fdialog  # manual garbage collection to prevent hang (in osx)
+        if util.isWindows():
+            filename = QFileDialog.getSaveFileName(self.win, 
+                                "%s - Save As" % QApplication.applicationName(),\
+                                directory, \
+                                "%s (*.cn2)" % QApplication.applicationName(), \
+                                 )
+                                
+        else:
+            fdialog = QFileDialog ( self.win, \
+                                "%s - Save As" % QApplication.applicationName(),\
+                                directory, \
+                                "%s (*.cn2)" % QApplication.applicationName())
+            fdialog.setWindowFlags(Qt.MSWindowsFixedSizeDialogHint | Qt.Sheet)
+            fdialog.setWindowModality(Qt.WindowModal)
+            fdialog.exec_()  # or .show(), or .open()
+            filename = fdialog.selectedFiles()[0]
+            del fdialog  # manual garbage collection to prevent hang (in osx)
 
         if filename.isEmpty() or os.path.isdir(filename):
             print "Not saving"
