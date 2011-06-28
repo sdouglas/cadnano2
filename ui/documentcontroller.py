@@ -148,10 +148,24 @@ class DocumentController():
 
     def openClicked(self):
         """docstring for openClicked"""
-        fname = QFileDialog.getOpenFileName(None, "Open Document", "/",\
-                    "CADnano1 / CADnano2 Files (*.cn2 *.json *.cadnano)")
-        if fname == '':
-            return
+        if util.isWindows():
+            fname = QFileDialog.getOpenFileName(None, "Open Document", "/",\
+                        "CADnano1 / CADnano2 Files (*.cn2 *.json *.cadnano)")                 
+        else:
+            fdialog = QFileDialog ( self.win, \
+                                "Open Document",\
+                                "/", \
+                                "CADnano1 / CADnano2 Files (*.cn2 *.json *.cadnano)")
+            fdialog.setAcceptMode(QFileDialog.AcceptOpen)
+            fdialog.setWindowFlags(Qt.MSWindowsFixedSizeDialogHint | Qt.Sheet)
+            fdialog.setWindowModality(Qt.WindowModal)
+            fdialog.exec_()  # or .show(), or .open()
+            fname = fdialog.selectedFiles()[0]
+            del fdialog  # manual garbage collection to prevent hang (in osx)
+    
+        if fname.isEmpty() or os.path.isdir(fname):
+            return False
+        fname = str(fname)
         doc = decode(file(fname).read())
         DocumentController(doc, fname)
 
@@ -170,13 +184,13 @@ class DocumentController():
         self.undoStack().setClean()
 
     def saveAsClicked(self):
-        filename = self.filename()
-        if filename == None:
+        fname = self.filename()
+        if fname == None:
             directory = "."
         else:
-            directory = QFileInfo(filename).path()
+            directory = QFileInfo(fname).path()
         if util.isWindows():
-            filename = QFileDialog.getSaveFileName(self.win, 
+            fname = QFileDialog.getSaveFileName(self.win, 
                                 "%s - Save As" % QApplication.applicationName(),\
                                 directory, \
                                 "%s (*.cn2)" % QApplication.applicationName(), \
@@ -187,19 +201,20 @@ class DocumentController():
                                 "%s - Save As" % QApplication.applicationName(),\
                                 directory, \
                                 "%s (*.cn2)" % QApplication.applicationName())
+            fdialog.setAcceptMode(QFileDialog.AcceptSave)
             fdialog.setWindowFlags(Qt.MSWindowsFixedSizeDialogHint | Qt.Sheet)
             fdialog.setWindowModality(Qt.WindowModal)
             fdialog.exec_()  # or .show(), or .open()
-            filename = fdialog.selectedFiles()[0]
+            fname = fdialog.selectedFiles()[0]
             del fdialog  # manual garbage collection to prevent hang (in osx)
 
-        if filename.isEmpty() or os.path.isdir(filename):
+        if fname.isEmpty() or os.path.isdir(fname):
             print "Not saving"
             return False
-        filename = str(filename)
-        if not filename.lower().endswith(".cn2"):
-            filename += ".cn2"
-        self.setFilename(filename)
+        fname = str(fname)
+        if not fname.lower().endswith(".cn2"):
+            fname += ".cn2"
+        self.setFilename(fname)
         return self.saveClicked()
 
     def svgClicked(self):
