@@ -16,11 +16,10 @@ def main():
     unitsuite = unittest.makeSuite(UnitTests)
     modelsuite = unittest.makeSuite(ModelTests)
     funsuite = unittest.makeSuite(FunctionalTests)
+    alltests = unittest.TestSuite([unitsuite, modelsuite, funsuite])
     stream = file("testresults.xml", "w")
     runner = XMLTestRunner(stream)
-    result = runner.run(unitsuite)
-    result = runner.run(modelsuite)
-    result = runner.run(funsuite)
+    result = runner.run(alltests)
     stream.close()
     return result
 
