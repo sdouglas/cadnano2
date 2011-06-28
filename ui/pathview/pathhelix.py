@@ -210,18 +210,21 @@ class PathHelix(QGraphicsObject):
         dlg.setInputMode(QInputDialog.IntInput)
         dlg.setIntMinimum(2)
         dlg.setLabelText(( "Number of bases to add to the existing"\
-                         + "%i bases (will be rounded towards zero"
+                         + " %i bases (will be rounded towards zero"
                          + " to a multiple of %i)")\
                          % (part.numBases(),part.step))
-        dlg.open(self, SLOT("userChoseToAddNBases(int)"))
+        dlg.intValueSelected.connect(self.userChoseToAddNBases)
+        dlg.open()
+        self.addBasesDialog = dlg  # Prevent GC from eating it
     
     @pyqtSlot(int)
     def userChoseToAddNBases(self, numBases):
-        print "add %i bases"%numBases
         part = self.vhelix().part()
         dim = list(part.dimensions())
         numBases = int(numBases) / 21 * 21
-        part.setDimensions((dim[0], dim[1], dim[2]+part.baseAdditionAndRemovalUnit))
+        part.setDimensions((dim[0], dim[1], dim[2]+numBases))
+        self.addBasesDialog.intValueSelected.disconnect(self.userChoseToAddNBases)
+        del self.addBasesDialog
 
     def removeBasesClicked(self):
         part = self.vhelix().part()
