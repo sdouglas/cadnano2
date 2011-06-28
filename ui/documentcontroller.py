@@ -69,7 +69,7 @@ class DocumentController():
         self._document = None
         self.setDocument(Document() if not doc else doc)
         app().undoGroup.addStack(self.undoStack())
-        self.win.setWindowTitle(self.documentTitle())
+        self.win.setWindowTitle(self.documentTitle()+'[*]')
 
     def closer(self, event):
         if self.win.maybeSave():
