@@ -673,6 +673,12 @@ class VirtualHelix(QObject):
             self.thoughtPolice(undoStack)
         undoStack.endMacro()
 
+    def legacyClearStrand(self, strandType, startIndex, endIndex, undoStack=True,\
+                    colorL=None, colorR=None, police=True,\
+                    undoDesc="Clear strand"):
+        self.clearStrand(strandType, startIndex, endIndex, undoStack,\
+                         colorL, colorR, police, undoDesc)
+
     def clearStrand(self, strandType, startIndex, endIndex, undoStack=True,\
                     colorL=None, colorR=None, police=True,\
                     undoDesc="Clear strand"):

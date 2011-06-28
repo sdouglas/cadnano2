@@ -208,10 +208,12 @@ class PathHelix(QGraphicsObject):
         part = self.vhelix().part()
         dlg = QInputDialog(self.window())
         dlg.setInputMode(QInputDialog.IntInput)
-        dlg.setIntMinimum(2)
+        dlg.setIntMinimum(0)
+        dlg.setIntValue(part.step)
+        dlg.setIntMaximum(1000000)
+        dlg.setIntStep(part.step)
         dlg.setLabelText(( "Number of bases to add to the existing"\
-                         + " %i bases\n(will be rounded towards zero"
-                         + " to a multiple of %i)")\
+                         + " %i bases\n(must be a multiple of %i)")\
                          % (part.numBases(),part.step))
         dlg.intValueSelected.connect(self.userChoseToAddNBases)
         dlg.open()
@@ -231,7 +233,7 @@ class PathHelix(QGraphicsObject):
         dim = list(part.dimensions())
         if dim[2] <= part.step:
             return
-        part.setDimensions((dim[0], dim[1], dim[2]-part.baseAdditionAndRemovalUnit))
+        part.setDimensions((dim[0], dim[1], dim[2]-7))
 
     def vhelixDimensionsModified(self):
         """Sets rect width to reflect number of bases in vhelix. Sets

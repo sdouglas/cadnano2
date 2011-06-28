@@ -133,17 +133,17 @@ class CADnano(QApplication):
                             'v':self.v,\
                             'ph':self.ph,\
                             'phg':lambda : self.phg})
-        d = self.newDocument()
+        d = self.newDocument(isFirstNewDoc=True)
         print "Is PySide available? : ", self.usesPySide()
     # end def
         
     def isInMaya(self):
         return False
         
-    def newDocument(self):
+    def newDocument(self, isFirstNewDoc=False):
         from ui.documentcontroller import DocumentController
         defaultFile = os.environ.get('CADNANO_DEFAULT_DOCUMENT', None)
-        if defaultFile:
+        if defaultFile and isFirstNewDoc:
             defaultFile = path.expanduser(defaultFile)
             defaultFile = path.expandvars(defaultFile)
             from model.decoder import decode
