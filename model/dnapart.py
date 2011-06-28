@@ -53,7 +53,6 @@ class DNAPart(Part):
     _selectAllBehavior = True  # Always select all helices in part
     # Bases are always added and removed in multiples of the
     # addition/removal unit
-    baseAdditionAndRemovalUnit = 7
     def selectAllBehavior(self):
         return self._selectAllBehavior
 

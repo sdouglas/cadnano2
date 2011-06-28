@@ -22,12 +22,13 @@
 #
 # http://www.opensource.org/licenses/mit-license.php
 
+import time
+import unittest
 from PyQt4.QtCore import *
 from PyQt4.QtGui import *
-import unittest
-import time
 
 main = unittest.main
+
 
 class GUITestCase(unittest.TestCase):
     __qAppInitialized = False

@@ -22,39 +22,54 @@
 #
 # http://www.opensource.org/licenses/mit-license.php
 
+"""
+functionaltests.py
+
+Created by Shawn Douglas on 2011-06-28.
+"""
+
+import time
 from PyQt4.QtCore import *
 from PyQt4.QtGui import *
-import test.guitestcase
+import test.cadnanoguitestcase
+from test.cadnanoguitestcase import CadnanoGuiTestCase
 from cadnano import app as getAppInstance
+from model.enum import StrandType
+from model.virtualhelix import VirtualHelix
 
-main = test.guitestcase.main
 
-
-class CadnanoGuiTestCase(test.guitestcase.GUITestCase):
+class FunctionalTests(CadnanoGuiTestCase):
     """
-    SEE: http://docs.python.org/library/unittest.html
+    Functional tests are end-to-end tests that simulate user interaction
+    with the interface and verify that the final outputs (e.g. staple
+    sequences) are correct.
+
+    Run these tests by calling "python -m test.functionaltests" from cadnano2
+    root directory.
     """
     def setUp(self):
         """
         The setUp method is called before running any test. It is used
         to set the general conditions for the tests to run correctly.
-        For GUI Tests, you always have to call setWidget to tell the
-        framework what you will be testing.
         """
-        self.app = getAppInstance()
-        self.app.initGui()
-        self.mainWindow = list(self.app.documentControllers)[0].win
-        # By setting the widget to the main window we can traverse and
-        # interact with any part of it. Also, tearDown will close
-        # the application so we don't need to worry about that.
-        self.setWidget(self.mainWindow, False, None)
+        CadnanoGuiTestCase.setUp(self)
+        # Add your initialization here
+        # self.app gives you a pointer to the application object
+        getAppInstance().dontAskAndJustDiscardUnsavedChanges = True
+        getAppInstance().initGui()
 
     def tearDown(self):
         """
         The tearDown method is called at the end of running each test,
         generally used to clean up any objects created in setUp
         """
-        test.guitestcase.GUITestCase.tearDown(self)
+        CadnanoGuiTestCase.tearDown(self)
+        # Add your clean up here
+
+    def testFunction1(self):
+        # Another test in this class. Note that the tests'
+        # names must start with "test"
+        self.assertEqual(1, 1)
 
 if __name__ == '__main__':
-    test.guitestcase.main()
+    test.cadnanoguitestcase.main()

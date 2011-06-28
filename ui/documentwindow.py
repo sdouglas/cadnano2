@@ -130,7 +130,7 @@ class DocumentWindow(QMainWindow, ui_mainwindow.Ui_MainWindow):
             save = savebox.button(QMessageBox.Save)
             discard = savebox.button(QMessageBox.Discard)
             cancel = savebox.button(QMessageBox.Cancel)
-            save.setShortcut(QKeySequence("S,Ctrl+S"))
+            save.setShortcut("Ctrl+S")
             discard.setShortcut(QKeySequence("D,Ctrl+D"))
             cancel.setShortcut(QKeySequence("C,Ctrl+C,.,Ctrl+."))
             ret = savebox.exec_()

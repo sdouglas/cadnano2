@@ -24,13 +24,7 @@ except ImportError:
 
 
 class _TestInfo(object):
-
-    """Information about a particular test.
-    
-    Used by _XMLTestResult.
-    
-    """
-
+    """Information about a particular test. Used by _XMLTestResult."""
     def __init__(self, test, time):
         (self._class, self._method) = test.id().rsplit(".", 1)
         self._time = time
@@ -133,19 +127,14 @@ class _XMLTestResult(unittest.TestResult):
 
     def print_report(self, stream, time_taken, out, err):
         """Prints the XML report to the supplied stream.
-        
-        The time the tests took to perform as well as the captured standard
-        output and standard error streams must be passed in.a
 
+        The time the tests took to perform as well as the captured standard
+        output and standard error streams must be passed in.
         """
         stream.write('<testsuite errors="%(e)d" failures="%(f)d" ' % \
-            { "e": len(self.errors), "f": len(self.failures) })
+            {"e": len(self.errors), "f": len(self.failures)})
         stream.write('name="%(n)s" tests="%(t)d" time="%(time).3f">\n' % \
-            {
-                "n": self._test_name,
-                "t": self.testsRun,
-                "time": time_taken,
-            })
+            {"n": self._test_name, "t": self.testsRun, "time": time_taken})
         for info in self._tests:
             info.print_report(stream)
         stream.write('  <system-out><![CDATA[%s]]></system-out>\n' % out)
@@ -207,7 +196,7 @@ class XMLTestRunner(object):
 
     path = property(lambda self: self._path, _set_path, None,
             """The path where the XML files are stored.
-            
+
             This property is ignored when the XML file is written to a file
             stream.""")
 
@@ -257,9 +246,9 @@ class XMLTestRunnerTest(unittest.TestCase):
         self.assertEqual(expected, got)
 
     def test_no_tests(self):
-        """Regression test: Check whether a test run without any tests
+        """
+        Regression test: Check whether a test run without any tests
         matches a previous run.
-        
         """
         class TestTest(unittest.TestCase):
             pass
@@ -270,9 +259,9 @@ class XMLTestRunnerTest(unittest.TestCase):
 """)
 
     def test_success(self):
-        """Regression test: Check whether a test run with a successful test
+        """
+        Regression test: Check whether a test run with a successful test
         matches a previous run.
-        
         """
         class TestTest(unittest.TestCase):
             def test_foo(self):
@@ -285,9 +274,9 @@ class XMLTestRunnerTest(unittest.TestCase):
 """)
 
     def test_failure(self):
-        """Regression test: Check whether a test run with a failing test
+        """
+        Regression test: Check whether a test run with a failing test
         matches a previous run.
-        
         """
         class TestTest(unittest.TestCase):
             def test_foo(self):
@@ -302,9 +291,9 @@ class XMLTestRunnerTest(unittest.TestCase):
 """)
 
     def test_error(self):
-        """Regression test: Check whether a test run with a erroneous test
+        """
+        Regression test: Check whether a test run with a erroneous test
         matches a previous run.
-        
         """
         class TestTest(unittest.TestCase):
             def test_foo(self):
@@ -319,9 +308,9 @@ class XMLTestRunnerTest(unittest.TestCase):
 """)
 
     def test_stdout_capture(self):
-        """Regression test: Check whether a test run with output to stdout
+        """
+        Regression test: Check whether a test run with output to stdout
         matches a previous run.
-        
         """
         class TestTest(unittest.TestCase):
             def test_foo(self):
@@ -335,9 +324,9 @@ class XMLTestRunnerTest(unittest.TestCase):
 """)
 
     def test_stderr_capture(self):
-        """Regression test: Check whether a test run with output to stderr
+        """
+        Regression test: Check whether a test run with output to stderr
         matches a previous run.
-        
         """
         class TestTest(unittest.TestCase):
             def test_foo(self):
@@ -356,9 +345,9 @@ class XMLTestRunnerTest(unittest.TestCase):
             pass
 
     def test_unittests_changing_stdout(self):
-        """Check whether the XMLTestRunner recovers gracefully from unit tests
+        """
+        Check whether the XMLTestRunner recovers gracefully from unit tests
         that change stdout, but don't change it back properly.
-
         """
         class TestTest(unittest.TestCase):
             def test_foo(self):
@@ -368,9 +357,9 @@ class XMLTestRunnerTest(unittest.TestCase):
         runner.run(unittest.makeSuite(TestTest))
 
     def test_unittests_changing_stderr(self):
-        """Check whether the XMLTestRunner recovers gracefully from unit tests
+        """
+        Check whether the XMLTestRunner recovers gracefully from unit tests
         that change stderr, but don't change it back properly.
-
         """
         class TestTest(unittest.TestCase):
             def test_foo(self):
