@@ -310,26 +310,47 @@ class Base(object):
     def is3primeEnd(self):
         """Return True if no 3pBase, but 5pBase exists."""
         return self._hasNeighbor5p() and not self._hasNeighbor3p()
-    
+
     def _neighbor5p(self):
         n = self._5pBase
         if n and n.floatingXoverDestination():
             return None
         return n
+
     def _neighbor3p(self):
         if self.floatingXoverDestination():
             return None
         return self._3pBase
+
     def _neighborR(self):
         if self._vhelix.directionOfStrandIs5to3(self._strandtype):
             return self._neighbor3p()
         else:
             return self._neighbor5p()
+
     def _neighborL(self):
         if self._vhelix.directionOfStrandIs5to3(self._strandtype):
             return self._neighbor5p()
         else:
             return self._neighbor3p()
+
+    def _natNeighbor5p(self):
+        """Useful for accessing the natural 5' neighbor when calculating drag
+        boundaries, e.g. in vh.autoDragAllBreakpoints"""
+        strnd = self._vhelix._strand(self._strandtype)
+        if self._vhelix.directionOfStrandIs5to3(self._strandtype):
+            return strnd[self._n-1] if self._n>0 else None
+        else:
+            return strnd[self._n+1] if self._n<len(strnd)-1 else None
+
+    def _natNeighbor3p(self):
+        """Useful for accessing the natural 3' neighbor when calculating drag
+        boundaries, e.g. in vh.autoDragAllBreakpoints"""
+        strnd = self._vhelix._strand(self._strandtype)
+        if self._vhelix.directionOfStrandIs5to3(self._strandtype):
+            return strnd[self._n+1] if self._n<len(strnd)-1 else None
+        else:
+            return strnd[self._n-1] if self._n>0 else None
 
     # A neighbor base is one that is connected to the base represented
     # by self through a phosphate linkage
@@ -340,19 +361,22 @@ class Base(object):
     # if _neighbor3p is called.
     def _hasNeighbor5p(self):
         return self._neighbor5p() != None
+
     def _hasNeighbor3p(self):
         return self._neighbor3p() != None
+
     def _hasNeighborR(self):
         if self._vhelix.directionOfStrandIs5to3(self._strandtype):
             return self._neighbor3p()!=None or self.floatingXoverDestination()
         else:
             return self._neighbor5p() != None
+
     def _hasNeighborL(self):
         if self._vhelix.directionOfStrandIs5to3(self._strandtype):
             return self._neighbor5p()!=None or self.floatingXoverDestination()
         else:
             return self._neighbor3p() != None
-    
+
     # A segment is a connection between a base and its neighbor
     # base on the same strand
     def _connectsToNat5p(self):
@@ -363,6 +387,7 @@ class Base(object):
         else:
             guiRightNeighbor = strnd[self._n+1] if self._n<len(strnd)-1 else None
             return self._neighbor5p() == guiRightNeighbor
+
     def _connectsToNat3p(self):
         strnd = self._vhelix._strand(self._strandtype)
         if self._vhelix.directionOfStrandIs5to3(self._strandtype):
@@ -371,6 +396,7 @@ class Base(object):
         else:
             guiLeftNeighbor = strnd[self._n-1] if self._n>0 else None
             return self._neighbor3p() == guiLeftNeighbor
+
     def _connectsToNatR(self):
         strnd = self._vhelix._strand(self._strandtype)
         guiRightNeighbor = strnd[self._n+1] if self._n<len(strnd)-1 else None
@@ -380,6 +406,7 @@ class Base(object):
             return self._neighbor3p() == guiRightNeighbor
         else:
             return self._neighbor5p() == guiRightNeighbor
+
     def _connectsToNatL(self):
         strnd = self._vhelix._strand(self._strandtype)
         guiLeftNeighbor = strnd[self._n-1] if self._n>0 else None
@@ -389,7 +416,7 @@ class Base(object):
             return self._neighbor5p() == guiLeftNeighbor
         else:
             return self._neighbor3p() == guiLeftNeighbor
-    
+
     # A crossover is a connection between a base and a base
     # that isn't its neighbor on the same strand
     def _hasCrossover5p(self):
@@ -400,6 +427,7 @@ class Base(object):
         else:
             guiRightNeighbor = strnd[self._n+1] if self._n<len(strnd)-1 else None
             return self._neighbor5p() not in (None, guiRightNeighbor)
+
     def _hasCrossover3p(self):
         if self.floatingXoverDestination():
             return True
@@ -410,6 +438,7 @@ class Base(object):
         else:
             guiLeftNeighbor = strnd[self._n-1] if self._n>0 else None
             return self._neighbor3p() not in (None, guiLeftNeighbor)
+
     def _hasCrossoverR(self):
         strnd = self._vhelix._strand(self._strandtype)
         guiRightNeighbor = strnd[self._n+1] if self._n<len(strnd)-1 else None
@@ -419,6 +448,7 @@ class Base(object):
             return self._neighbor3p() not in (None, guiRightNeighbor)
         else:
             return self._neighbor5p() not in (None, guiRightNeighbor)
+
     def _hasCrossoverL(self):
         strnd = self._vhelix._strand(self._strandtype)
         guiLeftNeighbor = strnd[self._n-1] if self._n>0 else None
@@ -450,7 +480,7 @@ class Base(object):
         """Return True if the part id or vhelix number of the prev or
         next base does not match the same for this base."""
         return self._hasCrossover3p() or self._hasCrossover5p()
-    
+
     def floatingXoverDestination(self):
         """When a force crossover is being added, a crossover
         is displayed from the 3' end to the location of the mouse.

@@ -136,14 +136,6 @@ class ActiveSliceHandle(QGraphicsItem):
         QGraphicsItem.hoverEnterEvent(self, event)
     # end def
 
-    # def hoverMoveEvent(self, event):
-    #     if not self.controller().isSelectToolActive():
-    #         # pass None, but if needed pass self for having a special
-    #         # behavior for the slice helix
-    #         self.controller().toolHoverMove(None, event, flag=True)
-    #     QGraphicsItem.hoverMoveEvent(self, event)
-    # end def
-
     def hoverLeaveEvent(self, event):
         self.setCursor(Qt.ArrowCursor)
         QGraphicsItem.hoverLeaveEvent(self, event)
@@ -162,6 +154,12 @@ class ActiveSliceHandle(QGraphicsItem):
             event.ignore()
             QGraphicsItem.mousePressEvent(self, event)
             return
+
+        if (event.modifiers() & Qt.AltModifier) and \
+           (event.modifiers() & Qt.ShiftModifier):
+            print "alt and shift clicked"
+            self.part().autoDragAllBreakpoints()
+
         self.scene().views()[0].addToPressList(self)
         self._dragMode = True
         self.pressX = event.scenePos().x()
