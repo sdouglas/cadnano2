@@ -210,7 +210,7 @@ class PathHelix(QGraphicsObject):
         dlg.setInputMode(QInputDialog.IntInput)
         dlg.setIntMinimum(2)
         dlg.setLabelText(( "Number of bases to add to the existing"\
-                         + " %i bases (will be rounded towards zero"
+                         + " %i bases\n(will be rounded towards zero"
                          + " to a multiple of %i)")\
                          % (part.numBases(),part.step))
         dlg.intValueSelected.connect(self.userChoseToAddNBases)

@@ -7,7 +7,6 @@ Created by Flo Mazzoldi on 2011-06-15.
 
 import unittest
 from xmlrunner import XMLTestRunner
-from sampletest import SampleTests
 from unittests import UnitTests
 from modeltests import ModelTests
 from functionaltests import FunctionalTests
