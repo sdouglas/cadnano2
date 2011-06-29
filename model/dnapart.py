@@ -91,6 +91,7 @@ class DNAPart(Part):
         # self.basesModified is cleared by and ONLY by dnapart's
         # recalculateStrandLengths method.
         self.basesModified = set()
+        self.numTimesStrandLengthsRecalcd = 0
 
         # Event propagation
         self.virtualHelixAtCoordsChanged.connect(self.persistentDataChangedEvent)
@@ -315,6 +316,7 @@ class DNAPart(Part):
         """
         Bases cache the length of the oligo they are in. This
         method updates that cache."""
+        self.numTimesStrandLengthsRecalcd += 1
         modifiedBases = self.basesModified
         while modifiedBases:
             b = modifiedBases.pop()

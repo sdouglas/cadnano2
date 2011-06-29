@@ -63,7 +63,7 @@ class XoverHandle(object):
     # end def
 
     def getXover(self, phg, strandtype, fromHelix,\
-                       fromIndex, toHelix, toIndex, floatPos=None):
+                fromIndex, toHelix, toStrandtype, toIndex, floatPos=None):
         """
         Draws a line from the center of the fromBase (fromBaseCenter) to the
         top or bottom of that same base, depending on its direction (qA),
@@ -76,6 +76,12 @@ class XoverHandle(object):
 
         returns a tuple of the (QPainter, QRectF, QRectF) representing the
         (quad curve, the FROM label rectangle, and the TO label rectangle)
+        
+        Why have toStrandtype? A PathHelix should display inconsistencies
+        in the model, and a crossover from one strand type to another is
+        an inconsistency that would be very nice to have a visual indication
+        of (rather than having strange errors popping up down the line; the
+        particular instance prompting this addition cost 4 hours of time)
         """
         fromBaseCenter = QPointF(*fromHelix.baseLocation(strandtype,\
                                                          fromIndex,\
@@ -84,7 +90,7 @@ class XoverHandle(object):
         if floatPos:
             toBaseCenter = floatPos
         else:
-            toBaseCenter = QPointF(*toHelix.baseLocation(strandtype,\
+            toBaseCenter = QPointF(*toHelix.baseLocation(toStrandtype,\
                                                          toIndex,\
                                                          center=True))
             toBaseCenter = phg.mapFromItem(toHelix, toBaseCenter)

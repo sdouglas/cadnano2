@@ -292,17 +292,18 @@ class PathHelixGroup(QGraphicsObject):
                     for ((fromhelix, fromindex), dest) in \
                                      ph.vhelix().get3PrimeXovers(strandType):
                         if type(dest) in (list, tuple):
-                            toVH, toIndex = dest
+                            toVH, toStrandType, toIndex = dest
                             toPH = self.phg.getPathHelix(toVH)
                             floatPos = None
                         else:
-                            toPH, toIndex = None, None
+                            toPH, toStrandType, toIndex = None, None, None
                             floatPos = dest
                         path = self.phg.xoverGet.getXover(self.phg,\
                                                         strandType,\
                                                         ph,\
                                                         fromindex,\
                                                         toPH,\
+                                                        toStrandType,\
                                                         toIndex,\
                                                         floatPos)
                         # draw the line

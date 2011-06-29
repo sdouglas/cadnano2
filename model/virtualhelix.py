@@ -433,7 +433,8 @@ class VirtualHelix(QObject):
             
             #Segments
             if b._connectsToNatL():
-                if curColor.name() != b.getColor().name():
+                if curColor and b.getColor() and\
+                   curColor.name() != b.getColor().name():
                     # print "<B1 %s %s>"%(curColor.name(), b.getColor().name())
                     segments.append((s,i))
                     s = i
@@ -486,8 +487,10 @@ class VirtualHelix(QObject):
                 if floatDest:
                     ret.append(((self, base._n), floatDest))
                 else:
-                    ret.append(((self, base._n),\
-                        (base._3pBase.vhelix(), base._3pBase._n)))
+                    ret.append(( (self, base._n),\
+                                 (base._3pBase.vhelix(),\
+                                  base._3pBase._strandtype,\
+                                  base._3pBase._n) ))
         return ret
 
     def getXover(self, strandType, idx):
@@ -748,14 +751,10 @@ class VirtualHelix(QObject):
 
     def removeXoversAt(self, strandType, idx, newColor=None):
         base = self._strand(strandType)[idx]
-        if base._hasCrossover3p():
-            fromBase, toBase = base, base._3pBase
-            fromBase._vhelix.removeXoverTo(base._strandtype, base._n\
-                    , toBase._vhelix, toBase._n, endToKeepColor=3, newColor=newColor)
-        if base._hasCrossover5p():
-            fromBase, toBase = base._5pBase, base
-            fromBase._vhelix.removeXoverTo(base._strandtype, base._n\
-                    , toBase._vhelix, toBase._n, endToKeepColor=5, newColor=newColor)
+        if base._hasCrossoverL():
+            base._vhelix.clearStrand(strandType, idx, idx + 0.5)
+        if base._hasCrossoverR():
+            base._vhelix.clearStrand(strandType, idx + 0.5, idx + 1)
 
     def removeXoverTo(self, strandType, fromIndex, toVhelix, toIndex,\
                       undoStack=True, endToKeepColor=3, newColor=None):
@@ -1005,16 +1004,12 @@ class VirtualHelix(QObject):
             for b in self._bases:
                 vh = b._vhelix
                 oc.append(b._setColor(nc))
-            if vh:
-                vh.emitBasesModifiedIfNeeded()
         def undo(self):
             oc = self._oldColors
             vh = None
             for b in reversed(self._bases):
                 vh = b._vhelix
                 b._setColor(oc.pop())
-            if vh:
-                vh.emitBasesModifiedIfNeeded()
 
 
     class LoopCommand(QUndoCommand):
@@ -1254,7 +1249,12 @@ class VirtualHelix(QObject):
                 for pe in potentialNewEndpoints[1:]:
                     if pe != newEndpts[-1]:
                         newEndpts.append(pe)
-            print "New endpoints: [%s] [%s] <%s | %s>"%(" ".join(str(b._n) for b in potentialNewEndpoints), " ".join(str(b._n) for b in newEndpts), self._colorL.name() if self._colorL else "-", self._colorR.name() if self._colorR else "-")
+            
+            # print "New endpoints: [%s] [%s] <%s | %s>"%(" ".join(str(b._n)
+            # for b in potentialNewEndpoints), " ".join(str(b._n) for b in newEndpts),
+            # self._colorL.name() if self._colorL else "-", self._colorR.name()
+            # if self._colorR else "-")
+            
             # Could filter out endpoints leading to the same set of
             # connected bases if that becomes a performance issue
             # but I don't anticipate it
