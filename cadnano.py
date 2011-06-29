@@ -126,12 +126,12 @@ class CADnano(QApplication):
             print "\tphg()\tthe last initialized PathHelixGroup"
             print "\tpySide()\ttrue iff the app is using PySide"
             print "\tquit()\tquit (for when the menu fails)"
-            interact(local={'a':self,\
-                            'd':lambda : self.d,\
-                            'v':self.v,\
-                            'ph':self.ph,\
-                            'phg':lambda : self.phg,\
-                            'pySide':self.usesPySide})
+            interact('', local={'a':self,\
+                                'd':lambda : self.d,\
+                                'v':self.v,\
+                                'ph':self.ph,\
+                                'phg':lambda : self.phg,\
+                                'pySide':self.usesPySide})
     # end def
         
     def isInMaya(self):

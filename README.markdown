@@ -71,3 +71,6 @@ Don't prompt the user to save unsaved changes; just exit.
 ### CADNANO_DEFAULT_DOCUMENT
 On creation of the default document, open the named file (put a path to the file
 in the value of the environment variable) instead of a blank document.
+### CADNANO_NO_THOUGHTPOLICE
+Allow single base crossovers (and whatever other things the thoughtPolice() method
+of VirtualHelix disallows)

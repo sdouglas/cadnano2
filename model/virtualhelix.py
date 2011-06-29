@@ -34,7 +34,7 @@ from .enum import Crossovers, EndType
 from .base import Base
 from cadnano import app
 from random import Random
-import re, sys
+import re, sys, os
 from ui import styles
 from math import modf
 
@@ -47,6 +47,8 @@ util.qtWrapImport('QtGui', globals(), [ 'QUndoCommand', 'QUndoStack', \
 class VirtualHelix(QObject):
     """Stores staple and scaffold routing information."""
     prohibitSingleBaseCrossovers = True
+    if os.environ.get('CADNANO_NO_THOUGHTPOLICE', False):
+        prohibitSingleBaseCrossovers = False
     
     basesModified = pyqtSignal()
     dimensionsModified = pyqtSignal()
@@ -432,8 +434,10 @@ class VirtualHelix(QObject):
             #Segments
             if b._connectsToNatL():
                 if curColor.name() != b.getColor().name():
+                    # print "<B1 %s %s>"%(curColor.name(), b.getColor().name())
                     segments.append((s,i))
                     s = i
+                    curColor = b.getColor()
                 if s==None:
                     s = i
                     curColor = b.getColor()
@@ -443,6 +447,7 @@ class VirtualHelix(QObject):
                 if s==None:
                     pass
                 else:
+                    # print "<B2>"
                     segments.append((s,i))
                     s = None
             if b._connectsToNatR():
@@ -455,6 +460,7 @@ class VirtualHelix(QObject):
                 if s==None:
                     pass
                 else:
+                    # print "<B3>"
                     segments.append((s,i+.5))
                     s = None
             #Endpoints
@@ -679,11 +685,11 @@ class VirtualHelix(QObject):
                     undoDesc="Clear strand"):
         startIndex += -.5 if startIndex < endIndex else .5
         endIndex += .5 if startIndex < endIndex else -.5
-        # print " ".join(str(b) for b in self._strand(StrandType.Scaffold))
-        #print "cls %f %f"%(startIndex, endIndex)
+        # print " ".join(str(b) for b in self._strand(strandType))
+        # print "cls %f %f"%(startIndex, endIndex)
         self.clearStrand(strandType, startIndex, endIndex, undoStack,\
                          colorL, colorR, police, undoDesc)
-        # print " ".join(str(b) for b in self._strand(StrandType.Scaffold))
+        # print " ".join(str(b) for b in self._strand(strandType))
         # print "\n"
                          
     def clearStrand(self, strandType, startIndex, endIndex, undoStack=True,\
@@ -870,7 +876,10 @@ class VirtualHelix(QObject):
     def thoughtPolice(self, undoStack):
         """
         Make sure that self obeys certain limitations,
-        force it to if it doesn't.
+        force it to if it doesn't. This currently amounts
+        to looking for single base crossovers and making
+        a connection so that they are no longer single base
+        crossovers.
         """
         if self.prohibitSingleBaseCrossovers:
             for strandType in (StrandType.Scaffold, StrandType.Staple):
@@ -1205,6 +1214,10 @@ class VirtualHelix(QObject):
                 lastEmptiedBase += 1
             # Now that we know which bases got emptied, clear the
             # loops and sequences on those bases
+            if firstEmptiedBase < 0:
+                firstEmptiedBase = 0
+            if lastEmptiedBase >= len(strand) - 1:
+                lastEmptiedBase = len(strand) - 2
             self.firstEmptiedBase = firstEmptiedBase
             self.lastEmptiedBase = lastEmptiedBase
             for i in range(firstEmptiedBase, lastEmptiedBase+1):

@@ -457,8 +457,7 @@ class PathHelix(QGraphicsObject):
         for strandType in (StrandType.Scaffold, StrandType.Staple):
             top = self.strandIsTop(strandType)
             segments, ends3, ends5 = self._vhelix.getSegmentsAndEndpoints(strandType)
-            if vh.number()==1 and strandType==StrandType.Staple:
-                print segments
+            # print "[%i:%s] "%(vh.number(), "scaf" if strandType==StrandType.Scaffold else "stap") + " ".join(str(b) for b in segments)
             for (startIndex, endIndex) in segments:
                 numBasesInOligo = vh.numberOfBasesConnectedTo(strandType,\
                                                               int(startIndex))
@@ -469,15 +468,15 @@ class PathHelix(QGraphicsObject):
                 startPt = self.baseLocation(strandType, startIndex, centerY=True)
                 endPt = self.baseLocation(strandType, endIndex, centerY=True)
 
-                # Only draw to the edge of non-crossovers (i.e. breakpoints).
-                if not self._vhelix.hasCrossoverAt(strandType, startIndex):
+                # Only draw to the edge of breakpoints.
+                if self._vhelix.hasEndAt(strandType, startIndex):
                     startPt = (startPt[0]+styles.PATH_BASE_WIDTH/2, startPt[1])
-                elif highlight:  # is a crossover and highlighted
+                elif highlight and self._vhelix.hasCrossoverAt(strandType, startIndex):
                     # compensate for width of stroke in crossover path
                     startPt = (startPt[0]+styles.PATH_STRAND_HIGHLIGHT_STROKE_WIDTH/2, startPt[1])
-                if not self._vhelix.hasCrossoverAt(strandType, endIndex):
+                if self._vhelix.hasEndAt(strandType, endIndex):
                     endPt = (endPt[0]-styles.PATH_BASE_WIDTH/2, endPt[1])
-                elif highlight:
+                elif highlight and self._vhelix.hasCrossoverAt(strandType, endIndex):
                     endPt = (endPt[0]-styles.PATH_STRAND_HIGHLIGHT_STROKE_WIDTH/2, endPt[1])
 
                 pp = QPainterPath()
