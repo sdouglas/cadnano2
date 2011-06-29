@@ -102,9 +102,9 @@ class PreCrossoverHandle(QGraphicsItem):
         labelX = 0
         
         if self.onTopStrand():
-            labelY = -1.05*halfLabelH-.5
+            labelY = -1.05*halfLabelH - .5
         else:
-            labelY = 1.05*halfLabelH+.5
+            labelY = 1.05*halfLabelH + .5
         self.labelRect = QRectF(labelX,\
                                 labelY,\
                                 self.baseWidth, self.baseWidth)
