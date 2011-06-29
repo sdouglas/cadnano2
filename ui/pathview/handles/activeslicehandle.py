@@ -28,21 +28,14 @@ Created by Shawn on 2011-02-05.
 
 from exceptions import IndexError
 import ui.styles as styles
-
-# from PyQt4.QtCore import QPointF, QRectF
-# from PyQt4.QtCore import Qt, QObject, pyqtSignal, pyqtSlot
-# from PyQt4.QtGui import QBrush, QFont
-# from PyQt4.QtGui import QGraphicsItem
-# from PyQt4.QtGui import QGraphicsSimpleTextItem
-# from PyQt4.QtGui import QPen, QDrag, QUndoCommand
-
 import util
+
 # import Qt stuff into the module namespace with PySide, PyQt4 independence
-util.qtWrapImport('QtCore', globals(), ['QPointF', 'QRectF', 'Qt',\
-                                    'QObject', 'pyqtSignal', 'pyqtSlot'])
+util.qtWrapImport('QtCore', globals(), ['QPointF', 'QRectF', 'Qt', 'QObject',\
+                                        'pyqtSignal', 'pyqtSlot', 'QEvent'])
 util.qtWrapImport('QtGui', globals(), [ 'QBrush', 'QFont', 'QGraphicsItem',\
-                                    'QGraphicsSimpleTextItem', 'QPen',\
-                                    'QDrag', 'QUndoCommand'] )
+                                        'QGraphicsSimpleTextItem', 'QPen',\
+                                        'QDrag', 'QUndoCommand'] )
 
 
 class ActiveSliceHandle(QGraphicsItem):
@@ -142,6 +135,15 @@ class ActiveSliceHandle(QGraphicsItem):
         QGraphicsItem.hoverLeaveEvent(self, event)
     # end def
 
+    def sceneEvent(self, event):
+        """Included for unit testing in order to grab events that are sent
+        via QGraphicsScene.sendEvent()."""
+        if event.type() == QEvent.MouseButtonPress:
+            self.mousePressEvent(event)
+            return True
+        QGraphicsItem.sceneEvent(self, event)
+        return False
+
     def mouseMoveEvent(self, event):
         """Snaps handle into place when dragging."""
         if not self._dragMode:
@@ -158,13 +160,17 @@ class ActiveSliceHandle(QGraphicsItem):
 
         if (event.modifiers() & Qt.AltModifier) and \
            (event.modifiers() & Qt.ShiftModifier):
-            print "alt and shift clicked"
             self.part().autoDragAllBreakpoints()
 
-        self.scene().views()[0].addToPressList(self)
-        self._dragMode = True
-        self.pressX = event.scenePos().x()
-        self.pressBaseIdx = self.activeSlice()
+        # try here because event passed from sceneEvent has no scenePos()
+        try:
+            self.scene().views()[0].addToPressList(self)
+            self._dragMode = True
+            self.pressX = event.scenePos().x()
+            self.pressBaseIdx = self.activeSlice()
+        except AttributeError, e:
+            # print e
+            pass
 
     def customMouseRelease(self, eventPosition):
         """Snaps to grid after mouse released. Updates vhelix data according

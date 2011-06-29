@@ -69,21 +69,36 @@ class FunctionalTests(CadnanoGuiTestCase):
         CadnanoGuiTestCase.tearDown(self)
         # Add your clean up here
 
-    def testFunction1(self):
+    def testActiveSliceHandleAltShiftClick(self):
         # Create a new Honeycomb part
         newHoneycombPartButton = self.mainWindow.topToolBar.widgetForAction(\
                                        self.mainWindow.actionNewHoneycombPart)
         self.click(newHoneycombPartButton)
 
-        sliceGraphicsItem = self.mainWindow.sliceroot.childItems()[0]
-        print sliceGraphicsItem
-        # Get the SliceHelix
+        # Click each SliceHelix
+        sliceGraphicsItem = self.documentController.sliceGraphicsItem
         slicehelix1 = sliceGraphicsItem.getSliceHelixByCoord(0, 0)
-        print slicehelix1, slicehelix1.isEnabled()
+        slicehelix2 = sliceGraphicsItem.getSliceHelixByCoord(0, 1)
         self.click(slicehelix1, qgraphicsscene=self.mainWindow.slicescene)
+        self.click(slicehelix2, qgraphicsscene=self.mainWindow.slicescene)
+
+        # Click the activeSliceHandle (with modifiers!)
+        pathHelixGroup = self.documentController.pathHelixGroup
+        activeSliceHandle = pathHelixGroup.activeSliceHandle()
+        self.click(activeSliceHandle,\
+                   modifiers=self.ALT|self.SHIFT,\
+                   qgraphicsscene=self.mainWindow.pathscene)
+
+        # Check the model for correctness
+        vh0 = getAppInstance().v[0]
+        vh1 = getAppInstance().v[1]
+        str0 = "0 Scaffold: _,> <,> <,> <,> <,> <,> <,> <,> <,> <,> <,> <,> <,> <,> <,> <,> <,> <,> <,> <,> <,> <,> <,> <,> <,> <,> <,> <,> <,> <,> <,> <,> <,> <,> <,> <,> <,> <,> <,> <,> <,> <,_\n0 Staple:   _,_ _,_ _,_ _,_ _,_ _,_ _,_ _,_ _,_ _,_ _,_ _,_ _,_ _,_ _,_ _,_ _,_ _,_ _,_ _,_ _,_ _,_ _,_ _,_ _,_ _,_ _,_ _,_ _,_ _,_ _,_ _,_ _,_ _,_ _,_ _,_ _,_ _,_ _,_ _,_ _,_ _,_"
+        str1 = "1 Scaffold: _,> <,> <,> <,> <,> <,> <,> <,> <,> <,> <,> <,> <,> <,> <,> <,> <,> <,> <,> <,> <,> <,> <,> <,> <,> <,> <,> <,> <,> <,> <,> <,> <,> <,> <,> <,> <,> <,> <,> <,> <,> <,_\n1 Staple:   _,_ _,_ _,_ _,_ _,_ _,_ _,_ _,_ _,_ _,_ _,_ _,_ _,_ _,_ _,_ _,_ _,_ _,_ _,_ _,_ _,_ _,_ _,_ _,_ _,_ _,_ _,_ _,_ _,_ _,_ _,_ _,_ _,_ _,_ _,_ _,_ _,_ _,_ _,_ _,_ _,_ _,_"
+        self.assertEqual(repr(vh0), str0)
+        self.assertEqual(repr(vh1), str1)
 
         # time.sleep(5)  # Sleep for 1 second
-        self.debugHere()  # Stop simulation and give control to user
+        # self.debugHere()  # Stop simulation and give control to user
 
 
 if __name__ == '__main__':

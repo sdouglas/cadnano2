@@ -80,7 +80,7 @@ class GUITestCase(unittest.TestCase):
     ALT = Qt.AltModifier
 
     ############################ Mouse events ############################
-    def mousePress(self, widget, button=None, position=None, state=None, qgraphicsscene=None):
+    def mousePress(self, widget, button=None, position=None, state=None, modifiers=None, qgraphicsscene=None):
         """Sends a press event for the given widget.
         @param button: the pressed mouse button. Can be LEFT, RIGHT or MIDDLE.
             If not given, LEFT is assumed.
@@ -89,14 +89,14 @@ class GUITestCase(unittest.TestCase):
             of the widget is used.
         @param state: secondary keys. optional, can be SHIFT, CONTROL, ALT.
         """
-        self._mouseEvent(QEvent.MouseButtonPress, widget, button, position, state, qgraphicsscene)
+        self._mouseEvent(QEvent.MouseButtonPress, widget, button, position, state, modifiers, qgraphicsscene)
 
-    def mouseRelease(self, widget, button=None, position=None, state=None, qgraphicsscene=None):
+    def mouseRelease(self, widget, button=None, position=None, state=None, modifiers=None, qgraphicsscene=None):
         """Sends a mouse release event for the given widget.
 
         @see: mousePress for the meaning of the arguments.
         """
-        self._mouseEvent(QEvent.MouseButtonRelease, widget, button, position, state, qgraphicsscene)
+        self._mouseEvent(QEvent.MouseButtonRelease, widget, button, position, state, modifiers, qgraphicsscene)
 
     def mouseMove(self, widget, position=None, state=None):
         """Sends a mouse move event for the given widget.
@@ -118,7 +118,7 @@ class GUITestCase(unittest.TestCase):
         self.mouseMove(widget, releaseOn, state)
         self.mouseRelease(widget, button, releaseOn, state)
 
-    def click(self, widget, button=None, position=None, state=None, qgraphicsscene=None):
+    def click(self, widget, button=None, position=None, state=None, modifiers=None, qgraphicsscene=None):
         """
         Acts as if the given widget was clicked. Equivalent to send a
         mousePress followed by a mouseRelease.
@@ -126,8 +126,8 @@ class GUITestCase(unittest.TestCase):
         @see: mousePress for the meaning of the arguments.
         """
         widget.setFocus()
-        self.mousePress(widget, button, position, state, qgraphicsscene)
-        self.mouseRelease(widget, button, position, state, qgraphicsscene)
+        self.mousePress(widget, button, position, state, modifiers, qgraphicsscene)
+        self.mouseRelease(widget, button, position, state, modifiers, qgraphicsscene)
 
     def doubleClick(self, widget, button=None, position=None, state=None):
         """Sends a double-click event to the given widget.
@@ -182,12 +182,12 @@ class GUITestCase(unittest.TestCase):
         if getattr(widget, "boundingRect", False):
             # Can't pass a QPointF to QPoint constructor, so we let
             # python cast x and y to ints instead...
-            return QPoint(widget.boundingRect().center().x(),\
-                          widget.boundingRect().center().y())
+            return widget.boundingRect().center().toPoint()
         else:
             return QPoint(widget.width()/2, widget.height()/2)
 
-    def _mouseEvent(self, event_type, widget, button, position, state, qgraphicsscene=None):
+
+    def _mouseEvent(self, event_type, widget, button, position, state, modifiers, qgraphicsscene=None):
         """Sends a MouseEvent with the given event_type.
         """
         if button is None:
@@ -198,14 +198,13 @@ class GUITestCase(unittest.TestCase):
             position = QPoint(*position)  # assume position is a tuple
         if state is None:
             state = self.NOBUTTON
-        event = QMouseEvent(event_type, position, button, state, Qt.NoModifier)
-        # print "post mouseEvent to", widget, "at (%d, %d)" % (position.x(), position.y())
+        modifiers = self.ALT|self.SHIFT
+        if modifiers is None:
+            modifiers = Qt.NoModifier
+        event = QMouseEvent(event_type, position, button, state, modifiers)
         if qgraphicsscene:
-            print "sending the MouseEvent to", qgraphicsscene
             result = qgraphicsscene.sendEvent(widget, event)
-            print "...did the event handler return a value?", result
         else:
-            print "posting the MouseEvent to _app"
             self._app.postEvent(widget, event)
         self.processEvents()
 
