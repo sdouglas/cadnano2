@@ -1159,68 +1159,81 @@ class VirtualHelix(QObject):
             startFrac, startIdx = modf(startIdxF)
             endFrac, endIdx = modf(endIdxF)
             startIdx, endIdx = int(startIdx), int(endIdx)
+            # We break every clear operation into two stages:
+            # clearing edges (A, C) and clearing segments (B)
+            #      |-----------|   clearStrand(, 1.5, 4.5)
+            # <,> <,> <,> <,> <,> <,> <,> <,>
+            #       A B B B B C
+            # "Emptying" corresponds to B type clears.
+            # We start with an overly wide application of B
+            # and narrow it if possible.
+            firstBaseToEmpty = startIdx
+            lastBaseToEmpty = endIdx
+            # clearedStartR = there is an A
+            # clearedEndL = there is a C
             self.clearedStartR, self.clearedEndL = False, False
             if startFrac > .25:
                 if startFrac < .75:
                     # startFrac in (.25, .75)
                     self.clearedStartR = True
                     startBase = strand[startIdx]
+                    # Take care of A
                     potentialNewEndpoints.extend((startBase, startBase._RBase()))
                     ol.append(startBase._setR(None))
-                    startIdx += 1
+                    firstBaseToEmpty += 1
                 else:
                     # startFrac in [.75, 1]
-                    startIdx += 1
+                    firstBaseToEmpty += 1
             else:   # startFrac in [0, .25]
                 pass
             if endFrac < .75:
                 if endFrac > .25:
                     # endFrac in (.25, .75)
+                    # We put of clearing until after
+                    # we clear the Bs so that our
+                    # list of new endpoints is in order
                     self.clearedEndL = True
-                    endBase = strand[endIdx]
-                    potentialNewEndpoints.extend((endBase, endBase._LBase()))
-                    ol.append(endBase._setL(None))
-                    endIdx -= 1
+                    lastBaseToEmpty -= 1
                 else:
                     # endFrac in [0, .25]
-                    endIdx -= 1
+                    lastBaseToEmpty -= 1
             else:   # endFrac in [.75, 1]
                 pass
-            # Now we've changed up startIdx and endIdx such that
-            # every base between and including startIdx and endIdx
-            # need to be completely cleared (the above code handled
-            # the edge cases of half clearing a base)
-            self.startedIdx = startIdx
-            self.endedIdx = endIdx
-            for i in range(startIdx, endIdx + 1):
+            # Take care of the Bs
+            self.firstBaseToEmpty = firstBaseToEmpty
+            self.lastBaseToEmpty = lastBaseToEmpty
+            for i in range(firstBaseToEmpty, lastBaseToEmpty + 1):
                 base = strand[i]
                 potentialNewEndpoints.extend((base, base._LBase()))
                 ol.append(base._setL(None))
                 potentialNewEndpoints.extend((base, base._RBase()))
                 ol.append(base._setR(None))
+            if self.clearedEndL:
+                endBase = strand[endIdx]
+                # Take care of C
+                potentialNewEndpoints.extend((endBase, endBase._LBase()))
+                ol.append(endBase._setL(None))
             # Now determine which bases were left completely empty
-            # by this clear operation
-            self.erasedSequenceItems = []
-            # All bases that got both L and R ptrs cleared must be
-            # empty
+            # by this clear operation that weren't empty before.
+            # All bases that we could possibly have left empty that
+            # weren't emptied before (indices are inclusive)
             firstEmptiedBase = startIdx
             lastEmptiedBase = endIdx
-            # But any bases that just got L or just got R cleared
-            # might also have been emptied (it's OK to say bases
-            # got emptied that weren't actually emptied so long
-            # as they are empty)
-            if strand[startIdx-1].isEmpty():
-                firstEmptiedBase -= 1
-            if strand[endIdx].isEmpty():
-                lastEmptiedBase += 1
+            # We might not have entirely emptied the first and last
+            # bases, so we discard them if necessary from our list
+            if not strand[firstEmptiedBase].isEmpty():
+                firstEmptiedBase += 1
+            if lastEmptiedBase >= len(strand):
+                lastEmptiedBase -= 1
+            elif not strand[lastEmptiedBase].isEmpty():
+                lastEmptiedBase -= 1
             # Now that we know which bases got emptied, clear the
             # loops and sequences on those bases
-            if firstEmptiedBase < 0:
-                firstEmptiedBase = 0
-            if lastEmptiedBase >= len(strand) - 1:
-                lastEmptiedBase = len(strand) - 2
             self.firstEmptiedBase = firstEmptiedBase
+            assert(firstEmptiedBase >= 0)
             self.lastEmptiedBase = lastEmptiedBase
+            assert(lastEmptiedBase < len(strand))
+            self.erasedSequenceItems = []    
             for i in range(firstEmptiedBase, lastEmptiedBase+1):
                 if loopDict.get(i, None) != None:
                     self.erasedLoopDictItems[i] = loopDict[i]
@@ -1241,6 +1254,7 @@ class VirtualHelix(QObject):
                 for pe in potentialNewEndpoints[1:]:
                     if pe != newEndpts[-1]:
                         newEndpts.append(pe)
+            print "New endpoints: [%s] [%s] <%s | %s>"%(" ".join(str(b._n) for b in potentialNewEndpoints), " ".join(str(b._n) for b in newEndpts), self._colorL.name() if self._colorL else "-", self._colorR.name() if self._colorR else "-")
             # Could filter out endpoints leading to the same set of
             # connected bases if that becomes a performance issue
             # but I don't anticipate it
@@ -1257,6 +1271,17 @@ class VirtualHelix(QObject):
                 c = VirtualHelix.ApplyColorCommand(bases, color)
                 c.redo()
                 colorSubCommands.append(c)
+            if len(potentialNewEndpoints) > 0:
+                if self._colorL:
+                    bases = self._vh._basesConnectedTo(self._strandType, potentialNewEndpoints[0]._n)
+                    c = VirtualHelix.ApplyColorCommand(bases, self._colorL)
+                    c.redo()
+                    colorSubCommands.append(c)
+                if self._colorR:
+                    bases = self._vh._basesConnectedTo(self._strandType, potentialNewEndpoints[-1]._n)
+                    c = VirtualHelix.ApplyColorCommand(bases, self._colorR)
+                    c.redo()
+                    colorSubCommands.append(c)
             self.colorSubCommands = colorSubCommands
             self._vh.emitBasesModifiedIfNeeded()
     
@@ -1269,20 +1294,24 @@ class VirtualHelix(QObject):
             startFrac, startIdx = modf(startIdxF)
             endFrac, endIdx = modf(endIdxF)
             startIdx, endIdx = int(startIdx), int(endIdx)
-            for c in self.colorSubCommands:
+            # If this assert raises an exception, undo() got called without
+            # redo() being called first
+            assert(hasattr(self, 'colorSubCommands'))
+            for c in reversed(self.colorSubCommands):
                 c.undo()
+            del self.colorSubCommands
             loopDict = self._vh._loop(self._strandType)
             for k, v in self.erasedLoopDictItems.iteritems():
                 loopDict[k] = v
             for i in reversed(range(self.firstEmptiedBase, self.lastEmptiedBase+1)):
                 strand[i]._sequence = self.erasedSequenceItems.pop()
-            for i in reversed(range(self.startedIdx, self.endedIdx + 1)):
-                base = strand[i]
-                base._unsetR(None, *ol.pop())
-                base._unsetL(None, *ol.pop())
             if self.clearedEndL:
                 endBase = strand[endIdx]
                 endBase._unsetL(None, *ol.pop())
+            for i in reversed(range(self.firstBaseToEmpty, self.lastBaseToEmpty + 1)):
+                base = strand[i]
+                base._unsetR(None, *ol.pop())
+                base._unsetL(None, *ol.pop())
             if self.clearedStartR:
                 startBase = strand[startIdx]
                 startBase._unsetR(None, *ol.pop())
