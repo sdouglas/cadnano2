@@ -1188,7 +1188,8 @@ class VirtualHelix(QObject):
                 pass
             # Now we've changed up startIdx and endIdx such that
             # every base between and including startIdx and endIdx
-            # need to be completely cleared
+            # need to be completely cleared (the above code handled
+            # the edge cases of half clearing a base)
             self.startedIdx = startIdx
             self.endedIdx = endIdx
             for i in range(startIdx, endIdx + 1):
