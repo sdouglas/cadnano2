@@ -51,7 +51,7 @@ class ActiveSliceHandle(QGraphicsItem):
     _brush = QBrush(styles.orangefill)
     _labelbrush = QBrush(styles.orangestroke)
     _pen = QPen(styles.orangestroke, styles.SLICE_HANDLE_STROKE_WIDTH)
-    _myfont = QFont("Times", 12, QFont.Bold)
+    _myfont = QFont(styles.thefont, 12, QFont.Bold)
 
     def __init__(self, pathHelixGroup):
         super(ActiveSliceHandle, self).__init__(pathHelixGroup)
@@ -65,7 +65,8 @@ class ActiveSliceHandle(QGraphicsItem):
         self._label.hide()
         self.setPathHelixGroup(pathHelixGroup)
         self.setFlag(QGraphicsItem.ItemIsMovable)
-        self.setFlag(QGraphicsItem.ItemStacksBehindParent)
+        # self.setFlag(QGraphicsItem.ItemNegativeZStacksBehindParent)
+        # self.setFlag(QGraphicsItem.ItemStacksBehindParent)
         self.setAcceptHoverEvents(True)
         self.setZValue(styles.ZACTIVESLICEHANDLE)
 

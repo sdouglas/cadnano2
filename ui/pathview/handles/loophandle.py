@@ -139,7 +139,7 @@ class LoopHandle(QGraphicsItem):
     _baseWidth = styles.PATH_BASE_WIDTH
     _offset = styles.PATH_BASE_WIDTH / 4
     _halfbaseWidth = _baseWidth / 2
-    _font = QFont("Times", 10, QFont.Bold)
+    _font = QFont(styles.thefont, 10, QFont.Bold)
     _myRect.adjust(-15, -15, 30, 30)
 
     def __init__(self, parent=None):

@@ -38,7 +38,8 @@ import ui.styles as styles
 
 import util
 # import Qt stuff into the module namespace with PySide, PyQt4 independence
-util.qtWrapImport('QtCore', globals(), ['pyqtSignal', 'QString', 'QFileInfo', 'Qt'])
+util.qtWrapImport('QtCore', globals(), ['pyqtSignal', 'QString', \
+                                        'QStringList', 'QFileInfo', 'Qt'])
 util.qtWrapImport('QtGui', globals(), ['QUndoStack', 'QFileDialog',\
                                         'QAction', 'QApplication'])
 
@@ -148,26 +149,38 @@ class DocumentController():
 
     def openClicked(self):
         """docstring for openClicked"""
-        if util.isWindows():
+        if util.isWindows(): # required for native looking file window
             fname = QFileDialog.getOpenFileName(None, "Open Document", "/",\
-                        "CADnano1 / CADnano2 Files (*.cn2 *.json *.cadnano)")                 
-        else:
+                        "CADnano1 / CADnano2 Files (*.cn2 *.json *.cadnano)")
+            self.filesavedialog = None
+            self.openFile(fname)                
+        else: # access through non-blocking callback
             fdialog = QFileDialog ( self.win, \
                                 "Open Document",\
                                 "/", \
                                 "CADnano1 / CADnano2 Files (*.cn2 *.json *.cadnano)")
             fdialog.setAcceptMode(QFileDialog.AcceptOpen)
-            fdialog.setWindowFlags(Qt.MSWindowsFixedSizeDialogHint | Qt.Sheet)
+            fdialog.setWindowFlags(Qt.Sheet)
             fdialog.setWindowModality(Qt.WindowModal)
-            fdialog.exec_()  # or .show(), or .open()
-            fname = fdialog.selectedFiles()[0]
-            del fdialog  # manual garbage collection to prevent hang (in osx)
-    
+            # fdialog.exec_()  # or .show(), or .open()
+            self.filesavedialog = fdialog
+            self.filesavedialog.filesSelected.connect(self.openFile) 
+            fdialog.open()  # or .show(), or .open()
+
+    def openFile(self, selected):
+        if isinstance(selected, QStringList):
+            fname = selected[0]
+        else:
+            fname = selected
         if fname.isEmpty() or os.path.isdir(fname):
             return False
         fname = str(fname)
         doc = decode(file(fname).read())
         DocumentController(doc, fname)
+        if self.filesavedialog != None:
+            self.filesavedialog.filesSelected.disconnect(self.openFile)
+            del self.filesavedialog # manual garbage collection to prevent hang (in osx)
+    # end def
 
     def closeClicked(self):
         """This will trigger a Window closeEvent"""
@@ -189,33 +202,43 @@ class DocumentController():
             directory = "."
         else:
             directory = QFileInfo(fname).path()
-        if util.isWindows():
+        if util.isWindows(): # required for native looking file window
             fname = QFileDialog.getSaveFileName(self.win, 
                                 "%s - Save As" % QApplication.applicationName(),\
                                 directory, \
                                 "%s (*.cn2)" % QApplication.applicationName(), \
                                  )
-                                
-        else:
+            self.filesavedialog = None
+            self.saveFile(fname)
+        else:  # access through non-blocking callback
             fdialog = QFileDialog ( self.win, \
                                 "%s - Save As" % QApplication.applicationName(),\
                                 directory, \
                                 "%s (*.cn2)" % QApplication.applicationName())
             fdialog.setAcceptMode(QFileDialog.AcceptSave)
-            fdialog.setWindowFlags(Qt.MSWindowsFixedSizeDialogHint | Qt.Sheet)
+            fdialog.setWindowFlags(Qt.Sheet)
             fdialog.setWindowModality(Qt.WindowModal)
-            fdialog.exec_()  # or .show(), or .open()
-            fname = fdialog.selectedFiles()[0]
-            del fdialog  # manual garbage collection to prevent hang (in osx)
+            # fdialog.exec_()  # or .show(), or .open()
+            self.filesavedialog = fdialog
+            self.filesavedialog.filesSelected.connect(self.saveFile) 
+            fdialog.open()
 
+    def saveFile(self, selected):
+        if isinstance(selected, QStringList):
+            fname = selected[0]
+        else:
+            fname = selected
         if fname.isEmpty() or os.path.isdir(fname):
-            print "Not saving"
             return False
         fname = str(fname)
         if not fname.lower().endswith(".cn2"):
             fname += ".cn2"
         self.setFilename(fname)
+        if self.filesavedialog != None:
+            self.filesavedialog.filesSelected.disconnect(self.saveFile)
+            del self.filesavedialog # manual garbage collection to prevent hang (in osx)
         return self.saveClicked()
+    # end def
 
     def svgClicked(self):
         """docstring for svgClicked"""

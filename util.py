@@ -107,6 +107,9 @@ def defineEventForwardingMethodsForClass(classObj, forwardedEventSuffix, eventNa
                     delegateMethod = getattr(activeTool, delegateMethodName, None)
                     if delegateMethod:
                         delegateMethod(self, event)
+                    else:
+                        superMethod = getattr(QGraphicsItem, eventMethodName)
+                        superMethod(self, event)
                 else:
                     superMethod = getattr(QGraphicsItem, eventMethodName)
                     superMethod(self, event)

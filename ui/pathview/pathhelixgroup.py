@@ -28,7 +28,7 @@ pathhelixgroup.py
 
 Created by Shawn on 2011-01-27.
 """
-from .pathhelix import PathHelix
+from .pathhelix import PathHelix                        
 from handles.activeslicehandle import ActiveSliceHandle
 from handles.pathhelixhandle import PathHelixHandle
 from model.enum import EndType, LatticeType, StrandType
@@ -36,6 +36,11 @@ import ui.styles as styles
 from handles.pathhelixhandle import PathHelixHandle
 from handles.crossoverhandle import XoverHandle
 from handles.loophandle import LoopHandleGroup
+
+from .pathselection import SelectionItemGroup, \
+                        PathHelixHandleSelectionBox, \
+                        BreakpointHandleSelectionBox
+
 from cadnano import app
 import util
 
@@ -48,6 +53,7 @@ util.qtWrapImport('QtGui', globals(), [ 'QBrush', 'QPen', 'qApp', \
                                         'QColor', 'QGraphicsItem', \
                                         'QGraphicsObject', \
                                         'QGraphicsItemGroup', 'QUndoCommand'])
+
 
 class PathHelixGroup(QGraphicsObject):
     """
@@ -82,13 +88,16 @@ class PathHelixGroup(QGraphicsObject):
         self._stapColor = QColor(0, 72, 0)
         self._stapPen = QPen(self._stapColor, 2)
         self.loopHandleGroup = LoopHandleGroup(parent=self)
+        # Dummy object just for drawing xovers as a child
+        self.xo = self.XOverPainter(phg=self)
         self.xoverGet = XoverHandle()
         self.setZValue(styles.ZPATHHELIXGROUP)
         self.selectionLock = None
         self.setAcceptHoverEvents(True)
         app().phg = self  # Convenience for the command line -i mode
         self._part.partRemoved.connect(self.destroy)  # connect destructor
-
+        
+        
     def destroy(self):
         self._part.partRemoved.disconnect(self.destroy)
         self.scene().removeItem(self)
@@ -141,7 +150,7 @@ class PathHelixGroup(QGraphicsObject):
     # def label(self):
     #     if self._label:
     #         return self._label
-    #     font = QFont("Times", 30, QFont.Bold)
+    #     font = QFont(styles.thefont, 30, QFont.Bold)
     #     label = QGraphicsTextItem("Part 1")
     #     label.setVisible(False)
     #     label.setFont(font)
@@ -251,64 +260,85 @@ class PathHelixGroup(QGraphicsObject):
         self.scene().views()[0].zoomToFit()
 
     def paint(self, painter, option, widget=None):
-        # painter.save()
-        painter.setBrush(Qt.NoBrush)
-        self.drawXovers(painter)
-        # painter.restore()
+        pass
+        
+    class XOverPainter(QGraphicsItem):
+        """
+        This class lets us draw crossovers as a child below pathhelixgroup
+        """
+        def __init__(self, phg):
+            "this sets the parent object to the phg"
+            super(PathHelixGroup.XOverPainter, self).__init__(parent=phg)
+            self.setZValue(styles.ZXOVERHANDLEPAIR)
+            self.phg = phg
+            self.rect = QRectF()
+            self.phg.geometryChanged.connect(self.prepareGeometryChange)
+        # end def
 
-    def drawXovers(self, painter):
-        """Return a QPainterPath ready to paint the crossovers"""
-        for ph in self._pathHelixes:
-            for strandType in (StrandType.Scaffold, StrandType.Staple):
-                for ((fromhelix, fromindex), dest) in \
-                                 ph.vhelix().get3PrimeXovers(strandType):
-                    if type(dest) in (list, tuple):
-                        toVH, toIndex = dest
-                        toPH = self.getPathHelix(toVH)
-                        floatPos = None
-                    else:
-                        toPH, toIndex = None, None
-                        floatPos = dest
-                    path = self.xoverGet.getXover(self,\
-                                                  strandType,\
-                                                  ph,\
-                                                  fromindex,\
-                                                  toPH,\
-                                                  toIndex,\
-                                                  floatPos)
-                    # draw the line
-                    # reload scaffold strand pen
-                    if strandType == StrandType.Scaffold:
-                        pen = self._scafPen
-                    else:
-                        pen = QPen(self._stapPen)
-                        color = QColor(ph.vhelix().colorOfBase(strandType, fromindex))
-                        oligoLength = ph.vhelix().numberOfBasesConnectedTo(strandType, fromindex)
-                        if oligoLength > styles.oligoLenAboveWhichHighlight or\
-                           oligoLength < styles.oligoLenBelowWhichHighlight:
-                            pen.setWidth(styles.PATH_STRAND_HIGHLIGHT_STROKE_WIDTH)
-                            color.setAlpha(128)
+        def paint(self, painter, option, widget=None):
+            # painter.save()
+            painter.setBrush(Qt.NoBrush)
+            self.drawXovers(painter)
+            # painter.restore()
+
+        def boundingRect(self):
+            # rect set only by _setPathHelixList
+            return self.phg.boundingRect()
+
+        def drawXovers(self, painter):
+            """Return a QPainterPath ready to paint the crossovers"""
+            for ph in self.phg._pathHelixList():
+                for strandType in (StrandType.Scaffold, StrandType.Staple):
+                    for ((fromhelix, fromindex), dest) in \
+                                     ph.vhelix().get3PrimeXovers(strandType):
+                        if type(dest) in (list, tuple):
+                            toVH, toIndex = dest
+                            toPH = self.phg.getPathHelix(toVH)
+                            floatPos = None
                         else:
-                            pen.setWidth(styles.PATH_STRAND_STROKE_WIDTH)
-                            color.setAlpha(255)
-                        pen.setColor(color)
-                    painter.setPen(pen)
-                    painter.drawPath(path[0])
-                    
-                    # draw labels
-                    painter.setPen(QPen(styles.XOVER_LABEL_COLOR))
-                    painter.setFont(styles.XOVER_LABEL_FONT)
-                    painter.drawText(path[1], Qt.AlignCenter, str(ph.number()))
-                    
-                    # test to see if we need to draw the to label for the xover
-                    # this comes in handy when drawing forced xovers
-                    if toPH != None:
-                        painter.drawText(path[2],
-                                        Qt.AlignCenter, str(toPH.number()))
-                # end for
-            # end for strandType in scaf, stap
-        # end for
-    # end def
+                            toPH, toIndex = None, None
+                            floatPos = dest
+                        path = self.phg.xoverGet.getXover(self.phg,\
+                                                        strandType,\
+                                                        ph,\
+                                                        fromindex,\
+                                                        toPH,\
+                                                        toIndex,\
+                                                        floatPos)
+                        # draw the line
+                        # reload scaffold strand pen
+                        if strandType == StrandType.Scaffold:
+                            pen = self.phg._scafPen
+                        else:
+                            pen = QPen(self.phg._stapPen)
+                            color = QColor(ph.vhelix().colorOfBase(strandType, fromindex))
+                            oligoLength = ph.vhelix().numberOfBasesConnectedTo(strandType, fromindex)
+                            if oligoLength > styles.oligoLenAboveWhichHighlight or\
+                               oligoLength < styles.oligoLenBelowWhichHighlight:
+                                pen.setWidth(styles.PATH_STRAND_HIGHLIGHT_STROKE_WIDTH)
+                                color.setAlpha(128)
+                            else:
+                                pen.setWidth(styles.PATH_STRAND_STROKE_WIDTH)
+                                color.setAlpha(255)
+                            pen.setColor(color)
+                        painter.setPen(pen)
+                        painter.drawPath(path[0])
+
+                        # draw labels
+                        painter.setPen(QPen(styles.XOVER_LABEL_COLOR))
+                        painter.setFont(styles.XOVER_LABEL_FONT)
+                        painter.drawText(path[1], Qt.AlignCenter, str(ph.number()))
+
+                        # test to see if we need to draw the to label for the xover
+                        # this comes in handy when drawing forced xovers
+                        if toPH != None:
+                            painter.drawText(path[2],
+                                            Qt.AlignCenter, str(toPH.number()))
+                    # end for
+                # end for strandType in scaf, stap
+            # end for
+        # end def
+    # end class
 
     geometryChanged = pyqtSignal()
 
@@ -406,210 +436,3 @@ class PathHelixGroup(QGraphicsObject):
 forwardedEvents = ('hoverMove', 'mousePress', 'mouseRelease')
 util.defineEventForwardingMethodsForClass(PathHelixGroup, 'PathHelixGroup', forwardedEvents)
 
-
-class SelectionItemGroup(QGraphicsItemGroup):
-    """
-    SelectionItemGroup
-    """
-    def __init__(self, boxtype, constraint='y', parent=None):
-        super(SelectionItemGroup, self).__init__(parent)
-        self.parent = parent
-        self.setParentItem(parent)
-        self.setFiltersChildEvents(True)
-        self.setHandlesChildEvents(True)
-        self.setFlag(QGraphicsItem.ItemIsSelectable)
-        self.pen = QPen(styles.bluestroke, styles.PATH_SELECTBOX_STROKE_WIDTH)
-        self.drawMe = False
-        self.drawn = False
-        self._phg = parent
-        self.selectionbox = boxtype(self)
-        self.dragEnable = False
-        self._r0 = 0  # save original mousedown
-        self._r = 0  # latest position for moving
-
-        if constraint == 'y':
-            self.getR = self.getY
-            self.translateR = self.translateY
-        else:
-            self.getR = self.getX
-            self.translateR = self.translateX
-    # end def
-
-    def phg(self):
-        return self._phg
-
-    def getY(self, pos):
-        return pos.y()
-    # end def
-
-    def getX(self, pos):
-        return pos.x()
-    # end def
-
-    def translateY(self, yf):
-        self.selectionbox.translate(0, (yf - self._r))
-    # end def
-
-    def translateX(self, xf):
-        self.selectionbox.translate((xf - self._r), 0)
-    # end def
-
-    def paint(self, painter, option, widget=None):
-        pass
-    # end def
-
-    def mousePressEvent(self, event):
-        if event.button() != Qt.LeftButton:
-            QGraphicsItemGroup.mousePressEvent(self, event)
-        else:
-            self.dragEnable = True
-            self.selectionbox.resetTransform()
-
-            # this code block is a HACK to update the boundingbox of the group
-            if self.childItems()[0] != None:
-                item = self.childItems()[0]
-                self.removeFromGroup(item)
-                item.restoreParent()
-                self.addToGroup(item)
-
-            self.selectionbox.setRect(self.boundingRect())
-            self.selectionbox.drawMe = True
-            self._r0 = self.getR(event.scenePos())
-            self._r = self._r0
-            self.scene().views()[0].addToPressList(self)
-    # end def
-
-    def mouseMoveEvent(self, event):
-        if self.dragEnable == True:
-            rf = self.getR(event.scenePos())
-            self.translateR(rf)
-            self._r = rf
-        else:
-            QGraphicsItemGroup.mouseMoveEvent(self, event)
-    # end def
-
-    def customMouseRelease(self, event):
-        """docstring for customMouseRelease"""
-        if self.isSelected():
-            self.selectionbox.processSelectedItems(self._r0, self._r)
-        # end if
-        self.selectionbox.drawMe = False
-        self.selectionbox.resetTransform()
-        self.dragEnable = False
-    # end def
-
-    def itemChange(self, change, value):
-        """docstring for itemChange"""
-        if change == QGraphicsItem.ItemSelectedHasChanged:
-            if value == False:
-                # self.drawMe = False
-                self.selectionbox.drawMe = False
-                self.selectionbox.resetTransform()
-                self.removeSelectedItems()
-                self.phg().selectionLock = None
-            # end if
-            else:
-                pass
-            self.update(self.boundingRect())
-        return QGraphicsItemGroup.itemChange(self, change, value)
-    # end def
-
-    def removeSelectedItems(self):
-        """docstring for removeSelectedItems"""
-        for item in self.childItems():
-            if not item.isSelected():
-                self.removeFromGroup(item)
-                try:
-                    item.restoreParent()
-                except:
-                    pass
-                item.setSelected(False)
-            # end if
-        # end for
-    # end def
-# end class
-
-
-class PathHelixHandleSelectionBox(QGraphicsItem):
-    """
-    docstring for PathHelixHandleSelectionBox
-    """
-    helixHeight = styles.PATH_HELIX_HEIGHT + styles.PATH_HELIX_PADDING
-    radius = styles.PATHHELIXHANDLE_RADIUS
-    penWidth = styles.SLICE_HELIX_HILIGHT_WIDTH
-
-    def __init__(self, itemGroup, parent=None):
-        super(PathHelixHandleSelectionBox, self).__init__(parent)
-        self.itemGroup = itemGroup
-        self.rect = itemGroup.boundingRect()
-        self.parent = itemGroup.phg()
-        self.setParentItem(itemGroup.phg())
-        self.drawMe = False
-        self.pen = QPen(styles.bluestroke, self.penWidth)
-    # end def
-
-    def paint(self, painter, option, widget=None):
-        if self.drawMe == True:
-            painter.setPen(self.pen)
-            painter.drawRoundedRect(self.rect, self.radius, self.radius)
-            painter.drawLine(self.rect.right(),\
-                             self.rect.center().y(),\
-                             self.rect.right() + self.radius / 2,\
-                             self.rect.center().y())
-    # end def
-
-    def boundingRect(self):
-        return self.rect
-    # end def
-
-    def setRect(self, rect):
-        self.rect = rect
-
-    def processSelectedItems(self, rStart, rEnd):
-        """docstring for processSelectedItems"""
-        margin = styles.PATHHELIXHANDLE_RADIUS
-        delta = (rEnd - rStart)  # r delta
-        midHeight = (self.boundingRect().height()) / 2 - margin
-        if abs(delta) < midHeight:  # move is too short for reordering
-            return
-        if delta > 0:  # moved down, delta is positive
-            indexDelta = int((delta - midHeight) / self.helixHeight)
-        else:  # moved up, delta is negative
-            indexDelta = int((delta + midHeight) / self.helixHeight)
-        # sort on y to determine the extremes of the selection group
-        items = sorted(self.itemGroup.childItems(), key=lambda phh: phh.y())
-        self.parent.reorderHelices(items[0].number(),\
-                                   items[-1].number(),\
-                                   indexDelta)
-    # end def
-# end class
-
-class BreakpointHandleSelectionBox(QGraphicsItem):
-    def __init__(self, itemGroup, parent=None):
-        super(BreakpointHandleSelectionBox, self).__init__(parent)
-        self.itemGroup = itemGroup
-        self.rect = itemGroup.boundingRect()
-        self.parent = itemGroup.phg()
-        self.setParentItem(itemGroup.phg())
-        self.drawMe = False
-        self.pen = QPen(styles.bluestroke, styles.PATH_SELECTBOX_STROKE_WIDTH)
-    # end def
-
-    def paint(self, painter, option, widget=None):
-        if self.drawMe == True:
-            painter.setPen(self.pen)
-            painter.drawRect(self.boundingRect())
-    # end def
-
-    def boundingRect(self):
-        return self.rect
-    # end def
-
-    def setRect(self, rect):
-        self.prepareGeometryChange()
-        self.rect = rect
-
-    def processSelectedItems(self, rStart, rEnd):
-        """docstring for processSelectedItems"""
-        pass
-# end class
