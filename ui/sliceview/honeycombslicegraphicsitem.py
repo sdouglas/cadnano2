@@ -44,11 +44,11 @@ class HoneycombSliceGraphicsItem(SliceGraphicsItem):
     def __init__(self, part, controller=None, parent=None):
         SliceGraphicsItem.__init__(self, part, controller, parent)
 
-    def upperLeftCornerForCoords(self, row, col):
+    def _upperLeftCornerForCoords(self, row, col):
         x = col*self.radius*root3
         if ((row % 2) ^ (col % 2)): # odd parity
             y = row*self.radius*3 + self.radius
-        else:                          # even parity
+        else:                       # even parity
             y = row*self.radius*3
         return (x, y)
 

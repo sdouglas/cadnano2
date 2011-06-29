@@ -274,7 +274,7 @@ class DocumentController():
                              parent=self.win.pathroot)
 
         if app().isInMaya():
-            solhg = SolidHelixGroup(dnaPartInst, \
+            solhg = SolidHelixGroup(dnaPartInst,\
                                     controller=self.win.pathController)
             # need to create a permanent class level reference to this so
             # it doesn't get garbage collected

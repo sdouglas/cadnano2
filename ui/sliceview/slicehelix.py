@@ -35,12 +35,19 @@ from model.enum import Parity, StrandType
 import util
 # import Qt stuff into the module namespace with PySide, PyQt4 independence
 util.qtWrapImport('QtCore', globals(), ['QString', 'QRectF', 'Qt'] )
-util.qtWrapImport('QtGui', globals(), [ 'QGraphicsItem', 'QBrush', \
-                                        'QGraphicsSimpleTextItem', 'QPen', \
-                                        'QDrag', 'QUndoCommand'])
+util.qtWrapImport('QtGui', globals(), ['QGraphicsItem', 'QGraphicsObject',\
+                                       'QGraphicsSimpleTextItem',\
+                                       'QBrush', 'QPen', \
+                                       'QDrag', 'QUndoCommand'])
 
 class SliceHelix(QGraphicsItem):
-    """docstring for SliceHelix"""
+    """
+    The SliceHelix is an individual circle that gets drawn in the SliceView
+    as a child of the SliceGraphicsItem. Taken as a group, many SliceHelix
+    instances make up the crossection of the DNAPart. Clicking on a SliceHelix
+    adds a VirtualHelix to the DNAPart. The SliceHelix then changes appearence
+    and paints its corresponding VirtualHelix number.
+    """
     # set up default, hover, and active drawing styles
     defBrush = QBrush(styles.grayfill)
     defPen = QPen(styles.graystroke, styles.SLICE_HELIX_STROKE_WIDTH)
@@ -144,6 +151,7 @@ class SliceHelix(QGraphicsItem):
 
     def mousePressEvent(self, event):
         # self.createOrAddBasesToVirtualHelix()
+        print "slicehelix mousePressEvent"
         self.createOrAddBasesToVirtualHelix(\
             addBases=True,\
             addToScaffold=not (int(event.modifiers())==Qt.ShiftModifier))
@@ -151,7 +159,7 @@ class SliceHelix(QGraphicsItem):
             self.virtualHelix().setSelected(True)
         else:
             self.part().setSelection((self.virtualHelix(),))
-    
+
     def selectAllBehavior(self):
         # If the selection is configured to always select
         # everything, we don't draw a focus ring around everything,
