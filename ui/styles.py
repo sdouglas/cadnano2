@@ -129,7 +129,7 @@ if util.isMac():
 elif util.isWindows():
     thefont = "Segoe UI"
     thefont = "Calibri"
-    #thefont = "Arial"
+    thefont = "Arial"
 else:
     thefont = "Times"
      

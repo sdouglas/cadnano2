@@ -81,8 +81,8 @@ class PreCrossoverHandle(QGraphicsItem):
     # precalculate the height of a number font.  Assumes a fixed font
     # and that only numbers will be used for labels
     fm = QFontMetrics(toHelixNumFont)
-    halfLabelH = fm.tightBoundingRect("1").height()
-
+    #halfLabelH = fm.tightBoundingRect("1").height()
+    
     def __init__(self, parentPH, fromStrand, fromIdx, toVH, toIdx, orientedLeft):
         super(PreCrossoverHandle, self).__init__(parentPH)
         self.fromVH = parentPH.vhelix()
@@ -95,24 +95,42 @@ class PreCrossoverHandle(QGraphicsItem):
         self.fromVH.basesModified.connect(self.updateVisibilityAndEnabledness)
         self.toVH.basesModified.connect(self.updateVisibilityAndEnabledness)
 
-        self.label = QGraphicsSimpleTextItem(str(toVH.number()), parent=self)
-        self.label.setFont(self.toHelixNumFont)
+        #self.label = QGraphicsSimpleTextItem(str(toVH.number()), parent=self)
+        #self.label.setFont(self.toHelixNumFont)
 
         x = self.baseWidth * self.fromIdx
         y = (-1.25 if self.onTopStrand() else 2.25) * self.baseWidth
         self.setPos(x, y)
-        halfLabelW = self.label.boundingRect().width() / 2
-
-        labelX = self.baseWidth/2 - halfLabelW
+        halfLabelH = self.fm.tightBoundingRect(str(toVH.number())).height()/2
+        halfLabelW = self.fm.boundingRect(str(toVH.number())).width()/2
+        #halfLabelW = self.label.boundingRect().width() / 2
+        #print halfLabelW, self.fm.tightBoundingRect(str(toVH.number())).width()/2
+        #labelX = self.baseWidth/2 - halfLabelW
+        labelX = 0#- halfLabelW/8
+        #labelX = -self.baseWidth/4
+        
         # labelY = (-.10 if self.onTopStrand() else .48) * self.baseWidth
         if self.onTopStrand():
-            labelY = -0.01*self.baseWidth
+            #labelY = -0.01*self.baseWidth
+            labelY = -1.05*halfLabelH-.5
         else:
-            labelY = 1.1*self.halfLabelH
-
-        self.label.setPos(labelX, labelY)
+            labelY = 1.05*halfLabelH-.5
+        self.labelRect = QRectF(labelX,\
+                                labelY,\
+                                self.baseWidth, self.baseWidth)
+        #self.label.setPos(labelX, labelY)
+        self._isLabelVisible = False
         self.updateVisibilityAndEnabledness()
-
+    # end def
+        
+    def drawLabel(self, painter):
+        #painter.setPen(QPen(styles.XOVER_LABEL_COLOR))
+        painter.setBrush(self.labelBrush)
+        painter.setFont(self.toHelixNumFont)
+        painter.drawText(self.labelRect, Qt.AlignCenter, str(self.toVH.number() ) )
+        #painter.drawText(self.labelRect, str(self.toVH.number() ) )
+    # end def
+        
     def onTopStrand(self):
         return self.fromVH.evenParity() and self.fromStrand==StrandType.Scaffold or\
                not self.fromVH.evenParity() and self.fromStrand==StrandType.Staple
@@ -130,11 +148,14 @@ class PreCrossoverHandle(QGraphicsItem):
     def updateVisibilityAndEnabledness(self):
         shouldBeVisible = not self.crossoverExists()
         self.setVisible(shouldBeVisible)
-        self.label.setVisible(shouldBeVisible)
+        #self.label.setVisible(shouldBeVisible)
+        self._isLabelVisible = True
         if self.couldFormNewCrossover():
-            self.label.setBrush(self.enabbrush)
+            #self.label.setBrush(self.enabbrush)
+            self.labelBrush = self.enabbrush
         else:
-            self.label.setBrush(self.disabbrush)
+            #self.label.setBrush(self.disabbrush)
+            self.labelBrush = self.disabbrush
         self.update()
 
     def paint(self, painter, option, widget=None):
@@ -149,7 +170,9 @@ class PreCrossoverHandle(QGraphicsItem):
                 pen = self.stappen
         painter.setPen(pen)
         painter.drawPath(path)
-
+        if self._isLabelVisible == True:
+            self.drawLabel(painter)
+        
     def boundingRect(self):
         return self.rect
 
