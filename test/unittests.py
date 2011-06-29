@@ -72,7 +72,7 @@ class UnitTests(CadnanoGuiTestCase):
         # Add your clean up here
         pass
 
-    def testAutoDrag1(self):
+    def testAutoDragToBoundary(self):
         """docstring for testDrag"""
         vh0 = VirtualHelix(numBases=42, idnum=0)
         vh0.connectStrand(StrandType.Scaffold, 20, 22)

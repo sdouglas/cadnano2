@@ -44,9 +44,12 @@ util.qtWrapImport('QtGui', globals(), [ 'QGraphicsItem', 'QBrush', \
                                         'QPainterPath', 'QPen'])
 
 
-class SliceGraphicsItem(QGraphicsItem):  # was a QGraphicsObject change for Qt 4.6
+class SliceGraphicsItem(QGraphicsItem):
     """
-    SliceGraphicsItem
+    SliceGraphicsItem is an abstract class to be inherited by
+    HoneycombSliceGraphicsItem or SquareSliceGraphicsItem. SliceGraphicsItem
+    is the parent of all SliceHelix items, and is responsible for spawning
+    and positioning them according to the part dimensions.
     """
     radius = styles.SLICE_HELIX_RADIUS
     
@@ -58,8 +61,6 @@ class SliceGraphicsItem(QGraphicsItem):  # was a QGraphicsObject change for Qt 4
         self.parent = parent
         self.setParentItem(parent)
         self.setZValue(100)
-        # The coords of the upper left corner of the slice being
-        # hovered over
 
         # The deselector grabs mouse events that missed a slice
         # and clears the selection when it gets one
@@ -67,24 +68,18 @@ class SliceGraphicsItem(QGraphicsItem):  # was a QGraphicsObject change for Qt 4
         self.deselector.setParentItem(self)
         self.deselector.setFlag(QGraphicsItem.ItemStacksBehindParent)
         self.deselector.setZValue(-1)
-        
+
         # Invariant: keys in _helixhash = range(_nrows) x range(_ncols)
         # where x is the cartesian product
         self._helixhash = {}
         self._nrows, self._ncols = 0, 0
         self._rect = QRectF(0, 0, 0, 0)
         self.setPart(part)
-        
-        # drawing related
-        self.handleSize = 15
-                
-        # Cache of VHs that were active as of last call to
-        # activeSliceChanged. If None, all slices will be redrawn
-        # and the cache will be filled.
+
+        # Cache of VHs that were active as of last call to activeSliceChanged
+        # If None, all slices will be redrawn and the cache will be filled.
         self._previouslyActiveVHs = None
-        
-        # connect destructor
-        # this is for removing a part from scenes
+        # Connect destructor. This is for removing a part from scenes.
         self._part.partRemoved.connect(self.destroy)
     # end def
 
@@ -93,36 +88,16 @@ class SliceGraphicsItem(QGraphicsItem):  # was a QGraphicsObject change for Qt 4
         self.scene().removeItem(self)
         self.setPart(None)
     # end def
-    
-    ############## Implement to subclass
-    def upperLeftCornerForCoords(self, row, col):
-        x = col*self.radius*2
-        y = row*self.radius*2
-        return (x, y)
-        
+
+    ############################ Private Methods ############################
+    def _upperLeftCornerForCoords(self, row, col):
+        pass  # subclass
+
     def _updateGeometry(self, newCols, newRows):
-        pass
-    ##################################
-    
-    def part(self):
-        return self._part
-    
-    def setPart(self, newPart):
-        if self._part:
-            self._part.dimensionsWillChange.disconnect(self._setDimensions)
-            self._part.selectionWillChange.disconnect(self.selectionWillChange)
-            self._part.activeSliceWillChange.disconnect(self.activeSliceChanged)
-            self._part.virtualHelixAtCoordsChanged.disconnect(self.vhAtCoordsChanged)
-        if newPart != None:
-            self._setDimensions(newPart.dimensions())
-            newPart.dimensionsWillChange.connect(self._setDimensions)
-            newPart.selectionWillChange.connect(self.selectionWillChange)
-            newPart.activeSliceWillChange.connect(self.activeSliceChanged)
-            newPart.virtualHelixAtCoordsChanged.connect(self.vhAtCoordsChanged)
-        self._part = newPart
- 
+        pass  # subclass
+
     def _spawnSliceAt(self, row, column):
-        ul = QPointF(*self.upperLeftCornerForCoords(row, column))
+        ul = QPointF(*self._upperLeftCornerForCoords(row, column))
         helix = SliceHelix(row, column, self)
         helix.setFlag(QGraphicsItem.ItemStacksBehindParent, True)
         helix.setPos(ul)
@@ -163,20 +138,46 @@ class SliceGraphicsItem(QGraphicsItem):  # was a QGraphicsObject change for Qt 4
         self.deselector.prepareGeometryChange()
         self.zoomToFit()
 
+    ############################# Public Methods #############################
+    def mousePressEvent(self, event):
+        # self.createOrAddBasesToVirtualHelix()
+        print "slicegraphicsitem mousePressEvent"
+        QGraphicsItem.mousePressEvent(self, event)
 
     def boundingRect(self):
         return self._rect
 
+    def paint(self, painter, option, widget=None):
+        pass
+
     def zoomToFit(self):
-        # Auto zoom to center the scene
         thescene = self.scene()
         theview = thescene.views()[0]
         theview.zoomToFit()
-    # end def
 
-    def paint(self, painter, option, widget=None):
-        pass
-    
+    def part(self):
+        return self._part
+
+    def setPart(self, newPart):
+        if self._part:
+            self._part.dimensionsWillChange.disconnect(self._setDimensions)
+            self._part.selectionWillChange.disconnect(self.selectionWillChange)
+            self._part.activeSliceWillChange.disconnect(self.activeSliceChanged)
+            self._part.virtualHelixAtCoordsChanged.disconnect(self.vhAtCoordsChanged)
+        if newPart != None:
+            self._setDimensions(newPart.dimensions())
+            newPart.dimensionsWillChange.connect(self._setDimensions)
+            newPart.selectionWillChange.connect(self.selectionWillChange)
+            newPart.activeSliceWillChange.connect(self.activeSliceChanged)
+            newPart.virtualHelixAtCoordsChanged.connect(self.vhAtCoordsChanged)
+        self._part = newPart
+
+    def getSliceHelixByCoord(self, row, column):
+        if (row, column) in self._helixhash:
+            return self._helixhash[(row, column)]
+        else:
+            return None
+
     def selectionWillChange(self, newSel):
         if self.part() == None:
             return
@@ -202,14 +203,13 @@ class SliceGraphicsItem(QGraphicsItem):  # was a QGraphicsObject change for Qt 4
                 if isActiveNow:
                     newlyActiveVHs.add(vh)
             self.update()
-            
+
     def vhAtCoordsChanged(self, row, col):
         self._helixhash[(row, col)].update()
 
     class Deselector(QGraphicsItem):
-        """The deselector lives behind all the slices
-        and observes mouse press events that miss slices,
-        emptying the selection when they do"""
+        """The deselector lives behind all the slices and observes mouse press
+        events that miss slices, emptying the selection when they do"""
         def __init__(self, parentHGI):
             super(SliceGraphicsItem.Deselector, self).__init__()
             self.parentHGI = parentHGI
@@ -220,4 +220,3 @@ class SliceGraphicsItem(QGraphicsItem):  # was a QGraphicsObject change for Qt 4
             return self.parentHGI.boundingRect()
         def paint(self, painter, option, widget=None):
             pass
-

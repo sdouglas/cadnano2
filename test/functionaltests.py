@@ -70,9 +70,21 @@ class FunctionalTests(CadnanoGuiTestCase):
         # Add your clean up here
 
     def testFunction1(self):
-        # Another test in this class. Note that the tests'
-        # names must start with "test"
-        self.assertEqual(1, 1)
+        # Create a new Honeycomb part
+        newHoneycombPartButton = self.mainWindow.topToolBar.widgetForAction(\
+                                       self.mainWindow.actionNewHoneycombPart)
+        self.click(newHoneycombPartButton)
+
+        sliceGraphicsItem = self.mainWindow.sliceroot.childItems()[0]
+        print sliceGraphicsItem
+        # Get the SliceHelix
+        slicehelix1 = sliceGraphicsItem.getSliceHelixByCoord(0, 0)
+        print slicehelix1, slicehelix1.isEnabled()
+        self.click(slicehelix1, qgraphicsscene=self.mainWindow.slicescene)
+
+        # time.sleep(5)  # Sleep for 1 second
+        self.debugHere()  # Stop simulation and give control to user
+
 
 if __name__ == '__main__':
     print "Running Functional Tests"

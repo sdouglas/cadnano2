@@ -43,7 +43,7 @@ class SquareSliceGraphicsItem(SliceGraphicsItem):
     def __init__(self, part, controller=None, parent=None):
         SliceGraphicsItem.__init__(self, part, controller, parent)
 
-    def upperLeftCornerForCoords(self, row, col):
+    def _upperLeftCornerForCoords(self, row, col):
         x = col*2*self.radius
         y = row*2*self.radius
         return (x, y)
