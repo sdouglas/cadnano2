@@ -112,14 +112,11 @@ class CADnano(QApplication):
         self.undoGroup = QUndoGroup()
         #self.setApplicationName(QString("CADnano"))
         self.documentControllers = set() # Open documents
-        self.v = None
-        self.ph = None
+        self.v = {}  # Newly created VirtualHelix register themselves here under their idnum.
+        self.ph = {}
         self.phg = None
+        self.d = self.newDocument(isFirstNewDoc=True)
         if "-i" in argv:
-            self.d = d
-            self.v = {}  # Newly created VirtualHelix register themselves here under their idnum.
-            self.ph = {}
-            self.phg = None
             print "Welcome to CADnano's debug mode!"
             print "Some handy locals:"
             print "\ta\tCADnano.app() (the shared CADnano application object)"
@@ -127,14 +124,14 @@ class CADnano(QApplication):
             print "\tv\tmaps the numbers of recently created VirtualHelixes to the VHs themselves"
             print "\tph\tmaps virtual helix numbers to pathhelix"
             print "\tphg()\tthe last initialized PathHelixGroup"
+            print "\tpySide()\ttrue iff the app is using PySide"
             print "\tquit()\tquit (for when the menu fails)"
             interact(local={'a':self,\
                             'd':lambda : self.d,\
                             'v':self.v,\
                             'ph':self.ph,\
-                            'phg':lambda : self.phg})
-        d = self.newDocument(isFirstNewDoc=True)
-        print "Is PySide available? : ", self.usesPySide()
+                            'phg':lambda : self.phg,\
+                            'pySide':self.usesPySide})
     # end def
         
     def isInMaya(self):
@@ -148,6 +145,7 @@ class CADnano(QApplication):
             defaultFile = path.expandvars(defaultFile)
             from model.decoder import decode
             doc = decode(file(defaultFile).read())
+            print "Loaded default document: %s"%doc
             dc = DocumentController(doc, defaultFile)
         else:
             dc = DocumentController()  # DocumentController is responsible for adding
