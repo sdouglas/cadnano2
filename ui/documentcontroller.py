@@ -62,6 +62,8 @@ class DocumentController():
             self.undoStackCleanStatusChangedSlot)
         self._filename = fname if fname else "untitled.cn2"
         self._activePart = None
+        self.sliceGraphicsItem = None
+        self.pathHelixGroup = None
         self._hasNoAssociatedFile = fname == None
         self.win = DocumentWindow(docCtrlr=self)
         self.win.closeEvent = self.closer
@@ -262,16 +264,16 @@ class DocumentController():
     ##################### and PathHelixGroups for Parts ######################
     def docPartAddedEvent(self, part):
         if part.crossSectionType() == LatticeType.Honeycomb:
-            shg = HoneycombSliceGraphicsItem(part,\
+            self.sliceGraphicsItem = HoneycombSliceGraphicsItem(part,\
                                         controller=self.win.sliceController,\
                                         parent=self.win.sliceroot)
         else:
-            shg = SquareSliceGraphicsItem(part,\
+            self.sliceGraphicsItem = SquareSliceGraphicsItem(part,\
                                         controller=self.win.sliceController,\
                                         parent=self.win.sliceroot)
-        phg = PathHelixGroup(part,\
-                             controller=self.win.pathController,\
-                             parent=self.win.pathroot)
+        self.pathHelixGroup = PathHelixGroup(part,\
+                                         controller=self.win.pathController,\
+                                         parent=self.win.pathroot)
 
         if app().isInMaya():
             solhg = SolidHelixGroup(dnaPartInst,\
@@ -279,14 +281,13 @@ class DocumentController():
             # need to create a permanent class level reference to this so
             # it doesn't get garbage collected
             self.solidlist.append(solhg)
-            phg.scaffoldChange.connect(solhg.handleScaffoldChange)
+            self.pathHelixGroup.scaffoldChange.connect(solhg.handleScaffoldChange)
 
-        ash = phg.activeSliceHandle()
         self.win.sliceController.activeSliceLastSignal.connect(\
-                                                          ash.moveToLastSlice)
+                      self.pathHelixGroup.activeSliceHandle().moveToLastSlice)
         self.win.sliceController.activeSliceFirstSignal.connect(\
-                                                         ash.moveToFirstSlice)
-        self.win.pathController.setActivePath(phg)
+                     self.pathHelixGroup.activeSliceHandle().moveToFirstSlice)
+        self.win.pathController.setActivePath(self.pathHelixGroup)
 
     def addHoneycombHelixGroup(self):
         """Adds a honeycomb DNA part to the document. Dimensions are set by

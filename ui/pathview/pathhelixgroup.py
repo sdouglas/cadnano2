@@ -28,31 +28,31 @@ pathhelixgroup.py
 
 Created by Shawn on 2011-01-27.
 """
-from .pathhelix import PathHelix                        
+
+from cadnano import app
 from handles.activeslicehandle import ActiveSliceHandle
 from handles.pathhelixhandle import PathHelixHandle
-from model.enum import EndType, LatticeType, StrandType
-import ui.styles as styles
 from handles.pathhelixhandle import PathHelixHandle
 from handles.crossoverhandle import XoverHandle
 from handles.loophandle import LoopHandleGroup
-
-from .pathselection import SelectionItemGroup, \
-                        PathHelixHandleSelectionBox, \
-                        BreakpointHandleSelectionBox
-
-from cadnano import app
+from model.enum import EndType, LatticeType, StrandType
+from .pathhelix import PathHelix
+from .pathselection import SelectionItemGroup
+from .pathselection import PathHelixHandleSelectionBox
+from .pathselection import BreakpointHandleSelectionBox
 import util
+import ui.styles as styles
+
 
 # import Qt stuff into the module namespace with PySide, PyQt4 independence
-util.qtWrapImport('QtCore', globals(), ['QObject', 'pyqtSignal', 'pyqtSlot', \
-                                        'QRectF', 'QPointF', 'QEvent', \
-                                        'QObject', 'Qt'] )
-util.qtWrapImport('QtGui', globals(), [ 'QBrush', 'QPen', 'qApp', \
-                                        'QGraphicsTextItem', 'QFont', \
-                                        'QColor', 'QGraphicsItem', \
-                                        'QGraphicsObject', \
-                                        'QGraphicsItemGroup', 'QUndoCommand'])
+util.qtWrapImport('QtCore', globals(), ['QObject', 'pyqtSignal', 'pyqtSlot',\
+                                        'QRectF', 'QPointF', 'QEvent',\
+                                        'QObject', 'Qt'])
+util.qtWrapImport('QtGui', globals(), ['QBrush', 'QPen', 'qApp',\
+                                       'QGraphicsTextItem', 'QFont',\
+                                       'QColor', 'QGraphicsItem',\
+                                       'QGraphicsObject',\
+                                       'QGraphicsItemGroup', 'QUndoCommand'])
 
 
 class PathHelixGroup(QGraphicsObject):

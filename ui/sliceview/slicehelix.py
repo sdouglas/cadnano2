@@ -34,11 +34,11 @@ from model.enum import Parity, StrandType
 
 import util
 # import Qt stuff into the module namespace with PySide, PyQt4 independence
-util.qtWrapImport('QtCore', globals(), ['QString', 'QRectF', 'Qt'] )
+util.qtWrapImport('QtCore', globals(), ['Qt', 'QEvent', 'QString', 'QRectF'])
 util.qtWrapImport('QtGui', globals(), ['QGraphicsItem', 'QGraphicsObject',\
                                        'QGraphicsSimpleTextItem',\
-                                       'QBrush', 'QPen', \
-                                       'QDrag', 'QUndoCommand'])
+                                       'QBrush', 'QPen', 'QDrag',\
+                                       'QUndoCommand'])
 
 class SliceHelix(QGraphicsItem):
     """
@@ -149,9 +149,16 @@ class SliceHelix(QGraphicsItem):
             addBases=True,\
             addToScaffold=event.modifiers() & Qt.ShiftModifier > 0)
 
+    def sceneEvent(self, event):
+        """Included for unit testing in order to grab events that are sent
+        via QGraphicsScene.sendEvent()."""
+        if event.type() == QEvent.MouseButtonPress:
+            self.mousePressEvent(event)
+            return True
+        QGraphicsItem.sceneEvent(self, event)
+        return False
+
     def mousePressEvent(self, event):
-        # self.createOrAddBasesToVirtualHelix()
-        print "slicehelix mousePressEvent"
         self.createOrAddBasesToVirtualHelix(\
             addBases=True,\
             addToScaffold=not (int(event.modifiers())==Qt.ShiftModifier))

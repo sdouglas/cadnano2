@@ -43,7 +43,8 @@ class CadnanoGuiTestCase(test.guitestcase.GUITestCase):
         """
         self.app = getAppInstance()
         self.app.initGui()
-        self.mainWindow = list(self.app.documentControllers)[0].win
+        self.documentController = list(self.app.documentControllers)[0]
+        self.mainWindow = self.documentController.win
         # By setting the widget to the main window we can traverse and
         # interact with any part of it. Also, tearDown will close
         # the application so we don't need to worry about that.

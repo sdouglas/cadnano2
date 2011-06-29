@@ -141,7 +141,6 @@ class SliceGraphicsItem(QGraphicsItem):
     ############################# Public Methods #############################
     def mousePressEvent(self, event):
         # self.createOrAddBasesToVirtualHelix()
-        print "slicegraphicsitem mousePressEvent"
         QGraphicsItem.mousePressEvent(self, event)
 
     def boundingRect(self):
