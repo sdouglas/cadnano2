@@ -126,16 +126,18 @@ ZBREAKITEM = 2
 if util.isMac():
     thefont = "Times"
     thefont = "Arial"
+    XOVER_LABEL_FONT = QFont(thefont, 10, QFont.Bold)
 elif util.isWindows():
     thefont = "Segoe UI"
     thefont = "Calibri"
     thefont = "Arial"
+    XOVER_LABEL_FONT = QFont(thefont, 9, QFont.Bold)
 else:
     thefont = "Times"
+    XOVER_LABEL_FONT = QFont(thefont, 10, QFont.Bold)
      
 SLICE_NUM_FONT = QFont(thefont, 10, QFont.Bold)
 PATHHELIXHANDLE_FONT = QFont(thefont, 30, QFont.Bold)
-XOVER_LABEL_FONT = QFont(thefont, 10, QFont.Bold)
 XOVER_LABEL_COLOR = QColor(0,0,0) 
 
 # Overwrite for Maya
