@@ -102,10 +102,10 @@ class VirtualHelix(QObject):
                                     incompleteArchivedDict['staple'])) - 1
         self.setNumBases(numBases, notUndoable=True)
 
-    def __repr__(self):
+    def __str__(self):
         return 'vh%i' % self.number()
 
-    def __str__(self):
+    def __repr__(self):
         scaf = '%-2iScaffold: ' % self.number() + \
                             ' '.join((str(b) for b in self._scaffoldBases))
         stap = '%-2iStaple:   ' % self.number() + \
@@ -431,7 +431,7 @@ class VirtualHelix(QObject):
             
             #Segments
             if b._connectsToNatL():
-                if curColor != b.getColor():
+                if curColor.name() != b.getColor().name():
                     segments.append((s,i))
                     s = i
                 if s==None:
@@ -677,8 +677,14 @@ class VirtualHelix(QObject):
     def legacyClearStrand(self, strandType, startIndex, endIndex, undoStack=True,\
                     colorL=None, colorR=None, police=True,\
                     undoDesc="Clear strand"):
-        self.clearStrand(strandType, startIndex-.5, endIndex+.5, undoStack,\
+        startIndex += -.5 if startIndex < endIndex else .5
+        endIndex += .5 if startIndex < endIndex else -.5
+        # print " ".join(str(b) for b in self._strand(StrandType.Scaffold))
+        #print "cls %f %f"%(startIndex, endIndex)
+        self.clearStrand(strandType, startIndex, endIndex, undoStack,\
                          colorL, colorR, police, undoDesc)
+        # print " ".join(str(b) for b in self._strand(StrandType.Scaffold))
+        # print "\n"
                          
     def clearStrand(self, strandType, startIndex, endIndex, undoStack=True,\
                     colorL=None, colorR=None, police=True,\

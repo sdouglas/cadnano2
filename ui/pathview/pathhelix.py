@@ -457,6 +457,8 @@ class PathHelix(QGraphicsObject):
         for strandType in (StrandType.Scaffold, StrandType.Staple):
             top = self.strandIsTop(strandType)
             segments, ends3, ends5 = self._vhelix.getSegmentsAndEndpoints(strandType)
+            if vh.number()==1 and strandType==StrandType.Staple:
+                print segments
             for (startIndex, endIndex) in segments:
                 numBasesInOligo = vh.numberOfBasesConnectedTo(strandType,\
                                                               int(startIndex))
