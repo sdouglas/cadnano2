@@ -284,7 +284,7 @@ class DNAPart(Part):
         self.undoStack().beginMacro("Auto Staple")
         for vh in vhs:
             # Copy the scaffold strand's segments to the staple strand
-            vh.clearStrand(StrandType.Staple, 1, vh.numBases()-1)
+            vh.legacyClearStrand(StrandType.Staple, 1, vh.numBases()-1)
             segments, ends3, ends5 = vh.getSegmentsAndEndpoints(StrandType.Scaffold)
             for segStart, segEnd in segments:
                 vh.connectStrand(StrandType.Staple, segStart, segEnd)

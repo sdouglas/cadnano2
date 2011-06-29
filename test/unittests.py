@@ -28,6 +28,9 @@ unittests.py
 Created by Shawn Douglas on 2011-06-28.
 """
 
+import sys
+sys.path.insert(0, '.')
+
 import time
 from PyQt4.QtCore import *
 from PyQt4.QtGui import *
@@ -84,4 +87,6 @@ class UnitTests(CadnanoGuiTestCase):
 
 
 if __name__ == '__main__':
+    print "Running unit tests"
     test.cadnanoguitestcase.main()
+    print "Done running unit tests"

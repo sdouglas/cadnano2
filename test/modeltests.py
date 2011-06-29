@@ -26,10 +26,18 @@
 modeltests.py
 
 Created by Shawn Douglas on 2011-06-28.
+
+Instructions: copypaste the following script into TextMate's
+Bundles > Bundle Editor > Show Bundle Editor > Python > Run Project Unit Tests
+
+cd "$TM_PROJECT_DIRECTORY"
+find . -name "*tests.py" -exec "${TM_PYTHON:-python}" '{}' \;|pre
+
 """
 
-from PyQt4.QtCore import *
-from PyQt4.QtGui import *
+import sys
+sys.path.insert(0, '.')
+
 import test.cadnanoguitestcase
 from test.cadnanoguitestcase import CadnanoGuiTestCase
 import time
@@ -66,6 +74,28 @@ class ModelTests(CadnanoGuiTestCase):
         # Add your clean up here
         pass
 
+    def testFractionalClearStrandCommand(self):
+        """
+        The new API for clearStrand allows fractional values for
+        base indices (see docs/virtualhelix.pdf). This tets them.
+        """
+        vh = VirtualHelix(numBases=8, idnum=0)
+        self.assertEqual(str(vh), '0 Scaffold: _,_ _,_ _,_ _,_ _,_ _,_ _,_ _,_\n0 Staple:   _,_ _,_ _,_ _,_ _,_ _,_ _,_ _,_')
+
+        vh.connectStrand(StrandType.Scaffold, 2, 6)
+        vh.connectStrand(StrandType.Staple, 0, 7)
+        self.assertEqual(str(vh), '0 Scaffold: _,_ _,_ _,> <,> <,> <,> <,_ _,_\n0 Staple:   _,> <,> <,> <,> <,> <,> <,> <,_')
+
+        vh.clearStrand(StrandType.Scaffold, 4, 4)
+        vh.clearStrand(StrandType.Staple, 3, 5)
+        self.assertEqual(str(vh), '0 Scaffold: _,_ _,_ _,> <,> <,> <,> <,_ _,_\n0 Staple:   _,> <,> <,_ _,_ _,_ _,> <,> <,_')
+        
+        vh.undoStack().undo()
+        vh.undoStack().undo()
+        self.assertEqual(str(vh), '0 Scaffold: _,_ _,_ _,> <,> <,> <,> <,_ _,_\n0 Staple:   _,> <,> <,> <,> <,> <,> <,> <,_')
+
+        vh.undoStack().undo()
+        
     def testVH(self):
         """
         Perform the VirtualHelix tutorial and make sure that the
@@ -78,8 +108,8 @@ class ModelTests(CadnanoGuiTestCase):
         vh.connectStrand(StrandType.Staple, 0, 7)
         self.assertEqual(str(vh), '0 Scaffold: _,_ _,_ _,> <,> <,> <,> <,_ _,_\n0 Staple:   _,> <,> <,> <,> <,> <,> <,> <,_')
 
-        vh.clearStrand(StrandType.Scaffold, 4, 4)
-        vh.clearStrand(StrandType.Staple, 3, 5)
+        vh.clearStrand(StrandType.Scaffold, 3.5, 4.5)
+        vh.clearStrand(StrandType.Staple, 2.5, 5.5)
         self.assertEqual(str(vh), '0 Scaffold: _,_ _,_ _,> <,_ _,> <,> <,_ _,_\n0 Staple:   _,> <,> <,_ _,_ _,_ _,> <,> <,_')
 
         vh1 = VirtualHelix(numBases=5, idnum=1)
@@ -117,4 +147,5 @@ class ModelTests(CadnanoGuiTestCase):
         self.assertEqual(str(vh), '0 Scaffold: _,_ _,_ _,> <,> <,_ _,_ _,_ _,_\n0 Staple:   _,_ _,_ _,_ _,_ _,_ _,_ _,_ _,_')
 
 if __name__ == '__main__':
+    print "Running Model Tests"
     test.cadnanoguitestcase.main()

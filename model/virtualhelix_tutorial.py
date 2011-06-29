@@ -16,10 +16,16 @@ vh.connectStrand(StrandType.Scaffold,2,6)
 vh.connectStrand(StrandType.Staple,0,7)
 print repr(str(vh)) + "\n\n"
 
-print "vh.clearStrand(StrandType.Scaffold,4,4)"
-print "vh.clearStrand(StrandType.Staple,3,5)"
-vh.clearStrand(StrandType.Scaffold,4,4)
-vh.clearStrand(StrandType.Staple,3,5)
+print "vh.clearStrand(StrandType.Scaffold, 3.5, 4.5)"
+print "vh.clearStrand(StrandType.Staple, 2.5, 5.5)"
+vh.clearStrand(StrandType.Scaffold, 3.5, 4.5)
+vh.clearStrand(StrandType.Staple, 2.5, 5.5)
+print repr(str(vh))
+print "vh.undoStack().undo()"
+vh.undoStack().undo()
+print repr(str(vh))
+print "vh.clearStrand(StrandType.Staple, 3, 5)"
+vh.clearStrand(StrandType.Staple, 3, 5)
 print repr(str(vh)) + "\n\n"
 
 print "vh1 = VirtualHelix(numBases=5, idnum=1)"

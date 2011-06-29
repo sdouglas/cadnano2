@@ -82,5 +82,5 @@ class EraseTool(AbstractPathTool):
             if vh.hasEndAt(strandType, rightBreakIdx) and rightBreakIdx != idx:
                 break
             rightBreakIdx += 1
-        vh.clearStrand(strandType, leftBreakIdx, rightBreakIdx)
+        vh.legacyClearStrand(strandType, leftBreakIdx, rightBreakIdx)
         vh.undoStack().endMacro()

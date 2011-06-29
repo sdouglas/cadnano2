@@ -171,7 +171,43 @@ class Base(object):
             return str((b5, self._n, b3))
         else:
             return str((b3, self._n, b5))
+    
+    def _setL(self, toBase):
+        if self._vhelix.directionOfStrandIs5to3(self._strandtype):
+            return self._set5Prime(toBase)
+        else:
+            return self._set3Prime(toBase)
+    
+    def _unsetL(self, toBase, fromOld, toOld):
+        if self._vhelix.directionOfStrandIs5to3(self._strandtype):
+            self._unset5Prime(toBase, fromOld, toOld)
+        else:
+            self._unset3Prime(toBase, fromOld, toOld)
 
+    def _LBase(self):
+        if self._vhelix.directionOfStrandIs5to3(self._strandtype):
+            return self._5pBase
+        else:
+            return self._3pBase
+
+    def _setR(self, toBase):
+        if self._vhelix.directionOfStrandIs5to3(self._strandtype):
+            return self._set3Prime(toBase)
+        else:
+            return self._set5Prime(toBase)
+    
+    def _unsetR(self, toBase, fromOld, toOld):
+        if self._vhelix.directionOfStrandIs5to3(self._strandtype):
+            self._unset3Prime(toBase, fromOld, toOld)
+        else:
+            self._unset5Prime(toBase, fromOld, toOld)
+
+    def _RBase(self):
+        if self._vhelix.directionOfStrandIs5to3(self._strandtype):
+            return self._3pBase
+        else:
+            return self._5pBase
+        
     def _set5Prime(self, toBase):
         """Only VirtualHelix should call this method. Returns l
         such that self._unset5Prime(toBase, *l) undoes this command."""

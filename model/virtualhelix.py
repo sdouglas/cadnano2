@@ -36,6 +36,7 @@ from cadnano import app
 from random import Random
 import re, sys
 from ui import styles
+from math import modf
 
 import util
 # import Qt stuff into the module namespace with PySide, PyQt4 independence
@@ -568,7 +569,7 @@ class VirtualHelix(QObject):
         if self.part() != None:
             return self.part().undoStack()
         if self._privateUndoStack == None:
-            print "Creating detached undo stack for %s" % self
+            #print "Creating detached undo stack for %s" % self
             self._privateUndoStack = QUndoStack()
         return self._privateUndoStack
     
@@ -676,17 +677,17 @@ class VirtualHelix(QObject):
     def legacyClearStrand(self, strandType, startIndex, endIndex, undoStack=True,\
                     colorL=None, colorR=None, police=True,\
                     undoDesc="Clear strand"):
-        self.clearStrand(strandType, startIndex, endIndex, undoStack,\
+        self.clearStrand(strandType, startIndex-.5, endIndex+.5, undoStack,\
                          colorL, colorR, police, undoDesc)
-
+                         
     def clearStrand(self, strandType, startIndex, endIndex, undoStack=True,\
                     colorL=None, colorR=None, police=True,\
-                    undoDesc="Clear strand"):
-        endIndex, startIndex = int(endIndex), int(startIndex)
-        strand = strandType == StrandType.Scaffold and \
-            self._scaffoldBases or self._stapleBases
-        startIndex = util.clamp(startIndex, 1, len(strand)-1)
-        endIndex = util.clamp(endIndex, 1, len(strand)-1)
+                    undoDesc="Clear Strand"):
+        strand = self._strand(strandType)
+        startIndex = util.clamp(startIndex, 0, len(strand))
+        startIndex = int(startIndex*2.)/2.
+        endIndex = util.clamp(endIndex, 0, len(strand))
+        endIndex = int(endIndex*2.)/2.
         if undoStack == True:
             undoStack = self.undoStack()
         undoStack.beginMacro(undoDesc)  # Can be "clear" or "break"
@@ -1119,72 +1120,110 @@ class VirtualHelix(QObject):
             self._colorSubCommand.undo()
             self._vh.emitBasesModifiedIfNeeded()
 
-
     class ClearStrandCommand(QUndoCommand):
-        def __init__(self, virtualHelix, strandType, startIndex, endIndex, colorL=None, colorR=None):
+        def __init__(self, virtualHelix, strandType, startIndexF, endIndexF, colorL=None, colorR=None):
             super(VirtualHelix.ClearStrandCommand, self).__init__()
             self._vh = virtualHelix
             self._strandType = strandType
-            self._startIndex = min(startIndex, endIndex)
-            self._endIndex = max(startIndex, endIndex)
+            self._startIndexF = min(startIndexF, endIndexF)
+            self._endIndexF = max(startIndexF, endIndexF)
             self._oldLinkage = None
             self._colorL = colorL
             self._colorR = colorR
-
+    
         def redo(self):
-            # Clears {s.n, (s+1).np, ..., (e-1).np, e.p}
-            # Be warned, start index and end index become endpoints
-            # if this is called in the middle of a connected strand
+            # See docs/virtualhelix.pdf for a description of
+            # how each parameter is used.
             strand = self._vh._strand(self._strandType)
             ol = self._oldLinkage = []
-            startIdx = min(self._startIndex, self._endIndex)
-            endIdx = max(self._startIndex, self._endIndex)
             potentialNewEndpoints = []
-            if self._vh.directionOfStrandIs5to3(self._strandType):
-                for i in range(startIdx-1, endIdx):
-                    leftBase, rightBase = strand[i], strand[i+1]
-                    # Clear i.next
-                    potentialNewEndpoints.extend((leftBase, leftBase._3pBase))
-                    ol.append(leftBase._set3Prime(None))
-                    # Clear (i+1)prev
-                    potentialNewEndpoints.extend((rightBase._5pBase, rightBase))
-                    potentialNewEndpoints.append(rightBase._5pBase)
-                    ol.append(rightBase._set5Prime(None))
-            else:
-                for i in range(startIdx-1, endIdx):
-                    leftBase, rightBase = strand[i], strand[i+1]
-                    # Clear i.next
-                    potentialNewEndpoints.extend((leftBase, leftBase._5pBase))
-                    ol.append(leftBase._set5Prime(None))
-                    # Clear (i+1).prev
-                    potentialNewEndpoints.extend((rightBase._3pBase, rightBase))
-                    ol.append(rightBase._set3Prime(None))
-            erasedLoops = []
             loopDict = self._vh._loop(self._strandType)
             self.erasedLoopDictItems = {}
+            startIdxF = min(self._startIndexF, self._endIndexF)
+            endIdxF = max(self._startIndexF, self._endIndexF)
+            startFrac, startIdx = modf(startIdxF)
+            endFrac, endIdx = modf(endIdxF)
+            startIdx, endIdx = int(startIdx), int(endIdx)
+            self.clearedStartR, self.clearedEndL = False, False
+            if startFrac > .25:
+                if startFrac < .75:
+                    # startFrac in (.25, .75)
+                    self.clearedStartR = True
+                    startBase = strand[startIdx]
+                    potentialNewEndpoints.extend((startBase, startBase._RBase()))
+                    ol.append(startBase._setR(None))
+                    startIdx += 1
+                else:
+                    # startFrac in [.75, 1]
+                    startIdx += 1
+            else:   # startFrac in [0, .25]
+                pass
+            if endFrac < .75:
+                if endFrac > .25:
+                    # endFrac in (.25, .75)
+                    self.clearedEndL = True
+                    endBase = strand[endIdx]
+                    potentialNewEndpoints.extend((endBase, endBase._LBase()))
+                    ol.append(endBase._setL(None))
+                    endIdx -= 1
+                else:
+                    # endFrac in [0, .25]
+                    endIdx -= 1
+            else:   # endFrac in [.75, 1]
+                pass
+            # Now we've changed up startIdx and endIdx such that
+            # every base between and including startIdx and endIdx
+            # need to be completely cleared
+            self.startedIdx = startIdx
+            self.endedIdx = endIdx
+            for i in range(startIdx, endIdx + 1):
+                base = strand[i]
+                potentialNewEndpoints.extend((base, base._LBase()))
+                ol.append(base._setL(None))
+                potentialNewEndpoints.extend((base, base._RBase()))
+                ol.append(base._setR(None))
+            # Now determine which bases were left completely empty
+            # by this clear operation
             self.erasedSequenceItems = []
+            # All bases that got both L and R ptrs cleared must be
+            # empty
             firstEmptiedBase = startIdx
+            lastEmptiedBase = endIdx
+            # But any bases that just got L or just got R cleared
+            # might also have been emptied (it's OK to say bases
+            # got emptied that weren't actually emptied so long
+            # as they are empty)
             if strand[startIdx-1].isEmpty():
                 firstEmptiedBase -= 1
-            lastEmptiedBase = endIdx
             if strand[endIdx].isEmpty():
                 lastEmptiedBase += 1
-            for i in range(firstEmptiedBase, lastEmptiedBase):
+            # Now that we know which bases got emptied, clear the
+            # loops and sequences on those bases
+            self.firstEmptiedBase = firstEmptiedBase
+            self.lastEmptiedBase = lastEmptiedBase
+            for i in range(firstEmptiedBase, lastEmptiedBase+1):
                 if loopDict.get(i, None) != None:
                     self.erasedLoopDictItems[i] = loopDict[i]
                     del loopDict[i]
                 self.erasedSequenceItems.append(strand[i]._sequence)
                 strand[i]._sequence = " "
+            # Our list of potential endpoints has tons of duplicates
+            # and empty bases in it. First, remove the empty bases.
+            # Clearly, an empty base can't be an endpoint because
+            # neither of its pointers is linked to another base.
             isEndpt = lambda x: x!=None and x.isEnd()
             potentialNewEndpoints = list(filter(isEndpt, potentialNewEndpoints))
             newEndpts = []
+            # Deduplicate, taking advantage of the fact that the
+            # list of endpoints will be in order
             if len(potentialNewEndpoints):
                 newEndpts = [potentialNewEndpoints[0]]
                 for pe in potentialNewEndpoints[1:]:
                     if pe != newEndpts[-1]:
                         newEndpts.append(pe)
-            # Could filter out endpoints leading to the same strand if
-            # that becomes a performance issue for some reason
+            # Could filter out endpoints leading to the same set of
+            # connected bases if that becomes a performance issue
+            # but I don't anticipate it
             colorSubCommands = []
             for i in range(len(newEndpts)):
                 e = newEndpts[i]
@@ -1200,36 +1239,34 @@ class VirtualHelix(QObject):
                 colorSubCommands.append(c)
             self.colorSubCommands = colorSubCommands
             self._vh.emitBasesModifiedIfNeeded()
-
+    
         def undo(self):
             strand = self._vh._strand(self._strandType)
             ol = self._oldLinkage
             assert(ol != None)  # Must redo/apply before undo
-            startIdx = min(self._startIndex, self._endIndex)
-            endIdx = max(self._startIndex, self._endIndex)
-            firstEmptiedBase = startIdx
-            if strand[startIdx-1].isEmpty():
-                firstEmptiedBase -= 1
-            lastEmptiedBase = endIdx
-            if strand[endIdx].isEmpty():
-                lastEmptiedBase += 1
-            for c in reversed(self.colorSubCommands):
+            startIdxF = min(self._startIndexF, self._endIndexF)
+            endIdxF = max(self._startIndexF, self._endIndexF)
+            startFrac, startIdx = modf(startIdxF)
+            endFrac, endIdx = modf(endIdxF)
+            startIdx, endIdx = int(startIdx), int(endIdx)
+            for c in self.colorSubCommands:
                 c.undo()
-            if self._vh.directionOfStrandIs5to3(self._strandType):
-                for i in range(endIdx - 1, startIdx - 2, -1):
-                    strand[i+1]._unset5Prime(None, *ol.pop())
-                    strand[i]._unset3Prime(None, *ol.pop())
-            else:
-                for i in range(endIdx - 1, startIdx - 2, -1):
-                    strand[i+1]._unset3Prime(None, *ol.pop())
-                    strand[i]._unset5Prime(None, *ol.pop())
             loopDict = self._vh._loop(self._strandType)
-            for (k, v) in self.erasedLoopDictItems.iteritems():
+            for k, v in self.erasedLoopDictItems.iteritems():
                 loopDict[k] = v
-            for i in reversed(range(firstEmptiedBase, lastEmptiedBase)):
+            for i in reversed(range(self.firstEmptiedBase, self.lastEmptiedBase+1)):
                 strand[i]._sequence = self.erasedSequenceItems.pop()
+            for i in reversed(range(self.startedIdx, self.endedIdx + 1)):
+                base = strand[i]
+                base._unsetR(None, *ol.pop())
+                base._unsetL(None, *ol.pop())
+            if self.clearedEndL:
+                endBase = strand[endIdx]
+                endBase._unsetL(None, *ol.pop())
+            if self.clearedStartR:
+                startBase = strand[startIdx]
+                startBase._unsetR(None, *ol.pop())
             self._vh.emitBasesModifiedIfNeeded()
-
 
     class Connect3To5Command(QUndoCommand):
         def __init__(self, strandType, fromHelix, fromIndex, toHelix, toIndex, endToTakeColorFrom=3):
@@ -1291,7 +1328,6 @@ class VirtualHelix(QObject):
                 self._colorCommand2.undo()
             self._fromHelix.emitBasesModifiedIfNeeded()
 
-
     class Break3To5Command(QUndoCommand):
         def __init__(self, strandType, vhelix, index, endToKeepColor=3, newColor=None):
             super(VirtualHelix.Break3To5Command, self).__init__()
@@ -1328,7 +1364,6 @@ class VirtualHelix(QObject):
             base._vhelix.emitBasesModifiedIfNeeded()
             if self._colorCommand:
                 self._colorCommand.undo()
-
 
     class SetNumBasesCommand(QUndoCommand):
         def __init__(self, vhelix, newNumBases):

@@ -28,6 +28,9 @@ functionaltests.py
 Created by Shawn Douglas on 2011-06-28.
 """
 
+import sys
+sys.path.insert(0, '.')
+
 import time
 from PyQt4.QtCore import *
 from PyQt4.QtGui import *
@@ -72,4 +75,5 @@ class FunctionalTests(CadnanoGuiTestCase):
         self.assertEqual(1, 1)
 
 if __name__ == '__main__':
+    print "Running Functional Tests"
     test.cadnanoguitestcase.main()

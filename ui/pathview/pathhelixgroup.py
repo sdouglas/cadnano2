@@ -225,7 +225,6 @@ class PathHelixGroup(QGraphicsObject):
             leftmostExtent = min(leftmostExtent, -2 * phhr.width())
             rightmostExtent = max(rightmostExtent, ph.boundingRect().width())
             y += step
-            ph.positionInPhgChanged()
             ph.updatePreXOverHandles()
         # end for
         self.prepareGeometryChange()
@@ -246,6 +245,8 @@ class PathHelixGroup(QGraphicsObject):
             vhbm = vhbmCallbackCreator(self, ph.vhelix())
             ph.vhelix().basesModified.connect(vhbm)
         self._pathHelixes = newList
+        for ph in self._pathHelixes:
+            ph.positionInPhgChanged()
         self.vhToPathHelix = dict(((ph.vhelix(), ph) for ph in newList))
         self.scene().views()[0].zoomToFit()
 

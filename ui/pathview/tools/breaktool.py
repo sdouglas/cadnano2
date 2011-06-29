@@ -114,8 +114,6 @@ class BreakTool(AbstractPathTool):
             print "Won't clear endpoint(%s)/crossover(%s)"%(str(isEndpt), str(isXover))
             return  # don't try to break endpoints or crossovers
         if pathHelix.vhelix().directionOfStrandIs5to3(strandType):
-            pathHelix.vhelix().clearStrand(strandType, idx + 1, idx + 1,\
-                                           undoDesc="Break strand")
+            pathHelix.vhelix().legacyClearStrand(strandType, idx + 1, idx + 1)
         else:
-            pathHelix.vhelix().clearStrand(strandType, idx, idx,\
-                                           undoDesc="Break strand")
+            pathHelix.vhelix().legacyClearStrand(strandType, idx, idx)
