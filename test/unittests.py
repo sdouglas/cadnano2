@@ -36,7 +36,6 @@ from PyQt4.QtCore import *
 from PyQt4.QtGui import *
 import test.cadnanoguitestcase
 from test.cadnanoguitestcase import CadnanoGuiTestCase
-from cadnano import app as getAppInstance
 from model.enum import StrandType
 from model.virtualhelix import VirtualHelix
 

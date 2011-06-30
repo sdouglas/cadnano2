@@ -41,7 +41,6 @@ sys.path.insert(0, '.')
 import test.cadnanoguitestcase
 from test.cadnanoguitestcase import CadnanoGuiTestCase
 import time
-from cadnano import app as getAppInstance
 from model.virtualhelix import VirtualHelix
 from model.enum import StrandType
 

@@ -96,6 +96,10 @@ class FunctionalTests(CadnanoGuiTestCase):
         # time.sleep(1)  # Sleep for 1 seconds
         # self.debugHere()  # Stop simulation and give control to user
 
+    def testHang(self):
+        # this should cause the build to hang
+        self.debugHere()
+
 
 if __name__ == '__main__':
     print "Running Functional Tests"
