@@ -167,6 +167,12 @@ class PathHelixGroup(QGraphicsObject):
             if p.boundingRect().contains(pt):
                 return p
         return None
+    
+    def pathHelixForVHelix(self, vh):
+        for p in self._pathHelixes:
+            if p.vhelix() == vh:
+                return p
+        return None
 
     def displayedVHs(self):
         """Returns the list (ordered top to bottom) of VirtualHelix

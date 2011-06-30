@@ -52,6 +52,36 @@ class AddSeqTool(AbstractPathTool):
         self.vh = pathHelix.vhelix()
         self.strandType = strandType
         self.idx = idx
+    
+    def updateLocation(self, pathHelix, scenePos, *args):
+        AbstractPathTool.updateLocation(self, pathHelix, scenePos, *args)
+        if pathHelix == None:
+            return
+        posItem = self.parentItem().mapFromScene(scenePos)
+        strandType, baseIdx = self.baseAtPoint(pathHelix, posItem)
+        vh = pathHelix.vhelix()
+        if vh.hasLoopOrSkipAt(strandType, baseIdx) > 0:
+            newLoc = pathHelix.baseLocation(strandType, baseIdx)
+            if self.pos() != newLoc:
+                self.setPos(*newLoc)
+            if not self.isVisible():
+                self.show()
+        elif vh.hasEmptyAt(strandType, baseIdx):
+            if self.isVisible():
+                self.hide()
+        else:
+            fivePBase = pathHelix.vhelix().fivePEndOfSegmentThrough(strandType, baseIdx)
+            if fivePBase == None:
+                self.hide()
+            else:
+                vh, strandType, idx = fivePBase
+                phg = pathHelix.pathHelixGroup()
+                ph2 = phg.pathHelixForVHelix(vh)
+                fivePBaseLoc = QPointF(*ph2.baseLocation(strandType, idx))
+                fivePBaseLocSelfCoords = pathHelix.mapFromItem(ph2, fivePBaseLoc)
+                self.setPos(fivePBaseLocSelfCoords)
+                if not self.isVisible():
+                    self.show()
 
     @pyqtSlot(str)
     def userChoseSeq(self, optionChosen):

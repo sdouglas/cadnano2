@@ -417,6 +417,13 @@ class VirtualHelix(QObject):
         else:
             return base.isEnd()
 
+    def hasEmptyAt(self, strandType, index):
+        base = self._baseAt(strandType, index)
+        if not base:
+            return False
+        else:
+            return base.isEmpty()
+
     def getDragBound(self, strandType, index):
         base = self._baseAt(strandType, index)
         if not base:
@@ -574,7 +581,9 @@ class VirtualHelix(QObject):
     def _basesConnectedTo(self, strandType, idx):
         """
         Private because it returns a set of Base
-        objects
+        objects.
+        Returns [] if the base at strandType, idx is
+        empty
         """
         ret = []
         base = self._strand(strandType)[idx]
@@ -588,7 +597,8 @@ class VirtualHelix(QObject):
         # Move forward through the linked list,
         # adding bases to the (not linked) list
         # we will return
-        ret.append(base)
+        if not base.isEmpty():
+            ret.append(base)
         while base._hasNeighbor3p():
             neighbor = base._neighbor3p()
             if neighbor == startBase:
@@ -596,6 +606,13 @@ class VirtualHelix(QObject):
             ret.append(neighbor)
             base = neighbor
         return ret
+
+    def fivePEndOfSegmentThrough(self, strandType, idx):
+        bases = self._basesConnectedTo(strandType, idx)
+        if bases:
+            return (bases[0]._vhelix, bases[0]._strandtype, bases[0]._n)
+        else:
+            return None
 
     def sandboxed(self):
         return self._sandboxed
@@ -871,12 +888,6 @@ class VirtualHelix(QObject):
         else:
             c.redo()
         self.emitBasesModifiedIfNeeded()
-
-    def baseApplyToolWouldApplyTo(self, strandType, index):
-        """
-        Returns (vh, strandType, idx) that ...
-        """
-        pass
 
     def setFloatingXover(self, strandType=None, fromIdx=None, toPoint=None):
         """The floating crossover is a GUI hack that is the
