@@ -76,7 +76,10 @@ def doc_from_legacy_dict(obj):
         scaf= helix['scaf']
         vh = VirtualHelix(numBases=len(scaf), idnum=helix['num'])
         part.addVirtualHelixAt((row,col), vh, requestSpecificIdnum=helix['num'], noUndo=True)
+    helixNo, numHelixes = -1, len(obj['vstrands'])
     for helix in obj['vstrands']:
+        helixNo += 1
+        # print "helix %i/%i (%i%%)"%(helixNo, numHelixes, helixNo*100/numHelixes)
         vh = part.getVirtualHelix(helix['num'])
         scaf = helix['scaf']
         stap = helix['stap']
@@ -94,13 +97,13 @@ def doc_from_legacy_dict(obj):
             if threeVH==-1 or threeIdx==-1:
                 continue
             
-            vh.installXoverFrom3To5(StrandType.Scaffold, i, threeVH, threeIdx, undoStack=False)
+            vh.installXoverFrom3To5(StrandType.Scaffold, i, threeVH, threeIdx, undoStack=False, speedy=True)
         for i in range(len(stap)):
             fiveVH, fiveIdx, threeVH, threeIdx = stap[i]
             threeVH = part.getVirtualHelix(threeVH)
             if threeVH==-1 or threeIdx==-1:
                 continue
-            vh.installXoverFrom3To5(StrandType.Staple, i, threeVH, threeIdx, undoStack=False)
+            vh.installXoverFrom3To5(StrandType.Staple, i, threeVH, threeIdx, undoStack=False, speedy=True)
         for baseIdx, colorNumber in helix['stap_colors']:
             color = QColor((colorNumber>>16)&0xFF, (colorNumber>>8)&0xFF, colorNumber&0xFF)
             vh.applyColorAt(color, StrandType.Staple, baseIdx, undoStack=False)

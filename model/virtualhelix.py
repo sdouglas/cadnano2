@@ -780,23 +780,27 @@ class VirtualHelix(QObject):
         undoStack.endMacro()
 
     def installXoverFrom3To5(self, strandType, fromIndex, toVhelix, toIndex,\
-                             undoStack=True, endToTakeColorFrom=3):
+           undoStack=True, endToTakeColorFrom=3, speedy=False):
         """
         The from base must provide the 3' pointer, and to must provide 5'.
         undoStack==None  use self.undoStack()
         undoStack==False use no undo stack
+        The speedy option is for the importer in json_io which doesn't want
+        to deal with colors, segment lengths, etc at every intermediate
+        stage of the loading process (which calls installXover... for
+        *all* of its connections).
         """
         if undoStack == True:
             undoStack = self.undoStack()
         if undoStack:
             undoStack.beginMacro("Install Xover")
         c = self.Connect3To5Command(strandType, self, fromIndex, toVhelix,\
-                                    toIndex, endToTakeColorFrom)
+               toIndex, endToTakeColorFrom, speedy=speedy)
         if undoStack:
-            self.thoughtPolice(undoStack)  # Check for inconsistencies, fix one-base Xovers, etc
             undoStack.push(c)
-            toVhelix.thoughtPolice(undoStack=undoStack)
-            self.thoughtPolice(undoStack=undoStack)
+            if not speedy:
+                toVhelix.thoughtPolice(undoStack=undoStack)
+                self.thoughtPolice(undoStack=undoStack)
             undoStack.endMacro()
         else:
             c.redo()
@@ -1378,7 +1382,7 @@ class VirtualHelix(QObject):
             self._vh.emitBasesModifiedIfNeeded()
 
     class Connect3To5Command(QUndoCommand):
-        def __init__(self, strandType, fromHelix, fromIndex, toHelix, toIndex, endToTakeColorFrom=3):
+        def __init__(self, strandType, fromHelix, fromIndex, toHelix, toIndex, endToTakeColorFrom=3, speedy=False):
             super(VirtualHelix.Connect3To5Command, self).__init__()
             self._strandType = strandType
             self._fromHelix = fromHelix
@@ -1386,6 +1390,7 @@ class VirtualHelix(QObject):
             self._toHelix = toHelix
             self._toIndex = toIndex
             self._colorEnd = endToTakeColorFrom
+            self._speedy = speedy
 
         def redo(self):
             vh, strandType = self._fromHelix, self._strandType
@@ -1397,6 +1402,11 @@ class VirtualHelix(QObject):
             if fromB._vhelix.number()==3 and fromB._n==6:
                 print "!"
             self._undoDat = fromB._set3Prime(toB)
+            if self._speedy:
+                self._colorCommand = False
+                self._colorCommand1 = False
+                self._colorCommand2 = False
+                return
             if self._colorEnd == 3:
                 color = vh.colorOfBase(strandType, fromIdx)
             elif self._colorEnd == 5:
@@ -1432,7 +1442,8 @@ class VirtualHelix(QObject):
             toB = self._toHelix._strand(self._strandType)[self._toIndex]
             assert(self._undoDat)  # Must redo/apply before undo
             fromB._unset3Prime(toB, *self._undoDat)
-            self._colorCommand.undo()
+            if self._colorCommand != False:
+                self._colorCommand.undo()
             if self._colorCommand1:
                 self._colorCommand1.undo()
             if self._colorCommand2:
