@@ -188,9 +188,9 @@ class VirtualHelix(QObject):
                 self.undoStack().push(c)
         if newNumBases < oldNB:
             c0 = self.ClearStrandCommand(self, StrandType.Scaffold,\
-                                         oldNB-1, newNumBases-1)
+                                         oldNB-1, newNumBases)
             c1 = self.ClearStrandCommand(self, StrandType.Staple,\
-                                         oldNB-1, newNumBases-1)
+                                         oldNB-1, newNumBases)
             c2 = self.SetNumBasesCommand(self, newNumBases)
             if notUndoable:
                 c0.redo()
