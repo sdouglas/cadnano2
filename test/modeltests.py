@@ -84,7 +84,7 @@ class ModelTests(CadnanoGuiTestCase):
         vh.clearStrand(StrandType.Scaffold, 4, 4)
         vh.clearStrand(StrandType.Staple, 3, 5)
         self.assertEqual(repr(vh), '0 Scaffold: _,_ _,_ _,> <,> <,> <,> <,_ _,_\n0 Staple:   _,> <,> <,_ _,_ _,_ _,> <,> <,_')
-        
+
         vh.undoStack().undo()
         vh.undoStack().undo()
         self.assertEqual(repr(vh), '0 Scaffold: _,_ _,_ _,> <,> <,> <,> <,_ _,_\n0 Staple:   _,> <,> <,> <,> <,> <,> <,> <,_')

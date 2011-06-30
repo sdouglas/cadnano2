@@ -32,10 +32,11 @@ from PyQt4 import QtGui
 import pymel.core as pc
 import cadnano
 
+
 class CADnanoMaya(cadnano.CADnano):
     def __init__(self, argv):
         super(CADnanoMaya, self).__init__(argv)
-        
+
     def isInMaya(self):
         return True
 
@@ -45,21 +46,24 @@ class CADnanoMaya(cadnano.CADnano):
         selectedObjects = pc.ls(sl=True)
         pc.general.delete(selectedObjects)
 
-        pc.language.scriptJob( killAll=True)
+        pc.language.scriptJob(killAll=True)
         # set up the panel shading
         # mypanel = pc.windows.getPanel(underPointer=True)
-        # 
         # if mypanel == None or mypanel.name() == "":
         #     mypanel = pc.windows.getPanel(withFocus=True)
         # #end if
         # print "setting up panel: %s\n" % mypanel.name()
         # if pc.windows.modelEditor(mypanel.name(), query=True, exists=True):
-        #     pc.windows.modelEditor(mypanel.name(), edit=True, displayAppearance='smoothShaded',smoothWireframe=False)
+        #     pc.windows.modelEditor(mypanel.name(), edit=True,\
+        #                            displayAppearance='smoothShaded',\
+        #                            smoothWireframe=False)
         # end if
         #print pc.windows.paneLayout(paneUnderPointer=True,query=True)
         #[u'modelPanel4', u'modelPanel2', u'modelPanel3', u'modelPanel1']
-        # panels = pc.windows.paneLayout('viewPanes',query=True, childArray=True)
-        panels = [u'modelPanel4', u'modelPanel2', u'modelPanel3', u'modelPanel1']
+        # panels = pc.windows.paneLayout('viewPanes', query=True,\
+        #                                childArray=True)
+        panels = [u'modelPanel4', u'modelPanel2', u'modelPanel3',\
+                  u'modelPanel1']
         print panels
         for current in panels:
             if current != "":
@@ -68,8 +72,9 @@ class CADnanoMaya(cadnano.CADnano):
                                     displayAppearance='smoothShaded',\
                                     wireframeOnShaded=False,\
                                     smoothWireframe=False,\
-                                    rendererName=u'ogsRenderer') #rendererName=u'base_OpenGL_Renderer'
-                #print pc.windows.modelEditor(current, query=True, rendererList=True)
+                                    rendererName=u'ogsRenderer')
+                # print pc.windows.modelEditor(current, query=True,\
+                #                              rendererList=True)
                 print "setting up panel: %s\n" % current
             # end if
         # end for
