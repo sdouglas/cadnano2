@@ -97,6 +97,10 @@ class DNAPart(Part):
         self.virtualHelixAtCoordsChanged.connect(self.persistentDataChangedEvent)
         self.dimensionsWillChange.connect(self.persistentDataChangedEvent)
         self.dimensionsDidChange.connect(self.ensureActiveBaseIsWithinNewDims)
+    
+    def fsck(self):
+        for vh in self._numberToVirtualHelix.itervalues():
+            vh.fsck()
 
     def destroy(self):
         if self._selectAllBehavior == True:

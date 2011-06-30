@@ -93,6 +93,7 @@ def doc_from_legacy_dict(obj):
             # in our current model)
             if threeVH==-1 or threeIdx==-1:
                 continue
+            
             vh.installXoverFrom3To5(StrandType.Scaffold, i, threeVH, threeIdx, undoStack=False)
         for i in range(len(stap)):
             fiveVH, fiveIdx, threeVH, threeIdx = stap[i]

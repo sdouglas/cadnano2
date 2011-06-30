@@ -115,7 +115,7 @@ class Base(object):
         else:
             helixNum, baseNum = threeP.split(':')
             remoteVH = self._vhelix.part().getVirtualHelix(int(helixNum))
-            self._3pBase = remoteVH._strand(oppositeST)[int(baseNum)]
+            self._3pBase = remoteVH._strand(self._strandtype)[int(baseNum)]
         if fiveP == '_':
             self._5pBase = None
         elif fiveP == ('<' if fiveTo3 else '>'):
@@ -127,7 +127,7 @@ class Base(object):
         else:
             helixNum, baseNum = fiveP.split(':')
             remoteVH = self._vhelix.part().getVirtualHelix(int(helixNum))
-            self._5pBase = remoteVH._strand(oppositeST)[int(baseNum)]
+            self._5pBase = remoteVH._strand(self._strandtype)[int(baseNum)]
     
     def sequence(self):
         """
@@ -211,6 +211,8 @@ class Base(object):
     def _set5Prime(self, toBase):
         """Only VirtualHelix should call this method. Returns l
         such that self._unset5Prime(toBase, *l) undoes this command."""
+        if toBase:
+            assert(toBase._strandtype == self._strandtype)
         fromOld5, toOld3 = self._5pBase, None
         if fromOld5:
             fromOld5._3pBase = None
@@ -255,6 +257,8 @@ class Base(object):
     def _set3Prime(self, toBase):
         """Only VirtualHelix should call this method. Returns l
         such that self._unset5Prime(toBase, *l) undoes this command."""
+        if toBase:
+            assert(toBase._strandtype == self._strandtype)
         fromOld3, toOld5 = self._3pBase, None
         if fromOld3:
             fromOld3._5pBase = None

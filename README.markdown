@@ -74,3 +74,6 @@ in the value of the environment variable) instead of a blank document.
 ### CADNANO_NO_THOUGHTPOLICE
 Allow single base crossovers (and whatever other things the thoughtPolice() method
 of VirtualHelix disallows)
+### CADNANO_FSCK_AFTER_SELECT_TOOL_USE
+Every time the mouse is released while in Select or Pencil mode and over a PathHelix
+, fsck() is called on the frontmost part.

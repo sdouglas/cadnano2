@@ -103,6 +103,39 @@ class VirtualHelix(QObject):
             numBases = len(re.split('\s+',\
                                     incompleteArchivedDict['staple'])) - 1
         self.setNumBases(numBases, notUndoable=True)
+    
+    def fsck(self):
+        for strandType in (StrandType.Scaffold, StrandType.Staple):
+            for b in self._strand(strandType):
+                if b._neighbor3p():
+                    neighbor = b._neighbor3p()
+                    if not neighbor._neighbor5p() == b:
+                        print "Doubly Linked List broken at VH %i, %s strand, base %i, 3p"\
+                              %(self.number(),\
+                                "scaf" if strandType == StrandType.Scaffold else "stap",\
+                                b._n)
+                    correctNeighborForCoords = neighbor._vhelix._strand(neighbor._strandtype)[neighbor._n]
+                    if neighbor != correctNeighborForCoords:
+                        print "3p neighbor of base at VH %i, %s strand, base %i is\
+                               not the base it claims to be"\
+                               %(self.number(),\
+                                 "scaf" if strandType == StrandType.Scaffold else "stap",\
+                                 b._n)
+                # end if b._neighbor3p()
+                if b._neighbor5p():
+                    neighbor = b._neighbor5p()
+                    if not neighbor._neighbor3p() == b:
+                        print "Doubly Linked List broken at VH %i, %s strand, base %i, 5p"\
+                              %(self.number(),\
+                                "scaf" if strandType == StrandType.Scaffold else "stap",\
+                                b._n)
+                    correctNeighborForCoords = neighbor._vhelix._strand(neighbor._strandtype)[neighbor._n]
+                    if neighbor != correctNeighborForCoords:
+                        print "5p neighbor of base at VH %i, %s strand, base %i is\
+                               not the base it claims to be"\
+                               %(self.number(),\
+                                 "scaf" if strandType == StrandType.Scaffold else "stap",\
+                                 b._n)
 
     def __str__(self):
         return 'vh%i' % self.number()
@@ -1334,6 +1367,8 @@ class VirtualHelix(QObject):
             toB = self._toHelix._strand(strandType)[toIdx]
             old3p = fromB._3pBase
             old5p = toB._5pBase
+            if fromB._vhelix.number()==3 and fromB._n==6:
+                print "!"
             self._undoDat = fromB._set3Prime(toB)
             if self._colorEnd == 3:
                 color = vh.colorOfBase(strandType, fromIdx)

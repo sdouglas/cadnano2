@@ -28,7 +28,7 @@ Created by Nick Conway on 2011-05-30.
 """
 
 from abstractpathtool import AbstractPathTool
-import util
+import util, os
 # import Qt stuff into the module namespace with PySide, PyQt4 independence
 util.qtWrapImport('QtCore', globals(), ['Qt', 'QPointF'] )
 util.qtWrapImport('QtGui', globals(), [ 'QPen', 'QColor'] )
@@ -164,6 +164,8 @@ class SelectTool(AbstractPathTool):
 
     def mouseReleasePathHelix(self, ph, event):
         self.finalizeMouseDrag()
+        if os.environ.get('CADNANO_FSCK_AFTER_SELECT_TOOL_USE', False):
+            ph.vhelix().part().fsck()
 
     # Unused events should be forwarded to other items
     # (in particular, to ActiveSliceHandle)

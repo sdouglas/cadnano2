@@ -44,6 +44,10 @@ class Document(QObject):
         self._parts = []
         self._selectedPart = None
         self._controller = None
+    
+    def fsck(self):
+        for p in self._parts:
+            p.fsck()
 
     def controller(self):
         return self._controller
