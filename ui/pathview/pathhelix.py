@@ -42,8 +42,8 @@ from ui.svgbutton import SVGButton
 import util
 # import Qt stuff into the module namespace with PySide, PyQt4 independence
 util.qtWrapImport('QtCore', globals(), ['Qt', 'QRect', 'QLine', 'QRectF',\
-                                        'QPointF', 'QPoint', 'pyqtSlot',
-                                        'SLOT'])
+                                        'QPointF', 'QPoint', 'pyqtSlot',\
+                                        'QEvent', 'SLOT'])
 util.qtWrapImport('QtGui', globals(), ['QBrush', 'QColor', 'QFont',\
                                        'QGraphicsObject', 'QFontMetricsF',\
                                        'QGraphicsSimpleTextItem',\
@@ -560,6 +560,17 @@ class PathHelix(QGraphicsObject):
         if centerY:
             y += self.baseWidth / 2
         return (x, y)
+
+    def sceneEvent(self, event):
+        """Included for unit testing in order to grab events that are sent
+        via QGraphicsScene.sendEvent()."""
+        if event.type() == QEvent.MouseButtonPress:
+            self.mousePressEvent(event)
+            return True
+        QGraphicsObject.sceneEvent(self, event)
+        return False
+
+
 # end class
 # but wait, there's more! Now, for Events
 # which can be more easily installed with less code duplication

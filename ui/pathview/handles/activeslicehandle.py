@@ -33,9 +33,9 @@ import util
 # import Qt stuff into the module namespace with PySide, PyQt4 independence
 util.qtWrapImport('QtCore', globals(), ['QPointF', 'QRectF', 'Qt', 'QObject',\
                                         'pyqtSignal', 'pyqtSlot', 'QEvent'])
-util.qtWrapImport('QtGui', globals(), [ 'QBrush', 'QFont', 'QGraphicsItem',\
-                                        'QGraphicsSimpleTextItem', 'QPen',\
-                                        'QDrag', 'QUndoCommand'] )
+util.qtWrapImport('QtGui', globals(), ['QBrush', 'QFont', 'QGraphicsItem',\
+                                       'QGraphicsSimpleTextItem', 'QPen',\
+                                       'QDrag', 'QUndoCommand'])
 
 
 class ActiveSliceHandle(QGraphicsItem):

@@ -79,11 +79,10 @@ class FunctionalTests(CadnanoGuiTestCase):
         self.click(slicehelix1, qgraphicsscene=self.mainWindow.slicescene)
         self.click(slicehelix2, qgraphicsscene=self.mainWindow.slicescene)
 
-        # Click the activeSliceHandle (with modifiers!)
+        # Click the activeSliceHandle with ALT and SHIFT modifiers
         pathHelixGroup = self.documentController.pathHelixGroup
         activeSliceHandle = pathHelixGroup.activeSliceHandle()
-        self.click(activeSliceHandle,\
-                   modifiers=self.ALT|self.SHIFT,\
+        self.click(activeSliceHandle, modifiers=self.ALT|self.SHIFT,\
                    qgraphicsscene=self.mainWindow.pathscene)
 
         # Check the model for correctness
@@ -93,8 +92,46 @@ class FunctionalTests(CadnanoGuiTestCase):
         str1 = "1 Scaffold: _,> <,> <,> <,> <,> <,> <,> <,> <,> <,> <,> <,> <,> <,> <,> <,> <,> <,> <,> <,> <,> <,> <,> <,> <,> <,> <,> <,> <,> <,> <,> <,> <,> <,> <,> <,> <,> <,> <,> <,> <,> <,_\n1 Staple:   _,_ _,_ _,_ _,_ _,_ _,_ _,_ _,_ _,_ _,_ _,_ _,_ _,_ _,_ _,_ _,_ _,_ _,_ _,_ _,_ _,_ _,_ _,_ _,_ _,_ _,_ _,_ _,_ _,_ _,_ _,_ _,_ _,_ _,_ _,_ _,_ _,_ _,_ _,_ _,_ _,_ _,_"
         self.assertEqual(repr(vh0), str0)
         self.assertEqual(repr(vh1), str1)
-        # time.sleep(1)  # Sleep for 1 seconds
+
+    def testEndpointAltClick(self):
+        # Create a new Honeycomb part
+        newHoneycombPartButton = self.mainWindow.topToolBar.widgetForAction(\
+                                       self.mainWindow.actionNewHoneycombPart)
+        self.click(newHoneycombPartButton)
+
+        # Click each SliceHelix
+        sliceGraphicsItem = self.documentController.sliceGraphicsItem
+        slicehelix1 = sliceGraphicsItem.getSliceHelixByCoord(0, 0)
+        slicehelix2 = sliceGraphicsItem.getSliceHelixByCoord(0, 1)
+        self.click(slicehelix1, qgraphicsscene=self.mainWindow.slicescene)
+        self.click(slicehelix2, qgraphicsscene=self.mainWindow.slicescene)
+
+        # Click the path helices with the ALT modifier
+        pathHelixGroup = self.documentController.pathHelixGroup
+        ph0 = pathHelixGroup.getPathHelix(0)
+        ph1 = pathHelixGroup.getPathHelix(1)
+        self.click(ph0, position=QPoint(410, 10),\
+                        modifiers=self.ALT,\
+                        qgraphicsscene=self.mainWindow.pathscene)
+        self.click(ph0, position=QPoint(450, 10),\
+                        modifiers=self.ALT,\
+                        qgraphicsscene=self.mainWindow.pathscene)
+        self.click(ph1, position=QPoint(410, 30),\
+                        modifiers=self.ALT,\
+                        qgraphicsscene=self.mainWindow.pathscene)
+        self.click(ph1, position=QPoint(450, 30),\
+                        modifiers=self.ALT,\
+                        qgraphicsscene=self.mainWindow.pathscene)
+
+        # Check the model for correctness
+        vh0 = self.app.v[0]
+        vh1 = self.app.v[1]
+        str0 = "0 Scaffold: _,> <,> <,> <,> <,> <,> <,> <,> <,> <,> <,> <,> <,> <,> <,> <,> <,> <,> <,> <,> <,> <,> <,> <,> <,> <,> <,> <,> <,> <,> <,> <,> <,> <,> <,> <,> <,> <,> <,> <,> <,> <,_\n0 Staple:   _,_ _,_ _,_ _,_ _,_ _,_ _,_ _,_ _,_ _,_ _,_ _,_ _,_ _,_ _,_ _,_ _,_ _,_ _,_ _,_ _,_ _,_ _,_ _,_ _,_ _,_ _,_ _,_ _,_ _,_ _,_ _,_ _,_ _,_ _,_ _,_ _,_ _,_ _,_ _,_ _,_ _,_"
+        str1 = "1 Scaffold: _,> <,> <,> <,> <,> <,> <,> <,> <,> <,> <,> <,> <,> <,> <,> <,> <,> <,> <,> <,> <,> <,> <,> <,> <,> <,> <,> <,> <,> <,> <,> <,> <,> <,> <,> <,> <,> <,> <,> <,> <,> <,_\n1 Staple:   _,_ _,_ _,_ _,_ _,_ _,_ _,_ _,_ _,_ _,_ _,_ _,_ _,_ _,_ _,_ _,_ _,_ _,_ _,_ _,_ _,_ _,_ _,_ _,_ _,_ _,_ _,_ _,_ _,_ _,_ _,_ _,_ _,_ _,_ _,_ _,_ _,_ _,_ _,_ _,_ _,_ _,_"
+        self.assertEqual(repr(vh0), str0)
+        self.assertEqual(repr(vh1), str1)
         # self.debugHere()  # Stop simulation and give control to user
+
 
 
 if __name__ == '__main__':

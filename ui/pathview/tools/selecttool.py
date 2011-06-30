@@ -29,9 +29,11 @@ Created by Nick Conway on 2011-05-30.
 
 from abstractpathtool import AbstractPathTool
 import util
+
 # import Qt stuff into the module namespace with PySide, PyQt4 independence
-util.qtWrapImport('QtCore', globals(), ['Qt', 'QPointF'] )
-util.qtWrapImport('QtGui', globals(), [ 'QPen', 'QColor'] )
+util.qtWrapImport('QtCore', globals(), ['Qt', 'QPointF'])
+util.qtWrapImport('QtGui', globals(), ['QPen', 'QColor'])
+
 
 class SelectTool(AbstractPathTool):
     """
@@ -51,8 +53,9 @@ class SelectTool(AbstractPathTool):
 
     NoOperation = 0
     ConnectStrand = 1
-    ClearStrand   = 2
-    RemoveXOver   = 3
+    ClearStrand = 2
+    RemoveXOver = 3
+
     def paintOp(self, painter, op, rightSide, topStrand, baseW):
         if op == self.NoOperation:
             painter.setPen(Qt.NoPen)
@@ -92,9 +95,11 @@ class SelectTool(AbstractPathTool):
         if not self.drawActionPreview:
             return
 
-        opL, offsLL, offsLR = self.operationForDraggingInDirectionFromBase(-1, (vh, base[0], base[1]))
-        opR, offsRL, offsRR = self.operationForDraggingInDirectionFromBase(1, (vh, base[0], base[1]))
-        
+        opL, offsLL, offsLR = self.operationForDraggingInDirectionFromBase(-1,\
+                                                        (vh, base[0], base[1]))
+        opR, offsRL, offsRR = self.operationForDraggingInDirectionFromBase(1,\
+                                                        (vh, base[0], base[1]))
+
         painter.save()
         self.paintOp(painter, opL, False, topStrand, ph.baseWidth)
         self.paintOp(painter, opR, True, topStrand, ph.baseWidth)
@@ -115,22 +120,31 @@ class SelectTool(AbstractPathTool):
         self._mouseDownBase = ph.baseAtLocation(event.pos().x(),\
                                                 self._mouseDownY)
 
-        # Shift to merge bases - carryover from 1.0 (also, WTF?)
-        if (event.modifiers()&Qt.ShiftModifier) and self._mouseDownBase:
+        # Shift to merge bases - carryover from 1.0
+        if (event.modifiers() & Qt.ShiftModifier) and self._mouseDownBase:
             strand, idx = self._mouseDownBase
             vh = ph.vhelix()
             if vh.hasEndAt(strand, idx):
-                if idx>0 and vh.hasEndAt(strand, idx-1):
+                if idx > 0 and vh.hasEndAt(strand, idx-1):
                     vh.connectStrand(strand, idx-1, idx)
-                if idx<vh.numBases()-1 and vh.hasEndAt(strand, idx+1):
+                if idx < vh.numBases()-1 and vh.hasEndAt(strand, idx+1):
                     vh.connectStrand(strand, idx+1, idx)
                 self._mouseDownBase = None  # Cancel drag op
                 return
 
+        # Alt to extend bases - carryover from 1.0
+        if (event.modifiers() & Qt.AltModifier) and self._mouseDownBase:
+            strand, idx = self._mouseDownBase
+            vh = ph.vhelix()
+            if vh.hasEndAt(strand, idx):
+                vh.autoDragToBoundary(strand, idx)
+            self._mouseDownBase = None  # Cancel drag op
+            return
+
         # Begin a drag operation
         self._mouseDownPH = ph
         ph.scene().views()[0].addToPressList(ph)
-        
+
         if not self._mouseDownBase:
             return
         vh = ph.vhelix()
@@ -155,7 +169,9 @@ class SelectTool(AbstractPathTool):
         if self._mouseDownBase == None:
             return
         vh = ph.vhelix()
-        newBase = ph.baseAtLocation(event.pos().x(), self._mouseDownY, clampX=True)
+        newBase = ph.baseAtLocation(event.pos().x(),\
+                                    self._mouseDownY,\
+                                    clampX=True)
         if self._mouseDownBase and newBase:
             if self._lastValidBase != newBase:
                 self._lastValidBase = newBase
@@ -200,19 +216,18 @@ class SelectTool(AbstractPathTool):
     # Why add the layer of indirection between operationForDragging...
     # and applyTool? So that we can query for the operation that *would*
     # be performed without actually performing it.
-    #NoOperation = 0
-    #ConnectStrand = 1
-    #ClearStrand   = 2
-    #RemoveXOver   = 3
     def operationForDraggingInDirectionFromBase(self, dragDir, base):
-        """ direction: 1 for dragging right, -1 for left, 0 for staying on the same base
-            base: a base specifier in the form (virtualHelix, strandType, baseIndex)
-            return value: (self.ConnectStrand or self.ClearStrand, fromIdxOffset, toIdxOffset)
-              add fromIdxOffset, toIdxOffset to fromIndex, toIndex to get the extents for the
-              actual operation
+        """
+        dragDir: 1 for dragging right, -1 for left, 0 for staying on the
+        same base.
+        base: a specifier in the form (virtualHelix, strandType, baseIndex)
+        return value:
+        (self.ConnectStrand or self.ClearStrand, fromIdxOffset, toIdxOffset)
+
+        Add fromIdxOffset and toIdxOffset to fromIndex and toIndex,
+        respectively, to get the extents for the actual operation.
         """
         vHelix, strandType, baseIdx = base
-        
         startBaseHasLNeighbor = vHelix.hasNeighborL(strandType, baseIdx)
         startBaseHasRNeighbor = vHelix.hasNeighborR(strandType, baseIdx)
         if startBaseHasLNeighbor and (not startBaseHasRNeighbor):
@@ -224,7 +239,7 @@ class SelectTool(AbstractPathTool):
         else:
             # base is not at one end of a segment
             segmentDir = 0
-            
+
         startBaseHasLCrossover = vHelix.hasCrossoverL(strandType, baseIdx)
         startBaseHasRCrossover = vHelix.hasCrossoverR(strandType, baseIdx)
 
