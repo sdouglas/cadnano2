@@ -49,7 +49,7 @@ util.qtWrapImport('QtGui', globals(), ['QBrush', 'QColor', 'QFont',\
                                        'QGraphicsSimpleTextItem',\
                                        'QPainter', 'QPainterPath', 'QPen',\
                                        'QDrag', 'QPolygonF', 'QUndoCommand',
-                                       'QInputDialog'])
+                                       'QInputDialog', 'QGraphicsItem'])
 
 baseWidth = styles.PATH_BASE_WIDTH
 ppL5 = QPainterPath()  # Left 5' PainterPath
@@ -148,6 +148,8 @@ class PathHelix(QGraphicsObject):
         self.removeBasesButton = SVGButton(":/pathtools/remove-bases", self)
         self.removeBasesButton.clicked.connect(self.removeBasesClicked)
         self.setVHelix(vhelix)
+        self.setFlag(QGraphicsItem.ItemUsesExtendedStyleOption)
+        self.setPreXOverHandlesVisible(False)
         if app().ph != None:  # Convenience for the command line -i mode
             app().ph[vhelix.number()] = self
     # end def
@@ -326,6 +328,8 @@ class PathHelix(QGraphicsObject):
         # cache the paths and that those caches are
         # invalidated as the primary mechanism
         # of updating after a change in vhelix's bases
+        if not self.boundingRect().intersects(option.exposedRect):
+            return
         painter.save()
         painter.setBrush(self.nobrush)
         painter.setPen(self.minorGridPen)
