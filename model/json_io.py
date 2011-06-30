@@ -69,7 +69,7 @@ def doc_from_legacy_dict(obj):
     part.setName(obj["name"])
     #self.addVirtualHelixAt(coord, vh, requestSpecificIdnum=num, noUndo=True)
     numBases = len(obj['vstrands'][0]['scaf'])
-    part.setDimensions((60, 32, numBases))
+    part.setDimensions((30, 32, numBases))
     for helix in obj['vstrands']:
         row = helix['row']
         col = helix['col']
