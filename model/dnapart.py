@@ -50,6 +50,11 @@ class DNAPart(Part):
             * basesModified was emitted by some child VH
         selectionWillChange()
     """
+    # object 1 is the tuple (3 prime vhelix, index), 
+    # object 2 is the (5 prime vhelix, index)
+    # int is the strandtype
+    createXover = pyqtSignal(object,object, int)
+    
     _selectAllBehavior = True  # Always select all helices in part
     # Bases are always added and removed in multiples of the
     # addition/removal unit
@@ -77,7 +82,7 @@ class DNAPart(Part):
         self._scaffolds = []
         self._selection = list()
         self._coordToVirtualHelix = {}  # (row,col) -> VirtualHelix
-
+        
         # Abstract
         if self._selectAllBehavior:
             self.virtualHelixAtCoordsChanged.connect(self.updateSelectionFromVHChange)
@@ -94,6 +99,7 @@ class DNAPart(Part):
         self.numTimesStrandLengthsRecalcd = 0
 
         # Event propagation
+        
         self.virtualHelixAtCoordsChanged.connect(self.persistentDataChangedEvent)
         self.dimensionsWillChange.connect(self.persistentDataChangedEvent)
         self.dimensionsDidChange.connect(self.ensureActiveBaseIsWithinNewDims)

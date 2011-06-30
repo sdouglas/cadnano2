@@ -1539,8 +1539,17 @@ class VirtualHelix(QObject):
                     ret.append([neighbor, index])
         return ret
 
-    def crossoverAt(self, strandType, fromIndex, neighbor, toIndex):
-        return
+    def isaXover(self, fromIndex, toVH, toIndex, strandType):
+        """
+        Always from 3 prime to 5 prime
+        """
+        strandFrom = self._strand(strandType)
+        strandTo = toVH._strand(strandType)
+        if strandFrom[fromIndex].get3pBase() == strandTo[toIndex] and \
+            strandFrom[fromIndex] == strandTo[toIndex].get5pBase():
+            return True
+        else:
+            return False
 
     def scaffoldBase(self, index):
         """docstring for scaffoldBase"""

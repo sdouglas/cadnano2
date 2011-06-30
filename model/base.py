@@ -30,7 +30,6 @@ from random import Random
 import ui.styles as styles
 prng = Random()
 
-from PyQt4.QtGui import QColor
 import util
 # import Qt stuff into the module namespace with PySide, PyQt4 independence
 util.qtWrapImport('QtGui', globals(), [ 'QColor'])
@@ -231,6 +230,7 @@ class Base(object):
             toBase._vhelix.setHasBeenModified()
         part = self._vhelix.part()
         if part:
+            self.isXoverCreated5p([self])
             part.basesModified.add(self)
             part.basesModified.add(toOld3)
             part.basesModified.add(fromOld5)
@@ -249,6 +249,7 @@ class Base(object):
             toBase._vhelix.setHasBeenModified()
         part = self._vhelix.part()
         if part:
+            self.isXoverCreated5p([fromOld5, toOld3])
             part.basesModified.add(self)
             part.basesModified.add(toOld3)
             part.basesModified.add(fromOld5)
@@ -276,6 +277,7 @@ class Base(object):
             toBase._vhelix.setHasBeenModified()
         part = self._vhelix.part()
         if part:
+            self.isXoverCreated3p([self])
             part.basesModified.add(self)
             part.basesModified.add(toOld5)
             part.basesModified.add(fromOld3)
@@ -295,10 +297,37 @@ class Base(object):
             toBase._vhelix.setHasBeenModified()
         part = self._vhelix.part()
         if part:
+            self.isXoverCreated3p([toOld5,fromOld3])
             part.basesModified.add(self)
             part.basesModified.add(toOld5)
             part.basesModified.add(fromOld3)
         self._vhelix.setHasBeenModified()
+    # end def
+    
+    
+    def isXoverCreated3p(self, bases):
+        # print "I got called 3"
+        for base in bases:
+            if base != None:
+                if base._hasCrossover3p(): # that means base is a 5 prime end
+                    # emit 3 prime to 5 prime
+                    # print "I emitted 3"
+                    self._vhelix.part().createXover.emit((base.vhelix(), base._n) ,\
+                                                        (base._3pBase.vhelix(), base._3pBase._n), \
+                                                        base._strandtype )
+                    break
+                    
+    def isXoverCreated5p(self, bases):
+        # print "I got called 5"
+        for base in bases:
+            if base != None:
+                if base._hasCrossover5p(): # that means base is a 3 prime end
+                    # emit 3 prime to 5 prime
+                    # print "I emitted 5"
+                    self._vhelix.part().createXover.emit((base._5pBase.vhelix(), base._5pBase._n) , \
+                                                        (base.vhelix(), base._n), \
+                                                        base._strandtype )
+                    break
 
     def vhelix(self):
         return self._vhelix
@@ -379,9 +408,9 @@ class Base(object):
         boundaries, e.g. in vh.autoDragAllBreakpoints"""
         strnd = self._vhelix._strand(self._strandtype)
         if self._vhelix.directionOfStrandIs5to3(self._strandtype):
-            return strnd[self._n-1] if self._n>0 else None
+            return strnd[self._n-1] if self._n > 0 else None
         else:
-            return strnd[self._n+1] if self._n<len(strnd)-1 else None
+            return strnd[self._n+1] if self._n < len(strnd)-1 else None
 
     def _natNeighbor3p(self):
         """Useful for accessing the natural 3' neighbor when calculating drag

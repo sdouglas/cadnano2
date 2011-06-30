@@ -27,6 +27,7 @@ from cadnano import app
 from idbank import IdBank
 from model.document import Document
 from model.encoder import encode
+from model.enum import StrandType
 from .documentwindow import DocumentWindow
 from pathview.pathhelixgroup import PathHelixGroup
 from sliceview.honeycombslicegraphicsitem import HoneycombSliceGraphicsItem
@@ -151,6 +152,11 @@ class DocumentController():
 
     def openClicked(self):
         """docstring for openClicked"""
+        
+        self.filesavedialog = None
+        self.openFile('/Users/nick/Downloads/nanorobot.v2.json')
+        return
+        
         if util.isWindows(): # required for native looking file window
             fname = QFileDialog.getOpenFileName(None, "Open Document", "/",\
                         "CADnano1 / CADnano2 Files (*.cn2 *.json *.cadnano)")
@@ -174,7 +180,7 @@ class DocumentController():
             fname = selected[0]
         else:
             fname = selected
-        if fname.isEmpty() or os.path.isdir(fname):
+        if not fname or os.path.isdir(fname):
             return False
         fname = str(fname)
         doc = decode(file(fname).read())
@@ -289,6 +295,16 @@ class DocumentController():
                      self.pathHelixGroup.activeSliceHandle().moveToFirstSlice)
         self.win.pathController.setActivePath(self.pathHelixGroup)
 
+        for vh in part.getVirtualHelices():
+            xos = vh.get3PrimeXovers(StrandType.Scaffold)
+            for xo in xos:
+                self.pathHelixGroup.createXoverItem(xo[0], xo[1], StrandType.Scaffold)
+            xos = vh.get3PrimeXovers(StrandType.Staple)
+            for xo in xos:
+                self.pathHelixGroup.createXoverItem(xo[0], xo[1], StrandType.Staple)
+        # end for
+    # end def
+    
     def addHoneycombHelixGroup(self):
         """Adds a honeycomb DNA part to the document. Dimensions are set by
         the Document addDnaHoneycombPart method."""

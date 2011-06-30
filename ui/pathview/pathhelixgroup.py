@@ -33,7 +33,7 @@ from cadnano import app
 from handles.activeslicehandle import ActiveSliceHandle
 from handles.pathhelixhandle import PathHelixHandle
 from handles.pathhelixhandle import PathHelixHandle
-from handles.crossoverhandle import XoverHandle
+from handles.crossoverhandle import XoverHandlePair
 from handles.loophandle import LoopHandleGroup
 from model.enum import EndType, LatticeType, StrandType
 from .pathhelix import PathHelix
@@ -88,15 +88,14 @@ class PathHelixGroup(QGraphicsObject):
         self._stapColor = QColor(0, 72, 0)
         self._stapPen = QPen(self._stapColor, 2)
         self.loopHandleGroup = LoopHandleGroup(parent=self)
-        # Dummy object just for drawing xovers as a child
-        self.xo = self.XOverPainter(phg=self)
-        self.xoverGet = XoverHandle()
+        
+        self.xovers = {}
+        
         self.setZValue(styles.ZPATHHELIXGROUP)
         self.selectionLock = None
         self.setAcceptHoverEvents(True)
         app().phg = self  # Convenience for the command line -i mode
         self._part.partRemoved.connect(self.destroy)  # connect destructor
-        
         
     def destroy(self):
         self._part.partRemoved.disconnect(self.destroy)
@@ -134,9 +133,11 @@ class PathHelixGroup(QGraphicsObject):
         if self._part:
             self._part.selectionWillChange.disconnect(self.selectionWillChange)
             self._part.dimensionsDidChange.disconnect(self.partDimensionsChanged)
+            self._part.createXover.disconnect(self.createXoverItem)
         if newPart:
             newPart.selectionWillChange.connect(self.selectionWillChange)
             newPart.dimensionsDidChange.connect(self.partDimensionsChanged)
+            newPart.createXover.connect(self.createXoverItem)
         self._part = newPart
         if newPart:
             self.selectionWillChange(newPart.selection())
@@ -160,6 +161,21 @@ class PathHelixGroup(QGraphicsObject):
     #     label.inputMethodEvent = None
     #     self._label = label
     #     return label
+
+    # @pyqtSlot(object, object, int)
+    def createXoverItem(self, Base3p, Base5p, strandtype):
+        """
+        Base3p is the tuple (3 prime vhelix, index), 
+        Base5p is the (5 prime vhelix, index)
+        strandtype is Strandtype.Scaffold or Strandtype.Staple
+        """
+        key = (Base3p, Base5p)
+        if not key in self.xovers:
+            self.xovers[key] = XoverHandlePair( self, \
+                                                Base3p[0], Base3p[1], \
+                                                Base5p[0],  Base3p[1], \
+                                                strandtype)
+    # end def
 
     def pathHelixAtScenePos(self, pos):
         for p in self._pathHelixes:
@@ -267,85 +283,6 @@ class PathHelixGroup(QGraphicsObject):
 
     def paint(self, painter, option, widget=None):
         pass
-        
-    class XOverPainter(QGraphicsItem):
-        """
-        This class lets us draw crossovers as a child below pathhelixgroup
-        """
-        def __init__(self, phg):
-            "this sets the parent object to the phg"
-            super(PathHelixGroup.XOverPainter, self).__init__(parent=phg)
-            self.setZValue(styles.ZXOVERHANDLEPAIR)
-            self.phg = phg
-            self.rect = QRectF()
-            self.phg.geometryChanged.connect(self.prepareGeometryChange)
-        # end def
-
-        def paint(self, painter, option, widget=None):
-            # painter.save()
-            painter.setBrush(Qt.NoBrush)
-            self.drawXovers(painter)
-            # painter.restore()
-
-        def boundingRect(self):
-            # rect set only by _setPathHelixList
-            return self.phg.boundingRect()
-
-        def drawXovers(self, painter):
-            """Return a QPainterPath ready to paint the crossovers"""
-            for ph in self.phg._pathHelixList():
-                for strandType in (StrandType.Scaffold, StrandType.Staple):
-                    for ((fromhelix, fromindex), dest) in \
-                                     ph.vhelix().get3PrimeXovers(strandType):
-                        if type(dest) in (list, tuple):
-                            toVH, toStrandType, toIndex = dest
-                            toPH = self.phg.getPathHelix(toVH)
-                            floatPos = None
-                        else:
-                            toPH, toStrandType, toIndex = None, None, None
-                            floatPos = dest
-                        path = self.phg.xoverGet.getXover(self.phg,\
-                                                        strandType,\
-                                                        ph,\
-                                                        fromindex,\
-                                                        toPH,\
-                                                        toStrandType,\
-                                                        toIndex,\
-                                                        floatPos)
-                        # draw the line
-                        # reload scaffold strand pen
-                        if strandType == StrandType.Scaffold:
-                            pen = self.phg._scafPen
-                        else:
-                            pen = QPen(self.phg._stapPen)
-                            color = QColor(ph.vhelix().colorOfBase(strandType, fromindex))
-                            oligoLength = ph.vhelix().numberOfBasesConnectedTo(strandType, fromindex)
-                            if oligoLength > styles.oligoLenAboveWhichHighlight or\
-                               oligoLength < styles.oligoLenBelowWhichHighlight:
-                                pen.setWidth(styles.PATH_STRAND_HIGHLIGHT_STROKE_WIDTH)
-                                color.setAlpha(128)
-                            else:
-                                pen.setWidth(styles.PATH_STRAND_STROKE_WIDTH)
-                                color.setAlpha(255)
-                            pen.setColor(color)
-                        painter.setPen(pen)
-                        painter.drawPath(path[0])
-
-                        # draw labels
-                        painter.setPen(QPen(styles.XOVER_LABEL_COLOR))
-                        painter.setFont(styles.XOVER_LABEL_FONT)
-                        painter.drawText(path[1], Qt.AlignCenter, str(ph.number()))
-
-                        # test to see if we need to draw the to label for the xover
-                        # this comes in handy when drawing forced xovers
-                        if toPH != None:
-                            painter.drawText(path[2],
-                                            Qt.AlignCenter, str(toPH.number()))
-                    # end for
-                # end for strandType in scaf, stap
-            # end for
-        # end def
-    # end class
 
     geometryChanged = pyqtSignal()
 
