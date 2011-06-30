@@ -138,6 +138,8 @@ class ActiveSliceHandle(QGraphicsItem):
     def sceneEvent(self, event):
         """Included for unit testing in order to grab events that are sent
         via QGraphicsScene.sendEvent()."""
+        self._pathHelixGroup.controller().testRecorder.ashSceneEvent(event)
+
         if event.type() == QEvent.MouseButtonPress:
             self.mousePressEvent(event)
             return True

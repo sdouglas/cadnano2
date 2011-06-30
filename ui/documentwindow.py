@@ -31,9 +31,8 @@ import pathview.pathcontroller as pathcontroller
 import sliceview.slicecontroller as slicecontroller
 from cadnano import app
 from pathview.colorpanel import ColorPanel
+from test.testrecorder import TestRecorder
 
-# from PyQt4.QtCore import *
-# from PyQt4.QtGui import *
 import util
 # import Qt stuff into the module namespace with PySide, PyQt4 independence
 util.qtWrapImport('QtCore', globals(), ['pyqtSignal', 'QString', 'QFileInfo', 'Qt'] )
@@ -83,6 +82,9 @@ class DocumentWindow(QMainWindow, ui_mainwindow.Ui_MainWindow):
         self.pathController = pathcontroller.PathController(self)
         self.sliceController.pathController = self.pathController
         self.pathController.sliceController = self.sliceController
+        
+        # Test recording
+        self.sliceController.testRecorder = self.pathController.testRecorder = TestRecorder()
 
         # Edit menu setup
         self.actionUndo = docCtrlr.undoStack().createUndoAction(self)

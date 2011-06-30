@@ -53,7 +53,6 @@ class DocumentController():
     The document controller. Hooks high level (read file/write file, add
     submodel, etc) UI elements to their corresponding actions in the model
     """
-
     def __init__(self, doc=None, fname=None):
         app().documentControllers.add(self)
         self._undoStack = QUndoStack()
@@ -76,10 +75,10 @@ class DocumentController():
 
     def closer(self, event):
         if self.win.maybeSave():
+            self.win.sliceController.testRecorder.generateTest()
             event.accept()
         else:
             event.ignore()
-    # end def
 
     def documentTitle(self):
         fname = os.path.basename(str(self.filename()))
@@ -294,6 +293,8 @@ class DocumentController():
         the Document addDnaHoneycombPart method."""
         dnaPart = self._document.addDnaHoneycombPart()
         self.setActivePart(dnaPart)
+        # testRecorder
+        self.win.sliceController.testRecorder.setPart(dnaPart.crossSectionType())
     # end def
 
     def addSquareHelixGroup(self):
@@ -301,6 +302,8 @@ class DocumentController():
         the Document addDnaSquarePart method."""
         dnaPart = self._document.addDnaSquarePart()
         self.setActivePart(dnaPart)
+        # testRecorder
+        self.win.sliceController.testRecorder.setPart(dnaPart.crossSectionType())
     # end def
 
     def createAction(self, icon, text, parent, shortcutkey):
