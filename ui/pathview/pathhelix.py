@@ -34,7 +34,7 @@ from weakref import ref
 from handles.pathhelixhandle import PathHelixHandle
 from handles.loophandle import LoopItem, SkipItem
 from handles.precrossoverhandle import PreCrossoverHandle
-from math import floor, pi
+from math import floor, pi, ceil
 from cadnano import app
 from itertools import product
 from ui.svgbutton import SVGButton
@@ -230,13 +230,16 @@ class PathHelix(QGraphicsObject):
 
     def removeBasesClicked(self):
         part = self.vhelix().part()
-        numUsedBases = part.indexOfRightmostNonemptyBase() + 1
-        dim = list(part.dimensions())
-        if dim[2] == numUsedBases:
-            newNumBases = numUsedBases - part.step
-        else:
-            newNumBases = numUsedBases
+        # First try to shrink to fit used bases
+        newNumBases = part.indexOfRightmostNonemptyBase() + 1
+        newNumBases = int(ceil(float(newNumBases)/part.step))*part.step
         newNumBases = util.clamp(newNumBases, part.step, 10000)
+        
+        dim = list(part.dimensions())
+        # If that didn't do anything, reduce the length
+        # of the vhelix by one step.
+        if dim[2] == newNumBases and dim[2] > part.step:
+            newNumBases = newNumBases - part.step
         part.setDimensions((dim[0], dim[1], newNumBases))
 
     def vhelixDimensionsModified(self):
@@ -288,6 +291,8 @@ class PathHelix(QGraphicsObject):
               product((StrandType.Scaffold, StrandType.Staple), (True, False)):
                 # Get potential crossovers in [neighborVirtualHelix, index] format
                 potentialXOvers = self.vhelix().potentialCrossoverList(facingRight, strandType)
+                numBases = self.vhelix().numBases()
+                assert(all(index < numBases for neighborVH, index in potentialXOvers))
                 for (neighborVH, fromIdx) in potentialXOvers:
                     pch = PreCrossoverHandle(self, strandType, fromIdx,\
                                              neighborVH, fromIdx,\
