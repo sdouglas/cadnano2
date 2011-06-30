@@ -2,8 +2,8 @@
 
 # Form implementation generated from reading ui file 'mainwindow.ui'
 #
-# Created: Mon Jun 27 14:06:17 2011
-#      by: PyQt4 UI code generator snapshot-4.8.3-fbc8b1362812
+# Created: Tue Jun 28 17:58:45 2011
+#      by: PyQt4 UI code generator 4.7.7
 #
 # WARNING! All changes made in this file will be lost!
 
@@ -18,6 +18,7 @@ class Ui_MainWindow(object):
     def setupUi(self, MainWindow):
         MainWindow.setObjectName(_fromUtf8("MainWindow"))
         MainWindow.resize(1100, 800)
+        MainWindow.setContextMenuPolicy(QtCore.Qt.NoContextMenu)
         MainWindow.setStatusTip(_fromUtf8(""))
         MainWindow.setIconSize(QtCore.QSize(32, 32))
         MainWindow.setDockNestingEnabled(True)
@@ -98,12 +99,12 @@ class Ui_MainWindow(object):
         self.leftToolBar.setAllowedAreas(QtCore.Qt.LeftToolBarArea|QtCore.Qt.RightToolBarArea)
         self.leftToolBar.setToolButtonStyle(QtCore.Qt.ToolButtonTextUnderIcon)
         self.leftToolBar.setObjectName(_fromUtf8("leftToolBar"))
-        MainWindow.addToolBar(QtCore.Qt.LeftToolBarArea, self.leftToolBar)
+        MainWindow.addToolBar(QtCore.Qt.ToolBarArea(QtCore.Qt.LeftToolBarArea), self.leftToolBar)
         self.topToolBar = QtGui.QToolBar(MainWindow)
         self.topToolBar.setBaseSize(QtCore.QSize(0, 0))
         self.topToolBar.setToolButtonStyle(QtCore.Qt.ToolButtonTextUnderIcon)
         self.topToolBar.setObjectName(_fromUtf8("topToolBar"))
-        MainWindow.addToolBar(QtCore.Qt.TopToolBarArea, self.topToolBar)
+        MainWindow.addToolBar(QtCore.Qt.ToolBarArea(QtCore.Qt.TopToolBarArea), self.topToolBar)
         self.rightToolBar = QtGui.QToolBar(MainWindow)
         sizePolicy = QtGui.QSizePolicy(QtGui.QSizePolicy.Fixed, QtGui.QSizePolicy.Preferred)
         sizePolicy.setHorizontalStretch(0)
@@ -113,7 +114,7 @@ class Ui_MainWindow(object):
         self.rightToolBar.setLayoutDirection(QtCore.Qt.LeftToRight)
         self.rightToolBar.setToolButtonStyle(QtCore.Qt.ToolButtonTextUnderIcon)
         self.rightToolBar.setObjectName(_fromUtf8("rightToolBar"))
-        MainWindow.addToolBar(QtCore.Qt.RightToolBarArea, self.rightToolBar)
+        MainWindow.addToolBar(QtCore.Qt.ToolBarArea(QtCore.Qt.RightToolBarArea), self.rightToolBar)
         self.actionNew = QtGui.QAction(MainWindow)
         icon = QtGui.QIcon()
         icon.addPixmap(QtGui.QPixmap(_fromUtf8(":/filetools/new")), QtGui.QIcon.Normal, QtGui.QIcon.Off)
@@ -299,7 +300,7 @@ class Ui_MainWindow(object):
         self.menuExport.setTitle(QtGui.QApplication.translate("MainWindow", "Export...", None, QtGui.QApplication.UnicodeUTF8))
         self.menuEdit.setTitle(QtGui.QApplication.translate("MainWindow", "Edit", None, QtGui.QApplication.UnicodeUTF8))
         self.leftToolBar.setWindowTitle(QtGui.QApplication.translate("MainWindow", "Slice Tools", None, QtGui.QApplication.UnicodeUTF8))
-        self.topToolBar.setWindowTitle(QtGui.QApplication.translate("MainWindow", "topToolBar", None, QtGui.QApplication.UnicodeUTF8))
+        self.topToolBar.setWindowTitle(QtGui.QApplication.translate("MainWindow", "Main Toolbar", None, QtGui.QApplication.UnicodeUTF8))
         self.rightToolBar.setWindowTitle(QtGui.QApplication.translate("MainWindow", "Path Tools", None, QtGui.QApplication.UnicodeUTF8))
         self.actionNew.setText(QtGui.QApplication.translate("MainWindow", "New...", None, QtGui.QApplication.UnicodeUTF8))
         self.actionNew.setShortcut(QtGui.QApplication.translate("MainWindow", "Ctrl+N", None, QtGui.QApplication.UnicodeUTF8))

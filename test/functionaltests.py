@@ -36,7 +36,7 @@ from PyQt4.QtCore import *
 from PyQt4.QtGui import *
 import test.cadnanoguitestcase
 from test.cadnanoguitestcase import CadnanoGuiTestCase
-from cadnano import app as getAppInstance
+# from cadnano import app as self.app
 from model.enum import StrandType
 from model.virtualhelix import VirtualHelix
 
@@ -56,10 +56,7 @@ class FunctionalTests(CadnanoGuiTestCase):
         to set the general conditions for the tests to run correctly.
         """
         CadnanoGuiTestCase.setUp(self)
-        # Add your initialization here
-        # self.app gives you a pointer to the application object
-        getAppInstance().dontAskAndJustDiscardUnsavedChanges = True
-        getAppInstance().initGui()
+        # Add extra initialization here
 
     def tearDown(self):
         """
@@ -67,7 +64,7 @@ class FunctionalTests(CadnanoGuiTestCase):
         generally used to clean up any objects created in setUp
         """
         CadnanoGuiTestCase.tearDown(self)
-        # Add your clean up here
+        # Add functional-test-specific cleanup here
 
     def testActiveSliceHandleAltShiftClick(self):
         # Create a new Honeycomb part
@@ -90,14 +87,13 @@ class FunctionalTests(CadnanoGuiTestCase):
                    qgraphicsscene=self.mainWindow.pathscene)
 
         # Check the model for correctness
-        vh0 = getAppInstance().v[0]
-        vh1 = getAppInstance().v[1]
+        vh0 = self.app.v[0]
+        vh1 = self.app.v[1]
         str0 = "0 Scaffold: _,> <,> <,> <,> <,> <,> <,> <,> <,> <,> <,> <,> <,> <,> <,> <,> <,> <,> <,> <,> <,> <,> <,> <,> <,> <,> <,> <,> <,> <,> <,> <,> <,> <,> <,> <,> <,> <,> <,> <,> <,> <,_\n0 Staple:   _,_ _,_ _,_ _,_ _,_ _,_ _,_ _,_ _,_ _,_ _,_ _,_ _,_ _,_ _,_ _,_ _,_ _,_ _,_ _,_ _,_ _,_ _,_ _,_ _,_ _,_ _,_ _,_ _,_ _,_ _,_ _,_ _,_ _,_ _,_ _,_ _,_ _,_ _,_ _,_ _,_ _,_"
         str1 = "1 Scaffold: _,> <,> <,> <,> <,> <,> <,> <,> <,> <,> <,> <,> <,> <,> <,> <,> <,> <,> <,> <,> <,> <,> <,> <,> <,> <,> <,> <,> <,> <,> <,> <,> <,> <,> <,> <,> <,> <,> <,> <,> <,> <,_\n1 Staple:   _,_ _,_ _,_ _,_ _,_ _,_ _,_ _,_ _,_ _,_ _,_ _,_ _,_ _,_ _,_ _,_ _,_ _,_ _,_ _,_ _,_ _,_ _,_ _,_ _,_ _,_ _,_ _,_ _,_ _,_ _,_ _,_ _,_ _,_ _,_ _,_ _,_ _,_ _,_ _,_ _,_ _,_"
         self.assertEqual(repr(vh0), str0)
         self.assertEqual(repr(vh1), str1)
-
-        # time.sleep(5)  # Sleep for 1 second
+        # time.sleep(1)  # Sleep for 1 seconds
         # self.debugHere()  # Stop simulation and give control to user
 
 

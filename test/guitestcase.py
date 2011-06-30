@@ -53,7 +53,7 @@ class GUITestCase(unittest.TestCase):
         self._wait = 0
 
     def tearDown(self):
-        self._test_widget.close()
+        self._testWidget.close()
 
     def setWidget(self, widget, show=True, wait=None):
         """
@@ -64,10 +64,10 @@ class GUITestCase(unittest.TestCase):
 
         @param wait: How long to wait between events, in seconds.
         """
-        self._test_widget = widget
+        self._testWidget = widget
         self._wait = wait
         if show:
-            self._test_widget.show()
+            self._testWidget.show()
         self.processEvents()
 
     # button flags
@@ -169,7 +169,7 @@ class GUITestCase(unittest.TestCase):
         """Stops the executing of the test at the caller's position, returning
         control to qt's main loop. Useful to debug the tests.
         """
-        self._app.setActiveWindow(self._test_widget)
+        self._app.setActiveWindow(self._testWidget)
         self._app.exec_()
 
     def processEvents(self):

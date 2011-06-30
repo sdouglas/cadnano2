@@ -133,10 +133,10 @@ class CADnano(QApplication):
                                 'phg':lambda : self.phg,\
                                 'pySide':self.usesPySide})
     # end def
-        
+
     def isInMaya(self):
         return False
-        
+
     def newDocument(self, isFirstNewDoc=False):
         from ui.documentcontroller import DocumentController
         defaultFile = os.environ.get('CADNANO_DEFAULT_DOCUMENT', None)

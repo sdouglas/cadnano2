@@ -60,10 +60,7 @@ class ModelTests(CadnanoGuiTestCase):
         to set the general conditions for the tests to run correctly.
         """
         CadnanoGuiTestCase.setUp(self)
-        # Add your initialization here
-        # self.app gives you a pointer to the application object
-        getAppInstance().dontAskAndJustDiscardUnsavedChanges = True
-        getAppInstance().initGui()
+        # Add extra model-test-specific initialization here
 
     def tearDown(self):
         """
@@ -71,8 +68,7 @@ class ModelTests(CadnanoGuiTestCase):
         generally used to clean up any objects created in setUp
         """
         CadnanoGuiTestCase.tearDown(self)
-        # Add your clean up here
-        pass
+        # Add model-test-specific cleanup here
 
     def testFractionalClearStrandCommand(self):
         """
