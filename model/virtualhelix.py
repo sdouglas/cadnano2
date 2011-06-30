@@ -998,9 +998,9 @@ class VirtualHelix(QObject):
                     oppositeStrand = StrandType.Staple
                 else:
                     oppositeStrand = StrandType.Scaffold
-                complementary_b = vh._strand(oppositeStrand)[b._n]
-                numBasesInBase = vh.hasLoopOrSkipAt(b._strandtype, b._n)+1
-                numBasesInCompBase = vh.hasLoopOrSkipAt(oppositeStrand, b._n)+1
+                complementary_b = b._vhelix._strand(oppositeStrand)[b._n]
+                numBasesInBase = b._vhelix.hasLoopOrSkipAt(b._strandtype, b._n)+1
+                numBasesInCompBase = b._vhelix.hasLoopOrSkipAt(oppositeStrand, b._n)+1
                 oldBaseStrs.append((b._sequence, complementary_b._sequence))
                 numBasesToUse = numBasesInBase if numBasesInBase<=1 else numBasesInBase-1
                 seq = self._seqStr[charactersUsedFromSeqStr:charactersUsedFromSeqStr+numBasesToUse]
