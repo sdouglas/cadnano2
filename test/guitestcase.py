@@ -53,7 +53,7 @@ class GUITestCase(unittest.TestCase):
         self._wait = 0
 
     def tearDown(self):
-        self._test_widget.close()
+        self._testWidget.close()
 
     def setWidget(self, widget, show=True, wait=None):
         """
@@ -64,10 +64,10 @@ class GUITestCase(unittest.TestCase):
 
         @param wait: How long to wait between events, in seconds.
         """
-        self._test_widget = widget
+        self._testWidget = widget
         self._wait = wait
         if show:
-            self._test_widget.show()
+            self._testWidget.show()
         self.processEvents()
 
     # button flags
@@ -80,7 +80,8 @@ class GUITestCase(unittest.TestCase):
     ALT = Qt.AltModifier
 
     ############################ Mouse events ############################
-    def mousePress(self, widget, button=None, position=None, state=None, modifiers=None, qgraphicsscene=None):
+    def mousePress(self, widget, button=None, position=None, state=None,\
+                   modifiers=None, qgraphicsscene=None):
         """Sends a press event for the given widget.
         @param button: the pressed mouse button. Can be LEFT, RIGHT or MIDDLE.
             If not given, LEFT is assumed.
@@ -89,21 +90,25 @@ class GUITestCase(unittest.TestCase):
             of the widget is used.
         @param state: secondary keys. optional, can be SHIFT, CONTROL, ALT.
         """
-        self._mouseEvent(QEvent.MouseButtonPress, widget, button, position, state, modifiers, qgraphicsscene)
+        self._mouseEvent(QEvent.MouseButtonPress, widget, button, position,\
+                         state, modifiers, qgraphicsscene)
 
-    def mouseRelease(self, widget, button=None, position=None, state=None, modifiers=None, qgraphicsscene=None):
+    def mouseRelease(self, widget, button=None, position=None, state=None,\
+                     modifiers=None, qgraphicsscene=None):
         """Sends a mouse release event for the given widget.
 
         @see: mousePress for the meaning of the arguments.
         """
-        self._mouseEvent(QEvent.MouseButtonRelease, widget, button, position, state, modifiers, qgraphicsscene)
+        self._mouseEvent(QEvent.MouseButtonRelease, widget, button, position,\
+                         state, modifiers, qgraphicsscene)
 
     def mouseMove(self, widget, position=None, state=None):
         """Sends a mouse move event for the given widget.
 
         @see: mousePress for the meaning of the arguments.
         """
-        self._mouseEvent(QEvent.MouseMove, widget, self.NOBUTTON, position, state)
+        self._mouseEvent(QEvent.MouseMove, widget, self.NOBUTTON, position,\
+                         state)
 
     def mouseDrag(self, widget, pressOn, releaseOn, button=None, state=None):
         """
@@ -118,7 +123,8 @@ class GUITestCase(unittest.TestCase):
         self.mouseMove(widget, releaseOn, state)
         self.mouseRelease(widget, button, releaseOn, state)
 
-    def click(self, widget, button=None, position=None, state=None, modifiers=None, qgraphicsscene=None):
+    def click(self, widget, button=None, position=None, state=None,\
+              modifiers=None, qgraphicsscene=None):
         """
         Acts as if the given widget was clicked. Equivalent to send a
         mousePress followed by a mouseRelease.
@@ -126,8 +132,10 @@ class GUITestCase(unittest.TestCase):
         @see: mousePress for the meaning of the arguments.
         """
         widget.setFocus()
-        self.mousePress(widget, button, position, state, modifiers, qgraphicsscene)
-        self.mouseRelease(widget, button, position, state, modifiers, qgraphicsscene)
+        self.mousePress(widget, button, position, state, modifiers,\
+                        qgraphicsscene)
+        self.mouseRelease(widget, button, position, state, modifiers,\
+                          qgraphicsscene)
 
     def doubleClick(self, widget, button=None, position=None, state=None):
         """Sends a double-click event to the given widget.
@@ -169,7 +177,7 @@ class GUITestCase(unittest.TestCase):
         """Stops the executing of the test at the caller's position, returning
         control to qt's main loop. Useful to debug the tests.
         """
-        self._app.setActiveWindow(self._test_widget)
+        self._app.setActiveWindow(self._testWidget)
         self._app.exec_()
 
     def processEvents(self):
@@ -184,10 +192,10 @@ class GUITestCase(unittest.TestCase):
             # python cast x and y to ints instead...
             return widget.boundingRect().center().toPoint()
         else:
-            return QPoint(widget.width()/2, widget.height()/2)
+            return QPoint(widget.width() / 2, widget.height() / 2)
 
-
-    def _mouseEvent(self, event_type, widget, button, position, state, modifiers, qgraphicsscene=None):
+    def _mouseEvent(self, event_type, widget, button, position, state,\
+                    modifiers, qgraphicsscene=None):
         """Sends a MouseEvent with the given event_type.
         """
         if button is None:
@@ -198,7 +206,6 @@ class GUITestCase(unittest.TestCase):
             position = QPoint(*position)  # assume position is a tuple
         if state is None:
             state = self.NOBUTTON
-        modifiers = self.ALT|self.SHIFT
         if modifiers is None:
             modifiers = Qt.NoModifier
         event = QMouseEvent(event_type, position, button, state, modifiers)

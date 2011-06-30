@@ -10,6 +10,9 @@
     <height>800</height>
    </rect>
   </property>
+  <property name="contextMenuPolicy">
+   <enum>Qt::NoContextMenu</enum>
+  </property>
   <property name="windowTitle">
    <string>CADnano</string>
   </property>
@@ -230,7 +233,7 @@
     </size>
    </property>
    <property name="windowTitle">
-    <string>topToolBar</string>
+    <string>Main Toolbar</string>
    </property>
    <property name="toolButtonStyle">
     <enum>Qt::ToolButtonTextUnderIcon</enum>

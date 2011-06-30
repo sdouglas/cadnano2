@@ -36,7 +36,6 @@ from PyQt4.QtCore import *
 from PyQt4.QtGui import *
 import test.cadnanoguitestcase
 from test.cadnanoguitestcase import CadnanoGuiTestCase
-from cadnano import app as getAppInstance
 from model.enum import StrandType
 from model.virtualhelix import VirtualHelix
 
@@ -58,10 +57,7 @@ class UnitTests(CadnanoGuiTestCase):
         to set the general conditions for the tests to run correctly.
         """
         CadnanoGuiTestCase.setUp(self)
-        # Add your initialization here
-        # self.app gives you a pointer to the application object
-        getAppInstance().dontAskAndJustDiscardUnsavedChanges = True
-        getAppInstance().initGui()
+        # Add extra unit-test-specific initialization here
 
     def tearDown(self):
         """
@@ -69,8 +65,7 @@ class UnitTests(CadnanoGuiTestCase):
         generally used to clean up any objects created in setUp
         """
         CadnanoGuiTestCase.tearDown(self)
-        # Add your clean up here
-        pass
+        # Add unit-test-specific cleanup here
 
     def testAutoDragToBoundary(self):
         """docstring for testDrag"""

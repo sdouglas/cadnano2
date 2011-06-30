@@ -42,9 +42,18 @@ class CadnanoGuiTestCase(test.guitestcase.GUITestCase):
         framework what you will be testing.
         """
         self.app = getAppInstance()
-        self.app.initGui()
-        self.documentController = list(self.app.documentControllers)[0]
+
+        if not self.app.guiInitialized:  # First test needs to init the gui
+            self.app.initGui()
+            self.documentController = list(self.app.documentControllers)[0]
+        else:  # subsequent tests can just open a new document
+            document = self.app.newDocument()
+            self.documentController = document.controller()
         self.mainWindow = self.documentController.win
+
+        # Include this or the automatic build will hang
+        self.app.dontAskAndJustDiscardUnsavedChanges = True
+
         # By setting the widget to the main window we can traverse and
         # interact with any part of it. Also, tearDown will close
         # the application so we don't need to worry about that.

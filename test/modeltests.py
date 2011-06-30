@@ -41,7 +41,6 @@ sys.path.insert(0, '.')
 import test.cadnanoguitestcase
 from test.cadnanoguitestcase import CadnanoGuiTestCase
 import time
-from cadnano import app as getAppInstance
 from model.virtualhelix import VirtualHelix
 from model.enum import StrandType
 
@@ -60,10 +59,7 @@ class ModelTests(CadnanoGuiTestCase):
         to set the general conditions for the tests to run correctly.
         """
         CadnanoGuiTestCase.setUp(self)
-        # Add your initialization here
-        # self.app gives you a pointer to the application object
-        getAppInstance().dontAskAndJustDiscardUnsavedChanges = True
-        getAppInstance().initGui()
+        # Add extra model-test-specific initialization here
 
     def tearDown(self):
         """
@@ -71,8 +67,7 @@ class ModelTests(CadnanoGuiTestCase):
         generally used to clean up any objects created in setUp
         """
         CadnanoGuiTestCase.tearDown(self)
-        # Add your clean up here
-        pass
+        # Add model-test-specific cleanup here
 
     def testFractionalClearStrandCommand(self):
         """
@@ -89,7 +84,7 @@ class ModelTests(CadnanoGuiTestCase):
         vh.clearStrand(StrandType.Scaffold, 4, 4)
         vh.clearStrand(StrandType.Staple, 3, 5)
         self.assertEqual(repr(vh), '0 Scaffold: _,_ _,_ _,> <,> <,> <,> <,_ _,_\n0 Staple:   _,> <,> <,_ _,_ _,_ _,> <,> <,_')
-        
+
         vh.undoStack().undo()
         vh.undoStack().undo()
         self.assertEqual(repr(vh), '0 Scaffold: _,_ _,_ _,> <,> <,> <,> <,_ _,_\n0 Staple:   _,> <,> <,> <,> <,> <,> <,> <,_')
