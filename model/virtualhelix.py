@@ -344,6 +344,22 @@ class VirtualHelix(QObject):
                          (strandType, StrandType.Scaffold, StrandType.Staple))
 
     ############################## Access to Bases ###########################
+    def indexOfRightmostNonemptyBase(self):
+        """
+        During reduction of the number of bases in a part,
+        the first click removes empty bases from the right hand
+        side of the part (red left-facing arrow). This method
+        is used on each vhelix by the part to determine the
+        numBases that will effect such a reduction.
+        """
+        ret = -1
+        for strandType in (StrandType.Scaffold, StrandType.Staple):
+            strand = self._strand(strandType)
+            for i in range(len(strand)):
+                if not strand[i].isEmpty():
+                    ret = max(ret, i)
+        return ret
+
     def hasBaseAt(self, strandType, index):
         """Returns true if a base is present at index on strand strandtype."""
         base = self._baseAt(strandType, index)

@@ -314,6 +314,18 @@ class DNAPart(Part):
         for vh in vhs:
             vh.autoDragAllBreakpoints(StrandType.Scaffold)
         self.undoStack().endMacro()
+    
+    def indexOfRightmostNonemptyBase(self):
+        """
+        During reduction of the number of bases in a part,
+        the first click removes empty bases from the right hand
+        side of the part (red left-facing arrow). This method
+        returnes the new numBases that will effect that reduction.
+        """
+        ret = -1
+        for vh in self.getVirtualHelices():
+            ret = max(ret, vh.indexOfRightmostNonemptyBase())
+        return ret
 
     ############################# VirtualHelix Private CRUD #############################
     def _recalculateStrandLengths(self):

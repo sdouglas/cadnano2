@@ -230,10 +230,14 @@ class PathHelix(QGraphicsObject):
 
     def removeBasesClicked(self):
         part = self.vhelix().part()
+        numUsedBases = part.indexOfRightmostNonemptyBase() + 1
         dim = list(part.dimensions())
-        if dim[2] <= part.step:
-            return
-        part.setDimensions((dim[0], dim[1], dim[2]-7))
+        if dim[2] == numUsedBases:
+            newNumBases = numUsedBases - part.step
+        else:
+            newNumBases = numUsedBases
+        newNumBases = util.clamp(newNumBases, part.step, 10000)
+        part.setDimensions((dim[0], dim[1], newNumBases))
 
     def vhelixDimensionsModified(self):
         """Sets rect width to reflect number of bases in vhelix. Sets
