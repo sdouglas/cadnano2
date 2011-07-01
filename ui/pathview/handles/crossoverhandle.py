@@ -166,7 +166,7 @@ class XoverHandlePair(QGraphicsItem):
             self._pen = QPen(self._phg._stapPen)
         
         self._rect = QRectF()
-        self._c = QPointF()
+
         self._xover3prime = XoverHandle(self, self._fromIdx, \
                                         self._fromVH, self._toVH, \
                                         self._phg.getPathHelix(self._fromVH))
@@ -176,6 +176,7 @@ class XoverHandlePair(QGraphicsItem):
         
         self._fromVH.basesModified.connect(self.refresh)
         self._toVH.basesModified.connect(self.refresh)
+        self._phg.displayedVHsChanged.connect(self.refresh)
         self.refresh()
         self.show()
     # end def
@@ -199,6 +200,7 @@ class XoverHandlePair(QGraphicsItem):
         self._xover5prime.hide()
         self._xover3prime = None
         self._xover5prime = None
+        self._phg.displayedVHsChanged.disconnect(self.refresh)
         self._fromVH.basesModified.disconnect(self.refresh)
         self._toVH.basesModified.disconnect(self.refresh)
         self.hide()
@@ -369,7 +371,6 @@ class XoverHandlePair(QGraphicsItem):
         painterpath.lineTo(q3)
         painterpath.quadTo(c1, q5)
         painterpath.lineTo(toBaseCenter)
-        self._c = c1
         self._painterpath = painterpath
     # end def
 # end class
