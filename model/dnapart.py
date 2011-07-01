@@ -109,7 +109,78 @@ class DNAPart(Part):
         self.virtualHelixAtCoordsChanged.connect(self.persistentDataChangedEvent)
         self.dimensionsWillChange.connect(self.persistentDataChangedEvent)
         self.dimensionsDidChange.connect(self.ensureActiveBaseIsWithinNewDims)
+        
+        # Model 2.0
+        self._oligos = []
+        
+
+    ######################################################################
+    ######################## New Model Quarantine ########################
+    ######################################################################
+
+	########################## Notification API ##########################
+	
+	# Arguments are oligo, part
+    willAddOligoToPart = pyqtSignal(object, object)
+    # Arguments are oligo, part
+    didAddOligoToPart = pyqtSignal(object, object)
     
+    # Arguments are oligo, part
+    willRemoveOligoFromPart = pyqtSignal(object, object)
+    #Arguments are oligo, part
+    didRemoveOligoFromPart = pyqtSignal(object, object)
+    
+    # Argument is oligo
+    oligoWasChanged = pyqtSignal(object)
+    
+	########################## Read API ##########################
+    
+    def oligos(self):
+        """
+        Oligos are not in any particular order.
+        """
+        return self._oligos
+
+    def oligosIntersectingVhAt(self, vhCoords):
+
+	########################## Write API ##########################
+
+    def addOligo(self, newOligo):
+        assert(newOligo not in self._oligos)
+        self.willAddOligoToPart.emit(self, newOligo)
+        self._oligos.append(newOligo)
+        self.didAddOligoToPart(self, newOligo)
+
+    def removeOligo(self, oligo):
+        assert(oligo in self._oligos)
+        self.willRemoveOligoFromPart(oligo)
+        self._oligos.remove(oligo)
+        self.didRemoveOligoFromPart(oligo)
+
+	########################## Static API ##########################
+
+    def strandDrawn5To3(self, vhCoords, strand):
+        """
+        Returns true if, for the virtual helix at vhCoords,
+        strand runs in a 5' to 3' direction going left to right
+        in the path view.
+        """
+        if self.coordinateParityEven(vhCoords) and strand == StrandType.Scaffold:
+            return True
+        if not self.coordinateParityEven(vhCoords) and strand == StrandType.Staple:
+            return True
+        return False
+
+    def palette(self):
+        return styles.default_palette
+
+	########################## Bookkeeping ##########################
+    
+    
+    ######################################################################
+    ######################## End New Model Quarantine ########################
+    ######################################################################
+
     def fsck(self):
         for vh in self._numberToVirtualHelix.itervalues():
             vh.fsck()
@@ -129,9 +200,6 @@ class DNAPart(Part):
         """Only called by Document"""
         super(DNAPart, self).setDocument(newDoc)
 
-    def palette(self):
-        return styles.default_palette
-
     def name(self):
         return self._name
 
@@ -147,15 +215,12 @@ class DNAPart(Part):
         return self._maxBase
 
     def __repr__(self):
-        s = self.__class__.__name__+"[" +\
-            ','.join(repr(self._numberToVirtualHelix[k])\
-            for k in self._numberToVirtualHelix) + "]"
-        return s
+        s = '<'+self.__class__.__name__ + " " + " ".join(k in self._numberToVirtualHelix.keys()) + ">"
 
     def coordinateParityEven(self, coords):
         row, col = coords
         return (row % 2) ^ (col % 2) == 0
-
+    
     def virtualHelixParityEven(self, vhref):
         """A property of the part, because the part is responsible for laying out
         the virtualhelices and parity is a property of the layout more than it is a
