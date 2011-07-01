@@ -26,7 +26,7 @@ loophandle.py
 Created by Shawn on 2011-05-03.
 """
 
-from views import styles
+import ui.styles as styles
 from model.enum import StrandType
 
 # from PyQt4.QtCore import QPointF, QRectF, Qt
@@ -37,10 +37,10 @@ from model.enum import StrandType
 
 import util
 # import Qt stuff into the module namespace with PySide, PyQt4 independence
-util.qtWrapImport('QtCore', globals(), [ 'QPointF', 'QRectF', 'Qt'])
+util.qtWrapImport('QtCore', globals(), [ 'QPointF', 'QRectF', 'Qt'] )
 util.qtWrapImport('QtGui', globals(), [ 'QBrush', 'QFont', \
                                         'QGraphicsItem', 'QGraphicsTextItem', \
-                                        'QTextCursor', 'QPainterPath', 'QPen'])
+                                        'QTextCursor', 'QPainterPath', 'QPen'] )
 
 class LoopItem(object):
     """
@@ -205,9 +205,9 @@ class LoopHandle(QGraphicsItem):
             self._loopsize = int(test)
         except:
             self._loopsize = 0
-        self.parentItem().vhelix().installLoop(self._strandtype,\
-                                                self._index,\
-                                                self._loopsize)
+        self.parentObject().vhelix().installLoop(self._strandtype,\
+                                                 self._index,\
+                                                 self._loopsize)
         if self._loopsize:
             self.resetPosition()
 
@@ -229,7 +229,6 @@ class LoopHandle(QGraphicsItem):
 
     def resetPosition(self):
         txtOffset = self._label.boundingRect().width() / 2
-        # ph = self.parentItem()
         ph = self.parentObject()
         posItem = ph.baseLocation(self._strandtype, self._index, center=True)
         if ph.strandIsTop(self._strandtype):

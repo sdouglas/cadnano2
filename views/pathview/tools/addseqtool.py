@@ -57,31 +57,39 @@ class AddSeqTool(AbstractPathTool):
         AbstractPathTool.updateLocation(self, pathHelix, scenePos, *args)
         if pathHelix == None:
             return
-        posItem = self.parentObject().mapFromScene(scenePos)
+        posItem = self.parentItem().mapFromScene(scenePos)
         strandType, baseIdx = self.baseAtPoint(pathHelix, posItem)
         vh = pathHelix.vhelix()
-        if vh.hasLoopOrSkipAt(strandType, baseIdx) > 0:
-            newLoc = pathHelix.baseLocation(strandType, baseIdx)
-            if self.pos() != newLoc:
-                self.setPos(*newLoc)
-            if not self.isVisible():
-                self.show()
-        elif vh.hasEmptyAt(strandType, baseIdx):
-            if self.isVisible():
-                self.hide()
+        if strandType == StrandType.Scaffold:
+            oppositeStrand = StrandType.Staple
         else:
-            fivePBase = pathHelix.vhelix().fivePEndOfSegmentThrough(strandType, baseIdx)
-            if fivePBase == None:
-                self.hide()
-            else:
-                vh, strandType, idx = fivePBase
-                phg = pathHelix.pathHelixGroup()
-                ph2 = phg.pathHelixForVHelix(vh)
-                fivePBaseLoc = QPointF(*ph2.baseLocation(strandType, idx))
-                fivePBaseLocSelfCoords = pathHelix.mapFromItem(ph2, fivePBaseLoc)
-                self.setPos(fivePBaseLocSelfCoords)
+            oppositeStrand = StrandType.Scaffold
+        if vh.hasLoopOrSkipAt(strandType, baseIdx) > 0:
+            loopBases = vh.hasLoopOrSkipAt(strandType, baseIdx)
+            compLoopBases = vh.hasLoopOrSkipAt(oppositeStrand, baseIdx)
+            if loopBases != compLoopBases and strandType == StrandType.Staple:
+                newLoc = pathHelix.baseLocation(strandType, baseIdx)
+                if self.pos() != newLoc:
+                    self.setPos(*newLoc)
                 if not self.isVisible():
                     self.show()
+                return
+        if vh.hasEmptyAt(strandType, baseIdx):
+            if self.isVisible():
+                self.hide()
+            return
+        fivePBase = pathHelix.vhelix().fivePEndOfSegmentThrough(StrandType.Scaffold, baseIdx)
+        if fivePBase == None:
+            self.hide()
+        else:
+            vh, strandType, idx = fivePBase
+            phg = pathHelix.pathHelixGroup()
+            ph2 = phg.pathHelixForVHelix(vh)
+            fivePBaseLoc = QPointF(*ph2.baseLocation(strandType, idx))
+            fivePBaseLocSelfCoords = pathHelix.mapFromItem(ph2, fivePBaseLoc)
+            self.setPos(fivePBaseLocSelfCoords)
+            if not self.isVisible():
+                self.show()
 
     @pyqtSlot(str)
     def userChoseSeq(self, optionChosen):
