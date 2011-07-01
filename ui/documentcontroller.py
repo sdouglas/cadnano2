@@ -153,9 +153,9 @@ class DocumentController():
     def openClicked(self):
         """docstring for openClicked"""
         
-        self.filesavedialog = None
-        self.openFile('/Users/nick/Downloads/nanorobot.v2.json')
-        return
+        # self.filesavedialog = None
+        # self.openFile('/Users/nick/Downloads/nanorobot.v2.json')
+        # return
         
         if util.isWindows(): # required for native looking file window
             fname = QFileDialog.getOpenFileName(None, "Open Document", "/",\

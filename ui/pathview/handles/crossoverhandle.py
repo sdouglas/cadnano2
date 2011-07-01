@@ -166,7 +166,7 @@ class XoverHandlePair(QGraphicsItem):
             self._pen = QPen(self._phg._stapPen)
         
         self._rect = QRectF()
-        
+        self._c = QPointF()
         self._xover3prime = XoverHandle(self, self._fromIdx, \
                                         self._fromVH, self._toVH, \
                                         self._phg.getPathHelix(self._fromVH))
@@ -239,18 +239,22 @@ class XoverHandlePair(QGraphicsItem):
     # end def
     
     def refreshRect(self):
-        rect5 = self.mapRectFromItem(self._xover3prime, \
-                                    self._xover3prime.boundingRect())
-        rect3 = self.mapRectFromItem(self._xover5prime, \
-                                    self._xover5prime.boundingRect())
-        self._rect = rect5.united(rect3)
+        # rect5 = self.mapRectFromItem(self._xover5prime, \
+        #                             self._xover5prime.boundingRect())
+        # rect3 = self.mapRectFromItem(self._xover3prime, \
+        #                             self._xover3prime.boundingRect())
+        # rect5 = rect5.united(rect3)
+        # rect5.setWidth(rect5.width()+abs(self._c.x()))
+        # if self._c.x() < 0:
+        #     rect5.setX(rect5.x()+self._c.x())
+        self._rect = self._painterpath.boundingRect()
     # end def
     
     def paint(self, painter, option, widget=None):
-        #print "I painted a xover"
         painter.setBrush(Qt.NoBrush)
         self.refreshPen()
         painter.setPen(self._pen)
+        # painter.drawRect(self._rect)
         painter.drawPath(self._painterpath)
     # end def
 
@@ -365,7 +369,7 @@ class XoverHandlePair(QGraphicsItem):
         painterpath.lineTo(q3)
         painterpath.quadTo(c1, q5)
         painterpath.lineTo(toBaseCenter)
-
+        self._c = c1
         self._painterpath = painterpath
     # end def
 # end class
