@@ -35,14 +35,14 @@ from .base import Base
 from cadnano import app
 from random import Random
 import re, sys, os
-from views import styles
+from ui import styles
 from math import modf
 
 import util
 # import Qt stuff into the module namespace with PySide, PyQt4 independence
-util.qtWrapImport('QtCore', globals(), ['QObject', 'pyqtSignal', 'QTimer'])
+util.qtWrapImport('QtCore', globals(), ['QObject', 'pyqtSignal', 'QTimer'] )
 util.qtWrapImport('QtGui', globals(), [ 'QUndoCommand', 'QUndoStack', \
-                                        'QColor'])
+                                        'QColor'] )
 
 class VirtualHelix(QObject):
     """Stores staple and scaffold routing information."""
@@ -975,21 +975,20 @@ class VirtualHelix(QObject):
             
         def redo(self):
             vh = self._vh
-            bases = vh._basesConnectedTo(self._strandType, self._idx)
+            bases = vh._basesConnectedTo(StrandType.Scaffold, self._idx)
             charactersUsedFromSeqStr = 0
             self.oldBaseStrs = oldBaseStrs = []
-            startBase = vh._strand(self._strandType)[self._idx]
-            if startBase._strandtype == StrandType.Scaffold:
-                oppositeStrand = StrandType.Staple
-            else:
-                oppositeStrand = StrandType.Scaffold
-            startBaseComplement = vh._strand(oppositeStrand)[self._idx]
-            numBasesInBase = vh.hasLoopOrSkipAt(startBase._strandtype, startBase._n)
-            numBasesInCompBase = vh.hasLoopOrSkipAt(oppositeStrand, startBaseComplement._n)
-            if numBasesInBase!=numBasesInCompBase:
-                # We are applying to an asymmetrical loop
+            startBase = vh._strand(StrandType.Scaffold)[self._idx]
+            startBaseComplement = vh._strand(StrandType.Staple)[self._idx]
+            scafBasesInBase = vh.hasLoopOrSkipAt(StrandType.Scaffold, startBase._n)
+            stapBasesInBase = vh.hasLoopOrSkipAt(StrandType.Staple, startBase._n)
+            if stapBasesInBase and self._strandType == StrandType.Staple:
+                # We are applying to a staple loop
+                startBase = vh._strand(StrandType.Staple)[self._idx]
                 self.oldLoopSeq = startBase._sequence
-                startBase._sequence = self._seqStr
+                if not startBase._sequence:
+                    startBase._sequence = " "
+                startBase._sequence = startBase._sequence[0] + self._seqStr
                 seqLen = len(self._seqStr)
                 if seqLen==0:
                     del vh._loop(startBase._strandtype)[startBase._n]
@@ -1009,42 +1008,43 @@ class VirtualHelix(QObject):
             # bases
             for i in range(len(bases)):
                 b = bases[i]
-                if b._strandtype == StrandType.Scaffold:
-                    oppositeStrand = StrandType.Staple
-                else:
-                    oppositeStrand = StrandType.Scaffold
-                complementary_b = b._vhelix._strand(oppositeStrand)[b._n]
-                numBasesInBase = b._vhelix.hasLoopOrSkipAt(b._strandtype, b._n)+1
-                numBasesInCompBase = b._vhelix.hasLoopOrSkipAt(oppositeStrand, b._n)+1
-                oldBaseStrs.append((b._sequence, complementary_b._sequence))
-                numBasesToUse = numBasesInBase if numBasesInBase<=1 else numBasesInBase-1
-                seq = self._seqStr[charactersUsedFromSeqStr:charactersUsedFromSeqStr+numBasesToUse]
-                if numBasesInCompBase == numBasesInBase:
-                    b._sequence = seq
-                    complementary_b._sequence = util.rcomp(seq)
+                stap_b = b._vhelix._strand(StrandType.Staple)[b._n]
+                numBasesInB = b._vhelix.hasLoopOrSkipAt(StrandType.Scaffold, b._n)+1
+                oldBaseStrs.append((b._sequence, stap_b._sequence))
+                numBasesToUse = numBasesInB
+                if charactersUsedFromSeqStr + numBasesToUse <= len(self._seqStr):
+                    seq = self._seqStr[charactersUsedFromSeqStr:charactersUsedFromSeqStr+numBasesToUse]
                     charactersUsedFromSeqStr += numBasesToUse
+                else:
+                    partialSeq = self._seqStr[charactersUsedFromSeqStr:]
+                    charactersUsedFromSeqStr = len(self._seqStr)
+                    seq = partialSeq.ljust(numBasesToUse)
+                b._sequence = seq
+                if not stap_b._sequence:
+                    stap_b._sequence = " "
+                stap_b._sequence = util.rcomp(seq[0]) + stap_b._sequence[1:]
             vh.setHasBeenModified()
             vh.emitBasesModifiedIfNeeded()
 
         def undo(self):
             vh = self._vh
-            bases = vh._basesConnectedTo(self._strandType, self._idx)
-            startBase = vh._strand(self._strandType)[self._idx]
+            scafBases = vh._basesConnectedTo(StrandType.Scaffold, self._idx)
+            stapBases = vh._basesConnectedTo(StrandType.Staple, self._idx)
+            startBase = vh._strand(StrandType.Scaffold)[self._idx]
+            startBaseComplement = vh._strand(StrandType.Staple)[self._idx]
+            scafBasesInBase = vh.hasLoopOrSkipAt(StrandType.Scaffold, startBase._n)
+            stapBasesInBase = vh.hasLoopOrSkipAt(StrandType.Staple, startBase._n)
             if self.oldLoopSeq != None:
                 startBase._sequence = self.oldLoopSeq
                 vh.setHasBeenModified()
                 vh.emitBasesModifiedIfNeeded()
                 return
             for i in range(len(bases)):
-                b = bases[i]
-                if b._strandtype == StrandType.Scaffold:
-                    oppositeStrand = StrandType.Staple
-                else:
-                    oppositeStrand = StrandType.Scaffold
-                complementary_b = vh._strand(oppositeStrand)[b._n]
-                bseq, b_comp_seq = self.oldBaseStrs[i]
-                b._sequence = bseq
-                complementary_b._sequence = b_comp_seq
+                scafB = scafBases[i]
+                stapB = stapBases[i]
+                scafBseq, stapBseq = self.oldBaseStrs[i]
+                scafB._sequence = scafBseq
+                stapB._sequence = stapBseq
             vh.setHasBeenModified()
             vh.emitBasesModifiedIfNeeded()
 

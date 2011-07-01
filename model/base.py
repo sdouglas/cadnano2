@@ -27,7 +27,7 @@ Created by Shawn Douglas on 2011-02-08.
 """
 from .enum import StrandType
 from random import Random
-from views import styles
+import ui.styles as styles
 prng = Random()
 
 import util
@@ -138,22 +138,29 @@ class Base(object):
         the base that exposes the 5' end while the last char exposes its 3' end)
         """
         empty = not (self._hasNeighbor3p() or self._hasNeighbor5p())
-        if empty or len(self._sequence) != 1:
+        if empty:
             return " "
         if self._vhelix.hasLoopOrSkipAt(self._strandtype, self._n):
+            if len(self._sequence):
+                return self._sequence[0]
             return " "
+        elif len(self._sequence) > 1:
+            print "!"
         return self._sequence
     
     def sequenceOfLoop(self):
         """
         This sequence is always returned 5->3 (the first character represents
-        the base that exposes the 5' end while the last char exposes its 3' end)
+        the base that exposes the 5' end while the last char exposes its 3' end).
+        
+        sequenceOfLoop()[0] is displayed on the strand and sequenceOfLoop()[1:]
+        are displayed on the loop.
         """
         actualLoopLength = self._vhelix._loop(self._strandtype)[self._n]
-        if len(self._sequence) != actualLoopLength:
+        if len(self._sequence) - 1 != actualLoopLength:
             # print "Loop had seq %s, should have been len %i"%(self._sequence,actualLoopLength)
             return " "*actualLoopLength
-        return self._sequence
+        return self._sequence[1:]
 
     def __repr__(self):
         if self._3pBase:
