@@ -44,7 +44,7 @@ def getDefaultModules():
     
     Could do this with sets, but I failed the first try so forget it
     """
-    f = open(pathadder+'/mayadefaultmodules.txt','r')
+    f = open(pathadder+'/data/mayadefaultmodules.txt','r')
     defaultmodules = {}
     for line in f:
         key = line.rstrip('\n')
