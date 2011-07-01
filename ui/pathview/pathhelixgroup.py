@@ -65,7 +65,7 @@ class PathHelixGroup(QGraphicsObject):
     _scafColor = QColor(0, 102, 204)
     _scafPen = QPen(_scafColor, 2)
     _nobrush = QBrush(Qt.NoBrush)
-    
+
     def __init__(self, part,\
                        controller=None,\
                        parent=None):
@@ -96,7 +96,7 @@ class PathHelixGroup(QGraphicsObject):
         self.setAcceptHoverEvents(True)
         app().phg = self  # Convenience for the command line -i mode
         self._part.partRemoved.connect(self.destroy)  # connect destructor
-        
+
     def destroy(self):
         self._part.partRemoved.disconnect(self.destroy)
         self.scene().removeItem(self)
