@@ -577,9 +577,16 @@ class PathHelix(QGraphicsObject):
     def sceneEvent(self, event):
         """Included for unit testing in order to grab events that are sent
         via QGraphicsScene.sendEvent()."""
-        self.controller().testRecorder.pathSceneEvent(event, self.number())
+        if self.controller().testRecorder:
+            self.controller().testRecorder.pathSceneEvent(event, self.number())
         if event.type() == QEvent.MouseButtonPress:
             self.mousePressEvent(event)
+            return True
+        elif event.type() == QEvent.MouseButtonRelease:
+            self.mouseReleaseEvent(event)
+            return True
+        elif event.type() == QEvent.MouseMove:
+            self.mouseMoveEvent(event)
             return True
         QGraphicsObject.sceneEvent(self, event)
         return False

@@ -27,6 +27,7 @@ from cadnano import app
 from idbank import IdBank
 from model.document import Document
 from model.encoder import encode
+from model.enum import StrandType
 from .documentwindow import DocumentWindow
 from pathview.pathhelixgroup import PathHelixGroup
 from sliceview.honeycombslicegraphicsitem import HoneycombSliceGraphicsItem
@@ -75,7 +76,8 @@ class DocumentController():
 
     def closer(self, event):
         if self.win.maybeSave():
-            self.win.sliceController.testRecorder.generateTest()
+            if app().testRecordMode:
+                self.win.sliceController.testRecorder.generateTest()
             event.accept()
         else:
             event.ignore()
@@ -293,8 +295,8 @@ class DocumentController():
         the Document addDnaHoneycombPart method."""
         dnaPart = self._document.addDnaHoneycombPart()
         self.setActivePart(dnaPart)
-        # testRecorder
-        self.win.sliceController.testRecorder.setPart(dnaPart.crossSectionType())
+        if app().testRecordMode:
+            self.win.sliceController.testRecorder.setPart(dnaPart.crossSectionType())
     # end def
 
     def addSquareHelixGroup(self):
@@ -302,8 +304,8 @@ class DocumentController():
         the Document addDnaSquarePart method."""
         dnaPart = self._document.addDnaSquarePart()
         self.setActivePart(dnaPart)
-        # testRecorder
-        self.win.sliceController.testRecorder.setPart(dnaPart.crossSectionType())
+        if app().testRecordMode:
+            self.win.sliceController.testRecorder.setPart(dnaPart.crossSectionType())
     # end def
 
     def createAction(self, icon, text, parent, shortcutkey):

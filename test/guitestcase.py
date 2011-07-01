@@ -103,6 +103,7 @@ class GUITestCase(unittest.TestCase):
 
         @see: mousePress for the meaning of the arguments.
         """
+        state = self.LEFT
         self._mouseEvent(QEvent.MouseMove, widget, self.NOBUTTON, position, state, modifiers, qgraphicsscene)
 
     def mouseDrag(self, widget, pressOn, releaseOn, button=None, state=None):
@@ -198,7 +199,6 @@ class GUITestCase(unittest.TestCase):
             position = QPoint(*position)  # assume position is a tuple
         if state is None:
             state = self.NOBUTTON
-        modifiers = Qt.AltModifier|Qt.ShiftModifier
         if modifiers is None:
             modifiers = Qt.NoModifier
         event = QMouseEvent(event_type, position, button, state, modifiers)

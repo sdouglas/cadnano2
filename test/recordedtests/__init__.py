@@ -27,12 +27,3 @@ __init__.py
 
 Created by Shawn Douglas on 2011-06-30.
 """
-
-# import os
-# import glob
-# os.chdir('test/recordedtests')
-# tests = glob.glob("*.py")
-# tests.remove('__init__.py')
-# t = [test[:-3] for test in tests]
-# print t
-# __all__ = t

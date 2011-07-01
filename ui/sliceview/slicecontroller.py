@@ -41,7 +41,7 @@ class SliceController(QObject):
         """
         super(SliceController, self).__init__()
         self.mainWindow = win
-        self.testController = None
+        self.testRecorder = None
         win.actionSliceSelect.triggered.connect(self.chooseSelectTool)
         # win.actionSliceMove.triggered.connect(self.chooseMoveTool)
         win.actionSliceFirst.triggered.connect(self.sliceFirstClicked)
