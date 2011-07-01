@@ -103,6 +103,10 @@ class CADnano(QApplication):
         assert(not CADnano.sharedApp)
         CADnano.sharedApp = self
         self.guiInitialized = False
+        self.testRecordMode = False
+        if "-r" in argv:
+            print "Test Recording Mode."
+            self.testRecordMode = True
 
     def initGui(self):
         if self.guiInitialized:

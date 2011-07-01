@@ -152,6 +152,9 @@ class SliceHelix(QGraphicsItem):
     def sceneEvent(self, event):
         """Included for unit testing in order to grab events that are sent
         via QGraphicsScene.sendEvent()."""
+        if self._parent.sliceController.testRecorder:
+            coord = (self._row, self._col)
+            self._parent.sliceController.testRecorder.sliceSceneEvent(event, coord)
         if event.type() == QEvent.MouseButtonPress:
             self.mousePressEvent(event)
             return True

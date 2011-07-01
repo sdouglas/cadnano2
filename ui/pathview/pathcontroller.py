@@ -49,9 +49,9 @@ class PathController(QObject):
     def __init__(self, win):
         super(PathController, self).__init__()
         self.mainWindow = win
+        self.testRecorder = None
         self._activeTool = None
         self._activePath = None
-
         self.selectTool = SelectTool(self)
         self.breakTool = BreakTool(self)
         self.eraseTool = EraseTool(self)
