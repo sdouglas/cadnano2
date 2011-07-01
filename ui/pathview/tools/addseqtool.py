@@ -57,7 +57,7 @@ class AddSeqTool(AbstractPathTool):
         AbstractPathTool.updateLocation(self, pathHelix, scenePos, *args)
         if pathHelix == None:
             return
-        posItem = self.parentItem().mapFromScene(scenePos)
+        posItem = self.parentObject().mapFromScene(scenePos)
         strandType, baseIdx = self.baseAtPoint(pathHelix, posItem)
         vh = pathHelix.vhelix()
         if vh.hasLoopOrSkipAt(strandType, baseIdx) > 0:

@@ -32,12 +32,6 @@ from ui.pathview.pathhelix import PathHelix
 from ui.pathview.handles.loophandle import LoopItem
 from abstractpathtool import AbstractPathTool
 
-# from PyQt4.QtCore import QPointF, QRectF, Qt
-# from PyQt4.QtGui import QBrush, QFont
-# from PyQt4.QtGui import QGraphicsItem, QGraphicsSimpleTextItem
-# from PyQt4.QtGui import QPainterPath
-# from PyQt4.QtGui import QPen
-
 import util
 # import Qt stuff into the module namespace with PySide, PyQt4 independence
 util.qtWrapImport('QtCore', globals(), ['QPointF', 'QRectF', 'Qt'] )
@@ -86,7 +80,7 @@ class LoopTool(AbstractPathTool):
         posItem = event.pos()
         if flag != None:
             posScene = event.scenePos()
-            posItem = self.parentItem().mapFromScene(posScene)
+            posItem = self.parentObject().mapFromScene(posScene)
         if self.helixIndex(posItem)[1] == 1:
             self._isTop = False
         else:
@@ -97,7 +91,7 @@ class LoopTool(AbstractPathTool):
     def mousePressPathHelix(self, ph, event):
         vh = ph.vhelix()
         posScene = event.scenePos()
-        posItem = self.parentItem().mapFromScene(posScene)
+        posItem = self.parentObject().mapFromScene(posScene)
         indexp = self.helixIndex(posItem)
         mouseDownBase = ph.baseAtLocation(posItem.x(),\
                                                 posItem.y())

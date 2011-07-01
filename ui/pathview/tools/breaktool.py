@@ -36,12 +36,6 @@ import ui.styles as styles
 from ui.pathview.pathhelix import PathHelix
 from abstractpathtool import AbstractPathTool
 
-# from PyQt4.QtCore import QPointF, QRectF, Qt
-# from PyQt4.QtGui import QBrush, QFont, QPolygonF
-# from PyQt4.QtGui import QGraphicsItem, QGraphicsSimpleTextItem
-# from PyQt4.QtGui import QPainterPath
-# from PyQt4.QtGui import QPen
-
 import util
 # import Qt stuff into the module namespace with PySide, PyQt4 independence
 util.qtWrapImport('QtCore', globals(), ['QPointF', 'QRectF', 'Qt'] )
@@ -100,13 +94,13 @@ class BreakTool(AbstractPathTool):
         """
         self.updateLocation(item, event.scenePos())
         posScene = event.scenePos()
-        posItem = self.parentItem().mapFromScene(posScene)
+        posItem = self.parentObject().mapFromScene(posScene)
         self.setTopStrand(self.helixIndex(posItem)[1] == 0)
         self.setPos(self.helixPos(posItem))
 
     def mousePressPathHelix(self, pathHelix, event):
         posScene = event.scenePos()
-        posItem = self.parentItem().mapFromScene(posScene)
+        posItem = self.parentObject().mapFromScene(posScene)
         strandType, idx = self.baseAtPoint(pathHelix, posItem)
         isEndpt = pathHelix.vhelix().hasEndAt(strandType, idx)
         isXover = pathHelix.vhelix().hasCrossoverAt(strandType, idx)

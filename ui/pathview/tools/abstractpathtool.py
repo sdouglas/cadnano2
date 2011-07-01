@@ -112,10 +112,10 @@ class AbstractPathTool(QGraphicsObject):
         position the new tool and snaps self's pos to the upper
         left hand corner of the base the user is mousing over"""
         if pathHelix:
-            if self.parentItem() != pathHelix:
+            if self.parentObject() != pathHelix:
                 self.setParentItem(pathHelix)
             self._lastLocation = (pathHelix, scenePos)
-            posItem = self.parentItem().mapFromScene(scenePos)
+            posItem = self.parentObject().mapFromScene(scenePos)
             pos = self.helixPos(posItem)
             if pos != None:
                 if pos != self.pos():
@@ -130,7 +130,7 @@ class AbstractPathTool(QGraphicsObject):
             self._lastLocation = None
             if self.isVisible():
                 self.hide()
-            if self.parentItem != mother:
+            if self.parentItem() != mother:
                 self.setParentItem(mother)
 
     def setActive(self, willBeActive, oldTool=None):
@@ -144,7 +144,7 @@ class AbstractPathTool(QGraphicsObject):
 
     def isActive(self):
         """Returns isActive"""
-        return self._active!=mother
+        return self._active != mother
     
     def widgetClicked(self):
         """Called every time a widget representing self gets clicked,
@@ -176,7 +176,9 @@ class AbstractPathTool(QGraphicsObject):
         it is within."""
         col = int(point.x() / self._baseWidth)
         row = int(point.y() / self._baseWidth)
-        if col<0 or row<0 or row>1:  # Doesn't know numBases, can't check if point is too far right
+        
+        # Doesn't know numBases, can't check if point is too far right
+        if col < 0 or row < 0 or row > 1:
             return None
         return QPointF(col*self._baseWidth, row*self._baseWidth)
     # end def

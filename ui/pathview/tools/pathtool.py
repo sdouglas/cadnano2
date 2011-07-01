@@ -86,7 +86,7 @@ class PathTool(QGraphicsItem):
 
         def toolPress(self, item, event):
             posScene = event.scenePos()
-            posItem = self.parentItem().mapFromScene(posScene)
+            posItem = self.parentObject().mapFromScene(posScene)
             indexp = self.helixIndex(posItem)
             print "PathTool clicked at: (%d, %d) on helix %d" % \
                 (indexp[0], indexp[1], self.parentItem().number())
@@ -109,7 +109,7 @@ class PathTool(QGraphicsItem):
             posItem = event.pos()
             if flag != None:
                 posScene = event.scenePos()
-                posItem = self.parentItem().mapFromScene(posScene)
+                posItem = self.parentObject().mapFromScene(posScene)
             self.setPos(self.helixPos(posItem))
         # end def
 

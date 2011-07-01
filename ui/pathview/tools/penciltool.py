@@ -30,7 +30,6 @@ Created by Nick Conway on 2011-06-04.
 from selecttool import SelectTool
 from forcetool import ForceTool
 
-# from PyQt4.QtCore import Qt
 import util
 # import Qt stuff into the module namespace with PySide, PyQt4 independence
 util.qtWrapImport('QtCore', globals(), ['Qt'] )

@@ -229,7 +229,8 @@ class LoopHandle(QGraphicsItem):
 
     def resetPosition(self):
         txtOffset = self._label.boundingRect().width() / 2
-        ph = self.parentItem()
+        # ph = self.parentItem()
+        ph = self.parentObject()
         posItem = ph.baseLocation(self._strandtype, self._index, center=True)
         if ph.strandIsTop(self._strandtype):
             self.setPos(posItem[0] - txtOffset + self._offset,\

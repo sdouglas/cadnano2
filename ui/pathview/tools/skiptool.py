@@ -29,7 +29,6 @@ from abstractpathtool import AbstractPathTool
 import ui.styles as styles
 from ui.pathview.handles.loophandle import SkipItem
 
-# from PyQt4.QtGui import QPen
 import util
 # import Qt stuff into the module namespace with PySide, PyQt4 independence
 util.qtWrapImport('QtGui', globals(), [ 'QPen'] )
@@ -63,14 +62,14 @@ class SkipTool(AbstractPathTool):
     def mousePressPathHelix(self, ph, event):
         vh = ph.vhelix()
         posScene = event.scenePos()
-        posItem = self.parentItem().mapFromScene(posScene)
+        posItem = self.parentObject().mapFromScene(posScene)
         indexp = self.helixIndex(posItem)
         mouseDownBase = ph.baseAtLocation(posItem.x(),\
                                                 posItem.y())
         # print "SkipTool clicked at: (%d, %d) on helix %d" % \
-        #     (indexp[0], indexp[1], self.parentItem().number())
-        # create a new SkipHandle by adding through the parentItem
-        # create a new LoopHandle by adding through the     parentItem
+        #     (indexp[0], indexp[1], self.parentObject().number())
+        # create a new SkipHandle by adding through the parentObject
+        # create a new LoopHandle by adding through the     parentObject
         if mouseDownBase:
             loopsize = vh.hasLoopOrSkipAt(*mouseDownBase)
             if loopsize > 0:    # toggle from loop

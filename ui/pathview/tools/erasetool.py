@@ -65,7 +65,12 @@ class EraseTool(AbstractPathTool):
         posScene = event.scenePos()
         posItem = self.parentItem().mapFromScene(posScene)
         strandType, idx = self.baseAtPoint(pathHelix, posItem)
-        vh = self.parentItem().vhelix()
+        
+        # Ambiguous as to whether we should call pathHelix.vhelix()
+        # or the following, because it's unclear if things will be reparented
+        # properly post mouse clicks
+        vh = self.parentObject().vhelix()
+        
         vh.undoStack().beginMacro("Erase")
         rightBreakIdx = leftBreakIdx = idx
         while leftBreakIdx>1:
