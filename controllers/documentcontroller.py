@@ -27,14 +27,14 @@ from cadnano import app
 from idbank import IdBank
 from model.document import Document
 from model.encoder import encode
+from model.decoder import decode
 from model.enum import StrandType
+from model.enum import LatticeType
 from views.documentwindow import DocumentWindow
 from views.pathview.pathhelixgroup import PathHelixGroup
 from views.sliceview.honeycombslicegraphicsitem import HoneycombSliceGraphicsItem
 from views.sliceview.squareslicegraphicsitem import SquareSliceGraphicsItem
 from views.pathview.handles.activeslicehandle import ActiveSliceHandle
-from model.enum import LatticeType
-from model.decoder import decode
 from views import styles
 
 import util

@@ -141,11 +141,11 @@ class TestRecorder(object):
                                        self.createUserInput(indent),\
                                        self.checkAgainstModel(indent))
         # write to the next file
-        # oldtests = glob.glob("test/recordedtests/recordedtest_*.py")  # get all the recorded tests
-        # name = "test/recordedtests/recordedtest_%03d.py" % len(oldtests)
-        # f = open(name, 'w')
-        # f.write(newtest)
-        # f.close()
+        oldtests = glob.glob("test/recordedtests/recordedtest_*.py")  # get all the recorded tests
+        name = "test/recordedtests/recordedtest_%03d.py" % len(oldtests)
+        f = open(name, 'w')
+        f.write(newtest)
+        f.close()
 
         indent2 = "".join(" " for i in range(8))
         newtest2 = self.testTemplate2 % (self.createPart(indent2),\
