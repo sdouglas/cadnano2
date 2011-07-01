@@ -23,6 +23,9 @@
 #
 # http://www.opensource.org/licenses/mit-license.php
 
+from PyQt4.QtCore import Qt, QPoint
+
+
 def testMethod(self):
     # Create part
     partButton = self.mainWindow.topToolBar.widgetForAction(self.mainWindow.actionNewSquarePart)

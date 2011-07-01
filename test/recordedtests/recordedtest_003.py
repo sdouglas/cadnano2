@@ -23,6 +23,9 @@
 #
 # http://www.opensource.org/licenses/mit-license.php
 
+from PyQt4.QtCore import Qt, QPoint
+
+
 def testMethod(self):
     # Create part
     partButton = self.mainWindow.topToolBar.widgetForAction(self.mainWindow.actionNewHoneycombPart)
@@ -34,7 +37,7 @@ def testMethod(self):
     ash = self.documentController.pathHelixGroup.activeSliceHandle()
 
     # Playback user input
-self.mousePress(sgi.getSliceHelixByCoord(1, 3), position=QPoint(12, 23), modifiers=Qt.NoModifier, qgraphicsscene=self.mainWindow.slicescene)
+    self.mousePress(sgi.getSliceHelixByCoord(1, 3), position=QPoint(12, 23), modifiers=Qt.NoModifier, qgraphicsscene=self.mainWindow.slicescene)
     self.mouseMove(sgi.getSliceHelixByCoord(1, 3), position=QPoint(14, 26), modifiers=Qt.NoModifier, qgraphicsscene=self.mainWindow.slicescene)
     self.mouseRelease(sgi.getSliceHelixByCoord(1, 3), position=QPoint(14, 26), modifiers=Qt.NoModifier, qgraphicsscene=self.mainWindow.slicescene)
     self.mousePress(phg.getPathHelix(0), position=QPoint(105, 0), modifiers=Qt.NoModifier, qgraphicsscene=self.mainWindow.pathscene)

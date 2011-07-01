@@ -28,6 +28,7 @@ def main():
         m = __import__(mod)  # dynamic import magic
         testname = "testMethod" + mod[-3:]  # recover test number
         setattr(RecordedTests, testname, m.testMethod)
+    os.chdir('../..')
     recsuite = unittest.makeSuite(RecordedTests)
 
     # combine and run tests

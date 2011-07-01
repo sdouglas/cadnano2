@@ -55,12 +55,3 @@ class RecordedTests(CadnanoGuiTestCase):
         """
         CadnanoGuiTestCase.tearDown(self)
         # Add functional-test-specific cleanup here
-
-    def testMethod(self):
-        """Gets overrided in runall.py"""
-        pass
-
-    def testMethod1(self):
-        """Gets overrided in runall.py"""
-        pass
-
