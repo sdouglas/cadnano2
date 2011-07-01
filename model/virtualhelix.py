@@ -35,7 +35,7 @@ from .base import Base
 from cadnano import app
 from random import Random
 import re, sys, os
-from ui import styles
+from views import styles
 from math import modf
 
 import util

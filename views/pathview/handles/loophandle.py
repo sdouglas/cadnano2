@@ -26,7 +26,7 @@ loophandle.py
 Created by Shawn on 2011-05-03.
 """
 
-import ui.styles as styles
+from views import styles
 from model.enum import StrandType
 
 # from PyQt4.QtCore import QPointF, QRectF, Qt
