@@ -69,7 +69,7 @@ def qtWrapImport(name, globaldict, fromlist):
 # end def
 
 # from PyQt4.QtGui import QGraphicsItem, QColor
-qtWrapImport('QtGui', globals(), [ 'QGraphicsItem', 'QColor'] )
+qtWrapImport('QtGui', globals(), [ 'QGraphicsItem', 'QColor'])
 
 def clamp(x, minX, maxX):
     if x < minX:

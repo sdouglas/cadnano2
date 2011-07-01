@@ -23,31 +23,39 @@
 # http://www.opensource.org/licenses/mit-license.php
 
 """
-part
-Created by Jonathan deWerd on 2011-01-26.
+partnode.py
+
+Created by Nick Conway on 2011-01-19.
 """
-from exceptions import NotImplementedError
-from cadnano import app
 
-import util
-# import Qt stuff into the module namespace with PySide, PyQt4 independence
-util.qtWrapImport('QtCore', globals(), ['pyqtSignal', 'QObject'])
+from ui.treeview.treemodel import Node
 
-class Part(QObject):
-    # this is for removing a part from scenes
-    partRemoved = pyqtSignal()
+class PartNode(Node):
+    """
+    """
+    ntype = "part" # the type of node i.e. Assembly, Part, etc
     
-    def __init__(self, id, *args, **kargs):
-        super(Part, self).__init__()
-        app().p = self
-    
-    def document(self):
-        return self._document
-    
-    def _setDocument(self, newDoc):
-        "Should only be called by Document"
-        self._document = newDoc
-    
-    def undoStack(self):
-        return self.document().undoStack()
-
+    def __init__(self, name="", part_inst=None, node_attribute=None, parent=None):
+        """
+        """
+        super(PartNode,self).__init__(parent)    
+        self.parent = parent
+        self.children = []
+        
+        if name == "":
+            self.name = "Part.1"
+            #print "adding Part"
+        # end if
+        else:
+            self.name = name
+        # end else
+        
+        if self.parent != None:
+            #print "added Part!"
+            self.parent.addChild(self)
+        #end if
+        
+        self.object_instance = part_inst
+    # end def
+        
+# end class

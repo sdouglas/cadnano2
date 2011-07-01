@@ -28,12 +28,12 @@ from .virtualhelix import VirtualHelix
 from .enum import LatticeType, StrandType
 from heapq import *
 import copy
-from ui import styles
+from views import styles
 
 import util
 # import Qt stuff into the module namespace with PySide, PyQt4 independence
-util.qtWrapImport('QtCore', globals(), ['QObject', 'pyqtSignal'] )
-util.qtWrapImport('QtGui', globals(), [ 'QUndoCommand'] )
+util.qtWrapImport('QtCore', globals(), ['QObject', 'pyqtSignal'])
+util.qtWrapImport('QtGui', globals(), [ 'QUndoCommand'])
 
 class DNAPart(Part):
     """

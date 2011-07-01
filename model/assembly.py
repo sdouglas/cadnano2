@@ -34,7 +34,7 @@ from idbank import IdBank
 # from PyQt4.QtCore import QObject
 import util
 # import Qt stuff into the module namespace with PySide, PyQt4 independence
-util.qtWrapImport('QtCore', globals(), ['QObject'] )
+util.qtWrapImport('QtCore', globals(), ['QObject'])
 
 
 

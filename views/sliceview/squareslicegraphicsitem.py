@@ -22,32 +22,34 @@
 #
 # http://www.opensource.org/licenses/mit-license.php
 
+
 """
-part
-Created by Jonathan deWerd on 2011-01-26.
+squareslicegraphicsitem.py
+
+Created by Nick Conway on 2010-06-23.
 """
-from exceptions import NotImplementedError
-from cadnano import app
+
+from slicegraphicsitem import SliceGraphicsItem
 
 import util
 # import Qt stuff into the module namespace with PySide, PyQt4 independence
-util.qtWrapImport('QtCore', globals(), ['pyqtSignal', 'QObject'])
+util.qtWrapImport('QtCore', globals(), ['QRectF'])
 
-class Part(QObject):
-    # this is for removing a part from scenes
-    partRemoved = pyqtSignal()
+class SquareSliceGraphicsItem(SliceGraphicsItem):
+    """
+    SquareSliceGraphicsItem
+    """
     
-    def __init__(self, id, *args, **kargs):
-        super(Part, self).__init__()
-        app().p = self
-    
-    def document(self):
-        return self._document
-    
-    def _setDocument(self, newDoc):
-        "Should only be called by Document"
-        self._document = newDoc
-    
-    def undoStack(self):
-        return self.document().undoStack()
+    def __init__(self, part, controller=None, parent=None):
+        SliceGraphicsItem.__init__(self, part, controller, parent)
+
+    def _upperLeftCornerForCoords(self, row, col):
+        x = col*2*self.radius
+        y = row*2*self.radius
+        return (x, y)
+
+    def _updateGeometry(self, newCols, newRows):
+        self._rect = QRectF(0, 0,\
+                           (newCols)*self.radius*2,\
+                           (newRows)*self.radius*2)
 

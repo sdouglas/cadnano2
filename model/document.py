@@ -28,15 +28,15 @@ Created by Jonathan deWerd on 2011-01-26.
 """
 
 import json
-import ui.styles as styles
+from views import styles
 from .dnahoneycombpart import DNAHoneycombPart
 from .dnasquarepart import DNASquarePart
 from .enum import LatticeType
 
 import util
 # import Qt stuff into the module namespace with PySide, PyQt4 independence
-util.qtWrapImport('QtCore', globals(), ['pyqtSignal', 'QObject'] )
-util.qtWrapImport('QtGui', globals(), [ 'QUndoCommand'] )
+util.qtWrapImport('QtCore', globals(), ['pyqtSignal', 'QObject'])
+util.qtWrapImport('QtGui', globals(), [ 'QUndoCommand'])
 
 class Document(QObject):
     def __init__(self, incompleteArchivedDict=None):

@@ -23,31 +23,14 @@
 # http://www.opensource.org/licenses/mit-license.php
 
 """
-part
-Created by Jonathan deWerd on 2011-01-26.
+solidcontroller.py
+
+Created by Nick Conway on 2011-02-04.
+For use controlling 3D solid models generated in Maya
 """
-from exceptions import NotImplementedError
-from cadnano import app
 
-import util
-# import Qt stuff into the module namespace with PySide, PyQt4 independence
-util.qtWrapImport('QtCore', globals(), ['pyqtSignal', 'QObject'])
-
-class Part(QObject):
-    # this is for removing a part from scenes
-    partRemoved = pyqtSignal()
+class SolidController():
+    """
+    Manages interactions between the slice widgets/UI and the model.
+    """
     
-    def __init__(self, id, *args, **kargs):
-        super(Part, self).__init__()
-        app().p = self
-    
-    def document(self):
-        return self._document
-    
-    def _setDocument(self, newDoc):
-        "Should only be called by Document"
-        self._document = newDoc
-    
-    def undoStack(self):
-        return self.document().undoStack()
-

@@ -27,7 +27,7 @@ Created by Shawn Douglas on 2011-02-08.
 """
 from .enum import StrandType
 from random import Random
-import ui.styles as styles
+from views import styles
 prng = Random()
 
 import util

@@ -22,32 +22,39 @@
 #
 # http://www.opensource.org/licenses/mit-license.php
 
+
 """
-part
-Created by Jonathan deWerd on 2011-01-26.
+honeycombslicegraphicsitem.py
+
+Created by Shawn Douglas on 2010-06-15.
 """
-from exceptions import NotImplementedError
-from cadnano import app
+
+from slicegraphicsitem import SliceGraphicsItem
 
 import util
 # import Qt stuff into the module namespace with PySide, PyQt4 independence
-util.qtWrapImport('QtCore', globals(), ['pyqtSignal', 'QObject'])
+util.qtWrapImport('QtCore', globals(), ['QRectF'])
 
-class Part(QObject):
-    # this is for removing a part from scenes
-    partRemoved = pyqtSignal()
+root3 = 1.732051
+class HoneycombSliceGraphicsItem(SliceGraphicsItem):
+    """
+    HoneycombSliceGraphicsItem
+    """
     
-    def __init__(self, id, *args, **kargs):
-        super(Part, self).__init__()
-        app().p = self
-    
-    def document(self):
-        return self._document
-    
-    def _setDocument(self, newDoc):
-        "Should only be called by Document"
-        self._document = newDoc
-    
-    def undoStack(self):
-        return self.document().undoStack()
+    def __init__(self, part, controller=None, parent=None):
+        SliceGraphicsItem.__init__(self, part, controller, parent)
 
+    def _upperLeftCornerForCoords(self, row, col):
+        x = col*self.radius*root3
+        if ((row % 2) ^ (col % 2)): # odd parity
+            y = row*self.radius*3 + self.radius
+        else:                       # even parity
+            y = row*self.radius*3
+        return (x, y)
+
+    def _updateGeometry(self, newCols, newRows):
+        self._rect = QRectF(0, 0,\
+                           (newCols)*self.radius*root3,\
+                           (newRows)*self.radius*3)
+
+# end class

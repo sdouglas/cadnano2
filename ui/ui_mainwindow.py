@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'mainwindow.ui'
 #
-# Created: Fri Jul  1 11:47:25 2011
+# Created: Fri Jul  1 14:18:24 2011
 #      by: PyQt4 UI code generator snapshot-4.8.3-fbc8b1362812
 #
 # WARNING! All changes made in this file will be lost!
@@ -367,5 +367,5 @@ class Ui_MainWindow(object):
         self.actionPathAddSeq.setToolTip(QtGui.QApplication.translate("MainWindow", "(A)dd Sequence Tool", None, QtGui.QApplication.UnicodeUTF8))
         self.actionPathAddSeq.setShortcut(QtGui.QApplication.translate("MainWindow", "A", None, QtGui.QApplication.UnicodeUTF8))
 
-from customqgraphicsview import CustomQGraphicsView
+from views.customqgraphicsview import CustomQGraphicsView
 import icons_rc
