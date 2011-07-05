@@ -80,6 +80,7 @@ class DocumentWindow(QMainWindow, ui_mainwindow.Ui_MainWindow):
         # self.pathGraphicsView.setViewportUpdateMode(QGraphicsView.FullViewportUpdate)
         # self.pathGraphicsView.setAutoFillBackground ( True )
         # self.pathscene.setBackgroundBrush(Qt.white)
+        # self.pathscene.setItemIndexMethod(QGraphicsScene.NoIndex)
         
         self.pathGraphicsView.setScene(self.pathscene)
         self.pathGraphicsView.sceneRootItem = self.pathroot

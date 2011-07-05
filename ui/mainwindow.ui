@@ -170,6 +170,7 @@
      </property>
      <addaction name="actionSVG"/>
      <addaction name="actionX3D"/>
+     <addaction name="actionCSV"/>
     </widget>
     <addaction name="actionNew"/>
     <addaction name="actionOpen"/>
@@ -645,6 +646,14 @@
    </property>
    <property name="shortcut">
     <string>A</string>
+   </property>
+  </action>
+  <action name="actionCSV">
+   <property name="text">
+    <string>CSV</string>
+   </property>
+   <property name="toolTip">
+    <string>export oligos as *.CSV</string>
    </property>
   </action>
  </widget>
