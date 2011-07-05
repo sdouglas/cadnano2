@@ -298,10 +298,12 @@ class DocumentController():
         for vh in part.getVirtualHelices():
             xos = vh.get3PrimeXovers(StrandType.Scaffold)
             for xo in xos:
-                self.pathHelixGroup.createXoverItem(xo[0], xo[1], StrandType.Scaffold)
+                toBase = (xo[1][0], xo[1][2])
+                self.pathHelixGroup.createXoverItem(xo[0], toBase, StrandType.Scaffold)
             xos = vh.get3PrimeXovers(StrandType.Staple)
             for xo in xos:
-                self.pathHelixGroup.createXoverItem(xo[0], xo[1], StrandType.Staple)
+                toBase = (xo[1][0], xo[1][2])
+                self.pathHelixGroup.createXoverItem(xo[0], toBase, StrandType.Staple)
         # end for
     # end def
     

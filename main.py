@@ -32,7 +32,9 @@ Created by Shawn Douglas on 2010-09-26.
 """
 
 import sys
+sys.path.insert(0, '.')
 from cadnano import app as getAppInstance
+from osx.CNDocumentController import sharedController as documentController
 
 app = getAppInstance(appArgs=sys.argv)
 app.initGui()

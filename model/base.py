@@ -145,7 +145,7 @@ class Base(object):
                 return self._sequence[0]
             return " "
         elif len(self._sequence) > 1:
-            print "!"
+            return "!"
         return self._sequence
     
     def sequenceOfLoop(self):

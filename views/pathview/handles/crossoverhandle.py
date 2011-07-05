@@ -65,12 +65,15 @@ class XoverHandle(QGraphicsItem):
     def __init__(self, xoverpair, idx, fromVH, toVH, parentPH):
         "this sets the parent object to the phg"
         super(XoverHandle, self).__init__(parent=parentPH)
+        self._phg = parentPH.pathHelixGroup()
         self.setZValue(styles.ZXOVERHANDLEPAIR)
         self._xoverpair = xoverpair
         # self.phg.geometryChanged.connect(self.prepareGeometryChange)
         self._index = idx  
         self._toVH = toVH
         self._fromVH = fromVH
+        fromVH.basesModified.connect(self.update)
+        toVH.basesModified.connect(self.update)
         self.hide()
         x = self._baseWidth * self._index
         y = (0 if self.onTopStrand() else 1) * self._baseWidth
@@ -107,8 +110,17 @@ class XoverHandle(QGraphicsItem):
 
     def paint(self, painter, option, widget=None):
         painter.setBrush(Qt.NoBrush)
-        painter.setPen(self._xoverpair.getPen())
-        painter.drawPath(self._painterpath)
+        self._xoverpair.refreshPen()
+        pen = self._xoverpair.getPen()
+        painter.setPen(pen)
+        bw = self._baseWidth
+        pw = pen.widthF()
+        center = QPointF(bw/2, bw/2)
+        if self.onTopStrand():
+            edge = QPointF(bw/2, pw/2.0)
+        else:
+            edge = QPointF(bw/2, bw-pw/2.0)
+        painter.drawLine(center, edge)
         self.drawLabel(painter)
    
     def drawLabel(self, painter):
@@ -119,26 +131,10 @@ class XoverHandle(QGraphicsItem):
 
     def boundingRect(self):
        return self._rect
-       
    
     def mousePressEvent(self, event):
-        if event.button() != Qt.LeftButton:
-            return QGraphicsItem.mousePressEvent(self, event)
-        if not self.couldFormNewCrossover():
-            return
-        # Determine upstream base
-        fromHelix, toHelix = self.fromVH, self.toVH
-        fromIdx, toIdx = self.fromIdx, self.toIdx
-        endToTakeColorFrom = 3
-        if not self.is3pEndOfCrossover():
-            fromHelix, toHelix = toHelix, fromHelix
-            fromIdx, toIdx = toIdx, fromIdx
-            endToTakeColorFrom = 5
-        # Create XoverHandlePair and store references
-        fromHelix.installXoverFrom3To5(self.fromStrand, \
-            fromIdx, toHelix, toIdx, endToTakeColorFrom=endToTakeColorFrom)
-        fromHelix.palette().shuffle()
-# end class
+        xop = self._xoverpair
+        xop._fromVH.removeXoverTo(xop._strandtype, xop._fromIdx, xop._toVH, xop._toIdx)
 
 class XoverHandlePair(QGraphicsItem):
     """
@@ -204,6 +200,7 @@ class XoverHandlePair(QGraphicsItem):
         self._fromVH.basesModified.disconnect(self.refresh)
         self._toVH.basesModified.disconnect(self.refresh)
         self.hide()
+        key = self.keyMe()
         del self._phg.xovers[self.keyMe()]
         self.scene().removeItem(self)
     # end def
@@ -213,7 +210,6 @@ class XoverHandlePair(QGraphicsItem):
         #if True:
             self.refreshPath()
             self.refreshPen()
-            self.refreshRect()
             self.update(self.boundingRect())
             self._xover3prime.update(self._xover3prime.boundingRect())
             self._xover5prime.update(self._xover5prime.boundingRect())
@@ -238,32 +234,20 @@ class XoverHandlePair(QGraphicsItem):
         # end if
         else:
             self._pen = self._phg._scafPen
+        self.refreshRect()
     # end def
-    
-    def refreshRect(self):
-        # rect5 = self.mapRectFromItem(self._xover5prime, \
-        #                             self._xover5prime.boundingRect())
-        # rect3 = self.mapRectFromItem(self._xover3prime, \
-        #                             self._xover3prime.boundingRect())
-        # rect5 = rect5.united(rect3)
-        # rect5.setWidth(rect5.width()+abs(self._c.x()))
-        # if self._c.x() < 0:
-        #     rect5.setX(rect5.x()+self._c.x())
-        self._rect = self._painterpath.boundingRect()
-    # end def
-    
+
     def paint(self, painter, option, widget=None):
         painter.setBrush(Qt.NoBrush)
         self.refreshPen()
-        painter.setPen(self._pen)
+        pen = QPen(self._pen)
+        pen.setCapStyle(Qt.FlatCap)
+        painter.setPen(pen)
         # painter.drawRect(self._rect)
         painter.drawPath(self._painterpath)
-    # end def
 
     def boundingRect(self):
-        # rect set only by _setPathHelixList
         return self._rect
-    # end def
 
     def refreshPath(self, floatPos=None):
         """
@@ -327,10 +311,10 @@ class XoverHandlePair(QGraphicsItem):
                                     self._baseWidth, self._baseWidth)
             self._xover5prime.setLabelRect(labelPosRect5)
         # Determine start and end points of quad curve
-        yOffsetFromCenterToEdge = self._baseWidth/2 * (-1 if from5To3 else 1)
+        yOffsetFromCenterToEdge = self._baseWidth*1.0/3 * (-1 if from5To3 else 1)
         q3 = QPointF(fromBaseCenter.x(),\
                      fromBaseCenter.y() + yOffsetFromCenterToEdge)
-        yOffsetFromCenterToEdge = self._baseWidth/2 * (-1 if toIs5To3 else 1)
+        yOffsetFromCenterToEdge = self._baseWidth*1.0/3 * (-1 if toIs5To3 else 1)
         q5 = QPointF(toBaseCenter.x(),\
                      toBaseCenter.y() + yOffsetFromCenterToEdge)
 
@@ -355,7 +339,7 @@ class XoverHandlePair(QGraphicsItem):
             dy = abs(toBaseCenter.y() - fromBaseCenter.y())
             c1.setX(fromBaseCenter.x() + self._xScale * dy)
             c1.setY(0.5 * (fromBaseCenter.y() + toBaseCenter.y()))
-        # case 3: default
+        # case 3: different parity
         else:
             if orient3 == HandleOrient.LeftUp:
                 c1.setX(fromBaseCenter.x() - self._xScale *\
@@ -372,5 +356,11 @@ class XoverHandlePair(QGraphicsItem):
         painterpath.quadTo(c1, q5)
         painterpath.lineTo(toBaseCenter)
         self._painterpath = painterpath
+        self.refreshRect()
     # end def
+
+    def refreshRect(self):
+        self._rect = self._painterpath.boundingRect()
+        penW = self.getPen().widthF()
+        self._rect.adjust(-penW, -penW, 2*penW, 2*penW)        
 # end class

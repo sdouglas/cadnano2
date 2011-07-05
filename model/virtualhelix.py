@@ -530,7 +530,7 @@ class VirtualHelix(QObject):
     def get3PrimeXovers(self, strandType):
         """
         Returns a tuple of tuples of the form 
-        ((fromVH, fromIdx), (toVH, toIdx))
+        ((fromVH, fromIdx), (toVH, strandType, toIdx))
         or, in the case of a floating crossover,
         ((fromVH, fromIdx), toQPoint)
         """
@@ -1399,8 +1399,6 @@ class VirtualHelix(QObject):
             toB = self._toHelix._strand(strandType)[toIdx]
             old3p = fromB._3pBase
             old5p = toB._5pBase
-            if fromB._vhelix.number()==3 and fromB._n==6:
-                print "!"
             self._undoDat = fromB._set3Prime(toB)
             if self._speedy:
                 self._colorCommand = False
