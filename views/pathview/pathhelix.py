@@ -365,6 +365,8 @@ class PathHelix(QGraphicsObject):
                     painter.setBrush(Qt.NoBrush)
                     painter.drawPath(path)
                     baseText = vh.sequenceForLoopAt(strandType, index)
+                    if len(baseText) > 20:
+                        baseText = baseText[:17] + '...'
                     fractionArclenPerChar = (1.-2*self.fractionLoopToPad)/(len(baseText)+1)
                     painter.setPen(QPen(Qt.black))
                     painter.setBrush(Qt.NoBrush)
