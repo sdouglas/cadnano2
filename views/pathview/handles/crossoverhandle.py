@@ -159,6 +159,7 @@ class XoverHandlePair(QGraphicsItem):
         self._fromIdx = fromIdx
         self._toVH = toVH
         self._toIdx = toIdx
+        self.floatPos = None
         self.hide()
         if self._strandtype == StrandType.Scaffold:
             self._pen = self._phg._scafPen
