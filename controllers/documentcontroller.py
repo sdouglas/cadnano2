@@ -127,6 +127,7 @@ class DocumentController():
         self.win.actionSave.triggered.connect(self.saveClicked)
         self.win.actionSVG.triggered.connect(self.svgClicked)
         self.win.actionAutoStaple.triggered.connect(self.autoStapleClicked)
+        self.win.actionCSV.triggered.connect(self.exportAsClicked)
         # self.win.actionSave_As.triggered.connect(self.saveAsClicked)
         # self.win.actionQuit.triggered.connect(self.closeClicked)
         # self.win.actionAdd.triggered.connect(self.addClicked)
@@ -190,6 +191,81 @@ class DocumentController():
             del self.filesavedialog # manual garbage collection to prevent hang (in osx)
     # end def
 
+    def exportSequenceCSV(self, fname):
+        """"""
+        f = open(fname, 'w')
+        part = self.activePart()
+        vhelices = part.getVirtualHelices()
+        oligo_ends = []
+        for vh in vhelices:
+            vh5 = vh
+            # retrieve the 5 prime endpoints of the staple strands
+            oligo_ends = vh.getEndpoints(StrandType.Staple)[1]
+            for endpoint in oligo_ends:
+                bases = vh5._basesConnectedTo(StrandType.Staple, endpoint)
+                sequencestring = ""
+                for base in bases:
+                    sequencestring += base.sequence()
+                # end for each base
+                output = "%d[%d], %d[%d], %s, %s\n" % \
+                        (vh5.number(), \
+                        bases[0]._n, \
+                        bases[len(bases)-1].vhelixNum(), \
+                        bases[len(bases)-1]._n, \
+                        sequencestring, \
+                        bases[0].getColor().name() )
+                f.write(output)
+            # end for each oligo
+        # end for each vh
+        f.close()
+    # end def
+
+    def exportAsClicked(self):
+        print "Export clicked"
+        fname = self.filename()
+        if fname == None:
+            directory = "."
+        else:
+            directory = QFileInfo(fname).path()
+        if util.isWindows(): # required for native looking file window
+            fname = QFileDialog.getSaveFileName(self.win, 
+                                "%s - Export As" % QApplication.applicationName(),\
+                                directory, \
+                                "(*.csv)"\
+                                 )
+            self.filesavedialog = None
+            self.exportFile(fname)
+        else:  # access through non-blocking callback
+            fdialog = QFileDialog ( self.win, \
+                                "%s - Export As" % QApplication.applicationName(),\
+                                directory, \
+                                "(*.csv)")
+            fdialog.setAcceptMode(QFileDialog.AcceptSave)
+            fdialog.setWindowFlags(Qt.Sheet)
+            fdialog.setWindowModality(Qt.WindowModal)
+            # fdialog.exec_()  # or .show(), or .open()
+            self.filesavedialog = fdialog
+            self.filesavedialog.filesSelected.connect(self.exportFile) 
+            fdialog.open()
+    # end def
+    
+    def exportFile(self, selected):
+        if isinstance(selected, QStringList):
+            fname = selected[0]
+        else:
+            fname = selected
+        if fname.isEmpty() or os.path.isdir(fname):
+            return False
+        fname = str(fname)
+        if not fname.lower().endswith(".csv"):
+            fname += ".csv"
+        # self.setFilename(fname)
+        if self.filesavedialog != None:
+            self.filesavedialog.filesSelected.disconnect(self.exportFile)
+            del self.filesavedialog # manual garbage collection to prevent hang (in osx)
+        return self.exportSequenceCSV(fname)
+    # end def
+    
     def closeClicked(self):
         """This will trigger a Window closeEvent"""
         print "close clicked"
@@ -305,6 +381,7 @@ class DocumentController():
                 toBase = (xo[1][0], xo[1][2])
                 self.pathHelixGroup.createXoverItem(xo[0], toBase, StrandType.Staple)
         # end for
+        self.setActivePart(part)
     # end def
     
     def addHoneycombHelixGroup(self):

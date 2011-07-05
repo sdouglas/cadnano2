@@ -2,8 +2,8 @@
 
 # Form implementation generated from reading ui file 'mainwindow.ui'
 #
-# Created: Fri Jul  1 14:18:24 2011
-#      by: PyQt4 UI code generator snapshot-4.8.3-fbc8b1362812
+# Created: Tue Jul  5 15:37:53 2011
+#      by: PyQt4 UI code generator 4.8.3
 #
 # WARNING! All changes made in this file will be lost!
 
@@ -244,9 +244,12 @@ class Ui_MainWindow(object):
         icon19.addPixmap(QtGui.QPixmap(_fromUtf8(":/pathtools/add seq")), QtGui.QIcon.Normal, QtGui.QIcon.Off)
         self.actionPathAddSeq.setIcon(icon19)
         self.actionPathAddSeq.setObjectName(_fromUtf8("actionPathAddSeq"))
+        self.actionCSV = QtGui.QAction(MainWindow)
+        self.actionCSV.setObjectName(_fromUtf8("actionCSV"))
         self.menuOpen_recent_files.addSeparator()
         self.menuExport.addAction(self.actionSVG)
         self.menuExport.addAction(self.actionX3D)
+        self.menuExport.addAction(self.actionCSV)
         self.menuFile.addAction(self.actionNew)
         self.menuFile.addAction(self.actionOpen)
         self.menuFile.addAction(self.menuOpen_recent_files.menuAction())
@@ -366,6 +369,8 @@ class Ui_MainWindow(object):
         self.actionPathAddSeq.setText(QtGui.QApplication.translate("MainWindow", "Add Seq", None, QtGui.QApplication.UnicodeUTF8))
         self.actionPathAddSeq.setToolTip(QtGui.QApplication.translate("MainWindow", "(A)dd Sequence Tool", None, QtGui.QApplication.UnicodeUTF8))
         self.actionPathAddSeq.setShortcut(QtGui.QApplication.translate("MainWindow", "A", None, QtGui.QApplication.UnicodeUTF8))
+        self.actionCSV.setText(QtGui.QApplication.translate("MainWindow", "CSV", None, QtGui.QApplication.UnicodeUTF8))
+        self.actionCSV.setToolTip(QtGui.QApplication.translate("MainWindow", "export oligos as *.CSV", None, QtGui.QApplication.UnicodeUTF8))
 
 from views.customqgraphicsview import CustomQGraphicsView
 import icons_rc
