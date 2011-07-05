@@ -792,11 +792,11 @@ class VirtualHelix(QObject):
         """
         if undoStack == True:
             undoStack = self.undoStack()
-        if undoStack:
+        if undoStack!=None:
             undoStack.beginMacro("Install Xover")
         c = self.Connect3To5Command(strandType, self, fromIndex, toVhelix,\
                toIndex, endToTakeColorFrom, speedy=speedy)
-        if undoStack:
+        if undoStack!=None:
             undoStack.push(c)
             if not speedy:
                 toVhelix.thoughtPolice(undoStack=undoStack)

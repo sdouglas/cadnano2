@@ -141,7 +141,7 @@ class ForceTool(AbstractPathTool):
                 canStart = False
         else:
             destBase = None             
-        
+
         ### This is the middle, drag-operation dependent
         ### part of the code.
         didEnd = False
