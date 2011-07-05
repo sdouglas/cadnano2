@@ -10,6 +10,9 @@
 		8D11072B0486CEB800E47090 /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 089C165CFE840E0CC02AAC07 /* InfoPlist.strings */; };
 		8D11072D0486CEB800E47090 /* main.mm in Sources */ = {isa = PBXBuildFile; fileRef = 29B97316FDCFA39411CA2CEA /* main.mm */; settings = {ATTRIBUTES = (); }; };
 		8D11072F0486CEB800E47090 /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1058C7A1FEA54F0111CA2CBB /* Cocoa.framework */; };
+		FCBAF41D13C39DCC00F22DFB /* document_legacy_icon.icns in Resources */ = {isa = PBXBuildFile; fileRef = FCBAF41C13C39DCC00F22DFB /* document_legacy_icon.icns */; };
+		FCF3D8EC13C397CC000FC057 /* application_icon.icns in Resources */ = {isa = PBXBuildFile; fileRef = FCF3D8EA13C397CC000FC057 /* application_icon.icns */; };
+		FCF3D8ED13C397CC000FC057 /* document_icon.icns in Resources */ = {isa = PBXBuildFile; fileRef = FCF3D8EB13C397CC000FC057 /* document_icon.icns */; };
 		FCFD5E6613BF8BB000F0DAC9 /* Python.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = FCFD5E6513BF8BB000F0DAC9 /* Python.framework */; };
 /* End PBXBuildFile section */
 
@@ -23,6 +26,9 @@
 		29B97325FDCFA39411CA2CEA /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = /System/Library/Frameworks/Foundation.framework; sourceTree = "<absolute>"; };
 		8D1107310486CEB800E47090 /* cadnano2-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "cadnano2-Info.plist"; sourceTree = "<group>"; };
 		8D1107320486CEB800E47090 /* cadnano2.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = cadnano2.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		FCBAF41C13C39DCC00F22DFB /* document_legacy_icon.icns */ = {isa = PBXFileReference; lastKnownFileType = image.icns; path = document_legacy_icon.icns; sourceTree = "<group>"; };
+		FCF3D8EA13C397CC000FC057 /* application_icon.icns */ = {isa = PBXFileReference; lastKnownFileType = image.icns; path = application_icon.icns; sourceTree = "<group>"; };
+		FCF3D8EB13C397CC000FC057 /* document_icon.icns */ = {isa = PBXFileReference; lastKnownFileType = image.icns; path = document_icon.icns; sourceTree = "<group>"; };
 		FCFD5E6513BF8BB000F0DAC9 /* Python.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Python.framework; path = /System/Library/Frameworks/Python.framework; sourceTree = "<absolute>"; };
 /* End PBXFileReference section */
 
@@ -97,6 +103,9 @@
 		29B97317FDCFA39411CA2CEA /* Resources */ = {
 			isa = PBXGroup;
 			children = (
+				FCBAF41C13C39DCC00F22DFB /* document_legacy_icon.icns */,
+				FCF3D8EA13C397CC000FC057 /* application_icon.icns */,
+				FCF3D8EB13C397CC000FC057 /* document_icon.icns */,
 				8D1107310486CEB800E47090 /* cadnano2-Info.plist */,
 				089C165CFE840E0CC02AAC07 /* InfoPlist.strings */,
 			);
@@ -164,6 +173,9 @@
 			buildActionMask = 2147483647;
 			files = (
 				8D11072B0486CEB800E47090 /* InfoPlist.strings in Resources */,
+				FCF3D8EC13C397CC000FC057 /* application_icon.icns in Resources */,
+				FCF3D8ED13C397CC000FC057 /* document_icon.icns in Resources */,
+				FCBAF41D13C39DCC00F22DFB /* document_legacy_icon.icns in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -219,8 +231,10 @@
 				GCC_OPTIMIZATION_LEVEL = 0;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = cadnano2_Prefix.pch;
+				HEADER_SEARCH_PATHS = /usr/include/python2.6;
 				INFOPLIST_FILE = "cadnano2-Info.plist";
 				INSTALL_PATH = "$(HOME)/Applications";
+				MACOSX_DEPLOYMENT_TARGET = 10.5;
 				PRODUCT_NAME = cadnano2;
 			};
 			name = Debug;
@@ -233,8 +247,10 @@
 				GCC_MODEL_TUNING = G5;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = cadnano2_Prefix.pch;
+				HEADER_SEARCH_PATHS = /usr/include/python2.6;
 				INFOPLIST_FILE = "cadnano2-Info.plist";
 				INSTALL_PATH = "$(HOME)/Applications";
+				MACOSX_DEPLOYMENT_TARGET = 10.5;
 				PRODUCT_NAME = cadnano2;
 			};
 			name = Release;

@@ -27,17 +27,28 @@ This file houses the code that allows the opening of cadnano files by dragging
 to the icon in the dock or double clicking on the icon.
 """
 
-import objc
+import objc, os
 from Foundation import *
 from AppKit import *
+from controllers.documentcontroller import DocumentController
+from model.decoder import decode
 
-class CNDocumentController(NSDocumentController):
-    def makeDocumentWithContentsOfURL_ofType_error_(self, url, type, err):
-        print "makeDocumentWithContentsOfURL_ofType_error_ URL:%s T:%s"%(url, type)
+class CNApplicationDelegate(NSObject):
+    def application_openFile_(self, app, f):
+        extension = os.path.splitext(f)[1].lower()
+        if extension not in ('.cn2', '.json', '.cadnano'):
+            print "Could not open file %s (bad extension %s)"%(f, extension)
+            return
+        doc = decode(file(str(f)).read())
+        DocumentController(doc, str(f))
         return None
 
-    def documentForURL_(self, url):
-        print "documentForURL_ U:%s"%(url)
+    def application_openFiles_(self, app, fs):
+        if fs.isKindOfClass_(NSCFString):
+            self.application_openFile_(app, fs)
+            return
+        for f in fs:
+            self.application_openFiles_(app, f)
 
-sharedController = CNDocumentController.alloc().init()
-assert(NSDocumentController.sharedDocumentController() == sharedController)
+sharedDelegate = CNApplicationDelegate.alloc().init()
+NSApplication.sharedApplication().setDelegate_(sharedDelegate)
