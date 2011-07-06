@@ -195,7 +195,7 @@ class CustomQGraphicsView(QGraphicsView):
             else:
                 QGraphicsView.mousePressEvent(self, event)
         else:
-            QGraphicsView.mousePressEvent(self, event)
+                QGraphicsView.mousePressEvent(self, event)
     #end def
 
     def mouseReleaseEvent(self, event):

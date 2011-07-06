@@ -316,9 +316,7 @@ class Base(object):
         # print "I got called 3"
         for base in bases:
             if base != None:
-                if base._hasCrossover3p(): # that means base is a 5 prime end
-                    # emit 3 prime to 5 prime
-                    # print "I emitted 3"
+                if base._hasCrossover3p() and not base.floatingXoverDestination():
                     self._vhelix.part().createXover.emit((base.vhelix(), base._n) ,\
                                                         (base._3pBase.vhelix(), base._3pBase._n), \
                                                         base._strandtype )
@@ -329,8 +327,6 @@ class Base(object):
         for base in bases:
             if base != None:
                 if base._hasCrossover5p(): # that means base is a 3 prime end
-                    # emit 3 prime to 5 prime
-                    # print "I emitted 5"
                     self._vhelix.part().createXover.emit((base._5pBase.vhelix(), base._5pBase._n) , \
                                                         (base.vhelix(), base._n), \
                                                         base._strandtype )

@@ -53,7 +53,13 @@ class DNAPart(Part):
     # object 1 is the tuple (3 prime vhelix, index), 
     # object 2 is the (5 prime vhelix, index)
     # int is the strandtype
-    createXover = pyqtSignal(object,object, int)
+    createXover = pyqtSignal(object, object, int)
+    # object 1 is (3'vhelix, 3'strandType, 3'index)
+    # object 2 is (QPointF)destination
+    # if the floating Xover is being destroyed,
+    #  object 1 is None
+    #  object 2 is None
+    updateFloatingXover = pyqtSignal(object, object)
     
     _selectAllBehavior = True  # Always select all helices in part
     # Bases are always added and removed in multiples of the
