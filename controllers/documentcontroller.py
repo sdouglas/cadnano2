@@ -127,7 +127,8 @@ class DocumentController():
         self.win.actionSave.triggered.connect(self.saveClicked)
         self.win.actionSVG.triggered.connect(self.svgClicked)
         self.win.actionAutoStaple.triggered.connect(self.autoStapleClicked)
-        self.win.actionCSV.triggered.connect(self.exportAsClicked)
+        self.win.actionCSV.triggered.connect(self.exportCSV)
+        
         # self.win.actionSave_As.triggered.connect(self.saveAsClicked)
         # self.win.actionQuit.triggered.connect(self.closeClicked)
         # self.win.actionAdd.triggered.connect(self.addClicked)
@@ -220,7 +221,7 @@ class DocumentController():
         f.close()
     # end def
 
-    def exportAsClicked(self):
+    def exportCSV(self):
         print "Export clicked"
         fname = self.filename()
         if fname == None:
