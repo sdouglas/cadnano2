@@ -38,7 +38,7 @@ try:
     # If we are in Mac OS X, initialize Mac OS X specific stuff
     import objc
     from osx.CNApplicationDelegate import sharedDelegate as appDelegate
-except e:
+except:
     pass
 
 app = getAppInstance(appArgs=sys.argv)
