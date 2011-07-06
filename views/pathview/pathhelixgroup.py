@@ -96,6 +96,7 @@ class PathHelixGroup(QGraphicsObject):
         self.setAcceptHoverEvents(True)
         app().phg = self  # Convenience for the command line -i mode
         self._part.partRemoved.connect(self.destroy)  # connect destructor
+        self.dragging = False
 
     def destroy(self):
         self._part.partRemoved.disconnect(self.destroy)
@@ -134,10 +135,12 @@ class PathHelixGroup(QGraphicsObject):
             self._part.selectionWillChange.disconnect(self.selectionWillChange)
             self._part.dimensionsDidChange.disconnect(self.partDimensionsChanged)
             self._part.createXover.disconnect(self.createXoverItem)
+            self._part.updateFloatingXover.disconnect(self.updateFloatingXoverItem)
         if newPart:
             newPart.selectionWillChange.connect(self.selectionWillChange)
             newPart.dimensionsDidChange.connect(self.partDimensionsChanged)
             newPart.createXover.connect(self.createXoverItem)
+            newPart.updateFloatingXover.connect(self.updateFloatingXoverItem)
         self._part = newPart
         if newPart:
             self.selectionWillChange(newPart.selection())
@@ -171,11 +174,12 @@ class PathHelixGroup(QGraphicsObject):
         """
         key = (Base3p, Base5p)
         if not key in self.xovers:
-            self.xovers[key] = XoverHandlePair( self, \
-                                                Base3p[0], Base3p[1], \
-                                                Base5p[0],  Base3p[1], \
-                                                strandtype)
-    # end def
+            fromBase = (Base3p[0], strandtype, Base3p[1])
+            toBase = Base5p
+            self.xovers[key] = XoverHandlePair(self, fromBase, toBase)
+    
+    def updateFloatingXoverItem(self, fromBase, toPt):
+        pass
 
     def pathHelixAtScenePos(self, pos):
         for p in self._pathHelixes:

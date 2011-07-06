@@ -170,6 +170,14 @@ class ForceTool(AbstractPathTool):
         # Can't connect a base to itself :)
         if destBase == self.base1:
             destBase = None
+        if phg:
+            # phg.dragging forces XoverHandle to pass events on
+            # to the PathHelix, where we can get them. Otherwise,
+            # the events just get eaten by XoverHandle.
+            if didEnd:
+                phg.dragging = False
+            else:
+                phg.dragging = True
         if not phg or destBase==None:
             # If we're hovering over thin air, we draw
             # a floatingXover (only 3' end connected to a

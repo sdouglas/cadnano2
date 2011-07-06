@@ -31,7 +31,7 @@ from views import styles
 
 import util
 # import Qt stuff into the module namespace with PySide, PyQt4 independence
-util.qtWrapImport('QtCore', globals(), ['QPointF', 'QRectF', 'Qt'])
+util.qtWrapImport('QtCore', globals(), ['QPointF', 'QRectF', 'Qt', 'QEvent'])
 util.qtWrapImport('QtGui', globals(), ['QBrush', 'QFont', 'QGraphicsItem',\
                                        'QGraphicsSimpleTextItem', 'QPen',\
                                        'QPolygonF', 'QPainterPath', \
@@ -122,7 +122,7 @@ class XoverHandle(QGraphicsItem):
             edge = QPointF(bw/2, bw-pw/2.0)
         painter.drawLine(center, edge)
         self.drawLabel(painter)
-   
+
     def drawLabel(self, painter):
         painter.setBrush(self._labelBrush)
         painter.setFont(self._toHelixNumFont)
@@ -131,8 +131,15 @@ class XoverHandle(QGraphicsItem):
 
     def boundingRect(self):
        return self._rect
-   
+
+    def sceneEvent(self, event):
+        if event.type() == QEvent.GraphicsSceneMousePress:
+            self.mousePressEvent(event)
+        return QGraphicsItem.sceneEvent(self, event)
+
     def mousePressEvent(self, event):
+        if self._phg.dragging:
+            return QGraphicsItem.mousePressEvent(self, event)
         xop = self._xoverpair
         xop._fromVH.removeXoverTo(xop._strandtype, xop._fromIdx, xop._toVH, xop._toIdx)
 
@@ -145,16 +152,25 @@ class XoverHandlePair(QGraphicsItem):
     _xScale = styles.PATH_XOVER_LINE_SCALE_X  # control point x constant
     _yScale = styles.PATH_XOVER_LINE_SCALE_Y  # control point y constant
 
-    def __init__(self, phg, fromVH, fromIdx, toVH, toIdx, strandtype):
+    def __init__(self, phg, fromBase, toBase):
         """Create XoverHandlePair (parented to the PathHelixGroup)."""
         super(XoverHandlePair, self).__init__(phg)
-        # print "created XOVER"
+        if fromBase!=None:
+            fromVH, strandtype, fromIdx = fromBase
+        else:
+            fromVH, strandtype, fromIdx = None, None, None
+        if type(toBase) in (tuple, list):
+            toVH, toIdx = toBase
+            toPt = None
+        if isinstance(toBase, QPointF):
+            toPt = toBase
         self._phg = phg
         self._fromVH = fromVH
         self._strandtype = strandtype   # strandtype
         self._fromIdx = fromIdx
         self._toVH = toVH
         self._toIdx = toIdx
+        self._toPt = toPt
         self.hide()
         if self._strandtype == StrandType.Scaffold:
             self._pen = self._phg._scafPen
@@ -175,14 +191,10 @@ class XoverHandlePair(QGraphicsItem):
         self._phg.displayedVHsChanged.connect(self.refresh)
         self.refresh()
         self.show()
-    # end def
-    
-    # def _5PrimeVH(self):
-    #     return self._fromVH
-    #     
-    # def _3PrimeVH(self):
-    #     return self._toVH
-    
+
+    def setToPoint(self, newToPt):
+        pass
+
     def getPen(self):
         return self._pen
     # end def
@@ -201,8 +213,9 @@ class XoverHandlePair(QGraphicsItem):
         self._toVH.basesModified.disconnect(self.refresh)
         self.hide()
         key = self.keyMe()
-        del self._phg.xovers[self.keyMe()]
         self.scene().removeItem(self)
+        if key in self._phg.xovers:
+            del self._phg.xovers[self.keyMe()]
     # end def
     
     def refresh(self):

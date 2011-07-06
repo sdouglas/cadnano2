@@ -792,11 +792,11 @@ class VirtualHelix(QObject):
         """
         if undoStack == True:
             undoStack = self.undoStack()
-        if undoStack!=None:
+        if undoStack != None:
             undoStack.beginMacro("Install Xover")
         c = self.Connect3To5Command(strandType, self, fromIndex, toVhelix,\
                toIndex, endToTakeColorFrom, speedy=speedy)
-        if undoStack!=None:
+        if undoStack != None:
             undoStack.push(c)
             if not speedy:
                 toVhelix.thoughtPolice(undoStack=undoStack)
@@ -806,7 +806,7 @@ class VirtualHelix(QObject):
             c.redo()
 
     def removeConnectedStrandAt(self, strandType, idx, undoStack=True):
-        if not undoStack:
+        if undoStack == True:
             undoStack = self.undoStack()
         undoStack.beginMacro("Remove Strand")
         bases = self._basesConnectedTo(strandType, idx)
@@ -819,12 +819,18 @@ class VirtualHelix(QObject):
             vh.thoughtPolice(undoStack)
         undoStack.endMacro()
 
-    def removeXoversAt(self, strandType, idx, newColor=None):
+    def removeXoversAt(self, strandType, idx, newColor=None, undoStack=True):
         base = self._strand(strandType)[idx]
+        if undoStack == True:
+            undoStack = self.undoStack()
+        if undoStack != None:
+            undoStack.beginMacro("Remove all xovers at base")
         if base._hasCrossoverL():
-            base._vhelix.clearStrand(strandType, idx, idx + 0.5)
+            base._vhelix.clearStrand(strandType, idx, idx + 0.5, undoStack=undoStack)
         if base._hasCrossoverR():
-            base._vhelix.clearStrand(strandType, idx + 0.5, idx + 1)
+            base._vhelix.clearStrand(strandType, idx + 0.5, idx + 1, undoStack=undoStack)
+        if undoStack != None:
+            undoStack.endMacro()
 
     def removeXoverTo(self, strandType, fromIndex, toVhelix, toIndex,\
                       undoStack=True, endToKeepColor=3, newColor=None):
@@ -835,9 +841,11 @@ class VirtualHelix(QObject):
             raise IndexError("Crossover does not exist to be removed.")
         if undoStack == True:
             undoStack = self.undoStack()
-        undoStack.beginMacro("Remove Xover")
+        if undoStack != None:
+            undoStack.beginMacro("Remove Xover")
         c = self.Break3To5Command(strandType, self, fromIndex, endToKeepColor=endToKeepColor, newColor=newColor)
-        undoStack.push(c)
+        if undoStack != None:
+            undoStack.push(c)
         self.thoughtPolice(undoStack)  # Check for inconsistencies, fix one-base Xovers, etc
         toVhelix.thoughtPolice(undoStack=undoStack)
         undoStack.endMacro()
@@ -850,7 +858,7 @@ class VirtualHelix(QObject):
         if undoStack == True:
             undoStack = self.undoStack()
         c = self.LoopCommand(self, strandType, index, loopsize)
-        if undoStack:
+        if undoStack != None:
             self.undoStack().push(c)
         else:
             c.redo()
@@ -862,13 +870,13 @@ class VirtualHelix(QObject):
         color and apply it to every base in that strand"""
         if undoStack == True:
             undoStack = self.undoStack()
-        if color==None:
+        if color == None:
             color = self.palette()[0]
-        if undoStack:
+        if undoStack != None:
             undoStack.beginMacro("Apply Color")
         bases = self._basesConnectedTo(strandType, index)
         c = self.ApplyColorCommand(bases, color)
-        if undoStack:
+        if undoStack != None:
             undoStack.push(c)
             undoStack.endMacro()
         else:
@@ -883,10 +891,10 @@ class VirtualHelix(QObject):
         """
         if undoStack == True:
             undoStack = self.undoStack()
-        if undoStack:
+        if undoStack != None:
             undoStack.beginMacro("Apply Sequence")
         c = self.ApplySequenceCommand(self, strandType, index, seqStr)
-        if undoStack:
+        if undoStack != None:
             undoStack.push(c)
             undoStack.endMacro()
         else:
@@ -899,6 +907,12 @@ class VirtualHelix(QObject):
         force tool (pencil tool right click) that has a 3' end
         wherever the user clicked / is dragging from and ends
         beneath the mouse."""
+        if self.part():
+            if strandType==None or fromIdx==None or toPoint==None:
+                self.part().updateFloatingXover.emit(None, None)
+            else:
+                self.part().updateFloatingXover.emit((self, strandType, fromIdx),
+                                                     toPoint)
         if self.floatingXoverBase:
             self.floatingXoverBase._floatingXoverDestination = None
             self.floatingXoverBase = None

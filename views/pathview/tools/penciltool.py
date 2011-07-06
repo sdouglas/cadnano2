@@ -53,10 +53,14 @@ class PencilTool(SelectTool, ForceTool):
         ForceTool.__init__(self, rightClickOnly=True)
 
     def mousePressPathHelix(self, pathHelix, event):
-        if event.buttons() & Qt.LeftButton:
-            SelectTool.mousePressPathHelix(self, pathHelix, event)
-        elif event.button() & Qt.RightButton:
+        draggingForceCrossover = False
+        if pathHelix:
+            phg = pathHelix.pathHelixGroup()
+            draggingForceCrossover = phg.dragging
+        if event.button() & Qt.RightButton or draggingForceCrossover:
             ForceTool.mousePressPathHelix(self, pathHelix, event)
+        elif event.buttons() & Qt.LeftButton:
+            SelectTool.mousePressPathHelix(self, pathHelix, event)
 
     def mouseMovePathHelix(self, pathHelix, event):
         if event.buttons() & Qt.LeftButton:
