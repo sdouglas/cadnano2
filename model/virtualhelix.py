@@ -855,13 +855,14 @@ class VirtualHelix(QObject):
         Main function for installing loops and skips
         -1 is a skip, +N is a loop
         """
-        if undoStack == True:
-            undoStack = self.undoStack()
-        c = self.LoopCommand(self, strandType, index, loopsize)
-        if undoStack != None:
-            self.undoStack().push(c)
-        else:
-            c.redo()
+        if strandType == StrandType.Scaffold:
+            if undoStack == True:
+                undoStack = self.undoStack()
+            c = self.LoopCommand(self, strandType, index, loopsize)
+            if undoStack != None:
+                self.undoStack().push(c)
+            else:
+                c.redo()
 
     def applyColorAt(self, color, strandType, index, undoStack=True):
         """Determine the connected strand that passes through
@@ -1026,7 +1027,9 @@ class VirtualHelix(QObject):
                 numBasesInB = b._vhelix.hasLoopOrSkipAt(StrandType.Scaffold, b._n)+1
                 oldBaseStrs.append((b._sequence, stap_b._sequence))
                 numBasesToUse = numBasesInB
-                if charactersUsedFromSeqStr + numBasesToUse <= len(self._seqStr):
+                if numBasesToUse == 0:
+                    seq = " "
+                elif charactersUsedFromSeqStr + numBasesToUse <= len(self._seqStr):
                     seq = self._seqStr[charactersUsedFromSeqStr:charactersUsedFromSeqStr+numBasesToUse]
                     charactersUsedFromSeqStr += numBasesToUse
                 else:
@@ -1034,8 +1037,12 @@ class VirtualHelix(QObject):
                     charactersUsedFromSeqStr = len(self._seqStr)
                     seq = partialSeq.ljust(numBasesToUse)
                 b._sequence = seq
+                
                 if not stap_b._sequence:
                     stap_b._sequence = " "
+                # print "what's going on?"
+                # print seq[0]
+                # print stap_b._sequence[1:]
                 stap_b._sequence = util.rcomp(seq[0]) + stap_b._sequence[1:]
             vh.setHasBeenModified()
             vh.emitBasesModifiedIfNeeded()

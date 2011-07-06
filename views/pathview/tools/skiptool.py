@@ -26,6 +26,7 @@ skiptool.py
 Created by Nick on 2011-05-03.
 """
 from abstractpathtool import AbstractPathTool
+from model.enum import StrandType
 from views import styles
 from views.pathview.handles.loophandle import SkipItem
 
@@ -34,6 +35,8 @@ import util
 util.qtWrapImport('QtGui', globals(), [ 'QPen'])
 
 class SkipTool(AbstractPathTool):
+    blockoutStrand = StrandType.Staple
+    
     def __init__(self, controller, parent=None):
         """
         This class inherits from the PathTool class for the majority of
@@ -64,6 +67,7 @@ class SkipTool(AbstractPathTool):
         posScene = event.scenePos()
         posItem = self.parentObject().mapFromScene(posScene)
         indexp = self.helixIndex(posItem)
+        # baseAtLocation returns 
         mouseDownBase = ph.baseAtLocation(posItem.x(),\
                                                 posItem.y())
         # print "SkipTool clicked at: (%d, %d) on helix %d" % \

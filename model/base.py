@@ -140,13 +140,13 @@ class Base(object):
         empty = not (self._hasNeighbor3p() or self._hasNeighbor5p())
         if empty:
             return " "
-        if self._vhelix.hasLoopOrSkipAt(self._strandtype, self._n):
-            if len(self._sequence):
-                return self._sequence[0]
+        hasSkip = self._vhelix.hasLoopOrSkipAt(self._strandtype, self._n)
+        if hasSkip == -1:
             return " "
-        elif len(self._sequence) > 1:
-            return "!"
-        return self._sequence
+        elif hasSkip > 1:
+            return self._sequence[0]
+        else:
+            return self._sequence
     
     def sequenceOfLoop(self):
         """

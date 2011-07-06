@@ -31,6 +31,7 @@ from views import styles
 from views.pathview.pathhelix import PathHelix
 from views.pathview.handles.loophandle import LoopItem
 from abstractpathtool import AbstractPathTool
+from model.enum import StrandType
 
 import util
 # import Qt stuff into the module namespace with PySide, PyQt4 independence
@@ -44,6 +45,8 @@ class LoopTool(AbstractPathTool):
     _boundingRect = _loopItem._loopPathDownRect.united(\
                         _loopItem._loopPathUpRect)
     _boundingRect = _boundingRect.united(AbstractPathTool._rect)
+    
+    blockoutStrand = StrandType.Staple
     
     def __init__(self, controller, parent=None):
         """
@@ -86,12 +89,18 @@ class LoopTool(AbstractPathTool):
         else:
             self._isTop = True
         self.setPos(self.helixPos(posItem))
+        self.blockout(ph, posItem.x(), posItem.y())
     # end def
 
     def mousePressPathHelix(self, ph, event):
         vh = ph.vhelix()
         posScene = event.scenePos()
         posItem = self.parentObject().mapFromScene(posScene)
+        
+        # test for whether or not to disallow
+        if self.blockout(ph, posItem.x(), posItem.y()):
+            return
+        
         indexp = self.helixIndex(posItem)
         mouseDownBase = ph.baseAtLocation(posItem.x(),\
                                                 posItem.y())
