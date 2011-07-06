@@ -74,7 +74,6 @@ class XoverHandle(QGraphicsItem):
         self._fromVH = fromVH
         fromVH.basesModified.connect(self.update)
         toVH.basesModified.connect(self.update)
-        self.hide()
         x = self._baseWidth * self._index
         y = (0 if self.onTopStrand() else 1) * self._baseWidth
         self.setPos(x, y)
@@ -92,7 +91,6 @@ class XoverHandle(QGraphicsItem):
             self._endPoint = self._pathDown
             self._painterpath = self._ppathDown
         self._labelRect = QRectF()
-        self.show()
     # end def
 
     def setLabelRect(self, rect):
@@ -132,11 +130,6 @@ class XoverHandle(QGraphicsItem):
     def boundingRect(self):
        return self._rect
 
-    def sceneEvent(self, event):
-        if event.type() == QEvent.GraphicsSceneMousePress:
-            self.mousePressEvent(event)
-        return QGraphicsItem.sceneEvent(self, event)
-
     def mousePressEvent(self, event):
         if self._phg.dragging:
             return QGraphicsItem.mousePressEvent(self, event)
@@ -171,13 +164,13 @@ class XoverHandlePair(QGraphicsItem):
         self._toVH = toVH
         self._toIdx = toIdx
         self._toPt = toPt
-        self.hide()
+        self._rect = QRectF()
         if self._strandtype == StrandType.Scaffold:
             self._pen = self._phg._scafPen
         else:
             self._pen = QPen(self._phg._stapPen)
         
-        self._rect = QRectF()
+        
 
         self._xover3prime = XoverHandle(self, self._fromIdx, \
                                         self._fromVH, self._toVH, \
@@ -190,8 +183,7 @@ class XoverHandlePair(QGraphicsItem):
         self._toVH.basesModified.connect(self.refresh)
         self._phg.displayedVHsChanged.connect(self.refresh)
         self.refresh()
-        self.show()
-
+        
     def setToPoint(self, newToPt):
         pass
 
@@ -204,8 +196,8 @@ class XoverHandlePair(QGraphicsItem):
     
     def destroy(self):
         """docstring for destroy"""
-        self._xover3prime.hide()
-        self._xover5prime.hide()
+        self.scene().removeItem(self._xover5prime)
+        self.scene().removeItem(self._xover3prime)
         self._xover3prime = None
         self._xover5prime = None
         self._phg.displayedVHsChanged.disconnect(self.refresh)
@@ -375,5 +367,6 @@ class XoverHandlePair(QGraphicsItem):
     def refreshRect(self):
         self._rect = self._painterpath.boundingRect()
         penW = self.getPen().widthF()
-        self._rect.adjust(-penW, -penW, 2*penW, 2*penW)        
+        self._rect.adjust(-penW, -penW, 2*penW, 2*penW)
+           
 # end class
