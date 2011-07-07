@@ -80,7 +80,8 @@ class AbstractPathTool(QGraphicsObject):
         self._active = False
         self._controller = controller
         self._lastLocation = None
-        
+        self.actionName = None
+
     ######################## Drawing #######################################
     def paint(self, painter, option, widget=None):
         painter.setPen(self._pen)

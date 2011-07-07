@@ -95,7 +95,11 @@ class DocumentWindow(QMainWindow, ui_mainwindow.Ui_MainWindow):
         
         # Test recording
         if app().testRecordMode:
-            self.sliceController.testRecorder = self.pathController.testRecorder = TestRecorder()
+            rec = TestRecorder()
+            self.sliceController.testRecorder = rec
+            self.pathController.testRecorder = rec
+            self.pathController.activeToolChanged.connect(rec.activePathToolChangedSlot)
+
 
         # Edit menu setup
         self.actionUndo = docCtrlr.undoStack().createUndoAction(self)

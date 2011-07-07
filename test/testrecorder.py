@@ -55,24 +55,44 @@ class TestRecorder(object):
     """
     def __init__(self):
         self.ops = []  # user operations
-        self.sh = {}  # slicehelix dict
-        self.ph = {}  # pathhelix dict
+        self.pathActions = {}  # path actions dict
         self.seenActiveSliceHandle = False
         self.latticeType = None
 
+    def setPart(self, latticeType):
+        self.latticeType = latticeType
+
+    @pyqtSlot(str)
+    def activePathToolChangedSlot(self, actionName):
+        """
+        When the active PathTool is changed, record the name of its 
+        corresponding action for playback initialization by initPathButtons,
+        and then push the click onto the 
+        """
+        print "activePathToolChangedSlot", actionName
+        if not actionName in self.pathActions:
+            self.pathActions[actionName] = True
+        buttonName = actionName + "Button"
+        op = self.getButtonOp(actionName)
+        if op:
+            self.ops.append(op)
+
     def sliceSceneEvent(self, event, coord):
+        """Called in slicehelix.sceneEvent"""
         target = "sgi.getSliceHelixByCoord(%d, %d)" % (coord[0], coord[1])
         op = self.getOp(target, event, "slicescene")
         if op:
             self.ops.append(op)
 
     def pathSceneEvent(self, event, num):
+        """Logs PathHelix mouse events. Called by PathHelix.sceneEvent."""
         target = "phg.getPathHelix(%s)" % num
         op = self.getOp(target, event, "pathscene")
         if op:
             self.ops.append(op)
 
     def ashSceneEvent(self, event):
+        """Logs ActiveSliceHandle events"""
         op = self.getOp("ash", event, "pathscene")
         if op:
             self.ops.append(op)
@@ -97,6 +117,12 @@ class TestRecorder(object):
         else:
             return None
 
+    def getButtonOp(self, actionName):
+        """docstring for get"""
+        buttonName = actionName + "Button"
+        ret = "self.click(%s)\n" % buttonName
+        return ret
+
     def getModifierString(self, event):
         mods = []
         if (event.modifiers() & Qt.AltModifier):
@@ -109,14 +135,48 @@ class TestRecorder(object):
             modifiers = "Qt.NoModifier"
         return modifiers
 
-    def setPart(self, latticeType):
-        self.latticeType = latticeType
-
     def createPart(self, indent):
+        """
+        Assumes a single part is created once without undos. This
+        functionality be replaced by initDocButtons and simply including
+        clicks to actionNewHoneycombPart or actionNewSquarePart as user ops.
+        """
         if self.latticeType == LatticeType.Honeycomb:
             ret = indent + "partButton = self.mainWindow.topToolBar.widgetForAction(self.mainWindow.actionNewHoneycombPart)\n" + indent + "self.click(partButton)\n"
         else:
             ret = indent + "partButton = self.mainWindow.topToolBar.widgetForAction(self.mainWindow.actionNewSquarePart)\n" + indent + "self.click(partButton)\n"
+        return ret
+
+    def initMenu(self, indent):
+        pass
+
+    def initDocButtons(self, indent):
+        pass
+
+    def initSliceButtons(self, indent):
+        pass
+
+    def initPathButtons(self, indent):
+        """
+        This method can serve as a template to generalize the testrecorder
+        to handle document actions (menubar and topToolBar) and slice
+        actions (leftToolBar).
+
+        Playing back button presses has two steps:
+
+        1. Create a widget that can be "clicked" to call the button's
+        corresponding action (using QToolBar.widgetForAction). This step
+        is handled here once for each action.
+
+        2. Call self.click(widget). This step is handled one or more times
+        by createUserInput.
+        """
+        ret = ""
+        for actionName in self.pathActions:
+            buttonName = actionName + "Button"
+            ret = ret + indent +\
+                   "%s = self.mainWindow.rightToolBar.widgetForAction(self.mainWindow.%s)\n"\
+                    % (buttonName, actionName)
         return ret
 
     def createUserInput(self, indent):
@@ -131,26 +191,28 @@ class TestRecorder(object):
         return s
 
     def generateTest(self):
-        """docstring for printTest"""
+        """Called by documentcontroller.closer()"""
         if self.latticeType == None:
             return # nothing to record
 
         # build the new test string
         indent = "".join(" " for i in range(4))
-        newtest = self.testTemplate % (self.createPart(indent),\
+        newtest = self.testTemplate % (self.initPathButtons(indent),\
+                                       self.createPart(indent),\
                                        self.createUserInput(indent),\
                                        self.checkAgainstModel(indent))
         # write to the next file
         oldtests = glob.glob("test/recordedtests/recordedtest_*.py")  # get all the recorded tests
         name = "test/recordedtests/recordedtest_%03d.py" % len(oldtests)
-        f = open(name, 'w')
-        f.write(newtest)
-        f.close()
+        # f = open(name, 'w')
+        # f.write(newtest)
+        # f.close()
 
-        indent2 = "".join(" " for i in range(8))
-        newtest2 = self.testTemplate2 % (self.createPart(indent2),\
-                                       self.createUserInput(indent2),\
-                                       self.checkAgainstModel(indent2))
+        indent = "".join(" " for i in range(8))
+        newtest2 = self.testTemplate2 % (self.initPathButtons(indent),\
+                                         self.createPart(indent),\
+                                         self.createUserInput(indent),\
+                                         self.checkAgainstModel(indent))
         name = "test/lastrecordedtest.py"
         f = open(name, 'w')
         f.write(newtest2)
@@ -185,13 +247,15 @@ from PyQt4.QtCore import Qt, QPoint
 
 
 def testMethod(self):
-    # Create part
-%s
     # Init refs
     sgi = self.documentController.sliceGraphicsItem
     phg = self.documentController.pathHelixGroup
     ash = self.documentController.pathHelixGroup.activeSliceHandle()
 
+    # Init buttons
+%s
+    # Create part
+%s
     # Playback user input
 %s
     # Verify model for correctness
@@ -246,13 +310,15 @@ class LastRecordedTest(CadnanoGuiTestCase):
         CadnanoGuiTestCase.tearDown(self)
 
     def testMethod(self):
-        # Create part
-%s
         # Init refs
         sgi = self.documentController.sliceGraphicsItem
         phg = self.documentController.pathHelixGroup
         ash = self.documentController.pathHelixGroup.activeSliceHandle()
 
+        # Init buttons
+%s
+        # Create part
+%s
         # Playback user input
 %s
         # Verify model for correctness

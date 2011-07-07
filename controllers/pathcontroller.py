@@ -22,6 +22,7 @@
 #
 # http://www.opensource.org/licenses/mit-license.php
 
+from cadnano import app
 from views.pathview.tools.breaktool import BreakTool
 from views.pathview.tools.erasetool import EraseTool
 from views.pathview.tools.looptool import LoopTool
@@ -67,6 +68,7 @@ class PathController(QObject):
             toolWidget = getattr(window, 'actionPath' + toolName)
             lToolName = toolName[0].lower() + toolName[1:]
             tool = getattr(self, lToolName + 'Tool')
+            tool.actionName = 'actionPath' + toolName
 
             def clickHandler(self):
                 toolWidget.setChecked(True)
@@ -105,7 +107,7 @@ class PathController(QObject):
             return True
         return False
 
-    activeToolChanged = pyqtSignal()
+    activeToolChanged = pyqtSignal(str)
 
     def setActiveTool(self, newActiveTool):
         if newActiveTool == self._activeTool:
@@ -117,7 +119,7 @@ class PathController(QObject):
             self._activeTool.setActive(False)
         self._activeTool = newActiveTool
         self._activeTool.setActive(True)
-        self.activeToolChanged.emit()
+        self.activeToolChanged.emit(self._activeTool.actionName)
 
     def lastLocation(self):
         """(PathHelix, posInScene) or None, depending on where

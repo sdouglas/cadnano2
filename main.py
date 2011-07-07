@@ -34,12 +34,12 @@ Created by Shawn Douglas on 2010-09-26.
 import sys
 sys.path.insert(0, '.')
 from cadnano import app as getAppInstance
-try:
-    # If we are in Mac OS X, initialize Mac OS X specific stuff
-    import objc
-    from osx.CNApplicationDelegate import sharedDelegate as appDelegate
-except:
-    pass
+# try:
+#     # If we are in Mac OS X, initialize Mac OS X specific stuff
+#     import objc
+#     from osx.CNApplicationDelegate import sharedDelegate as appDelegate
+# except:
+#     pass
 
 app = getAppInstance(appArgs=sys.argv)
 app.initGui()

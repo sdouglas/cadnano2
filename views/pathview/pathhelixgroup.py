@@ -187,7 +187,7 @@ class PathHelixGroup(QGraphicsObject):
             if p.boundingRect().contains(pt):
                 return p
         return None
-    
+
     def pathHelixForVHelix(self, vh):
         for p in self._pathHelixes:
             if p.vhelix() == vh:
@@ -225,7 +225,7 @@ class PathHelixGroup(QGraphicsObject):
 
     def _pathHelixList(self):
         return self._pathHelixes
-    
+
     def topmostPathHelix(self):
         if len(self._pathHelixList())==0:
             return None

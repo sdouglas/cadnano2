@@ -128,7 +128,6 @@ class DocumentController():
         self.win.actionSVG.triggered.connect(self.svgClicked)
         self.win.actionAutoStaple.triggered.connect(self.autoStapleClicked)
         self.win.actionCSV.triggered.connect(self.exportCSV)
-        
         # self.win.actionSave_As.triggered.connect(self.saveAsClicked)
         # self.win.actionQuit.triggered.connect(self.closeClicked)
         # self.win.actionAdd.triggered.connect(self.addClicked)
