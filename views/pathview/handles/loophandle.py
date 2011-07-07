@@ -173,6 +173,8 @@ class LoopHandle(QGraphicsItem):
         This is supposed to pre-select the text for editing when you click
         the label. Doesn't work.
         """
+
+        self._label.setTextInteractionFlags(Qt.TextEditorInteraction)
         cursor = self._label.textCursor()
         cursor.setPosition(0)
         cursor.movePosition(QTextCursor.End, QTextCursor.KeepAnchor)
@@ -182,6 +184,7 @@ class LoopHandle(QGraphicsItem):
         """
         Must intercept invalid input events.  Make changes here
         """
+
         a = event.key()
         text = event.text()
         if a in [Qt.Key_Space, Qt.Key_Tab]:
@@ -189,10 +192,12 @@ class LoopHandle(QGraphicsItem):
         elif a in [Qt.Key_Return, Qt.Key_Enter]:
             self._label.setTextInteractionFlags(Qt.NoTextInteraction)
             self.inputProcess(event)
-            self._label.setTextInteractionFlags(Qt.TextEditorInteraction)
+            # self._label.setTextInteractionFlags(Qt.TextEditorInteraction)
             return
         elif unicode(text).isalpha():
             return
+        # elif not unicode(text).isdigit():
+        #      return
         else:
             return QGraphicsTextItem.keyPressEvent(self._label, event)
 
@@ -210,7 +215,9 @@ class LoopHandle(QGraphicsItem):
                                                  self._loopsize)
         if self._loopsize:
             self.resetPosition()
-
+            self._label.setFocus(False)
+            util.trace(10)
+            
     def boundingRect(self):
         return self._myRect
 

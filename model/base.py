@@ -143,7 +143,8 @@ class Base(object):
         hasSkip = self._vhelix.hasLoopOrSkipAt(self._strandtype, self._n)
         if hasSkip == -1:
             return " "
-        elif hasSkip > 1:
+        elif len(self._sequence) > 1:
+            # print "Fuck ", self._sequence
             return self._sequence[0]
         else:
             return self._sequence
