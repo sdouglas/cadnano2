@@ -863,8 +863,13 @@ class VirtualHelix(QObject):
             c = self.LoopCommand(self, strandType, index, loopsize)
             d = self.ApplySequenceCommand(self, StrandType.Scaffold, index, " ")
             if undoStack != None:
+                if loopsize > 0:
+                    undoStack.beginMacro("Insert at %d[%d]" % (self._number, index))
+                else:
+                    undoStack.beginMacro("Skip at %d[%d]" % (self._number, index))
                 self.undoStack().push(c)
                 self.undoStack().push(d)
+                undoStack.endMacro()
             else:
                 c.redo()
                 d.redo()
@@ -992,7 +997,7 @@ class VirtualHelix(QObject):
             self._strandType = strandType
             self._idx = idx
             self._seqStr = seqStr
-            
+
         def redo(self):
             vh = self._vh
             bases = vh._basesConnectedTo(StrandType.Scaffold, self._idx)
@@ -1042,19 +1047,14 @@ class VirtualHelix(QObject):
                     charactersUsedFromSeqStr = len(self._seqStr)
                     seq = partialSeq.ljust(numBasesToUse)
                 b._sequence = seq
-                
                 if not stap_b._sequence:
                     stap_b._sequence = " "
-                # print "what's going on?"
-                # print seq[0]
-                # print stap_b._sequence[1:]
                 stap_b._sequence = util.rcomp(seq[0]) + stap_b._sequence[1:]
             vh.setHasBeenModified()
             vh.emitBasesModifiedIfNeeded()
 
         def undo(self):
             vh = self._vh
-            bases = vh._basesConnectedTo(StrandType.Scaffold, self._idx)
             scafBases = vh._basesConnectedTo(StrandType.Scaffold, self._idx)
             stapBases = vh._basesConnectedTo(StrandType.Staple, self._idx)
             startBase = vh._strand(StrandType.Scaffold)[self._idx]
@@ -1066,11 +1066,13 @@ class VirtualHelix(QObject):
                 vh.setHasBeenModified()
                 vh.emitBasesModifiedIfNeeded()
                 return
-            for i in range(len(bases)):
+            for i in range(len(scafBases)):
                 scafB = scafBases[i]
-                stapB = stapBases[i]
-                scafBseq, stapBseq = self.oldBaseStrs[i]
+                scafBseq = self.oldBaseStrs[i][0]
                 scafB._sequence = scafBseq
+            for i in range(len(stapBases)):
+                stapB = stapBases[i]
+                stapBseq = self.oldBaseStrs[i][1]
                 stapB._sequence = stapBseq
             vh.setHasBeenModified()
             vh.emitBasesModifiedIfNeeded()
