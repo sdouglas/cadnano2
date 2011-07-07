@@ -197,8 +197,8 @@ class TestRecorder(object):
 
         # build the new test string
         indent = "".join(" " for i in range(4))
-        newtest = self.testTemplate % (self.initPathButtons(indent),\
-                                       self.createPart(indent),\
+        newtest = self.testTemplate % (self.createPart(indent),\
+                                       self.initPathButtons(indent),\
                                        self.createUserInput(indent),\
                                        self.checkAgainstModel(indent))
         # write to the next file
@@ -209,8 +209,8 @@ class TestRecorder(object):
         # f.close()
 
         indent = "".join(" " for i in range(8))
-        newtest2 = self.testTemplate2 % (self.initPathButtons(indent),\
-                                         self.createPart(indent),\
+        newtest2 = self.testTemplate2 % (self.createPart(indent),\
+                                         self.initPathButtons(indent),\
                                          self.createUserInput(indent),\
                                          self.checkAgainstModel(indent))
         name = "test/lastrecordedtest.py"
@@ -247,14 +247,14 @@ from PyQt4.QtCore import Qt, QPoint
 
 
 def testMethod(self):
+    # Create part
+%s
     # Init refs
     sgi = self.documentController.sliceGraphicsItem
     phg = self.documentController.pathHelixGroup
     ash = self.documentController.pathHelixGroup.activeSliceHandle()
 
     # Init buttons
-%s
-    # Create part
 %s
     # Playback user input
 %s
@@ -310,14 +310,14 @@ class LastRecordedTest(CadnanoGuiTestCase):
         CadnanoGuiTestCase.tearDown(self)
 
     def testMethod(self):
+        # Create part
+%s
         # Init refs
         sgi = self.documentController.sliceGraphicsItem
         phg = self.documentController.pathHelixGroup
         ash = self.documentController.pathHelixGroup.activeSliceHandle()
 
         # Init buttons
-%s
-        # Create part
 %s
         # Playback user input
 %s
