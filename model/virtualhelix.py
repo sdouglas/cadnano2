@@ -454,8 +454,10 @@ class VirtualHelix(QObject):
         returns 0 if no loop or skip and returns the length of the skip
         otherwise
         """
-        if index in self._loop(strandType):
-            return self._loop(strandType)[index]
+        # For now, loops and skips are only in the scaffold
+        if index in self._loop(StrandType.Scaffold):
+        # if index in self._loop(strandType):
+            return self._loop(StrandType.Scaffold)[index]
         else:
             return 0
 
@@ -859,10 +861,13 @@ class VirtualHelix(QObject):
             if undoStack == True:
                 undoStack = self.undoStack()
             c = self.LoopCommand(self, strandType, index, loopsize)
+            d = self.ApplySequenceCommand(self, StrandType.Scaffold, index, " ")
             if undoStack != None:
                 self.undoStack().push(c)
+                self.undoStack().push(d)
             else:
                 c.redo()
+                d.redo()
 
     def applyColorAt(self, color, strandType, index, undoStack=True):
         """Determine the connected strand that passes through
@@ -1049,6 +1054,7 @@ class VirtualHelix(QObject):
 
         def undo(self):
             vh = self._vh
+            bases = vh._basesConnectedTo(StrandType.Scaffold, self._idx)
             scafBases = vh._basesConnectedTo(StrandType.Scaffold, self._idx)
             stapBases = vh._basesConnectedTo(StrandType.Staple, self._idx)
             startBase = vh._strand(StrandType.Scaffold)[self._idx]
