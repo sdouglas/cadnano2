@@ -60,17 +60,12 @@ class SkipTool(AbstractPathTool):
         painter.drawPath(self._skipItem.getSkip())
     # end def
 
-    def mousePressPathHelix(self, ph, event):
-        vh = ph.vhelix()
-        posScene = ph.mapToScene(QPointF(event.pos()))
-        posItem = self.parentObject().mapFromScene(posScene)
+    def mousePressPathHelix(self, pathHelix, event):
+        vh = pathHelix.vhelix()
+        posScene = pathHelix.mapToScene(QPointF(event.pos()))
+        posItem = pathHelix.mapFromScene(posScene)
         indexp = self.helixIndex(posItem)
-        mouseDownBase = ph.baseAtLocation(posItem.x(),\
-                                                posItem.y())
-        # print "SkipTool clicked at: (%d, %d) on helix %d" % \
-        #     (indexp[0], indexp[1], self.parentObject().number())
-        # create a new SkipHandle by adding through the parentObject
-        # create a new LoopHandle by adding through the     parentObject
+        mouseDownBase = pathHelix.baseAtLocation(posItem.x(), posItem.y())
         if mouseDownBase:
             loopsize = vh.hasLoopOrSkipAt(*mouseDownBase)
             if loopsize > 0:    # toggle from loop
@@ -79,6 +74,6 @@ class SkipTool(AbstractPathTool):
                 vh.installLoop(mouseDownBase[0],mouseDownBase[1],0)
             elif vh.hasStrandAt(*mouseDownBase):
                 vh.installLoop(mouseDownBase[0],mouseDownBase[1],-1)
-            ph.makeSelfActiveHelix()
+            pathHelix.makeSelfActiveHelix()
     # end def
 # end class

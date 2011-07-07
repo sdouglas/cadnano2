@@ -115,7 +115,7 @@ class AbstractPathTool(QGraphicsObject):
             if self.parentObject() != pathHelix:
                 self.setParentItem(pathHelix)
             self._lastLocation = (pathHelix, scenePos)
-            posItem = self.parentObject().mapFromScene(scenePos)
+            posItem = pathHelix.mapFromScene(scenePos)
             pos = self.helixPos(posItem)
             if pos != None:
                 if pos != self.pos():
@@ -124,8 +124,6 @@ class AbstractPathTool(QGraphicsObject):
                 if not self.isVisible():
                     self.show()
                     pass
-            #base = self.baseAtPoint(pathHelix, posItem)
-            #print pathHelix.vhelix().numberOfBasesConnectedTo(*base)
         else:
             self._lastLocation = None
             if self.isVisible():
