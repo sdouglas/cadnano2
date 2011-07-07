@@ -29,6 +29,7 @@ Created by Nick Conway on 2011-05-30.
 
 from abstractpathtool import AbstractPathTool
 import util, os
+from cadnano import ignoreEnv
 
 # import Qt stuff into the module namespace with PySide, PyQt4 independence
 util.qtWrapImport('QtCore', globals(), ['Qt', 'QPointF'])
@@ -180,7 +181,7 @@ class SelectTool(AbstractPathTool):
 
     def mouseReleasePathHelix(self, ph, event):
         self.finalizeMouseDrag()
-        if os.environ.get('CADNANO_FSCK_AFTER_SELECT_TOOL_USE', False):
+        if os.environ.get('CADNANO_FSCK_AFTER_SELECT_TOOL_USE', False) and not ignoreEnv:
             ph.vhelix().part().fsck()
 
     # Unused events should be forwarded to other items

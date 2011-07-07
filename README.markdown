@@ -64,6 +64,8 @@ the color of a base that doesn't have any strand to exhibit its color with)
 
 ## Environment options
 Some environment variables convenient for debugging (or customizing to personal taste).
+### CADNANO_IGNORE_ENV_VARS_EXCEPT_FOR_ME
+Turns off other cadnano environment variables.
 ### CADNANO_PENCIL_FIRST
 Activates the pencil tool on document open instead of the select tool.
 ### CADNANO_DISCARD_UNSAVED
