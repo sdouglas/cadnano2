@@ -144,7 +144,7 @@ class CADnano(QApplication):
 
     def newDocument(self, isFirstNewDoc=False):
         from controllers.documentcontroller import DocumentController
-        defaultFile = environ.get('CADNANO_DEFAULT_DOCUMENT', None) and not ignoreEnv()
+        defaultFile = environ.get('CADNANO_DEFAULT_DOCUMENT', None)
         if defaultFile and isFirstNewDoc:
             defaultFile = path.expanduser(defaultFile)
             defaultFile = path.expandvars(defaultFile)
