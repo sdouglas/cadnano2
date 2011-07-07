@@ -144,7 +144,7 @@ class CADnano(QApplication):
 
     def newDocument(self, isFirstNewDoc=False):
         from controllers.documentcontroller import DocumentController
-        defaultFile = environ.get('CADNANO_DEFAULT_DOCUMENT', None)
+        defaultFile = environ.get('CADNANO_DEFAULT_DOCUMENT', None) and not ignoreEnv()
         if defaultFile and isFirstNewDoc:
             defaultFile = path.expanduser(defaultFile)
             defaultFile = path.expandvars(defaultFile)
@@ -158,13 +158,15 @@ class CADnano(QApplication):
                                        # app.documentControllers
         return dc.document()
 
+def ignoreEnv():
+    return environ.get('CADNANO_IGNORE_ENV_VARS_EXCEPT_FOR_ME', False)
 
 # Convenience. No reason to feel guilty using it - CADnano is a singleton.
 def app(appArgs=None):
     if not CADnano.sharedApp:
         CADnano.sharedApp = CADnano(appArgs)
-    if environ.get('CADNANO_DISCARD_UNSAVED', False):
+    if environ.get('CADNANO_DISCARD_UNSAVED', False) and not ignoreEnv():
         CADnano.sharedApp.dontAskAndJustDiscardUnsavedChanges = True
-    if environ.get('CADNANO_DEFAULT_DOCUMENT', False):
+    if environ.get('CADNANO_DEFAULT_DOCUMENT', False) and not ignoreEnv():
         CADnano.sharedApp.shouldPerformBoilerplateStartupScript = True
     return CADnano.sharedApp

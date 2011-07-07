@@ -69,7 +69,6 @@ class TestRecorder(object):
         corresponding action for playback initialization by initPathButtons,
         and then push the click onto the 
         """
-        print "activePathToolChangedSlot", actionName
         if not actionName in self.pathActions:
             self.pathActions[actionName] = True
         buttonName = actionName + "Button"
@@ -107,13 +106,22 @@ class TestRecorder(object):
         if event.type() == QEvent.GraphicsSceneMouseRelease:
             type = "mouseRelease"
         if type:  # did we recognize the event type?
-            s = """self.%s(%s, position=QPoint(%d, %d), modifiers=%s, qgraphicsscene=self.mainWindow.%s)\n""" \
-                                % (type, target,\
-                                   event.pos().toPoint().x(),\
-                                   event.pos().toPoint().y(),\
-                                   self.getModifierString(event),\
-                                   scene)
-            return s
+            position = " position=QPoint(%d, %d)," % (int(event.pos().x()),\
+                                                      int(event.pos().y()))
+            if event.button() == Qt.RightButton:
+                button = " button=Qt.RightButton,"
+            elif event.button() == Qt.MidButton:
+                button = " button=Qt.RightButton,"
+            else:
+                button = ""  # will default to left
+            modifiers = " modifiers=%s," % self.getModifierString(event)
+            qgraphicsscene = " qgraphicsscene=self.mainWindow.%s" % scene
+            return """self.%s(%s,%s%s%s%s)\n""" % (type,\
+                                                   target,\
+                                                   position,\
+                                                   button,\
+                                                   modifiers,\
+                                                   qgraphicsscene)
         else:
             return None
 
@@ -194,7 +202,6 @@ class TestRecorder(object):
         """Called by documentcontroller.closer()"""
         if self.latticeType == None:
             return # nothing to record
-
         # build the new test string
         indent = "".join(" " for i in range(4))
         newtest = self.testTemplate % (self.createPart(indent),\
@@ -204,10 +211,10 @@ class TestRecorder(object):
         # write to the next file
         oldtests = glob.glob("test/recordedtests/recordedtest_*.py")  # get all the recorded tests
         name = "test/recordedtests/recordedtest_%03d.py" % len(oldtests)
-        # f = open(name, 'w')
-        # f.write(newtest)
-        # f.close()
-
+        f = open(name, 'w')
+        f.write(newtest)
+        f.close()
+        # also save the test in lastrecordedtest.py for debugging
         indent = "".join(" " for i in range(8))
         newtest2 = self.testTemplate2 % (self.createPart(indent),\
                                          self.initPathButtons(indent),\

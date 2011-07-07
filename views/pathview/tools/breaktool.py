@@ -102,7 +102,7 @@ class BreakTool(AbstractPathTool):
 
     def mousePressPathHelix(self, pathHelix, event):
         posScene = pathHelix.mapToScene(QPointF(event.pos()))
-        posItem = self.parentObject().mapFromScene(posScene)
+        posItem = pathHelix.mapFromScene(posScene)
         strandType, idx = self.baseAtPoint(pathHelix, posItem)
         isEndpt = pathHelix.vhelix().hasEndAt(strandType, idx)
         isXover = pathHelix.vhelix().hasCrossoverAt(strandType, idx)

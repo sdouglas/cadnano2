@@ -22,7 +22,7 @@
 #
 # http://www.opensource.org/licenses/mit-license.php
 
-from cadnano import app
+from cadnano import app, ignoreEnv
 from views.pathview.tools.breaktool import BreakTool
 from views.pathview.tools.erasetool import EraseTool
 from views.pathview.tools.looptool import LoopTool
@@ -88,7 +88,7 @@ class PathController(QObject):
             toolAction = installTool(toolName, win)
             ag.addAction(toolAction)
         ag.setExclusive(True)
-        if os.environ.get('CADNANO_PENCIL_FIRST', False):
+        if os.environ.get('CADNANO_PENCIL_FIRST', False) and not ignoreEnv():
             self.choosePencilTool()
         else:
             self.chooseSelectTool()

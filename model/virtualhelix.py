@@ -32,7 +32,7 @@ from itertools import product
 from .enum import LatticeType, Parity, StrandType, BreakType
 from .enum import Crossovers, EndType
 from .base import Base
-from cadnano import app
+from cadnano import app, ignoreEnv
 from random import Random
 import re, sys, os
 from views import styles
@@ -47,7 +47,7 @@ util.qtWrapImport('QtGui', globals(), [ 'QUndoCommand', 'QUndoStack', \
 class VirtualHelix(QObject):
     """Stores staple and scaffold routing information."""
     prohibitSingleBaseCrossovers = True
-    if os.environ.get('CADNANO_NO_THOUGHTPOLICE', False):
+    if os.environ.get('CADNANO_NO_THOUGHTPOLICE', False) and not ignoreEnv():
         prohibitSingleBaseCrossovers = False
     
     basesModified = pyqtSignal()
