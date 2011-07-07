@@ -62,14 +62,14 @@ class EraseTool(AbstractPathTool):
         self.setZValue(styles.ZPATHTOOL)
 
     def mousePressPathHelix(self, pathHelix, event):
-        posScene = event.scenePos()
-        posItem = self.parentItem().mapFromScene(posScene)
+        posScene = pathHelix.mapToScene(QPointF(event.pos()))
+        posItem = pathHelix.mapFromScene(posScene)
         strandType, idx = self.baseAtPoint(pathHelix, posItem)
         
         # Ambiguous as to whether we should call pathHelix.vhelix()
         # or the following, because it's unclear if things will be reparented
         # properly post mouse clicks
-        vh = self.parentObject().vhelix()
+        vh = pathHelix.vhelix()
         
         vh.undoStack().beginMacro("Erase")
         rightBreakIdx = leftBreakIdx = idx

@@ -69,7 +69,8 @@ def qtWrapImport(name, globaldict, fromlist):
 # end def
 
 # from PyQt4.QtGui import QGraphicsItem, QColor
-qtWrapImport('QtGui', globals(), [ 'QGraphicsItem', 'QColor'])
+qtWrapImport('QtGui', globals(), [ 'QGraphicsItem', 'QColor', 'QMouseEvent',\
+                                   'QGraphicsSceneMouseEvent'])
 
 def clamp(x, minX, maxX):
     if x < minX:
@@ -109,7 +110,11 @@ def defineEventForwardingMethodsForClass(classObj, forwardedEventSuffix, eventNa
                         delegateMethod(self, event)
                     else:
                         superMethod = getattr(QGraphicsItem, eventMethodName)
-                        superMethod(self, event)
+                        excludeSuperCallBecauseOfTypeIntolerance = \
+                                 isinstance(event, QMouseEvent) and\
+                                 not isinstance(event, QGraphicsSceneMouseEvent)
+                        if not excludeSuperCallBecauseOfTypeIntolerance:
+                            superMethod(self, event)
                 else:
                     superMethod = getattr(QGraphicsItem, eventMethodName)
                     superMethod(self, event)

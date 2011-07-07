@@ -92,14 +92,16 @@ class BreakTool(AbstractPathTool):
         flag is for the case where an item in the path also needs to
         implement the hover method
         """
-        self.updateLocation(item, event.scenePos())
-        posScene = event.scenePos()
-        posItem = self.parentObject().mapFromScene(posScene)
+        self.updateLocation(item, item.mapToScene(QPointF(event.pos())))
+        posScene = item.mapToScene(QPointF(event.pos()))
+        posItem = item.mapFromScene(posScene)
         self.setTopStrand(self.helixIndex(posItem)[1] == 0)
-        self.setPos(self.helixPos(posItem))
+        newPosition = self.helixPos(posItem)
+        if newPosition != None:
+            self.setPos(newPosition)
 
     def mousePressPathHelix(self, pathHelix, event):
-        posScene = event.scenePos()
+        posScene = pathHelix.mapToScene(QPointF(event.pos()))
         posItem = self.parentObject().mapFromScene(posScene)
         strandType, idx = self.baseAtPoint(pathHelix, posItem)
         isEndpt = pathHelix.vhelix().hasEndAt(strandType, idx)

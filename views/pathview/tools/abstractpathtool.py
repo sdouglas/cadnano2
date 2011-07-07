@@ -73,15 +73,12 @@ class AbstractPathTool(QGraphicsObject):
     _pen = QPen(styles.redstroke, styles.PATH_BASE_HL_STROKE_WIDTH)
     _brush = QBrush(Qt.NoBrush)
     
-    blockoutStrand = None
-    
     def __init__(self, controller, parent=None):
         super(AbstractPathTool, self).__init__(parent)
         self._active = False
         self._controller = controller
         self._lastLocation = None
-        self.actionName = None
-
+    
     ######################## Drawing #######################################
     def paint(self, painter, option, widget=None):
         painter.setPen(self._pen)
@@ -101,26 +98,24 @@ class AbstractPathTool(QGraphicsObject):
         return self._lastLocation
     
     def hoverEnterPathHelix(self, pathHelix, event):
-        self.updateLocation(pathHelix, event.scenePos())
+        self.updateLocation(pathHelix, pathHelix.mapToScene(QPointF(event.pos())))
 
     def hoverLeavePathHelix(self, pathHelix, event):
-        self.updateLocation(None, event.scenePos())
+        self.updateLocation(None, pathHelix.mapToScene(QPointF(event.pos())))
     
     def hoverMovePathHelix(self, pathHelix, event, flag=None):
-        self.updateLocation(pathHelix, event.scenePos())
+        self.updateLocation(pathHelix, pathHelix.mapToScene(QPointF(event.pos())))
     
     def updateLocation(self, pathHelix, scenePos, *varargs):
         """Takes care of caching the location so that a tool switch
         outside the context of an event will know where to
         position the new tool and snaps self's pos to the upper
         left hand corner of the base the user is mousing over"""
-        
         if pathHelix:
             if self.parentObject() != pathHelix:
                 self.setParentItem(pathHelix)
             self._lastLocation = (pathHelix, scenePos)
             posItem = self.parentObject().mapFromScene(scenePos)
-            
             pos = self.helixPos(posItem)
             if pos != None:
                 if pos != self.pos():
@@ -129,9 +124,6 @@ class AbstractPathTool(QGraphicsObject):
                 if not self.isVisible():
                     self.show()
                     pass
-            # end if
-            
-            self.blockout(pathHelix, posItem.x(),posItem.y())
             #base = self.baseAtPoint(pathHelix, posItem)
             #print pathHelix.vhelix().numberOfBasesConnectedTo(*base)
         else:
@@ -140,21 +132,6 @@ class AbstractPathTool(QGraphicsObject):
                 self.hide()
             if self.parentItem() != mother:
                 self.setParentItem(mother)
-    
-    def blockout(self, pathHelix, x, y):
-        # code to determine if we need to not update a position
-        base = pathHelix.baseAtLocation(x, y, clampX=True, clampY=True)
-        if base != None:
-            # print base[0], "tested"
-            if base[0] == self.blockoutStrand: 
-                self.hide()
-                return True
-            else: 
-                self.show()
-                return False
-        else:
-            return False
-    # end def
 
     def setActive(self, willBeActive, oldTool=None):
         """
@@ -187,19 +164,24 @@ class AbstractPathTool(QGraphicsObject):
         return (strandType, x)
     
     def helixIndex(self, point):
-        """Returns the (row, col) of the base which point
-        lies within."""
-        x = int(point.x() / self._baseWidth)
-        y = int(point.y() / self._baseWidth)
+        """
+        Returns the (row, col) of the base which point
+        lies within.
+        point is in PathHelix coordinates.
+        """
+        x = int(int(point.x()) / self._baseWidth)
+        y = int(int(point.y()) / self._baseWidth)
         return (x, y)
     # end def
 
     def helixPos(self, point):
-        """Snaps a point to the upper left corner of the base
-        it is within."""
-        col = int(point.x() / self._baseWidth)
-        row = int(point.y() / self._baseWidth)
-        
+        """
+        Snaps a point to the upper left corner of the base
+        it is within.
+        point is in PathHelix coordinates
+        """
+        col = int(int(point.x()) / self._baseWidth)
+        row = int(int(point.y()) / self._baseWidth)
         # Doesn't know numBases, can't check if point is too far right
         if col < 0 or row < 0 or row > 1:
             return None

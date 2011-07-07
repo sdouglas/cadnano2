@@ -105,14 +105,14 @@ class SelectionItemGroup(QGraphicsItemGroup):
 
             self.selectionbox.setRect(self.boundingRect())
             self.selectionbox.drawMe = True
-            self._r0 = self.getR(event.scenePos())
+            self._r0 = self.getR(self.mapToScene(QPointF(event.pos())))
             self._r = self._r0
             self.scene().views()[0].addToPressList(self)
     # end def
 
     def mouseMoveEvent(self, event):
         if self.dragEnable == True:
-            rf = self.getR(event.scenePos())
+            rf = self.getR(self.mapToScene(QPointF(event.pos())))
             self.translateR(rf)
             self._r = rf
         else:

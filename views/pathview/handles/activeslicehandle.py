@@ -157,7 +157,7 @@ class ActiveSliceHandle(QGraphicsItem):
         """Snaps handle into place when dragging."""
         if not self._dragMode:
             return
-        x = event.scenePos().x()
+        x = self.mapToScene(QPointF(event.pos())).x()
         dx = int((x - self.pressX)/self._baseWidth)
         self.setActiveSlice(self.pressBaseIdx+dx)
 
@@ -175,7 +175,7 @@ class ActiveSliceHandle(QGraphicsItem):
         try:
             self.scene().views()[0].addToPressList(self)
             self._dragMode = True
-            self.pressX = event.scenePos().x()
+            self.pressX = self.mapToScene(QPointF(event.pos())).x()
             self.pressBaseIdx = self.activeSlice()
         except AttributeError, e:
             # print e
