@@ -85,7 +85,6 @@ class LoopTool(AbstractPathTool):
             self._isTop = False
         else:
             self._isTop = True
-        
         pos = self.helixPos(posItem)
         if pos != None:  # double check in case mouse was on some edge pixel
             self.setPos(pos)
