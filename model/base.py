@@ -144,7 +144,6 @@ class Base(object):
         if hasSkip == -1:
             return " "
         elif len(self._sequence) > 1:
-            # print "Fuck ", self._sequence
             return self._sequence[0]
         else:
             return self._sequence

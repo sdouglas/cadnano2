@@ -216,7 +216,7 @@ class LoopHandle(QGraphicsItem):
         if self._loopsize:
             self.resetPosition()
             self._label.setFocus(False)
-            util.trace(10)
+            # util.trace(10)
             
     def boundingRect(self):
         return self._myRect
