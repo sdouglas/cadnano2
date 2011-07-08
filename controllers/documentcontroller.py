@@ -24,7 +24,6 @@
 
 import os.path
 from cadnano import app
-from idbank import IdBank
 from model.document import Document
 from model.encoder import encode
 from model.decoder import decode
