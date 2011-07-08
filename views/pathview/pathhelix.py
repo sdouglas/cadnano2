@@ -488,11 +488,11 @@ class PathHelix(QGraphicsObject):
                     startPt = (startPt[0]+styles.PATH_BASE_WIDTH/2, startPt[1])
                 elif highlight and self._vhelix.hasCrossoverAt(strandType, startIndex):
                     # compensate for width of stroke in crossover path
-                    startPt = (startPt[0]+styles.PATH_STRAND_HIGHLIGHT_STROKE_WIDTH/2, startPt[1])
+                    startPt = (startPt[0]+styles.PATH_STRAND_HIGHLIGHT_STROKE_WIDTH, startPt[1])
                 if self._vhelix.hasEndAt(strandType, endIndex):
                     endPt = (endPt[0]-styles.PATH_BASE_WIDTH/2, endPt[1])
                 elif highlight and self._vhelix.hasCrossoverAt(strandType, endIndex):
-                    endPt = (endPt[0]-styles.PATH_STRAND_HIGHLIGHT_STROKE_WIDTH/2, endPt[1])
+                    endPt = (endPt[0]-styles.PATH_STRAND_HIGHLIGHT_STROKE_WIDTH, endPt[1])
 
                 pp = QPainterPath()
                 pp.moveTo(*startPt)

@@ -33,23 +33,17 @@ from code import interact
 PySide_loaded = None
 
 
-def usesPySide(self):
-    if self.PySide_loaded == None:
-        try:
-            import PySide
-            self.PySide_loaded = True
-        except ImportError:
-            self.PySide_loaded = False
-    return self.PySide_loaded
-# end def
-
-
-def usePySide():
+def usesPySide(*args):
+    global PySide_loaded
+    if PySide_loaded != None:
+        return PySide_loaded
     try:
         import PySide
         PySide_loaded = True
+        print "Using PySide"
     except ImportError:
         PySide_loaded = False
+        print "Using PyQt"
     return PySide_loaded
 # end def
 
@@ -67,7 +61,7 @@ def qtWrapImport(name, globaldict, fromlist):
     fromlist is a list of subclasses such as [QFont, QColor], or [QRectF]
     """
     pyWrapper = None
-    if usePySide():
+    if usesPySide():
         pyWrapper = 'PySide'
         # pyWrapper = 'PyQt4'
     else:
