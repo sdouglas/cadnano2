@@ -9,7 +9,7 @@
 		<dict>
 			<key>CFBundleTypeExtensions</key>
 			<array>
-				<string>cn2</string>
+				<string>nno</string>
 			</array>
 			<key>CFBundleTypeIconFile</key>
 			<string>document_icon.icns</string>
@@ -19,7 +19,7 @@
 			<string>Editor</string>
 			<key>LSItemContentTypes</key>
 			<array>
-				<string>org.cadnano.cn2</string>
+				<string>org.cadnano.nno</string>
 			</array>
 			<key>LSTypeIsPackage</key>
 			<false/>
@@ -85,14 +85,14 @@
 			<key>UTTypeIconFile</key>
 			<string>document_icon</string>
 			<key>UTTypeIdentifier</key>
-			<string>org.cadnano.cn2</string>
+			<string>org.cadnano.nno</string>
 			<key>UTTypeReferenceURL</key>
 			<string>http://cadnano.org</string>
 			<key>UTTypeTagSpecification</key>
 			<dict>
 				<key>public.filename-extension</key>
 				<array>
-					<string>cn2</string>
+					<string>nno</string>
 				</array>
 			</dict>
 		</dict>

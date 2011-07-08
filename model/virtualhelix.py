@@ -792,20 +792,17 @@ class VirtualHelix(QObject):
         stage of the loading process (which calls installXover... for
         *all* of its connections).
         """
-        if undoStack == True:
-            undoStack = self.undoStack()
-        if undoStack != None:
-            undoStack.beginMacro("Install Xover")
         c = self.Connect3To5Command(strandType, self, fromIndex, toVhelix,\
-               toIndex, endToTakeColorFrom, speedy=speedy)
-        if undoStack != None:
-            undoStack.push(c)
+                                    toIndex, endToTakeColorFrom, speedy=speedy)
+        if undoStack == False:  # no undo stack, just do the command
+            c.redo()
+        else:
+            self.undoStack().beginMacro("Install Xover")
+            self.undoStack().push(c)
+            self.undoStack().endMacro()
             if not speedy:
                 toVhelix.thoughtPolice(undoStack=undoStack)
                 self.thoughtPolice(undoStack=undoStack)
-            undoStack.endMacro()
-        else:
-            c.redo()
 
     def removeConnectedStrandAt(self, strandType, idx, undoStack=True):
         if undoStack == True:
