@@ -51,20 +51,33 @@ def qtWrapImport(name, globaldict, fromlist):
     """
     pyWrapper = None
     if app().usesPySide():
-        # pyWrapper = 'PySide'
-        pyWrapper = 'PyQt4'
+        pyWrapper = 'PySide'
+        # pyWrapper = 'PyQt4'
     else:
         pyWrapper = 'PyQt4'
-    _temp = __import__(pyWrapper + '.' +  name, \
+    if name == None:
+        name = ''
+    else:
+        name = '.' + name
+    _temp = __import__(pyWrapper + name, \
                         globaldict, locals(), fromlist, -1)
     for key in fromlist:
-        if pyWrapper == 'PySide':
+        if pyWrapper == 'PySide' and key in ('pyqtSignal', 'pyqtSlot', 'QString',\
+                                             'QStringList'):
             if key == 'pyqtSignal':
                 globaldict[key] = getattr(_temp, 'Signal') 
             elif key == 'pyqtSlot':
                 globaldict[key] = getattr(_temp, 'Slot')
+            elif key == 'QString':
+                globaldict[key] = str
+            elif key == 'QStringList':
+                globaldict[key] = list
         else:
-            globaldict[key] = getattr(_temp, key)
+            canary = object()
+            binding = getattr(_temp, key, canary)
+            if binding == canary:
+                raise KeyError("Couldn't import key '%s' from module '%s'"%(key, pyWrapper+name))
+            globaldict[key] = binding
     # end for
 # end def
 

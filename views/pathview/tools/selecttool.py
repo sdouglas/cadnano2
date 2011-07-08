@@ -46,7 +46,7 @@ class SelectTool(AbstractPathTool):
     drawActionPreview = False
     colorPreview = False
 
-    def __init__(self, controller):
+    def __init__(self, controller, **kwargs):
         super(SelectTool, self).__init__(controller)
         self._mouseDownBase = None
         self._mouseDownPH = None

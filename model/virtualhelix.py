@@ -902,6 +902,19 @@ class VirtualHelix(QObject):
             c.redo()
         self.emitBasesModifiedIfNeeded()
 
+    def floatingXover(self):
+        """
+        Return the receiver's floating xover in the format:
+        ((fromVH, fromStrand, fromIdx), toPt)
+        or, if there isn't a floating xover, return
+        None
+        """
+        if self.floatingXoverBase != None:
+            fb = self.floatingXoverBase
+            return ((fb._vhelix, fb._strandtype, fb._n),\
+                    fb.floatingXoverDestination())
+        return None
+
     def setFloatingXover(self, strandType=None, fromIdx=None, toPoint=None):
         """The floating crossover is a GUI hack that is the
         temporary crossover shown while the user is using the
@@ -914,7 +927,7 @@ class VirtualHelix(QObject):
             else:
                 self.part().updateFloatingXover.emit((self, strandType, fromIdx),
                                                      toPoint)
-        if self.floatingXoverBase:
+        if self.floatingXoverBase != None:
             self.floatingXoverBase._floatingXoverDestination = None
             self.floatingXoverBase = None
         if strandType==None or fromIdx==None or toPoint==None:

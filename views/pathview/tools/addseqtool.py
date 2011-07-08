@@ -29,8 +29,8 @@ Created by Shawn Douglas on 2011-06-21.
 
 from abstractpathtool import AbstractPathTool
 import util
-from PyQt4.QtGui import QPen, QColor, QInputDialog
-from PyQt4.QtCore import Qt, QPointF, SLOT, pyqtSlot
+util.qtWrapImport('QtGui', globals(), ['QPen', 'QColor', 'QInputDialog'])
+util.qtWrapImport('QtCore', globals(), ['Qt', 'QPointF', 'SLOT', 'pyqtSlot'])
 from model.enum import StrandType
 from data.dnasequences import sequences
 

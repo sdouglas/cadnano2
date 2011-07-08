@@ -49,8 +49,7 @@ class PencilTool(SelectTool, ForceTool):
     mousePressPathHelixGroupUnused = False
     
     def __init__(self, controller):
-        SelectTool.__init__(self, controller)
-        ForceTool.__init__(self, rightClickOnly=True)
+        super(PencilTool, self).__init__(controller, rightClickOnly=True)
 
     def mousePressPathHelix(self, pathHelix, event):
         draggingForceCrossover = False

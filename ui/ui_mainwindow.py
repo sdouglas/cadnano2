@@ -7,7 +7,8 @@
 #
 # WARNING! All changes made in this file will be lost!
 
-from PyQt4 import QtCore, QtGui
+import util
+util.qtWrapImport(None, globals(), ['QtCore', 'QtGui'])
 
 try:
     _fromUtf8 = QtCore.QString.fromUtf8

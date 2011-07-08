@@ -177,7 +177,7 @@ class DocumentController():
             fdialog.open()  # or .show(), or .open()
 
     def openFile(self, selected):
-        if isinstance(selected, QStringList):
+        if isinstance(selected, QStringList) or isinstance(selected, list):
             fname = selected[0]
         else:
             fname = selected
@@ -250,7 +250,7 @@ class DocumentController():
     # end def
     
     def exportFile(self, selected):
-        if isinstance(selected, QStringList):
+        if isinstance(selected, QStringList) or isinstance(selected, list):
             fname = selected[0]
         else:
             fname = selected
@@ -308,7 +308,7 @@ class DocumentController():
             fdialog.open()
 
     def saveFile(self, selected):
-        if isinstance(selected, QStringList):
+        if isinstance(selected, QStringList) or isinstance(selected, list):
             fname = selected[0]
         else:
             fname = selected

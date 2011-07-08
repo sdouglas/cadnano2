@@ -78,7 +78,7 @@ class CustomQGraphicsView(QGraphicsView):
         On initialization, we need to bind the Ctrl/command key to
         enable manipulation of the view.
         """
-        super(QGraphicsView, self).__init__(parent)
+        QGraphicsView.__init__(self, parent)
 
         self._noDrag = QGraphicsView.RubberBandDrag
         self._yesDrag = QGraphicsView.ScrollHandDrag
@@ -149,12 +149,12 @@ class CustomQGraphicsView(QGraphicsView):
     # end def
     
     def enterEvent(self, event):
-        self.setFocus(True)
+        self.setFocus()
         self.setDragMode(self._noDrag)
         QGraphicsView.enterEvent(self, event)
 
     def leaveEvent(self, event):
-        self.setFocus(False)
+        self.clearFocus()
         QGraphicsView.leaveEvent(self, event)
 
     def mouseMoveEvent(self, event):
