@@ -37,6 +37,8 @@ util.qtWrapImport('QtGui', globals(), ['QBrush', 'QFont', 'QGraphicsItem',\
                                        'QPolygonF', 'QPainterPath', \
                                        'QColor', 'QFontMetrics'])
 
+FromSide = "FromSide"
+ToSide = "ToSide"
 
 class XoverHandle(QGraphicsItem):
     """
@@ -47,94 +49,84 @@ class XoverHandle(QGraphicsItem):
     _toHelixNumFont = styles.XOVER_LABEL_FONT
     fm = QFontMetrics(_toHelixNumFont)
     _labelBrush = QBrush(Qt.SolidPattern)
-    
-    def _hashMarkGen(path, p1, p2):
-        path.moveTo(p1)
-        path.lineTo(p2)
-    # end
 
-    _pathCenter = QPointF(_baseWidth / 2,\
-                          _baseWidth / 2)
-    _pathUp = QPointF(_baseWidth / 2, 0)
-    _pathDown = QPointF(_baseWidth / 2, _baseWidth)
-    _ppathUp = QPainterPath()
-    _hashMarkGen(_ppathUp, _pathCenter, _pathUp)
-    _ppathDown = QPainterPath()
-    _hashMarkGen(_ppathDown, _pathCenter, _pathDown)
-    
-    def __init__(self, xoverpair, idx, fromVH, toVH, parentPH):
-        "this sets the parent object to the phg"
-        super(XoverHandle, self).__init__(parent=parentPH)
-        self._phg = parentPH.pathHelixGroup()
+    def __init__(self, xoverPair, base=None):
+        QGraphicsItem.__init__(self, parent=xoverPair._phg)
         self.setZValue(styles.ZXOVERHANDLEPAIR)
-        self._xoverpair = xoverpair
-        # self.phg.geometryChanged.connect(self.prepareGeometryChange)
-        self._index = idx  
-        self._toVH = toVH
-        self._fromVH = fromVH
-        fromVH.basesModified.connect(self.update)
-        toVH.basesModified.connect(self.update)
-        x = self._baseWidth * self._index
-        y = (0 if self.onTopStrand() else 1) * self._baseWidth
-        self.setPos(x, y)
-        
-        halfLabelH = self.fm.tightBoundingRect(str(toVH.number())).height()/2
-        #halfLabelW = self.fm.boundingRect(str(toVH.number())).width()/2
-        labelX = 0
+        self._xoverPair = xoverPair
+        self._ph, self._vh = None, None
+        self._strand, self._idx = None, None
+        self.labelRect = QRectF()
+        self.setBase(base)
 
-        if self.onTopStrand():
-            labelY = -1.05*halfLabelH - .5
-            self._endPoint = self._pathUp
-            self._painterpath = self._ppathUp
+    def setBase(self, newBase):
+        if newBase == None or None in newBase:
+            newBase = None
+        if self._vh:
+            self._vh.basesModified.disconnect(self.update)
+        if newBase == None:
+            self._ph, self._vh = None, None
+            self._strand, self._idx = None, None
+            if self.isVisible():
+                self.hide()
         else:
-            labelY = 1.05*halfLabelH + .5
-            self._endPoint = self._pathDown
-            self._painterpath = self._ppathDown
-        self._labelRect = QRectF()
-    # end def
+            phg = self._xoverPair._phg
+            self._vh, self._strand, self._idx = newBase
+            self._ph = phg.pathHelixForVHelix(self._vh)
+            self._vh.basesModified.connect(self.update)
+            self.setParentItem(self._ph)
+            self.setPos(*self._ph.baseLocation(self._strand, self._idx))
+            self.setLabelRect(QRectF())
+            if not self.isVisible():
+                self.show()
 
     def setLabelRect(self, rect):
         self._labelRect = rect
-    #end def
-       
-    def endPoint(self):
-        return self._endPoint
-   
+
     def onTopStrand(self):
-        return self._fromVH.evenParity() and \
-            self._xoverpair._strandtype == StrandType.Scaffold or \
-                not self._fromVH.evenParity() and \
-                self._xoverpair._strandtype == StrandType.Staple
+        return self._vh.evenParity() and \
+               self._strand == StrandType.Scaffold or \
+               not self._vh.evenParity() and \
+               self._strand == StrandType.Staple
 
     def paint(self, painter, option, widget=None):
+        # Draw "Elbow"
         painter.setBrush(Qt.NoBrush)
-        self._xoverpair.refreshPen()
-        pen = self._xoverpair.getPen()
+        self._xoverPair.refreshPen()
+        pen = self._xoverPair.getPen()
         painter.setPen(pen)
         bw = self._baseWidth
         pw = pen.widthF()
         center = QPointF(bw/2, bw/2)
-        if self.onTopStrand():
-            edge = QPointF(bw/2, pw/2.0)
-        else:
-            edge = QPointF(bw/2, bw-pw/2.0)
+        edge = self.strandExitPoint(biasDirection=-1)
         painter.drawLine(center, edge)
-        self.drawLabel(painter)
-
-    def drawLabel(self, painter):
+        # Draw Label
         painter.setBrush(self._labelBrush)
         painter.setFont(self._toHelixNumFont)
-        painter.drawText(self._labelRect, Qt.AlignCenter, str(self._toVH.number() ) )
-    # end def
+        painter.drawText(self._labelRect, Qt.AlignCenter, str(self._vh.number() ) )
 
     def boundingRect(self):
        return self._rect
 
     def mousePressEvent(self, event):
-        if self._phg.dragging:
+        phg = self._xoverPair._phg
+        if phg.dragging:
             return QGraphicsItem.mousePressEvent(self, event)
-        xop = self._xoverpair
-        xop._fromVH.removeXoverTo(xop._strandtype, xop._fromIdx, xop._toVH, xop._toIdx)
+        self._vh.removeXoversAt(self._strand, self._idx)
+
+    def strandExitPoint(self, biasDirection=0):
+        """
+        Returns the point at which the segment at
+        the represented base leaves the PathHelix.
+        1*biasDirection is half the parent XoverHandlePair's
+        pen's width
+        """
+        bw = self._baseWidth
+        pw = self._xoverPair.getPen().widthF()
+        if self.onTopStrand():
+            return QPointF(bw/2.0, -biasDirection*pw/2.0)
+        else:
+            return QPointF(bw/2.0, bw + biasDirection*pw/2.0)
 
 class XoverHandlePair(QGraphicsItem):
     """
@@ -148,70 +140,112 @@ class XoverHandlePair(QGraphicsItem):
     def __init__(self, phg, fromBase, toBase):
         """Create XoverHandlePair (parented to the PathHelixGroup)."""
         super(XoverHandlePair, self).__init__(phg)
-        if fromBase!=None:
-            fromVH, strandtype, fromIdx = fromBase
-        else:
-            fromVH, strandtype, fromIdx = None, None, None
-        if type(toBase) in (tuple, list):
-            toVH, toIdx = toBase
-            toPt = None
-        if isinstance(toBase, QPointF):
-            toPt = toBase
         self._phg = phg
-        self._fromVH = fromVH
-        self._strandtype = strandtype   # strandtype
-        self._fromIdx = fromIdx
-        self._toVH = toVH
-        self._toIdx = toIdx
-        self._toPt = toPt
+        self._fromVH, self._toVH = None, None
+        self._fromIdx, self._toIdx = None, None
+        self._fromStrand, self._toStrand = None, None
+        self._toPt = None
         self._rect = QRectF()
-        if self._strandtype == StrandType.Scaffold:
-            self._pen = self._phg._scafPen
-        else:
-            self._pen = QPen(self._phg._stapPen)
+        self._pen = None
+        self._painterpath = None
         
+        self.setFromBase(fromBase)
+        self.setToBase(toBase)
+        self._xover3prime = XoverHandle(self, fromBase)
+        self._xover5prime = XoverHandle(self, toBase)
         
-
-        self._xover3prime = XoverHandle(self, self._fromIdx, \
-                                        self._fromVH, self._toVH, \
-                                        self._phg.getPathHelix(self._fromVH))
-        self._xover5prime = XoverHandle(self, self._toIdx, \
-                                        self._toVH, self._fromVH, 
-                                        self._phg.getPathHelix(self._toVH))
-        
-        self._fromVH.basesModified.connect(self.refresh)
-        self._toVH.basesModified.connect(self.refresh)
-        self._phg.displayedVHsChanged.connect(self.refresh)
+        util.trace(7)
+        print "++++++crossoverhandle (%s->%s)"%(self._fromIdx, self._toIdx)
         self.refresh()
-        
+
+    def fromBase(self):
+        return (self._fromVH, self._fromStrand, self._fromIdx)
+    def setFromBase(self, newBase):
+        if self._fromVH != None:
+            self._fromVH.basesModified.disconnect(self.refresh)
+        if newBase == None:
+            self._fromVH, self._fromStrand, self._fromIdx = None, None, None
+        else:
+            self._fromVH, self._fromStrand, self._fromIdx = newBase
+            self._fromVH.basesModified.connect(self.refresh)
+        self.refresh()
+
+    def setToBase(self, newBase):
+        if self._toVH != None:
+            self._toVH.basesModified.disconnect(self.refresh)
+        if newBase == None:
+            self._toVH, self._toIdx = None, None
+            self._toPt = None
+        else:
+            if type(newBase) in (tuple, list):
+                self._toVH, self._toStrand, self._toIdx = newBase
+                self._toVH.basesModified.connect(self.refresh)
+                toPt = None
+            else:
+                self._toVH, self._toStrand, self._toIdx = None, None, None
+                toPt = newBase
+
     def setToPoint(self, newToPt):
-        pass
+        # It's smarter than the caller of this method thought
+        self.setToBase(newToPt)
 
     def getPen(self):
+        if self._pen != None:
+            return self._pen
+        if self._fromVH == None:
+            return QPen()
+        color = QColor(self._fromVH.colorOfBase(self._fromStrand, self._fromIdx))
+        self._pen = QPen(color)
+        oligoLength = self._fromVH.numberOfBasesConnectedTo(self._fromStrand, self._fromIdx)
+        if oligoLength > styles.oligoLenAboveWhichHighlight or \
+           oligoLength < styles.oligoLenBelowWhichHighlight:
+            self._pen.setWidth(styles.PATH_STRAND_HIGHLIGHT_STROKE_WIDTH)
+            color.setAlpha(128)
+        else:
+            self._pen.setWidth(styles.PATH_STRAND_STROKE_WIDTH)
+            color.setAlpha(255)
+        self._pen.setColor(color)
         return self._pen
-    # end def
     
     def keyMe(self):
-        return ( (self._fromVH, self._fromIdx), (self._toVH, self._toIdx) )
+        return ((self._fromVH, self._fromStrand, self._fromIdx),\
+                (self._toVH, self._toStrand, self._toIdx))
     
     def destroy(self):
         """docstring for destroy"""
+        util.trace(7)
+        print "------crossoverhandle (%s->%s)"%(self._fromIdx, self._toIdx)
+        if self._toVH == None:
+            # Don't destroy the floating crossover
+            return
         self.scene().removeItem(self._xover5prime)
         self.scene().removeItem(self._xover3prime)
-        self._xover3prime = None
-        self._xover5prime = None
-        self._phg.displayedVHsChanged.disconnect(self.refresh)
-        self._fromVH.basesModified.disconnect(self.refresh)
-        self._toVH.basesModified.disconnect(self.refresh)
-        self.hide()
         key = self.keyMe()
         self.scene().removeItem(self)
         if key in self._phg.xovers:
             del self._phg.xovers[self.keyMe()]
-    # end def
-    
+        self._fromVH = self._toVH = None
+
+    def representedXoverExistsInModel(self):
+        if self._toVH != None:
+            retv = self._fromVH.isaXover(self._fromIdx,\
+                                         self._toVH,\
+                                         self._toIdx,\
+                                         self._fromStrand)
+            return retv
+        if self._toPt != None:
+            floatingXover = self._fromVH.floatingXover()
+            # floatingXover[0] is the (vh, st, idx)
+            retv = floatingXover[0] == (self._fromVH,\
+                                        self._fromStrand,\
+                                        self._fromIdx)
+            return retv
+        return True
+
     def refresh(self):
-        if self._fromVH.isaXover(self._fromIdx, self._toVH, self._toIdx, self._strandtype):
+        if self._fromVH == None or self._toVH == None:
+            return
+        if self.representedXoverExistsInModel():
         #if True:
             self.refreshPath()
             self.refreshPen()
@@ -221,31 +255,16 @@ class XoverHandlePair(QGraphicsItem):
         else:
             self.destroy()
     # end def
-    
+
     def refreshPen(self):
-        if self._strandtype == StrandType.Staple:
-            self._pen = QPen()
-            color = QColor(self._fromVH.colorOfBase(self._strandtype, self._fromIdx))
-            oligoLength = self._fromVH.numberOfBasesConnectedTo(self._strandtype, self._fromIdx)
-            #print oligoLength, "resized"
-            if oligoLength > styles.oligoLenAboveWhichHighlight or \
-               oligoLength < styles.oligoLenBelowWhichHighlight:
-                self._pen.setWidth(styles.PATH_STRAND_HIGHLIGHT_STROKE_WIDTH)
-                color.setAlpha(128)
-            else:
-                self._pen.setWidth(styles.PATH_STRAND_STROKE_WIDTH)
-                color.setAlpha(255)
-            self._pen.setColor(color)
-        # end if
-        else:
-            self._pen = self._phg._scafPen
-        self.refreshRect()
-    # end def
+        self._pen = None
 
     def paint(self, painter, option, widget=None):
+        if self._painterpath == None:
+            return
         painter.setBrush(Qt.NoBrush)
         self.refreshPen()
-        pen = QPen(self._pen)
+        pen = QPen(self.getPen())
         pen.setCapStyle(Qt.FlatCap)
         painter.setPen(pen)
         # painter.drawRect(self._rect)
@@ -254,12 +273,11 @@ class XoverHandlePair(QGraphicsItem):
     def boundingRect(self):
         return self._rect
 
-    def refreshPath(self, floatPos=None):
+    def refreshPath(self):
         """
-        Draws a line from the center of the fromBase (fromBaseCenter) to the
-        top or bottom of that same base, depending on its direction (q3),
-        then a quad curve to the top or bottom of the toBase (q5), and
-        finally to the center of the toBase (toBaseCenter).
+        Draws a quad curve from the edge of the fromBase
+        to the top or bottom of the toBase (q5), and
+        finally to the center of the toBase (toBaseEndpoint).
 
         If floatPos!=None, this is a floatingXover and floatPos is the
         destination point (where the mouse is) while toHelix, toIndex
@@ -274,54 +292,58 @@ class XoverHandlePair(QGraphicsItem):
         of (rather than having strange errors popping up down the line; the
         particular instance prompting this addition cost 4 hours of time)
         """
-        fromBaseCenter = self._xover3prime.endPoint()
-        fromBaseCenter = self._phg.mapFromItem(self._xover3prime, fromBaseCenter)
-        if floatPos:
-            toBaseCenter = floatPos
+        if self._fromVH == None:
+            self._painterpath = None
+            return
+        
+        fromBaseEndpoint = self._xover3prime.strandExitPoint()
+        if fromBaseEndpoint == None:
+            return
+        
+        fromBaseEndpoint = self._phg.mapFromItem(self._xover3prime, fromBaseEndpoint)
+        if self._toPt != None:
+            toBaseEndpoint = floatPos = self._phg.mapFromScene(self._toPt)
         else:
-            toBaseCenter = self._xover5prime.endPoint()
-            toBaseCenter = self._phg.mapFromItem(self._xover5prime, toBaseCenter)
+            floatPos = None
+            toBaseEndpoint = self._xover5prime.strandExitPoint()
+            toBaseEndpoint = self._phg.mapFromItem(self._xover5prime, toBaseEndpoint)
 
         # begin calculations of how to draw labels and crossover orientations
         y3 = y5 = self._baseWidth / 2
-        from5To3 = self._fromVH.directionOfStrandIs5to3(self._strandtype)
+        from5To3 = self._fromVH.directionOfStrandIs5to3(self._fromStrand)
         if from5To3:
             orient3 = HandleOrient.LeftUp
             y3 = -y3
-            labelPosRect3 = QRectF(self._xover3prime.endPoint().x() - 0.75*self._baseWidth,\
-                                    self._xover3prime.endPoint().y() - 1.5*self._baseWidth,\
+            labelPosRect3 = QRectF(self._xover3prime.strandExitPoint().x() - 0.75*self._baseWidth,\
+                                    self._xover3prime.strandExitPoint().y() - 1.5*self._baseWidth,\
                                     self._baseWidth, self._baseWidth)
             self._xover3prime.setLabelRect(labelPosRect3)
         else:
             orient3 = HandleOrient.RightDown
-            labelPosRect3 = QRectF(self._xover3prime.endPoint().x() - 0.25*self._baseWidth,\
-                                    self._xover3prime.endPoint().y() + 0.5*self._baseWidth,\
+            labelPosRect3 = QRectF(self._xover3prime.strandExitPoint().x() - 0.25*self._baseWidth,\
+                                    self._xover3prime.strandExitPoint().y() + 0.5*self._baseWidth,\
                                     self._baseWidth, self._baseWidth)
             self._xover3prime.setLabelRect(labelPosRect3)
         if floatPos and not self._toVH:
             toIs5To3 = not from5To3
         else:
-            toIs5To3 = self._toVH.directionOfStrandIs5to3(self._strandtype)
+            toIs5To3 = self._toVH.directionOfStrandIs5to3(self._toStrand)
         if toIs5To3:
             orient5 = HandleOrient.RightUp
             y5 = -y5
-            labelPosRect5 = QRectF(self._xover5prime.endPoint().x() - 0.25*self._baseWidth, \
-                                    self._xover5prime.endPoint().y() - 1.5*self._baseWidth, \
+            labelPosRect5 = QRectF(self._xover5prime.strandExitPoint().x() - 0.25*self._baseWidth, \
+                                    self._xover5prime.strandExitPoint().y() - 1.5*self._baseWidth, \
                                     self._baseWidth, self._baseWidth)
             self._xover5prime.setLabelRect(labelPosRect5)
         else:
             orient5 = HandleOrient.LeftDown
-            labelPosRect5 = QRectF(self._xover5prime.endPoint().x() - 0.75*self._baseWidth, \
-                                    self._xover5prime.endPoint().y() + 0.5*self._baseWidth, \
+            labelPosRect5 = QRectF(self._xover5prime.strandExitPoint().x() - 0.75*self._baseWidth, \
+                                    self._xover5prime.strandExitPoint().y() + 0.5*self._baseWidth, \
                                     self._baseWidth, self._baseWidth)
             self._xover5prime.setLabelRect(labelPosRect5)
         # Determine start and end points of quad curve
-        yOffsetFromCenterToEdge = self._baseWidth*1.0/3 * (-1 if from5To3 else 1)
-        q3 = QPointF(fromBaseCenter.x(),\
-                     fromBaseCenter.y() + yOffsetFromCenterToEdge)
-        yOffsetFromCenterToEdge = self._baseWidth*1.0/3 * (-1 if toIs5To3 else 1)
-        q5 = QPointF(toBaseCenter.x(),\
-                     toBaseCenter.y() + yOffsetFromCenterToEdge)
+        q3 = fromBaseEndpoint
+        q5 = toBaseEndpoint
 
         # Determine control point of quad curve
         c1 = QPointF()
@@ -333,38 +355,42 @@ class XoverHandlePair(QGraphicsItem):
             sameParity = self._fromVH.evenParity() == self._toVH.evenParity()
         # case 1: same strand
         if sameStrand:
-            dx = abs(toBaseCenter.x() - fromBaseCenter.x())
-            c1.setX(0.5 * (fromBaseCenter.x() + toBaseCenter.x()))
+            dx = abs(toBaseEndpoint.x() - fromBaseEndpoint.x())
+            c1.setX(0.5 * (fromBaseEndpoint.x() + toBaseEndpoint.x()))
             if orient3 in [HandleOrient.LeftUp, HandleOrient.RightUp]:
                 c1.setY(q3.y() - self._yScale * dx)
             else:
                 c1.setY(q3.y() + self._yScale * dx)
         # case 2: same parity
         elif sameParity:
-            dy = abs(toBaseCenter.y() - fromBaseCenter.y())
-            c1.setX(fromBaseCenter.x() + self._xScale * dy)
-            c1.setY(0.5 * (fromBaseCenter.y() + toBaseCenter.y()))
+            dy = abs(toBaseEndpoint.y() - fromBaseEndpoint.y())
+            c1.setX(fromBaseEndpoint.x() + self._xScale * dy)
+            c1.setY(0.5 * (fromBaseEndpoint.y() + toBaseEndpoint.y()))
         # case 3: different parity
         else:
             if orient3 == HandleOrient.LeftUp:
-                c1.setX(fromBaseCenter.x() - self._xScale *\
-                        abs(toBaseCenter.y() - fromBaseCenter.y()))
+                c1.setX(fromBaseEndpoint.x() - self._xScale *\
+                        abs(toBaseEndpoint.y() - fromBaseEndpoint.y()))
             else:
-                c1.setX(fromBaseCenter.x() + self._xScale *\
-                        abs(toBaseCenter.y() - fromBaseCenter.y()))
-            c1.setY(0.5 * (fromBaseCenter.y() + toBaseCenter.y()))
+                c1.setX(fromBaseEndpoint.x() + self._xScale *\
+                        abs(toBaseEndpoint.y() - fromBaseEndpoint.y()))
+            c1.setY(0.5 * (fromBaseEndpoint.y() + toBaseEndpoint.y()))
 
         # Construct painter path
         painterpath = QPainterPath()
-        painterpath.moveTo(fromBaseCenter)
-        painterpath.lineTo(q3)
+        painterpath.moveTo(fromBaseEndpoint + QPointF(0, -1))
+        painterpath.lineTo(fromBaseEndpoint)
         painterpath.quadTo(c1, q5)
-        painterpath.lineTo(toBaseCenter)
+        painterpath.lineTo(toBaseEndpoint)
+        painterpath.lineTo(toBaseEndpoint + QPointF(0, -1))
         self._painterpath = painterpath
         self.refreshRect()
     # end def
 
     def refreshRect(self):
+        if self._painterpath == None:
+            self._rect = QRectF()
+            return
         self._rect = self._painterpath.boundingRect()
         penW = self.getPen().widthF()
         self._rect.adjust(-penW, -penW, 2*penW, 2*penW)

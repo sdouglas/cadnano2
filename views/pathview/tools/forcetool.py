@@ -116,6 +116,7 @@ class ForceTool(AbstractPathTool):
         of the drag methods would share a common header and footer
         anyway. It leads to shorter code to re-use them here."""
         ### Shared header
+        print "------------------------------------"
         # We keep checking for ph/phg because it is valid to cancel
         # a drag operation while passing None for ph, event
         if ph:
@@ -145,6 +146,7 @@ class ForceTool(AbstractPathTool):
         ### This is the middle, drag-operation dependent
         ### part of the code.
         didEnd = False
+        print "wilundo"
         if self.base1==None and canStart and destBase:  # Start drag
             self.base1 = destBase
             vh = destBase[0]
@@ -165,8 +167,10 @@ class ForceTool(AbstractPathTool):
             # document undo stack
             assert(sandboxUndoStack != vh.part().undoStack())
             sandboxUndoStack.undo()
+        print "undid"
         
         ### Shared footer
+        print "wildo"
         # Can't connect a base to itself :)
         if destBase == self.base1:
             destBase = None
@@ -187,6 +191,7 @@ class ForceTool(AbstractPathTool):
                 vh.setFloatingXover(None)
             else:
                 vh.setFloatingXover(strandType, idx, scenePos)
+            print "SETfloat"
         elif phg:
             # We're actually over a potential target base for
             # the 5' end of a force crossover, so we visualize
@@ -196,6 +201,7 @@ class ForceTool(AbstractPathTool):
             vh2, strand2, idx2 = destBase
             vh1.setFloatingXover(None)
             vh1.installXoverFrom3To5(strand1, idx1, vh2, idx2)
-
+            print "SETinstall"
+        print "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
         if didEnd:
             self.base1 = None
