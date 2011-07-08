@@ -762,7 +762,7 @@ class VirtualHelix(QObject):
                          colorL, colorR, police, undoDesc)
         # print " ".join(str(b) for b in self._strand(strandType))
         # print "\n"
-                         
+
     def clearStrand(self, strandType, startIndex, endIndex, undoStack=True,\
                     colorL=None, colorR=None, police=True,\
                     undoDesc="Clear Strand"):
@@ -799,10 +799,10 @@ class VirtualHelix(QObject):
         else:
             self.undoStack().beginMacro("Install Xover")
             self.undoStack().push(c)
-            self.undoStack().endMacro()
             if not speedy:
                 toVhelix.thoughtPolice(undoStack=undoStack)
                 self.thoughtPolice(undoStack=undoStack)
+            self.undoStack().endMacro()
 
     def removeConnectedStrandAt(self, strandType, idx, undoStack=True):
         if undoStack == True:
