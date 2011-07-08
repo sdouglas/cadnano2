@@ -68,36 +68,34 @@ class LoopTool(AbstractPathTool):
         painter.drawRect(self._toolRect)
         painter.setPen(self._loopItem.getPen())
         painter.drawPath(self._loopItem.getLoop(self._isTop))
-    
+
     def boundingRect(self):
         return self._boundingRect
 
-    def hoverMovePathHelix(self, ph, event, flag=None):
+    def hoverMovePathHelix(self, pathHelix, event, flag=None):
         """
         flag is for the case where an item in the path also needs to
         implement the hover method
         """
         posItem = event.pos()
         if flag != None:
-            posScene = ph.mapToScene(QPointF(event.pos()))
-            posItem = self.parentObject().mapFromScene(posScene)
+            posScene = pathHelix.mapToScene(QPointF(event.pos()))
+            posItem = pathHelix.mapFromScene(posScene)
         if self.helixIndex(posItem)[1] == 1:
             self._isTop = False
         else:
             self._isTop = True
-        self.setPos(self.helixPos(posItem))
+        pos = self.helixPos(posItem)
+        if pos != None:  # double check in case mouse was on some edge pixel
+            self.setPos(pos)
     # end def
 
-    def mousePressPathHelix(self, ph, event):
-        vh = ph.vhelix()
-        posScene = ph.mapToScene(QPointF(event.pos()))
-        posItem = ph.mapFromScene(posScene)
+    def mousePressPathHelix(self, pathHelix, event):
+        vh = pathHelix.vhelix()
+        posScene = pathHelix.mapToScene(QPointF(event.pos()))
+        posItem = pathHelix.mapFromScene(posScene)
         indexp = self.helixIndex(posItem)
-        mouseDownBase = ph.baseAtLocation(posItem.x(),\
-                                                posItem.y())
-        # print "LoopTool clicked at: (%d, %d) on helix %d" % \
-        #     (indexp[0], indexp[1], self.parentItem().number())
-        # create a new LoopHandle by adding through the     parentItem
+        mouseDownBase = pathHelix.baseAtLocation(posItem.x(), posItem.y())
         if mouseDownBase:
             loopsize = vh.hasLoopOrSkipAt(*mouseDownBase)
             if loopsize < 0:  # toggle from skip
@@ -106,6 +104,6 @@ class LoopTool(AbstractPathTool):
                 vh.installLoop(mouseDownBase[0], mouseDownBase[1], 0)
             elif vh.hasStrandAt(*mouseDownBase):
                 vh.installLoop(mouseDownBase[0], mouseDownBase[1], 1)
-            ph.makeSelfActiveHelix()
+            pathHelix.makeSelfActiveHelix()
     # end def
 # end class

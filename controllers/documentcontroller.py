@@ -24,7 +24,6 @@
 
 import os.path
 from cadnano import app
-from idbank import IdBank
 from model.document import Document
 from model.encoder import encode
 from model.decoder import decode
@@ -60,7 +59,7 @@ class DocumentController():
         self._undoStack.setClean()
         self._undoStack.cleanChanged.connect(\
             self.undoStackCleanStatusChangedSlot)
-        self._filename = fname if fname else "untitled.cn2"
+        self._filename = fname if fname else "untitled.nno"
         self._activePart = None
         self.sliceGraphicsItem = None
         self.pathHelixGroup = None
@@ -160,14 +159,14 @@ class DocumentController():
         
         if util.isWindows(): # required for native looking file window
             fname = QFileDialog.getOpenFileName(None, "Open Document", "/",\
-                        "CADnano1 / CADnano2 Files (*.cn2 *.json *.cadnano)")
+                        "CADnano1 / CADnano2 Files (*.nno *.json *.cadnano)")
             self.filesavedialog = None
             self.openFile(fname)                
         else: # access through non-blocking callback
             fdialog = QFileDialog ( self.win, \
                                 "Open Document",\
                                 "/", \
-                                "CADnano1 / CADnano2 Files (*.cn2 *.json *.cadnano)")
+                                "CADnano1 / CADnano2 Files (*.nno *.json *.cadnano)")
             fdialog.setAcceptMode(QFileDialog.AcceptOpen)
             fdialog.setWindowFlags(Qt.Sheet)
             fdialog.setWindowModality(Qt.WindowModal)
@@ -290,7 +289,7 @@ class DocumentController():
             fname = QFileDialog.getSaveFileName(self.win, 
                                 "%s - Save As" % QApplication.applicationName(),\
                                 directory, \
-                                "%s (*.cn2)" % QApplication.applicationName(), \
+                                "%s (*.nno)" % QApplication.applicationName(), \
                                  )
             self.filesavedialog = None
             self.saveFile(fname)
@@ -298,7 +297,7 @@ class DocumentController():
             fdialog = QFileDialog ( self.win, \
                                 "%s - Save As" % QApplication.applicationName(),\
                                 directory, \
-                                "%s (*.cn2)" % QApplication.applicationName())
+                                "%s (*.nno)" % QApplication.applicationName())
             fdialog.setAcceptMode(QFileDialog.AcceptSave)
             fdialog.setWindowFlags(Qt.Sheet)
             fdialog.setWindowModality(Qt.WindowModal)
@@ -315,8 +314,8 @@ class DocumentController():
         if fname.isEmpty() or os.path.isdir(fname):
             return False
         fname = str(fname)
-        if not fname.lower().endswith(".cn2"):
-            fname += ".cn2"
+        if not fname.lower().endswith(".nno"):
+            fname += ".nno"
         self.setFilename(fname)
         if self.filesavedialog != None:
             self.filesavedialog.filesSelected.disconnect(self.saveFile)

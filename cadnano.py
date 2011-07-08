@@ -100,7 +100,7 @@ class CADnano(QApplication):
 
     def __init__(self, argv):
         if argv == None:
-            argv = ["cadnano", ]
+            argv = ["cadnano"]
         super(CADnano, self).__init__(argv)
         assert(not CADnano.sharedApp)
         CADnano.sharedApp = self

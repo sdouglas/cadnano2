@@ -33,7 +33,7 @@ from views import styles
 import util
 
 # import Qt stuff into the module namespace with PySide, PyQt4 independence
-util.qtWrapImport('QtCore', globals(), ['Qt'])
+util.qtWrapImport('QtCore', globals(), ['Qt', 'QPointF'])
 util.qtWrapImport('QtGui', globals(), [ 'QPen', \
                                         'QGraphicsItem', \
                                         'QGraphicsItemGroup'])

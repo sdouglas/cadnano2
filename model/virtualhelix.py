@@ -454,8 +454,10 @@ class VirtualHelix(QObject):
         returns 0 if no loop or skip and returns the length of the skip
         otherwise
         """
-        if index in self._loop(strandType):
-            return self._loop(strandType)[index]
+        # For now, loops and skips are only in the scaffold
+        if index in self._loop(StrandType.Scaffold):
+        # if index in self._loop(strandType):
+            return self._loop(StrandType.Scaffold)[index]
         else:
             return 0
 
@@ -760,7 +762,7 @@ class VirtualHelix(QObject):
                          colorL, colorR, police, undoDesc)
         # print " ".join(str(b) for b in self._strand(strandType))
         # print "\n"
-                         
+
     def clearStrand(self, strandType, startIndex, endIndex, undoStack=True,\
                     colorL=None, colorR=None, police=True,\
                     undoDesc="Clear Strand"):
@@ -790,20 +792,17 @@ class VirtualHelix(QObject):
         stage of the loading process (which calls installXover... for
         *all* of its connections).
         """
-        if undoStack == True:
-            undoStack = self.undoStack()
-        if undoStack != None:
-            undoStack.beginMacro("Install Xover")
         c = self.Connect3To5Command(strandType, self, fromIndex, toVhelix,\
-               toIndex, endToTakeColorFrom, speedy=speedy)
-        if undoStack != None:
-            undoStack.push(c)
+                                    toIndex, endToTakeColorFrom, speedy=speedy)
+        if undoStack == False:  # no undo stack, just do the command
+            c.redo()
+        else:
+            self.undoStack().beginMacro("Install Xover")
+            self.undoStack().push(c)
             if not speedy:
                 toVhelix.thoughtPolice(undoStack=undoStack)
                 self.thoughtPolice(undoStack=undoStack)
-            undoStack.endMacro()
-        else:
-            c.redo()
+            self.undoStack().endMacro()
 
     def removeConnectedStrandAt(self, strandType, idx, undoStack=True):
         if undoStack == True:
@@ -859,10 +858,18 @@ class VirtualHelix(QObject):
             if undoStack == True:
                 undoStack = self.undoStack()
             c = self.LoopCommand(self, strandType, index, loopsize)
+            d = self.ApplySequenceCommand(self, StrandType.Scaffold, index, " ")
             if undoStack != None:
+                if loopsize > 0:
+                    undoStack.beginMacro("Insert at %d[%d]" % (self._number, index))
+                else:
+                    undoStack.beginMacro("Skip at %d[%d]" % (self._number, index))
                 self.undoStack().push(c)
+                self.undoStack().push(d)
+                undoStack.endMacro()
             else:
                 c.redo()
+                d.redo()
 
     def applyColorAt(self, color, strandType, index, undoStack=True):
         """Determine the connected strand that passes through
@@ -1000,7 +1007,7 @@ class VirtualHelix(QObject):
             self._strandType = strandType
             self._idx = idx
             self._seqStr = seqStr
-            
+
         def redo(self):
             vh = self._vh
             bases = vh._basesConnectedTo(StrandType.Scaffold, self._idx)
@@ -1050,12 +1057,8 @@ class VirtualHelix(QObject):
                     charactersUsedFromSeqStr = len(self._seqStr)
                     seq = partialSeq.ljust(numBasesToUse)
                 b._sequence = seq
-                
                 if not stap_b._sequence:
                     stap_b._sequence = " "
-                # print "what's going on?"
-                # print seq[0]
-                # print stap_b._sequence[1:]
                 stap_b._sequence = util.rcomp(seq[0]) + stap_b._sequence[1:]
             vh.setHasBeenModified()
             vh.emitBasesModifiedIfNeeded()
@@ -1073,11 +1076,13 @@ class VirtualHelix(QObject):
                 vh.setHasBeenModified()
                 vh.emitBasesModifiedIfNeeded()
                 return
-            for i in range(len(bases)):
+            for i in range(len(scafBases)):
                 scafB = scafBases[i]
-                stapB = stapBases[i]
-                scafBseq, stapBseq = self.oldBaseStrs[i]
+                scafBseq = self.oldBaseStrs[i][0]
                 scafB._sequence = scafBseq
+            for i in range(len(stapBases)):
+                stapB = stapBases[i]
+                stapBseq = self.oldBaseStrs[i][1]
                 stapB._sequence = stapBseq
             vh.setHasBeenModified()
             vh.emitBasesModifiedIfNeeded()

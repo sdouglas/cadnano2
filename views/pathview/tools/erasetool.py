@@ -65,15 +65,10 @@ class EraseTool(AbstractPathTool):
         posScene = pathHelix.mapToScene(QPointF(event.pos()))
         posItem = pathHelix.mapFromScene(posScene)
         strandType, idx = self.baseAtPoint(pathHelix, posItem)
-        
-        # Ambiguous as to whether we should call pathHelix.vhelix()
-        # or the following, because it's unclear if things will be reparented
-        # properly post mouse clicks
         vh = pathHelix.vhelix()
-        
         vh.undoStack().beginMacro("Erase")
         rightBreakIdx = leftBreakIdx = idx
-        while leftBreakIdx>1:
+        while leftBreakIdx > 1:
             if vh.hasCrossoverAt(strandType, leftBreakIdx-1):
                 if vh.hasStrandAt(strandType, idx):
                     vh.removeXoversAt(strandType, leftBreakIdx-1)
@@ -81,7 +76,7 @@ class EraseTool(AbstractPathTool):
             if vh.hasEndAt(strandType, leftBreakIdx-1):
                 break
             leftBreakIdx -= 1
-        while rightBreakIdx<vh.numBases():
+        while rightBreakIdx < vh.numBases():
             if vh.hasCrossoverAt(strandType, rightBreakIdx):
                 if vh.hasStrandAt(strandType, idx):
                     vh.removeXoversAt(strandType, rightBreakIdx)

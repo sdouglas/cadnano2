@@ -36,12 +36,12 @@ sys.path.insert(0, '.')
 argv = [s for s in sys.argv]
 from cadnano import app as getAppInstance
 
-try:
-    # If we are in Mac OS X, initialize Mac OS X specific stuff
-    import objc
-    from osx.CNApplicationDelegate import sharedDelegate as appDelegate
-except:
-    pass
+# try:
+#     # If we are in Mac OS X, initialize Mac OS X specific stuff
+#     import objc
+#     from osx.CNApplicationDelegate import sharedDelegate as appDelegate
+# except:
+#     pass
 
 app = getAppInstance(appArgs=argv)
 app.initGui()
