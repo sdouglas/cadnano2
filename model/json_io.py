@@ -97,18 +97,18 @@ def doc_from_legacy_dict(obj):
             if threeVH==-1 or threeIdx==-1:
                 continue
             
-            vh.installXoverFrom3To5(StrandType.Scaffold, i, threeVH, threeIdx, undoStack=False, speedy=True)
+            vh.installXoverFrom3To5(StrandType.Scaffold, i, threeVH, threeIdx, undoable=False, speedy=True)
         for i in range(len(stap)):
             fiveVH, fiveIdx, threeVH, threeIdx = stap[i]
             threeVH = part.getVirtualHelix(threeVH)
             if threeVH==-1 or threeIdx==-1:
                 continue
-            vh.installXoverFrom3To5(StrandType.Staple, i, threeVH, threeIdx, undoStack=False, speedy=True)
+            vh.installXoverFrom3To5(StrandType.Staple, i, threeVH, threeIdx, undoable=False, speedy=True)
         for baseIdx, colorNumber in helix['stap_colors']:
             color = QColor((colorNumber>>16)&0xFF, (colorNumber>>8)&0xFF, colorNumber&0xFF)
-            vh.applyColorAt(color, StrandType.Staple, baseIdx, undoStack=False)
+            vh.applyColorAt(color, StrandType.Staple, baseIdx, undoable=False)
         for i in range(len(stap)):
             combinedLoopSkipAmount = loops[i] + skips[i]
             if combinedLoopSkipAmount != 0:
-                vh.installLoop(StrandType.Scaffold, i, combinedLoopSkipAmount, undoStack=False)
+                vh.installLoop(StrandType.Scaffold, i, combinedLoopSkipAmount, undoable=False)
     return doc
