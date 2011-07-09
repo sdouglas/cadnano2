@@ -45,19 +45,7 @@
         }
         "Entry"
         {
-        "MsmKey" = "8:_07F90390DDCD4637A79236C2826F0288"
-        "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
         "MsmKey" = "8:_0A2EA8F8B7F54BCAA70C1AF9872DA709"
-        "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
-        "MsmKey" = "8:_0B3C654863FA48D3924805D1903A1997"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
         }
@@ -88,12 +76,6 @@
         "Entry"
         {
         "MsmKey" = "8:_0D4129AAE3074BFB936F02DDDF12D1E8"
-        "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
-        "MsmKey" = "8:_1425AC043BCE46A185D2A8998BE57776"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
         }
@@ -243,12 +225,6 @@
         }
         "Entry"
         {
-        "MsmKey" = "8:_39DCD8FF480E4447AF75EAF8C0862F37"
-        "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
         "MsmKey" = "8:_3DF89E5295B744A998F9790913CFDD97"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
@@ -261,7 +237,7 @@
         }
         "Entry"
         {
-        "MsmKey" = "8:_43CFF14F15AA4A0FA31E1E64449EA3D8"
+        "MsmKey" = "8:_40D0E33753D242FEB516F435584E483C"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
         }
@@ -376,12 +352,6 @@
         "Entry"
         {
         "MsmKey" = "8:_6770AF49159240EB9E2DCBACBB81ECF5"
-        "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
-        "MsmKey" = "8:_69BE7846C1B44D22861EEA092AD7ECD9"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
         }
@@ -610,12 +580,6 @@
         "Entry"
         {
         "MsmKey" = "8:_A572EA39B4F14E7DA14E95F164647165"
-        "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
-        "MsmKey" = "8:_A943CCCCD3814BC4B96865C9E5D5815C"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
         }
@@ -1152,52 +1116,12 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
-            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_07F90390DDCD4637A79236C2826F0288"
-            {
-            "SourcePath" = "8:..\\..\\model\\dnapart.pyc"
-            "TargetName" = "8:dnapart.pyc"
-            "Tag" = "8:"
-            "Folder" = "8:_E731C0A4B01A45648D8E073DACB9C794"
-            "Condition" = "8:"
-            "Transitive" = "11:FALSE"
-            "Vital" = "11:TRUE"
-            "ReadOnly" = "11:FALSE"
-            "Hidden" = "11:FALSE"
-            "System" = "11:FALSE"
-            "Permanent" = "11:FALSE"
-            "SharedLegacy" = "11:FALSE"
-            "PackageAs" = "3:1"
-            "Register" = "3:1"
-            "Exclude" = "11:FALSE"
-            "IsDependency" = "11:FALSE"
-            "IsolateTo" = "8:"
-            }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_0A2EA8F8B7F54BCAA70C1AF9872DA709"
             {
             "SourcePath" = "8:..\\..\\ui\\Makefile"
             "TargetName" = "8:Makefile"
             "Tag" = "8:"
             "Folder" = "8:_CC16AF60E2934460AF1E15B19FAF7002"
-            "Condition" = "8:"
-            "Transitive" = "11:FALSE"
-            "Vital" = "11:TRUE"
-            "ReadOnly" = "11:FALSE"
-            "Hidden" = "11:FALSE"
-            "System" = "11:FALSE"
-            "Permanent" = "11:FALSE"
-            "SharedLegacy" = "11:FALSE"
-            "PackageAs" = "3:1"
-            "Register" = "3:1"
-            "Exclude" = "11:FALSE"
-            "IsDependency" = "11:FALSE"
-            "IsolateTo" = "8:"
-            }
-            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_0B3C654863FA48D3924805D1903A1997"
-            {
-            "SourcePath" = "8:..\\..\\test\\cadnanoguitestcase.py.REMOTE.3876.py"
-            "TargetName" = "8:cadnanoguitestcase.py.REMOTE.3876.py"
-            "Tag" = "8:"
-            "Folder" = "8:_7B542988AE5943C78DCA96080BB63CB3"
             "Condition" = "8:"
             "Transitive" = "11:FALSE"
             "Vital" = "11:TRUE"
@@ -1298,26 +1222,6 @@
             "TargetName" = "8:path-pen_48.png"
             "Tag" = "8:"
             "Folder" = "8:_21563C3A05AC494AAC68A0EF58C1DB5E"
-            "Condition" = "8:"
-            "Transitive" = "11:FALSE"
-            "Vital" = "11:TRUE"
-            "ReadOnly" = "11:FALSE"
-            "Hidden" = "11:FALSE"
-            "System" = "11:FALSE"
-            "Permanent" = "11:FALSE"
-            "SharedLegacy" = "11:FALSE"
-            "PackageAs" = "3:1"
-            "Register" = "3:1"
-            "Exclude" = "11:FALSE"
-            "IsDependency" = "11:FALSE"
-            "IsolateTo" = "8:"
-            }
-            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_1425AC043BCE46A185D2A8998BE57776"
-            {
-            "SourcePath" = "8:..\\..\\model\\document.pyc"
-            "TargetName" = "8:document.pyc"
-            "Tag" = "8:"
-            "Folder" = "8:_E731C0A4B01A45648D8E073DACB9C794"
             "Condition" = "8:"
             "Transitive" = "11:FALSE"
             "Vital" = "11:TRUE"
@@ -1812,26 +1716,6 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
-            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_39DCD8FF480E4447AF75EAF8C0862F37"
-            {
-            "SourcePath" = "8:..\\..\\test\\cadnanoguitestcase.py.BACKUP.3876.py"
-            "TargetName" = "8:cadnanoguitestcase.py.BACKUP.3876.py"
-            "Tag" = "8:"
-            "Folder" = "8:_7B542988AE5943C78DCA96080BB63CB3"
-            "Condition" = "8:"
-            "Transitive" = "11:FALSE"
-            "Vital" = "11:TRUE"
-            "ReadOnly" = "11:FALSE"
-            "Hidden" = "11:FALSE"
-            "System" = "11:FALSE"
-            "Permanent" = "11:FALSE"
-            "SharedLegacy" = "11:FALSE"
-            "PackageAs" = "3:1"
-            "Register" = "3:1"
-            "Exclude" = "11:FALSE"
-            "IsDependency" = "11:FALSE"
-            "IsolateTo" = "8:"
-            }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_3DF89E5295B744A998F9790913CFDD97"
             {
             "SourcePath" = "8:..\\..\\model\\dnapart.py"
@@ -1872,10 +1756,10 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
-            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_43CFF14F15AA4A0FA31E1E64449EA3D8"
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_40D0E33753D242FEB516F435584E483C"
             {
-            "SourcePath" = "8:..\\..\\testresults.xml"
-            "TargetName" = "8:testresults.xml"
+            "SourcePath" = "8:..\\..\\cadnano.bat"
+            "TargetName" = "8:cadnano.bat"
             "Tag" = "8:"
             "Folder" = "8:_9FD600FEB2E9409A9F55436A4845B317"
             "Condition" = "8:"
@@ -2258,26 +2142,6 @@
             "TargetName" = "8:path-insert.ai"
             "Tag" = "8:"
             "Folder" = "8:_6083ED76BEB2401398804263BA96F11E"
-            "Condition" = "8:"
-            "Transitive" = "11:FALSE"
-            "Vital" = "11:TRUE"
-            "ReadOnly" = "11:FALSE"
-            "Hidden" = "11:FALSE"
-            "System" = "11:FALSE"
-            "Permanent" = "11:FALSE"
-            "SharedLegacy" = "11:FALSE"
-            "PackageAs" = "3:1"
-            "Register" = "3:1"
-            "Exclude" = "11:FALSE"
-            "IsDependency" = "11:FALSE"
-            "IsolateTo" = "8:"
-            }
-            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_69BE7846C1B44D22861EEA092AD7ECD9"
-            {
-            "SourcePath" = "8:..\\..\\test\\cadnanoguitestcase.py.LOCAL.3876.py"
-            "TargetName" = "8:cadnanoguitestcase.py.LOCAL.3876.py"
-            "Tag" = "8:"
-            "Folder" = "8:_7B542988AE5943C78DCA96080BB63CB3"
             "Condition" = "8:"
             "Transitive" = "11:FALSE"
             "Vital" = "11:TRUE"
@@ -3038,26 +2902,6 @@
             "TargetName" = "8:selecttool.py"
             "Tag" = "8:"
             "Folder" = "8:_A9CE4959A2F54FB488C673DD8E4625AB"
-            "Condition" = "8:"
-            "Transitive" = "11:FALSE"
-            "Vital" = "11:TRUE"
-            "ReadOnly" = "11:FALSE"
-            "Hidden" = "11:FALSE"
-            "System" = "11:FALSE"
-            "Permanent" = "11:FALSE"
-            "SharedLegacy" = "11:FALSE"
-            "PackageAs" = "3:1"
-            "Register" = "3:1"
-            "Exclude" = "11:FALSE"
-            "IsDependency" = "11:FALSE"
-            "IsolateTo" = "8:"
-            }
-            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_A943CCCCD3814BC4B96865C9E5D5815C"
-            {
-            "SourcePath" = "8:..\\..\\model\\base.pyc"
-            "TargetName" = "8:base.pyc"
-            "Tag" = "8:"
-            "Folder" = "8:_E731C0A4B01A45648D8E073DACB9C794"
             "Condition" = "8:"
             "Transitive" = "11:FALSE"
             "Vital" = "11:TRUE"
@@ -4205,7 +4049,7 @@
             "IconIndex" = "3:0"
                 "Command"
                 {
-                "Command" = "8:_EF26FADFB4854554B898B1B97AE5100C"
+                "Command" = "8:_40D0E33753D242FEB516F435584E483C"
                 }
                 "Verbs"
                 {
@@ -4228,7 +4072,7 @@
             "IconIndex" = "3:0"
                 "Command"
                 {
-                "Command" = "8:_EF26FADFB4854554B898B1B97AE5100C"
+                "Command" = "8:_40D0E33753D242FEB516F435584E483C"
                 }
                 "Verbs"
                 {
@@ -4709,10 +4553,10 @@
             "Name" = "8:CADnano2"
             "Arguments" = "8:"
             "Description" = "8:"
-            "ShowCmd" = "3:1"
+            "ShowCmd" = "3:7"
             "IconIndex" = "3:0"
             "Transitive" = "11:FALSE"
-            "Target" = "8:_EF26FADFB4854554B898B1B97AE5100C"
+            "Target" = "8:_40D0E33753D242FEB516F435584E483C"
             "Folder" = "8:_497664B2E7E94969B83CCA7C65BF540A"
             "WorkingFolder" = "8:_9FD600FEB2E9409A9F55436A4845B317"
             "Icon" = "8:_1F2C1D7B41054035BFD7D85A5EFFF099"
