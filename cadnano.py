@@ -63,7 +63,7 @@ def qtWrapImport(name, globaldict, fromlist):
     pyWrapper = None
     if usesPySide():
         pyWrapper = 'PySide'
-        # pyWrapper = 'PyQt4'
+        #pyWrapper = 'PyQt4'
     else:
         pyWrapper = 'PyQt4'
     _temp = __import__(pyWrapper + '.' + name, \

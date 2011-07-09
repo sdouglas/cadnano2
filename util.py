@@ -52,7 +52,7 @@ def qtWrapImport(name, globaldict, fromlist):
     pyWrapper = None
     if app().usesPySide():
         pyWrapper = 'PySide'
-        # pyWrapper = 'PyQt4'
+        #pyWrapper = 'PyQt4'
     else:
         pyWrapper = 'PyQt4'
     if name == None:
