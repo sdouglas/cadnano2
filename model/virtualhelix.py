@@ -430,6 +430,7 @@ class VirtualHelix(QObject):
             return False
         if base.isEnd() == 5:
             # keep checking natural 5' neighbor until we hit something
+            print ">5"
             while True:
                 nat5 = base._natNeighbor5p()
                 if nat5 == None:  # ran out of neighbors
@@ -439,6 +440,7 @@ class VirtualHelix(QObject):
                 base = nat5
         elif base.isEnd() == 3:
             # keep checking natural 3' neighbor until we hit something
+            print "<3"
             while True:
                 nat3 = base._natNeighbor3p()
                 if nat3 == None:  # ran out of neighbor
@@ -446,6 +448,8 @@ class VirtualHelix(QObject):
                 if not nat3.isEmpty():  # hit non-empty base
                     break
                 base = nat3
+        else:
+            print "!"
         return base._n
 
     def hasLoopOrSkipAt(self, strandType, index):

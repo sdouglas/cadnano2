@@ -449,7 +449,8 @@ class Base(object):
 
     def _hasNeighborL(self):
         if self._vhelix.directionOfStrandIs5to3(self._strandtype):
-            return self._neighbor5p()!=None or self.floatingXoverDestination()
+            return self._neighbor5p() != None or\
+                   self.floatingXoverDestination() != None
         else:
             return self._neighbor3p() != None
 
