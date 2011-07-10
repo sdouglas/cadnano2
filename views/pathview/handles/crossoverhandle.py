@@ -84,23 +84,15 @@ class XoverHandle(QGraphicsItem):
         self._labelRect = rect
 
     def onTopStrand(self):
+        if self._vh == None:
+            return True
         return self._vh.evenParity() and \
                self._strand == StrandType.Scaffold or \
                not self._vh.evenParity() and \
                self._strand == StrandType.Staple
 
     def paint(self, painter, option, widget=None):
-        # Draw "Elbow"
-        painter.setBrush(Qt.NoBrush)
-        self._xoverPair.refreshPen()
-        pen = self._xoverPair.getPen()
-        painter.setPen(pen)
-        bw = self._baseWidth
-        pw = pen.widthF()
-        center = QPointF(bw/2, bw/2)
-        edge = self.strandExitPoint(biasDirection=-1)
-        painter.drawLine(center, edge)
-        # Draw Label
+        # Draw label only; elbow gets drawn by the crossover pair
         painter.setBrush(self._labelBrush)
         painter.setFont(self._toHelixNumFont)
         painter.drawText(self._labelRect, Qt.AlignCenter, str(self._vh.number() ) )
@@ -114,7 +106,7 @@ class XoverHandle(QGraphicsItem):
             return QGraphicsItem.mousePressEvent(self, event)
         self._vh.removeXoversAt(self._strand, self._idx)
 
-    def strandExitPoint(self, biasDirection=0):
+    def strandExitPoint(self, penWidthsYShiftedTowardsCenter=0):
         """
         Returns the point at which the segment at
         the represented base leaves the PathHelix.
@@ -124,9 +116,13 @@ class XoverHandle(QGraphicsItem):
         bw = self._baseWidth
         pw = self._xoverPair.getPen().widthF()
         if self.onTopStrand():
-            return QPointF(bw/2.0, -biasDirection*pw/2.0)
+            return QPointF(bw/2.0, penWidthsYShiftedTowardsCenter*pw)
         else:
-            return QPointF(bw/2.0, bw + biasDirection*pw/2.0)
+            return QPointF(bw/2.0, bw - penWidthsYShiftedTowardsCenter*pw)
+
+    def centerPoint(self):
+        bw = self._baseWidth
+        return QPointF(bw/2.0, bw/2.0)
 
 class XoverHandlePair(QGraphicsItem):
     """
@@ -149,26 +145,32 @@ class XoverHandlePair(QGraphicsItem):
         self._pen = None
         self._painterpath = None
         
-        self.setFromBase(fromBase)
-        self.setToBase(toBase)
         self._xover3prime = XoverHandle(self, fromBase)
         self._xover5prime = XoverHandle(self, toBase)
+        self.setFromBase(fromBase)
+        self.setToBase(toBase)
         
-        util.trace(7)
-        print "++++++crossoverhandle (%s->%s)"%(self._fromIdx, self._toIdx)
+        # print "++++++crossoverhandle (%s->%s)"%(self._fromIdx, self._toIdx)
         self.refresh()
 
     def fromBase(self):
         return (self._fromVH, self._fromStrand, self._fromIdx)
     def setFromBase(self, newBase):
+        if (self._fromVH, self._fromStrand, self._fromIdx) == newBase:
+            return
         if self._fromVH != None:
             self._fromVH.basesModified.disconnect(self.refresh)
         if newBase == None:
             self._fromVH, self._fromStrand, self._fromIdx = None, None, None
+            if self.isVisible():
+                self.hide()
         else:
             self._fromVH, self._fromStrand, self._fromIdx = newBase
             self._fromVH.basesModified.connect(self.refresh)
-        self.refresh()
+            self._xover3prime.setBase(newBase)
+            if not self.isVisible():
+                self.show()
+        self.update()
 
     def setToBase(self, newBase):
         if self._toVH != None:
@@ -180,10 +182,12 @@ class XoverHandlePair(QGraphicsItem):
             if type(newBase) in (tuple, list):
                 self._toVH, self._toStrand, self._toIdx = newBase
                 self._toVH.basesModified.connect(self.refresh)
-                toPt = None
+                self._toPt = None
             else:
                 self._toVH, self._toStrand, self._toIdx = None, None, None
-                toPt = newBase
+                self._toPt = newBase
+                self.refresh()
+        self.update()
 
     def setToPoint(self, newToPt):
         # It's smarter than the caller of this method thought
@@ -213,8 +217,7 @@ class XoverHandlePair(QGraphicsItem):
     
     def destroy(self):
         """docstring for destroy"""
-        util.trace(7)
-        print "------crossoverhandle (%s->%s)"%(self._fromIdx, self._toIdx)
+        # print "------crossoverhandle (%s->%s)"%(self._fromIdx, self._toIdx)
         if self._toVH == None:
             # Don't destroy the floating crossover
             return
@@ -236,6 +239,8 @@ class XoverHandlePair(QGraphicsItem):
         if self._toPt != None:
             floatingXover = self._fromVH.floatingXover()
             # floatingXover[0] is the (vh, st, idx)
+            if floatingXover == None:
+                return False
             retv = floatingXover[0] == (self._fromVH,\
                                         self._fromStrand,\
                                         self._fromIdx)
@@ -243,7 +248,7 @@ class XoverHandlePair(QGraphicsItem):
         return True
 
     def refresh(self):
-        if self._fromVH == None or self._toVH == None:
+        if self._fromVH == None or (self._toVH == None and self._toPt == None):
             return
         if self.representedXoverExistsInModel():
         #if True:
@@ -261,11 +266,13 @@ class XoverHandlePair(QGraphicsItem):
 
     def paint(self, painter, option, widget=None):
         if self._painterpath == None:
-            return
+            self.refreshPath()
+            if self._painterpath == None:
+                return
         painter.setBrush(Qt.NoBrush)
         self.refreshPen()
         pen = QPen(self.getPen())
-        pen.setCapStyle(Qt.FlatCap)
+        pen.setCapStyle(Qt.SquareCap)
         painter.setPen(pen)
         # painter.drawRect(self._rect)
         painter.drawPath(self._painterpath)
@@ -292,22 +299,15 @@ class XoverHandlePair(QGraphicsItem):
         of (rather than having strange errors popping up down the line; the
         particular instance prompting this addition cost 4 hours of time)
         """
+        # Now draw the actual path
         if self._fromVH == None:
             self._painterpath = None
             return
         
-        fromBaseEndpoint = self._xover3prime.strandExitPoint()
-        if fromBaseEndpoint == None:
+        if self._toVH == None and self._toPt == None:
+            self._painterpath = None
             return
-        
-        fromBaseEndpoint = self._phg.mapFromItem(self._xover3prime, fromBaseEndpoint)
-        if self._toPt != None:
-            toBaseEndpoint = floatPos = self._phg.mapFromScene(self._toPt)
-        else:
-            floatPos = None
-            toBaseEndpoint = self._xover5prime.strandExitPoint()
-            toBaseEndpoint = self._phg.mapFromItem(self._xover5prime, toBaseEndpoint)
-
+                        
         # begin calculations of how to draw labels and crossover orientations
         y3 = y5 = self._baseWidth / 2
         from5To3 = self._fromVH.directionOfStrandIs5to3(self._fromStrand)
@@ -324,8 +324,8 @@ class XoverHandlePair(QGraphicsItem):
                                     self._xover3prime.strandExitPoint().y() + 0.5*self._baseWidth,\
                                     self._baseWidth, self._baseWidth)
             self._xover3prime.setLabelRect(labelPosRect3)
-        if floatPos and not self._toVH:
-            toIs5To3 = not from5To3
+        if self._toVH == None:
+            toIs5To3 = True
         else:
             toIs5To3 = self._toVH.directionOfStrandIs5to3(self._toStrand)
         if toIs5To3:
@@ -341,10 +341,22 @@ class XoverHandlePair(QGraphicsItem):
                                     self._xover5prime.strandExitPoint().y() + 0.5*self._baseWidth, \
                                     self._baseWidth, self._baseWidth)
             self._xover5prime.setLabelRect(labelPosRect5)
-        # Determine start and end points of quad curve
-        q3 = fromBaseEndpoint
-        q5 = toBaseEndpoint
-
+        
+        threeInsetPt = self._xover3prime.centerPoint()
+        threeInsetPt = self.mapFromItem(self._xover3prime, threeInsetPt)
+        threeExitPt = self._xover3prime.strandExitPoint()
+        threeExitPt = self.mapFromItem(self._xover3prime, threeExitPt)
+        
+        if self._toPt != None:
+            fiveEnterPt = floatPos = self._phg.mapFromScene(self._toPt)
+            fiveInsetPt = fiveEnterPt
+        else: #self._toPt == None
+            floatPos = None
+            fiveEnterPt = self._xover5prime.strandExitPoint()
+            fiveEnterPt = self.mapFromItem(self._xover5prime, fiveEnterPt)
+            fiveInsetPt = self._xover5prime.centerPoint()
+            fiveInsetPt = self.mapFromItem(self._xover5prime, fiveInsetPt)
+            
         # Determine control point of quad curve
         c1 = QPointF()
         if floatPos and not self._toVH:
@@ -355,34 +367,33 @@ class XoverHandlePair(QGraphicsItem):
             sameParity = self._fromVH.evenParity() == self._toVH.evenParity()
         # case 1: same strand
         if sameStrand:
-            dx = abs(toBaseEndpoint.x() - fromBaseEndpoint.x())
-            c1.setX(0.5 * (fromBaseEndpoint.x() + toBaseEndpoint.x()))
+            dx = abs(fiveEnterPt.x() - threeExitPt.x())
+            c1.setX(0.5 * (threeExitPt.x() + fiveEnterPt.x()))
             if orient3 in [HandleOrient.LeftUp, HandleOrient.RightUp]:
-                c1.setY(q3.y() - self._yScale * dx)
+                c1.setY(threeExitPt.y() - self._yScale * dx)
             else:
-                c1.setY(q3.y() + self._yScale * dx)
+                c1.setY(threeExitPt.y() + self._yScale * dx)
         # case 2: same parity
         elif sameParity:
-            dy = abs(toBaseEndpoint.y() - fromBaseEndpoint.y())
-            c1.setX(fromBaseEndpoint.x() + self._xScale * dy)
-            c1.setY(0.5 * (fromBaseEndpoint.y() + toBaseEndpoint.y()))
+            dy = abs(fiveEnterPt.y() - threeExitPt.y())
+            c1.setX(threeExitPt.x() + self._xScale * dy)
+            c1.setY(0.5 * (threeExitPt.y() + fiveEnterPt.y()))
         # case 3: different parity
         else:
             if orient3 == HandleOrient.LeftUp:
-                c1.setX(fromBaseEndpoint.x() - self._xScale *\
-                        abs(toBaseEndpoint.y() - fromBaseEndpoint.y()))
+                c1.setX(threeExitPt.x() - self._xScale *\
+                        abs(fiveEnterPt.y() - threeExitPt.y()))
             else:
-                c1.setX(fromBaseEndpoint.x() + self._xScale *\
-                        abs(toBaseEndpoint.y() - fromBaseEndpoint.y()))
-            c1.setY(0.5 * (fromBaseEndpoint.y() + toBaseEndpoint.y()))
+                c1.setX(threeExitPt.x() + self._xScale *\
+                        abs(fiveEnterPt.y() - threeExitPt.y()))
+            c1.setY(0.5 * (threeExitPt.y() + fiveEnterPt.y()))
 
         # Construct painter path
         painterpath = QPainterPath()
-        painterpath.moveTo(fromBaseEndpoint + QPointF(0, -1))
-        painterpath.lineTo(fromBaseEndpoint)
-        painterpath.quadTo(c1, q5)
-        painterpath.lineTo(toBaseEndpoint)
-        painterpath.lineTo(toBaseEndpoint + QPointF(0, -1))
+        painterpath.moveTo(threeInsetPt)
+        painterpath.lineTo(threeExitPt)
+        painterpath.quadTo(c1, fiveEnterPt)
+        painterpath.lineTo(fiveInsetPt)
         self._painterpath = painterpath
         self.refreshRect()
     # end def
@@ -391,8 +402,11 @@ class XoverHandlePair(QGraphicsItem):
         if self._painterpath == None:
             self._rect = QRectF()
             return
-        self._rect = self._painterpath.boundingRect()
+        newRect = self._painterpath.boundingRect()
         penW = self.getPen().widthF()
-        self._rect.adjust(-penW, -penW, 2*penW, 2*penW)
-           
+        newRect.adjust(-penW, -penW, 2*penW, 2*penW)
+        if self._rect != newRect:
+            self._rect = newRect
+            self.prepareGeometryChange()
+
 # end class

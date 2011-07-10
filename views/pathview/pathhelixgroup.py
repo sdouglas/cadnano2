@@ -180,6 +180,7 @@ class PathHelixGroup(QGraphicsObject):
             self.xovers[key] = XoverHandlePair(self, fromBase, toBase)
 
     def updateFloatingXoverItem(self, fromBase, toPt):
+        self.floatingXover.setFromBase(fromBase)
         self.floatingXover.setToPoint(toPt)
 
     def pathHelixAtScenePos(self, pos):
