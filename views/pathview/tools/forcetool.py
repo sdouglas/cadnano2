@@ -196,6 +196,5 @@ class ForceTool(AbstractPathTool):
             vh2, strand2, idx2 = destBase
             vh1.setFloatingXover(None)
             vh1.installXoverFrom3To5(strand1, idx1, vh2, idx2)
-
         if didEnd:
             self.base1 = None
