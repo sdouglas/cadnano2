@@ -44,7 +44,6 @@ class CNApplicationDelegate(NSObject):
         return None
 
     def application_openFiles_(self, app, fs):
-        print "application_openFiles_", fs
         if fs.isKindOfClass_(NSCFString):
             self.application_openFile_(app, fs)
             return

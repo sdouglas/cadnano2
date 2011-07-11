@@ -200,15 +200,14 @@ class XoverHandlePair(QGraphicsItem):
             return QPen()
         color = QColor(self._fromVH.colorOfBase(self._fromStrand, self._fromIdx))
         self._pen = QPen(color)
-        oligoLength = self._fromVH.numberOfBasesConnectedTo(self._fromStrand, self._fromIdx)
-        if oligoLength > styles.oligoLenAboveWhichHighlight or \
-           oligoLength < styles.oligoLenBelowWhichHighlight:
-            self._pen.setWidth(styles.PATH_STRAND_HIGHLIGHT_STROKE_WIDTH)
-            color.setAlpha(128)
-        else:
-            self._pen.setWidth(styles.PATH_STRAND_STROKE_WIDTH)
-            color.setAlpha(255)
-        self._pen.setColor(color)
+        self._pen.setWidth(styles.PATH_STRAND_STROKE_WIDTH)
+        if self._fromStrand == StrandType.Staple:
+            oligoLength = self._fromVH.numberOfBasesConnectedTo(self._fromStrand, self._fromIdx)
+            if oligoLength > styles.oligoLenAboveWhichHighlight or \
+               oligoLength < styles.oligoLenBelowWhichHighlight:
+                self._pen.setWidth(styles.PATH_STRAND_HIGHLIGHT_STROKE_WIDTH)
+                color.setAlpha(128)
+                self._pen.setColor(color)
         return self._pen
     
     def keyMe(self):
