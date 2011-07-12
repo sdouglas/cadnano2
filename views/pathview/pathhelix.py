@@ -340,11 +340,16 @@ class PathHelix(QGraphicsObject):
         segmentPaths, endptPths = self.segmentAndEndptPaths()
         for sp in segmentPaths:
             pen, path = sp
+            strandRect = path.controlPointRect().adjusted(0, 0, 5, 5)
+            if not strandRect.intersects(option.exposedRect):
+                continue
             painter.setPen(pen)
             painter.drawPath(path)
         painter.setPen(Qt.NoPen)
         for ep in endptPths:
             brush, path = ep
+            if not path.controlPointRect().intersects(option.exposedRect):
+                continue
             painter.setBrush(brush)
             painter.drawPath(path)
         self.paintLoopsAndSkips(painter)

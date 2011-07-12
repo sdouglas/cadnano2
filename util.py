@@ -94,12 +94,14 @@ def clamp(x, minX, maxX):
         return x
 
 def trace(n):
-    """Prints a stack trace n frames deep"""
+    """Returns a stack trace n frames deep"""
     s = extract_stack()
+    frames = []
     for f in s[-n-1:-1]:
         # f is a stack frame like
         # ('/path/script.py', 42, 'funcname', 'current = line - of / code')
-        print (path.basename(f[0])+':%i'%f[1]).ljust(30) + f[2]
+        frames.append( (path.basename(f[0])+':%i'%f[1])+'(%s)'%f[2] )
+    return " > ".join(frames)
 
 def defineEventForwardingMethodsForClass(classObj, forwardedEventSuffix, eventNames):
     """Automatically defines methods of the form eventName0Event(self, event) on
