@@ -305,6 +305,10 @@ class DNAPart(Part):
             segments, ends3, ends5 = vh.getSegmentsAndEndpoints(StrandType.Scaffold)
             for segStart, segEnd in segments:
                 vh.connectStrand(StrandType.Staple, segStart, segEnd)
+            for i in range(len(segments)-1):
+                segIEnd = segments[i][1]
+                if segIEnd + 1 == segments[i+1][0]:
+                    vh.connectStrand(StrandType.Staple, segIEnd, segIEnd + 1)
         for vh in vhs:
             # We only add crossovers for which vh will have the 3' end to
             # avoid adding each crossover twice. We can do this by adding

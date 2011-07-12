@@ -36,19 +36,24 @@ sys.path.insert(0, '.')
 argv = [s for s in sys.argv]
 from cadnano import app as getAppInstance
 
-# try:
-#     # If we are in Mac OS X, initialize Mac OS X specific stuff
-#     import objc
-#     from osx.CNApplicationDelegate import sharedDelegate as appDelegate
-# except:
-#     pass
+if "-p" not in sys.argv:
+    # Having our own NSApplication doesn't play nice with
+    # collecting profile data.
+    try:
+        # If we are in Mac OS X, initialize Mac OS X specific stuff
+        import objc
+        from osx.CNApplicationDelegate import sharedDelegate as appDelegate
+    except:
+        pass
 
 app = getAppInstance(appArgs=argv)
 app.initGui()
 if __name__ == '__main__':
     if "-p" in sys.argv:
+        print "Collecting profile data into CADnanoProfileOut.tmp"
         import cProfile
         cProfile.run('app.exec_()', 'CADnanoProfileOut.tmp')
+        print "Done collecting profile data. Use -P to print it out."
         exit()
     elif "-P" in sys.argv:
         from pstats import Stats

@@ -48,7 +48,7 @@ class Base(object):
         self._vhelix = vhelix
         self._strandtype = strandtype
         self._n = index
-        self._floatingXoverDestination = False
+        self._floatingXoverDestination = None
         self._strandLength = 0
         self._sequence = " "
 
@@ -432,20 +432,25 @@ class Base(object):
     # of _hasNeighbor{L,R}) to return True but will still show up as None
     # if _neighbor3p is called.
     def _hasNeighbor5p(self):
-        return self._neighbor5p() != None
+        retv = self._neighbor5p() != None
+        return retv
 
     def _hasNeighbor3p(self):
-        return self._neighbor3p() != None
+        retv = self._neighbor3p() != None or\
+               self.floatingXoverDestination() != None
+        return retv
 
     def _hasNeighborR(self):
         if self._vhelix.directionOfStrandIs5to3(self._strandtype):
-            return self._neighbor3p()!=None or self.floatingXoverDestination()
+            return self._neighbor3p() != None or\
+                   self.floatingXoverDestination() != None
         else:
             return self._neighbor5p() != None
 
     def _hasNeighborL(self):
         if self._vhelix.directionOfStrandIs5to3(self._strandtype):
-            return self._neighbor5p()!=None or self.floatingXoverDestination()
+            return self._neighbor5p() != None or\
+                   self.floatingXoverDestination() != None
         else:
             return self._neighbor3p() != None
 

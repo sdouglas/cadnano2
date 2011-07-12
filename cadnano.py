@@ -34,6 +34,7 @@ PySide_loaded = None
 
 
 def usesPySide(*args):
+    return False
     global PySide_loaded
     if PySide_loaded != None:
         return PySide_loaded

@@ -155,10 +155,10 @@ def isWindows():
         return False
 
 def isMac():
-    if platform.system() == 'Darwin':
-        return True
-    else:
-        return False
+    try:
+        return platform.system() == 'Darwin'
+    except:
+        return path.exists('/System/Library/CoreServices/Finder.app')
         
 def isLinux():
     if platform.system() == 'Linux':

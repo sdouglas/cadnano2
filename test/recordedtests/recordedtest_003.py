@@ -24,9 +24,11 @@
 # http://www.opensource.org/licenses/mit-license.php
 
 from PyQt4.QtCore import Qt, QPoint
-
+import time
 
 def testMethod(self):
+    print "TEST METHOD 5"
+    time.sleep(5)
     # Create part
     partButton = self.mainWindow.topToolBar.widgetForAction(self.mainWindow.actionNewHoneycombPart)
     self.click(partButton)
@@ -37,9 +39,11 @@ def testMethod(self):
     ash = self.documentController.pathHelixGroup.activeSliceHandle()
 
     # Playback user input
+    time.sleep(1)
     self.mousePress(sgi.getSliceHelixByCoord(1, 3), position=QPoint(12, 23), modifiers=Qt.NoModifier, qgraphicsscene=self.mainWindow.slicescene)
     self.mouseMove(sgi.getSliceHelixByCoord(1, 3), position=QPoint(14, 26), modifiers=Qt.NoModifier, qgraphicsscene=self.mainWindow.slicescene)
     self.mouseRelease(sgi.getSliceHelixByCoord(1, 3), position=QPoint(14, 26), modifiers=Qt.NoModifier, qgraphicsscene=self.mainWindow.slicescene)
+    time.sleep(1)
     self.mousePress(phg.getPathHelix(0), position=QPoint(105, 0), modifiers=Qt.NoModifier, qgraphicsscene=self.mainWindow.pathscene)
     self.mouseMove(phg.getPathHelix(0), position=QPoint(107, 0), modifiers=Qt.NoModifier, qgraphicsscene=self.mainWindow.pathscene)
     self.mouseMove(phg.getPathHelix(0), position=QPoint(109, 0), modifiers=Qt.NoModifier, qgraphicsscene=self.mainWindow.pathscene)
@@ -52,6 +56,7 @@ def testMethod(self):
     self.mouseMove(phg.getPathHelix(0), position=QPoint(277, 2), modifiers=Qt.NoModifier, qgraphicsscene=self.mainWindow.pathscene)
     self.mouseMove(phg.getPathHelix(0), position=QPoint(279, 2), modifiers=Qt.NoModifier, qgraphicsscene=self.mainWindow.pathscene)
     self.mouseRelease(phg.getPathHelix(0), position=QPoint(279, 2), modifiers=Qt.NoModifier, qgraphicsscene=self.mainWindow.pathscene)
+    time.sleep(1)
     self.mousePress(phg.getPathHelix(0), position=QPoint(545, 0), modifiers=Qt.NoModifier, qgraphicsscene=self.mainWindow.pathscene)
     self.mouseMove(phg.getPathHelix(0), position=QPoint(547, 0), modifiers=Qt.NoModifier, qgraphicsscene=self.mainWindow.pathscene)
     self.mouseMove(phg.getPathHelix(0), position=QPoint(552, 0), modifiers=Qt.NoModifier, qgraphicsscene=self.mainWindow.pathscene)
@@ -66,6 +71,7 @@ def testMethod(self):
     self.mouseMove(phg.getPathHelix(0), position=QPoint(785, 5), modifiers=Qt.NoModifier, qgraphicsscene=self.mainWindow.pathscene)
     self.mouseMove(phg.getPathHelix(0), position=QPoint(789, 5), modifiers=Qt.NoModifier, qgraphicsscene=self.mainWindow.pathscene)
     self.mouseRelease(phg.getPathHelix(0), position=QPoint(789, 5), modifiers=Qt.NoModifier, qgraphicsscene=self.mainWindow.pathscene)
+    time.sleep(1)
     self.mousePress(phg.getPathHelix(0), position=QPoint(196, 23), modifiers=Qt.NoModifier, qgraphicsscene=self.mainWindow.pathscene)
     self.mouseMove(phg.getPathHelix(0), position=QPoint(198, 23), modifiers=Qt.NoModifier, qgraphicsscene=self.mainWindow.pathscene)
     self.mouseMove(phg.getPathHelix(0), position=QPoint(212, 23), modifiers=Qt.NoModifier, qgraphicsscene=self.mainWindow.pathscene)
@@ -96,6 +102,7 @@ def testMethod(self):
     self.mouseMove(phg.getPathHelix(0), position=QPoint(740, 23), modifiers=Qt.NoModifier, qgraphicsscene=self.mainWindow.pathscene)
     self.mouseMove(phg.getPathHelix(0), position=QPoint(747, 23), modifiers=Qt.NoModifier, qgraphicsscene=self.mainWindow.pathscene)
     self.mouseRelease(phg.getPathHelix(0), position=QPoint(747, 23), modifiers=Qt.NoModifier, qgraphicsscene=self.mainWindow.pathscene)
+    time.sleep(1)
     self.mousePress(phg.getPathHelix(0), position=QPoint(268, 9), modifiers=Qt.NoModifier, qgraphicsscene=self.mainWindow.pathscene)
     self.mouseMove(phg.getPathHelix(0), position=QPoint(270, 9), modifiers=Qt.NoModifier, qgraphicsscene=self.mainWindow.pathscene)
     self.mouseMove(phg.getPathHelix(0), position=QPoint(272, 9), modifiers=Qt.NoModifier, qgraphicsscene=self.mainWindow.pathscene)
@@ -120,6 +127,7 @@ def testMethod(self):
     self.mouseMove(phg.getPathHelix(0), position=QPoint(398, 16), modifiers=Qt.NoModifier, qgraphicsscene=self.mainWindow.pathscene)
     self.mouseMove(phg.getPathHelix(0), position=QPoint(401, 16), modifiers=Qt.NoModifier, qgraphicsscene=self.mainWindow.pathscene)
     self.mouseRelease(phg.getPathHelix(0), position=QPoint(401, 16), modifiers=Qt.NoModifier, qgraphicsscene=self.mainWindow.pathscene)
+    time.sleep(1)
     self.mousePress(phg.getPathHelix(0), position=QPoint(747, 33), modifiers=Qt.NoModifier, qgraphicsscene=self.mainWindow.pathscene)
     self.mouseMove(phg.getPathHelix(0), position=QPoint(745, 33), modifiers=Qt.NoModifier, qgraphicsscene=self.mainWindow.pathscene)
     self.mouseMove(phg.getPathHelix(0), position=QPoint(736, 30), modifiers=Qt.NoModifier, qgraphicsscene=self.mainWindow.pathscene)

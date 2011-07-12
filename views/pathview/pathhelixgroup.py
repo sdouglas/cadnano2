@@ -87,8 +87,9 @@ class PathHelixGroup(QGraphicsObject):
         self._activeSliceHandle = ActiveSliceHandle(self)
         self._stapColor = QColor(0, 72, 0)
         self._stapPen = QPen(self._stapColor, 2)
-        self.loopHandleGroup = LoopHandleGroup(parent=self)
         
+        self.floatingXover = XoverHandlePair(self, None, None)
+        self.loopHandleGroup = LoopHandleGroup(parent=self)
         self.xovers = {}
         
         self.setZValue(styles.ZPATHHELIXGROUP)
@@ -172,14 +173,15 @@ class PathHelixGroup(QGraphicsObject):
         Base5p is the (5 prime vhelix, index)
         strandtype is Strandtype.Scaffold or Strandtype.Staple
         """
-        key = (Base3p, Base5p)
+        fromBase = (Base3p[0], strandtype, Base3p[1])
+        toBase = (Base5p[0], strandtype, Base5p[1])
+        key = (fromBase, toBase)
         if not key in self.xovers:
-            fromBase = (Base3p[0], strandtype, Base3p[1])
-            toBase = Base5p
             self.xovers[key] = XoverHandlePair(self, fromBase, toBase)
-    
+
     def updateFloatingXoverItem(self, fromBase, toPt):
-        pass
+        self.floatingXover.setFromBase(fromBase)
+        self.floatingXover.setToPoint(toPt)
 
     def pathHelixAtScenePos(self, pos):
         for p in self._pathHelixes:
