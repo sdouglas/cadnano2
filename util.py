@@ -65,12 +65,13 @@ def qtWrapImport(name, globaldict, fromlist):
             import PyQt4.QtCore
             import PyQt4.QtSvg
             import PyQt4.QtOpenGL
+
             importOverrideDict['PyQt4'] = PyQt4
             importOverrideDict['PyQt4.QtGui'] = PyQt4.QtGui
             importOverrideDict['PyQt4.QtCore'] = PyQt4.QtCore
             importOverrideDict['PyQt4.QtSvg'] = PyQt4.QtSvg
             importOverrideDict['PyQt4.QtOpenGL'] = PyQt4.QtOpenGL
-    
+
     # If name==None, import the module (QtCore, QtGui, etc) itself rather
     # than a member of it
     if name == None or name == '':
@@ -96,6 +97,9 @@ def qtWrapImport(name, globaldict, fromlist):
             elif key == 'QStringList':
                 globaldict[key] = list
         else:
+            # if key == "QGraphicsObject":
+            #     globaldict[key] = getattr(_temp, 'QGraphicsItem') 
+            # else:
             canary = object()
             binding = getattr(_temp, key, canary)
             if binding == canary:

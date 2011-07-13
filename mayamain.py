@@ -32,7 +32,14 @@ Created by Shawn Douglas on 2010-09-26.
 """
 
 import sys, os
-pathadder = os.path.dirname(__file__)
+
+# Copy and paste the following code to the Shelf
+# insert your own path HERE to the cadnano directory
+# until we figure out where the cadnano path will permanently live in maya
+pathadder = '/Users/nick/cadnano2'
+if pathadder not in sys.path:
+        sys.path.insert(0,pathadder)
+# end if
 
 def getDefaultModules():
     """
@@ -80,9 +87,10 @@ defmods = getDefaultModules()
 removeModules(defmods)
 
 # begin program
-from cadnanomaya import app as getAppInstance
+from cadnano import app as getAppInstance
 
 app = getAppInstance(sys.argv)
+app.initGui()
 if __name__ == '__main__':
     app.exec_()
 
