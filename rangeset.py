@@ -100,7 +100,7 @@ class RangeSet():
             dontKillLastII = True
 
     ################################ Private Read API #############################
-    def _idxOfRangeContaining(intVal, returnTupledIdxOfNextRangeOnFail=False):
+    def _idxOfRangeContaining(self, intVal, returnTupledIdxOfNextRangeOnFail=False):
         """
         Returns the index in self.ranges of the range
         containing intVal or None if none does.
@@ -112,20 +112,22 @@ class RangeSet():
         # intVal, M >= the index of any range containing
         # intVal.
         m, M = 0, len(ranges)-1
-        while m < M:
+        #print "------------"
+        while m <= M:
+            #print "(%i-%i)"%(m,M)
             mid = (m+M)/2
-            if ranges[mid][1] < intVal:
+            if ranges[mid][1] <= intVal:
                 m = mid + 1
             elif ranges[mid][0] > intVal:
                 M = mid - 1
-            else:  # v and r[m][0] <= intVal <= r[m][1]
+            else:  # v and r[mid][0] <= intVal < r[mid][1]
                 return mid
-        if returnIdxOfNextRangeOnFail:
+        if returnTupledIdxOfNextRangeOnFail:
             # The tuple is an indicator that the search failed
-            return (m)
+            return (m,)
         return None
 
-    def _idxRangeOfRangesInsideRange(rangeStart, rangeEnd):
+    def _idxRangeOfRangesInsideRange(self, rangeStart, rangeEnd):
         """
         Returns a range (first, afterLast) of indices into self.ranges,
         where the range represented by each index is a
@@ -154,7 +156,7 @@ class RangeSet():
         
         return intersectingIdxs
 
-    def _idxRangeOfRangesIntersectingRange(rangeStart, rangeEnd):
+    def _idxRangeOfRangesIntersectingRange(self, rangeStart, rangeEnd):
         """
         Returns a range (first, afterLast) of indices into self.ranges,
         where the range represented by each index intersects [rangeStart,rangeEnd)
@@ -176,11 +178,10 @@ class RangeSet():
         # idx now refers to the location in self.ranges of the first
         # range intersecting [rangeStart, infinity)
         lastIdx = idx
-        assert(rangeStart <= ranges[idx][0])
         while True:
             if lastIdx >= lenRanges:
                 return [idx, lastIdx]
-            f, l = ranges[lastIdx]
+            f, l, md = ranges[lastIdx]
             if f >= rangeEnd:
                 return [idx, lastIdx]
             lastIdx += 1
@@ -191,16 +192,18 @@ class RangeSet():
     
     ############# Slow but sure methods for unit testing ##############
     
-    def _slowIdxOfRangeContaining(intVal, returnTupledIdxOfNextRangeOnFail=False):
+    def _slowIdxOfRangeContaining(self, intVal, returnTupledIdxOfNextRangeOnFail=False):
         for i in range(len(self.ranges)):
             r = self.ranges[i]
             if r[0] <= intVal < r[1]:
                 return i
             if r[0] > intVal and returnTupledIdxOfNextRangeOnFail:
-                return (i)
+                return (i,)
+        if returnTupledIdxOfNextRangeOnFail:
+            return (len(self.ranges),)
         return None
 
-    def _slowIdxsOfRangesInsideRange(rangeStart, rangeEnd):
+    def _slowIdxsOfRangesInsideRange(self, rangeStart, rangeEnd):
         ret = []
         for i in range(len(self.ranges)):
             f, l = self.ranges[i]
@@ -208,13 +211,22 @@ class RangeSet():
                 ret.append(i)
         return ret
     
-    def _slowIdxsOfRangesIntersectingRange(rangeStart, rangeEnd):
+    def _slowIdxRangeOfRangesIntersectingRange(self, rangeStart, rangeEnd):
+        if rangeStart >= rangeEnd:
+            return [0,0]
         ret = []
+        firstIdx = None
         for i in range(len(self.ranges)):
-            f, l = self.ranges[i]
+            f, l, md = self.ranges[i]
             leftOfTarget = l <= rangeStart
             rightOfTarget = f >= rangeEnd
-            if not leftOfTarget and not rightOfTarget:
-                ret.append(i)
-        return ret
+            if not leftOfTarget and firstIdx == None:
+                firstIdx = i
+            if rightOfTarget:
+                if firstIdx == None:
+                    firstIdx = i
+                return [firstIdx, i]
+        if firstIdx == None:
+            firstIdx = len(self.ranges)
+        return [firstIdx, len(self.ranges)]
         

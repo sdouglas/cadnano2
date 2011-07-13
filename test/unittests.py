@@ -31,7 +31,7 @@ Created by Shawn Douglas on 2011-06-28.
 import sys, os
 sys.path.insert(0, '.')
 
-import time
+import time, code
 from PyQt4.QtCore import *
 from PyQt4.QtGui import *
 import test.cadnanoguitestcase
@@ -39,6 +39,14 @@ from test.cadnanoguitestcase import CadnanoGuiTestCase
 from model.enum import StrandType
 from model.virtualhelix import VirtualHelix
 import unittest
+from rangeset import RangeSet
+import random
+seed = random.Random().randint(0,1<<32)
+enviroseed = os.environ.get('UNITTESTS_PRNG_SEED', False)
+if enviroseed != False:
+    seed = int(enviroseed)
+del enviroseed
+print "Seeding test.unittests; use setenv UNITTESTS_PRNG_SEED=%i to replay."%seed
 
 
 class UnitTests(CadnanoGuiTestCase):
@@ -58,6 +66,7 @@ class UnitTests(CadnanoGuiTestCase):
         to set the general conditions for the tests to run correctly.
         """
         CadnanoGuiTestCase.setUp(self)
+        self.prng = random.Random(seed)
         # Add extra unit-test-specific initialization here
 
     def tearDown(self):
@@ -81,8 +90,58 @@ class UnitTests(CadnanoGuiTestCase):
         str2 = "0 Scaffold: _,> <,> <,> <,> <,> <,> <,> <,> <,> <,> <,> <,> <,> <,> <,> <,> <,> <,> <,> <,> <,> <,> <,> <,> <,> <,> <,> <,> <,> <,> <,> <,> <,> <,> <,> <,> <,> <,> <,> <,> <,> <,_\n0 Staple:   _,_ _,_ _,_ _,_ _,_ _,_ _,_ _,_ _,_ _,_ _,_ _,_ _,_ _,_ _,_ _,_ _,_ _,_ _,_ _,_ _,_ _,_ _,_ _,_ _,_ _,_ _,_ _,_ _,_ _,_ _,_ _,_ _,_ _,_ _,_ _,_ _,_ _,_ _,_ _,_ _,_ _,_"
         self.assertEqual(repr(vh0), str2)
 
+    def testRangeSet_idxOfRangeContaining(self):
+        ranges = []
+        idx = self.prng.randint(-100, 100)
+        for i in range(100):
+            l = idx
+            idx += self.prng.randint(1, 8)
+            r = idx
+            idx += self.prng.randint(0, 8)
+            ranges.append([l, r, i])
+        rs = RangeSet()
+        rs.ranges = ranges
+        for i in range(ranges[0][0] - 3, ranges[-1][1] + 3):
+            valueByFastMethod = rs._idxOfRangeContaining(i)
+            valueBySureMethod = rs._slowIdxOfRangeContaining(i)
+            self.assertEqual(valueByFastMethod, valueBySureMethod)
+        for i in range(ranges[0][0] - 3, ranges[-1][1] + 3):
+            valueByFastMethod = rs._idxOfRangeContaining(i,\
+                                       returnTupledIdxOfNextRangeOnFail=True)
+            valueBySureMethod = rs._slowIdxOfRangeContaining(i,\
+                                       returnTupledIdxOfNextRangeOnFail=True)
+            # if valueBySureMethod != valueByFastMethod:
+            #     for j in range(len(ranges)-4,len(ranges)):
+            #         print "ranges[%i] = %s"%(j, ranges[j])
+            #     print "rs._idxOfRangeContaining(%i) = %s"%(i, valueByFastMethod)
+            #     print "rs._slowIdxOfRangeContaining(%i) = %s"%(i, valueBySureMethod)
+            #     code.interact('', local=locals())
+            self.assertEqual(valueByFastMethod, valueBySureMethod)
+
+    def testRangeSet_idxRangeOfRangesIntersectingRange(self):
+        ranges = []
+        idx = self.prng.randint(-100, 100)
+        for i in range(100):
+            l = idx
+            idx += self.prng.randint(1, 8)
+            r = idx
+            idx += self.prng.randint(0, 8)
+            ranges.append([l, r, i])
+        rs = RangeSet()
+        rs.ranges = ranges
+        idxMin, idxMax = ranges[0][0], ranges[-1][1]
+        for i in range(100):
+            l = self.prng.randint(idxMin - 3, idxMax + 3)
+            r = l + self.prng.randint(-3, 20)
+            valueByFastMethod = rs._idxRangeOfRangesIntersectingRange(l, r)
+            valueBySureMethod = rs._slowIdxRangeOfRangesIntersectingRange(l, r)
+            self.assertEqual(valueByFastMethod, valueBySureMethod)
+
+    def runTest(self):
+        pass
 
 if __name__ == '__main__':
-    print "Running unit tests"
-    test.cadnanoguitestcase.main()
-    print "Done running unit tests"
+    tc = UnitTests()
+    tc.setUp()
+    tc.testRangeSet_idxRangeOfRangesIntersectingRange()
+    # test.cadnanoguitestcase.main()
