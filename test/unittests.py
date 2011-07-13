@@ -28,7 +28,7 @@ unittests.py
 Created by Shawn Douglas on 2011-06-28.
 """
 
-import sys
+import sys, os
 sys.path.insert(0, '.')
 
 import time
@@ -38,6 +38,7 @@ import test.cadnanoguitestcase
 from test.cadnanoguitestcase import CadnanoGuiTestCase
 from model.enum import StrandType
 from model.virtualhelix import VirtualHelix
+import unittest
 
 
 class UnitTests(CadnanoGuiTestCase):

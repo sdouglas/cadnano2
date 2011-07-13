@@ -29,7 +29,7 @@ from exceptions import AttributeError, NotImplementedError
 from model.enum import HandleOrient, StrandType
 from views import styles
 
-import util
+import util, time
 # import Qt stuff into the module namespace with PySide, PyQt4 independence
 util.qtWrapImport('QtCore', globals(), ['QPointF', 'QRectF', 'Qt', 'QEvent'])
 util.qtWrapImport('QtGui', globals(), ['QBrush', 'QFont', 'QGraphicsItem',\
@@ -158,6 +158,7 @@ class XoverHandlePair(QGraphicsItem):
     def setFromBase(self, newBase):
         if (self._fromVH, self._fromStrand, self._fromIdx) == newBase:
             return
+        self._painterpath = None
         if self._fromVH != None:
             self._fromVH.basesModified.disconnect(self.refresh)
         if newBase == None:
@@ -170,9 +171,14 @@ class XoverHandlePair(QGraphicsItem):
             self._xover3prime.setBase(newBase)
             if not self.isVisible():
                 self.show()
+        self.refreshRect()
         self.update()
 
     def setToBase(self, newBase):
+        if (self._fromVH, self._fromStrand, self._fromIdx) == newBase\
+           or self._toPt == newBase and self._toPt != None:
+            return
+        self._painterpath = None
         if self._toVH != None:
             self._toVH.basesModified.disconnect(self.refresh)
         if newBase == None:
@@ -186,7 +192,7 @@ class XoverHandlePair(QGraphicsItem):
             else:
                 self._toVH, self._toStrand, self._toIdx = None, None, None
                 self._toPt = newBase
-                self.refresh()
+        self.refreshRect()
         self.update()
 
     def setToPoint(self, newToPt):
@@ -248,17 +254,14 @@ class XoverHandlePair(QGraphicsItem):
 
     def refresh(self):
         if self._fromVH == None or (self._toVH == None and self._toPt == None):
+            # No need to destroy ourselves if we've been intentionally set
+            # to have a null source / destination (that's intentional)
             return
-        if self.representedXoverExistsInModel():
-        #if True:
-            self.refreshPath()
-            self.refreshPen()
-            self.update(self.boundingRect())
-            self._xover3prime.update(self._xover3prime.boundingRect())
-            self._xover5prime.update(self._xover5prime.boundingRect())
-        else:
+        if not self.representedXoverExistsInModel():
+            # If we represent a valid xover (nonnull source/dest)
+            # that does not exist anymore, we need to auto-destroy
+            # ourselves.
             self.destroy()
-    # end def
 
     def refreshPen(self):
         self._pen = None
@@ -279,7 +282,7 @@ class XoverHandlePair(QGraphicsItem):
     def boundingRect(self):
         return self._rect
 
-    def refreshPath(self):
+    def painterPath(self):
         """
         Draws a quad curve from the edge of the fromBase
         to the top or bottom of the toBase (q5), and
@@ -298,15 +301,14 @@ class XoverHandlePair(QGraphicsItem):
         of (rather than having strange errors popping up down the line; the
         particular instance prompting this addition cost 4 hours of time)
         """
-        # Now draw the actual path
-        if self._fromVH == None:
-            self._painterpath = None
-            return
+        # Null source / dest => don't paint ourselves => no painterpath
+        if self._fromVH == None\
+           or self._toVH == None and self._toPt == None:
+            return None
         
-        if self._toVH == None and self._toPt == None:
-            self._painterpath = None
-            return
-                        
+        if self._painterpath:
+            return self._painterpath
+        
         # begin calculations of how to draw labels and crossover orientations
         y3 = y5 = self._baseWidth / 2
         from5To3 = self._fromVH.directionOfStrandIs5to3(self._fromStrand)
@@ -394,14 +396,14 @@ class XoverHandlePair(QGraphicsItem):
         painterpath.quadTo(c1, fiveEnterPt)
         painterpath.lineTo(fiveInsetPt)
         self._painterpath = painterpath
-        self.refreshRect()
+        return painterpath
     # end def
 
     def refreshRect(self):
-        if self._painterpath == None:
+        if self.painterPath() == None:
             self._rect = QRectF()
             return
-        newRect = self._painterpath.boundingRect()
+        newRect = self.painterPath().controlPointRect()
         penW = self.getPen().widthF()
         newRect.adjust(-penW, -penW, 2*penW, 2*penW)
         if self._rect != newRect:

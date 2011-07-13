@@ -14,7 +14,7 @@ from modeltests import ModelTests
 from functionaltests import FunctionalTests
 from recordedtests.template import RecordedTests
 
-def main():
+def main(useXMLRunner=True):
     # load hard-coded tests
     unitsuite = unittest.makeSuite(UnitTests)
     modelsuite = unittest.makeSuite(ModelTests)
@@ -33,10 +33,14 @@ def main():
 
     # combine and run tests
     alltests = unittest.TestSuite([unitsuite, modelsuite, funsuite, recsuite])
-    stream = file("testresults.xml", "w")
-    runner = XMLTestRunner(stream)
-    result = runner.run(alltests)
-    stream.close()
+    if useXMLRunner:
+        stream = file("testresults.xml", "w")
+        runner = XMLTestRunner(stream)
+        result = runner.run(alltests)
+        stream.close()
+    else:
+        runner = unittest.TextTestRunner(verbosity=2)
+        result = runner.run(alltests)
     return result
 
 

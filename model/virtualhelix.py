@@ -103,6 +103,8 @@ class VirtualHelix(QObject):
             numBases = len(re.split('\s+',\
                                     incompleteArchivedDict['staple'])) - 1
         self.setNumBases(numBases, notUndoable=True)
+        self._sequenceForScafCache = None
+        self._sequenceForStapCache = None
     
     def fsck(self):
         for strandType in (StrandType.Scaffold, StrandType.Staple):
@@ -303,15 +305,13 @@ class VirtualHelix(QObject):
 
     def directionOfStrandIs5to3(self, strandtype):
         """
-        method to determine 5' to 3' or 3' to 5'
+        Even scaffold strands and odd staple strands are displayed
+        in the 5' to 3' direction (left to right in the view).
         """
-        if self.evenParity() and strandtype == StrandType.Scaffold:
-            return True
-        elif not self.evenParity() and strandtype == StrandType.Staple:
-            return True
-        else:
-            return False
-    # end def
+        isScaf = strandtype == StrandType.Scaffold
+        isEven = (self._number%2) == 0
+        return isEven == isScaf
+
 
     def row(self):
         """return VirtualHelix helical-axis row"""
@@ -430,7 +430,6 @@ class VirtualHelix(QObject):
             return False
         if base.isEnd() == 5:
             # keep checking natural 5' neighbor until we hit something
-            print ">5"
             while True:
                 nat5 = base._natNeighbor5p()
                 if nat5 == None:  # ran out of neighbors
@@ -440,7 +439,6 @@ class VirtualHelix(QObject):
                 base = nat5
         elif base.isEnd() == 3:
             # keep checking natural 3' neighbor until we hit something
-            print "<3"
             while True:
                 nat3 = base._natNeighbor3p()
                 if nat3 == None:  # ran out of neighbor
@@ -579,7 +577,17 @@ class VirtualHelix(QObject):
         return self._strand(strandType)[idx]._strandLength
 
     def sequenceForVirtualStrand(self, strandType):
-        return "".join([b.sequence() for b in self._strand(strandType)])
+        if strandType == StrandType.Scaffold:
+            if self._sequenceForScafCache != None:
+                return self._sequenceForScafCache
+            seq = "".join([b.sequence() for b in self._strand(strandType)])
+            self._sequenceForScafCache = seq
+        else: #Staple Strand
+            if self._sequenceForStapCache != None:
+                return self._sequenceForStapCache
+            seq = "".join([b.sequence() for b in self._strand(strandType)])
+            self._sequenceForStapCache = seq
+        return seq
 
     def sequenceForLoopAt(self, strandType, idx):
         return self._strand(strandType)[idx].sequenceOfLoop()
@@ -732,6 +740,7 @@ class VirtualHelix(QObject):
             self.part()._recalculateStrandLengths()
         else:
             self.basesModified.emit()
+        self._sequenceForVirtualStrandCache = None
         #self.part().virtualHelixAtCoordsChanged.emit(*self.coord())
 
     def connectStrand(self, strandType, startIndex, endIndex, undoable=True,\
