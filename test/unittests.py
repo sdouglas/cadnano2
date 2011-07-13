@@ -129,23 +129,6 @@ class UnitTests(CadnanoGuiTestCase):
             valueBySureMethod = rs._slowIdxRangeOfRangesIntersectingRange(l, r)
             self.assertEqual(valueByFastMethod, valueBySureMethod)
 
-    def testRangeSet_idxRangeOfRangesInsideRange(self):
-        rs = self.createTestRangeSet()
-        ranges = rs.ranges
-        idxMin, idxMax = ranges[0][0], ranges[-1][1]
-        for i in range(100):
-            l = self.prng.randint(idxMin - 3, idxMax + 3)
-            r = l + self.prng.randint(-3, 20)
-            valueByFastMethod = rs._idxRangeOfRangesInsideRange(l, r)
-            valueBySureMethod = rs._slowIdxRangeOfRangesInsideRange(l, r)
-            if valueBySureMethod != valueByFastMethod:
-                for j in range(valueBySureMethod[0]-4, valueBySureMethod[1]+4):
-                    print "ranges[%i] = %s"%(j, ranges[j])
-                print "rs._idxRangeOfRangesInsideRange(%i,%i) = %s"%(l, r, valueByFastMethod)
-                print "rs._slowIdxRangeOfRangesInsideRange(%i,%i) = %s"%(l, r, valueBySureMethod)
-                code.interact('', local=locals())
-            self.assertEqual(valueByFastMethod, valueBySureMethod)
-
     def runTest(self):
         pass
 
