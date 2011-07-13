@@ -83,10 +83,10 @@ def qtWrapImport(name, globaldict, fromlist):
 # end def
 
 # import Qt stuff into the module namespace with PySide, PyQt4 independence
-qtWrapImport('QtGui', globals(),  ['QApplication', 'QUndoGroup', 'QIcon'])
+qtWrapImport('QtGui', globals(),  ['QApplication', 'QUndoGroup', 'QIcon', 'qApp'])
+qtWrapImport('QtCore', globals(), ['QObject', 'QCoreApplication'])
 
-
-class CADnano(QApplication):
+class CADnano(QObject):
     sharedApp = None  # This class is a singleton.
     usesPySide = usesPySide     # This is bad that this can work
     dontAskAndJustDiscardUnsavedChanges = False
@@ -96,7 +96,10 @@ class CADnano(QApplication):
     def __init__(self, argv):
         if argv == None:
             argv = ["cadnano"]
-        super(CADnano, self).__init__(argv)
+        if QCoreApplication.instance() == None:
+            self.qApp = QApplication(argv)
+            assert(QCoreApplication.instance() != None)
+        super(CADnano, self).__init__()
         assert(not CADnano.sharedApp)
         CADnano.sharedApp = self
         self.guiInitialized = False
@@ -110,7 +113,7 @@ class CADnano(QApplication):
             return
         self.guiInitialized = True
         argv = sys.argv
-        self.setWindowIcon(QIcon('ui/images/cadnano2-app-icon.png'))
+        qApp.setWindowIcon(QIcon('ui/images/cadnano2-app-icon.png'))
         self.undoGroup = QUndoGroup()
         self.documentControllers = set()  # Open documents
         self.v = {}  # Newly created VirtualHelix register here by idnum.
@@ -138,6 +141,10 @@ class CADnano(QApplication):
 
     def isInMaya(self):
         return False
+
+    def exec_(self):
+        if hasattr(self, 'qApp'):
+            self.qApp.exec_()
 
     def newDocument(self, isFirstNewDoc=False):
         from controllers.documentcontroller import DocumentController
