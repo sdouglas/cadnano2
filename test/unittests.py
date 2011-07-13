@@ -39,7 +39,7 @@ from test.cadnanoguitestcase import CadnanoGuiTestCase
 from model.enum import StrandType
 from model.virtualhelix import VirtualHelix
 import unittest
-from rangeset import RangeSet
+from rangeset import RangeSet, rangeIntersection
 import random
 seed = random.Random().randint(0,1<<32)
 enviroseed = os.environ.get('UNITTESTS_PRNG_SEED', False)
@@ -129,11 +129,24 @@ class UnitTests(CadnanoGuiTestCase):
             valueBySureMethod = rs._slowIdxRangeOfRangesIntersectingRange(l, r)
             self.assertEqual(valueByFastMethod, valueBySureMethod)
 
+    def testRangeSet_rangeIntersection(self):
+        for i in xrange(1000):
+            l1 = self.prng.randint(-15, 15)
+            r1 = self.prng.randint(-15, 15)
+            l2 = self.prng.randint(-15, 15)
+            r2 = self.prng.randint(-15, 15)
+            realRange1 = set(range(l1, r1))
+            realRange2 = set(range(l2, r2))
+            realIntersection = realRange1.intersection(realRange2)
+            computedIntersection = set(range(\
+                             *rangeIntersection((l1, r1), (l2, r2))  ))
+            self.assertEqual(realIntersection, computedIntersection)
+
     def runTest(self):
         pass
 
 if __name__ == '__main__':
     tc = UnitTests()
     tc.setUp()
-    tc.testRangeSet_idxRangeOfRangesInsideRange()
+    tc.testRangeSet_rangeIntersection()
     # test.cadnanoguitestcase.main()

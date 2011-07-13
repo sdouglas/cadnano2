@@ -1,3 +1,15 @@
+def rangeIntersection(firstRange, secondRange):
+    ff, fl = firstRange
+    sf, sl = secondRange
+    if ff >= fl:
+        return [0, 0]
+    if sf >= sl:
+        return [0, 0]
+    l, r = max(ff, sf), min(fl, sl)
+    if l >= r:
+        return [0, 0]
+    return [l, r]
+
 class RangeSet():
     """
     Represents a subset of the integers that can be
@@ -82,8 +94,64 @@ class RangeSet():
         self.addRange(index, index+1, metadata)
 
     def addRange(firstIndex, afterLastIndex, metadata=None):
+        if firstIndex >= afterLastIndex:
+            return
         intersectingIdxRange = self._idxRangeOfRangesIntersectingRange(firstIndex,
                                                                        afterLastIndex)
+        # (first Index (into self.ranges) of an Intersecting Range)
+        firstIIR, afterLastIIR = intersectingIdxRange
+        if afterLastIIR - firstIIR == 0:
+            self.ranges.insert(firstIIR, (firstIndex, afterLastIndex, metadata))
+        elif afterLastIIR - firstIIR == 1:
+            # (Sole) intersecting range {Left, After right}
+            irL, irAr, existingMD = self.ranges[firstIIR]
+            canMerge = existingMD == metadata
+            if irL < firstIndex and irAr > afterLastIndex:
+                #           [AddRange)
+                #       [SoleIntersectingExistingRange)
+                if canMerge:
+                    #            [AddRange)
+                    #       [Sol--AddRange--tingExistingRange)
+                    rangesToReplaceExistingSoleRangeWith = [\
+                        (irL, irAr, metadata)\
+                        ]
+                else:
+                    #            [AddRange)
+                    #       [Sol)[AddRange)[tingExistingRange)
+                    rangesToReplaceExistingSoleRangeWith =      [\
+                        (irL, firstIndex, metadata),\
+                        (firstIndex, afterLastIndex, metadata),\
+                        (afterLastIndex, irAr, metadata)        ]
+            elif irL < firstIndex and irAr <= afterLastIndex:
+                #           [AddRange---------------------)
+                #       [SoleIntersectingExistingRange)
+                if canMerge:
+                    #           [AddRange---------------------)
+                    #       [Sol-AddRange---------------------)
+                    rangesToReplaceExistingSoleRangeWith = [\
+                         (irL, afterLastIndex, metadata)   ]
+                else:
+                    #            [AddRange---------------------)
+                    #       [Sol)[AddRange---------------------)
+                    rangesToReplaceExistingSoleRangeWith =      [\
+                         (irL, firstIndex, existingMD),\
+                         (firstIndex, afterLastIndex, metadata) ]
+            elif irL >= firstIndex and irAr > afterLastIndex:
+                #   [AddRange---------------------)
+                #       [SoleIntersectingExistingRange)
+                if canMerge:
+                    #   [AddRange---------------------)
+                    #   [AddRange-----------------------ange)
+                    rangesToReplaceExistingSoleRangeWith = [\
+                         (firstIndex, irAr, metadata)   ]
+                else:
+                    #   [AddRange---------------------)
+                    #   [AddRange---------------------)[ange)
+                    rangesToReplaceExistingSoleRangeWith =      [\
+                         (irL, firstIndex, existingMD),\
+                         (firstIndex, afterLastIndex, metadata) ]
+            
+            
         # FFirst range, {FFirst index, afterLLast index, MMetaDData}
         dontKillFirstII, dontKillLastII = False, False
         firstIntersectingRange = self.ranges[intersectingIdxs[0]]
