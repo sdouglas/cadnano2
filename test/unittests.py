@@ -90,7 +90,7 @@ class UnitTests(CadnanoGuiTestCase):
         str2 = "0 Scaffold: _,> <,> <,> <,> <,> <,> <,> <,> <,> <,> <,> <,> <,> <,> <,> <,> <,> <,> <,> <,> <,> <,> <,> <,> <,> <,> <,> <,> <,> <,> <,> <,> <,> <,> <,> <,> <,> <,> <,> <,> <,> <,_\n0 Staple:   _,_ _,_ _,_ _,_ _,_ _,_ _,_ _,_ _,_ _,_ _,_ _,_ _,_ _,_ _,_ _,_ _,_ _,_ _,_ _,_ _,_ _,_ _,_ _,_ _,_ _,_ _,_ _,_ _,_ _,_ _,_ _,_ _,_ _,_ _,_ _,_ _,_ _,_ _,_ _,_ _,_ _,_"
         self.assertEqual(repr(vh0), str2)
 
-    def testRangeSet_idxOfRangeContaining(self):
+    def createTestRangeSet(self):
         ranges = []
         idx = self.prng.randint(-100, 100)
         for i in range(100):
@@ -101,6 +101,12 @@ class UnitTests(CadnanoGuiTestCase):
             ranges.append([l, r, i])
         rs = RangeSet()
         rs.ranges = ranges
+        rs.assertConsistency()
+        return rs
+
+    def testRangeSet_idxOfRangeContaining(self):
+        rs = self.createTestRangeSet()
+        ranges = rs.ranges
         for i in range(ranges[0][0] - 3, ranges[-1][1] + 3):
             valueByFastMethod = rs._idxOfRangeContaining(i)
             valueBySureMethod = rs._slowIdxOfRangeContaining(i)
@@ -110,25 +116,11 @@ class UnitTests(CadnanoGuiTestCase):
                                        returnTupledIdxOfNextRangeOnFail=True)
             valueBySureMethod = rs._slowIdxOfRangeContaining(i,\
                                        returnTupledIdxOfNextRangeOnFail=True)
-            # if valueBySureMethod != valueByFastMethod:
-            #     for j in range(len(ranges)-4,len(ranges)):
-            #         print "ranges[%i] = %s"%(j, ranges[j])
-            #     print "rs._idxOfRangeContaining(%i) = %s"%(i, valueByFastMethod)
-            #     print "rs._slowIdxOfRangeContaining(%i) = %s"%(i, valueBySureMethod)
-            #     code.interact('', local=locals())
             self.assertEqual(valueByFastMethod, valueBySureMethod)
 
     def testRangeSet_idxRangeOfRangesIntersectingRange(self):
-        ranges = []
-        idx = self.prng.randint(-100, 100)
-        for i in range(100):
-            l = idx
-            idx += self.prng.randint(1, 8)
-            r = idx
-            idx += self.prng.randint(0, 8)
-            ranges.append([l, r, i])
-        rs = RangeSet()
-        rs.ranges = ranges
+        rs = self.createTestRangeSet()
+        ranges = rs.ranges
         idxMin, idxMax = ranges[0][0], ranges[-1][1]
         for i in range(100):
             l = self.prng.randint(idxMin - 3, idxMax + 3)
@@ -137,11 +129,28 @@ class UnitTests(CadnanoGuiTestCase):
             valueBySureMethod = rs._slowIdxRangeOfRangesIntersectingRange(l, r)
             self.assertEqual(valueByFastMethod, valueBySureMethod)
 
+    def testRangeSet_idxRangeOfRangesInsideRange(self):
+        rs = self.createTestRangeSet()
+        ranges = rs.ranges
+        idxMin, idxMax = ranges[0][0], ranges[-1][1]
+        for i in range(100):
+            l = self.prng.randint(idxMin - 3, idxMax + 3)
+            r = l + self.prng.randint(-3, 20)
+            valueByFastMethod = rs._idxRangeOfRangesInsideRange(l, r)
+            valueBySureMethod = rs._slowIdxRangeOfRangesInsideRange(l, r)
+            if valueBySureMethod != valueByFastMethod:
+                for j in range(valueBySureMethod[0]-4, valueBySureMethod[1]+4):
+                    print "ranges[%i] = %s"%(j, ranges[j])
+                print "rs._idxRangeOfRangesInsideRange(%i,%i) = %s"%(l, r, valueByFastMethod)
+                print "rs._slowIdxRangeOfRangesInsideRange(%i,%i) = %s"%(l, r, valueBySureMethod)
+                code.interact('', local=locals())
+            self.assertEqual(valueByFastMethod, valueBySureMethod)
+
     def runTest(self):
         pass
 
 if __name__ == '__main__':
     tc = UnitTests()
     tc.setUp()
-    tc.testRangeSet_idxRangeOfRangesIntersectingRange()
+    tc.testRangeSet_idxRangeOfRangesInsideRange()
     # test.cadnanoguitestcase.main()

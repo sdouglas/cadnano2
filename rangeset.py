@@ -15,13 +15,13 @@ class RangeSet():
         are not maintained
         """
         for i in range(len(self.ranges)):
-            f, l = self.ranges[i]
+            f, l, md = self.ranges[i]
             assert(f < l)  # All ranges contain an index
         for i in range(len(self.ranges)-1):
             # Naming convention:
             # {l:left, r:right}{f:firstIdx, l:afterLastIdx}
-            lf, ll = self.ranges[i]
-            rf, rl = self.ranges[i + 1]
+            lf, ll, lmd = self.ranges[i]
+            rf, rl, rmd = self.ranges[i + 1]
             assert(ll <= rf)  # Ranges are sorted, don't overlap
             ldat = self.ranges[i][2:]
             rdat = self.ranges[i][2:]
@@ -134,6 +134,7 @@ class RangeSet():
         subset of [rangeStart,rangeEnd)
         """
         intersectingIdxs = self._idxRangeOfRangesIntersectingRange(rangeStart, rangeEnd)
+        print "oldIR: %s"%intersectingIdxs
         if intersectingIdxs[1] - intersectingIdxs[0] == 0:
             return intersectingIdxs  # Empty range
         
@@ -152,8 +153,7 @@ class RangeSet():
         lastRange = self.ranges[intersectingIdxs[1] - 1]
         lf, ll, lmd = lastRange
         if ll > rangeEnd:
-            intersectingIdxs[1] = intersectingIdxs[1] - 1
-        
+                intersectingIdxs[1] = intersectingIdxs[1] - 1
         return intersectingIdxs
 
     def _idxRangeOfRangesIntersectingRange(self, rangeStart, rangeEnd):
@@ -203,18 +203,26 @@ class RangeSet():
             return (len(self.ranges),)
         return None
 
-    def _slowIdxsOfRangesInsideRange(self, rangeStart, rangeEnd):
-        ret = []
+    def _slowIdxRangeOfRangesInsideRange(self, rangeStart, rangeEnd):
+        if rangeStart >= rangeEnd:
+            return [0,0]
+        firstIdx = None
         for i in range(len(self.ranges)):
-            f, l = self.ranges[i]
-            if f >= rangeStart and l <= rangeEnd:
-                ret.append(i)
-        return ret
+            f, l, md = self.ranges[i]
+            insideTarget = rangeStart <= f and l <= rangeEnd
+            afterTarget = f >= rangeEnd
+            if firstIdx == None and (insideTarget or afterTarget):
+                firstIdx = i
+            if afterTarget:
+                return [firstIdx, i]
+        if firstIdx == None:
+            firstIdx = len(self.ranges)
+        return [firstIdx, len(self.ranges)]
+
     
     def _slowIdxRangeOfRangesIntersectingRange(self, rangeStart, rangeEnd):
         if rangeStart >= rangeEnd:
             return [0,0]
-        ret = []
         firstIdx = None
         for i in range(len(self.ranges)):
             f, l, md = self.ranges[i]
