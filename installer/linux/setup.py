@@ -9,7 +9,7 @@ sys.prefix = '/usr/local/cadnano'
 
 setup(name='CADnano',
       version='1.5',
-      description='Python Distribution Utilities',
+      description='DNA Origami Design Software',
       author='Wyss Institute',
       author_email='wyss@wyss.harvard.edu',
       url='http://www.cadnano.org/',
