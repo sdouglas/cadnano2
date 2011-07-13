@@ -34,7 +34,7 @@ from cadnano import app
 import platform
 
 prng = Random()
-
+importOverrideDict = None
 
 
 def qtWrapImport(name, globaldict, fromlist):
@@ -50,17 +50,40 @@ def qtWrapImport(name, globaldict, fromlist):
     fromlist is a list of subclasses such as [QFont, QColor], or [QRectF]
     """
     pyWrapper = None
+    global importOverrideDict
     if app().usesPySide():
         pyWrapper = 'PySide'
         # pyWrapper = 'PyQt4'
+        if importOverrideDict == None:
+            importOverrideDict = {}
     else:
         pyWrapper = 'PyQt4'
-    if name == None:
+        if importOverrideDict == None:
+            importOverrideDict = {}
+            import PyQt4
+            import PyQt4.QtGui
+            import PyQt4.QtCore
+            import PyQt4.QtSvg
+            import PyQt4.QtOpenGL
+            importOverrideDict['PyQt4'] = PyQt4
+            importOverrideDict['PyQt4.QtGui'] = PyQt4.QtGui
+            importOverrideDict['PyQt4.QtCore'] = PyQt4.QtCore
+            importOverrideDict['PyQt4.QtSvg'] = PyQt4.QtSvg
+            importOverrideDict['PyQt4.QtOpenGL'] = PyQt4.QtOpenGL
+    
+    # If name==None, import the module (QtCore, QtGui, etc) itself rather
+    # than a member of it
+    if name == None or name == '':
         name = ''
     else:
         name = '.' + name
-    _temp = __import__(pyWrapper + name, \
-                        globaldict, locals(), fromlist, -1)
+    
+    # Try to fetch imported modules from the overrideDict first
+    _temp = importOverrideDict.get(pyWrapper + name, None)
+    if _temp == None:
+        print "__import__ed %s (might not work in Maya 2012)"%(pyWrapper + name)
+        _temp = __import__(pyWrapper + name, \
+                           globaldict, locals(), fromlist, -1)
     for key in fromlist:
         if pyWrapper == 'PySide' and key in ('pyqtSignal', 'pyqtSlot', 'QString',\
                                              'QStringList'):
