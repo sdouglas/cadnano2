@@ -191,31 +191,10 @@ class DocumentController():
     # end def
 
     def exportSequenceCSV(self, fname):
-        """"""
+        """Export all staple sequences to CSV file fnane."""
+        output = self.activePart().getStapleSequences()
         f = open(fname, 'w')
-        part = self.activePart()
-        vhelices = part.getVirtualHelices()
-        oligo_ends = []
-        for vh in vhelices:
-            vh5 = vh
-            # retrieve the 5 prime endpoints of the staple strands
-            oligo_ends = vh.getEndpoints(StrandType.Staple)[1]
-            for endpoint in oligo_ends:
-                bases = vh5._basesConnectedTo(StrandType.Staple, endpoint)
-                sequencestring = ""
-                for base in bases:
-                    sequencestring += base.sequence()
-                # end for each base
-                output = "%d[%d], %d[%d], %s, %s\n" % \
-                        (vh5.number(), \
-                        bases[0]._n, \
-                        bases[len(bases)-1].vhelixNum(), \
-                        bases[len(bases)-1]._n, \
-                        sequencestring, \
-                        bases[0].getColor().name() )
-                f.write(output)
-            # end for each oligo
-        # end for each vh
+        f.write(output)
         f.close()
     # end def
 

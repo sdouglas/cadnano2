@@ -50,7 +50,7 @@ class TestRecorder(object):
     To record a new test, call "python main.py -r" from the cadnano2
     root directory. The resulting test will be saved in two places:
     
-    1. In test/recordedtests/ as recordedtest_nnn.py for running by hudson
+    1. In tests/recordedtests/ as recordedtest_nnn.py for running by hudson
     2. In test/lastrecordedtest.py for command line testing.
     """
     def __init__(self):
@@ -209,8 +209,8 @@ class TestRecorder(object):
                                        self.createUserInput(indent),\
                                        self.checkAgainstModel(indent))
         # write to the next file
-        oldtests = glob.glob("test/recordedtests/recordedtest_*.py")  # get all the recorded tests
-        name = "test/recordedtests/recordedtest_%03d.py" % len(oldtests)
+        oldtests = glob.glob("tests/recordedtests/recordedtest_*.py")  # get all the recorded tests
+        name = "tests/recordedtests/recordedtest_%03d.py" % len(oldtests)
         f = open(name, 'w')
         f.write(newtest)
         f.close()
