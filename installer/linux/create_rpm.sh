@@ -1,11 +1,11 @@
 #!/bin/bash
 
 # Copy cadnano source files into the app
-top_dir=$PWD
-echo $top_dir
-cd `dirname $0`
+#top_dir=$PWD
+#echo $top_dir
+#cd `dirname $0`
 python setup.py bdist_rpm --requires="PyQt4" --build-requires="desktop-file-utils" --group="Application/Engineering"
-cd $top_dir
+#cd $top_dir
 
 #import os, sys
 #from subprocess import Popen, PIPE
