@@ -106,7 +106,7 @@ class VirtualHelix(QObject):
         self._sequenceForScafCache = None
         self._sequenceForStapCache = None
     
-    def fsck(self):
+    def assertConsistent(self):
         for strandType in (StrandType.Scaffold, StrandType.Staple):
             for b in self._strand(strandType):
                 if b._neighbor3p():

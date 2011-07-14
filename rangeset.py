@@ -10,7 +10,7 @@ def rangeIntersection(firstRange, secondRange):
         return [0, 0]
     return [l, r]
 
-class RangeSet():
+class RangeSet(object):
     """
     Represents a subset of the integers that can be
     efficiently represented as a finite list of ranges, and
@@ -100,6 +100,13 @@ class RangeSet():
     def containsAnyInRange(rangeStart, rangeEnd):
         idxRange = self._idxRangeOfRangesIntersectingRange(rangeStart, rangeEnd)
         return idxRange[1] - idxRange[0] > 0
+
+    def __iter__(self):
+        """
+        Iterate over (firstIndexInRange, oneAfterLastIndexInRange, metadata)
+        tuples in self.
+        """
+        return self.ranges.__iter__()
 
     ################################ Public Write API ############################
     def add(self, index, metadata=True):
