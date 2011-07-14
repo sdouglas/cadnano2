@@ -1,6 +1,3 @@
-$(INSTALL_PROGRAM) foo $(bindir)/foo
-$(INSTALL_DATA) libfoo.a $(libdir)/libfoo.a
-
 # Copy cadnano source files into the app
 import os, sys
 from subprocess import Popen, PIPE
