@@ -15,6 +15,7 @@ Prefix: %{_prefix}
 BuildArch: noarch
 Vendor: Wyss Institute <wyss@wyss.harvard.edu>
 Requires: PyQt4
+BuildRequires: desktop-file-utils
 Url: http://www.cadnano.org/
 
 %description
@@ -28,6 +29,12 @@ python setup.py build
 
 %install
 python setup.py install -O1 --root=$RPM_BUILD_ROOT --record=INSTALLED_FILES
+python setup.py install --install-scripts=/usr/local/CADnano
+
+desktop-file-install                                    \
+--delete-original                                       \
+--dir=%{buildroot}%{_datadir}/applications              \
+%{buildroot}/%{_datadir}/cadnano.desktop
 
 %post
 /usr/bin/update-mime-database %{_datadir}/mime &>/dev/null || :
