@@ -67,7 +67,7 @@ if __name__ == '__main__':
         s.sort_stats('time').print_stats(10)
         exit()
     elif "-t" in sys.argv:
-        from test.runall import main as runTests
+        from tests.runall import main as runTests
         runTests(useXMLRunner=False)
         exit()
     app.exec_()
