@@ -27,7 +27,6 @@ from PyQt4.QtCore import Qt, QPoint
 import time
 
 def testMethod(self):
-    print "TEST METHOD 5"
     # Create part
     partButton = self.mainWindow.topToolBar.widgetForAction(self.mainWindow.actionNewHoneycombPart)
     self.click(partButton)

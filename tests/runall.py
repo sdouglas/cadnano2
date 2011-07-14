@@ -21,7 +21,7 @@ def main(useXMLRunner=True):
     funsuite = unittest.makeSuite(FunctionalTests)
 
     # load recorded tests
-    os.chdir('test/recordedtests')
+    os.chdir('tests/recordedtests')
     tests = glob.glob("recordedtest_*.py")  # get all the recorded tests
     for test in tests:
         mod, ext = os.path.splitext(os.path.split(test)[-1])
