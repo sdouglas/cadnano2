@@ -356,7 +356,7 @@ class DNAPart(Part):
                 bases = vh5._basesConnectedTo(StrandType.Staple, endpoint)
                 sequencestring = ""
                 for base in bases:
-                    sequencestring += base.sequence()
+                    sequencestring += (base.sequence()[0] + base.sequence()[1])
                 # end for each base
                 output = "%d[%d],%d[%d],%s,%s,%s\n" % \
                         (vh5.number(), \

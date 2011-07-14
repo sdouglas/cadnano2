@@ -166,7 +166,7 @@ class FunctionalTests(CadnanoGuiTestCase):
         testSet = self.getTestSequences(designname, sequences)
         refSet = self.getRefSequences(refname)
         self.assertEqual(testSet, refSet)
-
+    
     def testStapleOutput_Nature09_squarenut(self):
         designname = "Nature09_squarenut.json"
         refname = "Nature09_squarenut.csv"

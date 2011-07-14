@@ -98,9 +98,12 @@ class DocumentController():
         return True
 
     def activePart(self):
+        if self._activePart == None:
+            self._activePart = self._document.selectedPart()
         return self._activePart
 
     def setActivePart(self, part):
+        # should be document.selectedPart
         self._activePart = part
 
     def document(self):
@@ -206,7 +209,7 @@ class DocumentController():
         else:
             directory = QFileInfo(fname).path()
         if util.isWindows(): # required for native looking file window
-            fname = QFileDialog.getSaveFileName(self.win, 
+            fname = QFileDialog.getSaveFileName(self.win,
                                 "%s - Export As" % QApplication.applicationName(),\
                                 directory, \
                                 "(*.csv)"\
