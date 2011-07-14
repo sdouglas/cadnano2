@@ -97,7 +97,7 @@ class UnitTests(CadnanoGuiTestCase):
             l = idx
             idx += self.prng.randint(1, 8)
             r = idx
-            idx += self.prng.randint(0, 8)
+            idx += self.prng.randint(1, 8)
             ranges.append([l, r, i])
         rs = RangeSet()
         rs.ranges = ranges
@@ -142,11 +142,49 @@ class UnitTests(CadnanoGuiTestCase):
                              *rangeIntersection((l1, r1), (l2, r2))  ))
             self.assertEqual(realIntersection, computedIntersection)
 
+    def testRangeSet_addRange(self):
+        rs = RangeSet()
+        rd = {}  # Maps index -> metadata, emulating rs
+        for i in range(200):
+            initialIdx = self.prng.randint(-100, 100)
+            l = self.prng.randint(1, 20)
+            rs.addRange(initialIdx, initialIdx + l, i)
+            rs.assertConsistency()
+            for j in range(initialIdx, initialIdx + l):
+                rd[j] = i
+        for i in range(-105, 105):
+            valToCheck = rs.get(i, None)
+            valToCheckAgainst = rd.get(i, None)
+            # print "%s == %s"%(valToCheck, valToCheckAgainst)
+            self.assertEqual(valToCheck, valToCheckAgainst)
+
+    def testRangeSet_addRange_removeRange(self):
+        rs = RangeSet()
+        rd = {}  # Maps index -> metadata, emulating rs
+        for i in range(200):
+            initialIdx = self.prng.randint(-100, 100)
+            l = self.prng.randint(1, 20)
+            rs.addRange(initialIdx, initialIdx + l, i)
+            rs.assertConsistency()
+            for j in range(initialIdx, initialIdx + l):
+                rd[j] = i
+        for i in range(10):
+            initialIdx = self.prng.randint(-100, 100)
+            l = self.prng.randint(1, 10)
+            rs.removeRange(initialIdx, initialIdx + l)
+            rs.assertConsistency()
+            for j in range(initialIdx, initialIdx + l):
+                rd[j] = None
+        for i in range(-105, 105):
+            valToCheck = rs.get(i, None)
+            valToCheckAgainst = rd.get(i, None)
+            self.assertEqual(valToCheck, valToCheckAgainst)        
+
     def runTest(self):
         pass
 
 if __name__ == '__main__':
     tc = UnitTests()
     tc.setUp()
-    tc.testRangeSet_rangeIntersection()
-    # test.cadnanoguitestcase.main()
+    # tc.testRangeSet_addRange_removeRange()
+    test.cadnanoguitestcase.main()
