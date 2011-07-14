@@ -5,6 +5,7 @@
 
 from distutils.core import setup
 import sys
+import os
 sys.prefix = '/usr/local/cadnano'
 
 # get this file's directory
