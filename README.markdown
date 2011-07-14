@@ -79,3 +79,5 @@ of VirtualHelix disallows)
 ### CADNANO_FSCK_AFTER_SELECT_TOOL_USE
 Every time the mouse is released while in Select or Pencil mode and over a PathHelix
 , fsck() is called on the frontmost part.
+### CADNANO_RUN_PLAINTEXT_TESTS
+Make tests/runall.py output test results on stdout rather than in testresults.xml

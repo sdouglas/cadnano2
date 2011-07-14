@@ -27,12 +27,6 @@ modeltests.py
 
 Created by Shawn Douglas on 2011-06-28.
 
-Instructions: copypaste the following script into TextMate's
-Bundles > Bundle Editor > Show Bundle Editor > Python > Run Project Unit Tests
-
-cd "$TM_PROJECT_DIRECTORY"
-find . -name "*tests.py" -exec "${TM_PYTHON:-python}" '{}' \;|pre
-
 """
 
 import sys
