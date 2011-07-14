@@ -1,7 +1,7 @@
 """
 runtests.py
 Helper file to run tests with 1 command and output the results to an XML file.
-Usage: From the main cadnano folder: python -m test.runtests
+Usage: From the main cadnano folder: python -m tests.runtests
 Created by Flo Mazzoldi on 2011-06-15.
 """
 
@@ -21,7 +21,7 @@ def main(useXMLRunner=True):
     funsuite = unittest.makeSuite(FunctionalTests)
 
     # load recorded tests
-    os.chdir('test/recordedtests')
+    os.chdir('tests/recordedtests')
     tests = glob.glob("recordedtest_*.py")  # get all the recorded tests
     for test in tests:
         mod, ext = os.path.splitext(os.path.split(test)[-1])

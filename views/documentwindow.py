@@ -31,7 +31,7 @@ import controllers.pathcontroller as pathcontroller
 import controllers.slicecontroller as slicecontroller
 from cadnano import app
 from views.pathview.colorpanel import ColorPanel
-from test.testrecorder import TestRecorder
+from tests.testrecorder import TestRecorder
 
 import util
 # import Qt stuff into the module namespace with PySide, PyQt4 independence

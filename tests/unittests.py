@@ -34,8 +34,8 @@ sys.path.insert(0, '.')
 import time, code
 from PyQt4.QtCore import *
 from PyQt4.QtGui import *
-import test.cadnanoguitestcase
-from test.cadnanoguitestcase import CadnanoGuiTestCase
+import tests.cadnanoguitestcase
+from tests.cadnanoguitestcase import CadnanoGuiTestCase
 from model.enum import StrandType
 from model.virtualhelix import VirtualHelix
 import unittest
@@ -46,7 +46,7 @@ enviroseed = os.environ.get('UNITTESTS_PRNG_SEED', False)
 if enviroseed != False:
     seed = int(enviroseed)
 del enviroseed
-print "Seeding test.unittests; use setenv UNITTESTS_PRNG_SEED=%i to replay."%seed
+print "Seeding tests.unittests; use setenv UNITTESTS_PRNG_SEED=%i to replay."%seed
 
 
 class UnitTests(CadnanoGuiTestCase):
@@ -178,7 +178,7 @@ class UnitTests(CadnanoGuiTestCase):
         for i in range(-105, 105):
             valToCheck = rs.get(i, None)
             valToCheckAgainst = rd.get(i, None)
-            self.assertEqual(valToCheck, valToCheckAgainst)        
+            self.assertEqual(valToCheck, valToCheckAgainst)
 
     def runTest(self):
         pass
@@ -187,4 +187,4 @@ if __name__ == '__main__':
     tc = UnitTests()
     tc.setUp()
     # tc.testRangeSet_addRange_removeRange()
-    test.cadnanoguitestcase.main()
+    tests.cadnanoguitestcase.main()

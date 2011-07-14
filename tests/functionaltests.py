@@ -34,8 +34,8 @@ sys.path.insert(0, '.')
 import time
 from PyQt4.QtCore import *
 from PyQt4.QtGui import *
-import test.cadnanoguitestcase
-from test.cadnanoguitestcase import CadnanoGuiTestCase
+import tests.cadnanoguitestcase
+from tests.cadnanoguitestcase import CadnanoGuiTestCase
 from model.enum import StrandType
 from model.virtualhelix import VirtualHelix
 
@@ -46,7 +46,7 @@ class FunctionalTests(CadnanoGuiTestCase):
     with the interface and verify that the final outputs (e.g. staple
     sequences) are correct.
 
-    Run these tests by calling "python -m test.functionaltests" from cadnano2
+    Run these tests by calling "python -m tests.functionaltests" from cadnano2
     root directory.
     """
     def setUp(self):
@@ -173,4 +173,4 @@ class FunctionalTests(CadnanoGuiTestCase):
 
 if __name__ == '__main__':
     print "Running Functional Tests"
-    test.cadnanoguitestcase.main()
+    tests.cadnanoguitestcase.main()

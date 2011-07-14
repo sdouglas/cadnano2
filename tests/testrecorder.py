@@ -299,15 +299,15 @@ def testMethod(self):
 import sys
 from PyQt4.QtCore import *
 from PyQt4.QtGui import *
-import test.cadnanoguitestcase
-from test.cadnanoguitestcase import CadnanoGuiTestCase
+import tests.cadnanoguitestcase
+from tests.cadnanoguitestcase import CadnanoGuiTestCase
 
 sys.path.insert(0, '.')
 
 
 class LastRecordedTest(CadnanoGuiTestCase):
     \"\"\"
-    Run this test by calling "python -m test.lastrecordedtest" from the 
+    Run this test by calling "python -m tests.lastrecordedtest" from the 
     cadnano2 root directory.
     \"\"\"
     def setUp(self):
@@ -334,6 +334,6 @@ class LastRecordedTest(CadnanoGuiTestCase):
 
 if __name__ == '__main__':
     print "Running Last Recorded Test"
-    test.cadnanoguitestcase.main()
+    tests.cadnanoguitestcase.main()
 
 """

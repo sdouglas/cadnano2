@@ -38,8 +38,8 @@ find . -name "*tests.py" -exec "${TM_PYTHON:-python}" '{}' \;|pre
 import sys
 sys.path.insert(0, '.')
 
-import test.cadnanoguitestcase
-from test.cadnanoguitestcase import CadnanoGuiTestCase
+import tests.cadnanoguitestcase
+from tests.cadnanoguitestcase import CadnanoGuiTestCase
 import time
 from model.virtualhelix import VirtualHelix
 from model.enum import StrandType
@@ -50,7 +50,7 @@ class ModelTests(CadnanoGuiTestCase):
     Create new tests by adding methods to this class that begin with "test".
     See for more detail: http://docs.python.org/library/unittest.html
 
-    Run model tests by calling "python -m test.modeltests" from cadnano2 root
+    Run model tests by calling "python -m tests.modeltests" from cadnano2 root
     directory.
     """
     def setUp(self):
@@ -166,4 +166,4 @@ class ModelTests(CadnanoGuiTestCase):
 
 if __name__ == '__main__':
     print "Running Model Tests"
-    test.cadnanoguitestcase.main()
+    tests.cadnanoguitestcase.main()

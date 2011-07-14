@@ -22,49 +22,36 @@
 #
 # http://www.opensource.org/licenses/mit-license.php
 
-from PyQt4.QtCore import *
-from PyQt4.QtGui import *
-import test.guitestcase
-from cadnano import app as getAppInstance
+"""
+template.py
 
-main = test.guitestcase.main
+Created by Shawn Douglas on 2011-06-28.
+"""
+
+from tests.cadnanoguitestcase import CadnanoGuiTestCase
 
 
-class CadnanoGuiTestCase(test.guitestcase.GUITestCase):
+class RecordedTests(CadnanoGuiTestCase):
     """
-    SEE: http://docs.python.org/library/unittest.html
+    Functional tests are end-to-end tests that simulate user interaction
+    with the interface and verify that the final outputs (e.g. staple
+    sequences) are correct.
+
+    Run these tests by calling "python -m tests.functionaltests" from cadnano2
+    root directory.
     """
     def setUp(self):
         """
         The setUp method is called before running any test. It is used
         to set the general conditions for the tests to run correctly.
-        For GUI Tests, you always have to call setWidget to tell the
-        framework what you will be testing.
         """
-        self.app = getAppInstance()
-
-        if not self.app.guiInitialized:  # First test needs to init the gui
-            self.app.initGui()
-            self.documentController = list(self.app.documentControllers)[0]
-        else:  # subsequent tests can just open a new document
-            document = self.app.newDocument()
-            self.documentController = document.controller()
-        self.mainWindow = self.documentController.win
-
-        # Include this or the automatic build will hang
-        self.app.dontAskAndJustDiscardUnsavedChanges = True
-
-        # By setting the widget to the main window we can traverse and
-        # interact with any part of it. Also, tearDown will close
-        # the application so we don't need to worry about that.
-        self.setWidget(self.mainWindow, False, None)
+        CadnanoGuiTestCase.setUp(self)
+        # Add extra initialization here
 
     def tearDown(self):
         """
         The tearDown method is called at the end of running each test,
         generally used to clean up any objects created in setUp
         """
-        test.guitestcase.GUITestCase.tearDown(self)
-
-if __name__ == '__main__':
-    test.guitestcase.main()
+        CadnanoGuiTestCase.tearDown(self)
+        # Add functional-test-specific cleanup here
