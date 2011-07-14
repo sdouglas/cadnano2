@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Copy cadnano source files into the app
-python setup.py bdist_rpm --requires="PyQt4" --group="Application/Engineering"
+python setup.py bdist_rpm --requires="PyQt4" --build_requires="desktop-file-utils" --group="Application/Engineering"
 
 
 #import os, sys
