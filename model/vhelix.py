@@ -1,11 +1,13 @@
+from rangeset import RangeSet
+
 class VHelix(object):
     def __init__(self):
         # Set by parent
         # self._part
         # self._coords
         # self._idnum
-        self._scaf = []
-        self._stap = []
+        self._scaf = RangeSet()
+        self._stap = RangeSet()
 
     ########################## Public Read API ##########################
 
@@ -19,7 +21,7 @@ class VHelix(object):
         return self._idnum
 
     def strandDrawn5To3(self, vStrand):
-        return self._part.strandDrawn5To3(vStrand)
+        return self._part.strandDrawn5To3(self._coords, vStrand)
 
     ########################## Private Write API ##########################
 

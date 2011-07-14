@@ -5,26 +5,25 @@ class VBase(object):
     Base is a convenience class that holds information identifying
     a certain base on a virtual helix, namely its coordinates:
         (part, virtual helix coords, virtual strand, index)
-            part:                 a DNAPart
-            virtual helix coords: (row, col) or whatever is used by DNAPart
-            vStrand:                 model.enum.StrandType.{Scaffold, Staple}
+            vHelix:               the virtualhelix of which this vBase is a member
+            vStrand:              model.enum.StrandType.{Scaffold, Staple}
             index:                increasing values go rightward in path view
     It also has convenience methods for getting other Base objects
     and relevant model objects (oligos, segments, etc).
     """
-    def __init__(self, vHelix, vStrand, index):
+    def __init__(self, vHelix, vStrand, vIndex):
         object.__init__()
         self._vHelix = vHelix
         self._vStrand = vStrand
-        self._index = index
-    
+        self._vIndex = vIndex
+
     def copy(self):
         return VBase(*self.coords())
 
     def coords(self):
         return (self._vHelix,\
                 self._vStrand,\
-                self._index)
+                self._vIndex)
 
     def vHelix(self):
         return self._vHelix
@@ -32,8 +31,8 @@ class VBase(object):
     def vStrand(self):
         return self._vStrand
 
-    def idx(self):
-        return self._index
+    def vIndex(self):
+        return self._vIndex
 
     def part(self):
         return self.vHelix().
@@ -49,7 +48,7 @@ class VBase(object):
 
     def partner(self):
         """
-        Base corresponding to 
+        Base on the same vhelix at the same vIndex but opposite strand
         """
         if self._strandType == StrandType.Scaffold:
             strandType = StrandType.Staple
@@ -57,38 +56,36 @@ class VBase(object):
             strandType = StrandType.Scaffold
         return self.virtualHelix.base(strandType, self._index)
 
-    def next5(self):
+    def vNext5(self):
         """
-        Shifts self one base in 5' direction on the vhelix
+        Shifts self one base in 5' direction along the vhelix.
         """
         if self.drawn5To3():
             return self.prevL()
         else:
             return self.prevR()
 
-    def prev3(self):
+    def vPrev3(self):
         """
-        Shifts self one base in 3' direction on the vhelix
+        Shifts self one base in 3' direction along the vhelix.
         """
         if self.drawn5To3():
             return self.nextR()
         else:
             return self.prevL()
 
-    def nextR(self):
+    def vNextR(self):
         """
-        Shifts self one base rightwards in path view
+        Shifts self one base rightwards along the vhelix in the path view.
         """
-        return VBase(self._dnaPart,\
-                     self._virtualHelixCoords,\
+        return VBase(self._vHelix,\
                      self._vStrand,\
                      self._index + 1)
 
-    def prevL(self):
+    def vPrevL(self):
         """
-        Shifts self one base leftwards in path view
+        Shifts self one base leftwards along the vhelix in the path view
         """
-        return VBase(self._dnaPart,\
-                     self._virtualHelixCoords,\
+        return VBase(self._vHelix,\
                      self._vStrand,\
                      self._index - 1)

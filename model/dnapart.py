@@ -118,9 +118,9 @@ class DNAPart(Part):
     ######################## New Model Quarantine ########################
     ######################################################################
 
-	########################## Notification API ##########################
-	
-	# Arguments are oligo, part
+    ########################## Notification API ##########################
+    
+    # Arguments are oligo, part
     willAddOligoToPart = pyqtSignal(object, object)
     # Arguments are oligo, part
     didAddOligoToPart = pyqtSignal(object, object)
@@ -133,7 +133,7 @@ class DNAPart(Part):
     # Argument is oligo
     oligoWasChanged = pyqtSignal(object)
     
-	########################## Read API ##########################
+    ########################## Read API ##########################
     
     def oligos(self):
         """
@@ -142,8 +142,9 @@ class DNAPart(Part):
         return self._oligos
 
     def oligosIntersectingVhAt(self, vhCoords):
+        pass
 
-	########################## Write API ##########################
+    ########################## Write API ##########################
 
     def addOligo(self, newOligo):
         assert(newOligo not in self._oligos)
@@ -157,7 +158,7 @@ class DNAPart(Part):
         self._oligos.remove(oligo)
         self.didRemoveOligoFromPart(oligo)
 
-	########################## Static API ##########################
+    ########################## Static API ##########################
 
     def strandDrawn5To3(self, vhCoords, strand):
         """
@@ -174,7 +175,7 @@ class DNAPart(Part):
     def palette(self):
         return styles.default_palette
 
-	########################## Bookkeeping ##########################
+    ########################## Bookkeeping ##########################
     
     
     ######################################################################
