@@ -102,6 +102,5 @@ class AddSeqTool(AbstractPathTool):
         elif len(sequenceAfterExtractionOfBasePairChars)==len(optionChosen):
             seqToUse = sequenceAfterExtractionOfBasePairChars
         vh, strandType, idx = self.vh, self.strandType, self.idx
-        vh.resetSequenceCache()
         vh.applySequenceAt(strandType, idx, seqToUse)
 

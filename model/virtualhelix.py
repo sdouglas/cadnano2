@@ -1062,6 +1062,7 @@ class VirtualHelix(QObject):
             # bases
             for i in range(len(bases)):
                 b = bases[i]
+                b._vhelix.resetSequenceCache()
                 stap_b = b._vhelix._strand(StrandType.Staple)[b._n]
                 numBasesInB = b._vhelix.hasLoopOrSkipAt(StrandType.Scaffold, b._n)+1
                 oldBaseStrs.append((b._sequence, stap_b._sequence))
@@ -1098,6 +1099,7 @@ class VirtualHelix(QObject):
                 return
             for i in range(len(scafBases)):
                 scafB = scafBases[i]
+                scafB._vhelix.resetSequenceCache()
                 scafBseq = self.oldBaseStrs[i][0]
                 scafB._sequence = scafBseq
                 
