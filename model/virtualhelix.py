@@ -335,13 +335,14 @@ class VirtualHelix(QObject):
     def _loop(self, strandType):
         """The returned loop list should be considered privately
         mutable"""
-        if strandType == StrandType.Scaffold:
-            return self._scaffoldLoops
-        elif strandType == StrandType.Staple:
-            return self._stapleLoops
-        else:
-            raise IndexError("%s is not Scaffold=%s or Staple=%s" % \
-                         (strandType, StrandType.Scaffold, StrandType.Staple))
+        return self._scaffoldLoops
+        # if strandType == StrandType.Scaffold:
+        #     return self._scaffoldLoops
+        # elif strandType == StrandType.Staple:
+        #     return self._stapleLoops
+        # else:
+        #     raise IndexError("%s is not Scaffold=%s or Staple=%s" % \
+        #                  (strandType, StrandType.Scaffold, StrandType.Staple))
 
     ############################## Access to Bases ###########################
     def indexOfRightmostNonemptyBase(self):
@@ -1042,9 +1043,9 @@ class VirtualHelix(QObject):
                     del vh._loop(startBase._strandtype)[startBase._n]
                 else:
                     vh._loop(startBase._strandtype)[startBase._n] = seqLen
-                vh.setHasBeenModified()
-                vh.emitBasesModifiedIfNeeded()
-                return
+                # vh.setHasBeenModified()
+                # vh.emitBasesModifiedIfNeeded()
+                # return
             else:
                 # We use this variable to determine if we 
                 # need to undo an application to an asymmetrical
@@ -1072,7 +1073,8 @@ class VirtualHelix(QObject):
                 b._sequence = seq
                 if not stap_b._sequence:
                     stap_b._sequence = " "
-                stap_b._sequence = util.rcomp(seq[0]) + stap_b._sequence[1:]
+                # stap_b._sequence = util.rcomp(seq[0]) + stap_b._sequence[1:]
+                stap_b._sequence = util.rcomp(seq)
             vh.setHasBeenModified()
             vh.emitBasesModifiedIfNeeded()
 
