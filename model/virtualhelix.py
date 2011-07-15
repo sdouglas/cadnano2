@@ -819,13 +819,14 @@ class VirtualHelix(QObject):
         d = self.ApplySequenceCommand(self, StrandType.Scaffold, fromIndex, " ")
         if undoable == False:
             c.redo()
-            d.redo()
+            if not speedy:
+                d.redo()
         else:
             undoStack = self.undoStack()
             undoStack.beginMacro("Install Xover")
             undoStack.push(c)
-            undoStack.push(d)
             if not speedy:
+                undoStack.push(d)
                 toVhelix.thoughtPolice()
                 self.thoughtPolice()
             undoStack.endMacro()
