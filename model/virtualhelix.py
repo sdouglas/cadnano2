@@ -763,15 +763,18 @@ class VirtualHelix(QObject):
 
         c = self.ConnectStrandCommand(self, strandType, startIndex, endIndex,\
                                       color=color)
+        d = self.ApplySequenceCommand(self, StrandType.Scaffold, startIndex, " ")
         if undoable == True:
             undoStack = self.undoStack()
             undoStack.beginMacro("Extend strand")
             undoStack.push(c)
+            undoStack.push(d)
             if police:  # Check for inconsistencies, fix one-base Xovers, etc
                 self.thoughtPolice()
             undoStack.endMacro()
         else:
             c.redo()
+            d.redo()
 
     def legacyClearStrand(self, strandType, startIndex, endIndex, undoable=True,\
                     colorL=None, colorR=None, police=True,\
@@ -813,12 +816,15 @@ class VirtualHelix(QObject):
         """
         c = self.Connect3To5Command(strandType, self, fromIndex, toVhelix,\
                                     toIndex, endToTakeColorFrom, speedy=speedy)
+        d = self.ApplySequenceCommand(self, StrandType.Scaffold, fromIndex, " ")
         if undoable == False:
             c.redo()
+            d.redo()
         else:
             undoStack = self.undoStack()
             undoStack.beginMacro("Install Xover")
             undoStack.push(c)
+            undoStack.push(d)
             if not speedy:
                 toVhelix.thoughtPolice()
                 self.thoughtPolice()
@@ -863,12 +869,15 @@ class VirtualHelix(QObject):
         c = self.Break3To5Command(strandType, self, fromIndex,\
                                   endToKeepColor=endToKeepColor,\
                                   newColor=newColor)
+        d = self.ApplySequenceCommand(self, StrandType.Scaffold, fromIndex, " ")
         if undoable == False:
             c.redo()
+            d.redo()
         else:
             undoStack = self.undoStack()
             undoStack.beginMacro("Remove Xover")
             undoStack.push(c)
+            undoStack.push(d)
             self.thoughtPolice()  # Check for inconsistencies, fix one-base Xovers, etc
             toVhelix.thoughtPolice()
             undoStack.endMacro()
