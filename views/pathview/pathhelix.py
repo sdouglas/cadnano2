@@ -417,12 +417,23 @@ class PathHelix(QGraphicsObject):
         painter.setBrush(Qt.NoBrush)
         painter.setFont(self.sequenceFont)
         if shouldVFlipScaf:
-            painter.scale(1, -1)
+            painter.rotate(180)
+            painter.translate(-self.baseWidth*vh.numBases(), 0)
+            # draw the text and reverse the string to draw 5 prime to 3 prime
+            scafTxt = scafTxt[::-1]
+        # end if
+        else:
+            # draw the text and reverse the string to draw 5 prime to 3 prime
+            stapTxt = stapTxt[::-1]
+        # end else
         painter.drawText(scafX, scafY, self.baseWidth*vh.numBases(),\
                          self.baseWidth/2., Qt.AlignVCenter, scafTxt)
-        painter.scale(1, -1)
+        # flip to draw (or flip back)
+        painter.rotate(180)
+        painter.translate(-self.baseWidth*vh.numBases(), 0)
+        # stapTxt = stapTxt.replace(' ', 'Q')
         painter.drawText(stapX, stapY, self.baseWidth*vh.numBases(),\
-                         self.baseWidth/2., Qt.AlignVCenter, stapTxt)
+                                self.baseWidth/2., Qt.AlignVCenter, stapTxt)
 
     def minorGridPainterPath(self):
         """
