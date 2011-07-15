@@ -85,6 +85,7 @@ def doc_from_legacy_dict(obj):
 
     for helix in obj['vstrands']:
         helixNo += 1
+        # print "helix %i/%i (%i%%)"%(helixNo, numHelixes, helixNo*100/numHelixes)
         vhNum = helix['num']
         vh = part.getVirtualHelix(vhNum)
         scaf = helix['scaf']
@@ -140,6 +141,7 @@ def doc_from_legacy_dict(obj):
     helixNo = -1
     for helix in obj['vstrands']:
         helixNo += 1
+        # print "xo %i/%i (%i%%)"%(helixNo, numHelixes, helixNo*100/numHelixes)
         vhNum = helix['num']
         vh = part.getVirtualHelix(vhNum)
         scaf = helix['scaf']
@@ -159,6 +161,7 @@ def doc_from_legacy_dict(obj):
     helixNo = -1
     for helix in obj['vstrands']:
         helixNo += 1
+        # print "loop/col %i/%i (%i%%)"%(helixNo, numHelixes, helixNo*100/numHelixes)
         vhNum = helix['num']
         vh = part.getVirtualHelix(vhNum)
         scaf = helix['scaf']
@@ -172,7 +175,8 @@ def doc_from_legacy_dict(obj):
         for i in range(len(stap)):
             combinedLoopSkipAmount = loops[i] + skips[i]
             if combinedLoopSkipAmount != 0:
-                vh.installLoop(StrandType.Scaffold, i, combinedLoopSkipAmount, undoable=False)
+                vh.installLoop(StrandType.Scaffold, i, combinedLoopSkipAmount,\
+                               undoable=False, speedy=True)
     return doc
 
 def isSegmentStartOrEnd(strandType, vhNum, baseIdx, fiveVH, fiveIdx, threeVH, threeIdx):

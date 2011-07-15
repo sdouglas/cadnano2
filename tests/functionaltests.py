@@ -175,6 +175,15 @@ class FunctionalTests(CadnanoGuiTestCase):
         refSet = self.getRefSequences(refname)
         self.assertEqual(testSet, refSet)
 
+    def testStapleOutput_Science09_prot120_98_v3(self):
+        designname = "Science09_prot120_98_v3.json"
+        refname = "Science09_prot120_98_v3.csv"
+        sequences = [("p7704", 0, 105)]
+        testSet = self.getTestSequences(designname, sequences)
+        refSet = self.getRefSequences(refname)
+        self.assertEqual(testSet, refSet)
+
+
     ####################### Standard Functional Tests ########################
     def testActiveSliceHandleAltShiftClick(self):
         # Create a new Honeycomb part
