@@ -54,6 +54,11 @@ class VirtualHelix(QObject):
     dimensionsModified = pyqtSignal()
 
     def __init__(self, numBases=21, idnum=0, incompleteArchivedDict=None):
+        """
+        numBases=21, 
+        idnum=0, 
+        incompleteArchivedDict is from the decoder
+        """
         super(VirtualHelix, self).__init__()
         # Row, col are always owned by the parent part;
         # they cannot be specified in a meaningful way
@@ -84,9 +89,15 @@ class VirtualHelix(QObject):
         + count indicates insert
         - count indicates skip
         """
+        
+        # unused
         self._stapleLoops = {}
-        self._scaffoldLoops = {}
-
+        
+        if incompleteArchivedDict != None and incompleteArchivedDict['loops']:
+            self._scaffoldLoops = dict((int(k), v) for k,v in incompleteArchivedDict['loops'].iteritems())
+        else:
+            self._scaffoldLoops  = {}
+            
         # setSandboxed(True) gives self a private undo stack
         # in order to insulate undo/redo on the receiver
         # from global undo/redo (so that if a haywire tool
@@ -1692,7 +1703,9 @@ class VirtualHelix(QObject):
         scaffoldStrand = self._strand(StrandType.Scaffold)
         sr['scafld'] = self.encodeStrand(StrandType.Scaffold)
         sr['scafldColors'] = " ".join(str(b.getColor().name()) for b in scaffoldStrand)
-
+        # only encode scaffold loops for version 1.5
+        sr['loops'] = dict((str(k), v) for k,v in self._scaffoldLoops.iteritems())
+        
     # First objects that are being unarchived are sent
     # ClassNameFrom.classAttribute(incompleteArchivedDict)
     # which has only strings and numbers in its dict and then,
