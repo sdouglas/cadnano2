@@ -99,7 +99,8 @@ cadnn1Colors = [QColor(204, 0, 0),\
                 QColor(23, 0, 222),\
                 QColor(115, 0, 222),\
                 QColor(184, 5, 108),\
-                QColor(51, 51, 51)]
+                QColor(51, 51, 51),\
+                QColor(136, 136, 136)]
 stapleColors = cadnn1Colors
 brightColors = [QColor() for i in range(10)]
 for i in range(len(brightColors)):

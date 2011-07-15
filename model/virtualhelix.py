@@ -761,7 +761,7 @@ class VirtualHelix(QObject):
         #self.part().virtualHelixAtCoordsChanged.emit(*self.coord())
 
     def connectStrand(self, strandType, startIndex, endIndex, undoable=True,\
-                      police=True, color=None):
+                      police=True, color=None, speedy=False):
         """
         Connects sequential bases on a single strand, starting with
         startIndex and ending with etdIndex (inclusive)
@@ -773,19 +773,21 @@ class VirtualHelix(QObject):
         endIndex = util.clamp(endIndex, 0, len(strand) - 1)
 
         c = self.ConnectStrandCommand(self, strandType, startIndex, endIndex,\
-                                      color=color)
+                                      color=color, speedy=speedy)
         d = self.ApplySequenceCommand(self, StrandType.Scaffold, startIndex, " ")
         if undoable == True:
             undoStack = self.undoStack()
             undoStack.beginMacro("Extend strand")
             undoStack.push(c)
-            undoStack.push(d)
+            if not speedy:
+                undoStack.push(d)
             if police:  # Check for inconsistencies, fix one-base Xovers, etc
                 self.thoughtPolice()
             undoStack.endMacro()
         else:
             c.redo()
-            d.redo()
+            if not speedy:
+                d.redo()
 
     def legacyClearStrand(self, strandType, startIndex, endIndex, undoable=True,\
                     colorL=None, colorR=None, police=True,\
@@ -1226,7 +1228,7 @@ class VirtualHelix(QObject):
 
 
     class ConnectStrandCommand(QUndoCommand):
-        def __init__(self, virtualHelix, strandType, startIndex, endIndex, color=None):
+        def __init__(self, virtualHelix, strandType, startIndex, endIndex, color=None, speedy=False):
             super(VirtualHelix.ConnectStrandCommand, self).__init__()
             self._vh = virtualHelix
             self._strandType = strandType
@@ -1235,6 +1237,7 @@ class VirtualHelix(QObject):
             self._oldLinkage = None
             self._colorSubCommand = None
             self._explicitColor = color
+            self._speedy = speedy
 
         def redo(self):
             # Sets {s.n, (s+1).np, ..., (e-2).np, (e-1).np, e.p}
@@ -1249,15 +1252,16 @@ class VirtualHelix(QObject):
             else:
                 for i in range(firstIdx, stopIdx):
                     ol.append(strand[i]._set5Prime(strand[i + 1]))
-            # Now ensure all connected bases have the same color
-            # which gets taken from the startIndex base
-            if self._explicitColor == None:
-                color = strand[self._startIndex].getColor()
-            else:
-                color = self._explicitColor
-            bases = self._vh._basesConnectedTo(self._strandType, self._startIndex)
-            self._colorSubCommand = VirtualHelix.ApplyColorCommand(bases, color)
-            self._colorSubCommand.redo()
+            if not self._speedy:
+                # Now ensure all connected bases have the same color
+                # which gets taken from the startIndex base
+                if self._explicitColor == None:
+                    color = strand[self._startIndex].getColor()
+                else:
+                    color = self._explicitColor
+                bases = self._vh._basesConnectedTo(self._strandType, self._startIndex)
+                self._colorSubCommand = VirtualHelix.ApplyColorCommand(bases, color)
+                self._colorSubCommand.redo()
             self._vh.emitBasesModifiedIfNeeded()
 
         def undo(self):

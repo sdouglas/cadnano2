@@ -268,9 +268,7 @@ class XoverHandlePair(QGraphicsItem):
 
     def paint(self, painter, option, widget=None):
         if self._painterpath == None:
-            self.refreshPath()
-            if self._painterpath == None:
-                return
+            return
         painter.setBrush(Qt.NoBrush)
         self.refreshPen()
         pen = QPen(self.getPen())

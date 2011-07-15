@@ -357,7 +357,7 @@ class DNAPart(Part):
                 sequencestring = ""
                 for base in bases:
                     sequencestring += (base.sequence()[0] + base.sequence()[1])
-                # end for each base
+                sequencestring = util.nowhite(sequencestring)
                 output = "%d[%d],%d[%d],%s,%s,%s\n" % \
                         (vh5.number(), \
                         bases[0]._n, \

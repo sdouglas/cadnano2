@@ -35,6 +35,8 @@ from model.decoder import decode
 
 class CNApplicationDelegate(NSObject):
     def application_openFile_(self, app, f):
+        if f == "main.py":  # ignore
+            return
         extension = os.path.splitext(f)[1].lower()
         if extension not in ('.nno', '.json', '.cadnano'):
             print "Could not open file %s (bad extension %s)"%(f, extension)

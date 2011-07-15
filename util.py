@@ -28,6 +28,7 @@ Created by Jonathan deWerd.
 """
 from traceback import extract_stack
 from random import Random
+import string
 import sys
 from os import path
 from cadnano import app
@@ -176,6 +177,10 @@ def rcomp(seqStr):
     """
     seqStr = strToDna(seqStr)
     return "".join({'A':'T', 'T':'A', 'C':'G', 'G':'C'}[c] for c in reversed(seqStr))
+
+def nowhite(seqStr):
+    """Gets rid of whitespace in a string."""
+    return ''.join([c for c in seqStr if c in string.letters])
 
 def isWindows():
     if platform.system() == 'Windows':

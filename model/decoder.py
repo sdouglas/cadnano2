@@ -26,7 +26,7 @@
 decoder
 Created by Jonathan deWerd on 2011-01-26.
 """
-import json
+import cjson
 from .dnahoneycombpart import DNAHoneycombPart
 from .dnasquarepart import DNASquarePart
 from .document import Document
@@ -45,7 +45,7 @@ class Decoder(object):
         self.idToObj=[]
         self.objsWithDeferredInit=[]
     def decode(self,string):
-        packageObject = json.loads(string)
+        packageObject = cjson.decode(string)
         if packageObject.get('.format', None) != 'caDNAno2':
             return doc_from_legacy_dict(packageObject)
         pkObjs = packageObject[".objects"]
