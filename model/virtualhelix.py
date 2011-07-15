@@ -106,6 +106,11 @@ class VirtualHelix(QObject):
         self._sequenceForScafCache = None
         self._sequenceForStapCache = None
     
+    def resetSequenceCache(self):
+        self._sequenceForScafCache = None
+        self._sequenceForStapCache = None
+    # end def
+    
     def assertConsistent(self):
         for strandType in (StrandType.Scaffold, StrandType.Staple):
             for b in self._strand(strandType):
@@ -581,7 +586,6 @@ class VirtualHelix(QObject):
         if strandType == StrandType.Scaffold:
             if self._sequenceForScafCache != None:
                 return self._sequenceForScafCache
-            print "poopies"
             seq = "".join([b.sequence()[0] for b in self._strand(strandType)])
             self._sequenceForScafCache = seq
         else: #Staple Strand
