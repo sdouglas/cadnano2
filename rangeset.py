@@ -82,6 +82,18 @@ class RangeSet(object):
         return (newStartIdx, newAfterLastIdx, rangeItem[2])
 
     def deleteRangeItem(self, rangeItem):
+        """
+        Gets called exactly once on every rangeItem that was once passed to
+        addRange but will now be deleted from self.ranges (wrt the public API,
+        this is when it becomes inaccessable to the get method)
+        """
+        pass
+
+    def boundsChanged(self):
+        """
+        Gets called whenever something in the write API causes the value returned
+        by bounds() to change.
+        """
         pass
 
     ############################### Public Read API ###########################
@@ -97,12 +109,26 @@ class RangeSet(object):
             return retvalOnIdxNotInSelf
         return self.ranges[idx]
 
-    def __contains__(intVal):
+    def __getitem__(self, idx):
+        return nself.get(idx)
+
+    def __contains__(self, intVal):
         """
         In the analogy to dict, checks to see if intVal is in the
         set of keys.
         """
         return self._idxOfRangeContaining(intVal) != None
+
+    def bounds(self):
+        """
+        Returns a range tuple (lowestIdx, oneAfterHighestIdx) that would contain
+        every range in the receiver.
+        """
+        if len(self.ranges) == 0:
+            return (0, 0)
+        ff, fl = self.idxs(self.ranges[0])
+        lf, ll = self.idxs(self.ranges[-1])
+        return (ff, ll)
 
     def containsAllInRange(rangeStart, afterRangeEnd):
         """
@@ -142,6 +168,7 @@ class RangeSet(object):
         firstIndex, afterLastIndex = self.idxs(rangeItem)
         if firstIndex >= afterLastIndex:
             return
+        oldBounds = self.bounds()
         intersectingIdxRange = self._idxRangeOfRangesIntersectingRange(firstIndex - 1,
                                                                        afterLastIndex + 1)
         # (first Index (into self.ranges) of an Intersecting Range)
@@ -177,10 +204,13 @@ class RangeSet(object):
             if r not in rangesToReplaceExistingIntersectingRanges:
                 self.deleteRangeItem(r)
         self.ranges[firstIIR:afterLastIIR] = rangesToReplaceExistingIntersectingRanges
+        if oldBounds != self.bounds():
+            self.boundsChanged()
 
     def removeRange(self, firstIndex, afterLastIndex):
         if firstIndex >= afterLastIndex:
             return
+        oldBounds = self.bounds()
         intersectingIdxRange = self._idxRangeOfRangesIntersectingRange(firstIndex,
                                                                        afterLastIndex)
         rangesToReplaceExistingIntersectingRanges = []
@@ -203,6 +233,8 @@ class RangeSet(object):
             if r not in rangesToReplaceExistingIntersectingRanges:
                 self.deleteRangeItem(r)
         self.ranges[firstIIR:afterLastIIR] = rangesToReplaceExistingIntersectingRanges
+        if oldBounds != self.bounds():
+            self.boundsChanged()
 
     ################################ Private Read API #############################
     def _idxOfRangeContaining(self, intVal, returnTupledIdxOfNextRangeOnFail=False):

@@ -38,6 +38,8 @@ import re, sys, os
 from views import styles
 from math import modf
 from rangeset import RangeSet
+from vstrand import VStrand
+from strand import Strand
 
 import util
 # import Qt stuff into the module namespace with PySide, PyQt4 independence
@@ -76,6 +78,8 @@ class VirtualHelix(QObject):
         # The base arrays are owned entirely by virtualhelix
         self._stapleBases = []
         self._scaffoldBases = []
+        self._scaf = VStrand(self)
+        self._stap = VStrand(self)
         # As is the floatingXoverBase if there is one
         self.floatingXoverBase = None
 
@@ -106,7 +110,27 @@ class VirtualHelix(QObject):
         self.setNumBases(numBases, notUndoable=True)
         self._sequenceForScafCache = None
         self._sequenceForStapCache = None
-    
+
+    ######################################################################
+    ######################## New Model Quarantine ########################
+    ######################################################################
+    def scaf(self):
+        """
+        Returns the VStrand representing this VHelix's scaffold strand.
+        """
+        return self._scaf
+
+    def stap(self):
+        """
+        Returns the VStrand representing this VHelix's staple strand.
+        """
+        return self._stap
+
+    ######################################################################
+    ######################## End New Model Quarantine ####################
+    ######################################################################
+
+
     def assertConsistent(self):
         for strandType in (StrandType.Scaffold, StrandType.Staple):
             for b in self._strand(strandType):
