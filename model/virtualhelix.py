@@ -130,6 +130,10 @@ class VirtualHelix(QObject):
     ######################## End New Model Quarantine ####################
     ######################################################################
 
+    def resetSequenceCache(self):
+        self._sequenceForScafCache = None
+        self._sequenceForStapCache = None
+    # end def
 
     def assertConsistent(self):
         for strandType in (StrandType.Scaffold, StrandType.Staple):
@@ -360,13 +364,14 @@ class VirtualHelix(QObject):
     def _loop(self, strandType):
         """The returned loop list should be considered privately
         mutable"""
-        if strandType == StrandType.Scaffold:
-            return self._scaffoldLoops
-        elif strandType == StrandType.Staple:
-            return self._stapleLoops
-        else:
-            raise IndexError("%s is not Scaffold=%s or Staple=%s" % \
-                         (strandType, StrandType.Scaffold, StrandType.Staple))
+        return self._scaffoldLoops
+        # if strandType == StrandType.Scaffold:
+        #     return self._scaffoldLoops
+        # elif strandType == StrandType.Staple:
+        #     return self._stapleLoops
+        # else:
+        #     raise IndexError("%s is not Scaffold=%s or Staple=%s" % \
+        #                  (strandType, StrandType.Scaffold, StrandType.Staple))
 
     ############################## Access to Bases ###########################
     def indexOfRightmostNonemptyBase(self):
@@ -605,12 +610,12 @@ class VirtualHelix(QObject):
         if strandType == StrandType.Scaffold:
             if self._sequenceForScafCache != None:
                 return self._sequenceForScafCache
-            seq = "".join([b.sequence() for b in self._strand(strandType)])
+            seq = "".join([b.sequence()[0] for b in self._strand(strandType)])
             self._sequenceForScafCache = seq
         else: #Staple Strand
             if self._sequenceForStapCache != None:
                 return self._sequenceForStapCache
-            seq = "".join([b.sequence() for b in self._strand(strandType)])
+            seq = "".join([b.sequence()[0] for b in self._strand(strandType)])
             self._sequenceForStapCache = seq
         return seq
 
@@ -782,15 +787,18 @@ class VirtualHelix(QObject):
 
         c = self.ConnectStrandCommand(self, strandType, startIndex, endIndex,\
                                       color=color)
+        d = self.ApplySequenceCommand(self, StrandType.Scaffold, startIndex, " ")
         if undoable == True:
             undoStack = self.undoStack()
             undoStack.beginMacro("Extend strand")
             undoStack.push(c)
+            undoStack.push(d)
             if police:  # Check for inconsistencies, fix one-base Xovers, etc
                 self.thoughtPolice()
             undoStack.endMacro()
         else:
             c.redo()
+            d.redo()
 
     def legacyClearStrand(self, strandType, startIndex, endIndex, undoable=True,\
                     colorL=None, colorR=None, police=True,\
@@ -832,13 +840,17 @@ class VirtualHelix(QObject):
         """
         c = self.Connect3To5Command(strandType, self, fromIndex, toVhelix,\
                                     toIndex, endToTakeColorFrom, speedy=speedy)
+        d = self.ApplySequenceCommand(self, StrandType.Scaffold, fromIndex, " ")
         if undoable == False:
             c.redo()
+            if not speedy:
+                d.redo()
         else:
             undoStack = self.undoStack()
             undoStack.beginMacro("Install Xover")
             undoStack.push(c)
             if not speedy:
+                undoStack.push(d)
                 toVhelix.thoughtPolice()
                 self.thoughtPolice()
             undoStack.endMacro()
@@ -882,12 +894,15 @@ class VirtualHelix(QObject):
         c = self.Break3To5Command(strandType, self, fromIndex,\
                                   endToKeepColor=endToKeepColor,\
                                   newColor=newColor)
+        d = self.ApplySequenceCommand(self, StrandType.Scaffold, fromIndex, " ")
         if undoable == False:
             c.redo()
+            d.redo()
         else:
             undoStack = self.undoStack()
             undoStack.beginMacro("Remove Xover")
             undoStack.push(c)
+            undoStack.push(d)
             self.thoughtPolice()  # Check for inconsistencies, fix one-base Xovers, etc
             toVhelix.thoughtPolice()
             undoStack.endMacro()
@@ -1050,7 +1065,7 @@ class VirtualHelix(QObject):
             vh = self._vh
             bases = vh._basesConnectedTo(StrandType.Scaffold, self._idx)
             charactersUsedFromSeqStr = 0
-            self.oldBaseStrs = oldBaseStrs = []
+            self.oldBaseStrs = oldBaseStrs = [(' ',' ')]
             startBase = vh._strand(StrandType.Scaffold)[self._idx]
             startBaseComplement = vh._strand(StrandType.Staple)[self._idx]
             scafBasesInBase = vh.hasLoopOrSkipAt(StrandType.Scaffold, startBase._n)
@@ -1067,9 +1082,9 @@ class VirtualHelix(QObject):
                     del vh._loop(startBase._strandtype)[startBase._n]
                 else:
                     vh._loop(startBase._strandtype)[startBase._n] = seqLen
-                vh.setHasBeenModified()
-                vh.emitBasesModifiedIfNeeded()
-                return
+                # vh.setHasBeenModified()
+                # vh.emitBasesModifiedIfNeeded()
+                # return
             else:
                 # We use this variable to determine if we 
                 # need to undo an application to an asymmetrical
@@ -1081,6 +1096,7 @@ class VirtualHelix(QObject):
             # bases
             for i in range(len(bases)):
                 b = bases[i]
+                b._vhelix.resetSequenceCache()
                 stap_b = b._vhelix._strand(StrandType.Staple)[b._n]
                 numBasesInB = b._vhelix.hasLoopOrSkipAt(StrandType.Scaffold, b._n)+1
                 oldBaseStrs.append((b._sequence, stap_b._sequence))
@@ -1097,7 +1113,8 @@ class VirtualHelix(QObject):
                 b._sequence = seq
                 if not stap_b._sequence:
                     stap_b._sequence = " "
-                stap_b._sequence = util.rcomp(seq[0]) + stap_b._sequence[1:]
+                # stap_b._sequence = util.rcomp(seq[0]) + stap_b._sequence[1:]
+                stap_b._sequence = util.rcomp(seq)
             vh.setHasBeenModified()
             vh.emitBasesModifiedIfNeeded()
 
@@ -1116,12 +1133,14 @@ class VirtualHelix(QObject):
                 return
             for i in range(len(scafBases)):
                 scafB = scafBases[i]
+                scafB._vhelix.resetSequenceCache()
                 scafBseq = self.oldBaseStrs[i][0]
                 scafB._sequence = scafBseq
-            for i in range(len(stapBases)):
-                stapB = stapBases[i]
+                
+                stapB = scafB._vhelix._strand(StrandType.Staple)[scafB._n]
                 stapBseq = self.oldBaseStrs[i][1]
                 stapB._sequence = stapBseq
+            # end for
             vh.setHasBeenModified()
             vh.emitBasesModifiedIfNeeded()
 

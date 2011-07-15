@@ -142,11 +142,12 @@ class Base(object):
             return " "
         hasSkip = self._vhelix.hasLoopOrSkipAt(self._strandtype, self._n)
         if hasSkip == -1:
-            return " "
+            return (" ", "")
         elif len(self._sequence) > 1:
-            return self._sequence[0]
+            return (self._sequence[0], self.sequenceOfLoop())
         else:
-            return self._sequence
+            return (self._sequence, "")
+
     
     def sequenceOfLoop(self):
         """

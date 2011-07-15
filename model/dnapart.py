@@ -396,7 +396,7 @@ class DNAPart(Part):
         for vh in vhs:
             vh.autoDragAllBreakpoints(StrandType.Scaffold)
         self.undoStack().endMacro()
-    
+
     def indexOfRightmostNonemptyBase(self):
         """
         During reduction of the number of bases in a part,
@@ -407,6 +407,34 @@ class DNAPart(Part):
         ret = -1
         for vh in self.getVirtualHelices():
             ret = max(ret, vh.indexOfRightmostNonemptyBase())
+        return ret
+
+    def getStapleSequences(self):
+        """docstring for getStapleSequences"""
+        ret = "Start,End,Sequence,Length,Color\n"
+        vhelices = self.getVirtualHelices()
+        oligo_ends = []
+        for vh in vhelices:
+            vh5 = vh
+            # retrieve the 5 prime endpoints of the staple strands
+            oligo_ends = vh.getEndpoints(StrandType.Staple)[1]
+            for endpoint in oligo_ends:
+                bases = vh5._basesConnectedTo(StrandType.Staple, endpoint)
+                sequencestring = ""
+                for base in bases:
+                    sequencestring += (base.sequence()[0] + base.sequence()[1])
+                # end for each base
+                output = "%d[%d],%d[%d],%s,%s,%s\n" % \
+                        (vh5.number(), \
+                        bases[0]._n, \
+                        bases[len(bases)-1].vhelixNum(), \
+                        bases[len(bases)-1]._n, \
+                        sequencestring, \
+                        len(sequencestring), \
+                        bases[0].getColor().name())
+                ret = ret + output
+            # end for each oligo
+        # end for each vh
         return ret
 
     ############################# VirtualHelix Private CRUD #############################
