@@ -14,66 +14,88 @@ class RangeSet(object):
     """
     Represents a subset of the integers that can be
     efficiently represented as a finite list of ranges, and
-    allows the attachment of metadata to each index.
-    There is a close analogy between a RangeSet and a dictionary.
-    In the unit tests, this analogy is taken advantage of (look
-    for variables named rs and rd, for RangeSet and dict respectively).
-    The dictionary maps integers to arbitrary values. The difference
-    is that the operation
-    
-    for i in range(5, 103):
-        analogousDict[i] = key
-    
-    is fast, memory efficient, and looks like
-    
-    rangeSet.addRange(5, 103, key)
-    
-    and analogousDict.get(...) and rangeSet.get(...) correspond.
+    by default allows the association of one object with each
+    index. Also supports subclassing so that the range objects
+    have a class other than tuple.
     """
     def __init__(self):
-        # Each range is stored as a tuple
-        # (firstIdx, afterLastIdx, ...)
-        # A range r contains i iff firstIdx <= i < afterLastIdx.
         self.ranges = []
 
+    ############################### Invariants ###########################
     def assertConsistency(self):
         """
         Raises an exception if the receiver's invariants
         are not maintained
         """
         for i in range(len(self.ranges)):
-            f, l, md = self.ranges[i]
+            f, l = self.idxs(self.ranges[i])
             assert(f < l)  # All ranges contain an index
         for i in range(len(self.ranges)-1):
             # Naming convention:
             # {l:left, r:right}{f:firstIdx, l:afterLastIdx}
-            lf, ll, lmd = self.ranges[i]
-            rf, rl, rmd = self.ranges[i + 1]
-            assert(ll <= rf)  # Ranges are sorted, don't overlap
-            ldat = self.ranges[i][2:]
-            rdat = self.ranges[i + 1][2:]
+            lf, ll = self.idxs(self.ranges[i])
+            rf, rl = self.idxs(self.ranges[i + 1])
+            if ll > rf:
+                # Ranges are sorted, don't overlap
+                for j in range(*rangeIntersection([0, len(self.ranges)], [i - 3, i + 3])):
+                    print "self.ranges[%i]: %s"%(j, self.ranges[j])                
+                print "Problem between items at idx %i, %i (can be merged, not merged)"\
+                      %(i, i + 1)
+                assert(False)  
             if ll == rf:
                 # Adjacent ranges containing the same metadata
                 # MUST be merged
-                if ldat == rdat:
-                    for j in rangeIntersection([0, len(self.ranges)], [i - 3, i + 3]):
-                        print "self.ranges[%i]: %s"%(j, self.ranges)
-                    print "Problem between items at idx %i, %i (same metadata, not merged)"\
+                if self.canMergeRangeItems(self.ranges[i], self.ranges[i + 1]):
+                    for j in range(*rangeIntersection([0, len(self.ranges)], [i - 3, i + 3])):
+                        print "self.ranges[%i]: %s"%(j, self.ranges[j])
+                    print "Problem between items at idx %i, %i (can be merged, not merged)"\
                           %(i, i + 1)
-                    assert(ldat != rdat)
+                    assert(False)
+
+    ############################### Framework ###########################
+    # If you want a RangeSet that stores something other than tuples of
+    # integers representing ranges of indexes, these are the methods to override
+
+    def idxs(self, rangeItem):
+        """
+        Returns (firstIdx, afterLastIdx) simplified representation of the
+        rangeItem passed in.
+        """
+        return rangeItem[0:2]
+
+    def canMergeRangeItems(self, leftRangeItem, rightRangeItem):
+        ll, lr = self.idxs(leftRangeItem)
+        rl, rr = self.idxs(rightRangeItem)
+        sameMetadata = leftRangeItem[2] == rightRangeItem[2]
+        separated = lr < rl
+        correctOrder = ll < rl
+        return sameMetadata and not separated and correctOrder
+
+    def mergeRangeItem(self, leftRangeItem, rightRangeItem):
+        return (leftRangeItem[0], rightRangeItem[1], leftRangeItem[2])
+
+    def truncateRangeItem(self, rangeItem, newStartIdx, newAfterLastIdx):
+        """
+        I suppose this could be used to move a rangeItem around
+        but there was never a need...
+        """
+        return (newStartIdx, newAfterLastIdx, rangeItem[2])
+
+    def deleteRangeItem(self, rangeItem):
+        pass
 
     ############################### Public Read API ###########################
 
     def get(self, idx, retvalOnIdxNotInSelf=None):
         """
         In the analogy to dict, rs.get is identical to rd.get.
-        Returns the metadata at idx or retvalOnIndexNotInSelf if
-        idx is not in the receiver.
+        Returns the range at idx or retvalOnIndexNotInSelf if
+        idx is not in any range of the receiver.
         """
         idx = self._idxOfRangeContaining(idx)
         if idx == None:
             return retvalOnIdxNotInSelf
-        return self.ranges[idx][2]
+        return self.ranges[idx]
 
     def __contains__(intVal):
         """
@@ -90,11 +112,13 @@ class RangeSet(object):
         idxRange = self._idxRangeOfRangesIntersectingRange(rangeStart, rangeEnd)
         previousLastIdx = None
         for i in range(*idxRange):
+            l, r = self.idxs(self.ranges[i])
             if previousLastIdx == None:
-                previousLastIdx = self.ranges[i][1]
+                previousLastIdx = r
             else:
-                if previousLastIdx != self.ranges[i][0]:
+                if previousLastIdx != l:
                     return False
+                previousLastIdx = r
         return True
 
     def containsAnyInRange(rangeStart, rangeEnd):
@@ -103,16 +127,19 @@ class RangeSet(object):
 
     def __iter__(self):
         """
-        Iterate over (firstIndexInRange, oneAfterLastIndexInRange, metadata)
-        tuples in self.
+        Iterate over the range items in self.
         """
         return self.ranges.__iter__()
 
     ################################ Public Write API ############################
-    def add(self, index, metadata=True):
-        self.addRange(index, index+1, metadata)
-
-    def addRange(self, firstIndex, afterLastIndex, metadata=True):
+    def addRange(self, rangeItem):
+        """
+        Adds rangeItem to the receiver, ensuring that the range given by
+        self.idxs(rangeItem) does not overlap any other rangeItem in the receiver
+        (this is enforced by deleting or truncating any rangeItems in the way)
+        and tries to merge the newly inserted rangeItem with its neighbors.
+        """
+        firstIndex, afterLastIndex = self.idxs(rangeItem)
         if firstIndex >= afterLastIndex:
             return
         intersectingIdxRange = self._idxRangeOfRangesIntersectingRange(firstIndex - 1,
@@ -120,36 +147,35 @@ class RangeSet(object):
         # (first Index (into self.ranges) of an Intersecting Range)
         firstIIR, afterLastIIR = intersectingIdxRange
         if afterLastIIR == firstIIR:
-            self.ranges.insert(firstIIR, (firstIndex, afterLastIndex, metadata))
+            self.ranges.insert(firstIIR, rangeItem)
             return
-        rangesToReplaceExistingIntersectingRanges = [\
-                            (firstIndex, afterLastIndex, metadata)]
+        rangesToReplaceExistingIntersectingRanges = [rangeItem]
         # First Intersecting Range {Left idx, After right idx, MetaData}
-        firstIRL, firstIRAr, firstIRMD = self.ranges[firstIIR]
+        firstIR = self.ranges[firstIIR]
+        firstIRL, firstIRAr = self.idxs(firstIR)
         if firstIRL < firstIndex:
             #           [AddRange---------------------)
             #       [FirstIntersectingExistingRange)[...)
-            canMergeWithFirstIR = firstIRMD == metadata
-            if canMergeWithFirstIR:
-                rangesToReplaceExistingIntersectingRanges = [\
-                        (firstIRL, afterLastIndex, metadata)]
+            if self.canMergeRangeItems(firstIR, rangeItem):
+                newItem = self.mergeRangeItem(firstIR, rangeItem)
+                rangesToReplaceExistingIntersectingRanges = [newItem]
             else:
-                rangesToReplaceExistingIntersectingRanges =    [\
-                        (firstIRL, firstIndex, firstIRMD),\
-                        (firstIndex, afterLastIndex, metadata) ]
-        lastIRL, lastIRAr, lastIRMD = self.ranges[afterLastIIR - 1]
+                newItem = self.truncateRangeItem(firstIR, firstIRL, firstIndex)
+                rangesToReplaceExistingIntersectingRanges =    [newItem, rangeItem]
+        lastIR = self.ranges[afterLastIIR - 1]
+        lastIRL, lastIRAr = self.idxs(lastIR)
         if lastIRAr > afterLastIndex:
-            canMergeWithLastIR = lastIRMD == metadata
-            if canMergeWithLastIR:
-                oldLastReplacementRange = rangesToReplaceExistingIntersectingRanges.pop()
-                newLastReplacementRange = (\
-                            oldLastReplacementRange[0],\
-                            lastIRAr,\
-                            metadata      )
-                rangesToReplaceExistingIntersectingRanges.append(newLastReplacementRange)
+            if self.canMergeRangeItems(rangeItem, lastIR):
+                oldLastReplacementItem = rangesToReplaceExistingIntersectingRanges.pop()
+                newItem = self.mergeRangeItem(oldLastReplacementItem, lastIR)
+                rangesToReplaceExistingIntersectingRanges.append(newItem)
             else:
-                newLastReplacementRange = (afterLastIndex, lastIRAr, lastIRMD)
-                rangesToReplaceExistingIntersectingRanges.append(newLastReplacementRange)
+                newItem = self.truncateRangeItem(lastIR, afterLastIndex, lastIRAr)
+                rangesToReplaceExistingIntersectingRanges.append(newItem)
+        rangesToBeReplaced = self.ranges[firstIIR:afterLastIIR]
+        for r in rangesToBeReplaced:
+            if r not in rangesToReplaceExistingIntersectingRanges:
+                self.deleteRangeItem(r)
         self.ranges[firstIIR:afterLastIIR] = rangesToReplaceExistingIntersectingRanges
 
     def removeRange(self, firstIndex, afterLastIndex):
@@ -162,16 +188,20 @@ class RangeSet(object):
         firstIIR, afterLastIIR = intersectingIdxRange
         if afterLastIIR == firstIIR:
             return
-        firstIRL, firstIRAr, firstIRMD = self.ranges[firstIIR]
+        firstIR = self.ranges[firstIIR]
+        firstIRL, firstIRAr = self.idxs(firstIR)
         if firstIRL < firstIndex:
-            rangesToReplaceExistingIntersectingRanges.append((\
-                    firstIRL, firstIndex, firstIRMD\
-                                                            ))
-        lastIRL, lastIRAr, lastIRMD = self.ranges[afterLastIIR - 1]
+            newItem = self.truncateRangeItem(firstIR, firstIRL, firstIndex)
+            rangesToReplaceExistingIntersectingRanges.append(newItem)
+        lastIR = self.ranges[afterLastIIR - 1]
+        lastIRL, lastIRAr = self.idxs(lastIR)
         if lastIRAr > afterLastIndex:
-            rangesToReplaceExistingIntersectingRanges.append((\
-                    afterLastIndex, lastIRAr, lastIRMD\
-                                                            ))
+            newItem = self.truncateRangeItem(lastIR, afterLastIndex, lastIRAr)
+            rangesToReplaceExistingIntersectingRanges.append(newItem)
+        rangesToBeReplaced = self.ranges[firstIIR:afterLastIIR]
+        for r in rangesToBeReplaced:
+            if r not in rangesToReplaceExistingIntersectingRanges:
+                self.deleteRangeItem(r)
         self.ranges[firstIIR:afterLastIIR] = rangesToReplaceExistingIntersectingRanges
 
     ################################ Private Read API #############################
@@ -180,20 +210,21 @@ class RangeSet(object):
         Returns the index in self.ranges of the range
         containing intVal or None if none does.
         """
-        ranges = self.ranges
-        if not ranges:
+        if not self.ranges:
             if returnTupledIdxOfNextRangeOnFail:
                 return (0,)
             return None
         # m <= the index of any range containing
         # intVal, M >= the index of any range containing
         # intVal.
-        m, M = 0, len(ranges)-1
+        m, M = 0, len(self.ranges)-1
         while m <= M:
             mid = (m+M)/2
-            if ranges[mid][1] <= intVal:
+            rangeItem = self.ranges[mid]
+            l, r = self.idxs(rangeItem)
+            if r <= intVal:
                 m = mid + 1
-            elif ranges[mid][0] > intVal:
+            elif l > intVal:
                 M = mid - 1
             else:  # v and r[mid][0] <= intVal < r[mid][1]
                 return mid
@@ -211,8 +242,7 @@ class RangeSet(object):
             return [0, 0]  # Empty range
         idx = self._idxOfRangeContaining(rangeStart,\
                                          returnTupledIdxOfNextRangeOnFail=True)
-        ranges = self.ranges
-        lenRanges = len(ranges)
+        lenRanges = len(self.ranges)
         if not isinstance(idx, (int, long)):
             # idx is a tuple containing an integer indexing in ranges
             # to the first range intersecting [rangeStart, infinity)
@@ -227,7 +257,7 @@ class RangeSet(object):
         while True:
             if lastIdx >= lenRanges:
                 return [idx, lastIdx]
-            f, l, md = ranges[lastIdx]
+            f, l = self.idxs(self.ranges[lastIdx])
             if f >= rangeEnd:
                 return [idx, lastIdx]
             lastIdx += 1
@@ -240,10 +270,11 @@ class RangeSet(object):
     
     def _slowIdxOfRangeContaining(self, intVal, returnTupledIdxOfNextRangeOnFail=False):
         for i in range(len(self.ranges)):
-            r = self.ranges[i]
-            if r[0] <= intVal < r[1]:
+            rangeItem = self.ranges[i]
+            l, r = self.idxs(rangeItem)
+            if l <= intVal < r:
                 return i
-            if r[0] > intVal and returnTupledIdxOfNextRangeOnFail:
+            if l > intVal and returnTupledIdxOfNextRangeOnFail:
                 return (i,)
         if returnTupledIdxOfNextRangeOnFail:
             return (len(self.ranges),)
@@ -254,7 +285,8 @@ class RangeSet(object):
             return [0,0]
         firstIdx = None
         for i in range(len(self.ranges)):
-            f, l, md = self.ranges[i]
+            rangeItem = self.ranges[i]
+            f, l = self.idxs(rangeItem)
             leftOfTarget = l <= rangeStart
             rightOfTarget = f >= rangeEnd
             if not leftOfTarget and firstIdx == None:

@@ -1,10 +1,13 @@
 class Segment(QObject):
     """
     Represents a segment of DNA that
-    1) Has a length (# nucleotides)
-    2) Has a 3' and 5' endpoint (Bases)
+    1) Has a length (# nucleotides, possibly 0)
+    2) Has a 3' and 5' endpoint (VBase instances, which locate the
+       endpoints in conceptual or 3D space (like coordinates))
     3) The set of vhelix which contain bases of the segment
        is a nonproper subset of {startVB.vHelix(), endVB.vHelix()}
+    4) Might have another segment connected to either or both of
+       its 3' and 5' ends
     Represens a horizontal (in the path view) stretch of connected
     bases
     """
@@ -17,6 +20,7 @@ class Segment(QObject):
         # the location of a base)
         self._3pVBase = VB3p
         self._3pSegment = None
+        
         # Location of the last base that belongs to self
         # with a 5' connection to the next segment
         self._5pVBase = VB5p
@@ -31,9 +35,9 @@ class Segment(QObject):
     def vBase5p(self):
         return self._5pVBase
 
-    def endL(self, vHelix):
-        """
-        Returns the leftmost end self has on vHelix
-        """
-        a, b = self._3pBase, self._5pBase
-        if a.end3().vHelix
+    def segment3p(self):
+        return self._3pSegment
+
+    def segment5p(self):
+        return self._5pSegment
+

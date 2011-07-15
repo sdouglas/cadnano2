@@ -148,26 +148,42 @@ class UnitTests(CadnanoGuiTestCase):
         for i in range(200):
             initialIdx = self.prng.randint(-100, 100)
             l = self.prng.randint(1, 20)
-            rs.addRange(initialIdx, initialIdx + l, i)
+            rs.addRange((initialIdx, initialIdx + l, i))
             rs.assertConsistency()
             for j in range(initialIdx, initialIdx + l):
                 rd[j] = i
         for i in range(-105, 105):
             valToCheck = rs.get(i, None)
+            if valToCheck != None:
+                valToCheck = valToCheck[2]
             valToCheckAgainst = rd.get(i, None)
             # print "%s == %s"%(valToCheck, valToCheckAgainst)
             self.assertEqual(valToCheck, valToCheckAgainst)
 
     def testRangeSet_addRange_removeRange(self):
         rs = RangeSet()
+        numberOfTimesDeleteCalledOnRange = {}
+        def deleteRangeItem(ri):
+            numberOfTimesDeleteCalledOnRange[ri] = numberOfTimesDeleteCalledOnRange.get(ri, 0) + 1
+        rs.deleteRangeItem = deleteRangeItem
+        addedRangeItems = []
         rd = {}  # Maps index -> metadata, emulating rs
+        # Build the rangeset by calling addRange
         for i in range(200):
             initialIdx = self.prng.randint(-100, 100)
             l = self.prng.randint(1, 20)
-            rs.addRange(initialIdx, initialIdx + l, i)
+            newRangeItem = (initialIdx, initialIdx + l, i)
+            addedRangeItems.append(newRangeItem)
+            rs.addRange(newRangeItem)
             rs.assertConsistency()
             for j in range(initialIdx, initialIdx + l):
                 rd[j] = i
+        # Assure deleteRangeItem got called exactly once on deleted range items
+        for ri in addedRangeItems:
+            inRangeSet = ri in rs.ranges
+            deletedOnce = numberOfTimesDeleteCalledOnRange.get(ri, 0) == 1
+            self.assertTrue(inRangeSet ^ deletedOnce)
+        # Remove some ranges
         for i in range(10):
             initialIdx = self.prng.randint(-100, 100)
             l = self.prng.randint(1, 10)
@@ -175,8 +191,16 @@ class UnitTests(CadnanoGuiTestCase):
             rs.assertConsistency()
             for j in range(initialIdx, initialIdx + l):
                 rd[j] = None
+        # Assure deleteRangeItem got called exactly once on deleted range items
+        for ri in addedRangeItems:
+            inRangeSet = ri in rs.ranges
+            deletedOnce = numberOfTimesDeleteCalledOnRange.get(ri, 0) == 1
+            self.assertTrue(inRangeSet ^ deletedOnce)
+        # Verify the rangeset's behavior through analogy to dict
         for i in range(-105, 105):
             valToCheck = rs.get(i, None)
+            if valToCheck != None:
+                valToCheck = valToCheck[2]
             valToCheckAgainst = rd.get(i, None)
             self.assertEqual(valToCheck, valToCheckAgainst)
 
@@ -186,5 +210,5 @@ class UnitTests(CadnanoGuiTestCase):
 if __name__ == '__main__':
     tc = UnitTests()
     tc.setUp()
-    # tc.testRangeSet_addRange_removeRange()
-    tests.cadnanoguitestcase.main()
+    tc.testRangeSet_addRange_removeRange()
+    # tests.cadnanoguitestcase.main()

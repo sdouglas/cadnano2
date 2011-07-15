@@ -37,6 +37,7 @@ from random import Random
 import re, sys, os
 from views import styles
 from math import modf
+from rangeset import RangeSet
 
 import util
 # import Qt stuff into the module namespace with PySide, PyQt4 independence
