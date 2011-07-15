@@ -93,7 +93,7 @@ class VirtualHelix(QObject):
         # unused
         self._stapleLoops = {}
         
-        if incompleteArchivedDict != None and incompleteArchivedDict['loops']:
+        if incompleteArchivedDict != None and incompleteArchivedDict.get('loops'):
             self._scaffoldLoops = dict((int(k), v) for k,v in incompleteArchivedDict['loops'].iteritems())
         else:
             self._scaffoldLoops  = {}
