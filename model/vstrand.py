@@ -67,6 +67,39 @@ class VStrand(QObject, RangeSet):
     def drawn5To3(self):
         return self._vHelix.strandDrawn5To3(self)
 
+    ####################### Framework Overrides / Undo ##############
+    def idxs(self, rangeItem):
+        """
+        Returns (firstIdx, afterLastIdx) simplified representation of the
+        rangeItem passed in.
+        """
+        idx3, idx5 = rangeItem.vBase3p().vIndex(), rangeItem.vBase5p().vIndex()
+        return (min(idx3, idx5), max(idx3, idx5))
+
+    #def canMergeRangeItems(self, leftRangeItem, rightRangeItem):
+    #def mergeRangeItems(self, leftRangeItem, rightRangeItem, undoStack=None):
+
+    def changeRangeForItem(self, rangeItem, newStartIdx, newAfterLastIdx, undoStack=None):
+        """
+        Changes the range corresponding to rangeItem.
+        Careful, this isn't a public method. It gets called to notify a subclass
+        of a change, not to effect the change itself.
+        If a subclass needs to support undo, it should push this onto the undo stack.
+        """
+        return (newStartIdx, newAfterLastIdx, rangeItem[2])
+
+    def willRemoveRangeItem(self, rangeItem, undoStack=None):
+        """
+        Gets called exactly once on every rangeItem that was once passed to
+        addRange but will now be deleted from self.ranges (wrt the public API,
+        this is when it becomes inaccessable to the get method)
+        If a subclass needs to support undo, it should push this onto the undo stack.
+        """
+        pass
+
+    def undoStack(self):
+        return self._vHelix.undoStack()
+
     ####################### Private Write API #######################
     def _setVHelix(self, newVH):
         """

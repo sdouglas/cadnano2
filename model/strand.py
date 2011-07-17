@@ -53,7 +53,7 @@ class Strand(QObject):
         # with a 5' connection to the next segment
         self._5pVBase = VB5p
         self._5pSegment = None
-            
+
     def vBase3p(self):
         return self._3pVBase
 

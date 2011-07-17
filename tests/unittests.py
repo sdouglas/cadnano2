@@ -163,9 +163,9 @@ class UnitTests(CadnanoGuiTestCase):
     def testRangeSet_addRange_removeRange(self):
         rs = RangeSet()
         numberOfTimesDeleteCalledOnRange = {}
-        def deleteRangeItem(ri):
+        def willRemoveRangeItem(ri):
             numberOfTimesDeleteCalledOnRange[ri] = numberOfTimesDeleteCalledOnRange.get(ri, 0) + 1
-        rs.deleteRangeItem = deleteRangeItem
+        rs.willRemoveRangeItem = willRemoveRangeItem
         addedRangeItems = []
         rd = {}  # Maps index -> metadata, emulating rs
         # Build the rangeset by calling addRange

@@ -12,11 +12,11 @@ def rangeIntersection(firstRange, secondRange):
 
 class RangeSet(object):
     """
-    Represents a subset of the integers that can be
-    efficiently represented as a finite list of ranges, and
-    by default allows the association of one object with each
-    index. Also supports subclassing so that the range objects
-    have a class other than tuple.
+    Represents a set of objects (rangeItems or RIs) that each conceptually
+    occupy a contiguous subset of the integers under the additional constraints
+    1) no two items in the set overlap (occupy an identical integer)
+    2) any two adjacent items a, b st canMergeRangeItems(a,b) == True upon
+       insertion of the last one to be inserted will be merged
     """
     def __init__(self):
         self.ranges = []
@@ -71,30 +71,48 @@ class RangeSet(object):
         correctOrder = ll < rl
         return sameMetadata and not separated and correctOrder
 
-    def mergeRangeItem(self, leftRangeItem, rightRangeItem):
+    def mergeRangeItems(self, leftRangeItem, rightRangeItem, undoStack=None):
+        """
+        If a subclass needs to support undo, it should push whatever it does
+        here onto undoStack (iff undoStack is not None). It can also just return
+        an entirely new object in which case undo will be handled automatically.
+        """
         return (leftRangeItem[0], rightRangeItem[1], leftRangeItem[2])
 
-    def truncateRangeItem(self, rangeItem, newStartIdx, newAfterLastIdx):
+    def changeRangeForItem(self, rangeItem, newStartIdx, newAfterLastIdx, undoStack=None):
         """
-        I suppose this could be used to move a rangeItem around
-        but there was never a need...
+        Changes the range corresponding to rangeItem.
+        Careful, this isn't a public method. It gets called to notify a subclass
+        of a change, not to effect the change itself.
+
+        If a subclass needs to support undo, it should push whatever it does
+        here onto undoStack (iff undoStack is not None). It can also just return
+        an entirely new object in which case undo will be handled automatically.
         """
         return (newStartIdx, newAfterLastIdx, rangeItem[2])
 
-    def deleteRangeItem(self, rangeItem):
+    def willRemoveRangeItem(self, rangeItem):
         """
-        Gets called exactly once on every rangeItem that was once passed to
-        addRange but will now be deleted from self.ranges (wrt the public API,
-        this is when it becomes inaccessable to the get method)
+        Gets called on a rangeItem that used to be in self.ranges but will
+        no longer be in self.ranges.
+        """
+        pass
+
+    def didInsertRangeItem(self, rangeItem):
+        """
+        Gets called on a rangeItem that has just been inserted into self.ranges.
         """
         pass
 
     def boundsChanged(self):
         """
-        Gets called whenever something in the write API causes the value returned
-        by bounds() to change.
+        Gets called whenever something in the write API causes the value
+        returned by bounds() to change.
         """
         pass
+
+    def defaultUndoStack(self):
+        return None
 
     ############################### Public Read API ###########################
 
@@ -158,7 +176,7 @@ class RangeSet(object):
         return self.ranges.__iter__()
 
     ################################ Public Write API ############################
-    def addRange(self, rangeItem):
+    def addRange(self, rangeItem, undoStack=True):
         """
         Adds rangeItem to the receiver, ensuring that the range given by
         self.idxs(rangeItem) does not overlap any other rangeItem in the receiver
@@ -169,6 +187,10 @@ class RangeSet(object):
         if firstIndex >= afterLastIndex:
             return
         oldBounds = self.bounds()
+        if undoStack == True:
+            undoStack = self.defaultUndoStack()
+        if undoStack != None:
+            undoStack.beginMacro('RangeSet.addRange')
         intersectingIdxRange = self._idxRangeOfRangesIntersectingRange(firstIndex - 1,
                                                                        afterLastIndex + 1)
         # (first Index (into self.ranges) of an Intersecting Range)
@@ -184,33 +206,49 @@ class RangeSet(object):
             #           [AddRange---------------------)
             #       [FirstIntersectingExistingRange)[...)
             if self.canMergeRangeItems(firstIR, rangeItem):
-                newItem = self.mergeRangeItem(firstIR, rangeItem)
+                newItem = self.mergeRangeItems(firstIR,\
+                                               rangeItem,\
+                                               undoStack=undoStack)
                 rangesToReplaceExistingIntersectingRanges = [newItem]
             else:
-                newItem = self.truncateRangeItem(firstIR, firstIRL, firstIndex)
-                rangesToReplaceExistingIntersectingRanges =    [newItem, rangeItem]
+                newItem = self.changeRangeForItem(firstIR,\
+                                                  firstIRL,\
+                                                  firstIndex)
+                rangesToReplaceExistingIntersectingRanges = [newItem, rangeItem]
         lastIR = self.ranges[afterLastIIR - 1]
         lastIRL, lastIRAr = self.idxs(lastIR)
         if lastIRAr > afterLastIndex:
             if self.canMergeRangeItems(rangeItem, lastIR):
                 oldLastReplacementItem = rangesToReplaceExistingIntersectingRanges.pop()
-                newItem = self.mergeRangeItem(oldLastReplacementItem, lastIR)
+                newItem = self.mergeRangeItems(oldLastReplacementItem,\
+                                               lastIR,\
+                                               undoStack=undoStack)
                 rangesToReplaceExistingIntersectingRanges.append(newItem)
             else:
-                newItem = self.truncateRangeItem(lastIR, afterLastIndex, lastIRAr)
+                newItem = self.changeRangeForItem(lastIR,\
+                                                  afterLastIndex,\
+                                                  lastIRAr)
                 rangesToReplaceExistingIntersectingRanges.append(newItem)
-        rangesToBeReplaced = self.ranges[firstIIR:afterLastIIR]
-        for r in rangesToBeReplaced:
-            if r not in rangesToReplaceExistingIntersectingRanges:
-                self.deleteRangeItem(r)
-        self.ranges[firstIIR:afterLastIIR] = rangesToReplaceExistingIntersectingRanges
+        com = self.ReplaceRangeItemsCommand(self,\
+                                      firstIIR,\
+                                      afterLastIIR,\
+                                      rangesToReplaceExistingIntersectingRanges)
+        if undoStack != None:
+            undoStack.push(com)
+            undoStack.endMacro()
+        else:
+            com.redo()
         if oldBounds != self.bounds():
             self.boundsChanged()
 
-    def removeRange(self, firstIndex, afterLastIndex):
+    def removeRange(self, firstIndex, afterLastIndex, undoStack=True):
         if firstIndex >= afterLastIndex:
             return
         oldBounds = self.bounds()
+        if undoStack == True:
+            undoStack = self.defaultUndoStack()
+        if undoStack != None:
+            undoStack.beginMacro('RangeSet.addRange')
         intersectingIdxRange = self._idxRangeOfRangesIntersectingRange(firstIndex,
                                                                        afterLastIndex)
         rangesToReplaceExistingIntersectingRanges = []
@@ -221,22 +259,70 @@ class RangeSet(object):
         firstIR = self.ranges[firstIIR]
         firstIRL, firstIRAr = self.idxs(firstIR)
         if firstIRL < firstIndex:
-            newItem = self.truncateRangeItem(firstIR, firstIRL, firstIndex)
+            newItem = self.changeRangeForItem(firstIR, firstIRL, firstIndex)
             rangesToReplaceExistingIntersectingRanges.append(newItem)
         lastIR = self.ranges[afterLastIIR - 1]
         lastIRL, lastIRAr = self.idxs(lastIR)
         if lastIRAr > afterLastIndex:
-            newItem = self.truncateRangeItem(lastIR, afterLastIndex, lastIRAr)
+            newItem = self.changeRangeForItem(lastIR, afterLastIndex, lastIRAr)
             rangesToReplaceExistingIntersectingRanges.append(newItem)
-        rangesToBeReplaced = self.ranges[firstIIR:afterLastIIR]
-        for r in rangesToBeReplaced:
-            if r not in rangesToReplaceExistingIntersectingRanges:
-                self.deleteRangeItem(r)
-        self.ranges[firstIIR:afterLastIIR] = rangesToReplaceExistingIntersectingRanges
+        com = self.ReplaceRangeItemsCommand(self,\
+                                      firstIIR,\
+                                      afterLastIIR,\
+                                      rangesToReplaceExistingIntersectingRanges)
+        if undoStack != None:
+            undoStack.push(com)
+            undoStack.endMacro()
+        else:
+            com.redo()
         if oldBounds != self.bounds():
             self.boundsChanged()
 
-    ################################ Private Read API #############################
+    def resizeRangeAtIdx(self, idx, newFirstIndex, newAfterLastIdx, undoStack=True):
+        """
+        Finds the largest contiguous range of indices in the receiver that includes
+        idx and changes it 
+        """
+        rangeItemIdx = self._idxOfRangeContaining(idx)
+        if rangeItemIdx == None:
+            desc = 'RangeSet %s was asked to resize a nonexistant range at %i'%\
+                                                            (self, rangeItemIdx)
+            raise TypeError(desc)
+        rangeItem = self.ranges[ri]
+        self.ranges[rangeItem:rangeItem + 1] = []
+        self.changeRangeForItem(rangeItem)
+        self.addRange(rangeItem)
+
+    ################################ Private Write API #########################
+    class ReplaceRangeItemsCommand(object):
+        def __init__(self, rangeSet, firstIdx, afterLastIdx, replacementRIs):
+            self.rangeSet = rangeSet
+            self.firstIdx = firstIdx
+            self.afterLastIdx = afterLastIdx
+            self.replacementRIs = replacementRIs
+        def redo(self):
+            rangeArr = self.rangeSet.ranges
+            self.replacedRIs = rangeArr[self.firstIdx:self.afterLastIdx]
+            replacedSet = set(self.replacedRIs)
+            replacementSet = set(self.replacementRIs)
+            for ri in replacedSet - replacementSet:
+                self.rangeSet.willRemoveRangeItem(ri)
+            rangeArr[self.firstIdx:self.afterLastIdx] = self.replacementRIs
+            for ri in replacementSet - replacedSet:
+                self.rangeSet.didInsertRangeItem(ri)
+        def undo(self):
+            assert(self.replacedRIs)  # Must redo before undo
+            replacedSet = set(self.replacementRIs)
+            replacementSet = set(self.replacedRIs)
+            for ri in replacedSet - replacementSet:
+                self.rangeSet.willRemoveRangeItem(ri)
+            lastIdx = len(self.replacementSet)
+            rangeArr = self.rangeSet.ranges
+            rangeArr[self.firstIdx:lastIdx] = self.replacedRIs
+            for ri in replacementSet - replacedSet:
+                self.rangeSet.didInsertRangeItem(ri)
+
+    ################################ Private Read API ##########################
     def _idxOfRangeContaining(self, intVal, returnTupledIdxOfNextRangeOnFail=False):
         """
         Returns the index in self.ranges of the range
