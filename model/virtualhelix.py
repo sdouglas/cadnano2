@@ -935,7 +935,7 @@ class VirtualHelix(QObject):
             undoStack.endMacro()
         self.resetSequenceCache()
 
-    def installLoop(self, strandType, index, loopsize, undoable=True):
+    def installLoop(self, strandType, index, loopsize, undoable=True, speedy=False):
         """
         Main function for installing loops and skips
         -1 is a skip, +N is a loop
@@ -945,7 +945,8 @@ class VirtualHelix(QObject):
             d = self.ApplySequenceCommand(self, StrandType.Scaffold, index, " ")
             if undoable == False:
                 c.redo()
-                d.redo()
+                if not speedy:
+                    d.redo()
             else:
                 undoStack = self.undoStack()
                 if loopsize > 0:
@@ -953,7 +954,8 @@ class VirtualHelix(QObject):
                 else:
                     undoStack.beginMacro("Skip at %d[%d]" % (self._number, index))
                 undoStack.push(c)
-                undoStack.push(d)
+                if not speedy:
+                    undoStack.push(d)
                 undoStack.endMacro()
 
     def applyColorAt(self, color, strandType, index, undoable=True):
