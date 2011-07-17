@@ -360,7 +360,9 @@ class DNAPart(Part):
                 bases = vh5._basesConnectedTo(StrandType.Staple, endpoint)
                 sequencestring = ""
                 for base in bases:
-                    sequencestring += (base.sequence()[0] + base.sequence()[1])
+                    # put the insertion first since it's already rcomp
+                    sequencestring += (base.lazy_sequence()[1] + \
+                                       base.lazy_sequence()[0])
                 sequencestring = util.nowhite(sequencestring)
                 output = "%d[%d],%d[%d],%s,%s,%s\n" % \
                         (vh5.number(), \

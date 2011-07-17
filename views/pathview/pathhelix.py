@@ -255,11 +255,11 @@ class PathHelix(QGraphicsObject):
         self._minorGridPainterPath = None
         self._majorGridPainterPath = None
         addx = self.rect.width()
-        addy = -self.addBasesButton.boundingRect().height()
+        addy = -(self.addBasesButton.boundingRect().height()*1.2)
         self.addBasesButton.setPos(addx, addy)
         self.addBasesButton.show()
         remx = self.rect.width()-self.removeBasesButton.boundingRect().width()
-        remy = -self.removeBasesButton.boundingRect().height()
+        remy = -(self.removeBasesButton.boundingRect().height()*1.2)
         bbr = self.removeBasesButton.boundingRect()
         self.removeBasesButton.setPos(remx, remy)
     

@@ -1,4 +1,4 @@
-<!DOCTYPE RCC><RCC version="1.0">
+<RCC>
   <qresource prefix="filetools">
     <file alias="svg">images/data-svg.png</file>
     <file alias="new">images/data-new_32.png</file>
@@ -20,16 +20,16 @@
   <qresource prefix="pathtools">
     <file alias="add-bases">images/add-bases.svg</file>
     <file alias="remove-bases">images/remove-bases.svg</file>
-    <file alias="insert">images/path-insert.png</file>
     <file alias="pen">images/path-pen_48.png</file>
+    <file alias="insert">images/path-insert_48x48.png</file>
     <file alias="paint">images/path-paint_48.png</file>
     <file alias="move">images/path-move.png</file>
-    <file alias="skip">images/path-skip.png</file>
-    <file alias="add seq">images/path-sequence.png</file>
+    <file alias="skip">images/path-skip_48x48.png</file>
     <file alias="force">images/path-force-xover.png</file>
+    <file alias="add seq">images/path-sequence.png</file>
     <file alias="break">images/path-break_48.png</file>
     <file alias="erase">images/path-erase_32.png</file>
     <file alias="select">images/path-edit_32.png</file>
-    <file alias="autostaple">images/path-autostaple_32.png</file>
+    <file alias="autostaple">images/path-staple.png</file>
   </qresource>
 </RCC>

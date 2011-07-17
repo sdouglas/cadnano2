@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
- <class>Dialog</class>
- <widget class="QDialog" name="Dialog">
+ <class>Preferences</class>
+ <widget class="QDialog" name="Preferences">
   <property name="geometry">
    <rect>
     <x>0</x>
@@ -20,13 +20,6 @@
    <string>Dialog</string>
   </property>
   <layout class="QGridLayout" name="gridLayout">
-   <item row="0" column="0" colspan="2">
-    <widget class="QLabel" name="label">
-     <property name="text">
-      <string>Default Tool at Startup</string>
-     </property>
-    </widget>
-   </item>
    <item row="0" column="3">
     <widget class="QComboBox" name="defaulttoolComboBox">
      <item>
@@ -99,6 +92,13 @@
      </property>
     </widget>
    </item>
+   <item row="0" column="0" colspan="2">
+    <widget class="QLabel" name="label">
+     <property name="text">
+      <string>Default Tool at Startup</string>
+     </property>
+    </widget>
+   </item>
    <item row="2" column="0" colspan="4">
     <widget class="QDialogButtonBox" name="buttonBox">
      <property name="inputMethodHints">
@@ -117,7 +117,6 @@
    </item>
   </layout>
   <zorder>defaulttoolComboBox</zorder>
-  <zorder>label</zorder>
   <zorder>zoomSpeedLabel</zorder>
   <zorder>zoomSpeedSlider</zorder>
   <zorder>label</zorder>
@@ -130,7 +129,7 @@
   <connection>
    <sender>buttonBox</sender>
    <signal>accepted()</signal>
-   <receiver>Dialog</receiver>
+   <receiver>Preferences</receiver>
    <slot>accept()</slot>
    <hints>
     <hint type="sourcelabel">
@@ -146,7 +145,7 @@
   <connection>
    <sender>buttonBox</sender>
    <signal>rejected()</signal>
-   <receiver>Dialog</receiver>
+   <receiver>Preferences</receiver>
    <slot>reject()</slot>
    <hints>
     <hint type="sourcelabel">

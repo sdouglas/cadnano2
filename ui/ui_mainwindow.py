@@ -2,13 +2,12 @@
 
 # Form implementation generated from reading ui file 'mainwindow.ui'
 #
-# Created: Tue Jul  5 15:37:53 2011
-#      by: PyQt4 UI code generator 4.8.3
+# Created: Sat Jul 16 15:59:25 2011
+#      by: PyQt4 UI code generator 4.7.7
 #
 # WARNING! All changes made in this file will be lost!
 
-import util
-util.qtWrapImport(None, globals(), ['QtCore', 'QtGui'])
+from PyQt4 import QtCore, QtGui
 
 try:
     _fromUtf8 = QtCore.QString.fromUtf8
@@ -77,7 +76,6 @@ class Ui_MainWindow(object):
         self.gridLayout.addWidget(self.splitter, 0, 0, 1, 1)
         MainWindow.setCentralWidget(self.centralwidget)
         self.menubar = QtGui.QMenuBar(MainWindow)
-        # self.menubar.setParent(None)
         self.menubar.setGeometry(QtCore.QRect(0, 0, 1100, 22))
         self.menubar.setObjectName(_fromUtf8("menubar"))
         self.menuFile = QtGui.QMenu(self.menubar)
@@ -88,7 +86,9 @@ class Ui_MainWindow(object):
         self.menuExport.setObjectName(_fromUtf8("menuExport"))
         self.menuEdit = QtGui.QMenu(self.menubar)
         self.menuEdit.setObjectName(_fromUtf8("menuEdit"))
-        # MainWindow.setMenuBar(self.menubar)
+        self.menuCADnano = QtGui.QMenu(self.menubar)
+        self.menuCADnano.setObjectName(_fromUtf8("menuCADnano"))
+        MainWindow.setMenuBar(self.menubar)
         self.statusbar = QtGui.QStatusBar(MainWindow)
         self.statusbar.setObjectName(_fromUtf8("statusbar"))
         MainWindow.setStatusBar(self.statusbar)
@@ -101,12 +101,12 @@ class Ui_MainWindow(object):
         self.leftToolBar.setAllowedAreas(QtCore.Qt.LeftToolBarArea|QtCore.Qt.RightToolBarArea)
         self.leftToolBar.setToolButtonStyle(QtCore.Qt.ToolButtonTextUnderIcon)
         self.leftToolBar.setObjectName(_fromUtf8("leftToolBar"))
-        MainWindow.addToolBar(QtCore.Qt.LeftToolBarArea, self.leftToolBar)
+        MainWindow.addToolBar(QtCore.Qt.ToolBarArea(QtCore.Qt.LeftToolBarArea), self.leftToolBar)
         self.topToolBar = QtGui.QToolBar(MainWindow)
         self.topToolBar.setBaseSize(QtCore.QSize(0, 0))
         self.topToolBar.setToolButtonStyle(QtCore.Qt.ToolButtonTextUnderIcon)
         self.topToolBar.setObjectName(_fromUtf8("topToolBar"))
-        MainWindow.addToolBar(QtCore.Qt.TopToolBarArea, self.topToolBar)
+        MainWindow.addToolBar(QtCore.Qt.ToolBarArea(QtCore.Qt.TopToolBarArea), self.topToolBar)
         self.rightToolBar = QtGui.QToolBar(MainWindow)
         sizePolicy = QtGui.QSizePolicy(QtGui.QSizePolicy.Fixed, QtGui.QSizePolicy.Preferred)
         sizePolicy.setHorizontalStretch(0)
@@ -116,7 +116,7 @@ class Ui_MainWindow(object):
         self.rightToolBar.setLayoutDirection(QtCore.Qt.LeftToRight)
         self.rightToolBar.setToolButtonStyle(QtCore.Qt.ToolButtonTextUnderIcon)
         self.rightToolBar.setObjectName(_fromUtf8("rightToolBar"))
-        MainWindow.addToolBar(QtCore.Qt.RightToolBarArea, self.rightToolBar)
+        MainWindow.addToolBar(QtCore.Qt.ToolBarArea(QtCore.Qt.RightToolBarArea), self.rightToolBar)
         self.actionNew = QtGui.QAction(MainWindow)
         icon = QtGui.QIcon()
         icon.addPixmap(QtGui.QPixmap(_fromUtf8(":/filetools/new")), QtGui.QIcon.Normal, QtGui.QIcon.Off)
@@ -248,6 +248,8 @@ class Ui_MainWindow(object):
         self.actionPathAddSeq.setObjectName(_fromUtf8("actionPathAddSeq"))
         self.actionCSV = QtGui.QAction(MainWindow)
         self.actionCSV.setObjectName(_fromUtf8("actionCSV"))
+        self.actionPreferences = QtGui.QAction(MainWindow)
+        self.actionPreferences.setObjectName(_fromUtf8("actionPreferences"))
         self.menuOpen_recent_files.addSeparator()
         self.menuExport.addAction(self.actionSVG)
         self.menuExport.addAction(self.actionX3D)
@@ -267,6 +269,8 @@ class Ui_MainWindow(object):
         self.menuEdit.addAction(self.actionCopy)
         self.menuEdit.addAction(self.actionPaste)
         self.menuEdit.addAction(self.actionSelect_All)
+        self.menuCADnano.addAction(self.actionPreferences)
+        self.menubar.addAction(self.menuCADnano.menuAction())
         self.menubar.addAction(self.menuFile.menuAction())
         self.menubar.addAction(self.menuEdit.menuAction())
         self.leftToolBar.addAction(self.actionSliceSelect)
@@ -304,6 +308,7 @@ class Ui_MainWindow(object):
         self.menuOpen_recent_files.setTitle(QtGui.QApplication.translate("MainWindow", "Open recent files", None, QtGui.QApplication.UnicodeUTF8))
         self.menuExport.setTitle(QtGui.QApplication.translate("MainWindow", "Export...", None, QtGui.QApplication.UnicodeUTF8))
         self.menuEdit.setTitle(QtGui.QApplication.translate("MainWindow", "Edit", None, QtGui.QApplication.UnicodeUTF8))
+        self.menuCADnano.setTitle(QtGui.QApplication.translate("MainWindow", "CADnano", None, QtGui.QApplication.UnicodeUTF8))
         self.leftToolBar.setWindowTitle(QtGui.QApplication.translate("MainWindow", "Slice Tools", None, QtGui.QApplication.UnicodeUTF8))
         self.topToolBar.setWindowTitle(QtGui.QApplication.translate("MainWindow", "Main Toolbar", None, QtGui.QApplication.UnicodeUTF8))
         self.rightToolBar.setWindowTitle(QtGui.QApplication.translate("MainWindow", "Path Tools", None, QtGui.QApplication.UnicodeUTF8))
@@ -373,6 +378,8 @@ class Ui_MainWindow(object):
         self.actionPathAddSeq.setShortcut(QtGui.QApplication.translate("MainWindow", "A", None, QtGui.QApplication.UnicodeUTF8))
         self.actionCSV.setText(QtGui.QApplication.translate("MainWindow", "CSV", None, QtGui.QApplication.UnicodeUTF8))
         self.actionCSV.setToolTip(QtGui.QApplication.translate("MainWindow", "export oligos as *.CSV", None, QtGui.QApplication.UnicodeUTF8))
+        self.actionPreferences.setText(QtGui.QApplication.translate("MainWindow", "Preferences", None, QtGui.QApplication.UnicodeUTF8))
+        self.actionPreferences.setShortcut(QtGui.QApplication.translate("MainWindow", "Ctrl+,", None, QtGui.QApplication.UnicodeUTF8))
 
 from views.customqgraphicsview import CustomQGraphicsView
 import icons_rc

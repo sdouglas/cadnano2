@@ -193,6 +193,13 @@
     <addaction name="actionPaste"/>
     <addaction name="actionSelect_All"/>
    </widget>
+   <widget class="QMenu" name="menuCADnano">
+    <property name="title">
+     <string>CADnano</string>
+    </property>
+    <addaction name="actionPreferences"/>
+   </widget>
+   <addaction name="menuCADnano"/>
    <addaction name="menuFile"/>
    <addaction name="menuEdit"/>
   </widget>
@@ -654,6 +661,14 @@
    </property>
    <property name="toolTip">
     <string>export oligos as *.CSV</string>
+   </property>
+  </action>
+  <action name="actionPreferences">
+   <property name="text">
+    <string>Preferences</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+,</string>
    </property>
   </action>
  </widget>
