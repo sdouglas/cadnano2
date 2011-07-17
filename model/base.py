@@ -139,7 +139,7 @@ class Base(object):
         """
         empty = not (self._hasNeighbor3p() or self._hasNeighbor5p())
         if empty:
-            return " "
+            return (" ", "")
         hasSkip = self._vhelix.hasLoopOrSkipAt(self._strandtype, self._n)
         if hasSkip == -1:
             return (" ", "")
@@ -147,6 +147,32 @@ class Base(object):
             return (self._sequence[0], self.sequenceOfLoop())
         else:
             return (self._sequence, "")
+    # end def
+    
+    def lazy_sequence(self):
+        """
+        Returns the single character sequence for the receiver (loops,
+        skips just show up as spaces).
+        This is the base that should be drawn below the segment if there
+        is one.
+        This sequence is always returned 5->3 (the first character represents
+        the base that exposes the 5' end while the last char exposes its 3' end)
+        only for a staple base
+        """
+        assert self._strandtype == StrandType.Staple
+        if  self._hasNeighbor3p() or self._hasNeighbor5p():
+            baseComplement =  self._vhelix._strand(StrandType.Scaffold)[self._n]
+            ret = baseComplement.sequence()
+            # if ret[0] == "":
+            #     print "dooo"
+            return (util.rcomp2(ret[0]), util.rcomp2(ret[1]))
+            # if reta[0] == "":
+            #     print "cccooooo"
+            # return reta
+        else:
+            # print "Q"
+            return (" ", "")
+    # end def
 
     
     def sequenceOfLoop(self):

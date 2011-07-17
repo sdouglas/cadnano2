@@ -176,7 +176,13 @@ def rcomp(seqStr):
     Returns the reversed complement of the sequence in seqStr
     """
     seqStr = strToDna(seqStr)
-    return "".join({'A':'T', 'T':'A', 'C':'G', 'G':'C'}[c] for c in reversed(seqStr))
+    return "".join({'A':'T', 'T':'A', 'C':'G', 'G':'C', ' ':'U'}[c] for c in reversed(seqStr))
+
+def rcomp2(seqStr):
+    """
+    Returns the reversed complement of the sequence in seqStr
+    """
+    return "".join({'A':'T', 'T':'A', 'C':'G', 'G':'C', ' ':' '}[c] for c in reversed(seqStr))
 
 def nowhite(seqStr):
     """Gets rid of whitespace in a string."""
