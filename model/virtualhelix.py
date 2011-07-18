@@ -607,7 +607,10 @@ class VirtualHelix(QObject):
         return seq
 
     def sequenceForLoopAt(self, strandType, idx):
-        return self._strand(strandType)[idx].sequenceOfLoop()
+        if strandType == StrandType.Scaffold:
+            return self._strand(strandType)[idx].sequenceOfLoop()
+        else:
+            return self._strand(strandType)[idx].lazy_sequenceOfLoop()
 
     def _basesConnectedTo(self, strandType, idx):
         """

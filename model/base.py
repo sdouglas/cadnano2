@@ -182,6 +182,17 @@ class Base(object):
             # print "Loop had seq %s, should have been len %i"%(self._sequence,actualLoopLength)
             return " "*actualLoopLength
         return self._sequence[1:]
+        
+    def lazy_sequenceOfLoop(self):
+        """
+        This sequence is always returned 5->3 (the first character represents
+        the base that exposes the 5' end while the last char exposes its 3' end).
+
+        sequenceOfLoop()[0] is displayed on the strand and sequenceOfLoop()[1:]
+        are displayed on the loop.
+        """
+        baseComplement =  self._vhelix._strand(StrandType.Scaffold)[self._n]
+        return util.rcomp(baseComplement.sequenceOfLoop())
 
     def __repr__(self):
         if self._3pBase:
