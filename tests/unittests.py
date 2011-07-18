@@ -142,67 +142,89 @@ class UnitTests(CadnanoGuiTestCase):
                              *rangeIntersection((l1, r1), (l2, r2))  ))
             self.assertEqual(realIntersection, computedIntersection)
 
-    def testRangeSet_addRange(self):
-        rs = RangeSet()
-        rd = {}  # Maps index -> metadata, emulating rs
-        for i in range(200):
-            initialIdx = self.prng.randint(-100, 100)
-            l = self.prng.randint(1, 20)
-            rs.addRange((initialIdx, initialIdx + l, i))
-            rs.assertConsistency()
-            for j in range(initialIdx, initialIdx + l):
-                rd[j] = i
-        for i in range(-105, 105):
-            valToCheck = rs.get(i, None)
-            if valToCheck != None:
-                valToCheck = valToCheck[2]
-            valToCheckAgainst = rd.get(i, None)
-            # print "%s == %s"%(valToCheck, valToCheckAgainst)
-            self.assertEqual(valToCheck, valToCheckAgainst)
-
-    def testRangeSet_addRange_removeRange(self):
-        rs = RangeSet()
-        numberOfTimesDeleteCalledOnRange = {}
-        def willRemoveRangeItem(ri):
-            numberOfTimesDeleteCalledOnRange[ri] = numberOfTimesDeleteCalledOnRange.get(ri, 0) + 1
-        rs.willRemoveRangeItem = willRemoveRangeItem
+    def addSomeRangesToRangeSet(self, rangeSet, analagousDict):
+        """
+        Returns (dict, list). The dict maps every index that is a member of
+        any inserted range to the metadata (a random integer for test purposes)
+        associated with that range. The list is a list of the id(range) of every
+        range item that was added to the rangeset at any point.
+        """
         addedRangeItems = []
-        rd = {}  # Maps index -> metadata, emulating rs
         # Build the rangeset by calling addRange
         for i in range(200):
             initialIdx = self.prng.randint(-100, 100)
             l = self.prng.randint(1, 20)
-            newRangeItem = (initialIdx, initialIdx + l, i)
+            tag = self.prng.randint(1,15)
+            newRangeItem = (initialIdx, initialIdx + l, tag)
             addedRangeItems.append(newRangeItem)
-            rs.addRange(newRangeItem)
-            rs.assertConsistency()
             for j in range(initialIdx, initialIdx + l):
-                rd[j] = i
-        # Assure deleteRangeItem got called exactly once on deleted range items
-        for ri in addedRangeItems:
-            inRangeSet = ri in rs.ranges
-            deletedOnce = numberOfTimesDeleteCalledOnRange.get(ri, 0) == 1
-            self.assertTrue(inRangeSet ^ deletedOnce)
-        # Remove some ranges
+                analagousDict[j] = tag
+            # print "-- add %s == %i--"%(str(newRangeItem), id(newRangeItem))
+            rangeSet.addRange(newRangeItem)
+            rangeSet.assertConsistency()
+        return (analagousDict, addedRangeItems)
+
+    def checkRangeSetAgainstAnalagousDict(self, rangeSet, analagousDict):
+        firstIdx, afterLastIdx = rangeSet.bounds()
+        firstIdx -= 3
+        afterLastIdx += 3
+        for i in range(firstIdx, afterLastIdx):
+            valToCheck = rangeSet.get(i, None)
+            if valToCheck != None:
+                valToCheck = valToCheck[2]
+            valToCheckAgainst = analagousDict.get(i, None)
+            self.assertEqual(valToCheck, valToCheckAgainst)
+
+    def removeSomeRangesFromRangeSet(self, rangeSet, analagousDict):
         for i in range(10):
             initialIdx = self.prng.randint(-100, 100)
             l = self.prng.randint(1, 10)
-            rs.removeRange(initialIdx, initialIdx + l)
-            rs.assertConsistency()
+            rangeSet.removeRange(initialIdx, initialIdx + l)
+            rangeSet.assertConsistency()
             for j in range(initialIdx, initialIdx + l):
-                rd[j] = None
+                analagousDict[j] = None
+
+    def testRangeSet_addRange(self):
+        rs = RangeSet()
+        rd, addedRangeItems = self.addSomeRangesToRangeSet(rs, {})
+        self.checkRangeSetAgainstAnalagousDict(rs, rd)
+
+    def testRangeSet_addRange_removeRange(self):
+        rs = RangeSet()
+        willRemoveCtr = {}
+        didInsertCtr = {}
+        def willRemoveRangeItem(ri):
+            # print "willRemove %s == %i"%(str(ri),id(ri))
+            willRemoveCtr[ri] = willRemoveCtr.get(ri, 0) + 1
+        def didInsertRangeItem(ri):
+            # print "didInsert %s == %i"%(str(ri),id(ri))
+            didInsertCtr[ri] = didInsertCtr.get(ri, 0) + 1
+        rs.willRemoveRangeItem = willRemoveRangeItem
+        rs.didInsertRangeItem = didInsertRangeItem
+        # Assure willRemoveRangeItem got called exactly once on removed ranges
+        # (some ranges are removed because they are entirely occluded by newly
+        # added ranges)
+        rd, addedRangeItems = self.addSomeRangesToRangeSet(rs, {})
+        for ri in addedRangeItems:
+            inRangeSet = int(ri in rs.ranges)
+            insertCalls = didInsertCtr.get(ri, 0)
+            removeCalls = willRemoveCtr.get(ri, 0)
+            callsBalanced =  insertCalls == inRangeSet + removeCalls
+            # print "%i:%s\t\t%i == %i + %i"%(callsBalanced, ri,
+            #             insertCalls, inRangeSet, removeCalls)
+            self.assertTrue(callsBalanced)
+        self.removeSomeRangesFromRangeSet(rs, rd)
         # Assure deleteRangeItem got called exactly once on deleted range items
         for ri in addedRangeItems:
-            inRangeSet = ri in rs.ranges
-            deletedOnce = numberOfTimesDeleteCalledOnRange.get(ri, 0) == 1
-            self.assertTrue(inRangeSet ^ deletedOnce)
-        # Verify the rangeset's behavior through analogy to dict
-        for i in range(-105, 105):
-            valToCheck = rs.get(i, None)
-            if valToCheck != None:
-                valToCheck = valToCheck[2]
-            valToCheckAgainst = rd.get(i, None)
-            self.assertEqual(valToCheck, valToCheckAgainst)
+            inRangeSet = int(ri in rs.ranges)
+            insertCalls = didInsertCtr.get(ri, 0)
+            removeCalls = willRemoveCtr.get(ri, 0)
+            callsBalanced =  insertCalls == inRangeSet + removeCalls
+            self.assertTrue(callsBalanced)
+        self.checkRangeSetAgainstAnalagousDict(rs, rd)
+
+    def testRangeSet_undo(self):
+        pass
 
     def runTest(self):
         pass
