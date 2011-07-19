@@ -597,11 +597,6 @@ class VirtualHelix(QObject):
         if strandType == StrandType.Scaffold:
             if self._sequenceForScafCache != None:
                 return self._sequenceForScafCache
-            # seq = ""
-            # for b in self._strand(strandType):
-            #     temp = b.sequence()[0]
-            #     assert len(temp) == 1
-            #     seq += temp
             seq = "".join([b.sequence()[0] for b in self._strand(strandType)])
             self._sequenceForScafCache = seq
         else: #Staple Strand
