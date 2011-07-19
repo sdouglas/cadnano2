@@ -41,7 +41,8 @@ import util
 util.qtWrapImport('QtCore', globals(), ['pyqtSignal', 'QString', \
                                         'QStringList', 'QFileInfo', 'Qt'])
 util.qtWrapImport('QtGui', globals(), ['QUndoStack', 'QFileDialog',\
-                                        'QAction', 'QApplication'])
+                                        'QAction', 'QApplication', \
+                                        'QMessageBox', 'QKeySequence' ])
 
 if app().isInMaya():
     from .mayawindow import DocumentWindow
@@ -130,6 +131,7 @@ class DocumentController():
         self.win.actionSVG.triggered.connect(self.svgClicked)
         self.win.actionAutoStaple.triggered.connect(self.autoStapleClicked)
         self.win.actionCSV.triggered.connect(self.exportCSV)
+        self.win.actionPreferences.triggered.connect(app().prefsClicked)
         # self.win.actionSave_As.triggered.connect(self.saveAsClicked)
         # self.win.actionQuit.triggered.connect(self.closeClicked)
         # self.win.actionAdd.triggered.connect(self.addClicked)
@@ -155,16 +157,14 @@ class DocumentController():
 
     def openClicked(self):
         """docstring for openClicked"""
-        
         # self.filesavedialog = None
         # self.openFile('/Users/nick/Downloads/nanorobot.v2.json')
         # return
-        
         if util.isWindows(): # required for native looking file window
             fname = QFileDialog.getOpenFileName(None, "Open Document", "/",\
                         "CADnano1 / CADnano2 Files (*.nno *.json *.cadnano)")
             self.filesavedialog = None
-            self.openFile(fname)                
+            self.openFile(fname)
         else: # access through non-blocking callback
             fdialog = QFileDialog ( self.win, \
                                 "Open Document",\
@@ -175,7 +175,7 @@ class DocumentController():
             fdialog.setWindowModality(Qt.WindowModal)
             # fdialog.exec_()  # or .show(), or .open()
             self.filesavedialog = fdialog
-            self.filesavedialog.filesSelected.connect(self.openFile) 
+            self.filesavedialog.filesSelected.connect(self.openFile)
             fdialog.open()  # or .show(), or .open()
 
     def openFile(self, selected):
@@ -229,7 +229,7 @@ class DocumentController():
             self.filesavedialog.filesSelected.connect(self.exportFile) 
             fdialog.open()
     # end def
-    
+
     def exportFile(self, selected):
         if isinstance(selected, QStringList) or isinstance(selected, list):
             fname = selected[0]
@@ -246,7 +246,7 @@ class DocumentController():
             del self.filesavedialog # manual garbage collection to prevent hang (in osx)
         return self.exportSequenceCSV(fname)
     # end def
-    
+
     def closeClicked(self):
         """This will trigger a Window closeEvent"""
         print "close clicked"
@@ -261,9 +261,9 @@ class DocumentController():
             return True
         if not self.undoStack().isClean():    # document dirty?
             savebox = QMessageBox( QMessageBox.Warning,   "Application", \
-                "The document has been modified.\n Do you want to save your changes?",
-                QMessageBox.Save | QMessageBox.Discard | QMessageBox.Cancel, 
-                self, 
+                "The document has been modified.\n Do you want to save your changes?", \
+                QMessageBox.Save | QMessageBox.Discard | QMessageBox.Cancel, \
+                self.win, \
                 Qt.Dialog | Qt.MSWindowsFixedSizeDialogHint | Qt.Sheet)
             savebox.setWindowModality(Qt.WindowModal)
             save = savebox.button(QMessageBox.Save)
@@ -275,7 +275,7 @@ class DocumentController():
             ret = savebox.exec_()
             del savebox  # manual garbage collection to prevent hang (in osx)
             if ret == QMessageBox.Save:
-                return self.controller.saveAsClicked()
+                return self.saveAsClicked()
             elif ret == QMessageBox.Cancel:
                 return False
         return True

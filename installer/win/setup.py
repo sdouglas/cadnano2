@@ -12,6 +12,6 @@ setup(name="cadnano2",
       #url="",  
       license="MIT License",  
       packages=['cadnano2'],  
-      package_data={"cadnano2": ["ui/images/*"]},  
+      package_data={"cadnano2": ["ui/mainwindow/images/*"]},
       windows=['main.py'],  
       options={"py2exe": {"skip_archive": True, "includes": ["sip"]}})

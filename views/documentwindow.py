@@ -26,7 +26,7 @@
 documentwindow.py
 """
 
-import ui.ui_mainwindow as ui_mainwindow
+import ui.mainwindow.ui_mainwindow as ui_mainwindow
 import controllers.pathcontroller as pathcontroller
 import controllers.slicecontroller as slicecontroller
 from cadnano import app
@@ -40,8 +40,7 @@ util.qtWrapImport('QtCore', globals(), ['pyqtSignal', 'Qt', 'QFileInfo', \
                                         'QString'])
 util.qtWrapImport('QtGui', globals(), [ 'QGraphicsItem', 'QMainWindow', \
                                         'QGraphicsScene', 'QGraphicsView', \
-                                        'QApplication', 'QAction', 'QMessageBox',
-                                        'QKeySequence', 'QWidget'])
+                                        'QApplication', 'QAction', 'QWidget'])
 util.qtWrapImport('QtOpenGL', globals(), [ 'QGLWidget', 'QGLFormat', 'QGL'])
 
 class SceneRoot(QGraphicsItem):
@@ -144,4 +143,31 @@ class DocumentWindow(QMainWindow, ui_mainwindow.Ui_MainWindow):
         settings.setValue("size", self.size())
         settings.endGroup()
         QWidget.resizeEvent(self, event)
+        
+    # def maybeSave(self):
+    #     """
+    #     Save on quit, check if document changes have occured.
+    #     """
+    #     if app().dontAskAndJustDiscardUnsavedChanges:
+    #         return True
+    #     if not self.undoStack().isClean():    # document dirty?
+    #         savebox = QMessageBox( QMessageBox.Warning,   "Application", \
+    #             "The document has been modified.\n Do you want to save your changes?", \
+    #             QMessageBox.Save | QMessageBox.Discard | QMessageBox.Cancel, \
+    #             self, \
+    #             Qt.Dialog | Qt.MSWindowsFixedSizeDialogHint | Qt.Sheet)
+    #         savebox.setWindowModality(Qt.WindowModal)
+    #         save = savebox.button(QMessageBox.Save)
+    #         discard = savebox.button(QMessageBox.Discard)
+    #         cancel = savebox.button(QMessageBox.Cancel)
+    #         save.setShortcut("Ctrl+S")
+    #         discard.setShortcut(QKeySequence("D,Ctrl+D"))
+    #         cancel.setShortcut(QKeySequence("C,Ctrl+C,.,Ctrl+."))
+    #         ret = savebox.exec_()
+    #         del savebox  # manual garbage collection to prevent hang (in osx)
+    #         if ret == QMessageBox.Save:
+    #             return self.controller.saveAsClicked()
+    #         elif ret == QMessageBox.Cancel:
+    #             return False
+    #     return True
 

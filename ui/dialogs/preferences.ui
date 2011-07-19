@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>327</width>
+    <width>330</width>
     <height>120</height>
    </rect>
   </property>
@@ -26,36 +26,20 @@
       <property name="text">
        <string>Select Tool</string>
       </property>
-      <property name="icon">
-       <iconset resource="icons.qrc">
-        <normaloff>:/pathtools/select</normaloff>:/pathtools/select</iconset>
-      </property>
      </item>
      <item>
       <property name="text">
        <string>Pencil Tool</string>
-      </property>
-      <property name="icon">
-       <iconset resource="icons.qrc">
-        <normaloff>:/pathtools/force</normaloff>:/pathtools/force</iconset>
       </property>
      </item>
      <item>
       <property name="text">
        <string>Paint</string>
       </property>
-      <property name="icon">
-       <iconset resource="icons.qrc">
-        <normaloff>:/pathtools/paint</normaloff>:/pathtools/paint</iconset>
-      </property>
      </item>
      <item>
       <property name="text">
        <string>Add Seq</string>
-      </property>
-      <property name="icon">
-       <iconset resource="icons.qrc">
-        <normaloff>:/pathtools/add seq</normaloff>:/pathtools/add seq</iconset>
       </property>
      </item>
     </widget>
@@ -116,15 +100,8 @@
     </widget>
    </item>
   </layout>
-  <zorder>defaulttoolComboBox</zorder>
-  <zorder>zoomSpeedLabel</zorder>
-  <zorder>zoomSpeedSlider</zorder>
-  <zorder>label</zorder>
-  <zorder>buttonBox</zorder>
  </widget>
- <resources>
-  <include location="icons.qrc"/>
- </resources>
+ <resources/>
  <connections>
   <connection>
    <sender>buttonBox</sender>

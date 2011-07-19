@@ -37,7 +37,7 @@ from handles.precrossoverhandle import PreCrossoverHandle
 from math import floor, pi, ceil
 from cadnano import app
 from itertools import product
-from ui.svgbutton import SVGButton
+from ui.mainwindow.svgbutton import SVGButton
 
 import util
 # import Qt stuff into the module namespace with PySide, PyQt4 independence

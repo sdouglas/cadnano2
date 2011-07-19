@@ -30,6 +30,7 @@ Created by Jonathan deWerd on 2011-01-29.
 import sys
 from os import path, environ
 from code import interact
+from ui.dialogs.ui_preferences import Ui_Preferences
 PySide_loaded = None
 
 
@@ -83,7 +84,8 @@ def qtWrapImport(name, globaldict, fromlist):
 # end def
 
 # import Qt stuff into the module namespace with PySide, PyQt4 independence
-qtWrapImport('QtGui', globals(),  ['QApplication', 'QUndoGroup', 'QIcon', 'qApp'])
+qtWrapImport('QtGui', globals(),  ['qApp', 'QApplication', 'QDialog', 'QIcon',\
+                                   'QUndoGroup'])
 qtWrapImport('QtCore', globals(), ['QObject', 'QCoreApplication'])
 
 class CADnano(QObject):
@@ -114,7 +116,7 @@ class CADnano(QObject):
             return
         self.guiInitialized = True
         argv = sys.argv
-        qApp.setWindowIcon(QIcon('ui/images/cadnano2-app-icon.png'))
+        qApp.setWindowIcon(QIcon('ui/mainwindow/images/cadnano2-app-icon.png'))
         self.undoGroup = QUndoGroup()
         self.documentControllers = set()  # Open documents
         self.v = {}  # Newly created VirtualHelix register here by idnum.
@@ -162,6 +164,14 @@ class CADnano(QObject):
                                        # for adding itself to
                                        # app.documentControllers
         return dc.document()
+
+    def prefsClicked(self):
+        """docstring for prefsClicked"""
+        print "prefsClicked"
+        dialog = QDialog()
+        dialogPrefs = Ui_Preferences()
+        dialogPrefs.setupUi(dialog)
+
 
 def ignoreEnv():
     return environ.get('CADNANO_IGNORE_ENV_VARS_EXCEPT_FOR_ME', False)
