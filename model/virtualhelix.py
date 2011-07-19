@@ -1123,8 +1123,12 @@ class VirtualHelix(QObject):
                     if hasXoverR and not hasNeighborL:
                         self.connectStrand(strandType, i-1, i,\
                                            undoable=True, police=False)
+    # end def
 
-
+    def isSeqBlank(self):
+        return self._isSeqBlank
+    # end def
+    
     class ApplySequenceCommand(QUndoCommand):
         def __init__(self, vh, strandType, idx, seqStr):
             """
@@ -1136,10 +1140,16 @@ class VirtualHelix(QObject):
             self._strandType = strandType
             self._idx = idx
             self._seqStr = seqStr
-            
+            if seqStr == ' ':
+                self._isSeqBlank = True
+            else:
+                self._isSeqBlank = False
+                
         def redo(self):
             vh = self._vh
-
+            self._isOldSeqBlank = vh._isSeqBlank
+            vh._isSeqBlank = self._isSeqBlank
+                
             bases = vh._basesConnectedTo(StrandType.Scaffold, self._idx)
             charactersUsedFromSeqStr = 0
             self.oldBaseStrs = oldBaseStrs = []
@@ -1200,6 +1210,8 @@ class VirtualHelix(QObject):
 
         def undo(self):
             vh = self._vh
+            vh._isSeqBlank = self._isOldSeqBlank
+            
             scafBases = vh._basesConnectedTo(StrandType.Scaffold, self._idx)
             #stapBases = vh._basesConnectedTo(StrandType.Staple, self._idx)
             startBase = vh._strand(StrandType.Scaffold)[self._idx]

@@ -302,7 +302,7 @@ class SelectTool(AbstractPathTool):
 
     def clearSequence(self, vh, idx):
         # for limiting the times a command get's called during a drag
-        if self._isPressed != True:
+        if self._isPressed != True and vh.isSeqBlank() == False:
             vh.setSandboxed(False)
             vh.applySequenceAt(StrandType.Scaffold, int(idx), " ", undoable=True)
             vh.setSandboxed(True)
