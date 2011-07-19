@@ -149,13 +149,17 @@ class CADnano(QObject):
     def newDocument(self, isFirstNewDoc=False):
         from controllers.documentcontroller import DocumentController
         defaultFile = environ.get('CADNANO_DEFAULT_DOCUMENT', None)
-        if defaultFile and isFirstNewDoc:
+        if defaultFile and isFirstNewDoc and not ignoreEnv():
             defaultFile = path.expanduser(defaultFile)
             defaultFile = path.expandvars(defaultFile)
             from model.decoder import decode
-            doc = decode(file(defaultFile).read())
-            print "Loaded default document: %s" % doc
-            dc = DocumentController(doc, defaultFile)
+            try:
+                doc = decode(file(defaultFile).read())
+                print "Loaded default document: %s" % doc
+                dc = DocumentController(doc, defaultFile)
+            except:
+                print "Failed to load default file."
+                dc = DocumentController()
         else:
             dc = DocumentController()  # DocumentController is responsible
                                        # for adding itself to

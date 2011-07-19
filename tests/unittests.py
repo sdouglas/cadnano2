@@ -142,7 +142,7 @@ class UnitTests(CadnanoGuiTestCase):
                              *rangeIntersection((l1, r1), (l2, r2))  ))
             self.assertEqual(realIntersection, computedIntersection)
 
-    def addSomeRangesToRangeSet(self, rangeSet, analagousDict):
+    def addSomeRangesToRangeSet(self, rangeSet, analagousDict, undoStack=None, testUndo=False):
         """
         Returns (dict, list). The dict maps every index that is a member of
         any inserted range to the metadata (a random integer for test purposes)
@@ -160,7 +160,14 @@ class UnitTests(CadnanoGuiTestCase):
             for j in range(initialIdx, initialIdx + l):
                 analagousDict[j] = tag
             # print "-- add %s == %i--"%(str(newRangeItem), id(newRangeItem))
-            rangeSet.addRange(newRangeItem)
+            if testUndo and undoStack != None:
+                beforeAddition = tuple(rangeSet.ranges)
+                rangeSet.addRange(newRangeItem, undoStack=undoStack)
+                undoStack.undo()
+                self.assertEqual(beforeAddition, tuple(rangeSet.ranges))
+                undoStack.redo()
+            else:
+                rangeSet.addRange(newRangeItem, undoStack=undoStack)
             rangeSet.assertConsistency()
         return (analagousDict, addedRangeItems)
 
@@ -184,13 +191,7 @@ class UnitTests(CadnanoGuiTestCase):
             for j in range(initialIdx, initialIdx + l):
                 analagousDict[j] = None
 
-    def testRangeSet_addRange(self):
-        rs = RangeSet()
-        rd, addedRangeItems = self.addSomeRangesToRangeSet(rs, {})
-        self.checkRangeSetAgainstAnalagousDict(rs, rd)
-
-    def testRangeSet_addRange_removeRange(self):
-        rs = RangeSet()
+    def createInsertAndRemovalCounters(self, rs):
         willRemoveCtr = {}
         didInsertCtr = {}
         def willRemoveRangeItem(ri):
@@ -201,30 +202,61 @@ class UnitTests(CadnanoGuiTestCase):
             didInsertCtr[ri] = didInsertCtr.get(ri, 0) + 1
         rs.willRemoveRangeItem = willRemoveRangeItem
         rs.didInsertRangeItem = didInsertRangeItem
-        # Assure willRemoveRangeItem got called exactly once on removed ranges
-        # (some ranges are removed because they are entirely occluded by newly
-        # added ranges)
+        return (didInsertCtr, willRemoveCtr)
+
+    def assertCallsBalanced(self, didInsertCtr, willRemoveCtr, RIs, rs):
+        for ri in RIs:
+            inRangeSet = int(ri in rs.ranges)
+            insertCalls = didInsertCtr.get(ri, 0)
+            removeCalls = willRemoveCtr.get(ri, 0)
+            callsBalanced =  insertCalls == inRangeSet + removeCalls
+            self.assertTrue(callsBalanced)
+
+    def testRangeSet_addRange(self):
+        rs = RangeSet()
         rd, addedRangeItems = self.addSomeRangesToRangeSet(rs, {})
-        for ri in addedRangeItems:
-            inRangeSet = int(ri in rs.ranges)
-            insertCalls = didInsertCtr.get(ri, 0)
-            removeCalls = willRemoveCtr.get(ri, 0)
-            callsBalanced =  insertCalls == inRangeSet + removeCalls
-            # print "%i:%s\t\t%i == %i + %i"%(callsBalanced, ri,
-            #             insertCalls, inRangeSet, removeCalls)
-            self.assertTrue(callsBalanced)
+        self.checkRangeSetAgainstAnalagousDict(rs, rd)
+
+    def testRangeSet_addRange_removeRange(self):
+        rs = RangeSet()
+        didInsertCtr, willRemoveCtr = self.createInsertAndRemovalCounters(rs)
+        rd, RIs = self.addSomeRangesToRangeSet(rs, {})
+        self.assertCallsBalanced(didInsertCtr, willRemoveCtr, RIs, rs)
         self.removeSomeRangesFromRangeSet(rs, rd)
-        # Assure deleteRangeItem got called exactly once on deleted range items
-        for ri in addedRangeItems:
-            inRangeSet = int(ri in rs.ranges)
-            insertCalls = didInsertCtr.get(ri, 0)
-            removeCalls = willRemoveCtr.get(ri, 0)
-            callsBalanced =  insertCalls == inRangeSet + removeCalls
-            self.assertTrue(callsBalanced)
+        self.assertCallsBalanced(didInsertCtr, willRemoveCtr, RIs, rs)
         self.checkRangeSetAgainstAnalagousDict(rs, rd)
 
     def testRangeSet_undo(self):
-        pass
+        us = QUndoStack()
+        rs = RangeSet()
+        didInsertCtr, willRemoveCtr = self.createInsertAndRemovalCounters(rs)
+        
+        rd, RIs1 = self.addSomeRangesToRangeSet(rs, {}, undoStack=us, testUndo=True)
+        RIs = RIs1
+        self.assertCallsBalanced(didInsertCtr, willRemoveCtr, RIs, rs)
+        rs1 = tuple(rs.ranges)
+        
+        us.beginMacro("Adding Some Test Ranges")
+        rd, RIs2 = self.addSomeRangesToRangeSet(rs, rd, undoStack=us)
+        us.endMacro()
+        RIs = RIs1 + RIs2
+        self.assertCallsBalanced(didInsertCtr, willRemoveCtr, RIs, rs)
+        rs2 = tuple(rs.ranges)
+        
+        us.beginMacro("Adding Some Test Ranges")
+        rd, RIs3 = self.addSomeRangesToRangeSet(rs, rd, undoStack=us)
+        us.endMacro()
+        RIs = RIs + RIs3
+        self.assertCallsBalanced(didInsertCtr, willRemoveCtr, RIs, rs)
+        rs3 = tuple(rs.ranges)
+        
+        us.undo()
+        self.assertEqual(rs2, tuple(rs.ranges))
+        self.assertCallsBalanced(didInsertCtr, willRemoveCtr, RIs, rs)
+        
+        us.undo()
+        self.assertEqual(rs1, tuple(rs.ranges))
+        self.assertCallsBalanced(didInsertCtr, willRemoveCtr, RIs, rs)
 
     def runTest(self):
         pass
@@ -232,5 +264,5 @@ class UnitTests(CadnanoGuiTestCase):
 if __name__ == '__main__':
     tc = UnitTests()
     tc.setUp()
-    tc.testRangeSet_addRange_removeRange()
+    tc.testRangeSet_undo()
     # tests.cadnanoguitestcase.main()

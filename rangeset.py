@@ -1,3 +1,30 @@
+# The MIT License
+#
+# Copyright (c) 2011 Wyss Institute at Harvard University
+#
+# Permission is hereby granted, free of charge, to any person obtaining a copy
+# of this software and associated documentation files (the "Software"), to deal
+# in the Software without restriction, including without limitation the rights
+# to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+# copies of the Software, and to permit persons to whom the Software is
+# furnished to do so, subject to the following conditions:
+#
+# The above copyright notice and this permission notice shall be included in
+# all copies or substantial portions of the Software.
+#
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+# AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+# LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+# OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+# THE SOFTWARE.
+#
+# http://www.opensource.org/licenses/mit-license.php
+
+import util
+util.qtWrapImport('QtGui', globals(), [ 'QUndoCommand' ])
+
 def rangeIntersection(firstRange, secondRange):
     ff, fl = firstRange
     sf, sl = secondRange
@@ -288,8 +315,9 @@ class RangeSet(object):
         self.addRange(rangeItem)
 
     ################################ Private Write API #########################
-    class ReplaceRangeItemsCommand(object):
+    class ReplaceRangeItemsCommand(QUndoCommand):
         def __init__(self, rangeSet, firstIdx, afterLastIdx, replacementRIs):
+            QUndoCommand.__init__(self)
             self.rangeSet = rangeSet
             self.firstIdx = firstIdx
             self.afterLastIdx = afterLastIdx
@@ -307,24 +335,23 @@ class RangeSet(object):
                 if id(ri) not in replacedSet:
                     self.rangeSet.didInsertRangeItem(ri)
         def undo(self):
-            assert(self.replacedRIs)  # Must redo before undo
+            assert(self.replacedRIs != None)  # Must redo before undo
             replacedSet = set(id(ri) for ri in self.replacedRIs)
             replacementSet = set(id(ri) for ri in self.replacementRIs)
             for ri in self.replacementRIs:
                 if id(ri) not in replacedSet:
                     self.rangeSet.willRemoveRangeItem(ri)
-            lastIdx = len(self.replacementRIs)
-            rangeArr = self.rangeSet.ranges
-            rangeArr[self.firstIdx:lastIdx] = self.replacedRIs
+            lastIdx = self.firstIdx + len(self.replacementRIs)
+            self.rangeSet.ranges[self.firstIdx:lastIdx] = self.replacedRIs
             for ri in self.replacedRIs:
                 if id(ri) not in replacementSet:
                     self.rangeSet.didInsertRangeItem(ri)
 
     def _replace(self, firstIdx, afterLastIdx, replacements, undoStack, oldBounds):
         com = self.ReplaceRangeItemsCommand(self,\
-                                      firstIdx,\
-                                      afterLastIdx,\
-                                      replacements)
+                                            firstIdx,\
+                                            afterLastIdx,\
+                                            replacements)
         if undoStack != None:
             undoStack.push(com)
             undoStack.endMacro()
