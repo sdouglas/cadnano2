@@ -101,7 +101,7 @@ class CADnano(QObject):
         if QCoreApplication.instance() == None:
             self.qApp = QApplication(argv)
             assert(QCoreApplication.instance() != None)
-        self.qApp.setOrganizationDomain("cadnano.org");
+            self.qApp.setOrganizationDomain("cadnano.org");
         super(CADnano, self).__init__()
         assert(not CADnano.sharedApp)
         CADnano.sharedApp = self
