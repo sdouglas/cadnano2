@@ -74,7 +74,7 @@ class DocumentController():
         self.win.setWindowTitle(self.documentTitle()+'[*]')
 
     def closer(self, event):
-        if self.win.maybeSave():
+        if self.maybeSave():
             if app().testRecordMode:
                 self.win.sliceController.testRecorder.generateTest()
             event.accept()
@@ -252,6 +252,33 @@ class DocumentController():
         print "close clicked"
         if util.isWindows():
             self.win.close()
+
+    def maybeSave(self):
+        """
+        Save on quit, check if document changes have occured.
+        """
+        if app().dontAskAndJustDiscardUnsavedChanges:
+            return True
+        if not self.undoStack().isClean():    # document dirty?
+            savebox = QMessageBox( QMessageBox.Warning,   "Application", \
+                "The document has been modified.\n Do you want to save your changes?",
+                QMessageBox.Save | QMessageBox.Discard | QMessageBox.Cancel, 
+                self, 
+                Qt.Dialog | Qt.MSWindowsFixedSizeDialogHint | Qt.Sheet)
+            savebox.setWindowModality(Qt.WindowModal)
+            save = savebox.button(QMessageBox.Save)
+            discard = savebox.button(QMessageBox.Discard)
+            cancel = savebox.button(QMessageBox.Cancel)
+            save.setShortcut("Ctrl+S")
+            discard.setShortcut(QKeySequence("D,Ctrl+D"))
+            cancel.setShortcut(QKeySequence("C,Ctrl+C,.,Ctrl+."))
+            ret = savebox.exec_()
+            del savebox  # manual garbage collection to prevent hang (in osx)
+            if ret == QMessageBox.Save:
+                return self.controller.saveAsClicked()
+            elif ret == QMessageBox.Cancel:
+                return False
+        return True
 
     def saveClicked(self):
         if self._hasNoAssociatedFile:
