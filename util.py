@@ -28,6 +28,7 @@ Created by Jonathan deWerd.
 """
 from traceback import extract_stack
 from random import Random
+import string
 import sys
 from os import path
 from cadnano import app
@@ -164,18 +165,18 @@ def defineEventForwardingMethodsForClass(classObj, forwardedEventSuffix, eventNa
         eventHandler = makeTemplateMethod(eventMethodName, delegateMethodName)
         setattr(classObj, eventMethodName, eventHandler)
 
-def strToDna(sequenceStr):
-    """
-    Returns str having been reduced to capital ACTG
-    """
-    return "".join(c.capitalize() if c in 'actgACTG' else '' for c in sequenceStr)
+def strToDna(seqStr):
+    """Returns str having been reduced to capital ACTG."""
+    return "".join([c for c in seqStr if c in 'ACGTacgt']).upper()
 
+complement = string.maketrans('ACGTacgt','TGCATGCA')
 def rcomp(seqStr):
-    """
-    Returns the reversed complement of the sequence in seqStr
-    """
-    seqStr = strToDna(seqStr)
-    return "".join({'A':'T', 'T':'A', 'C':'G', 'G':'C'}[c] for c in reversed(seqStr))
+    """Returns the reverse complement of the sequence in seqStr."""
+    return seqStr.translate(complement)[::-1]
+
+def nowhite(seqStr):
+    """Gets rid of whitespace in a string."""
+    return ''.join([c for c in seqStr if c in string.letters])
 
 def isWindows():
     if platform.system() == 'Windows':
@@ -188,7 +189,7 @@ def isMac():
         return platform.system() == 'Darwin'
     except:
         return path.exists('/System/Library/CoreServices/Finder.app')
-        
+
 def isLinux():
     if platform.system() == 'Linux':
         return True

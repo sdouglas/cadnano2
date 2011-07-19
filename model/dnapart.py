@@ -275,6 +275,7 @@ class DNAPart(Part):
             coordsAndNumToVH.append((vh.coord(), vh.number(), vh))
         sr['virtualHelices'] = coordsAndNumToVH
         sr['name'] = self.name()
+        sr['maxBase'] = self._maxBase
 
     # First objects that are being unarchived are sent
     # ClassNameFrom.classAttribute(incompleteArchivedDict)
@@ -283,6 +284,9 @@ class DNAPart(Part):
     # finishInitWithArchivedDict, this time with all entries
     finishInitPriority = 0.0
     def finishInitWithArchivedDict(self, completeArchivedDict):
+        row, col, mb = self.dimensions()
+        vh = completeArchivedDict['virtualHelices'][0][2]
+        self.setDimensions((row, col, vh.numBases()))
         for coord, num, vh in completeArchivedDict['virtualHelices']:
             if num % 2:
                 self.highestUsedOdd = max(self.highestUsedOdd, num)
@@ -422,8 +426,10 @@ class DNAPart(Part):
                 bases = vh5._basesConnectedTo(StrandType.Staple, endpoint)
                 sequencestring = ""
                 for base in bases:
-                    sequencestring += (base.sequence()[0] + base.sequence()[1])
-                # end for each base
+                    # put the insertion first since it's already rcomp
+                    sequencestring += (base.lazy_sequence()[1] + \
+                                       base.lazy_sequence()[0])
+                sequencestring = util.nowhite(sequencestring)
                 output = "%d[%d],%d[%d],%s,%s,%s\n" % \
                         (vh5.number(), \
                         bases[0]._n, \

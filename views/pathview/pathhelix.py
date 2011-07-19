@@ -255,11 +255,11 @@ class PathHelix(QGraphicsObject):
         self._minorGridPainterPath = None
         self._majorGridPainterPath = None
         addx = self.rect.width()
-        addy = -self.addBasesButton.boundingRect().height()
+        addy = -(self.addBasesButton.boundingRect().height()*1.2)
         self.addBasesButton.setPos(addx, addy)
         self.addBasesButton.show()
         remx = self.rect.width()-self.removeBasesButton.boundingRect().width()
-        remy = -self.removeBasesButton.boundingRect().height()
+        remy = -(self.removeBasesButton.boundingRect().height()*1.2)
         bbr = self.removeBasesButton.boundingRect()
         self.removeBasesButton.setPos(remx, remy)
     
@@ -424,14 +424,16 @@ class PathHelix(QGraphicsObject):
         # end if
         else:
             # draw the text and reverse the string to draw 5 prime to 3 prime
+            # pass
             stapTxt = stapTxt[::-1]
         # end else
+        # print vh.numBases()
         painter.drawText(scafX, scafY, self.baseWidth*vh.numBases(),\
                          self.baseWidth/2., Qt.AlignVCenter, scafTxt)
         # flip to draw (or flip back)
         painter.rotate(180)
         painter.translate(-self.baseWidth*vh.numBases(), 0)
-        # stapTxt = stapTxt.replace(' ', 'Q')
+        # stapTxt = stapTxt.replace(' ', 'K')
         painter.drawText(stapX, stapY, self.baseWidth*vh.numBases(),\
                                 self.baseWidth/2., Qt.AlignVCenter, stapTxt)
 

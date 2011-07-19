@@ -37,6 +37,7 @@ We're still working out the bugs
 ### Required Dependencies
 * [Qt 4.7](http://qt.nokia.com/products/)
 * [PyQt](http://www.riverbankcomputing.co.uk/software/pyqt/intro) or [PySide](http://www.pyside.org/)
+* [python-cjson](http://pypi.python.org/pypi/python-cjson)
 
 ### Optional Dependencies
 * [Maya 2012](http://usa.autodesk.com/maya/) ([free to academics](http://students.autodesk.com/))

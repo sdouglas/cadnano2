@@ -165,6 +165,7 @@ class SelectTool(AbstractPathTool):
         self._mouseDownBase = None
         self._lastValidBase = None
         self._mouseDownPH = None
+        vh.resetSequenceCache()
 
     def mouseMovePathHelix(self, ph, event):
         if self._mouseDownBase == None:
@@ -325,3 +326,4 @@ class SelectTool(AbstractPathTool):
             vHelix.removeXoversAt(fr[0], fr[1], newColor=vHelix.palette()[0])
         else:
             assert(op == self.NoOperation)
+        vHelix.resetSequenceCache()

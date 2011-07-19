@@ -30,7 +30,7 @@ Created by Nick Conway on 2011-01-19.
 Houses code that parses legacy (cadnano1) files.l
 """
 
-import json
+from collections import defaultdict
 from document import Document
 from dnahoneycombpart import DNAHoneycombPart
 from dnasquarepart import DNASquarePart
@@ -61,7 +61,7 @@ DELETION = "deletion"
 
 def doc_from_legacy_dict(obj):
     """
-    take a loaded legacy dictionary, returns a loaded Document
+    Takes a loaded legacy dictionary, returns a loaded Document
     """
     doc = Document()
     part = DNAHoneycombPart()   # TODO must generalize
@@ -76,39 +76,146 @@ def doc_from_legacy_dict(obj):
         scaf= helix['scaf']
         vh = VirtualHelix(numBases=len(scaf), idnum=helix['num'])
         part.addVirtualHelixAt((row,col), vh, requestSpecificIdnum=helix['num'], noUndo=True)
-    helixNo, numHelixes = -1, len(obj['vstrands'])
+    helixNo, numHelixes = -1, len(obj['vstrands'])-1
+
+    scaf_seg = defaultdict(list)
+    scaf_xo = defaultdict(list)
+    stap_seg = defaultdict(list)
+    stap_xo = defaultdict(list)
+
     for helix in obj['vstrands']:
         helixNo += 1
         # print "helix %i/%i (%i%%)"%(helixNo, numHelixes, helixNo*100/numHelixes)
-        vh = part.getVirtualHelix(helix['num'])
+        vhNum = helix['num']
+        vh = part.getVirtualHelix(vhNum)
         scaf = helix['scaf']
         stap = helix['stap']
         loops = helix['loop']
         skips = helix['skip']
         assert(len(scaf)==len(stap) and len(stap)==vh.numBases() and\
                len(scaf)==len(loops) and len(loops)==len(skips))
+        # read scaffold segments and xovers
         for i in range(len(scaf)):
             fiveVH, fiveIdx, threeVH, threeIdx = scaf[i]
-            threeVH = part.getVirtualHelix(threeVH)
-            # Installing an Xover works on the same strand
-            # as well (there is nothing inherently different
-            # between an Xover and a same-strand linkage
-            # in our current model)
-            if threeVH==-1 or threeIdx==-1:
-                continue
-            
-            vh.installXoverFrom3To5(StrandType.Scaffold, i, threeVH, threeIdx, undoable=False, speedy=True)
+            if fiveVH == -1 and threeVH == -1:
+                continue  # null base
+            if isSegmentStartOrEnd(StrandType.Scaffold, vhNum, i, fiveVH,\
+                                   fiveIdx, threeVH, threeIdx):
+                scaf_seg[vhNum].append(i)
+            if fiveVH != vhNum and threeVH != vhNum:  # special case
+                scaf_seg[vhNum].append(i)  # end segment on a double crossover
+            if is3primeXover(StrandType.Scaffold, vhNum, i, threeVH, threeIdx):
+                scaf_xo[vhNum].append((i, threeVH, threeIdx))
+        assert (len(scaf_seg[vhNum]) % 2 == 0)
+        # install scaffold segments
+        for i in range(0, len(scaf_seg[vhNum]), 2):
+            if vhNum % 2 == 0:
+                startIdx, endIdx = scaf_seg[vhNum][i], scaf_seg[vhNum][i+1]
+            else:
+                endIdx, startIdx = scaf_seg[vhNum][i], scaf_seg[vhNum][i+1]
+            vh.connectStrand(StrandType.Scaffold, startIdx, endIdx,\
+                             undoable=False, police=False, speedy=True)
+        # read staple segments and xovers
         for i in range(len(stap)):
             fiveVH, fiveIdx, threeVH, threeIdx = stap[i]
+            if fiveVH == -1 and threeVH == -1:
+                continue  # null base
+            if isSegmentStartOrEnd(StrandType.Staple, vhNum, i, fiveVH,\
+                                   fiveIdx, threeVH, threeIdx):
+                stap_seg[vhNum].append(i)
+            if fiveVH != vhNum and threeVH != vhNum:  # special case
+                stap_seg[vhNum].append(i)  # end segment on a double crossover
+            if is3primeXover(StrandType.Staple, vhNum, i, threeVH, threeIdx):
+                stap_xo[vhNum].append((i, threeVH, threeIdx))
+        assert (len(stap_seg[vhNum]) % 2 == 0)
+        # install staple segments
+        for i in range(0, len(stap_seg[vhNum]), 2):
+            if vhNum % 2 == 0:
+                startIdx, endIdx = stap_seg[vhNum][i], stap_seg[vhNum][i+1]
+            else:
+                endIdx, startIdx = stap_seg[vhNum][i], stap_seg[vhNum][i+1]
+            vh.connectStrand(StrandType.Staple, startIdx, endIdx,\
+                             undoable=False, police=False,\
+                             color=QColor(136, 136, 136), speedy=True)
+
+    helixNo = -1
+    for helix in obj['vstrands']:
+        helixNo += 1
+        # print "xo %i/%i (%i%%)"%(helixNo, numHelixes, helixNo*100/numHelixes)
+        vhNum = helix['num']
+        vh = part.getVirtualHelix(vhNum)
+        scaf = helix['scaf']
+        stap = helix['stap']
+        loops = helix['loop']
+        skips = helix['skip']
+        # install scaffold xovers
+        for (idx, threeVH, threeIdx) in scaf_xo[vhNum]:
             threeVH = part.getVirtualHelix(threeVH)
-            if threeVH==-1 or threeIdx==-1:
-                continue
-            vh.installXoverFrom3To5(StrandType.Staple, i, threeVH, threeIdx, undoable=False, speedy=True)
+            vh.installXoverFrom3To5(StrandType.Scaffold, idx, threeVH,\
+                                    threeIdx, undoable=False, speedy=True)
+        # install staple xovers
+        for (idx, threeVH, threeIdx) in stap_xo[vhNum]:
+            threeVH = part.getVirtualHelix(threeVH)
+            vh.installXoverFrom3To5(StrandType.Staple, idx, threeVH,\
+                                    threeIdx, undoable=False, speedy=True)
+    helixNo = -1
+    for helix in obj['vstrands']:
+        helixNo += 1
+        # print "loop/col %i/%i (%i%%)"%(helixNo, numHelixes, helixNo*100/numHelixes)
+        vhNum = helix['num']
+        vh = part.getVirtualHelix(vhNum)
+        scaf = helix['scaf']
+        stap = helix['stap']
+        loops = helix['loop']
+        skips = helix['skip']
+        # populate colors, loops, and skips
         for baseIdx, colorNumber in helix['stap_colors']:
             color = QColor((colorNumber>>16)&0xFF, (colorNumber>>8)&0xFF, colorNumber&0xFF)
             vh.applyColorAt(color, StrandType.Staple, baseIdx, undoable=False)
         for i in range(len(stap)):
             combinedLoopSkipAmount = loops[i] + skips[i]
             if combinedLoopSkipAmount != 0:
-                vh.installLoop(StrandType.Scaffold, i, combinedLoopSkipAmount, undoable=False)
+                vh.installLoop(StrandType.Scaffold, i, combinedLoopSkipAmount,\
+                               undoable=False, speedy=True)
     return doc
+
+def isSegmentStartOrEnd(strandType, vhNum, baseIdx, fiveVH, fiveIdx, threeVH, threeIdx):
+    """Returns True if the base is a breakpoint or crossover."""
+    if strandType == StrandType.Scaffold:
+        offset = 1
+    else:
+        offset = -1
+    if (fiveVH == vhNum and threeVH != vhNum):
+        return True
+    if (fiveVH != vhNum and threeVH == vhNum):
+        return True
+    if (vhNum % 2 == 0 and fiveVH == vhNum and fiveIdx != baseIdx-offset):
+        return True
+    if (vhNum % 2 == 0 and threeVH == vhNum and threeIdx != baseIdx+offset):
+        return True
+    if (vhNum % 2 == 1 and fiveVH == vhNum and fiveIdx != baseIdx+offset):
+        return True
+    if (vhNum % 2 == 1 and threeVH == vhNum and threeIdx != baseIdx-offset):
+        return True
+    if (fiveVH == -1 and threeVH != -1):
+        return True
+    if (fiveVH != -1 and threeVH == -1):
+        return True
+    return False
+
+def is3primeXover(strandType, vhNum, baseIdx, threeVH, threeIdx):
+    """Returns True of the threeVH doesn't match vhNum, or threeIdx
+    is not a natural neighbor of baseIdx."""
+    if threeVH == -1:
+        return False
+    if vhNum != threeVH:
+        return True
+    if strandType == StrandType.Scaffold:
+        offset = 1
+    else:
+        offset = -1
+    if (vhNum % 2 == 0 and threeVH == vhNum and threeIdx != baseIdx+offset):
+        return True
+    if (vhNum % 2 == 1 and threeVH == vhNum and threeIdx != baseIdx-offset):
+        return True
+    return False

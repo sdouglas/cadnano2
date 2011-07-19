@@ -34,6 +34,7 @@ import util
 # import Qt stuff into the module namespace with PySide, PyQt4 independence
 util.qtWrapImport('QtGui', globals(), [ 'QColor'])
 
+
 class Base(object):
     """
     A POD class that lives in the private API of virtualhelix.
@@ -139,7 +140,7 @@ class Base(object):
         """
         empty = not (self._hasNeighbor3p() or self._hasNeighbor5p())
         if empty:
-            return " "
+            return (" ", "")
         hasSkip = self._vhelix.hasLoopOrSkipAt(self._strandtype, self._n)
         if hasSkip == -1:
             return (" ", "")
@@ -147,13 +148,32 @@ class Base(object):
             return (self._sequence[0], self.sequenceOfLoop())
         else:
             return (self._sequence, "")
+    # end def
 
-    
+    def lazy_sequence(self):
+        """
+        Returns the single character sequence for the receiver (loops,
+        skips just show up as spaces).
+        This is the base that should be drawn below the segment if there
+        is one.
+        This sequence is always returned 5->3 (the first character represents
+        the base that exposes the 5' end while the last char exposes its 3' end)
+        only for a staple base
+        """
+        assert self._strandtype == StrandType.Staple
+        if  self._hasNeighbor3p() or self._hasNeighbor5p():
+            baseComplement =  self._vhelix._strand(StrandType.Scaffold)[self._n]
+            ret = baseComplement.sequence()
+            return (util.rcomp(ret[0]), util.rcomp(ret[1]))
+        else:
+            return (" ", "")
+    # end def
+
     def sequenceOfLoop(self):
         """
         This sequence is always returned 5->3 (the first character represents
         the base that exposes the 5' end while the last char exposes its 3' end).
-        
+
         sequenceOfLoop()[0] is displayed on the strand and sequenceOfLoop()[1:]
         are displayed on the loop.
         """
@@ -162,6 +182,17 @@ class Base(object):
             # print "Loop had seq %s, should have been len %i"%(self._sequence,actualLoopLength)
             return " "*actualLoopLength
         return self._sequence[1:]
+        
+    def lazy_sequenceOfLoop(self):
+        """
+        This sequence is always returned 5->3 (the first character represents
+        the base that exposes the 5' end while the last char exposes its 3' end).
+
+        sequenceOfLoop()[0] is displayed on the strand and sequenceOfLoop()[1:]
+        are displayed on the loop.
+        """
+        baseComplement =  self._vhelix._strand(StrandType.Scaffold)[self._n]
+        return util.rcomp(baseComplement.sequenceOfLoop())
 
     def __repr__(self):
         if self._3pBase:
@@ -178,13 +209,13 @@ class Base(object):
             return str((b5, self._n, b3))
         else:
             return str((b3, self._n, b5))
-    
+
     def _setL(self, toBase):
         if self._vhelix.directionOfStrandIs5to3(self._strandtype):
             return self._set5Prime(toBase)
         else:
             return self._set3Prime(toBase)
-    
+
     def _unsetL(self, toBase, fromOld, toOld):
         if self._vhelix.directionOfStrandIs5to3(self._strandtype):
             self._unset5Prime(toBase, fromOld, toOld)
@@ -214,7 +245,7 @@ class Base(object):
             return self._3pBase
         else:
             return self._5pBase
-        
+
     def _set5Prime(self, toBase):
         """Only VirtualHelix should call this method. Returns l
         such that self._unset5Prime(toBase, *l) undoes this command."""
@@ -341,16 +372,16 @@ class Base(object):
 
     def get5pBase(self):
         return self._5pBase
-    
+
     def has5pBase(self):
         return self._5pBase!=None
-    
+
     def has3pXover(self):
         return self.has3p
 
     def get3pBase(self):
         return self._3pBase
-    
+
     def has3pBase(self):
         return self._3pBase!=None
 
