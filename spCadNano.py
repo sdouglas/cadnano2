@@ -72,7 +72,7 @@ def simplifyMayaUI():
 	gCadNanoToolbar = cmds.toolBar( area = 'top', allowedArea = 'top', content = myWindow )
 
 	myButton = cmds.iconTextButton(	label = 'Quit CadNano',
-									image1 = gPathToScript + 'ui\\images\\cadnano2-app-icon_shelf.png',
+									image1 = gPathToScript + 'ui/mainwindow/images/cadnano2-app-icon_shelf.png',
 									parent = myForm,
 									command = 'import maya.cmds; maya.cmds.closeCadNano()' )
 	cmds.formLayout( myForm, edit = True, attachForm = [( myButton, 'right', 10 )] )
@@ -92,7 +92,7 @@ def addUIButton():
 	cmds.setParent('MayaWindow|toolBar1|MainStatusLineLayout|formLayout5|formLayout8')
 	gCadNanoButton = cmds.iconTextButton( 	label = 'caDNAno',
 							annotation = 'Launch caDNAno interface',
-							image1 = gPathToScript + 'ui\\images\\cadnano2-app-icon_shelf.png',
+							image1 = gPathToScript + 'ui/mainwindow/images/cadnano2-app-icon_shelf.png',
 							parent = 'MayaWindow|toolBar1|MainStatusLineLayout|formLayout5|formLayout8',
 							command = 'import maya.cmds; maya.cmds.openCadNano()' )
 	cmds.formLayout(	'MayaWindow|toolBar1|MainStatusLineLayout|formLayout5|formLayout8',
