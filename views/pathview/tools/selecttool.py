@@ -30,6 +30,7 @@ Created by Nick Conway on 2011-05-30.
 from abstractpathtool import AbstractPathTool
 import util, os
 from cadnano import ignoreEnv
+from model.enum import StrandType
 
 # import Qt stuff into the module namespace with PySide, PyQt4 independence
 util.qtWrapImport('QtCore', globals(), ['Qt', 'QPointF'])
@@ -51,6 +52,7 @@ class SelectTool(AbstractPathTool):
         self._mouseDownBase = None
         self._mouseDownPH = None
         self._lastValidBase = None
+        self._isPressed = False
 
     NoOperation = 0
     ConnectStrand = 1
@@ -152,19 +154,23 @@ class SelectTool(AbstractPathTool):
         vh.setSandboxed(True)
         self._lastValidBase = self._mouseDownBase
         self.applyTool(vh, self._mouseDownBase, self._mouseDownBase)
+         
         ph.makeSelfActiveHelix()
+
 
     def finalizeMouseDrag(self):
         if self._mouseDownBase == None:
             return
         vh = self._mouseDownPH.vhelix()
-        vh.undoStack().undo()
+        # vh.undoStack().undo()
+        self.conditionalUndo(vh)
         vh.setSandboxed(False)
         self.applyTool(vh, self._mouseDownBase, self._lastValidBase)
         vh.palette().shuffle()
         self._mouseDownBase = None
         self._lastValidBase = None
         self._mouseDownPH = None
+        self._isPressed = False
         vh.resetSequenceCache()
 
     def mouseMovePathHelix(self, ph, event):
@@ -177,7 +183,8 @@ class SelectTool(AbstractPathTool):
         if self._mouseDownBase and newBase:
             if self._lastValidBase != newBase:
                 self._lastValidBase = newBase
-                vh.undoStack().undo()
+                # vh.undoStack().undo()
+                self.conditionalUndo(vh)
                 self.applyTool(vh, self._mouseDownBase, newBase)
 
     def mouseReleasePathHelix(self, ph, event):
@@ -293,6 +300,21 @@ class SelectTool(AbstractPathTool):
             assert(False)
         assert(False)
 
+    def clearSequence(self, vh, idx):
+        # for limiting the times a command get's called during a drag
+        if self._isPressed != True:
+            vh.setSandboxed(False)
+            vh.applySequenceAt(StrandType.Scaffold, int(idx), " ", undoable=True)
+            vh.setSandboxed(True)
+            self._isPressed = True
+
+    def conditionalUndo(self, vh):
+        # for not prematruely popping off a clearSequence
+        undostack = vh.undoStack()
+        if undostack.index() > 0:
+            undostack.undo()
+    # end def
+
     def applyTool(self, vHelix, fr, to):
         """
         fr (from) and to take the format of (strandType, base)
@@ -317,12 +339,15 @@ class SelectTool(AbstractPathTool):
         op, frOffset, toOffset = dragOp[0:3]
 
         if op == self.ConnectStrand:
+            self.clearSequence(vHelix,fr[1]+frOffset)
             color = dragOp[3]
             vHelix.connectStrand(fr[0], fr[1]+frOffset, to[1]+toOffset, color=color)
         elif op == self.ClearStrand:
+            self.clearSequence(vHelix,fr[1]+frOffset)
             colorL, colorR = dragOp[3:5]
             vHelix.legacyClearStrand(fr[0], fr[1]+frOffset, to[1]+toOffset, colorL=colorL, colorR=colorR)
         elif op == self.RemoveXOver:
+            self.clearSequence(vHelix,fr[0])
             vHelix.removeXoversAt(fr[0], fr[1], newColor=vHelix.palette()[0])
         else:
             assert(op == self.NoOperation)

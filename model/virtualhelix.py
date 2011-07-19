@@ -114,8 +114,10 @@ class VirtualHelix(QObject):
             numBases = len(re.split('\s+',\
                                     incompleteArchivedDict['staple'])) - 1
         self.setNumBases(numBases, notUndoable=True)
+        
         self._sequenceForScafCache = None
         self._sequenceForStapCache = None
+        self._isSeqBlank = True
     
     def resetSequenceCache(self):
         self._sequenceForScafCache = None
@@ -781,8 +783,9 @@ class VirtualHelix(QObject):
         startIndex = util.clamp(startIndex, 0, len(strand) - 1)
         endIndex = util.clamp(endIndex, 0, len(strand) - 1)
 
-        if not speedy and strandType == StrandType.Scaffold:
-            d = self.ApplySequenceCommand(self, strandType, startIndex, " ")
+        # if not speedy and strandType == StrandType.Scaffold and \
+        #     self._isSeqBlank == False:
+        #     d = self.ApplySequenceCommand(self, strandType, startIndex, " ")
 
         c = self.ConnectStrandCommand(self, strandType, startIndex, endIndex,\
                                       color=color, speedy=speedy)
@@ -791,8 +794,9 @@ class VirtualHelix(QObject):
             undoStack = self.undoStack()
             undoStack.beginMacro("Extend strand")
         
-            if not speedy and strandType == StrandType.Scaffold:
-                undoStack.push(d)
+            # if not speedy and strandType == StrandType.Scaffold and \
+            #     self._isSeqBlank == False:
+            #     undoStack.push(d)
             
             undoStack.push(c)
 
@@ -800,8 +804,9 @@ class VirtualHelix(QObject):
                 self.thoughtPolice()
             undoStack.endMacro()
         else:
-            if not speedy and strandType == StrandType.Scaffold:
-                d.redo()
+            # if not speedy and strandType == StrandType.Scaffold and \
+            #     self._isSeqBlank == False:
+            #     d.redo()
                 
             c.redo()
             
@@ -824,9 +829,9 @@ class VirtualHelix(QObject):
         endIndex = util.clamp(endIndex, 0, len(strand))
         endIndex = int(endIndex*2.)/2.
 
-        if strandType == StrandType.Scaffold:
-            d = self.ApplySequenceCommand(self, strandType, int(startIndex), " ")
-            #f = self.ApplySequenceCommand(self, strandType, int(endIndex), " ")
+        # if strandType == StrandType.Scaffold and \
+        #     self._isSeqBlank == False:
+        #     d = self.ApplySequenceCommand(self, strandType, int(startIndex), " ")
             
         c = self.ClearStrandCommand(self, strandType, startIndex, endIndex,\
                                     colorL=colorL, colorR=colorR)
@@ -834,9 +839,9 @@ class VirtualHelix(QObject):
         if undoable == True:
             undoStack = self.undoStack()
             undoStack.beginMacro(undoDesc)  # Can be "clear" or "break"
-            if strandType == StrandType.Scaffold:
-                undoStack.push(d)
-                #undoStack.push(f)
+            # if strandType == StrandType.Scaffold and \
+            #     self._isSeqBlank == False:
+            #     undoStack.push(d)
                 
             undoStack.push(c)
             
@@ -844,9 +849,10 @@ class VirtualHelix(QObject):
                 self.thoughtPolice()
             undoStack.endMacro()
         else:
-            if strandType == StrandType.Scaffold:
-                d.redo()
-                # f.redo()
+            # if strandType == StrandType.Scaffold and \
+            #     self._isSeqBlank == False:
+            #     d.redo()
+
             c.redo()
         self.resetSequenceCache()
         
@@ -861,15 +867,16 @@ class VirtualHelix(QObject):
         stage of the loading process (which calls installXover... for
         *all* of its connections).
         """
+        # if not speedy and strandType == StrandType.Scaffold and \
+        #     self._isSeqBlank == False:
+        #     d = self.ApplySequenceCommand(self, StrandType.Scaffold, fromIndex, " ")
+        
         c = self.Connect3To5Command(strandType, self, fromIndex, toVhelix,\
                                     toIndex, endToTakeColorFrom, speedy=speedy)
-        if not speedy and strandType == StrandType.Scaffold:
-            d = self.ApplySequenceCommand(self, StrandType.Scaffold, fromIndex, " ")
-            # f = self.ApplySequenceCommand(toVhelix, StrandType.Scaffold, toIndex, " ")
+
         if undoable == False:
-            if not speedy and strandType == StrandType.Scaffold:
-                d.redo()
-                # f.redo()
+            # if not speedy and strandType == StrandType.Scaffold:
+            #     d.redo()
 
             c.redo()
 
@@ -877,9 +884,10 @@ class VirtualHelix(QObject):
             undoStack = self.undoStack()
             undoStack.beginMacro("Install Xover")
             if not speedy:
-                if strandType == StrandType.Scaffold:
-                    undoStack.push(d)
-                    # undoStack.push(f)
+                # if strandType == StrandType.Scaffold and \
+                #     self._isSeqBlank == False:
+                #     undoStack.push(d)
+                    
                 toVhelix.thoughtPolice()
                 self.thoughtPolice()
             undoStack.push(c)
@@ -889,23 +897,25 @@ class VirtualHelix(QObject):
     def removeConnectedStrandAt(self, strandType, idx, undoable=True):
         bases = self._basesConnectedTo(strandType, idx)
 
-        if strandType == StrandType.Scaffold:
-            d = self.ApplySequenceCommand(self, StrandType.Scaffold, idx, " ")
+        # if strandType == StrandType.Scaffold:
+        #     d = self.ApplySequenceCommand(self, StrandType.Scaffold, idx, " ")
 
         c = self.RemoveBasesCommand(bases)
 
             
         if undoable == False:
-            if strandType == StrandType.Scaffold:
-                d.redo()
+            # if strandType == StrandType.Scaffold and \
+            #     self._isSeqBlank == False:
+            #     d.redo()
             c.redo()
 
         else:
             undoStack = self.undoStack()
             undoStack.beginMacro("Remove Strand")
             
-            if strandType == StrandType.Scaffold:
-                undoStack.push(d)
+            # if strandType == StrandType.Scaffold and \
+            #     self._isSeqBlank == False:
+            #     undoStack.push(d)
             
             undoStack.push(c)
 
@@ -936,16 +946,18 @@ class VirtualHelix(QObject):
         if fromBase._3pBase != toBase or fromBase != toBase._5pBase:
             raise IndexError("Crossover does not exist to be removed.")
             
-        if strandType == StrandType.Scaffold:
-            d = self.ApplySequenceCommand(self, StrandType.Scaffold, fromIndex, " ")
+        # if strandType == StrandType.Scaffold and \
+        #         self._isSeqBlank == False:
+        #     d = self.ApplySequenceCommand(self, StrandType.Scaffold, fromIndex, " ")
 
         c = self.Break3To5Command(strandType, self, fromIndex,\
                                   endToKeepColor=endToKeepColor,\
                                   newColor=newColor)
 
         if undoable == False:
-            if strandType == StrandType.Scaffold:
-                d.redo()
+            # if strandType == StrandType.Scaffold and \
+            #     self._isSeqBlank == False:
+            #     d.redo()
                 
             c.redo()
 
@@ -953,7 +965,8 @@ class VirtualHelix(QObject):
             undoStack = self.undoStack()
             undoStack.beginMacro("Remove Xover")
             
-            if strandType == StrandType.Scaffold:
+            if strandType == StrandType.Scaffold and \
+                self._isSeqBlank == False:
                 undoStack.push(d)
                 
             undoStack.push(c)
@@ -969,13 +982,13 @@ class VirtualHelix(QObject):
         -1 is a skip, +N is a loop
         """
         if strandType == StrandType.Scaffold:
-            
-            d = self.ApplySequenceCommand(self, StrandType.Scaffold, index, " ")
+            if self._isSeqBlank == False:
+                d = self.ApplySequenceCommand(self, StrandType.Scaffold, index, " ")
             c = self.LoopCommand(self, strandType, index, loopsize)
             
             if undoable == False:
-                if not speedy:
-                    d.redo()
+                # if not speedy and self._isSeqBlank == False:
+                #     d.redo()
                 c.redo()
 
             else:
@@ -985,8 +998,8 @@ class VirtualHelix(QObject):
                 else:
                     undoStack.beginMacro("Skip at %d[%d]" % (self._number, index))
                 
-                if not speedy:
-                    undoStack.push(d)
+                # if not speedy and self._isSeqBlank == False:
+                #     undoStack.push(d)
                 undoStack.push(c)
 
                 undoStack.endMacro()
@@ -1020,7 +1033,7 @@ class VirtualHelix(QObject):
             c.redo()
         else:
             undoStack = self.undoStack()
-            undoStack.beginMacro("Apply Sequence")
+            undoStack.beginMacro("Apply Sequence - %d" % len(seqStr))
             undoStack.push(c)
             undoStack.endMacro()
         self.emitBasesModifiedIfNeeded()
@@ -1123,10 +1136,10 @@ class VirtualHelix(QObject):
             self._strandType = strandType
             self._idx = idx
             self._seqStr = seqStr
-            # print self._seqStr[0:20]
             
         def redo(self):
             vh = self._vh
+
             bases = vh._basesConnectedTo(StrandType.Scaffold, self._idx)
             charactersUsedFromSeqStr = 0
             self.oldBaseStrs = oldBaseStrs = []
@@ -1180,17 +1193,21 @@ class VirtualHelix(QObject):
                 # if not stap_b._sequence:
                 #     stap_b._sequence = " "
                 # stap_b._sequence = util.rcomp(seq)
+
+                
             vh.setHasBeenModified()
             vh.emitBasesModifiedIfNeeded()
 
         def undo(self):
             vh = self._vh
             scafBases = vh._basesConnectedTo(StrandType.Scaffold, self._idx)
-            stapBases = vh._basesConnectedTo(StrandType.Staple, self._idx)
+            #stapBases = vh._basesConnectedTo(StrandType.Staple, self._idx)
             startBase = vh._strand(StrandType.Scaffold)[self._idx]
-            startBaseComplement = vh._strand(StrandType.Staple)[self._idx]
+            #startBaseComplement = vh._strand(StrandType.Staple)[self._idx]
             scafBasesInBase = vh.hasLoopOrSkipAt(StrandType.Scaffold, startBase._n)
-            stapBasesInBase = vh.hasLoopOrSkipAt(StrandType.Staple, startBase._n)
+            #stapBasesInBase = vh.hasLoopOrSkipAt(StrandType.Staple, startBase._n)
+            
+            
             if self.oldLoopSeq != None:
                 startBase._sequence = self.oldLoopSeq
                 vh.resetSequenceCache()
@@ -1331,7 +1348,7 @@ class VirtualHelix(QObject):
             else:
                 for i in range(firstIdx, stopIdx):
                     ol.append(strand[i]._set5Prime(strand[i + 1]))
-            if not self._speedy:
+            if not self._speedy or self._strandType != StrandType.Scaffold:
                 # Now ensure all connected bases have the same color
                 # which gets taken from the startIndex base
                 if self._explicitColor == None:
@@ -1354,11 +1371,16 @@ class VirtualHelix(QObject):
                 for i in range(stopIdx - 1, firstIdx - 1, -1):
                     strand[i]._unset3Prime(strand[i + 1],\
                                            *ol[i - firstIdx])
+                # end for
+            # end if
             else:
                 for i in range(stopIdx - 1, firstIdx - 1, -1):
                     strand[i]._unset5Prime(strand[i + 1],\
                                            *ol[i - firstIdx])
-            self._colorSubCommand.undo()
+                # end for
+            # end else
+            if self._strandType != StrandType.Scaffold:
+                self._colorSubCommand.undo()
             self._vh.resetSequenceCache()
             self._vh.emitBasesModifiedIfNeeded()
 
@@ -1490,31 +1512,35 @@ class VirtualHelix(QObject):
             # Could filter out endpoints leading to the same set of
             # connected bases if that becomes a performance issue
             # but I don't anticipate it
-            colorSubCommands = []
-            for i in range(len(newEndpts)):
-                e = newEndpts[i]
-                bases = e._vhelix._basesConnectedTo(e._strandtype, e._n)
-                # None corresponds to a pseudorandom color
-                color = None
-                if i==0 and self._colorL!=None:
-                    color = self._colorL
-                elif i==len(newEndpts)-1 and self._colorR!=None:
-                    color = self._colorR
-                c = VirtualHelix.ApplyColorCommand(bases, color)
-                c.redo()
-                colorSubCommands.append(c)
-            if len(potentialNewEndpoints) > 0:
-                if self._colorL:
-                    bases = self._vh._basesConnectedTo(self._strandType, potentialNewEndpoints[0]._n)
-                    c = VirtualHelix.ApplyColorCommand(bases, self._colorL)
+            if self._strandType != StrandType.Scaffold:
+                colorSubCommands = []
+                for i in range(len(newEndpts)):
+                    e = newEndpts[i]
+                    bases = e._vhelix._basesConnectedTo(e._strandtype, e._n)
+                    # None corresponds to a pseudorandom color
+                    color = None
+                    if i==0 and self._colorL!=None:
+                        color = self._colorL
+                    elif i==len(newEndpts)-1 and self._colorR!=None:
+                        color = self._colorR
+                    c = VirtualHelix.ApplyColorCommand(bases, color)
                     c.redo()
                     colorSubCommands.append(c)
-                if self._colorR:
-                    bases = self._vh._basesConnectedTo(self._strandType, potentialNewEndpoints[-1]._n)
-                    c = VirtualHelix.ApplyColorCommand(bases, self._colorR)
-                    c.redo()
-                    colorSubCommands.append(c)
-            self.colorSubCommands = colorSubCommands
+                # end for
+                if len(potentialNewEndpoints) > 0:
+                    if self._colorL:
+                        bases = self._vh._basesConnectedTo(self._strandType, potentialNewEndpoints[0]._n)
+                        c = VirtualHelix.ApplyColorCommand(bases, self._colorL)
+                        c.redo()
+                        colorSubCommands.append(c)
+                    if self._colorR:
+                        bases = self._vh._basesConnectedTo(self._strandType, potentialNewEndpoints[-1]._n)
+                        c = VirtualHelix.ApplyColorCommand(bases, self._colorR)
+                        c.redo()
+                        colorSubCommands.append(c)
+                # end if
+                self.colorSubCommands = colorSubCommands
+            # end if
             self._vh.resetSequenceCache()
             self._vh.emitBasesModifiedIfNeeded()
     
@@ -1529,10 +1555,12 @@ class VirtualHelix(QObject):
             startIdx, endIdx = int(startIdx), int(endIdx)
             # If this assert raises an exception, undo() got called without
             # redo() being called first
-            assert(hasattr(self, 'colorSubCommands'))
-            for c in reversed(self.colorSubCommands):
-                c.undo()
-            del self.colorSubCommands
+            if self._strandType != StrandType.Scaffold:
+                assert(hasattr(self, 'colorSubCommands'))
+                for c in reversed(self.colorSubCommands):
+                    c.undo()
+                del self.colorSubCommands
+            # end if
             loopDict = self._vh._loop(self._strandType)
             for k, v in self.erasedLoopDictItems.iteritems():
                 loopDict[k] = v

@@ -41,7 +41,8 @@ import util
 util.qtWrapImport('QtCore', globals(), ['pyqtSignal', 'QString', \
                                         'QStringList', 'QFileInfo', 'Qt'])
 util.qtWrapImport('QtGui', globals(), ['QUndoStack', 'QFileDialog',\
-                                        'QAction', 'QApplication'])
+                                        'QAction', 'QApplication', \
+                                        'QMessageBox', 'QKeySequence' ])
 
 if app().isInMaya():
     from .mayawindow import DocumentWindow
@@ -261,9 +262,9 @@ class DocumentController():
             return True
         if not self.undoStack().isClean():    # document dirty?
             savebox = QMessageBox( QMessageBox.Warning,   "Application", \
-                "The document has been modified.\n Do you want to save your changes?",
-                QMessageBox.Save | QMessageBox.Discard | QMessageBox.Cancel, 
-                self, 
+                "The document has been modified.\n Do you want to save your changes?", \
+                QMessageBox.Save | QMessageBox.Discard | QMessageBox.Cancel, \
+                self.win, \
                 Qt.Dialog | Qt.MSWindowsFixedSizeDialogHint | Qt.Sheet)
             savebox.setWindowModality(Qt.WindowModal)
             save = savebox.button(QMessageBox.Save)
@@ -275,7 +276,7 @@ class DocumentController():
             ret = savebox.exec_()
             del savebox  # manual garbage collection to prevent hang (in osx)
             if ret == QMessageBox.Save:
-                return self.controller.saveAsClicked()
+                return self.saveAsClicked()
             elif ret == QMessageBox.Cancel:
                 return False
         return True
