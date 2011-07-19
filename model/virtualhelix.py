@@ -1186,7 +1186,6 @@ class VirtualHelix(QObject):
         def undo(self):
             vh = self._vh
             scafBases = vh._basesConnectedTo(StrandType.Scaffold, self._idx)
-            print scafBases[0]._n, self._idx
             stapBases = vh._basesConnectedTo(StrandType.Staple, self._idx)
             startBase = vh._strand(StrandType.Scaffold)[self._idx]
             startBaseComplement = vh._strand(StrandType.Staple)[self._idx]
