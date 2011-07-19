@@ -26,12 +26,12 @@
 decoder
 Created by Jonathan deWerd on 2011-01-26.
 """
-import cjson
 from .dnahoneycombpart import DNAHoneycombPart
 from .dnasquarepart import DNASquarePart
 from .document import Document
 from .virtualhelix import VirtualHelix
 from json_io import doc_from_legacy_dict
+from exceptions import ImportError
 
 classNameToClassMap = {}
 classNameToClassMap['DNAHoneycombPart'] = DNAHoneycombPart
@@ -45,7 +45,12 @@ class Decoder(object):
         self.idToObj=[]
         self.objsWithDeferredInit=[]
     def decode(self,string):
-        packageObject = cjson.decode(string)
+        try:
+            import cjson
+            packageObject = cjson.decode(string)
+        except ImportError:
+            import json
+            packageObject = json.loads(string)
         if packageObject.get('.format', None) != 'caDNAno2':
             return doc_from_legacy_dict(packageObject)
         pkObjs = packageObject[".objects"]
