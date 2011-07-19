@@ -130,6 +130,7 @@ class DocumentController():
         self.win.actionSVG.triggered.connect(self.svgClicked)
         self.win.actionAutoStaple.triggered.connect(self.autoStapleClicked)
         self.win.actionCSV.triggered.connect(self.exportCSV)
+        self.win.actionPreferences.triggered.connect(app().prefsClicked)
         # self.win.actionSave_As.triggered.connect(self.saveAsClicked)
         # self.win.actionQuit.triggered.connect(self.closeClicked)
         # self.win.actionAdd.triggered.connect(self.addClicked)
@@ -155,16 +156,14 @@ class DocumentController():
 
     def openClicked(self):
         """docstring for openClicked"""
-        
         # self.filesavedialog = None
         # self.openFile('/Users/nick/Downloads/nanorobot.v2.json')
         # return
-        
         if util.isWindows(): # required for native looking file window
             fname = QFileDialog.getOpenFileName(None, "Open Document", "/",\
                         "CADnano1 / CADnano2 Files (*.nno *.json *.cadnano)")
             self.filesavedialog = None
-            self.openFile(fname)                
+            self.openFile(fname)
         else: # access through non-blocking callback
             fdialog = QFileDialog ( self.win, \
                                 "Open Document",\
@@ -175,7 +174,7 @@ class DocumentController():
             fdialog.setWindowModality(Qt.WindowModal)
             # fdialog.exec_()  # or .show(), or .open()
             self.filesavedialog = fdialog
-            self.filesavedialog.filesSelected.connect(self.openFile) 
+            self.filesavedialog.filesSelected.connect(self.openFile)
             fdialog.open()  # or .show(), or .open()
 
     def openFile(self, selected):
@@ -229,7 +228,7 @@ class DocumentController():
             self.filesavedialog.filesSelected.connect(self.exportFile) 
             fdialog.open()
     # end def
-    
+
     def exportFile(self, selected):
         if isinstance(selected, QStringList) or isinstance(selected, list):
             fname = selected[0]
@@ -246,7 +245,7 @@ class DocumentController():
             del self.filesavedialog # manual garbage collection to prevent hang (in osx)
         return self.exportSequenceCSV(fname)
     # end def
-    
+
     def closeClicked(self):
         """This will trigger a Window closeEvent"""
         print "close clicked"

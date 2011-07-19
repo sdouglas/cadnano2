@@ -26,7 +26,7 @@
 documentwindow.py
 """
 
-import ui.ui_mainwindow as ui_mainwindow
+import ui.mainwindow.ui_mainwindow as ui_mainwindow
 import controllers.pathcontroller as pathcontroller
 import controllers.slicecontroller as slicecontroller
 from cadnano import app

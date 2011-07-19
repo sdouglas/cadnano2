@@ -1,10 +1,13 @@
-IMAGES = images/data-svg.png images/data-new_32.png images/data-open_32.png images/data-save_32.png images/part-new-honeycomb.png images/part-new-square.png images/slice-delete-last.png images/slice-move.png images/slice-renumber.png images/slice-edit.png images/slice-go-last.png images/slice-go-first.png images/add-bases.svg images/remove-bases.svg images/path-insert.png images/path-pen_48.png images/path-paint_48.png images/path-move.png images/path-skip.png images/path-sequence.png images/path-force-xover.png images/path-break_48.png images/path-erase_32.png images/path-edit_32.png images/path-autostaple_32.png 
+IMAGES = mainwindow/images//data-svg.png mainwindow/images//data-new_32.png mainwindow/images//data-open_32.png mainwindow/images//data-save_32.png mainwindow/images//part-new-honeycomb.png mainwindow/images//part-new-square.png mainwindow/images//slice-delete-last.png mainwindow/images//slice-move.png mainwindow/images//slice-renumber.png mainwindow/images//slice-edit.png mainwindow/images//slice-go-last.png mainwindow/images//slice-go-first.png mainwindow/images//add-bases.svg mainwindow/images//remove-bases.svg mainwindow/images//path-insert.png mainwindow/images//path-pen_48.png mainwindow/images//path-paint_48.png mainwindow/images//path-move.png mainwindow/images//path-skip.png mainwindow/images//path-sequence.png mainwindow/images//path-force-xover.png mainwindow/images//path-break_48.png mainwindow/images//path-erase_32.png mainwindow/images//path-edit_32.png mainwindow/images//path-autostaple_32.png 
 
 
-all: ui_mainwindow.py icons_rc.py
+all: mainwindow/icons_rc.py mainwindow/ui_mainwindow.py dialogs/ui_preferences.py
 
-ui_mainwindow.py : mainwindow.ui
+mainwindow/icons_rc.py : mainwindow/icons.qrc $(IMAGES)
+	/System/Library/Frameworks/Python.framework/Versions/2.6/bin/pyrcc4 -o $@ $<
+
+mainwindow/ui_mainwindow.py : mainwindow/mainwindow.ui
 	/System/Library/Frameworks/Python.framework/Versions/2.6/bin/pyuic4 $< > $@
 
-icons_rc.py : icons.qrc $(IMAGES)
-	/System/Library/Frameworks/Python.framework/Versions/2.6/bin/pyrcc4 -o $@ $<
+dialogs/ui_preferences.py : dialogs/preferences.ui
+	/System/Library/Frameworks/Python.framework/Versions/2.6/bin/pyuic4 $< > $@
