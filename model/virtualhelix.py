@@ -597,6 +597,11 @@ class VirtualHelix(QObject):
         if strandType == StrandType.Scaffold:
             if self._sequenceForScafCache != None:
                 return self._sequenceForScafCache
+            # seq = ""
+            # for b in self._strand(strandType):
+            #     temp = b.sequence()[0]
+            #     assert len(temp) == 1
+            #     seq += temp
             seq = "".join([b.sequence()[0] for b in self._strand(strandType)])
             self._sequenceForScafCache = seq
         else: #Staple Strand
@@ -782,11 +787,11 @@ class VirtualHelix(QObject):
         endIndex = util.clamp(endIndex, 0, len(strand) - 1)
 
         if not speedy and strandType == StrandType.Scaffold:
-             d = self.ApplySequenceCommand(self, strandType, startIndex, " ")
+            d = self.ApplySequenceCommand(self, strandType, startIndex, " ")
 
         c = self.ConnectStrandCommand(self, strandType, startIndex, endIndex,\
                                       color=color, speedy=speedy)
-             
+
         if undoable == True:
             undoStack = self.undoStack()
             undoStack.beginMacro("Extend strand")
@@ -1129,7 +1134,7 @@ class VirtualHelix(QObject):
             vh = self._vh
             bases = vh._basesConnectedTo(StrandType.Scaffold, self._idx)
             charactersUsedFromSeqStr = 0
-            self.oldBaseStrs = oldBaseStrs = [(' ',' ')]
+            self.oldBaseStrs = oldBaseStrs = []
             startBase = vh._strand(StrandType.Scaffold)[self._idx]
             startBaseComplement = vh._strand(StrandType.Staple)[self._idx]
             scafBasesInBase = vh.hasLoopOrSkipAt(StrandType.Scaffold, startBase._n)
@@ -1175,8 +1180,8 @@ class VirtualHelix(QObject):
                     charactersUsedFromSeqStr = len(self._seqStr)
                     seq = partialSeq.ljust(numBasesToUse)
                 
-                if self._strandType == StrandType.Scaffold:
-                    b._sequence = seq
+                # if self._strandType == StrandType.Scaffold:
+                b._sequence = seq
                 # if not stap_b._sequence:
                 #     stap_b._sequence = " "
                 # stap_b._sequence = util.rcomp(seq)
@@ -1186,6 +1191,7 @@ class VirtualHelix(QObject):
         def undo(self):
             vh = self._vh
             scafBases = vh._basesConnectedTo(StrandType.Scaffold, self._idx)
+            print scafBases[0]._n, self._idx
             stapBases = vh._basesConnectedTo(StrandType.Staple, self._idx)
             startBase = vh._strand(StrandType.Scaffold)[self._idx]
             startBaseComplement = vh._strand(StrandType.Staple)[self._idx]
@@ -1193,6 +1199,7 @@ class VirtualHelix(QObject):
             stapBasesInBase = vh.hasLoopOrSkipAt(StrandType.Staple, startBase._n)
             if self.oldLoopSeq != None:
                 startBase._sequence = self.oldLoopSeq
+                vh.resetSequenceCache()
                 vh.setHasBeenModified()
                 vh.emitBasesModifiedIfNeeded()
                 return
@@ -1200,8 +1207,8 @@ class VirtualHelix(QObject):
                 scafB = scafBases[i]
                 scafB._vhelix.resetSequenceCache()
                 scafBseq = self.oldBaseStrs[i][0]
-                if self._strandType == StrandType.Scaffold:
-                    scafB._sequence = scafBseq
+                #if self._strandType == StrandType.Scaffold:
+                scafB._sequence = scafBseq
                 
                 # stapB = scafB._vhelix._strand(StrandType.Staple)[scafB._n]
                 # stapBseq = self.oldBaseStrs[i][1]
