@@ -177,7 +177,7 @@ class Base(object):
         sequenceOfLoop()[0] is displayed on the strand and sequenceOfLoop()[1:]
         are displayed on the loop.
         """
-        actualLoopLength = self._vhelix._loop(self._strandtype)[self._n]
+        actualLoopLength = self._vhelix._loop(self._strandtype).get(self._n)
         if len(self._sequence) - 1 != actualLoopLength:
             # print "Loop had seq %s, should have been len %i"%(self._sequence,actualLoopLength)
             return " "*actualLoopLength
