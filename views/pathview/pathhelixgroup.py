@@ -201,6 +201,8 @@ class PathHelixGroup(QGraphicsObject):
         that the receiver is displaying"""
         return [ph.vhelix() for ph in self._pathHelixes]
 
+    # TODO: consider refactoring to have this signal actually emit a list of 
+    # changed VHs
     displayedVHsChanged = pyqtSignal()
     def setDisplayedVHs(self, vhrefs):
         """Spawns or destroys PathHelix such that displayedVHs
@@ -286,8 +288,10 @@ class PathHelixGroup(QGraphicsObject):
             ph.positionInPhgChanged()
         self.vhToPathHelix = dict(((ph.vhelix(), ph) for ph in newList))
         self.scene().views()[0].zoomToFit()
+    # end def
 
     def paint(self, painter, option, widget=None):
+        # painter.drawRect(self.boundingRect())
         pass
 
     geometryChanged = pyqtSignal()
