@@ -137,7 +137,7 @@ def doc_from_legacy_dict(obj):
             else:
                 endIdx, startIdx = scaf_seg[vhNum][i], scaf_seg[vhNum][i+1]
             vh.connectStrand(StrandType.Scaffold, startIdx, endIdx,\
-                             undoable=False, police=False, speedy=True)
+                             undoStack=None, police=False, speedy=True)
         # read staple segments and xovers
         for i in range(len(stap)):
             fiveVH, fiveIdx, threeVH, threeIdx = stap[i]
@@ -158,7 +158,7 @@ def doc_from_legacy_dict(obj):
             else:
                 endIdx, startIdx = stap_seg[vhNum][i], stap_seg[vhNum][i+1]
             vh.connectStrand(StrandType.Staple, startIdx, endIdx,\
-                             undoable=False, police=False,\
+                             undoStack=None, police=False,\
                              color=QColor(136, 136, 136), speedy=True)
 
     helixNo = -1
@@ -175,12 +175,12 @@ def doc_from_legacy_dict(obj):
         for (idx, threeVH, threeIdx) in scaf_xo[vhNum]:
             threeVH = part.getVirtualHelix(threeVH)
             vh.installXoverFrom3To5(StrandType.Scaffold, idx, threeVH,\
-                                    threeIdx, undoable=False, speedy=True)
+                                    threeIdx, undoStack=None, speedy=True)
         # install staple xovers
         for (idx, threeVH, threeIdx) in stap_xo[vhNum]:
             threeVH = part.getVirtualHelix(threeVH)
             vh.installXoverFrom3To5(StrandType.Staple, idx, threeVH,\
-                                    threeIdx, undoable=False, speedy=True)
+                                    threeIdx, undoStack=None, speedy=True)
     helixNo = -1
     for helix in obj['vstrands']:
         helixNo += 1
@@ -194,12 +194,12 @@ def doc_from_legacy_dict(obj):
         # populate colors, loops, and skips
         for baseIdx, colorNumber in helix['stap_colors']:
             color = QColor((colorNumber>>16)&0xFF, (colorNumber>>8)&0xFF, colorNumber&0xFF)
-            vh.applyColorAt(color, StrandType.Staple, baseIdx, undoable=False)
+            vh.applyColorAt(color, StrandType.Staple, baseIdx, undoStack=None)
         for i in range(len(stap)):
             combinedLoopSkipAmount = loops[i] + skips[i]
             if combinedLoopSkipAmount != 0:
                 vh.installLoop(StrandType.Scaffold, i, combinedLoopSkipAmount,\
-                               undoable=False, speedy=True)
+                               undoStack=None, speedy=True)
     return doc
 
 def isSegmentStartOrEnd(strandType, vhNum, baseIdx, fiveVH, fiveIdx, threeVH, threeIdx):
