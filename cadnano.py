@@ -30,22 +30,36 @@ Created by Jonathan deWerd on 2011-01-29.
 import sys
 from os import path, environ
 from code import interact
-PySide_loaded = None
 
-
+usesPySide_ret = None
+def initPySide(PySide):
+    print "Using PySide"
+def initPyQt(PyQt4):
+    print "Using PyQt4"
 def usesPySide(*args):
-    return False
-    global PySide_loaded
-    if PySide_loaded != None:
-        return PySide_loaded
-    try:
-        import PySide
-        PySide_loaded = True
-        print "Using PySide"
-    except ImportError:
-        PySide_loaded = False
-        print "Using PyQt"
-    return PySide_loaded
+    preferPySide = False
+    global usesPySide_ret
+    if usesPySide_ret != None:
+        return usesPySide_ret
+    if preferPySide:
+        try:
+            import PySide
+            initPySide(PySide)
+            usesPySide_ret = True
+        except ImportError:
+            import PyQt4
+            initPyQt(PyQt4)
+            usesPySide_ret = False
+    else:
+        try:
+            import PyQt4
+            initPyQt(PyQt4)
+            usesPySide_ret = False
+        except ImportError:
+            import PySide
+            initPySide(PySide)
+            usesPySide_ret = True
+    return usesPySide_ret
 # end def
 
 
@@ -91,7 +105,7 @@ class CADnano(QObject):
     usesPySide = usesPySide     # This is bad that this can work
     dontAskAndJustDiscardUnsavedChanges = False
     shouldPerformBoilerplateStartupScript = False
-    PySide_loaded = PySide_loaded
+    usesPySide_ret = usesPySide_ret
 
     def __init__(self, argv):
         if argv == None:

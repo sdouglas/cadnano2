@@ -27,24 +27,25 @@ class VBase(object):
     Base is a convenience class that holds information identifying
     a certain base on a virtual helix, namely its coordinates:
     a vStrand object and the index along the one dimensional coordinate
-    system defined by the vStrand.
+    system defined by the vStrand. VBase objects are immutable.
+
+    Uses properties: http://docs.python.org/library/functions.html#property
     """
     def __init__(self, vStrand, vIndex):
         object.__init__()
-        self._vStrand = vStrand
-        self._vIndex = vIndex
+        self.vStrand = vStrand
+        self.vIndex = vIndex
+    def __repr__(self):
+        strand = self.vStrand
+        vhNum = strand.vHelix.number()
+        strandStr = "scaf" if strand.isScaf() else "stap"
+        return "v[%i].%s(%i)"%(vhNum, strandStr, self.vIndex)
 
     def coords(self):
-        return (self._vStrand, self._vIndex)
+        return (self.vStrand, self.vIndex)
 
     def vHelix(self):
-        return self._vStrand.vHelix()
-
-    def vStrand(self):
-        return self._vStrand
-
-    def vIndex(self):
-        return self._vIndex
+        return self.vStrand.vHelix()
 
     def part(self):
         return self.vHelix().part()
@@ -54,22 +55,34 @@ class VBase(object):
 
     def vComplement(self):
         """
-        Base on the same vHelix at the same vIndex but opposite strand
+        Base on the same vHelix at the same vIndex but opposite strand.
         """
-        return self._vStrand.vComplement().vBase(self._vIndex)
+        return VBase(self.vStrand.vComplement(), self.vIndex)
 
-    def vNext5(self):
+    def sameStrand(self, idx):
         """
-        Shifts self one base in 5' direction along the vhelix.
+        Returns a VBase on the same vStrand but at the given index.
+        """
+        return VBase(self.vStrand, idx)
+
+    def translated(self, delta):
+        """
+        Returns a VBase on the same strand with its indexs shifted by delta.
+        """
+        return VBase(self.vStrand, self.vIndex + delta)
+
+    def vPrev5(self):
+        """
+        Returns a VBase one base in 5' direction along the vhelix.
         """
         if self.drawn5To3():
             return self.prevL()
         else:
             return self.prevR()
 
-    def vPrev3(self):
+    def vNext3(self):
         """
-        Shifts self one base in 3' direction along the vhelix.
+        Returns a vbase one base in 3' direction along the vhelix.
         """
         if self.drawn5To3():
             return self.nextR()
@@ -78,16 +91,12 @@ class VBase(object):
 
     def vNextR(self):
         """
-        Shifts self one base rightwards along the vhelix in the path view.
+        Returns a vbase one to the right in the path view
         """
-        return VBase(self._vHelix,\
-                     self._vStrand,\
-                     self._index + 1)
+        return VBase(self.vStrand, self.index + 1)
 
     def vPrevL(self):
         """
-        Shifts self one base leftwards along the vhelix in the path view
+        Returns a vbase one to the left in the path view
         """
-        return VBase(self._vHelix,\
-                     self._vStrand,\
-                     self._index - 1)
+        return VBase(self._vStrand, self._index - 1)

@@ -39,7 +39,8 @@ from views import styles
 from math import modf
 from rangeset import RangeSet
 from vstrand import VStrand
-from strand import Strand
+from vbase import VBase
+import strand
 
 import util
 # import Qt stuff into the module namespace with PySide, PyQt4 independence
@@ -83,8 +84,8 @@ class VirtualHelix(QObject):
         # The base arrays are owned entirely by virtualhelix
         self._stapleBases = []
         self._scaffoldBases = []
-        self._scaf = VStrand(self)
-        self._stap = VStrand(self)
+        self.vScaf = VStrand(self)
+        self.vStap = VStrand(self)
         # As is the floatingXoverBase if there is one
         self.floatingXoverBase = None
 
@@ -125,17 +126,17 @@ class VirtualHelix(QObject):
     ######################################################################
     ######################## New Model Quarantine ########################
     ######################################################################
-    def scaf(self):
-        """
-        Returns the VStrand representing this VHelix's scaffold strand.
-        """
-        return self._scaf
+    def scaf(self, idx=None):
+        if idx == None:
+            return self.vScaf
+        else:
+            return VBase(self.vScaf, idx)
 
-    def stap(self):
-        """
-        Returns the VStrand representing this VHelix's staple strand.
-        """
-        return self._stap
+    def stap(self, idx=None):
+        if idx == None:
+            return self.vStap
+        else:
+            return VBase(self.vStap, idx)
 
     ######################################################################
     ######################## End New Model Quarantine ####################
@@ -343,6 +344,10 @@ class VirtualHelix(QObject):
         else:
             return self._number % 2 == 0
 
+    def strandDrawn5To3(self, vstrand):
+        isScaf = vstrand == self.vScaf
+        isEven = (self._number%2) == 0
+        return isEven == isScaf
     def directionOfStrandIs5to3(self, strandtype):
         """
         Even scaffold strands and odd staple strands are displayed
@@ -368,6 +373,18 @@ class VirtualHelix(QObject):
             return self._scaffoldBases
         elif strandType == StrandType.Staple:
             return self._stapleBases
+        else:
+            raise IndexError("%s is not Scaffold=%s or Staple=%s" % \
+                         (strandType, StrandType.Scaffold, StrandType.Staple))
+
+    def _vstrand(self, strandType):
+        """A hack that returns the vStrand corresponding to strandType.
+        You should use vhelix.vScaf and vhelix.vStap to communicate with the
+        strands directly."""
+        if strandType == StrandType.Scaffold:
+            return self.vScaf
+        elif strandType == StrandType.Staple:
+            return self.vStap
         else:
             raise IndexError("%s is not Scaffold=%s or Staple=%s" % \
                          (strandType, StrandType.Scaffold, StrandType.Staple))
@@ -801,6 +818,7 @@ class VirtualHelix(QObject):
         Sets {s.n, (s+1).np, ..., (e-2).np, (e-1).np, e.p}
         """
         strand = self._strand(strandType)
+        vstrand = self._vstrand(strandType)
         startIndex, endIndex = int(startIndex), int(endIndex)
         startIndex = util.clamp(startIndex, 0, len(strand) - 1)
         endIndex = util.clamp(endIndex, 0, len(strand) - 1)
@@ -810,7 +828,9 @@ class VirtualHelix(QObject):
         
         if not speedy and strandType == StrandType.Scaffold:
              d = self.ApplySequenceCommand(self, strandType, startIndex, " ")
-             
+        
+        # vstrand.addRange(strand.NormalStrand())
+        
         if undoable == True:
             undoStack = self.undoStack()
             undoStack.beginMacro("Extend strand")

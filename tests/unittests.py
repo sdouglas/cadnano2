@@ -258,11 +258,25 @@ class UnitTests(CadnanoGuiTestCase):
         self.assertEqual(rs1, tuple(rs.ranges))
         self.assertCallsBalanced(didInsertCtr, willRemoveCtr, RIs, rs)
 
+    def testRangeSet_rangesplitting(self):
+        rs = RangeSet()
+        splitee, splitter = (0, 10, "Splitee"), (5, 6, "Splitter")
+        rs.addRange(splitee)
+        rs.addRange(splitter)
+        for i in range(0, 5) + range(6, 10):
+            if rs.get(i)[2] != "Splitee":
+                print "Rangesplitting failed at %i (was %s)"%(i,str(rs.get(i)))
+                self.assertTrue(False)
+        for i in range(5, 6):
+            if rs.get(i)[2] != "Splitter":
+                print "Rangesplitting failed at %i"%i
+                self.assertTrue(False)
+
     def runTest(self):
         pass
 
 if __name__ == '__main__':
     tc = UnitTests()
     tc.setUp()
-    tc.testRangeSet_undo()
+    tc.testRangeSet_rangesplitting()
     # tests.cadnanoguitestcase.main()

@@ -35,8 +35,8 @@ class VHelix(object):
         # self._part
         # self._coords
         # self._idnum
-        self._scaf = RangeSet()
-        self._stap = RangeSet()
+        self.vScaf = RangeSet()
+        self.vStap = RangeSet()
 
     ########################## Public Read API ##########################
 

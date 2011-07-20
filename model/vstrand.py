@@ -24,6 +24,7 @@
 
 from rangeset import RangeSet
 import util
+from vbase import VBase
 util.qtWrapImport('QtCore', globals(), ['QObject'] )
 
 class VStrand(QObject, RangeSet):
@@ -37,21 +38,24 @@ class VStrand(QObject, RangeSet):
         RangeSet.__init__(self)
         if parentVHelix != None:
             self._setVHelix(parentVHelix)
+        preserveLeftOligoDuringSplit = True
+
+    def __call__(self, idx):
+        return VBase(self, idx)
 
     ####################### Public Read API #######################
     # Useful inherited methods:
     #   vstr.get(idx)            get a segment at index idx
     #   vstr[idx]                same as get
     #   vstr.bounds()            returns a range containing all segments
-
-    def vHelix(self):
-        return self._vHelix
+    # Properties:
+    #   vstr.vHelix
 
     def vComplement():
         """
         Returns the other VStrand in the VHelix that self is a child of.
         """
-        vh = self._vHelix
+        vh = self.vHelix
         scaf, stap = vh.scaf(), vh.stap()
         if self == scaf:
             return stap
@@ -59,13 +63,13 @@ class VStrand(QObject, RangeSet):
         return scaf
 
     def isScaf(self):
-        return self == self._vHelix.scaf()
+        return self == self.vHelix.scaf()
 
     def isStap(self):
-        return self == self._vHelix.stap()
+        return self == self.vHelix.stap()
 
     def drawn5To3(self):
-        return self._vHelix.strandDrawn5To3(self)
+        return self.vHelix.strandDrawn5To3(self)
 
     ####################### Framework Overrides / Undo ##############
     def idxs(self, rangeItem):
@@ -73,36 +77,42 @@ class VStrand(QObject, RangeSet):
         Returns (firstIdx, afterLastIdx) simplified representation of the
         rangeItem passed in.
         """
-        idx3, idx5 = rangeItem.vBase3p().vIndex(), rangeItem.vBase5p().vIndex()
-        return (min(idx3, idx5), max(idx3, idx5))
+        return rangeItem.idxsOnStrand(self)
+        #rangeItems are Strand objects, self is a VStrand
+        vb3, vb5 = rangeItem.vBase3, rangeItem.vBase5
+        vs3, vs5 = vb3.vStrand, vb5.vStrand
+        idx3, idx5 = vb3.vIndex, vb5.vIndex
+        if vs3 == vs5 == self:  # Non-crossover
+            return (min(idx3, idx5), max(idx3, idx5))
+        elif vs3 == self:  # The crossover owns the base that exposes a 3' end
+            return (idx3, idx3 + 1)
+        elif vs5 == self:  # The crossover owns the base that exposes a 5' end
+            return (idx5, idx5 + 1)
+        assert(False)
 
-    #def canMergeRangeItems(self, leftRangeItem, rightRangeItem):
-    #def mergeRangeItems(self, leftRangeItem, rightRangeItem, undoStack=None):
+    def canMergeRangeItems(self, rangeItemA, rangeItemB):
+        if not RangeSet.canMergeRangeItems(self, rangeItemA, rangeItemB):
+            return False
+        return rangeItemA.canMergeWith(rangeItemB)
+         
+    def mergeRangeItems(self, rangeItemA, rangeItemB, undoStack):
+        return rangeItemA.mergeWith(rangeItemB, undoStack)
 
-    def changeRangeForItem(self, rangeItem, newStartIdx, newAfterLastIdx, undoStack=None):
-        """
-        Changes the range corresponding to rangeItem.
-        Careful, this isn't a public method. It gets called to notify a subclass
-        of a change, not to effect the change itself.
-        If a subclass needs to support undo, it should push this onto the undo stack.
-        """
-        return (newStartIdx, newAfterLastIdx, rangeItem[2])
+    def changeRangeForItem(self, rangeItem, newStartIdx, newAfterLastIdx, undoStack):
+        return rangeItem.changeRange(newStartIdx, newAfterLastIdx, undoStack)
 
-    def willRemoveRangeItem(self, rangeItem, undoStack=None):
-        """
-        Gets called exactly once on every rangeItem that was once passed to
-        addRange but will now be deleted from self.ranges (wrt the public API,
-        this is when it becomes inaccessable to the get method)
-        If a subclass needs to support undo, it should push this onto the undo stack.
-        """
-        pass
+    def splitRangeItem(self, rangeItem, splitStart, splitAfterLast, undoStack):
+        return rangeItem.split(splitStart,\
+                               splitAfterLast,\
+                               self.preserveLeftOligoDuringSplit,\
+                               undoStack)
 
     def undoStack(self):
-        return self._vHelix.undoStack()
+        return self.vHelix.undoStack()
 
     ####################### Private Write API #######################
     def _setVHelix(self, newVH):
         """
         Should be called only by a VHelix adopting a VStrand as its child.
         """
-        self._vHelix = newVH
+        self.vHelix = newVH
