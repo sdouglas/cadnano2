@@ -362,6 +362,24 @@ class VirtualHelix(QObject):
         #     raise IndexError("%s is not Scaffold=%s or Staple=%s" % \
         #                  (strandType, StrandType.Scaffold, StrandType.Staple))
 
+    def loop(self, strandType):
+        """
+        This loop method returns the scaffold loops as is and then 
+        check the staple strand for a presense of a base 
+        before indicating a loop
+        """
+        if strandType == StrandType.Scaffold:
+            return self._scaffoldLoops
+        elif strandType == StrandType.Staple:
+            ret = {}
+            for index, loopsize in self._scaffoldLoops.iteritems():
+                if self.hasBaseAt(strandType, index):
+                    ret[index] = loopsize
+            return ret
+        else:
+            raise IndexError("%s is not Scaffold=%s or Staple=%s" % \
+                         (strandType, StrandType.Scaffold, StrandType.Staple))
+
     ############################## Access to Bases ###########################
     def indexOfRightmostNonemptyBase(self):
         """
@@ -927,25 +945,30 @@ class VirtualHelix(QObject):
         """
         Main function for installing loops and skips
         -1 is a skip, +N is a loop
+        
+        The tool was designed to allow installation only on scaffold, 
+        however to allow updating from loops drawn on staples, we make this tool
+        StrandType agnostic
         """
-        if strandType == StrandType.Scaffold:
-            if self._isSeqBlank == False:
-                d = self.ApplySequenceCommand(self, StrandType.Scaffold, index, " ")
-            c = self.LoopCommand(self, strandType, index, loopsize)
-            
-            if undoable == False:
-                c.redo()
+        # if strandType == StrandType.Scaffold:
+        if self._isSeqBlank == False:
+            d = self.ApplySequenceCommand(self, StrandType.Scaffold, index, " ")
+        c = self.LoopCommand(self, strandType, index, loopsize)
+        
+        if undoable == False:
+            c.redo()
 
+        else:
+            undoStack = self.undoStack()
+            if loopsize > 0:
+                undoStack.beginMacro("Insert at %d[%d]" % (self._number, index))
             else:
-                undoStack = self.undoStack()
-                if loopsize > 0:
-                    undoStack.beginMacro("Insert at %d[%d]" % (self._number, index))
-                else:
-                    undoStack.beginMacro("Skip at %d[%d]" % (self._number, index))
+                undoStack.beginMacro("Skip at %d[%d]" % (self._number, index))
 
-                undoStack.push(c)
+            undoStack.push(c)
 
-                undoStack.endMacro()
+            undoStack.endMacro()
+    # end def
 
     def applyColorAt(self, color, strandType, index, undoable=True):
         """Determine the connected strand that passes through

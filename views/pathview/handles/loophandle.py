@@ -29,12 +29,6 @@ Created by Shawn on 2011-05-03.
 from views import styles
 from model.enum import StrandType
 
-# from PyQt4.QtCore import QPointF, QRectF, Qt
-# from PyQt4.QtGui import QBrush, QFont
-# from PyQt4.QtGui import QGraphicsItem, QGraphicsTextItem, QTextCursor
-# from PyQt4.QtGui import QPainterPath
-# from PyQt4.QtGui import QPen
-
 import util
 # import Qt stuff into the module namespace with PySide, PyQt4 independence
 util.qtWrapImport('QtCore', globals(), [ 'QPointF', 'QRectF', 'Qt'] )
@@ -47,7 +41,7 @@ class LoopItem(object):
     This is just the shape of the Loop item
     """
     _myRect = QRectF(0, 0, styles.PATH_BASE_WIDTH, styles.PATH_BASE_WIDTH)
-    _pen = QPen(styles.bluestroke, 2)
+    _pen = QPen(styles.bluestroke, styles.LOOPWIDTH)
     baseWidth = styles.PATH_BASE_WIDTH
     halfbaseWidth = baseWidth / 2
     _offset = baseWidth / 4
@@ -98,7 +92,7 @@ class SkipItem(object):
     This is just the shape of the Loop item
     """
     _myRect = QRectF(0, 0, styles.PATH_BASE_WIDTH, styles.PATH_BASE_WIDTH)
-    _pen = QPen(styles.redstroke, 2)
+    _pen = QPen(styles.redstroke, styles.SKIPWIDTH)
     baseWidth = styles.PATH_BASE_WIDTH
     halfbaseWidth = baseWidth / 2
 
@@ -278,8 +272,8 @@ class LoopHandleGroup(QGraphicsItem):
         handles = self.handles.get(vhelix,[])
         if not handles:
             self.handles[vhelix] = handles
-        scafLoopDict = vhelix._loop(StrandType.Scaffold)
-        stapLoopDict = vhelix._loop(StrandType.Staple)
+        scafLoopDict = vhelix.loop(StrandType.Scaffold)
+        stapLoopDict = vhelix.loop(StrandType.Staple)
         numLoopsNeeded = len(scafLoopDict) + len(stapLoopDict)
         while len(handles) < numLoopsNeeded:
             handles.append(LoopHandle(parent=ph))
@@ -288,7 +282,7 @@ class LoopHandleGroup(QGraphicsItem):
             handle.scene().removeItem(handle)
         i = 0
         for strandtype in (StrandType.Scaffold, StrandType.Staple):
-            for index, loopsize in vhelix._loop(strandtype).iteritems():
+            for index, loopsize in vhelix.loop(strandtype).iteritems():
                 handles[i].setLabel(ph, strandtype, index, loopsize)
                 i += 1
 
