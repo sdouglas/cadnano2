@@ -45,7 +45,7 @@ from views import styles
 import util
 # import Qt stuff into the module namespace with PySide, PyQt4 independence
 util.qtWrapImport('QtCore', globals(), ['Qt'])
-util.qtWrapImport('QtGui', globals(),  ['QGraphicsView', 'qApp'])
+util.qtWrapImport('QtGui', globals(),  ['QGraphicsView', 'qApp', 'QPen'])
 
 
 class CustomQGraphicsView(QGraphicsView):
@@ -111,6 +111,7 @@ class CustomQGraphicsView(QGraphicsView):
         self.setRubberBandSelectionMode(Qt.IntersectsItemShape)
 
         self.toolbar = None
+        # self.tempitem = None
     # end def
 
     def setScaleFitFactor(self, value):
@@ -310,6 +311,10 @@ class CustomQGraphicsView(QGraphicsView):
 
         if self.toolbar:  # HACK: move toolbar so it doesn't affect sceneRect
             self.toolbar.setPos(0, 0)
+        
+        # if self.tempitem != None:
+        #     thescene.removeItem(self.tempitem)    
+            
         thescene.setSceneRect(thescene.itemsBoundingRect())
         scene_rect = thescene.sceneRect()
         if self.toolbar:  # HACK, pt2: move toolbar back
@@ -317,6 +322,9 @@ class CustomQGraphicsView(QGraphicsView):
         self.fitInView(scene_rect, Qt.KeepAspectRatio) # fit in view
         self.resetScale() # adjust scaling so that translation works
 
+
+        # self.tempitem = thescene.addRect(scene_rect, QPen(styles.redstroke))
+        
         # adjust scaling so that the items don't fill 100% of the view 
         # this is good for selection
         self.scale(self._scaleFitFactor, self._scaleFitFactor)

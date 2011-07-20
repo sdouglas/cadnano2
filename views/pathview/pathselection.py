@@ -50,10 +50,9 @@ class SelectionItemGroup(QGraphicsItemGroup):
         self.setHandlesChildEvents(True)
         self.setFlag(QGraphicsItem.ItemIsSelectable)
         self.pen = QPen(styles.bluestroke, styles.PATH_SELECTBOX_STROKE_WIDTH)
-        self.drawMe = False
-        self.drawn = False
         self._phg = parent
         self.selectionbox = boxtype(self)
+        self.drawMe = False
         self.dragEnable = False
         self._r0 = 0  # save original mousedown
         self._r = 0  # latest position for moving
@@ -78,6 +77,7 @@ class SelectionItemGroup(QGraphicsItemGroup):
     # end def
 
     def translateY(self, yf):
+        # print  yf, self._r, (yf - self._r)
         self.selectionbox.translate(0, (yf - self._r))
     # end def
 
@@ -86,6 +86,8 @@ class SelectionItemGroup(QGraphicsItemGroup):
     # end def
 
     def paint(self, painter, option, widget=None):
+        # painter.setPen(QPen(styles.redstroke))
+        # painter.drawRect(self.boundingRect())
         pass
     # end def
 
@@ -104,36 +106,51 @@ class SelectionItemGroup(QGraphicsItemGroup):
                 self.addToGroup(item)
 
             self.selectionbox.setRect(self.boundingRect())
+            self.selectionbox.resetTransform()
             self.selectionbox.drawMe = True
-            self._r0 = self.getR(self.mapToScene(QPointF(event.pos())))
-            self._r = self._r0
+            
+            # for some reason we need to skip the first mouseMoveEvent
+            self.dragged = False
+                
+            # self._r0 = self.getR(self.mapToScene(QPointF(event.pos())))
+            # self._r = self._r0
             self.scene().views()[0].addToPressList(self)
+            
     # end def
 
     def mouseMoveEvent(self, event):
         if self.dragEnable == True:
             rf = self.getR(self.mapToScene(QPointF(event.pos())))
-            self.translateR(rf)
+            # for some reason we need to skip the first mouseMoveEvent
+            if self.dragged == False:
+                self.dragged = True
+                self._r0 = rf
+            # end if
+            else:
+                self.translateR(rf)
+            # end else
             self._r = rf
+        # end if
         else:
             QGraphicsItemGroup.mouseMoveEvent(self, event)
+        # end else
     # end def
 
     def customMouseRelease(self, event):
         """docstring for customMouseRelease"""
-        if self.isSelected():
-            self.selectionbox.processSelectedItems(self._r0, self._r)
-        # end if
         self.selectionbox.drawMe = False
         self.selectionbox.resetTransform()
         self.dragEnable = False
+        # now do stuff
+        if self.isSelected():
+            self.selectionbox.processSelectedItems(self._r0, self._r)
+        # end if
     # end def
 
     def itemChange(self, change, value):
         """docstring for itemChange"""
         if change == QGraphicsItem.ItemSelectedHasChanged:
             if value == False:
-                # self.drawMe = False
                 self.selectionbox.drawMe = False
                 self.selectionbox.resetTransform()
                 self.removeSelectedItems()
@@ -169,11 +186,11 @@ class PathHelixHandleSelectionBox(QGraphicsItem):
     radius = styles.PATHHELIXHANDLE_RADIUS
     penWidth = styles.SLICE_HELIX_HILIGHT_WIDTH
 
-    def __init__(self, itemGroup, parent=None):
-        super(PathHelixHandleSelectionBox, self).__init__(parent)
+    def __init__(self, itemGroup):
+        super(PathHelixHandleSelectionBox, self).__init__(itemGroup.phg())
         self.itemGroup = itemGroup
         self.rect = itemGroup.boundingRect()
-        self.parent = itemGroup.phg()
+        self.phg = itemGroup.phg()
         self.setParentItem(itemGroup.phg())
         self.drawMe = False
         self.pen = QPen(styles.bluestroke, self.penWidth)
@@ -194,7 +211,7 @@ class PathHelixHandleSelectionBox(QGraphicsItem):
     # end def
 
     def setRect(self, rect):
-        self.rect = rect
+        self.rect = self.mapRectFromItem(self.itemGroup,rect)
 
     def processSelectedItems(self, rStart, rEnd):
         """docstring for processSelectedItems"""
@@ -209,9 +226,10 @@ class PathHelixHandleSelectionBox(QGraphicsItem):
             indexDelta = int((delta + midHeight) / self.helixHeight)
         # sort on y to determine the extremes of the selection group
         items = sorted(self.itemGroup.childItems(), key=lambda phh: phh.y())
-        self.parent.reorderHelices(items[0].number(),\
+        self.phg.reorderHelices(items[0].number(),\
                                    items[-1].number(),\
                                    indexDelta)
+                                   
     # end def
 # end class
 
@@ -220,7 +238,7 @@ class BreakpointHandleSelectionBox(QGraphicsItem):
         super(BreakpointHandleSelectionBox, self).__init__(parent)
         self.itemGroup = itemGroup
         self.rect = itemGroup.boundingRect()
-        self.parent = itemGroup.phg()
+        self.phg = itemGroup.phg()
         self.setParentItem(itemGroup.phg())
         self.drawMe = False
         self.pen = QPen(styles.bluestroke, styles.PATH_SELECTBOX_STROKE_WIDTH)

@@ -27,11 +27,6 @@ Created by Shawn on 2011-02-05.
 """
 from views import styles
 
-# from PyQt4.QtCore import QPointF, QRectF, Qt
-# from PyQt4.QtGui import QBrush, QFont
-# from PyQt4.QtGui import QGraphicsItem
-# from PyQt4.QtGui import QGraphicsSimpleTextItem, QGraphicsTextItem
-# from PyQt4.QtGui import QPen, QDrag, QUndoCommand
 import util
 # import Qt stuff into the module namespace with PySide, PyQt4 independence
 util.qtWrapImport('QtCore', globals(), ['QPointF', 'QRectF', 'Qt'])
@@ -94,7 +89,7 @@ class PathHelixHandle(QGraphicsItem):
         # If it was our VH, we need to update the number we
         # are displaying!
         if (r,c) == self.vhelix.coord():
-            self.setNumber()
+            self.setNumber()  
 
     def setNumber(self):
         """docstring for setNumber"""

@@ -31,7 +31,7 @@ import PyQt4.QtCore as QtCore
 import PyQt4.QtGui as QtGui
 import sip
 
-import ui.ui_mainwindow
+import ui.mainwindow.ui_mainwindow as ui_mainwindow
 import sliceview.slicehelixgroup
 import controllers.pathcontroller
 import controllers.slicecontroller

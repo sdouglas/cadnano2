@@ -26,7 +26,7 @@
 documentwindow.py
 """
 
-import ui.ui_mainwindow as ui_mainwindow
+import ui.mainwindow.ui_mainwindow as ui_mainwindow
 import controllers.pathcontroller as pathcontroller
 import controllers.slicecontroller as slicecontroller
 from cadnano import app
@@ -35,11 +35,12 @@ from tests.testrecorder import TestRecorder
 
 import util
 # import Qt stuff into the module namespace with PySide, PyQt4 independence
-util.qtWrapImport('QtCore', globals(), ['pyqtSignal', 'QString', 'QFileInfo', 'Qt'])
+util.qtWrapImport('QtCore', globals(), ['pyqtSignal', 'Qt', 'QFileInfo', \
+                                        'QPoint', 'QSettings', 'QSize', \
+                                        'QString'])
 util.qtWrapImport('QtGui', globals(), [ 'QGraphicsItem', 'QMainWindow', \
                                         'QGraphicsScene', 'QGraphicsView', \
-                                        'QApplication', 'QAction', 'QMessageBox',
-                                        'QKeySequence', 'QWidget'])
+                                        'QApplication', 'QAction', 'QWidget'])
 util.qtWrapImport('QtOpenGL', globals(), [ 'QGLWidget', 'QGLFormat', 'QGL'])
 
 class SceneRoot(QGraphicsItem):
@@ -61,6 +62,8 @@ class DocumentWindow(QMainWindow, ui_mainwindow.Ui_MainWindow):
         super(DocumentWindow, self).__init__(parent)
         self.controller = docCtrlr
         self.setupUi(self)
+        self.settings = QSettings()
+        self.readSettings()
         # Slice setup
         self.slicescene = QGraphicsScene(parent=self.sliceGraphicsView)
         self.sliceroot = SceneRoot(rectsource=self.slicescene)
@@ -74,32 +77,31 @@ class DocumentWindow(QMainWindow, ui_mainwindow.Ui_MainWindow):
         self.pathroot = SceneRoot(rectsource=self.pathscene)
         self.pathscene.addItem(self.pathroot)
         assert self.pathroot.scene() == self.pathscene
-        
+
         # Uncomment the following block for  explicit pathview GL rendering
         # self.pathGraphicsView.setViewport(QGLWidget(QGLFormat(QGL.SampleBuffers)))
         # self.pathGraphicsView.setViewportUpdateMode(QGraphicsView.FullViewportUpdate)
         # self.pathGraphicsView.setAutoFillBackground ( True )
         # self.pathscene.setBackgroundBrush(Qt.white)
         # self.pathscene.setItemIndexMethod(QGraphicsScene.NoIndex)
-        
+
         self.pathGraphicsView.setScene(self.pathscene)
         self.pathGraphicsView.sceneRootItem = self.pathroot
         self.pathGraphicsView.setScaleFitFactor(0.9)
-        
+
         self.pathToolbar = ColorPanel()
         self.pathGraphicsView.toolbar = self.pathToolbar
         self.pathscene.addItem(self.pathToolbar)
         self.pathController = pathcontroller.PathController(self)
         self.sliceController.pathController = self.pathController
         self.pathController.sliceController = self.sliceController
-        
+
         # Test recording
         if app().testRecordMode:
             rec = TestRecorder()
             self.sliceController.testRecorder = rec
             self.pathController.testRecorder = rec
             self.pathController.activeToolChanged.connect(rec.activePathToolChangedSlot)
-
 
         # Edit menu setup
         self.actionUndo = docCtrlr.undoStack().createUndoAction(self)
@@ -118,42 +120,24 @@ class DocumentWindow(QMainWindow, ui_mainwindow.Ui_MainWindow):
     def undoStack(self):
         return self.controller.undoStack()
 
-    def showSizes(self):
-        myheight = self.splitter.frameRect().width()
-        myheight = self.centralwidget.size()
-        print "my central widget is tall ", self.centralwidget.frameSize()
-        print "my slice view  widget is tall ", self.sliceGraphicsView.frameSize()
-        print "my path view is tall ", self.pathGraphicsView.frameSize()
-        print "my slice scene  widget is tall ", self.slicescene.sceneRect().height()
-        print "my path scen is tall ", self.pathscene.sceneRect().height()
-    # end def
-
     def focusInEvent(self):
         app().undoGroup.setActiveStack(self.controller.undoStack())
 
-    def maybeSave(self):
-        """
-        Save on quit, check if document changes have occured.
-        """
-        if app().dontAskAndJustDiscardUnsavedChanges:
-            return True
-        if not self.undoStack().isClean():    # document dirty?
-            savebox = QMessageBox( QMessageBox.Warning,   "Application", \
-                "The document has been modified.\n Do you want to save your changes?",
-                QMessageBox.Save | QMessageBox.Discard | QMessageBox.Cancel, 
-                self, 
-                Qt.Dialog | Qt.MSWindowsFixedSizeDialogHint | Qt.Sheet)
-            savebox.setWindowModality(Qt.WindowModal)
-            save = savebox.button(QMessageBox.Save)
-            discard = savebox.button(QMessageBox.Discard)
-            cancel = savebox.button(QMessageBox.Cancel)
-            save.setShortcut("Ctrl+S")
-            discard.setShortcut(QKeySequence("D,Ctrl+D"))
-            cancel.setShortcut(QKeySequence("C,Ctrl+C,.,Ctrl+."))
-            ret = savebox.exec_()
-            del savebox  # manual garbage collection to prevent hang (in osx)
-            if ret == QMessageBox.Save:
-                return self.controller.saveAsClicked()
-            elif ret == QMessageBox.Cancel:
-                return False
-        return True
+    def readSettings(self):
+        self.settings.beginGroup("MainWindow");
+        self.resize(self.settings.value("size", QSize(1100, 800)).toSize())
+        self.move(self.settings.value("pos", QPoint(200, 200)).toPoint())
+        self.settings.endGroup()
+
+    def moveEvent(self, event):
+        """Reimplemented to save state on move."""
+        self.settings.beginGroup("MainWindow")
+        self.settings.setValue("pos", self.pos())
+        self.settings.endGroup()
+
+    def resizeEvent(self, event):
+        """Reimplemented to save state on resize."""
+        self.settings.beginGroup("MainWindow")
+        self.settings.setValue("size", self.size())
+        self.settings.endGroup()
+        QWidget.resizeEvent(self, event)

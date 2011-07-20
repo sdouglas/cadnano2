@@ -37,13 +37,13 @@ from handles.precrossoverhandle import PreCrossoverHandle
 from math import floor, pi, ceil
 from cadnano import app
 from itertools import product
-from ui.svgbutton import SVGButton
+from ui.mainwindow.svgbutton import SVGButton
 
 import util
 # import Qt stuff into the module namespace with PySide, PyQt4 independence
 util.qtWrapImport('QtCore', globals(), ['Qt', 'QRect', 'QLine', 'QRectF',\
                                         'QPointF', 'QPoint', 'pyqtSlot',\
-                                        'QEvent', 'SLOT'])
+                                        'QEvent', 'SLOT',  'pyqtSignal'])
 util.qtWrapImport('QtGui', globals(), ['QBrush', 'QColor', 'QFont',\
                                        'QGraphicsObject', 'QFontMetricsF',\
                                        'QGraphicsSimpleTextItem',\
@@ -263,6 +263,10 @@ class PathHelix(QGraphicsObject):
         bbr = self.removeBasesButton.boundingRect()
         self.removeBasesButton.setPos(remx, remy)
     
+    # signal to update xover graphicsitems when pathelices move
+    # this must happen AFTER the pathhelices move such that the positions
+    # of Xover endpoints are valid/new before they get recalculated
+    xoverUpdate = pyqtSignal()
     def positionInPhgChanged(self):
         if self._pathHelixGroup.topmostPathHelix() == self:
             self.addBasesButton.show()
@@ -270,6 +274,7 @@ class PathHelix(QGraphicsObject):
         else:
             self.addBasesButton.hide()
             self.removeBasesButton.hide()
+        self.xoverUpdate.emit()
 
     def boundingRect(self):
         return self.rect

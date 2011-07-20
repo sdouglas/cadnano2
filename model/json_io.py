@@ -36,11 +36,13 @@ from dnahoneycombpart import DNAHoneycombPart
 from dnasquarepart import DNASquarePart
 from virtualhelix import VirtualHelix
 from enum import StrandType
+from enum import LatticeType
+from ui.dialogs.ui_latticetype import Ui_LatticeType
 
 # from PyQt4.QtGui import QColor
 import util
 # import Qt stuff into the module namespace with PySide, PyQt4 independence
-util.qtWrapImport('QtGui', globals(),  ['QColor'])
+util.qtWrapImport('QtGui', globals(),  ['QColor', 'QDialog'])
 
 NODETAG = "node"
 NAME = "name"
@@ -63,13 +65,34 @@ def doc_from_legacy_dict(obj):
     """
     Takes a loaded legacy dictionary, returns a loaded Document
     """
-    doc = Document()
-    part = DNAHoneycombPart()   # TODO must generalize
-    doc.addPart(part)
-    part.setName(obj["name"])
-    #self.addVirtualHelixAt(coord, vh, requestSpecificIdnum=num, noUndo=True)
     numBases = len(obj['vstrands'][0]['scaf'])
-    part.setDimensions((30, 32, numBases))
+    # determine lattice type
+    if numBases % 21 == 0 and numBases % 32 == 0:
+        dialog = QDialog()
+        dialogLT = Ui_LatticeType()
+        dialogLT.setupUi(dialog)
+        if dialog.exec_() == 1:
+            latticeType = LatticeType.Square
+        else:
+            latticeType = LatticeType.Honeycomb
+    elif numBases % 32 == 0:
+        latticeType = LatticeType.Square
+    elif numBases % 21 == 0:
+        latticeType = LatticeType.Honeycomb
+    # create part according to lattice type
+    if latticeType == LatticeType.Honeycomb:
+        part = DNAHoneycombPart()
+        part.setDimensions((30, 32, numBases))
+    elif latticeType == LatticeType.Square:
+        part = DNASquarePart()
+        part.setDimensions((30, 30, numBases))
+    else:
+        raise TypeError("Lattice type not recognized")
+
+    part.setName(obj["name"])
+    doc = Document(legacyJsonImport=True)
+    doc.addPart(part)
+
     for helix in obj['vstrands']:
         row = helix['row']
         col = helix['col']

@@ -155,12 +155,17 @@ class XoverHandlePair(QGraphicsItem):
 
     def fromBase(self):
         return (self._fromVH, self._fromStrand, self._fromIdx)
+    
     def setFromBase(self, newBase):
         if (self._fromVH, self._fromStrand, self._fromIdx) == newBase:
             return
         self._painterpath = None
         if self._fromVH != None:
             self._fromVH.basesModified.disconnect(self.refresh)
+            
+            # this handles changes in pathhelix screen position
+            self._xover3prime._ph.xoverUpdate.disconnect(self.refresh)
+            
         if newBase == None:
             self._fromVH, self._fromStrand, self._fromIdx = None, None, None
             if self.isVisible():
@@ -168,6 +173,10 @@ class XoverHandlePair(QGraphicsItem):
         else:
             self._fromVH, self._fromStrand, self._fromIdx = newBase
             self._fromVH.basesModified.connect(self.refresh)
+            
+            # this handles changes in pathhelix screen position
+            self._xover3prime._ph.xoverUpdate.connect(self.refresh)
+            
             self._xover3prime.setBase(newBase)
             if not self.isVisible():
                 self.show()
@@ -181,6 +190,10 @@ class XoverHandlePair(QGraphicsItem):
         self._painterpath = None
         if self._toVH != None:
             self._toVH.basesModified.disconnect(self.refresh)
+            
+            # this handles changes in pathhelix screen position
+            self._xover5prime._ph.xoverUpdate.disconnect(self.refresh)
+            
         if newBase == None:
             self._toVH, self._toIdx = None, None
             self._toPt = None
@@ -188,6 +201,10 @@ class XoverHandlePair(QGraphicsItem):
             if type(newBase) in (tuple, list):
                 self._toVH, self._toStrand, self._toIdx = newBase
                 self._toVH.basesModified.connect(self.refresh)
+                
+                # this handles changes in pathhelix screen position
+                self._xover5prime._ph.xoverUpdate.connect(self.refresh)
+                
                 self._toPt = None
             else:
                 self._toVH, self._toStrand, self._toIdx = None, None, None
@@ -198,23 +215,6 @@ class XoverHandlePair(QGraphicsItem):
     def setToPoint(self, newToPt):
         # It's smarter than the caller of this method thought
         self.setToBase(newToPt)
-
-    def getPen(self):
-        if self._pen != None:
-            return self._pen
-        if self._fromVH == None:
-            return QPen()
-        color = QColor(self._fromVH.colorOfBase(self._fromStrand, self._fromIdx))
-        self._pen = QPen(color)
-        self._pen.setWidth(styles.PATH_STRAND_STROKE_WIDTH)
-        if self._fromStrand == StrandType.Staple:
-            oligoLength = self._fromVH.numberOfBasesConnectedTo(self._fromStrand, self._fromIdx)
-            if oligoLength > styles.oligoLenAboveWhichHighlight or \
-               oligoLength < styles.oligoLenBelowWhichHighlight:
-                self._pen.setWidth(styles.PATH_STRAND_HIGHLIGHT_STROKE_WIDTH)
-                color.setAlpha(128)
-                self._pen.setColor(color)
-        return self._pen
     
     def keyMe(self):
         return ((self._fromVH, self._fromStrand, self._fromIdx),\
@@ -253,6 +253,10 @@ class XoverHandlePair(QGraphicsItem):
         return True
 
     def refresh(self):
+        self._painterpath = None
+        self._pen = None
+        self.refreshRect()
+        self.update(self.boundingRect())
         if self._fromVH == None or (self._toVH == None and self._toPt == None):
             # No need to destroy ourselves if we've been intentionally set
             # to have a null source / destination (that's intentional)
@@ -262,23 +266,54 @@ class XoverHandlePair(QGraphicsItem):
             # that does not exist anymore, we need to auto-destroy
             # ourselves.
             self.destroy()
-
-    def refreshPen(self):
-        self._pen = None
+    # end def
+    
+    def getPen(self):
+        if self._pen != None:
+            return self._pen
+        if self._fromVH == None:
+            return QPen()
+        color = QColor(self._fromVH.colorOfBase(self._fromStrand, self._fromIdx))
+        self._pen = QPen(color)
+        self._pen.setWidth(styles.PATH_STRAND_STROKE_WIDTH)
+        if self._fromStrand == StrandType.Staple:
+            oligoLength = self._fromVH.numberOfBasesConnectedTo(self._fromStrand, self._fromIdx)
+            if oligoLength > styles.oligoLenAboveWhichHighlight or \
+               oligoLength < styles.oligoLenBelowWhichHighlight:
+                self._pen.setWidth(styles.PATH_STRAND_HIGHLIGHT_STROKE_WIDTH)
+                color.setAlpha(128)
+                self._pen.setColor(color)
+        self._pen.setCapStyle(Qt.SquareCap)
+        return self._pen
 
     def paint(self, painter, option, widget=None):
-        if self._painterpath == None:
-            return
         painter.setBrush(Qt.NoBrush)
-        self.refreshPen()
         pen = QPen(self.getPen())
-        pen.setCapStyle(Qt.SquareCap)
         painter.setPen(pen)
         # painter.drawRect(self._rect)
-        painter.drawPath(self._painterpath)
+        painter.drawPath(self.getPainterPath())
 
     def boundingRect(self):
         return self._rect
+    # end def
+    
+    def refreshRect(self):
+        if self.painterPath() == None:
+            self._rect = QRectF()
+            return
+        newRect = self.painterPath().controlPointRect()
+        penW = self.getPen().widthF()
+        newRect.adjust(-penW, -penW, 2*penW, 2*penW)
+        if self._rect != newRect:
+            self._rect = newRect
+            self.prepareGeometryChange()
+    # end def
+
+    def getPainterPath(self):
+        if self._painterpath == None:
+            self.painterPath()
+            # print "regenerated"
+        return self._painterpath
 
     def painterPath(self):
         """
@@ -307,6 +342,7 @@ class XoverHandlePair(QGraphicsItem):
         if self._painterpath:
             return self._painterpath
         
+        # print "regenerating path"
         # begin calculations of how to draw labels and crossover orientations
         y3 = y5 = self._baseWidth / 2
         from5To3 = self._fromVH.directionOfStrandIs5to3(self._fromStrand)
@@ -397,15 +433,5 @@ class XoverHandlePair(QGraphicsItem):
         return painterpath
     # end def
 
-    def refreshRect(self):
-        if self.painterPath() == None:
-            self._rect = QRectF()
-            return
-        newRect = self.painterPath().controlPointRect()
-        penW = self.getPen().widthF()
-        newRect.adjust(-penW, -penW, 2*penW, 2*penW)
-        if self._rect != newRect:
-            self._rect = newRect
-            self.prepareGeometryChange()
 
 # end class
