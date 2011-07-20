@@ -75,10 +75,6 @@ class SelectionItemGroup(QGraphicsItemGroup):
     def getX(self, pos):
         return pos.x()
     # end def
-    
-    # def addToGroup(self, item):
-    #     QGraphicsItemGroup.addToGroup(self, item)
-    #     self.selectionbox.setRect(self.boundingRect())
 
     def translateY(self, yf):
         # print  yf, self._r, (yf - self._r)
@@ -90,8 +86,8 @@ class SelectionItemGroup(QGraphicsItemGroup):
     # end def
 
     def paint(self, painter, option, widget=None):
-        painter.setPen(QPen(styles.redstroke))
-        painter.drawRect(self.boundingRect())
+        # painter.setPen(QPen(styles.redstroke))
+        # painter.drawRect(self.boundingRect())
         pass
     # end def
 
@@ -112,9 +108,12 @@ class SelectionItemGroup(QGraphicsItemGroup):
             self.selectionbox.setRect(self.boundingRect())
             self.selectionbox.resetTransform()
             self.selectionbox.drawMe = True
+            
+            # for some reason we need to skip the first mouseMoveEvent
+            self.dragged = False
                 
-            self._r0 = self.getR(self.mapToScene(QPointF(event.pos())))
-            self._r = self._r0
+            # self._r0 = self.getR(self.mapToScene(QPointF(event.pos())))
+            # self._r = self._r0
             self.scene().views()[0].addToPressList(self)
             
     # end def
@@ -122,11 +121,19 @@ class SelectionItemGroup(QGraphicsItemGroup):
     def mouseMoveEvent(self, event):
         if self.dragEnable == True:
             rf = self.getR(self.mapToScene(QPointF(event.pos())))
-            # rf = self.getR(QPointF(event.pos()))
-            self.translateR(rf)
+            # for some reason we need to skip the first mouseMoveEvent
+            if self.dragged == False:
+                self.dragged = True
+                self._r0 = rf
+            # end if
+            else:
+                self.translateR(rf)
+            # end else
             self._r = rf
+        # end if
         else:
             QGraphicsItemGroup.mouseMoveEvent(self, event)
+        # end else
     # end def
 
     def customMouseRelease(self, event):
@@ -136,7 +143,6 @@ class SelectionItemGroup(QGraphicsItemGroup):
         self.dragEnable = False
         # now do stuff
         if self.isSelected():
-            self.selectionbox.setRect(self.boundingRect())
             self.selectionbox.processSelectedItems(self._r0, self._r)
         # end if
     # end def
@@ -202,11 +208,9 @@ class PathHelixHandleSelectionBox(QGraphicsItem):
 
     def boundingRect(self):
         return self.rect
-        # return self.itemGroup.boundingRect()
     # end def
 
     def setRect(self, rect):
-        self.setPos(self.mapFromItem(self.itemGroup, rect.topLeft()))
         self.rect = self.mapRectFromItem(self.itemGroup,rect)
 
     def processSelectedItems(self, rStart, rEnd):
