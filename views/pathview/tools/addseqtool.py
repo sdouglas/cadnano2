@@ -29,29 +29,45 @@ Created by Shawn Douglas on 2011-06-21.
 
 from abstractpathtool import AbstractPathTool
 import util
-util.qtWrapImport('QtGui', globals(), ['QPen', 'QColor', 'QInputDialog'])
-util.qtWrapImport('QtCore', globals(), ['Qt', 'QPointF', 'SLOT', 'pyqtSlot'])
+util.qtWrapImport('QtGui', globals(), ['QPen', 'QColor', 'QDialog'])
+util.qtWrapImport('QtCore', globals(), ['Qt', 'QPointF', 'QObject', 'QString', \
+                                        'QSignalMapper', 'pyqtSignal', 'pyqtSlot'])
 from model.enum import StrandType
 from data.dnasequences import sequences
+from ui.dialogs.ui_addseq import Ui_AddSeqDialog
 
 class AddSeqTool(AbstractPathTool):
     def __init__(self, controller, parent=None):
         AbstractPathTool.__init__(self, controller, parent)
+        self.initDialog()
+
+    def initDialog(self):
+        print "initDia"
+        self.dialog = QDialog()
+        asDlg = Ui_AddSeqDialog()
+        asDlg.setupUi(self.dialog)
+        self.buttons = [asDlg.m13mp18Button,
+                        asDlg.p7308Button,
+                        asDlg.p7560Button,
+                        asDlg.p7704Button,
+                        asDlg.p8064Button,
+                        asDlg.p8634Button]
+        self.signalMapper = QSignalMapper(self)
+        for num, button in enumerate(self.buttons):
+            print button, num, button.objectName()
+            self.signalMapper.setMapping(button, num)
+            button.clicked.connect(self.signalMapper.map)
+        self.signalMapper.mapped.connect(self.userChoseStandardSeq)
+        # self.handleButtonClick.connect(self.userChoseSeq)
 
     def mousePressPathHelix(self, pathHelix, event):
         strandType, idx = self.baseAtPoint(pathHelix, event.pos())
-        dialog = QInputDialog(self.window())
-        dialog.setWindowFlags(Qt.Dialog | Qt.Sheet)
-        dialog.setWindowModality(Qt.WindowModal)
-        dialog.setLabelText('Choose the sequence to be applied from 5\' to 3\' in the\n oligo you clicked on by name, or enter a sequence by hand:')
-        dialog.setWindowTitle('Choose Sequence')
-        dialog.setComboBoxEditable(True)
-        dialog.setComboBoxItems(sequences.keys())
-        dialog.open(self, SLOT("userChoseSeq(QString)"))
-        self.dialog = dialog
         self.vh = pathHelix.vhelix()
         self.strandType = strandType
         self.idx = idx
+        result = self.dialog.exec_()
+        print "result", result
+        # self.dialog.open(self, SLOT("userChoseSeq(QString)"))
     
     def updateLocation(self, pathHelix, scenePos, *args):
         AbstractPathTool.updateLocation(self, pathHelix, scenePos, *args)
@@ -92,7 +108,24 @@ class AddSeqTool(AbstractPathTool):
                 self.show()
 
     @pyqtSlot(str)
+    def userChoseStandardSeq(self, optionChosen):
+        print "slot userChoseSeq", optionChosen
+        optionChosen = str(self.buttons[optionChosen].text())
+        print "lookup", optionChosen
+        seqToUse = ""
+        knownSeqNamedByChosenOption = sequences.get(optionChosen, None)
+        print knownSeqNamedByChosenOption
+        sequenceAfterExtractionOfBasePairChars = util.strToDna(optionChosen)
+        if knownSeqNamedByChosenOption:
+            seqToUse = knownSeqNamedByChosenOption
+        elif len(sequenceAfterExtractionOfBasePairChars)==len(optionChosen):
+            seqToUse = sequenceAfterExtractionOfBasePairChars
+        vh, strandType, idx = self.vh, self.strandType, self.idx
+        vh.applySequenceAt(strandType, idx, seqToUse)
+
+    @pyqtSlot(str)
     def userChoseSeq(self, optionChosen):
+        print "slot userChoseSeq", optionChosen
         optionChosen = str(optionChosen)
         seqToUse = ""
         knownSeqNamedByChosenOption = sequences.get(optionChosen, None)

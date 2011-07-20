@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'dialogs/addseq.ui'
 #
-# Created: Wed Jul 20 15:19:10 2011
+# Created: Wed Jul 20 17:04:34 2011
 #      by: PyQt4 UI code generator snapshot-4.8.3-fbc8b1362812
 #
 # WARNING! All changes made in this file will be lost!
@@ -18,6 +18,7 @@ class Ui_AddSeqDialog(object):
     def setupUi(self, AddSeqDialog):
         AddSeqDialog.setObjectName(_fromUtf8("AddSeqDialog"))
         AddSeqDialog.resize(493, 426)
+        AddSeqDialog.setModal(True)
         self.dialogGridLayout = QtGui.QGridLayout(AddSeqDialog)
         self.dialogGridLayout.setObjectName(_fromUtf8("dialogGridLayout"))
         self.tabWidget = QtGui.QTabWidget(AddSeqDialog)
@@ -26,13 +27,6 @@ class Ui_AddSeqDialog(object):
         self.tabStandard.setObjectName(_fromUtf8("tabStandard"))
         self.standardTabGridLayout = QtGui.QGridLayout(self.tabStandard)
         self.standardTabGridLayout.setObjectName(_fromUtf8("standardTabGridLayout"))
-        self.standardButtonBox = QtGui.QDialogButtonBox(self.tabStandard)
-        self.standardButtonBox.setStandardButtons(QtGui.QDialogButtonBox.Cancel)
-        self.standardButtonBox.setObjectName(_fromUtf8("standardButtonBox"))
-        self.standardTabGridLayout.addWidget(self.standardButtonBox, 6, 2, 1, 1)
-        self.pEGFPButton = QtGui.QPushButton(self.tabStandard)
-        self.pEGFPButton.setObjectName(_fromUtf8("pEGFPButton"))
-        self.standardTabGridLayout.addWidget(self.pEGFPButton, 6, 1, 1, 1)
         spacerItem = QtGui.QSpacerItem(40, 20, QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Minimum)
         self.standardTabGridLayout.addItem(spacerItem, 3, 2, 1, 1)
         self.p8634Button = QtGui.QPushButton(self.tabStandard)
@@ -56,8 +50,13 @@ class Ui_AddSeqDialog(object):
         self.standardTabGridLayout.addWidget(self.p7308Button, 1, 1, 1, 1)
         self.m13mp18Button = QtGui.QPushButton(self.tabStandard)
         self.m13mp18Button.setMinimumSize(QtCore.QSize(110, 0))
+        self.m13mp18Button.setDefault(True)
         self.m13mp18Button.setObjectName(_fromUtf8("m13mp18Button"))
         self.standardTabGridLayout.addWidget(self.m13mp18Button, 0, 1, 1, 1)
+        self.standardButtonBox = QtGui.QDialogButtonBox(self.tabStandard)
+        self.standardButtonBox.setStandardButtons(QtGui.QDialogButtonBox.Cancel)
+        self.standardButtonBox.setObjectName(_fromUtf8("standardButtonBox"))
+        self.standardTabGridLayout.addWidget(self.standardButtonBox, 6, 2, 1, 1)
         self.tabWidget.addTab(self.tabStandard, _fromUtf8(""))
         self.tabCustom = QtGui.QWidget()
         self.tabCustom.setObjectName(_fromUtf8("tabCustom"))
@@ -77,21 +76,27 @@ class Ui_AddSeqDialog(object):
 
         self.retranslateUi(AddSeqDialog)
         self.tabWidget.setCurrentIndex(0)
+        QtCore.QObject.connect(self.standardButtonBox, QtCore.SIGNAL(_fromUtf8("rejected()")), AddSeqDialog.reject)
+        QtCore.QObject.connect(self.customButtonBox, QtCore.SIGNAL(_fromUtf8("rejected()")), AddSeqDialog.reject)
+        QtCore.QObject.connect(self.customButtonBox, QtCore.SIGNAL(_fromUtf8("accepted()")), AddSeqDialog.accept)
+        QtCore.QObject.connect(self.m13mp18Button, QtCore.SIGNAL(_fromUtf8("clicked()")), AddSeqDialog.accept)
+        QtCore.QObject.connect(self.p7308Button, QtCore.SIGNAL(_fromUtf8("clicked()")), AddSeqDialog.accept)
+        QtCore.QObject.connect(self.p7560Button, QtCore.SIGNAL(_fromUtf8("clicked()")), AddSeqDialog.accept)
+        QtCore.QObject.connect(self.p7704Button, QtCore.SIGNAL(_fromUtf8("clicked()")), AddSeqDialog.accept)
+        QtCore.QObject.connect(self.p8064Button, QtCore.SIGNAL(_fromUtf8("clicked()")), AddSeqDialog.accept)
+        QtCore.QObject.connect(self.p8634Button, QtCore.SIGNAL(_fromUtf8("clicked()")), AddSeqDialog.accept)
         QtCore.QMetaObject.connectSlotsByName(AddSeqDialog)
         AddSeqDialog.setTabOrder(self.m13mp18Button, self.p7308Button)
         AddSeqDialog.setTabOrder(self.p7308Button, self.p7560Button)
         AddSeqDialog.setTabOrder(self.p7560Button, self.p7704Button)
         AddSeqDialog.setTabOrder(self.p7704Button, self.p8064Button)
         AddSeqDialog.setTabOrder(self.p8064Button, self.p8634Button)
-        AddSeqDialog.setTabOrder(self.p8634Button, self.pEGFPButton)
-        AddSeqDialog.setTabOrder(self.pEGFPButton, self.standardButtonBox)
-        AddSeqDialog.setTabOrder(self.standardButtonBox, self.sequencePlainTextEdit)
+        AddSeqDialog.setTabOrder(self.p8634Button, self.sequencePlainTextEdit)
         AddSeqDialog.setTabOrder(self.sequencePlainTextEdit, self.customButtonBox)
         AddSeqDialog.setTabOrder(self.customButtonBox, self.tabWidget)
 
     def retranslateUi(self, AddSeqDialog):
         AddSeqDialog.setWindowTitle(QtGui.QApplication.translate("AddSeqDialog", "Choose a sequence", None, QtGui.QApplication.UnicodeUTF8))
-        self.pEGFPButton.setText(QtGui.QApplication.translate("AddSeqDialog", "pEGFP", None, QtGui.QApplication.UnicodeUTF8))
         self.p8634Button.setText(QtGui.QApplication.translate("AddSeqDialog", "p8634", None, QtGui.QApplication.UnicodeUTF8))
         self.p8064Button.setText(QtGui.QApplication.translate("AddSeqDialog", "p8064", None, QtGui.QApplication.UnicodeUTF8))
         self.p7704Button.setText(QtGui.QApplication.translate("AddSeqDialog", "p7704", None, QtGui.QApplication.UnicodeUTF8))
