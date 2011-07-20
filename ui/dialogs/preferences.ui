@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>335</width>
-    <height>244</height>
+    <width>440</width>
+    <height>272</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -20,50 +20,10 @@
    <string>Preferences</string>
   </property>
   <layout class="QGridLayout" name="gridLayout">
-   <item row="3" column="3">
-    <widget class="QComboBox" name="defaulttoolComboBox">
-     <item>
-      <property name="text">
-       <string>Select Tool</string>
-      </property>
-      <property name="icon">
-       <iconset resource="dialogicons.qrc">
-        <normaloff>:/pathtools/select</normaloff>:/pathtools/select</iconset>
-      </property>
-     </item>
-     <item>
-      <property name="text">
-       <string>Pencil Tool</string>
-      </property>
-      <property name="icon">
-       <iconset resource="dialogicons.qrc">
-        <normaloff>:/pathtools/pencil</normaloff>:/pathtools/pencil</iconset>
-      </property>
-     </item>
-     <item>
-      <property name="text">
-       <string>Paint</string>
-      </property>
-      <property name="icon">
-       <iconset resource="dialogicons.qrc">
-        <normaloff>:/pathtools/paint</normaloff>:/pathtools/paint</iconset>
-      </property>
-     </item>
-     <item>
-      <property name="text">
-       <string>Add Seq</string>
-      </property>
-      <property name="icon">
-       <iconset resource="dialogicons.qrc">
-        <normaloff>:/pathtools/addseq</normaloff>:/pathtools/addseq</iconset>
-      </property>
-     </item>
-    </widget>
-   </item>
    <item row="4" column="0">
     <widget class="QLabel" name="zoomSpeedLabel">
      <property name="text">
-      <string>Zoom speed</string>
+      <string>Zoom speed:</string>
      </property>
     </widget>
    </item>
@@ -92,14 +52,7 @@
      </property>
     </widget>
    </item>
-   <item row="3" column="0">
-    <widget class="QLabel" name="label">
-     <property name="text">
-      <string>Default Tool at Startup</string>
-     </property>
-    </widget>
-   </item>
-   <item row="5" column="0" colspan="4">
+   <item row="6" column="0" colspan="4">
     <widget class="QDialogButtonBox" name="buttonBox">
      <property name="inputMethodHints">
       <set>Qt::ImhNone</set>
@@ -108,7 +61,7 @@
       <enum>Qt::Horizontal</enum>
      </property>
      <property name="standardButtons">
-      <set>QDialogButtonBox::Cancel|QDialogButtonBox::RestoreDefaults|QDialogButtonBox::Save</set>
+      <set>QDialogButtonBox::Cancel|QDialogButtonBox::Ok|QDialogButtonBox::RestoreDefaults</set>
      </property>
      <property name="centerButtons">
       <bool>false</bool>
@@ -118,13 +71,13 @@
    <item row="0" column="0" colspan="4">
     <widget class="QTabWidget" name="tabWidget">
      <property name="sizePolicy">
-      <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+      <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
        <horstretch>0</horstretch>
        <verstretch>0</verstretch>
       </sizepolicy>
      </property>
      <property name="currentIndex">
-      <number>1</number>
+      <number>0</number>
      </property>
      <property name="elideMode">
       <enum>Qt::ElideRight</enum>
@@ -139,9 +92,9 @@
       </attribute>
       <layout class="QGridLayout" name="gridLayout_5">
        <item row="0" column="0">
-        <layout class="QHBoxLayout" name="horizontalLayout">
+        <layout class="QHBoxLayout" name="honeycombHLayout">
          <item>
-          <widget class="QLabel" name="label_2">
+          <widget class="QLabel" name="dimensionsLabel1">
            <property name="text">
             <string>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
 &lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
@@ -153,7 +106,10 @@ p, li { white-space: pre-wrap; }
           </widget>
          </item>
          <item>
-          <layout class="QGridLayout" name="gridLayout_2">
+          <layout class="QGridLayout" name="honeycombGLayout">
+           <property name="topMargin">
+            <number>3</number>
+           </property>
            <property name="horizontalSpacing">
             <number>-1</number>
            </property>
@@ -203,6 +159,29 @@ p, li { white-space: pre-wrap; }
              </property>
             </widget>
            </item>
+           <item row="0" column="2">
+            <widget class="QSpinBox" name="honeycombBaseSpinBox">
+             <property name="minimum">
+              <number>2</number>
+             </property>
+             <property name="maximum">
+              <number>2000</number>
+             </property>
+             <property name="singleStep">
+              <number>1</number>
+             </property>
+             <property name="value">
+              <number>2</number>
+             </property>
+            </widget>
+           </item>
+           <item row="1" column="2">
+            <widget class="QLabel" name="hBasesLabel">
+             <property name="text">
+              <string>bases (x21)</string>
+             </property>
+            </widget>
+           </item>
           </layout>
          </item>
         </layout>
@@ -219,9 +198,9 @@ p, li { white-space: pre-wrap; }
       </attribute>
       <layout class="QGridLayout" name="gridLayout_4">
        <item row="0" column="0">
-        <layout class="QHBoxLayout" name="horizontalLayout_2">
+        <layout class="QHBoxLayout" name="squareHLayout">
          <item>
-          <widget class="QLabel" name="label_7">
+          <widget class="QLabel" name="dimensionsLabel2">
            <property name="text">
             <string>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
 &lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
@@ -233,9 +212,12 @@ p, li { white-space: pre-wrap; }
           </widget>
          </item>
          <item>
-          <layout class="QGridLayout" name="gridLayout_3">
+          <layout class="QGridLayout" name="squareGLayout">
            <property name="topMargin">
             <number>3</number>
+           </property>
+           <property name="horizontalSpacing">
+            <number>-1</number>
            </property>
            <item row="0" column="0">
             <widget class="QSpinBox" name="squareRowsSpinBox">
@@ -251,7 +233,7 @@ p, li { white-space: pre-wrap; }
             </widget>
            </item>
            <item row="0" column="1">
-            <widget class="QSpinBox" name="squiareColsSpinBox">
+            <widget class="QSpinBox" name="squareColsSpinBox">
              <property name="minimum">
               <number>6</number>
              </property>
@@ -283,6 +265,23 @@ p, li { white-space: pre-wrap; }
              </property>
             </widget>
            </item>
+           <item row="0" column="2">
+            <widget class="QSpinBox" name="squareBasesSpinBox">
+             <property name="minimum">
+              <number>2</number>
+             </property>
+             <property name="maximum">
+              <number>2000</number>
+             </property>
+            </widget>
+           </item>
+           <item row="1" column="2">
+            <widget class="QLabel" name="sBasesLabel">
+             <property name="text">
+              <string>bases (x32)</string>
+             </property>
+            </widget>
+           </item>
           </layout>
          </item>
         </layout>
@@ -291,8 +290,94 @@ p, li { white-space: pre-wrap; }
      </widget>
     </widget>
    </item>
+   <item row="5" column="0">
+    <widget class="QLabel" name="zoomfitLabel">
+     <property name="text">
+      <string>Zoom to fit on:</string>
+     </property>
+    </widget>
+   </item>
+   <item row="5" column="1">
+    <widget class="QCheckBox" name="helixAddCheckBox">
+     <property name="text">
+      <string>Helix addition</string>
+     </property>
+     <property name="checked">
+      <bool>true</bool>
+     </property>
+    </widget>
+   </item>
+   <item row="3" column="0">
+    <widget class="QLabel" name="defaulttoolLabel">
+     <property name="text">
+      <string>Default tool at startup:</string>
+     </property>
+    </widget>
+   </item>
+   <item row="5" column="2">
+    <widget class="QCheckBox" name="helixReorderCheckBox">
+     <property name="text">
+      <string>Helix reordering</string>
+     </property>
+     <property name="checked">
+      <bool>true</bool>
+     </property>
+    </widget>
+   </item>
+   <item row="3" column="2">
+    <widget class="QComboBox" name="defaulttoolComboBox">
+     <item>
+      <property name="text">
+       <string>Select Tool</string>
+      </property>
+      <property name="icon">
+       <iconset resource="dialogicons.qrc">
+        <normaloff>:/pathtools/select</normaloff>:/pathtools/select</iconset>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>Pencil Tool</string>
+      </property>
+      <property name="icon">
+       <iconset resource="dialogicons.qrc">
+        <normaloff>:/pathtools/pencil</normaloff>:/pathtools/pencil</iconset>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>Paint</string>
+      </property>
+      <property name="icon">
+       <iconset resource="dialogicons.qrc">
+        <normaloff>:/pathtools/paint</normaloff>:/pathtools/paint</iconset>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>Add Seq</string>
+      </property>
+      <property name="icon">
+       <iconset resource="dialogicons.qrc">
+        <normaloff>:/pathtools/addseq</normaloff>:/pathtools/addseq</iconset>
+      </property>
+     </item>
+    </widget>
+   </item>
   </layout>
  </widget>
+ <tabstops>
+  <tabstop>buttonBox</tabstop>
+  <tabstop>tabWidget</tabstop>
+  <tabstop>defaulttoolComboBox</tabstop>
+  <tabstop>honeycombRowSpinBox</tabstop>
+  <tabstop>honeycombColSpinBox</tabstop>
+  <tabstop>squareRowsSpinBox</tabstop>
+  <tabstop>squareColsSpinBox</tabstop>
+  <tabstop>zoomSpeedSlider</tabstop>
+  <tabstop>helixAddCheckBox</tabstop>
+  <tabstop>helixReorderCheckBox</tabstop>
+ </tabstops>
  <resources>
   <include location="dialogicons.qrc"/>
  </resources>

@@ -3,6 +3,11 @@ runtests.py
 Helper file to run tests with 1 command and output the results to an XML file.
 Usage: From the main cadnano folder: python -m tests.runtests
 Created by Flo Mazzoldi on 2011-06-15.
+
+My TextMate Script:
+
+cd "$TM_PROJECT_DIRECTORY"
+CADNANO_RUN_PLAINTEXT_TESTS=YES CADNANO_IGNORE_ENV_VARS_EXCEPT_FOR_ME=YES python tests/runall.py | pre
 """
 
 import glob
@@ -45,4 +50,5 @@ def main(useXMLRunner=True):
 
 
 if __name__ == "__main__":
-    main()
+    textRunner = os.environ.get('CADNANO_RUN_PLAINTEXT_TESTS', None) == "YES"
+    main(not textRunner)
