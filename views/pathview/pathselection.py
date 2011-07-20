@@ -230,11 +230,6 @@ class PathHelixHandleSelectionBox(QGraphicsItem):
                                    items[-1].number(),\
                                    indexDelta)
                                    
-        # call refresh on each PathHelixHandle in the selection list 
-        # this makes sure xovers get redrawn
-        for item in items:
-            item.refresh()
-        # end def
     # end def
 # end class
 
