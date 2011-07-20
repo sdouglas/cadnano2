@@ -281,7 +281,7 @@ class DocumentController():
         return True
 
     def saveClicked(self):
-        if self._hasNoAssociatedFile:
+        if self._hasNoAssociatedFile or self._document._importedFromJson:
             return self.saveAsClicked()
         f = open(self.filename(), 'w')
         encode(self._document, f)
