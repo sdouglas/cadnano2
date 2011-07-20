@@ -949,11 +949,15 @@ class VirtualHelix(QObject):
         -1 is a skip, +N is a loop
         """
         undoStack = self.beginCommand(undoStack, "installLoop")
+        d = None
         if strandType == StrandType.Scaffold:
-            # d never got used...
-            # if self._isSeqBlank == False:
-            #    d = self.ApplySequenceCommand(self, StrandType.Scaffold, index, " ")
+            if self._isSeqBlank == False:
+               d = self.ApplySequenceCommand(self, StrandType.Scaffold, index, " ")
             c = self.LoopCommand(self, strandType, index, loopsize)
+        if undoStack != None and d != None:
+            undoStack.push(d)
+        elif d != None:
+            d.redo()
         self.endCommand(undoStack, c)
 
     def applyColorAt(self, color, strandType, index, undoStack=True):
