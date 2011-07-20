@@ -171,7 +171,7 @@ class CADnano(QObject):
         dialog = QDialog()
         dialogPrefs = Ui_Preferences()
         dialogPrefs.setupUi(dialog)
-
+        dialog.exec_()
 
 def ignoreEnv():
     return environ.get('CADNANO_IGNORE_ENV_VARS_EXCEPT_FOR_ME', False)

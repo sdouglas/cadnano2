@@ -39,11 +39,12 @@ util.qtWrapImport('QtCore', globals(), ['pyqtSignal', 'QObject'])
 util.qtWrapImport('QtGui', globals(), [ 'QUndoCommand'])
 
 class Document(QObject):
-    def __init__(self, incompleteArchivedDict=None):
+    def __init__(self, incompleteArchivedDict=None, legacyJsonImport=False):
         super(Document, self).__init__()
         self._parts = []
         self._selectedPart = None
         self._controller = None
+        self._importedFromJson = legacyJsonImport
     
     def fsck(self):
         for p in self._parts:
