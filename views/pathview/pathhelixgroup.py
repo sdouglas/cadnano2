@@ -372,6 +372,17 @@ class PathHelixGroup(QGraphicsObject):
         self.setDisplayedVHs(listVHs)
     # end def
 
+    clearCursors = pyqtSignal()
+    def mousePressDefault(self, event):
+        """
+        Default function that gets called thanks to utils
+        util.defineEventForwardingMethodsForClass
+        
+        currently not used but serves as an example method
+        """
+        self.clearCursors.emit()
+    # end def
+
     # These methods are required since hover events are accepted
     # and no additional event handler exists in order to prevent additional
     # phg redraws

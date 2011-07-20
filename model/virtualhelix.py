@@ -956,15 +956,18 @@ class VirtualHelix(QObject):
         c = self.LoopCommand(self, strandType, index, loopsize)
         
         if undoable == False:
+            if self._isSeqBlank == False:
+                d.redo()
             c.redo()
-
         else:
             undoStack = self.undoStack()
             if loopsize > 0:
                 undoStack.beginMacro("Insert at %d[%d]" % (self._number, index))
             else:
                 undoStack.beginMacro("Skip at %d[%d]" % (self._number, index))
-
+            
+            if self._isSeqBlank == False:
+                undoStack.push(d)
             undoStack.push(c)
 
             undoStack.endMacro()

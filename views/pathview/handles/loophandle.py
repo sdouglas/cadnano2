@@ -34,7 +34,8 @@ import util
 util.qtWrapImport('QtCore', globals(), [ 'QPointF', 'QRectF', 'Qt'] )
 util.qtWrapImport('QtGui', globals(), [ 'QBrush', 'QFont', \
                                         'QGraphicsItem', 'QGraphicsTextItem', \
-                                        'QTextCursor', 'QPainterPath', 'QPen'] )
+                                        'QTextCursor', 'QPainterPath', 'QPen', \
+                                        'QLabel'] )
 
 class LoopItem(object):
     """
@@ -135,6 +136,7 @@ class LoopHandle(QGraphicsItem):
     _halfbaseWidth = _baseWidth / 2
     _font = QFont(styles.thefont, 10, QFont.Bold)
     _myRect.adjust(-15, -15, 30, 30)
+    
 
     def __init__(self, parent=None):
         super(LoopHandle, self).__init__(parent)
@@ -150,8 +152,7 @@ class LoopHandle(QGraphicsItem):
     def label(self):
         if self._label:
             return self._label
-        label = QGraphicsTextItem("")
-        label.setFlags(QGraphicsTextItem.ItemIsSelectable)
+        label = QGraphicsTextItem("", parent=self)
         label.setFont(self._font)
         label.setParentItem(self)
         label.setTextInteractionFlags(Qt.TextEditorInteraction)
@@ -162,12 +163,19 @@ class LoopHandle(QGraphicsItem):
         self._label = label
         return label
 
+    def focusOut(self):
+        # print "focusing out"
+        cursor = self._label.textCursor()
+        cursor.clearSelection()
+        self._label.setTextCursor(cursor)
+        self._label.clearFocus()
+    # end def
+
     def labelMousePressEvent(self, event):
         """
-        This is supposed to pre-select the text for editing when you click
-        the label. Doesn't work.
+        Pre-selects the text for editing when you click
+        the label.
         """
-
         self._label.setTextInteractionFlags(Qt.TextEditorInteraction)
         cursor = self._label.textCursor()
         cursor.setPosition(0)
@@ -184,9 +192,7 @@ class LoopHandle(QGraphicsItem):
         if a in [Qt.Key_Space, Qt.Key_Tab]:
             return
         elif a in [Qt.Key_Return, Qt.Key_Enter]:
-            self._label.setTextInteractionFlags(Qt.NoTextInteraction)
             self.inputProcess(event)
-            # self._label.setTextInteractionFlags(Qt.TextEditorInteraction)
             return
         elif unicode(text).isalpha():
             return
@@ -198,20 +204,24 @@ class LoopHandle(QGraphicsItem):
     def inputProcess(self, event):
         """
         This is run on the label being changed
+        or losing focus
         """
         test = unicode(self._label.toPlainText())
         try:
-            self._loopsize = int(test)
+            loopsize = int(test)
         except:
-            self._loopsize = 0
-        self.parentObject().vhelix().installLoop(self._strandtype,\
-                                                 self._index,\
-                                                 self._loopsize)
-        if self._loopsize:
-            self.resetPosition()
-            self._label.setFocus(False)
-            # util.trace(10)
-            
+            loopsize = None
+        if loopsize != None and loopsize != self._loopsize:
+            self._loopsize = loopsize
+            self.parentObject().vhelix().installLoop(self._strandtype,\
+                                                     self._index,\
+                                                     self._loopsize)
+            if self._loopsize:
+                self.resetPosition()
+                self._label.setFocus(False)
+        # end if
+        self.focusOut()
+        
     def boundingRect(self):
         return self._myRect
 
