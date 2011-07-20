@@ -89,13 +89,7 @@ class PathHelixHandle(QGraphicsItem):
         # If it was our VH, we need to update the number we
         # are displaying!
         if (r,c) == self.vhelix.coord():
-            self.setNumber()
-        """
-        this guarantees that when a new pathhelix is added to the display
-        that the paths get redrawn for all pathhelices, because pathhelices
-        get reordered by number when a new pathhelix is added
-        """
-        self.refresh()      
+            self.setNumber()  
 
     def setNumber(self):
         """docstring for setNumber"""
@@ -173,14 +167,6 @@ class PathHelixHandle(QGraphicsItem):
         tempP = self._phg.mapFromItem(self.parentItem(), self.pos())
         self.setParentItem(self._phg)
         self.setPos(tempP)
-    # end def
-
-    def refresh(self):
-        """
-        This gets called after reordering all path helices, to trigger a redraw
-        of xovers.  look for item.refresh() in pathselection
-        """
-        self.vhelix.basesModified.emit()
     # end def
 
     def itemChange(self, change, value):

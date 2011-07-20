@@ -162,6 +162,10 @@ class XoverHandlePair(QGraphicsItem):
         self._painterpath = None
         if self._fromVH != None:
             self._fromVH.basesModified.disconnect(self.refresh)
+            
+            # this handles changes in pathhelix screen position
+            self._xover3prime._ph.xoverUpdate.disconnect(self.refresh)
+            
         if newBase == None:
             self._fromVH, self._fromStrand, self._fromIdx = None, None, None
             if self.isVisible():
@@ -169,6 +173,10 @@ class XoverHandlePair(QGraphicsItem):
         else:
             self._fromVH, self._fromStrand, self._fromIdx = newBase
             self._fromVH.basesModified.connect(self.refresh)
+            
+            # this handles changes in pathhelix screen position
+            self._xover3prime._ph.xoverUpdate.connect(self.refresh)
+            
             self._xover3prime.setBase(newBase)
             if not self.isVisible():
                 self.show()
@@ -182,6 +190,10 @@ class XoverHandlePair(QGraphicsItem):
         self._painterpath = None
         if self._toVH != None:
             self._toVH.basesModified.disconnect(self.refresh)
+            
+            # this handles changes in pathhelix screen position
+            self._xover5prime._ph.xoverUpdate.disconnect(self.refresh)
+            
         if newBase == None:
             self._toVH, self._toIdx = None, None
             self._toPt = None
@@ -189,6 +201,10 @@ class XoverHandlePair(QGraphicsItem):
             if type(newBase) in (tuple, list):
                 self._toVH, self._toStrand, self._toIdx = newBase
                 self._toVH.basesModified.connect(self.refresh)
+                
+                # this handles changes in pathhelix screen position
+                self._xover5prime._ph.xoverUpdate.connect(self.refresh)
+                
                 self._toPt = None
             else:
                 self._toVH, self._toStrand, self._toIdx = None, None, None

@@ -214,7 +214,7 @@ class PathHelixGroup(QGraphicsObject):
             new_pathHelixList = []
             vhToPH = dict(((ph.vhelix(), ph) for ph in self._pathHelixes))
             for vhref in vhrefs:
-                vh = self.part().getVirtualHelix(vhref)
+                vh = self.part().getVirtualHelix(vhref)            
                 ph = vhToPH.get(vh, None)
                 if ph == None:
                     ph = PathHelix(vh, self)
