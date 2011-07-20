@@ -1,12 +1,15 @@
 import sys
+import maya
 import maya.OpenMaya as OpenMaya
 import maya.OpenMayaMPx as OpenMayaMPx
 import maya.cmds as cmds
 import maya.mel as mel
 
 kPluginCmdName = "spCadNano"
-gCadNanoButton = ""
-gCadNanoToolbar = ""
+gCadNanoButton = None
+gCadNanoToolbar = None
+
+fMayaExitingCB = None
 
 #need to find this value or make it relative
 gPathToScript = "C:\\git\\cadnano2\\"
@@ -29,7 +32,11 @@ class closeCadNano(OpenMayaMPx.MPxCommand):
 	@staticmethod
 	def creator():
 		return OpenMayaMPx.asMPxPtr( closeCadNano() )
-		
+
+def onExitingMaya(clientData):
+	closeCN()
+	cmds.SavePreferences();
+
 # Initialize the script plug-in
 def initializePlugin(mobject):
 	mplugin = OpenMayaMPx.MFnPlugin(mobject)
@@ -40,11 +47,14 @@ def initializePlugin(mobject):
 		sys.stderr.write( "Failed to register command: %s\n" %kPluginCmdName )
 		raise
 	addUIButton()
+	global fMayaExitingCB
+	fMayaExitingCB = OpenMaya.MSceneMessage.addCallback(OpenMaya.MSceneMessage.kMayaExiting, onExitingMaya)
 
 # Uninitialize the script plug-in
 def uninitializePlugin(mobject):
 	closeCN()
 	removeUIButton()
+
 	mplugin = OpenMayaMPx.MFnPlugin(mobject)
 	try:
 		mplugin.deregisterCommand( "openCadNano" )
@@ -52,6 +62,10 @@ def uninitializePlugin(mobject):
 	except:
 		sys.stderr.write( "Failed to unregister command: %s\n" %kPluginCmdName )
 		raise
+	
+	global fMayaExitingCB
+	if (fMayaExitingCB != None):
+		OpenMaya.MSceneMessage.removeCallback(fMayaExitingCB)
 
 def openCN():
 	simplifyMayaUI();
@@ -84,6 +98,7 @@ def restoreMayaUI() :
 		cmds.deleteUI(gCadNanoToolbar)
 
 def closeCN():
+	print "closing CN"
 	restoreMayaUI()
 
 def addUIButton():

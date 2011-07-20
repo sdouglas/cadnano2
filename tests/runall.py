@@ -10,6 +10,11 @@ CADNANO_RUN_PLAINTEXT_TESTS=YES python tests/runall.py | pre
 
 
 Created by Flo Mazzoldi on 2011-06-15.
+
+My TextMate Script:
+
+cd "$TM_PROJECT_DIRECTORY"
+CADNANO_RUN_PLAINTEXT_TESTS=YES CADNANO_IGNORE_ENV_VARS_EXCEPT_FOR_ME=YES python tests/runall.py | pre
 """
 
 import glob
@@ -57,3 +62,4 @@ if __name__ == "__main__":
     useXMLRunner = 'CADNANO_RUN_PLAINTEXT_TESTS' not in os.environ
     print "Running all tests. Using XMLTestRunner: %s"%useXMLRunner
     main(useXMLRunner=useXMLRunner)
+
