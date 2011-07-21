@@ -362,6 +362,24 @@ class VirtualHelix(QObject):
         #     raise IndexError("%s is not Scaffold=%s or Staple=%s" % \
         #                  (strandType, StrandType.Scaffold, StrandType.Staple))
 
+    def loop(self, strandType):
+        """
+        This loop method returns the scaffold loops as is and then 
+        check the staple strand for a presense of a base 
+        before indicating a loop
+        """
+        if strandType == StrandType.Scaffold:
+            return self._scaffoldLoops
+        elif strandType == StrandType.Staple:
+            ret = {}
+            for index, loopsize in self._scaffoldLoops.iteritems():
+                if self.hasBaseAt(strandType, index):
+                    ret[index] = loopsize
+            return ret
+        else:
+            raise IndexError("%s is not Scaffold=%s or Staple=%s" % \
+                         (strandType, StrandType.Scaffold, StrandType.Staple))
+
     ############################## Access to Bases ###########################
     def indexOfRightmostNonemptyBase(self):
         """
@@ -904,7 +922,12 @@ class VirtualHelix(QObject):
         """
         Main function for installing loops and skips
         -1 is a skip, +N is a loop
+        
+        The tool was designed to allow installation only on scaffold, 
+        however to allow updating from loops drawn on staples, we make this tool
+        StrandType agnostic
         """
+        #### FIX ME JONATHAN FOR THE APPLY sequence on the stack
         undoStack = self.beginCommand(undoStack, "installLoop")
         if strandType == StrandType.Scaffold:
             # d never got used...

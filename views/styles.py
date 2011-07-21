@@ -108,6 +108,10 @@ for i in range(len(brightColors)):
 bright_palette = Palette(brightColors)
 cadnn1_palette = Palette(cadnn1Colors)
 
+# Loop/Insertion path details
+LOOPWIDTH = 2
+SKIPWIDTH = 2
+
 default_palette = cadnn1_palette
 
 #layer limits
