@@ -95,6 +95,7 @@ class XoverHandle(QGraphicsItem):
         # Draw label only; elbow gets drawn by the crossover pair
         painter.setBrush(self._labelBrush)
         painter.setFont(self._toHelixNumFont)
+        # painter.drawRect(self._rect)
         painter.drawText(self._labelRect, Qt.AlignCenter, \
                         str(self._xoverPair.notThisVH(self._vh).number() ) )
     # end def
@@ -361,14 +362,14 @@ class XoverHandlePair(QGraphicsItem):
         if from5To3:
             orient3 = HandleOrient.LeftUp
             y3 = -y3
-            labelPosRect3 = QRectF(self._xover3prime.strandExitPoint().x() - 0.75*self._baseWidth,\
-                                    self._xover3prime.strandExitPoint().y() - 1.5*self._baseWidth,\
+            labelPosRect3 = QRectF(self._xover3prime.strandExitPoint().x() - 0.85*self._baseWidth,\
+                                    self._xover3prime.strandExitPoint().y() - 1.0*self._baseWidth,\
                                     self._baseWidth, self._baseWidth)
             self._xover3prime.setLabelRect(labelPosRect3)
         else:
             orient3 = HandleOrient.RightDown
-            labelPosRect3 = QRectF(self._xover3prime.strandExitPoint().x() - 0.25*self._baseWidth,\
-                                    self._xover3prime.strandExitPoint().y() + 0.5*self._baseWidth,\
+            labelPosRect3 = QRectF(self._xover3prime.strandExitPoint().x() - 0.15*self._baseWidth,\
+                                    self._xover3prime.strandExitPoint().y() + 0.0*self._baseWidth,\
                                     self._baseWidth, self._baseWidth)
             self._xover3prime.setLabelRect(labelPosRect3)
         if self._toVH == None:
@@ -378,14 +379,14 @@ class XoverHandlePair(QGraphicsItem):
         if toIs5To3:
             orient5 = HandleOrient.RightUp
             y5 = -y5
-            labelPosRect5 = QRectF(self._xover5prime.strandExitPoint().x() - 0.25*self._baseWidth, \
-                                    self._xover5prime.strandExitPoint().y() - 1.5*self._baseWidth, \
+            labelPosRect5 = QRectF(self._xover5prime.strandExitPoint().x() - 0.15*self._baseWidth, \
+                                    self._xover5prime.strandExitPoint().y() - 1.0*self._baseWidth, \
                                     self._baseWidth, self._baseWidth)
             self._xover5prime.setLabelRect(labelPosRect5)
         else:
             orient5 = HandleOrient.LeftDown
-            labelPosRect5 = QRectF(self._xover5prime.strandExitPoint().x() - 0.75*self._baseWidth, \
-                                    self._xover5prime.strandExitPoint().y() + 0.5*self._baseWidth, \
+            labelPosRect5 = QRectF(self._xover5prime.strandExitPoint().x() - 0.85*self._baseWidth, \
+                                    self._xover5prime.strandExitPoint().y() + 0.0*self._baseWidth, \
                                     self._baseWidth, self._baseWidth)
             self._xover5prime.setLabelRect(labelPosRect5)
         
