@@ -274,6 +274,7 @@ class PathHelix(QGraphicsObject):
         else:
             self.addBasesButton.hide()
             self.removeBasesButton.hide()
+        # emit this signal to be picked up by XoverHandle at least
         self.xoverUpdate.emit()
 
     def boundingRect(self):
