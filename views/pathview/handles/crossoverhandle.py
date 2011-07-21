@@ -254,12 +254,8 @@ class XoverHandlePair(QGraphicsItem):
 
     def refresh(self):
         self._painterpath = None
-        self._pen = None
         self.refreshRect()
-        self.update(self.boundingRect())
-        # not sure why this is necessary here HACKish
-        # apparently, color isn't done updating when bounding rect is calculated
-        self._pen = None 
+        self._pen = None
         if self._fromVH == None or (self._toVH == None and self._toPt == None):
             # No need to destroy ourselves if we've been intentionally set
             # to have a null source / destination (that's intentional)
@@ -305,7 +301,7 @@ class XoverHandlePair(QGraphicsItem):
             self._rect = QRectF()
             return
         newRect = self.painterPath().controlPointRect()
-        penW = self.getPen().widthF()
+        penW = styles.PATH_STRAND_HIGHLIGHT_STROKE_WIDTH
         newRect.adjust(-penW, -penW, 2*penW, 2*penW)
         if self._rect != newRect:
             self._rect = newRect
@@ -315,7 +311,6 @@ class XoverHandlePair(QGraphicsItem):
     def getPainterPath(self):
         if self._painterpath == None:
             self.painterPath()
-            # print "regenerated"
         return self._painterpath
 
     def painterPath(self):
