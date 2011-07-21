@@ -1,18 +1,22 @@
-import sys
+import os, sys
 import maya
 import maya.OpenMaya as OpenMaya
 import maya.OpenMayaMPx as OpenMayaMPx
 import maya.cmds as cmds
 import maya.mel as mel
 
-kPluginCmdName = "spCadNano"
-gCadNanoButton = None
-gCadNanoToolbar = None
-
-fMayaExitingCB = None
-
 #need to find this value or make it relative
 gPathToScript = "C:\\git\\cadnano2\\"
+lib_path = os.path.abspath( gPathToScript )
+sys.path.insert(0, lib_path)
+
+import util
+util.qtWrapImport('QtGui', globals(), [ 'qApp' ])
+
+kPluginName = "spCadNano"
+gCadNanoButton = None
+gCadNanoToolbar = None
+fMayaExitingCB = None
 
 # command
 class openCadNano(OpenMayaMPx.MPxCommand):
@@ -44,7 +48,7 @@ def initializePlugin(mobject):
 		mplugin.registerCommand( "openCadNano", openCadNano.creator )
 		mplugin.registerCommand( "closeCadNano", closeCadNano.creator )
 	except:
-		sys.stderr.write( "Failed to register command: %s\n" %kPluginCmdName )
+		sys.stderr.write( "Failed to register command: %s\n" %kPluginName )
 		raise
 	addUIButton()
 	global fMayaExitingCB
@@ -60,7 +64,7 @@ def uninitializePlugin(mobject):
 		mplugin.deregisterCommand( "openCadNano" )
 		mplugin.deregisterCommand( "closeCadNano" )
 	except:
-		sys.stderr.write( "Failed to unregister command: %s\n" %kPluginCmdName )
+		sys.stderr.write( "Failed to unregister command: %s\n" %kPluginName )
 		raise
 	
 	global fMayaExitingCB
@@ -69,11 +73,12 @@ def uninitializePlugin(mobject):
 
 def openCN():
 	simplifyMayaUI();
-	import os, sys
-	global gPathToScript
-	lib_path = os.path.abspath( gPathToScript )
-	sys.path.insert(0, lib_path)
-	execfile( gPathToScript + 'mayamain.py')
+	dw = getDocumentWindow()
+	
+	if (dw):
+		dw.setVisible(True)
+	else :
+		execfile( gPathToScript + 'mayamain.py')
 
 def simplifyMayaUI():
 	cmds.HideUIElements()
@@ -98,8 +103,10 @@ def restoreMayaUI() :
 		cmds.deleteUI(gCadNanoToolbar)
 
 def closeCN():
-	print "closing CN"
+	dw = getDocumentWindow()
 	restoreMayaUI()
+	if (dw) :
+		dw.setVisible(False)
 
 def addUIButton():
 	global gCadNanoButton;
@@ -117,3 +124,10 @@ def addUIButton():
 def removeUIButton():
 	global gCadNanoButton;
 	cmds.deleteUI(gCadNanoButton)
+
+def getDocumentWindow():
+	import views.documentwindow
+	for a in qApp.topLevelWidgets():
+		if (isinstance(a, views.documentwindow.DocumentWindow)):
+			return a
+	return None
