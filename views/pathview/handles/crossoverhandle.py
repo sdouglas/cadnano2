@@ -95,7 +95,9 @@ class XoverHandle(QGraphicsItem):
         # Draw label only; elbow gets drawn by the crossover pair
         painter.setBrush(self._labelBrush)
         painter.setFont(self._toHelixNumFont)
-        painter.drawText(self._labelRect, Qt.AlignCenter, str(self._vh.number() ) )
+        painter.drawText(self._labelRect, Qt.AlignCenter, \
+                        str(self._xoverPair.notThisVH(self._vh).number() ) )
+    # end def
 
     def boundingRect(self):
        return self._rect
@@ -152,6 +154,18 @@ class XoverHandlePair(QGraphicsItem):
         
         # print "++++++crossoverhandle (%s->%s)"%(self._fromIdx, self._toIdx)
         self.refresh()
+
+    def notThisVH(self, vh):
+        """
+        returns the opposite of the vh passed
+        used by XoverHandle to get the label of the XoverHandle its
+        connect to in the pair
+        """
+        if vh == self._fromVH:
+            return self._toVH
+        else:
+            return self._fromVH
+    # end def
 
     def fromBase(self):
         return (self._fromVH, self._fromStrand, self._fromIdx)
