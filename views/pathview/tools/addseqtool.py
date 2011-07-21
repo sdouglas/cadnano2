@@ -162,7 +162,6 @@ class AddSeqTool(AbstractPathTool):
         if self.dialog.exec_():  # apply the sequence if accept was clicked
             if self.useCustomSequence:
                 self.validatedSequenceToApply = str(self.seqBox.toPlainText().toUpper())
-            print "apply:", self.validatedSequenceToApply
             vh = pathHelix.vhelix()
             vh.applySequenceAt(strandType, idx, self.validatedSequenceToApply)
 
