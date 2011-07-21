@@ -304,7 +304,7 @@ class SelectTool(AbstractPathTool):
         # for limiting the times a command get's called during a drag
         if self._isPressed != True and vh.isSeqBlank() == False:
             vh.setSandboxed(False)
-            vh.applySequenceAt(StrandType.Scaffold, int(idx), " ", undoable=True)
+            vh.applySequenceAt(StrandType.Scaffold, int(idx), " ")
             vh.setSandboxed(True)
             self._isPressed = True
 
