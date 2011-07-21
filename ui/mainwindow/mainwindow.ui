@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1100</width>
-    <height>800</height>
+    <width>1075</width>
+    <height>792</height>
    </rect>
   </property>
   <property name="contextMenuPolicy">
@@ -31,11 +31,20 @@
   <property name="dockOptions">
    <set>QMainWindow::AllowNestedDocks|QMainWindow::AllowTabbedDocks|QMainWindow::AnimatedDocks</set>
   </property>
+  <property name="unifiedTitleAndToolBarOnMac">
+   <bool>true</bool>
+  </property>
   <widget class="QWidget" name="centralwidget">
    <property name="autoFillBackground">
     <bool>false</bool>
    </property>
    <layout class="QGridLayout" name="gridLayout">
+    <property name="margin">
+     <number>0</number>
+    </property>
+    <property name="horizontalSpacing">
+     <number>-1</number>
+    </property>
     <item row="0" column="0">
      <widget class="QSplitter" name="splitter">
       <property name="sizePolicy">
@@ -49,6 +58,9 @@
       </property>
       <property name="frameShadow">
        <enum>QFrame::Plain</enum>
+      </property>
+      <property name="lineWidth">
+       <number>0</number>
       </property>
       <property name="orientation">
        <enum>Qt::Horizontal</enum>
@@ -85,7 +97,10 @@
         <enum>Qt::WheelFocus</enum>
        </property>
        <property name="frameShadow">
-        <enum>QFrame::Sunken</enum>
+        <enum>QFrame::Plain</enum>
+       </property>
+       <property name="lineWidth">
+        <number>0</number>
        </property>
        <property name="verticalScrollBarPolicy">
         <enum>Qt::ScrollBarAlwaysOff</enum>
@@ -128,6 +143,12 @@
        <property name="focusPolicy">
         <enum>Qt::WheelFocus</enum>
        </property>
+       <property name="frameShadow">
+        <enum>QFrame::Plain</enum>
+       </property>
+       <property name="lineWidth">
+        <number>0</number>
+       </property>
        <property name="verticalScrollBarPolicy">
         <enum>Qt::ScrollBarAlwaysOff</enum>
        </property>
@@ -150,7 +171,7 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>1100</width>
+     <width>1075</width>
      <height>22</height>
     </rect>
    </property>
@@ -203,37 +224,13 @@
    <addaction name="menuFile"/>
    <addaction name="menuEdit"/>
   </widget>
-  <widget class="QStatusBar" name="statusbar"/>
-  <widget class="QToolBar" name="leftToolBar">
+  <widget class="QToolBar" name="topToolBar">
    <property name="sizePolicy">
-    <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
+    <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
      <horstretch>0</horstretch>
      <verstretch>0</verstretch>
     </sizepolicy>
    </property>
-   <property name="windowTitle">
-    <string>Slice Tools</string>
-   </property>
-   <property name="allowedAreas">
-    <set>Qt::LeftToolBarArea|Qt::RightToolBarArea</set>
-   </property>
-   <property name="toolButtonStyle">
-    <enum>Qt::ToolButtonTextUnderIcon</enum>
-   </property>
-   <attribute name="toolBarArea">
-    <enum>LeftToolBarArea</enum>
-   </attribute>
-   <attribute name="toolBarBreak">
-    <bool>false</bool>
-   </attribute>
-   <addaction name="actionSliceSelect"/>
-   <addaction name="separator"/>
-   <addaction name="actionSliceFirst"/>
-   <addaction name="actionSliceLast"/>
-   <addaction name="actionRenumber"/>
-   <addaction name="actionDeleteLast"/>
-  </widget>
-  <widget class="QToolBar" name="topToolBar">
    <property name="baseSize">
     <size>
      <width>0</width>
@@ -268,11 +265,20 @@
      <verstretch>0</verstretch>
     </sizepolicy>
    </property>
+   <property name="minimumSize">
+    <size>
+     <width>58</width>
+     <height>0</height>
+    </size>
+   </property>
    <property name="windowTitle">
     <string>Path Tools</string>
    </property>
    <property name="layoutDirection">
     <enum>Qt::LeftToRight</enum>
+   </property>
+   <property name="allowedAreas">
+    <set>Qt::LeftToolBarArea|Qt::RightToolBarArea|Qt::TopToolBarArea</set>
    </property>
    <property name="toolButtonStyle">
     <enum>Qt::ToolButtonTextUnderIcon</enum>
@@ -281,7 +287,7 @@
     <enum>RightToolBarArea</enum>
    </attribute>
    <attribute name="toolBarBreak">
-    <bool>false</bool>
+    <bool>true</bool>
    </attribute>
    <addaction name="actionPathSelect"/>
    <addaction name="actionPathPencil"/>
@@ -293,6 +299,38 @@
    <addaction name="separator"/>
    <addaction name="actionAutoStaple"/>
    <addaction name="actionPathAddSeq"/>
+  </widget>
+  <widget class="QToolBar" name="leftToolBar">
+   <property name="sizePolicy">
+    <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
+     <horstretch>0</horstretch>
+     <verstretch>0</verstretch>
+    </sizepolicy>
+   </property>
+   <property name="minimumSize">
+    <size>
+     <width>58</width>
+     <height>0</height>
+    </size>
+   </property>
+   <property name="windowTitle">
+    <string>Slice Tools</string>
+   </property>
+   <property name="allowedAreas">
+    <set>Qt::LeftToolBarArea|Qt::RightToolBarArea|Qt::TopToolBarArea</set>
+   </property>
+   <property name="toolButtonStyle">
+    <enum>Qt::ToolButtonTextUnderIcon</enum>
+   </property>
+   <attribute name="toolBarArea">
+    <enum>LeftToolBarArea</enum>
+   </attribute>
+   <attribute name="toolBarBreak">
+    <bool>true</bool>
+   </attribute>
+   <addaction name="actionSliceFirst"/>
+   <addaction name="actionSliceLast"/>
+   <addaction name="actionRenumber"/>
   </widget>
   <action name="actionNew">
    <property name="icon">
@@ -461,6 +499,9 @@
   </action>
   <action name="actionSliceSelect">
    <property name="checkable">
+    <bool>false</bool>
+   </property>
+   <property name="enabled">
     <bool>true</bool>
    </property>
    <property name="icon">
@@ -601,7 +642,7 @@
      <normaloff>:/slicetools/renumber</normaloff>:/slicetools/renumber</iconset>
    </property>
    <property name="text">
-    <string>Renum</string>
+    <string>Rnum</string>
    </property>
    <property name="toolTip">
     <string>Renumber Slice helices according to helix ordering in Path panel.</string>
@@ -646,7 +687,7 @@
      <normaloff>:/pathtools/add seq</normaloff>:/pathtools/add seq</iconset>
    </property>
    <property name="text">
-    <string>Add Seq</string>
+    <string>Seq</string>
    </property>
    <property name="toolTip">
     <string>(A)dd Sequence Tool</string>

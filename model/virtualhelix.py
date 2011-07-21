@@ -1179,6 +1179,7 @@ class VirtualHelix(QObject):
                 color = QColor()
                 color.setHsv(newHue%256, 255, 255)
             self._newColor = color
+
         def redo(self):
             oc = self._oldColors = []
             nc = self._newColor
@@ -1186,12 +1187,19 @@ class VirtualHelix(QObject):
             for b in self._bases:
                 vh = b._vhelix
                 oc.append(b._setColor(nc))
+                vh.setHasBeenModified()
+            if vh != None:
+                vh.emitBasesModifiedIfNeeded()
+
         def undo(self):
             oc = self._oldColors
             vh = None
             for b in reversed(self._bases):
                 vh = b._vhelix
                 b._setColor(oc.pop())
+                vh.setHasBeenModified()
+            if vh != None:
+                vh.emitBasesModifiedIfNeeded()
 
 
     class LoopCommand(QUndoCommand):
