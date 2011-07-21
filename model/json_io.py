@@ -175,12 +175,12 @@ def doc_from_legacy_dict(obj):
         for (idx, threeVH, threeIdx) in scaf_xo[vhNum]:
             threeVH = part.getVirtualHelix(threeVH)
             vh.installXoverFrom3To5(StrandType.Scaffold, idx, threeVH,\
-                                    threeIdx, undoStack=None, speedy=True)
+                            threeIdx, undoStack=None, speedy=True, police=False)
         # install staple xovers
         for (idx, threeVH, threeIdx) in stap_xo[vhNum]:
             threeVH = part.getVirtualHelix(threeVH)
             vh.installXoverFrom3To5(StrandType.Staple, idx, threeVH,\
-                                    threeIdx, undoStack=None, speedy=True)
+                            threeIdx, undoStack=None, speedy=True, police=False)
     helixNo = -1
     for helix in obj['vstrands']:
         helixNo += 1

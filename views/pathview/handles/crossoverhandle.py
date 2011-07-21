@@ -104,12 +104,6 @@ class XoverHandle(QGraphicsItem):
     def boundingRect(self):
        return self._rect
 
-    def mousePressEvent(self, event):
-        phg = self._xoverPair._phg
-        if phg.dragging:
-            return QGraphicsItem.mousePressEvent(self, event)
-        self._vh.removeXoversAt(self._strand, self._idx)
-
     def strandExitPoint(self, penWidthsYShiftedTowardsCenter=0):
         """
         Returns the point at which the segment at
