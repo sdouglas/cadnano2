@@ -931,14 +931,14 @@ class VirtualHelix(QObject):
         however to allow updating from loops drawn on staples, we make this tool
         StrandType agnostic
         """
-        #### FIX ME JONATHAN FOR THE APPLY sequence on the stack
         undoStack = self.beginCommand(undoStack, "installLoop")
         if strandType == StrandType.Scaffold:
-            # d never got used...
-            # if self._isSeqBlank == False:
-            #    d = self.ApplySequenceCommand(self, StrandType.Scaffold, index, " ")
+            if self._isSeqBlank == False:
+                d = self.ApplySequenceCommand(self, StrandType.Scaffold, index, " ")
+            else:
+                d = None
             c = self.LoopCommand(self, strandType, index, loopsize)
-        self.endCommand(undoStack, c)
+        self.endCommand(undoStack, (d, c))
 
     def applyColorAt(self, color, strandType, index, undoStack=True):
         """Determine the connected strand that passes through
