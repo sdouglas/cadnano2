@@ -862,11 +862,10 @@ class VirtualHelix(QObject):
                 if c != None:
                     undoStack.push(c)
             if police:  # Check for inconsistencies, fix one-base Xovers, etc
-                self.thoughtPolice()
-            undoStack.endMacro()
+                self.thoughtPolice(undoStack)
         else:
             if police:  # Check for inconsistencies, fix one-base Xovers, etc
-                self.thoughtPolice()
+                self.thoughtPolice(undoStack)
             for c in commands:
                 if c != None:
                     c.redo()
@@ -876,7 +875,9 @@ class VirtualHelix(QObject):
                 affectedVH.add(b._vhelix)
             for vh in affectedVH:
                 if vh != self:
-                    vh.thoughtPolice()
+                    vh.thoughtPolice(undoStack)
+        if undoStack != None:
+            undoStack.endMacro()
         self.resetSequenceCache()
 
     def connectStrand(self, strandType, startIndex, endIndex, undoStack=True,\
@@ -935,7 +936,8 @@ class VirtualHelix(QObject):
         undoStack = self.beginCommand(undoStack, "Install XOver")
         c = self.Connect3To5Command(strandType, self, fromIndex, toVhelix,\
                                     toIndex, endToTakeColorFrom, speedy=speedy)
-        self.endCommand(undoStack, c, police)
+        targetBase = toVhelix._strand(StrandType.Scaffold)[0]
+        self.endCommand(undoStack, c, police, (targetBase,))
 
     def removeConnectedStrandAt(self, strandType, idx, undoStack=True):
         undoStack = self.beginCommand(undoStack, "removeConnectedStrandAt")
@@ -1069,7 +1071,7 @@ class VirtualHelix(QObject):
     #      decide which VH were dirtied yet a command that affects 20 bases doesn't
     #      result in 20 duplicate basesModified signals being emitted)
 
-    def thoughtPolice(self):
+    def thoughtPolice(self, undoStack):
         """
         Make sure that self obeys certain limitations,
         force it to if it doesn't. This currently amounts
@@ -1088,10 +1090,10 @@ class VirtualHelix(QObject):
                     hasXoverR = b._hasCrossoverR()
                     if hasXoverL and not hasNeighborR:
                         self.connectStrand(strandType, i, i+1,\
-                                           undoStack=True, police=False)
+                                           police=False, undoStack=undoStack)
                     if hasXoverR and not hasNeighborL:
                         self.connectStrand(strandType, i-1, i,\
-                                           undoStack=True, police=False)
+                                           police=False, undoStack=undoStack)
     # end def
 
     def isSeqBlank(self):
@@ -1223,6 +1225,7 @@ class VirtualHelix(QObject):
                 color = QColor()
                 color.setHsv(newHue%256, 255, 255)
             self._newColor = color
+
         def redo(self):
             oc = self._oldColors = []
             nc = self._newColor
@@ -1230,12 +1233,19 @@ class VirtualHelix(QObject):
             for b in self._bases:
                 vh = b._vhelix
                 oc.append(b._setColor(nc))
+                vh.setHasBeenModified()
+            if vh != None:
+                vh.emitBasesModifiedIfNeeded()
+
         def undo(self):
             oc = self._oldColors
             vh = None
             for b in reversed(self._bases):
                 vh = b._vhelix
                 b._setColor(oc.pop())
+                vh.setHasBeenModified()
+            if vh != None:
+                vh.emitBasesModifiedIfNeeded()
 
 
     class LoopCommand(QUndoCommand):

@@ -99,7 +99,12 @@ class ForceTool(AbstractPathTool):
     def mouseReleasePathHelixGroup(self, phg, event):
         self.updateDrag(phg, event, canEnd=True)
     
+    def keyPressPathHelix(self, pathHelix, event):
+        self.keyPressEvent(event)
+    def keyPressPathHelixGroup(self, pathHelix, event):
+        self.keyPressEvent(event)
     def keyPressEvent(self, event):
+        print "keyPressEvent"
         if event.key() in (Qt.Key_Escape, Qt.Key_Backspace):
             self.updateDrag(None, None, mustEnd=True)
     
