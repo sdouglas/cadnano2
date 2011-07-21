@@ -810,20 +810,24 @@ class VirtualHelix(QObject):
             undoStack.beginMacro(str)
         return undoStack
 
-    def endCommand(self, undoStack, c, police=False, additionalAffectedBases=None):
+    def endCommand(self, undoStack, commands, police=False, additionalAffectedBases=None):
         """ Shared command (not to be confused with UndoCommand) suffix"""
+        if type(commands) not in (list, tuple):
+            commands = (commands,)
         # c is the command
         if undoStack != None:
-            if c != None:
-                undoStack.push(c)
+            for c in commands:
+                if c != None:
+                    undoStack.push(c)
             if police:  # Check for inconsistencies, fix one-base Xovers, etc
                 self.thoughtPolice()
             undoStack.endMacro()
         else:
             if police:  # Check for inconsistencies, fix one-base Xovers, etc
                 self.thoughtPolice()
-            if c != None:
-                c.redo()
+            for c in commands:
+                if c != None:
+                    c.redo()
         if additionalAffectedBases != None and police:
             affectedVH = set()
             for b in additionalAffectedBases:
@@ -900,9 +904,9 @@ class VirtualHelix(QObject):
         undoStack = self.beginCommand(undoStack, "removeXoversAt")
         base = self._strand(strandType)[idx]
         if base._hasCrossoverL():
-            base._vhelix.clearStrand(strandType, idx, idx + 0.5, undoable=undoable)
+            base._vhelix.clearStrand(strandType, idx, idx + 0.5, undoStack=undoStack)
         if base._hasCrossoverR():
-            base._vhelix.clearStrand(strandType, idx + 0.5, idx + 1, undoable=undoable)
+            base._vhelix.clearStrand(strandType, idx + 0.5, idx + 1, undoStack=undoStack)
         self.endCommand(undoStack, None)
 
     def removeXoverTo(self, strandType, fromIndex, toVhelix, toIndex,\
