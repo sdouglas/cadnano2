@@ -68,6 +68,7 @@ class ColorPanel(QGraphicsItem):
             self._colorIndex = 0
         self._color = self._colors[self._colorIndex]
         self._brush.setColor(self._color)
+        self.update()
     
     def color(self):
         return self._color
@@ -79,3 +80,4 @@ class ColorPanel(QGraphicsItem):
     def mousePressEvent(self, event):
         self._color = self.colordialog.getColor(self._color)
         self._brush = QBrush(self._color)
+        self.update()
