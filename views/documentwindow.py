@@ -96,6 +96,8 @@ class DocumentWindow(QMainWindow, ui_mainwindow.Ui_MainWindow):
         self.sliceController.pathController = self.pathController
         self.pathController.sliceController = self.sliceController
 
+        self.setUnifiedTitleAndToolBarOnMac(True)
+
         # Test recording
         if app().testRecordMode:
             rec = TestRecorder()
