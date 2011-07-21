@@ -257,6 +257,9 @@ class XoverHandlePair(QGraphicsItem):
         self._pen = None
         self.refreshRect()
         self.update(self.boundingRect())
+        # not sure why this is necessary here HACKish
+        # apparently, color isn't done updating when bounding rect is calculated
+        self._pen = None 
         if self._fromVH == None or (self._toVH == None and self._toPt == None):
             # No need to destroy ourselves if we've been intentionally set
             # to have a null source / destination (that's intentional)
@@ -276,6 +279,7 @@ class XoverHandlePair(QGraphicsItem):
         color = QColor(self._fromVH.colorOfBase(self._fromStrand, self._fromIdx))
         self._pen = QPen(color)
         self._pen.setWidth(styles.PATH_STRAND_STROKE_WIDTH)
+        self._pen.setCapStyle(Qt.SquareCap)
         if self._fromStrand == StrandType.Staple:
             oligoLength = self._fromVH.numberOfBasesConnectedTo(self._fromStrand, self._fromIdx)
             if oligoLength > styles.oligoLenAboveWhichHighlight or \
@@ -283,7 +287,6 @@ class XoverHandlePair(QGraphicsItem):
                 self._pen.setWidth(styles.PATH_STRAND_HIGHLIGHT_STROKE_WIDTH)
                 color.setAlpha(128)
                 self._pen.setColor(color)
-        self._pen.setCapStyle(Qt.SquareCap)
         return self._pen
 
     def paint(self, painter, option, widget=None):
