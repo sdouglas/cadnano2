@@ -68,7 +68,7 @@ class LoopItem(object):
     _loopPathDown = QPainterPath()
     _loopGen(_loopPathDown, _pathStart, _pathDownDownCtrlPt,\
              _pathMidDown, _pathDownUpCtrlPt)
-    _loopPathDown.translate(-_offset, 0)
+    _loopPathDown.translate(_offset, 0)
     _loopPathDownRect = _loopPathDown.boundingRect()
 
     def __init__(self):
@@ -246,7 +246,7 @@ class LoopHandle(QGraphicsItem):
             self.setPos(posItem[0] - txtOffset + self._offset,\
                         posItem[1] - 1.5 * self._baseWidth)
         else:
-            self.setPos(posItem[0] - txtOffset - self._offset,\
+            self.setPos(posItem[0] - txtOffset + self._offset,\
                         posItem[1] + 0.5 * self._baseWidth)
         if self._loopsize > 0:
             self.show()
