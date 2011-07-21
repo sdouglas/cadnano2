@@ -79,7 +79,6 @@ class SliceController(QObject):
     # end def
 
     def sliceFirstClicked(self):
-        print "sliceFirstClicked"
         self.activeSliceFirstSignal.emit()
     # end def
 

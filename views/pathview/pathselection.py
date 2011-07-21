@@ -145,6 +145,8 @@ class SelectionItemGroup(QGraphicsItemGroup):
         if self.isSelected():
             self.selectionbox.processSelectedItems(self._r0, self._r)
         # end if
+        self._r0 = 0  # reset
+        self._r = 0  # reset
     # end def
 
     def itemChange(self, change, value):
