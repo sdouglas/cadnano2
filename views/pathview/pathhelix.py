@@ -274,6 +274,7 @@ class PathHelix(QGraphicsObject):
         else:
             self.addBasesButton.hide()
             self.removeBasesButton.hide()
+        # emit this signal to be picked up by XoverHandle at least
         self.xoverUpdate.emit()
 
     def boundingRect(self):
@@ -364,34 +365,44 @@ class PathHelix(QGraphicsObject):
     def paintLoopsAndSkips(self, painter):
         vh = self.vhelix()
         for strandType in (StrandType.Scaffold, StrandType.Staple):
-            top = self.strandIsTop(strandType)
-            for index, loopsize in vh._loop(strandType).iteritems():
+            istop = self.strandIsTop(strandType)
+            for index, loopsize in vh.loop(strandType).iteritems():
                 ul = self.baseLocation(strandType, index)
                 if loopsize > 0:
-                    path = self._loopitem.getLoop(top)
+                    path = self._loopitem.getLoop(istop)
                     path = path.translated(*ul)
-                    painter.setPen(self._loopitem.getPen())
-                    painter.setPen(QPen(vh.colorOfBase(strandType, index), 2))
+                    # painter.setPen(self._loopitem.getPen())
+                    painter.setPen(QPen(vh.colorOfBase(strandType, index), styles.LOOPWIDTH))
                     painter.setBrush(Qt.NoBrush)
                     painter.drawPath(path)
+                    
+                    # draw sequence on the loop
                     baseText = vh.sequenceForLoopAt(strandType, index)
-                    if len(baseText) > 20:
-                        baseText = baseText[:17] + '...'
-                    fractionArclenPerChar = (1.-2*self.fractionLoopToPad)/(len(baseText)+1)
-                    painter.setPen(QPen(Qt.black))
-                    painter.setBrush(Qt.NoBrush)
-                    painter.setFont(self.sequenceFont)
-                    for i in range(len(baseText)):
-                        frac = self.fractionLoopToPad + (i+1)*fractionArclenPerChar
-                        pt = path.pointAtPercent(frac)
-                        tangAng = path.angleAtPercent(frac)
-                        painter.save()
-                        painter.translate(pt)
-                        painter.rotate(-tangAng)
-                        painter.translate(QPointF(-self.sequenceFontCharWidth/2.,
-                                                  -2 if top else self.sequenceFontH))
-                        painter.drawText(0, 0, baseText[i if top else -i-1])
-                        painter.restore()
+                    if baseText[0] != ' ':  # only draw sequences if they exist
+                        if istop:
+                            angleOffset = 0
+                        else:
+                            angleOffset = 180
+                        if len(baseText) > 20:
+                            baseText = baseText[:17] + '...'
+                        fractionArclenPerChar = (1.-2*self.fractionLoopToPad)/(len(baseText)+1)
+                        painter.setPen(QPen(Qt.black))
+                        painter.setBrush(Qt.NoBrush)
+                        painter.setFont(self.sequenceFont)
+                        for i in range(len(baseText)):
+                            frac = self.fractionLoopToPad + (i+1)*fractionArclenPerChar
+                            pt = path.pointAtPercent(frac)
+                            tangAng = path.angleAtPercent(frac)
+                            painter.save()
+                            painter.translate(pt)
+                            painter.rotate(-tangAng + angleOffset)
+                            painter.translate(QPointF(-self.sequenceFontCharWidth/2.,
+                                                      -2 if istop else self.sequenceFontH))
+                            if not istop:
+                                painter.translate(0, -self.sequenceFontH - styles.LOOPWIDTH)
+                            painter.drawText(0, 0, baseText[i if istop else -i-1])
+                            painter.restore()
+                    # end if
                 else:  # loopsize < 0 (a skip)
                     path = self._skipitem.getSkip()
                     path = path.translated(*ul)

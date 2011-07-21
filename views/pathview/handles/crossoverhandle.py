@@ -95,7 +95,10 @@ class XoverHandle(QGraphicsItem):
         # Draw label only; elbow gets drawn by the crossover pair
         painter.setBrush(self._labelBrush)
         painter.setFont(self._toHelixNumFont)
-        painter.drawText(self._labelRect, Qt.AlignCenter, str(self._vh.number() ) )
+        # painter.drawRect(self._rect)
+        painter.drawText(self._labelRect, Qt.AlignCenter, \
+                        str(self._xoverPair.notThisVH(self._vh).number() ) )
+    # end def
 
     def boundingRect(self):
        return self._rect
@@ -152,6 +155,18 @@ class XoverHandlePair(QGraphicsItem):
         
         # print "++++++crossoverhandle (%s->%s)"%(self._fromIdx, self._toIdx)
         self.refresh()
+
+    def notThisVH(self, vh):
+        """
+        returns the opposite of the vh passed
+        used by XoverHandle to get the label of the XoverHandle its
+        connect to in the pair
+        """
+        if vh == self._fromVH:
+            return self._toVH
+        else:
+            return self._fromVH
+    # end def
 
     def fromBase(self):
         return (self._fromVH, self._fromStrand, self._fromIdx)
@@ -254,9 +269,8 @@ class XoverHandlePair(QGraphicsItem):
 
     def refresh(self):
         self._painterpath = None
-        self._pen = None
         self.refreshRect()
-        self.update(self.boundingRect())
+        self._pen = None
         if self._fromVH == None or (self._toVH == None and self._toPt == None):
             # No need to destroy ourselves if we've been intentionally set
             # to have a null source / destination (that's intentional)
@@ -276,6 +290,7 @@ class XoverHandlePair(QGraphicsItem):
         color = QColor(self._fromVH.colorOfBase(self._fromStrand, self._fromIdx))
         self._pen = QPen(color)
         self._pen.setWidth(styles.PATH_STRAND_STROKE_WIDTH)
+        self._pen.setCapStyle(Qt.SquareCap)
         if self._fromStrand == StrandType.Staple:
             oligoLength = self._fromVH.numberOfBasesConnectedTo(self._fromStrand, self._fromIdx)
             if oligoLength > styles.oligoLenAboveWhichHighlight or \
@@ -283,7 +298,6 @@ class XoverHandlePair(QGraphicsItem):
                 self._pen.setWidth(styles.PATH_STRAND_HIGHLIGHT_STROKE_WIDTH)
                 color.setAlpha(128)
                 self._pen.setColor(color)
-        self._pen.setCapStyle(Qt.SquareCap)
         return self._pen
 
     def paint(self, painter, option, widget=None):
@@ -302,7 +316,7 @@ class XoverHandlePair(QGraphicsItem):
             self._rect = QRectF()
             return
         newRect = self.painterPath().controlPointRect()
-        penW = self.getPen().widthF()
+        penW = styles.PATH_STRAND_HIGHLIGHT_STROKE_WIDTH
         newRect.adjust(-penW, -penW, 2*penW, 2*penW)
         if self._rect != newRect:
             self._rect = newRect
@@ -312,7 +326,6 @@ class XoverHandlePair(QGraphicsItem):
     def getPainterPath(self):
         if self._painterpath == None:
             self.painterPath()
-            # print "regenerated"
         return self._painterpath
 
     def painterPath(self):
@@ -350,13 +363,13 @@ class XoverHandlePair(QGraphicsItem):
             orient3 = HandleOrient.LeftUp
             y3 = -y3
             labelPosRect3 = QRectF(self._xover3prime.strandExitPoint().x() - 0.75*self._baseWidth,\
-                                    self._xover3prime.strandExitPoint().y() - 1.5*self._baseWidth,\
+                                    self._xover3prime.strandExitPoint().y() - 1.0*self._baseWidth,\
                                     self._baseWidth, self._baseWidth)
             self._xover3prime.setLabelRect(labelPosRect3)
         else:
             orient3 = HandleOrient.RightDown
             labelPosRect3 = QRectF(self._xover3prime.strandExitPoint().x() - 0.25*self._baseWidth,\
-                                    self._xover3prime.strandExitPoint().y() + 0.5*self._baseWidth,\
+                                    self._xover3prime.strandExitPoint().y() + 0.0*self._baseWidth,\
                                     self._baseWidth, self._baseWidth)
             self._xover3prime.setLabelRect(labelPosRect3)
         if self._toVH == None:
@@ -367,13 +380,13 @@ class XoverHandlePair(QGraphicsItem):
             orient5 = HandleOrient.RightUp
             y5 = -y5
             labelPosRect5 = QRectF(self._xover5prime.strandExitPoint().x() - 0.25*self._baseWidth, \
-                                    self._xover5prime.strandExitPoint().y() - 1.5*self._baseWidth, \
+                                    self._xover5prime.strandExitPoint().y() - 1.0*self._baseWidth, \
                                     self._baseWidth, self._baseWidth)
             self._xover5prime.setLabelRect(labelPosRect5)
         else:
             orient5 = HandleOrient.LeftDown
             labelPosRect5 = QRectF(self._xover5prime.strandExitPoint().x() - 0.75*self._baseWidth, \
-                                    self._xover5prime.strandExitPoint().y() + 0.5*self._baseWidth, \
+                                    self._xover5prime.strandExitPoint().y() + 0.0*self._baseWidth, \
                                     self._baseWidth, self._baseWidth)
             self._xover5prime.setLabelRect(labelPosRect5)
         
