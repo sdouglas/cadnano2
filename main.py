@@ -34,6 +34,7 @@ Created by Shawn Douglas on 2010-09-26.
 import sys, os
 sys.path.insert(0, '.')
 argv = [s for s in sys.argv]
+
 if "-t" in argv:
     os.environ['CADNANO_IGNORE_ENV_VARS_EXCEPT_FOR_ME'] = 'YES'
 from cadnano import app as getAppInstance
@@ -48,7 +49,7 @@ if "-p" not in sys.argv:
     except:
         pass
 
-app = getAppInstance(appArgs=argv)
+app = getAppInstance()
 app.initGui()
 if __name__ == '__main__':
     if "-p" in sys.argv:

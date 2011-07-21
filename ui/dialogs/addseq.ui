@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>493</width>
-    <height>426</height>
+    <width>500</width>
+    <height>500</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -27,41 +27,18 @@
        <string>Standard</string>
       </attribute>
       <layout class="QGridLayout" name="standardTabGridLayout">
-       <item row="3" column="2">
-        <spacer name="horizontalSpacer">
-         <property name="orientation">
-          <enum>Qt::Horizontal</enum>
+       <item row="0" column="1">
+        <widget class="QGroupBox" name="groupBox">
+         <property name="title">
+          <string/>
          </property>
-         <property name="sizeHint" stdset="0">
-          <size>
-           <width>40</width>
-           <height>20</height>
-          </size>
+         <property name="flat">
+          <bool>true</bool>
          </property>
-        </spacer>
-       </item>
-       <item row="5" column="1">
-        <widget class="QPushButton" name="p8634Button">
-         <property name="text">
-          <string>p8634</string>
-         </property>
+         <layout class="QVBoxLayout" name="verticalLayout"/>
         </widget>
        </item>
-       <item row="4" column="1">
-        <widget class="QPushButton" name="p8064Button">
-         <property name="text">
-          <string>p8064</string>
-         </property>
-        </widget>
-       </item>
-       <item row="3" column="1">
-        <widget class="QPushButton" name="p7704Button">
-         <property name="text">
-          <string>p7704</string>
-         </property>
-        </widget>
-       </item>
-       <item row="3" column="0">
+       <item row="0" column="2">
         <spacer name="horizontalSpacer_2">
          <property name="orientation">
           <enum>Qt::Horizontal</enum>
@@ -74,54 +51,18 @@
          </property>
         </spacer>
        </item>
-       <item row="2" column="1">
-        <widget class="QPushButton" name="p7560Button">
-         <property name="minimumSize">
+       <item row="0" column="0">
+        <spacer name="horizontalSpacer">
+         <property name="orientation">
+          <enum>Qt::Horizontal</enum>
+         </property>
+         <property name="sizeHint" stdset="0">
           <size>
-           <width>110</width>
-           <height>0</height>
+           <width>40</width>
+           <height>20</height>
           </size>
          </property>
-         <property name="text">
-          <string>p7560</string>
-         </property>
-        </widget>
-       </item>
-       <item row="1" column="1">
-        <widget class="QPushButton" name="p7308Button">
-         <property name="minimumSize">
-          <size>
-           <width>110</width>
-           <height>0</height>
-          </size>
-         </property>
-         <property name="text">
-          <string>p7308</string>
-         </property>
-        </widget>
-       </item>
-       <item row="0" column="1">
-        <widget class="QPushButton" name="m13mp18Button">
-         <property name="minimumSize">
-          <size>
-           <width>110</width>
-           <height>0</height>
-          </size>
-         </property>
-         <property name="text">
-          <string>M13mp18</string>
-         </property>
-         <property name="default">
-          <bool>true</bool>
-         </property>
-        </widget>
-       </item>
-       <item row="6" column="2">
-        <widget class="QDialogButtonBox" name="standardButtonBox">
-         <property name="standardButtons">
-          <set>QDialogButtonBox::Cancel</set>
-         </property>
-        </widget>
+        </spacer>
        </item>
       </layout>
      </widget>
@@ -129,184 +70,62 @@
       <attribute name="title">
        <string>Custom</string>
       </attribute>
-      <layout class="QGridLayout" name="customTabGridLayout">
-       <item row="1" column="0">
-        <widget class="QDialogButtonBox" name="customButtonBox">
-         <property name="standardButtons">
-          <set>QDialogButtonBox::Apply|QDialogButtonBox::Cancel</set>
-         </property>
-        </widget>
-       </item>
-       <item row="0" column="0">
-        <widget class="QPlainTextEdit" name="sequencePlainTextEdit">
-         <property name="tabChangesFocus">
-          <bool>true</bool>
-         </property>
-         <property name="backgroundVisible">
-          <bool>false</bool>
-         </property>
-        </widget>
+      <layout class="QVBoxLayout" name="verticalLayout_2">
+       <item>
+        <widget class="QTextEdit" name="seqTextEdit"/>
        </item>
       </layout>
      </widget>
     </widget>
    </item>
+   <item row="1" column="0">
+    <widget class="QDialogButtonBox" name="customButtonBox">
+     <property name="standardButtons">
+      <set>QDialogButtonBox::Apply|QDialogButtonBox::Cancel</set>
+     </property>
+     <property name="centerButtons">
+      <bool>true</bool>
+     </property>
+    </widget>
+   </item>
   </layout>
  </widget>
  <tabstops>
-  <tabstop>m13mp18Button</tabstop>
-  <tabstop>p7308Button</tabstop>
-  <tabstop>p7560Button</tabstop>
-  <tabstop>p7704Button</tabstop>
-  <tabstop>p8064Button</tabstop>
-  <tabstop>p8634Button</tabstop>
-  <tabstop>sequencePlainTextEdit</tabstop>
   <tabstop>customButtonBox</tabstop>
   <tabstop>tabWidget</tabstop>
+  <tabstop>seqTextEdit</tabstop>
  </tabstops>
  <resources/>
  <connections>
   <connection>
-   <sender>standardButtonBox</sender>
-   <signal>rejected()</signal>
-   <receiver>AddSeqDialog</receiver>
-   <slot>reject()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>410</x>
-     <y>357</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>349</x>
-     <y>419</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
    <sender>customButtonBox</sender>
    <signal>rejected()</signal>
    <receiver>AddSeqDialog</receiver>
    <slot>reject()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>400</x>
-     <y>379</y>
+     <x>315</x>
+     <y>485</y>
     </hint>
     <hint type="destinationlabel">
-     <x>364</x>
-     <y>320</y>
+     <x>321</x>
+     <y>243</y>
     </hint>
    </hints>
   </connection>
   <connection>
    <sender>customButtonBox</sender>
-   <signal>accepted()</signal>
+   <signal>clicked(QAbstractButton*)</signal>
    <receiver>AddSeqDialog</receiver>
    <slot>accept()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>75</x>
-     <y>380</y>
+     <x>68</x>
+     <y>485</y>
     </hint>
     <hint type="destinationlabel">
-     <x>124</x>
-     <y>321</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>m13mp18Button</sender>
-   <signal>clicked()</signal>
-   <receiver>AddSeqDialog</receiver>
-   <slot>accept()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>279</x>
-     <y>70</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>489</x>
-     <y>129</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>p7308Button</sender>
-   <signal>clicked()</signal>
-   <receiver>AddSeqDialog</receiver>
-   <slot>accept()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>218</x>
-     <y>117</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>489</x>
-     <y>181</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>p7560Button</sender>
-   <signal>clicked()</signal>
-   <receiver>AddSeqDialog</receiver>
-   <slot>accept()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>202</x>
-     <y>162</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>-7</x>
-     <y>206</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>p7704Button</sender>
-   <signal>clicked()</signal>
-   <receiver>AddSeqDialog</receiver>
-   <slot>accept()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>251</x>
-     <y>215</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>486</x>
-     <y>239</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>p8064Button</sender>
-   <signal>clicked()</signal>
-   <receiver>AddSeqDialog</receiver>
-   <slot>accept()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>258</x>
-     <y>270</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>488</x>
-     <y>313</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>p8634Button</sender>
-   <signal>clicked()</signal>
-   <receiver>AddSeqDialog</receiver>
-   <slot>accept()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>204</x>
-     <y>312</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>490</x>
-     <y>366</y>
+     <x>80</x>
+     <y>243</y>
     </hint>
    </hints>
   </connection>

@@ -33,6 +33,7 @@ from code import interact
 from ui.dialogs.ui_preferences import Ui_Preferences
 PySide_loaded = None
 
+saved_argv = sys.argv
 
 def usesPySide(*args):
     return False
@@ -95,9 +96,8 @@ class CADnano(QObject):
     shouldPerformBoilerplateStartupScript = False
     PySide_loaded = PySide_loaded
 
-    def __init__(self, argv):
-        if argv == None:
-            argv = ["cadnano"]
+    def __init__(self):
+        argv = saved_argv
         if QCoreApplication.instance() == None:
             self.qApp = QApplication(argv)
             assert(QCoreApplication.instance() != None)
@@ -179,7 +179,7 @@ def ignoreEnv():
 # Convenience. No reason to feel guilty using it - CADnano is a singleton.
 def app(appArgs=None):
     if not CADnano.sharedApp:
-        CADnano.sharedApp = CADnano(appArgs)
+        CADnano.sharedApp = CADnano()
     if environ.get('CADNANO_DISCARD_UNSAVED', False) and not ignoreEnv():
         CADnano.sharedApp.dontAskAndJustDiscardUnsavedChanges = True
     if environ.get('CADNANO_DEFAULT_DOCUMENT', False) and not ignoreEnv():

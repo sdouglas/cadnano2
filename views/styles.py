@@ -107,12 +107,15 @@ for i in range(len(brightColors)):
     brightColors[i].setHsvF(i/12.0, 1.0, 1.0)
 bright_palette = Palette(brightColors)
 cadnn1_palette = Palette(cadnn1Colors)
+default_palette = cadnn1_palette
 
 # Loop/Insertion path details
 LOOPWIDTH = 2
 SKIPWIDTH = 2
 
-default_palette = cadnn1_palette
+# Add Sequence Tool
+INVALID_DNA_COLOR = QColor(204, 0, 0)
+UNDERLINE_INVALID_DNA = True
 
 #layer limits
 ZACTIVESLICEHANDLE = -12
