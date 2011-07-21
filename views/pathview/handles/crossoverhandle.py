@@ -93,11 +93,12 @@ class XoverHandle(QGraphicsItem):
 
     def paint(self, painter, option, widget=None):
         # Draw label only; elbow gets drawn by the crossover pair
-        painter.setBrush(self._labelBrush)
-        painter.setFont(self._toHelixNumFont)
-        # painter.drawRect(self._rect)
-        painter.drawText(self._labelRect, Qt.AlignCenter, \
-                        str(self._xoverPair.notThisVH(self._vh).number() ) )
+        temp = self._xoverPair.notThisVH(self._vh)
+        if temp != None:
+            painter.setBrush(self._labelBrush)
+            painter.setFont(self._toHelixNumFont)
+            # painter.drawRect(self._rect)
+            painter.drawText(self._labelRect, Qt.AlignCenter, str(temp.number()) )
     # end def
 
     def boundingRect(self):
@@ -189,10 +190,11 @@ class XoverHandlePair(QGraphicsItem):
             self._fromVH, self._fromStrand, self._fromIdx = newBase
             self._fromVH.basesModified.connect(self.refresh)
             
+            self._xover3prime.setBase(newBase)
+            
             # this handles changes in pathhelix screen position
             self._xover3prime._ph.xoverUpdate.connect(self.refresh)
             
-            self._xover3prime.setBase(newBase)
             if not self.isVisible():
                 self.show()
         self.refreshRect()
