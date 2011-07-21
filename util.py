@@ -142,10 +142,16 @@ def defineEventForwardingMethodsForClass(classObj, forwardedEventSuffix, eventNa
     for evName in eventNames:
         delegateMethodName = evName + forwardedEventSuffix
         eventMethodName = evName + 'Event'
+        defaultMethodName = evName + 'Default'
         forwardDisablingPropertyName = delegateMethodName + 'Unused'
         
         def makeTemplateMethod(eventMethodName, delegateMethodName):
             def templateMethod(self, event):
+                # see if the event also exists
+                defaultMethod = getattr(classObj,defaultMethodName,None)
+                if defaultMethod != None:
+                    defaultMethod(self,event)
+                    
                 activeTool = self.activeTool()
                 if activeTool and not getattr(activeTool, forwardDisablingPropertyName, False):
                     delegateMethod = getattr(activeTool, delegateMethodName, None)

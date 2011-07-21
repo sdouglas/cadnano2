@@ -29,25 +29,20 @@ Created by Shawn on 2011-05-03.
 from views import styles
 from model.enum import StrandType
 
-# from PyQt4.QtCore import QPointF, QRectF, Qt
-# from PyQt4.QtGui import QBrush, QFont
-# from PyQt4.QtGui import QGraphicsItem, QGraphicsTextItem, QTextCursor
-# from PyQt4.QtGui import QPainterPath
-# from PyQt4.QtGui import QPen
-
 import util
 # import Qt stuff into the module namespace with PySide, PyQt4 independence
 util.qtWrapImport('QtCore', globals(), [ 'QPointF', 'QRectF', 'Qt'] )
 util.qtWrapImport('QtGui', globals(), [ 'QBrush', 'QFont', \
                                         'QGraphicsItem', 'QGraphicsTextItem', \
-                                        'QTextCursor', 'QPainterPath', 'QPen'] )
+                                        'QTextCursor', 'QPainterPath', 'QPen', \
+                                        'QLabel'] )
 
 class LoopItem(object):
     """
     This is just the shape of the Loop item
     """
     _myRect = QRectF(0, 0, styles.PATH_BASE_WIDTH, styles.PATH_BASE_WIDTH)
-    _pen = QPen(styles.bluestroke, 2)
+    _pen = QPen(styles.bluestroke, styles.LOOPWIDTH)
     baseWidth = styles.PATH_BASE_WIDTH
     halfbaseWidth = baseWidth / 2
     _offset = baseWidth / 4
@@ -73,7 +68,7 @@ class LoopItem(object):
     _loopPathDown = QPainterPath()
     _loopGen(_loopPathDown, _pathStart, _pathDownDownCtrlPt,\
              _pathMidDown, _pathDownUpCtrlPt)
-    _loopPathDown.translate(-_offset, 0)
+    _loopPathDown.translate(_offset, 0)
     _loopPathDownRect = _loopPathDown.boundingRect()
 
     def __init__(self):
@@ -98,7 +93,7 @@ class SkipItem(object):
     This is just the shape of the Loop item
     """
     _myRect = QRectF(0, 0, styles.PATH_BASE_WIDTH, styles.PATH_BASE_WIDTH)
-    _pen = QPen(styles.redstroke, 2)
+    _pen = QPen(styles.redstroke, styles.SKIPWIDTH)
     baseWidth = styles.PATH_BASE_WIDTH
     halfbaseWidth = baseWidth / 2
 
@@ -141,6 +136,7 @@ class LoopHandle(QGraphicsItem):
     _halfbaseWidth = _baseWidth / 2
     _font = QFont(styles.thefont, 10, QFont.Bold)
     _myRect.adjust(-15, -15, 30, 30)
+    
 
     def __init__(self, parent=None):
         super(LoopHandle, self).__init__(parent)
@@ -156,8 +152,7 @@ class LoopHandle(QGraphicsItem):
     def label(self):
         if self._label:
             return self._label
-        label = QGraphicsTextItem("")
-        label.setFlags(QGraphicsTextItem.ItemIsSelectable)
+        label = QGraphicsTextItem("", parent=self)
         label.setFont(self._font)
         label.setParentItem(self)
         label.setTextInteractionFlags(Qt.TextEditorInteraction)
@@ -168,12 +163,19 @@ class LoopHandle(QGraphicsItem):
         self._label = label
         return label
 
+    def focusOut(self):
+        # print "focusing out"
+        cursor = self._label.textCursor()
+        cursor.clearSelection()
+        self._label.setTextCursor(cursor)
+        self._label.clearFocus()
+    # end def
+
     def labelMousePressEvent(self, event):
         """
-        This is supposed to pre-select the text for editing when you click
-        the label. Doesn't work.
+        Pre-selects the text for editing when you click
+        the label.
         """
-
         self._label.setTextInteractionFlags(Qt.TextEditorInteraction)
         cursor = self._label.textCursor()
         cursor.setPosition(0)
@@ -190,9 +192,7 @@ class LoopHandle(QGraphicsItem):
         if a in [Qt.Key_Space, Qt.Key_Tab]:
             return
         elif a in [Qt.Key_Return, Qt.Key_Enter]:
-            self._label.setTextInteractionFlags(Qt.NoTextInteraction)
             self.inputProcess(event)
-            # self._label.setTextInteractionFlags(Qt.TextEditorInteraction)
             return
         elif unicode(text).isalpha():
             return
@@ -204,20 +204,24 @@ class LoopHandle(QGraphicsItem):
     def inputProcess(self, event):
         """
         This is run on the label being changed
+        or losing focus
         """
         test = unicode(self._label.toPlainText())
         try:
-            self._loopsize = int(test)
+            loopsize = int(test)
         except:
-            self._loopsize = 0
-        self.parentObject().vhelix().installLoop(self._strandtype,\
-                                                 self._index,\
-                                                 self._loopsize)
-        if self._loopsize:
-            self.resetPosition()
-            self._label.setFocus(False)
-            # util.trace(10)
-            
+            loopsize = None
+        if loopsize != None and loopsize != self._loopsize:
+            self._loopsize = loopsize
+            self.parentObject().vhelix().installLoop(self._strandtype,\
+                                                     self._index,\
+                                                     self._loopsize)
+            if self._loopsize:
+                self.resetPosition()
+                self._label.setFocus(False)
+        # end if
+        self.focusOut()
+        
     def boundingRect(self):
         return self._myRect
 
@@ -242,7 +246,7 @@ class LoopHandle(QGraphicsItem):
             self.setPos(posItem[0] - txtOffset + self._offset,\
                         posItem[1] - 1.5 * self._baseWidth)
         else:
-            self.setPos(posItem[0] - txtOffset - self._offset,\
+            self.setPos(posItem[0] - txtOffset + self._offset,\
                         posItem[1] + 0.5 * self._baseWidth)
         if self._loopsize > 0:
             self.show()
@@ -278,8 +282,8 @@ class LoopHandleGroup(QGraphicsItem):
         handles = self.handles.get(vhelix,[])
         if not handles:
             self.handles[vhelix] = handles
-        scafLoopDict = vhelix._loop(StrandType.Scaffold)
-        stapLoopDict = vhelix._loop(StrandType.Staple)
+        scafLoopDict = vhelix.loop(StrandType.Scaffold)
+        stapLoopDict = vhelix.loop(StrandType.Staple)
         numLoopsNeeded = len(scafLoopDict) + len(stapLoopDict)
         while len(handles) < numLoopsNeeded:
             handles.append(LoopHandle(parent=ph))
@@ -288,7 +292,7 @@ class LoopHandleGroup(QGraphicsItem):
             handle.scene().removeItem(handle)
         i = 0
         for strandtype in (StrandType.Scaffold, StrandType.Staple):
-            for index, loopsize in vhelix._loop(strandtype).iteritems():
+            for index, loopsize in vhelix.loop(strandtype).iteritems():
                 handles[i].setLabel(ph, strandtype, index, loopsize)
                 i += 1
 
