@@ -30,7 +30,6 @@ Created by Jonathan deWerd on 2011-01-29.
 import sys
 from os import path, environ
 from code import interact
-from ui.dialogs.ui_preferences import Ui_Preferences
 PySide_loaded = None
 
 saved_argv = sys.argv
@@ -85,7 +84,7 @@ def qtWrapImport(name, globaldict, fromlist):
 # end def
 
 # import Qt stuff into the module namespace with PySide, PyQt4 independence
-qtWrapImport('QtGui', globals(),  ['qApp', 'QApplication', 'QDialog', 'QIcon',\
+qtWrapImport('QtGui', globals(),  ['qApp', 'QApplication', 'QIcon',\
                                    'QUndoGroup'])
 qtWrapImport('QtCore', globals(), ['QObject', 'QCoreApplication'])
 
@@ -101,7 +100,7 @@ class CADnano(QObject):
         if QCoreApplication.instance() == None:
             self.qApp = QApplication(argv)
             assert(QCoreApplication.instance() != None)
-            self.qApp.setOrganizationDomain("cadnano.org");
+            self.qApp.setOrganizationDomain("cadnano.org")
         super(CADnano, self).__init__()
         assert(not CADnano.sharedApp)
         CADnano.sharedApp = self
@@ -115,6 +114,8 @@ class CADnano(QObject):
         if self.guiInitialized:
             return
         self.guiInitialized = True
+        from views.preferences import Preferences
+        self.prefs = Preferences()
         argv = sys.argv
         qApp.setWindowIcon(QIcon('ui/mainwindow/images/cadnano2-app-icon.png'))
         self.undoGroup = QUndoGroup()
@@ -166,12 +167,7 @@ class CADnano(QObject):
         return dc.document()
 
     def prefsClicked(self):
-        """docstring for prefsClicked"""
-        print "prefsClicked"
-        dialog = QDialog()
-        dialogPrefs = Ui_Preferences()
-        dialogPrefs.setupUi(dialog)
-        dialog.exec_()
+        self.prefs.showDialog()
 
 def ignoreEnv():
     return environ.get('CADNANO_IGNORE_ENV_VARS_EXCEPT_FOR_ME', False)

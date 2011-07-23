@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>360</width>
-    <height>299</height>
+    <width>344</width>
+    <height>270</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -30,9 +30,6 @@
      </property>
      <property name="currentIndex">
       <number>0</number>
-     </property>
-     <property name="elideMode">
-      <enum>Qt::ElideRight</enum>
      </property>
      <widget class="QWidget" name="tab_honeycomb">
       <attribute name="icon">
@@ -66,7 +63,7 @@ p, li { white-space: pre-wrap; }
             <number>-1</number>
            </property>
            <item row="0" column="0">
-            <widget class="QSpinBox" name="honeycombRowSpinBox">
+            <widget class="QSpinBox" name="honeycombRowsSpinBox">
              <property name="minimum">
               <number>6</number>
              </property>
@@ -79,7 +76,7 @@ p, li { white-space: pre-wrap; }
             </widget>
            </item>
            <item row="0" column="1">
-            <widget class="QSpinBox" name="honeycombColSpinBox">
+            <widget class="QSpinBox" name="honeycombColsSpinBox">
              <property name="minimum">
               <number>6</number>
              </property>
@@ -112,7 +109,7 @@ p, li { white-space: pre-wrap; }
             </widget>
            </item>
            <item row="0" column="2">
-            <widget class="QSpinBox" name="honeycombBaseSpinBox">
+            <widget class="QSpinBox" name="honeycombStepsSpinBox">
              <property name="minimum">
               <number>2</number>
              </property>
@@ -218,7 +215,7 @@ p, li { white-space: pre-wrap; }
             </widget>
            </item>
            <item row="0" column="2">
-            <widget class="QSpinBox" name="squareBasesSpinBox">
+            <widget class="QSpinBox" name="squareStepsSpinBox">
              <property name="minimum">
               <number>2</number>
              </property>
@@ -244,11 +241,60 @@ p, li { white-space: pre-wrap; }
    </item>
    <item>
     <layout class="QFormLayout" name="formLayout">
+     <property name="fieldGrowthPolicy">
+      <enum>QFormLayout::FieldsStayAtSizeHint</enum>
+     </property>
      <item row="0" column="0">
       <widget class="QLabel" name="defaulttoolLabel">
        <property name="text">
         <string>Default tool at startup:</string>
        </property>
+      </widget>
+     </item>
+     <item row="0" column="1">
+      <widget class="QComboBox" name="defaulttoolComboBox">
+       <property name="layoutDirection">
+        <enum>Qt::LeftToRight</enum>
+       </property>
+       <property name="currentIndex">
+        <number>0</number>
+       </property>
+       <item>
+        <property name="text">
+         <string>Select Tool</string>
+        </property>
+        <property name="icon">
+         <iconset resource="dialogicons.qrc">
+          <normaloff>:/pathtools/select</normaloff>:/pathtools/select</iconset>
+        </property>
+       </item>
+       <item>
+        <property name="text">
+         <string>Pencil Tool</string>
+        </property>
+        <property name="icon">
+         <iconset resource="dialogicons.qrc">
+          <normaloff>:/pathtools/pencil</normaloff>:/pathtools/pencil</iconset>
+        </property>
+       </item>
+       <item>
+        <property name="text">
+         <string>Paint</string>
+        </property>
+        <property name="icon">
+         <iconset resource="dialogicons.qrc">
+          <normaloff>:/pathtools/paint</normaloff>:/pathtools/paint</iconset>
+        </property>
+       </item>
+       <item>
+        <property name="text">
+         <string>Add Seq</string>
+        </property>
+        <property name="icon">
+         <iconset resource="dialogicons.qrc">
+          <normaloff>:/pathtools/addseq</normaloff>:/pathtools/addseq</iconset>
+        </property>
+       </item>
       </widget>
      </item>
      <item row="2" column="0">
@@ -260,6 +306,15 @@ p, li { white-space: pre-wrap; }
      </item>
      <item row="2" column="1">
       <widget class="QSlider" name="zoomSpeedSlider">
+       <property name="minimumSize">
+        <size>
+         <width>140</width>
+         <height>0</height>
+        </size>
+       </property>
+       <property name="minimum">
+        <number>0</number>
+       </property>
        <property name="maximum">
         <number>100</number>
        </property>
@@ -300,56 +355,6 @@ p, li { white-space: pre-wrap; }
        </property>
       </widget>
      </item>
-     <item row="0" column="1">
-      <widget class="QComboBox" name="defaulttoolComboBox">
-       <item>
-        <property name="text">
-         <string>Select Tool</string>
-        </property>
-        <property name="icon">
-         <iconset resource="dialogicons.qrc">
-          <normaloff>:/pathtools/select</normaloff>:/pathtools/select</iconset>
-        </property>
-       </item>
-       <item>
-        <property name="text">
-         <string>Pencil Tool</string>
-        </property>
-        <property name="icon">
-         <iconset resource="dialogicons.qrc">
-          <normaloff>:/pathtools/pencil</normaloff>:/pathtools/pencil</iconset>
-        </property>
-       </item>
-       <item>
-        <property name="text">
-         <string>Paint</string>
-        </property>
-        <property name="icon">
-         <iconset resource="dialogicons.qrc">
-          <normaloff>:/pathtools/paint</normaloff>:/pathtools/paint</iconset>
-        </property>
-       </item>
-       <item>
-        <property name="text">
-         <string>Add Seq</string>
-        </property>
-        <property name="icon">
-         <iconset resource="dialogicons.qrc">
-          <normaloff>:/pathtools/addseq</normaloff>:/pathtools/addseq</iconset>
-        </property>
-       </item>
-      </widget>
-     </item>
-     <item row="4" column="1">
-      <widget class="QCheckBox" name="helixReorderCheckBox">
-       <property name="text">
-        <string>Helix reordering</string>
-       </property>
-       <property name="checked">
-        <bool>true</bool>
-       </property>
-      </widget>
-     </item>
     </layout>
    </item>
    <item>
@@ -361,7 +366,7 @@ p, li { white-space: pre-wrap; }
       <enum>Qt::Horizontal</enum>
      </property>
      <property name="standardButtons">
-      <set>QDialogButtonBox::Cancel|QDialogButtonBox::Ok|QDialogButtonBox::RestoreDefaults</set>
+      <set>QDialogButtonBox::Ok|QDialogButtonBox::RestoreDefaults</set>
      </property>
      <property name="centerButtons">
       <bool>true</bool>
@@ -373,8 +378,8 @@ p, li { white-space: pre-wrap; }
  <tabstops>
   <tabstop>buttonBox</tabstop>
   <tabstop>tabWidget</tabstop>
-  <tabstop>honeycombRowSpinBox</tabstop>
-  <tabstop>honeycombColSpinBox</tabstop>
+  <tabstop>honeycombRowsSpinBox</tabstop>
+  <tabstop>honeycombColsSpinBox</tabstop>
   <tabstop>squareRowsSpinBox</tabstop>
   <tabstop>squareColsSpinBox</tabstop>
   <tabstop>zoomSpeedSlider</tabstop>
@@ -391,8 +396,8 @@ p, li { white-space: pre-wrap; }
    <slot>accept()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>230</x>
-     <y>267</y>
+     <x>236</x>
+     <y>265</y>
     </hint>
     <hint type="destinationlabel">
      <x>157</x>
@@ -407,8 +412,8 @@ p, li { white-space: pre-wrap; }
    <slot>reject()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>298</x>
-     <y>267</y>
+     <x>304</x>
+     <y>265</y>
     </hint>
     <hint type="destinationlabel">
      <x>286</x>

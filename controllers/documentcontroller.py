@@ -96,6 +96,7 @@ class DocumentController():
             return True
         self._filename = proposedFName
         self._hasNoAssociatedFile = False
+        self.win.setWindowTitle(self.documentTitle())
         return True
 
     def activePart(self):
@@ -132,7 +133,7 @@ class DocumentController():
         self.win.actionAutoStaple.triggered.connect(self.autoStapleClicked)
         self.win.actionCSV.triggered.connect(self.exportCSV)
         self.win.actionPreferences.triggered.connect(app().prefsClicked)
-        # self.win.actionSave_As.triggered.connect(self.saveAsClicked)
+        self.win.actionSave_As.triggered.connect(self.saveAsClicked)
         # self.win.actionQuit.triggered.connect(self.closeClicked)
         # self.win.actionAdd.triggered.connect(self.addClicked)
         # self.win.actionDelete.triggered.connect(self.deleteClicked)
@@ -280,15 +281,39 @@ class DocumentController():
                 return False
         return True
 
+    def writeToFile(self, filename=None):
+        if filename == None:
+            assert(not self._hasNoAssociatedFile)
+            filename = self.filename()
+        try:
+            f = open(filename, 'w')
+            encode(self._document, f)
+            f.close()
+        except IOError:
+            flags = Qt.Dialog | Qt.MSWindowsFixedSizeDialogHint | Qt.Sheet
+            errorbox = QMessageBox(QMessageBox.Critical,\
+                                   "CaDNAno",\
+                                   "Could not write to '%s'."%filename,\
+                                   QMessageBox.Ok,\
+                                   self.win,\
+                                   flags)
+            errorbox.setWindowModality(Qt.WindowModal)
+            errorbox.open()
+            return False
+        self.undoStack().setClean()
+        self.setFilename(filename)
+        return True
+
     def saveClicked(self):
         if self._hasNoAssociatedFile or self._document._importedFromJson:
-            return self.saveAsClicked()
-        f = open(self.filename(), 'w')
-        encode(self._document, f)
-        f.close()
-        self.undoStack().setClean()
+            self.openSaveFileDialog()
+            return
+        self.writeToFile()
 
     def saveAsClicked(self):
+        self.openSaveFileDialog()
+
+    def openSaveFileDialog(self):
         fname = self.filename()
         if fname == None:
             directory = "."
@@ -300,8 +325,7 @@ class DocumentController():
                                 directory, \
                                 "%s (*.nno)" % QApplication.applicationName(), \
                                  )
-            self.filesavedialog = None
-            self.saveFile(fname)
+            self.writeToFile(fname)
         else:  # access through non-blocking callback
             fdialog = QFileDialog ( self.win, \
                                 "%s - Save As" % QApplication.applicationName(),\
@@ -312,10 +336,10 @@ class DocumentController():
             fdialog.setWindowModality(Qt.WindowModal)
             # fdialog.exec_()  # or .show(), or .open()
             self.filesavedialog = fdialog
-            self.filesavedialog.filesSelected.connect(self.saveFile) 
+            self.filesavedialog.filesSelected.connect(self.saveFileDialogCallback) 
             fdialog.open()
 
-    def saveFile(self, selected):
+    def saveFileDialogCallback(self, selected):
         if isinstance(selected, QStringList) or isinstance(selected, list):
             fname = selected[0]
         else:
@@ -325,11 +349,10 @@ class DocumentController():
         fname = str(fname)
         if not fname.lower().endswith(".nno"):
             fname += ".nno"
-        self.setFilename(fname)
         if self.filesavedialog != None:
-            self.filesavedialog.filesSelected.disconnect(self.saveFile)
-            del self.filesavedialog # manual garbage collection to prevent hang (in osx)
-        return self.saveClicked()
+            self.filesavedialog.filesSelected.disconnect(self.saveFileDialogCallback)
+            del self.filesavedialog # prevents hang
+        self.writeToFile(fname)
     # end def
 
     def svgClicked(self):

@@ -66,11 +66,12 @@ def doc_from_legacy_dict(obj):
     Takes a loaded legacy dictionary, returns a loaded Document
     """
     numBases = len(obj['vstrands'][0]['scaf'])
+    dialog = QDialog()
+    dialogLT = Ui_LatticeType()
+    dialogLT.setupUi(dialog)
+
     # determine lattice type
     if numBases % 21 == 0 and numBases % 32 == 0:
-        dialog = QDialog()
-        dialogLT = Ui_LatticeType()
-        dialogLT.setupUi(dialog)
         if dialog.exec_() == 1:
             latticeType = LatticeType.Square
         else:
@@ -82,12 +83,25 @@ def doc_from_legacy_dict(obj):
     # create part according to lattice type
     if latticeType == LatticeType.Honeycomb:
         part = DNAHoneycombPart()
-        part.setDimensions((30, 32, numBases))
+        numRows, numCols = 30, 32
     elif latticeType == LatticeType.Square:
         part = DNASquarePart()
-        part.setDimensions((30, 30, numBases))
+        isSQ100 = True  # check for custom SQ100 format
+        for helix in obj['vstrands']:
+            if helix['col'] != 0:
+                isSQ100 = False
+                break
+        if isSQ100:
+            dialogLT.label.setText("Is this a SQ100 file?")
+            if dialog.exec_() == 1:
+                numRows, numCols = 100, 1
+            else:
+                numRows, numCols = 30, 30
+        else:
+            numRows, numCols = 30, 30
     else:
         raise TypeError("Lattice type not recognized")
+    part.setDimensions((numRows, numCols, numBases))
 
     part.setName(obj["name"])
     doc = Document(legacyJsonImport=True)
