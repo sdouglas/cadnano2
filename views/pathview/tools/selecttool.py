@@ -113,6 +113,7 @@ class SelectTool(AbstractPathTool):
         # If there is an existing drag operation
         # and we get *another* press, the first
         # drag operation must end
+        self.scene().clearSelection() # added to clearout selections
         self.finalizeMouseDrag()
 
         # The key property of a drag operation
