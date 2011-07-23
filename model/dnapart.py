@@ -264,6 +264,19 @@ class DNAPart(Part):
             c.redo()
         else:
             self.undoStack().push(c)
+            
+    def removeVirtualHelixAt(self, coords, vh, requestSpecificIdnum=None, noUndo=False):
+        c = self.RemoveHelixCommand(self, tuple(coords), vh, requestSpecificIdnum)
+        if noUndo:
+            vh.clearAllStrands()
+            c.redo()
+        else:
+            self.undoStack().beginMacro("Remove Virtual Helix")
+            d = vh.clearAllStrands()
+            self.undoStack().push(d)
+            self.undoStack().push(c)
+            self.undoStack().endMacro()
+    # end def
 
     def matchHelixNumberingToPhgDisplayOrder(self, phg):
         evens, odds = [], []
@@ -429,7 +442,47 @@ class DNAPart(Part):
                 self._part.recycleHelixIDNumber(vh.number())
             self._part.virtualHelixAtCoordsChanged.emit(self._coords[0],\
                                                         self._coords[1])
+    # end class
+    
+    class RemoveHelixCommand(QUndoCommand):
+        """
+        Adds a helix to dnapart. Called by self.addVirtualHelixAt().
+        """
+        def __init__(self, dnapart, coords, vhelix, requestSpecificIdnum=None):
+            super(DNAPart.RemoveHelixCommand, self).__init__()
+            self._part = dnapart
+            self._coords = coords  # row, col
+            self._parity = self._part.coordinateParityEven(coords)
+            self._vhelix = vhelix
+            self._requestedNum = requestSpecificIdnum
+            
+        def redo(self):
+            vh = self._vhelix
+            if vh:
+                vh.basesModified.disconnect(self._part.persistentDataChangedEvent)
+                del self._part._coordToVirtualHelix[vh.coord()]
+                del self._part._numberToVirtualHelix[vh.number()]
+                self._part.recycleHelixIDNumber(vh.number())
+            self._part.virtualHelixAtCoordsChanged.emit(self._coords[0],\
+                                                        self._coords[1])
+        # end def
 
+        def undo(self, actuallyUndo=False):
+            vh = self._part.getVirtualHelix(self._coords)
+            if vh:
+                newID = self._part.reserveHelixIDNumber(
+                                            parityEven=self._parity,\
+                                            requestedIDnum=self._requestedNum)
+                vh._setPart(self._part, self._coords, newID)
+                self._vhelix.basesModified.connect(self._part.persistentDataChangedEvent)
+                self._part._numberToVirtualHelix[newID] = vh
+                self._part._coordToVirtualHelix[self._coords] = vh
+            self._part.virtualHelixAtCoordsChanged.emit(self._coords[0],\
+                                                        self._coords[1])
+        # end def
+
+    # end class
+                                                        
 
     class RenumberHelixCommand(QUndoCommand):
         def __init__(self, dnapart, coords, newNumber):

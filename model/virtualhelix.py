@@ -856,6 +856,26 @@ class VirtualHelix(QObject):
                                       color=color, speedy=speedy)
         
         self.endCommand(undoStack, c, police)
+        
+    def clearAllStrands(self):
+        rightBreakIdx = leftBreakIdx = 1
+        while leftBreakIdx > 1:
+            if self.hasCrossoverAt(strandType, leftBreakIdx-1):
+                if self.hasStrandAt(strandType, idx):
+                    self.removeXoversAt(strandType, leftBreakIdx-1)
+                break
+            if self.hasEndAt(strandType, leftBreakIdx-1):
+                break
+            leftBreakIdx -= 1
+        while rightBreakIdx < self.numBases():
+            if self.hasCrossoverAt(strandType, rightBreakIdx):
+                if self.hasStrandAt(strandType, idx):
+                    self.removeXoversAt(strandType, rightBreakIdx)
+                break
+            if self.hasEndAt(strandType, rightBreakIdx) and rightBreakIdx != idx:
+                break
+            rightBreakIdx += 1
+        self.clearStrand(strandType, leftBreakIdx, rightBreakIdx)
 
     def legacyClearStrand(self, strandType, startIndex, endIndex, undoStack=True,\
                     colorL=None, colorR=None, police=True,\
