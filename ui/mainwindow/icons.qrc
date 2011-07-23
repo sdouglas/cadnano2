@@ -22,6 +22,7 @@
     <file alias="remove-bases">images/remove-bases.svg</file>
     <file alias="pen">images/path-pen_48.png</file>
     <file alias="insert">images/path-insert_48x48.png</file>
+    <file alias="frame">images/path-frame.png</file>
     <file alias="paint">images/path-paint_48.png</file>
     <file alias="move">images/path-move.png</file>
     <file alias="skip">images/path-skip_48x48.png</file>

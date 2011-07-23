@@ -2,8 +2,8 @@
 
 # Form implementation generated from reading ui file 'mainwindow/mainwindow.ui'
 #
-# Created: Thu Jul 21 15:16:04 2011
-#      by: PyQt4 UI code generator snapshot-4.8.3-fbc8b1362812
+# Created: Fri Jul 22 22:10:33 2011
+#      by: PyQt4 UI code generator 4.7.7
 #
 # WARNING! All changes made in this file will be lost!
 
@@ -104,32 +104,30 @@ class Ui_MainWindow(object):
         self.topToolBar.setBaseSize(QtCore.QSize(0, 0))
         self.topToolBar.setToolButtonStyle(QtCore.Qt.ToolButtonTextUnderIcon)
         self.topToolBar.setObjectName(_fromUtf8("topToolBar"))
-        MainWindow.addToolBar(QtCore.Qt.TopToolBarArea, self.topToolBar)
+        MainWindow.addToolBar(QtCore.Qt.ToolBarArea(QtCore.Qt.TopToolBarArea), self.topToolBar)
         self.rightToolBar = QtGui.QToolBar(MainWindow)
         sizePolicy = QtGui.QSizePolicy(QtGui.QSizePolicy.Fixed, QtGui.QSizePolicy.Preferred)
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
         sizePolicy.setHeightForWidth(self.rightToolBar.sizePolicy().hasHeightForWidth())
         self.rightToolBar.setSizePolicy(sizePolicy)
-        self.rightToolBar.setMinimumSize(QtCore.QSize(58, 0))
+        self.rightToolBar.setMinimumSize(QtCore.QSize(0, 0))
         self.rightToolBar.setLayoutDirection(QtCore.Qt.LeftToRight)
         self.rightToolBar.setAllowedAreas(QtCore.Qt.LeftToolBarArea|QtCore.Qt.RightToolBarArea|QtCore.Qt.TopToolBarArea)
         self.rightToolBar.setToolButtonStyle(QtCore.Qt.ToolButtonTextUnderIcon)
         self.rightToolBar.setObjectName(_fromUtf8("rightToolBar"))
-        MainWindow.addToolBar(QtCore.Qt.RightToolBarArea, self.rightToolBar)
-        MainWindow.insertToolBarBreak(self.rightToolBar)
+        MainWindow.addToolBar(QtCore.Qt.ToolBarArea(QtCore.Qt.RightToolBarArea), self.rightToolBar)
         self.leftToolBar = QtGui.QToolBar(MainWindow)
         sizePolicy = QtGui.QSizePolicy(QtGui.QSizePolicy.Fixed, QtGui.QSizePolicy.Preferred)
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
         sizePolicy.setHeightForWidth(self.leftToolBar.sizePolicy().hasHeightForWidth())
         self.leftToolBar.setSizePolicy(sizePolicy)
-        self.leftToolBar.setMinimumSize(QtCore.QSize(58, 0))
+        self.leftToolBar.setMinimumSize(QtCore.QSize(0, 0))
         self.leftToolBar.setAllowedAreas(QtCore.Qt.LeftToolBarArea|QtCore.Qt.RightToolBarArea|QtCore.Qt.TopToolBarArea)
         self.leftToolBar.setToolButtonStyle(QtCore.Qt.ToolButtonTextUnderIcon)
         self.leftToolBar.setObjectName(_fromUtf8("leftToolBar"))
-        MainWindow.addToolBar(QtCore.Qt.LeftToolBarArea, self.leftToolBar)
-        MainWindow.insertToolBarBreak(self.leftToolBar)
+        MainWindow.addToolBar(QtCore.Qt.ToolBarArea(QtCore.Qt.LeftToolBarArea), self.leftToolBar)
         self.actionNew = QtGui.QAction(MainWindow)
         icon = QtGui.QIcon()
         icon.addPixmap(QtGui.QPixmap(_fromUtf8(":/filetools/new")), QtGui.QIcon.Normal, QtGui.QIcon.Off)
@@ -264,6 +262,11 @@ class Ui_MainWindow(object):
         self.actionCSV.setObjectName(_fromUtf8("actionCSV"))
         self.actionPreferences = QtGui.QAction(MainWindow)
         self.actionPreferences.setObjectName(_fromUtf8("actionPreferences"))
+        self.actionFrame = QtGui.QAction(MainWindow)
+        icon20 = QtGui.QIcon()
+        icon20.addPixmap(QtGui.QPixmap(_fromUtf8(":/pathtools/frame")), QtGui.QIcon.Normal, QtGui.QIcon.Off)
+        self.actionFrame.setIcon(icon20)
+        self.actionFrame.setObjectName(_fromUtf8("actionFrame"))
         self.menuOpen_recent_files.addSeparator()
         self.menuExport.addAction(self.actionSVG)
         self.menuExport.addAction(self.actionX3D)
@@ -291,10 +294,10 @@ class Ui_MainWindow(object):
         self.topToolBar.addAction(self.actionOpen)
         self.topToolBar.addAction(self.actionSave)
         self.topToolBar.addSeparator()
-        self.topToolBar.addAction(self.actionSVG)
-        self.topToolBar.addSeparator()
         self.topToolBar.addAction(self.actionNewHoneycombPart)
         self.topToolBar.addAction(self.actionNewSquarePart)
+        self.topToolBar.addSeparator()
+        self.topToolBar.addAction(self.actionFrame)
         self.rightToolBar.addAction(self.actionPathSelect)
         self.rightToolBar.addAction(self.actionPathPencil)
         self.rightToolBar.addAction(self.actionPathBreak)
@@ -391,6 +394,8 @@ class Ui_MainWindow(object):
         self.actionCSV.setToolTip(QtGui.QApplication.translate("MainWindow", "export oligos as *.CSV", None, QtGui.QApplication.UnicodeUTF8))
         self.actionPreferences.setText(QtGui.QApplication.translate("MainWindow", "Preferences", None, QtGui.QApplication.UnicodeUTF8))
         self.actionPreferences.setShortcut(QtGui.QApplication.translate("MainWindow", "Ctrl+,", None, QtGui.QApplication.UnicodeUTF8))
+        self.actionFrame.setText(QtGui.QApplication.translate("MainWindow", "Frame", None, QtGui.QApplication.UnicodeUTF8))
+        self.actionFrame.setShortcut(QtGui.QApplication.translate("MainWindow", "F", None, QtGui.QApplication.UnicodeUTF8))
 
 from views.customqgraphicsview import CustomQGraphicsView
 import icons_rc

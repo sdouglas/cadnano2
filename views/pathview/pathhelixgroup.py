@@ -204,7 +204,7 @@ class PathHelixGroup(QGraphicsObject):
     # TODO: consider refactoring to have this signal actually emit a list of 
     # changed VHs
     displayedVHsChanged = pyqtSignal()
-    def setDisplayedVHs(self, vhrefs):
+    def setDisplayedVHs(self, vhrefs, zoomToFit=True):
         """Spawns or destroys PathHelix such that displayedVHs
         has the same VirtualHelix in the same order as vhrefs
         (though displayedVHs always returns a list of VirtualHelix
@@ -214,14 +214,12 @@ class PathHelixGroup(QGraphicsObject):
             new_pathHelixList = []
             vhToPH = dict(((ph.vhelix(), ph) for ph in self._pathHelixes))
             for vhref in vhrefs:
-                vh = self.part().getVirtualHelix(vhref)            
+                vh = self.part().getVirtualHelix(vhref)
                 ph = vhToPH.get(vh, None)
                 if ph == None:
                     ph = PathHelix(vh, self)
                 new_pathHelixList.append(ph)
-            # print [x.number() for x in new_pathHelixList]
-            self._setPathHelixList(new_pathHelixList)
-            # print "updating disp vhs"
+            self._setPathHelixList(new_pathHelixList, zoomToFit=zoomToFit)
             self.displayedVHsChanged.emit()
 
     def partDimensionsChanged(self):
@@ -235,7 +233,7 @@ class PathHelixGroup(QGraphicsObject):
             return None
         return self._pathHelixList()[0]
 
-    def _setPathHelixList(self, newList):
+    def _setPathHelixList(self, newList, zoomToFit=True):
         """Give me a list of PathHelix and I'll parent them
         to myself if necessary, position them in a column, adopt
         their handles, and position them as well."""
@@ -287,7 +285,8 @@ class PathHelixGroup(QGraphicsObject):
         for ph in self._pathHelixes:
             ph.positionInPhgChanged()
         self.vhToPathHelix = dict(((ph.vhelix(), ph) for ph in newList))
-        self.scene().views()[0].zoomToFit()
+        if zoomToFit:
+            self.scene().views()[0].zoomToFit()
     # end def
 
     def paint(self, painter, option, widget=None):
@@ -347,15 +346,9 @@ class PathHelixGroup(QGraphicsObject):
         by a distance delta in the list. Notify each PathHelix and
         PathHelixHandle of its new location.
         """
-        # print "called reorderHelices", first, last, indexDelta
-        # vhs = self.displayedVHs()
-        # vhsToMove = vhs[first:last]
-        # del vhs[first:last]
-
         helixNumbers = [ph.number() for ph in self._pathHelixes]
         firstIndex = helixNumbers.index(first)
         lastIndex = helixNumbers.index(last) + 1
-        # print "indices", firstIndex, lastIndex
         if indexDelta < 0:  # move group earlier in the list
             newIndex = max(0, indexDelta + firstIndex)
             listPHs = self._pathHelixes[0:newIndex] +\
@@ -369,7 +362,7 @@ class PathHelixGroup(QGraphicsObject):
                                  self._pathHelixes[firstIndex:lastIndex] +\
                                  self._pathHelixes[newIndex:]
         listVHs = [ph.vhelix() for ph in listPHs]
-        self.setDisplayedVHs(listVHs)
+        self.setDisplayedVHs(listVHs, zoomToFit=False)
     # end def
 
     clearCursors = pyqtSignal()

@@ -378,6 +378,7 @@ class DocumentController():
         self.win.sliceController.activeSliceFirstSignal.connect(\
                      self.pathHelixGroup.activeSliceHandle().moveToFirstSlice)
         self.win.pathController.setActivePath(self.pathHelixGroup)
+        self.win.actionFrame.triggered.connect(self.pathHelixGroup.zoomToFit)
 
         for vh in part.getVirtualHelices():
             xos = vh.get3PrimeXovers(StrandType.Scaffold)

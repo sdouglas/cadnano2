@@ -76,8 +76,8 @@ PATH_XOVER_LINE_SCALE_X = 0.035
 PATH_XOVER_LINE_SCALE_Y = 0.035
 
 # Path Colors
-minorgridstroke = QColor(153, 153, 153)  # 999999
-majorgridstroke = QColor(51, 51, 51)  # 333333
+minorgridstroke = QColor(204, 204, 204)  # 999999
+majorgridstroke = QColor(153, 153, 153)  # 333333
 scafstroke = QColor(0, 102, 204)  # 0066cc
 handlefill = QColor(0, 102, 204)  # 0066cc
 pch_scaf_stroke = QColor(0, 102, 204, 153)

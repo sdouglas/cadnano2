@@ -253,10 +253,10 @@
    <addaction name="actionOpen"/>
    <addaction name="actionSave"/>
    <addaction name="separator"/>
-   <addaction name="actionSVG"/>
-   <addaction name="separator"/>
    <addaction name="actionNewHoneycombPart"/>
    <addaction name="actionNewSquarePart"/>
+   <addaction name="separator"/>
+   <addaction name="actionFrame"/>
   </widget>
   <widget class="QToolBar" name="rightToolBar">
    <property name="sizePolicy">
@@ -267,7 +267,7 @@
    </property>
    <property name="minimumSize">
     <size>
-     <width>58</width>
+     <width>0</width>
      <height>0</height>
     </size>
    </property>
@@ -287,7 +287,7 @@
     <enum>RightToolBarArea</enum>
    </attribute>
    <attribute name="toolBarBreak">
-    <bool>true</bool>
+    <bool>false</bool>
    </attribute>
    <addaction name="actionPathSelect"/>
    <addaction name="actionPathPencil"/>
@@ -309,7 +309,7 @@
    </property>
    <property name="minimumSize">
     <size>
-     <width>58</width>
+     <width>0</width>
      <height>0</height>
     </size>
    </property>
@@ -326,7 +326,7 @@
     <enum>LeftToolBarArea</enum>
    </attribute>
    <attribute name="toolBarBreak">
-    <bool>true</bool>
+    <bool>false</bool>
    </attribute>
    <addaction name="actionSliceFirst"/>
    <addaction name="actionSliceLast"/>
@@ -710,6 +710,18 @@
    </property>
    <property name="shortcut">
     <string>Ctrl+,</string>
+   </property>
+  </action>
+  <action name="actionFrame">
+   <property name="icon">
+    <iconset resource="icons.qrc">
+     <normaloff>:/pathtools/frame</normaloff>:/pathtools/frame</iconset>
+   </property>
+   <property name="text">
+    <string>Frame</string>
+   </property>
+   <property name="shortcut">
+    <string>F</string>
    </property>
   </action>
  </widget>
