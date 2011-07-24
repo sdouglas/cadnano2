@@ -265,20 +265,16 @@ class DNAPart(Part):
         else:
             self.undoStack().push(c)
             
-    def removeVirtualHelicesAt(self, vhList, requestSpecificIdnum=None, noUndo=False):
+    def removeVirtualHelixAt(self, coords, vh, requestSpecificIdnum=None, noUndo=False):
+        c = self.RemoveHelixCommand(self, tuple(coords), vh, requestSpecificIdnum)
         if noUndo:
-            for vh in vhList:
-                if vh != None:
-                    vh.clearAllStrands()
-                    c = self.RemoveHelixCommand(self, vh.coord(), vh, requestSpecificIdnum)
-                    c.redo()
+            vh.clearAllStrands()
+            c.redo()
         else:
             self.undoStack().beginMacro("Remove Virtual Helix")
-            for vh in vhList:
-                if vh != None:
-                    vh.clearAllStrands()
-                    c = self.RemoveHelixCommand(self, vh.coord(), vh, requestSpecificIdnum)
-                    self.undoStack().push(c)
+            d = vh.clearAllStrands()
+            self.undoStack().push(d)
+            self.undoStack().push(c)
             self.undoStack().endMacro()
     # end def
 
@@ -461,7 +457,6 @@ class DNAPart(Part):
             self._requestedNum = requestSpecificIdnum
             
         def redo(self):
-            # print "redo remove helix"
             vh = self._vhelix
             if vh:
                 vh.basesModified.disconnect(self._part.persistentDataChangedEvent)
@@ -473,14 +468,7 @@ class DNAPart(Part):
         # end def
 
         def undo(self, actuallyUndo=False):
-            # print "undo remove helix"
-            vh = self._vhelix
-            if vh == None:
-                vh = self._part.getVirtualHelix(self._coords)
-            if vh == None:
-                vh = VirtualHelix(numBases=self._part.crossSectionStep())
-                # vh.basesModified.connect(self.update)
-
+            vh = self._part.getVirtualHelix(self._coords)
             if vh:
                 newID = self._part.reserveHelixIDNumber(
                                             parityEven=self._parity,\
