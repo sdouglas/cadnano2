@@ -1380,21 +1380,37 @@ class VirtualHelix(QObject):
         def redo(self):
             ol = self._oldLinkage = []
             vh = None
-            for b in self.bases:
-                ol.append(b._set3Prime(None))
-                ol.append(b._set5Prime(None))
-                vh = b._vhelix
-            if vh:
-                vh.emitBasesModifiedIfNeeded()
+            # for b in self.bases:
+            #     ol.append(b._set3Prime(None))
+            #     ol.append(b._set5Prime(None))
+            #     vh = b._vhelix
+            # if vh:
+            #     vh.emitBasesModifiedIfNeeded()
+            
+            # fast version of the above
+            olA = map(lambda b: b._set3Prime(None), self.bases)
+            olB = map(lambda b: b._set5Prime(None), self.bases)
+            self._oldLinkage = map(list(zip(olA,olB)))
+            temp = filter(lambda b: True if b._vhelix != None else False, self._bases)
+            if len(temp) > 0:
+                temp[0]._vhelix.emitBasesModifiedIfNeeded()
         def undo(self):
             ol = self._oldLinkage
             vh = None
-            for b in reversed(self.bases):
-                b._unset5Prime(None, ol.pop())
-                b._unset3Prime(None, ol.pop())
-                vh = b._vhelix
-            if vh:
-                vh.emitBasesModifiedIfNeeded()
+            # for b in reversed(self.bases):
+            #     b._unset5Prime(None, ol.pop())
+            #     b._unset3Prime(None, ol.pop())
+            #     vh = b._vhelix
+            # if vh:
+            #     vh.emitBasesModifiedIfNeeded()
+            
+            # fast version of the above
+            bases = reversed(self.bases)
+            olB = map(lambda b: b._unset5Prime(ol.pop()), bases)
+            olA = map(lambda b: b._unset3Prime(ol.pop()), bases)
+            temp = filter(lambda b: True if b._vhelix != None else False, self._bases)
+            if len(temp) > 0:
+                temp[0]._vhelix.emitBasesModifiedIfNeeded()
 
 
     class ConnectStrandCommand(QUndoCommand):
