@@ -78,7 +78,7 @@ class UnitTests(CadnanoGuiTestCase):
         # Add unit-test-specific cleanup here
 
     def testAutoDragToBoundary(self):
-        """docstring for testDrag"""
+        """Test autoDragToBoundary function in virtual helix"""
         vh0 = VirtualHelix(numBases=42, idnum=0)
         vh0.connectStrand(StrandType.Scaffold, 20, 22)
         str0 = "0 Scaffold: _,_ _,_ _,_ _,_ _,_ _,_ _,_ _,_ _,_ _,_ _,_ _,_ _,_ _,_ _,_ _,_ _,_ _,_ _,_ _,_ _,> <,> <,_ _,_ _,_ _,_ _,_ _,_ _,_ _,_ _,_ _,_ _,_ _,_ _,_ _,_ _,_ _,_ _,_ _,_ _,_ _,_\n0 Staple:   _,_ _,_ _,_ _,_ _,_ _,_ _,_ _,_ _,_ _,_ _,_ _,_ _,_ _,_ _,_ _,_ _,_ _,_ _,_ _,_ _,_ _,_ _,_ _,_ _,_ _,_ _,_ _,_ _,_ _,_ _,_ _,_ _,_ _,_ _,_ _,_ _,_ _,_ _,_ _,_ _,_ _,_"
@@ -91,6 +91,7 @@ class UnitTests(CadnanoGuiTestCase):
         self.assertEqual(repr(vh0), str2)
 
     def createTestRangeSet(self):
+        """RangeSet createTestRangeSet"""
         ranges = []
         idx = self.prng.randint(-100, 100)
         for i in range(100):
@@ -105,6 +106,7 @@ class UnitTests(CadnanoGuiTestCase):
         return rs
 
     def testRangeSet_idxOfRangeContaining(self):
+        """RangeSet _idxOfRangeContaining"""
         rs = self.createTestRangeSet()
         ranges = rs.ranges
         for i in range(ranges[0][0] - 3, ranges[-1][1] + 3):
@@ -119,6 +121,7 @@ class UnitTests(CadnanoGuiTestCase):
             self.assertEqual(valueByFastMethod, valueBySureMethod)
 
     def testRangeSet_idxRangeOfRangesIntersectingRange(self):
+        """RangeSet _idxRangeOfRangesIntersectingRange"""
         rs = self.createTestRangeSet()
         ranges = rs.ranges
         idxMin, idxMax = ranges[0][0], ranges[-1][1]
@@ -130,6 +133,7 @@ class UnitTests(CadnanoGuiTestCase):
             self.assertEqual(valueByFastMethod, valueBySureMethod)
 
     def testRangeSet_rangeIntersection(self):
+        """RangeSet intersection"""
         for i in xrange(1000):
             l1 = self.prng.randint(-15, 15)
             r1 = self.prng.randint(-15, 15)
@@ -143,6 +147,7 @@ class UnitTests(CadnanoGuiTestCase):
             self.assertEqual(realIntersection, computedIntersection)
 
     def testRangeSet_addRange(self):
+        """RangeSet addRange"""
         rs = RangeSet()
         rd = {}  # Maps index -> metadata, emulating rs
         for i in range(200):
@@ -159,6 +164,7 @@ class UnitTests(CadnanoGuiTestCase):
             self.assertEqual(valToCheck, valToCheckAgainst)
 
     def testRangeSet_addRange_removeRange(self):
+        """RangeSet addRange followed by removeRange"""
         rs = RangeSet()
         rd = {}  # Maps index -> metadata, emulating rs
         for i in range(200):

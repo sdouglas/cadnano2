@@ -31,8 +31,7 @@ It was written with the goal of providing a simple and user-friendly interface
 to facilitate a process that can be complex and error-prone.
 
 ## Installation
-For now just run from the terminal with python main.py
-We're still working out the bugs
+For now just run from the terminal with python main.py.
 
 ### Required Dependencies
 * [Qt 4.7](http://qt.nokia.com/products/)

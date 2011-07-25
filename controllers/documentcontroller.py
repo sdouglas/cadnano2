@@ -36,6 +36,9 @@ from views.sliceview.squareslicegraphicsitem import SquareSliceGraphicsItem
 from views.pathview.handles.activeslicehandle import ActiveSliceHandle
 from views import styles
 
+if app().isInMaya():
+	from views.solidview.solidhelixgroup import SolidHelixGroup
+
 import util
 # import Qt stuff into the module namespace with PySide, PyQt4 independence
 util.qtWrapImport('QtCore', globals(), ['pyqtSignal', 'QString', \
@@ -43,11 +46,6 @@ util.qtWrapImport('QtCore', globals(), ['pyqtSignal', 'QString', \
 util.qtWrapImport('QtGui', globals(), ['QUndoStack', 'QFileDialog',\
                                         'QAction', 'QApplication', \
                                         'QMessageBox', 'QKeySequence' ])
-
-if app().isInMaya():
-    from .mayawindow import DocumentWindow
-    from solidview.solidhelixgroup import SolidHelixGroup
-
 
 class DocumentController():
     """
@@ -70,9 +68,10 @@ class DocumentController():
         self.connectWindowEventsToSelf()
         self.win.show()
         self._document = None
-        self.setDocument(Document() if not doc else doc)
+        self.setDocument(Document() if not doc else doc)        
         app().undoGroup.addStack(self.undoStack())
         self.win.setWindowTitle(self.documentTitle()+'[*]')
+        self.solidHelixGrp = None
 
     def closer(self, event):
         if self.maybeSave():
@@ -112,6 +111,7 @@ class DocumentController():
         return self._document
 
     def setDocument(self, doc):
+        
         self._document = doc
         doc.setController(self)
         doc.partAdded.connect(self.docPartAddedEvent)
@@ -203,7 +203,6 @@ class DocumentController():
     # end def
 
     def exportCSV(self):
-        print "Export clicked"
         fname = self.filename()
         if fname == None:
             directory = "."
@@ -250,7 +249,6 @@ class DocumentController():
 
     def closeClicked(self):
         """This will trigger a Window closeEvent"""
-        print "close clicked"
         if util.isWindows():
             self.win.close()
 
@@ -387,14 +385,9 @@ class DocumentController():
         self.pathHelixGroup = PathHelixGroup(part,\
                                          controller=self.win.pathController,\
                                          parent=self.win.pathroot)
-
+                                         
         if app().isInMaya():
-            solhg = SolidHelixGroup(dnaPartInst,\
-                                    controller=self.win.pathController)
-            # need to create a permanent class level reference to this so
-            # it doesn't get garbage collected
-            self.solidlist.append(solhg)
-            self.pathHelixGroup.scaffoldChange.connect(solhg.handleScaffoldChange)
+            self.solidHelixGrp = SolidHelixGroup(part, controller=self.win.pathController, htype=part.crossSectionType())
 
         self.win.sliceController.activeSliceLastSignal.connect(\
                       self.pathHelixGroup.activeSliceHandle().moveToLastSlice)
@@ -414,6 +407,7 @@ class DocumentController():
                 self.pathHelixGroup.createXoverItem(xo[0], toBase, StrandType.Staple)
         # end for
         self.setActivePart(part)
+        
     # end def
     
     def addHoneycombHelixGroup(self):
