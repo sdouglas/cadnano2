@@ -389,12 +389,18 @@ class VirtualHelix(QObject):
         is used on each vhelix by the part to determine the
         numBases that will effect such a reduction.
         """
+        # ret = -1
+        #  for strandType in (StrandType.Scaffold, StrandType.Staple):
+        #      strand = self._strand(strandType)
+        #      for i in range(len(strand)):
+        #          if not strand[i].isEmpty():
+        #              ret = max(ret, i)
+        #  return ret
         ret = -1
         for strandType in (StrandType.Scaffold, StrandType.Staple):
             strand = self._strand(strandType)
-            for i in range(len(strand)):
-                if not strand[i].isEmpty():
-                    ret = max(ret, i)
+            filteredStrand = filter(lambda b: not b.isEmpty(), strand)
+            ret = max(ret, filteredStrand[len(filteredStrand)-1]._n)
         return ret
 
     def hasBaseAt(self, strandType, index):
@@ -847,8 +853,9 @@ class VirtualHelix(QObject):
     def emitBasesModifiedIfNeeded(self):
         part = self.part()
         if part:
-            for vh in list(self.part().basesModifiedVHs):
-                vh.basesModified.emit()
+            # for vh in list(self.part().basesModifiedVHs):
+            #     vh.basesModified.emit()
+            map( lambda vh: vh.basesModified.emit(), list(self.part().basesModifiedVHs) )
             part.basesModifiedVHs.clear()
             part._recalculateStrandLengths()
             part.modificationCondition.acquire()
@@ -883,17 +890,19 @@ class VirtualHelix(QObject):
             commands = (commands,)
         # c is the command
         if undoStack != None:
-            for c in commands:
-                if c != None:
-                    undoStack.push(c)
+            # for c in commands:
+            #     if c != None:
+            #         undoStack.push(c)
+            map(lambda c: undoStack.push(c) if c != None else None, commands)
             if police:  # Check for inconsistencies, fix one-base Xovers, etc
                 self.thoughtPolice(undoStack)
         else:
             if police:  # Check for inconsistencies, fix one-base Xovers, etc
                 self.thoughtPolice(undoStack)
-            for c in commands:
-                if c != None:
-                    c.redo()
+            # for c in commands:
+            #     if c != None:
+            #         c.redo()
+            map(lambda c: c.redo() if c != None else None, commands)
         if additionalAffectedBases != None and police:
             affectedVH = set()
             for b in additionalAffectedBases:
@@ -1138,18 +1147,20 @@ class VirtualHelix(QObject):
         if self.prohibitSingleBaseCrossovers:
             for strandType in (StrandType.Scaffold, StrandType.Staple):
                 strand = self._strand(strandType)
-                for i in range(len(strand)):
-                    b = strand[i]
+                # speeding up function to enable map
+                def thoughtPolice_sub(b):
                     hasNeighborL = b._hasNeighborL()
                     hasNeighborR = b._hasNeighborR()
                     hasXoverL = b._hasCrossoverL()
                     hasXoverR = b._hasCrossoverR()
                     if hasXoverL and not hasNeighborR:
-                        self.connectStrand(strandType, i, i+1,\
+                        self.connectStrand(strandType, b._n, b._n+1,\
                                            police=False, undoStack=undoStack)
                     if hasXoverR and not hasNeighborL:
-                        self.connectStrand(strandType, i-1, i,\
+                        self.connectStrand(strandType, b._n-1, b._n,\
                                            police=False, undoStack=undoStack)
+                # end def
+                map(thoughtPolice_sub, strand)
     # end def
 
     def isSeqBlank(self):
