@@ -36,6 +36,8 @@ from views.sliceview.squareslicegraphicsitem import SquareSliceGraphicsItem
 from views.pathview.handles.activeslicehandle import ActiveSliceHandle
 from views import styles
 
+from views.solidview.solidhelixgroup import SolidHelixGroup
+
 import util
 # import Qt stuff into the module namespace with PySide, PyQt4 independence
 util.qtWrapImport('QtCore', globals(), ['pyqtSignal', 'QString', \
@@ -43,11 +45,6 @@ util.qtWrapImport('QtCore', globals(), ['pyqtSignal', 'QString', \
 util.qtWrapImport('QtGui', globals(), ['QUndoStack', 'QFileDialog',\
                                         'QAction', 'QApplication', \
                                         'QMessageBox', 'QKeySequence' ])
-
-if app().isInMaya():
-    from .mayawindow import DocumentWindow
-    from solidview.solidhelixgroup import SolidHelixGroup
-
 
 class DocumentController():
     """
@@ -70,9 +67,10 @@ class DocumentController():
         self.connectWindowEventsToSelf()
         self.win.show()
         self._document = None
-        self.setDocument(Document() if not doc else doc)
+        self.setDocument(Document() if not doc else doc)        
         app().undoGroup.addStack(self.undoStack())
         self.win.setWindowTitle(self.documentTitle()+'[*]')
+        self.solidlist = []
 
     def closer(self, event):
         if self.maybeSave():
@@ -111,11 +109,13 @@ class DocumentController():
         return self._document
 
     def setDocument(self, doc):
+        
         self._document = doc
         doc.setController(self)
         doc.partAdded.connect(self.docPartAddedEvent)
         for p in doc.parts():
             self.docPartAddedEvent(p)
+        print "setDocument end"
 
     def undoStack(self):
         return self._undoStack
@@ -363,15 +363,7 @@ class DocumentController():
                                         parent=self.win.sliceroot)
         self.pathHelixGroup = PathHelixGroup(part,\
                                          controller=self.win.pathController,\
-                                         parent=self.win.pathroot)
-
-        if app().isInMaya():
-            solhg = SolidHelixGroup(dnaPartInst,\
-                                    controller=self.win.pathController)
-            # need to create a permanent class level reference to this so
-            # it doesn't get garbage collected
-            self.solidlist.append(solhg)
-            self.pathHelixGroup.scaffoldChange.connect(solhg.handleScaffoldChange)
+                                         parent=self.win.pathroot)         
 
         self.win.sliceController.activeSliceLastSignal.connect(\
                       self.pathHelixGroup.activeSliceHandle().moveToLastSlice)
@@ -390,6 +382,11 @@ class DocumentController():
                 self.pathHelixGroup.createXoverItem(xo[0], toBase, StrandType.Staple)
         # end for
         self.setActivePart(part)
+        if app().isInMaya():
+            solhg = SolidHelixGroup(part, controller=self.win.pathController, htype=part.crossSectionType())
+            self.solidlist.append(solhg)
+            
+
     # end def
     
     def addHoneycombHelixGroup(self):
