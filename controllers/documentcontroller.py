@@ -249,7 +249,6 @@ class DocumentController():
 
     def closeClicked(self):
         """This will trigger a Window closeEvent"""
-        print "close clicked"
         if util.isWindows():
             self.win.close()
 
