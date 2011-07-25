@@ -64,10 +64,7 @@ class ModelTests(CadnanoGuiTestCase):
         # Add model-test-specific cleanup here
 
     def testFractionalClearStrandCommand(self):
-        """
-        The new API for clearStrand allows fractional values for
-        base indices (see docs/virtualhelix.pdf). This tets them.
-        """
+        """Factional values of base indices"""
         vh = VirtualHelix(numBases=8, idnum=0)
         self.assertEqual(repr(vh), '0 Scaffold: _,_ _,_ _,_ _,_ _,_ _,_ _,_ _,_\n0 Staple:   _,_ _,_ _,_ _,_ _,_ _,_ _,_ _,_')
 
@@ -86,10 +83,7 @@ class ModelTests(CadnanoGuiTestCase):
         vh.undoStack().undo()
         
     def testVH(self):
-        """
-        Perform the VirtualHelix tutorial and make sure that the
-        expected changes occur to the sample VirtualHelix
-        """
+        """VirtualHelix tutorial in docs/virtualhelix.pdf"""
         vh = VirtualHelix(numBases=8, idnum=0)
         self.assertEqual(repr(vh), '0 Scaffold: _,_ _,_ _,_ _,_ _,_ _,_ _,_ _,_\n0 Staple:   _,_ _,_ _,_ _,_ _,_ _,_ _,_ _,_')
 
@@ -136,6 +130,7 @@ class ModelTests(CadnanoGuiTestCase):
         self.assertEqual(repr(vh), '0 Scaffold: _,_ _,_ _,> <,> <,_ _,_ _,_ _,_\n0 Staple:   _,_ _,_ _,_ _,_ _,_ _,_ _,_ _,_')
     
     def testClearCrossovers(self):
+        """VirtualHelix clearStrand across xovers"""
         vh = VirtualHelix(numBases=8, idnum=0)
         vh.connectStrand(StrandType.Staple, 0, 7)
         vh1 = VirtualHelix(numBases=5, idnum=1)

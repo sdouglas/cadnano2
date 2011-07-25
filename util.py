@@ -180,6 +180,10 @@ def rcomp(seqStr):
     """Returns the reverse complement of the sequence in seqStr."""
     return seqStr.translate(complement)[::-1]
 
+whitetoQ = string.maketrans(' ','?')
+def markwhite(seqStr):
+    return seqStr.translate(whitetoQ)
+
 def nowhite(seqStr):
     """Gets rid of whitespace in a string."""
     return ''.join([c for c in seqStr if c in string.letters])

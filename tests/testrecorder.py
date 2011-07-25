@@ -220,7 +220,7 @@ class TestRecorder(object):
                                          self.initPathButtons(indent),\
                                          self.createUserInput(indent),\
                                          self.checkAgainstModel(indent))
-        name = "test/lastrecordedtest.py"
+        name = "tests/lastrecordedtest.py"
         f = open(name, 'w')
         f.write(newtest2)
         f.close()

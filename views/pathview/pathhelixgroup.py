@@ -42,17 +42,19 @@ from .pathselection import PathHelixHandleSelectionBox
 from .pathselection import BreakpointHandleSelectionBox
 import util
 from views import styles
+import threading, weakref
 
 
 # import Qt stuff into the module namespace with PySide, PyQt4 independence
 util.qtWrapImport('QtCore', globals(), ['QObject', 'pyqtSignal', 'pyqtSlot',\
                                         'QRectF', 'QPointF', 'QEvent',\
-                                        'QObject', 'Qt'])
+                                        'QObject', 'Qt', 'QThread'])
 util.qtWrapImport('QtGui', globals(), ['QBrush', 'QPen', 'qApp',\
                                        'QGraphicsTextItem', 'QFont',\
-                                       'QColor', 'QGraphicsItem',\
-                                       'QGraphicsObject',\
-                                       'QGraphicsItemGroup', 'QUndoCommand'])
+                                       'QColor', 'QGraphicsItem', 'QPainter',\
+                                       'QGraphicsObject', 'QPicture',\
+                                       'QGraphicsItemGroup', 'QUndoCommand',\
+                                       'QStyleOptionGraphicsItem'])
 
 
 class PathHelixGroup(QGraphicsObject):
@@ -78,6 +80,12 @@ class PathHelixGroup(QGraphicsObject):
         self._pathHelixes = []  # Primary property
         self.activeHelix = None
         self._part = None
+        #Picture Cache
+        self.dummyChild = self.DummyChild(self)
+        self.pictureCache = None
+        #self.pictureThread = self.PaintingCacheUpdateThread(self)
+        #self.pictureThread.start()
+        #Selections
         self.phhSelectionGroup = SelectionItemGroup(\
                                          boxtype=PathHelixHandleSelectionBox,\
                                          constraint='y',\
@@ -137,13 +145,14 @@ class PathHelixGroup(QGraphicsObject):
             self._part.dimensionsDidChange.disconnect(self.partDimensionsChanged)
             self._part.createXover.disconnect(self.createXoverItem)
             self._part.updateFloatingXover.disconnect(self.updateFloatingXoverItem)
-        if newPart:
+            self._part.needsFittingToView.disconnect(self.zoomToFit)
+        self._part = newPart
+        if newPart != None:
             newPart.selectionWillChange.connect(self.selectionWillChange)
             newPart.dimensionsDidChange.connect(self.partDimensionsChanged)
             newPart.createXover.connect(self.createXoverItem)
             newPart.updateFloatingXover.connect(self.updateFloatingXoverItem)
-        self._part = newPart
-        if newPart:
+            newPart.needsFittingToView.connect(self.zoomToFit)
             self.selectionWillChange(newPart.selection())
 
     def controller(self):
@@ -204,24 +213,21 @@ class PathHelixGroup(QGraphicsObject):
     # TODO: consider refactoring to have this signal actually emit a list of 
     # changed VHs
     displayedVHsChanged = pyqtSignal()
-    def setDisplayedVHs(self, vhrefs):
+    def setDisplayedVHs(self, vhrefs, zoomToFit=True):
         """Spawns or destroys PathHelix such that displayedVHs
         has the same VirtualHelix in the same order as vhrefs
         (though displayedVHs always returns a list of VirtualHelix
         while setDisplayedVHs can take any vhref)"""
         if self.part() != None:
-            assert(self.part())  # Can't display VirtualHelix that aren't there!
             new_pathHelixList = []
             vhToPH = dict(((ph.vhelix(), ph) for ph in self._pathHelixes))
             for vhref in vhrefs:
-                vh = self.part().getVirtualHelix(vhref)            
+                vh = self.part().getVirtualHelix(vhref)
                 ph = vhToPH.get(vh, None)
                 if ph == None:
                     ph = PathHelix(vh, self)
                 new_pathHelixList.append(ph)
-            # print [x.number() for x in new_pathHelixList]
-            self._setPathHelixList(new_pathHelixList)
-            # print "updating disp vhs"
+            self._setPathHelixList(new_pathHelixList, zoomToFit=zoomToFit)
             self.displayedVHsChanged.emit()
 
     def partDimensionsChanged(self):
@@ -235,7 +241,7 @@ class PathHelixGroup(QGraphicsObject):
             return None
         return self._pathHelixList()[0]
 
-    def _setPathHelixList(self, newList):
+    def _setPathHelixList(self, newList, zoomToFit=True):
         """Give me a list of PathHelix and I'll parent them
         to myself if necessary, position them in a column, adopt
         their handles, and position them as well."""
@@ -252,7 +258,7 @@ class PathHelixGroup(QGraphicsObject):
                 scene.removeItem(handle)
                 scene.removeItem(ph)
         for ph in newList:
-            ph.setParentItem(self)
+            ph.setParentItem(self.dummyChild)
             ph.setPos(0, y)
             ph_height = ph.boundingRect().height()
             step = ph_height + styles.PATH_HELIX_PADDING
@@ -287,12 +293,19 @@ class PathHelixGroup(QGraphicsObject):
         for ph in self._pathHelixes:
             ph.positionInPhgChanged()
         self.vhToPathHelix = dict(((ph.vhelix(), ph) for ph in newList))
-        self.scene().views()[0].zoomToFit()
+        if zoomToFit:
+            self.scene().views()[0].zoomToFit()
     # end def
 
     def paint(self, painter, option, widget=None):
-        # painter.drawRect(self.boundingRect())
         pass
+        #dc = self.dummyChild
+        #if self.pictureCache != None and dc.isVisible():
+        #    dc.hide()
+        #elif self.pictureCache == None and not dc.isVisible():
+        #    dc.show()
+        #if self.pictureCache != None:
+        #    painter.drawPicture(0, 0, self.pictureCache)
 
     geometryChanged = pyqtSignal()
 
@@ -306,7 +319,7 @@ class PathHelixGroup(QGraphicsObject):
         vhs = [vh.number() for vh in self.displayedVHs()]
         vhs.remove(num)
         vhs.insert(idx, num)
-        self.setDisplayedVHs(vhs)
+        self.setDisplayedVHs(vhs, zoomToFit=False)
         
     def renumber(self):
         self.part().matchHelixNumberingToPhgDisplayOrder(self)
@@ -324,7 +337,75 @@ class PathHelixGroup(QGraphicsObject):
 
     # Slot called when the slice view's (actually the part's) selection changes
     def selectionWillChange(self, newSelection):
-        self.setDisplayedVHs(newSelection)
+        self.setDisplayedVHs(newSelection, zoomToFit=False)
+
+    class PaintingCacheUpdateThread(QThread):
+        def __init__(self, phg):
+            # threading.Thread.__init__(self)
+            QThread.__init__(self)
+            self.phg = weakref.proxy(phg)
+            # self.setDaemon(True)
+        def run(self):
+            phg = self.phg
+            while True:
+                try:
+                    part = phg.part()
+                    if part == None:
+                        continue
+                    modificationCV = part.modificationCondition
+                    modificationCV.acquire()
+                    modificationCV.wait()
+                    phg.pictureCache = None
+                    modificationCV.release()
+                    phg.fillPictureCache()
+                except ReferenceError as e:
+                    break
+            print "Picture thread terminated."
+
+    def fillPictureCache(self):
+        print "Picture cache: %s"%str(self.pictureCache)
+        recording = QPicture()
+        painter = QPainter()
+        painter.begin(recording)
+        part = self.part()
+        dummyStyleOption = QStyleOptionGraphicsItem()
+        if part == None: return
+        q = [self.dummyChild]
+        try:
+            part.lock.acquireRead(0)
+            while q:
+                part.lock.release()
+                part.lock.acquireRead(0)
+                graphicsItem = q.pop()
+                # the transform that maps graphicsItem coordinates to our own
+                painter.setTransform(graphicsItem.itemTransform(self)[0])
+                graphicsItem.paint(painter, dummyStyleOption, None)
+                q.extend(graphicsItem.childItems())
+        except RuntimeError:
+            print "Lock timed out -- aborting"
+        finally:
+            try:
+                part.lock.release()
+            except ValueError:
+                pass  # Catch double-releasing, which doesn't concern us
+            painter.end()
+        self.pictureCache = recording
+        print "Picture cache: %s"%str(self.pictureCache)
+
+    def prepareGeometryChange(self):
+        super(PathHelixGroup, self).prepareGeometryChange()
+        self.dummyChild.prepareGeometryChange()
+
+    class DummyChild(QGraphicsItem):
+        """
+        A PathHelixGroup can switch between rendering its children and
+        rendering from a QPicture cache (filled by fillPictureCache inside a
+        PaintingCacheUpdateThread)
+        """
+        def boundingRect(self):
+            return self.parentObject().boundingRect()
+        def paint(self, painter, option, widget=None):
+            pass
 
     def getPathHelix(self, vhref):
         """Given the helix number, return a reference to the PathHelix."""
@@ -347,15 +428,9 @@ class PathHelixGroup(QGraphicsObject):
         by a distance delta in the list. Notify each PathHelix and
         PathHelixHandle of its new location.
         """
-        # print "called reorderHelices", first, last, indexDelta
-        # vhs = self.displayedVHs()
-        # vhsToMove = vhs[first:last]
-        # del vhs[first:last]
-
         helixNumbers = [ph.number() for ph in self._pathHelixes]
         firstIndex = helixNumbers.index(first)
         lastIndex = helixNumbers.index(last) + 1
-        # print "indices", firstIndex, lastIndex
         if indexDelta < 0:  # move group earlier in the list
             newIndex = max(0, indexDelta + firstIndex)
             listPHs = self._pathHelixes[0:newIndex] +\
@@ -369,7 +444,7 @@ class PathHelixGroup(QGraphicsObject):
                                  self._pathHelixes[firstIndex:lastIndex] +\
                                  self._pathHelixes[newIndex:]
         listVHs = [ph.vhelix() for ph in listPHs]
-        self.setDisplayedVHs(listVHs)
+        self.setDisplayedVHs(listVHs, zoomToFit=False)
     # end def
 
     clearCursors = pyqtSignal()

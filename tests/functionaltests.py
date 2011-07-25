@@ -95,25 +95,7 @@ class FunctionalTests(CadnanoGuiTestCase):
 
     ####################### Staple Comparison Tests ########################
     def testStapleOutput_simple42(self):
-         """
-         Test applying M13mp18 sequence to a 42-base scaffold and perfectly
-         complementary 42-base staple.
-
-         This is the original template end-to-end functional test for correct
-         staple sequence generation.
-
-         The convention for making staple sequence tests is to put two files
-         in the tests/functionaltestinputs directory: a cadnano source file 
-         (json, or nno), and a csv file with the correct staple output.
-
-         The test should first get a test set of staples by calling
-         getTestSequences with a designname and sequencesToApply
-         (a list of tuples with sequence name and position where the sequence
-         should be applied).
-
-         Then we finish by reading in the reference staple set and comparing
-         it to the generated set.
-         """
+         """M13mp18 sequence applied a 42-base duplex (nno source)"""
          designname = "simple42.nno"
          refname = "simple42.csv"
          sequences = [("M13mp18", 0, 0)]  # list of (sequencename, vhnum, index)
@@ -122,9 +104,7 @@ class FunctionalTests(CadnanoGuiTestCase):
          self.assertEqual(testSet, refSet)
 
     def testStapleOutput_simple42legacy(self):
-        """
-        Same as simple42, but the source file is in cadnano1 json format.
-        """
+        """p7308 applied to 42-base duplex (json source)"""
         designname = "simple42legacy.json"
         refname = "simple42legacy.csv"
         sequences = [("p7308", 0, 0)]
@@ -133,7 +113,7 @@ class FunctionalTests(CadnanoGuiTestCase):
         self.assertEqual(testSet, refSet)
 
     def testStapleOutput_loop_size_1(self):
-        """Test sequence output with a single loop of size 1."""
+        """Test sequence output with a single loop of size 1"""
         designname = "loop_size_1.json"
         refname = "loop_size_1.csv"
         sequences = [("M13mp18", 0, 14)]
@@ -142,7 +122,7 @@ class FunctionalTests(CadnanoGuiTestCase):
         self.assertEqual(testSet, refSet)
 
     def testStapleOutput_skip(self):
-        """Simple design with a single skip."""
+        """Simple design with a single skip"""
         designname = "skip.json"
         refname = "skip.csv"
         sequences = [("M13mp18", 0, 14)]
@@ -151,7 +131,7 @@ class FunctionalTests(CadnanoGuiTestCase):
         self.assertEqual(testSet, refSet)
 
     def testStapleOutput_loops_and_skips(self):
-        """Loop and skip stress test."""
+        """Loop and skip stress test"""
         designname = "loops_and_skips.json"
         refname = "loops_and_skips.csv"
         sequences = [("M13mp18", 0, 0)]
@@ -160,6 +140,7 @@ class FunctionalTests(CadnanoGuiTestCase):
         self.assertEqual(testSet, refSet)
 
     def testStapleOutput_Nature09_monolith(self):
+        """Staples match reference set for Nature09 monolith"""
         designname = "Nature09_monolith.json"
         refname = "Nature09_monolith.csv"
         sequences = [("p7560", 4, 73)]
@@ -168,6 +149,7 @@ class FunctionalTests(CadnanoGuiTestCase):
         self.assertEqual(testSet, refSet)
 
     def testStapleOutput_Nature09_squarenut(self):
+        """Staples match reference set for Nature09 squarenut"""
         designname = "Nature09_squarenut.json"
         refname = "Nature09_squarenut.csv"
         sequences = [("p7560", 15, 100)]
@@ -176,6 +158,7 @@ class FunctionalTests(CadnanoGuiTestCase):
         self.assertEqual(testSet, refSet)
 
     def testStapleOutput_Science09_prot120_98_v3(self):
+        """Staples match reference set for Science09 protractor 120 v3"""
         designname = "Science09_prot120_98_v3.json"
         refname = "Science09_prot120_98_v3.csv"
         sequences = [("p7704", 0, 105)]
@@ -184,6 +167,7 @@ class FunctionalTests(CadnanoGuiTestCase):
         self.assertEqual(testSet, refSet)
 
     def testStapleOutput_Science09_beachball_v1(self):
+        """Staples match reference set for Science09 beachball (nno source)"""
         designname = "Science09_beachball_v1.nno"
         refname = "Science09_beachball_v1.csv"
         sequences = [("p7308", 10, 221)]
@@ -192,6 +176,7 @@ class FunctionalTests(CadnanoGuiTestCase):
         self.assertEqual(testSet, refSet)
 
     def testStapleOutput_Science09_beachball_v1_json(self):
+        """Staples match reference set for Science09 beachball (json source)"""
         designname = "Science09_beachball_v1.json"
         refname = "Science09_beachball_v1.csv"
         sequences = [("p7308", 10, 221)]
@@ -199,8 +184,19 @@ class FunctionalTests(CadnanoGuiTestCase):
         refSet = self.getRefSequences(refname)
         self.assertEqual(testSet, refSet)
 
+    def testStapleOutput_Gap_Vs_Skip(self):
+        """Staple gap output as '?'; staple skip output as ''"""
+        designname = "gap_vs_skip.nno"
+        refname = "gap_vs_skip.csv"
+        sequences = [("M13mp18", 0, 11), ("M13mp18", 2, 11)]
+        testSet = self.getTestSequences(designname, sequences)
+        refSet = self.getRefSequences(refname)
+        self.assertEqual(testSet, refSet)
+
+
     ####################### Standard Functional Tests ########################
     def testActiveSliceHandleAltShiftClick(self):
+        """Alt+Shift+Click on ActiveSliceHandle extends scaffold strands."""
         # Create a new Honeycomb part
         newHoneycombPartButton = self.mainWindow.topToolBar.widgetForAction(\
                                        self.mainWindow.actionNewHoneycombPart)
@@ -226,6 +222,7 @@ class FunctionalTests(CadnanoGuiTestCase):
         self.assertEqual(repr(vh1), str1)
 
     def testEndpointAltClick(self):
+        """Alt+Click on a 5' or 3' endpoint extends it to its boundary."""
         # Create a new Honeycomb part
         newHoneycombPartButton = self.mainWindow.topToolBar.widgetForAction(\
                                        self.mainWindow.actionNewHoneycombPart)

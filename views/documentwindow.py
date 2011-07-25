@@ -126,7 +126,7 @@ class DocumentWindow(QMainWindow, ui_mainwindow.Ui_MainWindow):
         app().undoGroup.setActiveStack(self.controller.undoStack())
 
     def readSettings(self):
-        self.settings.beginGroup("MainWindow");
+        self.settings.beginGroup("MainWindow")
         self.resize(self.settings.value("size", QSize(1100, 800)).toSize())
         self.move(self.settings.value("pos", QPoint(200, 200)).toPoint())
         self.settings.endGroup()

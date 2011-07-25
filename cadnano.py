@@ -30,7 +30,6 @@ Created by Jonathan deWerd on 2011-01-29.
 import sys
 from os import path, environ
 from code import interact
-from ui.dialogs.ui_preferences import Ui_Preferences
 PySide_loaded = None
 
 usesPySide_ret = None
@@ -38,6 +37,8 @@ def initPySide(PySide):
     print "Using PySide"
 def initPyQt(PyQt4):
     print "Using PyQt4"
+saved_argv = sys.argv
+
 def usesPySide(*args):
     preferPySide = False
     global usesPySide_ret
@@ -99,7 +100,7 @@ def qtWrapImport(name, globaldict, fromlist):
 # end def
 
 # import Qt stuff into the module namespace with PySide, PyQt4 independence
-qtWrapImport('QtGui', globals(),  ['qApp', 'QApplication', 'QDialog', 'QIcon',\
+qtWrapImport('QtGui', globals(),  ['qApp', 'QApplication', 'QIcon',\
                                    'QUndoGroup'])
 qtWrapImport('QtCore', globals(), ['QObject', 'QCoreApplication'])
 
@@ -110,13 +111,12 @@ class CADnano(QObject):
     shouldPerformBoilerplateStartupScript = False
     usesPySide_ret = usesPySide_ret
 
-    def __init__(self, argv):
-        if argv == None:
-            argv = ["cadnano"]
+    def __init__(self):
+        argv = saved_argv
         if QCoreApplication.instance() == None:
             self.qApp = QApplication(argv)
             assert(QCoreApplication.instance() != None)
-            self.qApp.setOrganizationDomain("cadnano.org");
+            self.qApp.setOrganizationDomain("cadnano.org")
         super(CADnano, self).__init__()
         assert(not CADnano.sharedApp)
         CADnano.sharedApp = self
@@ -130,6 +130,8 @@ class CADnano(QObject):
         if self.guiInitialized:
             return
         self.guiInitialized = True
+        from views.preferences import Preferences
+        self.prefs = Preferences()
         argv = sys.argv
         qApp.setWindowIcon(QIcon('ui/mainwindow/images/cadnano2-app-icon.png'))
         self.undoGroup = QUndoGroup()
@@ -158,7 +160,7 @@ class CADnano(QObject):
     # end def
 
     def isInMaya(self):
-        return False
+        return QCoreApplication.instance().applicationName().contains("Maya", Qt.CaseInsensitive)
 
     def exec_(self):
         if hasattr(self, 'qApp'):
@@ -185,12 +187,7 @@ class CADnano(QObject):
         return dc.document()
 
     def prefsClicked(self):
-        """docstring for prefsClicked"""
-        print "prefsClicked"
-        dialog = QDialog()
-        dialogPrefs = Ui_Preferences()
-        dialogPrefs.setupUi(dialog)
-        dialog.exec_()
+        self.prefs.showDialog()
 
 def ignoreEnv():
     return environ.get('CADNANO_IGNORE_ENV_VARS_EXCEPT_FOR_ME', False)
@@ -198,7 +195,7 @@ def ignoreEnv():
 # Convenience. No reason to feel guilty using it - CADnano is a singleton.
 def app(appArgs=None):
     if not CADnano.sharedApp:
-        CADnano.sharedApp = CADnano(appArgs)
+        CADnano.sharedApp = CADnano()
     if environ.get('CADNANO_DISCARD_UNSAVED', False) and not ignoreEnv():
         CADnano.sharedApp.dontAskAndJustDiscardUnsavedChanges = True
     if environ.get('CADNANO_DEFAULT_DOCUMENT', False) and not ignoreEnv():

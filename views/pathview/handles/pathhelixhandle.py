@@ -51,19 +51,15 @@ class PathHelixHandle(QGraphicsItem):
         super(PathHelixHandle, self).__init__(parent)
         self.vhelix = vhelix
         vhelix.part().virtualHelixAtCoordsChanged.connect(self.someVHChangedItsNumber)
-        
         self.parent = parent
         self._phg = parent
         self.setParentItem(parent)
-        
-        # self._number = self.vhelix.number()
         self.label = None
         self.focusRing = None
         self.beingHoveredOver = False
         self.setAcceptsHoverEvents(True)
         self.font = styles.PATHHELIXHANDLE_FONT
         self.setNumber()
-        #self.setFlag(QGraphicsItem.ItemIsMovable)
         self.setFlag(QGraphicsItem.ItemIsSelectable)
         self.setFlag(QGraphicsItem.ItemSendsScenePositionChanges)
     # end def
@@ -85,12 +81,12 @@ class PathHelixHandle(QGraphicsItem):
         if self.beingHoveredOver:
             painter.setPen(self.hovPen)
         painter.drawEllipse(self.rect)
-    
+
     def someVHChangedItsNumber(self, r, c):
         # If it was our VH, we need to update the number we
         # are displaying!
         if (r,c) == self.vhelix.coord():
-            self.setNumber()  
+            self.setNumber()
 
     def setNumber(self):
         """docstring for setNumber"""

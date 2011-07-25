@@ -821,17 +821,21 @@ class VirtualHelix(QObject):
             self.basesModified.emit()
     
     def emitBasesModifiedIfNeeded(self):
-        if self.part():
+        part = self.part()
+        if part:
             for vh in list(self.part().basesModifiedVHs):
                 vh.basesModified.emit()
-            self.part().basesModifiedVHs.clear()
-            self.part()._recalculateStrandLengths()
+            part.basesModifiedVHs.clear()
+            part._recalculateStrandLengths()
+            part.modificationCondition.acquire()
+            part.modificationCondition.notifyAll()
+            part.modificationCondition.release()
         else:
             self.basesModified.emit()
         self._sequenceForVirtualStrandCache = None
         #self.part().virtualHelixAtCoordsChanged.emit(*self.coord())
 
-    def beginCommand(self, undoStack, str):
+    def beginCommand(self, undoStack, strng):
         """
         Shared command method (not to be confused with a QUndoCommand object)
         prefix. Enforces uniform handling of the undoStack varibale.
@@ -846,10 +850,21 @@ class VirtualHelix(QObject):
         boolean "undoable" flag. In the future, tools should maintain a 
         drag-operation undo stack rather than using sandboxing (error-prone).
         """
+        # The undoStack argument defaults to using self.undoStack(). The trouble
+        # is, None and instances of QUndoStack are both valid values for
+        # undoStack, so something else must be used to signal that no undoStack
+        # value was passed and therefore the default should be used. We
+        # arbitrarily chose True for this value.
         if undoStack == True:
             undoStack = self.undoStack()
+        # If the passed in argument OR self.undoStack() yielded an undo stack
+        # (equivalently, if we will be using an undo stack) then all commands
+        # performed by self should be wrapped in a macro.
         if undoStack != None:
-            undoStack.beginMacro(str)
+            undoStack.beginMacro(strng)
+        part = self.part()
+        if part != None:
+            part.lock.acquireWrite()
         return undoStack
 
     def endCommand(self, undoStack, commands, police=False, additionalAffectedBases=None):
@@ -879,6 +894,9 @@ class VirtualHelix(QObject):
         if undoStack != None:
             undoStack.endMacro()
         self.resetSequenceCache()
+        part = self.part()
+        if part != None:
+            part.lock.release()
 
     def connectStrand(self, strandType, startIndex, endIndex, undoStack=True,\
                       police=True, color=None, speedy=False):
@@ -899,6 +917,26 @@ class VirtualHelix(QObject):
                                       color=color, speedy=speedy)
 
         self.endCommand(undoStack, c, police)
+        
+    def clearAllStrands(self):
+        rightBreakIdx = leftBreakIdx = 1
+        while leftBreakIdx > 1:
+            if self.hasCrossoverAt(strandType, leftBreakIdx-1):
+                if self.hasStrandAt(strandType, idx):
+                    self.removeXoversAt(strandType, leftBreakIdx-1)
+                break
+            if self.hasEndAt(strandType, leftBreakIdx-1):
+                break
+            leftBreakIdx -= 1
+        while rightBreakIdx < self.numBases():
+            if self.hasCrossoverAt(strandType, rightBreakIdx):
+                if self.hasStrandAt(strandType, idx):
+                    self.removeXoversAt(strandType, rightBreakIdx)
+                break
+            if self.hasEndAt(strandType, rightBreakIdx) and rightBreakIdx != idx:
+                break
+            rightBreakIdx += 1
+        self.clearStrand(strandType, leftBreakIdx, rightBreakIdx)
 
     def legacyClearStrand(self, strandType, startIndex, endIndex, undoStack=True,\
                     colorL=None, colorR=None, police=True,\

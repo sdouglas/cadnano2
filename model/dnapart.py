@@ -29,6 +29,8 @@ from .enum import LatticeType, StrandType
 from heapq import *
 import copy
 from views import styles
+from readwritelock import ReadWriteLock
+from threading import Condition
 
 import util
 # import Qt stuff into the module namespace with PySide, PyQt4 independence
@@ -60,7 +62,8 @@ class DNAPart(Part):
     #  object 1 is None
     #  object 2 is None
     updateFloatingXover = pyqtSignal(object, object)
-    
+    needsFittingToView = pyqtSignal()
+
     _selectAllBehavior = True  # Always select all helices in part
     # Bases are always added and removed in multiples of the
     # addition/removal unit
@@ -75,7 +78,7 @@ class DNAPart(Part):
         self._name = kwargs.get('name', 'untitled')
         self._maxRow = kwargs.get('maxRow', 20)
         self._maxCol = kwargs.get('maxCol', 20)
-        self._maxBase = 2 * self.step
+        self._maxBase = kwargs.get('maxSteps', 2) * self.step
 
         # ID assignment infra
         self.oddRecycleBin, self.evenRecycleBin = [], []
@@ -103,9 +106,10 @@ class DNAPart(Part):
         # recalculateStrandLengths method.
         self.basesModified = set()
         self.numTimesStrandLengthsRecalcd = 0
+        self.lock = ReadWriteLock()
+        self.modificationCondition = Condition()
 
         # Event propagation
-        
         self.virtualHelixAtCoordsChanged.connect(self.persistentDataChangedEvent)
         self.dimensionsWillChange.connect(self.persistentDataChangedEvent)
         self.dimensionsDidChange.connect(self.ensureActiveBaseIsWithinNewDims)
@@ -323,6 +327,9 @@ class DNAPart(Part):
     def getVirtualHelices(self):
         return (self._numberToVirtualHelix[n] for n in self._numberToVirtualHelix)
 
+    def __len__(self):
+        return len(self._numberToVirtualHelix)
+
     virtualHelixAtCoordsChanged = pyqtSignal(int, int)
     def addVirtualHelixAt(self, coords, vh, requestSpecificIdnum=None, noUndo=False):
         c = self.AddHelixCommand(self, tuple(coords), vh, requestSpecificIdnum)
@@ -330,6 +337,19 @@ class DNAPart(Part):
             c.redo()
         else:
             self.undoStack().push(c)
+            
+    def removeVirtualHelixAt(self, coords, vh, requestSpecificIdnum=None, noUndo=False):
+        c = self.RemoveHelixCommand(self, tuple(coords), vh, requestSpecificIdnum)
+        if noUndo:
+            vh.clearAllStrands()
+            c.redo()
+        else:
+            self.undoStack().beginMacro("Remove Virtual Helix")
+            d = vh.clearAllStrands()
+            self.undoStack().push(d)
+            self.undoStack().push(c)
+            self.undoStack().endMacro()
+    # end def
 
     def matchHelixNumberingToPhgDisplayOrder(self, phg):
         evens, odds = [], []
@@ -427,9 +447,13 @@ class DNAPart(Part):
                 sequencestring = ""
                 for base in bases:
                     # put the insertion first since it's already rcomp
-                    sequencestring += (base.lazy_sequence()[1] + \
-                                       base.lazy_sequence()[0])
-                sequencestring = util.nowhite(sequencestring)
+                    if base.lazy_sequence() == (" ", " "):
+                        pass  # skip
+                    else:
+                        sequencestring += (base.lazy_sequence()[1] + \
+                                           base.lazy_sequence()[0])
+                # sequencestring = util.nowhite(sequencestring)
+                sequencestring = util.markwhite(sequencestring)
                 output = "%d[%d],%d[%d],%s,%s,%s\n" % \
                         (vh5.number(), \
                         bases[0]._n, \
@@ -495,7 +519,47 @@ class DNAPart(Part):
                 self._part.recycleHelixIDNumber(vh.number())
             self._part.virtualHelixAtCoordsChanged.emit(self._coords[0],\
                                                         self._coords[1])
+    # end class
+    
+    class RemoveHelixCommand(QUndoCommand):
+        """
+        Adds a helix to dnapart. Called by self.addVirtualHelixAt().
+        """
+        def __init__(self, dnapart, coords, vhelix, requestSpecificIdnum=None):
+            super(DNAPart.RemoveHelixCommand, self).__init__()
+            self._part = dnapart
+            self._coords = coords  # row, col
+            self._parity = self._part.coordinateParityEven(coords)
+            self._vhelix = vhelix
+            self._requestedNum = requestSpecificIdnum
+            
+        def redo(self):
+            vh = self._vhelix
+            if vh:
+                vh.basesModified.disconnect(self._part.persistentDataChangedEvent)
+                del self._part._coordToVirtualHelix[vh.coord()]
+                del self._part._numberToVirtualHelix[vh.number()]
+                self._part.recycleHelixIDNumber(vh.number())
+            self._part.virtualHelixAtCoordsChanged.emit(self._coords[0],\
+                                                        self._coords[1])
+        # end def
 
+        def undo(self, actuallyUndo=False):
+            vh = self._part.getVirtualHelix(self._coords)
+            if vh:
+                newID = self._part.reserveHelixIDNumber(
+                                            parityEven=self._parity,\
+                                            requestedIDnum=self._requestedNum)
+                vh._setPart(self._part, self._coords, newID)
+                self._vhelix.basesModified.connect(self._part.persistentDataChangedEvent)
+                self._part._numberToVirtualHelix[newID] = vh
+                self._part._coordToVirtualHelix[self._coords] = vh
+            self._part.virtualHelixAtCoordsChanged.emit(self._coords[0],\
+                                                        self._coords[1])
+        # end def
+
+    # end class
+                                                        
 
     class RenumberHelixCommand(QUndoCommand):
         def __init__(self, dnapart, coords, newNumber):
@@ -667,7 +731,7 @@ class DNAPart(Part):
     def updateSelectionFromVHChange(self, row, col):
         coord = (row, col)
         vh = self.getVirtualHelix(coord)
-        if vh:
+        if vh != None:
             s = self.selection()
             s.append(vh)
             self.setSelection(s)

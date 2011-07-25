@@ -36,6 +36,9 @@ from views.sliceview.squareslicegraphicsitem import SquareSliceGraphicsItem
 from views.pathview.handles.activeslicehandle import ActiveSliceHandle
 from views import styles
 
+if app().isInMaya():
+	from views.solidview.solidhelixgroup import SolidHelixGroup
+
 import util
 # import Qt stuff into the module namespace with PySide, PyQt4 independence
 util.qtWrapImport('QtCore', globals(), ['pyqtSignal', 'QString', \
@@ -43,11 +46,6 @@ util.qtWrapImport('QtCore', globals(), ['pyqtSignal', 'QString', \
 util.qtWrapImport('QtGui', globals(), ['QUndoStack', 'QFileDialog',\
                                         'QAction', 'QApplication', \
                                         'QMessageBox', 'QKeySequence' ])
-
-if app().isInMaya():
-    from .mayawindow import DocumentWindow
-    from solidview.solidhelixgroup import SolidHelixGroup
-
 
 class DocumentController():
     """
@@ -70,9 +68,10 @@ class DocumentController():
         self.connectWindowEventsToSelf()
         self.win.show()
         self._document = None
-        self.setDocument(Document() if not doc else doc)
+        self.setDocument(Document() if not doc else doc)        
         app().undoGroup.addStack(self.undoStack())
         self.win.setWindowTitle(self.documentTitle()+'[*]')
+        self.solidHelixGrp = None
 
     def closer(self, event):
         if self.maybeSave():
@@ -96,6 +95,7 @@ class DocumentController():
             return True
         self._filename = proposedFName
         self._hasNoAssociatedFile = False
+        self.win.setWindowTitle(self.documentTitle())
         return True
 
     def activePart(self):
@@ -111,6 +111,7 @@ class DocumentController():
         return self._document
 
     def setDocument(self, doc):
+        
         self._document = doc
         doc.setController(self)
         doc.partAdded.connect(self.docPartAddedEvent)
@@ -132,7 +133,7 @@ class DocumentController():
         self.win.actionAutoStaple.triggered.connect(self.autoStapleClicked)
         self.win.actionCSV.triggered.connect(self.exportCSV)
         self.win.actionPreferences.triggered.connect(app().prefsClicked)
-        # self.win.actionSave_As.triggered.connect(self.saveAsClicked)
+        self.win.actionSave_As.triggered.connect(self.saveAsClicked)
         # self.win.actionQuit.triggered.connect(self.closeClicked)
         # self.win.actionAdd.triggered.connect(self.addClicked)
         # self.win.actionDelete.triggered.connect(self.deleteClicked)
@@ -202,7 +203,6 @@ class DocumentController():
     # end def
 
     def exportCSV(self):
-        print "Export clicked"
         fname = self.filename()
         if fname == None:
             directory = "."
@@ -249,7 +249,6 @@ class DocumentController():
 
     def closeClicked(self):
         """This will trigger a Window closeEvent"""
-        print "close clicked"
         if util.isWindows():
             self.win.close()
 
@@ -280,15 +279,39 @@ class DocumentController():
                 return False
         return True
 
+    def writeToFile(self, filename=None):
+        if filename == None:
+            assert(not self._hasNoAssociatedFile)
+            filename = self.filename()
+        try:
+            f = open(filename, 'w')
+            encode(self._document, f)
+            f.close()
+        except IOError:
+            flags = Qt.Dialog | Qt.MSWindowsFixedSizeDialogHint | Qt.Sheet
+            errorbox = QMessageBox(QMessageBox.Critical,\
+                                   "CaDNAno",\
+                                   "Could not write to '%s'."%filename,\
+                                   QMessageBox.Ok,\
+                                   self.win,\
+                                   flags)
+            errorbox.setWindowModality(Qt.WindowModal)
+            errorbox.open()
+            return False
+        self.undoStack().setClean()
+        self.setFilename(filename)
+        return True
+
     def saveClicked(self):
         if self._hasNoAssociatedFile or self._document._importedFromJson:
-            return self.saveAsClicked()
-        f = open(self.filename(), 'w')
-        encode(self._document, f)
-        f.close()
-        self.undoStack().setClean()
+            self.openSaveFileDialog()
+            return
+        self.writeToFile()
 
     def saveAsClicked(self):
+        self.openSaveFileDialog()
+
+    def openSaveFileDialog(self):
         fname = self.filename()
         if fname == None:
             directory = "."
@@ -300,8 +323,7 @@ class DocumentController():
                                 directory, \
                                 "%s (*.nno)" % QApplication.applicationName(), \
                                  )
-            self.filesavedialog = None
-            self.saveFile(fname)
+            self.writeToFile(fname)
         else:  # access through non-blocking callback
             fdialog = QFileDialog ( self.win, \
                                 "%s - Save As" % QApplication.applicationName(),\
@@ -312,10 +334,10 @@ class DocumentController():
             fdialog.setWindowModality(Qt.WindowModal)
             # fdialog.exec_()  # or .show(), or .open()
             self.filesavedialog = fdialog
-            self.filesavedialog.filesSelected.connect(self.saveFile) 
+            self.filesavedialog.filesSelected.connect(self.saveFileDialogCallback) 
             fdialog.open()
 
-    def saveFile(self, selected):
+    def saveFileDialogCallback(self, selected):
         if isinstance(selected, QStringList) or isinstance(selected, list):
             fname = selected[0]
         else:
@@ -325,11 +347,10 @@ class DocumentController():
         fname = str(fname)
         if not fname.lower().endswith(".nno"):
             fname += ".nno"
-        self.setFilename(fname)
         if self.filesavedialog != None:
-            self.filesavedialog.filesSelected.disconnect(self.saveFile)
-            del self.filesavedialog # manual garbage collection to prevent hang (in osx)
-        return self.saveClicked()
+            self.filesavedialog.filesSelected.disconnect(self.saveFileDialogCallback)
+            del self.filesavedialog # prevents hang
+        self.writeToFile(fname)
     # end def
 
     def svgClicked(self):
@@ -364,20 +385,16 @@ class DocumentController():
         self.pathHelixGroup = PathHelixGroup(part,\
                                          controller=self.win.pathController,\
                                          parent=self.win.pathroot)
-
+                                         
         if app().isInMaya():
-            solhg = SolidHelixGroup(dnaPartInst,\
-                                    controller=self.win.pathController)
-            # need to create a permanent class level reference to this so
-            # it doesn't get garbage collected
-            self.solidlist.append(solhg)
-            self.pathHelixGroup.scaffoldChange.connect(solhg.handleScaffoldChange)
+            self.solidHelixGrp = SolidHelixGroup(part, controller=self.win.pathController, htype=part.crossSectionType())
 
         self.win.sliceController.activeSliceLastSignal.connect(\
                       self.pathHelixGroup.activeSliceHandle().moveToLastSlice)
         self.win.sliceController.activeSliceFirstSignal.connect(\
                      self.pathHelixGroup.activeSliceHandle().moveToFirstSlice)
         self.win.pathController.setActivePath(self.pathHelixGroup)
+        self.win.actionFrame.triggered.connect(self.pathHelixGroup.zoomToFit)
 
         for vh in part.getVirtualHelices():
             xos = vh.get3PrimeXovers(StrandType.Scaffold)
@@ -390,6 +407,7 @@ class DocumentController():
                 self.pathHelixGroup.createXoverItem(xo[0], toBase, StrandType.Staple)
         # end for
         self.setActivePart(part)
+        
     # end def
     
     def addHoneycombHelixGroup(self):

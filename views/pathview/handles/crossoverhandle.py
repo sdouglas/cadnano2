@@ -300,7 +300,8 @@ class XoverHandlePair(QGraphicsItem):
         pen = QPen(self.getPen())
         painter.setPen(pen)
         # painter.drawRect(self._rect)
-        painter.drawPath(self.getPainterPath())
+        path = self.getPainterPath()
+        if path != None: painter.drawPath(path)
 
     def boundingRect(self):
         return self._rect
