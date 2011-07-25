@@ -144,7 +144,7 @@ class CADnano(QObject):
     # end def
 
     def isInMaya(self):
-        return False
+        return QCoreApplication.instance().applicationName().contains("Maya", Qt.CaseInsensitive)
 
     def exec_(self):
         if hasattr(self, 'qApp'):
