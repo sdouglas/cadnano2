@@ -63,17 +63,19 @@ class SolidHelixGroup(QObject):
         super(SolidHelixGroup, self).__init__()
         
         self.setPart(dnaPartInst)
+        
+        pluginPath = os.path.join(os.environ['CADNANO_PATH'],  "views", "solidview", "helixmetanode.py")
   
-        if(not cmds.pluginInfo("helixmetanode.py", query=True, loaded=True )):
-            cmds.loadPlugin("helixmetanode.py")
+        if(not cmds.pluginInfo(pluginPath, query=True, loaded=True )):
+            cmds.loadPlugin(pluginPath)
             
-        if(not cmds.pluginInfo("helixmetanode.py", query=True, loaded=True )):
+        if(not cmds.pluginInfo(pluginPath, query=True, loaded=True )):
             print "HelixMetaNode failed to load"
             return
             
         print "maya SolidHelixGroup created"
         self.type = htype
-        self.mayaScale = 10.0
+        self.mayaScale = 15.0
         self.mayaOrigin = (-self.mayaScale, self.mayaScale, 0.0)  # top left cornder of maya 3d scene X Y Z
         self.helexRadius = 0.5
         self.solidHelicesIndices= {}
