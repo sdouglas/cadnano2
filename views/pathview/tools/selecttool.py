@@ -113,6 +113,8 @@ class SelectTool(AbstractPathTool):
         # If there is an existing drag operation
         # and we get *another* press, the first
         # drag operation must end
+        if self.scene() != None:
+            self.scene().clearSelection() # added to clearout selections
         self.finalizeMouseDrag()
 
         # The key property of a drag operation
@@ -304,7 +306,7 @@ class SelectTool(AbstractPathTool):
         # for limiting the times a command get's called during a drag
         if self._isPressed != True and vh.isSeqBlank() == False:
             vh.setSandboxed(False)
-            vh.applySequenceAt(StrandType.Scaffold, int(idx), " ", undoable=True)
+            vh.applySequenceAt(StrandType.Scaffold, int(idx), " ")
             vh.setSandboxed(True)
             self._isPressed = True
 

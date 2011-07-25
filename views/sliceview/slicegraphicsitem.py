@@ -81,6 +81,7 @@ class SliceGraphicsItem(QGraphicsItem):
         self._previouslyActiveVHs = None
         # Connect destructor. This is for removing a part from scenes.
         self._part.partRemoved.connect(self.destroy)
+        self.probe = self.IntersectionProbe(self)
     # end def
 
     def destroy(self):
@@ -217,5 +218,11 @@ class SliceGraphicsItem(QGraphicsItem):
             super(SliceGraphicsItem.Deselector, self).mousePressEvent(event)
         def boundingRect(self):
             return self.parentHGI.boundingRect()
+        def paint(self, painter, option, widget=None):
+            pass
+
+    class IntersectionProbe(QGraphicsItem):
+        def boundingRect(self):
+            return QRectF(0, 0, .1, .1)
         def paint(self, painter, option, widget=None):
             pass

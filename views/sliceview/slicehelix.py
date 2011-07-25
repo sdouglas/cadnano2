@@ -162,13 +162,27 @@ class SliceHelix(QGraphicsItem):
         return False
 
     def mousePressEvent(self, event):
+        self.activate(event.modifiers())
+
+    def activate(self, modifiers):
         self.createOrAddBasesToVirtualHelix(\
             addBases=True,\
-            addToScaffold=not (int(event.modifiers())==Qt.ShiftModifier))
-        if event.modifiers() & Qt.ShiftModifier:
+            addToScaffold=not (int(modifiers)==Qt.ShiftModifier))
+        if modifiers & Qt.ShiftModifier:
             self.virtualHelix().setSelected(True)
         else:
             self.part().setSelection((self.virtualHelix(),))
+
+    def mouseMoveEvent(self, event):
+        parent = self._parent
+        posInParent = parent.mapFromItem(self, event.pos())
+        # Qt doesn't have any way to ask for graphicsitem(s) at a
+        # particular position but it *can* do intersections, so we
+        # just use those instead
+        parent.probe.setPos(posInParent)
+        for ci in parent.probe.collidingItems():
+            if isinstance(ci, SliceHelix):
+                ci.activate(event.modifiers())
 
     def selectAllBehavior(self):
         # If the selection is configured to always select

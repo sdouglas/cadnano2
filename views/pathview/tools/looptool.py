@@ -26,7 +26,7 @@ looptool.py
 Created by Nick on 2011-05-03.
 """
 from exceptions import AttributeError, NotImplementedError
-from model.enum import HandleOrient
+from model.enum import HandleOrient, StrandType
 from views import styles
 from views.pathview.pathhelix import PathHelix
 from views.pathview.handles.loophandle import LoopItem
@@ -91,12 +91,15 @@ class LoopTool(AbstractPathTool):
     # end def
 
     def mousePressPathHelix(self, pathHelix, event):
+        """
+        """
         vh = pathHelix.vhelix()
         posScene = pathHelix.mapToScene(QPointF(event.pos()))
         posItem = pathHelix.mapFromScene(posScene)
         indexp = self.helixIndex(posItem)
         mouseDownBase = pathHelix.baseAtLocation(posItem.x(), posItem.y())
-        if mouseDownBase:
+        # only allow tool to install on a scaffold!!!
+        if mouseDownBase and mouseDownBase[0] == StrandType.Scaffold:
             loopsize = vh.hasLoopOrSkipAt(*mouseDownBase)
             if loopsize < 0:  # toggle from skip
                 vh.installLoop(mouseDownBase[0], mouseDownBase[1], 1)

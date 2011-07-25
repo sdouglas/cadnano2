@@ -142,8 +142,8 @@ class Base(object):
         if empty:
             return (" ", "")
         hasSkip = self._vhelix.hasLoopOrSkipAt(self._strandtype, self._n)
-        if hasSkip == -1:
-            return (" ", "")
+        if hasSkip == -1:  # -1 actually means true
+            return (" ", " ")
         elif len(self._sequence) > 1:
             return (self._sequence[0], self.sequenceOfLoop())
         else:

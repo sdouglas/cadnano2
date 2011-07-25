@@ -37,10 +37,12 @@ util.qtWrapImport('QtGui', globals(), [ 'QColor', 'QFont'])
 SLICE_HELIX_RADIUS = 15
 SLICE_HELIX_STROKE_WIDTH = 0.5
 SLICE_HELIX_HILIGHT_WIDTH = 2.5
-HONEYCOMB_PART_MAXROWS = 20
-HONEYCOMB_PART_MAXCOLS = 22
-SQUARE_PART_MAXROWS = 20
-SQUARE_PART_MAXCOLS = 20
+HONEYCOMB_PART_MAXROWS = 30
+HONEYCOMB_PART_MAXCOLS = 32
+HONEYCOMB_PART_MAXSTEPS = 2
+SQUARE_PART_MAXROWS = 30
+SQUARE_PART_MAXCOLS = 30
+SQUARE_PART_MAXSTEPS = 2
 
 # Slice Colors
 bluefill = QColor(153, 204, 255)  # 99ccff
@@ -76,8 +78,8 @@ PATH_XOVER_LINE_SCALE_X = 0.035
 PATH_XOVER_LINE_SCALE_Y = 0.035
 
 # Path Colors
-minorgridstroke = QColor(153, 153, 153)  # 999999
-majorgridstroke = QColor(51, 51, 51)  # 333333
+minorgridstroke = QColor(204, 204, 204)  # 999999
+majorgridstroke = QColor(153, 153, 153)  # 333333
 scafstroke = QColor(0, 102, 204)  # 0066cc
 handlefill = QColor(0, 102, 204)  # 0066cc
 pch_scaf_stroke = QColor(0, 102, 204, 153)
@@ -107,8 +109,20 @@ for i in range(len(brightColors)):
     brightColors[i].setHsvF(i/12.0, 1.0, 1.0)
 bright_palette = Palette(brightColors)
 cadnn1_palette = Palette(cadnn1Colors)
-
 default_palette = cadnn1_palette
+
+# Loop/Insertion path details
+LOOPWIDTH = 2
+SKIPWIDTH = 2
+
+# Add Sequence Tool
+INVALID_DNA_COLOR = QColor(204, 0, 0)
+UNDERLINE_INVALID_DNA = True
+
+# Additional Prefs
+PREF_STARTUP_TOOL_INDEX = 0
+PREF_ZOOM_SPEED = 50
+PREF_ZOOM_AFTER_HELIX_ADD = True
 
 #layer limits
 ZACTIVESLICEHANDLE = -12

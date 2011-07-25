@@ -33,10 +33,11 @@ from views import styles
 import util
 
 # import Qt stuff into the module namespace with PySide, PyQt4 independence
-util.qtWrapImport('QtCore', globals(), ['Qt', 'QPointF'])
+util.qtWrapImport('QtCore', globals(), ['Qt', 'QPointF', 'QEvent'])
 util.qtWrapImport('QtGui', globals(), [ 'QPen', \
                                         'QGraphicsItem', \
-                                        'QGraphicsItemGroup'])
+                                        'QGraphicsItemGroup',\
+                                        ])
 
 class SelectionItemGroup(QGraphicsItemGroup):
     """
@@ -49,8 +50,11 @@ class SelectionItemGroup(QGraphicsItemGroup):
         self.setFiltersChildEvents(True)
         self.setHandlesChildEvents(True)
         self.setFlag(QGraphicsItem.ItemIsSelectable)
+        self.setFlag(QGraphicsItem.ItemIsFocusable) # for keyPressEvents
+        
         self.pen = QPen(styles.bluestroke, styles.PATH_SELECTBOX_STROKE_WIDTH)
         self._phg = parent
+        
         self.selectionbox = boxtype(self)
         self.drawMe = False
         self.dragEnable = False
@@ -89,6 +93,23 @@ class SelectionItemGroup(QGraphicsItemGroup):
         # painter.setPen(QPen(styles.redstroke))
         # painter.drawRect(self.boundingRect())
         pass
+    # end def
+    
+    def keyPressEvent(self, event):
+        """
+        Must intercept invalid input events.  Make changes here
+        """
+
+        a = event.key()
+        if a in [Qt.Key_Backspace, Qt.Key_Delete]:
+            thePart = self._phg.part()
+            vhList = [thePart.getVirtualHelix(i.number()) for i in self.childItems()]
+            self.clearSelection(False)
+            thePart.removeVirtualHelicesAt(vhList)
+            # print "getting delete events "
+            return
+        else:
+            return QGraphicsItemGroup.keyPressEvent(self, event)
     # end def
 
     def mousePressEvent(self, event):
@@ -145,20 +166,30 @@ class SelectionItemGroup(QGraphicsItemGroup):
         if self.isSelected():
             self.selectionbox.processSelectedItems(self._r0, self._r)
         # end if
+        self._r0 = 0  # reset
+        self._r = 0  # reset
+    # end def
+    
+    def clearSelection(self, value):
+        if value == False:
+            self.selectionbox.drawMe = False
+            self.selectionbox.resetTransform()
+            self.removeSelectedItems()
+            self.phg().selectionLock = None
+            # print "focus false"
+            self.clearFocus() # this is to disable delete keyPressEvents
+        # end if
+        else: # don't clear and make sure in focus
+            # print "focus true"
+            self.setFocus() # this is to get delete keyPressEvents
+            pass
+        self.update(self.boundingRect())
     # end def
 
     def itemChange(self, change, value):
         """docstring for itemChange"""
         if change == QGraphicsItem.ItemSelectedHasChanged:
-            if value == False:
-                self.selectionbox.drawMe = False
-                self.selectionbox.resetTransform()
-                self.removeSelectedItems()
-                self.phg().selectionLock = None
-            # end if
-            else:
-                pass
-            self.update(self.boundingRect())
+            self.clearSelection(value)
         return QGraphicsItemGroup.itemChange(self, change, value)
     # end def
 

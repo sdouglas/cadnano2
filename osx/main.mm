@@ -11,7 +11,12 @@
 #import <stdio.h>
 
 int main(int argc, char *argv[]) {
-	chdir("/l/c");
+	NSAutoreleasePool* ar = [[NSAutoreleasePool alloc] init];
+	NSString* resourceFolder = [[NSBundle mainBundle] resourcePath];
+	NSString* cadnanoModuleFolder = [resourceFolder stringByAppendingPathComponent:@"cadnano2"];
+	const char* d = [cadnanoModuleFolder UTF8String];
+	chdir(d);
+	
 	Py_Initialize();
 	PySys_SetArgv(argc, argv);
 	
@@ -19,8 +24,12 @@ int main(int argc, char *argv[]) {
 	PyObject* mainModuleDict = PyModule_GetDict(mainModule);
 	
 	FILE* mainFile = fopen("main.py", "r");
-	PyRun_File(mainFile, "main.py", Py_file_input, mainModuleDict, mainModuleDict);
+	if (mainFile != NULL)
+		PyRun_File(mainFile, "main.py", Py_file_input, mainModuleDict, mainModuleDict);
+	else
+		fprintf(stderr, "Could not locate main.py in %s!\n", d);
 	
 	Py_Finalize();
+	[ar release];
 	return 0;
 }

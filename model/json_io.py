@@ -66,11 +66,12 @@ def doc_from_legacy_dict(obj):
     Takes a loaded legacy dictionary, returns a loaded Document
     """
     numBases = len(obj['vstrands'][0]['scaf'])
+    dialog = QDialog()
+    dialogLT = Ui_LatticeType()
+    dialogLT.setupUi(dialog)
+
     # determine lattice type
     if numBases % 21 == 0 and numBases % 32 == 0:
-        dialog = QDialog()
-        dialogLT = Ui_LatticeType()
-        dialogLT.setupUi(dialog)
         if dialog.exec_() == 1:
             latticeType = LatticeType.Square
         else:
@@ -82,12 +83,25 @@ def doc_from_legacy_dict(obj):
     # create part according to lattice type
     if latticeType == LatticeType.Honeycomb:
         part = DNAHoneycombPart()
-        part.setDimensions((30, 32, numBases))
+        numRows, numCols = 30, 32
     elif latticeType == LatticeType.Square:
         part = DNASquarePart()
-        part.setDimensions((30, 30, numBases))
+        isSQ100 = True  # check for custom SQ100 format
+        for helix in obj['vstrands']:
+            if helix['col'] != 0:
+                isSQ100 = False
+                break
+        if isSQ100:
+            dialogLT.label.setText("Is this a SQ100 file?")
+            if dialog.exec_() == 1:
+                numRows, numCols = 100, 1
+            else:
+                numRows, numCols = 30, 30
+        else:
+            numRows, numCols = 30, 30
     else:
         raise TypeError("Lattice type not recognized")
+    part.setDimensions((numRows, numCols, numBases))
 
     part.setName(obj["name"])
     doc = Document(legacyJsonImport=True)
@@ -137,7 +151,7 @@ def doc_from_legacy_dict(obj):
             else:
                 endIdx, startIdx = scaf_seg[vhNum][i], scaf_seg[vhNum][i+1]
             vh.connectStrand(StrandType.Scaffold, startIdx, endIdx,\
-                             undoable=False, police=False, speedy=True)
+                             useUndoStack=False, police=False, speedy=True)
         # read staple segments and xovers
         for i in range(len(stap)):
             fiveVH, fiveIdx, threeVH, threeIdx = stap[i]
@@ -158,7 +172,7 @@ def doc_from_legacy_dict(obj):
             else:
                 endIdx, startIdx = stap_seg[vhNum][i], stap_seg[vhNum][i+1]
             vh.connectStrand(StrandType.Staple, startIdx, endIdx,\
-                             undoable=False, police=False,\
+                             useUndoStack=False, police=False,\
                              color=QColor(136, 136, 136), speedy=True)
 
     helixNo = -1
@@ -175,12 +189,12 @@ def doc_from_legacy_dict(obj):
         for (idx, threeVH, threeIdx) in scaf_xo[vhNum]:
             threeVH = part.getVirtualHelix(threeVH)
             vh.installXoverFrom3To5(StrandType.Scaffold, idx, threeVH,\
-                                    threeIdx, undoable=False, speedy=True)
+                            threeIdx, useUndoStack=False, speedy=True, police=False)
         # install staple xovers
         for (idx, threeVH, threeIdx) in stap_xo[vhNum]:
             threeVH = part.getVirtualHelix(threeVH)
             vh.installXoverFrom3To5(StrandType.Staple, idx, threeVH,\
-                                    threeIdx, undoable=False, speedy=True)
+                            threeIdx, useUndoStack=False, speedy=True, police=False)
     helixNo = -1
     for helix in obj['vstrands']:
         helixNo += 1
@@ -194,12 +208,12 @@ def doc_from_legacy_dict(obj):
         # populate colors, loops, and skips
         for baseIdx, colorNumber in helix['stap_colors']:
             color = QColor((colorNumber>>16)&0xFF, (colorNumber>>8)&0xFF, colorNumber&0xFF)
-            vh.applyColorAt(color, StrandType.Staple, baseIdx, undoable=False)
+            vh.applyColorAt(color, StrandType.Staple, baseIdx, useUndoStack=False)
         for i in range(len(stap)):
             combinedLoopSkipAmount = loops[i] + skips[i]
             if combinedLoopSkipAmount != 0:
                 vh.installLoop(StrandType.Scaffold, i, combinedLoopSkipAmount,\
-                               undoable=False, speedy=True)
+                               useUndoStack=False, speedy=True)
     return doc
 
 def isSegmentStartOrEnd(strandType, vhNum, baseIdx, fiveVH, fiveIdx, threeVH, threeIdx):

@@ -63,7 +63,8 @@ class Document(QObject):
         dnapart = None
         if len(self._parts) == 0:
             dnapart = DNAHoneycombPart(maxRow=styles.HONEYCOMB_PART_MAXROWS,\
-                                       maxCol=styles.HONEYCOMB_PART_MAXCOLS)
+                                       maxCol=styles.HONEYCOMB_PART_MAXCOLS,\
+                                       maxSteps=styles.HONEYCOMB_PART_MAXSTEPS)
             self.addPart(dnapart)
         return dnapart
 
@@ -74,7 +75,8 @@ class Document(QObject):
         dnapart = None
         if len(self._parts) == 0:
             dnapart = DNASquarePart(maxRow=styles.SQUARE_PART_MAXROWS,\
-                                    maxCol=styles.SQUARE_PART_MAXCOLS)
+                                    maxCol=styles.SQUARE_PART_MAXCOLS,\
+                                    maxSteps=styles.SQUARE_PART_MAXSTEPS)
             self.addPart(dnapart)
         return dnapart
 

@@ -32,6 +32,7 @@ from Foundation import *
 from AppKit import *
 from controllers.documentcontroller import DocumentController
 from model.decoder import decode
+from cadnano import app as sharedCadnanoObj
 
 class CNApplicationDelegate(NSObject):
     def application_openFile_(self, app, f):
@@ -51,6 +52,12 @@ class CNApplicationDelegate(NSObject):
             return
         for f in fs:
             self.application_openFiles_(app, f)
+
+    def applicationShouldTerminate_(self, app):
+        for dc in sharedCadnanoObj().documentControllers:
+            if not dc.maybeSave():
+                return NSTerminateCancel
+        return NSTerminateNow
 
 sharedDelegate = CNApplicationDelegate.alloc().init()
 NSApplication.sharedApplication().setDelegate_(sharedDelegate)

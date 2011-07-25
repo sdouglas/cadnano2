@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1100</width>
-    <height>800</height>
+    <width>1075</width>
+    <height>792</height>
    </rect>
   </property>
   <property name="contextMenuPolicy">
@@ -31,11 +31,20 @@
   <property name="dockOptions">
    <set>QMainWindow::AllowNestedDocks|QMainWindow::AllowTabbedDocks|QMainWindow::AnimatedDocks</set>
   </property>
+  <property name="unifiedTitleAndToolBarOnMac">
+   <bool>true</bool>
+  </property>
   <widget class="QWidget" name="centralwidget">
    <property name="autoFillBackground">
     <bool>false</bool>
    </property>
    <layout class="QGridLayout" name="gridLayout">
+    <property name="margin">
+     <number>0</number>
+    </property>
+    <property name="horizontalSpacing">
+     <number>-1</number>
+    </property>
     <item row="0" column="0">
      <widget class="QSplitter" name="splitter">
       <property name="sizePolicy">
@@ -49,6 +58,9 @@
       </property>
       <property name="frameShadow">
        <enum>QFrame::Plain</enum>
+      </property>
+      <property name="lineWidth">
+       <number>0</number>
       </property>
       <property name="orientation">
        <enum>Qt::Horizontal</enum>
@@ -85,7 +97,10 @@
         <enum>Qt::WheelFocus</enum>
        </property>
        <property name="frameShadow">
-        <enum>QFrame::Sunken</enum>
+        <enum>QFrame::Plain</enum>
+       </property>
+       <property name="lineWidth">
+        <number>0</number>
        </property>
        <property name="verticalScrollBarPolicy">
         <enum>Qt::ScrollBarAlwaysOff</enum>
@@ -128,6 +143,12 @@
        <property name="focusPolicy">
         <enum>Qt::WheelFocus</enum>
        </property>
+       <property name="frameShadow">
+        <enum>QFrame::Plain</enum>
+       </property>
+       <property name="lineWidth">
+        <number>0</number>
+       </property>
        <property name="verticalScrollBarPolicy">
         <enum>Qt::ScrollBarAlwaysOff</enum>
        </property>
@@ -150,7 +171,7 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>1100</width>
+     <width>1075</width>
      <height>22</height>
     </rect>
    </property>
@@ -164,14 +185,6 @@
      </property>
      <addaction name="separator"/>
     </widget>
-    <widget class="QMenu" name="menuExport">
-     <property name="title">
-      <string>Export...</string>
-     </property>
-     <addaction name="actionSVG"/>
-     <addaction name="actionX3D"/>
-     <addaction name="actionCSV"/>
-    </widget>
     <addaction name="actionNew"/>
     <addaction name="actionOpen"/>
     <addaction name="menuOpen_recent_files"/>
@@ -179,19 +192,8 @@
     <addaction name="actionClose"/>
     <addaction name="actionSave"/>
     <addaction name="actionSave_As"/>
-    <addaction name="actionSave_a_Copy"/>
     <addaction name="separator"/>
-    <addaction name="menuExport"/>
     <addaction name="actionPrint"/>
-   </widget>
-   <widget class="QMenu" name="menuEdit">
-    <property name="title">
-     <string>Edit</string>
-    </property>
-    <addaction name="actionCut"/>
-    <addaction name="actionCopy"/>
-    <addaction name="actionPaste"/>
-    <addaction name="actionSelect_All"/>
    </widget>
    <widget class="QMenu" name="menuCADnano">
     <property name="title">
@@ -199,41 +201,22 @@
     </property>
     <addaction name="actionPreferences"/>
    </widget>
+   <widget class="QMenu" name="menuEdit">
+    <property name="title">
+     <string>Edit</string>
+    </property>
+   </widget>
    <addaction name="menuCADnano"/>
    <addaction name="menuFile"/>
    <addaction name="menuEdit"/>
   </widget>
-  <widget class="QStatusBar" name="statusbar"/>
-  <widget class="QToolBar" name="leftToolBar">
+  <widget class="QToolBar" name="topToolBar">
    <property name="sizePolicy">
-    <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
+    <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
      <horstretch>0</horstretch>
      <verstretch>0</verstretch>
     </sizepolicy>
    </property>
-   <property name="windowTitle">
-    <string>Slice Tools</string>
-   </property>
-   <property name="allowedAreas">
-    <set>Qt::LeftToolBarArea|Qt::RightToolBarArea</set>
-   </property>
-   <property name="toolButtonStyle">
-    <enum>Qt::ToolButtonTextUnderIcon</enum>
-   </property>
-   <attribute name="toolBarArea">
-    <enum>LeftToolBarArea</enum>
-   </attribute>
-   <attribute name="toolBarBreak">
-    <bool>false</bool>
-   </attribute>
-   <addaction name="actionSliceSelect"/>
-   <addaction name="separator"/>
-   <addaction name="actionSliceFirst"/>
-   <addaction name="actionSliceLast"/>
-   <addaction name="actionRenumber"/>
-   <addaction name="actionDeleteLast"/>
-  </widget>
-  <widget class="QToolBar" name="topToolBar">
    <property name="baseSize">
     <size>
      <width>0</width>
@@ -255,11 +238,12 @@
    <addaction name="actionNew"/>
    <addaction name="actionOpen"/>
    <addaction name="actionSave"/>
-   <addaction name="separator"/>
-   <addaction name="actionSVG"/>
+   <addaction name="actionCSV"/>
    <addaction name="separator"/>
    <addaction name="actionNewHoneycombPart"/>
    <addaction name="actionNewSquarePart"/>
+   <addaction name="separator"/>
+   <addaction name="actionFrame"/>
   </widget>
   <widget class="QToolBar" name="rightToolBar">
    <property name="sizePolicy">
@@ -268,11 +252,20 @@
      <verstretch>0</verstretch>
     </sizepolicy>
    </property>
+   <property name="minimumSize">
+    <size>
+     <width>0</width>
+     <height>0</height>
+    </size>
+   </property>
    <property name="windowTitle">
     <string>Path Tools</string>
    </property>
    <property name="layoutDirection">
     <enum>Qt::LeftToRight</enum>
+   </property>
+   <property name="allowedAreas">
+    <set>Qt::LeftToolBarArea|Qt::RightToolBarArea|Qt::TopToolBarArea</set>
    </property>
    <property name="toolButtonStyle">
     <enum>Qt::ToolButtonTextUnderIcon</enum>
@@ -287,12 +280,44 @@
    <addaction name="actionPathPencil"/>
    <addaction name="actionPathBreak"/>
    <addaction name="actionPathErase"/>
-   <addaction name="actionPathPaint"/>
    <addaction name="actionPathInsert"/>
    <addaction name="actionPathSkip"/>
+   <addaction name="actionPathPaint"/>
    <addaction name="separator"/>
    <addaction name="actionAutoStaple"/>
    <addaction name="actionPathAddSeq"/>
+  </widget>
+  <widget class="QToolBar" name="leftToolBar">
+   <property name="sizePolicy">
+    <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
+     <horstretch>0</horstretch>
+     <verstretch>0</verstretch>
+    </sizepolicy>
+   </property>
+   <property name="minimumSize">
+    <size>
+     <width>0</width>
+     <height>0</height>
+    </size>
+   </property>
+   <property name="windowTitle">
+    <string>Slice Tools</string>
+   </property>
+   <property name="allowedAreas">
+    <set>Qt::LeftToolBarArea|Qt::RightToolBarArea|Qt::TopToolBarArea</set>
+   </property>
+   <property name="toolButtonStyle">
+    <enum>Qt::ToolButtonTextUnderIcon</enum>
+   </property>
+   <attribute name="toolBarArea">
+    <enum>LeftToolBarArea</enum>
+   </attribute>
+   <attribute name="toolBarBreak">
+    <bool>false</bool>
+   </attribute>
+   <addaction name="actionSliceFirst"/>
+   <addaction name="actionSliceLast"/>
+   <addaction name="actionRenumber"/>
   </widget>
   <action name="actionNew">
    <property name="icon">
@@ -339,6 +364,10 @@
    </property>
   </action>
   <action name="actionSave_As">
+   <property name="icon">
+    <iconset resource="icons.qrc">
+     <normaloff>:/filetools/save</normaloff>:/filetools/save</iconset>
+   </property>
    <property name="text">
     <string>Save As...</string>
    </property>
@@ -461,6 +490,9 @@
   </action>
   <action name="actionSliceSelect">
    <property name="checkable">
+    <bool>false</bool>
+   </property>
+   <property name="enabled">
     <bool>true</bool>
    </property>
    <property name="icon">
@@ -601,7 +633,7 @@
      <normaloff>:/slicetools/renumber</normaloff>:/slicetools/renumber</iconset>
    </property>
    <property name="text">
-    <string>Renum</string>
+    <string>Rnum</string>
    </property>
    <property name="toolTip">
     <string>Renumber Slice helices according to helix ordering in Path panel.</string>
@@ -643,10 +675,10 @@
    </property>
    <property name="icon">
     <iconset resource="icons.qrc">
-     <normaloff>:/pathtools/add seq</normaloff>:/pathtools/add seq</iconset>
+     <normaloff>:/pathtools/addseq</normaloff>:/pathtools/addseq</iconset>
    </property>
    <property name="text">
-    <string>Add Seq</string>
+    <string>Seq</string>
    </property>
    <property name="toolTip">
     <string>(A)dd Sequence Tool</string>
@@ -656,8 +688,12 @@
    </property>
   </action>
   <action name="actionCSV">
+   <property name="icon">
+    <iconset resource="icons.qrc">
+     <normaloff>:/filetools/csv</normaloff>:/filetools/csv</iconset>
+   </property>
    <property name="text">
-    <string>CSV</string>
+    <string>Export</string>
    </property>
    <property name="toolTip">
     <string>export oligos as *.CSV</string>
@@ -669,6 +705,18 @@
    </property>
    <property name="shortcut">
     <string>Ctrl+,</string>
+   </property>
+  </action>
+  <action name="actionFrame">
+   <property name="icon">
+    <iconset resource="icons.qrc">
+     <normaloff>:/pathtools/frame</normaloff>:/pathtools/frame</iconset>
+   </property>
+   <property name="text">
+    <string>Frame</string>
+   </property>
+   <property name="shortcut">
+    <string>F</string>
    </property>
   </action>
  </widget>

@@ -38,7 +38,8 @@ util.qtWrapImport('QtGui', globals(), ['QBrush', 'QFont', 'QGraphicsItem',\
 class PathHelixHandle(QGraphicsItem):
     """docstring for PathHelixHandle"""
     radius = styles.PATHHELIXHANDLE_RADIUS
-    rect = QRectF(0, 0, 2*radius, 2*radius)
+    rect = QRectF(0, 0, 2*radius + styles.PATHHELIXHANDLE_STROKE_WIDTH,\
+            2*radius + styles.PATHHELIXHANDLE_STROKE_WIDTH)
     defBrush = QBrush(styles.grayfill)
     defPen = QPen(styles.graystroke, styles.PATHHELIXHANDLE_STROKE_WIDTH)
     hovBrush = QBrush(styles.bluefill)
@@ -50,19 +51,15 @@ class PathHelixHandle(QGraphicsItem):
         super(PathHelixHandle, self).__init__(parent)
         self.vhelix = vhelix
         vhelix.part().virtualHelixAtCoordsChanged.connect(self.someVHChangedItsNumber)
-        
         self.parent = parent
         self._phg = parent
         self.setParentItem(parent)
-        
-        # self._number = self.vhelix.number()
         self.label = None
         self.focusRing = None
         self.beingHoveredOver = False
         self.setAcceptsHoverEvents(True)
         self.font = styles.PATHHELIXHANDLE_FONT
         self.setNumber()
-        #self.setFlag(QGraphicsItem.ItemIsMovable)
         self.setFlag(QGraphicsItem.ItemIsSelectable)
         self.setFlag(QGraphicsItem.ItemSendsScenePositionChanges)
     # end def
@@ -84,12 +81,12 @@ class PathHelixHandle(QGraphicsItem):
         if self.beingHoveredOver:
             painter.setPen(self.hovPen)
         painter.drawEllipse(self.rect)
-    
+
     def someVHChangedItsNumber(self, r, c):
         # If it was our VH, we need to update the number we
         # are displaying!
         if (r,c) == self.vhelix.coord():
-            self.setNumber()  
+            self.setNumber()
 
     def setNumber(self):
         """docstring for setNumber"""
@@ -116,18 +113,17 @@ class PathHelixHandle(QGraphicsItem):
 
     class FocusRingPainter(QGraphicsItem):
         """Draws a focus ring around helix in parent"""
-        def __init__(self, helix, parent=None):
-            super(PathHelixHandle.FocusRingPainter, self).__init__(parent)
-            self.parent = parent
+        def __init__(self, helix):
+            super(PathHelixHandle.FocusRingPainter, self).__init__(helix)
             self.helix = helix
-            self.setPos(helix.pos())
+            # self.setPos(helix.pos())
 
         def paint(self, painter, option, widget=None):
             painter.setPen(PathHelixHandle.hovPen)
-            painter.drawEllipse(self.helix.rect)
+            painter.drawEllipse(self.boundingRect())
 
         def boundingRect(self):
-            return self.helix.rect
+            return self.helix.boundingRect()
     # end class
 
     def hoverEnterEvent(self, event):
@@ -136,9 +132,8 @@ class PathHelixHandle(QGraphicsItem):
         to the hover colors if necessary.
         """
         if self.focusRing == None:
-            self.focusRing = PathHelixHandle.FocusRingPainter(self,\
-                                                         self.parentItem())
-        self.update(self.rect)
+            self.focusRing = PathHelixHandle.FocusRingPainter(self)
+        self.update(self.boundingRect())
     # end def
 
     def hoverLeaveEvent(self, event):
@@ -146,15 +141,20 @@ class PathHelixHandle(QGraphicsItem):
         hoverEnterEvent changes the PathHelixHanle brush and pen from hover
         to the default colors if necessary.
         """
+        self.destroyFocusRing()
+        self.update(self.boundingRect())
+    # end def
+
+    def destroyFocusRing(self):
         if self.focusRing != None:
             scene = self.focusRing.scene()
             scene.removeItem(self.focusRing)
             self.focusRing = None
-        self.update(self.rect)
     # end def
 
     def mousePressEvent(self, event):
         selectionGroup = self.group()
+        self.destroyFocusRing()
         if selectionGroup == None:
             selectionGroup = self._phg.phhSelectionGroup
         selectionGroup.setSelected(False)
