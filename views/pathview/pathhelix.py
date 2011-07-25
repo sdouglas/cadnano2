@@ -286,8 +286,6 @@ class PathHelix(QGraphicsObject):
         return self._preXOverHandles != None
 
     def setPreXOverHandlesVisible(self, shouldBeVisible):
-        if shouldBeVisible:
-            print util.trace(5)
         areVisible = self._preXOverHandles != None
         if areVisible and not shouldBeVisible:
             for pch in self._preXOverHandles:
