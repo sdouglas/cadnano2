@@ -1579,20 +1579,25 @@ class VirtualHelix(QObject):
                     del loopDict[i]
                 self.erasedSequenceItems.append(strand[i]._sequence)
                 strand[i]._sequence = " "
+            
             # Our list of potential endpoints has tons of duplicates
             # and empty bases in it. First, remove the empty bases.
             # Clearly, an empty base can't be an endpoint because
             # neither of its pointers is linked to another base.
             isEndpt = lambda x: x!=None and x.isEnd()
-            potentialNewEndpoints = list(filter(isEndpt, potentialNewEndpoints))
-            newEndpts = []
+            # potentialNewEndpoints = list(filter(isEndpt, potentialNewEndpoints))
+            # newEndpts = []
             # Deduplicate, taking advantage of the fact that the
             # list of endpoints will be in order
-            if len(potentialNewEndpoints):
-                newEndpts = [potentialNewEndpoints[0]]
-                for pe in potentialNewEndpoints[1:]:
-                    if pe != newEndpts[-1]:
-                        newEndpts.append(pe)
+            # if len(potentialNewEndpoints):
+            #     newEndpts = [potentialNewEndpoints[0]]
+            #     for pe in potentialNewEndpoints[1:]:
+            #         if pe != newEndpts[-1]:
+            #             newEndpts.append(pe)
+            
+            # speed up the above code block, 'set' uniqifies, deduplicates fast
+            newEndpts = list(set(filter(isEndpt, potentialNewEndpoints)))
+                
             
             # print "New endpoints: [%s] [%s] <%s | %s>"%(" ".join(str(b._n)
             # for b in potentialNewEndpoints), " ".join(str(b._n) for b in newEndpts),
@@ -1647,8 +1652,9 @@ class VirtualHelix(QObject):
             # redo() being called first
             if self._strandType != StrandType.Scaffold:
                 assert(hasattr(self, 'colorSubCommands'))
-                for c in reversed(self.colorSubCommands):
-                    c.undo()
+                # for c in reversed(self.colorSubCommands):
+                #     c.undo()
+                map(lambda c: c.undo(), reversed(self.colorSubCommands))
                 del self.colorSubCommands
             # end if
             loopDict = self._vh._loop(self._strandType)
