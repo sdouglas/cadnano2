@@ -401,6 +401,8 @@ class Base(object):
             return styles.bluestroke
         if self._color == None:
             self._color = QColor()
+        if type(self._color) == bool:
+            osantehusneaho
         return self._color
 
     def isEmpty(self):

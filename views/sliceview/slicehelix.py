@@ -237,8 +237,13 @@ class SliceHelix(QGraphicsItem):
         vh = self.virtualHelix()
         if vh != None: return
         coord = (self._row, self._col)
+        index = self.part().activeSlice()
+        undoStack = self.part().undoStack()
+        undoStack.beginMacro("Add VH")
         vh = VirtualHelix(numBases=self.part().crossSectionStep())
         self.part().addVirtualHelixAt(coord, vh)
+        vh.connectStrand(StrandType.Scaffold, index - 1, index + 1)
+        undoStack.endMacro()
         vh.basesModified.connect(self.update)
 
     def createOrAddBasesToVirtualHelix(self, addBases=False,\

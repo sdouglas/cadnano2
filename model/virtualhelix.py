@@ -874,7 +874,7 @@ class VirtualHelix(QObject):
             assert(undoStack != None)
             undoStack.beginMacro(strng)
         else:
-            assert(undoStack == None)
+            undoStack = None
         # Acquire lock on part
         part = self.part()
         if part != None:
@@ -961,8 +961,8 @@ class VirtualHelix(QObject):
                     police=True, undoDesc="Clear strand"):
         startIndex += -.5 if startIndex < endIndex else .5
         endIndex += .5 if startIndex < endIndex else -.5
-        self.clearStrand(strandType, startIndex, endIndex, undoStack,\
-                         colorL, colorR, police, undoDesc)
+        self.clearStrand(strandType, startIndex, endIndex, useUndoStack,\
+                         undoStack, colorL, colorR, police, undoDesc)
 
     def clearStrand(self, strandType, startIndex, endIndex, useUndoStack=True,\
                     undoStack=None, colorL=None, colorR=None, police=True,\
