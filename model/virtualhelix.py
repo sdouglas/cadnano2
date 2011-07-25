@@ -500,82 +500,26 @@ class VirtualHelix(QObject):
         else:
             return 0
 
-    def getEndpoints(self, strandType):
-        """docstring for getEndpoints"""
-        ends3, ends5 = [], []
-        strand = self._strand(strandType)
-        for i in range(len(strand)):
-            b = strand[i]
-            if b.is5primeEnd():
-                ends5.append(i)
-            if b.is3primeEnd():
-                ends3.append(i)
-        return (ends3, ends5)
-        
     # def getEndpoints(self, strandType):
     #     """docstring for getEndpoints"""
+    #     ends3, ends5 = [], []
     #     strand = self._strand(strandType)
-    #     ends3 = map(lambda b: b._n, filter(lambda b: b.is3primeEnd(), strand))
-    #     ends5 = map(lambda b: b._n, filter(lambda b: b.is5primeEnd(), strand))
+    #     for i in range(len(strand)):
+    #         b = strand[i]
+    #         if b.is5primeEnd():
+    #             ends5.append(i)
+    #         if b.is3primeEnd():
+    #             ends3.append(i)
     #     return (ends3, ends5)
-    # # end def
-
-    def getSegmentsAndEndpoints(self, strandType):
-        """Returns a list of segments, endpoints of self in the format
-        ([(startIdx, endIdx), ...],
-         [3pEndIdx1, 3pEndIdx2, ...], 
-         [5pEndIdx1, ...])
-        where startIdx and endIdx can be 1.5, 2.5 etc (multiply by base
-        width to see where to draw the lines)"""
-        segments, ends3, ends5 = [], [], []
-        strand = self._strand(strandType)
-        i, s = 0, None
-        curColor = None
-        # s is the start index of the segment
-        # segColor is the color of the current segment
-        for i in range(len(strand)):
-            b = strand[i]
-            
-            #Segments
-            if b._connectsToNatL():
-                if curColor and b.getColor() and\
-                   curColor.name() != b.getColor().name():
-                    # print "<B1 %s %s>"%(curColor.name(), b.getColor().name())
-                    segments.append((s,i))
-                    s = i
-                    curColor = b.getColor()
-                if s==None:
-                    s = i
-                    curColor = b.getColor()
-                else:
-                    pass
-            else: # not connected to base on left
-                if s==None:
-                    pass
-                else:
-                    # print "<B2>"
-                    segments.append((s,i))
-                    s = None
-            if b._connectsToNatR():
-                if s==None:
-                    s = i+.5
-                    curColor = b.getColor()
-                else:
-                    pass
-            else: # not connected to base on right
-                if s==None:
-                    pass
-                else:
-                    # print "<B3>"
-                    segments.append((s,i+.5))
-                    s = None
-            #Endpoints
-            if b.is5primeEnd():
-                ends5.append(i)
-            if b.is3primeEnd():
-                ends3.append(i)
-        return (segments, ends3, ends5)
         
+    def getEndpoints(self, strandType):
+        """docstring for getEndpoints"""
+        strand = self._strand(strandType)
+        ends3 = map(lambda b: b._n, filter(lambda b: b.is3primeEnd(), strand))
+        ends5 = map(lambda b: b._n, filter(lambda b: b.is5primeEnd(), strand))
+        return (ends3, ends5)
+    # end def
+
     # def getSegmentsAndEndpoints(self, strandType):
     #     """Returns a list of segments, endpoints of self in the format
     #     ([(startIdx, endIdx), ...],
@@ -583,56 +527,112 @@ class VirtualHelix(QObject):
     #      [5pEndIdx1, ...])
     #     where startIdx and endIdx can be 1.5, 2.5 etc (multiply by base
     #     width to see where to draw the lines)"""
-    # 
+    #     segments, ends3, ends5 = [], [], []
     #     strand = self._strand(strandType)
-    #     s = [-1]
+    #     i, s = 0, None
     #     curColor = None
     #     # s is the start index of the segment
     #     # segColor is the color of the current segment
-    #     def segmentGet(b, s, curColor):
-    #         ret = None
+    #     for i in range(len(strand)):
+    #         b = strand[i]
+    #         
     #         #Segments
     #         if b._connectsToNatL():
-    #             if curColor and b.getColor() and \
+    #             if curColor and b.getColor() and\
     #                curColor.name() != b.getColor().name():
     #                 # print "<B1 %s %s>"%(curColor.name(), b.getColor().name())
-    #                 ret = (s[0], b._n)
-    #                 s[0] = b._n
+    #                 segments.append((s,i))
+    #                 s = i
     #                 curColor = b.getColor()
-    #             if s[0] == -1:
-    #                 s[0] = b._n
+    #             if s==None:
+    #                 s = i
     #                 curColor = b.getColor()
     #             else:
     #                 pass
     #         else: # not connected to base on left
-    #             if s[0] == -1:
+    #             if s==None:
     #                 pass
     #             else:
     #                 # print "<B2>"
-    #                 ret = (s[0], b._n)
-    #                 s[0] = -1
+    #                 segments.append((s,i))
+    #                 s = None
     #         if b._connectsToNatR():
-    #             if s[0] == -1:
-    #                 s[0] = b._n + .5
+    #             if s==None:
+    #                 s = i+.5
     #                 curColor = b.getColor()
     #             else:
     #                 pass
     #         else: # not connected to base on right
-    #             if s[0] == -1:
+    #             if s==None:
     #                 pass
     #             else:
     #                 # print "<B3>"
-    #                 ret = (s[0], b._n + .5)
-    #                 s[0] = -1
-    #         return ret
-    #     # end def
-    #     segments = filter(lambda x: True if x != None else False, \
-    #                 map(lambda b: segmentGet(b, s, curColor), strand) \
-    #                 )
-    #     ends3 = map(lambda b: b._n, filter(lambda b: b.is3primeEnd(), strand) )
-    #     ends5 = map(lambda b: b._n, filter(lambda b: b.is5primeEnd(), strand) )
+    #                 segments.append((s,i+.5))
+    #                 s = None
+    #         #Endpoints
+    #         if b.is5primeEnd():
+    #             ends5.append(i)
+    #         if b.is3primeEnd():
+    #             ends3.append(i)
     #     return (segments, ends3, ends5)
-    # # end def
+        
+    def getSegmentsAndEndpoints(self, strandType):
+        """Returns a list of segments, endpoints of self in the format
+        ([(startIdx, endIdx), ...],
+         [3pEndIdx1, 3pEndIdx2, ...], 
+         [5pEndIdx1, ...])
+        where startIdx and endIdx can be 1.5, 2.5 etc (multiply by base
+        width to see where to draw the lines)"""
+    
+        strand = self._strand(strandType)
+        s = [-1]
+        curColor = None
+        # s is the start index of the segment
+        # segColor is the color of the current segment
+        def segmentGet(b, s, curColor):
+            ret = None
+            #Segments
+            if b._connectsToNatL():
+                if curColor and b.getColor() and \
+                   curColor.name() != b.getColor().name():
+                    # print "<B1 %s %s>"%(curColor.name(), b.getColor().name())
+                    ret = (s[0], b._n)
+                    s[0] = b._n
+                    curColor = b.getColor()
+                if s[0] == -1:
+                    s[0] = b._n
+                    curColor = b.getColor()
+                else:
+                    pass
+            else: # not connected to base on left
+                if s[0] == -1:
+                    pass
+                else:
+                    # print "<B2>"
+                    ret = (s[0], b._n)
+                    s[0] = -1
+            if b._connectsToNatR():
+                if s[0] == -1:
+                    s[0] = b._n + .5
+                    curColor = b.getColor()
+                else:
+                    pass
+            else: # not connected to base on right
+                if s[0] == -1:
+                    pass
+                else:
+                    # print "<B3>"
+                    ret = (s[0], b._n + .5)
+                    s[0] = -1
+            return ret
+        # end def
+        segments = filter(lambda x: True if x != None else False, \
+                    map(lambda b: segmentGet(b, s, curColor), strand) \
+                    )
+        ends3 = map(lambda b: b._n, filter(lambda b: b.is3primeEnd(), strand) )
+        ends5 = map(lambda b: b._n, filter(lambda b: b.is5primeEnd(), strand) )
+        return (segments, ends3, ends5)
+    # end def
 
     def get3PrimeXovers(self, strandType):
         """
