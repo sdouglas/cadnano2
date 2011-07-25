@@ -1294,25 +1294,41 @@ class VirtualHelix(QObject):
             self._newColor = color
 
         def redo(self):
-            oc = self._oldColors = []
+            # oc = self._oldColors = []
             nc = self._newColor
             vh = None
-            for b in self._bases:
-                vh = b._vhelix
-                oc.append(b._setColor(nc))
-                vh.setHasBeenModified()
-            if vh != None:
-                vh.emitBasesModifiedIfNeeded()
+            
+            # for b in self._bases:
+            #     vh = b._vhelix
+            #     oc.append(b._setColor(nc))
+            #     vh.setHasBeenModified()
+            # if vh != None:
+            #     vh.emitBasesModifiedIfNeeded()
+            
+            # fast version below
+            self._oldColors = map(lambda b: b._setColor(nc), self._bases)
+            map(lambda b: b._vhelix.setHasBeenModified(), self._bases)
+            temp = filter(lambda b: True if b._vhelix != None else False, self._bases)
+            if len(temp) > 0:
+                temp[0]._vhelix.emitBasesModifiedIfNeeded()
 
         def undo(self):
             oc = self._oldColors
             vh = None
-            for b in reversed(self._bases):
-                vh = b._vhelix
-                b._setColor(oc.pop())
-                vh.setHasBeenModified()
-            if vh != None:
-                vh.emitBasesModifiedIfNeeded()
+            # for b in reversed(self._bases):
+            #     vh = b._vhelix
+            #     b._setColor(oc.pop())
+            #     vh.setHasBeenModified()
+            # if vh != None:
+            #     vh.emitBasesModifiedIfNeeded()
+                
+            # fast version below
+            bases = reversed(self._bases)
+            map(lambda b: b._setColor(oc.pop()), bases)
+            map(lambda b: b._vhelix.setHasBeenModified(), bases)
+            temp = filter(lambda b: True if b._vhelix != None else False, self._bases)
+            if len(temp) > 0:
+                temp[0]._vhelix.emitBasesModifiedIfNeeded()
 
 
     class LoopCommand(QUndoCommand):
