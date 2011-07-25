@@ -286,6 +286,8 @@ class PathHelix(QGraphicsObject):
         return self._preXOverHandles != None
 
     def setPreXOverHandlesVisible(self, shouldBeVisible):
+        if shouldBeVisible:
+            print util.trace(5)
         areVisible = self._preXOverHandles != None
         if areVisible and not shouldBeVisible:
             for pch in self._preXOverHandles:
@@ -313,7 +315,8 @@ class PathHelix(QGraphicsObject):
     def updatePreXOverHandles(self):
         cacheConstructionEnvironment = self._XOverCacheEnvironment
         currentEnvironment = (self.vhelix().neighbors(), self.vhelix().numBases())
-        if cacheConstructionEnvironment != currentEnvironment:
+        if cacheConstructionEnvironment != currentEnvironment and\
+           self.preXOverHandlesVisible():
             self.setPreXOverHandlesVisible(False)
             self.setPreXOverHandlesVisible(True)
 

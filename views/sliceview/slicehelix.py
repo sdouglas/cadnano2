@@ -204,6 +204,9 @@ class SliceHelix(QGraphicsItem):
         if self.selectAllBehavior():
             self.setSelected(False)
 
+    def mouseReleaseEvent(self, event):
+        self.part().needsFittingToView.emit()
+
     def createOrAddBasesToVirtualHelix(self, addBases=False,\
                                              addToScaffold=False):
         coord = (self._row, self._col)
@@ -215,6 +218,8 @@ class SliceHelix(QGraphicsItem):
             vh = VirtualHelix(numBases=self.part().crossSectionStep())
             self.part().addVirtualHelixAt(coord, vh)
             vh.basesModified.connect(self.update)
+            if len(self.part()) <= 5:
+                self.part().needsFittingToView.emit()
         else:
             undoStack.beginMacro("Connect segment")
         if addBases and addToScaffold:

@@ -145,13 +145,14 @@ class PathHelixGroup(QGraphicsObject):
             self._part.dimensionsDidChange.disconnect(self.partDimensionsChanged)
             self._part.createXover.disconnect(self.createXoverItem)
             self._part.updateFloatingXover.disconnect(self.updateFloatingXoverItem)
-        if newPart:
+            self._part.needsFittingToView.disconnect(self.zoomToFit)
+        self._part = newPart
+        if newPart != None:
             newPart.selectionWillChange.connect(self.selectionWillChange)
             newPart.dimensionsDidChange.connect(self.partDimensionsChanged)
             newPart.createXover.connect(self.createXoverItem)
             newPart.updateFloatingXover.connect(self.updateFloatingXoverItem)
-        self._part = newPart
-        if newPart:
+            newPart.needsFittingToView.connect(self.zoomToFit)
             self.selectionWillChange(newPart.selection())
 
     def controller(self):
@@ -218,7 +219,6 @@ class PathHelixGroup(QGraphicsObject):
         (though displayedVHs always returns a list of VirtualHelix
         while setDisplayedVHs can take any vhref)"""
         if self.part() != None:
-            assert(self.part())  # Can't display VirtualHelix that aren't there!
             new_pathHelixList = []
             vhToPH = dict(((ph.vhelix(), ph) for ph in self._pathHelixes))
             for vhref in vhrefs:
@@ -319,7 +319,7 @@ class PathHelixGroup(QGraphicsObject):
         vhs = [vh.number() for vh in self.displayedVHs()]
         vhs.remove(num)
         vhs.insert(idx, num)
-        self.setDisplayedVHs(vhs)
+        self.setDisplayedVHs(vhs, zoomToFit=False)
         
     def renumber(self):
         self.part().matchHelixNumberingToPhgDisplayOrder(self)
@@ -337,7 +337,7 @@ class PathHelixGroup(QGraphicsObject):
 
     # Slot called when the slice view's (actually the part's) selection changes
     def selectionWillChange(self, newSelection):
-        self.setDisplayedVHs(newSelection)
+        self.setDisplayedVHs(newSelection, zoomToFit=False)
 
     class PaintingCacheUpdateThread(QThread):
         def __init__(self, phg):

@@ -62,7 +62,8 @@ class DNAPart(Part):
     #  object 1 is None
     #  object 2 is None
     updateFloatingXover = pyqtSignal(object, object)
-    
+    needsFittingToView = pyqtSignal()
+
     _selectAllBehavior = True  # Always select all helices in part
     # Bases are always added and removed in multiples of the
     # addition/removal unit
@@ -259,6 +260,9 @@ class DNAPart(Part):
 
     def getVirtualHelices(self):
         return (self._numberToVirtualHelix[n] for n in self._numberToVirtualHelix)
+
+    def __len__(self):
+        return len(self._numberToVirtualHelix)
 
     virtualHelixAtCoordsChanged = pyqtSignal(int, int)
     def addVirtualHelixAt(self, coords, vh, requestSpecificIdnum=None, noUndo=False):
@@ -657,7 +661,7 @@ class DNAPart(Part):
     def updateSelectionFromVHChange(self, row, col):
         coord = (row, col)
         vh = self.getVirtualHelix(coord)
-        if vh:
+        if vh != None:
             s = self.selection()
             s.append(vh)
             self.setSelection(s)

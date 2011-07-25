@@ -793,7 +793,7 @@ class VirtualHelix(QObject):
         self._sequenceForVirtualStrandCache = None
         #self.part().virtualHelixAtCoordsChanged.emit(*self.coord())
 
-    def beginCommand(self, undoStack, str):
+    def beginCommand(self, undoStack, strng):
         """
         Shared command method (not to be confused with a QUndoCommand object)
         prefix. Enforces uniform handling of the undoStack varibale.
@@ -808,10 +808,18 @@ class VirtualHelix(QObject):
         boolean "undoable" flag. In the future, tools should maintain a 
         drag-operation undo stack rather than using sandboxing (error-prone).
         """
+        # The undoStack argument defaults to using self.undoStack(). The trouble
+        # is, None and instances of QUndoStack are both valid values for
+        # undoStack, so something else must be used to signal that no undoStack
+        # value was passed and therefore the default should be used. We
+        # arbitrarily chose True for this value.
         if undoStack == True:
             undoStack = self.undoStack()
+        # If the passed in argument OR self.undoStack() yielded an undo stack
+        # (equivalently, if we will be using an undo stack) then all commands
+        # performed by self should be wrapped in a macro.
         if undoStack != None:
-            undoStack.beginMacro(str)
+            undoStack.beginMacro(strng)
         part = self.part()
         if part != None:
             part.lock.acquireWrite()
