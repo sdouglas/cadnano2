@@ -66,7 +66,7 @@ class EraseTool(AbstractPathTool):
         posItem = pathHelix.mapFromScene(posScene)
         strandType, idx = self.baseAtPoint(pathHelix, posItem)
         vh = pathHelix.vhelix()
-        if not vh.hasStrandAt(strandType, idx):
+        if vh.hasEmptyAt(strandType, idx):
             return
         vh.undoStack().beginMacro("Erase")
         rightBreakIdx = leftBreakIdx = idx
