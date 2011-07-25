@@ -36,7 +36,8 @@ from views.sliceview.squareslicegraphicsitem import SquareSliceGraphicsItem
 from views.pathview.handles.activeslicehandle import ActiveSliceHandle
 from views import styles
 
-from views.solidview.solidhelixgroup import SolidHelixGroup
+if app().isInMaya():
+	from views.solidview.solidhelixgroup import SolidHelixGroup
 
 import util
 # import Qt stuff into the module namespace with PySide, PyQt4 independence
