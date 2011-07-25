@@ -378,9 +378,13 @@ class DNAPart(Part):
                 sequencestring = ""
                 for base in bases:
                     # put the insertion first since it's already rcomp
-                    sequencestring += (base.lazy_sequence()[1] + \
-                                       base.lazy_sequence()[0])
-                sequencestring = util.nowhite(sequencestring)
+                    if base.lazy_sequence() == (" ", " "):
+                        pass  # skip
+                    else:
+                        sequencestring += (base.lazy_sequence()[1] + \
+                                           base.lazy_sequence()[0])
+                # sequencestring = util.nowhite(sequencestring)
+                sequencestring = util.markwhite(sequencestring)
                 output = "%d[%d],%d[%d],%s,%s,%s\n" % \
                         (vh5.number(), \
                         bases[0]._n, \

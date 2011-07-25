@@ -203,7 +203,6 @@ class DocumentController():
     # end def
 
     def exportCSV(self):
-        print "Export clicked"
         fname = self.filename()
         if fname == None:
             directory = "."

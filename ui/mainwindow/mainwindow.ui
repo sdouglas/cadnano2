@@ -185,14 +185,6 @@
      </property>
      <addaction name="separator"/>
     </widget>
-    <widget class="QMenu" name="menuExport">
-     <property name="title">
-      <string>Export...</string>
-     </property>
-     <addaction name="actionSVG"/>
-     <addaction name="actionX3D"/>
-     <addaction name="actionCSV"/>
-    </widget>
     <addaction name="actionNew"/>
     <addaction name="actionOpen"/>
     <addaction name="menuOpen_recent_files"/>
@@ -200,25 +192,19 @@
     <addaction name="actionClose"/>
     <addaction name="actionSave"/>
     <addaction name="actionSave_As"/>
-    <addaction name="actionSave_a_Copy"/>
     <addaction name="separator"/>
-    <addaction name="menuExport"/>
     <addaction name="actionPrint"/>
-   </widget>
-   <widget class="QMenu" name="menuEdit">
-    <property name="title">
-     <string>Edit</string>
-    </property>
-    <addaction name="actionCut"/>
-    <addaction name="actionCopy"/>
-    <addaction name="actionPaste"/>
-    <addaction name="actionSelect_All"/>
    </widget>
    <widget class="QMenu" name="menuCADnano">
     <property name="title">
      <string>CADnano</string>
     </property>
     <addaction name="actionPreferences"/>
+   </widget>
+   <widget class="QMenu" name="menuEdit">
+    <property name="title">
+     <string>Edit</string>
+    </property>
    </widget>
    <addaction name="menuCADnano"/>
    <addaction name="menuFile"/>
@@ -252,6 +238,7 @@
    <addaction name="actionNew"/>
    <addaction name="actionOpen"/>
    <addaction name="actionSave"/>
+   <addaction name="actionCSV"/>
    <addaction name="separator"/>
    <addaction name="actionNewHoneycombPart"/>
    <addaction name="actionNewSquarePart"/>
@@ -293,9 +280,9 @@
    <addaction name="actionPathPencil"/>
    <addaction name="actionPathBreak"/>
    <addaction name="actionPathErase"/>
-   <addaction name="actionPathPaint"/>
    <addaction name="actionPathInsert"/>
    <addaction name="actionPathSkip"/>
+   <addaction name="actionPathPaint"/>
    <addaction name="separator"/>
    <addaction name="actionAutoStaple"/>
    <addaction name="actionPathAddSeq"/>
@@ -377,6 +364,10 @@
    </property>
   </action>
   <action name="actionSave_As">
+   <property name="icon">
+    <iconset resource="icons.qrc">
+     <normaloff>:/filetools/save</normaloff>:/filetools/save</iconset>
+   </property>
    <property name="text">
     <string>Save As...</string>
    </property>
@@ -684,7 +675,7 @@
    </property>
    <property name="icon">
     <iconset resource="icons.qrc">
-     <normaloff>:/pathtools/add seq</normaloff>:/pathtools/add seq</iconset>
+     <normaloff>:/pathtools/addseq</normaloff>:/pathtools/addseq</iconset>
    </property>
    <property name="text">
     <string>Seq</string>
@@ -697,8 +688,12 @@
    </property>
   </action>
   <action name="actionCSV">
+   <property name="icon">
+    <iconset resource="icons.qrc">
+     <normaloff>:/filetools/csv</normaloff>:/filetools/csv</iconset>
+   </property>
    <property name="text">
-    <string>CSV</string>
+    <string>Export</string>
    </property>
    <property name="toolTip">
     <string>export oligos as *.CSV</string>
