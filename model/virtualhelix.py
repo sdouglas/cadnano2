@@ -793,33 +793,16 @@ class VirtualHelix(QObject):
         self._sequenceForVirtualStrandCache = None
         #self.part().virtualHelixAtCoordsChanged.emit(*self.coord())
 
-    def beginCommand(self, undoStack, strng):
-        """
-        Shared command method (not to be confused with a QUndoCommand object)
-        prefix. Enforces uniform handling of the undoStack varibale.
-        In particular,
-        ******************************************************************
-        undoStack=None:        do not use an undo stack (just call .redo(),
-                               discard the QUndoCommand object)
-        undoStack=True:        use the default undo stack
-        undoStack=myUndoStack: use myUndoStack
-        ******************************************************************
-        The last option is the reason for using this convention over a
-        boolean "undoable" flag. In the future, tools should maintain a 
-        drag-operation undo stack rather than using sandboxing (error-prone).
-        """
-        # The undoStack argument defaults to using self.undoStack(). The trouble
-        # is, None and instances of QUndoStack are both valid values for
-        # undoStack, so something else must be used to signal that no undoStack
-        # value was passed and therefore the default should be used. We
-        # arbitrarily chose True for this value.
-        if undoStack == True:
-            undoStack = self.undoStack()
-        # If the passed in argument OR self.undoStack() yielded an undo stack
-        # (equivalently, if we will be using an undo stack) then all commands
-        # performed by self should be wrapped in a macro.
-        if undoStack != None:
+    def beginCommand(self, useUndoStack, undoStack, strng):
+        """undoStack overrides the default undoStack if it is not None"""
+        if useUndoStack:
+            if undoStack == None:
+                undoStack = self.undoStack()
+            assert(undoStack != None)
             undoStack.beginMacro(strng)
+        else:
+            assert(undoStack == None)
+        # Acquire lock on part
         part = self.part()
         if part != None:
             part.lock.acquireWrite()
@@ -827,6 +810,9 @@ class VirtualHelix(QObject):
 
     def endCommand(self, undoStack, commands, police=False, additionalAffectedBases=None):
         """ Shared command (not to be confused with UndoCommand) suffix"""
+        # We allow the caller to pass a single command or multiple commands in
+        # a tuple. For the benefit of the code below, we regularize the argument
+        # into a tuple.
         if type(commands) not in (list, tuple):
             commands = (commands,)
         # c is the command
@@ -856,14 +842,14 @@ class VirtualHelix(QObject):
         if part != None:
             part.lock.release()
 
-    def connectStrand(self, strandType, startIndex, endIndex, undoStack=True,\
-                      police=True, color=None, speedy=False):
+    def connectStrand(self, strandType, startIndex, endIndex, useUndoStack=True,
+                      undoStack=None, police=True, color=None, speedy=False):
         """
         Connects sequential bases on a single strand, starting with
         startIndex and ending with etdIndex (inclusive)
         Sets {s.n, (s+1).np, ..., (e-2).np, (e-1).np, e.p}
         """
-        undoStack = self.beginCommand(undoStack, "Extend strand")
+        undoStack = self.beginCommand(useUndoStack, undoStack, "Extend strand")
 
         strand = self._strand(strandType)
         startIndex, endIndex = int(startIndex), int(endIndex)
@@ -895,18 +881,18 @@ class VirtualHelix(QObject):
             rightBreakIdx += 1
         self.clearStrand(strandType, leftBreakIdx, rightBreakIdx)
 
-    def legacyClearStrand(self, strandType, startIndex, endIndex, undoStack=True,\
-                    colorL=None, colorR=None, police=True,\
-                    undoDesc="Clear strand"):
+    def legacyClearStrand(self, strandType, startIndex, endIndex,\
+                    useUndoStack=True,undoStack=None, colorL=None, colorR=None,\
+                    police=True, undoDesc="Clear strand"):
         startIndex += -.5 if startIndex < endIndex else .5
         endIndex += .5 if startIndex < endIndex else -.5
         self.clearStrand(strandType, startIndex, endIndex, undoStack,\
                          colorL, colorR, police, undoDesc)
 
-    def clearStrand(self, strandType, startIndex, endIndex, undoStack=True,\
-                    colorL=None, colorR=None, police=True,\
+    def clearStrand(self, strandType, startIndex, endIndex, useUndoStack=True,\
+                    undoStack=None, colorL=None, colorR=None, police=True,\
                     undoDesc="Clear Strand"):
-        undoStack = self.beginCommand(undoStack, "Clear strand")
+        undoStack = self.beginCommand(useUndoStack, undoStack, "Clear strand")
         strand = self._strand(strandType)
         startIndex = util.clamp(startIndex, 0, len(strand))
         startIndex = int(startIndex*2.)/2.
@@ -919,7 +905,8 @@ class VirtualHelix(QObject):
         self.endCommand(undoStack, c, police)
 
     def installXoverFrom3To5(self, strandType, fromIndex, toVhelix, toIndex,\
-           undoStack=True, endToTakeColorFrom=3, speedy=False, police=True):
+           useUndoStack=True, undoStack=None, endToTakeColorFrom=3,\
+           speedy=False, police=True):
         """
         The from base must provide the 3' pointer, and to must provide 5'.
 
@@ -928,20 +915,23 @@ class VirtualHelix(QObject):
         stage of the loading process (which calls installXover... for
         *all* of its connections).
         """
-        undoStack = self.beginCommand(undoStack, "Install XOver")
+        undoStack = self.beginCommand(useUndoStack, undoStack, "Install XOver")
         c = self.Connect3To5Command(strandType, self, fromIndex, toVhelix,\
                                     toIndex, endToTakeColorFrom, speedy=speedy)
         targetBase = toVhelix._strand(StrandType.Scaffold)[0]
         self.endCommand(undoStack, c, police, (targetBase,))
 
-    def removeConnectedStrandAt(self, strandType, idx, undoStack=True):
-        undoStack = self.beginCommand(undoStack, "removeConnectedStrandAt")
+    def removeConnectedStrandAt(self, strandType, idx, useUndoStack=True,\
+                                undoStack=None):
+        undoStack = self.beginCommand(useUndoStack,\
+                                      undoStack, "removeConnectedStrandAt")
         bases = self._basesConnectedTo(strandType, idx)
         c = self.RemoveBasesCommand(bases)
         self.endCommand(undoStack, c, additionalAffectedBases=bases)
 
-    def removeXoversAt(self, strandType, idx, newColor=None, undoStack=True):
-        undoStack = self.beginCommand(undoStack, "removeXoversAt")
+    def removeXoversAt(self, strandType, idx, newColor=None,\
+                       useUndoStack=True, undoStack=None):
+        undoStack = self.beginCommand(useUndoStack, undoStack, "removeXoversAt")
         base = self._strand(strandType)[idx]
         if base._hasCrossoverL():
             base._vhelix.clearStrand(strandType, idx, idx + 0.5, undoStack=undoStack)
@@ -950,8 +940,9 @@ class VirtualHelix(QObject):
         self.endCommand(undoStack, None)
 
     def removeXoverTo(self, strandType, fromIndex, toVhelix, toIndex,\
-                      undoStack=True, endToKeepColor=3, newColor=None):
-        undoStack = self.beginCommand(undoStack, "removeXoverTo")
+                      useUndoStack=True, undoStack=None, endToKeepColor=3,\
+                      newColor=None):
+        undoStack = self.beginCommand(useUndoStack, undoStack, "removeXoverTo")
         strand = self._strand(strandType)
         fromBase = strand[fromIndex]
         toBase = toVhelix._strand(strandType)[toIndex]
@@ -962,7 +953,8 @@ class VirtualHelix(QObject):
                                   newColor=newColor)
         self.endCommand(undoStack, c)
 
-    def installLoop(self, strandType, index, loopsize, undoStack=True, speedy=False):
+    def installLoop(self, strandType, index, loopsize, useUndoStack=True,\
+                    undoStack=False, speedy=False):
         """
         Main function for installing loops and skips
         -1 is a skip, +N is a loop
@@ -971,7 +963,7 @@ class VirtualHelix(QObject):
         however to allow updating from loops drawn on staples, we make this tool
         StrandType agnostic
         """
-        undoStack = self.beginCommand(undoStack, "installLoop")
+        undoStack = self.beginCommand(useUndoStack, undoStack, "installLoop")
         if strandType == StrandType.Scaffold:
             if self._isSeqBlank == False:
                 d = self.ApplySequenceCommand(self, StrandType.Scaffold, index, " ")
@@ -980,25 +972,29 @@ class VirtualHelix(QObject):
             c = self.LoopCommand(self, strandType, index, loopsize)
         self.endCommand(undoStack, (d, c))
 
-    def applyColorAt(self, color, strandType, index, undoStack=True):
+    def applyColorAt(self, color, strandType, index, useUndoStack=True,\
+                     undoStack=None):
         """Determine the connected strand that passes through
         (self, strandType, index) and apply color to every base
         in that strand. If color is none, pick a (bright) random
         color and apply it to every base in that strand"""
-        undoStack = self.beginCommand(undoStack, "applyColorAt")
+        undoStack = self.beginCommand(useUndoStack, undoStack, "applyColorAt")
         bases = self._basesConnectedTo(strandType, index)
         if color == None:
             color = self.palette()[0]
         c = self.ApplyColorCommand(bases, color)
         self.endCommand(undoStack, c)
 
-    def applySequenceAt(self, strandType, index, seqStr, undoStack=True):
+    def applySequenceAt(self, strandType, index, seqStr, useUndoStack=True,\
+                        undoStack=None):
         """
         Finds the 5' end of the oligo going through strandType,index and
         assigns a character of seqStr to every base, traveling towards the
         3' end
         """
-        undoStack = self.beginCommand(undoStack, "applySequenceAt")
+        undoStack = self.beginCommand(useUndoStack,\
+                                      undoStack,\
+                                      "applySequenceAt")
         c = self.ApplySequenceCommand(self, strandType, index, seqStr)
         self.endCommand(undoStack, c)
         self.emitBasesModifiedIfNeeded()
