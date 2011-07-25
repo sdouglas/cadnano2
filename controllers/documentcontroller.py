@@ -70,7 +70,7 @@ class DocumentController():
         self.setDocument(Document() if not doc else doc)        
         app().undoGroup.addStack(self.undoStack())
         self.win.setWindowTitle(self.documentTitle()+'[*]')
-        self.solidlist = []
+        self.solidHelixGrp = None
 
     def closer(self, event):
         if self.maybeSave():
@@ -116,7 +116,6 @@ class DocumentController():
         doc.partAdded.connect(self.docPartAddedEvent)
         for p in doc.parts():
             self.docPartAddedEvent(p)
-        print "setDocument end"
 
     def undoStack(self):
         return self._undoStack
@@ -384,7 +383,10 @@ class DocumentController():
                                         parent=self.win.sliceroot)
         self.pathHelixGroup = PathHelixGroup(part,\
                                          controller=self.win.pathController,\
-                                         parent=self.win.pathroot)         
+                                         parent=self.win.pathroot)
+                                         
+        if app().isInMaya():
+            self.solidHelixGrp = SolidHelixGroup(part, controller=self.win.pathController, htype=part.crossSectionType())
 
         self.win.sliceController.activeSliceLastSignal.connect(\
                       self.pathHelixGroup.activeSliceHandle().moveToLastSlice)
@@ -404,11 +406,7 @@ class DocumentController():
                 self.pathHelixGroup.createXoverItem(xo[0], toBase, StrandType.Staple)
         # end for
         self.setActivePart(part)
-        if app().isInMaya():
-            solhg = SolidHelixGroup(part, controller=self.win.pathController, htype=part.crossSectionType())
-            self.solidlist.append(solhg)
-            
-
+        
     # end def
     
     def addHoneycombHelixGroup(self):
