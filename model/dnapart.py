@@ -29,6 +29,8 @@ from .enum import LatticeType, StrandType
 from heapq import *
 import copy
 from views import styles
+from readwritelock import ReadWriteLock
+from threading import Condition
 
 import util
 # import Qt stuff into the module namespace with PySide, PyQt4 independence
@@ -103,9 +105,10 @@ class DNAPart(Part):
         # recalculateStrandLengths method.
         self.basesModified = set()
         self.numTimesStrandLengthsRecalcd = 0
+        self.lock = ReadWriteLock()
+        self.modificationCondition = Condition()
 
         # Event propagation
-        
         self.virtualHelixAtCoordsChanged.connect(self.persistentDataChangedEvent)
         self.dimensionsWillChange.connect(self.persistentDataChangedEvent)
         self.dimensionsDidChange.connect(self.ensureActiveBaseIsWithinNewDims)

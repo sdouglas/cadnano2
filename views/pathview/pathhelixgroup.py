@@ -42,17 +42,19 @@ from .pathselection import PathHelixHandleSelectionBox
 from .pathselection import BreakpointHandleSelectionBox
 import util
 from views import styles
+import threading, weakref
 
 
 # import Qt stuff into the module namespace with PySide, PyQt4 independence
 util.qtWrapImport('QtCore', globals(), ['QObject', 'pyqtSignal', 'pyqtSlot',\
                                         'QRectF', 'QPointF', 'QEvent',\
-                                        'QObject', 'Qt'])
+                                        'QObject', 'Qt', 'QThread'])
 util.qtWrapImport('QtGui', globals(), ['QBrush', 'QPen', 'qApp',\
                                        'QGraphicsTextItem', 'QFont',\
-                                       'QColor', 'QGraphicsItem',\
-                                       'QGraphicsObject',\
-                                       'QGraphicsItemGroup', 'QUndoCommand'])
+                                       'QColor', 'QGraphicsItem', 'QPainter',\
+                                       'QGraphicsObject', 'QPicture',\
+                                       'QGraphicsItemGroup', 'QUndoCommand',\
+                                       'QStyleOptionGraphicsItem'])
 
 
 class PathHelixGroup(QGraphicsObject):
@@ -78,6 +80,12 @@ class PathHelixGroup(QGraphicsObject):
         self._pathHelixes = []  # Primary property
         self.activeHelix = None
         self._part = None
+        #Picture Cache
+        self.dummyChild = self.DummyChild(self)
+        self.pictureCache = None
+        #self.pictureThread = self.PaintingCacheUpdateThread(self)
+        #self.pictureThread.start()
+        #Selections
         self.phhSelectionGroup = SelectionItemGroup(\
                                          boxtype=PathHelixHandleSelectionBox,\
                                          constraint='y',\
@@ -250,7 +258,7 @@ class PathHelixGroup(QGraphicsObject):
                 scene.removeItem(handle)
                 scene.removeItem(ph)
         for ph in newList:
-            ph.setParentItem(self)
+            ph.setParentItem(self.dummyChild)
             ph.setPos(0, y)
             ph_height = ph.boundingRect().height()
             step = ph_height + styles.PATH_HELIX_PADDING
@@ -290,8 +298,14 @@ class PathHelixGroup(QGraphicsObject):
     # end def
 
     def paint(self, painter, option, widget=None):
-        # painter.drawRect(self.boundingRect())
         pass
+        #dc = self.dummyChild
+        #if self.pictureCache != None and dc.isVisible():
+        #    dc.hide()
+        #elif self.pictureCache == None and not dc.isVisible():
+        #    dc.show()
+        #if self.pictureCache != None:
+        #    painter.drawPicture(0, 0, self.pictureCache)
 
     geometryChanged = pyqtSignal()
 
@@ -324,6 +338,74 @@ class PathHelixGroup(QGraphicsObject):
     # Slot called when the slice view's (actually the part's) selection changes
     def selectionWillChange(self, newSelection):
         self.setDisplayedVHs(newSelection)
+
+    class PaintingCacheUpdateThread(QThread):
+        def __init__(self, phg):
+            # threading.Thread.__init__(self)
+            QThread.__init__(self)
+            self.phg = weakref.proxy(phg)
+            # self.setDaemon(True)
+        def run(self):
+            phg = self.phg
+            while True:
+                try:
+                    part = phg.part()
+                    if part == None:
+                        continue
+                    modificationCV = part.modificationCondition
+                    modificationCV.acquire()
+                    modificationCV.wait()
+                    phg.pictureCache = None
+                    modificationCV.release()
+                    phg.fillPictureCache()
+                except ReferenceError as e:
+                    break
+            print "Picture thread terminated."
+
+    def fillPictureCache(self):
+        print "Picture cache: %s"%str(self.pictureCache)
+        recording = QPicture()
+        painter = QPainter()
+        painter.begin(recording)
+        part = self.part()
+        dummyStyleOption = QStyleOptionGraphicsItem()
+        if part == None: return
+        q = [self.dummyChild]
+        try:
+            part.lock.acquireRead(0)
+            while q:
+                part.lock.release()
+                part.lock.acquireRead(0)
+                graphicsItem = q.pop()
+                # the transform that maps graphicsItem coordinates to our own
+                painter.setTransform(graphicsItem.itemTransform(self)[0])
+                graphicsItem.paint(painter, dummyStyleOption, None)
+                q.extend(graphicsItem.childItems())
+        except RuntimeError:
+            print "Lock timed out -- aborting"
+        finally:
+            try:
+                part.lock.release()
+            except ValueError:
+                pass  # Catch double-releasing, which doesn't concern us
+            painter.end()
+        self.pictureCache = recording
+        print "Picture cache: %s"%str(self.pictureCache)
+
+    def prepareGeometryChange(self):
+        super(PathHelixGroup, self).prepareGeometryChange()
+        self.dummyChild.prepareGeometryChange()
+
+    class DummyChild(QGraphicsItem):
+        """
+        A PathHelixGroup can switch between rendering its children and
+        rendering from a QPicture cache (filled by fillPictureCache inside a
+        PaintingCacheUpdateThread)
+        """
+        def boundingRect(self):
+            return self.parentObject().boundingRect()
+        def paint(self, painter, option, widget=None):
+            pass
 
     def getPathHelix(self, vhref):
         """Given the helix number, return a reference to the PathHelix."""

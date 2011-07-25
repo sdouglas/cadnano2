@@ -779,11 +779,15 @@ class VirtualHelix(QObject):
             self.basesModified.emit()
     
     def emitBasesModifiedIfNeeded(self):
-        if self.part():
+        part = self.part()
+        if part:
             for vh in list(self.part().basesModifiedVHs):
                 vh.basesModified.emit()
-            self.part().basesModifiedVHs.clear()
-            self.part()._recalculateStrandLengths()
+            part.basesModifiedVHs.clear()
+            part._recalculateStrandLengths()
+            part.modificationCondition.acquire()
+            part.modificationCondition.notifyAll()
+            part.modificationCondition.release()
         else:
             self.basesModified.emit()
         self._sequenceForVirtualStrandCache = None
@@ -808,6 +812,9 @@ class VirtualHelix(QObject):
             undoStack = self.undoStack()
         if undoStack != None:
             undoStack.beginMacro(str)
+        part = self.part()
+        if part != None:
+            part.lock.acquireWrite()
         return undoStack
 
     def endCommand(self, undoStack, commands, police=False, additionalAffectedBases=None):
@@ -837,6 +844,9 @@ class VirtualHelix(QObject):
         if undoStack != None:
             undoStack.endMacro()
         self.resetSequenceCache()
+        part = self.part()
+        if part != None:
+            part.lock.release()
 
     def connectStrand(self, strandType, startIndex, endIndex, undoStack=True,\
                       police=True, color=None, speedy=False):

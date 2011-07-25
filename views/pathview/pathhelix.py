@@ -150,6 +150,7 @@ class PathHelix(QGraphicsObject):
         self.setVHelix(vhelix)
         self.setFlag(QGraphicsItem.ItemUsesExtendedStyleOption)
         self.setPreXOverHandlesVisible(False)
+        self.setCacheMode(QGraphicsItem.DeviceCoordinateCache)
         if app().ph != None:  # Convenience for the command line -i mode
             app().ph[vhelix.number()] = self
     # end def
@@ -334,7 +335,8 @@ class PathHelix(QGraphicsObject):
         # cache the paths and that those caches are
         # invalidated as the primary mechanism
         # of updating after a change in vhelix's bases
-        if not self.boundingRect().intersects(option.exposedRect):
+        if option != None and \
+           not self.boundingRect().intersects(option.exposedRect):
             return
         painter.save()
         painter.setBrush(self.nobrush)
@@ -347,14 +349,15 @@ class PathHelix(QGraphicsObject):
         for sp in segmentPaths:
             pen, path = sp
             strandRect = path.controlPointRect().adjusted(0, 0, 5, 5)
-            if not strandRect.intersects(option.exposedRect):
+            if option != None and not strandRect.intersects(option.exposedRect):
                 continue
             painter.setPen(pen)
             painter.drawPath(path)
         painter.setPen(Qt.NoPen)
         for ep in endptPths:
             brush, path = ep
-            if not path.controlPointRect().intersects(option.exposedRect):
+            if option != None and\
+               not path.controlPointRect().intersects(option.exposedRect):
                 continue
             painter.setBrush(brush)
             painter.drawPath(path)
@@ -636,6 +639,6 @@ class PathHelix(QGraphicsObject):
 
 ################################ Events ################################
 forwardedEvents = ('hoverEnter', 'hoverLeave', 'hoverMove', 'mousePress',\
-                   'mouseMove', 'mouseRelease')
+                   'mouseMove', 'mouseRelease', 'keyPress')
 util.defineEventForwardingMethodsForClass(PathHelix, 'PathHelix', forwardedEvents)
 # end class
