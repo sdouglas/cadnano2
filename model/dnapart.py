@@ -115,8 +115,9 @@ class DNAPart(Part):
         self.dimensionsDidChange.connect(self.ensureActiveBaseIsWithinNewDims)
     
     def fsck(self):
-        for vh in self._numberToVirtualHelix.itervalues():
-            vh.fsck()
+        # for vh in self._numberToVirtualHelix.itervalues():
+        #     vh.fsck()
+        map(fsk, self._numberToVirtualHelix.itervalues())
 
     def destroy(self):
         if self._selectAllBehavior == True:
@@ -275,24 +276,39 @@ class DNAPart(Part):
     def removeVirtualHelixAt(self, coords, vh, requestSpecificIdnum=None, noUndo=False):
         c = self.RemoveHelixCommand(self, tuple(coords), vh, requestSpecificIdnum)
         if noUndo:
-            vh.clearAllStrands()
-            c.redo()
+            def removeCommands(vh):
+                if vh != None:
+                    vh.clearAllStrands()
+                    c = self.RemoveHelixCommand(self, vh.coord(), vh, requestSpecificIdnum)
+                    c.redo()
+            # end def
+            map(removeCommands, vhList)
         else:
             self.undoStack().beginMacro("Remove Virtual Helix")
-            d = vh.clearAllStrands()
-            self.undoStack().push(d)
-            self.undoStack().push(c)
+            def removeCommands(vh):
+                if vh != None:
+                    vh.clearAllStrands()
+                    c = self.RemoveHelixCommand(self, vh.coord(), vh, requestSpecificIdnum)
+                    self.undoStack().push(c)
+            # end def
+            map(removeCommands, vhList)
             self.undoStack().endMacro()
     # end def
 
     def matchHelixNumberingToPhgDisplayOrder(self, phg):
-        evens, odds = [], []
-        for vh in phg.displayedVHs():
-            n = vh.number()
-            if n%2:
-                odds.append(n)
-            else:
-                evens.append(n)
+        # evens, odds = [], []
+        # for vh in phg.displayedVHs():
+        #     n = vh.number()
+        #     if n%2:
+        #         odds.append(n)
+        #     else:
+        #         evens.append(n)
+        
+        # update for speed!
+        dispVHs = phg.displayedVHs()
+        odds = filter(lambda vh: True if vh.number() % 2 else False, dispVHs) 
+        evens = filter(lambda vh: True if not vh.number() % 2 else False, dispVHs) 
+
         oldNumbers = list(evens + odds)
         evens.sort()
         odds.sort()
@@ -323,17 +339,46 @@ class DNAPart(Part):
     def autoStaple(self):
         vhs = self.getVirtualHelices()
         self.undoStack().beginMacro("Auto Staple")
-        for vh in vhs:
+        
+        # for vh in vhs:
+        #     # Copy the scaffold strand's segments to the staple strand
+        #     vh.legacyClearStrand(StrandType.Staple, 1, vh.numBases()-1)
+        #     segments, ends3, ends5 = vh.getSegmentsAndEndpoints(StrandType.Scaffold)
+        #     for segStart, segEnd in segments:
+        #         vh.connectStrand(StrandType.Staple, segStart, segEnd)
+        #     for i in range(len(segments)-1):
+        #         segIEnd = segments[i][1]
+        #         if segIEnd + 1 == segments[i+1][0]:
+        #             vh.connectStrand(StrandType.Staple, segIEnd, segIEnd + 1)
+        
+        # for speed
+        def autoStaple_sub1(vh):
             # Copy the scaffold strand's segments to the staple strand
             vh.legacyClearStrand(StrandType.Staple, 1, vh.numBases()-1)
             segments, ends3, ends5 = vh.getSegmentsAndEndpoints(StrandType.Scaffold)
-            for segStart, segEnd in segments:
-                vh.connectStrand(StrandType.Staple, segStart, segEnd)
+            map(lambda (segStart, segEnd): vh.connectStrand(StrandType.Staple, segStart, segEnd), segments)
             for i in range(len(segments)-1):
                 segIEnd = segments[i][1]
                 if segIEnd + 1 == segments[i+1][0]:
                     vh.connectStrand(StrandType.Staple, segIEnd, segIEnd + 1)
-        for vh in vhs:
+        # end def
+        map(autoStaple_sub1, vhs)
+        
+        
+        # for vh in vhs:
+        #     # We only add crossovers for which vh will have the 3' end to
+        #     # avoid adding each crossover twice. We can do this by adding
+        #     # only crossovers that face left (or right) because all crossovers
+        #     # with 3' crossovers (or 5') will face either left or right
+        #     # on a given helix.
+        #     facingR = not vh.directionOfStrandIs5to3(StrandType.Staple)
+        #     pxovers = vh.potentialCrossoverList(facingR, StrandType.Staple)
+        #     for toVH, idx in pxovers:  # Loop through potential xovers
+        #         if vh.possibleNewCrossoverAt(StrandType.Staple, idx, toVH, idx):
+        #             vh.installXoverFrom3To5(StrandType.Staple, idx, toVH, idx)
+        
+        # for speed part 2
+        def autoStaple_sub2(vh):
             # We only add crossovers for which vh will have the 3' end to
             # avoid adding each crossover twice. We can do this by adding
             # only crossovers that face left (or right) because all crossovers
@@ -341,10 +386,14 @@ class DNAPart(Part):
             # on a given helix.
             facingR = not vh.directionOfStrandIs5to3(StrandType.Staple)
             pxovers = vh.potentialCrossoverList(facingR, StrandType.Staple)
-            for toVH, idx in pxovers:  # Loop through potential xovers
+            def loopXovers((toVH, idx)):
                 if vh.possibleNewCrossoverAt(StrandType.Staple, idx, toVH, idx):
                     vh.installXoverFrom3To5(StrandType.Staple, idx, toVH, idx)
+            map(loopXovers, pxovers)  # Loop through potential xovers
+        # end def
+        map(autoStaple_sub2, vhs)
         self.undoStack().endMacro()
+    # end def
 
     def autoDragAllBreakpoints(self):
         """Carryover from cadnano1. Shift+Alt+Click on activeslichandle tells
