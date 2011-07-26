@@ -433,8 +433,7 @@ class DNAPart(Part):
                     else:
                         return base.lazy_sequence()[1] + \
                                            base.lazy_sequence()[0]
-                
-                sequencestring = reduce(lambda x, y: x + y, map(baseSeq, bases), '')
+                sequencestring = ''.join(map(baseSeq, bases))
                 # sequencestring = util.nowhite(sequencestring)
                 sequencestring = util.markwhite(sequencestring)
                 output = "%d[%d],%d[%d],%s,%s,%s\n" % \
@@ -447,9 +446,9 @@ class DNAPart(Part):
                         bases[0].getColor().name())
                 return output
             # end def
-            return reduce(lambda x, y: x + y, map(oligo_end_sub, oligo_ends), '')
+            return ''.join(map(oligo_end_sub, oligo_ends))
         # end def
-        return reduce(lambda x, y: x + y, map(gSS, vhelices), ret)
+        return ret +''.join(map(gSS, vhelices))
 
     ############################# VirtualHelix Private CRUD #############################
     def _recalculateStrandLengths(self):
