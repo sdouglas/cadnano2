@@ -357,7 +357,13 @@ class DNAPart(Part):
         return len(self._numberToVirtualHelix)
 
     def getVirtualHelices(self):
-        return [self._numberToVirtualHelix[n] for n in self._numberToVirtualHelix]
+        return self._numberToVirtualHelix.itervalues()
+
+    def updateAcyclicLengths(self):
+        # Cyclic structures should get initial highlighting from the fact that
+        # bases are highlighted by default.
+        for vh in self.getVirtualHelices():
+            vh.updateLengthsFrom5pEnds()
 
     def autoStaple(self):
         vhs = self.getVirtualHelices()

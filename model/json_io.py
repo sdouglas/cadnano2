@@ -213,7 +213,7 @@ def doc_from_legacy_dict(obj):
             if combinedLoopSkipAmount != 0:
                 vh.installLoop(StrandType.Scaffold, i, combinedLoopSkipAmount,\
                                useUndoStack=False, speedy=True)
-    part.needsFittingToView.emit()
+    # part.updateAcyclicLengths()
     return doc
 
 def isSegmentStartOrEnd(strandType, vhNum, baseIdx, fiveVH, fiveIdx, threeVH, threeIdx):

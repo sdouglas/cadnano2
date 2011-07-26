@@ -75,6 +75,8 @@ class DocumentController():
         app().undoGroup.addStack(self.undoStack())
         self.win.setWindowTitle(self.documentTitle()+'[*]')
         self.solidHelixGrp = None
+        if doc != None and doc.parts():
+            doc.parts()[0].needsFittingToView.emit()
 
     def closer(self, event):
         if self.maybeSave():

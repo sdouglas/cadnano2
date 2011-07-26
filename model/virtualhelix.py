@@ -584,7 +584,7 @@ class VirtualHelix(QObject):
         
     def getSegmentsAndEndpoints(self, strandType):
         """Returns a list of segments, endpoints of self in the format
-        ([(startIdx, endIdx), ...],
+        ([(startIdx, endIdx), ...],   # These "indexes" are floats
          [3pEndIdx1, 3pEndIdx2, ...], 
          [5pEndIdx1, ...])
         where startIdx and endIdx can be 1.5, 2.5 etc (multiply by base
@@ -1166,7 +1166,22 @@ class VirtualHelix(QObject):
     def isSeqBlank(self):
         return self._isSeqBlank
     # end def
-    
+
+    def updateLengthsFrom5pEnds(self):
+        """After a file load, bases have an incorrect value for
+        base._shouldHighlight. This method fixes that for all bases in strands
+        that have a 5' end on self."""
+        return
+        _, _, scaf5 = self.getSegmentsAndEndpoints(StrandType.Scaffold)
+        _, _, stap5 = self.getSegmentsAndEndpoints(StrandType.Staple)
+        scaf, stap = self._scaffoldBases, self._stapleBases
+        part = self.part()
+        for baseNum in scaf5:
+            part.basesModified.add(scaf[baseNum])
+        for baseNum in stap5:
+            part.basesModified.add(stap[baseNum])
+        part._recalculateStrandLengths()
+
     class ApplySequenceCommand(QUndoCommand):
         def __init__(self, vh, strandType, idx, seqStr):
             """
