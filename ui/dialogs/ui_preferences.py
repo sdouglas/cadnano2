@@ -2,8 +2,8 @@
 
 # Form implementation generated from reading ui file 'dialogs/preferences.ui'
 #
-# Created: Tue Jul 26 08:10:07 2011
-#      by: PyQt4 UI code generator 4.7.7
+# Created: Tue Jul 26 14:16:47 2011
+#      by: PyQt4 UI code generator snapshot-4.8.3-fbc8b1362812
 #
 # WARNING! All changes made in this file will be lost!
 
@@ -17,7 +17,7 @@ except AttributeError:
 class Ui_Preferences(object):
     def setupUi(self, Preferences):
         Preferences.setObjectName(_fromUtf8("Preferences"))
-        Preferences.resize(344, 270)
+        Preferences.resize(344, 242)
         sizePolicy = QtGui.QSizePolicy(QtGui.QSizePolicy.Preferred, QtGui.QSizePolicy.Preferred)
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
@@ -152,23 +152,16 @@ class Ui_Preferences(object):
         self.formLayout.setWidget(2, QtGui.QFormLayout.LabelRole, self.zoomSpeedLabel)
         self.zoomSpeedSlider = QtGui.QSlider(Preferences)
         self.zoomSpeedSlider.setMinimumSize(QtCore.QSize(140, 0))
-        self.zoomSpeedSlider.setMinimum(0)
+        self.zoomSpeedSlider.setMinimum(1)
         self.zoomSpeedSlider.setMaximum(100)
+        self.zoomSpeedSlider.setSingleStep(1)
         self.zoomSpeedSlider.setProperty(_fromUtf8("value"), 50)
         self.zoomSpeedSlider.setOrientation(QtCore.Qt.Horizontal)
-        self.zoomSpeedSlider.setInvertedAppearance(False)
         self.zoomSpeedSlider.setInvertedControls(False)
         self.zoomSpeedSlider.setTickPosition(QtGui.QSlider.TicksBelow)
         self.zoomSpeedSlider.setTickInterval(0)
         self.zoomSpeedSlider.setObjectName(_fromUtf8("zoomSpeedSlider"))
         self.formLayout.setWidget(2, QtGui.QFormLayout.FieldRole, self.zoomSpeedSlider)
-        self.zoomfitLabel = QtGui.QLabel(Preferences)
-        self.zoomfitLabel.setObjectName(_fromUtf8("zoomfitLabel"))
-        self.formLayout.setWidget(3, QtGui.QFormLayout.LabelRole, self.zoomfitLabel)
-        self.helixAddCheckBox = QtGui.QCheckBox(Preferences)
-        self.helixAddCheckBox.setChecked(True)
-        self.helixAddCheckBox.setObjectName(_fromUtf8("helixAddCheckBox"))
-        self.formLayout.setWidget(3, QtGui.QFormLayout.FieldRole, self.helixAddCheckBox)
         self.verticalLayout.addLayout(self.formLayout)
         self.buttonBox = QtGui.QDialogButtonBox(Preferences)
         self.buttonBox.setInputMethodHints(QtCore.Qt.ImhNone)
@@ -177,12 +170,15 @@ class Ui_Preferences(object):
         self.buttonBox.setCenterButtons(True)
         self.buttonBox.setObjectName(_fromUtf8("buttonBox"))
         self.verticalLayout.addWidget(self.buttonBox)
+        self.actionClose = QtGui.QAction(Preferences)
+        self.actionClose.setObjectName(_fromUtf8("actionClose"))
 
         self.retranslateUi(Preferences)
         self.tabWidget.setCurrentIndex(0)
         self.defaulttoolComboBox.setCurrentIndex(0)
         QtCore.QObject.connect(self.buttonBox, QtCore.SIGNAL(_fromUtf8("accepted()")), Preferences.accept)
         QtCore.QObject.connect(self.buttonBox, QtCore.SIGNAL(_fromUtf8("rejected()")), Preferences.reject)
+        QtCore.QObject.connect(self.actionClose, QtCore.SIGNAL(_fromUtf8("activated()")), Preferences.close)
         QtCore.QMetaObject.connectSlotsByName(Preferences)
         Preferences.setTabOrder(self.buttonBox, self.tabWidget)
         Preferences.setTabOrder(self.tabWidget, self.honeycombRowsSpinBox)
@@ -190,7 +186,6 @@ class Ui_Preferences(object):
         Preferences.setTabOrder(self.honeycombColsSpinBox, self.squareRowsSpinBox)
         Preferences.setTabOrder(self.squareRowsSpinBox, self.squareColsSpinBox)
         Preferences.setTabOrder(self.squareColsSpinBox, self.zoomSpeedSlider)
-        Preferences.setTabOrder(self.zoomSpeedSlider, self.helixAddCheckBox)
 
     def retranslateUi(self, Preferences):
         Preferences.setWindowTitle(QtGui.QApplication.translate("Preferences", "Preferences", None, QtGui.QApplication.UnicodeUTF8))
@@ -219,8 +214,8 @@ class Ui_Preferences(object):
         self.defaulttoolComboBox.setItemText(1, QtGui.QApplication.translate("Preferences", "Pencil Tool", None, QtGui.QApplication.UnicodeUTF8))
         self.defaulttoolComboBox.setItemText(2, QtGui.QApplication.translate("Preferences", "Paint", None, QtGui.QApplication.UnicodeUTF8))
         self.defaulttoolComboBox.setItemText(3, QtGui.QApplication.translate("Preferences", "Add Seq", None, QtGui.QApplication.UnicodeUTF8))
-        self.zoomSpeedLabel.setText(QtGui.QApplication.translate("Preferences", "Zoom speed:", None, QtGui.QApplication.UnicodeUTF8))
-        self.zoomfitLabel.setText(QtGui.QApplication.translate("Preferences", "Zoom to fit on:", None, QtGui.QApplication.UnicodeUTF8))
-        self.helixAddCheckBox.setText(QtGui.QApplication.translate("Preferences", "Helix addition", None, QtGui.QApplication.UnicodeUTF8))
+        self.zoomSpeedLabel.setText(QtGui.QApplication.translate("Preferences", "Mousewheel zoom speed:", None, QtGui.QApplication.UnicodeUTF8))
+        self.actionClose.setText(QtGui.QApplication.translate("Preferences", "Close", None, QtGui.QApplication.UnicodeUTF8))
+        self.actionClose.setShortcut(QtGui.QApplication.translate("Preferences", "Ctrl+W", None, QtGui.QApplication.UnicodeUTF8))
 
 import dialogicons_rc

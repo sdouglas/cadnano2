@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>344</width>
-    <height>270</height>
+    <height>242</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -300,7 +300,7 @@ p, li { white-space: pre-wrap; }
      <item row="2" column="0">
       <widget class="QLabel" name="zoomSpeedLabel">
        <property name="text">
-        <string>Zoom speed:</string>
+        <string>Mousewheel zoom speed:</string>
        </property>
       </widget>
      </item>
@@ -313,19 +313,19 @@ p, li { white-space: pre-wrap; }
         </size>
        </property>
        <property name="minimum">
-        <number>0</number>
+        <number>1</number>
        </property>
        <property name="maximum">
         <number>100</number>
+       </property>
+       <property name="singleStep">
+        <number>1</number>
        </property>
        <property name="value">
         <number>50</number>
        </property>
        <property name="orientation">
         <enum>Qt::Horizontal</enum>
-       </property>
-       <property name="invertedAppearance">
-        <bool>false</bool>
        </property>
        <property name="invertedControls">
         <bool>false</bool>
@@ -335,23 +335,6 @@ p, li { white-space: pre-wrap; }
        </property>
        <property name="tickInterval">
         <number>0</number>
-       </property>
-      </widget>
-     </item>
-     <item row="3" column="0">
-      <widget class="QLabel" name="zoomfitLabel">
-       <property name="text">
-        <string>Zoom to fit on:</string>
-       </property>
-      </widget>
-     </item>
-     <item row="3" column="1">
-      <widget class="QCheckBox" name="helixAddCheckBox">
-       <property name="text">
-        <string>Helix addition</string>
-       </property>
-       <property name="checked">
-        <bool>true</bool>
        </property>
       </widget>
      </item>
@@ -374,6 +357,14 @@ p, li { white-space: pre-wrap; }
     </widget>
    </item>
   </layout>
+  <action name="actionClose">
+   <property name="text">
+    <string>Close</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+W</string>
+   </property>
+  </action>
  </widget>
  <tabstops>
   <tabstop>buttonBox</tabstop>
@@ -383,7 +374,6 @@ p, li { white-space: pre-wrap; }
   <tabstop>squareRowsSpinBox</tabstop>
   <tabstop>squareColsSpinBox</tabstop>
   <tabstop>zoomSpeedSlider</tabstop>
-  <tabstop>helixAddCheckBox</tabstop>
  </tabstops>
  <resources>
   <include location="dialogicons.qrc"/>
@@ -418,6 +408,22 @@ p, li { white-space: pre-wrap; }
     <hint type="destinationlabel">
      <x>286</x>
      <y>119</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>actionClose</sender>
+   <signal>activated()</signal>
+   <receiver>Preferences</receiver>
+   <slot>close()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>171</x>
+     <y>120</y>
     </hint>
    </hints>
   </connection>
