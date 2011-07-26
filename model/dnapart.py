@@ -367,19 +367,12 @@ class DNAPart(Part):
             vh.updateLengthsFrom5pEnds()
 
     def autoStaple(self):
-        vhs = self.getVirtualHelices()
+        """
+        getVirtualHelices now returns a generator so we need to call it twice
+        """
         self.undoStack().beginMacro("Auto Staple")
         
-        # for vh in vhs:
-        #     # Copy the scaffold strand's segments to the staple strand
-        #     vh.legacyClearStrand(StrandType.Staple, 1, vh.numBases()-1)
-        #     segments, ends3, ends5 = vh.getSegmentsAndEndpoints(StrandType.Scaffold)
-        #     for segStart, segEnd in segments:
-        #         vh.connectStrand(StrandType.Staple, segStart, segEnd)
-        #     for i in range(len(segments)-1):
-        #         segIEnd = segments[i][1]
-        #         if segIEnd + 1 == segments[i+1][0]:
-        #             vh.connectStrand(StrandType.Staple, segIEnd, segIEnd + 1)
+        # commits prior to 6eb16c3420b70a5f3966 for slower version of next bit
         
         # for speed
         def autoStaple_sub1(vh):
@@ -392,20 +385,10 @@ class DNAPart(Part):
                 if segIEnd + 1 == segments[i+1][0]:
                     vh.connectStrand(StrandType.Staple, segIEnd, segIEnd + 1)
         # end def
+        vhs = self.getVirtualHelices()
         map(autoStaple_sub1, vhs)
         
-        
-        # for vh in vhs:
-        #     # We only add crossovers for which vh will have the 3' end to
-        #     # avoid adding each crossover twice. We can do this by adding
-        #     # only crossovers that face left (or right) because all crossovers
-        #     # with 3' crossovers (or 5') will face either left or right
-        #     # on a given helix.
-        #     facingR = not vh.directionOfStrandIs5to3(StrandType.Staple)
-        #     pxovers = vh.potentialCrossoverList(facingR, StrandType.Staple)
-        #     for toVH, idx in pxovers:  # Loop through potential xovers
-        #         if vh.possibleNewCrossoverAt(StrandType.Staple, idx, toVH, idx):
-        #             vh.installXoverFrom3To5(StrandType.Staple, idx, toVH, idx)
+        # commits prior to 6eb16c3420b70a5f3966 for slower version of next bit
         
         # for speed part 2
         def autoStaple_sub2(vh):
@@ -421,6 +404,7 @@ class DNAPart(Part):
                     vh.installXoverFrom3To5(StrandType.Staple, idx, toVH, idx)
             map(loopXovers, pxovers)  # Loop through potential xovers
         # end def
+        vhs = self.getVirtualHelices()
         map(autoStaple_sub2, vhs)
         self.undoStack().endMacro()
     # end def
