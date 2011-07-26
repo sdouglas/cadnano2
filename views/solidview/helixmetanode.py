@@ -37,14 +37,11 @@ nodeName = "spHelixMetaNode"
 id = OpenMaya.MTypeId(0x3113)
 
 class HelixMetaNode(OpenMayaMPx.MPxNode):
-    
     scaleFrontAttr = OpenMaya.MObject()
     scaleBacktAttr = OpenMaya.MObject()
-    
     scaleAttr = OpenMaya.MObject()
     translateAttr = OpenMaya.MObject()
-    
-    inputMesh = OpenMaya.MObject();
+    inputMesh = OpenMaya.MObject()
     outputMesh = OpenMaya.MObject()
 
     def __init__(self):
@@ -55,79 +52,83 @@ class HelixMetaNode(OpenMayaMPx.MPxNode):
             #if plug == HelixMetaNode.outputMesh:
             handle = data.inputValue(HelixMetaNode.inputMesh)
             meshObj = handle.data()
-            fnMesh = OpenMaya.MFnMesh(meshObj)	
+            fnMesh = OpenMaya.MFnMesh(meshObj)
             fnMeshData = OpenMaya.MFnMeshData()
             outMeshDataObj = fnMeshData.create()
             outMeshObj = fnMesh.copy(meshObj, outMeshDataObj)
-            
-            
             #fnOutMesh = OpenMaya.MFnMesh(outMeshObj)
             handle = data.outputValue(HelixMetaNode.outputMesh)
             handle.setMObject(outMeshDataObj)
             handle.setClean()
             #data.setClean(plug)
-            
             #elif plug == HelixMetaNode.scaleAttr:
             rightData = data.inputValue(HelixMetaNode.scaleFrontAttr)
             leftData = data.inputValue(HelixMetaNode.scaleBacktAttr)
-            
             rightVal = rightData.asDouble()
             leftVal = leftData.asDouble()
             totalVal = rightVal + leftVal
-            
             scaleHandle = data.outputValue(HelixMetaNode.scaleAttr)
             scaleHandle.setDouble(totalVal)
-            
-            totalTranslation = (rightVal - leftVal);
-            
+            totalTranslation = (rightVal - leftVal)
             translateHandle = data.outputValue(HelixMetaNode.translateAttr)
-            translateHandle.setDouble(totalTranslation)            
-            
+            translateHandle.setDouble(totalTranslation)
             data.setClean(plug)
             #else:
             #    return OpenMaya.kUnknownParameter
         except:
             print "Error in %s\n" % nodeName
             raise
-
 def nodeCreator():
-    return OpenMayaMPx.asMPxPtr( HelixMetaNode() )
-
+    return OpenMayaMPx.asMPxPtr(HelixMetaNode())
 def nodeInitialize():
     #unitAttr = OpenMaya.MFnUnitAttribute()
-    typedAttr = OpenMaya.MFnTypedAttribute()    
-    HelixMetaNode.inputMesh = typedAttr.create( "inputMesh","im", OpenMaya.MFnData.kMesh)
-    HelixMetaNode.outputMesh = typedAttr.create("outputMesh", "out", OpenMaya.MFnData.kMesh)
+    typedAttr = OpenMaya.MFnTypedAttribute()
+    HelixMetaNode.inputMesh = typedAttr.create("inputMesh", \
+                                               "im", \
+                                               OpenMaya.MFnData.kMesh)
+    HelixMetaNode.outputMesh = typedAttr.create("outputMesh", \
+                                                "out", \
+                                                OpenMaya.MFnData.kMesh)
 
     nAttr = OpenMaya.MFnNumericAttribute()
-    HelixMetaNode.scaleFrontAttr = nAttr.create('scaleFront', 'sr', OpenMaya.MFnNumericData.kDouble, 0.0)
+    HelixMetaNode.scaleFrontAttr = nAttr.create('scaleFront', \
+                                    'sr', \
+                                    OpenMaya.MFnNumericData.kDouble, \
+                                    0.0)
     nAttr.setStorable(True)
-    HelixMetaNode.scaleBacktAttr = nAttr.create('scaleBack', 'sl', OpenMaya.MFnNumericData.kDouble, 0.0)
+    HelixMetaNode.scaleBacktAttr = nAttr.create('scaleBack', \
+                                    'sl', \
+                                    OpenMaya.MFnNumericData.kDouble, \
+                                    0.0)
     nAttr.setStorable(True)
-    
-    HelixMetaNode.scaleAttr = nAttr.create('scale', 's', OpenMaya.MFnNumericData.kDouble, 1.0)
+
+    HelixMetaNode.scaleAttr = nAttr.create('scale', \
+                                        's', \
+                                        OpenMaya.MFnNumericData.kDouble, \
+                                        1.0)
     nAttr.setWritable(False)
     nAttr.setStorable(False)
-    HelixMetaNode.translateAttr = nAttr.create('translate', 't', OpenMaya.MFnNumericData.kDouble, 1.0)
+    HelixMetaNode.translateAttr = nAttr.create('translate', \
+                                            't', \
+                                            OpenMaya.MFnNumericData.kDouble, \
+                                            1.0)
     nAttr.setWritable(False)
     nAttr.setStorable(False)
 
-
- 
-    HelixMetaNode.addAttribute(HelixMetaNode.inputMesh)    
+    HelixMetaNode.addAttribute(HelixMetaNode.inputMesh)
     HelixMetaNode.addAttribute(HelixMetaNode.outputMesh)
     HelixMetaNode.addAttribute(HelixMetaNode.scaleFrontAttr)
     HelixMetaNode.addAttribute(HelixMetaNode.scaleBacktAttr)
     HelixMetaNode.addAttribute(HelixMetaNode.scaleAttr)
     HelixMetaNode.addAttribute(HelixMetaNode.translateAttr)
-    
+
     HelixMetaNode.attributeAffects(HelixMetaNode.inputMesh, HelixMetaNode.outputMesh)
-    
+
     HelixMetaNode.attributeAffects(HelixMetaNode.scaleBacktAttr, HelixMetaNode.scaleAttr)
     HelixMetaNode.attributeAffects(HelixMetaNode.scaleFrontAttr, HelixMetaNode.scaleAttr)
     HelixMetaNode.attributeAffects(HelixMetaNode.scaleBacktAttr, HelixMetaNode.translateAttr)
     HelixMetaNode.attributeAffects(HelixMetaNode.scaleFrontAttr, HelixMetaNode.translateAttr)
-    
+
     HelixMetaNode.attributeAffects(HelixMetaNode.scaleAttr, HelixMetaNode.outputMesh)
     HelixMetaNode.attributeAffects(HelixMetaNode.scaleFrontAttr, HelixMetaNode.outputMesh)
     HelixMetaNode.attributeAffects(HelixMetaNode.scaleBacktAttr, HelixMetaNode.outputMesh)
@@ -148,5 +149,5 @@ def uninitializePlugin(obj):
     try:
         plugin.deregisterNode(id)
     except:
-        sys.stderr.write("Failed to deregister node %s\n" %    nodeName)
+        sys.stderr.write("Failed to deregister node %s\n" % nodeName)
         raise

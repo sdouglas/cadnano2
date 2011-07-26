@@ -43,138 +43,157 @@ from model.enum import StrandType
 import maya.OpenMayaUI as mui
 import maya.OpenMaya as mo
 import maya.cmds as cmds
-
-
 import util
-# import Qt stuff into the module namespace with PySide, PyQt4 independence
-util.qtWrapImport('QtCore', globals(), [ 'pyqtSignal', 'pyqtSlot', 'QObject'])
 
-# !!!!!!!!!!!!!
-# need to make sure that views\solidview folder is in the MAYA_PLUG_IN_PATH !!!
+# import Qt stuff into the module namespace with PySide, PyQt4 independence
+util.qtWrapImport('QtCore', globals(), ['pyqtSignal', 'pyqtSlot', 'QObject'])
 
 class SolidHelixGroup(QObject):
     """
-    A Solid Hinstance is meant to store helix data in Maya 
+    A Solid Hinstance is meant to store helix data in Maya
     representing a pathhelixgroup.
     """
     def __init__(self, dnaPartInst, htype=LatticeType.Honeycomb, controller=None, parent=None):
         """
         """
         super(SolidHelixGroup, self).__init__()
-        
         self.setPart(dnaPartInst)
-        
         pluginPath = os.path.join(os.environ['CADNANO_PATH'],  "views", "solidview", "helixmetanode.py")
-  
-        if(not cmds.pluginInfo(pluginPath, query=True, loaded=True )):
+
+        if(not cmds.pluginInfo(pluginPath, query=True, loaded=True)):
             cmds.loadPlugin(pluginPath)
-            
-        if(not cmds.pluginInfo(pluginPath, query=True, loaded=True )):
+
+        if(not cmds.pluginInfo(pluginPath, query=True, loaded=True)):
             print "HelixMetaNode failed to load"
             return
-            
+
         print "maya SolidHelixGroup created"
         self.type = htype
         self.mayaScale = 15.0
         self.mayaOrigin = (-self.mayaScale, self.mayaScale, 0.0)  # top left cornder of maya 3d scene X Y Z
-        self.helexRadius = 0.5
-        self.solidHelicesIndices= {}
-        self.solidHelicesIndicesCount = 1
-        
+        self.helixRadius = 0.5
+        self.solidHelicesIndices = {}
+        self.solidHelicesIndicesCount = 0
+
     def part(self):
+        # part
         return self._part
     def setPart(self, p):
+        # setPart
         self._part = p
         self._part.persistentDataChanged.connect(self.onPersistentDataChanged)
-        print "SolidHelixGroup.setPart: signals setup" 
-        
+        print "SolidHelixGroup.setPart: signals setup"
 
     def onPersistentDataChanged(self):
         # Update in the Model
-        #print "SolidHelixGroup.onPersistentDataChanged:"
+        # print "SolidHelixGroup.onPersistentDataChanged:"
         for h in self._part.getVirtualHelices():
-            myKey = '%d_%d'%( h.coord()[0], h.coord()[1])
-            if myKey not in self.solidHelicesIndices:
-                self.createNewHelix( h.coord()[0], h.coord()[1])
-            itemIndex = self.solidHelicesIndices[myKey]           
-            metaName = "HelixMetaNode%d" % itemIndex
-            #transformName = "DNAShapeTranform%d" % itemIndex
-            totalNumBases = h.numBases()
-            helixScale = self.mayaScale / totalNumBases
-            middleBase = totalNumBases/2
-            endpoints = h.getSegmentsAndEndpoints(StrandType.Scaffold)
-            direction = h.directionOfStrandIs5to3(StrandType.Scaffold)
-            segmentsCount = len(endpoints[1])
-            
-         
-            if(len(endpoints[2]) < 1):
-                return
-            elif(len(endpoints[1]) < 1):
-                return
-    
-            if direction:
-                right = (middleBase-endpoints[2][0])
-                left = (endpoints[1][segmentsCount-1]-middleBase)
-            else:
-                right = (middleBase-endpoints[1][0])
-                left = (endpoints[2][segmentsCount-1]-middleBase)
-                
-            #print "right, left %d,%d" % ( right, left)
+            myKey = '%d_%d' % (h.coord()[0], h.coord()[1])
 
-            cmds.setAttr("%s.scaleFront"%metaName, right*helixScale)
-            cmds.setAttr("%s.scaleBack"%metaName, left*helixScale)
-            #print metaName
-            #print h.getSegmentsAndEndpoints(StrandType.Scaffold)
-        
+            if myKey not in self.solidHelicesIndices:
+                self.createNewHelix(h.coord()[0], h.coord()[1], 1)
+            itemIndices = self.solidHelicesIndices[myKey]
+
+            endpoints = h.getSegmentsAndEndpoints(StrandType.Scaffold)
+            segmentsCount = len(endpoints[1])
+
+            if(segmentsCount < 1):
+                return
+
+            if (len(itemIndices) != segmentsCount):
+                # Delete current itemIndices
+                self.deleteHelix(h.coord()[0], h.coord()[1])
+                # create new indeces
+                self.createNewHelix( h.coord()[0], h.coord()[1], segmentsCount)
+
+            itemIndices = self.solidHelicesIndices[myKey] 
+
+            for seg in range(segmentsCount):
+                metaName = "HelixMetaNode%d" % itemIndices[seg]
+                #transformName = "DNAShapeTranform%d" % itemIndex
+                totalNumBases = h.numBases()
+                helixScale = self.mayaScale / totalNumBases
+                middleBase = totalNumBases/2
+                direction = h.directionOfStrandIs5to3(StrandType.Scaffold)
+
+                if direction:
+                    right = (middleBase-endpoints[2][seg])
+                    left = (endpoints[1][seg]-middleBase)
+                else:
+                    right = (middleBase-endpoints[1][seg])
+                    left = (endpoints[2][seg]-middleBase)
+
+                #print "right, left %d,%d" % ( right, left)
+
+                cmds.setAttr("%s.scaleFront"%metaName, right*helixScale)
+                cmds.setAttr("%s.scaleBack"%metaName, left*helixScale)
+                #print metaName
+                #print h.getSegmentsAndEndpoints(StrandType.Scaffold)
+
     def cadnanoToMayaCoords(self, row, col):
-        # origin
+        # cadnanoToMayaCoords
         if self.type == LatticeType.Honeycomb:
-            print "LatticeType.Honeycomb"
-            x = self.mayaOrigin[0] + (col * math.sqrt(3) * self.helexRadius)
+            #print "LatticeType.Honeycomb"
+            x = self.mayaOrigin[0] + (col * math.sqrt(3) * self.helixRadius)
             if ((row % 2) ^ (col % 2)): # odd parity
-                y = self.mayaOrigin[1] - (row * self.helexRadius * 3.0 + self.helexRadius )    
+                y = self.mayaOrigin[1] - (row * self.helixRadius * 3.0 + self.helixRadius )    
             else:
-                y = self.mayaOrigin[1] - (row * self.helexRadius * 3.0 )    
+                y = self.mayaOrigin[1] - (row * self.helixRadius * 3.0 )    
         # end if
         elif self.type == LatticeType.Square:
-            print "LatticeType.Square"
-            x = self.mayaOrigin[0] + (col * 2.0 * self.helexRadius)
-            y = self.mayaOrigin[1] - (row * 2.0 * self.helexRadius)      
+            #print "LatticeType.Square"
+            x = self.mayaOrigin[0] + (col * 2.0 * self.helixRadius)
+            y = self.mayaOrigin[1] - (row * 2.0 * self.helixRadius)      
         return (x, y)
-   
-    def createNewHelix(self, row, col):
-        # New Helex Added
-        print "SolidHelixGroup.onAtCoordsChanged: %d %d" % (row, col)
+
+    def deleteHelix(self, row, col):
+        # deleteHelix
+        myKey = '%d_%d'%(row, col)        
+        itemIndices = self.solidHelicesIndices[myKey]            
+
+        for i in range(len(itemIndices)):
+            cyninderName = "CylinderNode%d" % itemIndices[i]
+            transformName = "DNAShapeTranform%d" % itemIndices[i]
+            #meshName = "DNACylinderShape%d" % itemIndices[i]
+            #metaName = "HelixMetaNode%d" % itemIndices[i]
+            cmds.delete(cyninderName)
+            cmds.delete(transformName)
+            #cmds.delete(meshName)
+            #cmds.delete(metaName)
+
+    def createNewHelix(self, row, col, count=1):
+        # New Helix Added
+        #print "SolidHelixGroup.onAtCoordsChanged: %d %d" % (row, col)
         # figure out Maya Coordinates
         x, y = self.cadnanoToMayaCoords(row, col)
-        
-        print x, y
-        
-        self.solidHelicesIndicesCount += 1
-        self.solidHelicesIndices['%d_%d'%(row, col)] = self.solidHelicesIndicesCount
-        
-        print "solidHelicesIndices"
-        print self.solidHelicesIndices
-        
-        self.createCylinder(x, y, self.solidHelicesIndicesCount, self.type)
-            
+        indexList = []
+        for i in range(count):        
+            self.solidHelicesIndicesCount += 1
+            indexList.append( self.solidHelicesIndicesCount )
+            #print "solidHelicesIndices"
+            #print self.solidHelicesIndicesCount 
+            self.createCylinder(x, y, self.solidHelicesIndicesCount, self.type)
+
+        self.solidHelicesIndices['%d_%d'%(row, col)] = indexList
+
     def createCylinder(self, x, y, count, htype):
+        # createCylinder
         cyninderName = "CylinderNode%d" % count
         transformName = "DNAShapeTranform%d" % count
         meshName = "DNACylinderShape%d" % count
         metaName = "HelixMetaNode%d" % count
-        
+
         cmds.createNode("polyCylinder", name=cyninderName)
-        cmds.setAttr("%s.radius"%cyninderName, self.helexRadius)
+        cmds.setAttr("%s.radius"%cyninderName, self.helixRadius)
         cmds.createNode("transform", name=transformName)
         cmds.setAttr("%s.rotateX"%transformName, 90)
         cmds.setAttr("%s.translateX"%transformName, x)
         cmds.setAttr("%s.translateY"%transformName, y)
-               
+
         cmds.createNode("mesh", name=meshName, parent=transformName)
-        
+
         cmds.sets(meshName, add="initialShadingGroup")
-        
+
         cmds.createNode("spHelixMetaNode", name=metaName)
         cmds.connectAttr("%s.output" % cyninderName, "%s.inputMesh" % metaName)
         cmds.connectAttr("%s.outputMesh" % metaName, "%s.inMesh" % meshName)
