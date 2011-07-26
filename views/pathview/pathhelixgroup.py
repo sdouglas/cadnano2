@@ -417,7 +417,6 @@ class PathHelixGroup(QGraphicsObject):
         return None
 
     def vhelixBasesModified(self, vhelix):
-        self.update()
         ph = self.getPathHelix(vhelix)
         if ph != None:
             self.notifyLoopHandleGroupAfterUpdate(ph)

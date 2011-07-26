@@ -62,6 +62,7 @@ class ActiveSliceHandle(QGraphicsItem):
         # self.setFlag(QGraphicsItem.ItemStacksBehindParent)
         self.setAcceptHoverEvents(True)
         self.setZValue(styles.ZACTIVESLICEHANDLE)
+        self.setVisible(False)
 
     def controller(self):
         return self._pathHelixGroup.controller()

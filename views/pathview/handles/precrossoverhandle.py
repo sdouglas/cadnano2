@@ -90,6 +90,7 @@ class PreCrossoverHandle(QGraphicsItem):
         self.toVH = toVH
         self.toIdx = toIdx
         self.orientedLeft = orientedLeft
+        self.isEnabled = False  # True: draw with blue, False: draw with gray
 
         self.fromVH.basesModified.connect(self.updateVisibilityAndEnabledness)
         self.toVH.basesModified.connect(self.updateVisibilityAndEnabledness)
@@ -108,16 +109,9 @@ class PreCrossoverHandle(QGraphicsItem):
         self.labelRect = QRectF(labelX,\
                                 labelY,\
                                 self.baseWidth, self.baseWidth)
-        self._isLabelVisible = False
         self.updateVisibilityAndEnabledness()
     # end def
-        
-    def drawLabel(self, painter):
-        painter.setBrush(self.labelBrush)
-        painter.setFont(self.toHelixNumFont)
-        painter.drawText(self.labelRect, Qt.AlignCenter, str(self.toVH.number() ) )
-    # end def
-        
+
     def onTopStrand(self):
         return self.fromVH.evenParity() and self.fromStrand==StrandType.Scaffold or\
                not self.fromVH.evenParity() and self.fromStrand==StrandType.Staple
@@ -134,28 +128,28 @@ class PreCrossoverHandle(QGraphicsItem):
 
     def updateVisibilityAndEnabledness(self):
         shouldBeVisible = not self.crossoverExists()
-        self.setVisible(shouldBeVisible)
-        self._isLabelVisible = True
-        if self.couldFormNewCrossover():
-            self.labelBrush = self.enabbrush
-        else:
-            self.labelBrush = self.disabbrush
-        self.update()
+        if self.isVisible() != shouldBeVisible:
+            self.setVisible(shouldBeVisible)
+        shouldBeEnabled = self.couldFormNewCrossover()
+        if shouldBeEnabled != self.isEnabled:
+            self.isEnabled = shouldBeEnabled
+            self.update()
 
     def paint(self, painter, option, widget=None):
         #Look Up Table
         pathLUT = (_ppathRD, _ppathRU, _ppathLD, _ppathLU)
         path = pathLUT[2*int(self.orientedLeft) + int(self.onTopStrand())]
-        pen = self.disabpen
-        if self.couldFormNewCrossover():
-            if self.fromStrand == StrandType.Scaffold:
-                pen = self.scafpen
-            else:
-                pen = self.stappen
+        if self.isEnabled:
+            onScaffold = self.fromStrand == StrandType.Scaffold
+            pen = self.scafpen if onScaffold else self.stappen
+        else:
+            pen = self.disabpen
         painter.setPen(pen)
         painter.drawPath(path)
-        if self._isLabelVisible == True:
-            self.drawLabel(painter)
+        painter.setFont(self.toHelixNumFont)
+        painter.drawText(self.labelRect,\
+                         Qt.AlignCenter,\
+                         str(self.toVH.number() ) )
         
     def boundingRect(self):
         return self.rect
