@@ -366,7 +366,7 @@ p, li { white-space: pre-wrap; }
       <enum>Qt::Horizontal</enum>
      </property>
      <property name="standardButtons">
-      <set>QDialogButtonBox::Ok|QDialogButtonBox::RestoreDefaults</set>
+      <set>QDialogButtonBox::RestoreDefaults</set>
      </property>
      <property name="centerButtons">
       <bool>true</bool>

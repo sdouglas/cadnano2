@@ -2,8 +2,8 @@
 
 # Form implementation generated from reading ui file 'dialogs/preferences.ui'
 #
-# Created: Fri Jul 22 16:24:41 2011
-#      by: PyQt4 UI code generator snapshot-4.8.3-fbc8b1362812
+# Created: Tue Jul 26 08:10:07 2011
+#      by: PyQt4 UI code generator 4.7.7
 #
 # WARNING! All changes made in this file will be lost!
 
@@ -173,7 +173,7 @@ class Ui_Preferences(object):
         self.buttonBox = QtGui.QDialogButtonBox(Preferences)
         self.buttonBox.setInputMethodHints(QtCore.Qt.ImhNone)
         self.buttonBox.setOrientation(QtCore.Qt.Horizontal)
-        self.buttonBox.setStandardButtons(QtGui.QDialogButtonBox.Ok|QtGui.QDialogButtonBox.RestoreDefaults)
+        self.buttonBox.setStandardButtons(QtGui.QDialogButtonBox.RestoreDefaults)
         self.buttonBox.setCenterButtons(True)
         self.buttonBox.setObjectName(_fromUtf8("buttonBox"))
         self.verticalLayout.addWidget(self.buttonBox)
