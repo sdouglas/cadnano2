@@ -1596,7 +1596,7 @@ class VirtualHelix(QObject):
             #             newEndpts.append(pe)
             
             # speed up the above code block, 'set' uniqifies, deduplicates fast
-            newEndpts = list(set(filter(isEndpt, potentialNewEndpoints)))
+            newEndpts = potentialNewEndpoints = list(set(filter(isEndpt, potentialNewEndpoints)))
                 
             
             # print "New endpoints: [%s] [%s] <%s | %s>"%(" ".join(str(b._n)
@@ -1660,15 +1660,26 @@ class VirtualHelix(QObject):
             loopDict = self._vh._loop(self._strandType)
             for k, v in self.erasedLoopDictItems.iteritems():
                 loopDict[k] = v
-            for i in reversed(range(self.firstEmptiedBase, self.lastEmptiedBase+1)):
-                strand[i]._sequence = self.erasedSequenceItems.pop()
+                
+            # for i in reversed(range(self.firstEmptiedBase, self.lastEmptiedBase+1)):
+            #     strand[i]._sequence = self.erasedSequenceItems.pop()
+            for b in reversed(strand[self.firstEmptiedBase: self.lastEmptiedBase+1]):
+                b._sequence = self.erasedSequenceItems.pop()
+            
             if self.clearedEndL:
                 endBase = strand[endIdx]
                 endBase._unsetL(None, *ol.pop())
-            for i in reversed(range(self.firstBaseToEmpty, self.lastBaseToEmpty + 1)):
-                base = strand[i]
+            
+            # for i in reversed(range(self.firstBaseToEmpty, self.lastBaseToEmpty + 1)):
+            #     base = strand[i]
+            #     base._unsetR(None, *ol.pop())
+            #     base._unsetL(None, *ol.pop())
+            temp = reversed(strand[self.firstBaseToEmpty:self.lastBaseToEmpty + 1])
+            def unsetRL_sub(base, ol):
                 base._unsetR(None, *ol.pop())
                 base._unsetL(None, *ol.pop())
+            map(lambda b: unsetRL_sub(b, ol), temp)
+            
             if self.clearedStartR:
                 startBase = strand[startIdx]
                 startBase._unsetR(None, *ol.pop())

@@ -420,21 +420,21 @@ class DNAPart(Part):
         """docstring for getStapleSequences"""
         ret = "Start,End,Sequence,Length,Color\n"
         vhelices = self.getVirtualHelices()
-        oligo_ends = []
-        for vh in vhelices:
+        def gSS(vh):
             vh5 = vh
             # retrieve the 5 prime endpoints of the staple strands
             oligo_ends = vh.getEndpoints(StrandType.Staple)[1]
-            for endpoint in oligo_ends:
+            def oligo_end_sub(endpoint):
                 bases = vh5._basesConnectedTo(StrandType.Staple, endpoint)
-                sequencestring = ""
-                for base in bases:
+                def baseSeq(base):
                     # put the insertion first since it's already rcomp
                     if base.lazy_sequence() == (" ", " "):
-                        pass  # skip
+                        return ''  # skip
                     else:
-                        sequencestring += (base.lazy_sequence()[1] + \
-                                           base.lazy_sequence()[0])
+                        return base.lazy_sequence()[1] + \
+                                           base.lazy_sequence()[0]
+                
+                sequencestring = reduce(lambda x, y: x + y, map(baseSeq, bases), '')
                 # sequencestring = util.nowhite(sequencestring)
                 sequencestring = util.markwhite(sequencestring)
                 output = "%d[%d],%d[%d],%s,%s,%s\n" % \
@@ -445,10 +445,11 @@ class DNAPart(Part):
                         sequencestring, \
                         len(sequencestring), \
                         bases[0].getColor().name())
-                ret = ret + output
-            # end for each oligo
-        # end for each vh
-        return ret
+                return output
+            # end def
+            return reduce(lambda x, y: x + y, map(oligo_end_sub, oligo_ends), '')
+        # end def
+        return reduce(lambda x, y: x + y, map(gSS, vhelices), ret)
 
     ############################# VirtualHelix Private CRUD #############################
     def _recalculateStrandLengths(self):
