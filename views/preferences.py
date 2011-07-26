@@ -43,11 +43,20 @@ class Preferences():
         self.uiPrefs.squareStepsSpinBox.valueChanged.connect(self.setSquareSteps)
         self.uiPrefs.defaulttoolComboBox.currentIndexChanged.connect(self.setStartupTool)
         self.uiPrefs.zoomSpeedSlider.valueChanged.connect(self.setZoomSpeed)
-        self.uiPrefs.helixAddCheckBox.toggled.connect(self.setZoomToFitOnHelixAddition)
+        # self.uiPrefs.helixAddCheckBox.toggled.connect(self.setZoomToFitOnHelixAddition)
         self.uiPrefs.buttonBox.clicked.connect(self.handleButtonClick)
 
     def showDialog(self):
         self.dialog.exec_()
+        # self.dialog.show()  # launch prefs in mode-less dialog
+
+    def handleButtonClick(self, button):
+        """
+        Restores defaults. Other buttons are ignored because connections
+        are already set up in qt designer.
+        """
+        if self.uiPrefs.buttonBox.buttonRole(button) == QDialogButtonBox.ResetRole:
+            self.restoreDefaults()
 
     def readPreferences(self):
         self.qs.beginGroup("Preferences")
@@ -57,7 +66,7 @@ class Preferences():
         self.squareRows = self.qs.value("squareRows", styles.SQUARE_PART_MAXROWS).toInt()[0]
         self.squareCols = self.qs.value("squareCols", styles.SQUARE_PART_MAXCOLS).toInt()[0]
         self.squareSteps = self.qs.value("squareSteps", styles.SQUARE_PART_MAXSTEPS).toInt()[0]
-        self.startupTool = self.qs.value("startupTool", styles.PREF_STARTUP_TOOL_INDEX).toInt()[0]
+        self.startupToolIndex = self.qs.value("startupTool", styles.PREF_STARTUP_TOOL_INDEX).toInt()[0]
         self.zoomSpeed = self.qs.value("zoomSpeed", styles.PREF_ZOOM_SPEED).toInt()[0]
         self.zoomOnHelixAdd = self.qs.value("zoomOnHelixAdd", styles.PREF_ZOOM_AFTER_HELIX_ADD).toBool()
         self.qs.endGroup()
@@ -67,9 +76,9 @@ class Preferences():
         self.uiPrefs.squareRowsSpinBox.setProperty("value", self.squareRows)
         self.uiPrefs.squareColsSpinBox.setProperty("value", self.squareCols)
         self.uiPrefs.squareStepsSpinBox.setProperty("value", self.squareSteps)
-        self.uiPrefs.defaulttoolComboBox.setCurrentIndex(self.startupTool)
+        self.uiPrefs.defaulttoolComboBox.setCurrentIndex(self.startupToolIndex)
         self.uiPrefs.zoomSpeedSlider.setProperty("value", self.zoomSpeed)
-        self.uiPrefs.helixAddCheckBox.setChecked(self.zoomOnHelixAdd)
+        # self.uiPrefs.helixAddCheckBox.setChecked(self.zoomOnHelixAdd)
 
     def restoreDefaults(self):
         self.uiPrefs.honeycombRowsSpinBox.setProperty("value", styles.HONEYCOMB_PART_MAXROWS)
@@ -80,7 +89,7 @@ class Preferences():
         self.uiPrefs.squareStepsSpinBox.setProperty("value", styles.SQUARE_PART_MAXSTEPS)
         self.uiPrefs.defaulttoolComboBox.setCurrentIndex(styles.PREF_STARTUP_TOOL_INDEX)
         self.uiPrefs.zoomSpeedSlider.setProperty("value", styles.PREF_ZOOM_SPEED)
-        self.uiPrefs.helixAddCheckBox.setChecked(styles.PREF_ZOOM_AFTER_HELIX_ADD)
+        # self.uiPrefs.helixAddCheckBox.setChecked(styles.PREF_ZOOM_AFTER_HELIX_ADD)
 
     def setHoneycombRows(self, rows):
         self.honeycombRows = rows
@@ -119,9 +128,9 @@ class Preferences():
         self.qs.endGroup()
 
     def setStartupTool(self, index):
-        self.startupTool = index
+        self.startupToolIndex = index
         self.qs.beginGroup("Preferences")
-        self.qs.setValue("startupTool", self.startupTool)
+        self.qs.setValue("startupTool", self.startupToolIndex)
         self.qs.endGroup()
 
     def setZoomSpeed(self, speed):
@@ -130,17 +139,12 @@ class Preferences():
         self.qs.setValue("zoomSpeed", self.zoomSpeed)
         self.qs.endGroup()
 
-    def setZoomToFitOnHelixAddition(self, checked):
-        self.zoomOnHelixAdd = checked
-        self.qs.beginGroup("Preferences")
-        self.qs.setValue("zoomOnHelixAdd", self.zoomOnHelixAdd)
-        self.qs.endGroup()
+    # def setZoomToFitOnHelixAddition(self, checked):
+    #     self.zoomOnHelixAdd = checked
+    #     self.qs.beginGroup("Preferences")
+    #     self.qs.setValue("zoomOnHelixAdd", self.zoomOnHelixAdd)
+    #     self.qs.endGroup()
 
-    def handleButtonClick(self, button):
-        """
-        Restores defaults. Other buttons are ignored because connections
-        are already set up in qt designer.
-        """
-        if self.uiPrefs.buttonBox.buttonRole(button) == QDialogButtonBox.ResetRole:
-            self.restoreDefaults()
+    def getStartupToolName(self):
+        return ['Select', 'Pencil', 'Paint', 'AddSeq'][self.startupToolIndex]
 

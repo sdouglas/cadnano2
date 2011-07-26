@@ -27,7 +27,7 @@ document.py
 Created by Jonathan deWerd on 2011-01-26.
 """
 
-import json
+from cadnano import app
 from views import styles
 from .dnahoneycombpart import DNAHoneycombPart
 from .dnasquarepart import DNASquarePart
@@ -64,9 +64,9 @@ class Document(QObject):
         """
         dnapart = None
         if len(self._parts) == 0:
-            dnapart = DNAHoneycombPart(maxRow=styles.HONEYCOMB_PART_MAXROWS,\
-                                       maxCol=styles.HONEYCOMB_PART_MAXCOLS,\
-                                       maxSteps=styles.HONEYCOMB_PART_MAXSTEPS)
+            dnapart = DNAHoneycombPart(maxRow=app().prefs.honeycombRows,\
+                                       maxCol=app().prefs.honeycombCols,\
+                                       maxSteps=app().prefs.honeycombSteps)
             self.addPart(dnapart)
         return dnapart
 
@@ -76,9 +76,9 @@ class Document(QObject):
         """
         dnapart = None
         if len(self._parts) == 0:
-            dnapart = DNASquarePart(maxRow=styles.SQUARE_PART_MAXROWS,\
-                                    maxCol=styles.SQUARE_PART_MAXCOLS,\
-                                    maxSteps=styles.SQUARE_PART_MAXSTEPS)
+            dnapart = DNASquarePart(maxRow=app().prefs.squareRows,\
+                                    maxCol=app().prefs.squareCols,\
+                                    maxSteps=app().prefs.squareSteps)
             self.addPart(dnapart)
         return dnapart
 

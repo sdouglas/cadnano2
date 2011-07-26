@@ -114,7 +114,6 @@ class DocumentController():
         return self._document
 
     def setDocument(self, doc):
-        
         self._document = doc
         doc.setController(self)
         doc.partAdded.connect(self.docPartAddedEvent)
@@ -388,7 +387,7 @@ class DocumentController():
         self.pathHelixGroup = PathHelixGroup(part,\
                                          controller=self.win.pathController,\
                                          parent=self.win.pathroot)
-                                         
+
         if app().isInMaya():
             self.solidHelixGrp = SolidHelixGroup(part, controller=self.win.pathController, htype=part.crossSectionType())
 

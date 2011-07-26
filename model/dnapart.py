@@ -569,9 +569,8 @@ class DNAPart(Part):
             self._part.virtualHelixAtCoordsChanged.emit(self._coords[0],\
                                                         self._coords[1])
         # end def
-
     # end class
-                                                        
+
 
     class RenumberHelixCommand(QUndoCommand):
         def __init__(self, dnapart, coords, newNumber):
