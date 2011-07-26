@@ -84,9 +84,10 @@ class PathController(QObject):
         tools = ('Select', 'Paint', 'Break', 'Erase', 'Insert', 'Skip',\
                  'Pencil', 'AddSeq')
         ag = QActionGroup(win)
-        for toolName in tools:
-            toolAction = installTool(toolName, win)
-            ag.addAction(toolAction)
+        # for toolName in tools:
+        #     toolAction = installTool(toolName, win)
+        #     ag.addAction(toolAction)
+        map((lambda toolName: ag.addAction(installTool(toolName, win))), tools) 
         ag.setExclusive(True)
         if os.environ.get('CADNANO_PENCIL_FIRST', False) and not ignoreEnv():
             self.choosePencilTool()

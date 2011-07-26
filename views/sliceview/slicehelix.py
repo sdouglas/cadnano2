@@ -74,6 +74,7 @@ class SliceHelix(QGraphicsItem):
         self.undoStack = self._parent.sliceController.mainWindow.undoStack
         self.setFlag(QGraphicsItem.ItemIsSelectable)
         self.setZValue(styles.ZSLICEHELIX)
+        self.lastMousePressAddedBases = False
 
     def part(self):
         return self._parent.part()
@@ -161,29 +162,6 @@ class SliceHelix(QGraphicsItem):
         QGraphicsItem.sceneEvent(self, event)
         return False
 
-    def mousePressEvent(self, event):
-        self.activate(event.modifiers())
-
-    def activate(self, modifiers):
-        self.createOrAddBasesToVirtualHelix(\
-            addBases=True,\
-            addToScaffold=not (int(modifiers)==Qt.ShiftModifier))
-        if modifiers & Qt.ShiftModifier:
-            self.virtualHelix().setSelected(True)
-        else:
-            self.part().setSelection((self.virtualHelix(),))
-
-    def mouseMoveEvent(self, event):
-        parent = self._parent
-        posInParent = parent.mapFromItem(self, event.pos())
-        # Qt doesn't have any way to ask for graphicsitem(s) at a
-        # particular position but it *can* do intersections, so we
-        # just use those instead
-        parent.probe.setPos(posInParent)
-        for ci in parent.probe.collidingItems():
-            if isinstance(ci, SliceHelix):
-                ci.activate(event.modifiers())
-
     def selectAllBehavior(self):
         # If the selection is configured to always select
         # everything, we don't draw a focus ring around everything,
@@ -204,26 +182,100 @@ class SliceHelix(QGraphicsItem):
         if self.selectAllBehavior():
             self.setSelected(False)
 
+    def mousePressEvent(self, event):
+        action = self.decideAction(event.modifiers())
+        action(self)
+        self.dragSessionAction = action
+
+    def mouseMoveEvent(self, event):
+        parent = self._parent
+        posInParent = parent.mapFromItem(self, event.pos())
+        # Qt doesn't have any way to ask for graphicsitem(s) at a
+        # particular position but it *can* do intersections, so we
+        # just use those instead
+        parent.probe.setPos(posInParent)
+        for ci in parent.probe.collidingItems():
+            if isinstance(ci, SliceHelix):
+                self.dragSessionAction(ci)
+
     def mouseReleaseEvent(self, event):
         self.part().needsFittingToView.emit()
 
+    def decideAction(self, modifiers):
+        """ On mouse press, an action (add scaffold at the active slice, add
+        segment at the active slice, or create virtualhelix if missing) is
+        decided upon and will be applied to all other slices happened across by
+        mouseMoveEvent. The action is returned from this method in the form of a
+        callable function."""
+        vh = self.virtualHelix()
+        if vh == None: return SliceHelix.addVHIfMissing
+        index = self.part().activeSlice()
+        if modifiers & Qt.ShiftModifier:
+            if not vh.hasStrandAt(StrandType.Staple, index):
+                return SliceHelix.addStapAtActiveSliceIfMissing
+            else:
+                return SliceHelix.nop
+        if not vh.hasStrandAt(StrandType.Scaffold, index):
+            return SliceHelix.addScafAtActiveSliceIfMissing
+        return SliceHelix.nop
+
+    def nop(self):
+        pass
+    def addScafAtActiveSliceIfMissing(self):
+        vh = self.virtualHelix()
+        if vh == None: return
+        index = self.part().activeSlice()
+        if vh.hasStrandAt(StrandType.Scaffold, index): return
+        vh.connectStrand(StrandType.Scaffold, index - 1, index + 1)
+    def addStapAtActiveSliceIfMissing(self):
+        vh = self.virtualHelix()
+        if vh == None: return
+        index = self.part().activeSlice()
+        if vh.hasStrandAt(StrandType.Staple, index): return
+        vh.connectStrand(StrandType.Staple, index - 1, index + 1)
+    def addVHIfMissing(self):
+        vh = self.virtualHelix()
+        if vh != None: return
+        coord = (self._row, self._col)
+        index = self.part().activeSlice()
+        undoStack = self.part().undoStack()
+        undoStack.beginMacro("Add VH")
+        vh = VirtualHelix(numBases=self.part().crossSectionStep())
+        self.part().addVirtualHelixAt(coord, vh)
+        vh.connectStrand(StrandType.Scaffold, index - 1, index + 1)
+        undoStack.endMacro()
+        vh.basesModified.connect(self.update)
+
     def createOrAddBasesToVirtualHelix(self, addBases=False,\
-                                             addToScaffold=False):
+                                       addToScaffold=False, isPress=True):
         coord = (self._row, self._col)
         vh = self.virtualHelix()
         index = self.part().activeSlice()
         undoStack = self.part().undoStack()
-        if not vh:
+        shouldCreateVH = vh == None
+        if vh != None:
+            hasScaf = vh.hasStrandAt(StrandType.Scaffold, index)
+            shouldConnectScaf = addBases and addToScaffold and not hasScaf
+            hasStap = vh.hasStrandAt(StrandType.Staple, index)
+            shouldConnectStap = addBases and not addBases and not hasStap
+        else:
+            shouldConnectStap = shouldConnectScaf = False
+        if isPress: self.lastMousePressAddedBases = False
+        if shouldCreateVH:
             undoStack.beginMacro("Add helix")
             vh = VirtualHelix(numBases=self.part().crossSectionStep())
             self.part().addVirtualHelixAt(coord, vh)
             vh.basesModified.connect(self.update)
             if len(self.part()) <= 5:
                 self.part().needsFittingToView.emit()
-        else:
+            undoStack.endMacro()
+        elif shouldConnectScaf:
             undoStack.beginMacro("Connect segment")
-        if addBases and addToScaffold:
             vh.connectStrand(StrandType.Scaffold, index - 1, index + 1)
-        elif addBases and not addToScaffold:
+            undoStack.endMacro()
+            if isPress: self.lastMousePressAddedBases = True
+        elif shouldConnectStap:
+            undoStack.beginMacro("Connect segment")
             vh.connectStrand(StrandType.Staple, index - 1, index + 1)
-        self.undoStack().endMacro()
+            undoStack.endMacro()
+            if isPress: self.lastMousePressAddedBases = True

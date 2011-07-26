@@ -50,7 +50,7 @@ class Base(object):
         self._strandtype = strandtype
         self._n = index
         self._floatingXoverDestination = None
-        self._strandLength = 0
+        self._shouldHighlight = True
         self._sequence = " "
 
     def __str__(self):
@@ -401,6 +401,8 @@ class Base(object):
             return styles.bluestroke
         if self._color == None:
             self._color = QColor()
+        if type(self._color) == bool:
+            osantehusneaho
         return self._color
 
     def isEmpty(self):
