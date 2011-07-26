@@ -36,7 +36,7 @@ from .enum import LatticeType
 import util
 # import Qt stuff into the module namespace with PySide, PyQt4 independence
 util.qtWrapImport('QtCore', globals(), ['pyqtSignal', 'QObject'])
-util.qtWrapImport('QtGui', globals(), [ 'QUndoCommand'])
+util.qtWrapImport('QtGui', globals(), [ 'QUndoCommand', 'QUndoStack'])
 
 class Document(QObject):
     def __init__(self, incompleteArchivedDict=None, legacyJsonImport=False):
@@ -45,6 +45,8 @@ class Document(QObject):
         self._selectedPart = None
         self._controller = None
         self._importedFromJson = legacyJsonImport
+        # Should use _controller's undo stack if there is a controller
+        self._undoStack = None
     
     def fsck(self):
         for p in self._parts:
@@ -120,7 +122,8 @@ class Document(QObject):
     def undoStack(self):
         if self.controller():
             return self.controller().undoStack()
-        return None
+        self._undoStack = QUndoStack()
+        return self._undoStack
 
     ################### Transient (doesn't get saved) State ##################
     selectedPartChanged = pyqtSignal(object)

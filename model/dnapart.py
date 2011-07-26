@@ -248,7 +248,7 @@ class DNAPart(Part):
     def finishInitWithArchivedDict(self, completeArchivedDict):
         row, col, mb = self.dimensions()
         vh = completeArchivedDict['virtualHelices'][0][2]
-        self.setDimensions((row, col, vh.numBases()))
+        self.setDimensions((row, col, vh.numBases()), useUndoStack=False)
         for coord, num, vh in completeArchivedDict['virtualHelices']:
             if num % 2:
                 self.highestUsedOdd = max(self.highestUsedOdd, num)

@@ -101,11 +101,10 @@ def doc_from_legacy_dict(obj):
             numRows, numCols = 30, 30
     else:
         raise TypeError("Lattice type not recognized")
-    part.setDimensions((numRows, numCols, numBases))
-
-    part.setName(obj["name"])
     doc = Document(legacyJsonImport=True)
     doc.addPart(part)
+    part.setDimensions((numRows, numCols, numBases))
+    part.setName(obj["name"])
 
     for helix in obj['vstrands']:
         row = helix['row']
@@ -214,6 +213,7 @@ def doc_from_legacy_dict(obj):
             if combinedLoopSkipAmount != 0:
                 vh.installLoop(StrandType.Scaffold, i, combinedLoopSkipAmount,\
                                useUndoStack=False, speedy=True)
+    part.needsFittingToView.emit()
     return doc
 
 def isSegmentStartOrEnd(strandType, vhNum, baseIdx, fiveVH, fiveIdx, threeVH, threeIdx):

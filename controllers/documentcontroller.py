@@ -54,7 +54,10 @@ class DocumentController():
     """
     def __init__(self, doc=None, fname=None):
         app().documentControllers.add(self)
-        self._undoStack = QUndoStack()
+        if doc != None and doc._undoStack != None:
+            self._undoStack = doc._undoStack
+        else:
+            self._undoStack = QUndoStack()
         self._undoStack.setClean()
         self._undoStack.cleanChanged.connect(\
             self.undoStackCleanStatusChangedSlot)
