@@ -186,12 +186,35 @@ class DNAPart(Part):
 
     dimensionsWillChange = pyqtSignal(object)
     dimensionsDidChange = pyqtSignal()
-    def setDimensions(self, newDim):
-        self.dimensionsWillChange.emit(newDim)
-        self._maxRow, self._maxCol, self._maxBase = newDim
-        for n in self._numberToVirtualHelix:
-            self._numberToVirtualHelix[n].setNumBases(self._maxBase)
-        self.dimensionsDidChange.emit()
+    def setDimensions(self, newDim, useUndoStack=True, undoStack=None):
+        c = DNAPart.SetDimensionsCommand(self, newDim)
+        if useUndoStack:
+            if undoStack == None:
+                undoStack = self.undoStack()
+            undoStack.push(c)
+        else:
+            c.redo()
+    class SetDimensionsCommand(QUndoCommand):
+        def __init__(self, part, newDim):
+            QUndoCommand.__init__(self)
+            self.newDim = newDim
+            self.part = part
+        def redo(self, actuallyUndo=False):
+            dimToChangeTo, part = self.newDim, self.part
+            self.oldDim = part.dimensions()
+            part._maxRow, part._maxCol, part._maxBase = dimToChangeTo
+            subCommands = []
+            for vh in part._numberToVirtualHelix.itervalues():
+                c = vh.SetNumBasesCommand(vh, part._maxBase)
+                c.redo()
+                subCommands.append(c)
+            self.subCommands = subCommands
+            part.dimensionsDidChange.emit()
+        def undo(self):
+            dimToChangeTo, part = self.oldDim, self.part
+            part._maxRow, part._maxCol, part._maxBase = dimToChangeTo
+            for c in reversed(self.subCommands):
+                c.undo()
 
     def majorGrid(self):
         return self._majorGridLine
