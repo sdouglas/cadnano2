@@ -353,6 +353,15 @@ class Base(object):
                                                         (base._3pBase.vhelix(), base._3pBase._n), \
                                                         base._strandtype )
                     break
+        # optimizing stuff
+        # fbase = filter(lambda b: True if b != None and b._hasCrossover3p() and \
+        #                 not b.floatingXoverDestination() else False, bases)
+        # if len(fbase) > 0:
+        #     base = fbase[0]
+        #     self._vhelix.part().createXover.emit((base.vhelix(), base._n) ,\
+        #                                         (base._3pBase.vhelix(), base._3pBase._n), \
+        #                                         base._strandtype )
+        
                     
     def isXoverCreated5p(self, bases):
         # print "I got called 5"
@@ -363,6 +372,14 @@ class Base(object):
                                                         (base.vhelix(), base._n), \
                                                         base._strandtype )
                     break
+        # optimizing stuff
+        # fbase = filter(lambda b: True if b != None and b._hasCrossover5p() \
+        #                                 else False, bases)
+        # if len(fbase) > 0:
+        #     base = fbase[0]
+        #     self._vhelix.part().createXover.emit((base._5pBase.vhelix(), base._5pBase._n) , \
+        #                                         (base.vhelix(), base._n), \
+        #                                         base._strandtype )
 
     def vhelix(self):
         return self._vhelix
