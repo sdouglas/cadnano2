@@ -433,7 +433,7 @@ class DNAPart(Part):
         # for vh in vhs:
         #     vh.autoDragAllBreakpoints(StrandType.Scaffold)
         map(VirtualHelix.autoDragAllBreakpoints, vhs, \
-                            itertools.repeat(StrandType.Scaffold, len(vhs)))
+                            itertools.repeat(StrandType.Scaffold, len(self._numberToVirtualHelix)))
         self.undoStack().endMacro()
 
     def indexOfRightmostNonemptyBase(self):
