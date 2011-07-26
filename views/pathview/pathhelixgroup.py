@@ -320,13 +320,14 @@ class PathHelixGroup(QGraphicsObject):
         vhs.remove(num)
         vhs.insert(idx, num)
         self.setDisplayedVHs(vhs, zoomToFit=False)
-        
+
     def renumber(self):
         self.part().matchHelixNumberingToPhgDisplayOrder(self)
     # end def
 
     def zoomToFit(self):
         # Auto zoom to center the scene
+        print "in zoomToFit:", self.parent
         thescene = self.scene()
         theview = thescene.views()[0]
         theview.zoomToFit()

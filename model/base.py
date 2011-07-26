@@ -50,7 +50,7 @@ class Base(object):
         self._strandtype = strandtype
         self._n = index
         self._floatingXoverDestination = None
-        self._strandLength = 0
+        self._shouldHighlight = True
         self._sequence = " "
 
     def __str__(self):

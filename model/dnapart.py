@@ -187,12 +187,35 @@ class DNAPart(Part):
 
     dimensionsWillChange = pyqtSignal(object)
     dimensionsDidChange = pyqtSignal()
-    def setDimensions(self, newDim):
-        self.dimensionsWillChange.emit(newDim)
-        self._maxRow, self._maxCol, self._maxBase = newDim
-        for n in self._numberToVirtualHelix:
-            self._numberToVirtualHelix[n].setNumBases(self._maxBase)
-        self.dimensionsDidChange.emit()
+    def setDimensions(self, newDim, useUndoStack=True, undoStack=None):
+        c = DNAPart.SetDimensionsCommand(self, newDim)
+        if useUndoStack:
+            if undoStack == None:
+                undoStack = self.undoStack()
+            undoStack.push(c)
+        else:
+            c.redo()
+    class SetDimensionsCommand(QUndoCommand):
+        def __init__(self, part, newDim):
+            QUndoCommand.__init__(self)
+            self.newDim = newDim
+            self.part = part
+        def redo(self, actuallyUndo=False):
+            dimToChangeTo, part = self.newDim, self.part
+            self.oldDim = part.dimensions()
+            part._maxRow, part._maxCol, part._maxBase = dimToChangeTo
+            subCommands = []
+            for vh in part._numberToVirtualHelix.itervalues():
+                c = vh.SetNumBasesCommand(vh, part._maxBase)
+                c.redo()
+                subCommands.append(c)
+            self.subCommands = subCommands
+            part.dimensionsDidChange.emit()
+        def undo(self):
+            dimToChangeTo, part = self.oldDim, self.part
+            part._maxRow, part._maxCol, part._maxBase = dimToChangeTo
+            for c in reversed(self.subCommands):
+                c.undo()
 
     def majorGrid(self):
         return self._majorGridLine
@@ -227,7 +250,7 @@ class DNAPart(Part):
     def finishInitWithArchivedDict(self, completeArchivedDict):
         row, col, mb = self.dimensions()
         vh = completeArchivedDict['virtualHelices'][0][2]
-        self.setDimensions((row, col, vh.numBases()))
+        self.setDimensions((row, col, vh.numBases()), useUndoStack=False)
         for coord, num, vh in completeArchivedDict['virtualHelices']:
             if num % 2:
                 self.highestUsedOdd = max(self.highestUsedOdd, num)
@@ -477,12 +500,18 @@ class DNAPart(Part):
             if b==None:
                 continue
             basesConnectedToB = b._vhelix._basesConnectedTo(b._strandtype, b._n)
+            if not basesConnectedToB:
+                continue
             # Remove this strand from modifiedBases
             modifiedBases.difference_update(basesConnectedToB)
             lengthOfStrand = len(basesConnectedToB)
+            circular = basesConnectedToB[0]._5pBase != None
+            tooLong = lengthOfStrand > styles.oligoLenAboveWhichHighlight
+            tooShort = lengthOfStrand < styles.oligoLenBelowWhichHighlight
+            isStap = b._strandtype == StrandType.Staple
+            highlight = isStap and (tooShort or tooLong or circular)
             for baseInStrand in basesConnectedToB:
-                baseInStrand._strandLength = lengthOfStrand
-            b._strandLength = lengthOfStrand
+                baseInStrand._shouldHighlight = highlight
 
     class AddHelixCommand(QUndoCommand):
         """
@@ -562,9 +591,8 @@ class DNAPart(Part):
             self._part.virtualHelixAtCoordsChanged.emit(self._coords[0],\
                                                         self._coords[1])
         # end def
-
     # end class
-                                                        
+
 
     class RenumberHelixCommand(QUndoCommand):
         def __init__(self, dnapart, coords, newNumber):

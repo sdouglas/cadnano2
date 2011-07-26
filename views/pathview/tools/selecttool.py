@@ -210,16 +210,16 @@ class SelectTool(AbstractPathTool):
             return (0, maxBase)
         l, r = startIdx, startIdx
         while l > 0:
-            proposedBaseHasLNeighbor = vh.hasNeighborL(strandType, l-1)
-            proposedBaseHasRNeighbor = vh.hasNeighborR(strandType, l-1)
+            proposedBaseHasLNeighbor = vh.connectsToNatL(strandType, l-1)
+            proposedBaseHasRNeighbor = vh.connectsToNatR(strandType, l-1)
             if proposedBaseHasRNeighbor == proposedBaseHasLNeighbor:
                 l = l - 1
             else:
                 break
         maxBase = vh.numBases()-1
         while r < maxBase:
-            proposedBaseHasLNeighbor = vh.hasNeighborL(strandType, r+1)
-            proposedBaseHasRNeighbor = vh.hasNeighborR(strandType, r+1)
+            proposedBaseHasLNeighbor = vh.connectsToNatL(strandType, r+1)
+            proposedBaseHasRNeighbor = vh.connectsToNatR(strandType, r+1)
             if proposedBaseHasRNeighbor == proposedBaseHasLNeighbor:
                 r = r + 1
             else:

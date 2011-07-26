@@ -37,7 +37,7 @@ from views.pathview.handles.activeslicehandle import ActiveSliceHandle
 from views import styles
 
 if app().isInMaya():
-	from views.solidview.solidhelixgroup import SolidHelixGroup
+    from views.solidview.solidhelixgroup import SolidHelixGroup
 
 import util
 # import Qt stuff into the module namespace with PySide, PyQt4 independence
@@ -54,7 +54,10 @@ class DocumentController():
     """
     def __init__(self, doc=None, fname=None):
         app().documentControllers.add(self)
-        self._undoStack = QUndoStack()
+        if doc != None and doc._undoStack != None:
+            self._undoStack = doc._undoStack
+        else:
+            self._undoStack = QUndoStack()
         self._undoStack.setClean()
         self._undoStack.cleanChanged.connect(\
             self.undoStackCleanStatusChangedSlot)
@@ -111,7 +114,6 @@ class DocumentController():
         return self._document
 
     def setDocument(self, doc):
-        
         self._document = doc
         doc.setController(self)
         doc.partAdded.connect(self.docPartAddedEvent)
@@ -385,7 +387,7 @@ class DocumentController():
         self.pathHelixGroup = PathHelixGroup(part,\
                                          controller=self.win.pathController,\
                                          parent=self.win.pathroot)
-                                         
+
         if app().isInMaya():
             self.solidHelixGrp = SolidHelixGroup(part, controller=self.win.pathController, htype=part.crossSectionType())
 

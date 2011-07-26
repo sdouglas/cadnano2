@@ -36,11 +36,8 @@ CustomQGraphicsView.py
 Copyright (c) 2010 . All rights reserved.
 
 """
-
+from cadnano import app
 from views import styles
-
-# from PyQt4.QtCore import *
-# from PyQt4.QtGui import *
 
 import util
 # import Qt stuff into the module namespace with PySide, PyQt4 independence
@@ -249,7 +246,8 @@ class CustomQGraphicsView(QGraphicsView):
     def safeScale(self, delta):
         currentScaleLevel = self.transform().m11()
         scaleFactor = 1 + delta * \
-           (self._scaleDownRate if delta < 0 else self._scaleUpRate)
+           (self._scaleDownRate if delta < 0 else self._scaleUpRate) * \
+           (app().prefs.zoomSpeed/100.)
         newScaleLevel = currentScaleLevel * scaleFactor
         newScaleLevel = util.clamp(currentScaleLevel * scaleFactor,\
                               self._scale_limit_min,\

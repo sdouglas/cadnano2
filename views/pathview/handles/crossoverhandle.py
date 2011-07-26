@@ -288,9 +288,7 @@ class XoverHandlePair(QGraphicsItem):
         self._pen.setWidth(styles.PATH_STRAND_STROKE_WIDTH)
         self._pen.setCapStyle(Qt.SquareCap)
         if self._fromStrand == StrandType.Staple:
-            oligoLength = self._fromVH.numberOfBasesConnectedTo(self._fromStrand, self._fromIdx)
-            if oligoLength > styles.oligoLenAboveWhichHighlight or \
-               oligoLength < styles.oligoLenBelowWhichHighlight:
+            if self._fromVH.shouldHighlight(self._fromStrand, self._fromIdx):
                 self._pen.setWidth(styles.PATH_STRAND_HIGHLIGHT_STROKE_WIDTH)
                 color.setAlpha(128)
                 self._pen.setColor(color)
