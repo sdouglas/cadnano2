@@ -396,12 +396,11 @@ class VirtualHelix(QObject):
         #          if not strand[i].isEmpty():
         #              ret = max(ret, i)
         #  return ret
-        ret = -1
-        for strandType in (StrandType.Scaffold, StrandType.Staple):
-            strand = self._strand(strandType)
-            filteredStrand = filter(lambda b: not b.isEmpty(), strand)
-            ret = max(ret, filteredStrand[len(filteredStrand)-1]._n)
-        return ret
+        filtScaffold = max(map(lambda b: b._n if not b.isEmpty() else -1, \
+                                            self._strand(StrandType.Scaffold)))
+        filtStaple = max(map(lambda b: b._n if not b.isEmpty() else -1, \
+                                            self._strand(StrandType.Staple)))
+        return max(filtScaffold, filtStaple)
 
     def hasBaseAt(self, strandType, index):
         """Returns true if a base is present at index on strand strandtype."""
