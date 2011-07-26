@@ -462,12 +462,18 @@ class DNAPart(Part):
             if b==None:
                 continue
             basesConnectedToB = b._vhelix._basesConnectedTo(b._strandtype, b._n)
+            if not basesConnectedToB:
+                continue
             # Remove this strand from modifiedBases
             modifiedBases.difference_update(basesConnectedToB)
             lengthOfStrand = len(basesConnectedToB)
+            circular = basesConnectedToB[0]._5pBase != None
+            tooLong = lengthOfStrand > styles.oligoLenAboveWhichHighlight
+            tooShort = lengthOfStrand < styles.oligoLenBelowWhichHighlight
+            isStap = b._strandtype == StrandType.Staple
+            highlight = isStap and (tooShort or tooLong or circular)
             for baseInStrand in basesConnectedToB:
-                baseInStrand._strandLength = lengthOfStrand
-            b._strandLength = lengthOfStrand
+                baseInStrand._shouldHighlight = highlight
 
     class AddHelixCommand(QUndoCommand):
         """

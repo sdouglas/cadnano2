@@ -682,8 +682,8 @@ class VirtualHelix(QObject):
         # print "colorOfBase", idx, c.name(), self._stapleBases[idx].getColor()
         return self._strand(strandType)[idx].getColor()
 
-    def numberOfBasesConnectedTo(self, strandType, idx):
-        return self._strand(strandType)[idx]._strandLength
+    def shouldHighlight(self, strandType, idx):
+        return self._strand(strandType)[idx]._shouldHighlight
 
     def sequenceForVirtualStrand(self, strandType):
         if strandType == StrandType.Scaffold:

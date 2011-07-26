@@ -518,12 +518,7 @@ class PathHelix(QGraphicsObject):
             segments, ends3, ends5 = self._vhelix.getSegmentsAndEndpoints(strandType)
             # print "[%i:%s] "%(vh.number(), "scaf" if strandType==StrandType.Scaffold else "stap") + " ".join(str(b) for b in segments)
             for (startIndex, endIndex) in segments:
-                numBasesInOligo = vh.numberOfBasesConnectedTo(strandType,\
-                                                              int(startIndex))
-                highlight = (numBasesInOligo > styles.oligoLenAboveWhichHighlight or\
-                             numBasesInOligo < styles.oligoLenBelowWhichHighlight) and\
-                             strandType == StrandType.Staple
-
+                highlight = vh.shouldHighlight(strandType, int(startIndex))
                 startPt = self.baseLocation(strandType, startIndex, centerY=True)
                 endPt = self.baseLocation(strandType, endIndex, centerY=True)
 
@@ -543,11 +538,9 @@ class PathHelix(QGraphicsObject):
                 pp.lineTo(*endPt)
                 color = vh.colorOfBase(strandType, int(startIndex))
                 width = styles.PATH_STRAND_STROKE_WIDTH
-                if numBasesInOligo > styles.oligoLenAboveWhichHighlight or\
-                   numBasesInOligo < styles.oligoLenBelowWhichHighlight:
-                    if strandType == StrandType.Staple:
-                        color.setAlpha(128)
-                        width = styles.PATH_STRAND_HIGHLIGHT_STROKE_WIDTH
+                if highlight:
+                    color.setAlpha(128)
+                    width = styles.PATH_STRAND_HIGHLIGHT_STROKE_WIDTH
                 else:
                     color.setAlpha(255)
                 pen = QPen(color, width)
