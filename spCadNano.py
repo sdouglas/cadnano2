@@ -1,4 +1,5 @@
-import os, sys
+import os
+import sys
 import maya
 import maya.OpenMaya as OpenMaya
 import maya.OpenMayaMPx as OpenMayaMPx
@@ -12,7 +13,7 @@ import mayaHotKeys
 import mayaUI
 
 import util
-util.qtWrapImport('QtGui', globals(), [ 'qApp', 'QDockWidget', 'QSizePolicy' ])
+util.qtWrapImport('QtGui', globals(), ['qApp', 'QDockWidget', 'QSizePolicy'])
 
 util.qtWrapImport('QtCore', globals(), ['Qt', 'QObject'])
 
@@ -22,45 +23,60 @@ gCadNanoToolbar = None
 fMayaExitingCB = None
 
 gCadNanoDock = None
+gIconPath = (
+        os.environ['CADNANO_PATH'] +
+        "/ui/mainwindow/images/cadnano2-app-icon_shelf.png")
+
 
 # command
 class openCadNano(OpenMayaMPx.MPxCommand):
     def __init__(self):
         OpenMayaMPx.MPxCommand.__init__(self)
+
     def doIt(self, argList):
         openCN()
+
     @staticmethod
     def creator():
-        return OpenMayaMPx.asMPxPtr( openCadNano() )
+        return OpenMayaMPx.asMPxPtr(openCadNano())
+
 
 class closeCadNano(OpenMayaMPx.MPxCommand):
     def __init__(self):
         OpenMayaMPx.MPxCommand.__init__(self)
+
     def doIt(self, argList):
         closeCN()
+
     @staticmethod
     def creator():
-        return OpenMayaMPx.asMPxPtr( closeCadNano() )
+        return OpenMayaMPx.asMPxPtr(closeCadNano())
+
 
 def onExitingMaya(clientData):
     closeCN()
-    cmds.SavePreferences();
+    cmds.SavePreferences()
+
 
 def onHideEvent():
     closeCN()
+
 
 # Initialize the script plug-in
 def initializePlugin(mobject):
     mplugin = OpenMayaMPx.MFnPlugin(mobject)
     try:
-        mplugin.registerCommand( "openCadNano", openCadNano.creator )
-        mplugin.registerCommand( "closeCadNano", closeCadNano.creator )
+        mplugin.registerCommand("openCadNano", openCadNano.creator)
+        mplugin.registerCommand("closeCadNano", closeCadNano.creator)
     except:
-        sys.stderr.write( "Failed to register command: %s\n" %kPluginName )
+        sys.stderr.write("Failed to register command: %s\n", % kPluginName)
         raise
     addUIButton()
     global fMayaExitingCB
-    fMayaExitingCB = OpenMaya.MSceneMessage.addCallback(OpenMaya.MSceneMessage.kMayaExiting, onExitingMaya)
+    fMayaExitingCB = OpenMaya.MSceneMessage.addCallback(
+                                OpenMaya.MSceneMessage.kMayaExiting,
+                                onExitingMaya)
+
 
 # Uninitialize the script plug-in
 def uninitializePlugin(mobject):
@@ -69,24 +85,25 @@ def uninitializePlugin(mobject):
 
     mplugin = OpenMayaMPx.MFnPlugin(mobject)
     try:
-        mplugin.deregisterCommand( "openCadNano" )
-        mplugin.deregisterCommand( "closeCadNano" )
+        mplugin.deregisterCommand("openCadNano")
+        mplugin.deregisterCommand("closeCadNano")
     except:
-        sys.stderr.write( "Failed to unregister command: %s\n" %kPluginName )
+        sys.stderr.write("Failed to unregister command: %s\n", % kPluginName)
         raise
-    
+
     global fMayaExitingCB
     if (fMayaExitingCB != None):
         OpenMaya.MSceneMessage.removeCallback(fMayaExitingCB)
 
+
 def openCN():
     global gCadNanoDock
-    simplifyMayaUI();
+    simplifyMayaUI()
     dw = getDocumentWindow()
-    
+
     if (dw):
         dw.setVisible(True)
-    else :
+    else:
         # begin program
         from cadnano import app as getAppInstance
         app = getAppInstance(sys.argv)
@@ -99,63 +116,88 @@ def openCN():
     #dw.setWindowFlags ( Qt.CustomizeWindowHint | Qt.WindowTitleHint );
     ptr = OpenMayaUI.MQtUtil.mainWindow()
     mayaWin = sip.wrapinstance(long(ptr), QObject)
-    gCadNanoDock = QDockWidget("CadNano")
-    gCadNanoDock.setFeatures( QDockWidget.DockWidgetMovable | QDockWidget.DockWidgetFloatable )
-    gCadNanoDock.setAllowedAreas(Qt.LeftDockWidgetArea | Qt.RightDockWidgetArea )
+    gCadNanoDock = QDockWidget("CadNanoDock")
+    gCadNanoDock.setFeatures(
+                            QDockWidget.DockWidgetMovable
+                            | QDockWidget.DockWidgetFloatable)
+    gCadNanoDock.setAllowedAreas(
+                            Qt.LeftDockWidgetArea
+                            | Qt.RightDockWidgetArea)
     gCadNanoDock.setWidget(dw)
-    mayaWin.addDockWidget(Qt.DockWidgetArea(Qt.LeftDockWidgetArea), gCadNanoDock)
-    #dw.setBaseSize( 1000, mayaWin.height() )
-    dw.setSizePolicy( QSizePolicy.MinimumExpanding, QSizePolicy.MinimumExpanding )
+    mayaWin.addDockWidget(Qt.DockWidgetArea(Qt.LeftDockWidgetArea),
+                            gCadNanoDock)
+    dw.setSizePolicy(QSizePolicy.MinimumExpanding,
+                        QSizePolicy.MinimumExpanding)
     gCadNanoDock.setVisible(True)
-    
+
 
 def simplifyMayaUI():
     mayaHotKeys.disableAllHotKeys()
-    mayaUI.simplifyUI();
-    
+    mayaUI.simplifyUI()
+
     myWindow = cmds.window()
-    myForm = cmds.formLayout( parent = myWindow )
+    myForm = cmds.formLayout(parent=myWindow)
     global gCadNanoToolbar
-    gCadNanoToolbar = cmds.toolBar( "caDNAno", area = 'top', allowedArea = 'top', content = myWindow )
+    gCadNanoToolbar = cmds.toolBar(
+                                "caDNAno Box",
+                                area='top',
+                                allowedArea='top',
+                                content=myWindow)
 
-    myButton = cmds.iconTextButton(	label = 'Quit caDNAno',
-                                    annotation = 'Quit caDNAno interface',
-                                    image1 = os.environ['CADNANO_PATH'] + '/ui/mainwindow/images/cadnano2-app-icon_shelf.png',
-                                    parent = myForm,
-                                    command = 'import maya.cmds; maya.cmds.closeCadNano()' )
-    cmds.formLayout( myForm, edit = True, attachForm = [( myButton, 'right', 10 )] )
+    global gIconPath
+    closeCadNanoCmd = 'import maya.cmds;maya.cmds.closeCadNano()'
+    myButton = cmds.iconTextButton(
+                               label='Quit caDNAno',
+                               annotation='Quit caDNAno interface',
+                               image1=gIconPath,
+                               parent=myForm,
+                               command=closeCadNanoCmd)
+    cmds.formLayout(
+                myForm,
+                edit=True,
+                attachForm=[(myButton, 'right', 10)])
 
-def restoreMayaUI() :
+
+def restoreMayaUI():
     mayaHotKeys.restoreAllHotKeys()
-    mayaUI.restoreUI();
+    mayaUI.restoreUI()
 
-    if cmds.toolBar( gCadNanoToolbar, exists=True ):
+    if cmds.toolBar(gCadNanoToolbar, exists=True):
         cmds.deleteUI(gCadNanoToolbar)
 
+
 def closeCN():
-    global gCadNanoDock;
+    global gCadNanoDock
     dw = getDocumentWindow()
-    if (dw) :
+    if (dw):
         dw.setVisible(False)
         gCadNanoDock.setVisible(False)
     restoreMayaUI()
 
+
 def addUIButton():
-    global gCadNanoButton;
-    if cmds.formLayout( 'MayaWindow|toolBar1|MainStatusLineLayout|formLayout5|formLayout8', ex = True ) :
-        cmds.setParent('MayaWindow|toolBar1|MainStatusLineLayout|formLayout5|formLayout8')
-        gCadNanoButton = cmds.iconTextButton( 	label = 'caDNAno',
-                                annotation = 'Launch caDNAno interface',
-                                image1 = os.environ['CADNANO_PATH'] + '/ui/mainwindow/images/cadnano2-app-icon_shelf.png',
-                                parent = 'MayaWindow|toolBar1|MainStatusLineLayout|formLayout5|formLayout8',
-                                command = 'import maya.cmds; maya.cmds.openCadNano()' )
-        cmds.formLayout(	'MayaWindow|toolBar1|MainStatusLineLayout|formLayout5|formLayout8',
-                            edit = True,
-                            attachForm = [(gCadNanoButton, 'right', 10)] )
+    global gCadNanoButton
+    global gIconPath
+    mayaMainToolbar = (
+            'MayaWindow|toolBar1|MainStatusLineLayout|formLayout5|formLayout8')
+    if cmds.formLayout(mayaMainToolbar, ex=True):
+        cmds.setParent(mayaMainToolbar)
+        gCadNanoButton = cmds.iconTextButton(
+                         label='caDNAno',
+                         annotation='Launch caDNAno interface',
+                         image1=gIconPath,
+                         parent=mayaMainToolbar,
+                         command='import maya.cmds; maya.cmds.openCadNano()')
+        cmds.formLayout(
+                    mayaMainToolbar,
+                    edit=True,
+                    attachForm=[(gCadNanoButton, 'right', 10)])
+
 
 def removeUIButton():
-    global gCadNanoButton;
+    global gCadNanoButton
     cmds.deleteUI(gCadNanoButton)
+
 
 def getDocumentWindow():
     if(gCadNanoDock):
