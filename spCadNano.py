@@ -69,7 +69,7 @@ def initializePlugin(mobject):
         mplugin.registerCommand("openCadNano", openCadNano.creator)
         mplugin.registerCommand("closeCadNano", closeCadNano.creator)
     except:
-        sys.stderr.write("Failed to register command: %s\n", % kPluginName)
+        sys.stderr.write("Failed to register command: %s\n", kPluginName)
         raise
     addUIButton()
     global fMayaExitingCB
@@ -88,7 +88,7 @@ def uninitializePlugin(mobject):
         mplugin.deregisterCommand("openCadNano")
         mplugin.deregisterCommand("closeCadNano")
     except:
-        sys.stderr.write("Failed to unregister command: %s\n", % kPluginName)
+        sys.stderr.write("Failed to unregister command: %s\n", kPluginName)
         raise
 
     global fMayaExitingCB
