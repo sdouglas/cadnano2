@@ -926,15 +926,12 @@ class VirtualHelix(QObject):
         Sets {s.n, (s+1).np, ..., (e-2).np, (e-1).np, e.p}
         """
         undoStack = self.beginCommand(useUndoStack, undoStack, "Extend strand")
-
         strand = self._strand(strandType)
         startIndex, endIndex = int(startIndex), int(endIndex)
         startIndex = util.clamp(startIndex, 0, len(strand) - 1)
         endIndex = util.clamp(endIndex, 0, len(strand) - 1)
-
         c = self.ConnectStrandCommand(self, strandType, startIndex, endIndex,\
                                       color=color, speedy=speedy)
-        
         self.endCommand(undoStack, c, police)
         
     def clearAllStrands(self):

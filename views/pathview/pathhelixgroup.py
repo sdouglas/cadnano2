@@ -327,7 +327,6 @@ class PathHelixGroup(QGraphicsObject):
 
     def zoomToFit(self):
         # Auto zoom to center the scene
-        print "in zoomToFit:", self.parent
         thescene = self.scene()
         theview = thescene.views()[0]
         theview.zoomToFit()
