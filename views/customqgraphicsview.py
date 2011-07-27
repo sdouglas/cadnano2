@@ -122,18 +122,50 @@ class CustomQGraphicsView(QGraphicsView):
         self._pressList.append(item)
     # end def
 
+    def keyPanDeltaX(self):
+        """Returns the distance in scene space to move the sceneRootItem when
+        panning left or right."""
+        # PyQt isn't aware that QGraphicsObject isa QGraphicsItem and so
+        # it returns a separate python object if, say, childItems() returns
+        # a QGraphicsObject casted to a QGraphicsItem. If this is the case,
+        # we can still find the QGraphicsObject thusly:
+        candidateDxDeciders = list(self.sceneRootItem.childItems())
+        candidateDxDeciders = candidateDxDeciders +\
+                           [cd.toGraphicsObject() for cd in candidateDxDeciders]
+        for cd in candidateDxDeciders:
+            if cd == None:
+                continue
+            keyPanDXMethod = getattr(cd, 'keyPanDeltaX', None)
+            if keyPanDXMethod != None:
+                return keyPanDXMethod()
+        return 100
+
+    def keyPanDeltaY(self):
+        """Returns the distance in scene space to move the sceneRootItem when
+        panning left or right."""
+        candidateDyDeciders = list(self.sceneRootItem.childItems())
+        candidateDyDeciders = candidateDyDeciders +\
+                           [cd.toGraphicsObject() for cd in candidateDyDeciders]
+        for cd in candidateDyDeciders:
+            if cd == None:
+                continue
+            keyPanDYMethod = getattr(cd, 'keyPanDeltaY', None)
+            if keyPanDYMethod != None:
+                return keyPanDYMethod()
+        return 100
+
     def keyPressEvent(self, event):
         """docstring for keyPressEvent"""
         if event.key() == self._key_mod:
             self._transformEnable = True
         elif event.key() == Qt.Key_Left:
-            self.sceneRootItem.translate(self._key_pan_delta_x/self.transform().m11(),0)
+            self.sceneRootItem.translate(self.keyPanDeltaX(), 0)
         elif event.key() == Qt.Key_Up:
-            self.sceneRootItem.translate(0,self._key_pan_delta_y/self.transform().m11())
+            self.sceneRootItem.translate(0,self.keyPanDeltaY())
         elif event.key() == Qt.Key_Right:
-            self.sceneRootItem.translate(-self._key_pan_delta_x/self.transform().m11(),0)
+            self.sceneRootItem.translate(-self.keyPanDeltaX(),0)
         elif event.key() == Qt.Key_Down:
-            self.sceneRootItem.translate(0,-self._key_pan_delta_y/self.transform().m11())
+            self.sceneRootItem.translate(0, -self.keyPanDeltaY())
         else:
             QGraphicsView.keyPressEvent(self, event)
         # end else

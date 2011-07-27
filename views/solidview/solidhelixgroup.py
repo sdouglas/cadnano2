@@ -48,6 +48,7 @@ import util
 # import Qt stuff into the module namespace with PySide, PyQt4 independence
 util.qtWrapImport('QtCore', globals(), ['pyqtSignal', 'pyqtSlot', 'QObject'])
 
+
 class SolidHelixGroup(QObject):
     """
     A Solid Hinstance is meant to store helix data in Maya
@@ -78,6 +79,7 @@ class SolidHelixGroup(QObject):
     def part(self):
         # part
         return self._part
+
     def setPart(self, p):
         # setPart
         self._part = p
@@ -146,20 +148,27 @@ class SolidHelixGroup(QObject):
             y = self.mayaOrigin[1] - (row * 2.0 * self.helixRadius)      
         return (x, y)
 
+    def reset(self):
+        # Clear all the cylinder shapes
+        cylinders = cmds.ls("CylinderNode*")
+        transforms = cmds.ls("DNAShapeTransform*")
+        for c in cylinders:
+            cmds.delete(c)
+        for t in transforms:
+            cmds.delete(t)
+        self.solidHelicesIndices = {}
+        self.solidHelicesIndicesCount = 0
+
     def deleteHelix(self, row, col):
         # deleteHelix
         myKey = '%d_%d'%(row, col)        
         itemIndices = self.solidHelicesIndices[myKey]            
 
-        for i in range(len(itemIndices)):
-            cyninderName = "CylinderNode%d" % itemIndices[i]
-            transformName = "DNAShapeTranform%d" % itemIndices[i]
-            #meshName = "DNACylinderShape%d" % itemIndices[i]
-            #metaName = "HelixMetaNode%d" % itemIndices[i]
+        for i in itemIndices:
+            cyninderName = "CylinderNode%d" % i
+            transformName = "DNAShapeTransform%d" % i
             cmds.delete(cyninderName)
             cmds.delete(transformName)
-            #cmds.delete(meshName)
-            #cmds.delete(metaName)
 
     def createNewHelix(self, row, col, count=1):
         # New Helix Added
@@ -179,7 +188,7 @@ class SolidHelixGroup(QObject):
     def createCylinder(self, x, y, count, htype):
         # createCylinder
         cyninderName = "CylinderNode%d" % count
-        transformName = "DNAShapeTranform%d" % count
+        transformName = "DNAShapeTransform%d" % count
         meshName = "DNACylinderShape%d" % count
         metaName = "HelixMetaNode%d" % count
 

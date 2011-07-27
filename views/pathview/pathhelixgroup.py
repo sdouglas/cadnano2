@@ -325,6 +325,22 @@ class PathHelixGroup(QGraphicsObject):
         self.part().matchHelixNumberingToPhgDisplayOrder(self)
     # end def
 
+    def keyPanDeltaY(self):
+        """How far an an arrow key should move the scene (in scene space)
+        for a single press"""
+        phs = self._pathHelixes
+        if not len(phs) > 1:
+            return 5
+        dy = phs[0].pos().y() - phs[1].pos().y()
+        dummyRect = QRectF(0, 0, 1, dy)
+        return self.mapToScene(dummyRect).boundingRect().height()
+
+    def keyPanDeltaX(self):
+        """How far a single press of the left or right arrow key should move
+        the scene (in scene space)"""
+        phs = self._pathHelixes
+        return phs[0].keyPanDeltaX() if phs else 5
+
     def zoomToFit(self):
         # Auto zoom to center the scene
         thescene = self.scene()
