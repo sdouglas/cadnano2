@@ -852,9 +852,9 @@ class VirtualHelix(QObject):
 
     def emitBasesModifiedIfNeeded(self):
         part = self.part()
-        if part.basesModifySilently:
-            return
         if part:
+            if part.basesModifySilently:
+                return
             # for vh in list(self.part().basesModifiedVHs):
             #     vh.basesModified.emit()
             map(lambda vh: vh.basesModified.emit(), list(self.part().basesModifiedVHs))
