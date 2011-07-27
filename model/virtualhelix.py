@@ -1038,7 +1038,7 @@ class VirtualHelix(QObject):
         self.endCommand(undoStack, c)
 
     def installLoop(self, strandType, index, loopsize, useUndoStack=True,\
-                    undoStack=False, speedy=False):
+                    undoStack=None, speedy=False):
         """
         Main function for installing loops and skips
         -1 is a skip, +N is a loop
@@ -1048,12 +1048,10 @@ class VirtualHelix(QObject):
         StrandType agnostic
         """
         undoStack = self.beginCommand(useUndoStack, undoStack, "installLoop")
-        if strandType == StrandType.Scaffold:
-            if self._isSeqBlank == False:
-                d = self.ApplySequenceCommand(self, StrandType.Scaffold, index, " ")
-            else:
-                d = None
-            c = self.LoopCommand(self, strandType, index, loopsize)
+        d = None
+        if strandType == StrandType.Scaffold and self._isSeqBlank == False:
+            d = self.ApplySequenceCommand(self, StrandType.Scaffold, index, " ")
+        c = self.LoopCommand(self, strandType, index, loopsize)
         self.endCommand(undoStack, (d, c))
 
     def applyColorAt(self, color, strandType, index, useUndoStack=True,\
