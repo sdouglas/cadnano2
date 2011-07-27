@@ -161,24 +161,9 @@ class PathHelixGroup(QGraphicsObject):
     def activeSliceHandle(self):
         return self._activeSliceHandle
 
-    # def label(self):
-    #     if self._label:
-    #         return self._label
-    #     font = QFont(styles.thefont, 30, QFont.Bold)
-    #     label = QGraphicsTextItem("Part 1")
-    #     label.setVisible(False)
-    #     label.setFont(font)
-    #     label.setParentItem(self)
-    #     label.setPos(0, -70)
-    #     label.setTextInteractionFlags(Qt.TextEditorInteraction)
-    #     label.inputMethodEvent = None
-    #     self._label = label
-    #     return label
-
-    # @pyqtSlot(object, object, int)
     def createXoverItem(self, Base3p, Base5p, strandtype):
         """
-        Base3p is the tuple (3 prime vhelix, index), 
+        Base3p is the tuple (3 prime vhelix, index),
         Base5p is the (5 prime vhelix, index)
         strandtype is Strandtype.Scaffold or Strandtype.Staple
         """
@@ -324,6 +309,22 @@ class PathHelixGroup(QGraphicsObject):
     def renumber(self):
         self.part().matchHelixNumberingToPhgDisplayOrder(self)
     # end def
+
+    def keyPanDeltaY(self):
+        """How far an an arrow key should move the scene (in scene space)
+        for a single press"""
+        phs = self._pathHelixes
+        if not len(phs) > 1:
+            return 5
+        dy = phs[0].pos().y() - phs[1].pos().y()
+        dummyRect = QRectF(0, 0, 1, dy)
+        return self.mapToScene(dummyRect).boundingRect().height()
+
+    def keyPanDeltaX(self):
+        """How far a single press of the left or right arrow key should move
+        the scene (in scene space)"""
+        phs = self._pathHelixes
+        return phs[0].keyPanDeltaX() if phs else 5
 
     def zoomToFit(self):
         # Auto zoom to center the scene

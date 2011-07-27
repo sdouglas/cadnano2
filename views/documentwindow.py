@@ -38,13 +38,13 @@ import util
 util.qtWrapImport('QtCore', globals(), ['pyqtSignal', 'Qt', 'QFileInfo',
                                         'QPoint', 'QSettings', 'QSize',
                                         'QString'])
-util.qtWrapImport('QtGui', globals(), ['QGraphicsItem', 'QMainWindow',
+util.qtWrapImport('QtGui', globals(), ['QGraphicsObject', 'QMainWindow',
                                         'QGraphicsScene', 'QGraphicsView',
                                         'QApplication', 'QAction', 'QWidget'])
-util.qtWrapImport('QtOpenGL', globals(), ['QGLWidget', 'QGLFormat', 'QGL'])
+# util.qtWrapImport('QtOpenGL', globals(), ['QGLWidget', 'QGLFormat', 'QGL'])
 
 
-class SceneRoot(QGraphicsItem):
+class SceneRoot(QGraphicsObject):
     def __init__(self, rectsource=None):
         super(SceneRoot, self).__init__()
         # this sets the rect of itself to the QGraphicsScene bounding volume

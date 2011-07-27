@@ -849,13 +849,15 @@ class VirtualHelix(QObject):
         else:
             self.basesModified.emit()
         return self
-    
+
     def emitBasesModifiedIfNeeded(self):
         part = self.part()
         if part:
+            if part.basesModifySilently:
+                return
             # for vh in list(self.part().basesModifiedVHs):
             #     vh.basesModified.emit()
-            map( lambda vh: vh.basesModified.emit(), list(self.part().basesModifiedVHs) )
+            map(lambda vh: vh.basesModified.emit(), list(self.part().basesModifiedVHs))
             part.basesModifiedVHs.clear()
             part._recalculateStrandLengths()
             part.modificationCondition.acquire()
@@ -863,8 +865,6 @@ class VirtualHelix(QObject):
             part.modificationCondition.release()
         else:
             self.basesModified.emit()
-        self._sequenceForVirtualStrandCache = None
-        #self.part().virtualHelixAtCoordsChanged.emit(*self.coord())
 
     def beginCommand(self, useUndoStack, undoStack, strng):
         """undoStack overrides the default undoStack if it is not None"""
@@ -1038,7 +1038,7 @@ class VirtualHelix(QObject):
         self.endCommand(undoStack, c)
 
     def installLoop(self, strandType, index, loopsize, useUndoStack=True,\
-                    undoStack=False, speedy=False):
+                    undoStack=None, speedy=False):
         """
         Main function for installing loops and skips
         -1 is a skip, +N is a loop
@@ -1048,12 +1048,10 @@ class VirtualHelix(QObject):
         StrandType agnostic
         """
         undoStack = self.beginCommand(useUndoStack, undoStack, "installLoop")
-        if strandType == StrandType.Scaffold:
-            if self._isSeqBlank == False:
-                d = self.ApplySequenceCommand(self, StrandType.Scaffold, index, " ")
-            else:
-                d = None
-            c = self.LoopCommand(self, strandType, index, loopsize)
+        d = None
+        if strandType == StrandType.Scaffold and self._isSeqBlank == False:
+            d = self.ApplySequenceCommand(self, StrandType.Scaffold, index, " ")
+        c = self.LoopCommand(self, strandType, index, loopsize)
         self.endCommand(undoStack, (d, c))
 
     def applyColorAt(self, color, strandType, index, useUndoStack=True,\

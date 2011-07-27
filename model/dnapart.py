@@ -109,6 +109,7 @@ class DNAPart(Part):
         self.numTimesStrandLengthsRecalcd = 0
         self.lock = ReadWriteLock()
         self.modificationCondition = Condition()
+        self.basesModifySilently = False
 
         # Event propagation
         self.virtualHelixAtCoordsChanged.connect(self.persistentDataChangedEvent)
@@ -368,18 +369,20 @@ class DNAPart(Part):
 
     def autoStaple(self):
         """
-        getVirtualHelices now returns a generator so we need to call it twice
+        Install staples to pair with all scaffold present in the model and
+        connect all crossovers.
+
+        Commits prior to 6eb16c3420b70a5f3966 for slower version of next bit
         """
+        self.basesModifySilently = True
         self.undoStack().beginMacro("Auto Staple")
-        
-        # commits prior to 6eb16c3420b70a5f3966 for slower version of next bit
-        
-        # for speed
         def autoStaple_sub1(vh):
             # Copy the scaffold strand's segments to the staple strand
             vh.legacyClearStrand(StrandType.Staple, 1, vh.numBases()-1)
             segments, ends3, ends5 = vh.getSegmentsAndEndpoints(StrandType.Scaffold)
-            map(lambda (segStart, segEnd): vh.connectStrand(StrandType.Staple, segStart, segEnd), segments)
+            map(lambda (segStart, segEnd): \
+                    vh.connectStrand(StrandType.Staple, segStart, segEnd,\
+                                     speedy=True, police=False), segments)
             for i in range(len(segments)-1):
                 segIEnd = segments[i][1]
                 if segIEnd + 1 == segments[i+1][0]:
@@ -387,10 +390,6 @@ class DNAPart(Part):
         # end def
         vhs = self.getVirtualHelices()
         map(autoStaple_sub1, vhs)
-        
-        # commits prior to 6eb16c3420b70a5f3966 for slower version of next bit
-        
-        # for speed part 2
         def autoStaple_sub2(vh):
             # We only add crossovers for which vh will have the 3' end to
             # avoid adding each crossover twice. We can do this by adding
@@ -401,12 +400,14 @@ class DNAPart(Part):
             pxovers = vh.potentialCrossoverList(facingR, StrandType.Staple)
             def loopXovers((toVH, idx)):
                 if vh.possibleNewCrossoverAt(StrandType.Staple, idx, toVH, idx):
-                    vh.installXoverFrom3To5(StrandType.Staple, idx, toVH, idx)
+                    vh.installXoverFrom3To5(StrandType.Staple, idx, toVH, idx, speedy=False, police=False)
             map(loopXovers, pxovers)  # Loop through potential xovers
         # end def
-        vhs = self.getVirtualHelices()
+        vhs = self.getVirtualHelices()  # gets a generator, so call it again
         map(autoStaple_sub2, vhs)
         self.undoStack().endMacro()
+        self.basesModifySilently = False
+        list(self.basesModifiedVHs)[0].emitBasesModifiedIfNeeded()
     # end def
 
     def autoDragAllBreakpoints(self):
