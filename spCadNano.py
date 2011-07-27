@@ -22,6 +22,7 @@ gCadNanoButton = None
 gCadNanoToolbar = None
 fMayaExitingCB = None
 
+gCadNanoObjectName = "CadNanoWindow"
 gCadNanoDock = None
 gIconPath = (
         os.environ['CADNANO_PATH'] +
@@ -69,7 +70,7 @@ def initializePlugin(mobject):
         mplugin.registerCommand("openCadNano", openCadNano.creator)
         mplugin.registerCommand("closeCadNano", closeCadNano.creator)
     except:
-        sys.stderr.write("Failed to register command: %s\n", kPluginName)
+        sys.stderr.write("Failed to register command: %s\n" % kPluginName)
         raise
     addUIButton()
     global fMayaExitingCB
@@ -88,7 +89,7 @@ def uninitializePlugin(mobject):
         mplugin.deregisterCommand("openCadNano")
         mplugin.deregisterCommand("closeCadNano")
     except:
-        sys.stderr.write("Failed to unregister command: %s\n", kPluginName)
+        sys.stderr.write("Failed to unregister command: %s\n" % kPluginName)
         raise
 
     global fMayaExitingCB
@@ -112,11 +113,12 @@ def openCN():
             app.exec_()
         #execfile( os.environ['CADNANO_PATH'] + '/mayamain.py')
         dw = getDocumentWindow()
+        global gCadNanoObjectName
+        dw.setObjectName(gCadNanoObjectName)
 
-    #dw.setWindowFlags ( Qt.CustomizeWindowHint | Qt.WindowTitleHint );
     ptr = OpenMayaUI.MQtUtil.mainWindow()
     mayaWin = sip.wrapinstance(long(ptr), QObject)
-    gCadNanoDock = QDockWidget("CadNanoDock")
+    gCadNanoDock = QDockWidget("CadNano")
     gCadNanoDock.setFeatures(
                             QDockWidget.DockWidgetMovable
                             | QDockWidget.DockWidgetFloatable)
@@ -139,7 +141,7 @@ def simplifyMayaUI():
     myForm = cmds.formLayout(parent=myWindow)
     global gCadNanoToolbar
     gCadNanoToolbar = cmds.toolBar(
-                                "caDNAno Box",
+                                "caDNAnoBox",
                                 area='top',
                                 allowedArea='top',
                                 content=myWindow)

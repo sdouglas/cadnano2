@@ -31,7 +31,8 @@ main.py
 Created by Shawn Douglas on 2010-09-26.
 """
 
-import sys, os
+import sys
+import os
 sys.path.insert(0, '.')
 argv = [s for s in sys.argv]
 
