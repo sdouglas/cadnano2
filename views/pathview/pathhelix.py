@@ -614,6 +614,12 @@ class PathHelix(QGraphicsObject):
             y += self.baseWidth / 2
         return (x, y)
 
+    def keyPanDeltaX(self):
+        """How far a single press of the left or right arrow key should move
+        the scene (in scene space)"""
+        dx = self.vhelix().part().step * self.baseWidth
+        return self.mapToScene(QRectF(0, 0, dx, 1)).boundingRect().width()
+
     def sceneEvent(self, event):
         """Included for unit testing in order to grab events that are sent
         via QGraphicsScene.sendEvent()."""
