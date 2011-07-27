@@ -849,13 +849,15 @@ class VirtualHelix(QObject):
         else:
             self.basesModified.emit()
         return self
-    
+
     def emitBasesModifiedIfNeeded(self):
         part = self.part()
+        if part.basesModifySilently:
+            return
         if part:
             # for vh in list(self.part().basesModifiedVHs):
             #     vh.basesModified.emit()
-            map( lambda vh: vh.basesModified.emit(), list(self.part().basesModifiedVHs) )
+            map(lambda vh: vh.basesModified.emit(), list(self.part().basesModifiedVHs))
             part.basesModifiedVHs.clear()
             part._recalculateStrandLengths()
             part.modificationCondition.acquire()
@@ -863,8 +865,6 @@ class VirtualHelix(QObject):
             part.modificationCondition.release()
         else:
             self.basesModified.emit()
-        self._sequenceForVirtualStrandCache = None
-        #self.part().virtualHelixAtCoordsChanged.emit(*self.coord())
 
     def beginCommand(self, useUndoStack, undoStack, strng):
         """undoStack overrides the default undoStack if it is not None"""
