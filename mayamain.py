@@ -31,27 +31,29 @@ mayamain.py
 Created by Shawn Douglas on 2010-09-26.
 """
 
-import sys, os
+import sys
+import os
 
 # Copy and paste the following code to the Shelf
 # insert your own path HERE to the cadnano directory
 # until we figure out where the cadnano path will permanently live in maya
 pathadder = '/Users/nick/cadnano2'
 if pathadder not in sys.path:
-        sys.path.insert(0,pathadder)
+        sys.path.insert(0, pathadder)
 # end if
+
 
 def getDefaultModules():
     """
-    gets a list modules that are 
+    gets a list modules that are
     installed Maya or Qt modules
     The list was compiled through printing and additional trial
-    and error to add some additional modules at the bottom of 
+    and error to add some additional modules at the bottom of
     the list
-    
+
     Could do this with sets, but I failed the first try so forget it
     """
-    f = open(pathadder+'/data/mayadefaultmodules.txt','r')
+    f = open(pathadder + '/data/mayadefaultmodules.txt', 'r')
     defaultmodules = {}
     for line in f:
         key = line.rstrip('\n')
@@ -62,13 +64,14 @@ def getDefaultModules():
     return defaultmodules
 # end def
 
+
 def removeModules(moddict):
     """
-    removes modules related to the program but not 
+    removes modules related to the program but not
     installed Maya or PyQt4 modules
     """
     for key in sys.modules.keys():
-        if not moddict.has_key(key):
+        if not key in moddict:
             try:
                 del(sys.modules[key])
                 print "module %s deleted" % key
@@ -93,4 +96,3 @@ app = getAppInstance(sys.argv)
 app.initGui()
 if __name__ == '__main__':
     app.exec_()
-

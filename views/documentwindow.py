@@ -35,13 +35,14 @@ from tests.testrecorder import TestRecorder
 
 import util
 # import Qt stuff into the module namespace with PySide, PyQt4 independence
-util.qtWrapImport('QtCore', globals(), ['pyqtSignal', 'Qt', 'QFileInfo', \
-                                        'QPoint', 'QSettings', 'QSize', \
+util.qtWrapImport('QtCore', globals(), ['pyqtSignal', 'Qt', 'QFileInfo',
+                                        'QPoint', 'QSettings', 'QSize',
                                         'QString'])
-util.qtWrapImport('QtGui', globals(), [ 'QGraphicsItem', 'QMainWindow', \
-                                        'QGraphicsScene', 'QGraphicsView', \
+util.qtWrapImport('QtGui', globals(), ['QGraphicsItem', 'QMainWindow',
+                                        'QGraphicsScene', 'QGraphicsView',
                                         'QApplication', 'QAction', 'QWidget'])
-util.qtWrapImport('QtOpenGL', globals(), [ 'QGLWidget', 'QGLFormat', 'QGL'])
+util.qtWrapImport('QtOpenGL', globals(), ['QGLWidget', 'QGLFormat', 'QGL'])
+
 
 class SceneRoot(QGraphicsItem):
     def __init__(self, rectsource=None):
@@ -117,7 +118,7 @@ class DocumentWindow(QMainWindow, ui_mainwindow.Ui_MainWindow):
         self.menuEdit.insertAction(self.actionCut, self.sep)
         self.menuEdit.insertAction(self.sep, self.actionRedo)
         self.menuEdit.insertAction(self.actionRedo, self.actionUndo)
-        self.splitter.setSizes([400,400])  # balance splitter size
+        self.splitter.setSizes([400, 400])  # balance splitter size
 
     def undoStack(self):
         return self.controller.undoStack()
