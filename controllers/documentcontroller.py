@@ -42,7 +42,8 @@ if app().isInMaya():
 import util
 # import Qt stuff into the module namespace with PySide, PyQt4 independence
 util.qtWrapImport('QtCore', globals(), ['pyqtSignal', 'QString',
-                                        'QStringList', 'QFileInfo', 'Qt'])
+                                        'QStringList', 'QFileInfo', 'Qt',
+                                        'QEvent'])
 util.qtWrapImport('QtGui', globals(), ['QUndoStack', 'QFileDialog',
                                         'QAction', 'QApplication',
                                         'QMessageBox', 'QKeySequence'])
@@ -69,6 +70,7 @@ class DocumentController():
         self._hasNoAssociatedFile = fname == None
         self.win = DocumentWindow(docCtrlr=self)
         self.win.closeEvent = self.closer
+        self.win.changeEvent = self.changed
         self.connectWindowEventsToSelf()
         self.win.show()
         self._document = None
@@ -86,6 +88,17 @@ class DocumentController():
             event.accept()
         else:
             event.ignore()
+
+    def changed(self, event):
+        if (event.type() == QEvent.ActivationChange or
+            event.type() == QEvent.WindowActivate or
+            event.type() == QEvent.ApplicationActivate):
+            if self.win.isActiveWindow() and app().activeDocument != self:
+                app().activeDocument = self
+                if hasattr(self, 'solidHelixGrp'):
+                    if self.solidHelixGrp:
+                        self.solidHelixGrp.deleteAllMayaNodes()
+                        self.solidHelixGrp.onPersistentDataChanged()
 
     def documentTitle(self):
         fname = os.path.basename(str(self.filename()))
@@ -167,15 +180,18 @@ class DocumentController():
         # self.openFile('/Users/nick/Downloads/nanorobot.v2.json')
         # return
         if util.isWindows():  # required for native looking file window
-            fname = QFileDialog.getOpenFileName(None, "Open Document", "/",
+            fname = QFileDialog.getOpenFileName(
+                        None,
+                        "Open Document", "/",
                         "CADnano1 / CADnano2 Files (*.nno *.json *.cadnano)")
             self.filesavedialog = None
             self.openFile(fname)
         else:  # access through non-blocking callback
-            fdialog = QFileDialog(self.win,
-                                "Open Document",
-                                "/",
-                                "CADnano1 / CADnano2 Files (*.nno *.json *.cadnano)")
+            fdialog = QFileDialog(
+                        self.win,
+                        "Open Document",
+                        "/",
+                        "CADnano1 / CADnano2 Files (*.nno *.json *.cadnano)")
             fdialog.setAcceptMode(QFileDialog.AcceptOpen)
             fdialog.setWindowFlags(Qt.Sheet)
             fdialog.setWindowModality(Qt.WindowModal)
@@ -196,7 +212,8 @@ class DocumentController():
         DocumentController(doc, fname)
         if self.filesavedialog != None:
             self.filesavedialog.filesSelected.disconnect(self.openFile)
-            del self.filesavedialog  # manual garbage collection to prevent hang (in osx)
+            # manual garbage collection to prevent hang (in osx)
+            del self.filesavedialog
     # end def
 
     def exportSequenceCSV(self, fname):
@@ -214,17 +231,19 @@ class DocumentController():
         else:
             directory = QFileInfo(fname).path()
         if util.isWindows():  # required for native looking file window
-            fname = QFileDialog.getSaveFileName(self.win,
-                                "%s - Export As" % QApplication.applicationName(),
-                                directory,
-                                "(*.csv)")
+            fname = QFileDialog.getSaveFileName(
+                            self.win,
+                            "%s - Export As" % QApplication.applicationName(),
+                            directory,
+                            "(*.csv)")
             self.filesavedialog = None
             self.exportFile(fname)
         else:  # access through non-blocking callback
-            fdialog = QFileDialog(self.win,
-                                "%s - Export As" % QApplication.applicationName(),
-                                directory,
-                                "(*.csv)")
+            fdialog = QFileDialog(
+                            self.win,
+                            "%s - Export As" % QApplication.applicationName(),
+                            directory,
+                            "(*.csv)")
             fdialog.setAcceptMode(QFileDialog.AcceptSave)
             fdialog.setWindowFlags(Qt.Sheet)
             fdialog.setWindowModality(Qt.WindowModal)
@@ -247,7 +266,8 @@ class DocumentController():
         # self.setFilename(fname)
         if self.filesavedialog != None:
             self.filesavedialog.filesSelected.disconnect(self.exportFile)
-            del self.filesavedialog  # manual garbage collection to prevent hang (in osx)
+            # manual garbage collection to prevent hang (in osx)
+            del self.filesavedialog
         return self.exportSequenceCSV(fname)
     # end def
 
@@ -264,7 +284,8 @@ class DocumentController():
             return True
         if not self.undoStack().isClean():    # document dirty?
             savebox = QMessageBox(QMessageBox.Warning,   "Application",
-                "The document has been modified.\n Do you want to save your changes?",
+                "The document has been modified.\n \
+                    Do you want to save your changes?",
                 QMessageBox.Save | QMessageBox.Discard | QMessageBox.Cancel,
                 self.win,
                 Qt.Dialog | Qt.MSWindowsFixedSizeDialogHint | Qt.Sheet)
@@ -322,22 +343,25 @@ class DocumentController():
         else:
             directory = QFileInfo(fname).path()
         if util.isWindows():  # required for native looking file window
-            fname = QFileDialog.getSaveFileName(self.win,
-                                "%s - Save As" % QApplication.applicationName(),
-                                directory,
-                                "%s (*.nno)" % QApplication.applicationName())
+            fname = QFileDialog.getSaveFileName(
+                            self.win,
+                            "%s - Save As" % QApplication.applicationName(),
+                            directory,
+                            "%s (*.nno)" % QApplication.applicationName())
             self.writeToFile(fname)
         else:  # access through non-blocking callback
-            fdialog = QFileDialog(self.win,
-                                "%s - Save As" % QApplication.applicationName(),
-                                directory,
-                                "%s (*.nno)" % QApplication.applicationName())
+            fdialog = QFileDialog(
+                            self.win,
+                            "%s - Save As" % QApplication.applicationName(),
+                            directory,
+                            "%s (*.nno)" % QApplication.applicationName())
             fdialog.setAcceptMode(QFileDialog.AcceptSave)
             fdialog.setWindowFlags(Qt.Sheet)
             fdialog.setWindowModality(Qt.WindowModal)
             # fdialog.exec_()  # or .show(), or .open()
             self.filesavedialog = fdialog
-            self.filesavedialog.filesSelected.connect(self.saveFileDialogCallback)
+            self.filesavedialog.filesSelected.connect(
+                                                self.saveFileDialogCallback)
             fdialog.open()
 
     def saveFileDialogCallback(self, selected):
@@ -351,7 +375,8 @@ class DocumentController():
         if not fname.lower().endswith(".nno"):
             fname += ".nno"
         if self.filesavedialog != None:
-            self.filesavedialog.filesSelected.disconnect(self.saveFileDialogCallback)
+            self.filesavedialog.filesSelected.disconnect(
+                                                self.saveFileDialogCallback)
             del self.filesavedialog  # prevents hang
         self.writeToFile(fname)
     # end def
@@ -390,7 +415,10 @@ class DocumentController():
                                          parent=self.win.pathroot)
 
         if app().isInMaya():
-            self.solidHelixGrp = SolidHelixGroup(part, controller=self.win.pathController, htype=part.crossSectionType())
+            self.solidHelixGrp = SolidHelixGroup(
+                                            part,
+                                            controller=self.win.pathController,
+                                            htype=part.crossSectionType())
 
         self.win.sliceController.activeSliceLastSignal.connect(
                       self.pathHelixGroup.activeSliceHandle().moveToLastSlice)
@@ -403,11 +431,13 @@ class DocumentController():
             xos = vh.get3PrimeXovers(StrandType.Scaffold)
             for xo in xos:
                 toBase = (xo[1][0], xo[1][2])
-                self.pathHelixGroup.createXoverItem(xo[0], toBase, StrandType.Scaffold)
+                self.pathHelixGroup.createXoverItem(
+                                            xo[0], toBase, StrandType.Scaffold)
             xos = vh.get3PrimeXovers(StrandType.Staple)
             for xo in xos:
                 toBase = (xo[1][0], xo[1][2])
-                self.pathHelixGroup.createXoverItem(xo[0], toBase, StrandType.Staple)
+                self.pathHelixGroup.createXoverItem(
+                                            xo[0], toBase, StrandType.Staple)
         # end for
         self.setActivePart(part)
 
@@ -419,7 +449,8 @@ class DocumentController():
         dnaPart = self._document.addDnaHoneycombPart()
         self.setActivePart(dnaPart)
         if app().testRecordMode:
-            self.win.sliceController.testRecorder.setPart(dnaPart.crossSectionType())
+            self.win.sliceController.testRecorder.setPart(
+                                                    dnaPart.crossSectionType())
     # end def
 
     def addSquareHelixGroup(self):
@@ -428,7 +459,8 @@ class DocumentController():
         dnaPart = self._document.addDnaSquarePart()
         self.setActivePart(dnaPart)
         if app().testRecordMode:
-            self.win.sliceController.testRecorder.setPart(dnaPart.crossSectionType())
+            self.win.sliceController.testRecorder.setPart(
+                                                    dnaPart.crossSectionType())
     # end def
 
     def createAction(self, icon, text, parent, shortcutkey):
