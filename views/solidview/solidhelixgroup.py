@@ -88,19 +88,23 @@ class SolidHelixGroup(QObject):
 
     def onPersistentDataChanged(self):
         # Update in the Model
-        # print "SolidHelixGroup.onPersistentDataChanged:"
+        #print "SolidHelixGroup.onPersistentDataChanged:"
+        #print self._part.getVirtualHelixCount()
         for h in self._part.getVirtualHelices():
             myKey = '%d_%d' % (h.coord()[0], h.coord()[1])
-
+            
             if myKey not in self.solidHelicesIndices:
                 self.createNewHelix(h.coord()[0], h.coord()[1], 1)
             itemIndices = self.solidHelicesIndices[myKey]
 
             endpoints = h.getSegmentsAndEndpoints(StrandType.Scaffold)
-            segmentsCount = len(endpoints[1])
+            segmentsCount = len(endpoints[0])
 
+            #print myKey
+            #print endpoints
+            #print segmentsCount
             if(segmentsCount < 1):
-                return
+                continue
 
             if (len(itemIndices) != segmentsCount):
                 # Delete current itemIndices
@@ -116,14 +120,15 @@ class SolidHelixGroup(QObject):
                 totalNumBases = h.numBases()
                 helixScale = self.mayaScale / totalNumBases
                 middleBase = totalNumBases/2
-                direction = h.directionOfStrandIs5to3(StrandType.Scaffold)
-
-                if direction:
-                    right = (middleBase-endpoints[2][seg])
-                    left = (endpoints[1][seg]-middleBase)
-                else:
-                    right = (middleBase-endpoints[1][seg])
-                    left = (endpoints[2][seg]-middleBase)
+                right = (middleBase-endpoints[0][seg][0])
+                left = (endpoints[0][seg][1]-middleBase)
+                #direction = h.directionOfStrandIs5to3(StrandType.Scaffold)
+                #if direction:
+                #    right = (middleBase-endpoints[2][seg])
+                #    left = (endpoints[1][seg]-middleBase)
+                #else:
+                #    right = (middleBase-endpoints[1][seg])
+                #    left = (endpoints[2][seg]-middleBase)
 
                 #print "right, left %d,%d" % ( right, left)
 
