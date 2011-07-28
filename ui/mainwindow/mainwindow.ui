@@ -158,6 +158,9 @@
        <property name="renderHints">
         <set>QPainter::Antialiasing|QPainter::TextAntialiasing</set>
        </property>
+       <property name="transformationAnchor">
+        <enum>QGraphicsView::AnchorUnderMouse</enum>
+       </property>
        <property name="viewportUpdateMode">
         <enum>QGraphicsView::MinimalViewportUpdate</enum>
        </property>
@@ -225,6 +228,9 @@
    </property>
    <property name="windowTitle">
     <string>Main Toolbar</string>
+   </property>
+   <property name="toolTip">
+    <string>(F)rame path view</string>
    </property>
    <property name="toolButtonStyle">
     <enum>Qt::ToolButtonTextUnderIcon</enum>
@@ -714,6 +720,9 @@
    </property>
    <property name="text">
     <string>Frame</string>
+   </property>
+   <property name="toolTip">
+    <string>(F)rame path view</string>
    </property>
    <property name="shortcut">
     <string>F</string>

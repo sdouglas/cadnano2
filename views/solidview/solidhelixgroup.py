@@ -148,7 +148,7 @@ class SolidHelixGroup(QObject):
             y = self.mayaOrigin[1] - (row * 2.0 * self.helixRadius)      
         return (x, y)
 
-    def reset(self):
+    def deleteAllMayaNodes(self):
         # Clear all the cylinder shapes
         cylinders = cmds.ls("CylinderNode*")
         transforms = cmds.ls("DNAShapeTransform*")
@@ -165,9 +165,9 @@ class SolidHelixGroup(QObject):
         itemIndices = self.solidHelicesIndices[myKey]            
 
         for i in itemIndices:
-            cyninderName = "CylinderNode%d" % i
+            cylinderName = "CylinderNode%d" % i
             transformName = "DNAShapeTransform%d" % i
-            cmds.delete(cyninderName)
+            cmds.delete(cylinderName)
             cmds.delete(transformName)
 
     def createNewHelix(self, row, col, count=1):
@@ -187,13 +187,13 @@ class SolidHelixGroup(QObject):
 
     def createCylinder(self, x, y, count, htype):
         # createCylinder
-        cyninderName = "CylinderNode%d" % count
+        cylinderName = "CylinderNode%d" % count
         transformName = "DNAShapeTransform%d" % count
         meshName = "DNACylinderShape%d" % count
         metaName = "HelixMetaNode%d" % count
 
-        cmds.createNode("polyCylinder", name=cyninderName)
-        cmds.setAttr("%s.radius"%cyninderName, self.helixRadius)
+        cmds.createNode("polyCylinder", name=cylinderName)
+        cmds.setAttr("%s.radius"%cylinderName, self.helixRadius)
         cmds.createNode("transform", name=transformName)
         cmds.setAttr("%s.rotateX"%transformName, 90)
         cmds.setAttr("%s.translateX"%transformName, x)
@@ -204,7 +204,7 @@ class SolidHelixGroup(QObject):
         cmds.sets(meshName, add="initialShadingGroup")
 
         cmds.createNode("spHelixMetaNode", name=metaName)
-        cmds.connectAttr("%s.output" % cyninderName, "%s.inputMesh" % metaName)
+        cmds.connectAttr("%s.output" % cylinderName, "%s.inputMesh" % metaName)
         cmds.connectAttr("%s.outputMesh" % metaName, "%s.inMesh" % meshName)
         cmds.connectAttr("%s.scale" % metaName, "%s.scaleY" % transformName)
         cmds.connectAttr("%s.translate" % metaName, "%s.translateZ" % transformName)

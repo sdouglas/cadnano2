@@ -111,18 +111,6 @@ class PathHelix(QGraphicsObject):
     sequenceTextXCenteringOffset = sequenceFontExtraWidth / 2.
     sequenceTextYCenteringOffset = baseWidth / 2.
 
-    # Items that calculate paths for loops and skips
-    _skipitem = SkipItem()
-    _loopitem = LoopItem()
-    # Bases are drawn along and above the loop path.
-    # These calculations revolve around fixing the
-    # characters at a certain percentage of the total
-    # arclength.
-    # The fraction of the loop that comes before the
-    # first character and after the last character is
-    # the padding, and the rest is divided evenly.
-    fractionLoopToPad = .10    
-
     def __init__(self, vhelix, pathHelixGroup):
         super(PathHelix, self).__init__()
         self.setAcceptHoverEvents(True)  # for pathtools
@@ -368,56 +356,8 @@ class PathHelix(QGraphicsObject):
                 continue
             painter.setBrush(brush)
             painter.drawPath(path)
-        self.paintLoopsAndSkips(painter)
         self.paintHorizontalBaseText(painter)
         painter.restore()
-
-    def paintLoopsAndSkips(self, painter):
-        vh = self.vhelix()
-        for strandType in (StrandType.Scaffold, StrandType.Staple):
-            istop = self.strandIsTop(strandType)
-            for index, loopsize in vh.loop(strandType).iteritems():
-                ul = self.baseLocation(strandType, index)
-                if loopsize > 0:
-                    path = self._loopitem.getLoop(istop)
-                    path = path.translated(*ul)
-                    # painter.setPen(self._loopitem.getPen())
-                    painter.setPen(QPen(vh.colorOfBase(strandType, index), styles.LOOPWIDTH))
-                    painter.setBrush(Qt.NoBrush)
-                    painter.drawPath(path)
-                    
-                    # draw sequence on the loop
-                    baseText = vh.sequenceForLoopAt(strandType, index)
-                    if baseText[0] != ' ':  # only draw sequences if they exist
-                        if istop:
-                            angleOffset = 0
-                        else:
-                            angleOffset = 180
-                        if len(baseText) > 20:
-                            baseText = baseText[:17] + '...'
-                        fractionArclenPerChar = (1.-2*self.fractionLoopToPad)/(len(baseText)+1)
-                        painter.setPen(QPen(Qt.black))
-                        painter.setBrush(Qt.NoBrush)
-                        painter.setFont(self.sequenceFont)
-                        for i in range(len(baseText)):
-                            frac = self.fractionLoopToPad + (i+1)*fractionArclenPerChar
-                            pt = path.pointAtPercent(frac)
-                            tangAng = path.angleAtPercent(frac)
-                            painter.save()
-                            painter.translate(pt)
-                            painter.rotate(-tangAng + angleOffset)
-                            painter.translate(QPointF(-self.sequenceFontCharWidth/2.,
-                                                      -2 if istop else self.sequenceFontH))
-                            if not istop:
-                                painter.translate(0, -self.sequenceFontH - styles.LOOPWIDTH)
-                            painter.drawText(0, 0, baseText[i if istop else -i-1])
-                            painter.restore()
-                    # end if
-                else:  # loopsize < 0 (a skip)
-                    path = self._skipitem.getSkip()
-                    path = path.translated(*ul)
-                    painter.setPen(self._skipitem.getPen())
-                    painter.drawPath(path)
 
     def paintHorizontalBaseText(self, painter):
         vh = self.vhelix()

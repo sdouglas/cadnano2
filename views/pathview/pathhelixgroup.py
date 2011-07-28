@@ -161,24 +161,9 @@ class PathHelixGroup(QGraphicsObject):
     def activeSliceHandle(self):
         return self._activeSliceHandle
 
-    # def label(self):
-    #     if self._label:
-    #         return self._label
-    #     font = QFont(styles.thefont, 30, QFont.Bold)
-    #     label = QGraphicsTextItem("Part 1")
-    #     label.setVisible(False)
-    #     label.setFont(font)
-    #     label.setParentItem(self)
-    #     label.setPos(0, -70)
-    #     label.setTextInteractionFlags(Qt.TextEditorInteraction)
-    #     label.inputMethodEvent = None
-    #     self._label = label
-    #     return label
-
-    # @pyqtSlot(object, object, int)
     def createXoverItem(self, Base3p, Base5p, strandtype):
         """
-        Base3p is the tuple (3 prime vhelix, index), 
+        Base3p is the tuple (3 prime vhelix, index),
         Base5p is the (5 prime vhelix, index)
         strandtype is Strandtype.Scaffold or Strandtype.Staple
         """

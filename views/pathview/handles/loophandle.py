@@ -127,16 +127,23 @@ class LoopHandle(QGraphicsItem):
     """
     This is just the shape of the Loop item
     """
+    _loopItem = LoopItem()
+    _skipItem = SkipItem()
     _myRect = QRectF(0, 0, styles.PATH_BASE_WIDTH, styles.PATH_BASE_WIDTH)
     _myRect = _myRect.united(LoopItem._loopPathUpRect)
     _myRect = _myRect.united(LoopItem._loopPathDownRect)
     _pen = QPen(styles.bluestroke, 2)
     _baseWidth = styles.PATH_BASE_WIDTH
-    _offset = styles.PATH_BASE_WIDTH / 4
+    _offset = styles.PATH_BASE_WIDTH*0.75
     _halfbaseWidth = _baseWidth / 2
     _font = QFont(styles.thefont, 10, QFont.Bold)
     _myRect.adjust(-15, -15, 30, 30)
-    
+    # Bases are drawn along and above the loop path.
+    # These calculations revolve around fixing the characters at a certain
+    # percentage of the total arclength.
+    # The fraction of the loop that comes before the first character and
+    # after the last character is the padding, and the rest is divided evenly.
+    _fractionLoopToPad = .10
 
     def __init__(self, parent=None):
         super(LoopHandle, self).__init__(parent)
@@ -145,8 +152,7 @@ class LoopHandle(QGraphicsItem):
         self.setZValue(styles.ZLOOPHANDLE)
         self._loopsize = 0
         self._index = 0
-        self._strandtype = None
-        self.hide()
+        self._strandType = None
     # end def
 
     def label(self):
@@ -186,7 +192,6 @@ class LoopHandle(QGraphicsItem):
         """
         Must intercept invalid input events.  Make changes here
         """
-
         a = event.key()
         text = event.text()
         if a in [Qt.Key_Space, Qt.Key_Tab]:
@@ -196,8 +201,6 @@ class LoopHandle(QGraphicsItem):
             return
         elif unicode(text).isalpha():
             return
-        # elif not unicode(text).isdigit():
-        #      return
         else:
             return QGraphicsTextItem.keyPressEvent(self._label, event)
 
@@ -213,7 +216,7 @@ class LoopHandle(QGraphicsItem):
             loopsize = None
         if loopsize != None and loopsize != self._loopsize:
             self._loopsize = loopsize
-            self.parentObject().vhelix().installLoop(self._strandtype,\
+            self.parentObject().vhelix().installLoop(self._strandType,\
                                                      self._index,\
                                                      self._loopsize)
             if self._loopsize:
@@ -221,37 +224,77 @@ class LoopHandle(QGraphicsItem):
                 self._label.setFocus(False)
         # end if
         self.focusOut()
-        
+
     def boundingRect(self):
         return self._myRect
 
     def paint(self, painter, option, widget=None):
-        pass
+        ph = self.parentObject()
+        vh = ph.vhelix()
+        strandType = self._strandType
+        istop = ph.strandIsTop(strandType)
+        index = self._index
+        loopsize = self._loopsize
+        if loopsize > 0:
+            path = self._loopItem.getLoop(istop)
+            painter.setPen(QPen(vh.colorOfBase(strandType, index), styles.LOOPWIDTH))
+            painter.setBrush(Qt.NoBrush)
+            painter.drawPath(path)
+            # draw sequence on the loop
+            baseText = vh.sequenceForLoopAt(strandType, index)
+            if baseText[0] != ' ':  # only draw sequences if they exist
+                if istop:
+                    angleOffset = 0
+                else:
+                    angleOffset = 180
+                if len(baseText) > 20:
+                    baseText = baseText[:17] + '...'
+                fractionArclenPerChar = (1.-2*self._fractionLoopToPad)/(len(baseText)+1)
+                painter.setPen(QPen(Qt.black))
+                painter.setBrush(Qt.NoBrush)
+                painter.setFont(ph.sequenceFont)
+                for i in range(len(baseText)):
+                    frac = self._fractionLoopToPad + (i+1)*fractionArclenPerChar
+                    pt = path.pointAtPercent(frac)
+                    tangAng = path.angleAtPercent(frac)
+                    painter.save()
+                    painter.translate(pt)
+                    painter.rotate(-tangAng + angleOffset)
+                    painter.translate(QPointF(-ph.sequenceFontCharWidth/2.,
+                                              -2 if istop else ph.sequenceFontH))
+                    if not istop:
+                        painter.translate(0, -ph.sequenceFontH - styles.LOOPWIDTH)
+                    painter.drawText(0, 0, baseText[i if istop else -i-1])
+                    painter.restore()
+            # end if
+        else:  # loopsize < 0 (a skip)
+            path = self._skipItem.getSkip()
+            painter.setPen(self._skipItem.getPen())
+            painter.drawPath(path)
     # end def
 
     def setLabel(self, ph, strandType, index, number):
         self._loopsize = number
         self._index = index
-        self._strandtype = strandType
+        self._strandType = strandType
         self._label.setPlainText("%d" % (number))
         self.setParentItem(ph)
         self.resetPosition()
     # end def
 
     def resetPosition(self):
-        txtOffset = self._label.boundingRect().width() / 2
+        txtOffset = self._label.boundingRect().width()/2 
         ph = self.parentObject()
-        posItem = ph.baseLocation(self._strandtype, self._index, center=True)
-        if ph.strandIsTop(self._strandtype):
-            self.setPos(posItem[0] - txtOffset + self._offset,\
-                        posItem[1] - 1.5 * self._baseWidth)
+        posItem = ph.baseLocation(self._strandType, self._index, center=False)
+        self.setPos(posItem[0], posItem[1])
+        if ph.strandIsTop(self._strandType):
+            self._label.setPos(self._offset-txtOffset, -self._baseWidth)
         else:
-            self.setPos(posItem[0] - txtOffset + self._offset,\
-                        posItem[1] + 0.5 * self._baseWidth)
+            self._label.setPos(self._offset-txtOffset, self._baseWidth)
         if self._loopsize > 0:
-            self.show()
+            self._label.show()
         else:
-            self.hide()
+            self._label.hide()
     # end def
 
 
