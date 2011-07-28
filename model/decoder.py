@@ -44,6 +44,7 @@ class Decoder(object):
     def __init__(self):
         self.idToObj=[]
         self.objsWithDeferredInit=[]
+
     def decode(self,string):
         try:
             import cjson
@@ -82,8 +83,8 @@ class Decoder(object):
             obj.finishInitWithArchivedDict(completeArchivedDict)
         map(refResolve, self.objsWithDeferredInit)
         
-        return self.idToObj[-1]  # The root object
-            
+        return self.idToObj[-1]  # The root object (Document)
+
     def resolveRefsIn(self, obj):
         if isinstance(obj, (int, long, float, complex, str, unicode)):
             return obj
@@ -94,7 +95,7 @@ class Decoder(object):
             # for k,v in obj.iteritems():
             #     ret[k] = self.resolveRefsIn(v)
             # return ret
-  
+
             # using map on to do the above
             dicToList = lambda dic: list((k, v) for (k, v) in dic.iteritems())
             resolveRefsInList = lambda (k,v): (k, self.resolveRefsIn(v))
@@ -106,8 +107,8 @@ class Decoder(object):
             # return ret
             return map(self.resolveRefsIn, obj)
         raise TypeError("Cannot resolve refs in (%s)%s; unfamiliar type"%(type(obj),obj))
-                
-    
+
+
     class DecodingStub():
         def __init__(self, idnum):
             self.idnum = idnum

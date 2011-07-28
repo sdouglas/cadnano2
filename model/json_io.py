@@ -27,9 +27,9 @@ json_io.py
 
 Created by Nick Conway on 2011-01-19.
 
-Houses code that parses legacy (cadnano1) files.l
+Houses code that parses legacy (cadnano1) files.
 """
-
+from cadnano import app
 from collections import defaultdict
 from document import Document
 from dnahoneycombpart import DNAHoneycombPart
@@ -38,11 +38,9 @@ from virtualhelix import VirtualHelix
 from enum import StrandType
 from enum import LatticeType
 from ui.dialogs.ui_latticetype import Ui_LatticeType
-
-# from PyQt4.QtGui import QColor
 import util
 # import Qt stuff into the module namespace with PySide, PyQt4 independence
-util.qtWrapImport('QtGui', globals(),  ['QColor', 'QDialog'])
+util.qtWrapImport('QtGui', globals(),  ['qApp', 'QColor', 'QDialog', 'QDialogButtonBox'])
 
 NODETAG = "node"
 NAME = "name"
@@ -80,6 +78,12 @@ def doc_from_legacy_dict(obj):
         latticeType = LatticeType.Square
     elif numBases % 21 == 0:
         latticeType = LatticeType.Honeycomb
+    else:
+        if dialog.exec_() == 1:
+            latticeType = LatticeType.Square
+        else:
+            latticeType = LatticeType.Honeycomb
+
     # create part according to lattice type
     if latticeType == LatticeType.Honeycomb:
         part = DNAHoneycombPart()
@@ -101,6 +105,7 @@ def doc_from_legacy_dict(obj):
             numRows, numCols = 30, 30
     else:
         raise TypeError("Lattice type not recognized")
+
     doc = Document(legacyJsonImport=True)
     doc.addPart(part)
     part.setDimensions((numRows, numCols, numBases))
@@ -119,60 +124,65 @@ def doc_from_legacy_dict(obj):
     stap_seg = defaultdict(list)
     stap_xo = defaultdict(list)
 
-    for helix in obj['vstrands']:
-        helixNo += 1
-        # print "helix %i/%i (%i%%)"%(helixNo, numHelixes, helixNo*100/numHelixes)
-        vhNum = helix['num']
-        vh = part.getVirtualHelix(vhNum)
-        scaf = helix['scaf']
-        stap = helix['stap']
-        loops = helix['loop']
-        skips = helix['skip']
-        assert(len(scaf)==len(stap) and len(stap)==vh.numBases() and\
-               len(scaf)==len(loops) and len(loops)==len(skips))
-        # read scaffold segments and xovers
-        for i in range(len(scaf)):
-            fiveVH, fiveIdx, threeVH, threeIdx = scaf[i]
-            if fiveVH == -1 and threeVH == -1:
-                continue  # null base
-            if isSegmentStartOrEnd(StrandType.Scaffold, vhNum, i, fiveVH,\
-                                   fiveIdx, threeVH, threeIdx):
-                scaf_seg[vhNum].append(i)
-            if fiveVH != vhNum and threeVH != vhNum:  # special case
-                scaf_seg[vhNum].append(i)  # end segment on a double crossover
-            if is3primeXover(StrandType.Scaffold, vhNum, i, threeVH, threeIdx):
-                scaf_xo[vhNum].append((i, threeVH, threeIdx))
-        assert (len(scaf_seg[vhNum]) % 2 == 0)
-        # install scaffold segments
-        for i in range(0, len(scaf_seg[vhNum]), 2):
-            if vhNum % 2 == 0:
-                startIdx, endIdx = scaf_seg[vhNum][i], scaf_seg[vhNum][i+1]
-            else:
-                endIdx, startIdx = scaf_seg[vhNum][i], scaf_seg[vhNum][i+1]
-            vh.connectStrand(StrandType.Scaffold, startIdx, endIdx,\
-                             useUndoStack=False, police=False, speedy=True)
-        # read staple segments and xovers
-        for i in range(len(stap)):
-            fiveVH, fiveIdx, threeVH, threeIdx = stap[i]
-            if fiveVH == -1 and threeVH == -1:
-                continue  # null base
-            if isSegmentStartOrEnd(StrandType.Staple, vhNum, i, fiveVH,\
-                                   fiveIdx, threeVH, threeIdx):
-                stap_seg[vhNum].append(i)
-            if fiveVH != vhNum and threeVH != vhNum:  # special case
-                stap_seg[vhNum].append(i)  # end segment on a double crossover
-            if is3primeXover(StrandType.Staple, vhNum, i, threeVH, threeIdx):
-                stap_xo[vhNum].append((i, threeVH, threeIdx))
-        assert (len(stap_seg[vhNum]) % 2 == 0)
-        # install staple segments
-        for i in range(0, len(stap_seg[vhNum]), 2):
-            if vhNum % 2 == 0:
-                startIdx, endIdx = stap_seg[vhNum][i], stap_seg[vhNum][i+1]
-            else:
-                endIdx, startIdx = stap_seg[vhNum][i], stap_seg[vhNum][i+1]
-            vh.connectStrand(StrandType.Staple, startIdx, endIdx,\
-                             useUndoStack=False, police=False,\
-                             color=QColor(136, 136, 136), speedy=True)
+    try:
+        for helix in obj['vstrands']:
+            helixNo += 1
+            # print "helix %i/%i (%i%%)"%(helixNo, numHelixes, helixNo*100/numHelixes)
+            vhNum = helix['num']
+            vh = part.getVirtualHelix(vhNum)
+            scaf = helix['scaf']
+            stap = helix['stap']
+            loops = helix['loop']
+            skips = helix['skip']
+            assert(len(scaf)==len(stap) and len(stap)==vh.numBases() and\
+                   len(scaf)==len(loops) and len(loops)==len(skips))
+            # read scaffold segments and xovers
+            for i in range(len(scaf)):
+                fiveVH, fiveIdx, threeVH, threeIdx = scaf[i]
+                if fiveVH == -1 and threeVH == -1:
+                    continue  # null base
+                if isSegmentStartOrEnd(StrandType.Scaffold, vhNum, i, fiveVH,\
+                                       fiveIdx, threeVH, threeIdx):
+                    scaf_seg[vhNum].append(i)
+                if fiveVH != vhNum and threeVH != vhNum:  # special case
+                    scaf_seg[vhNum].append(i)  # end segment on a double crossover
+                if is3primeXover(StrandType.Scaffold, vhNum, i, threeVH, threeIdx):
+                    scaf_xo[vhNum].append((i, threeVH, threeIdx))
+            assert (len(scaf_seg[vhNum]) % 2 == 0)
+            # install scaffold segments
+            for i in range(0, len(scaf_seg[vhNum]), 2):
+                if vhNum % 2 == 0:
+                    startIdx, endIdx = scaf_seg[vhNum][i], scaf_seg[vhNum][i+1]
+                else:
+                    endIdx, startIdx = scaf_seg[vhNum][i], scaf_seg[vhNum][i+1]
+                vh.connectStrand(StrandType.Scaffold, startIdx, endIdx,\
+                                 useUndoStack=False, police=False, speedy=True)
+            # read staple segments and xovers
+            for i in range(len(stap)):
+                fiveVH, fiveIdx, threeVH, threeIdx = stap[i]
+                if fiveVH == -1 and threeVH == -1:
+                    continue  # null base
+                if isSegmentStartOrEnd(StrandType.Staple, vhNum, i, fiveVH,\
+                                       fiveIdx, threeVH, threeIdx):
+                    stap_seg[vhNum].append(i)
+                if fiveVH != vhNum and threeVH != vhNum:  # special case
+                    stap_seg[vhNum].append(i)  # end segment on a double crossover
+                if is3primeXover(StrandType.Staple, vhNum, i, threeVH, threeIdx):
+                    stap_xo[vhNum].append((i, threeVH, threeIdx))
+            assert (len(stap_seg[vhNum]) % 2 == 0)
+            # install staple segments
+            for i in range(0, len(stap_seg[vhNum]), 2):
+                if vhNum % 2 == 0:
+                    startIdx, endIdx = stap_seg[vhNum][i], stap_seg[vhNum][i+1]
+                else:
+                    endIdx, startIdx = stap_seg[vhNum][i], stap_seg[vhNum][i+1]
+                vh.connectStrand(StrandType.Staple, startIdx, endIdx,\
+                                 useUndoStack=False, police=False,\
+                                 color=QColor(136, 136, 136), speedy=True)
+    except AssertionError:
+        dialogLT.label.setText("Unrecognized file format.")
+        dialogLT.buttonBox.setStandardButtons(QDialogButtonBox.Ok)
+        dialog.exec_()
 
     helixNo = -1
     for helix in obj['vstrands']:
