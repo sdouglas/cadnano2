@@ -122,6 +122,7 @@ class CADnano(QObject):
         qApp.setWindowIcon(QIcon('ui/mainwindow/images/cadnano2-app-icon.png'))
         self.undoGroup = QUndoGroup()
         self.documentControllers = set()  # Open documents
+        self.activeDocument = None
         self.v = {}  # Newly created VirtualHelix register here by idnum.
         self.ph = {}
         self.phg = None

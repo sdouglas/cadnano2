@@ -80,8 +80,10 @@ class DocumentWindow(QMainWindow, ui_mainwindow.Ui_MainWindow):
         assert self.pathroot.scene() == self.pathscene
 
         # Uncomment the following block for  explicit pathview GL rendering
-        # self.pathGraphicsView.setViewport(QGLWidget(QGLFormat(QGL.SampleBuffers)))
-        # self.pathGraphicsView.setViewportUpdateMode(QGraphicsView.FullViewportUpdate)
+        # self.pathGraphicsView.setViewport(
+        #                           QGLWidget(QGLFormat(QGL.SampleBuffers)))
+        # self.pathGraphicsView.setViewportUpdateMode(
+        #                                   QGraphicsView.FullViewportUpdate)
         # self.pathGraphicsView.setAutoFillBackground ( True )
         # self.pathscene.setBackgroundBrush(Qt.white)
         # self.pathscene.setItemIndexMethod(QGraphicsScene.NoIndex)
@@ -104,15 +106,24 @@ class DocumentWindow(QMainWindow, ui_mainwindow.Ui_MainWindow):
             rec = TestRecorder()
             self.sliceController.testRecorder = rec
             self.pathController.testRecorder = rec
-            self.pathController.activeToolChanged.connect(rec.activePathToolChangedSlot)
+            self.pathController.activeToolChanged.connect(
+                                                rec.activePathToolChangedSlot)
 
         # Edit menu setup
         self.actionUndo = docCtrlr.undoStack().createUndoAction(self)
         self.actionRedo = docCtrlr.undoStack().createRedoAction(self)
-        self.actionUndo.setText(QApplication.translate("MainWindow", "Undo", None, QApplication.UnicodeUTF8))
-        self.actionUndo.setShortcut(QApplication.translate("MainWindow", "Ctrl+Z", None, QApplication.UnicodeUTF8))
-        self.actionRedo.setText(QApplication.translate("MainWindow", "Redo", None, QApplication.UnicodeUTF8))
-        self.actionRedo.setShortcut(QApplication.translate("MainWindow", "Ctrl+Shift+Z", None, QApplication.UnicodeUTF8))
+        self.actionUndo.setText(QApplication.translate(
+                                            "MainWindow", "Undo",
+                                            None, QApplication.UnicodeUTF8))
+        self.actionUndo.setShortcut(QApplication.translate(
+                                            "MainWindow", "Ctrl+Z",
+                                            None, QApplication.UnicodeUTF8))
+        self.actionRedo.setText(QApplication.translate(
+                                            "MainWindow", "Redo",
+                                            None, QApplication.UnicodeUTF8))
+        self.actionRedo.setShortcut(QApplication.translate(
+                                            "MainWindow", "Ctrl+Shift+Z",
+                                            None, QApplication.UnicodeUTF8))
         self.sep = QAction(self)
         self.sep.setSeparator(True)
         self.menuEdit.insertAction(self.actionCut, self.sep)
@@ -144,3 +155,6 @@ class DocumentWindow(QMainWindow, ui_mainwindow.Ui_MainWindow):
         self.settings.setValue("size", self.size())
         self.settings.endGroup()
         QWidget.resizeEvent(self, event)
+
+    def changeEvent(self, event):
+        QWidget.changeEvent(self, event)
