@@ -22,6 +22,8 @@ gCadNanoButton = None
 gCadNanoToolbar = None
 fMayaExitingCB = None
 
+gCadNanoApp = None
+
 gCadNanoObjectName = "CadNanoWindow"
 gCadNanoDock = None
 gIconPath = (
@@ -99,37 +101,41 @@ def uninitializePlugin(mobject):
 
 def openCN():
     global gCadNanoDock
+    global gCadNanoApp
     simplifyMayaUI()
-    dw = getDocumentWindow()
 
-    if (dw):
-        dw.setVisible(True)
+    dw = getDocumentWindow()
+    if gCadNanoApp:
+        for x in gCadNanoApp.documentControllers:
+            if x.win:
+                x.win.setVisible(True)
     else:
         # begin program
         from cadnano import app as getAppInstance
-        app = getAppInstance(sys.argv)
-        app.initGui()
+        gCadNanoApp = getAppInstance(sys.argv)
+        gCadNanoApp.initGui()
         if __name__ == '__main__':
-            app.exec_()
+            gCadNanoApp.exec_()
         #execfile( os.environ['CADNANO_PATH'] + '/mayamain.py')
         dw = getDocumentWindow()
         global gCadNanoObjectName
         dw.setObjectName(gCadNanoObjectName)
 
-    ptr = OpenMayaUI.MQtUtil.mainWindow()
-    mayaWin = sip.wrapinstance(long(ptr), QObject)
-    gCadNanoDock = QDockWidget("CadNano")
-    gCadNanoDock.setFeatures(
-                            QDockWidget.DockWidgetMovable
-                            | QDockWidget.DockWidgetFloatable)
-    gCadNanoDock.setAllowedAreas(
-                            Qt.LeftDockWidgetArea
-                            | Qt.RightDockWidgetArea)
-    gCadNanoDock.setWidget(dw)
-    mayaWin.addDockWidget(Qt.DockWidgetArea(Qt.LeftDockWidgetArea),
-                            gCadNanoDock)
-    dw.setSizePolicy(QSizePolicy.MinimumExpanding,
-                        QSizePolicy.MinimumExpanding)
+    if gCadNanoDock == None:
+        ptr = OpenMayaUI.MQtUtil.mainWindow()
+        mayaWin = sip.wrapinstance(long(ptr), QObject)
+        gCadNanoDock = QDockWidget("CadNano")
+        gCadNanoDock.setFeatures(
+                                QDockWidget.DockWidgetMovable
+                                | QDockWidget.DockWidgetFloatable)
+        gCadNanoDock.setAllowedAreas(
+                                Qt.LeftDockWidgetArea
+                                | Qt.RightDockWidgetArea)
+        gCadNanoDock.setWidget(dw)
+        mayaWin.addDockWidget(Qt.DockWidgetArea(Qt.LeftDockWidgetArea),
+                                gCadNanoDock)
+        dw.setSizePolicy(QSizePolicy.MinimumExpanding,
+                            QSizePolicy.MinimumExpanding)
     gCadNanoDock.setVisible(True)
 
 
@@ -170,10 +176,11 @@ def restoreMayaUI():
 
 def closeCN():
     global gCadNanoDock
-    dw = getDocumentWindow()
-    if (dw):
-        dw.setVisible(False)
-        gCadNanoDock.setVisible(False)
+    global gCadNanoApp
+    gCadNanoDock.setVisible(False)
+    for x in gCadNanoApp.documentControllers:
+        if x.win:
+            x.win.setVisible(False)
     restoreMayaUI()
 
 
@@ -202,6 +209,7 @@ def removeUIButton():
 
 
 def getDocumentWindow():
+    global gCadNanoDock
     if(gCadNanoDock):
         return gCadNanoDock.widget()
     else:

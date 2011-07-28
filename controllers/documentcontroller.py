@@ -75,7 +75,7 @@ class DocumentController():
         self.setDocument(Document() if not doc else doc)
         app().undoGroup.addStack(self.undoStack())
         self.win.setWindowTitle(self.documentTitle() + '[*]')
-        self.solidHelixGrp = None
+        #self.solidHelixGrp = None
         if doc != None and doc.parts():
             doc.parts()[0].needsFittingToView.emit()
 
