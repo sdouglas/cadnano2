@@ -196,6 +196,7 @@ class DNAPart(Part):
             undoStack.push(c)
         else:
             c.redo()
+
     class SetDimensionsCommand(QUndoCommand):
         def __init__(self, part, newDim):
             QUndoCommand.__init__(self)
