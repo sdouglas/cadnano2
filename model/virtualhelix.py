@@ -1178,7 +1178,6 @@ class VirtualHelix(QObject):
         """After a file load, bases have an incorrect value for
         base._shouldHighlight. This method fixes that for all bases in strands
         that have a 5' end on self."""
-        return
         _, _, scaf5 = self.getSegmentsAndEndpoints(StrandType.Scaffold)
         _, _, stap5 = self.getSegmentsAndEndpoints(StrandType.Staple)
         scaf, stap = self._scaffoldBases, self._stapleBases

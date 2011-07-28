@@ -209,6 +209,7 @@ class DocumentController():
             return False
         fname = str(fname)
         doc = decode(file(fname).read())
+        doc.finalizeImport()  # updates staple highlighting
         DocumentController(doc, fname)
         if self.filesavedialog != None:
             self.filesavedialog.filesSelected.disconnect(self.openFile)
@@ -284,8 +285,7 @@ class DocumentController():
             return True
         if not self.undoStack().isClean():    # document dirty?
             savebox = QMessageBox(QMessageBox.Warning,   "Application",
-                "The document has been modified.\n \
-                    Do you want to save your changes?",
+                "The document has been modified.\nDo you want to save your changes?",
                 QMessageBox.Save | QMessageBox.Discard | QMessageBox.Cancel,
                 self.win,
                 Qt.Dialog | Qt.MSWindowsFixedSizeDialogHint | Qt.Sheet)

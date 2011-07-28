@@ -47,7 +47,7 @@ class Document(QObject):
         self._importedFromJson = legacyJsonImport
         # Should use _controller's undo stack if there is a controller
         self._undoStack = None
-    
+
     def fsck(self):
         for p in self._parts:
             p.fsck()
@@ -57,6 +57,16 @@ class Document(QObject):
 
     def setController(self, cont):
         self._controller = cont
+
+    def finalizeImport(self):
+        """
+        Called after importing a file. If it's an nno file, we need to
+        recalculate the staple lengths and redraw them to avoid unwanted
+        highlighting.
+        """
+        if self._importedFromJson == False:
+            for part in self._parts:
+                part.updateAcyclicLengths()
 
     def addDnaHoneycombPart(self):
         """
