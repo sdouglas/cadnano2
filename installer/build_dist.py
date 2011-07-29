@@ -10,19 +10,16 @@ if path.exists('cadnano2'):
     shutil.rmtree('cadnano2')
 os.mkdir('cadnano2')
 def process_dir(self, dirname, files):
-    print "cb %s %s"%(dirname, files)
     if dirname == path.pardir:
-        loc_in_proj = path.curdir
+        base = 'cadnano2' + path.sep
     else:
-        loc_in_proj = dirname[len(path.pardir):]
-    base = path.curdir + loc_in_proj + path.sep
-    
+        base = 'cadnano2' + dirname[len(path.pardir):]
     # Make sure the current directory exists
     print "mkdir -p %s"%base
     try:
         os.makedirs(base)
     except OSError:
-        pass
+        pass 
 
     # Prevent infinite recursion
     try:
@@ -39,8 +36,12 @@ def process_dir(self, dirname, files):
         if ext == '.py':
             oldloc = path.join(dirname, f)
             newloc = path.join(base, f)
-            print "\tcp %s %s"%(oldloc, newloc)
-            shutil.copy(oldloc, newloc)
+            try:
+                shutil.copy(oldloc, newloc)
+                errstr = ""
+            except shutil.Error as e:
+                errstr = " ERROR: " + str(e)
+            print "\tcp %s %s"%(oldloc, newloc) + errstr
             contains_a_py_file = True
     if not contains_a_py_file:
         # Kill recursion
