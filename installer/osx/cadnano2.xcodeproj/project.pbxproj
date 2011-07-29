@@ -193,7 +193,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "# Rebuild module\ncd $PROJECT_DIR/..\npython build_dist.py\nMODULE_DEST=$BUILT_PRODUCTS_DIR/$UNLOCALIZED_RESOURCES_FOLDER_PATH/cadnano2\nrm -rf $MODULE_DEST\ncp -R cadnano2 $MODULE_DEST";
+			shellScript = "# Rebuild module\ncd $PROJECT_DIR/..\npython build_module.py\nMODULE_DEST=$BUILT_PRODUCTS_DIR/$UNLOCALIZED_RESOURCES_FOLDER_PATH/cadnano2\nrm -rf $MODULE_DEST\ncp -R cadnano2 $MODULE_DEST";
 		};
 /* End PBXShellScriptBuildPhase section */
 
