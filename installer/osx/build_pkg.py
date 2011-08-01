@@ -100,9 +100,16 @@ def repackage_riverbank(pkgname, tarball_re_str, folder_re_str, download_url):
     if pkg_build.wait() != 0:
         print"\tERROR: %s's make returned a nonzero exit status"%pkgname
         exit(1)
-    print "\tmake install DESTDIR=%s  2>&1 >$BUILDROOT/%s_make.log"%(install_root, pkgname)
-    pkg_make_install_log = file('%s/%s_make_install.log'%(build_root, pkgname), 'w')
+    print "\tmake install DESTDIR=%s  2>&1 >$BUILDROOT/%s_make_install0.log"%(install_root, pkgname)
+    pkg_make_install_log = file('%s/%s_make_install0.log'%(build_root, pkgname), 'w')
     pkg_build = subprocess.Popen(('make', 'install', 'DESTDIR=%s'%install_root), stdout=pkg_make_install_log, stderr=pkg_make_install_log)
+    if pkg_build.wait() != 0:
+        print"\tERROR: %s's make install returned a nonzero exit status"%pkgname
+        exit(1)
+    # blow away possibly old root install
+    print "\tmake install DESTDIR=%s  2>&1 >$BUILDROOT/%s_make_install1.log"%('/', pkgname)
+    pkg_make_install_log = file('%s/%s_make_install1.log'%(build_root, pkgname), 'w')
+    pkg_build = subprocess.Popen(('make', 'install', 'DESTDIR=%s' % '/'), stdout=pkg_make_install_log, stderr=pkg_make_install_log)
     if pkg_build.wait() != 0:
         print"\tERROR: %s's make install returned a nonzero exit status"%pkgname
         exit(1)

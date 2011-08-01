@@ -32,7 +32,7 @@ def process_dir(self, dirname, files):
     for f in files:
         if not path.isfile(path.join(dirname, f)):
             continue
-        _, ext = path.splitext(f)
+        dummy, ext = path.splitext(f)
         if ext == '.py':
             oldloc = path.join(dirname, f)
             newloc = path.join(base, f)

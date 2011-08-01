@@ -234,7 +234,7 @@
 				HEADER_SEARCH_PATHS = /usr/include/python2.6;
 				INFOPLIST_FILE = "cadnano2-Info.plist";
 				INSTALL_PATH = "$(HOME)/Applications";
-				MACOSX_DEPLOYMENT_TARGET = 10.5;
+				MACOSX_DEPLOYMENT_TARGET = 10.6;
 				PRODUCT_NAME = cadnano2;
 			};
 			name = Debug;
@@ -250,7 +250,7 @@
 				HEADER_SEARCH_PATHS = /usr/include/python2.6;
 				INFOPLIST_FILE = "cadnano2-Info.plist";
 				INSTALL_PATH = "$(HOME)/Applications";
-				MACOSX_DEPLOYMENT_TARGET = 10.5;
+				MACOSX_DEPLOYMENT_TARGET = 10.6;
 				PRODUCT_NAME = cadnano2;
 			};
 			name = Release;
@@ -281,6 +281,7 @@
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				PREBINDING = NO;
 				SDKROOT = macosx10.6;
+				VALID_ARCHS = "i386 x86_64";
 			};
 			name = Release;
 		};
