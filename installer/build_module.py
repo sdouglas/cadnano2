@@ -3,7 +3,7 @@ import os
 import os.path as path
 import shutil
 
-if not path.exists('build_dist.py'):
+if not path.exists('build_module.py'):
     print "The current working directory should be the folder this script resides in."
     exit(1)
 if path.exists('cadnano2'):
