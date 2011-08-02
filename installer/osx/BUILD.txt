@@ -1,11 +1,14 @@
 MAC OS X PACKAGING INSTRUCTIONS
 
 1) Make sure you have the prereqs. If you don't, you will be prompted for them, but here they are for convenience:
+    "cadnano2" path refers to the git source root
 	a) Qt (library-only binaries, Cocoa, no debug symbols) from
 	   http://qt.nokia.com/downloads/qt-for-open-source-cpp-development-on-mac-os-x
+	   as of August 1, 2011 this file is:
+	   http://get.qt.nokia.com/qt/source/qt-mac-opensource-4.7.3.dmg
 	b) SIP (put the OSX .tar.gz in cadnano2/install/osx) from
 	   http://www.riverbankcomputing.co.uk/software/sip/download
-	c) SIP (put the OSX .tar.gz in cadnano2/install/osx) from
+	c) PyQt (put the OSX .tar.gz in cadnano2/install/osx) from
 	   http://www.riverbankcomputing.co.uk/software/pyqt/download
 2) Run "python build_pkg.py" from the cadnano2/installer/osx folder.
 
