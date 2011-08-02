@@ -35,15 +35,16 @@ from tests.testrecorder import TestRecorder
 
 import util
 # import Qt stuff into the module namespace with PySide, PyQt4 independence
-util.qtWrapImport('QtCore', globals(), ['pyqtSignal', 'Qt', 'QFileInfo', \
-                                        'QPoint', 'QSettings', 'QSize', \
+util.qtWrapImport('QtCore', globals(), ['pyqtSignal', 'Qt', 'QFileInfo',
+                                        'QPoint', 'QSettings', 'QSize',
                                         'QString'])
-util.qtWrapImport('QtGui', globals(), [ 'QGraphicsItem', 'QMainWindow', \
-                                        'QGraphicsScene', 'QGraphicsView', \
+util.qtWrapImport('QtGui', globals(), ['QGraphicsObject', 'QMainWindow',
+                                        'QGraphicsScene', 'QGraphicsView',
                                         'QApplication', 'QAction', 'QWidget'])
-util.qtWrapImport('QtOpenGL', globals(), [ 'QGLWidget', 'QGLFormat', 'QGL'])
+# util.qtWrapImport('QtOpenGL', globals(), ['QGLWidget', 'QGLFormat', 'QGL'])
 
-class SceneRoot(QGraphicsItem):
+
+class SceneRoot(QGraphicsObject):
     def __init__(self, rectsource=None):
         super(SceneRoot, self).__init__()
         # this sets the rect of itself to the QGraphicsScene bounding volume
@@ -79,8 +80,10 @@ class DocumentWindow(QMainWindow, ui_mainwindow.Ui_MainWindow):
         assert self.pathroot.scene() == self.pathscene
 
         # Uncomment the following block for  explicit pathview GL rendering
-        # self.pathGraphicsView.setViewport(QGLWidget(QGLFormat(QGL.SampleBuffers)))
-        # self.pathGraphicsView.setViewportUpdateMode(QGraphicsView.FullViewportUpdate)
+        # self.pathGraphicsView.setViewport(
+        #                           QGLWidget(QGLFormat(QGL.SampleBuffers)))
+        # self.pathGraphicsView.setViewportUpdateMode(
+        #                                   QGraphicsView.FullViewportUpdate)
         # self.pathGraphicsView.setAutoFillBackground ( True )
         # self.pathscene.setBackgroundBrush(Qt.white)
         # self.pathscene.setItemIndexMethod(QGraphicsScene.NoIndex)
@@ -103,21 +106,30 @@ class DocumentWindow(QMainWindow, ui_mainwindow.Ui_MainWindow):
             rec = TestRecorder()
             self.sliceController.testRecorder = rec
             self.pathController.testRecorder = rec
-            self.pathController.activeToolChanged.connect(rec.activePathToolChangedSlot)
+            self.pathController.activeToolChanged.connect(
+                                                rec.activePathToolChangedSlot)
 
         # Edit menu setup
         self.actionUndo = docCtrlr.undoStack().createUndoAction(self)
         self.actionRedo = docCtrlr.undoStack().createRedoAction(self)
-        self.actionUndo.setText(QApplication.translate("MainWindow", "Undo", None, QApplication.UnicodeUTF8))
-        self.actionUndo.setShortcut(QApplication.translate("MainWindow", "Ctrl+Z", None, QApplication.UnicodeUTF8))
-        self.actionRedo.setText(QApplication.translate("MainWindow", "Redo", None, QApplication.UnicodeUTF8))
-        self.actionRedo.setShortcut(QApplication.translate("MainWindow", "Ctrl+Shift+Z", None, QApplication.UnicodeUTF8))
+        self.actionUndo.setText(QApplication.translate(
+                                            "MainWindow", "Undo",
+                                            None, QApplication.UnicodeUTF8))
+        self.actionUndo.setShortcut(QApplication.translate(
+                                            "MainWindow", "Ctrl+Z",
+                                            None, QApplication.UnicodeUTF8))
+        self.actionRedo.setText(QApplication.translate(
+                                            "MainWindow", "Redo",
+                                            None, QApplication.UnicodeUTF8))
+        self.actionRedo.setShortcut(QApplication.translate(
+                                            "MainWindow", "Ctrl+Shift+Z",
+                                            None, QApplication.UnicodeUTF8))
         self.sep = QAction(self)
         self.sep.setSeparator(True)
         self.menuEdit.insertAction(self.actionCut, self.sep)
         self.menuEdit.insertAction(self.sep, self.actionRedo)
         self.menuEdit.insertAction(self.actionRedo, self.actionUndo)
-        self.splitter.setSizes([400,400])  # balance splitter size
+        self.splitter.setSizes([400, 400])  # balance splitter size
 
     def undoStack(self):
         return self.controller.undoStack()
@@ -143,3 +155,6 @@ class DocumentWindow(QMainWindow, ui_mainwindow.Ui_MainWindow):
         self.settings.setValue("size", self.size())
         self.settings.endGroup()
         QWidget.resizeEvent(self, event)
+
+    def changeEvent(self, event):
+        QWidget.changeEvent(self, event)

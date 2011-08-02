@@ -36,11 +36,8 @@ CustomQGraphicsView.py
 Copyright (c) 2010 . All rights reserved.
 
 """
-
+from cadnano import app
 from views import styles
-
-# from PyQt4.QtCore import *
-# from PyQt4.QtGui import *
 
 import util
 # import Qt stuff into the module namespace with PySide, PyQt4 independence
@@ -79,39 +76,36 @@ class CustomQGraphicsView(QGraphicsView):
         enable manipulation of the view.
         """
         QGraphicsView.__init__(self, parent)
-
+        self.setTransformationAnchor(QGraphicsView.AnchorUnderMouse)
+        self.setRubberBandSelectionMode(Qt.IntersectsItemShape)
+        self.setStyleSheet("QGraphicsView { background-color: rgb(96.5%, 96.5%, 96.5%); }")
+        # Pan and dolly defaults
+        self._transformEnable = False
+        self._dollyZoomEnable = False
         self._noDrag = QGraphicsView.RubberBandDrag
         self._yesDrag = QGraphicsView.ScrollHandDrag
         self.setDragMode(self._noDrag)
-        self._transformEnable = False
-        self._dollyZoomEnable = False
-        self.setTransformationAnchor(QGraphicsView.AnchorUnderMouse)
-
         self._x0 = 0
         self._y0 = 0
         self._scale_size = 1.0
         self._scale_limit_max = 3.0
-        self._scale_limit_min = .41
-        self._scaleDownRate = 0.01  # 0.95
+        self._scale_limit_min = 0.41
+        self._scaleUpRate = 0.01
+        self._scaleDownRate = 0.01
         self._scaleFitFactor = 1  # sets initial zoom level
-        self._scaleUpRate = .01  # 100.0/95.0
         self._last_scale_factor = 0.0
-
+        self.sceneRootItem = None  # the item to transform
+        # Keyboard panning
+        self._key_pan_delta_x = styles.PATH_BASE_WIDTH * 21
+        self._key_pan_delta_y = styles.PATH_HELIX_HEIGHT + styles.PATH_HELIX_PADDING/2
+        # Modifier keys and buttons
         self._key_mod = Qt.Key_Control
-        self._key_pan = Qt.LeftButton
-        self._key_pan_alt = Qt.MidButton
-        self.key_zoom = Qt.RightButton
-        self.sceneRootItem = None
-        
-        self._pressList = []
-        self.setStyleSheet("QGraphicsView { background-color: rgb(96.5%, 96.5%, 96.5%); }")
-        # self.setStyleSheet("QGraphicsView { background-color: #FF0000; }")
-        # self.setStyleSheet("QGraphicsView { background-color: rgba(255, 0, 0, 75%); }")
-
-        self.setRubberBandSelectionMode(Qt.IntersectsItemShape)
-
-        self.toolbar = None
-        # self.tempitem = None
+        self._button_pan = Qt.LeftButton
+        self._button_pan_alt = Qt.MidButton
+        self._button_zoom = Qt.RightButton
+        # Misc
+        self._pressList = []  # bookkeeping to handle passing mouseevents
+        self.toolbar = None  # custom hack for the paint tool palette
     # end def
 
     def setScaleFitFactor(self, value):
@@ -120,7 +114,7 @@ class CustomQGraphicsView(QGraphicsView):
 
     def setKeyPan(self, button):
         """Set the class pan button remotely"""
-        self._key_pan = button
+        self._button_pan = button
     # end def
 
     def addToPressList(self, item):
@@ -128,10 +122,50 @@ class CustomQGraphicsView(QGraphicsView):
         self._pressList.append(item)
     # end def
 
+    def keyPanDeltaX(self):
+        """Returns the distance in scene space to move the sceneRootItem when
+        panning left or right."""
+        # PyQt isn't aware that QGraphicsObject isa QGraphicsItem and so
+        # it returns a separate python object if, say, childItems() returns
+        # a QGraphicsObject casted to a QGraphicsItem. If this is the case,
+        # we can still find the QGraphicsObject thusly:
+        candidateDxDeciders = list(self.sceneRootItem.childItems())
+        candidateDxDeciders = candidateDxDeciders +\
+                           [cd.toGraphicsObject() for cd in candidateDxDeciders]
+        for cd in candidateDxDeciders:
+            if cd == None:
+                continue
+            keyPanDXMethod = getattr(cd, 'keyPanDeltaX', None)
+            if keyPanDXMethod != None:
+                return keyPanDXMethod()
+        return 100
+
+    def keyPanDeltaY(self):
+        """Returns the distance in scene space to move the sceneRootItem when
+        panning left or right."""
+        candidateDyDeciders = list(self.sceneRootItem.childItems())
+        candidateDyDeciders = candidateDyDeciders +\
+                           [cd.toGraphicsObject() for cd in candidateDyDeciders]
+        for cd in candidateDyDeciders:
+            if cd == None:
+                continue
+            keyPanDYMethod = getattr(cd, 'keyPanDeltaY', None)
+            if keyPanDYMethod != None:
+                return keyPanDYMethod()
+        return 100
+
     def keyPressEvent(self, event):
         """docstring for keyPressEvent"""
         if event.key() == self._key_mod:
             self._transformEnable = True
+        elif event.key() == Qt.Key_Left:
+            self.sceneRootItem.translate(self.keyPanDeltaX(), 0)
+        elif event.key() == Qt.Key_Up:
+            self.sceneRootItem.translate(0,self.keyPanDeltaY())
+        elif event.key() == Qt.Key_Right:
+            self.sceneRootItem.translate(-self.keyPanDeltaX(),0)
+        elif event.key() == Qt.Key_Down:
+            self.sceneRootItem.translate(0, -self.keyPanDeltaY())
         else:
             QGraphicsView.keyPressEvent(self, event)
         # end else
@@ -183,11 +217,11 @@ class CustomQGraphicsView(QGraphicsView):
         """docstring for mousePressEvent"""
         if self._transformEnable == True and qApp.keyboardModifiers():
             which_buttons = event.buttons()
-            if which_buttons in [self._key_pan, self._key_pan_alt]:
+            if which_buttons in [self._button_pan, self._button_pan_alt]:
                 self.panEnable()
                 self._x0 = event.posF().x()
                 self._y0 = event.posF().y()
-            elif which_buttons == self.key_zoom:
+            elif which_buttons == self._button_zoom:
                 self._dollyZoomEnable = True
                 self._last_scale_factor = 0
                 # QMouseEvent.y() returns the position of the mouse cursor
@@ -204,9 +238,9 @@ class CustomQGraphicsView(QGraphicsView):
         if self._transformEnable == True:
             # QMouseEvent.button() returns the button that triggered the event
             which_button = event.button()
-            if which_button in [self._key_pan, self._key_pan_alt]:
+            if which_button in [self._button_pan, self._button_pan_alt]:
                 self.panDisable()
-            elif which_button == self.key_zoom:
+            elif which_button == self._button_zoom:
                 self._dollyZoomEnable = False
             else:
                 QGraphicsView.mouseReleaseEvent(self, event)
@@ -249,7 +283,8 @@ class CustomQGraphicsView(QGraphicsView):
     def safeScale(self, delta):
         currentScaleLevel = self.transform().m11()
         scaleFactor = 1 + delta * \
-           (self._scaleDownRate if delta < 0 else self._scaleUpRate)
+           (self._scaleDownRate if delta < 0 else self._scaleUpRate) * \
+           (app().prefs.zoomSpeed/100.)
         newScaleLevel = currentScaleLevel * scaleFactor
         newScaleLevel = util.clamp(currentScaleLevel * scaleFactor,\
                               self._scale_limit_min,\
@@ -282,7 +317,7 @@ class CustomQGraphicsView(QGraphicsView):
                 # end else
         # end if
     # end def
-    
+
     def resetScale(self):
         """
         reset the scale to 1
@@ -301,30 +336,21 @@ class CustomQGraphicsView(QGraphicsView):
 
         self._last_scale_factor = 0.0
     # end def
-    
+
     def zoomToFit(self):
         # Auto zoom to center the scene
         thescene = self.sceneRootItem.scene()
         # order matters?
         self.sceneRootItem.resetTransform() # zero out translations
         self.resetTransform() # zero out scaling
-
         if self.toolbar:  # HACK: move toolbar so it doesn't affect sceneRect
             self.toolbar.setPos(0, 0)
-        
-        # if self.tempitem != None:
-        #     thescene.removeItem(self.tempitem)    
-            
         thescene.setSceneRect(thescene.itemsBoundingRect())
         scene_rect = thescene.sceneRect()
         if self.toolbar:  # HACK, pt2: move toolbar back
             self.toolbar.setPos(self.mapToScene(0, 0))
         self.fitInView(scene_rect, Qt.KeepAspectRatio) # fit in view
         self.resetScale() # adjust scaling so that translation works
-
-
-        # self.tempitem = thescene.addRect(scene_rect, QPen(styles.redstroke))
-        
         # adjust scaling so that the items don't fill 100% of the view 
         # this is good for selection
         self.scale(self._scaleFitFactor, self._scaleFitFactor)
@@ -336,5 +362,3 @@ class CustomQGraphicsView(QGraphicsView):
             self.toolbar.setPos(self.mapToScene(0, 0))
         QGraphicsView.paintEvent(self, event)
 #end class
-
-

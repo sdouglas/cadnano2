@@ -39,6 +39,7 @@ def initPyQt(PyQt4):
     print "Using PyQt4"
 saved_argv = sys.argv
 
+
 def usesPySide(*args):
     preferPySide = False
     global usesPySide_ret
@@ -84,7 +85,7 @@ def qtWrapImport(name, globaldict, fromlist):
         #pyWrapper = 'PyQt4'
     else:
         pyWrapper = 'PyQt4'
-    _temp = __import__(pyWrapper + '.' + name, \
+    _temp = __import__(pyWrapper + '.' + name,
                         globaldict, locals(), fromlist, -1)
     for key in dir(_temp):
         if pyWrapper == 'PySide':
@@ -100,9 +101,10 @@ def qtWrapImport(name, globaldict, fromlist):
 # end def
 
 # import Qt stuff into the module namespace with PySide, PyQt4 independence
-qtWrapImport('QtGui', globals(),  ['qApp', 'QApplication', 'QIcon',\
+qtWrapImport('QtGui', globals(),  ['qApp', 'QApplication', 'QIcon',
                                    'QUndoGroup'])
 qtWrapImport('QtCore', globals(), ['QObject', 'QCoreApplication'])
+
 
 class CADnano(QObject):
     sharedApp = None  # This class is a singleton.
@@ -136,6 +138,7 @@ class CADnano(QObject):
         qApp.setWindowIcon(QIcon('ui/mainwindow/images/cadnano2-app-icon.png'))
         self.undoGroup = QUndoGroup()
         self.documentControllers = set()  # Open documents
+        self.activeDocument = None
         self.v = {}  # Newly created VirtualHelix register here by idnum.
         self.ph = {}
         self.phg = None
@@ -145,17 +148,17 @@ class CADnano(QObject):
             print "Some handy locals:"
             print "\ta\tCADnano.app() (the shared CADnano application object)"
             print "\td()\tthe last created Document"
-            print "\tv\tmaps the numbers of recently created " +\
-                  "VirtualHelixes to the VHs themselves"
+            print ("\tv\tmaps the numbers of recently created " +
+                  "VirtualHelixes to the VHs themselves")
             print "\tph\tmaps virtual helix numbers to pathhelix"
             print "\tphg()\tthe last initialized PathHelixGroup"
             print "\tpySide()\ttrue iff the app is using PySide"
             print "\tquit()\tquit (for when the menu fails)"
-            interact('', local={'a': self,\
-                                'd': lambda: self.d,\
-                                'v': self.v,\
-                                'ph': self.ph,\
-                                'phg': lambda: self.phg,\
+            interact('', local={'a': self,
+                                'd': lambda: self.d,
+                                'v': self.v,
+                                'ph': self.ph,
+                                'phg': lambda: self.phg,
                                 'pySide': self.usesPySide})
     # end def
 
@@ -189,8 +192,10 @@ class CADnano(QObject):
     def prefsClicked(self):
         self.prefs.showDialog()
 
+
 def ignoreEnv():
     return environ.get('CADNANO_IGNORE_ENV_VARS_EXCEPT_FOR_ME', False)
+
 
 # Convenience. No reason to feel guilty using it - CADnano is a singleton.
 def app(appArgs=None):

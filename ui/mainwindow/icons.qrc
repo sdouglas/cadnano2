@@ -30,8 +30,8 @@
     <file alias="force">images/path-force-xover.png</file>
     <file alias="break">images/path-break_48.png</file>
     <file alias="select">images/path-edit_32.png</file>
-    <file alias="addseq">images/path-sequence.png</file>
     <file alias="erase">images/path-erase_48x48.png</file>
     <file alias="autostaple">images/path-staple.png</file>
+    <file alias="addseq">images/path-addseq.png</file>
   </qresource>
 </RCC>

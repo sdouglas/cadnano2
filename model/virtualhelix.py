@@ -28,7 +28,7 @@ Created by Jonathan deWerd on 2011-01-26.
 """
 import sys
 from exceptions import AttributeError, IndexError
-from itertools import product
+from itertools import product, imap, repeat
 from .enum import LatticeType, Parity, StrandType, BreakType
 from .enum import Crossovers, EndType
 from .base import Base
@@ -438,12 +438,11 @@ class VirtualHelix(QObject):
         #          if not strand[i].isEmpty():
         #              ret = max(ret, i)
         #  return ret
-        ret = -1
-        for strandType in (StrandType.Scaffold, StrandType.Staple):
-            strand = self._strand(strandType)
-            filteredStrand = filter(lambda b: not b.isEmpty(), strand)
-            ret = max(ret, filteredStrand[len(filteredStrand)-1]._n)
-        return ret
+        filtScaffold = max(map(lambda b: b._n if not b.isEmpty() else -1, \
+                                            self._strand(StrandType.Scaffold)))
+        filtStaple = max(map(lambda b: b._n if not b.isEmpty() else -1, \
+                                            self._strand(StrandType.Staple)))
+        return max(filtScaffold, filtStaple)
 
     def hasBaseAt(self, strandType, index):
         """Returns true if a base is present at index on strand strandtype."""
@@ -626,7 +625,7 @@ class VirtualHelix(QObject):
         
     def getSegmentsAndEndpoints(self, strandType):
         """Returns a list of segments, endpoints of self in the format
-        ([(startIdx, endIdx), ...],
+        ([(startIdx, endIdx), ...],   # These "indexes" are floats
          [3pEndIdx1, 3pEndIdx2, ...], 
          [5pEndIdx1, ...])
         where startIdx and endIdx can be 1.5, 2.5 etc (multiply by base
@@ -891,13 +890,16 @@ class VirtualHelix(QObject):
             self.part().basesModifiedVHs.add(self)
         else:
             self.basesModified.emit()
-    
+        return self
+
     def emitBasesModifiedIfNeeded(self):
         part = self.part()
         if part:
+            if part.basesModifySilently:
+                return
             # for vh in list(self.part().basesModifiedVHs):
             #     vh.basesModified.emit()
-            map( lambda vh: vh.basesModified.emit(), list(self.part().basesModifiedVHs) )
+            map(lambda vh: vh.basesModified.emit(), list(self.part().basesModifiedVHs))
             part.basesModifiedVHs.clear()
             part._recalculateStrandLengths()
             part.modificationCondition.acquire()
@@ -905,8 +907,6 @@ class VirtualHelix(QObject):
             part.modificationCondition.release()
         else:
             self.basesModified.emit()
-        self._sequenceForVirtualStrandCache = None
-        #self.part().virtualHelixAtCoordsChanged.emit(*self.coord())
 
     def beginCommand(self, useUndoStack, undoStack, strng):
         """undoStack overrides the default undoStack if it is not None"""
@@ -967,37 +967,46 @@ class VirtualHelix(QObject):
         Sets {s.n, (s+1).np, ..., (e-2).np, (e-1).np, e.p}
         """
         undoStack = self.beginCommand(useUndoStack, undoStack, "Extend strand")
-
         strand = self._strand(strandType)
         vstrand = self._vstrand(strandType)
         startIndex, endIndex = int(startIndex), int(endIndex)
         startIndex = util.clamp(startIndex, 0, len(strand) - 1)
         endIndex = util.clamp(endIndex, 0, len(strand) - 1)
-
         c = self.ConnectStrandCommand(self, strandType, startIndex, endIndex,\
                                       color=color, speedy=speedy)
-
         self.endCommand(undoStack, c, police)
         
     def clearAllStrands(self):
-        rightBreakIdx = leftBreakIdx = 1
-        while leftBreakIdx > 1:
-            if self.hasCrossoverAt(strandType, leftBreakIdx-1):
-                if self.hasStrandAt(strandType, idx):
-                    self.removeXoversAt(strandType, leftBreakIdx-1)
-                break
-            if self.hasEndAt(strandType, leftBreakIdx-1):
-                break
-            leftBreakIdx -= 1
-        while rightBreakIdx < self.numBases():
-            if self.hasCrossoverAt(strandType, rightBreakIdx):
-                if self.hasStrandAt(strandType, idx):
-                    self.removeXoversAt(strandType, rightBreakIdx)
-                break
-            if self.hasEndAt(strandType, rightBreakIdx) and rightBreakIdx != idx:
-                break
-            rightBreakIdx += 1
-        self.clearStrand(strandType, leftBreakIdx, rightBreakIdx)
+        for strandType in (StrandType.Scaffold, StrandType.Staple):
+            # print "clearing", strandType
+            for idx in range(len(self._strand(strandType))):
+                # print idx
+                if self.hasBaseAt(strandType, idx):
+                    rightBreakIdx = leftBreakIdx = idx
+                    while leftBreakIdx > 1:
+                        if self.hasCrossoverAt(strandType, leftBreakIdx-1):
+                            if self.hasStrandAt(strandType, idx):
+                                self.removeXoversAt(strandType, leftBreakIdx-1)
+                            break
+                        if self.hasEndAt(strandType, leftBreakIdx-1):
+                            break
+                        leftBreakIdx -= 1
+                    while rightBreakIdx < self.numBases():
+                        if self.hasCrossoverAt(strandType, rightBreakIdx):
+                            if self.hasStrandAt(strandType, idx):
+                                self.removeXoversAt(strandType, rightBreakIdx)
+                            break
+                        if self.hasEndAt(strandType, rightBreakIdx) and rightBreakIdx != idx:
+                            break
+                        rightBreakIdx += 1
+                    # end while
+                    # print "executing clear"
+                    # print leftBreakIdx, rightBreakIdx
+                    self.clearStrand(strandType, leftBreakIdx, rightBreakIdx, useUndoStack=True)
+                # end if
+            # end for
+        # end for
+    # end def
 
     def legacyClearStrand(self, strandType, startIndex, endIndex,\
                     useUndoStack=True,undoStack=None, colorL=None, colorR=None,\
@@ -1072,7 +1081,7 @@ class VirtualHelix(QObject):
         self.endCommand(undoStack, c)
 
     def installLoop(self, strandType, index, loopsize, useUndoStack=True,\
-                    undoStack=False, speedy=False):
+                    undoStack=None, speedy=False):
         """
         Main function for installing loops and skips
         -1 is a skip, +N is a loop
@@ -1083,12 +1092,9 @@ class VirtualHelix(QObject):
         """
         undoStack = self.beginCommand(useUndoStack, undoStack, "installLoop")
         d = None
-        if strandType == StrandType.Scaffold:
-            if self._isSeqBlank == False:
-                d = self.ApplySequenceCommand(self, StrandType.Scaffold, index, " ")
-            else:
-                d = None
-            c = self.LoopCommand(self, strandType, index, loopsize)
+        if strandType == StrandType.Scaffold and self._isSeqBlank == False:
+            d = self.ApplySequenceCommand(self, StrandType.Scaffold, index, " ")
+        c = self.LoopCommand(self, strandType, index, loopsize)
         self.endCommand(undoStack, (d, c))
 
     def applyColorAt(self, color, strandType, index, useUndoStack=True,\
@@ -1210,7 +1216,21 @@ class VirtualHelix(QObject):
     def isSeqBlank(self):
         return self._isSeqBlank
     # end def
-    
+
+    def updateLengthsFrom5pEnds(self):
+        """After a file load, bases have an incorrect value for
+        base._shouldHighlight. This method fixes that for all bases in strands
+        that have a 5' end on self."""
+        _, _, scaf5 = self.getSegmentsAndEndpoints(StrandType.Scaffold)
+        _, _, stap5 = self.getSegmentsAndEndpoints(StrandType.Staple)
+        scaf, stap = self._scaffoldBases, self._stapleBases
+        part = self.part()
+        for baseNum in scaf5:
+            part.basesModified.add(scaf[baseNum])
+        for baseNum in stap5:
+            part.basesModified.add(stap[baseNum])
+        part._recalculateStrandLengths()
+
     class ApplySequenceCommand(QUndoCommand):
         def __init__(self, vh, strandType, idx, seqStr):
             """
@@ -1338,41 +1358,31 @@ class VirtualHelix(QObject):
             self._newColor = color
 
         def redo(self):
-            # oc = self._oldColors = []
             nc = self._newColor
-            vh = None
             
-            # for b in self._bases:
-            #     vh = b._vhelix
-            #     oc.append(b._setColor(nc))
-            #     vh.setHasBeenModified()
-            # if vh != None:
-            #     vh.emitBasesModifiedIfNeeded()
+            # see commit 54e8b1c48bab8ec2776f for slow version
             
             # fast version below
-            self._oldColors = map(lambda b: b._setColor(nc), self._bases)
-            map(lambda b: b._vhelix.setHasBeenModified(), self._bases)
-            temp = filter(lambda b: True if b._vhelix != None else False, self._bases)
-            if len(temp) > 0:
-                temp[0]._vhelix.emitBasesModifiedIfNeeded()
+            self._oldColors = map(Base._setColor, self._bases, repeat(nc, len(self._bases)))
+            # shouldn't have to worry about 'b._vhelix' being 'None'
+            temp = map(VirtualHelix.setHasBeenModified, (b._vhelix for b in self._bases))
+            # temp = filter(lambda b: True if b._vhelix != None else False, self._bases)
+            if len(temp) > 0: # check to see if has elements and emit signal
+                temp[0].emitBasesModifiedIfNeeded()
 
         def undo(self):
             oc = self._oldColors
-            vh = None
-            # for b in reversed(self._bases):
-            #     vh = b._vhelix
-            #     b._setColor(oc.pop())
-            #     vh.setHasBeenModified()
-            # if vh != None:
-            #     vh.emitBasesModifiedIfNeeded()
-                
+            
+            # see commit 54e8b1c48bab8ec2776f for slow version
+            
             # fast version below
             bases = reversed(self._bases)
-            map(lambda b: b._setColor(oc.pop()), bases)
-            map(lambda b: b._vhelix.setHasBeenModified(), bases)
-            temp = filter(lambda b: True if b._vhelix != None else False, self._bases)
-            if len(temp) > 0:
-                temp[0]._vhelix.emitBasesModifiedIfNeeded()
+            map(Base._setColor, bases, reversed(oc))
+            # shouldn't have to worry about 'b._vhelix' being 'None'
+            temp = map(VirtualHelix.setHasBeenModified, (b._vhelix for b in bases))
+            # temp = filter(lambda b: True if b._vhelix != None else False, bases)
+            if len(temp) > 0: # check to see if has elements and emit signal
+                temp[0].emitBasesModifiedIfNeeded()
 
 
     class LoopCommand(QUndoCommand):
@@ -1984,13 +1994,17 @@ class VirtualHelix(QObject):
         stap = re.split('\s+', completeArchivedDict['staple'])[1:]
         # Did the init method set the number of bases correctly?
         assert(len(scaf) == len(stap) and len(stap) == self.numBases())
-        for i in range(len(scaf)):
-            self._scaffoldBases[i].setConnectsFromString(scaf[i])
-            self._stapleBases[i].setConnectsFromString(stap[i])
+        # for i in range(len(scaf)):
+        #     self._scaffoldBases[i].setConnectsFromString(scaf[i])
+        #     self._stapleBases[i].setConnectsFromString(stap[i])
+        map(Base.setConnectsFromString, self._scaffoldBases, scaf)
+        map(Base.setConnectsFromString, self._stapleBases, stap)
         # Give bases the proper colors
         scafColors = re.split('\s+', completeArchivedDict['scafldColors'])
-        for i in range(len(scaf)):
-            self._scaffoldBases[i]._setColor(QColor(scafColors[i]))
+        # for i in range(len(scaf)):
+        #     self._scaffoldBases[i]._setColor(QColor(scafColors[i]))
+        map(Base._setColor, self._scaffoldBases, imap(QColor, scafColors))
         stapColors = re.split('\s+', completeArchivedDict['stapleColors'])
-        for i in range(len(stap)):
-            self._stapleBases[i]._setColor(QColor(stapColors[i]))
+        # for i in range(len(stap)):
+        #     self._stapleBases[i]._setColor(QColor(stapColors[i]))
+        map(Base._setColor, self._stapleBases, imap(QColor, stapColors))

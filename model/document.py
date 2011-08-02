@@ -27,7 +27,7 @@ document.py
 Created by Jonathan deWerd on 2011-01-26.
 """
 
-import json
+from cadnano import app
 from views import styles
 from .dnahoneycombpart import DNAHoneycombPart
 from .dnasquarepart import DNASquarePart
@@ -36,7 +36,7 @@ from .enum import LatticeType
 import util
 # import Qt stuff into the module namespace with PySide, PyQt4 independence
 util.qtWrapImport('QtCore', globals(), ['pyqtSignal', 'QObject'])
-util.qtWrapImport('QtGui', globals(), [ 'QUndoCommand'])
+util.qtWrapImport('QtGui', globals(), [ 'QUndoCommand', 'QUndoStack'])
 
 class Document(QObject):
     def __init__(self, incompleteArchivedDict=None, legacyJsonImport=False):
@@ -45,7 +45,9 @@ class Document(QObject):
         self._selectedPart = None
         self._controller = None
         self._importedFromJson = legacyJsonImport
-    
+        # Should use _controller's undo stack if there is a controller
+        self._undoStack = None
+
     def fsck(self):
         for p in self._parts:
             p.fsck()
@@ -56,15 +58,23 @@ class Document(QObject):
     def setController(self, cont):
         self._controller = cont
 
+    def finalizeImport(self):
+        """
+        Called after importing a file. If it's an nno file, we need to
+        recalculate the staple lengths and redraw them to avoid unwanted
+        highlighting.
+        """
+        if self._importedFromJson == False:
+            for part in self._parts:
+                part.updateAcyclicLengths()
+
     def addDnaHoneycombPart(self):
         """
         Create and store a new DNAPart and instance, and return the instance.
         """
         dnapart = None
         if len(self._parts) == 0:
-            dnapart = DNAHoneycombPart(maxRow=styles.HONEYCOMB_PART_MAXROWS,\
-                                       maxCol=styles.HONEYCOMB_PART_MAXCOLS,\
-                                       maxSteps=styles.HONEYCOMB_PART_MAXSTEPS)
+            dnapart = DNAHoneycombPart()
             self.addPart(dnapart)
         return dnapart
 
@@ -74,9 +84,7 @@ class Document(QObject):
         """
         dnapart = None
         if len(self._parts) == 0:
-            dnapart = DNASquarePart(maxRow=styles.SQUARE_PART_MAXROWS,\
-                                    maxCol=styles.SQUARE_PART_MAXCOLS,\
-                                    maxSteps=styles.SQUARE_PART_MAXSTEPS)
+            dnapart = DNASquarePart()
             self.addPart(dnapart)
         return dnapart
 
@@ -120,7 +128,8 @@ class Document(QObject):
     def undoStack(self):
         if self.controller():
             return self.controller().undoStack()
-        return None
+        self._undoStack = QUndoStack()
+        return self._undoStack
 
     ################### Transient (doesn't get saved) State ##################
     selectedPartChanged = pyqtSignal(object)

@@ -302,12 +302,10 @@ class SelectTool(AbstractPathTool):
             assert(False)
         assert(False)
 
-    def clearSequence(self, vh, idx):
+    def clearSequence(self, vh, strandType, idx):
         # for limiting the times a command get's called during a drag
-        if self._isPressed != True and vh.isSeqBlank() == False:
-            vh.setSandboxed(False)
-            vh.applySequenceAt(StrandType.Scaffold, int(idx), " ")
-            vh.setSandboxed(True)
+        if self._isPressed != True and vh.isSeqBlank() == False and strandType == StrandType.Scaffold:
+            vh.applySequenceAt(StrandType.Scaffold, int(idx), " ", undoStack=vh.part().undoStack())
             self._isPressed = True
 
     def conditionalUndo(self, vh):
@@ -341,15 +339,15 @@ class SelectTool(AbstractPathTool):
         op, frOffset, toOffset = dragOp[0:3]
 
         if op == self.ConnectStrand:
-            self.clearSequence(vHelix,fr[1]+frOffset)
+            self.clearSequence(vHelix, fr[0], fr[1]+frOffset)
             color = dragOp[3]
             vHelix.connectStrand(fr[0], fr[1]+frOffset, to[1]+toOffset, color=color)
         elif op == self.ClearStrand:
-            self.clearSequence(vHelix,fr[1]+frOffset)
+            self.clearSequence(vHelix, fr[0], fr[1]+frOffset)
             colorL, colorR = dragOp[3:5]
             vHelix.legacyClearStrand(fr[0], fr[1]+frOffset, to[1]+toOffset, colorL=colorL, colorR=colorR)
         elif op == self.RemoveXOver:
-            self.clearSequence(vHelix,fr[0])
+            self.clearSequence(vHelix, fr[0], fr[1])
             vHelix.removeXoversAt(fr[0], fr[1], newColor=vHelix.palette()[0])
         else:
             assert(op == self.NoOperation)

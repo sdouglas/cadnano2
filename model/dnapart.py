@@ -31,6 +31,7 @@ import copy
 from views import styles
 from readwritelock import ReadWriteLock
 from threading import Condition
+import itertools
 
 import util
 # import Qt stuff into the module namespace with PySide, PyQt4 independence
@@ -108,6 +109,7 @@ class DNAPart(Part):
         self.numTimesStrandLengthsRecalcd = 0
         self.lock = ReadWriteLock()
         self.modificationCondition = Condition()
+        self.basesModifySilently = False
 
         # Event propagation
         self.virtualHelixAtCoordsChanged.connect(self.persistentDataChangedEvent)
@@ -252,12 +254,36 @@ class DNAPart(Part):
 
     dimensionsWillChange = pyqtSignal(object)
     dimensionsDidChange = pyqtSignal()
-    def setDimensions(self, newDim):
-        self.dimensionsWillChange.emit(newDim)
-        self._maxRow, self._maxCol, self._maxBase = newDim
-        for n in self._numberToVirtualHelix:
-            self._numberToVirtualHelix[n].setNumBases(self._maxBase)
-        self.dimensionsDidChange.emit()
+    def setDimensions(self, newDim, useUndoStack=True, undoStack=None):
+        c = DNAPart.SetDimensionsCommand(self, newDim)
+        if useUndoStack:
+            if undoStack == None:
+                undoStack = self.undoStack()
+            undoStack.push(c)
+        else:
+            c.redo()
+
+    class SetDimensionsCommand(QUndoCommand):
+        def __init__(self, part, newDim):
+            QUndoCommand.__init__(self)
+            self.newDim = newDim
+            self.part = part
+        def redo(self, actuallyUndo=False):
+            dimToChangeTo, part = self.newDim, self.part
+            self.oldDim = part.dimensions()
+            part._maxRow, part._maxCol, part._maxBase = dimToChangeTo
+            subCommands = []
+            for vh in part._numberToVirtualHelix.itervalues():
+                c = vh.SetNumBasesCommand(vh, part._maxBase)
+                c.redo()
+                subCommands.append(c)
+            self.subCommands = subCommands
+            part.dimensionsDidChange.emit()
+        def undo(self):
+            dimToChangeTo, part = self.oldDim, self.part
+            part._maxRow, part._maxCol, part._maxBase = dimToChangeTo
+            for c in reversed(self.subCommands):
+                c.undo()
 
     def majorGrid(self):
         return self._majorGridLine
@@ -275,9 +301,10 @@ class DNAPart(Part):
         sr['.class'] = "DNAPart"
         # JSON doesn't like keys that aren't strings, so we cheat and use an array
         # Entries look like ((row,col),num,vh)
-        coordsAndNumToVH = []
-        for vh in self._coordToVirtualHelix.itervalues():
-            coordsAndNumToVH.append((vh.coord(), vh.number(), vh))
+        # coordsAndNumToVH = []
+        # for vh in self._coordToVirtualHelix.itervalues():
+        #     coordsAndNumToVH.append((vh.coord(), vh.number(), vh))
+        coordsAndNumToVH = map(lambda vh: (vh.coord(), vh.number(), vh), self._coordToVirtualHelix.itervalues())
         sr['virtualHelices'] = coordsAndNumToVH
         sr['name'] = self.name()
         sr['maxBase'] = self._maxBase
@@ -291,7 +318,7 @@ class DNAPart(Part):
     def finishInitWithArchivedDict(self, completeArchivedDict):
         row, col, mb = self.dimensions()
         vh = completeArchivedDict['virtualHelices'][0][2]
-        self.setDimensions((row, col, vh.numBases()))
+        self.setDimensions((row, col, vh.numBases()), useUndoStack=False)
         for coord, num, vh in completeArchivedDict['virtualHelices']:
             if num % 2:
                 self.highestUsedOdd = max(self.highestUsedOdd, num)
@@ -339,8 +366,7 @@ class DNAPart(Part):
         else:
             self.undoStack().push(c)
             
-    def removeVirtualHelixAt(self, coords, vh, requestSpecificIdnum=None, noUndo=False):
-        c = self.RemoveHelixCommand(self, tuple(coords), vh, requestSpecificIdnum)
+    def removeVirtualHelicesAt(self, vhList, requestSpecificIdnum=None, noUndo=False):
         if noUndo:
             def removeCommands(vh):
                 if vh != None:
@@ -400,50 +426,37 @@ class DNAPart(Part):
         return len(self._numberToVirtualHelix)
 
     def getVirtualHelices(self):
-        return [self._numberToVirtualHelix[n] for n in self._numberToVirtualHelix]
+        return self._numberToVirtualHelix.itervalues()
+
+    def updateAcyclicLengths(self):
+        # Cyclic structures should get initial highlighting from the fact that
+        # bases are highlighted by default.
+        for vh in self.getVirtualHelices():
+            vh.updateLengthsFrom5pEnds()
 
     def autoStaple(self):
-        vhs = self.getVirtualHelices()
+        """
+        Install staples to pair with all scaffold present in the model and
+        connect all crossovers.
+
+        Commits prior to 6eb16c3420b70a5f3966 for slower version of next bit
+        """
+        self.basesModifySilently = True
         self.undoStack().beginMacro("Auto Staple")
-        
-        # for vh in vhs:
-        #     # Copy the scaffold strand's segments to the staple strand
-        #     vh.legacyClearStrand(StrandType.Staple, 1, vh.numBases()-1)
-        #     segments, ends3, ends5 = vh.getSegmentsAndEndpoints(StrandType.Scaffold)
-        #     for segStart, segEnd in segments:
-        #         vh.connectStrand(StrandType.Staple, segStart, segEnd)
-        #     for i in range(len(segments)-1):
-        #         segIEnd = segments[i][1]
-        #         if segIEnd + 1 == segments[i+1][0]:
-        #             vh.connectStrand(StrandType.Staple, segIEnd, segIEnd + 1)
-        
-        # for speed
         def autoStaple_sub1(vh):
             # Copy the scaffold strand's segments to the staple strand
             vh.legacyClearStrand(StrandType.Staple, 1, vh.numBases()-1)
             segments, ends3, ends5 = vh.getSegmentsAndEndpoints(StrandType.Scaffold)
-            map(lambda (segStart, segEnd): vh.connectStrand(StrandType.Staple, segStart, segEnd), segments)
+            map(lambda (segStart, segEnd): \
+                    vh.connectStrand(StrandType.Staple, segStart, segEnd,\
+                                     speedy=True, police=False), segments)
             for i in range(len(segments)-1):
                 segIEnd = segments[i][1]
                 if segIEnd + 1 == segments[i+1][0]:
                     vh.connectStrand(StrandType.Staple, segIEnd, segIEnd + 1)
         # end def
+        vhs = self.getVirtualHelices()
         map(autoStaple_sub1, vhs)
-        
-        
-        # for vh in vhs:
-        #     # We only add crossovers for which vh will have the 3' end to
-        #     # avoid adding each crossover twice. We can do this by adding
-        #     # only crossovers that face left (or right) because all crossovers
-        #     # with 3' crossovers (or 5') will face either left or right
-        #     # on a given helix.
-        #     facingR = not vh.directionOfStrandIs5to3(StrandType.Staple)
-        #     pxovers = vh.potentialCrossoverList(facingR, StrandType.Staple)
-        #     for toVH, idx in pxovers:  # Loop through potential xovers
-        #         if vh.possibleNewCrossoverAt(StrandType.Staple, idx, toVH, idx):
-        #             vh.installXoverFrom3To5(StrandType.Staple, idx, toVH, idx)
-        
-        # for speed part 2
         def autoStaple_sub2(vh):
             # We only add crossovers for which vh will have the 3' end to
             # avoid adding each crossover twice. We can do this by adding
@@ -454,11 +467,14 @@ class DNAPart(Part):
             pxovers = vh.potentialCrossoverList(facingR, StrandType.Staple)
             def loopXovers((toVH, idx)):
                 if vh.possibleNewCrossoverAt(StrandType.Staple, idx, toVH, idx):
-                    vh.installXoverFrom3To5(StrandType.Staple, idx, toVH, idx)
+                    vh.installXoverFrom3To5(StrandType.Staple, idx, toVH, idx, speedy=False, police=False)
             map(loopXovers, pxovers)  # Loop through potential xovers
         # end def
+        vhs = self.getVirtualHelices()  # gets a generator, so call it again
         map(autoStaple_sub2, vhs)
         self.undoStack().endMacro()
+        self.basesModifySilently = False
+        list(self.basesModifiedVHs)[0].emitBasesModifiedIfNeeded()
     # end def
 
     def autoDragAllBreakpoints(self):
@@ -466,8 +482,10 @@ class DNAPart(Part):
         all breakpoints to extend as far as possible."""
         vhs = self.getVirtualHelices()
         self.undoStack().beginMacro("Auto-drag Scaffold(s)")
-        for vh in vhs:
-            vh.autoDragAllBreakpoints(StrandType.Scaffold)
+        # for vh in vhs:
+        #     vh.autoDragAllBreakpoints(StrandType.Scaffold)
+        map(VirtualHelix.autoDragAllBreakpoints, vhs, \
+                            itertools.repeat(StrandType.Scaffold, len(self._numberToVirtualHelix)))
         self.undoStack().endMacro()
 
     def indexOfRightmostNonemptyBase(self):
@@ -477,13 +495,17 @@ class DNAPart(Part):
         side of the part (red left-facing arrow). This method
         returnes the new numBases that will effect that reduction.
         """
-        ret = -1
-        for vh in self.getVirtualHelices():
-            ret = max(ret, vh.indexOfRightmostNonemptyBase())
-        return ret
+        # ret = -1
+        # for vh in self.getVirtualHelices():
+        #     ret = max(ret, vh.indexOfRightmostNonemptyBase())
+        # return ret
+        return max(map(VirtualHelix.indexOfRightmostNonemptyBase, self.getVirtualHelices()))
 
     def getStapleSequences(self):
-        """docstring for getStapleSequences"""
+        """
+        join with map provides best performance for concatenating lists of 
+        strings
+        """
         ret = "Start,End,Sequence,Length,Color\n"
         vhelices = self.getVirtualHelices()
         def gSS(vh):
@@ -499,7 +521,11 @@ class DNAPart(Part):
                     else:
                         return base.lazy_sequence()[1] + \
                                            base.lazy_sequence()[0]
+                                           
                 sequencestring = ''.join(map(baseSeq, bases))
+                # sequencestring = reduce(lambda x,y: x + y, map(baseSeq, bases), '')
+                # sequencestring = array.array('c', map(baseSeq, bases)).tostring()
+                
                 # sequencestring = util.nowhite(sequencestring)
                 sequencestring = util.markwhite(sequencestring)
                 output = "%d[%d],%d[%d],%s,%s,%s\n" % \
@@ -513,8 +539,12 @@ class DNAPart(Part):
                 return output
             # end def
             return ''.join(map(oligo_end_sub, oligo_ends))
+            # return reduce(lambda x,y: x + y, map(oligo_end_sub, oligo_ends), '')
+            # return array.array('c', map(oligo_end_sub, oligo_ends)).tostring()
         # end def
         return ret +''.join(map(gSS, vhelices))
+        # return reduce(lambda x,y: x + y, map(gSS, vhelices), ret)
+        # return ret + array.array('c', map(gSS, vhelices)).tostring()
 
     ############################# VirtualHelix Private CRUD #############################
     def _recalculateStrandLengths(self):
@@ -600,7 +630,14 @@ class DNAPart(Part):
         # end def
 
         def undo(self, actuallyUndo=False):
-            vh = self._part.getVirtualHelix(self._coords)
+            # print "undo remove helix"
+            vh = self._vhelix
+            if vh == None:
+                vh = self._part.getVirtualHelix(self._coords)
+            if vh == None:
+                vh = VirtualHelix(numBases=self._part.crossSectionStep())
+                # vh.basesModified.connect(self.update)
+
             if vh:
                 newID = self._part.reserveHelixIDNumber(
                                             parityEven=self._parity,\
@@ -612,9 +649,8 @@ class DNAPart(Part):
             self._part.virtualHelixAtCoordsChanged.emit(self._coords[0],\
                                                         self._coords[1])
         # end def
-
     # end class
-                                                        
+
 
     class RenumberHelixCommand(QUndoCommand):
         def __init__(self, dnapart, coords, newNumber):

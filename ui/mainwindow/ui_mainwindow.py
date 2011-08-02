@@ -2,8 +2,8 @@
 
 # Form implementation generated from reading ui file 'mainwindow/mainwindow.ui'
 #
-# Created: Sun Jul 24 22:50:50 2011
-#      by: PyQt4 UI code generator 4.7.7
+# Created: Thu Jul 28 15:33:33 2011
+#      by: PyQt4 UI code generator 4.8.4
 #
 # WARNING! All changes made in this file will be lost!
 
@@ -77,6 +77,7 @@ class Ui_MainWindow(object):
         self.pathGraphicsView.setVerticalScrollBarPolicy(QtCore.Qt.ScrollBarAlwaysOff)
         self.pathGraphicsView.setHorizontalScrollBarPolicy(QtCore.Qt.ScrollBarAlwaysOff)
         self.pathGraphicsView.setRenderHints(QtGui.QPainter.Antialiasing|QtGui.QPainter.TextAntialiasing)
+        self.pathGraphicsView.setTransformationAnchor(QtGui.QGraphicsView.AnchorUnderMouse)
         self.pathGraphicsView.setViewportUpdateMode(QtGui.QGraphicsView.MinimalViewportUpdate)
         self.pathGraphicsView.setObjectName(_fromUtf8("pathGraphicsView"))
         self.gridLayout.addWidget(self.splitter, 0, 0, 1, 1)
@@ -102,7 +103,7 @@ class Ui_MainWindow(object):
         self.topToolBar.setBaseSize(QtCore.QSize(0, 0))
         self.topToolBar.setToolButtonStyle(QtCore.Qt.ToolButtonTextUnderIcon)
         self.topToolBar.setObjectName(_fromUtf8("topToolBar"))
-        MainWindow.addToolBar(QtCore.Qt.ToolBarArea(QtCore.Qt.TopToolBarArea), self.topToolBar)
+        MainWindow.addToolBar(QtCore.Qt.TopToolBarArea, self.topToolBar)
         self.rightToolBar = QtGui.QToolBar(MainWindow)
         sizePolicy = QtGui.QSizePolicy(QtGui.QSizePolicy.Fixed, QtGui.QSizePolicy.Preferred)
         sizePolicy.setHorizontalStretch(0)
@@ -114,7 +115,7 @@ class Ui_MainWindow(object):
         self.rightToolBar.setAllowedAreas(QtCore.Qt.LeftToolBarArea|QtCore.Qt.RightToolBarArea|QtCore.Qt.TopToolBarArea)
         self.rightToolBar.setToolButtonStyle(QtCore.Qt.ToolButtonTextUnderIcon)
         self.rightToolBar.setObjectName(_fromUtf8("rightToolBar"))
-        MainWindow.addToolBar(QtCore.Qt.ToolBarArea(QtCore.Qt.RightToolBarArea), self.rightToolBar)
+        MainWindow.addToolBar(QtCore.Qt.RightToolBarArea, self.rightToolBar)
         self.leftToolBar = QtGui.QToolBar(MainWindow)
         sizePolicy = QtGui.QSizePolicy(QtGui.QSizePolicy.Fixed, QtGui.QSizePolicy.Preferred)
         sizePolicy.setHorizontalStretch(0)
@@ -125,7 +126,7 @@ class Ui_MainWindow(object):
         self.leftToolBar.setAllowedAreas(QtCore.Qt.LeftToolBarArea|QtCore.Qt.RightToolBarArea|QtCore.Qt.TopToolBarArea)
         self.leftToolBar.setToolButtonStyle(QtCore.Qt.ToolButtonTextUnderIcon)
         self.leftToolBar.setObjectName(_fromUtf8("leftToolBar"))
-        MainWindow.addToolBar(QtCore.Qt.ToolBarArea(QtCore.Qt.LeftToolBarArea), self.leftToolBar)
+        MainWindow.addToolBar(QtCore.Qt.LeftToolBarArea, self.leftToolBar)
         self.actionNew = QtGui.QAction(MainWindow)
         icon = QtGui.QIcon()
         icon.addPixmap(QtGui.QPixmap(_fromUtf8(":/filetools/new")), QtGui.QIcon.Normal, QtGui.QIcon.Off)
@@ -317,6 +318,7 @@ class Ui_MainWindow(object):
         self.menuCADnano.setTitle(QtGui.QApplication.translate("MainWindow", "CADnano", None, QtGui.QApplication.UnicodeUTF8))
         self.menuEdit.setTitle(QtGui.QApplication.translate("MainWindow", "Edit", None, QtGui.QApplication.UnicodeUTF8))
         self.topToolBar.setWindowTitle(QtGui.QApplication.translate("MainWindow", "Main Toolbar", None, QtGui.QApplication.UnicodeUTF8))
+        self.topToolBar.setToolTip(QtGui.QApplication.translate("MainWindow", "(F)rame path view", None, QtGui.QApplication.UnicodeUTF8))
         self.rightToolBar.setWindowTitle(QtGui.QApplication.translate("MainWindow", "Path Tools", None, QtGui.QApplication.UnicodeUTF8))
         self.leftToolBar.setWindowTitle(QtGui.QApplication.translate("MainWindow", "Slice Tools", None, QtGui.QApplication.UnicodeUTF8))
         self.actionNew.setText(QtGui.QApplication.translate("MainWindow", "New...", None, QtGui.QApplication.UnicodeUTF8))
@@ -388,6 +390,7 @@ class Ui_MainWindow(object):
         self.actionPreferences.setText(QtGui.QApplication.translate("MainWindow", "Preferences", None, QtGui.QApplication.UnicodeUTF8))
         self.actionPreferences.setShortcut(QtGui.QApplication.translate("MainWindow", "Ctrl+,", None, QtGui.QApplication.UnicodeUTF8))
         self.actionFrame.setText(QtGui.QApplication.translate("MainWindow", "Frame", None, QtGui.QApplication.UnicodeUTF8))
+        self.actionFrame.setToolTip(QtGui.QApplication.translate("MainWindow", "(F)rame path view", None, QtGui.QApplication.UnicodeUTF8))
         self.actionFrame.setShortcut(QtGui.QApplication.translate("MainWindow", "F", None, QtGui.QApplication.UnicodeUTF8))
 
 from views.customqgraphicsview import CustomQGraphicsView
