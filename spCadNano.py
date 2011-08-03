@@ -48,7 +48,7 @@ fMayaExitingCB = None
 
 gCadNanoApp = None
 
-gCadNanoObjectName = "CadNanoWindow"
+gCadNanoObjectName = "CADnanoWindow"
 gCadNanoDock = None
 gIconPath = (
         os.environ['CADNANO_PATH'] +
@@ -148,7 +148,7 @@ def openCN():
     if gCadNanoDock == None:
         ptr = OpenMayaUI.MQtUtil.mainWindow()
         mayaWin = sip.wrapinstance(long(ptr), QObject)
-        gCadNanoDock = QDockWidget("CadNano")
+        gCadNanoDock = QDockWidget("CADnano")
         gCadNanoDock.setFeatures(
                                 QDockWidget.DockWidgetMovable
                                 | QDockWidget.DockWidgetFloatable)
@@ -180,7 +180,7 @@ def simplifyMayaUI():
     myForm = cmds.formLayout(parent=myWindow)
     global gCadNanoToolbar
     gCadNanoToolbar = cmds.toolBar(
-                                "caDNAnoBox",
+                                "CADnanoBox",
                                 area='top',
                                 allowedArea='top',
                                 content=myWindow)
@@ -188,8 +188,8 @@ def simplifyMayaUI():
     global gIconPath
     closeCadNanoCmd = 'import maya.cmds;maya.cmds.closeCadNano()'
     myButton = cmds.iconTextButton(
-                               label='Quit caDNAno',
-                               annotation='Quit caDNAno interface',
+                               label='Quit CADnano',
+                               annotation='Quit CADnano interface',
                                image1=gIconPath,
                                parent=myForm,
                                command=closeCadNanoCmd)
@@ -225,8 +225,8 @@ def addUIButton():
     if cmds.formLayout(mayaMainToolbar, ex=True):
         cmds.setParent(mayaMainToolbar)
         gCadNanoButton = cmds.iconTextButton(
-                         label='caDNAno',
-                         annotation='Launch caDNAno interface',
+                         label='CADnano',
+                         annotation='Launch CADnano interface',
                          image1=gIconPath,
                          parent=mayaMainToolbar,
                          command='import maya.cmds; maya.cmds.openCadNano()')
