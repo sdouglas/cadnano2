@@ -47,6 +47,7 @@ class RangeSet(object):
     """
     def __init__(self):
         self.ranges = []
+        self.lastGottenRangeIdx = None
 
     ############################### Invariants ###########################
     def assertConsistency(self):
@@ -89,13 +90,6 @@ class RangeSet(object):
         rangeItem passed in.
         """
         return rangeItem[0:2]
-
-    def canMergeRangeItems(self, rangeItemA, rangeItemB):
-        al, ar = self.idxs(rangeItemA)
-        bl, br = self.idxs(rangeItemB)
-        sameMetadata = rangeItemA[2:] == rangeItemB[2:]
-        separated = ar < bl or al > br
-        return sameMetadata and not separated
 
     def mergeRangeItems(self, rangeItemA, rangeItemB, undoStack):
         """
@@ -218,8 +212,11 @@ class RangeSet(object):
         """
         return self.ranges.__iter__()
 
+    def canMergeOverlappingRangeItems(self, rangeItemA, rangeItemB):
+        return rangeItemA[2:] == rangeItemB[2:]
+
     ################################ Public Write API ############################
-    def addRange(self, rangeItem, undoStack=True, suppressCallsItem=None):
+    def addRange(self, rangeItem, useUndoStack=True, undoStack=None, suppressCallsItem=None):
         """
         Adds rangeItem to the receiver, ensuring that the range given by
         self.idxs(rangeItem) does not overlap any other rangeItem in the receiver
@@ -233,20 +230,20 @@ class RangeSet(object):
         if firstIndex >= afterLastIndex:
             return
         oldBounds = self.bounds()
-        if undoStack == True:
-            undoStack = self.defaultUndoStack()
-        if undoStack != None:
-            undoStack.beginMacro('RangeSet.addRange')
+        undoStack = self.beginCommand(useUndoStack,\
+                                      undoStack,\
+                                      'RangeSet.addRange')
         intersectingIdxRange = self._idxRangeOfRangesIntersectingRange(firstIndex - 1,
                                                                        afterLastIndex + 1)
         # (first Index (into self.ranges) of an Intersecting Range)
         firstIIR, afterLastIIR = intersectingIdxRange
         if afterLastIIR == firstIIR:
-            self._replace(firstIIR,\
-                          firstIIR,\
-                          [rangeItem],
-                          undoStack,\
-                          oldBounds)
+            com = self.ReplaceRangeItemsCommand(self,\
+                                                firstIIR,\
+                                                firstIIR,\
+                                                (rangeItem,),\
+                                                suppressCallsItem=False)
+            self.endCommand(undoStack, com)
             return
         replacementRanges = [rangeItem]
         # First Intersecting Range {Left idx, After right idx, MetaData}
@@ -299,21 +296,20 @@ class RangeSet(object):
                                                   lastIRAr,\
                                                   undoStack)
                 replacementRanges.append(newItem)
-        self._replace(firstIIR,\
-                      afterLastIIR,\
-                      replacementRanges,
-                      undoStack,\
-                      oldBounds,
-                      suppressCallsItem=suppressCallsItem)
+        com = self.ReplaceRangeItemsCommand(self,\
+                                            firstIIR,\
+                                            afterLastIIR,\
+                                            replacementRanges,\
+                                            suppressCallsItem)
+        self.endCommand(undoStack, com)
 
-    def removeRange(self, firstIndex, afterLastIndex, undoStack=True, suppressCallsItem=None):
+    def removeRange(self, firstIndex, afterLastIndex, useUndoStack=True, undoStack=None, suppressCallsItem=None):
         if firstIndex >= afterLastIndex:
             return
         oldBounds = self.bounds()
-        if undoStack == True:
-            undoStack = self.defaultUndoStack()
-        if undoStack != None:
-            undoStack.beginMacro('RangeSet.addRange')
+        undoStack = self.beginCommand(useUndoStack,\
+                                      undoStack,\
+                                      'RangeSet.removeRange')
         intersectingIdxRange = self._idxRangeOfRangesIntersectingRange(firstIndex,
                                                                        afterLastIndex)
         replacementRanges = []
@@ -337,35 +333,64 @@ class RangeSet(object):
                                               lastIRAr,\
                                               undoStack)
             replacementRanges.append(newItem)
-        self._replace(firstIIR,\
-                      afterLastIIR,\
-                      replacementRanges,
-                      undoStack,\
-                      oldBounds,
-                      suppressCallsItem=suppressCallsItem)
+        com = self.ReplaceRangeItemsCommand(self,\
+                                            firstIIR,\
+                                            afterLastIIR,\
+                                            replacementRanges,\
+                                            suppressCallsItem)
+        self.endCommand(undoStack, com)
 
-    def resizeRangeAtIdx(self, idx, newFirstIndex, newAfterLastIdx, undoStack=True):
+    def resizeRangeAtIdx(self, idx, newFirstIndex, newAfterLastIdx, useUndoStack=True, undoStack=None):
         """
         Finds the largest contiguous range of indices in the receiver that includes
         idx and changes it 
         """
-        if undoStack == True:
-            undoStack = self.undoStack()
-        if undoStack != None:
-            undoStack.beginMacro("resizeRangeAtIdx")
-        rangeItemIdx = self._idxOfRangeContaining(idx)
-        if rangeItemIdx == None:
-            desc = 'RangeSet %s was asked to resize a nonexistant range at %i'%\
-                                                            (self, rangeItemIdx)
-            raise IndexError(desc)
-        rangeItem = self.ranges[ri]
-        self._replace(rangeItem, rangeItem + 1, [], undoStack, None, suppressCallsItem=rangeItem)
-        newRangeItem = self.changeRangeForItem(rangeItem)
-        self.addRange(newRangeItem, suppressCallsItem=rangeItem)
-        if undoStack != None:
-            undoStack.endMacro()
+        undoStack = self.beginCommand(useUndoStack,\
+                                      undoStack,\
+                                      'RangeSet.resizeRangeAtIdx')
+        rangeItemToResize = self.get(idx)
+        oldL, oldAR = self.idxs(rangeItemToResize)
+        self.removeRange(oldL, oldAR,\
+                         useUndoStack=useUndoStack, undoStack=undoStack,\
+                         suppressCallsItem=rangeItemToResize)
+        newRangeItem = self.changeRangeForItem(rangeItemToResize,\
+                                               newFirstIndex,\
+                                               newAfterLastIdx,\
+                                               undoStack)
+        # Caveat: newRangeItem might == rangeItemToResize
+        self.addRange(newRangeItem,\
+                      useUndoStack=useUndoStack, undoStack=undoStack,\
+                      suppressCallsItem=rangeItemToResize)
+        if undoStack != None: undoStack.endMacro()
 
     ################################ Private Write API #########################
+    def beginCommand(self, useUndoStack, undoStack, commandDescription):
+        """Called as a prefix to every public mutation method. Ensures uniform
+        handling of the useUndoStack+undoStack variables. Returns the
+        undoStack that the mutator method should use."""
+        self.lastGottenRangeIdx = None  # Clear cache
+        if useUndoStack:
+            if undoStack == None: undoStack = self.undoStack()
+            assert(undoStack != None)
+            undoStack.beginMacro(commandDescription)
+            return undoStack
+        else:
+            return None
+
+    def endCommand(self, undoStack, commands):
+        """Called at the end of every public mutation method"""
+        # Sanitize commands
+        if type(commands) not in (list, tuple):
+            commands = (commands,)
+        commands = filter(lambda x: x != None, commands)
+        # Now commands is an iterable of QUndoCommand instances
+        if undoStack != None:
+            map(undoStack.push, commands)
+            undoStack.endMacro()
+        else:
+            for c in commands:
+                c.redo()
+
     class ReplaceRangeItemsCommand(QUndoCommand):
         def __init__(self, rangeSet, firstIdx, afterLastIdx, replacementRIs, suppressCallsItem):
             QUndoCommand.__init__(self)
@@ -381,49 +406,36 @@ class RangeSet(object):
             # suppress willRemove and didInsert calls.
             self.suppressCallsItem = suppressCallsItem
         def redo(self):
-            rangeArr = self.rangeSet.ranges
+            rangeSet = self.rangeSet
+            rangeArr, oldBounds = rangeSet.ranges, rangeSet.bounds()
             self.replacedRIs = rangeArr[self.firstIdx:self.afterLastIdx]
             replacedSet = set(id(ri) for ri in self.replacedRIs)
             replacementSet = set(id(ri) for ri in self.replacementRIs)
             suppressCallsItem = self.suppressCallsItem
             for ri in self.replacedRIs:
                 if ri != suppressCallsItem and id(ri) not in replacementSet:
-                    self.rangeSet.willRemoveRangeItem(ri)
+                    rangeSet.willRemoveRangeItem(ri)
             rangeArr[self.firstIdx:self.afterLastIdx] = self.replacementRIs
             for ri in self.replacementRIs:
                 if ri != suppressCallsItem and id(ri) not in replacedSet:
-                    self.rangeSet.didInsertRangeItem(ri)
+                    rangeSet.didInsertRangeItem(ri)
+            if rangeSet.bounds() != oldBounds: rangeSet.boundsChanged()
         def undo(self):
             assert(self.replacedRIs != None)  # Must redo before undo
+            rangeSet = self.rangeSet
+            oldBounds = rangeSet.bounds()
             replacedSet = set(id(ri) for ri in self.replacedRIs)
             replacementSet = set(id(ri) for ri in self.replacementRIs)
             suppressCallsItem = self.suppressCallsItem
             for ri in self.replacementRIs:
                 if ri != suppressCallsItem and id(ri) not in replacedSet:
-                    self.rangeSet.willRemoveRangeItem(ri)
+                    rangeSet.willRemoveRangeItem(ri)
             lastIdx = self.firstIdx + len(self.replacementRIs)
             self.rangeSet.ranges[self.firstIdx:lastIdx] = self.replacedRIs
             for ri in self.replacedRIs:
                 if ri != suppressCallsItem and id(ri) not in replacementSet:
-                    self.rangeSet.didInsertRangeItem(ri)
-
-    def _replace(self, firstIdx, afterLastIdx, replacements, undoStack, oldBounds, suppressCallsItem=None):
-        # suppressCallsItem causes the receiver to not receive 
-        # didInsert and willRemove messages regarding the suppressCallsItem
-        # (used so that resize can be implemented by removing, adding a range
-        # without calling willRemove and then didInsert)
-        com = self.ReplaceRangeItemsCommand(self,\
-                                            firstIdx,\
-                                            afterLastIdx,\
-                                            replacements,\
-                                            suppressCallsItem)
-        if undoStack != None:
-            undoStack.push(com)
-            undoStack.endMacro()
-        else:
-            com.redo()
-        if oldBounds != None and oldBounds != self.bounds():
-            self.boundsChanged()
+                    rangeSet.didInsertRangeItem(ri)
+            if rangeSet.bounds() != oldBounds: rangeSet.boundsChanged()
 
     ################################ Private Read API ##########################
     def _idxOfRangeContaining(self, intVal, returnTupledIdxOfNextRangeOnFail=False):
@@ -435,6 +447,30 @@ class RangeSet(object):
             if returnTupledIdxOfNextRangeOnFail:
                 return (0,)
             return None
+
+        # ------------- Amortize sequential or repeated access -----------------
+        lastGottenRangeIdx = self.lastGottenRangeIdx
+        if lastGottenRangeIdx != None:
+            try:
+                lgrL, lgrR = self.idxs(self.ranges[lastGottenRangeIdx])
+                if lgrL <= intVal < lgrR:
+                    return lastGottenRangeIdx
+                nextRangeItem = self.ranges[lastGottenRangeIdx + 1]
+                nextLgrL, nextLgrR = self.idxs(nextRangeItem)
+                if intVal < nextLgrL:
+                    if returnTupledIdxOfNextRangeOnFail:
+                        return (lastGottenRangeIdx + 1,)
+                    else:
+                        return None
+                if nextLgrL <= intVal < nextLgrR:
+                    ret = lastGottenRangeIdx + 1
+                    self.lastGottenRangeIdx = ret
+                    return ret
+            except IndexError:
+                pass
+        self.cacheMissed = True  # For the amortization unit test
+        # ------------------ Can cut this block without changing return val ----
+
         # m <= the index of any range containing
         # intVal, M >= the index of any range containing
         # intVal.
@@ -448,9 +484,11 @@ class RangeSet(object):
             elif l > intVal:
                 M = mid - 1
             else:  # v and r[mid][0] <= intVal < r[mid][1]
+                self.lastGottenRangeIdx = mid
                 return mid
         if returnTupledIdxOfNextRangeOnFail:
             # The tuple is an indicator that the search failed
+            self.lastGottenRangeIdx = m
             return (m,)
         return None
 

@@ -32,7 +32,7 @@ class VBase(object):
     Uses properties: http://docs.python.org/library/functions.html#property
     """
     def __init__(self, vStrand, vIndex):
-        object.__init__()
+        object.__init__(self)
         self.vStrand = vStrand
         self.vIndex = vIndex
     def __repr__(self):

@@ -141,6 +141,21 @@ class VirtualHelix(QObject):
         else:
             return VBase(self.vStap, idx)
 
+    def model1String(self):
+        """ Same as __repr__ but uses the new model"""
+        scaf = '%-2iScaffold: ' % self.number() + self.scaf().model1String()
+        stap = '%-2iStaple:   ' % self.number() + self.stap().model1String()
+        return scaf + '\n' + stap
+
+    def chk(self):
+        """ Check the new model vs the old model (TEMPORARY) """
+        oldModelStr = repr(self)
+        newModelStr = self.model1String()
+        if oldModelStr != newModelStr:
+            print "MISMATCH old, new"
+            print oldModelStr
+            print newModelStr
+
     ######################################################################
     ######################## End New Model Quarantine ####################
     ######################################################################
@@ -969,6 +984,8 @@ class VirtualHelix(QObject):
         undoStack = self.beginCommand(useUndoStack, undoStack, "Extend strand")
         strand = self._strand(strandType)
         vstrand = self._vstrand(strandType)
+        vstrand.connectStrand(startIndex, endIndex,\
+                              useUndoStack=useUndoStack, undoStack=undoStack)
         startIndex, endIndex = int(startIndex), int(endIndex)
         startIndex = util.clamp(startIndex, 0, len(strand) - 1)
         endIndex = util.clamp(endIndex, 0, len(strand) - 1)
@@ -1020,6 +1037,9 @@ class VirtualHelix(QObject):
                     undoStack=None, colorL=None, colorR=None, police=True,\
                     undoDesc="Clear Strand"):
         undoStack = self.beginCommand(useUndoStack, undoStack, "Clear strand")
+        vstrand = self._vstrand(strandType)
+        vstrand.clearStrand(strandType, startIndex,\
+                            useUndoStack=useUndoStack, undoStack=undoStack)
         strand = self._strand(strandType)
         startIndex = util.clamp(startIndex, 0, len(strand))
         startIndex = int(startIndex*2.)/2.

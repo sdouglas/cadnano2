@@ -34,8 +34,8 @@ class Strand(QObject):
         return self.vBase3.vStrand.vHelix.undoStack()
 
     # Properties (access with instance.propertyName)
-    # vBase{3,5}
-    # strand{3,5}
+    # vBase{3,5}         the locations of tho 3' and 5' end-bases
+    # strand{3,5}        the strands to which this strand's end-bases connect
 
     def canMergeWith(self, other):
         """ We already have that the ranges for self and other could merge """
@@ -49,19 +49,47 @@ class NormalStrand(Strand):
     Represents a strand composed of connected bases at adjacent virtual base
     coords along the same VStrand.
     """
-    def __init__(self, VB3p, VB5p):
+    def __init__(self, vBaseL, vBaseR):
         QObject.__init__(self)
-        self.vBase3 = VB3p      # property
-        self.vBase5 = VB3p      # property
-        self.strand3 = None     # property
-        self.strand5 = None     # property
+        self.vBaseL = vBaseL
+        self.vBaseR = vBaseR
+        # self.vBase3  works via python's property mechanism; see getVBase3
+        # self.vBase5  works via python's property mechanism; see getVBase5
+        self.neighbor3 = None
+        self.neighbor5 = None
         self.traceStack = None  # If set to [], will append trace strings
     def assertConsistent(self):
-        assert( self.vBase3.vStrand == self.vBase5.vStrand != None )
+        assert( self.vBaseL.vStrand == self.vBaseR.vStrand != None )
+        assert( self.vBaseL.vIndex < self.vBaseR.vIndex )
     def __repr__(self):
-        print "NormalStrand(%s, %s)"%(repr(self.vBase3), repr(self.vBase5))
+        return "NormalStrand(%s, %s)"%(repr(self.vBaseL), repr(self.vBaseR))
 
-    def numBases(self): return abs(self.vBase5.vIndex - self.vBase3.vIndex)
+    def getVBase5(self):
+        vstrand = self.vBaseL.vStrand
+        return self.vBaseL if vstrand.drawn5To3() else self.vBaseR
+    def setVBase5(self, newVB5):
+        vstrand = self.vBaseL.vStrand
+        if vstrand.drawn5To3(): self.vBaseL = newVB5
+        else:                   self.vBaseR = newVB5
+    vBase5 = property(getVBase5, setVBase5)
+
+    def getVBase3(self):
+        vstrand = self.vBaseL.vStrand
+        return self.vBaseR if vstrand.drawn5To3() else self.vBaseL
+    def setVBase3(self, newVB3):
+        vstrand = self.vBaseL.vStrand
+        if vstrand.drawn5To3(): self.vBaseR = newVB3
+        else:                   self.vBaseL = newVB3
+    vBase3 = property(getVBase3, setVBase3)
+
+    def idxsOnStrand(self, vstrand):
+        """ Since a NormalStrand occupies exactly one vstrand, this simply
+        returns the range of bases on that strand which the receiver
+        occupies """
+        return (self.vBaseL.vIndex, self.vBaseR.vIndex)
+
+    def numBases(self):
+        return self.vBaseR.vIndex - self.vBase3.vIndex
 
     def canMergeWith(self, other):
         """ We already have that the ranges for self and other could merge. """
@@ -76,6 +104,7 @@ class NormalStrand(Strand):
         return self
     class MergeCommand(QUndoCommand):
         def __init__(self, strand, otherStrand):
+            QUndoCommand.__init__(self)
             self.strand = strand
             self.otherStrand = otherStrand
         def redo(self):
@@ -118,6 +147,7 @@ class NormalStrand(Strand):
         return self
     class ChangeRangeCommand(QUndoCommand):
         def __init__(self, strand, new3, new5):
+            QUndoCommand.__init__(self)
             self.strand = strand
             self.new3, self.new5 = new3, new5
             self.old3, self.old5 = strand.vBase3, strand.vBase5
@@ -173,7 +203,7 @@ class LoopStrand(NormalStrand):
         self.vBase3 = self.vBase5 = vBase
         self.numBases = numberOfActualBases
     def assertConsistent(self):
-        pass
+        assert(self.vBase3 == self.vBase5)
     def __repr__(self):
         return "LoopStrand(%s, %i)"%(self.vBase3, self.numBases)
     def numBases(self): return self.numBases
@@ -196,8 +226,21 @@ class SkipStrand(NormalStrand):
 class XOverStrand(NormalStrand):
     """
     Owns exactly two bases, each of which is on a different vStrand.
+    Since the concepts of a "Left" and "Right" base becomes less useful
+    for a strand that crosses between vHelix, XOverStrands adopt the convention
+    that self.vBaseL==self.vBase3 and self.vBaseR==self.vBase5.
     """
     def numBases(self): return 2
     def assertConsistent(self):
-        assert( self.vBase3.vStrand == self.vBase5.vStrand )
+        assert( self.vBase3.vStrand != self.vBase5.vStrand )
         assert( self.vBase3.vStrand.isScaf() == self.vBase5.vStrand.isScaf() )
+    def idxsOnStrand(self, vstrand):
+        vb3, vb5 = self.vBase3, self.vBase5
+        if vb3.vStrand == vstrand:
+            idx = vb3.vIndex
+        else:
+            # If the assert fails, somebody asked for which indexes this
+            # crossover occupied on a strand which it never touches!
+            assert(vb5.vStrand == vstrand)
+            idx = vb5.vIndex
+        return (idx, idx + 1)

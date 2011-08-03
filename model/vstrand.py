@@ -25,6 +25,7 @@
 from rangeset import RangeSet
 import util
 from vbase import VBase
+import strand
 util.qtWrapImport('QtCore', globals(), ['QObject'] )
 
 class VStrand(QObject, RangeSet):
@@ -45,9 +46,10 @@ class VStrand(QObject, RangeSet):
 
     ####################### Public Read API #######################
     # Useful inherited methods:
-    #   vstr.get(idx)            get a segment at index idx
+    #   vstr.get(idx)            get the segment at index idx (or None)
     #   vstr[idx]                same as get
     #   vstr.bounds()            returns a range containing all segments
+    #                            this range is tight
     # Properties:
     #   vstr.vHelix
 
@@ -71,28 +73,63 @@ class VStrand(QObject, RangeSet):
     def drawn5To3(self):
         return self.vHelix.strandDrawn5To3(self)
 
-    ####################### Framework Overrides / Undo ##############
+    def model1String(self, *x):
+        """ The 'old' model represented virtual strands and the connections
+        between virtual bases on those strands with a string of the form
+        illustrated below):
+            "_,_ _,_ _,_ _,_ _,_ _,_ _,_ _,_ _,_ _,> <,> <,_ _,_"
+        This example represents a three base strand on a 13 base vStrand.
+        This method returns an identical representation of the receiver, where
+        the first vBase printed is at vStrandStartIdx and the last is at
+        vStrandAfterLastIdx-1. """
+        if len(x) > 0:
+            vStrandStartIdx, vStrandAfterLastIdx = x
+        else:
+            vStrandStartIdx, vStrandAfterLastIdx = 0, self.vHelix.numBases()
+        ri = self._idxOfRangeContaining(vStrandStartIdx,\
+                                        returnTupledIdxOfNextRangeOnFail=True)
+        ranges = self.ranges
+        bases = []
+        prvIdxExists = int(self.get(vStrandStartIdx - 1) != None)
+        curIdxExists = int(self.get(vStrandStartIdx) != None)
+        lut = ('_,_', '_,_', 'ERR', '<,_', '_,_', '_,_', '_,>', '<,>')
+        for i in range(vStrandStartIdx, vStrandAfterLastIdx):
+            nxtIdxExists = int(self.get(i + 1) != None)
+            bases.append(lut[prvIdxExists + 2*curIdxExists + 4*nxtIdxExists])
+            prvIdxExists = curIdxExists
+            curIdxExists = nxtIdxExists
+        return " ".join(bases)
+
+    ####################### Public Write API #######################
+            
+    def connectStrand(self, startIdx, endIdx, useUndoStack=True, undoStack=None):
+        if startIdx <= endIdx:
+            endIdx += 1
+            leftIdx, rightIdx = startIdx, endIdx
+        elif endIdx < startIdx:
+            startIdx += 1
+            leftIdx, rightIdx = endIdx, startIdx
+        if self.get(startIdx) != None:
+            self.resizeRangeAtIdx(startIdx, leftIdx, rightIdx,\
+                          undoStack=undoStack, useUndoStack=useUndoStack)
+        else:
+            self.addRange(strand.NormalStrand(VBase(self, leftIdx),\
+                                              VBase(self, rightIdx)),\
+                          undoStack=undoStack, useUndoStack=useUndoStack)
+
+    def clearStrand(self, startIdx, endIdx, useUndoStack=True, undoStack=None):
+        self.removeRange(startIdx, endIdx,\
+                         useUndoStack=useUndoStack, undoStack=undoStack)
+
+    ####################### Protected Framework Methods ##############
     def idxs(self, rangeItem):
         """
         Returns (firstIdx, afterLastIdx) simplified representation of the
         rangeItem passed in.
         """
         return rangeItem.idxsOnStrand(self)
-        #rangeItems are Strand objects, self is a VStrand
-        vb3, vb5 = rangeItem.vBase3, rangeItem.vBase5
-        vs3, vs5 = vb3.vStrand, vb5.vStrand
-        idx3, idx5 = vb3.vIndex, vb5.vIndex
-        if vs3 == vs5 == self:  # Non-crossover
-            return (min(idx3, idx5), max(idx3, idx5))
-        elif vs3 == self:  # The crossover owns the base that exposes a 3' end
-            return (idx3, idx3 + 1)
-        elif vs5 == self:  # The crossover owns the base that exposes a 5' end
-            return (idx5, idx5 + 1)
-        assert(False)
 
     def canMergeRangeItems(self, rangeItemA, rangeItemB):
-        if not RangeSet.canMergeRangeItems(self, rangeItemA, rangeItemB):
-            return False
         return rangeItemA.canMergeWith(rangeItemB)
          
     def mergeRangeItems(self, rangeItemA, rangeItemB, undoStack):
@@ -106,6 +143,15 @@ class VStrand(QObject, RangeSet):
                                splitAfterLast,\
                                self.preserveLeftOligoDuringSplit,\
                                undoStack)
+
+    def willRemoveRangeItem(self, rangeItem):
+        pass
+
+    def didInsertRangeItem(self, rangeItem):
+        pass
+
+    def boundsChanged(self):
+        pass
 
     def undoStack(self):
         return self.vHelix.undoStack()
