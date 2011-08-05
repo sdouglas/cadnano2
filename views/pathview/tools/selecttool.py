@@ -28,7 +28,7 @@ Created by Nick Conway on 2011-05-30.
 """
 
 from abstractpathtool import AbstractPathTool
-import util, os
+import util, os, model.strand
 from cadnano import ignoreEnv
 from model.enum import StrandType
 
@@ -124,10 +124,11 @@ class SelectTool(AbstractPathTool):
         self._mouseDownY = event.pos().y()
         self._mouseDownBase = ph.baseAtLocation(event.pos().x(),\
                                                 self._mouseDownY)
+        strand, idx = self._mouseDownBase
+        self._lastValidBase = self._mouseDownBase
 
         # Shift to merge bases - carryover from 1.0
         if (event.modifiers() & Qt.ShiftModifier) and self._mouseDownBase:
-            strand, idx = self._mouseDownBase
             vh = ph.vhelix()
             if vh.hasEndAt(strand, idx):
                 if idx > 0 and vh.hasEndAt(strand, idx-1):
@@ -139,7 +140,6 @@ class SelectTool(AbstractPathTool):
 
         # Alt to extend bases - carryover from 1.0
         if (event.modifiers() & Qt.AltModifier) and self._mouseDownBase:
-            strand, idx = self._mouseDownBase
             vh = ph.vhelix()
             if vh.hasEndAt(strand, idx):
                 vh.autoDragToBoundary(strand, idx)
@@ -153,10 +153,14 @@ class SelectTool(AbstractPathTool):
         if not self._mouseDownBase:
             return
         vh = ph.vhelix()
-        vh.setSandboxed(True)
-        self._lastValidBase = self._mouseDownBase
+        self.undoIdxBeforeDrag = vh.undoStack().index()
+
         self.applyTool(vh, self._mouseDownBase, self._mouseDownBase)
-         
+
+        # Begin a new model drag operation
+        # vStrand = vh.vStrand(strand)
+        # self.normalStrandToInsert = strand.NormalStrand(vStrand, vIdxL, vIdxR)
+
         ph.makeSelfActiveHelix()
 
 
@@ -164,10 +168,6 @@ class SelectTool(AbstractPathTool):
         if self._mouseDownBase == None:
             return
         vh = self._mouseDownPH.vhelix()
-        # vh.undoStack().undo()
-        self.conditionalUndo(vh)
-        vh.setSandboxed(False)
-        self.applyTool(vh, self._mouseDownBase, self._lastValidBase)
         vh.palette().shuffle()
         self._mouseDownBase = None
         self._lastValidBase = None
@@ -186,7 +186,7 @@ class SelectTool(AbstractPathTool):
             if self._lastValidBase != newBase:
                 self._lastValidBase = newBase
                 # vh.undoStack().undo()
-                self.conditionalUndo(vh)
+                self.rewindDragOp(vh.undoStack())
                 self.applyTool(vh, self._mouseDownBase, newBase)
 
     def mouseReleasePathHelix(self, ph, event):
@@ -308,12 +308,10 @@ class SelectTool(AbstractPathTool):
             vh.applySequenceAt(StrandType.Scaffold, int(idx), " ", undoStack=vh.part().undoStack())
             self._isPressed = True
 
-    def conditionalUndo(self, vh):
-        # for not prematruely popping off a clearSequence
-        undostack = vh.undoStack()
-        if undostack.index() > 0:
-            undostack.undo()
-    # end def
+    def rewindDragOp(self, undoStack):
+        assert(self.undoIdxBeforeDrag != None)
+        while undoStack.index() > self.undoIdxBeforeDrag:
+            undoStack.undo()
 
     def applyTool(self, vHelix, fr, to):
         """

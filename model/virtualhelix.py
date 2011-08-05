@@ -104,16 +104,9 @@ class VirtualHelix(QObject):
         else:
             self._scaffoldLoops  = {}
             
-        # setSandboxed(True) gives self a private undo stack
-        # in order to insulate undo/redo on the receiver
-        # from global undo/redo (so that if a haywire tool
-        # using undo() and redo() to give a live preview of
-        # tho tool's effect calls undo() a million times it
-        # doesn't make the document disappear). setSandboxed(False)
-        # then clears _privateUndoStack at which point self
-        # goes back to using the part / document undo stack.
+        # For VirtualHelix that don't live inside a part (maybe they were
+        # created in a script) this holds the undo stack.
         self._privateUndoStack = None
-        self._sandboxed = False
         # numBases is a simulated property that corresponds to the
         # length of _stapleBases and _scaffoldBases
         if incompleteArchivedDict:
@@ -155,6 +148,18 @@ class VirtualHelix(QObject):
             print "MISMATCH old, new"
             print oldModelStr
             print newModelStr
+
+    def vStrand(self, strandType):
+        """A hack that returns the vStrand corresponding to strandType.
+        You should use vhelix.vScaf and vhelix.vStap to communicate with the
+        strands directly."""
+        if strandType == StrandType.Scaffold:
+            return self.vScaf
+        elif strandType == StrandType.Staple:
+            return self.vStap
+        else:
+            raise IndexError("%s is not Scaffold=%s or Staple=%s" % \
+                         (strandType, StrandType.Scaffold, StrandType.Staple))
 
     ######################################################################
     ######################## End New Model Quarantine ####################
@@ -391,18 +396,6 @@ class VirtualHelix(QObject):
             return self._scaffoldBases
         elif strandType == StrandType.Staple:
             return self._stapleBases
-        else:
-            raise IndexError("%s is not Scaffold=%s or Staple=%s" % \
-                         (strandType, StrandType.Scaffold, StrandType.Staple))
-
-    def _vstrand(self, strandType):
-        """A hack that returns the vStrand corresponding to strandType.
-        You should use vhelix.vScaf and vhelix.vStap to communicate with the
-        strands directly."""
-        if strandType == StrandType.Scaffold:
-            return self.vScaf
-        elif strandType == StrandType.Staple:
-            return self.vStap
         else:
             raise IndexError("%s is not Scaffold=%s or Staple=%s" % \
                          (strandType, StrandType.Scaffold, StrandType.Staple))
@@ -802,30 +795,6 @@ class VirtualHelix(QObject):
         else:
             return None
 
-    def sandboxed(self):
-        return self._sandboxed
-
-    def setSandboxed(self, sb, mustNotShareStack=False):
-        """Set True to give the receiver a temporary undo stack
-        that will be deleted upon set False. Since tools can be
-        made live by repeatedly pushing and popping undo commands,
-        it occasionally happens that a bug pops many things off the
-        undo stack. The temporary undo stack prevents excessive popping
-        from reverting the document to a blank state."""
-        if sb and self._privateUndoStack:
-            if mustNotShareStack:
-                assert(False)  # Caller needed a private undo stack; we couldn't provide one
-            else:
-                print "WARNING: attempting to sandbox a vh that already has an undo stack!"
-        if sb and not self._privateUndoStack:
-            self._sandboxed = True
-            if not self._privateUndoStack:
-                self._privateUndoStack = QUndoStack()
-        elif not sb:
-            if self._sandboxed:
-                self._sandboxed = False
-                self._privateUndoStack = None
-
     def undoStack(self):
         if self._privateUndoStack != None:
             return self._privateUndoStack
@@ -983,9 +952,9 @@ class VirtualHelix(QObject):
         """
         undoStack = self.beginCommand(useUndoStack, undoStack, "Extend strand")
         strand = self._strand(strandType)
-        vstrand = self._vstrand(strandType)
-        vstrand.connectStrand(startIndex, endIndex,\
-                              useUndoStack=useUndoStack, undoStack=undoStack)
+        vstrand = self.vStrand(strandType)
+        #vstrand.connectStrand(startIndex, endIndex,\
+        #                      useUndoStack=useUndoStack, undoStack=undoStack)
         startIndex, endIndex = int(startIndex), int(endIndex)
         startIndex = util.clamp(startIndex, 0, len(strand) - 1)
         endIndex = util.clamp(endIndex, 0, len(strand) - 1)
@@ -1037,9 +1006,9 @@ class VirtualHelix(QObject):
                     undoStack=None, colorL=None, colorR=None, police=True,\
                     undoDesc="Clear Strand"):
         undoStack = self.beginCommand(useUndoStack, undoStack, "Clear strand")
-        vstrand = self._vstrand(strandType)
-        vstrand.clearStrand(strandType, startIndex,\
-                            useUndoStack=useUndoStack, undoStack=undoStack)
+        vstrand = self.vStrand(strandType)
+        #vstrand.clearStrand(strandType, startIndex,\
+        #                    useUndoStack=useUndoStack, undoStack=undoStack)
         strand = self._strand(strandType)
         startIndex = util.clamp(startIndex, 0, len(strand))
         startIndex = int(startIndex*2.)/2.

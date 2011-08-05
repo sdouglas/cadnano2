@@ -150,26 +150,23 @@ class ForceTool(AbstractPathTool):
         ### This is the middle, drag-operation dependent
         ### part of the code.
         didEnd = False
-        if self.base1==None and canStart and destBase:  # Start drag
+        if self.base1==None and canStart and destBase:  # Start drag ----------
             self.base1 = destBase
             vh = destBase[0]
-            vh.setSandboxed(True)
+            self.undoIndexBeforeDragOp = vh.undoStack().index()
         elif not self.base1:
             return
         elif not ph or not event or\
              canEnd and not destBase==self.base1 or\
-             mustEnd:  # End drag
-            didEnd = True
+             mustEnd:  # End drag ---------------------------------------------
             vh = self.base1[0]
-            vh.undoStack().undo()
-            vh.setSandboxed(False)
-        else:  # In the middle of a drag
-            vh = self.base1[0]
-            sandboxUndoStack = vh.undoStack()
-            # Ensure sandboxing worked or we get mad popping of the
-            # document undo stack
-            assert(sandboxUndoStack != vh.part().undoStack())
-            sandboxUndoStack.undo()
+            self.base1 = None
+            vh.setFloatingXover(None)
+            return
+        else:  # In the middle of a drag --------------------------------------
+            undoStack = self.base1[0].undoStack()
+            while undoStack.index() > self.undoIndexBeforeDragOp:
+                undoStack.undo()
         
         ### Shared footer
         # Can't connect a base to itself :)
@@ -188,10 +185,7 @@ class ForceTool(AbstractPathTool):
             # a floatingXover (only 3' end connected to a
             # segment, 5' end is beneath the mouse)
             vh, strandType, idx = self.base1
-            if didEnd:
-                vh.setFloatingXover(None)
-            else:
-                vh.setFloatingXover(strandType, idx, scenePos)
+            vh.setFloatingXover(strandType, idx, scenePos)
         elif phg:
             # We're actually over a potential target base for
             # the 5' end of a force crossover, so we visualize
@@ -201,5 +195,3 @@ class ForceTool(AbstractPathTool):
             vh2, strand2, idx2 = destBase
             vh1.setFloatingXover(None)
             vh1.installXoverFrom3To5(strand1, idx1, vh2, idx2)
-        if didEnd:
-            self.base1 = None

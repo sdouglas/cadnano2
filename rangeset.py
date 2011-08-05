@@ -148,6 +148,25 @@ class RangeSet(object):
         """
         pass
 
+    def canMergeRangeItems(self, rangeItemA, rangeItemB):
+        aLeft, aRight = self.idxs(rangeItemA)
+        bLeft, bRight = self.idxs(rangeItemB)
+        assert(aLeft < aRight)
+        assert(bLeft < bRight)
+        if aRight < bLeft:
+            return False
+        if bRight < aLeft:
+            return False
+        return self.canMergeTouchingRangeItems(rangeItemA, rangeItemB)
+
+    def canMergeTouchingRangeItems(self, rangeItemA, rangeItemB):
+        """ Once it has been determined that two rangeItems are adjacent or
+        overlapping, this method is called to see if there is something beyond
+        the raw ranges that prevents items A and B from being merged. The
+        default implementation only merges adjacent ranges if they have
+        identical metadata. """
+        return rangeItemA[2:] == rangeItemB[2:]
+
     def defaultUndoStack(self):
         return None
 
@@ -211,9 +230,6 @@ class RangeSet(object):
         Iterate over the range items in self.
         """
         return self.ranges.__iter__()
-
-    def canMergeOverlappingRangeItems(self, rangeItemA, rangeItemB):
-        return rangeItemA[2:] == rangeItemB[2:]
 
     ################################ Public Write API ############################
     def addRange(self, rangeItem, useUndoStack=True, undoStack=None, suppressCallsItem=None):
@@ -457,7 +473,7 @@ class RangeSet(object):
                     return lastGottenRangeIdx
                 nextRangeItem = self.ranges[lastGottenRangeIdx + 1]
                 nextLgrL, nextLgrR = self.idxs(nextRangeItem)
-                if intVal < nextLgrL:
+                if lgrR <= intVal < nextLgrL:
                     if returnTupledIdxOfNextRangeOnFail:
                         return (lastGottenRangeIdx + 1,)
                     else:

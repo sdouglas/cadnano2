@@ -146,7 +146,7 @@ class UnitTests(CadnanoGuiTestCase):
                              *rangeIntersection((l1, r1), (l2, r2))  ))
             self.assertEqual(realIntersection, computedIntersection)
 
-    def addSomeRangesToRangeSet(self, rangeSet, analagousDict, undoStack=None, testUndo=False):
+    def addSomeRangesToRangeSet(self, rangeSet, analagousDict, useUndoStack=False, undoStack=None, testUndo=False):
         """
         Returns (dict, list). The dict maps every index that is a member of
         any inserted range to the metadata (a random integer for test purposes)
@@ -166,12 +166,16 @@ class UnitTests(CadnanoGuiTestCase):
             # print "-- add %s == %i--"%(str(newRangeItem), id(newRangeItem))
             if testUndo and undoStack != None:
                 beforeAddition = tuple(rangeSet.ranges)
-                rangeSet.addRange(newRangeItem, undoStack=undoStack)
+                rangeSet.addRange(newRangeItem,\
+                                  undoStack=undoStack,\
+                                  useUndoStack=useUndoStack)
                 undoStack.undo()
                 self.assertEqual(beforeAddition, tuple(rangeSet.ranges))
                 undoStack.redo()
             else:
-                rangeSet.addRange(newRangeItem, undoStack=undoStack)
+                rangeSet.addRange(newRangeItem,\
+                                  useUndoStack=useUndoStack,\
+                                  undoStack=undoStack)
             rangeSet.assertConsistency()
         return (analagousDict, addedRangeItems)
 
@@ -184,13 +188,25 @@ class UnitTests(CadnanoGuiTestCase):
             if valToCheck != None:
                 valToCheck = valToCheck[2]
             valToCheckAgainst = analagousDict.get(i, None)
+            if valToCheck != valToCheckAgainst:
+                ri = rangeSet._idxOfRangeContaining(i, returnTupledIdxOfNextRangeOnFail=True)
+                print "ranges(ri=%s):%s\n\n\n"%(ri, rangeSet.ranges)
+                if type(ri) in (tuple, list):
+                    ri = ri[0]
+                print "Disagreement at idx %i"%i
+                for j in range(*rangeIntersection(\
+                                (0, len(rangeSet.ranges)), (ri - 3, ri + 3)  )):
+                    print "\trangeSet.ranges[%i] = %s"%(j, rangeSet.ranges[j])
+                for j in range(*rangeIntersection(\
+                               (firstIdx, afterLastIdx), (i-3, i+3) )):
+                    print "\tanalagousDict[%i] = %s"%(j, analagousDict.get(j, None))
             self.assertEqual(valToCheck, valToCheckAgainst)
 
     def removeSomeRangesFromRangeSet(self, rangeSet, analagousDict):
         for i in range(10):
             initialIdx = self.prng.randint(-100, 100)
             l = self.prng.randint(1, 10)
-            rangeSet.removeRange(initialIdx, initialIdx + l)
+            rangeSet.removeRange(initialIdx, initialIdx + l, useUndoStack=False)
             rangeSet.assertConsistency()
             for j in range(initialIdx, initialIdx + l):
                 analagousDict[j] = None
@@ -235,20 +251,20 @@ class UnitTests(CadnanoGuiTestCase):
         rs = RangeSet()
         didInsertCtr, willRemoveCtr = self.createInsertAndRemovalCounters(rs)
         
-        rd, RIs1 = self.addSomeRangesToRangeSet(rs, {}, undoStack=us, testUndo=True)
+        rd, RIs1 = self.addSomeRangesToRangeSet(rs, {}, useUndoStack=True, undoStack=us, testUndo=True)
         RIs = RIs1
         self.assertCallsBalanced(didInsertCtr, willRemoveCtr, RIs, rs)
         rs1 = tuple(rs.ranges)
         
         us.beginMacro("Adding Some Test Ranges")
-        rd, RIs2 = self.addSomeRangesToRangeSet(rs, rd, undoStack=us)
+        rd, RIs2 = self.addSomeRangesToRangeSet(rs, rd, useUndoStack=True, undoStack=us)
         us.endMacro()
         RIs = RIs1 + RIs2
         self.assertCallsBalanced(didInsertCtr, willRemoveCtr, RIs, rs)
         rs2 = tuple(rs.ranges)
         
         us.beginMacro("Adding Some Test Ranges")
-        rd, RIs3 = self.addSomeRangesToRangeSet(rs, rd, undoStack=us)
+        rd, RIs3 = self.addSomeRangesToRangeSet(rs, rd, useUndoStack=True, undoStack=us)
         us.endMacro()
         RIs = RIs + RIs3
         self.assertCallsBalanced(didInsertCtr, willRemoveCtr, RIs, rs)
@@ -265,8 +281,8 @@ class UnitTests(CadnanoGuiTestCase):
     def testRangeSet_rangesplitting(self):
         rs = RangeSet()
         splitee, splitter = (0, 10, "Splitee"), (5, 6, "Splitter")
-        rs.addRange(splitee)
-        rs.addRange(splitter)
+        rs.addRange(splitee, useUndoStack=False)
+        rs.addRange(splitter, useUndoStack=False)
         for i in range(0, 5) + range(6, 10):
             if rs.get(i)[2] != "Splitee":
                 print "Rangesplitting failed at %i (was %s)"%(i,str(rs.get(i)))
@@ -282,5 +298,5 @@ class UnitTests(CadnanoGuiTestCase):
 if __name__ == '__main__':
     tc = UnitTests()
     tc.setUp()
-    tc.testRangeSet_rangesplitting()
+    tc.testRangeSet_addRange()
     # tests.cadnanoguitestcase.main()

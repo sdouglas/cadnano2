@@ -39,10 +39,14 @@ class VStrand(QObject, RangeSet):
         RangeSet.__init__(self)
         if parentVHelix != None:
             self._setVHelix(parentVHelix)
+        #self.vHelix (set by _setVHelix)
         preserveLeftOligoDuringSplit = True
 
-    def __call__(self, idx):
-        return VBase(self, idx)
+    def __repr__(self):
+        accesorToGetSelfFromvHelix = "????"
+        if self == self.vHelix.scaf: accesorToGetSelfFromvHelix = "scaf"
+        if self == self.vHelix.stap: accesorToGetSelfFromvHelix = "stap"
+        return "v[%i].%s"%(self.vHelix.number(), accesorToGetSelfFromvHelix)
 
     ####################### Public Read API #######################
     # Useful inherited methods:
@@ -100,26 +104,18 @@ class VStrand(QObject, RangeSet):
             curIdxExists = nxtIdxExists
         return " ".join(bases)
 
-    ####################### Public Write API #######################
-            
-    def connectStrand(self, startIdx, endIdx, useUndoStack=True, undoStack=None):
-        if startIdx <= endIdx:
-            endIdx += 1
-            leftIdx, rightIdx = startIdx, endIdx
-        elif endIdx < startIdx:
-            startIdx += 1
-            leftIdx, rightIdx = endIdx, startIdx
-        if self.get(startIdx) != None:
-            self.resizeRangeAtIdx(startIdx, leftIdx, rightIdx,\
-                          undoStack=undoStack, useUndoStack=useUndoStack)
-        else:
-            self.addRange(strand.NormalStrand(VBase(self, leftIdx),\
-                                              VBase(self, rightIdx)),\
-                          undoStack=undoStack, useUndoStack=useUndoStack)
+    def exposedEndAt(self, vIdx):
+        """
+        Returns 'L' or 'R' if a segment exists at vIdx and it
+        exposes an unbound endpoint on its 3' or 5' end. Otherwise returns None.
+        """
+        rangeItem = self.get(vIdx)
+        if rangeItem == None:
+            return None
+        return rangeItem.exposedEndAt(self, vIdx)  # 'L', 'R', or None
 
-    def clearStrand(self, startIdx, endIdx, useUndoStack=True, undoStack=None):
-        self.removeRange(startIdx, endIdx,\
-                         useUndoStack=useUndoStack, undoStack=undoStack)
+    ####################### Public Write API #######################
+
 
     ####################### Protected Framework Methods ##############
     def idxs(self, rangeItem):
@@ -129,7 +125,7 @@ class VStrand(QObject, RangeSet):
         """
         return rangeItem.idxsOnStrand(self)
 
-    def canMergeRangeItems(self, rangeItemA, rangeItemB):
+    def canMergeTouchingRangeItems(self, rangeItemA, rangeItemB):
         return rangeItemA.canMergeWith(rangeItemB)
          
     def mergeRangeItems(self, rangeItemA, rangeItemB, undoStack):
@@ -145,10 +141,14 @@ class VStrand(QObject, RangeSet):
                                undoStack)
 
     def willRemoveRangeItem(self, rangeItem):
-        pass
+        if strand.logger != None:
+            strand.logger.write("+%i.remove() %s\n"%(rangeItem.traceID,\
+                                                   repr(rangeItem)))
 
     def didInsertRangeItem(self, rangeItem):
-        pass
+        if strand.logger != None:
+            strand.logger.write("+%i.insert() %s\n"%(rangeItem.traceID,\
+                                                   repr(rangeItem)))
 
     def boundsChanged(self):
         pass
