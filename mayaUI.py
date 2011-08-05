@@ -1,26 +1,19 @@
-# The MIT License
-#
-# Copyright (c) 2011 Wyss Institute at Harvard University
-#
-# Permission is hereby granted, free of charge, to any person obtaining a copy
-# of this software and associated documentation files (the "Software"), to deal
-# in the Software without restriction, including without limitation the rights
-# to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-# copies of the Software, and to permit persons to whom the Software is
-# furnished to do so, subject to the following conditions:
-#
-# The above copyright notice and this permission notice shall be included in
-# all copies or substantial portions of the Software.
-#
-# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-# AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-# LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-# OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
-# THE SOFTWARE.
-#
-# http://www.opensource.org/licenses/mit-license.php
+ #*******************************************************************
+ # (C) Copyright 2010 by Autodesk, Inc. All Rights Reserved. By using
+ # this code,  you  are  agreeing  to the terms and conditions of the
+ # License  Agreement  included  in  the documentation for this code.
+ # AUTODESK  MAKES  NO  WARRANTIES,  EXPRESS  OR  IMPLIED,  AS TO THE
+ # CORRECTNESS OF THIS CODE OR ANY DERIVATIVE WORKS WHICH INCORPORATE
+ # IT.  AUTODESK PROVIDES THE CODE ON AN 'AS-IS' BASIS AND EXPLICITLY
+ # DISCLAIMS  ANY  LIABILITY,  INCLUDING CONSEQUENTIAL AND INCIDENTAL
+ # DAMAGES  FOR ERRORS, OMISSIONS, AND  OTHER  PROBLEMS IN THE  CODE.
+ #
+ # Use, duplication,  or disclosure by the U.S. Government is subject
+ # to  restrictions  set forth  in FAR 52.227-19 (Commercial Computer
+ # Software Restricted Rights) as well as DFAR 252.227-7013(c)(1)(ii)
+ # (Rights  in Technical Data and Computer Software),  as applicable.
+ #*******************************************************************
+
 
 import maya.cmds as cmds
 import maya.mel as mel
