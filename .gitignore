@@ -1,2 +1,8 @@
 *.pyc
 *~
+sip*
+build
+lib*
+*.o
+*.so
+*.sbf
