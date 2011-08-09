@@ -44,10 +44,14 @@ class HalfCylinderHelixNode(OpenMayaMPx.MPxNode):
     endAttr = OpenMaya.MObject()    
     angleAttr = OpenMaya.MObject()
     spacingAttr = OpenMaya.MObject()
-    mayaScaleAttr = OpenMaya.MObject()        
-   
+    mayaScaleAttr = OpenMaya.MObject()
+    start3DPosAttr = OpenMaya.MObject()
+    end3DPosAttr = OpenMaya.MObject()        
+    
     def __init__(self):
         OpenMayaMPx.MPxNode.__init__(self)
+        self.start3DPos = OpenMaya.MFloatPoint()
+        self.end3DPos = OpenMaya.MFloatPoint()
 
     def compute(self, plug, data):
         try:      
@@ -63,7 +67,13 @@ class HalfCylinderHelixNode(OpenMayaMPx.MPxNode):
             self.createMesh(startVal, totalVal, angleData.asDouble(), 
                             spacingData.asDouble(), 
                             mayaScaleData.asInt(), 
-                            outMeshDataObj)            
+                            outMeshDataObj)   
+                            
+            startPosHandle = data.outputValue(HalfCylinderHelixNode.start3DPosAttr)
+            startPosHandle.set3Float (self.start3DPos[0], self.start3DPos[1], self.start3DPos[2])
+            endPosHandle = data.outputValue(HalfCylinderHelixNode.start3DPosAttr)
+            endPosHandle.set3Float (self.end3DPos[0], self.end3DPos[1], self.end3DPos[2])
+            
             handle = data.outputValue(HalfCylinderHelixNode.outputMesh)
             handle.setMObject(outMeshDataObj)
             handle.setClean()
@@ -90,7 +100,8 @@ class HalfCylinderHelixNode(OpenMayaMPx.MPxNode):
         vtx = []
         angle = 0    
         # Create Endpice verts       
-        vtx.append( OpenMaya.MFloatPoint(0.0, start_pos, 0.0) )         
+        vtx.append( OpenMaya.MFloatPoint(0.0, start_pos, 0.0) )
+        self.start3DPos = OpenMaya.MFloatPoint(0.0, start_pos, 0.0)         
         for i in range(1,numVerticesEnds):
             val = i*(180/(numFacesEnds))
             rad = (val*math.pi)/180
@@ -110,6 +121,7 @@ class HalfCylinderHelixNode(OpenMayaMPx.MPxNode):
 
         # Create EndPiece verts
         vtx.append( OpenMaya.MFloatPoint(0.0, start_pos+(numMiddleSections+1)*dist_offset, 0.0) )
+        self.end3DPos = OpenMaya.MFloatPoint(0.0, start_pos+(numMiddleSections+1)*dist_offset, 0.0)
         for i in range(1,numVerticesEnds):
             angle = rot_ang * (1+numMiddleSections)
             val = i*(180/(numFacesEnds))
@@ -231,6 +243,19 @@ def nodeInitialize():
     nAttr.setMin(1)
     nAttr.setMax(20)
     nAttr.setStorable(True)
+    
+    HalfCylinderHelixNode.start3DPosAttr = nAttr.create('startPos',
+                                            'sp',
+                                            OpenMaya.MFnNumericData.k3Float,
+                                            0.0)
+    nAttr.setWritable(False)
+    nAttr.setStorable(False)
+    HalfCylinderHelixNode.end3DPosAttr = nAttr.create('endPos',
+                                            'ep',
+                                            OpenMaya.MFnNumericData.k3Float,
+                                            0.0)
+    nAttr.setWritable(False)
+    nAttr.setStorable(False)
 
     unitFn = OpenMaya.MFnUnitAttribute() 
     HalfCylinderHelixNode.angleAttr = unitFn.create('angle',
@@ -240,6 +265,8 @@ def nodeInitialize():
     unitFn.setMin(0.0)
     unitFn.setMax(math.pi)
     unitFn.setStorable(True)
+    
+    
 
     HalfCylinderHelixNode.addAttribute(HalfCylinderHelixNode.outputMesh)
     HalfCylinderHelixNode.addAttribute(HalfCylinderHelixNode.startAttr)    
@@ -247,11 +274,26 @@ def nodeInitialize():
     HalfCylinderHelixNode.addAttribute(HalfCylinderHelixNode.angleAttr)
     HalfCylinderHelixNode.addAttribute(HalfCylinderHelixNode.spacingAttr)
     HalfCylinderHelixNode.addAttribute(HalfCylinderHelixNode.mayaScaleAttr)
+    HalfCylinderHelixNode.addAttribute(HalfCylinderHelixNode.start3DPosAttr)
+    HalfCylinderHelixNode.addAttribute(HalfCylinderHelixNode.end3DPosAttr)
     HalfCylinderHelixNode.attributeAffects(HalfCylinderHelixNode.endAttr, HalfCylinderHelixNode.outputMesh)
     HalfCylinderHelixNode.attributeAffects(HalfCylinderHelixNode.startAttr, HalfCylinderHelixNode.outputMesh)
     HalfCylinderHelixNode.attributeAffects(HalfCylinderHelixNode.angleAttr, HalfCylinderHelixNode.outputMesh)
     HalfCylinderHelixNode.attributeAffects(HalfCylinderHelixNode.spacingAttr, HalfCylinderHelixNode.outputMesh)
     HalfCylinderHelixNode.attributeAffects(HalfCylinderHelixNode.mayaScaleAttr, HalfCylinderHelixNode.outputMesh)
+    
+    HalfCylinderHelixNode.attributeAffects(HalfCylinderHelixNode.endAttr, HalfCylinderHelixNode.start3DPosAttr)
+    HalfCylinderHelixNode.attributeAffects(HalfCylinderHelixNode.startAttr, HalfCylinderHelixNode.start3DPosAttr)
+    HalfCylinderHelixNode.attributeAffects(HalfCylinderHelixNode.spacingAttr, HalfCylinderHelixNode.start3DPosAttr)
+    HalfCylinderHelixNode.attributeAffects(HalfCylinderHelixNode.mayaScaleAttr, HalfCylinderHelixNode.start3DPosAttr)
+    
+    HalfCylinderHelixNode.attributeAffects(HalfCylinderHelixNode.endAttr, HalfCylinderHelixNode.end3DPosAttr)
+    HalfCylinderHelixNode.attributeAffects(HalfCylinderHelixNode.startAttr, HalfCylinderHelixNode.end3DPosAttr)
+    HalfCylinderHelixNode.attributeAffects(HalfCylinderHelixNode.spacingAttr, HalfCylinderHelixNode.end3DPosAttr)
+    HalfCylinderHelixNode.attributeAffects(HalfCylinderHelixNode.mayaScaleAttr, HalfCylinderHelixNode.start3DPosAttr)
+   
+    HalfCylinderHelixNode.attributeAffects(HalfCylinderHelixNode.outputMesh, HalfCylinderHelixNode.start3DPosAttr)
+    HalfCylinderHelixNode.attributeAffects(HalfCylinderHelixNode.outputMesh, HalfCylinderHelixNode.end3DPosAttr)
 
 def initializePlugin(obj):
     plugin = OpenMayaMPx.MFnPlugin(obj)
