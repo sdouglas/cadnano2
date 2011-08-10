@@ -31,6 +31,7 @@ from abstractpathtool import AbstractPathTool
 import util, os, model.strand
 from cadnano import ignoreEnv
 from model.enum import StrandType
+from model.normalstrand import NormalStrand
 
 # import Qt stuff into the module namespace with PySide, PyQt4 independence
 util.qtWrapImport('QtCore', globals(), ['Qt', 'QPointF'])
@@ -158,8 +159,10 @@ class SelectTool(AbstractPathTool):
         self.applyTool(vh, self._mouseDownBase, self._mouseDownBase)
 
         # Begin a new model drag operation
-        # vStrand = vh.vStrand(strand)
-        # self.normalStrandToInsert = strand.NormalStrand(vStrand, vIdxL, vIdxR)
+        vstr = vh.vStrand(strand)
+        self.normalStrandToInsert = NormalStrand(VBase(vstr, idx),\
+                                                 VBase(vstr, idx + 1))
+        vstr.part().addVfbStrands([vstr])
 
         ph.makeSelfActiveHelix()
 
@@ -168,6 +171,8 @@ class SelectTool(AbstractPathTool):
         if self._mouseDownBase == None:
             return
         vh = self._mouseDownPH.vhelix()
+        self.normalStrandToInsert.commit()
+        self.normalStrandToInsert = None
         vh.palette().shuffle()
         self._mouseDownBase = None
         self._lastValidBase = None

@@ -225,6 +225,10 @@ class RangeSet(object):
         idxRange = self._idxRangeOfRangesIntersectingRange(rangeStart, rangeEnd)
         return idxRange[1] - idxRange[0] > 0
 
+    def rangeItemsIntersectingRange(self, rangeStart, rangeEnd):
+        rangeItemIndexRange = self._idxRangeOfRangesIntersectingRange(rangeStart, rangeEnd)
+        return self.ranges[rangeItemIndexRange[0]:rangeItemIndexRange[1]]
+
     def __iter__(self):
         """
         Iterate over the range items in self.

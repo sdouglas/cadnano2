@@ -32,7 +32,7 @@ class VBase(object):
     Uses properties: http://docs.python.org/library/functions.html#property
     """
     def __init__(self, vStrand, vIndex):
-        object.__init__(self)
+        object.__init__()
         self.vStrand = vStrand
         self.vIndex = vIndex
     def __repr__(self):
@@ -41,14 +41,25 @@ class VBase(object):
         strandStr = "scaf" if strand.isScaf() else "stap"
         return "v[%i].%s(%i)"%(vhNum, strandStr, self.vIndex)
 
+    def __add__(self, i):
+        """ Returns the VBase on the same strand but i bases rightwards (in
+        the 2D view) """
+        return VBase(self.vStrand, self.vIndex + i)
+    def __sub__(self, i):
+        """ Complement of __add__ """
+        return VBase(self.vStrand, self.vIndex - i)
+    def __call__(self, i):
+        """ Synonymous with sameStrand """
+        return VBase(self.vStrand, i )
+
     def coords(self):
         return (self.vStrand, self.vIndex)
 
     def vHelix(self):
-        return self.vStrand.vHelix()
+        return self.vStrand.vHelix
 
     def part(self):
-        return self.vHelix().part()
+        return self.vStrand.vHelix.part()
 
     def __eq__(self, other):
         return self.coords() == other.coords()
@@ -58,18 +69,6 @@ class VBase(object):
         Base on the same vHelix at the same vIndex but opposite strand.
         """
         return VBase(self.vStrand.vComplement(), self.vIndex)
-
-    def sameStrand(self, idx):
-        """
-        Returns a VBase on the same vStrand but at the given index.
-        """
-        return VBase(self.vStrand, idx)
-
-    def translated(self, delta):
-        """
-        Returns a VBase on the same strand with its indexs shifted by delta.
-        """
-        return VBase(self.vStrand, self.vIndex + delta)
 
     def vPrev5(self):
         """
@@ -100,3 +99,34 @@ class VBase(object):
         Returns a vbase one to the left in the path view
         """
         return VBase(self._vStrand, self._index - 1)
+
+    def to5or3(self, end):
+        """ Returns 5 or 4 corresponding to the input ('L', 'R', 5, or
+        3) on self's vStrand """
+        if end in (3, 5):
+            return end
+        if end == 'L':
+            return 5 if self.vStrand.drawn5To3() else 3
+        if end == 'R':
+            return 3 if self.vStrand.drawn5To3() else 5
+        if end == None:
+            return end
+        raise ValueError("%s not in (3, 5, 'L', 'R', None)"%str(end))
+
+    def toLorR(self, end):
+        """ Returns L or R corresponding to the input ('L', 'R', 5, or
+        3) on self's vStrand """
+        if end in ('L', 'R'):
+            return end
+        if end == 3:
+            return 'R' if self.vStrand.drawn5To3() else 'L'
+        if end == 5:
+            return 'L' if self.vStrand.drawn5To3() else 'R'
+        if end == None:
+            return end
+        raise ValueError("%s not in (3, 5, 'L', 'R', None)"%str(end))
+
+    # -------------------- Querying the Model -------------------
+    def exposedEnd(self):
+        """ Returns 'L' or 'R' """
+        return self.vStrand

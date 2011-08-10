@@ -118,29 +118,48 @@ class DNAPart(Part):
         
         # Model 2.0
         self._oligos = []
-        
+        self.vfbStrands = set()
 
     ######################################################################
     ######################## New Model Quarantine ########################
     ######################################################################
 
     ########################## Notification API ##########################
-    
+
+    # Argument is strand (see DNAPart.vfbStrands)
+    didAddVfbStrand = pyqtSignal(object)
+    # Argument is strand (see DNAPart.vfbStrands)
+    willRemoveVfbStrand = pyqtSignal(object)
+
     # Arguments are oligo, part
     willAddOligoToPart = pyqtSignal(object, object)
     # Arguments are oligo, part
     didAddOligoToPart = pyqtSignal(object, object)
-    
+
     # Arguments are oligo, part
     willRemoveOligoFromPart = pyqtSignal(object, object)
     #Arguments are oligo, part
     didRemoveOligoFromPart = pyqtSignal(object, object)
-    
+
     # Argument is oligo
     oligoWasChanged = pyqtSignal(object)
-    
+
     ########################## Read API ##########################
-    
+
+    def vfbStrands(self):
+        """ A set of strands that are 'tentatively' added to self for the
+        purpose of providing a preview of the operation the user will perform.
+        """
+        return self.vfbStrands
+    def addVfbStrands(self, strands):
+        for s in strands:
+            self.vfbStrands.add(s)
+            self.didAddVfbStrand.emit(s)
+    def removeVfbStrands(self, strands):
+        for s in strands:
+            self.willRemoveVfbStrand.emit(s)
+            self.vfbStrands.remove(s)
+
     def oligos(self):
         """
         Oligos are not in any particular order.

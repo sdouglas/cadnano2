@@ -40,7 +40,9 @@ class VStrand(QObject, RangeSet):
         if parentVHelix != None:
             self._setVHelix(parentVHelix)
         #self.vHelix (set by _setVHelix)
-        preserveLeftOligoDuringSplit = True
+        self.preserveLeftOligoDuringSplit = True
+        # VFB = Visual FeedBack
+        self.strandsWithActiveVfb = set()
 
     def __repr__(self):
         accesorToGetSelfFromvHelix = "????"
@@ -54,6 +56,7 @@ class VStrand(QObject, RangeSet):
     #   vstr[idx]                same as get
     #   vstr.bounds()            returns a range containing all segments
     #                            this range is tight
+    #   vstr.part()              the part containing vstr
     # Properties:
     #   vstr.vHelix
 
@@ -67,6 +70,9 @@ class VStrand(QObject, RangeSet):
             return stap
         assert(self == stap)
         return scaf
+
+    def part(self):
+        return self.vHelix.part()
 
     def isScaf(self):
         return self == self.vHelix.scaf()
@@ -116,8 +122,40 @@ class VStrand(QObject, RangeSet):
 
     ####################### Public Write API #######################
 
+    # Visual FeedBack provides a "preview" of the operation that would
+    # be performed if the user were to click, finish draging, etc. Each strand
+    # in the model 
+    def clearVFB(self):
+        """ Gets rid of all active visual feedback """
+        for strand in self.strandsWithActiveVfb:
+            strand.clearVFB()
+        self.strandsWithActiveVfb = []
+
+    def setVFB(self, clrStart, afterClrEnd, endptsToConnect):
+        """ Alerts the model that visual feedback should be provided reflecting
+        that completion of the current operation would cause
+        1) Deletion of preexisting strand in the pythonic range
+           (clrStart, afterClrEnd)
+        2) Connection of preexisting endpoints in endptsToConnect to endpoints
+           of a new strand """
+        # Inserting a strand clears everything beneath it
+        clrStart, clrEnd = self.idxs(strand)
+        newVfbStrands = set(self.rangeItemsIntersectingRange(clrStart, clrEnd))
+        for strand in newVfbStrands:
+            strand.setVFB(clrStart, afterClrEnd, endptsToConnect)
+        for strand in self.strandsWithActiveVfb - newVfbStrands:
+            strand.clearVFB()
+        self.strandsWithActiveVfb = newVfbStrands
+
+    def addStrand(self, strand, useUndoStack=True, undoStack=None):
+        # A strand is a range
+        self.addRange(strand, useUndoStack, undoStack)
+
+    # def removeRange(self, firstIndex, afterLastIndex, useUndoStack=True, undoStack=None)
 
     ####################### Protected Framework Methods ##############
+    # Note: the rangeItems of a VStrand are strands
+
     def idxs(self, rangeItem):
         """
         Returns (firstIdx, afterLastIdx) simplified representation of the
@@ -126,7 +164,7 @@ class VStrand(QObject, RangeSet):
         return rangeItem.idxsOnStrand(self)
 
     def canMergeTouchingRangeItems(self, rangeItemA, rangeItemB):
-        return rangeItemA.canMergeWith(rangeItemB)
+        return rangeItemA.canMergeWithTouchingStrand(rangeItemB)
          
     def mergeRangeItems(self, rangeItemA, rangeItemB, undoStack):
         return rangeItemA.mergeWith(rangeItemB, undoStack)
@@ -141,6 +179,7 @@ class VStrand(QObject, RangeSet):
                                undoStack)
 
     def willRemoveRangeItem(self, rangeItem):
+        rangeItem.willBeRemoved.emit(rangeItem)
         if strand.logger != None:
             strand.logger.write("+%i.remove() %s\n"%(rangeItem.traceID,\
                                                    repr(rangeItem)))

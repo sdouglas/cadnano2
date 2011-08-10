@@ -2,29 +2,29 @@ import styles
 
 class Oligo(QObject):
     """
-    Model 2.0: DNAPart >> Oligo >> Segments
-    Oligo is comprised of a list of segments under the invariant
-    segments(i).next3() == segments(i+1).prev5()
+    Model 2.0: DNAPart >> Oligo >> Strands
+    Oligo is comprised of a list of strands under the invariant
+    strands(i).next3() == strands(i+1).prev5()
     """
 	
 	def __init__(self):
 	    QObject.__init__(self)
 	    self._sequence = ""
-	    self._segments = []
+	    self._strands = []
 	    self._color = None
 	    self._sequence = None
 	
 	########################## Notification API ##########################
 
-    # Args are oligo, segment, index
-	oligoWillAddSegmentAtIndex = pyqtSignal(object, int)
-	# Args are oligo, segment
-	oligoDidAddSegment = pyqtSignal(object, object)
+    # Args are oligo, strand, index
+	oligoWillAddStrandAtIndex = pyqtSignal(object, int)
+	# Args are oligo, strand
+	oligoDidAddStrand = pyqtSignal(object, object)
 
-    # Args are oligo, segment
-	oligoWillRemoveSegment = pyqtSignal(object, object)
-	# Args are oligo, segment
-	oligoDidRemoveSegment = pyqtSignal(object, object)
+    # Args are oligo, strand
+	oligoWillRemoveStrand = pyqtSignal(object, object)
+	# Args are oligo, strand
+	oligoDidRemoveStrand = pyqtSignal(object, object)
 
     # Arg is oligo
     oligoColorDidChange = pyqtSignal(object)
@@ -32,21 +32,21 @@ class Oligo(QObject):
 	
 	########################## Public Read API ##########################
 
-	def segments(self, i=None):
+	def strands(self, i=None):
 	    """
-	    Returns the segments self is composed of in 5' to 3' order (that
-	    is, self.segments()[0] should have no prev5() and self.segments()[-1]
+	    Returns the strands self is composed of in 5' to 3' order (that
+	    is, self.strands()[0] should have no prev5() and self.strands()[-1]
 	    should have no next3())
 	    """
 	    if i != None:
-	        return self._segments[i]
-	    return self._segments
+	        return self._strands[i]
+	    return self._strands
 
     def length(self):
         """
         Every change in length should correspond to a
         """
-        return sum(seg.length() for seg in self._segments)
+        return sum(seg.length() for seg in self._strands)
 
     def color(self):
         if self._color == None:
@@ -66,40 +66,41 @@ class Oligo(QObject):
         self._sequence = newSeq
         self.oligoSequenceDidChange(self)
 
-	def addSegment(self, newSeg, idx=False):
+	def addStrand(self, newSeg, idx=False):
 	    """
-	    Adds a segment to self's segment list such that
-	    self.segments()[idx] = newSeg
+	    Adds a strand to self's strand list such that
+	    self.strands()[idx] = newSeg
 	    """
 	    if idx == False:
-	        idx = len(self._segments)
-	    assert(newSeg not in self._segments)
+	        idx = len(self._strands)
+	    assert(newSeg not in self._strands)
 	    assert(newSeg.oligo() == None)
-	class AddSegmentCommand(QUndoCommand):
+	class AddStrandCommand(QUndoCommand):
 	    def __init__(self, oligo, seg, idx):
 	        self._oligo = oligo
 	        self._seg = seg
 	        self._idx = idx
 	    def redo(self):
 	        oligo, seg, idx = self._oligo, self._seg, self._idx
-	        oligo.oligoWillAddSegmentAtIndex.emit(oligo, seg, idx)
-	        oligo._segments.insert(idx, seg)
+	        oligo.oligoWillAddStrandAtIndex.emit(oligo, seg, idx)
+	        oligo._strands.insert(idx, seg)
 	        newSeg._setOligo(self)
-	        self.oligoDidAddSegment(self, newSeg)
+	        self.oligoDidAddStrand(self, newSeg)
 
-    def removeSegment(self, seg):
+    def removeStrand(self, seg):
         """
-        Removes a segment
+        Removes a strand
         """
-        assert(seg in self._segments)
-        self.oligoWillRemoveSegment(self, seg)
-        self._segments.remove(seg)
+        assert(seg in self._strands)
+        self.oligoWillRemoveStrand(self, seg)
+        self._strands.remove(seg)
         seg._setOligo(None)
-        self.oligoDidRemoveSegment(self, seg)
+        self.oligoDidRemoveStrand(self, seg)
 
     ########################## Private Write API ##########################
 
     def _setPart(self, newPart):
+        """ Should only be called by newPart itself """
         self._part = newPart
 
     ########################## Bookkeeping ##########################
@@ -109,13 +110,13 @@ class Oligo(QObject):
         Returns True if self obeys all the invariants it should.
         Prints messages helpful to debugging if it doesn't.
         """
-        segs = self.segments():
+        segs = self.strands():
         if segs:
             if segs[0].prev5() != None:
-                print "Segment 0 of %s has illegal 5' ptr"%self
+                print "Strand 0 of %s has illegal 5' ptr"%self
                 return False
             if segs[-1].next3() != None:
-                print "Last segment of %s has illegal 3' ptr"%self
+                print "Last strand of %s has illegal 3' ptr"%self
                 return False
         for i in range(0, len(segs) - 1):
             if segs[i].next3() != segs[i + 1].prev5():
