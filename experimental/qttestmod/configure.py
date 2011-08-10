@@ -39,6 +39,8 @@ makefile = pyqtconfig.QtGuiModuleMakefile(
 # specific prefixes or extensions (e.g. the "lib" prefix on UNIX, or the
 # ".dll" extension on Windows).
 makefile.extra_libs = ["testitem"]
+# in case the linker can't find library files in the local directory
+# makefile.extra_lib_dirs = [os.path.dirname(os.path.realpath(__file__))]
 
 # Generate the Makefile itself.
 makefile.generate()
