@@ -167,6 +167,14 @@ def openCN():
         mayaWin.changeEvent = changed
     gCadNanoDock.setVisible(True)
 
+    pluginPath = os.path.join(os.environ['CADNANO_PATH'],  "views", "solidview", "helixManip.py") 
+    if( not cmds.pluginInfo( pluginPath, query=True, loaded=True ) ):
+            cmds.loadPlugin( pluginPath )        
+            cmds.spHelixManipCtxCmd("spHelixContext1")
+            cmds.setToolTo("spHelixContext1")
+    
+
+
 
 def changed(self, event):
     print str(event.type())

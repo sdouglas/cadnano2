@@ -72,9 +72,11 @@ class SolidHelixGroup(QObject):
 
         print "maya SolidHelixGroup created"
         self.type = htype
-        self.mayaScale = 15.0
-        self.mayaOrigin = (-self.mayaScale, self.mayaScale, 0.0)  # top left cornder of maya 3d scene X Y Z
-        self.helixRadius = 0.5
+        #self.mayaScale = 1.0
+        #later updates using basecount from the VH
+        # XXX [SB] - need to ask CandNano for rows and cols...
+        self.mayaOrigin = (-15*2.25, 16*2.25, 0.0)  # top left cornder of maya 3d scene X Y Z 
+        self.helixRadius = 1.125  # diamiter is 2.25nm
         self.solidHelicesIndices = {}
         self.solidHelicesIndicesCount = 0
 
@@ -101,6 +103,7 @@ class SolidHelixGroup(QObject):
 
             endpoints = h.getSegmentsAndEndpoints(StrandType.Scaffold)
             segmentsCount = len(endpoints[0])
+            
             
             if(segmentsCount < 1):
                 continue
@@ -218,6 +221,11 @@ class SolidHelixGroup(QObject):
 
         #cmds.createNode("spHelixMetaNode", name=metaName)
         cmds.createNode("spHalfCylinderHelixNode", name=cylinderName)
+        if self.type == LatticeType.Honeycomb:
+            cmds.setAttr("%s.rotation" % cylinderName, 34.286)
+        else:
+            cmds.setAttr("%s.rotation" % cylinderName, 33.75)
+            
         #cmds.connectAttr("%s.output" % cylinderName, "%s.inputMesh" % metaName)
         cmds.connectAttr("%s.outputMesh" % cylinderName, "%s.inMesh" % meshName)
         #cmds.connectAttr("%s.scale" % metaName, "%s.scaleY" % transformName)
