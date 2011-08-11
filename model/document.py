@@ -68,6 +68,7 @@ class Document(QObject):
             for part in self._parts:
                 part.updateAcyclicLengths()
 
+
     def addDnaHoneycombPart(self):
         """
         Create and store a new DNAPart and instance, and return the instance.
