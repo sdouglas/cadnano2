@@ -202,7 +202,7 @@ class SolidHelixGroup(QObject):
         transformName = "DNAShapeTransform%d" % count
         meshName = "DNACylinderShape%d" % count
         #metaName = "HelixMetaNode%d" % count
-        toonName = "pfxToonShape%d" % count
+        toonName = "DNAToonShape%d" % count
         shaderName = "DNAStrandShader%d" % count
 
         #cmds.createNode("polyCylinder", name=cylinderName)
