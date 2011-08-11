@@ -100,6 +100,7 @@ class DocumentWindow(QMainWindow, ui_mainwindow.Ui_MainWindow):
         self.pathController.sliceController = self.sliceController
 
         if app().isInMaya():
+            self.splitter.setOrientation(Qt.Vertical)
             self.setUnifiedTitleAndToolBarOnMac(False)
 
         # Test recording

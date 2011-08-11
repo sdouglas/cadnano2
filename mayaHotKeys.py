@@ -24,7 +24,10 @@ commandWhiteList = [
                 "RotateToolWithSnapMarkingMenuNameCommand",
                 "ScaleToolWithSnapMarkingMenuNameCommand",
                 "NameComUndo",
-                "NameComRedo"]
+                "NameComRedo",
+                "FrameSelected",
+                "IncreaseManipulatorSize",
+                "DecreaseManipulatorSize"]
 disabledHotKeys = []
 
 

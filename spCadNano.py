@@ -27,19 +27,16 @@ sys.path.insert(0, os.environ['CADNANO_PATH'])
 
 import mayaHotKeys
 import mayaUI
-
 import util
-util.qtWrapImport('QtGui', globals(), ['qApp', 'QDockWidget', 'QSizePolicy'])
 
+util.qtWrapImport('QtGui', globals(), ['qApp', 'QDockWidget', 'QSizePolicy'])
 util.qtWrapImport('QtCore', globals(), ['Qt', 'QObject'])
 
 kPluginName = "spCadNano"
 gCadNanoButton = None
 gCadNanoToolbar = None
 fMayaExitingCB = None
-
 gCadNanoApp = None
-
 gCadNanoObjectName = "CADnanoWindow"
 gCadNanoDock = None
 gIconPath = (
@@ -59,7 +56,6 @@ class openCadNano(OpenMayaMPx.MPxCommand):
     def creator():
         return OpenMayaMPx.asMPxPtr(openCadNano())
 
-
 class closeCadNano(OpenMayaMPx.MPxCommand):
     def __init__(self):
         OpenMayaMPx.MPxCommand.__init__(self)
@@ -71,15 +67,12 @@ class closeCadNano(OpenMayaMPx.MPxCommand):
     def creator():
         return OpenMayaMPx.asMPxPtr(closeCadNano())
 
-
 def onExitingMaya(clientData):
     closeCN()
     cmds.SavePreferences()
 
-
 def onHideEvent():
     closeCN()
-
 
 # Initialize the script plug-in
 def initializePlugin(mobject):
@@ -101,7 +94,6 @@ def initializePlugin(mobject):
 def uninitializePlugin(mobject):
     closeCN()
     removeUIButton()
-
     mplugin = OpenMayaMPx.MFnPlugin(mobject)
     try:
         mplugin.deregisterCommand("openCadNano")
@@ -109,11 +101,9 @@ def uninitializePlugin(mobject):
     except:
         sys.stderr.write("Failed to unregister command: %s\n" % kPluginName)
         raise
-
     global fMayaExitingCB
     if (fMayaExitingCB != None):
         OpenMaya.MSceneMessage.removeCallback(fMayaExitingCB)
-
 
 def openCN():
     global gCadNanoDock
@@ -150,20 +140,17 @@ def openCN():
         gCadNanoDock.setWidget(dw)
         mayaWin.addDockWidget(Qt.DockWidgetArea(Qt.LeftDockWidgetArea),
                                 gCadNanoDock)
-        dw.setSizePolicy(QSizePolicy.MinimumExpanding,
-                            QSizePolicy.MinimumExpanding)
+        # dw.setSizePolicy(QSizePolicy.MinimumExpanding,
+        #                     QSizePolicy.MinimumExpanding)
         gCadNanoDock.changeEvent = changed
         mayaWin.changeEvent = changed
     gCadNanoDock.setVisible(True)
 
     pluginPath = os.path.join(os.environ['CADNANO_PATH'],  "views", "solidview", "helixManip.py") 
-    if( not cmds.pluginInfo( pluginPath, query=True, loaded=True ) ):
+    if not cmds.pluginInfo( pluginPath, query=True, loaded=True ):
             cmds.loadPlugin( pluginPath )        
             cmds.spHelixManipCtxCmd("spHelixContext1")
             cmds.setToolTo("spHelixContext1")
-    
-
-
 
 def changed(self, event):
     print str(event.type())
@@ -172,7 +159,6 @@ def changed(self, event):
         event.type() == QEvent.ApplicationActivate):
             print self.win.windowTitle()
             app().activeDocument = self
-
 
 def simplifyMayaUI():
     mayaHotKeys.disableAllHotKeys()
@@ -186,7 +172,6 @@ def simplifyMayaUI():
                                 area='top',
                                 allowedArea='top',
                                 content=myWindow)
-
     global gIconPath
     closeCadNanoCmd = 'import maya.cmds;maya.cmds.closeCadNano()'
     myButton = cmds.iconTextButton(
@@ -200,14 +185,11 @@ def simplifyMayaUI():
                 edit=True,
                 attachForm=[(myButton, 'right', 10)])
 
-
 def restoreMayaUI():
     mayaHotKeys.restoreAllHotKeys()
     mayaUI.restoreUI()
-
     if cmds.toolBar(gCadNanoToolbar, exists=True):
         cmds.deleteUI(gCadNanoToolbar)
-
 
 def closeCN():
     global gCadNanoDock
@@ -217,7 +199,6 @@ def closeCN():
         if x.win:
             x.win.setVisible(False)
     restoreMayaUI()
-
 
 def addUIButton():
     global gCadNanoButton
@@ -237,11 +218,9 @@ def addUIButton():
                     edit=True,
                     attachForm=[(gCadNanoButton, 'right', 10)])
 
-
 def removeUIButton():
     global gCadNanoButton
     cmds.deleteUI(gCadNanoButton)
-
 
 def getDocumentWindow():
     global gCadNanoDock

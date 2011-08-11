@@ -50,8 +50,11 @@ class Base(object):
         self._strandtype = strandtype
         self._n = index
         self._floatingXoverDestination = None
-        self._shouldHighlight = True
         self._sequence = " "
+        if self._strandtype == StrandType.Staple:
+            self._shouldHighlight = True
+        else:
+            self._shouldHighlight = False
 
     def __str__(self):
         fiveTo3 = self._vhelix.directionOfStrandIs5to3(self._strandtype)
