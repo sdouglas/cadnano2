@@ -1,9 +1,9 @@
 ###############################################################################
-#  
+#
 # Copyright 2011 Autodesk, Inc.  All rights reserved.
-#  
+#
 # The MIT License
-#  
+#
 # Permission is hereby granted, free of charge, to any person obtaining a copy of
 # this software and associated documentation files (the "Software"), to deal in
 # the Software without restriction, including without limitation the rights to
@@ -13,7 +13,7 @@
 #
 # The above copyright notice and this permission notice shall be included in all
 # copies or substantial portions of the Software.
-# 
+#
 # THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
 # IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
 # FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -21,7 +21,7 @@
 # LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
-# 
+#
 ###############################################################################
 
 
@@ -51,8 +51,6 @@ fMayaExitingCB = None
 
 gCadNanoApp = None
 
-gCadNanoObjectName = "CADnanoWindow"
-gCadNanoDock = None
 gIconPath = (
         os.environ['CADNANO_PATH'] +
         "/ui/mainwindow/images/cadnano2-app-icon_shelf.png")
@@ -110,6 +108,9 @@ def initializePlugin(mobject):
 
 # Uninitialize the script plug-in
 def uninitializePlugin(mobject):
+    global gCadNanoApp
+    if gCadNanoApp:
+        gCadNanoApp.deleteAllMayaNodes()
     closeCN()
     removeUIButton()
 
@@ -127,11 +128,9 @@ def uninitializePlugin(mobject):
 
 
 def openCN():
-    global gCadNanoDock
     global gCadNanoApp
     simplifyMayaUI()
 
-    dw = getDocumentWindow()
     if gCadNanoApp:
         for x in gCadNanoApp.documentControllers:
             if x.win:
@@ -144,36 +143,18 @@ def openCN():
         if __name__ == '__main__':
             gCadNanoApp.exec_()
         #execfile( os.environ['CADNANO_PATH'] + '/mayamain.py')
-        dw = getDocumentWindow()
-        global gCadNanoObjectName
-        dw.setObjectName(gCadNanoObjectName)
 
-    if gCadNanoDock == None:
-        ptr = OpenMayaUI.MQtUtil.mainWindow()
-        mayaWin = sip.wrapinstance(long(ptr), QObject)
-        gCadNanoDock = QDockWidget("CADnano")
-        gCadNanoDock.setFeatures(
-                                QDockWidget.DockWidgetMovable
-                                | QDockWidget.DockWidgetFloatable)
-        gCadNanoDock.setAllowedAreas(
-                                Qt.LeftDockWidgetArea
-                                | Qt.RightDockWidgetArea)
-        gCadNanoDock.setWidget(dw)
-        mayaWin.addDockWidget(Qt.DockWidgetArea(Qt.LeftDockWidgetArea),
-                                gCadNanoDock)
-        #dw.setSizePolicy(QSizePolicy.MinimumExpanding,
-        #                    QSizePolicy.MinimumExpanding)
-        gCadNanoDock.changeEvent = changed
-        mayaWin.changeEvent = changed
-    gCadNanoDock.setVisible(True)
+    if gCadNanoApp.activeDocument:
+        if hasattr(gCadNanoApp.activeDocument, 'solidHelixGrp'):
+            if gCadNanoApp.activeDocument.solidHelixGrp:
+                gCadNanoApp.activeDocument.solidHelixGrp.onPersistentDataChanged()
 
-    pluginPath = os.path.join(os.environ['CADNANO_PATH'],  "views", "solidview", "helixManip.py") 
-    if( not cmds.pluginInfo( pluginPath, query=True, loaded=True ) ):
-            cmds.loadPlugin( pluginPath )        
+    pluginPath = os.path.join(
+            os.environ['CADNANO_PATH'],  "views", "solidview", "helixManip.py")
+    if(not cmds.pluginInfo(pluginPath, query=True, loaded=True)):
+            cmds.loadPlugin(pluginPath)
             cmds.spHelixManipCtxCmd("spHelixContext1")
             cmds.setToolTo("spHelixContext1")
-    
-
 
 
 def changed(self, event):
@@ -216,15 +197,15 @@ def restoreMayaUI():
     mayaHotKeys.restoreAllHotKeys()
     mayaUI.restoreUI()
 
-    if cmds.toolBar(gCadNanoToolbar, exists=True):
-        cmds.deleteUI(gCadNanoToolbar)
+    if gCadNanoToolbar:
+        if cmds.toolBar(gCadNanoToolbar, exists=True):
+            cmds.deleteUI(gCadNanoToolbar)
 
 
 def closeCN():
-    global gCadNanoDock
     global gCadNanoApp
-    if gCadNanoDock:
-        gCadNanoDock.setVisible(False)
+    if gCadNanoApp.activeDocument:
+        gCadNanoApp.activeDocument.win.setVisible(False)
     if gCadNanoApp:
         for x in gCadNanoApp.documentControllers:
             if x.win:
@@ -254,15 +235,3 @@ def addUIButton():
 def removeUIButton():
     global gCadNanoButton
     cmds.deleteUI(gCadNanoButton)
-
-
-def getDocumentWindow():
-    global gCadNanoDock
-    global gCadNanoApp
-    if gCadNanoDock:
-        return gCadNanoDock.widget()
-    elif gCadNanoApp:
-        for x in gCadNanoApp.documentControllers:
-            if x.win:
-                return x.win
-    return None
