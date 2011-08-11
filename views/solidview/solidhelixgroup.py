@@ -89,7 +89,7 @@ class SolidHelixGroup(QObject):
         self._part = p
         self._part.persistentDataChanged.connect(self.onPersistentDataChanged)
         print "SolidHelixGroup.setPart: signals setup"
-
+        
     def onPersistentDataChanged(self):
         # Update in the Model
         #print "SolidHelixGroup.onPersistentDataChanged:"
@@ -97,45 +97,30 @@ class SolidHelixGroup(QObject):
         for h in self._part.getVirtualHelices():
             myKey = '%d_%d' % (h.coord()[0], h.coord()[1])
             
-            if myKey not in self.solidHelicesIndices:
+            if myKey not in self.solidHelicesIndices.keys():
                 self.createNewHelix(h.coord()[0], h.coord()[1], 1)
             itemIndices = self.solidHelicesIndices[myKey]
 
             endpoints = h.getSegmentsAndEndpoints(StrandType.Scaffold)
             segmentsCount = len(endpoints[0])
             
-            
-            if(segmentsCount < 1):
-                continue
-
             if (len(itemIndices) != segmentsCount):
                 # Delete current itemIndices
                 self.deleteHelix(h.coord()[0], h.coord()[1])
                 # create new indeces
                 self.createNewHelix( h.coord()[0], h.coord()[1], segmentsCount)
-
+            
+            if(segmentsCount < 1):
+                continue     
             itemIndices = self.solidHelicesIndices[myKey] 
 
             for seg in range(segmentsCount):
                 cylinderName = "HalfCylinderHelixNode%d" % itemIndices[seg]
                 #transformName = "DNAShapeTranform%d" % itemIndex
                 totalNumBases = h.numBases()
-                #helixScale = self.mayaScale / totalNumBases
-                middleBase = totalNumBases/2
-                right = (middleBase-endpoints[0][seg][0])
-                left = (endpoints[0][seg][1]-middleBase)
-                #direction = h.directionOfStrandIs5to3(StrandType.Scaffold)
-                #if direction:
-                #    right = (middleBase-endpoints[2][seg])
-                #    left = (endpoints[1][seg]-middleBase)
-                #else:
-                #    right = (middleBase-endpoints[1][seg])
-                #    left = (endpoints[2][seg]-middleBase)
-
-                #print "right, left %d,%d" % ( right, left)
-                
-                cmds.setAttr("%s.start"%cylinderName, left)
-                cmds.setAttr("%s.end"%cylinderName, right)
+                cmds.setAttr("%s.startBase"%cylinderName, endpoints[0][seg][0])
+                cmds.setAttr("%s.endBase"%cylinderName, endpoints[0][seg][1])
+                cmds.setAttr("%s.totalBases"%cylinderName, totalNumBases)
                 
                 #cmds.setAttr("%s.scaleFront"%metaName, right*helixScale)
                 #cmds.setAttr("%s.scaleBack"%metaName, left*helixScale)
@@ -164,10 +149,14 @@ class SolidHelixGroup(QObject):
         #transforms = cmds.ls("DNAShapeTransform*")
         #for t in transforms:
         #     cmds.delete(t)
-        for itemIndices in self.solidHelicesIndices:           
+        for itemIndices in self.solidHelicesIndices.values():
             for i in itemIndices:
+                toonName = "DNAToon%d" % i
+                shaderName = "DNAStrandShader%d" % i
                 transformName = "DNAShapeTransform%d" % i
-                cmds.delete(transformName)
+                items = cmds.ls(toonName, transformName, shaderName)
+                if len(items) > 0:                
+                    cmds.delete(items)
         
         self.solidHelicesIndices = {}
         self.solidHelicesIndicesCount = 0
@@ -178,11 +167,13 @@ class SolidHelixGroup(QObject):
         itemIndices = self.solidHelicesIndices[myKey]            
 
         for i in itemIndices:
-            #cylinderName = "CylinderNode%d" % i
+            toonName = "DNAToon%d" % i
             transformName = "DNAShapeTransform%d" % i
-            #cmds.delete(cylinderName)
-            cmds.delete(transformName)
-
+            shaderName = "DNAStrandShader%d" % i
+            items = cmds.ls(toonName, transformName, shaderName)
+            if len(items) > 0:
+                cmds.delete(items)            
+            
     def createNewHelix(self, row, col, count=1):
         # New Helix Added
         #print "SolidHelixGroup.onAtCoordsChanged: %d %d" % (row, col)
