@@ -121,7 +121,17 @@ class SolidHelixGroup(QObject):
                 cmds.setAttr("%s.startBase"%cylinderName, endpoints[0][seg][0])
                 cmds.setAttr("%s.endBase"%cylinderName, endpoints[0][seg][1])
                 cmds.setAttr("%s.totalBases"%cylinderName, totalNumBases)
-                cmds.setAttr("%s.parity"%cylinderName, parity)
+                
+                
+                if self.type == LatticeType.Honeycomb:
+                    cmds.setAttr("%s.rotation" % cylinderName, 34.286)
+                    cmds.setAttr("%s.rotationOffset" % cylinderName, 30)
+                    cmds.setAttr("%s.parity"%cylinderName, parity)
+                else:
+                    cmds.setAttr("%s.rotation" % cylinderName, 33.75)
+                    cmds.setAttr("%s.rotationOffset" % cylinderName, 120)
+                    # is the parity reverse for squere grid?
+                    cmds.setAttr("%s.parity"%cylinderName, parity==0)
                 
                 #cmds.setAttr("%s.scaleFront"%metaName, right*helixScale)
                 #cmds.setAttr("%s.scaleBack"%metaName, left*helixScale)
@@ -213,11 +223,7 @@ class SolidHelixGroup(QObject):
 
         #cmds.createNode("spHelixMetaNode", name=metaName)
         cmds.createNode("spHalfCylinderHelixNode", name=cylinderName)
-        if self.type == LatticeType.Honeycomb:
-            cmds.setAttr("%s.rotation" % cylinderName, 34.286)
-        else:
-            cmds.setAttr("%s.rotation" % cylinderName, 33.75)
-            
+                    
         #cmds.connectAttr("%s.output" % cylinderName, "%s.inputMesh" % metaName)
         cmds.connectAttr("%s.outputMesh" % cylinderName, "%s.inMesh" % meshName)
         #cmds.connectAttr("%s.scale" % metaName, "%s.scaleY" % transformName)

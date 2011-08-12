@@ -46,6 +46,7 @@ class HalfCylinderHelixNode(OpenMayaMPx.MPxNode):
     start3DPosAttr = OpenMaya.MObject()
     end3DPosAttr = OpenMaya.MObject()
     parityAttr = OpenMaya.MObject()
+    rotationOffsetAttr = OpenMaya.MObject()
 
     radiusAttr = OpenMaya.MObject()
     rotationAttr = OpenMaya.MObject()
@@ -74,9 +75,12 @@ class HalfCylinderHelixNode(OpenMayaMPx.MPxNode):
             totalNumBases = totalNumBasesData.asInt()
             parityData = data.inputValue(HalfCylinderHelixNode.parityAttr)
             parity = parityData.asInt()
+            rotationOffsetData = data.inputValue(HalfCylinderHelixNode.rotationOffsetAttr)
+            rotationOffset = rotationOffsetData.asDouble()
 
             self.createMesh(startVal, endVal , totalNumBases, \
                             radiusData.asDouble(), rotationData.asDouble(), \
+                            rotationOffset,
                             spacingData.asDouble(), \
                             edgesPerBaseData.asInt(), \
                             parity, \
@@ -95,7 +99,7 @@ class HalfCylinderHelixNode(OpenMayaMPx.MPxNode):
             print "Error in %s\n" % nodeName
             raise
 
-    def createMesh(self, startVal, endVal, totalNumBases, radius, rotationAttr, riseAttr, edgesPerBase, parity, outData):
+    def createMesh(self, startVal, endVal, totalNumBases, radius, rotationAttr, rotationOffset, riseAttr, edgesPerBase, parity, outData):
         # XXX [SB] start and end are inverted right now...
         middleBase = totalNumBases/2
         #print "startV endV %d %d %d" % (startVal, endVal, middleBase)
@@ -116,7 +120,7 @@ class HalfCylinderHelixNode(OpenMayaMPx.MPxNode):
 
         vtx = []
         rotation = 0
-        starting_rotation = endVal * rotationAttr + (math.pi*parity) + math.pi/6
+        starting_rotation = endVal * rotationAttr + (math.pi*parity) + rotationOffset #math.pi/6
         # Create Endpice verts       
         vtx.append( OpenMaya.MFloatPoint(0.0, start_pos, 0.0) )
         self.end3DPos = OpenMaya.MFloatPoint(0.0, start_pos, 0.0)
@@ -298,18 +302,27 @@ def nodeInitialize():
     unitFn.setMin(0.0)
     unitFn.setMax(math.pi)
     unitFn.setStorable(True)
+    HalfCylinderHelixNode.rotationOffsetAttr = unitFn.create('rotationOffset',
+                                    'rotoff',
+                                    OpenMaya.MFnUnitAttribute.kAngle,
+                                    math.pi / 6)
+    unitFn.setMin(0.0)
+    unitFn.setMax(2*math.pi)
+    unitFn.setStorable(True)
 
     HalfCylinderHelixNode.addAttribute(HalfCylinderHelixNode.outputMesh)
     HalfCylinderHelixNode.addAttribute(HalfCylinderHelixNode.startBaseAttr)
     HalfCylinderHelixNode.addAttribute(HalfCylinderHelixNode.endBaseAttr)
     HalfCylinderHelixNode.addAttribute(HalfCylinderHelixNode.totalBasesAttr)
     HalfCylinderHelixNode.addAttribute(HalfCylinderHelixNode.rotationAttr)
+    HalfCylinderHelixNode.addAttribute(HalfCylinderHelixNode.rotationOffsetAttr)    
     HalfCylinderHelixNode.addAttribute(HalfCylinderHelixNode.riseAttr)
     HalfCylinderHelixNode.addAttribute(HalfCylinderHelixNode.edgesPerBaseAttr)
     HalfCylinderHelixNode.addAttribute(HalfCylinderHelixNode.start3DPosAttr)
     HalfCylinderHelixNode.addAttribute(HalfCylinderHelixNode.end3DPosAttr)
     HalfCylinderHelixNode.addAttribute(HalfCylinderHelixNode.radiusAttr)
     HalfCylinderHelixNode.addAttribute(HalfCylinderHelixNode.parityAttr)
+    
 
     HalfCylinderHelixNode.attributeAffects(HalfCylinderHelixNode.endBaseAttr, HalfCylinderHelixNode.outputMesh)
     HalfCylinderHelixNode.attributeAffects(HalfCylinderHelixNode.startBaseAttr, HalfCylinderHelixNode.outputMesh)
@@ -318,6 +331,7 @@ def nodeInitialize():
     HalfCylinderHelixNode.attributeAffects(HalfCylinderHelixNode.riseAttr, HalfCylinderHelixNode.outputMesh)
     HalfCylinderHelixNode.attributeAffects(HalfCylinderHelixNode.edgesPerBaseAttr, HalfCylinderHelixNode.outputMesh)
     HalfCylinderHelixNode.attributeAffects(HalfCylinderHelixNode.radiusAttr, HalfCylinderHelixNode.outputMesh)
+    HalfCylinderHelixNode.attributeAffects(HalfCylinderHelixNode.rotationOffsetAttr, HalfCylinderHelixNode.outputMesh)
 
     HalfCylinderHelixNode.attributeAffects(HalfCylinderHelixNode.endBaseAttr, HalfCylinderHelixNode.start3DPosAttr)
     HalfCylinderHelixNode.attributeAffects(HalfCylinderHelixNode.startBaseAttr, HalfCylinderHelixNode.start3DPosAttr)
