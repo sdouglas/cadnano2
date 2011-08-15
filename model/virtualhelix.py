@@ -95,9 +95,11 @@ class VirtualHelix(QObject):
         
         if incompleteArchivedDict != None and incompleteArchivedDict.get('inserts'):
             self._scaffoldInserts = dict((int(k), v) for k,v in incompleteArchivedDict['inserts'].iteritems())
+        elif incompleteArchivedDict != None and incompleteArchivedDict.get('loops'):
+            self._scaffoldInserts = dict((int(k), v) for k,v in incompleteArchivedDict['loops'].iteritems())
         else:
             self._scaffoldInserts  = {}
-            
+
         # setSandboxed(True) gives self a private undo stack
         # in order to insulate undo/redo on the receiver
         # from global undo/redo (so that if a haywire tool
@@ -1937,8 +1939,9 @@ class VirtualHelix(QObject):
         sr['scafld'] = self.encodeStrand(StrandType.Scaffold)
         sr['scafldColors'] = " ".join(str(b.getColor().name()) for b in scaffoldStrand)
         # only encode scaffold inserts for version 1.5
+        # sr['loops'] = dict((str(k), v) for k,v in self._scaffoldInserts.iteritems())
         sr['inserts'] = dict((str(k), v) for k,v in self._scaffoldInserts.iteritems())
-        
+
     # First objects that are being unarchived are sent
     # ClassNameFrom.classAttribute(incompleteArchivedDict)
     # which has only strings and numbers in its dict and then,

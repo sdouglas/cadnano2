@@ -255,8 +255,8 @@ class DocumentController():
             return False
         fname = str(fname)
         doc = decode(file(fname).read())
-        doc.finalizeImport()  # updates staple highlighting
         DocumentController(doc, fname)
+        doc.finalizeImport()  # updates staple highlighting
         if self.filesavedialog != None:
             self.filesavedialog.filesSelected.disconnect(self.openFile)
             # manual garbage collection to prevent hang (in osx)

@@ -287,7 +287,7 @@
     <enum>RightToolBarArea</enum>
    </attribute>
    <attribute name="toolBarBreak">
-    <bool>true</bool>
+    <bool>false</bool>
    </attribute>
    <addaction name="actionPathSelect"/>
    <addaction name="actionPathPencil"/>
@@ -499,29 +499,10 @@
     <string>V</string>
    </property>
   </action>
-  <action name="actionSliceSelect">
-   <property name="checkable">
-    <bool>false</bool>
-   </property>
-   <property name="enabled">
-    <bool>true</bool>
-   </property>
-   <property name="icon">
-    <iconset resource="icons.qrc">
-     <normaloff>:/slicetools/select</normaloff>
-     <selectedoff>:/slicetools/images/slice-edit.png</selectedoff>:/slicetools/select</iconset>
-   </property>
-   <property name="text">
-    <string>Select</string>
-   </property>
-   <property name="shortcut">
-    <string>Shift+V</string>
-   </property>
-  </action>
   <action name="actionSliceFirst">
    <property name="icon">
     <iconset resource="icons.qrc">
-     <normaloff>:/slicetools/go first</normaloff>:/slicetools/go first</iconset>
+     <normaloff>:/slicetools/go-first</normaloff>:/slicetools/go-first</iconset>
    </property>
    <property name="text">
     <string>First</string>
@@ -533,7 +514,7 @@
   <action name="actionSliceLast">
    <property name="icon">
     <iconset resource="icons.qrc">
-     <normaloff>:/slicetools/go last</normaloff>:/slicetools/go last</iconset>
+     <normaloff>:/slicetools/go-last</normaloff>:/slicetools/go-last</iconset>
    </property>
    <property name="text">
     <string>Last</string>
@@ -727,15 +708,6 @@
    </property>
    <property name="shortcut">
     <string>F</string>
-   </property>
-  </action>
-  <action name="actionModify">
-   <property name="icon">
-    <iconset resource="icons.qrc">
-     <normaloff>:/parttools/new-honeycomb</normaloff>:/parttools/new-honeycomb</iconset>
-   </property>
-   <property name="text">
-    <string>Modify</string>
    </property>
   </action>
  </widget>
