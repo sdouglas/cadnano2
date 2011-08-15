@@ -2,8 +2,8 @@
 
 # Form implementation generated from reading ui file 'mainwindow/mainwindow.ui'
 #
-# Created: Thu Jul 28 15:33:33 2011
-#      by: PyQt4 UI code generator 4.8.4
+# Created: Sun Aug 14 23:57:28 2011
+#      by: PyQt4 UI code generator 4.7.7
 #
 # WARNING! All changes made in this file will be lost!
 
@@ -93,6 +93,8 @@ class Ui_MainWindow(object):
         self.menuCADnano.setObjectName(_fromUtf8("menuCADnano"))
         self.menuEdit = QtGui.QMenu(self.menubar)
         self.menuEdit.setObjectName(_fromUtf8("menuEdit"))
+        self.menuView = QtGui.QMenu(self.menubar)
+        self.menuView.setObjectName(_fromUtf8("menuView"))
         MainWindow.setMenuBar(self.menubar)
         self.topToolBar = QtGui.QToolBar(MainWindow)
         sizePolicy = QtGui.QSizePolicy(QtGui.QSizePolicy.Minimum, QtGui.QSizePolicy.Fixed)
@@ -103,7 +105,7 @@ class Ui_MainWindow(object):
         self.topToolBar.setBaseSize(QtCore.QSize(0, 0))
         self.topToolBar.setToolButtonStyle(QtCore.Qt.ToolButtonTextUnderIcon)
         self.topToolBar.setObjectName(_fromUtf8("topToolBar"))
-        MainWindow.addToolBar(QtCore.Qt.TopToolBarArea, self.topToolBar)
+        MainWindow.addToolBar(QtCore.Qt.ToolBarArea(QtCore.Qt.TopToolBarArea), self.topToolBar)
         self.rightToolBar = QtGui.QToolBar(MainWindow)
         sizePolicy = QtGui.QSizePolicy(QtGui.QSizePolicy.Fixed, QtGui.QSizePolicy.Preferred)
         sizePolicy.setHorizontalStretch(0)
@@ -115,7 +117,8 @@ class Ui_MainWindow(object):
         self.rightToolBar.setAllowedAreas(QtCore.Qt.LeftToolBarArea|QtCore.Qt.RightToolBarArea|QtCore.Qt.TopToolBarArea)
         self.rightToolBar.setToolButtonStyle(QtCore.Qt.ToolButtonTextUnderIcon)
         self.rightToolBar.setObjectName(_fromUtf8("rightToolBar"))
-        MainWindow.addToolBar(QtCore.Qt.RightToolBarArea, self.rightToolBar)
+        MainWindow.addToolBar(QtCore.Qt.ToolBarArea(QtCore.Qt.RightToolBarArea), self.rightToolBar)
+        MainWindow.insertToolBarBreak(self.rightToolBar)
         self.leftToolBar = QtGui.QToolBar(MainWindow)
         sizePolicy = QtGui.QSizePolicy(QtGui.QSizePolicy.Fixed, QtGui.QSizePolicy.Preferred)
         sizePolicy.setHorizontalStretch(0)
@@ -126,7 +129,7 @@ class Ui_MainWindow(object):
         self.leftToolBar.setAllowedAreas(QtCore.Qt.LeftToolBarArea|QtCore.Qt.RightToolBarArea|QtCore.Qt.TopToolBarArea)
         self.leftToolBar.setToolButtonStyle(QtCore.Qt.ToolButtonTextUnderIcon)
         self.leftToolBar.setObjectName(_fromUtf8("leftToolBar"))
-        MainWindow.addToolBar(QtCore.Qt.LeftToolBarArea, self.leftToolBar)
+        MainWindow.addToolBar(QtCore.Qt.ToolBarArea(QtCore.Qt.LeftToolBarArea), self.leftToolBar)
         self.actionNew = QtGui.QAction(MainWindow)
         icon = QtGui.QIcon()
         icon.addPixmap(QtGui.QPixmap(_fromUtf8(":/filetools/new")), QtGui.QIcon.Normal, QtGui.QIcon.Off)
@@ -266,10 +269,10 @@ class Ui_MainWindow(object):
         self.actionPreferences = QtGui.QAction(MainWindow)
         self.actionPreferences.setObjectName(_fromUtf8("actionPreferences"))
         self.actionFrame = QtGui.QAction(MainWindow)
-        icon21 = QtGui.QIcon()
-        icon21.addPixmap(QtGui.QPixmap(_fromUtf8(":/pathtools/frame")), QtGui.QIcon.Normal, QtGui.QIcon.Off)
-        self.actionFrame.setIcon(icon21)
         self.actionFrame.setObjectName(_fromUtf8("actionFrame"))
+        self.actionModify = QtGui.QAction(MainWindow)
+        self.actionModify.setIcon(icon4)
+        self.actionModify.setObjectName(_fromUtf8("actionModify"))
         self.menuOpen_recent_files.addSeparator()
         self.menuFile.addAction(self.actionNew)
         self.menuFile.addAction(self.actionOpen)
@@ -281,9 +284,11 @@ class Ui_MainWindow(object):
         self.menuFile.addSeparator()
         self.menuFile.addAction(self.actionPrint)
         self.menuCADnano.addAction(self.actionPreferences)
+        self.menuView.addAction(self.actionFrame)
         self.menubar.addAction(self.menuCADnano.menuAction())
         self.menubar.addAction(self.menuFile.menuAction())
         self.menubar.addAction(self.menuEdit.menuAction())
+        self.menubar.addAction(self.menuView.menuAction())
         self.topToolBar.addAction(self.actionNew)
         self.topToolBar.addAction(self.actionOpen)
         self.topToolBar.addAction(self.actionSave)
@@ -292,7 +297,7 @@ class Ui_MainWindow(object):
         self.topToolBar.addAction(self.actionNewHoneycombPart)
         self.topToolBar.addAction(self.actionNewSquarePart)
         self.topToolBar.addSeparator()
-        self.topToolBar.addAction(self.actionFrame)
+        self.topToolBar.addAction(self.actionAutoStaple)
         self.rightToolBar.addAction(self.actionPathSelect)
         self.rightToolBar.addAction(self.actionPathPencil)
         self.rightToolBar.addAction(self.actionPathBreak)
@@ -300,8 +305,6 @@ class Ui_MainWindow(object):
         self.rightToolBar.addAction(self.actionPathInsert)
         self.rightToolBar.addAction(self.actionPathSkip)
         self.rightToolBar.addAction(self.actionPathPaint)
-        self.rightToolBar.addSeparator()
-        self.rightToolBar.addAction(self.actionAutoStaple)
         self.rightToolBar.addAction(self.actionPathAddSeq)
         self.leftToolBar.addAction(self.actionSliceFirst)
         self.leftToolBar.addAction(self.actionSliceLast)
@@ -317,6 +320,7 @@ class Ui_MainWindow(object):
         self.menuOpen_recent_files.setTitle(QtGui.QApplication.translate("MainWindow", "Open recent files", None, QtGui.QApplication.UnicodeUTF8))
         self.menuCADnano.setTitle(QtGui.QApplication.translate("MainWindow", "CADnano", None, QtGui.QApplication.UnicodeUTF8))
         self.menuEdit.setTitle(QtGui.QApplication.translate("MainWindow", "Edit", None, QtGui.QApplication.UnicodeUTF8))
+        self.menuView.setTitle(QtGui.QApplication.translate("MainWindow", "View", None, QtGui.QApplication.UnicodeUTF8))
         self.topToolBar.setWindowTitle(QtGui.QApplication.translate("MainWindow", "Main Toolbar", None, QtGui.QApplication.UnicodeUTF8))
         self.topToolBar.setToolTip(QtGui.QApplication.translate("MainWindow", "(F)rame path view", None, QtGui.QApplication.UnicodeUTF8))
         self.rightToolBar.setWindowTitle(QtGui.QApplication.translate("MainWindow", "Path Tools", None, QtGui.QApplication.UnicodeUTF8))
@@ -362,7 +366,7 @@ class Ui_MainWindow(object):
         self.actionPathErase.setText(QtGui.QApplication.translate("MainWindow", "Erase", None, QtGui.QApplication.UnicodeUTF8))
         self.actionPathErase.setToolTip(QtGui.QApplication.translate("MainWindow", "(E)rase Tool", None, QtGui.QApplication.UnicodeUTF8))
         self.actionPathErase.setShortcut(QtGui.QApplication.translate("MainWindow", "E", None, QtGui.QApplication.UnicodeUTF8))
-        self.actionAutoStaple.setText(QtGui.QApplication.translate("MainWindow", "Staple", None, QtGui.QApplication.UnicodeUTF8))
+        self.actionAutoStaple.setText(QtGui.QApplication.translate("MainWindow", "AutoStaple", None, QtGui.QApplication.UnicodeUTF8))
         self.actionAutoStaple.setToolTip(QtGui.QApplication.translate("MainWindow", "Click this button to generate a default set of staples.", None, QtGui.QApplication.UnicodeUTF8))
         self.actionPathPencil.setText(QtGui.QApplication.translate("MainWindow", "Pencil", None, QtGui.QApplication.UnicodeUTF8))
         self.actionPathPencil.setToolTip(QtGui.QApplication.translate("MainWindow", "Pe(n)cil Tool", None, QtGui.QApplication.UnicodeUTF8))
@@ -392,6 +396,7 @@ class Ui_MainWindow(object):
         self.actionFrame.setText(QtGui.QApplication.translate("MainWindow", "Frame", None, QtGui.QApplication.UnicodeUTF8))
         self.actionFrame.setToolTip(QtGui.QApplication.translate("MainWindow", "(F)rame path view", None, QtGui.QApplication.UnicodeUTF8))
         self.actionFrame.setShortcut(QtGui.QApplication.translate("MainWindow", "F", None, QtGui.QApplication.UnicodeUTF8))
+        self.actionModify.setText(QtGui.QApplication.translate("MainWindow", "Modify", None, QtGui.QApplication.UnicodeUTF8))
 
 from views.customqgraphicsview import CustomQGraphicsView
 import icons_rc
