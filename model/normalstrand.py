@@ -44,8 +44,8 @@ class NormalStrand(Strand):
         if logger != None:
             logger.write("%i.init %s\n"%(self.traceID, repr(self)))
         self.assertConsistent()
-        self.hasPreviewConnectionL = False
-        self.hasPreviewConnectionR = False
+        self._hasPreviewConnectionL = False
+        self._hasPreviewConnectionR = False
 
     def assertConsistent(self):
         assert( self.leftIdx <= self.rightIdx )
@@ -74,10 +74,10 @@ class NormalStrand(Strand):
         returns the range of bases on that strand which the receiver
         occupies """
         assert(vstrand == self.vStrand)
-        return (self.vBaseL, self.vBaseR + 1)
+        return (self.vBaseL.vIndex, self.vBaseR.vIndex + 1)
 
     def numBases(self):
-        return self.vBaseR + 1 - self.vBaseL
+        return self.vBaseR.vIndex + 1 - self.vBaseL.vIndex
 
     def canMergeWithTouchingStrand(self, other):
         """ We already have that the ranges for self and other could merge. """
@@ -174,15 +174,16 @@ class NormalStrand(Strand):
         for strand in ret: strand.assertConsistent()
         return ret
 
-    def exposedEndAt(self, vStrand, vIdx):
+    def exposedEndsAt(self, vStrand, vIdx):
         """
         Returns 'L' or 'R' if a segment exists at vStrand, idx and it
-        exposes an unbound endpoint on its 3' or 5' end. Otherwise returns None.
+        exposes an unbound endpoint on its 3' or 5' end. Otherwise returns None.http://store.apple.com/us/browse/campaigns/back_to_school?aid=www-naus-bts2011-0526-16
         """
         assert(vStrand == self.vStrand)
+        ret = ''
+        drawn5To3 = vStrand.drawn5To3()
         if vIdx == self.vBaseL:
-            if self.connL == None: return 'L'
+            ret += 'L5' if drawn5To3 else 'L3'
         if vIdx == self.vBaseR:
-            if self.connR == None: return 'R'
-        return None
-        
+            ret += 'R3' if drawn5To3 else 'R5'
+        return ret

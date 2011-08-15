@@ -554,6 +554,16 @@ class PathHelix(QGraphicsObject):
             y += self.baseWidth / 2
         return (x, y)
 
+    def vBaseOnTop(self, vBase):
+        strand = vBase.vStrand
+        return self.evenParity() and strand.isScaf() or\
+               not self.evenParity and strand.isStap():
+
+    def upperLeftCornerOfVBase(self, vBase):
+        x = vBase.vIndex * self.baseWidth
+        y = 0 if self.vBaseOnTop(vBase) else self.baseWidth
+        return x, y
+
     def keyPanDeltaX(self):
         """How far a single press of the left or right arrow key should move
         the scene (in scene space)"""

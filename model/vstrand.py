@@ -110,7 +110,7 @@ class VStrand(QObject, RangeSet):
             curIdxExists = nxtIdxExists
         return " ".join(bases)
 
-    def exposedEndAt(self, vIdx):
+    def exposedEndsAt(self, vIdx):
         """
         Returns 'L' or 'R' if a segment exists at vIdx and it
         exposes an unbound endpoint on its 3' or 5' end. Otherwise returns None.
@@ -118,7 +118,7 @@ class VStrand(QObject, RangeSet):
         rangeItem = self.get(vIdx)
         if rangeItem == None:
             return None
-        return rangeItem.exposedEndAt(self, vIdx)  # 'L', 'R', or None
+        return rangeItem.exposedEndsAt(self, vIdx)  # 'L', 'R', or None
 
     ####################### Public Write API #######################
 

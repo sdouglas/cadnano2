@@ -104,17 +104,20 @@ class XOverStrand(Strand):
         def undo(self):
             self.strand.vBase5 = self.oldVBase5
 
-    def exposedEndAt(self, vBase):
+    def exposedEndsAt(self, vBase):
         """
         Returns 'L' or 'R' if a segment exists at vStrand, idx and it exposes
         an unbound endpoint on its 3' or 5' end. Otherwise returns None.
         """
         if vBase == self.vBase3:
             return 
-        self.vStrand3 == vStrand and vIdx == self.vBase3:
-            lIs5 = self.vStrand3.drawn5To3()
+        ret = ''
+        if vBase == self.vBase3:
+            drawn5To3 = self.vBase3.drawn5To3()
             if self.conn3() == None:
-                return 'R' if lIs5 else 'L'
+                ret += '3R' if drawn5To3 else '3L'
+        if vBase == self.vBase5:
+            drawn5To3 = self.vBase5.drawn5To3()
             if self.conn5() == None:
-                return 'R' if 
-        return None
+                ret += '5L' if drawn5To3 else '5R'
+        return ret

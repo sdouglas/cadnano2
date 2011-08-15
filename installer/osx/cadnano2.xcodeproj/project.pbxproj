@@ -26,6 +26,7 @@
 		29B97325FDCFA39411CA2CEA /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = /System/Library/Frameworks/Foundation.framework; sourceTree = "<absolute>"; };
 		8D1107310486CEB800E47090 /* cadnano2-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "cadnano2-Info.plist"; sourceTree = "<group>"; };
 		8D1107320486CEB800E47090 /* cadnano2.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = cadnano2.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		FC4630E413F47A05002EAB6F /* Application.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = Application.xib; path = ../../../../../../private/tmp/Application.xib; sourceTree = "<group>"; };
 		FCBAF41C13C39DCC00F22DFB /* document_legacy_icon.icns */ = {isa = PBXFileReference; lastKnownFileType = image.icns; path = document_legacy_icon.icns; sourceTree = "<group>"; };
 		FCF3D8EA13C397CC000FC057 /* application_icon.icns */ = {isa = PBXFileReference; lastKnownFileType = image.icns; path = application_icon.icns; sourceTree = "<group>"; };
 		FCF3D8EB13C397CC000FC057 /* document_icon.icns */ = {isa = PBXFileReference; lastKnownFileType = image.icns; path = document_icon.icns; sourceTree = "<group>"; };
@@ -82,6 +83,7 @@
 		29B97314FDCFA39411CA2CEA /* cadnano2 */ = {
 			isa = PBXGroup;
 			children = (
+				FC4630E413F47A05002EAB6F /* Application.xib */,
 				080E96DDFE201D6D7F000001 /* Classes */,
 				29B97315FDCFA39411CA2CEA /* Other Sources */,
 				29B97317FDCFA39411CA2CEA /* Resources */,

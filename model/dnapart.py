@@ -152,6 +152,8 @@ class DNAPart(Part):
         """
         return self.vfbStrands
     def addVfbStrands(self, strands):
+        """ Addition of vfb strands cannot be undone because vfb strands are
+        supposed to be transient and NOT saved in the model. """
         for s in strands:
             self.vfbStrands.add(s)
             self.didAddVfbStrand.emit(s)

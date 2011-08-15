@@ -340,14 +340,20 @@ class RangeSet(object):
         firstIR = self.ranges[firstIIR]
         firstIRL, firstIRAr = self.idxs(firstIR)
         if firstIRL < firstIndex:
-            newItem = self.changeRangeForItem(firstIR,\
-                                              firstIRL,\
-                                              firstIndex,\
-                                              undoStack)
-            replacementRanges.append(newItem)
+            if firstIRAr > afterLastIndex:
+                replacementRanges = self.splitRangeItem(firstIR,\
+                                                        firstIndex,\
+                                                        afterLastIndex,\
+                                                        undoStack)
+            else:
+                newItem = self.changeRangeForItem(firstIR,\
+                                                  firstIRL,\
+                                                  firstIndex,\
+                                                  undoStack)
+                replacementRanges.append(newItem)
         lastIR = self.ranges[afterLastIIR - 1]
         lastIRL, lastIRAr = self.idxs(lastIR)
-        if lastIRAr > afterLastIndex:
+        if lastIRAr > afterLastIndex and lastIR != firstIR:
             newItem = self.changeRangeForItem(lastIR,\
                                               afterLastIndex,\
                                               lastIRAr,\

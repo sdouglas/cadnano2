@@ -67,13 +67,16 @@ class LoopStrand(Strand):
     def vStrand(self):
         return self.vBase().vStrand
 
-    def exposedEndAt(self, vStrand, vIdx):
+    def exposedEndsAt(self, vStrand, vIdx):
         """
-        Returns 'L' or 'R' if a segment exists at vStrand, idx and it
-        exposes an unbound endpoint on its 3' or 5' end. Otherwise returns None.
+        Returns a string containing some (possibly empty) combination of 'L',
+        'R', '3', and '5' where each character is present if the corresponding
+        end is exposed
         """
         assert(vStrand == self.vStrand)
+        drawn5To3 = vStrand.drawn5To3()
+        ret = ''
         if vIdx == self.vIdx:
-            if self.connL == None: return 'L'
-            if self.connR == None: return 'R'
-        return None
+            if self.connL == None: ret += 'L5' if drawn5To3 else 'L3'
+            if self.connR == None: ret += 'R3' if drawn5To3 else 'R5'
+        return ret

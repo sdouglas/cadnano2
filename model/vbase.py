@@ -36,9 +36,8 @@ class VBase(object):
         self.vStrand = vStrand
         self.vIndex = vIndex
     def __repr__(self):
-        strand = self.vStrand
-        vhNum = strand.vHelix.number()
-        strandStr = "scaf" if strand.isScaf() else "stap"
+        vhNum = self.vStrand.vHelix.number()
+        strandStr = "scaf" if self.vStrand.isScaf() else "stap"
         return "v[%i].%s(%i)"%(vhNum, strandStr, self.vIndex)
 
     def __add__(self, i):
@@ -48,6 +47,10 @@ class VBase(object):
     def __sub__(self, i):
         """ Complement of __add__ """
         return VBase(self.vStrand, self.vIndex - i)
+    def __cmp__(self, other):
+        return int.__cmp__(self.vIndex, other.vIndex)
+    def __eq__(self, other):
+        return self.vStrand == other.vStrand and self.vIndex == other.vIndex
     def __call__(self, i):
         """ Synonymous with sameStrand """
         return VBase(self.vStrand, i )
@@ -101,7 +104,7 @@ class VBase(object):
         return VBase(self._vStrand, self._index - 1)
 
     def to5or3(self, end):
-        """ Returns 5 or 4 corresponding to the input ('L', 'R', 5, or
+        """ Returns 5 or 3 corresponding to the input ('L', 'R', 5, or
         3) on self's vStrand """
         if end in (3, 5):
             return end
@@ -126,7 +129,20 @@ class VBase(object):
             return end
         raise ValueError("%s not in (3, 5, 'L', 'R', None)"%str(end))
 
+    def drawn5To3(self):
+        return self.vStrand.drawn5To3()
+
     # -------------------- Querying the Model -------------------
-    def exposedEnd(self):
-        """ Returns 'L' or 'R' """
-        return self.vStrand
+    def exposedEnds(self):
+        """ Returns a string containing some combination of 'L', 'R', '3', and
+        '5', where each character is present if the corresponding end is
+        exposed. """
+        containingStrand = self.vStrand.get(self.vIndex)
+        if containingStrand == None:
+            return None
+        return containingStrand.exposedEndsAt(self, self.vIndex)
+
+    def strand(self):
+        """ If a strand contains the VBase represented by self, this method
+        returns the strand (otherwise None) """
+        return self.vStrand.get(self.vIndex)
