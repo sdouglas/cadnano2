@@ -273,9 +273,9 @@ class Base(object):
         part = self._vhelix.part()
         if part:
             self.isXoverCreated5p([self])
-            part.basesModified.add(self)
-            part.basesModified.add(toOld3)
-            part.basesModified.add(fromOld5)
+            part.modifiedBaseSet.add(self)
+            part.modifiedBaseSet.add(toOld3)
+            part.modifiedBaseSet.add(fromOld5)
         return (fromOld5, toOld3)
 
     def _unset5Prime(self, toBase, fromOld5, toOld3):
@@ -292,9 +292,9 @@ class Base(object):
         part = self._vhelix.part()
         if part:
             self.isXoverCreated5p([fromOld5, toOld3])
-            part.basesModified.add(self)
-            part.basesModified.add(toOld3)
-            part.basesModified.add(fromOld5)
+            part.modifiedBaseSet.add(self)
+            part.modifiedBaseSet.add(toOld3)
+            part.modifiedBaseSet.add(fromOld5)
         self._vhelix.setHasBeenModified()
 
     def _set3Prime(self, toBase):
@@ -320,9 +320,9 @@ class Base(object):
         part = self._vhelix.part()
         if part:
             self.isXoverCreated3p([self])
-            part.basesModified.add(self)
-            part.basesModified.add(toOld5)
-            part.basesModified.add(fromOld3)
+            part.modifiedBaseSet.add(self)
+            part.modifiedBaseSet.add(toOld5)
+            part.modifiedBaseSet.add(fromOld3)
         self._vhelix.setHasBeenModified()
         return (fromOld3, toOld5)
 
@@ -340,9 +340,9 @@ class Base(object):
         part = self._vhelix.part()
         if part:
             self.isXoverCreated3p([toOld5,fromOld3])
-            part.basesModified.add(self)
-            part.basesModified.add(toOld5)
-            part.basesModified.add(fromOld3)
+            part.modifiedBaseSet.add(self)
+            part.modifiedBaseSet.add(toOld5)
+            part.modifiedBaseSet.add(fromOld3)
         self._vhelix.setHasBeenModified()
     # end def
     

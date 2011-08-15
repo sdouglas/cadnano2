@@ -50,7 +50,7 @@ class DNAPart(Part):
                                  # will or did change. This means one of
             * virtualHelixAtCoordsChanged was triggered
             * dimensionsWillChange was triggered
-            * basesModified was emitted by some child VH
+            * basesModifiedSignal was emitted by some child VH
         selectionWillChange()
     """
     # object 1 is the tuple (3 prime vhelix, index), 
@@ -98,14 +98,14 @@ class DNAPart(Part):
             self.virtualHelixAtCoordsChanged.connect(self.updateSelectionFromVHChange)
 
         # This variable is directly used and entirely managed by
-        # virtualhelix for consolidation of basesModified signals.
-        self.basesModifiedVHs = set()
+        # virtualhelix for consolidation of basesModifiedSignal signals.
+        self.modifiedVHSet = set()
 
         # We also keep track of the specific bases that were modified
         # so that we can efficiently recalculate strand lengths.
-        # self.basesModified is cleared by and ONLY by dnapart's
+        # self.basesModifiedSignal is cleared by and ONLY by dnapart's
         # recalculateStrandLengths method.
-        self.basesModified = set()
+        self.modifiedBaseSet = set()
         self.numTimesStrandLengthsRecalcd = 0
         self.lock = ReadWriteLock()
         self.modificationCondition = Condition()
@@ -408,7 +408,7 @@ class DNAPart(Part):
         map(autoStaple_sub2, vhs)
         self.undoStack().endMacro()
         self.basesModifySilently = False
-        list(self.basesModifiedVHs)[0].emitBasesModifiedIfNeeded()
+        list(self.modifiedVHSet)[0].emitBasesModifiedIfNeeded()
     # end def
 
     def autoDragAllBreakpoints(self):
@@ -480,13 +480,13 @@ class DNAPart(Part):
         # return reduce(lambda x,y: x + y, map(gSS, vhelices), ret)
         # return ret + array.array('c', map(gSS, vhelices)).tostring()
 
-    ############################# VirtualHelix Private CRUD #############################
+    ####################### VirtualHelix Private CRUD ########################
     def _recalculateStrandLengths(self):
         """
         Bases cache the length of the oligo they are in. This
         method updates that cache."""
         self.numTimesStrandLengthsRecalcd += 1
-        modifiedBases = self.basesModified
+        modifiedBases = self.modifiedBaseSet
         while modifiedBases:
             b = modifiedBases.pop()
             if b==None:
@@ -496,7 +496,7 @@ class DNAPart(Part):
                 continue
             # Remove this strand from modifiedBases
             modifiedBases.difference_update(basesConnectedToB)
-            lengthOfStrand = len(basesConnectedToB)
+            lengthOfStrand = b._vhelix.numBasesConnectedTo(b._strandtype, b._n)
             circular = basesConnectedToB[0]._5pBase != None
             tooLong = lengthOfStrand > styles.oligoLenAboveWhichHighlight
             tooShort = lengthOfStrand < styles.oligoLenBelowWhichHighlight
@@ -523,7 +523,7 @@ class DNAPart(Part):
                                             parityEven=self._parity,\
                                             requestedIDnum=self._requestedNum)
                 self._vhelix._setPart(self._part, self._coords, newID)
-                self._vhelix.basesModified.connect(self._part.persistentDataChangedEvent)
+                self._vhelix.basesModifiedSignal.connect(self._part.persistentDataChangedEvent)
                 self._part._numberToVirtualHelix[newID] = self._vhelix
                 self._part._coordToVirtualHelix[self._coords] = self._vhelix
             self._part.virtualHelixAtCoordsChanged.emit(self._coords[0],\
@@ -532,7 +532,7 @@ class DNAPart(Part):
         def undo(self):
             vh = self._part.getVirtualHelix(self._coords)
             if vh:
-                vh.basesModified.disconnect(self._part.persistentDataChangedEvent)
+                vh.basesModifiedSignal.disconnect(self._part.persistentDataChangedEvent)
                 del self._part._coordToVirtualHelix[vh.coord()]
                 del self._part._numberToVirtualHelix[vh.number()]
                 self._part.recycleHelixIDNumber(vh.number())
@@ -555,7 +555,7 @@ class DNAPart(Part):
         def redo(self):
             vh = self._vhelix
             if vh:
-                vh.basesModified.disconnect(self._part.persistentDataChangedEvent)
+                vh.basesModifiedSignal.disconnect(self._part.persistentDataChangedEvent)
                 del self._part._coordToVirtualHelix[vh.coord()]
                 del self._part._numberToVirtualHelix[vh.number()]
                 self._part.recycleHelixIDNumber(vh.number())
@@ -570,14 +570,14 @@ class DNAPart(Part):
                 vh = self._part.getVirtualHelix(self._coords)
             if vh == None:
                 vh = VirtualHelix(numBases=self._part.crossSectionStep())
-                # vh.basesModified.connect(self.update)
+                # vh.basesModifiedSignal.connect(self.update)
 
             if vh:
                 newID = self._part.reserveHelixIDNumber(
                                             parityEven=self._parity,\
                                             requestedIDnum=self._requestedNum)
                 vh._setPart(self._part, self._coords, newID)
-                self._vhelix.basesModified.connect(self._part.persistentDataChangedEvent)
+                self._vhelix.basesModifiedSignal.connect(self._part.persistentDataChangedEvent)
                 self._part._numberToVirtualHelix[newID] = vh
                 self._part._coordToVirtualHelix[self._coords] = vh
             self._part.virtualHelixAtCoordsChanged.emit(self._coords[0],\

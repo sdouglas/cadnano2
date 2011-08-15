@@ -266,14 +266,14 @@ class PathHelixGroup(QGraphicsObject):
         for ph in self._pathHelixes:
             vhbm = getattr(ph, 'vhelixBasesModifiedCallbackObj', None)
             if vhbm:
-                ph.vhelix().basesModified.disconnect(vhbm)
+                ph.vhelix().basesModifiedSignal.disconnect(vhbm)
         for ph in newList:
             def vhbmCallbackCreator(self, vh):
                 def vhbmCallback():
                     self.vhelixBasesModified(vh)
                 return vhbmCallback
             vhbm = vhbmCallbackCreator(self, ph.vhelix())
-            ph.vhelix().basesModified.connect(vhbm)
+            ph.vhelix().basesModifiedSignal.connect(vhbm)
         self._pathHelixes = newList
         for ph in self._pathHelixes:
             ph.positionInPhgChanged()

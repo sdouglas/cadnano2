@@ -167,12 +167,12 @@ class PathHelix(QGraphicsObject):
 
     def setVHelix(self, newVH):
         if self._vhelix:
-            self._vhelix.basesModified.disconnect(self.vhelixBasesModified)
+            self._vhelix.basesModifiedSignal.disconnect(self.vhelixBasesModified)
             self._vhelix.vhelixDimensionsModified.disconnect(\
                                              self.vhelixDimensionsModified)
         self._vhelix = newVH
-        newVH.basesModified.connect(self.vhelixBasesModified)
-        newVH.dimensionsModified.connect(self.vhelixDimensionsModified)
+        newVH.basesModifiedSignal.connect(self.vhelixBasesModified)
+        newVH.dimensionsModifiedSignal.connect(self.vhelixDimensionsModified)
         self.vhelixDimensionsModified()
         self.vhelixBasesModified()
 

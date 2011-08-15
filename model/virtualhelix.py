@@ -50,8 +50,8 @@ class VirtualHelix(QObject):
     if os.environ.get('CADNANO_NO_THOUGHTPOLICE', False) and not ignoreEnv():
         prohibitSingleBaseCrossovers = False
     
-    basesModified = pyqtSignal()
-    dimensionsModified = pyqtSignal()
+    basesModifiedSignal = pyqtSignal()
+    dimensionsModifiedSignal = pyqtSignal()
 
     def __init__(self, numBases=21, idnum=0, incompleteArchivedDict=None):
         """
@@ -707,10 +707,8 @@ class VirtualHelix(QObject):
 
     def _basesConnectedTo(self, strandType, idx):
         """
-        Private because it returns a set of Base
-        objects.
-        Returns [] if the base at strandType, idx is
-        empty
+        Private because it returns a set of Base objects.
+        Returns [] if the base at strandType, idx is empty.
         """
         ret = []
         try:
@@ -724,7 +722,7 @@ class VirtualHelix(QObject):
         startBase = base
         while base._hasNeighbor5p():
             base = base._neighbor5p()
-            if base==startBase:
+            if base == startBase:
                 break
         startBase = base
         # Move forward through the linked list,
@@ -737,6 +735,38 @@ class VirtualHelix(QObject):
             if neighbor == startBase:
                 break
             ret.append(neighbor)
+            base = neighbor
+        return ret
+
+    def numBasesConnectedTo(self, strandType, idx):
+        """
+        Returns [] if the base at strandType, idx is empty.
+        """
+        ret = 0
+        try:
+            base = self._strand(strandType)[idx]
+        except TypeError:
+            print idx
+            util.trace(10)
+            raw_input()
+            sys.exit(1)
+        # Back track to the 5' end
+        startBase = base
+        while base._hasNeighbor5p():
+            base = base._neighbor5p()
+            if base == startBase:
+                break
+        startBase = base
+        # Move forward through the linked list,
+        # adding bases to the (not linked) list
+        # we will return
+        if not base.isEmpty():
+            ret += (1 + self.hasInsertOrSkipAt(StrandType.Scaffold, base._n))
+        while base._hasNeighbor3p():
+            neighbor = base._neighbor3p()
+            if neighbor == startBase:
+                break
+            ret += (1 + self.hasInsertOrSkipAt(StrandType.Scaffold, base._n))
             base = neighbor
         return ret
 
@@ -847,9 +877,9 @@ class VirtualHelix(QObject):
     """
     def setHasBeenModified(self):
         if self.part():
-            self.part().basesModifiedVHs.add(self)
+            self.part().modifiedVHSet.add(self)
         else:
-            self.basesModified.emit()
+            self.basesModifiedSignal.emit()
         return self
 
     def emitBasesModifiedIfNeeded(self):
@@ -857,16 +887,16 @@ class VirtualHelix(QObject):
         if part:
             if part.basesModifySilently:
                 return
-            # for vh in list(self.part().basesModifiedVHs):
-            #     vh.basesModified.emit()
-            map(lambda vh: vh.basesModified.emit(), list(self.part().basesModifiedVHs))
-            part.basesModifiedVHs.clear()
+            # for vh in list(self.part().modifiedVHSet):
+            #     vh.basesModifiedSignal.emit()
+            map(lambda vh: vh.basesModifiedSignal.emit(), list(self.part().modifiedVHSet))
+            part.modifiedVHSet.clear()
             part._recalculateStrandLengths()
             part.modificationCondition.acquire()
             part.modificationCondition.notifyAll()
             part.modificationCondition.release()
         else:
-            self.basesModified.emit()
+            self.basesModifiedSignal.emit()
 
     def beginCommand(self, useUndoStack, undoStack, strng):
         """undoStack overrides the default undoStack if it is not None"""
@@ -1143,7 +1173,7 @@ class VirtualHelix(QObject):
     #   2) Call vh.emitBasesModifiedIfNeeded() when you are done with a command.
     #      This actually emits the signals (this way, Base can automatically
     #      decide which VH were dirtied yet a command that affects 20 bases doesn't
-    #      result in 20 duplicate basesModified signals being emitted)
+    #      result in 20 duplicate basesModifiedSignal signals being emitted)
 
     def thoughtPolice(self, undoStack):
         """
@@ -1185,9 +1215,9 @@ class VirtualHelix(QObject):
         scaf, stap = self._scaffoldBases, self._stapleBases
         part = self.part()
         for baseNum in scaf5:
-            part.basesModified.add(scaf[baseNum])
+            part.modifiedBaseSet.add(scaf[baseNum])
         for baseNum in stap5:
-            part.basesModified.add(stap[baseNum])
+            part.modifiedBaseSet.add(stap[baseNum])
         part._recalculateStrandLengths()
 
     class ApplySequenceCommand(QUndoCommand):
@@ -1368,6 +1398,10 @@ class VirtualHelix(QObject):
                         del insert[self._index]
                     # end if
                 # end else
+                # length recalculation highlighting
+                part = self._vh.part()
+                if part and self._vh.hasBaseAt(StrandType.Staple, self._index):
+                    part.modifiedBaseSet.add(self._vh._stapleBases[self._index])
                 self._vh.setHasBeenModified()
                 self._vh.emitBasesModifiedIfNeeded()
 
@@ -1382,6 +1416,10 @@ class VirtualHelix(QObject):
                         del insert[self._index]
                     # end if
                 # end else
+                # length recalculation highlighting
+                part = self._vh.part()
+                if part and self._vh.hasBaseAt(StrandType.Staple, self._index):
+                    part.modifiedBaseSet.add(self._vh._stapleBases[self._index])
                 self._vh.setHasBeenModified()
                 self._vh.emitBasesModifiedIfNeeded()
 
@@ -1590,6 +1628,10 @@ class VirtualHelix(QObject):
                 if insertDict.get(i, None) != None:
                     self.erasedInsertDictItems[i] = insertDict[i]
                     del insertDict[i]
+                    if self._vh.part() and \
+                            self._vh.hasBaseAt(StrandType.Staple, i):
+                        self._vh.part().modifiedBaseSet.add(\
+                                        self._vh._stapleBases[i])
                 self.erasedSequenceItems.append(strand[i]._sequence)
                 strand[i]._sequence = " "
             
@@ -1673,7 +1715,11 @@ class VirtualHelix(QObject):
             insertDict = self._vh._insert(self._strandType)
             for k, v in self.erasedInsertDictItems.iteritems():
                 insertDict[k] = v
-                
+                if self._vh.part() and \
+                        self._vh.hasBaseAt(StrandType.Staple, k):
+                    self._vh.part().modifiedBaseSet.add(\
+                                    self._vh._stapleBases[k])
+
             # for i in reversed(range(self.firstEmptiedBase, self.lastEmptiedBase+1)):
             #     strand[i]._sequence = self.erasedSequenceItems.pop()
             for b in reversed(strand[self.firstEmptiedBase: self.lastEmptiedBase+1]):
@@ -1827,7 +1873,7 @@ class VirtualHelix(QObject):
                 del vh._stapleBases[newNumBases:]
                 del vh._scaffoldBases[newNumBases:]
             assert(vh.numBases() == newNumBases)
-            vh.dimensionsModified.emit()
+            vh.dimensionsModifiedSignal.emit()
 
         def undo(self):
             self.redo(actuallyUndo=True)
