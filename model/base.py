@@ -134,7 +134,7 @@ class Base(object):
     
     def sequence(self):
         """
-        Returns the single character sequence for the receiver (loops,
+        Returns the single character sequence for the receiver (inserts,
         skips just show up as spaces).
         This is the base that should be drawn below the segment if there
         is one.
@@ -144,18 +144,18 @@ class Base(object):
         empty = not (self._hasNeighbor3p() or self._hasNeighbor5p())
         if empty:
             return (" ", "")
-        hasSkip = self._vhelix.hasLoopOrSkipAt(self._strandtype, self._n)
+        hasSkip = self._vhelix.hasInsertOrSkipAt(self._strandtype, self._n)
         if hasSkip == -1:  # -1 actually means true
             return (" ", " ")
         elif len(self._sequence) > 1:
-            return (self._sequence[0], self.sequenceOfLoop())
+            return (self._sequence[0], self.sequenceOfInsert())
         else:
             return (self._sequence, "")
     # end def
 
     def lazy_sequence(self):
         """
-        Returns the single character sequence for the receiver (loops,
+        Returns the single character sequence for the receiver (inserts,
         skips just show up as spaces).
         This is the base that should be drawn below the segment if there
         is one.
@@ -172,30 +172,30 @@ class Base(object):
             return (" ", "")
     # end def
 
-    def sequenceOfLoop(self):
+    def sequenceOfInsert(self):
         """
         This sequence is always returned 5->3 (the first character represents
         the base that exposes the 5' end while the last char exposes its 3' end).
 
-        sequenceOfLoop()[0] is displayed on the strand and sequenceOfLoop()[1:]
-        are displayed on the loop.
+        sequenceOfInsert()[0] is displayed on the strand and sequenceOfInsert()[1:]
+        are displayed on the insert.
         """
-        actualLoopLength = self._vhelix._loop(self._strandtype).get(self._n)
-        if len(self._sequence) - 1 != actualLoopLength:
-            # print "Loop had seq %s, should have been len %i"%(self._sequence,actualLoopLength)
-            return " "*actualLoopLength
+        actualInsertLength = self._vhelix._insert(self._strandtype).get(self._n)
+        if len(self._sequence) - 1 != actualInsertLength:
+            # print "Insert had seq %s, should have been len %i"%(self._sequence,actualInsertLength)
+            return " "*actualInsertLength
         return self._sequence[1:]
         
-    def lazy_sequenceOfLoop(self):
+    def lazy_sequenceOfInsert(self):
         """
         This sequence is always returned 5->3 (the first character represents
         the base that exposes the 5' end while the last char exposes its 3' end).
 
-        sequenceOfLoop()[0] is displayed on the strand and sequenceOfLoop()[1:]
-        are displayed on the loop.
+        sequenceOfInsert()[0] is displayed on the strand and sequenceOfInsert()[1:]
+        are displayed on the insert.
         """
         baseComplement =  self._vhelix._strand(StrandType.Scaffold)[self._n]
-        return util.rcomp(baseComplement.sequenceOfLoop())
+        return util.rcomp(baseComplement.sequenceOfInsert())
 
     def __repr__(self):
         if self._3pBase:

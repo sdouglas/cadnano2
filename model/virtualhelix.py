@@ -84,19 +84,19 @@ class VirtualHelix(QObject):
         self.floatingXoverBase = None
 
         """
-        This is for inserts and skips. A dictionary for loops and skips is
+        This is for inserts and skips. A dictionary for inserts and skips is
         added for inserts and skips of the form { index: count }
         + count indicates insert
         - count indicates skip
         """
         
         # unused
-        self._stapleLoops = {}
+        self._stapleInserts = {}
         
-        if incompleteArchivedDict != None and incompleteArchivedDict.get('loops'):
-            self._scaffoldLoops = dict((int(k), v) for k,v in incompleteArchivedDict['loops'].iteritems())
+        if incompleteArchivedDict != None and incompleteArchivedDict.get('inserts'):
+            self._scaffoldInserts = dict((int(k), v) for k,v in incompleteArchivedDict['inserts'].iteritems())
         else:
-            self._scaffoldLoops  = {}
+            self._scaffoldInserts  = {}
             
         # setSandboxed(True) gives self a private undo stack
         # in order to insulate undo/redo on the receiver
@@ -350,31 +350,31 @@ class VirtualHelix(QObject):
             raise IndexError("%s is not Scaffold=%s or Staple=%s" % \
                          (strandType, StrandType.Scaffold, StrandType.Staple))
 
-    def _loop(self, strandType):
-        """The returned loop list should be considered privately
+    def _insert(self, strandType):
+        """The returned insert list should be considered privately
         mutable"""
-        return self._scaffoldLoops
+        return self._scaffoldInserts
         # if strandType == StrandType.Scaffold:
-        #     return self._scaffoldLoops
+        #     return self._scaffoldInserts
         # elif strandType == StrandType.Staple:
-        #     return self._stapleLoops
+        #     return self._stapleInserts
         # else:
         #     raise IndexError("%s is not Scaffold=%s or Staple=%s" % \
         #                  (strandType, StrandType.Scaffold, StrandType.Staple))
 
-    def loop(self, strandType):
+    def insert(self, strandType):
         """
-        This loop method returns the scaffold loops as is and then 
+        This insert method returns the scaffold inserts as is and then 
         check the staple strand for a presense of a base 
-        before indicating a loop
+        before indicating a insert
         """
         if strandType == StrandType.Scaffold:
-            return self._scaffoldLoops
+            return self._scaffoldInserts
         elif strandType == StrandType.Staple:
             ret = {}
-            for index, loopsize in self._scaffoldLoops.iteritems():
+            for index, insertsize in self._scaffoldInserts.iteritems():
                 if self.hasBaseAt(strandType, index):
-                    ret[index] = loopsize
+                    ret[index] = insertsize
             return ret
         else:
             raise IndexError("%s is not Scaffold=%s or Staple=%s" % \
@@ -492,16 +492,16 @@ class VirtualHelix(QObject):
             print "!"
         return base._n
 
-    def hasLoopOrSkipAt(self, strandType, index):
+    def hasInsertOrSkipAt(self, strandType, index):
         """
-        check for key "index" in the loop dictionary based on strandtype
-        returns 0 if no loop or skip and returns the length of the skip
+        check for key "index" in the insert dictionary based on strandtype
+        returns 0 if no insert or skip and returns the length of the skip
         otherwise
         """
-        # For now, loops and skips are only in the scaffold
-        if index in self._loop(StrandType.Scaffold):
-        # if index in self._loop(strandType):
-            return self._loop(StrandType.Scaffold)[index]
+        # For now, inserts and skips are only in the scaffold
+        if index in self._insert(StrandType.Scaffold):
+        # if index in self._insert(strandType):
+            return self._insert(StrandType.Scaffold)[index]
         else:
             return 0
 
@@ -697,11 +697,11 @@ class VirtualHelix(QObject):
             self._sequenceForStapCache = seq
         return seq
 
-    def sequenceForLoopAt(self, strandType, idx):
+    def sequenceForInsertAt(self, strandType, idx):
         if strandType == StrandType.Scaffold:
-            return self._strand(strandType)[idx].sequenceOfLoop()
+            return self._strand(strandType)[idx].sequenceOfInsert()
         else:
-            return self._strand(strandType)[idx].lazy_sequenceOfLoop()
+            return self._strand(strandType)[idx].lazy_sequenceOfInsert()
 
     def _basesConnectedTo(self, strandType, idx):
         """
@@ -1037,21 +1037,21 @@ class VirtualHelix(QObject):
                                   newColor=newColor)
         self.endCommand(undoStack, c)
 
-    def installLoop(self, strandType, index, loopsize, useUndoStack=True,\
+    def installInsert(self, strandType, index, insertsize, useUndoStack=True,\
                     undoStack=None, speedy=False):
         """
-        Main function for installing loops and skips
-        -1 is a skip, +N is a loop
+        Main function for installing inserts and skips
+        -1 is a skip, +N is a insert
         
         The tool was designed to allow installation only on scaffold, 
-        however to allow updating from loops drawn on staples, we make this tool
+        however to allow updating from inserts drawn on staples, we make this tool
         StrandType agnostic
         """
-        undoStack = self.beginCommand(useUndoStack, undoStack, "installLoop")
+        undoStack = self.beginCommand(useUndoStack, undoStack, "installInsert")
         d = None
         if strandType == StrandType.Scaffold and self._isSeqBlank == False:
             d = self.ApplySequenceCommand(self, StrandType.Scaffold, index, " ")
-        c = self.LoopCommand(self, strandType, index, loopsize)
+        c = self.InsertCommand(self, strandType, index, insertsize)
         self.endCommand(undoStack, (d, c))
 
     def applyColorAt(self, color, strandType, index, useUndoStack=True,\
@@ -1214,37 +1214,37 @@ class VirtualHelix(QObject):
             self.oldBaseStrs = oldBaseStrs = []
             startBase = vh._strand(StrandType.Scaffold)[self._idx]
             startBaseComplement = vh._strand(StrandType.Staple)[self._idx]
-            scafBasesInBase = vh.hasLoopOrSkipAt(StrandType.Scaffold, startBase._n)
-            stapBasesInBase = vh.hasLoopOrSkipAt(StrandType.Staple, startBase._n)
+            scafBasesInBase = vh.hasInsertOrSkipAt(StrandType.Scaffold, startBase._n)
+            stapBasesInBase = vh.hasInsertOrSkipAt(StrandType.Staple, startBase._n)
             if stapBasesInBase and self._strandType == StrandType.Staple:
-                # We are applying to a staple loop
+                # We are applying to a staple insert
                 startBase = vh._strand(StrandType.Staple)[self._idx]
-                self.oldLoopSeq = startBase._sequence
+                self.oldInsertSeq = startBase._sequence
                 if not startBase._sequence:
                     startBase._sequence = " "
                 startBase._sequence = startBase._sequence[0] + self._seqStr
                 seqLen = len(self._seqStr)
                 if seqLen==0:
-                    del vh._loop(startBase._strandtype)[startBase._n]
+                    del vh._insert(startBase._strandtype)[startBase._n]
                 else:
-                    vh._loop(startBase._strandtype)[startBase._n] = seqLen
+                    vh._insert(startBase._strandtype)[startBase._n] = seqLen
                 # vh.setHasBeenModified()
                 # vh.emitBasesModifiedIfNeeded()
                 # return
             else:
                 # We use this variable to determine if we 
                 # need to undo an application to an asymmetrical
-                # loop or a strand application, so it always
+                # insert or a strand application, so it always
                 # must be present
-                self.oldLoopSeq = None
-            # We aren't applying to a loop, so we must loop through
+                self.oldInsertSeq = None
+            # We aren't applying to a insert, so we must insert through
             # the entire strand and apply to each pair of complementary
             # bases
             for i in range(len(bases)):
                 b = bases[i]
                 b._vhelix.resetSequenceCache()
                 stap_b = b._vhelix._strand(StrandType.Staple)[b._n]
-                numBasesInB = b._vhelix.hasLoopOrSkipAt(StrandType.Scaffold, b._n)+1
+                numBasesInB = b._vhelix.hasInsertOrSkipAt(StrandType.Scaffold, b._n)+1
                 oldBaseStrs.append((b._sequence, stap_b._sequence))
                 numBasesToUse = numBasesInB
                 if numBasesToUse == 0:
@@ -1275,12 +1275,12 @@ class VirtualHelix(QObject):
             #stapBases = vh._basesConnectedTo(StrandType.Staple, self._idx)
             startBase = vh._strand(StrandType.Scaffold)[self._idx]
             #startBaseComplement = vh._strand(StrandType.Staple)[self._idx]
-            scafBasesInBase = vh.hasLoopOrSkipAt(StrandType.Scaffold, startBase._n)
-            #stapBasesInBase = vh.hasLoopOrSkipAt(StrandType.Staple, startBase._n)
+            scafBasesInBase = vh.hasInsertOrSkipAt(StrandType.Scaffold, startBase._n)
+            #stapBasesInBase = vh.hasInsertOrSkipAt(StrandType.Staple, startBase._n)
             
             
-            if self.oldLoopSeq != None:
-                startBase._sequence = self.oldLoopSeq
+            if self.oldInsertSeq != None:
+                startBase._sequence = self.oldInsertSeq
                 vh.resetSequenceCache()
                 vh.setHasBeenModified()
                 vh.emitBasesModifiedIfNeeded()
@@ -1342,28 +1342,28 @@ class VirtualHelix(QObject):
                 temp[0].emitBasesModifiedIfNeeded()
 
 
-    class LoopCommand(QUndoCommand):
-        def __init__(self, virtualHelix, strandType, index, loopsize):
-            super(VirtualHelix.LoopCommand, self).__init__()
+    class InsertCommand(QUndoCommand):
+        def __init__(self, virtualHelix, strandType, index, insertsize):
+            super(VirtualHelix.InsertCommand, self).__init__()
             self._vh = virtualHelix
             self._strandType = strandType
             self._index = index
-            self._loopsize = loopsize
-            self._oldLoopsize = None
+            self._insertsize = insertsize
+            self._oldInsertsize = None
 
         def redo(self):
             if self._vh.hasStrandAt(self._strandType, self._index):
-                loop = self._vh._loop(self._strandType)
-                self._oldLoopsize = 0
-                if self._loopsize != 0: # if we are not removing the loop
-                    if self._index in loop:
-                        self._oldLoopsize = loop[self._index]
+                insert = self._vh._insert(self._strandType)
+                self._oldInsertsize = 0
+                if self._insertsize != 0: # if we are not removing the insert
+                    if self._index in insert:
+                        self._oldInsertsize = insert[self._index]
                     # end if
-                    loop[self._index] = self._loopsize # set the model
-                else: # trying to set the loop to zero so get rid of it! 
-                    if self._index in loop:
-                        self._oldLoopsize = loop[self._index]
-                        del loop[self._index]
+                    insert[self._index] = self._insertsize # set the model
+                else: # trying to set the insert to zero so get rid of it! 
+                    if self._index in insert:
+                        self._oldInsertsize = insert[self._index]
+                        del insert[self._index]
                     # end if
                 # end else
                 self._vh.setHasBeenModified()
@@ -1371,13 +1371,13 @@ class VirtualHelix(QObject):
 
         def undo(self):
             if self._vh.hasStrandAt(self._strandType, self._index):
-                loop = self._vh._loop(self._strandType)
-                assert(self._oldLoopsize != None)  # Must redo/apply before undo
-                if self._oldLoopsize != 0: # if we are not removing the loop
-                    loop[self._index] = self._oldLoopsize
+                insert = self._vh._insert(self._strandType)
+                assert(self._oldInsertsize != None)  # Must redo/apply before undo
+                if self._oldInsertsize != 0: # if we are not removing the insert
+                    insert[self._index] = self._oldInsertsize
                 else: 
-                    if self._index in loop:
-                        del loop[self._index]
+                    if self._index in insert:
+                        del insert[self._index]
                     # end if
                 # end else
                 self._vh.setHasBeenModified()
@@ -1502,8 +1502,8 @@ class VirtualHelix(QObject):
             strand = self._vh._strand(self._strandType)
             ol = self._oldLinkage = []
             potentialNewEndpoints = []
-            loopDict = self._vh._loop(self._strandType)
-            self.erasedLoopDictItems = {}
+            insertDict = self._vh._insert(self._strandType)
+            self.erasedInsertDictItems = {}
             startIdxF = min(self._startIndexF, self._endIndexF)
             endIdxF = max(self._startIndexF, self._endIndexF)
             startFrac, startIdx = modf(startIdxF)
@@ -1578,16 +1578,16 @@ class VirtualHelix(QObject):
             elif not strand[lastEmptiedBase].isEmpty():
                 lastEmptiedBase -= 1
             # Now that we know which bases got emptied, clear the
-            # loops and sequences on those bases
+            # inserts and sequences on those bases
             self.firstEmptiedBase = firstEmptiedBase
             assert(firstEmptiedBase >= 0)
             self.lastEmptiedBase = lastEmptiedBase
             assert(lastEmptiedBase < len(strand))
             self.erasedSequenceItems = []    
             for i in range(firstEmptiedBase, lastEmptiedBase+1):
-                if loopDict.get(i, None) != None:
-                    self.erasedLoopDictItems[i] = loopDict[i]
-                    del loopDict[i]
+                if insertDict.get(i, None) != None:
+                    self.erasedInsertDictItems[i] = insertDict[i]
+                    del insertDict[i]
                 self.erasedSequenceItems.append(strand[i]._sequence)
                 strand[i]._sequence = " "
             
@@ -1668,9 +1668,9 @@ class VirtualHelix(QObject):
                 map(lambda c: c.undo(), reversed(self.colorSubCommands))
                 del self.colorSubCommands
             # end if
-            loopDict = self._vh._loop(self._strandType)
-            for k, v in self.erasedLoopDictItems.iteritems():
-                loopDict[k] = v
+            insertDict = self._vh._insert(self._strandType)
+            for k, v in self.erasedInsertDictItems.iteritems():
+                insertDict[k] = v
                 
             # for i in reversed(range(self.firstEmptiedBase, self.lastEmptiedBase+1)):
             #     strand[i]._sequence = self.erasedSequenceItems.pop()
@@ -1936,8 +1936,8 @@ class VirtualHelix(QObject):
         scaffoldStrand = self._strand(StrandType.Scaffold)
         sr['scafld'] = self.encodeStrand(StrandType.Scaffold)
         sr['scafldColors'] = " ".join(str(b.getColor().name()) for b in scaffoldStrand)
-        # only encode scaffold loops for version 1.5
-        sr['loops'] = dict((str(k), v) for k,v in self._scaffoldLoops.iteritems())
+        # only encode scaffold inserts for version 1.5
+        sr['inserts'] = dict((str(k), v) for k,v in self._scaffoldInserts.iteritems())
         
     # First objects that are being unarchived are sent
     # ClassNameFrom.classAttribute(incompleteArchivedDict)

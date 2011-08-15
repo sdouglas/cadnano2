@@ -34,7 +34,7 @@ from handles.activeslicehandle import ActiveSliceHandle
 from handles.pathhelixhandle import PathHelixHandle
 from handles.pathhelixhandle import PathHelixHandle
 from handles.crossoverhandle import XoverHandlePair
-from handles.loophandle import LoopHandleGroup
+from handles.inserthandle import InsertHandleGroup
 from model.enum import EndType, LatticeType, StrandType
 from .pathhelix import PathHelix
 from .pathselection import SelectionItemGroup
@@ -97,7 +97,7 @@ class PathHelixGroup(QGraphicsObject):
         self._stapPen = QPen(self._stapColor, 2)
         
         self.floatingXover = XoverHandlePair(self, None, None)
-        self.loopHandleGroup = LoopHandleGroup(parent=self)
+        self.insertHandleGroup = InsertHandleGroup(parent=self)
         self.xovers = {}
         
         self.setZValue(styles.ZPATHHELIXGROUP)
@@ -132,12 +132,12 @@ class PathHelixGroup(QGraphicsObject):
             showHandles = ph==newActivePH or ph.vhelix() in neighborVHs
             ph.setPreXOverHandlesVisible(showHandles)
 
-    def notifyLoopHandleGroupAfterUpdate(self, pathhelix):
+    def notifyInsertHandleGroupAfterUpdate(self, pathhelix):
         """
-        Called by setActiveHelix and loophandlegroup after the vhelix has 
-        calculated its new loop positions.
+        Called by setActiveHelix and inserthandlegroup after the vhelix has 
+        calculated its new insert positions.
         """
-        self.loopHandleGroup.updateActiveHelix(pathhelix)
+        self.insertHandleGroup.updateActiveHelix(pathhelix)
 
     def setPart(self, newPart):
         if self._part:
@@ -421,7 +421,7 @@ class PathHelixGroup(QGraphicsObject):
         self.update()
         ph = self.getPathHelix(vhelix)
         if ph != None:
-            self.notifyLoopHandleGroupAfterUpdate(ph)
+            self.notifyInsertHandleGroupAfterUpdate(ph)
 
     def reorderHelices(self, first, last, indexDelta):
         """

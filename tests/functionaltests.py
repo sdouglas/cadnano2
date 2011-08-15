@@ -112,8 +112,8 @@ class FunctionalTests(CadnanoGuiTestCase):
         refSet = self.getRefSequences(refname)
         self.assertEqual(testSet, refSet)
 
-    def testStapleOutput_loop_size_1(self):
-        """Test sequence output with a single loop of size 1"""
+    def testStapleOutput_insert_size_1(self):
+        """Test sequence output with a single insert of size 1"""
         designname = "loop_size_1.json"
         refname = "loop_size_1.csv"
         sequences = [("M13mp18", 0, 14)]
@@ -130,8 +130,8 @@ class FunctionalTests(CadnanoGuiTestCase):
         refSet = self.getRefSequences(refname)
         self.assertEqual(testSet, refSet)
 
-    def testStapleOutput_loops_and_skips(self):
-        """Loop and skip stress test"""
+    def testStapleOutput_inserts_and_skips(self):
+        """Insert and skip stress test"""
         designname = "loops_and_skips.json"
         refname = "loops_and_skips.csv"
         sequences = [("M13mp18", 0, 0)]

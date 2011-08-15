@@ -399,10 +399,10 @@ class DNAPart(Part):
             # on a given helix.
             facingR = not vh.directionOfStrandIs5to3(StrandType.Staple)
             pxovers = vh.potentialCrossoverList(facingR, StrandType.Staple)
-            def loopXovers((toVH, idx)):
+            def instXovers((toVH, idx)):
                 if vh.possibleNewCrossoverAt(StrandType.Staple, idx, toVH, idx):
                     vh.installXoverFrom3To5(StrandType.Staple, idx, toVH, idx, speedy=False, police=False)
-            map(loopXovers, pxovers)  # Loop through potential xovers
+            map(instXovers, pxovers)  # Hit all potential xovers
         # end def
         vhs = self.getVirtualHelices()  # gets a generator, so call it again
         map(autoStaple_sub2, vhs)

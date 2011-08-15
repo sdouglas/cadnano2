@@ -32,7 +32,7 @@ from model.enum import EndType, LatticeType, StrandType
 from model.virtualhelix import VirtualHelix
 from weakref import ref
 from handles.pathhelixhandle import PathHelixHandle
-from handles.loophandle import LoopItem, SkipItem
+from handles.inserthandle import InsertItem, SkipItem
 from handles.precrossoverhandle import PreCrossoverHandle
 from math import floor, pi, ceil
 from cadnano import app

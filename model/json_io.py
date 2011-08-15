@@ -132,10 +132,10 @@ def doc_from_legacy_dict(obj):
             vh = part.getVirtualHelix(vhNum)
             scaf = helix['scaf']
             stap = helix['stap']
-            loops = helix['loop']
+            inserts = helix['loop']
             skips = helix['skip']
             assert(len(scaf)==len(stap) and len(stap)==vh.numBases() and\
-                   len(scaf)==len(loops) and len(loops)==len(skips))
+                   len(scaf)==len(inserts) and len(inserts)==len(skips))
             # read scaffold segments and xovers
             for i in range(len(scaf)):
                 fiveVH, fiveIdx, threeVH, threeIdx = scaf[i]
@@ -192,7 +192,7 @@ def doc_from_legacy_dict(obj):
         vh = part.getVirtualHelix(vhNum)
         scaf = helix['scaf']
         stap = helix['stap']
-        loops = helix['loop']
+        inserts = helix['loop']
         skips = helix['skip']
         # install scaffold xovers
         for (idx, threeVH, threeIdx) in scaf_xo[vhNum]:
@@ -212,16 +212,16 @@ def doc_from_legacy_dict(obj):
         vh = part.getVirtualHelix(vhNum)
         scaf = helix['scaf']
         stap = helix['stap']
-        loops = helix['loop']
+        inserts = helix['loop']
         skips = helix['skip']
-        # populate colors, loops, and skips
+        # populate colors, inserts, and skips
         for baseIdx, colorNumber in helix['stap_colors']:
             color = QColor((colorNumber>>16)&0xFF, (colorNumber>>8)&0xFF, colorNumber&0xFF)
             vh.applyColorAt(color, StrandType.Staple, baseIdx, useUndoStack=False)
         for i in range(len(stap)):
-            combinedLoopSkipAmount = loops[i] + skips[i]
-            if combinedLoopSkipAmount != 0:
-                vh.installLoop(StrandType.Scaffold, i, combinedLoopSkipAmount,\
+            sumOfInsertSkip = inserts[i] + skips[i]
+            if sumOfInsertSkip != 0:
+                vh.installInsert(StrandType.Scaffold, i, sumOfInsertSkip,\
                                useUndoStack=False, speedy=True)
     # part.updateAcyclicLengths()
     return doc

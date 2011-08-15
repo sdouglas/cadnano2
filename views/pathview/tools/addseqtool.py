@@ -176,10 +176,10 @@ class AddSeqTool(AbstractPathTool):
             oppositeStrand = StrandType.Staple
         else:
             oppositeStrand = StrandType.Scaffold
-        if vh.hasLoopOrSkipAt(strandType, baseIdx) > 0:
-            loopBases = vh.hasLoopOrSkipAt(strandType, baseIdx)
-            compLoopBases = vh.hasLoopOrSkipAt(oppositeStrand, baseIdx)
-            if loopBases != compLoopBases and strandType == StrandType.Staple:
+        if vh.hasInsertOrSkipAt(strandType, baseIdx) > 0:
+            insertBases = vh.hasInsertOrSkipAt(strandType, baseIdx)
+            compInsertBases = vh.hasInsertOrSkipAt(oppositeStrand, baseIdx)
+            if insertBases != compInsertBases and strandType == StrandType.Staple:
                 newLoc = pathHelix.baseLocation(strandType, baseIdx)
                 if self.pos() != newLoc:
                     self.setPos(*newLoc)
