@@ -32,7 +32,7 @@ from model.enum import EndType, LatticeType, StrandType
 from model.virtualhelix import VirtualHelix
 from weakref import ref
 from handles.pathhelixhandle import PathHelixHandle
-from handles.loophandle import LoopItem, SkipItem
+from handles.inserthandle import InsertItem, SkipItem
 from handles.precrossoverhandle import PreCrossoverHandle
 from math import floor, pi, ceil
 from cadnano import app
@@ -167,12 +167,12 @@ class PathHelix(QGraphicsObject):
 
     def setVHelix(self, newVH):
         if self._vhelix:
-            self._vhelix.basesModified.disconnect(self.vhelixBasesModified)
+            self._vhelix.basesModifiedSignal.disconnect(self.vhelixBasesModified)
             self._vhelix.vhelixDimensionsModified.disconnect(\
                                              self.vhelixDimensionsModified)
         self._vhelix = newVH
-        newVH.basesModified.connect(self.vhelixBasesModified)
-        newVH.dimensionsModified.connect(self.vhelixDimensionsModified)
+        newVH.basesModifiedSignal.connect(self.vhelixBasesModified)
+        newVH.dimensionsModifiedSignal.connect(self.vhelixDimensionsModified)
         self.vhelixDimensionsModified()
         self.vhelixBasesModified()
 

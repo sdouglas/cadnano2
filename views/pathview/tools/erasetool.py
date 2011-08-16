@@ -53,7 +53,7 @@ class EraseTool(AbstractPathTool):
         This class inherits from the PathTool class for the majority of
         methods/behaviours.  Essentially it adds merely decorator graphics
         custimazation of behaviour and data structure access particular to
-        loop insertion on a mouseclick.
+        strand erasing on a mouseclick.
 
         Its parent should be *always* be a PathHelix.
         """

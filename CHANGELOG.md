@@ -4,7 +4,8 @@
 * OSX: Reconnected objc bridge so files open via double-click or dock icon drop.
 
 ## 2.0.0
-*Undo/redo.
+
+* Undo/redo.
 * Unified interface for square-lattice and honeycomb-lattice parts. The new workflow is to open a document and then click the "Honeycomb" or "Square" button on the top toolbar to create a new part for editing.
 * Stored user preferences.
 * Scroll to zoom (e.g. via mousewheel). Command+mouse-drag to pan.

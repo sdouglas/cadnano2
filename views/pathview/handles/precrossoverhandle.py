@@ -91,8 +91,8 @@ class PreCrossoverHandle(QGraphicsItem):
         self.toIdx = toIdx
         self.orientedLeft = orientedLeft
 
-        self.fromVH.basesModified.connect(self.updateVisibilityAndEnabledness)
-        self.toVH.basesModified.connect(self.updateVisibilityAndEnabledness)
+        self.fromVH.basesModifiedSignal.connect(self.updateVisibilityAndEnabledness)
+        self.toVH.basesModifiedSignal.connect(self.updateVisibilityAndEnabledness)
 
         x = self.baseWidth * self.fromIdx
         y = (-1.25 if self.onTopStrand() else 2.25) * self.baseWidth

@@ -209,9 +209,16 @@
      <string>Edit</string>
     </property>
    </widget>
+   <widget class="QMenu" name="menuView">
+    <property name="title">
+     <string>View</string>
+    </property>
+    <addaction name="actionFrame"/>
+   </widget>
    <addaction name="menuCADnano"/>
    <addaction name="menuFile"/>
    <addaction name="menuEdit"/>
+   <addaction name="menuView"/>
   </widget>
   <widget class="QToolBar" name="topToolBar">
    <property name="sizePolicy">
@@ -249,7 +256,7 @@
    <addaction name="actionNewHoneycombPart"/>
    <addaction name="actionNewSquarePart"/>
    <addaction name="separator"/>
-   <addaction name="actionFrame"/>
+   <addaction name="actionAutoStaple"/>
   </widget>
   <widget class="QToolBar" name="rightToolBar">
    <property name="sizePolicy">
@@ -289,8 +296,6 @@
    <addaction name="actionPathInsert"/>
    <addaction name="actionPathSkip"/>
    <addaction name="actionPathPaint"/>
-   <addaction name="separator"/>
-   <addaction name="actionAutoStaple"/>
    <addaction name="actionPathAddSeq"/>
   </widget>
   <widget class="QToolBar" name="leftToolBar">
@@ -494,29 +499,10 @@
     <string>V</string>
    </property>
   </action>
-  <action name="actionSliceSelect">
-   <property name="checkable">
-    <bool>false</bool>
-   </property>
-   <property name="enabled">
-    <bool>true</bool>
-   </property>
-   <property name="icon">
-    <iconset resource="icons.qrc">
-     <normaloff>:/slicetools/select</normaloff>
-     <selectedoff>:/slicetools/images/slice-edit.png</selectedoff>:/slicetools/select</iconset>
-   </property>
-   <property name="text">
-    <string>Select</string>
-   </property>
-   <property name="shortcut">
-    <string>Shift+V</string>
-   </property>
-  </action>
   <action name="actionSliceFirst">
    <property name="icon">
     <iconset resource="icons.qrc">
-     <normaloff>:/slicetools/go first</normaloff>:/slicetools/go first</iconset>
+     <normaloff>:/slicetools/go-first</normaloff>:/slicetools/go-first</iconset>
    </property>
    <property name="text">
     <string>First</string>
@@ -528,7 +514,7 @@
   <action name="actionSliceLast">
    <property name="icon">
     <iconset resource="icons.qrc">
-     <normaloff>:/slicetools/go last</normaloff>:/slicetools/go last</iconset>
+     <normaloff>:/slicetools/go-last</normaloff>:/slicetools/go-last</iconset>
    </property>
    <property name="text">
     <string>Last</string>
@@ -561,7 +547,7 @@
      <normaloff>:/pathtools/autostaple</normaloff>:/pathtools/autostaple</iconset>
    </property>
    <property name="text">
-    <string>Staple</string>
+    <string>AutoStaple</string>
    </property>
    <property name="toolTip">
     <string>Click this button to generate a default set of staples.</string>
@@ -714,10 +700,6 @@
    </property>
   </action>
   <action name="actionFrame">
-   <property name="icon">
-    <iconset resource="icons.qrc">
-     <normaloff>:/pathtools/frame</normaloff>:/pathtools/frame</iconset>
-   </property>
    <property name="text">
     <string>Frame</string>
    </property>

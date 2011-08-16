@@ -22,14 +22,14 @@
 #
 # http://www.opensource.org/licenses/mit-license.php
 """
-looptool.py
+inserttool.py
 Created by Nick on 2011-05-03.
 """
 from exceptions import AttributeError, NotImplementedError
 from model.enum import HandleOrient, StrandType
 from views import styles
 from views.pathview.pathhelix import PathHelix
-from views.pathview.handles.loophandle import LoopItem
+from views.pathview.handles.inserthandle import InsertItem
 from abstractpathtool import AbstractPathTool
 
 import util
@@ -39,10 +39,10 @@ util.qtWrapImport('QtGui', globals(), [ 'QGraphicsItem', 'QBrush', 'QFont',
                                         'QGraphicsSimpleTextItem', 'QPen',\
                                         'QPainterPath'])
 
-class LoopTool(AbstractPathTool):
-    _loopItem = LoopItem()
-    _boundingRect = _loopItem._loopPathDownRect.united(\
-                        _loopItem._loopPathUpRect)
+class InsertTool(AbstractPathTool):
+    _insertItem = InsertItem()
+    _boundingRect = _insertItem._insertPathDownRect.united(\
+                        _insertItem._insertPathUpRect)
     _boundingRect = _boundingRect.united(AbstractPathTool._rect)
     
     def __init__(self, controller, parent=None):
@@ -50,11 +50,11 @@ class LoopTool(AbstractPathTool):
         This class inherits from the PathTool class for the majority of
         methods/behaviours.  Essentially it adds merely decorator graphics
         custimazation of behaviour and data structure access particular to
-        loop insertion on a mouseclick.
+        insert addition on a mouseclick.
 
         Its parent should be *always* be a PathHelix.
         """
-        super(LoopTool, self).__init__(controller, parent)
+        super(InsertTool, self).__init__(controller, parent)
         _pen = QPen(styles.bluestroke, 2)
         self.baseWidth = styles.PATH_BASE_WIDTH
         self.hide()
@@ -66,8 +66,8 @@ class LoopTool(AbstractPathTool):
         painter.setPen(self._pen)
         painter.setBrush(self._brush)
         painter.drawRect(self._toolRect)
-        painter.setPen(self._loopItem.getPen())
-        painter.drawPath(self._loopItem.getLoop(self._isTop))
+        painter.setPen(self._insertItem.getPen())
+        painter.drawPath(self._insertItem.getInsert(self._isTop))
 
     def boundingRect(self):
         return self._boundingRect
@@ -100,13 +100,13 @@ class LoopTool(AbstractPathTool):
         mouseDownBase = pathHelix.baseAtLocation(posItem.x(), posItem.y())
         # only allow tool to install on a scaffold!!!
         if mouseDownBase and mouseDownBase[0] == StrandType.Scaffold:
-            loopsize = vh.hasLoopOrSkipAt(*mouseDownBase)
-            if loopsize < 0:  # toggle from skip
-                vh.installLoop(mouseDownBase[0], mouseDownBase[1], 1)
-            elif loopsize > 0:  # loop already there
-                vh.installLoop(mouseDownBase[0], mouseDownBase[1], 0)
+            insertsize = vh.hasInsertOrSkipAt(*mouseDownBase)
+            if insertsize < 0:  # toggle from skip
+                vh.installInsert(mouseDownBase[0], mouseDownBase[1], 1)
+            elif insertsize > 0:  # insert already there
+                vh.installInsert(mouseDownBase[0], mouseDownBase[1], 0)
             elif vh.hasStrandAt(*mouseDownBase):
-                vh.installLoop(mouseDownBase[0], mouseDownBase[1], 1)
+                vh.installInsert(mouseDownBase[0], mouseDownBase[1], 1)
             pathHelix.makeSelfActiveHelix()
     # end def
 # end class

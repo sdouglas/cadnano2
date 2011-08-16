@@ -27,7 +27,7 @@ Created by Nick on 2011-05-03.
 """
 from abstractpathtool import AbstractPathTool
 from views import styles
-from views.pathview.handles.loophandle import SkipItem
+from views.pathview.handles.inserthandle import SkipItem
 
 import util
 # import Qt stuff into the module namespace with PySide, PyQt4 independence
@@ -67,13 +67,13 @@ class SkipTool(AbstractPathTool):
         indexp = self.helixIndex(posItem)
         mouseDownBase = pathHelix.baseAtLocation(posItem.x(), posItem.y())
         if mouseDownBase:
-            loopsize = vh.hasLoopOrSkipAt(*mouseDownBase)
-            if loopsize > 0:    # toggle from loop
-                vh.installLoop(mouseDownBase[0],mouseDownBase[1],-1)
-            elif loopsize < 0:    # skip already there
-                vh.installLoop(mouseDownBase[0],mouseDownBase[1],0)
+            insertsize = vh.hasInsertOrSkipAt(*mouseDownBase)
+            if insertsize > 0:    # toggle from insert
+                vh.installInsert(mouseDownBase[0],mouseDownBase[1],-1)
+            elif insertsize < 0:    # skip already there
+                vh.installInsert(mouseDownBase[0],mouseDownBase[1],0)
             elif vh.hasStrandAt(*mouseDownBase):
-                vh.installLoop(mouseDownBase[0],mouseDownBase[1],-1)
+                vh.installInsert(mouseDownBase[0],mouseDownBase[1],-1)
             pathHelix.makeSelfActiveHelix()
     # end def
 # end class

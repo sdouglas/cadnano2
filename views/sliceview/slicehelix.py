@@ -244,7 +244,7 @@ class SliceHelix(QGraphicsItem):
         self.part().addVirtualHelixAt(coord, vh)
         vh.connectStrand(StrandType.Scaffold, index - 1, index + 1)
         undoStack.endMacro()
-        vh.basesModified.connect(self.update)
+        vh.basesModifiedSignal.connect(self.update)
 
     def createOrAddBasesToVirtualHelix(self, addBases=False,\
                                        addToScaffold=False, isPress=True):
@@ -265,7 +265,7 @@ class SliceHelix(QGraphicsItem):
             undoStack.beginMacro("Add helix")
             vh = VirtualHelix(numBases=self.part().crossSectionStep())
             self.part().addVirtualHelixAt(coord, vh)
-            vh.basesModified.connect(self.update)
+            vh.basesModifiedSignal.connect(self.update)
             if len(self.part()) <= 5:
                 self.part().needsFittingToView.emit()
             undoStack.endMacro()
