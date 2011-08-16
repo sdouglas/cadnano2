@@ -113,7 +113,7 @@ class RangeSet(object):
         """
         return (newStartIdx, newAfterLastIdx, rangeItem[2])
 
-    def splitRangeItem(self, rangeItem, splitStart, afterSplitEnd, undoStack):
+    def splitRangeItem(self, rangeItem, splitStart, afterSplitEnd, keepLeft, undoStack):
         """
         When a range is inserted into the middle of another range (and no
         merging can occur) the existant range is split into two endpoints
@@ -236,7 +236,7 @@ class RangeSet(object):
         return self.ranges.__iter__()
 
     ################################ Public Write API ############################
-    def addRange(self, rangeItem, useUndoStack=True, undoStack=None, suppressCallsItem=None):
+    def addRange(self, rangeItem, useUndoStack=True, undoStack=None, suppressCallsItem=None, keepLeft=True):
         """
         Adds rangeItem to the receiver, ensuring that the range given by
         self.idxs(rangeItem) does not overlap any other rangeItem in the receiver
@@ -285,6 +285,7 @@ class RangeSet(object):
                 splitEnds = self.splitRangeItem(firstIR,\
                                                 firstIndex,\
                                                 afterLastIndex,\
+                                                keepLeft,\
                                                 undoStack)
                 replacementRanges = [splitEnds[0], rangeItem, splitEnds[1]]
         if firstIRL < firstIndex:
@@ -323,7 +324,7 @@ class RangeSet(object):
                                             suppressCallsItem)
         self.endCommand(undoStack, com)
 
-    def removeRange(self, firstIndex, afterLastIndex, useUndoStack=True, undoStack=None, suppressCallsItem=None):
+    def removeRange(self, firstIndex, afterLastIndex, useUndoStack=True, undoStack=None, suppressCallsItem=None, keepLeft=True):
         if firstIndex >= afterLastIndex:
             return
         oldBounds = self.bounds()
@@ -344,6 +345,7 @@ class RangeSet(object):
                 replacementRanges = self.splitRangeItem(firstIR,\
                                                         firstIndex,\
                                                         afterLastIndex,\
+                                                        keepLeft,\
                                                         undoStack)
             else:
                 newItem = self.changeRangeForItem(firstIR,\

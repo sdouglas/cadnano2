@@ -38,6 +38,7 @@ from math import floor, pi, ceil
 from cadnano import app
 from itertools import product
 from ui.mainwindow.svgbutton import SVGButton
+from model.vbase import VBase
 
 import util
 # import Qt stuff into the module namespace with PySide, PyQt4 independence
@@ -268,6 +269,23 @@ class PathHelix(QGraphicsObject):
 
     def boundingRect(self):
         return self.rect
+
+    def vBaseAtPoint(self, pt, clampY=True):
+        x, y = pt.x(), pt.y()
+        if clampY:
+            if y < 0:                   y = 0
+            if y >= 2 * self.baseWidth: y = 2*self.baseWidth
+        else:
+            if y < 0:                   return None
+            if y >= 2 * self.baseWidth: return None
+        idx = int(x // self.baseWidth)
+        isTop = y < self.baseWidth
+        if self.evenParity():
+            if isTop: return VBase(self.vhelix().scaf(), idx)
+            else:     return VBase(self.vhelix().stap(), idx)
+        else:
+            if isTop: return VBase(self.vhelix().stap(), idx)
+            else:     return VBase(self.vhelix().scaf(), idx)
 
     ################# Crossover Handles #################
     def preXOverHandlesVisible(self):
@@ -557,7 +575,7 @@ class PathHelix(QGraphicsObject):
     def vBaseOnTop(self, vBase):
         strand = vBase.vStrand
         return self.evenParity() and strand.isScaf() or\
-               not self.evenParity and strand.isStap():
+               not self.evenParity() and strand.isStap()
 
     def upperLeftCornerOfVBase(self, vBase):
         x = vBase.vIndex * self.baseWidth

@@ -22,16 +22,18 @@
 #
 # http://www.opensource.org/licenses/mit-license.php
 
+import util
 util.qtWrapImport('QtCore', globals(), ['QObject'])
 from model.normalstrand import NormalStrand
 from operation import Operation
+from model.vbase import VBase
 
 class PencilToolOperation(Operation):
     """ Handles interactive strand creation / destruction in the manner of the
     pencil tool """
     def __init__(self, startVBase, undoStack):
         """ Begin a session of pencil-tool interaction """
-        Operation.__init__(self)
+        Operation.__init__(self, undoStack)
         self.newStrand = NormalStrand(startVBase, startVBase)
         self.startVBase = startVBase
         self.newStrandInVfbPool = False
@@ -46,7 +48,10 @@ class PencilToolOperation(Operation):
         dragEndExposedEnds = dragEndBase.exposedEnds()
         dragEndStrand = dragEndBase.strand()
         vStrand = dragStartBase.vStrand
-        
+
+        if not isinstance(newDestVBase, VBase):
+            return
+
         if dragStartBase < dragEndBase:
             leftBase, rightBase = dragStartBase, dragEndBase
             leftExposedEnds = dragStartExposedEnds
@@ -66,6 +71,8 @@ class PencilToolOperation(Operation):
         draggingToAnEndpt = bool(dragEndExposedEnds)
         draggingFromInsideAStrand = not draggingFromAnEndpt and\
                                     dragStartStrand != None
+        draggingFromAnEmptyBase = not draggingFromInsideAStrand and\
+                                    dragStartStrand == None
 
         if draggingFromAnEndpt:
             if dragStartBase == dragEndBase:
@@ -101,8 +108,44 @@ class PencilToolOperation(Operation):
                 assert(False)  # We aren't dragging from an endpt after all?
         elif draggingFromInsideAStrand:
             if dragStartBase == dragEndBase:
-                self.actionClearRange
-        
+                self.actionClearRange(dragStartBase.vIndex,\
+                                      dragStartBase.vIndex,\
+                                      False)  # Left strand is the new strand
+            elif dragEndBase == dragStartBase - 1:
+                self.actionClearRange(dragStartBase.vIndex,\
+                                      dragStartBase.vIndex,\
+                                      True)  # Right strand is the new strand
+            else:  # dragEndBase < dragStartBase-1 or > dragStartBase
+                if dragEndBase < dragStartBase:
+                    self.actionClearRange(leftBase.vIndex + 1,\
+                                          rightBase.vIndex,\
+                                          True)  # Right strand is the new one
+                else:
+                    self.actionClearRange(leftBase.vIndex,\
+                                          rightBase.vIndex,\
+                                          False)  # Left strand is the new game
+        elif draggingFromAnEmptyBase:
+            if dragStartBase == dragEndBase:
+                self.actionNone()
+            if not dragEndExposedEnds:
+                self.actionAddStrand(None, leftBase, rightBase, None)
+            elif dragEndBase < dragStartBase and 'R' in dragEndExposedEnds:
+                self.actionAddStrand(dragEndStrand,\
+                                     dragEndBase + 1, dragStartBase,\
+                                     None)
+            elif dragEndBase > dragStartBase and 'L' in dragEndExposedEnds:
+                self.actionAddStrand(None,\
+                                     dragStartBase, dragEndBase - 1,\
+                                     dragEndStrand)
+            else:
+                self.actionAddStrand(None, leftBase, rightBase, None)
+
+    def end(self):
+        """ Make the changes displayed by the last call to
+        updateOperationWithDestination permanent """
+        del self.newStrand
+        del self.startVBase
+        del self.newStrandInVfbPool
 
     def putNewStrandInVfbPoolIfNecessary(self):
         if not self.newStrandInVfbPool:
@@ -120,16 +163,28 @@ class PencilToolOperation(Operation):
 
     def actionAddStrand(self, lConnection, startBase, endBase, rConnection):
         self.rewind()
-        self.newStrand.changeRange()
+        self.newStrand.changeRange(startBase, endBase, self.undoStack)
+        self.newStrand.setConnL(lConnection, useUndoStack=True, undoStack=self.undoStack)
+        self.newStrand.setConnR(rConnection, useUndoStack=True, undoStack=self.undoStack)
         self.putNewStrandInVfbPoolIfNecessary()
 
     def actionJustConnect(self, lStrand, rStrand):
         """ Just connect the right exposed end of lStrand to the left exposed
         end of rStrand """
+        self.rewind()
+        self.removeNewStrandFromVfbPoolIfNecessary()
         lStrand.setConnR(rStrand, useUndoStack=True, undoStack=self.undoStack)
 
     def actionResizeStrand(self, strand, newL, newR):
+        self.rewind()
+        self.removeNewStrandFromVfbPoolIfNecessary()
         strand.changeRange(newL, newR, self.undoStack)
 
-    def actionClearRange(self, firstIdx, afterLastIdx):
-        pass
+    def actionClearRange(self, firstIdx, afterLastIdx, keepLeft):
+        self.rewind()
+        self.removeNewStrandFromVfbPoolIfNecessary()
+        self.startVBase.vStrand.clearStrand(firstIdx,\
+                                            afterLastIdx,\
+                                            useUndoStack=True,\
+                                            undoStack=self.undoStack,\
+                                            keepLeft=keepLeft)

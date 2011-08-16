@@ -146,22 +146,6 @@ class DNAPart(Part):
 
     ########################## Read API ##########################
 
-    def vfbStrands(self):
-        """ A set of strands that are 'tentatively' added to self for the
-        purpose of providing a preview of the operation the user will perform.
-        """
-        return self.vfbStrands
-    def addVfbStrands(self, strands):
-        """ Addition of vfb strands cannot be undone because vfb strands are
-        supposed to be transient and NOT saved in the model. """
-        for s in strands:
-            self.vfbStrands.add(s)
-            self.didAddVfbStrand.emit(s)
-    def removeVfbStrands(self, strands):
-        for s in strands:
-            self.willRemoveVfbStrand.emit(s)
-            self.vfbStrands.remove(s)
-
     def oligos(self):
         """
         Oligos are not in any particular order.

@@ -28,6 +28,7 @@ from views.pathview.tools.erasetool import EraseTool
 from views.pathview.tools.looptool import LoopTool
 from views.pathview.tools.painttool import PaintTool
 from views.pathview.tools.penciltool import PencilTool
+from views.pathview.tools.newpenciltool import NewPencilTool
 from views.pathview.tools.selecttool import SelectTool
 from views.pathview.tools.skiptool import SkipTool
 from views.pathview.tools.addseqtool import AddSeqTool
@@ -60,7 +61,8 @@ class PathController(QObject):
         self.skipTool = SkipTool(self)
         self.breakTool = BreakTool(self)
         self.paintTool = PaintTool(self, win.pathGraphicsView.toolbar)
-        self.pencilTool = PencilTool(self)
+        #self.pencilTool = PencilTool(self)
+        self.pencilTool = NewPencilTool(self)
         self.addSeqTool = AddSeqTool(self)
         self.moveTool = None
 

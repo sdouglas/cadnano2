@@ -30,7 +30,8 @@ class NormalStrandGraphicsItem(QGraphicsLineItem):
         self.normalStrand = normalStrand
         self.pathHelix = pathHelix
         normalStrand.didMove.connect(self.update)
-        normalStrand.apparentConnectivityChanged(self.update)
+        normalStrand.apparentConnectivityChanged.connect(self.update)
+        normalStrand.willBeRemoved.connect(self.remove)
         self.update()
 
     def update(self, strand):
@@ -55,4 +56,6 @@ class NormalStrandGraphicsItem(QGraphicsLineItem):
         else:
             pen = QPen(QColor(), styles.PATH_STRAND_STROKE_WIDTH)
         self.setPen(pen)
-        
+
+    def remove(self, strand):
+        self.scene.removeItem(self)

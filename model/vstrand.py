@@ -50,6 +50,9 @@ class VStrand(QObject, RangeSet):
         if self == self.vHelix.stap: accesorToGetSelfFromvHelix = "stap"
         return "v[%i].%s"%(self.vHelix.number(), accesorToGetSelfFromvHelix)
 
+    def __call__(self, idx):
+        return VBase(self, idx)
+
     ####################### Public Read API #######################
     # Useful inherited methods:
     #   vstr.get(idx)            get the segment at index idx (or None)
@@ -122,7 +125,7 @@ class VStrand(QObject, RangeSet):
 
     ####################### Public Write API #######################
 
-    # Visual FeedBack provides a "preview" of the operation that would
+    # Visual FeedBack provides a preview of the operation that would
     # be performed if the user were to click, finish draging, etc. Each strand
     # in the model 
     def clearVFB(self):
@@ -148,10 +151,11 @@ class VStrand(QObject, RangeSet):
         self.strandsWithActiveVfb = newVfbStrands
 
     def addStrand(self, strand, useUndoStack=True, undoStack=None):
-        # A strand is a range
+        # A strand is a rangeItem
         self.addRange(strand, useUndoStack, undoStack)
 
-    # def removeRange(self, firstIndex, afterLastIndex, useUndoStack=True, undoStack=None)
+    def clearStrand(self, firstIndex, afterLastIndex, useUndoStack=True, undoStack=None, keepLeft=True):
+        self.removeRange(self, firstIndex, afterLastIndex, useUndoStack, undoStack, keepLeft=keepLeft)
 
     ####################### Protected Framework Methods ##############
     # Note: the rangeItems of a VStrand are strands
@@ -172,10 +176,10 @@ class VStrand(QObject, RangeSet):
     def changeRangeForItem(self, rangeItem, newStartIdx, newAfterLastIdx, undoStack):
         return rangeItem.changeRange(newStartIdx, newAfterLastIdx, undoStack)
 
-    def splitRangeItem(self, rangeItem, splitStart, splitAfterLast, undoStack):
+    def splitRangeItem(self, rangeItem, splitStart, splitAfterLast, keepLeft, undoStack):
         return rangeItem.split(splitStart,\
                                splitAfterLast,\
-                               self.preserveLeftOligoDuringSplit,\
+                               keepLeft,\
                                undoStack)
 
     def willRemoveRangeItem(self, rangeItem):

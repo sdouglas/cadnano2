@@ -22,6 +22,7 @@
 #
 # http://www.opensource.org/licenses/mit-license.php
 
+import util
 util.qtWrapImport('QtCore', globals(), ['QObject'])
 from model.normalstrand import NormalStrand
 
@@ -37,3 +38,6 @@ class Operation(QObject):
     def rewind(self):
         while self.undoStack.index() > self.undoStackIdxBeforeOperation:
             self.undoStack.undo()
+
+    def end(self):
+        pass

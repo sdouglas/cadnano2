@@ -73,7 +73,7 @@ class LoopStrand(Strand):
         'R', '3', and '5' where each character is present if the corresponding
         end is exposed
         """
-        assert(vStrand == self.vStrand)
+        assert(vStrand == self.vStrand())
         drawn5To3 = vStrand.drawn5To3()
         ret = ''
         if vIdx == self.vIdx:

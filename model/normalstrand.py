@@ -23,6 +23,7 @@
 # http://www.opensource.org/licenses/mit-license.php
 
 import util, sys
+from strand import Strand
 util.qtWrapImport('QtCore', globals(), ['QObject', 'pyqtSignal'] )
 util.qtWrapImport('QtGui', globals(), ['QUndoCommand'] )
 nextStrandDebugIdentifier = 0
@@ -39,8 +40,8 @@ class NormalStrand(Strand):
         Strand.__init__(self)
         self.vBaseL = vBaseL
         self.vBaseR = vBaseR
-        # self.vBase3 acts like self.vBaseR if self.vStrand.drawn5To3() else vBaseL
-        # self.vBase5 acts like self.vBaseL if self.vStrand.drawn5To3() else vBaseR
+        # self.vBase3 acts like self.vBaseR if self.vStrand().drawn5To3() else vBaseL
+        # self.vBase5 acts like self.vBaseL if self.vStrand().drawn5To3() else vBaseR
         if logger != None:
             logger.write("%i.init %s\n"%(self.traceID, repr(self)))
         self.assertConsistent()
@@ -48,19 +49,20 @@ class NormalStrand(Strand):
         self._hasPreviewConnectionR = False
 
     def assertConsistent(self):
-        assert( self.leftIdx <= self.rightIdx )
-        Strand.assertConsistent(s)
+        assert( self.vBaseL <= self.vBaseR )
+        Strand.assertConsistent(self)
 
     def __repr__(self):
-        return "%s(%s, %i, %i)"%(self.__class__.__name__, repr(self.vStrand),\
-                                 self.vBaseL, self.vBaseR)
+        clsName = self.__class__.__name__
+        vstr = repr(self.vStrand())
+        return "%s(%s, %s)"%(clsName, self.vBaseL, self.vBaseR)
 
     def getVBase3(self):
-        return self.vBaseR if self.vStrand.drawn5To3() else self.vBaseL
+        return self.vBaseR if self.vStrand().drawn5To3() else self.vBaseL
     vBase3 = property(getVBase3)
 
     def getVBase5(self):
-        return self.vBaseL if self.vStrand.drawn5To3() else self.vBaseR
+        return self.vBaseL if self.vStrand().drawn5To3() else self.vBaseR
     vBase5 = property(getVBase5)
 
     def vStrand(self):
@@ -73,7 +75,7 @@ class NormalStrand(Strand):
         """ Since a NormalStrand occupies exactly one vstrand, this simply
         returns the range of bases on that strand which the receiver
         occupies """
-        assert(vstrand == self.vStrand)
+        assert(vstrand == self.vStrand())
         return (self.vBaseL.vIndex, self.vBaseR.vIndex + 1)
 
     def numBases(self):
@@ -154,7 +156,7 @@ class NormalStrand(Strand):
         if logger != None:
             logger.write(" %i.split(%i, %i, %s) %s"%(self.traceID,\
                             splitStart, splitAfterLast, keepLeft, repr(strand)))
-        vBaseL, vBaseR, vStrand = self.vBaseL, self.vBaseR, self.vStrand
+        vBaseL, vBaseR, vStrand = self.vBaseL, self.vBaseR, self.vStrand()
         assert(splitStart <= splitAfterLast)
         newRangeL = (vBaseL, splitStart - 1)
         newRangeLValid = newRangeL[0] <= newRangeL[1]
@@ -179,7 +181,7 @@ class NormalStrand(Strand):
         Returns 'L' or 'R' if a segment exists at vStrand, idx and it
         exposes an unbound endpoint on its 3' or 5' end. Otherwise returns None.http://store.apple.com/us/browse/campaigns/back_to_school?aid=www-naus-bts2011-0526-16
         """
-        assert(vStrand == self.vStrand)
+        assert(vStrand == self.vStrand())
         ret = ''
         drawn5To3 = vStrand.drawn5To3()
         if vIdx == self.vBaseL:

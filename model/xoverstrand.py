@@ -52,9 +52,9 @@ class XOverStrand(Strand):
         assert( self.vBase3.vStrand.isScaf() == self.vBase5.vStrand.isScaf() )
 
     def idxsOnStrand(self, vstrand):
-        if   vstrand == self.vStrand3:
+        if   vstrand == self._vBase3.vStrand:
             idx = self.vBase3
-        elif vstrand == self.vStrand5:
+        elif vstrand == self._vBase5.vStrand:
             idx = self.vBase5
         else:
             assert(False)  # Knows not about the strand of which you speak

@@ -35,5 +35,5 @@ class SkipStrand(NormalStrand):
     doesn't add any real bases to the Oligo's sequence.
     """
     def __repr__(self):
-        return "SkipStrand(%s, %s, %s)"%(self.vStrand, self.vBaseL, self.vBaseR)
+        return "SkipStrand(%s, %s, %s)"%(self.vStrand(), self.vBaseL, self.vBaseR)
     def numBases(self): return 0
