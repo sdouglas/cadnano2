@@ -47,8 +47,8 @@ class HalfCylinderHelixNode(OpenMayaMPx.MPxNode):
     end3DPosAttr = OpenMaya.MObject()
     parityAttr = OpenMaya.MObject()
     rotationOffsetAttr = OpenMaya.MObject()
-
     radiusAttr = OpenMaya.MObject()
+    strandTypeAttr = OpenMaya.MObject()        
     rotationAttr = OpenMaya.MObject()
     riseAttr = OpenMaya.MObject()
     edgesPerBaseAttr = OpenMaya.MObject()
@@ -77,13 +77,15 @@ class HalfCylinderHelixNode(OpenMayaMPx.MPxNode):
             parity = parityData.asInt()
             rotationOffsetData = data.inputValue(HalfCylinderHelixNode.rotationOffsetAttr)
             rotationOffset = rotationOffsetData.asDouble()
-
+            strandTypeData = data.inputValue(HalfCylinderHelixNode.strandTypeAttr)
+            
             self.createMesh(startVal, endVal , totalNumBases, \
                             radiusData.asDouble(), rotationData.asDouble(), \
                             rotationOffset,
                             spacingData.asDouble(), \
                             edgesPerBaseData.asInt(), \
                             parity, \
+                            strandTypeData.asInt(), \
                             outMeshDataObj)
 
             startPosHandle = data.outputValue(HalfCylinderHelixNode.start3DPosAttr)
@@ -98,8 +100,7 @@ class HalfCylinderHelixNode(OpenMayaMPx.MPxNode):
         except:
             print "Error in %s\n" % nodeName
             raise
-
-    def createMesh(self, startVal, endVal, totalNumBases, radius, rotationAttr, rotationOffset, riseAttr, edgesPerBase, parity, outData):
+    def createMesh(self, startVal, endVal, totalNumBases, radius, rotationAttr, rotationOffset, riseAttr, edgesPerBase, parity, strandType, outData):
         # XXX [SB] start and end are inverted right now...
         middleBase = totalNumBases/2
         #print "startV endV %d %d %d" % (startVal, endVal, middleBase)
@@ -120,7 +121,8 @@ class HalfCylinderHelixNode(OpenMayaMPx.MPxNode):
 
         vtx = []
         rotation = 0
-        starting_rotation = endVal * rotationAttr + (math.pi*parity) + rotationOffset #math.pi/6
+        starting_rotation = endVal * rotationAttr + (math.pi*parity) + rotationOffset + (math.pi*strandType)
+
         # Create Endpice verts       
         vtx.append( OpenMaya.MFloatPoint(0.0, start_pos, 0.0) )
         self.end3DPos = OpenMaya.MFloatPoint(0.0, start_pos, 0.0)
@@ -283,6 +285,13 @@ def nodeInitialize():
                                             0)
     nAttr.setStorable(True)
 
+    HalfCylinderHelixNode.strandTypeAttr = nAttr.create('strandType',
+                                            'st',
+                                            OpenMaya.MFnNumericData.kInt,
+                                            0)
+    nAttr.setStorable(True)
+    
+
     HalfCylinderHelixNode.start3DPosAttr = nAttr.create('startPos',
                                             'sp',
                                             OpenMaya.MFnNumericData.k3Float,
@@ -322,7 +331,7 @@ def nodeInitialize():
     HalfCylinderHelixNode.addAttribute(HalfCylinderHelixNode.end3DPosAttr)
     HalfCylinderHelixNode.addAttribute(HalfCylinderHelixNode.radiusAttr)
     HalfCylinderHelixNode.addAttribute(HalfCylinderHelixNode.parityAttr)
-    
+    HalfCylinderHelixNode.addAttribute(HalfCylinderHelixNode.strandTypeAttr)       
 
     HalfCylinderHelixNode.attributeAffects(HalfCylinderHelixNode.endBaseAttr, HalfCylinderHelixNode.outputMesh)
     HalfCylinderHelixNode.attributeAffects(HalfCylinderHelixNode.startBaseAttr, HalfCylinderHelixNode.outputMesh)
