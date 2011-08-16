@@ -129,9 +129,8 @@ class SolidHelixGroup(QObject):
                     cmds.setAttr("%s.parity"%cylinderName, parity)
                 else:
                     cmds.setAttr("%s.rotation" % cylinderName, 33.75)
-                    cmds.setAttr("%s.rotationOffset" % cylinderName, 120)
-                    # is the parity reverse for squere grid?
-                    cmds.setAttr("%s.parity"%cylinderName, parity==0)
+                    cmds.setAttr("%s.rotationOffset" % cylinderName, 170)
+                    cmds.setAttr("%s.parity"%cylinderName, parity)
                 
                 #cmds.setAttr("%s.scaleFront"%metaName, right*helixScale)
                 #cmds.setAttr("%s.scaleBack"%metaName, left*helixScale)
@@ -162,11 +161,15 @@ class SolidHelixGroup(QObject):
         #     cmds.delete(t)
         for itemIndices in self.solidHelicesIndices.values():
             for i in itemIndices:
-                toonName = "DNAToon%d" % i
-                shaderName = "DNAStrandShader%d" % i
+                toonName = "pfxToon%d" % i
+                toonName2 = "DNAToon%d" % i
                 transformName = "DNAShapeTransform%d" % i
+                shaderName = "DNAStrandShader%d" % i
                 items = cmds.ls(toonName, transformName, shaderName)
-                if len(items) > 0:                
+                for i in items:
+                    cmds.delete(i)
+                items2 = cmds.ls(toonName2, et="transform")
+                for i in items2:
                     cmds.delete(items)
         
         self.solidHelicesIndices = {}
@@ -176,14 +179,18 @@ class SolidHelixGroup(QObject):
         # deleteHelix
         myKey = '%d_%d'%(row, col)        
         itemIndices = self.solidHelicesIndices[myKey]            
-
+        
         for i in itemIndices:
-            toonName = "DNAToon%d" % i
+            toonName = "pfxToon%d" % i
+            toonName2 = "DNAToon%d" % i
             transformName = "DNAShapeTransform%d" % i
             shaderName = "DNAStrandShader%d" % i
             items = cmds.ls(toonName, transformName, shaderName)
-            if len(items) > 0:
-                cmds.delete(items)            
+            for i in items:
+                cmds.delete(i)
+            items2 = cmds.ls(toonName2, et="transform")
+            for i in items2:
+                cmds.delete(i)
             
     def createNewHelix(self, row, col, count=1):
         # New Helix Added
