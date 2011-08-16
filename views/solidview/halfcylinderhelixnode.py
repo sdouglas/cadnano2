@@ -48,7 +48,7 @@ class HalfCylinderHelixNode(OpenMayaMPx.MPxNode):
     parityAttr = OpenMaya.MObject()
     rotationOffsetAttr = OpenMaya.MObject()
     radiusAttr = OpenMaya.MObject()
-    strandTypeAttr = OpenMaya.MObject()        
+    strandTypeAttr = OpenMaya.MObject()
     rotationAttr = OpenMaya.MObject()
     riseAttr = OpenMaya.MObject()
     edgesPerBaseAttr = OpenMaya.MObject()
@@ -100,6 +100,7 @@ class HalfCylinderHelixNode(OpenMayaMPx.MPxNode):
         except:
             print "Error in %s\n" % nodeName
             raise
+
     def createMesh(self, startVal, endVal, totalNumBases, radius, rotationAttr, rotationOffset, riseAttr, edgesPerBase, parity, strandType, outData):
         # XXX [SB] start and end are inverted right now...
         middleBase = totalNumBases/2

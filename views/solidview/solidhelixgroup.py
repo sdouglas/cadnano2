@@ -63,17 +63,17 @@ class SolidHelixGroup(QObject):
         pluginPath = os.path.join(os.environ['CADNANO_PATH'],  "views", "solidview", "halfcylinderhelixnode.py") 
         #pluginPath = os.path.join(os.environ['CADNANO_PATH'],  "views", "solidview","helixmetanode.py")
 
-        if(not cmds.pluginInfo(pluginPath, query=True, loaded=True)):
+        if (not cmds.pluginInfo(pluginPath, query=True, loaded=True)):
             cmds.loadPlugin(pluginPath)
 
-        if(not cmds.pluginInfo(pluginPath, query=True, loaded=True)):
+        if (not cmds.pluginInfo(pluginPath, query=True, loaded=True)):
             print "HalfCylinderHelixNode failed to load"
             return
 
         print "maya SolidHelixGroup created"
         self.type = htype
-        #self.mayaScale = 1.0
-        #later updates using basecount from the VH
+        # self.mayaScale = 1.0
+        # later updates using basecount from the VH
         # XXX [SB] - need to ask CandNano for rows and cols...
         self.mayaOrigin = (-15*2.25, 16*2.25, 0.0)  # top left cornder of maya 3d scene X Y Z 
         self.helixRadius = 1.125  # diamiter is 2.25nm
@@ -93,32 +93,32 @@ class SolidHelixGroup(QObject):
         
     #def onVirtualHelixAtCoordsChanged(self, x, y):
         #self.onPersistentDataChanged()
-        
+
     def updateStrands(self, strandType):
          for vh in self._part.getVirtualHelices():
             myKey = '%d_%d_%d' % (vh.coord()[0], vh.coord()[1], strandType)
-            
+
             if myKey not in self.solidHelicesIndices.keys():
                 if strandType == StrandType.Scaffold:
                     self.createNewHelix(vh.coord()[0], vh.coord()[1], strandType, 1)
                 else:
                     self.createNewHelix(vh.coord()[0], vh.coord()[1], strandType, 0)
-            itemIndices = self.solidHelicesIndices[myKey]        
+            itemIndices = self.solidHelicesIndices[myKey]
             endpoints = vh.getSegmentsAndEndpoints(strandType)
             #print strandType
             #print endpoints
             segmentsCount = len(endpoints[0])
             #print "%s segmentsCount %d " % (myKey, segmentsCount)
-            
+
             if (len(itemIndices) != segmentsCount):
                 # Delete current itemIndices
                 #print "Need to delete a strands"
                 self.deleteHelix(vh.coord()[0], vh.coord()[1], strandType)
                 # create new indeces
                 self.createNewHelix( vh.coord()[0], vh.coord()[1], strandType, segmentsCount)
-            
+
             if(segmentsCount < 1):
-                return     
+                return
             itemIndices = self.solidHelicesIndices[myKey] 
             parity = self._part.virtualHelixParityEven(vh)
             for seg in range(segmentsCount):
@@ -132,21 +132,23 @@ class SolidHelixGroup(QObject):
                     cmds.setAttr("%s.rotation" % cylinderName, 34.286)
                     cmds.setAttr("%s.rotationOffset" % cylinderName, 30)
                     cmds.setAttr("%s.parity"%cylinderName, parity)
-                else:
+                elif self.type == LatticeType.Square:
                     cmds.setAttr("%s.rotation" % cylinderName, 33.75)
-                    cmds.setAttr("%s.rotationOffset" % cylinderName, 170)
-                    cmds.setAttr("%s.parity"%cylinderName, parity)                    
+                    cmds.setAttr("%s.rotationOffset" % cylinderName, 60)
+                    cmds.setAttr("%s.parity"%cylinderName, parity)
+                else:
+                    raise NotImplementedError
                 cmds.setAttr("%s.strandType"%cylinderName, strandType)
                 
                 shaderName = "DNAStrandShader%d" % itemIndices[seg]
-                color = vh.colorOfBase(strandType, endpoints[1][seg])                
+                color = vh.colorOfBase(strandType, endpoints[1][seg])
                 cmds.setAttr("%s.color" % shaderName, color.redF(),color.greenF(),color.blueF(), type="double3")
     
     def onPersistentDataChanged(self):
         # Update in the Model
         #print "SolidHelixGroup.onPersistentDataChanged:"
         #print self._part.getVirtualHelixCount()
-        # XXX [SB] - hacky, need to do something better then just delete everything each update        
+        # XXX [SB] - hacky, need to do something better then just delete everything each update
         #self.deleteAllMayaNodes()
         self.updateStrands(StrandType.Scaffold)
         self.updateStrands(StrandType.Staple)
@@ -157,9 +159,9 @@ class SolidHelixGroup(QObject):
             #print "LatticeType.Honeycomb"
             x = self.mayaOrigin[0] + (col * math.sqrt(3) * self.helixRadius)
             if ((row % 2) ^ (col % 2)): # odd parity
-                y = self.mayaOrigin[1] - (row * self.helixRadius * 3.0 + self.helixRadius )    
+                y = self.mayaOrigin[1] - (row * self.helixRadius * 3.0 + self.helixRadius)
             else:
-                y = self.mayaOrigin[1] - (row * self.helixRadius * 3.0 )    
+                y = self.mayaOrigin[1] - (row * self.helixRadius * 3.0 )
         # end if
         elif self.type == LatticeType.Square:
             #print "LatticeType.Square"
