@@ -54,6 +54,7 @@ class SelectTool(AbstractPathTool):
         self._mouseDownPH = None
         self._lastValidBase = None
         self._isPressed = False
+        self.normalStrandToInsert = None
 
     NoOperation = 0
     ConnectStrand = 1
@@ -168,6 +169,8 @@ class SelectTool(AbstractPathTool):
 
 
     def finalizeMouseDrag(self):
+        if self.normalStrandToInsert == None:
+            return
         if self._mouseDownBase == None:
             return
         vh = self._mouseDownPH.vhelix()
