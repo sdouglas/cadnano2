@@ -204,10 +204,10 @@ def restoreMayaUI():
 
 def closeCN():
     global gCadNanoApp
-    if gCadNanoApp.activeDocument:
-        gCadNanoApp.activeDocument.win.setVisible(False)
-        gCadNanoApp.activeDocument.windock.setVisible(False)
     if gCadNanoApp:
+        if gCadNanoApp.activeDocument:
+            gCadNanoApp.activeDocument.win.setVisible(False)
+            gCadNanoApp.activeDocument.windock.setVisible(False)
         for x in gCadNanoApp.documentControllers:
             if x.win:
                 x.win.setVisible(False)
