@@ -163,6 +163,13 @@ class DNAPart(Part):
         self._oligos.remove(oligo)
         self.didRemoveOligoFromPart(oligo)
 
+    def addVfbStrands(self, vstrandList):
+        """
+        TODO
+        """
+        pass
+    # end def
+
     ########################## Static API ##########################
 
     def strandDrawn5To3(self, vhCoords, strand):

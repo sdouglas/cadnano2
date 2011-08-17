@@ -32,6 +32,7 @@ import util, os, model.strand
 from cadnano import ignoreEnv
 from model.enum import StrandType
 from model.normalstrand import NormalStrand
+from model.vbase import VBase
 
 # import Qt stuff into the module namespace with PySide, PyQt4 independence
 util.qtWrapImport('QtCore', globals(), ['Qt', 'QPointF'])
@@ -54,6 +55,7 @@ class SelectTool(AbstractPathTool):
         self._mouseDownPH = None
         self._lastValidBase = None
         self._isPressed = False
+        self.normalStrandToInsert = None
 
     NoOperation = 0
     ConnectStrand = 1
@@ -168,6 +170,8 @@ class SelectTool(AbstractPathTool):
 
 
     def finalizeMouseDrag(self):
+        if self.normalStrandToInsert == None:
+            return
         if self._mouseDownBase == None:
             return
         vh = self._mouseDownPH.vhelix()
