@@ -61,7 +61,6 @@ class SolidHelixGroup(QObject):
         super(SolidHelixGroup, self).__init__()
         self.setPart(dnaPartInst)
         pluginPath = os.path.join(os.environ['CADNANO_PATH'],  "views", "solidview", "halfcylinderhelixnode.py") 
-        #pluginPath = os.path.join(os.environ['CADNANO_PATH'],  "views", "solidview","helixmetanode.py")
 
         if (not cmds.pluginInfo(pluginPath, query=True, loaded=True)):
             cmds.loadPlugin(pluginPath)
@@ -96,8 +95,9 @@ class SolidHelixGroup(QObject):
 
     def updateStrands(self, strandType):
          for vh in self._part.getVirtualHelices():
-            myKey = '%d_%d_%d' % (vh.coord()[0], vh.coord()[1], strandType)
 
+            myKey = '%d_%d_%d' % (vh.coord()[0], vh.coord()[1], strandType)
+            
             if myKey not in self.solidHelicesIndices.keys():
                 if strandType == StrandType.Scaffold:
                     self.createNewHelix(vh.coord()[0], vh.coord()[1], strandType, 1)
@@ -105,10 +105,8 @@ class SolidHelixGroup(QObject):
                     self.createNewHelix(vh.coord()[0], vh.coord()[1], strandType, 0)
             itemIndices = self.solidHelicesIndices[myKey]
             endpoints = vh.getSegmentsAndEndpoints(strandType)
-            #print strandType
-            #print endpoints
             segmentsCount = len(endpoints[0])
-            #print "%s segmentsCount %d " % (myKey, segmentsCount)
+           
 
             if (len(itemIndices) != segmentsCount):
                 # Delete current itemIndices
@@ -116,9 +114,9 @@ class SolidHelixGroup(QObject):
                 self.deleteHelix(vh.coord()[0], vh.coord()[1], strandType)
                 # create new indeces
                 self.createNewHelix( vh.coord()[0], vh.coord()[1], strandType, segmentsCount)
-
+            
             if(segmentsCount < 1):
-                return
+                continue
             itemIndices = self.solidHelicesIndices[myKey] 
             parity = self._part.virtualHelixParityEven(vh)
             for seg in range(segmentsCount):
@@ -146,10 +144,6 @@ class SolidHelixGroup(QObject):
     
     def onPersistentDataChanged(self):
         # Update in the Model
-        #print "SolidHelixGroup.onPersistentDataChanged:"
-        #print self._part.getVirtualHelixCount()
-        # XXX [SB] - hacky, need to do something better then just delete everything each update
-        #self.deleteAllMayaNodes()
         self.updateStrands(StrandType.Scaffold)
         self.updateStrands(StrandType.Staple)
      
@@ -200,7 +194,7 @@ class SolidHelixGroup(QObject):
             items2 = cmds.ls(toonName2, et="transform")
             for i in items2:
                 cmds.delete(i)
-        self.solidHelicesIndices[myKey] = {}
+        self.solidHelicesIndices[myKey] = []
         
     def createNewHelix(self, row, col, strandType, count=1):
         # New Helix Added
