@@ -168,6 +168,14 @@ class DNAPart(Part):
         self.willRemoveOligoFromPart(oligo)
         self._oligos.remove(oligo)
         self.didRemoveOligoFromPart(oligo)
+        
+    def addVfbStrands(self, vstrandList):
+        """
+        TODO
+        takes a list of vstrands
+        """
+        pass
+    # end def
 
     ########################## Static API ##########################
 
