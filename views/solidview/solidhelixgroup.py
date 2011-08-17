@@ -106,7 +106,7 @@ class SolidHelixGroup(QObject):
             itemIndices = self.solidHelicesIndices[myKey]
             endpoints = vh.getSegmentsAndEndpoints(strandType)
             segmentsCount = len(endpoints[0])
-
+            #print "%s %d %s" % (myKey, segmentsCount, endpoints)
             if (len(itemIndices) != segmentsCount):
                 # Delete current itemIndices
                 #print "Need to delete a strands"
@@ -140,7 +140,7 @@ class SolidHelixGroup(QObject):
                     raise NotImplementedError
                 cmds.setAttr("%s.strandType" % cylinderName, strandType)
                 shaderName = "DNAStrandShader%d" % itemIndices[seg]
-                color = vh.colorOfBase(strandType, endpoints[1][seg])
+                color = vh.colorOfBase(strandType, int(endpoints[0][seg][0]))
                 cmds.setAttr("%s.color" % shaderName,
                              color.redF(), color.greenF(), color.blueF(),
                              type="double3")
