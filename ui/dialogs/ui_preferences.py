@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'dialogs/preferences.ui'
 #
-# Created: Mon Aug 15 14:17:41 2011
+# Created: Wed Aug 17 16:42:00 2011
 #      by: PyQt4 UI code generator 4.8.4
 #
 # WARNING! All changes made in this file will be lost!
@@ -77,7 +77,7 @@ class Ui_Preferences(object):
         self.formLayout_3.setLayout(0, QtGui.QFormLayout.FieldRole, self.honeycombGLayout)
         self.verticalLayout_3.addLayout(self.formLayout_3)
         icon = QtGui.QIcon()
-        icon.addPixmap(QtGui.QPixmap(_fromUtf8(":/part/honeycomb")), QtGui.QIcon.Normal, QtGui.QIcon.Off)
+        icon.addPixmap(QtGui.QPixmap(_fromUtf8(":/part/dlg_honeycomb")), QtGui.QIcon.Normal, QtGui.QIcon.Off)
         self.tabWidget.addTab(self.tab_honeycomb, icon, _fromUtf8(""))
         self.tab_square = QtGui.QWidget()
         self.tab_square.setObjectName(_fromUtf8("tab_square"))
@@ -122,7 +122,7 @@ class Ui_Preferences(object):
         self.formLayout_2.setLayout(0, QtGui.QFormLayout.FieldRole, self.squareGLayout)
         self.verticalLayout_2.addLayout(self.formLayout_2)
         icon1 = QtGui.QIcon()
-        icon1.addPixmap(QtGui.QPixmap(_fromUtf8(":/part/square")), QtGui.QIcon.Normal, QtGui.QIcon.Off)
+        icon1.addPixmap(QtGui.QPixmap(_fromUtf8(":/part/dlg_square")), QtGui.QIcon.Normal, QtGui.QIcon.Off)
         self.tabWidget.addTab(self.tab_square, icon1, _fromUtf8(""))
         self.verticalLayout.addWidget(self.tabWidget)
         self.formLayout = QtGui.QFormLayout()
@@ -135,16 +135,16 @@ class Ui_Preferences(object):
         self.defaulttoolComboBox.setLayoutDirection(QtCore.Qt.LeftToRight)
         self.defaulttoolComboBox.setObjectName(_fromUtf8("defaulttoolComboBox"))
         icon2 = QtGui.QIcon()
-        icon2.addPixmap(QtGui.QPixmap(_fromUtf8(":/pathtools/select")), QtGui.QIcon.Normal, QtGui.QIcon.Off)
+        icon2.addPixmap(QtGui.QPixmap(_fromUtf8(":/pathtools/dlg_select")), QtGui.QIcon.Normal, QtGui.QIcon.Off)
         self.defaulttoolComboBox.addItem(icon2, _fromUtf8(""))
         icon3 = QtGui.QIcon()
-        icon3.addPixmap(QtGui.QPixmap(_fromUtf8(":/pathtools/pencil")), QtGui.QIcon.Normal, QtGui.QIcon.Off)
+        icon3.addPixmap(QtGui.QPixmap(_fromUtf8(":/pathtools/dlg_pencil")), QtGui.QIcon.Normal, QtGui.QIcon.Off)
         self.defaulttoolComboBox.addItem(icon3, _fromUtf8(""))
         icon4 = QtGui.QIcon()
-        icon4.addPixmap(QtGui.QPixmap(_fromUtf8(":/pathtools/paint")), QtGui.QIcon.Normal, QtGui.QIcon.Off)
+        icon4.addPixmap(QtGui.QPixmap(_fromUtf8(":/pathtools/dlg_paint")), QtGui.QIcon.Normal, QtGui.QIcon.Off)
         self.defaulttoolComboBox.addItem(icon4, _fromUtf8(""))
         icon5 = QtGui.QIcon()
-        icon5.addPixmap(QtGui.QPixmap(_fromUtf8(":/pathtools/addseq")), QtGui.QIcon.Normal, QtGui.QIcon.Off)
+        icon5.addPixmap(QtGui.QPixmap(_fromUtf8(":/pathtools/dlg_addseq")), QtGui.QIcon.Normal, QtGui.QIcon.Off)
         self.defaulttoolComboBox.addItem(icon5, _fromUtf8(""))
         self.formLayout.setWidget(0, QtGui.QFormLayout.FieldRole, self.defaulttoolComboBox)
         self.zoomSpeedLabel = QtGui.QLabel(Preferences)

@@ -189,7 +189,7 @@ class DocumentController():
         """Organizational method to collect signal/slot connectors."""
         self.win.actionNewHoneycombPart.triggered.connect(self.hcombClicked)
         self.win.actionNewSquarePart.triggered.connect(self.squareClicked)
-        self.win.actionNew.triggered.connect(app().newDocument)
+        self.win.actionNew.triggered.connect(self.newClicked)
         self.win.actionOpen.triggered.connect(self.openClicked)
         self.win.actionClose.triggered.connect(self.closeClicked)
         self.win.actionSave.triggered.connect(self.saveClicked)
@@ -215,16 +215,21 @@ class DocumentController():
         self.win.setWindowTitle(self.documentTitle())
 
     def newClicked(self):
-        """Create a new document window"""
+        """
+        1. If document is blank and not dirty, do nothing and return.
+        2. If document is dirty, call maybesave and continue if it succeeds.
+        3. Create a new document and swap it into the existing window.
+        """
         # Will create a new Document object and will be
         # be kept alive by the app's document list
-        DocumentController()
+        app().newDocument()
 
     def openClicked(self):
-        """docstring for openClicked"""
-        # self.filesavedialog = None
-        # self.openFile('/Users/nick/Downloads/nanorobot.v2.json')
-        # return
+        """
+        1. If document is untouched, continue.
+        2. If document is dirty, call maybesave and continue if it succeeds.
+        2. Decode a document and swap it into the existing window.
+        """
         if util.isWindows():  # required for native looking file window
             fname = QFileDialog.getOpenFileName(
                         None,

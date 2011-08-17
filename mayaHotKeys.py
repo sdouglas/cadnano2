@@ -60,7 +60,6 @@ class HotKey():
         self.ctl = ctl
         self.cmd = cmd
 
-
 def saveHotKey(key):
     global disabledHotKeys
     for alt in range(0, 2):
@@ -80,9 +79,7 @@ def saveHotKey(key):
                     disabledHotKeys.append(
                                 HotKey(key, name, rname, alt, ctl, cmd))
 
-
 def disableHotKey(key):
-    print "disableHotKey %s" % key
     saveHotKey(key)
     for alt in range(0, 2):
         for ctl in range(0, 2):
@@ -99,14 +96,13 @@ def disableHotKey(key):
                     pass
                     # print "not disabling %s" % name
 
-
 def disableAllHotKeys():
     """
     This method loops through all the hotkeys we want to disable and calls
     disableHotKey on each of them.
-    
+
     First we build up our own char list...
-    Why not use string.printable? Because it includes unwanted whitespace. 
+    Why not use string.printable? Because it includes unwanted whitespace.
     Why not just use string.letters + string.digits + string.punctuation?
     Because Python in Maya barfs with the following in the lowercase portion
     of string.letters: TypeError: bad argument type for built-in operation.
@@ -118,14 +114,15 @@ def disableAllHotKeys():
     for c in chars:
         disableHotKey(c)
 
+    # Function keys F1 through F13
+    for key in range(1, 13):
+        disableHotKey("F" + str(key))
+
+    # Other named keys
     otherHotKeys = ["Up", "Down", "Right", "Left", "Home", "End",
                     "Page_Up", "Page_Down", "Insert", "Return", "Space"]
     for key in otherHotKeys:
         disableHotKey(key)
-
-    for key in range(1, 13):
-        disableHotKey("F" + str(key))
-
 
 def restoreAllHotKeys():
     global disabledHotKeys
