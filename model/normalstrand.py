@@ -35,7 +35,7 @@ class NormalStrand(Strand):
     coords along the same VStrand. Occupies bases at indices in
     range(normalStrand.vBaseL, normalStrand.vBaseR + 1)
     """
-    logger = None
+    logger = None  # Use sys.stdout to log a trace to stdout
     def __init__(self, vBaseL, vBaseR):
         Strand.__init__(self)
         self.vBaseL = vBaseL

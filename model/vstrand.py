@@ -153,7 +153,7 @@ class VStrand(QObject, RangeSet):
         return rangeItemA.mergeWith(rangeItemB, undoStack)
 
     def changeRangeForItem(self, rangeItem, newStartIdx, newAfterLastIdx, undoStack):
-        return rangeItem.changeRange(newStartIdx, newAfterLastIdx, undoStack)
+        return rangeItem.changeRange(newStartIdx, newAfterLastIdx - 1, undoStack)
 
     def splitRangeItem(self, rangeItem, splitStart, splitAfterLast, keepLeft, undoStack):
         return rangeItem.split(splitStart,\
