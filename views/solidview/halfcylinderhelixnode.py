@@ -136,7 +136,7 @@ class HalfCylinderHelixNode(OpenMayaMPx.MPxNode):
         vtx = []
         rotation = 0
         starting_rotation = endVal * rotationAttr + \
-                            (math.pi * parity) + rotationOffset + \
+                            (math.pi * (not parity)) + rotationOffset + \
                             (math.pi * strandType)
 
         # Create Endpice verts
@@ -294,7 +294,7 @@ def nodeInitialize():
     HalfCylinderHelixNode.edgesPerBaseAttr = nAttr.create('edgesPerBase',
                                     'spb',
                                     OpenMaya.MFnNumericData.kInt,
-                                    3)
+                                    2)
     nAttr.setMin(1)
     nAttr.setMax(20)
     nAttr.setStorable(True)

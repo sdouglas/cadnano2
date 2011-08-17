@@ -36,8 +36,11 @@ commandWhiteList = [
                 "NameComUndo",
                 "NameComRedo",
                 "FrameSelected",
+                "FrameSelectedInAllViews",
                 "IncreaseManipulatorSize",
-                "DecreaseManipulatorSize"]
+                "DecreaseManipulatorSize",
+                "DisplayWireframe",
+                "DisplayShaded"]
 disabledHotKeys = []
 
 
@@ -69,7 +72,7 @@ def saveHotKey(key):
                 rname = cmds.hotkey(
                                 key, q=True, rn=True,
                                 alt=alt, ctl=ctl, cmd=cmd)
-                if(name != None or rname != None):
+                if (name != None or rname != None):
                     if name == None:
                         name = ""
                     if rname == None:
@@ -90,10 +93,11 @@ def disableHotKey(key):
                 rname = cmds.hotkey(
                                 key, q=True, rn=True,
                                 alt=alt, ctl=ctl, cmd=cmd)
-                if(commandWhiteList.count(name) == 0):
-                    cmds.hotkey(
-                            k=key, n="", rn="",
-                            alt=alt, ctl=ctl, cmd=cmd)
+                if not name in commandWhiteList:
+                    cmds.hotkey(k=key, n="", rn="", alt=alt, ctl=ctl, cmd=cmd)
+                else:
+                    pass
+                    # print "not disabling %s" % name
 
 
 def disableAllHotKeys():
@@ -110,8 +114,7 @@ def disableAllHotKeys():
     letters = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ'
     digits = '0123456789'
     punctuation = """!"#$%&'()*+,-./:;<=>?@[\]^_`{|}~"""
-    space = ' '  # doesn't work?
-    chars = digits + punctuation + letters + space
+    chars = digits + punctuation + letters
     for c in chars:
         disableHotKey(c)
 

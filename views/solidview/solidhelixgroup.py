@@ -118,7 +118,7 @@ class SolidHelixGroup(QObject):
             if(segmentsCount < 1):
                 continue
             itemIndices = self.solidHelicesIndices[myKey]
-            parity = self._part.virtualHelixParityEven(vh)
+            parity = not self._part.virtualHelixParityEven(vh) # 0 -> even
             for seg in range(segmentsCount):
                 cylinderName = "HalfCylinderHelixNode%d" % itemIndices[seg]
                 #transformName = "DNAShapeTranform%d" % itemIndex
