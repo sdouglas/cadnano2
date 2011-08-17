@@ -49,6 +49,13 @@ class NormalStrand(Strand):
         self._hasPreviewConnectionL = False
         self._hasPreviewConnectionR = False
 
+    def commit(self):
+        """
+        TODO
+        """
+        pass
+    # end def
+
     def assertConsistent(self):
         assert( self.vBaseL <= self.vBaseR )
         Strand.assertConsistent(self)
