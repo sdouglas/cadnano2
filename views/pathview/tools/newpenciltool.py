@@ -65,6 +65,7 @@ class NewPencilTool(AbstractPathTool):
         if self.currentOperation == None:
             return
         dest = pathHelix.vBaseAtPoint(event.pos())
+        dest.vStrand = self.currentOperation.startVBase.vStrand
         self.currentOperation.updateOperationWithDestination(dest)
 
     def mouseReleasePathHelix(self, pathHelix, event):

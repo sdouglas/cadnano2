@@ -24,6 +24,7 @@
 
 import util, sys
 from strand import Strand
+from model.vbase import VBase
 util.qtWrapImport('QtCore', globals(), ['QObject', 'pyqtSignal'] )
 util.qtWrapImport('QtGui', globals(), ['QUndoCommand'] )
 nextStrandDebugIdentifier = 0
@@ -42,8 +43,8 @@ class NormalStrand(Strand):
         self.vBaseR = vBaseR
         # self.vBase3 acts like self.vBaseR if self.vStrand().drawn5To3() else vBaseL
         # self.vBase5 acts like self.vBaseL if self.vStrand().drawn5To3() else vBaseR
-        if logger != None:
-            logger.write("%i.init %s\n"%(self.traceID, repr(self)))
+        if self.logger != None:
+            self.logger.write("%i.init %s\n"%(self.traceID, repr(self)))
         self.assertConsistent()
         self._hasPreviewConnectionL = False
         self._hasPreviewConnectionR = False
@@ -67,6 +68,12 @@ class NormalStrand(Strand):
 
     def vStrand(self):
         return self.vBaseL.vStrand
+
+    def apparentlyConnectedL(self):
+        return self._hasPreviewConnectionL or self.connL() != None
+
+    def apparentlyConnectedR(self):
+        return self._hasPreviewConnectionR or self.connR() != None
 
     def defaultUndoStack(self):
         return self.vBaseL.part().undoStack()
@@ -101,8 +108,8 @@ class NormalStrand(Strand):
             self.otherStrand = otherStrand
         def redo(self):
             strand, otherStrand = self.strand, self.otherStrand
-            if logger != None:
-                logger.write("+%i.mergeWith(%i) %s %s"%(strand.traceID,
+            if strand.logger != None:
+                strand.logger.write("+%i.mergeWith(%i) %s %s"%(strand.traceID,\
                                                         strand, otherStrand))
             sL, sR = strand.vBaseL, strand.vBaseR
             oL, oR = otherStrand.vBaseL, otherStrand.vBaseR
@@ -111,9 +118,9 @@ class NormalStrand(Strand):
             self.strand.didMove.emit(self.strand)
         def undo(self):
             strand, otherStrand = self.strand, self.otherStrand
-            if logger != None:
-                logger.write("-%i.mergeWith(%i) %s %s"%(strand.traceID,
-                                                        strand, otherStrand))
+            if strand.logger != None:
+                strand.logger.write("-%i.mergeWith(%i) %s %s"%(strand.traceID,\
+                                                          strand, otherStrand))
             strand.vBaseL = self.sL
             strand.vBaseR = self.sR
             otherStrand.vBaseL = self.oL
@@ -121,6 +128,10 @@ class NormalStrand(Strand):
             self.strand.didMove.emit(self.strand)
 
     def changeRange(self, newL, newR, undoStack):
+        if type(newL) in (int, long):
+            newL = self.vBaseL.sameStrand(newL)
+        if type(newR) in (int, long):
+            newR = self.vBaseR.sameStrand(newR)
         com = self.ChangeRangeCommand(self, newL, newR)
         if undoStack != None:
             undoStack.push(com)
@@ -136,25 +147,25 @@ class NormalStrand(Strand):
             self.oldL, self.oldR = strand.vBaseL, strand.vBaseR
         def redo(self):
             strand, newL, newR = self.strand, self.newL, self.newR
-            if logger != None:
-                logger.write("+%i.changeRange(%s, %s) %s\n"%(strand.traceID,\
-                                                      newL, newR, repr(strand)))
+            if strand.logger != None:
+                strand.logger.write("+%i.changeRange(%s, %s) %s\n"%(\
+                                 strand.traceID, newL, newR, repr(strand)))
             strand.vBaseL = newL
             strand.vBaseR = newR
             self.strand.didMove.emit(self.strand)
         def undo(self):
             strand, oldL, oldR = self.strand, self.oldL, self.oldR
-            if logger != None:
-                logger.write("-%i.changeRange(%s, %s) %s\n"%(strand.traceID,\
-                                                      oldL, oldR, repr(strand)))
+            if strand.logger != None:
+                strand.logger.write("-%i.changeRange(%s, %s) %s\n"%(\
+                                    strand.traceID, oldL, oldR, repr(strand)))
             strand.vBaseL = self.oldL
             strand.vBaseR = self.oldR
             self.strand.didMove.emit(self.strand)
 
     def split(self, splitStart, splitAfterLast, keepLeft, undoStack):
         # keepLeft was preserveLeftOligoDuringSplit
-        if logger != None:
-            logger.write(" %i.split(%i, %i, %s) %s"%(self.traceID,\
+        if self.logger != None:
+            self.logger.write(" %i.split(%i, %i, %s) %s"%(self.traceID,\
                             splitStart, splitAfterLast, keepLeft, repr(strand)))
         vBaseL, vBaseR, vStrand = self.vBaseL, self.vBaseR, self.vStrand()
         assert(splitStart <= splitAfterLast)
@@ -176,16 +187,15 @@ class NormalStrand(Strand):
         for strand in ret: strand.assertConsistent()
         return ret
 
-    def exposedEndsAt(self, vStrand, vIdx):
+    def exposedEndsAt(self, vBase):
         """
         Returns 'L' or 'R' if a segment exists at vStrand, idx and it
         exposes an unbound endpoint on its 3' or 5' end. Otherwise returns None.http://store.apple.com/us/browse/campaigns/back_to_school?aid=www-naus-bts2011-0526-16
         """
-        assert(vStrand == self.vStrand())
         ret = ''
-        drawn5To3 = vStrand.drawn5To3()
-        if vIdx == self.vBaseL:
+        drawn5To3 = vBase.vStrand.drawn5To3()
+        if vBase == self.vBaseL:
             ret += 'L5' if drawn5To3 else 'L3'
-        if vIdx == self.vBaseR:
+        if vBase == self.vBaseR:
             ret += 'R3' if drawn5To3 else 'R5'
         return ret

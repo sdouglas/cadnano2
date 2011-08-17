@@ -42,6 +42,7 @@ class PencilToolOperation(Operation):
     def updateOperationWithDestination(self, newDestVBase):
         """ Looks at self.startVBase and newDestVBase then calls the appropriate
         actionWhatever method on self. """
+        self.rewind()
         dragStartBase, dragEndBase = self.startVBase, newDestVBase
         dragStartExposedEnds = dragStartBase.exposedEnds()
         dragStartStrand = dragStartBase.strand()
@@ -89,7 +90,7 @@ class PencilToolOperation(Operation):
                                              dragStartStrand.vBaseR,\
                                              dragStartStrand.connR())
                 else:
-                    self.actionClearRange(dragStartBase.vIndex,
+                    self.actionClearRange(dragStartBase.vIndex,\
                                           dragEndBase.vIndex)
             elif dragStartBase == dragStartStrand.vBaseR:
                 if dragEndBase > dragStartStrand.vBaseL:
@@ -147,44 +148,27 @@ class PencilToolOperation(Operation):
         del self.startVBase
         del self.newStrandInVfbPool
 
-    def putNewStrandInVfbPoolIfNecessary(self):
-        if not self.newStrandInVfbPool:
-            self.startVBase.part().addVfbStrands([self.newStrand])
-            self.newStrandInVfbPool
-
-    def removeNewStrandFromVfbPoolIfNecessary(self):
-        if self.newStrandInVfbPool:
-            self.startVBase.part().removeVfbStrands([self.newStrand])
-            self.newStrandInVfbPool = False
-
     def actionNone(self):
-        self.rewind()
-        self.removeNewStrandFromVfbPoolIfNecessary()
+        pass
 
     def actionAddStrand(self, lConnection, startBase, endBase, rConnection):
-        self.rewind()
-        self.newStrand.changeRange(startBase, endBase, self.undoStack)
-        self.newStrand.setConnL(lConnection, useUndoStack=True, undoStack=self.undoStack)
-        self.newStrand.setConnR(rConnection, useUndoStack=True, undoStack=self.undoStack)
-        self.putNewStrandInVfbPoolIfNecessary()
+        newStrand = self.newStrand
+        newStrand.changeRange(startBase, endBase, self.undoStack)
+        newStrand.setConnL(lConnection, useUndoStack=True, undoStack=self.undoStack)
+        newStrand.setConnR(rConnection, useUndoStack=True, undoStack=self.undoStack)
+        startBase.vStrand.addStrand(newStrand, useUndoStack=True, undoStack=self.undoStack)
 
     def actionJustConnect(self, lStrand, rStrand):
         """ Just connect the right exposed end of lStrand to the left exposed
         end of rStrand """
-        self.rewind()
-        self.removeNewStrandFromVfbPoolIfNecessary()
         lStrand.setConnR(rStrand, useUndoStack=True, undoStack=self.undoStack)
 
     def actionResizeStrand(self, strand, newL, newR):
-        self.rewind()
-        self.removeNewStrandFromVfbPoolIfNecessary()
-        strand.changeRange(newL, newR, self.undoStack)
+        newL.vStrand.resizeRangeAtIdx(strand.vBaseL, newL, newR, useUndoStack=True, undoStack=self.undoStack)
 
-    def actionClearRange(self, firstIdx, afterLastIdx, keepLeft):
-        self.rewind()
-        self.removeNewStrandFromVfbPoolIfNecessary()
-        self.startVBase.vStrand.clearStrand(firstIdx,\
-                                            afterLastIdx,\
-                                            useUndoStack=True,\
-                                            undoStack=self.undoStack,\
-                                            keepLeft=keepLeft)
+    def actionClearRange(self, firstIdx, afterLastIdx, keepLeft=True):
+        self.startVBase.vStrand.clearRange(firstIdx,\
+                                           afterLastIdx,\
+                                           useUndoStack=True,\
+                                           undoStack=self.undoStack,\
+                                           keepLeft=keepLeft)

@@ -37,16 +37,16 @@ class LoopStrand(Strand):
     """
     def __init__(self, vBase, numberOfActualBases):
         NormalStrand.__init__(self)
-        self.vBase = vBase
+        self._vBase = vBase
         self.numBases = numberOfActualBases
     def assertConsistent(self):
         Strand.assertConsistent(self)
     def __repr__(self):
         return "LoopStrand(%s, %i)"%(self.vBase, self.numBases)
     def numBases(self): return self.numBases
-    def vBase(self):    return self.vBase
-    def vBaseL(self):   return self.vBase
-    def vBaseR(self):   return self.vBase + 1
+    def vBase(self):    return self._vBase
+    def vBaseL(self):   return self._vBase
+    def vBaseR(self):   return self._vBase + 1
 
     def setVBase(self, newVBase, undoStack):
         com = SetVBaseCommand(self, newVBase)
@@ -67,16 +67,15 @@ class LoopStrand(Strand):
     def vStrand(self):
         return self.vBase().vStrand
 
-    def exposedEndsAt(self, vStrand, vIdx):
+    def exposedEndsAt(self, vBase):
         """
         Returns a string containing some (possibly empty) combination of 'L',
         'R', '3', and '5' where each character is present if the corresponding
         end is exposed
         """
-        assert(vStrand == self.vStrand())
         drawn5To3 = vStrand.drawn5To3()
         ret = ''
-        if vIdx == self.vIdx:
+        if vBase == self.vBase():
             if self.connL == None: ret += 'L5' if drawn5To3 else 'L3'
             if self.connR == None: ret += 'R3' if drawn5To3 else 'R5'
         return ret

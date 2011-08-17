@@ -22,22 +22,25 @@
 #
 # http://www.opensource.org/licenses/mit-license.php
 
-util.qtWrapImport('QtGui', globals(), [ 'QBrush', 'QGraphicsItem', 'QPen'])
+import util
+util.qtWrapImport('QtGui', globals(), [ 'QBrush', 'QGraphicsLineItem', 'QPen',\
+                                        'QColor'])
 from views import styles
 
 class NormalStrandGraphicsItem(QGraphicsLineItem):
     def __init__(self, normalStrand, pathHelix):
+        QGraphicsLineItem.__init__(self, pathHelix)
         self.normalStrand = normalStrand
         self.pathHelix = pathHelix
         normalStrand.didMove.connect(self.update)
         normalStrand.apparentConnectivityChanged.connect(self.update)
         normalStrand.willBeRemoved.connect(self.remove)
-        self.update()
+        self.update(normalStrand)
 
     def update(self, strand):
         ph = self.pathHelix
         halfBaseWidth = ph.baseWidth / 2.0
-        vbL, vbR = strand.vBaseL(), strand.vBaseR()
+        vbL, vbR = strand.vBaseL, strand.vBaseR
         lUpperLeftX, lUpperLeftY = ph.upperLeftCornerOfVBase(vbL)
         rUpperLeftX, rUpperLeftY = ph.upperLeftCornerOfVBase(vbR)
         if strand.apparentlyConnectedL():
@@ -58,4 +61,4 @@ class NormalStrandGraphicsItem(QGraphicsLineItem):
         self.setPen(pen)
 
     def remove(self, strand):
-        self.scene.removeItem(self)
+        self.scene().removeItem(self)

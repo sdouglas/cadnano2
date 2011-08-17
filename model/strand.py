@@ -26,10 +26,9 @@ import util, sys
 util.qtWrapImport('QtCore', globals(), ['QObject', 'pyqtSignal'] )
 util.qtWrapImport('QtGui', globals(), ['QUndoCommand', 'QColor'] )
 nextStrandDebugIdentifier = 0
-logger = None  # Tracing will be written by calling traceDest.write
-logger = sys.stdout
 
 class Strand(QObject):
+    logger = sys.stdout  # Tracing will be written by calling logger.write
     didMove = pyqtSignal(object)  # Arg is the object emitting the signal
     willBeRemoved = pyqtSignal(object)  # Arg is the object emitting the signal
     connectivityChanged = pyqtSignal(object)  # Arg is the object emitting the s
@@ -287,9 +286,9 @@ class Strand(QObject):
                 strandNew5.connectivityChanged.emit(strandNew5)
             strand.connectivityChanged.emit(strand)
     def connL(self):
-        return self.conn5 if self.vStrand().drawn5To3() else self.conn3
+        return self.conn5() if self.vStrand().drawn5To3() else self.conn3()
     def connR(self):
-        return self.conn3 if self.vStrand().drawn5To3() else self.conn5
+        return self.conn3() if self.vStrand().drawn5To3() else self.conn5()
     def setConnL(self, newConn, useUndoStack=True, undoStack=None):
         if self.vStrand().drawn5To3():
             self.setConn5(newConn, useUndoStack, undoStack)

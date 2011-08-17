@@ -39,6 +39,8 @@ from cadnano import app
 from itertools import product
 from ui.mainwindow.svgbutton import SVGButton
 from model.vbase import VBase
+from views.pathview.normalstrandgraphicsitem import NormalStrandGraphicsItem
+from model.normalstrand import NormalStrand
 
 import util
 # import Qt stuff into the module namespace with PySide, PyQt4 independence
@@ -167,13 +169,18 @@ class PathHelix(QGraphicsObject):
         return self.vhelix().undoStack()
 
     def setVHelix(self, newVH):
-        if self._vhelix:
-            self._vhelix.basesModified.disconnect(self.vhelixBasesModified)
-            self._vhelix.vhelixDimensionsModified.disconnect(\
+        vh = self._vhelix
+        if vh:
+            vh.basesModified.disconnect(self.vhelixBasesModified)
+            vh.vhelixDimensionsModified.disconnect(\
                                              self.vhelixDimensionsModified)
+            vh.scaf().didAddStrand.disconnect(self.strandAddedToVStrand)
+            vh.stap().didAddStrand.disconnect(self.strandAddedToVStrand)
         self._vhelix = newVH
         newVH.basesModified.connect(self.vhelixBasesModified)
         newVH.dimensionsModified.connect(self.vhelixDimensionsModified)
+        newVH.scaf().didAddStrand.connect(self.strandAddedToVStrand)
+        newVH.stap().didAddStrand.connect(self.strandAddedToVStrand)
         self.vhelixDimensionsModified()
         self.vhelixBasesModified()
 
@@ -195,7 +202,13 @@ class PathHelix(QGraphicsObject):
 
     def evenParity(self):
         return self._vhelix.evenParity()
-    
+
+    def strandAddedToVStrand(self, strand):
+        if isinstance(strand, NormalStrand):
+            NormalStrandGraphicsItem(strand, self)
+        else:
+            raise NotImplementedError
+
     def addBasesClicked(self):
         part = self.vhelix().part()
         dlg = QInputDialog(self.window())

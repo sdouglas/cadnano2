@@ -118,18 +118,12 @@ class DNAPart(Part):
         
         # Model 2.0
         self._oligos = []
-        self.vfbStrands = set()
 
     ######################################################################
     ######################## New Model Quarantine ########################
     ######################################################################
 
     ########################## Notification API ##########################
-
-    # Argument is strand (see DNAPart.vfbStrands)
-    didAddVfbStrand = pyqtSignal(object)
-    # Argument is strand (see DNAPart.vfbStrands)
-    willRemoveVfbStrand = pyqtSignal(object)
 
     # Arguments are oligo, part
     willAddOligoToPart = pyqtSignal(object, object)

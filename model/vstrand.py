@@ -26,7 +26,7 @@ from rangeset import RangeSet
 import util
 from vbase import VBase
 import strand
-util.qtWrapImport('QtCore', globals(), ['QObject'] )
+util.qtWrapImport('QtCore', globals(), ['QObject', 'pyqtSignal'] )
 
 class VStrand(QObject, RangeSet):
     """
@@ -34,6 +34,8 @@ class VStrand(QObject, RangeSet):
     system in which VBase.vIndex() live.
     This subclass of RangeSet is designed to hold Segment items as its ranges.
     """
+    didAddStrand = pyqtSignal(object)
+
     def __init__(self, parentVHelix=None):
         QObject.__init__(self)
         RangeSet.__init__(self)
@@ -46,8 +48,8 @@ class VStrand(QObject, RangeSet):
 
     def __repr__(self):
         accesorToGetSelfFromvHelix = "????"
-        if self == self.vHelix.scaf: accesorToGetSelfFromvHelix = "scaf"
-        if self == self.vHelix.stap: accesorToGetSelfFromvHelix = "stap"
+        if self == self.vHelix.scaf(): accesorToGetSelfFromvHelix = "scaf()"
+        if self == self.vHelix.stap(): accesorToGetSelfFromvHelix = "stap()"
         return "v[%i].%s"%(self.vHelix.number(), accesorToGetSelfFromvHelix)
 
     def __call__(self, idx):
@@ -113,49 +115,26 @@ class VStrand(QObject, RangeSet):
             curIdxExists = nxtIdxExists
         return " ".join(bases)
 
-    def exposedEndsAt(self, vIdx):
+    def exposedEndsAt(self, vBase):
         """
         Returns 'L' or 'R' if a segment exists at vIdx and it
         exposes an unbound endpoint on its 3' or 5' end. Otherwise returns None.
         """
-        rangeItem = self.get(vIdx)
-        if rangeItem == None:
-            return None
-        return rangeItem.exposedEndsAt(self, vIdx)  # 'L', 'R', or None
+        return vBase.exposedEnds()
 
     ####################### Public Write API #######################
-
-    # Visual FeedBack provides a preview of the operation that would
-    # be performed if the user were to click, finish draging, etc. Each strand
-    # in the model 
-    def clearVFB(self):
-        """ Gets rid of all active visual feedback """
-        for strand in self.strandsWithActiveVfb:
-            strand.clearVFB()
-        self.strandsWithActiveVfb = []
-
-    def setVFB(self, clrStart, afterClrEnd, endptsToConnect):
-        """ Alerts the model that visual feedback should be provided reflecting
-        that completion of the current operation would cause
-        1) Deletion of preexisting strand in the pythonic range
-           (clrStart, afterClrEnd)
-        2) Connection of preexisting endpoints in endptsToConnect to endpoints
-           of a new strand """
-        # Inserting a strand clears everything beneath it
-        clrStart, clrEnd = self.idxs(strand)
-        newVfbStrands = set(self.rangeItemsIntersectingRange(clrStart, clrEnd))
-        for strand in newVfbStrands:
-            strand.setVFB(clrStart, afterClrEnd, endptsToConnect)
-        for strand in self.strandsWithActiveVfb - newVfbStrands:
-            strand.clearVFB()
-        self.strandsWithActiveVfb = newVfbStrands
 
     def addStrand(self, strand, useUndoStack=True, undoStack=None):
         # A strand is a rangeItem
         self.addRange(strand, useUndoStack, undoStack)
 
-    def clearStrand(self, firstIndex, afterLastIndex, useUndoStack=True, undoStack=None, keepLeft=True):
+    def clearRange(self, firstIndex, afterLastIndex, useUndoStack=True, undoStack=None, keepLeft=True):
         self.removeRange(self, firstIndex, afterLastIndex, useUndoStack, undoStack, keepLeft=keepLeft)
+
+    def resizeStrandAt(self, idxInStrand, newFirstBase, newLastBase, useUndoStack=True, undoStack=None):
+        self.resizeRangeAtIdx(idxInStrand, newFirstBase.vIndex,\
+                              newLastBase.vIndex + 1,\
+                              useUndoStack, undoStack)
 
     ####################### Protected Framework Methods ##############
     # Note: the rangeItems of a VStrand are strands
@@ -182,16 +161,17 @@ class VStrand(QObject, RangeSet):
                                keepLeft,\
                                undoStack)
 
-    def willRemoveRangeItem(self, rangeItem):
-        rangeItem.willBeRemoved.emit(rangeItem)
+    def willRemoveRangeItem(self, strand):
+        strand.willBeRemoved.emit(strand)
         if strand.logger != None:
-            strand.logger.write("+%i.remove() %s\n"%(rangeItem.traceID,\
-                                                   repr(rangeItem)))
+            strand.logger.write("+%i.remove() %s\n"%(strand.traceID,\
+                                                   repr(strand)))
 
-    def didInsertRangeItem(self, rangeItem):
+    def didInsertRangeItem(self, strand):
+        self.didAddStrand.emit(strand)
         if strand.logger != None:
-            strand.logger.write("+%i.insert() %s\n"%(rangeItem.traceID,\
-                                                   repr(rangeItem)))
+            strand.logger.write("+%i.insert() %s\n"%(strand.traceID,\
+                                                   repr(strand)))
 
     def boundsChanged(self):
         pass

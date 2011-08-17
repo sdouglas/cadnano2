@@ -55,6 +55,10 @@ class VBase(object):
         """ Synonymous with sameStrand """
         return VBase(self.vStrand, i )
 
+    def sameStrand(self, i):
+        """ Returns the vbase on the same vstrand but at vindex i """
+        return VBase(self.vStrand, i)
+
     def coords(self):
         return (self.vStrand, self.vIndex)
 
@@ -140,7 +144,7 @@ class VBase(object):
         containingStrand = self.vStrand.get(self.vIndex)
         if containingStrand == None:
             return None
-        return containingStrand.exposedEndsAt(self, self.vIndex)
+        return containingStrand.exposedEndsAt(self)
 
     def strand(self):
         """ If a strand contains the VBase represented by self, this method
