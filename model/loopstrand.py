@@ -26,8 +26,6 @@ import util, sys
 util.qtWrapImport('QtCore', globals(), ['QObject', 'pyqtSignal'] )
 util.qtWrapImport('QtGui', globals(), ['QUndoCommand'] )
 nextStrandDebugIdentifier = 0
-logger = None  # Tracing will be written by calling traceDest.write
-logger = sys.stdout
 
 class LoopStrand(Strand):
     """
@@ -35,6 +33,7 @@ class LoopStrand(Strand):
     called 'Loop' because in the limit where you have many bases that occupy
     a single virtual base they bulge outwards, forming a loop.
     """
+    logger = None
     def __init__(self, vBase, numberOfActualBases):
         NormalStrand.__init__(self)
         self._vBase = vBase

@@ -28,7 +28,7 @@ util.qtWrapImport('QtGui', globals(), ['QUndoCommand', 'QColor'] )
 nextStrandDebugIdentifier = 0
 
 class Strand(QObject):
-    logger = sys.stdout  # Tracing will be written by calling logger.write
+    logger = None  # Tracing will be written by calling logger.write
     didMove = pyqtSignal(object)  # Arg is the object emitting the signal
     willBeRemoved = pyqtSignal(object)  # Arg is the object emitting the signal
     connectivityChanged = pyqtSignal(object)  # Arg is the object emitting the s

@@ -26,14 +26,13 @@ import util, sys
 util.qtWrapImport('QtCore', globals(), ['QObject', 'pyqtSignal'] )
 util.qtWrapImport('QtGui', globals(), ['QUndoCommand'] )
 nextStrandDebugIdentifier = 0
-logger = None  # Tracing will be written by calling traceDest.write
-logger = sys.stdout
 
 class SkipStrand(NormalStrand):
     """
     Conceptual opposite of LoopStrand. Takes up 1 or more virtual bases but
     doesn't add any real bases to the Oligo's sequence.
     """
+    logger = None
     def __repr__(self):
         return "SkipStrand(%s, %s, %s)"%(self.vStrand(), self.vBaseL, self.vBaseR)
     def numBases(self): return 0

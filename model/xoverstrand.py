@@ -26,8 +26,6 @@ import util, sys
 util.qtWrapImport('QtCore', globals(), ['QObject', 'pyqtSignal'] )
 util.qtWrapImport('QtGui', globals(), ['QUndoCommand'] )
 nextStrandDebugIdentifier = 0
-logger = None  # Tracing will be written by calling traceDest.write
-logger = sys.stdout
 
 class XOverStrand(Strand):
     """
@@ -36,6 +34,7 @@ class XOverStrand(Strand):
     for a strand that crosses between vHelix, XOverStrands adopt the convention
     that self.vBaseL==self.vBase3 and self.vBaseR==self.vBase5.
     """
+    logger = None
     def __init__(self, vBase3, vBase5):
         self._vBase3 = vBase3
         self._vBase5 = vBase5

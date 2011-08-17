@@ -28,8 +28,6 @@ from model.vbase import VBase
 util.qtWrapImport('QtCore', globals(), ['QObject', 'pyqtSignal'] )
 util.qtWrapImport('QtGui', globals(), ['QUndoCommand'] )
 nextStrandDebugIdentifier = 0
-logger = None  # Tracing will be written by calling traceDest.write
-logger = sys.stdout
 
 class NormalStrand(Strand):
     """
@@ -37,6 +35,7 @@ class NormalStrand(Strand):
     coords along the same VStrand. Occupies bases at indices in
     range(normalStrand.vBaseL, normalStrand.vBaseR + 1)
     """
+    logger = None
     def __init__(self, vBaseL, vBaseR):
         Strand.__init__(self)
         self.vBaseL = vBaseL

@@ -22,7 +22,7 @@
 #
 # http://www.opensource.org/licenses/mit-license.php
 
-import util
+import util, sys
 util.qtWrapImport('QtCore', globals(), ['QObject'])
 from model.normalstrand import NormalStrand
 from operation import Operation
@@ -31,6 +31,7 @@ from model.vbase import VBase
 class PencilToolOperation(Operation):
     """ Handles interactive strand creation / destruction in the manner of the
     pencil tool """
+    logger = sys.stdout
     def __init__(self, startVBase, undoStack):
         """ Begin a session of pencil-tool interaction """
         Operation.__init__(self, undoStack)
@@ -38,6 +39,8 @@ class PencilToolOperation(Operation):
         self.startVBase = startVBase
         self.newStrandInVfbPool = False
         self.updateOperationWithDestination(startVBase)
+        if self.logger:
+            self.logger.write('PencilToolOperation.init(%s)\n'%startVBase)
 
     def updateOperationWithDestination(self, newDestVBase):
         """ Looks at self.startVBase and newDestVBase then calls the appropriate
@@ -77,8 +80,8 @@ class PencilToolOperation(Operation):
 
         if draggingFromAnEndpt:
             if dragStartBase == dragEndBase:
-                return self.actionNone()
-            if dragStartBase == dragStartStrand.vBaseL:
+                self.actionNone()
+            elif dragStartBase == dragStartStrand.vBaseL:
                 if dragEndBase < dragStartStrand.vBaseR:
                     if hasattr(dragStartStrand, 'changeRange'):
                         self.actionResizeStrand(dragStartStrand,\
@@ -128,7 +131,7 @@ class PencilToolOperation(Operation):
         elif draggingFromAnEmptyBase:
             if dragStartBase == dragEndBase:
                 self.actionNone()
-            if not dragEndExposedEnds:
+            elif not dragEndExposedEnds:
                 self.actionAddStrand(None, leftBase, rightBase, None)
             elif dragEndBase < dragStartBase and 'R' in dragEndExposedEnds:
                 self.actionAddStrand(dragEndStrand,\
@@ -144,31 +147,42 @@ class PencilToolOperation(Operation):
     def end(self):
         """ Make the changes displayed by the last call to
         updateOperationWithDestination permanent """
+        if self.logger:
+            self.logger.write('PencilToolOperation.end\n')
         del self.newStrand
         del self.startVBase
         del self.newStrandInVfbPool
 
     def actionNone(self):
-        pass
+        if self.logger:
+            self.logger.write('PencilToolOperation.actionNone\n')
 
     def actionAddStrand(self, lConnection, startBase, endBase, rConnection):
+        if self.logger:
+            self.logger.write('PencilToolOperation.actionAddStrand\n')
         newStrand, undoStack = self.newStrand, self.undoStack
         undoStack.beginMacro('actionAddStrand')
         newStrand.changeRange(startBase, endBase, undoStack)
+        startBase.vStrand.addStrand(newStrand, useUndoStack=True, undoStack=undoStack)
         newStrand.setConnL(lConnection, useUndoStack=True, undoStack=undoStack)
         newStrand.setConnR(rConnection, useUndoStack=True, undoStack=undoStack)
-        startBase.vStrand.addStrand(newStrand, useUndoStack=True, undoStack=undoStack)
         undoStack.endMacro()
 
     def actionJustConnect(self, lStrand, rStrand):
         """ Just connect the right exposed end of lStrand to the left exposed
         end of rStrand """
+        if self.logger:
+            self.logger.write('PencilToolOperation.actionJustConnect\n')
         lStrand.setConnR(rStrand, useUndoStack=True, undoStack=self.undoStack)
 
     def actionResizeStrand(self, strand, newL, newR):
+        if self.logger:
+            self.logger.write('PencilToolOperation.actionResizeStrand')
         newL.vStrand.resizeRangeAtIdx(strand.vBaseL, newL, newR, useUndoStack=True, undoStack=self.undoStack)
 
     def actionClearRange(self, firstIdx, afterLastIdx, keepLeft=True):
+        if self.logger:
+            self.logger.write('PencilToolOperation.actionClearRange\n')
         self.startVBase.vStrand.clearRange(firstIdx,\
                                            afterLastIdx,\
                                            useUndoStack=True,\
