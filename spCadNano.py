@@ -134,6 +134,7 @@ def openCN():
     if gCadNanoApp:
         for x in gCadNanoApp.documentControllers:
             if x.win:
+                x.windock.setVisible(True)
                 x.win.setVisible(True)
     else:
         # begin program
@@ -205,6 +206,7 @@ def closeCN():
     global gCadNanoApp
     if gCadNanoApp.activeDocument:
         gCadNanoApp.activeDocument.win.setVisible(False)
+        gCadNanoApp.activeDocument.windock.setVisible(False)
     if gCadNanoApp:
         for x in gCadNanoApp.documentControllers:
             if x.win:
