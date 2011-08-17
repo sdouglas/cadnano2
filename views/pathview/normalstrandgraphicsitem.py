@@ -24,8 +24,35 @@
 
 import util
 util.qtWrapImport('QtGui', globals(), [ 'QBrush', 'QGraphicsLineItem', 'QPen',\
-                                        'QColor'])
+                                        'QColor', 'QPainterPath', 'QPolygonF',\
+                                        'QGraphicsPathItem'])
+util.qtWrapImport('QtCore', globals(), [ 'QPointF', 'Qt' ])
 from views import styles
+
+baseWidth = styles.PATH_BASE_WIDTH
+ppL5 = QPainterPath()  # Left 5' PainterPath
+ppR5 = QPainterPath()  # Right 5' PainterPath
+ppL3 = QPainterPath()  # Left 3' PainterPath
+ppR3 = QPainterPath()  # Right 3' PainterPath
+# set up ppL5 (left 5' blue square)
+ppL5.addRect(0.25 * baseWidth, 0.125 * baseWidth,\
+             0.75 * baseWidth, 0.75 * baseWidth)
+# set up ppR5 (right 5' blue square)
+ppR5.addRect(0, 0.125 * baseWidth,\
+             0.75 * baseWidth, 0.75 * baseWidth)
+# set up ppL3 (left 3' blue triangle)
+l3poly = QPolygonF()
+l3poly.append(QPointF(baseWidth, 0))
+l3poly.append(QPointF(0.25 * baseWidth, 0.5 * baseWidth))
+l3poly.append(QPointF(baseWidth, baseWidth))
+ppL3.addPolygon(l3poly)
+# set up ppR3 (right 3' blue triangle)
+r3poly = QPolygonF()
+r3poly.append(QPointF(0, 0))
+r3poly.append(QPointF(0.75 * baseWidth, 0.5 * baseWidth))
+r3poly.append(QPointF(0, baseWidth))
+ppR3.addPolygon(r3poly)
+NoPen = QPen(Qt.NoPen)
 
 class NormalStrandGraphicsItem(QGraphicsLineItem):
     def __init__(self, normalStrand, pathHelix):
@@ -35,6 +62,11 @@ class NormalStrandGraphicsItem(QGraphicsLineItem):
         normalStrand.didMove.connect(self.update)
         normalStrand.apparentConnectivityChanged.connect(self.update)
         normalStrand.willBeRemoved.connect(self.remove)
+        drawn5To3 = normalStrand.drawn5To3()
+        self.leftCap = QGraphicsPathItem(ppL5 if drawn5To3 else ppL3, self)
+        self.leftCap.setPen(NoPen)
+        self.rightCap = QGraphicsPathItem(ppR3 if drawn5To3 else ppR5, self)
+        self.rightCap.setPen(NoPen)
         self.update(normalStrand)
 
     def update(self, strand):
@@ -45,20 +77,30 @@ class NormalStrandGraphicsItem(QGraphicsLineItem):
         rUpperLeftX, rUpperLeftY = ph.upperLeftCornerOfVBase(vbR)
         if strand.apparentlyConnectedL():
             lx = lUpperLeftX
+            self.leftCap.hide()
         else:
             lx = lUpperLeftX + halfBaseWidth
+            self.leftCap.setPos(lUpperLeftX, lUpperLeftY)
+            self.leftCap.show()
         ly = lUpperLeftY + halfBaseWidth
         if strand.apparentlyConnectedR():
             rx = rUpperLeftX + ph.baseWidth
+            self.rightCap.hide()
         else:
             rx = rUpperLeftX + halfBaseWidth
+            self.rightCap.setPos(rUpperLeftX, rUpperLeftY)
+            self.rightCap.show()
         ry = ly
         self.setLine(lx, ly, rx, ry)
         if vbL.vStrand.isScaf():
             pen = QPen(styles.scafstroke, styles.PATH_STRAND_STROKE_WIDTH)
+            brush = QBrush(styles.handlefill)
         else:
             pen = QPen(QColor(), styles.PATH_STRAND_STROKE_WIDTH)
+            brush = QBrush(QColor())
         self.setPen(pen)
+        self.leftCap.setBrush(brush)
+        self.rightCap.setBrush(brush)
 
     def remove(self, strand):
         self.scene().removeItem(self)

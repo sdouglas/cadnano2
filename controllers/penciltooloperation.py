@@ -152,11 +152,13 @@ class PencilToolOperation(Operation):
         pass
 
     def actionAddStrand(self, lConnection, startBase, endBase, rConnection):
-        newStrand = self.newStrand
-        newStrand.changeRange(startBase, endBase, self.undoStack)
-        newStrand.setConnL(lConnection, useUndoStack=True, undoStack=self.undoStack)
-        newStrand.setConnR(rConnection, useUndoStack=True, undoStack=self.undoStack)
-        startBase.vStrand.addStrand(newStrand, useUndoStack=True, undoStack=self.undoStack)
+        newStrand, undoStack = self.newStrand, self.undoStack
+        undoStack.beginMacro('actionAddStrand')
+        newStrand.changeRange(startBase, endBase, undoStack)
+        newStrand.setConnL(lConnection, useUndoStack=True, undoStack=undoStack)
+        newStrand.setConnR(rConnection, useUndoStack=True, undoStack=undoStack)
+        startBase.vStrand.addStrand(newStrand, useUndoStack=True, undoStack=undoStack)
+        undoStack.endMacro()
 
     def actionJustConnect(self, lStrand, rStrand):
         """ Just connect the right exposed end of lStrand to the left exposed

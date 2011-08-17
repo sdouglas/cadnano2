@@ -63,6 +63,9 @@ class Strand(QObject):
         """ We already have that the ranges for self and other could merge """
         return False  # ...but we're default behavior, so we don't care.
 
+    def drawn5To3(self):
+        return self.vStrand().drawn5To3()
+
     def conn3(self):
         return self._conn3
     def conn5(self):
