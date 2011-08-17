@@ -79,6 +79,7 @@ def saveHotKey(key):
 
 
 def disableHotKey(key):
+    print "disableHotKey %s" % key
     saveHotKey(key)
     for alt in range(0, 2):
         for ctl in range(0, 2):
@@ -96,16 +97,26 @@ def disableHotKey(key):
 
 
 def disableAllHotKeys():
-    newChars = string.printable
-    for char in newChars:
-        disableHotKey(char)
+    """
+    This method loops through all the hotkeys we want to disable and calls
+    disableHotKey on each of them.
+    
+    First we build up our own char list...
+    Why not use string.printable? Because it includes unwanted whitespace. 
+    Why not just use string.letters + string.digits + string.punctuation?
+    Because Python in Maya barfs with the following in the lowercase portion
+    of string.letters: TypeError: bad argument type for built-in operation.
+    """
+    letters = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ'
+    digits = '0123456789'
+    punctuation = """!"#$%&'()*+,-./:;<=>?@[\]^_`{|}~"""
+    space = ' '  # doesn't work?
+    chars = digits + punctuation + letters + space
+    for c in chars:
+        disableHotKey(c)
 
-    otherHotKeys = [
-                "Up", "Down", "Right", "Left",
-                "Home", "End",
-                "Page_Up", "Page_Down",
-                "Insert", "Return"]
-                #"Space" is alread covered in string.printable
+    otherHotKeys = ["Up", "Down", "Right", "Left", "Home", "End",
+                    "Page_Up", "Page_Down", "Insert", "Return", "Space"]
     for key in otherHotKeys:
         disableHotKey(key)
 
