@@ -27,20 +27,26 @@
 
 import maya.cmds as cmds
 import string
-
 commandWhiteList = [
                 "NameComPop_hotBox",
+
+                "NameComUndo",
+                "NameComRedo",
+
+                "NameComFit_Selected_in_Active_Panel",
+                "NameComFit_Select_in_All_Panels",
+
+                "SelectToolOptionsNameCommand",
                 "TranslateToolWithSnapMarkingMenuNameCommand",
                 "RotateToolWithSnapMarkingMenuNameCommand",
                 "ScaleToolWithSnapMarkingMenuNameCommand",
-                "NameComUndo",
-                "NameComRedo",
-                "FrameSelected",
-                "FrameSelectedInAllViews",
-                "IncreaseManipulatorSize",
-                "DecreaseManipulatorSize",
-                "DisplayWireframe",
-                "DisplayShaded"]
+
+                "NameComIncrease_Manipulator_Size",
+                "NameComDecrease_Manipulator_Size",
+
+                "NameComWireframe_Display",
+                "NameComShaded_Display"
+                ]
 disabledHotKeys = []
 
 
@@ -49,8 +55,8 @@ class HotKey():
     alt = ""
     ctl = ""
     cmd = ""
-    name = ""
-    rname = ""
+    name = None
+    rname = None
 
     def __init__(self, key, name, rname, alt=False, ctl=False, cmd=False):
         self.key = key
@@ -67,21 +73,18 @@ def saveHotKey(key):
         for ctl in range(0, 2):
             for cmd in range(0, 2):
                 name = cmds.hotkey(
-                                key, q=True, n=True,
+                                key, query=True, name=True,
                                 alt=alt, ctl=ctl, cmd=cmd)
                 rname = cmds.hotkey(
-                                key, q=True, rn=True,
+                                key, query=True, releaseName=True,
                                 alt=alt, ctl=ctl, cmd=cmd)
                 if (name != None or rname != None):
-                    if name == None:
-                        name = ""
-                    if rname == None:
-                        rname = ""
                     disabledHotKeys.append(
                                 HotKey(key, name, rname, alt, ctl, cmd))
 
 
 def disableHotKey(key):
+    #print key
     saveHotKey(key)
     for alt in range(0, 2):
         for ctl in range(0, 2):
@@ -92,14 +95,24 @@ def disableHotKey(key):
                 rname = cmds.hotkey(
                                 key, q=True, rn=True,
                                 alt=alt, ctl=ctl, cmd=cmd)
-                if not name in commandWhiteList:
-                    cmds.hotkey(k=key, n="", rn="", alt=alt, ctl=ctl, cmd=cmd)
-                else:
-                    pass
-                    # print "not disabling %s" % name
+                if (name != None or rname != None):
+                    if not name in commandWhiteList:
+                        cmds.hotkey(k=key, n=None, rn=None,
+                                    alt=alt, ctl=ctl, cmd=cmd)
+
+                        #print "disabling alt=%s ctl=%s cmd=%s %s - %s" % \
+                        #                    (alt, ctl, cmd, name, rname)
+                    else:
+                        #print "not disabling %s" % name
+                        pass
 
 
 def disableAllHotKeys():
+    #Forces Maya to save prefs
+    #Sometimes Maya doesn't save the hotkeys properly
+    #   and restarts with them disabled.
+    cmds.savePrefs(hotkeys=True)
+
     """
     This method loops through all the hotkeys we want to disable and calls
     disableHotKey on each of them.
@@ -117,7 +130,7 @@ def disableAllHotKeys():
     for c in chars:
         disableHotKey(c)
 
-    # Function keys F1 through F13
+    # Function keys F1 through F12
     for key in range(1, 13):
         disableHotKey("F" + str(key))
 
@@ -139,3 +152,5 @@ def restoreAllHotKeys():
                 ctl=hotkey.ctl,
                 cmd=hotkey.cmd)
     disabledHotKeys = []
+
+    cmds.savePrefs(hotkeys=True)
