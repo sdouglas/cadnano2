@@ -50,16 +50,12 @@ def simplifyUI():
     hideGrid()
     #mel.eval("toggleModelEditorBarsInAllPanels 0;")
 
-    setViewportQuality()
-
 
 def restoreUI():
     restoreUIElements()
     restoreMainMenuBar()
     restoreGrid()
     #mel.eval("toggleModelEditorBarsInAllPanels 1;")
-
-    restoreViewportQuality()
 
 
 def setViewportQuality():
@@ -88,7 +84,6 @@ def hideMainMenuBar():
 
 def restoreMainMenuBar():
     global mainMenuBarVisible
-    print "setMainMenubarVisible " + str(mainMenuBarVisible) + ";"
     #mel.eval("setMainMenubarVisible " + str(mainMenuBarVisible) + ";")
 
 

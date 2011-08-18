@@ -129,7 +129,7 @@ def uninitializePlugin(mobject):
 
 def openCN():
     global gCadNanoApp
-    simplifyMayaUI()
+    modifyMayaUI()
 
     if gCadNanoApp:
         for x in gCadNanoApp.documentControllers:
@@ -167,9 +167,10 @@ def changed(self, event):
             app().activeDocument = self
 
 
-def simplifyMayaUI():
+def modifyMayaUI():
     mayaHotKeys.disableAllHotKeys()
     mayaUI.simplifyUI()
+    mayaUI.setViewportQuality()
 
     myWindow = cmds.window()
     myForm = cmds.formLayout(parent=myWindow)
@@ -197,6 +198,7 @@ def simplifyMayaUI():
 def restoreMayaUI():
     mayaHotKeys.restoreAllHotKeys()
     mayaUI.restoreUI()
+    mayaUI.restoreViewportQuality()
 
     if gCadNanoToolbar:
         if cmds.toolBar(gCadNanoToolbar, exists=True):
