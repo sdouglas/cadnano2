@@ -36,7 +36,7 @@ class VStrand(QObject, RangeSet):
     This subclass of RangeSet is designed to hold Segment items as its ranges.
     """
     didAddStrand = pyqtSignal(object)
-    logger = sys.stdout
+    logger = None
 
     def __init__(self, parentVHelix=None):
         QObject.__init__(self)
@@ -199,14 +199,14 @@ class VStrand(QObject, RangeSet):
             if lStrand == rStrand != None:
                 if self.logger: self.logger.write('0drag\n')
                 pass
-            elif lIdx + 1 == rIdx and lIsEnd and rIsEnd:
-                if self.logger: self.logger.write('connect_adjacent_endpts\n')
-                lStrand.setConnR(rStrand, useUndoStack, undoStack)
             elif lIsNormalStrand and rIsNormalStrand:
                 if self.logger: self.logger.write('lIsNorm&rIsNorm\n')
                 rConnR = rStrand.connR()
                 self.resizeStrandAt(lIdx, lStrand.vBaseL, rStrand.vBaseR, useUndoStack, undoStack)
                 lStrand.setConnR(rConnR, useUndoStack, undoStack)
+            elif lIdx + 1 == rIdx and lIsEnd and rIsEnd:
+                if self.logger: self.logger.write('connect_adjacent_endpts\n')
+                lStrand.setConnR(rStrand, useUndoStack, undoStack)
             elif lIsNormalStrand and rIsEnd:
                 if self.logger: self.logger.write('lIsNorm&rIsEnd\n')
                 self.resizeStrandAt(lIdx, lStrand.vBaseL, rIdx - 1, useUndoStack, undoStack)
@@ -230,14 +230,14 @@ class VStrand(QObject, RangeSet):
             if lStrand == rStrand != None:
                 if self.logger: self.logger.write('0drag\n')
                 pass
-            elif lIdx + 1 == rIdx and lIsEnd and rIsEnd:
-                if self.logger: self.logger.write('connect_adjacent_endpts\n')
-                rStrand.setConnL(lStrand, useUndoStack, undoStack)
             elif lIsNormalStrand and rIsNormalStrand:
                 if self.logger: self.logger.write('lIsNorm&rIsNorm\n')
                 lConnL = lStrand.connL()
                 self.resizeStrandAt(rIdx, lStrand.vBaseL, rStrand.vBaseR, useUndoStack, undoStack)
                 rStrand.setConnL(lConnL, useUndoStack, undoStack)
+            elif lIdx + 1 == rIdx and lIsEnd and rIsEnd:
+                if self.logger: self.logger.write('connect_adjacent_endpts\n')
+                rStrand.setConnL(lStrand, useUndoStack, undoStack)
             elif rIsNormalStrand and lIsEnd:
                 if self.logger: self.logger.write('rIsNorm&lIsEnd\n')
                 self.resizeStrandAt(rIdx, lIdx + 1, rStrand.vBaseR, useUndoStack, undoStack)

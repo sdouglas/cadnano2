@@ -31,7 +31,7 @@ from model.vbase import VBase
 class PencilToolOperation(Operation):
     """ Handles interactive strand creation / destruction in the manner of the
     pencil tool """
-    logger = sys.stdout
+    logger = None
     def __init__(self, startVBase, undoStack):
         """ Begin a session of pencil-tool interaction """
         Operation.__init__(self, undoStack)
@@ -52,9 +52,7 @@ class PencilToolOperation(Operation):
             return
         else:
             self.lastDestVBase = newDestVBase
-        print "==== REWIND ===="
         self.rewind()
-        print "==== /REWIND ===="
         dragStartBase, dragEndBase = self.startVBase, newDestVBase
         dragStartExposedEnds = dragStartBase.exposedEnds()
         dragStartStrand = dragStartBase.strand()

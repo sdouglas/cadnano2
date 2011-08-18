@@ -379,21 +379,17 @@ class RangeSet(object):
                                       'RangeSet.resizeRangeAtIdx')
         rangeItemToResize = self.get(idx)
         oldL, oldAR = self.idxs(rangeItemToResize)
-        print "\tsuppressed removal"
         self.removeRange(oldL, oldAR,\
                          useUndoStack=useUndoStack, undoStack=undoStack,\
                          suppressCallsItem=rangeItemToResize)
-        print "\tchg rng"
         newRangeItem = self.changeRangeForItem(rangeItemToResize,\
                                                newFirstIndex,\
                                                newAfterLastIdx,\
                                                undoStack)
-        print "\tsuppressed addition"
         # Caveat: newRangeItem might == rangeItemToResize
         self.addRange(newRangeItem,\
                       useUndoStack=useUndoStack, undoStack=undoStack,\
                       suppressCallsItem=rangeItemToResize)
-        print "\tend"
         if undoStack != None:
             undoStack.endMacro()
 
