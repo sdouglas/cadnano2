@@ -23,8 +23,9 @@
 # http://www.opensource.org/licenses/mit-license.php
 
 from rangeset import RangeSet
-import util
+import util, sys
 from vbase import VBase
+from model.normalstrand import NormalStrand
 import strand
 util.qtWrapImport('QtCore', globals(), ['QObject', 'pyqtSignal'] )
 
@@ -35,6 +36,7 @@ class VStrand(QObject, RangeSet):
     This subclass of RangeSet is designed to hold Segment items as its ranges.
     """
     didAddStrand = pyqtSignal(object)
+    logger = sys.stdout
 
     def __init__(self, parentVHelix=None):
         QObject.__init__(self)
@@ -122,6 +124,32 @@ class VStrand(QObject, RangeSet):
         """
         return vBase.exposedEnds()
 
+    def newStringRep(self):
+        i, l = 1, len(self.ranges)
+        prevStrand = None
+        curStrand = self.ranges[0] if l else None
+        strs = []
+        while i <= l:  # Note: i is actually the index of nextStrand
+            nextStrand = self.ranges[i] if i < l else None
+            if prevStrand == curStrand.connL() != None:
+                lCon = '<'
+            elif curStrand.connL() != None:
+                lCon = '<%s|'%curStrand.connL()
+            else:
+                lCon = '['
+            if nextStrand == curStrand.connR() != None:
+                rCon = '>'
+            elif curStrand.connR() != None:
+                rCon = '|%s>'%curStrand.connR()
+            else:
+                rCon = ']'
+            lIdx, rIdx = self.idxs(curStrand)
+            strs.append('%s%i|%s|%i%s'%\
+                (lCon, lIdx, curStrand.kind, rIdx - 1, rCon))
+            i += 1
+            prevStrand, curStrand = curStrand, nextStrand
+        return ''.join(strs)
+
     ####################### Public Write API #######################
 
     def addStrand(self, strand, useUndoStack=True, undoStack=None):
@@ -132,9 +160,107 @@ class VStrand(QObject, RangeSet):
         self.removeRange(self, firstIndex, afterLastIndex, useUndoStack, undoStack, keepLeft=keepLeft)
 
     def resizeStrandAt(self, idxInStrand, newFirstBase, newLastBase, useUndoStack=True, undoStack=None):
-        self.resizeRangeAtIdx(idxInStrand, newFirstBase.vIndex,\
-                              newLastBase.vIndex + 1,\
+        if isinstance(idxInStrand, VBase):
+            idxInStrand = idxInStrand.vIndex
+        if isinstance(newFirstBase, VBase):
+            newFirstBase = newFirstBase.vIndex
+        if isinstance(newLastBase, VBase):
+            newLastBase = newLastBase.vIndex
+        self.resizeRangeAtIdx(idxInStrand, newFirstBase,\
+                              newLastBase + 1,\
                               useUndoStack, undoStack)
+
+    def connectStrand(self, firstIdx, lastIdx, useUndoStack=True, undoStack=None):
+        if useUndoStack and undoStack == None:
+            undoStack = self.undoStack()
+        if self.logger:
+            self.logger.write('connectStrand(%i, %i) undoStack=%s\n'%\
+                                      (firstIdx, lastIdx, undoStack))
+        if undoStack:
+            undoStack.beginMacro('connectStrand')
+        if firstIdx == lastIdx:
+            undoStack.endMacro()
+            return
+        elif firstIdx < lastIdx:
+            lIdx, rIdx = firstIdx, lastIdx
+            leftHasPrivelage = True
+        elif lastIdx < firstIdx:
+            lIdx, rIdx = lastIdx, firstIdx
+            leftHasPrivelage = False
+
+        lStrand = self.get(lIdx)
+        rStrand = self.get(rIdx)
+        lIsEnd = 'R' in VBase(self, lIdx).exposedEnds()
+        rIsEnd = 'L' in VBase(self, rIdx).exposedEnds()
+        lIsNormalStrand = isinstance(lStrand, NormalStrand)
+        rIsNormalStrand = isinstance(rStrand, NormalStrand)
+        if leftHasPrivelage:
+            if self.logger: self.logger.write('\tleftPrivelage>')
+            if lStrand == rStrand != None:
+                if self.logger: self.logger.write('0drag\n')
+                pass
+            elif lIdx + 1 == rIdx and lIsEnd and rIsEnd:
+                if self.logger: self.logger.write('connect_adjacent_endpts\n')
+                lStrand.setConnR(rStrand, useUndoStack, undoStack)
+            elif lIsNormalStrand and rIsNormalStrand:
+                if self.logger: self.logger.write('lIsNorm&rIsNorm\n')
+                rConnR = rStrand.connR()
+                self.resizeStrandAt(lIdx, lStrand.vBaseL, rStrand.vBaseR, useUndoStack, undoStack)
+                lStrand.setConnR(rConnR, useUndoStack, undoStack)
+            elif lIsNormalStrand and rIsEnd:
+                if self.logger: self.logger.write('lIsNorm&rIsEnd\n')
+                self.resizeStrandAt(lIdx, lStrand.vBaseL, rIdx - 1, useUndoStack, undoStack)
+                lStrand.setConnR(rStrand, useUndoStack, undoStack)
+            elif rIsNormalStrand and lIsEnd:
+                if self.logger: self.logger.write('rIsNorm&lIsEnd\n')
+                self.resizeStrandAt(rIdx, lIdx + 1, rStrand.vBaseR, useUndoStack, undoStack)
+                lStrand.setConnR(rStrand, useUndoStack, undoStack)
+            elif lIsNormalStrand:
+                if self.logger: self.logger.write('lIsNorm\n')
+                self.resizeStrandAt(lIdx, lStrand.vBaseL, rIdx, useUndoStack, undoStack)
+            elif rIsNormalStrand:
+                if self.logger: self.logger.write('rIsNorm\n')
+                self.resizeStrandAt(rIdx, lIdx, rStrand.vBaseR, useUndoStack, undoStack)
+            else:
+                if self.logger: self.logger.write('catchall\n')
+                newStrand = NormalStrand(VBase(self, lIdx), VBase(self, rIdx))
+                self.addStrand(newStrand)
+        elif not leftHasPrivelage:
+            if self.logger: self.logger.write('\trightPrivelage>')
+            if lStrand == rStrand != None:
+                if self.logger: self.logger.write('0drag\n')
+                pass
+            elif lIdx + 1 == rIdx and lIsEnd and rIsEnd:
+                if self.logger: self.logger.write('connect_adjacent_endpts\n')
+                rStrand.setConnL(lStrand, useUndoStack, undoStack)
+            elif lIsNormalStrand and rIsNormalStrand:
+                if self.logger: self.logger.write('lIsNorm&rIsNorm\n')
+                lConnL = lStrand.connL()
+                self.resizeStrandAt(rIdx, lStrand.vBaseL, rStrand.vBaseR, useUndoStack, undoStack)
+                rStrand.setConnL(lConnL, useUndoStack, undoStack)
+            elif rIsNormalStrand and lIsEnd:
+                if self.logger: self.logger.write('rIsNorm&lIsEnd\n')
+                self.resizeStrandAt(rIdx, lIdx + 1, rStrand.vBaseR, useUndoStack, undoStack)
+                rStrand.setConnL(lStrand, useUndoStack, undoStack)
+            elif lIsNormalStrand and rIsEnd:
+                if self.logger: self.logger.write('lIsNorm&rIsEnd\n')
+                self.resizeStrandAt(lIdx, lStrand.vBaseL, rIdx - 1, useUndoStack, undoStack)
+                rStrand.setConnL(lStrand, useUndoStack, undoStack)
+            elif rIsNormalStrand:
+                if self.logger: self.logger.write('rIsNorm\n')
+                self.resizeStrandAt(rIdx, lIdx, rStrand.vBaseR, useUndoStack, undoStack)
+            elif lIsNormalStrand:
+                if self.logger: self.logger.write('lIsNorm\n')
+                self.resizeStrandAt(lIdx, lStrand.vBaseL, rIdx, useUndoStack, undoStack)
+            else:
+                if self.logger: self.logger.write('catchall\n')
+                newStrand = NormalStrand(VBase(self, lIdx), VBase(self, rIdx))
+                self.addStrand(newStrand, useUndoStack=useUndoStack, undoStack=undoStack)
+        # End if leftHasPrivelage
+        if self.logger:
+            self.logger.write('\t%s\n'%self.newStringRep())
+        if undoStack:
+            undoStack.endMacro()
 
     ####################### Protected Framework Methods ##############
     # Note: the rangeItems of a VStrand are strands

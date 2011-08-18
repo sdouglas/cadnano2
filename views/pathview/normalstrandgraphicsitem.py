@@ -68,6 +68,7 @@ class NormalStrandGraphicsItem(QGraphicsLineItem):
         self.rightCap = QGraphicsPathItem(ppR3 if drawn5To3 else ppR5, self)
         self.rightCap.setPen(NoPen)
         self.update(normalStrand)
+        print "\t+NSGI %s"%self.normalStrand
 
     def update(self, strand):
         ph = self.pathHelix
@@ -103,4 +104,5 @@ class NormalStrandGraphicsItem(QGraphicsLineItem):
         self.rightCap.setBrush(brush)
 
     def remove(self, strand):
+        print "\t-NSGI %s"%self.normalStrand
         self.scene().removeItem(self)

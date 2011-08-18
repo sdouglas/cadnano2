@@ -37,6 +37,7 @@ class PencilToolOperation(Operation):
         Operation.__init__(self, undoStack)
         self.newStrand = NormalStrand(startVBase, startVBase)
         self.startVBase = startVBase
+        self.lastDestVBase = startVBase
         self.newStrandInVfbPool = False
         self.updateOperationWithDestination(startVBase)
         if self.logger:
@@ -45,7 +46,15 @@ class PencilToolOperation(Operation):
     def updateOperationWithDestination(self, newDestVBase):
         """ Looks at self.startVBase and newDestVBase then calls the appropriate
         actionWhatever method on self. """
+        if isinstance(newDestVBase, (int, long)):
+            newDestVBase = VBase(self.startVBase.vStrand, newDestVBase)
+        if newDestVBase == self.lastDestVBase:
+            return
+        else:
+            self.lastDestVBase = newDestVBase
+        print "==== REWIND ===="
         self.rewind()
+        print "==== /REWIND ===="
         dragStartBase, dragEndBase = self.startVBase, newDestVBase
         dragStartExposedEnds = dragStartBase.exposedEnds()
         dragStartStrand = dragStartBase.strand()
@@ -56,93 +65,7 @@ class PencilToolOperation(Operation):
         if not isinstance(newDestVBase, VBase):
             return
 
-        if dragStartBase < dragEndBase:
-            leftBase, rightBase = dragStartBase, dragEndBase
-            leftExposedEnds = dragStartExposedEnds
-            rightExposedEnds = dragEndExposedEnds
-            lStrand, rStrand = dragStartStrand, dragEndStrand
-            dragDirection = 1  # To the right
-            dragStartEndpt, dragEndEndpt = 'R', 'L'
-        else:
-            leftBase, rightBase = dragEndBase, dragStartBase
-            leftExposedEnds = dragEndExposedEnds
-            rightExposedEnds = dragStartExposedEnds
-            lStrand, rStrand = dragEndStrand, dragStartStrand
-            dragDirection = -1  # To the left
-            dragStartEndpt, dragEndEndpt = 'L', 'R'
-        numBases = rightBase.vIndex - leftBase.vIndex + 1  # >= 2
-        draggingFromAnEndpt = bool(dragStartExposedEnds)
-        draggingToAnEndpt = bool(dragEndExposedEnds)
-        draggingFromInsideAStrand = not draggingFromAnEndpt and\
-                                    dragStartStrand != None
-        draggingFromAnEmptyBase = not draggingFromInsideAStrand and\
-                                    dragStartStrand == None
-
-        if draggingFromAnEndpt:
-            if dragStartBase == dragEndBase:
-                self.actionNone()
-            elif dragStartBase == dragStartStrand.vBaseL:
-                if dragEndBase < dragStartStrand.vBaseR:
-                    if hasattr(dragStartStrand, 'changeRange'):
-                        self.actionResizeStrand(dragStartStrand,\
-                                                dragEndBase,\
-                                                dragStartStrand.vBaseR)
-                    else:
-                        self.actionAddStrand(None,\
-                                             dragEndBase,\
-                                             dragStartStrand.vBaseR,\
-                                             dragStartStrand.connR())
-                else:
-                    self.actionClearRange(dragStartBase.vIndex,\
-                                          dragEndBase.vIndex)
-            elif dragStartBase == dragStartStrand.vBaseR:
-                if dragEndBase > dragStartStrand.vBaseL:
-                    if hasattr(dragStartStrand, 'changeRange'):
-                        self.actionResizeStrand(dragStartStrand,\
-                                                dragStartStrand.vBaseL,\
-                                                dragEndBase)
-                    else:
-                        self.actionAddStrand(dragStartStrand.connR(),\
-                                             dragStartStrand.vBaseL,\
-                                             dragEndBase)
-                else:
-                    self.actionClearRange(dragEndBase.vIndex + 1,\
-                                          dragStartBase.vIndex + 1)
-            else:
-                assert(False)  # We aren't dragging from an endpt after all?
-        elif draggingFromInsideAStrand:
-            if dragStartBase == dragEndBase:
-                self.actionClearRange(dragStartBase.vIndex,\
-                                      dragStartBase.vIndex,\
-                                      False)  # Left strand is the new strand
-            elif dragEndBase == dragStartBase - 1:
-                self.actionClearRange(dragStartBase.vIndex,\
-                                      dragStartBase.vIndex,\
-                                      True)  # Right strand is the new strand
-            else:  # dragEndBase < dragStartBase-1 or > dragStartBase
-                if dragEndBase < dragStartBase:
-                    self.actionClearRange(leftBase.vIndex + 1,\
-                                          rightBase.vIndex,\
-                                          True)  # Right strand is the new one
-                else:
-                    self.actionClearRange(leftBase.vIndex,\
-                                          rightBase.vIndex,\
-                                          False)  # Left strand is the new game
-        elif draggingFromAnEmptyBase:
-            if dragStartBase == dragEndBase:
-                self.actionNone()
-            elif not dragEndExposedEnds:
-                self.actionAddStrand(None, leftBase, rightBase, None)
-            elif dragEndBase < dragStartBase and 'R' in dragEndExposedEnds:
-                self.actionAddStrand(dragEndStrand,\
-                                     dragEndBase + 1, dragStartBase,\
-                                     None)
-            elif dragEndBase > dragStartBase and 'L' in dragEndExposedEnds:
-                self.actionAddStrand(None,\
-                                     dragStartBase, dragEndBase - 1,\
-                                     dragEndStrand)
-            else:
-                self.actionAddStrand(None, leftBase, rightBase, None)
+        vStrand.connectStrand(dragStartBase.vIndex, dragEndBase.vIndex, useUndoStack=True, undoStack=self.undoStack)
 
     def end(self):
         """ Make the changes displayed by the last call to
@@ -177,8 +100,8 @@ class PencilToolOperation(Operation):
 
     def actionResizeStrand(self, strand, newL, newR):
         if self.logger:
-            self.logger.write('PencilToolOperation.actionResizeStrand')
-        newL.vStrand.resizeRangeAtIdx(strand.vBaseL, newL, newR, useUndoStack=True, undoStack=self.undoStack)
+            self.logger.write('PencilToolOperation.actionResizeStrand\n')
+        newL.vStrand.resizeStrandAt(strand.vBaseL, newL, newR, useUndoStack=True, undoStack=self.undoStack)
 
     def actionClearRange(self, firstIdx, afterLastIdx, keepLeft=True):
         if self.logger:

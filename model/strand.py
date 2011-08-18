@@ -46,6 +46,7 @@ class Strand(QObject):
         global nextStrandDebugIdentifier
         self.traceID = nextStrandDebugIdentifier
         nextStrandDebugIdentifier += 1
+        self.connectivityChanged.connect(self.apparentConnectivityChanged.emit)
 
     def assertConsistent(self):
         pass

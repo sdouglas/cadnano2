@@ -21,6 +21,7 @@
 # THE SOFTWARE.
 #
 # http://www.opensource.org/licenses/mit-license.php
+import model.vstrand
 
 class VBase(object):
     """
@@ -33,6 +34,8 @@ class VBase(object):
     """
     def __init__(self, vStrand, vIndex):
         object.__init__(self)
+        assert(isinstance(vStrand, model.vstrand.VStrand))
+        assert(isinstance(vIndex, (int, long)))
         self.vStrand = vStrand
         self.vIndex = vIndex
     def __repr__(self):
@@ -143,7 +146,7 @@ class VBase(object):
         exposed. """
         containingStrand = self.vStrand.get(self.vIndex)
         if containingStrand == None:
-            return None
+            return ''
         return containingStrand.exposedEndsAt(self)
 
     def strand(self):

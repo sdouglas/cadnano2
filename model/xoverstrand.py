@@ -35,6 +35,7 @@ class XOverStrand(Strand):
     that self.vBaseL==self.vBase3 and self.vBaseR==self.vBase5.
     """
     logger = None
+    kind = 'xovr'
     def __init__(self, vBase3, vBase5):
         self._vBase3 = vBase3
         self._vBase5 = vBase5

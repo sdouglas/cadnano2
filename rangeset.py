@@ -262,7 +262,7 @@ class RangeSet(object):
                                                 firstIIR,\
                                                 firstIIR,\
                                                 (rangeItem,),\
-                                                suppressCallsItem=False)
+                                                suppressCallsItem)
             self.endCommand(undoStack, com)
             return
         replacementRanges = [rangeItem]
@@ -373,23 +373,29 @@ class RangeSet(object):
         Finds the largest contiguous range of indices in the receiver that includes
         idx and changes it 
         """
+        assert(isinstance(idx, (int, long)))
         undoStack = self.beginCommand(useUndoStack,\
                                       undoStack,\
                                       'RangeSet.resizeRangeAtIdx')
         rangeItemToResize = self.get(idx)
         oldL, oldAR = self.idxs(rangeItemToResize)
+        print "\tsuppressed removal"
         self.removeRange(oldL, oldAR,\
                          useUndoStack=useUndoStack, undoStack=undoStack,\
                          suppressCallsItem=rangeItemToResize)
+        print "\tchg rng"
         newRangeItem = self.changeRangeForItem(rangeItemToResize,\
                                                newFirstIndex,\
                                                newAfterLastIdx,\
                                                undoStack)
+        print "\tsuppressed addition"
         # Caveat: newRangeItem might == rangeItemToResize
         self.addRange(newRangeItem,\
                       useUndoStack=useUndoStack, undoStack=undoStack,\
                       suppressCallsItem=rangeItemToResize)
-        if undoStack != None: undoStack.endMacro()
+        print "\tend"
+        if undoStack != None:
+            undoStack.endMacro()
 
     ################################ Private Write API #########################
     def beginCommand(self, useUndoStack, undoStack, commandDescription):
@@ -507,6 +513,8 @@ class RangeSet(object):
             mid = (m+M)/2
             rangeItem = self.ranges[mid]
             l, r = self.idxs(rangeItem)
+            if not isinstance(intVal, (int, long)):
+                print "!!!intVal: %s "%(intVal) + util.trace(5)
             if r <= intVal:
                 m = mid + 1
             elif l > intVal:

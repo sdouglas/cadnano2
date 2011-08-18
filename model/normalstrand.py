@@ -36,6 +36,7 @@ class NormalStrand(Strand):
     range(normalStrand.vBaseL, normalStrand.vBaseR + 1)
     """
     logger = None  # Use sys.stdout to log a trace to stdout
+    kind = 'nrml'
     def __init__(self, vBaseL, vBaseR):
         Strand.__init__(self)
         self.vBaseL = vBaseL
