@@ -173,12 +173,9 @@ class SolidHelixGroup(QObject):
         #transforms = cmds.ls("DNAShapeTransform*")
         #for t in transforms:
         #     cmds.delete(t)
-        nodes = cmds.ls("DNAShapeTransform*", "DNAStrandShader*", "pfxToon*")
+        nodes = cmds.ls("DNAShapeTransform*", "DNAStrandShader*")
         for n in nodes:
             cmds.delete(n)
-        transforms = cmds.ls("DNAToon*", et="transform")
-        for t in transforms:
-            cmds.delete(t)
         self.solidHelicesIndices = {}
         self.solidHelicesIndicesCount = 0
 
@@ -188,16 +185,17 @@ class SolidHelixGroup(QObject):
         itemIndices = self.solidHelicesIndices[myKey]
 
         for i in itemIndices:
-            toonName = "pfxToon%d" % i
-            toonName2 = "DNAToon%d" % i
+            #toonName = "pfxToon%d" % i
+            #toonName2 = "DNAToon%d" % i
             transformName = "DNAShapeTransform%d" % i
             shaderName = "DNAStrandShader%d" % i
-            items = cmds.ls(toonName, transformName, shaderName)
+            #items = cmds.ls(toonName, transformName, shaderName)
+            items = cmds.ls(transformName, shaderName)
             for i in items:
                 cmds.delete(i)
-            items2 = cmds.ls(toonName2, et="transform")
-            for i in items2:
-                cmds.delete(i)
+            #items2 = cmds.ls(toonName2, et="transform")
+            #for i in items2:
+            #    cmds.delete(i)
         self.solidHelicesIndices[myKey] = []
 
     def createNewHelix(self, row, col, strandType, count=1):
@@ -220,7 +218,7 @@ class SolidHelixGroup(QObject):
         transformName = "DNAShapeTransform%d" % count
         meshName = "DNACylinderShape%d" % count
         #metaName = "HelixMetaNode%d" % count
-        toonName = "DNAToonShape%d" % count
+        #toonName = "DNAToonShape%d" % count
         shaderName = "DNAStrandShader%d" % count
 
         #cmds.createNode("polyCylinder", name=cylinderName)
@@ -238,19 +236,19 @@ class SolidHelixGroup(QObject):
         cmds.createNode("spHalfCylinderHelixNode", name=cylinderName)
         cmds.connectAttr("%s.outputMesh" % cylinderName,
                          "%s.inMesh" % meshName)
-        # Create Crease and Profile Lines
-        cmds.createNode("pfxToon", name=toonName)
-        cmds.connectAttr("%s.outMesh" % meshName,
-                         "%s.inputSurface[0].surface" % toonName)
-        cmds.connectAttr("%s.worldMatrix[0]" % meshName,
-                         "%s.inputSurface[0].inputWorldMatrix" % toonName)
-        cmds.setAttr("%s.displayPercent" % toonName, 100)
-        cmds.setAttr("%s.tighterProfile" % toonName, 1)
-        cmds.setAttr("%s.profileLineWidth" % toonName, 0.613497)
-        cmds.setAttr("%s.lineWidth" % toonName, 0.0245399)
-        cmds.setAttr("%s.hardCreasesOnly" % toonName, 0)
-        cmds.setAttr("%s.creaseAngleMin" % toonName, 30.920245)
-        cmds.setAttr("%s.depthOffset" % toonName, 6.533742)
+        ## Create Crease and Profile Lines
+        #cmds.createNode("pfxToon", name=toonName)
+        #cmds.connectAttr("%s.outMesh" % meshName,
+        #                 "%s.inputSurface[0].surface" % toonName)
+        #cmds.connectAttr("%s.worldMatrix[0]" % meshName,
+        #                 "%s.inputSurface[0].inputWorldMatrix" % toonName)
+        #cmds.setAttr("%s.displayPercent" % toonName, 100)
+        #cmds.setAttr("%s.tighterProfile" % toonName, 1)
+        #cmds.setAttr("%s.profileLineWidth" % toonName, 0.613497)
+        #cmds.setAttr("%s.lineWidth" % toonName, 0.0245399)
+        #cmds.setAttr("%s.hardCreasesOnly" % toonName, 0)
+        #cmds.setAttr("%s.creaseAngleMin" % toonName, 30.920245)
+        #cmds.setAttr("%s.depthOffset" % toonName, 6.533742)
 
         # Create a separate shader for each strand so that it can be colored
         # in different colors

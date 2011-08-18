@@ -114,18 +114,17 @@ class HalfCylinderHelixNode(OpenMayaMPx.MPxNode):
                    parity, strandType, outData):
         # XXX [SB] start and end are inverted right now...
         middleBase = totalNumBases / 2
-        #print "startV endV %d %d %d" % (startVal, endVal, middleBase)
         end = (middleBase - startVal)
         start = (endVal - middleBase)
-        baseCount = start + end
+        baseCount = start + end + 1
         numVerticesEnds = 20
         numMiddleSections = int(baseCount * edgesPerBase) - 1
-        #print "start %d end %d" % (start, end)
         rise = riseAttr / edgesPerBase
         start_pos = -start * (riseAttr)
         numVerticesTotal = (numVerticesEnds * 2) + \
                             numMiddleSections * numVerticesEnds
         rot_ang = -rotationAttr / edgesPerBase
+        gap = rise/6.0
 
         numFacesEnds = numVerticesEnds - 2
         numFacesTotal = (numVerticesEnds - 2) * 2 + \
@@ -140,14 +139,14 @@ class HalfCylinderHelixNode(OpenMayaMPx.MPxNode):
                             (math.pi * strandType)
 
         # Create Endpice verts
-        vtx.append(OpenMaya.MFloatPoint(0.0, start_pos, 0.0))
-        self.end3DPos = OpenMaya.MFloatPoint(0.0, start_pos, 0.0)
+        vtx.append(OpenMaya.MFloatPoint(0.0, start_pos+gap, 0.0))
+        self.end3DPos = OpenMaya.MFloatPoint(0.0, start_pos+gap, 0.0)
         for i in range(1, numVerticesEnds):
             val = i * (180 / (numFacesEnds))
             rad = (val * math.pi) / 180
             vtx.append(OpenMaya.MFloatPoint(radius * \
                                 math.cos(starting_rotation + rad),
-                                start_pos,
+                                start_pos+gap,
                                 radius * math.sin(starting_rotation + rad)))
         # Create Middle verts
         for i in range(0, numMiddleSections):
@@ -164,11 +163,11 @@ class HalfCylinderHelixNode(OpenMayaMPx.MPxNode):
 
         # Create EndPiece verts
         vtx.append(OpenMaya.MFloatPoint(0.0,
-                                start_pos + (numMiddleSections + 1) * rise,
-                                0.0))
+                            start_pos + (numMiddleSections + 1) * rise - gap,
+                            0.0))
         self.start3DPos = OpenMaya.MFloatPoint(0.0,
-                                start_pos + (numMiddleSections + 1) * rise,
-                                0.0)
+                            start_pos + (numMiddleSections + 1) * rise - gap,
+                            0.0)
         for i in range(1, numVerticesEnds):
             rotation = rot_ang * (1 + numMiddleSections)
             val = i * (180 / (numFacesEnds))
@@ -177,8 +176,8 @@ class HalfCylinderHelixNode(OpenMayaMPx.MPxNode):
             x = radius * math.cos(starting_rotation + rad + rotation)
             y = radius * math.sin(starting_rotation + rad + rotation)
             vtx.append(OpenMaya.MFloatPoint(x,
-                                start_pos + (numMiddleSections + 1) * rise,
-                                y))
+                            start_pos + (numMiddleSections + 1) * rise - gap,
+                            y))
         #print "vtx length %d"  % len(vtx)
         points = OpenMaya.MFloatPointArray()
         points.setLength(numVerticesTotal)

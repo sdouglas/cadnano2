@@ -154,12 +154,9 @@ class CADnano(QObject):
         if not self.isInMaya():
             return
         import maya.cmds as cmds
-        nodes = cmds.ls("DNAShapeTransform*", "DNAStrandShader*", "pfxToon*")
+        nodes = cmds.ls("DNAShapeTransform*", "DNAStrandShader*")
         for n in nodes:
             cmds.delete(n)
-        transforms = cmds.ls("DNAToon*", et="transform")
-        for t in transforms:
-            cmds.delete(t)
         for doc in self.documentControllers:
             if hasattr(doc, 'solidHelixGrp'):
                 doc.solidHelixGrp.solidHelicesIndices = {}
