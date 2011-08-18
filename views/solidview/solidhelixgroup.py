@@ -118,7 +118,7 @@ class SolidHelixGroup(QObject):
             if(segmentsCount < 1):
                 continue
             itemIndices = self.solidHelicesIndices[myKey]
-            parity = not self._part.virtualHelixParityEven(vh) # 0 -> even
+            parity = not self._part.virtualHelixParityEven(vh)  # 0 -> even
             for seg in range(segmentsCount):
                 cylinderName = "HalfCylinderHelixNode%d" % itemIndices[seg]
                 #transformName = "DNAShapeTranform%d" % itemIndex
@@ -139,11 +139,25 @@ class SolidHelixGroup(QObject):
                 else:
                     raise NotImplementedError
                 cmds.setAttr("%s.strandType" % cylinderName, strandType)
-                shaderName = "DNAStrandShader%d" % itemIndices[seg]
+                #shaderName = "DNAStrandShader%d" % itemIndices[seg]
+                meshName = "DNACylinderShape%d" % itemIndices[seg]
                 color = vh.colorOfBase(strandType, int(endpoints[0][seg][0]))
-                cmds.setAttr("%s.color" % shaderName,
-                             color.redF(), color.greenF(), color.blueF(),
-                             type="double3")
+
+                shaderName = "DNAStrandShader%d_%d_%d" % (color.red(),
+                                                          color.green(),
+                                                          color.blue())
+                if not cmds.objExists(shaderName):
+                    # Shader does not exist create one
+                    cmds.shadingNode('lambert', asShader=True, name=shaderName)
+                    cmds.sets(n="%sSG" % shaderName, r=True, nss=True, em=True)
+                    cmds.connectAttr("%s.outColor" % shaderName,
+                                     "%sSG.surfaceShader" % shaderName)
+                    cmds.setAttr("%s.color" % shaderName,
+                                 color.redF(), color.greenF(), color.blueF(),
+                                 type="double3")
+                else:
+                    #shader exist connect
+                    cmds.sets(meshName, forceElement="%sSG" % shaderName)
 
     def onPersistentDataChanged(self):
         # Update in the Model
@@ -188,11 +202,13 @@ class SolidHelixGroup(QObject):
             #toonName = "pfxToon%d" % i
             #toonName2 = "DNAToon%d" % i
             transformName = "DNAShapeTransform%d" % i
-            shaderName = "DNAStrandShader%d" % i
+            if cmds.objExists(transformName):
+                cmds.delete(transformName)
+            #shaderName = "DNAStrandShader%d" % i
             #items = cmds.ls(toonName, transformName, shaderName)
-            items = cmds.ls(transformName, shaderName)
-            for i in items:
-                cmds.delete(i)
+            #items = cmds.ls(transformName, shaderName)
+            #for i in items:
+            #    cmds.delete(i)
             #items2 = cmds.ls(toonName2, et="transform")
             #for i in items2:
             #    cmds.delete(i)
@@ -254,13 +270,13 @@ class SolidHelixGroup(QObject):
         # in different colors
         # XXX [SB] - Need to refactor this, shuld group stands of the
         # same color into one shader
-        cmds.shadingNode('lambert', asShader=True, name=shaderName)
-        cmds.sets(n="%sSG" % shaderName, r=True, nss=True, em=True)
-        cmds.connectAttr("%s.outColor" % shaderName,
-                         "%sSG.surfaceShader" % shaderName)
-        cmds.sets(meshName, forceElement="%sSG" % shaderName)
-        cmds.setAttr("%s.color" % shaderName,
-                     0.313725, 0.397089, 0.941176, type="double3")
+        #cmds.shadingNode('lambert', asShader=True, name=shaderName)
+        #cmds.sets(n="%sSG" % shaderName, r=True, nss=True, em=True)
+        #cmds.connectAttr("%s.outColor" % shaderName,
+        #                 "%sSG.surfaceShader" % shaderName)
+        #cmds.sets(meshName, forceElement="%sSG" % shaderName)
+        #cmds.setAttr("%s.color" % shaderName,
+        #             0.313725, 0.397089, 0.941176, type="double3")
 
 
 #class SolidHelixGroup(QObject):
