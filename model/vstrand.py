@@ -36,7 +36,7 @@ class VStrand(QObject, RangeSet):
     This subclass of RangeSet is designed to hold Segment items as its ranges.
     """
     didAddStrand = pyqtSignal(object)
-    logger = None
+    logger = sys.stdout
 
     def __init__(self, parentVHelix=None):
         QObject.__init__(self)

@@ -325,10 +325,8 @@ class RangeSet(object):
         self.endCommand(undoStack, com)
 
     def removeRange(self, firstIndex, afterLastIndex, useUndoStack=True, undoStack=None, suppressCallsItem=None, keepLeft=True):
-        print "\tRnR %s %s"%(firstIndex, afterLastIndex)
         if firstIndex >= afterLastIndex:
             return
-        print "\tRnR1"
         oldBounds = self.bounds()
         undoStack = self.beginCommand(useUndoStack,\
                                       undoStack,\
@@ -338,7 +336,7 @@ class RangeSet(object):
         replacementRanges = []
         # (first Index (into self.ranges) of an Intersecting Range)
         firstIIR, afterLastIIR = intersectingIdxRange
-        print "\tRangeRange: %s[%i:%i]"%(self.ranges, firstIIR, afterLastIIR)
+        # print "\tRangeRange: %s[%i:%i]"%(self.ranges, firstIIR, afterLastIIR)
         if afterLastIIR == firstIIR:
             return
         firstIR = self.ranges[firstIIR]
