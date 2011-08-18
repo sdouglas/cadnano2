@@ -356,7 +356,7 @@ class RangeSet(object):
                 replacementRanges.append(newItem)
         lastIR = self.ranges[afterLastIIR - 1]
         lastIRL, lastIRAr = self.idxs(lastIR)
-        if lastIRAr > afterLastIndex and lastIR != firstIR:
+        if lastIRAr > afterLastIndex and lastIRL >= firstIndex:
             newItem = self.changeRangeForItem(lastIR,\
                                               afterLastIndex,\
                                               lastIRAr,\
