@@ -177,9 +177,13 @@ class CADnano(QObject):
             print "Loaded default document: %s" % doc
             dc = DocumentController(doc, defaultFile)
         else:
-            dc = DocumentController()  # DocumentController is responsible
-                                       # for adding itself to
-                                       # app.documentControllers
+            docCtrlrCount = len(self.documentControllers)
+            if docCtrlrCount == 0:  # first dc
+                # dc adds itself to app.documentControllers
+                dc = DocumentController()
+            elif docCtrlrCount == 1:  # dc already exists
+                dc = list(self.documentControllers)[0]
+                dc.newDocument()  # tell it to make a new doucment
         return dc.document()
 
     def prefsClicked(self):

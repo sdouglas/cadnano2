@@ -103,6 +103,13 @@ class Document(QObject):
             c.redo()
         return c.part()
 
+    def removeAllParts(self):
+        """Used to reset the document."""
+        while len(self._parts) > 0:
+            part = self._parts.pop()
+            part._setDocument(None)
+            part.partRemoved.emit()
+
     class AddPartCommand(QUndoCommand):
         """
         Undo ready command for deleting a part.

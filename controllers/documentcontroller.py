@@ -66,7 +66,6 @@ class DocumentController():
             del app().activeDocument
             app().deleteAllMayaNodes()
             app().activeDocument = self
-
         app().documentControllers.add(self)
         if doc != None and doc._undoStack != None:
             self._undoStack = doc._undoStack
@@ -88,10 +87,8 @@ class DocumentController():
         self.setDocument(Document() if not doc else doc)
         app().undoGroup.addStack(self.undoStack())
         self.win.setWindowTitle(self.documentTitle() + '[*]')
-        #self.solidHelixGrp = None
         if doc != None and doc.parts():
             doc.parts()[0].needsFittingToView.emit()
-
         if app().isInMaya():
             import maya.OpenMayaUI as OpenMayaUI
             import sip
@@ -216,27 +213,75 @@ class DocumentController():
 
     def newClicked(self):
         """
-        1. If document is blank and not dirty, do nothing and return.
-        2. If document is dirty, call maybesave and continue if it succeeds.
-        3. Create a new document and swap it into the existing window.
+        1. If document is has no parts, do nothing.
+        2. If document is dirty, call maybeSave and continue if it succeeds.
+        3. Create a new document and swap it into the existing ctrlr/window.
         """
-        # Will create a new Document object and will be
-        # be kept alive by the app's document list
-        app().newDocument()
+        if len(self._document.parts()) == 0:
+            # print "no parts!"
+            return  # no parts
+
+        if self.maybeSave() == False:
+            return  # user canceled in maybe save
+        else:  # user did not cancel
+            if hasattr(self, "filesavedialog"): # user did save
+                self.filesavedialog.finished.connect(self.newClickedCallback)
+            else:  # user did not save
+                self.newClickedCallback()  # finalize new
+
+    def newClickedCallback(self):
+        """
+        Gets called on completion of filesavedialog after newClicked's 
+        maybeSave. Removes the dialog if necessary, but it was probably
+        already removed by saveFileDialogCallback.
+        """
+        # print "newClickedCallback"
+        if hasattr(self, "filesavedialog"): # user did save
+            self.filesavedialog.finished.disconnect(self.newClickedCallback)
+            del self.filesavedialog  # prevents hang (?)
+        self.newDocument()
+
+    def newDocument(self, doc=None, fname=None):
+        """Creates a new Document, reusing the DocumentController."""
+        self._document.removeAllParts()  # clear out old parts
+        self._undoStack.clear()  # reset undostack
+        del self.sliceGraphicsItem
+        del self.pathHelixGroup
+        self.sliceGraphicsItem = None
+        self.pathHelixGroup = None
+        self.setDocument(Document() if not doc else doc)
+        self._filename = fname if fname else "untitled.nno"
+        self._hasNoAssociatedFile = fname == None
+        self._activePart = None
+        self.win.setWindowTitle(self.documentTitle() + '[*]')
+        if doc != None and doc.parts():
+            part = doc.parts()[0]
+            part.needsFittingToView.emit()
+            self._activePart = part
 
     def openClicked(self):
         """
-        1. If document is untouched, continue.
+        1. If document is untouched, proceed to open dialog.
         2. If document is dirty, call maybesave and continue if it succeeds.
-        2. Decode a document and swap it into the existing window.
+        Downstream, the file is selected in openAfterMaybeSave,
+        and the selected file is actually opened in openAfterMaybeSaveCallback.
         """
+        if self.maybeSave() == False:
+            return  # user canceled in maybe save
+        else:  # user did not cancel
+            if hasattr(self, "filesavedialog"): # user did save
+                self.filesavedialog.finished.connect(self.openAfterMaybeSave)
+            else:  # user did not save
+                self.openAfterMaybeSave()  # finalize new
+
+    def openAfterMaybeSave(self):
         if util.isWindows():  # required for native looking file window
             fname = QFileDialog.getOpenFileName(
                         None,
                         "Open Document", "/",
                         "CADnano1 / CADnano2 Files (*.nno *.json *.cadnano)")
             self.filesavedialog = None
-            self.openFile(fname)
+            self.openAfterMaybeSaveCallback(fname)
         else:  # access through non-blocking callback
             fdialog = QFileDialog(
                         self.win,
@@ -247,11 +292,11 @@ class DocumentController():
             fdialog.setWindowFlags(Qt.Sheet)
             fdialog.setWindowModality(Qt.WindowModal)
             # fdialog.exec_()  # or .show(), or .open()
-            self.filesavedialog = fdialog
-            self.filesavedialog.filesSelected.connect(self.openFile)
+            self.fileopendialog = fdialog
+            self.fileopendialog.filesSelected.connect(self.openAfterMaybeSaveCallback)
             fdialog.open()  # or .show(), or .open()
 
-    def openFile(self, selected):
+    def openAfterMaybeSaveCallback(self, selected):
         if isinstance(selected, QStringList) or isinstance(selected, list):
             fname = selected[0]
         else:
@@ -260,73 +305,15 @@ class DocumentController():
             return False
         fname = str(fname)
         doc = decode(file(fname).read())
-        DocumentController(doc, fname)
+        # DocumentController(doc, fname)
+        self.newDocument(doc, fname)
         doc.finalizeImport()  # updates staple highlighting
-        if self.filesavedialog != None:
-            self.filesavedialog.filesSelected.disconnect(self.openFile)
+        if self.fileopendialog != None:
+            self.fileopendialog.filesSelected.disconnect(\
+                                              self.openAfterMaybeSaveCallback)
             # manual garbage collection to prevent hang (in osx)
-            del self.filesavedialog
+            del self.fileopendialog
     # end def
-
-    def exportSequenceCSV(self, fname):
-        """Export all staple sequences to CSV file fnane."""
-        output = self.activePart().getStapleSequences()
-        f = open(fname, 'w')
-        f.write(output)
-        f.close()
-    # end def
-
-    def exportCSV(self):
-        fname = self.filename()
-        if fname == None:
-            directory = "."
-        else:
-            directory = QFileInfo(fname).path()
-        if util.isWindows():  # required for native looking file window
-            fname = QFileDialog.getSaveFileName(
-                            self.win,
-                            "%s - Export As" % QApplication.applicationName(),
-                            directory,
-                            "(*.csv)")
-            self.filesavedialog = None
-            self.exportFile(fname)
-        else:  # access through non-blocking callback
-            fdialog = QFileDialog(
-                            self.win,
-                            "%s - Export As" % QApplication.applicationName(),
-                            directory,
-                            "(*.csv)")
-            fdialog.setAcceptMode(QFileDialog.AcceptSave)
-            fdialog.setWindowFlags(Qt.Sheet)
-            fdialog.setWindowModality(Qt.WindowModal)
-            # fdialog.exec_()  # or .show(), or .open()
-            self.filesavedialog = fdialog
-            self.filesavedialog.filesSelected.connect(self.exportFile)
-            fdialog.open()
-    # end def
-
-    def exportFile(self, selected):
-        if isinstance(selected, QStringList) or isinstance(selected, list):
-            fname = selected[0]
-        else:
-            fname = selected
-        if fname.isEmpty() or os.path.isdir(fname):
-            return False
-        fname = str(fname)
-        if not fname.lower().endswith(".csv"):
-            fname += ".csv"
-        # self.setFilename(fname)
-        if self.filesavedialog != None:
-            self.filesavedialog.filesSelected.disconnect(self.exportFile)
-            # manual garbage collection to prevent hang (in osx)
-            del self.filesavedialog
-        return self.exportSequenceCSV(fname)
-    # end def
-
-    def closeClicked(self):
-        """This will trigger a Window closeEvent"""
-        if util.isWindows():
-            self.win.close()
 
     def maybeSave(self):
         """
@@ -355,7 +342,7 @@ class DocumentController():
                 return False
         return True
 
-    def writeToFile(self, filename=None):
+    def writeDocumentToFile(self, filename=None):
         if filename == None:
             assert(not self._hasNoAssociatedFile)
             filename = self.filename()
@@ -380,14 +367,14 @@ class DocumentController():
 
     def saveClicked(self):
         if self._hasNoAssociatedFile or self._document._importedFromJson:
-            self.openSaveFileDialog()
+            self.saveFileDialog()
             return
-        self.writeToFile()
+        self.writeDocumentToFile()
 
     def saveAsClicked(self):
-        self.openSaveFileDialog()
+        self.saveFileDialog()
 
-    def openSaveFileDialog(self):
+    def saveFileDialog(self):
         fname = self.filename()
         if fname == None:
             directory = "."
@@ -399,7 +386,7 @@ class DocumentController():
                             "%s - Save As" % QApplication.applicationName(),
                             directory,
                             "%s (*.nno)" % QApplication.applicationName())
-            self.writeToFile(fname)
+            self.writeDocumentToFile(fname)
         else:  # access through non-blocking callback
             fdialog = QFileDialog(
                             self.win,
@@ -429,8 +416,71 @@ class DocumentController():
             self.filesavedialog.filesSelected.disconnect(
                                                 self.saveFileDialogCallback)
             del self.filesavedialog  # prevents hang
-        self.writeToFile(fname)
+        self.writeDocumentToFile(fname)
     # end def
+
+    def exportCSV(self):
+        """
+        Triggered by clicking Export Staples button. Opens a file dialog to
+        determine where the staples should be saved. The callback is
+        exportCSVCallback which collects the staple sequences and exports
+        the file.
+        """
+        fname = self.filename()
+        if fname == None:
+            directory = "."
+        else:
+            directory = QFileInfo(fname).path()
+        if util.isWindows():  # required for native looking file window
+            fname = QFileDialog.getSaveFileName(
+                            self.win,
+                            "%s - Export As" % QApplication.applicationName(),
+                            directory,
+                            "(*.csv)")
+            self.filesavedialog = None
+            self.exportFile(fname)
+        else:  # access through non-blocking callback
+            fdialog = QFileDialog(
+                            self.win,
+                            "%s - Export As" % QApplication.applicationName(),
+                            directory,
+                            "(*.csv)")
+            fdialog.setAcceptMode(QFileDialog.AcceptSave)
+            fdialog.setWindowFlags(Qt.Sheet)
+            fdialog.setWindowModality(Qt.WindowModal)
+            # fdialog.exec_()  # or .show(), or .open()
+            self.filesavedialog = fdialog
+            self.filesavedialog.filesSelected.connect(self.exportCSVCallback)
+            fdialog.open()
+    # end def
+
+    def exportCSVCallback(self, selected):
+        """Export all staple sequences to CSV file fnane."""
+        if isinstance(selected, QStringList) or isinstance(selected, list):
+            fname = selected[0]
+        else:
+            fname = selected
+        if fname.isEmpty() or os.path.isdir(fname):
+            return False
+        fname = str(fname)
+        if not fname.lower().endswith(".csv"):
+            fname += ".csv"
+        # self.setFilename(fname)
+        if self.filesavedialog != None:
+            self.filesavedialog.filesSelected.disconnect(self.exportFile)
+            # manual garbage collection to prevent hang (in osx)
+            del self.filesavedialog
+        # write the file
+        output = self.activePart().getStapleSequences()
+        f = open(fname, 'w')
+        f.write(output)
+        f.close()
+    # end def
+
+    def closeClicked(self):
+        """This will trigger a Window closeEvent"""
+        if util.isWindows():
+            self.win.close()
 
     def svgClicked(self):
         """docstring for svgClicked"""
