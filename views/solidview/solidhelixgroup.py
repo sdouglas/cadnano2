@@ -142,7 +142,6 @@ class SolidHelixGroup(QObject):
                 #shaderName = "DNAStrandShader%d" % itemIndices[seg]
                 meshName = "DNACylinderShape%d" % itemIndices[seg]
                 color = vh.colorOfBase(strandType, int(endpoints[0][seg][0]))
-
                 shaderName = "DNAStrandShader%d_%d_%d" % (color.red(),
                                                           color.green(),
                                                           color.blue())
@@ -155,6 +154,7 @@ class SolidHelixGroup(QObject):
                     cmds.setAttr("%s.color" % shaderName,
                                  color.redF(), color.greenF(), color.blueF(),
                                  type="double3")
+                    cmds.sets(meshName, forceElement="%sSG" % shaderName)
                 else:
                     #shader exist connect
                     cmds.sets(meshName, forceElement="%sSG" % shaderName)
@@ -236,18 +236,14 @@ class SolidHelixGroup(QObject):
         #metaName = "HelixMetaNode%d" % count
         #toonName = "DNAToonShape%d" % count
         shaderName = "DNAStrandShader%d" % count
-
         #cmds.createNode("polyCylinder", name=cylinderName)
         #cmds.setAttr("%s.radius"%cylinderName, self.helixRadius)
         cmds.createNode("transform", name=transformName)
         cmds.setAttr("%s.rotateX" % transformName, 90)
         cmds.setAttr("%s.translateX" % transformName, x)
         cmds.setAttr("%s.translateY" % transformName, y)
-
         cmds.createNode("mesh", name=meshName, parent=transformName)
-
-        cmds.sets(meshName, add="initialShadingGroup")
-
+        #cmds.sets(meshName, add="initialShadingGroup")
         #cmds.createNode("spHelixMetaNode", name=metaName)
         cmds.createNode("spHalfCylinderHelixNode", name=cylinderName)
         cmds.connectAttr("%s.outputMesh" % cylinderName,
@@ -265,7 +261,6 @@ class SolidHelixGroup(QObject):
         #cmds.setAttr("%s.hardCreasesOnly" % toonName, 0)
         #cmds.setAttr("%s.creaseAngleMin" % toonName, 30.920245)
         #cmds.setAttr("%s.depthOffset" % toonName, 6.533742)
-
         # Create a separate shader for each strand so that it can be colored
         # in different colors
         # XXX [SB] - Need to refactor this, shuld group stands of the
