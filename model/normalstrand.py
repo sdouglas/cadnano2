@@ -164,17 +164,22 @@ class NormalStrand(Strand):
             strand, oldL, oldR = self.strand, self.oldL, self.oldR
             if strand.logger != None:
                 strand.logger.write("-%i.changeRange(%s, %s) %s\n"%(\
-                                    strand.traceID, oldL, oldR, repr(strand)))
+                        strand.traceID, oldL, oldR, repr(vStrand)))
             strand.vBaseL = self.oldL
             strand.vBaseR = self.oldR
             self.strand.didMove.emit(self.strand)
 
     def split(self, splitStart, splitAfterLast, keepLeft, undoStack):
         # keepLeft was preserveLeftOligoDuringSplit
+        vStrand = self.vStrand()
         if self.logger != None:
-            self.logger.write(" %i.split(%i, %i, %s) %s"%(self.traceID,\
-                            splitStart, splitAfterLast, keepLeft, repr(strand)))
-        vBaseL, vBaseR, vStrand = self.vBaseL, self.vBaseR, self.vStrand()
+            self.logger.write(" %i.split(%s, %s, %s) %s"%(self.traceID,\
+                        splitStart, splitAfterLast, keepLeft, repr(vStrand)))
+        if isinstance(splitStart, (int, long)):
+            splitStart = VBase(vStrand, splitStart)
+        if isinstance(splitAfterLast, (int, long)):
+            splitAfterLast = VBase(vStrand, splitAfterLast)
+        vBaseL, vBaseR = self.vBaseL, self.vBaseR
         assert(splitStart <= splitAfterLast)
         newRangeL = (vBaseL, splitStart - 1)
         newRangeLValid = newRangeL[0] <= newRangeL[1]
@@ -184,13 +189,11 @@ class NormalStrand(Strand):
         if keepLeft:
             if newRangeLValid: ret.append(\
                    self.changeRange(newRangeL[0], newRangeL[1], undoStack)  )
-            if newRangeRValid: ret.append(\
-                   NormalStrand(vStrand(splitAfterLast), *newRangeR)        )
+            if newRangeRValid: ret.append( NormalStrand(*newRangeR) )
         else:
             if newRangeLValid: ret.append(\
                    self.changeRange(newRangeR[0], newRangeR[1], undoStack)  )
-            if newRangeRValid: ret.append(\
-                   NormalStrand(vStrand(splitAfterLast), *newRangeL)        )
+            if newRangeRValid: ret.append( NormalStrand(*newRangeL) )
         for strand in ret: strand.assertConsistent()
         return ret
 

@@ -156,9 +156,6 @@ class VStrand(QObject, RangeSet):
         # A strand is a rangeItem
         self.addRange(strand, useUndoStack, undoStack)
 
-    def clearRange(self, firstIndex, afterLastIndex, useUndoStack=True, undoStack=None, keepLeft=True):
-        self.removeRange(self, firstIndex, afterLastIndex, useUndoStack, undoStack, keepLeft=keepLeft)
-
     def resizeStrandAt(self, idxInStrand, newFirstBase, newLastBase, useUndoStack=True, undoStack=None):
         if isinstance(idxInStrand, VBase):
             idxInStrand = idxInStrand.vIndex
@@ -169,6 +166,52 @@ class VStrand(QObject, RangeSet):
         self.resizeRangeAtIdx(idxInStrand, newFirstBase,\
                               newLastBase + 1,\
                               useUndoStack, undoStack)
+
+    def clearStrand(self, firstIndex, afterLastIndex, useUndoStack=True, undoStack=None, keepLeft=True):
+        #Input sanitization
+        if isinstance(firstIndex, VBase):
+            firstIndex = firstIndex.vIndex
+        if isinstance(afterLastIndex, VBase):
+            afterLastIndex = afterLastIndex.vIndex
+        if useUndoStack and undoStack == None:
+            undoStack = self.undoStack()
+        #/Input sanitization
+        if self.logger:
+            self.logger.write('clearStrand(%i,%i,keepLeft=%s) undoStack=%s\n'%\
+                             (firstIndex, afterLastIndex, keepLeft, undoStack))
+        if useUndoStack:
+            undoStack.beginMacro('clearStrand')
+        if firstIndex == afterLastIndex:
+            lStrandIdx = self._idxOfRangeContaining(firstIndex - 1)
+            lStrand = self.get(firstIndex - 1)
+            rStrandIdx = self._idxOfRangeContaining(firstIndex)
+            rStrand = self.get(firstIndex)
+            if lStrand == rStrand != None:
+                if self.logger: self.logger.write('\tsplitting a strand\n')
+                replacementRanges = self.splitRangeItem(lStrand,\
+                                                        firstIndex,\
+                                                        afterLastIndex,\
+                                                        keepLeft,\
+                                                        undoStack)
+                com = self.ReplaceRangeItemsCommand(self,\
+                                                    lStrandIdx,\
+                                                    lStrandIdx + 1,\
+                                                    replacementRanges,\
+                                                    False)
+                if useUndoStack:
+                    undoStack.push(com)
+                else:
+                    com.redo()
+            elif lStrand and lStrand.connR() == rStrand:
+                if self.logger: self.logger.write('\tsplitting a connection\n')
+                lStrand.setConnR(None, useUndoStack, undoStack)
+        else: # if firstIndex != afterLastIndex:
+            if self.logger: self.logger.write('\tremoveRange(%i,%i)\n'%\
+                                      (firstIndex, afterLastIndex))
+            self.removeRange(firstIndex, afterLastIndex,\
+                             useUndoStack, undoStack, keepLeft=keepLeft)
+        if useUndoStack:
+            undoStack.endMacro()
 
     def connectStrand(self, firstIdx, lastIdx, useUndoStack=True, undoStack=None):
         if useUndoStack and undoStack == None:
