@@ -60,6 +60,7 @@ class HotKey():
         self.ctl = ctl
         self.cmd = cmd
 
+
 def saveHotKey(key):
     global disabledHotKeys
     for alt in range(0, 2):
@@ -79,6 +80,7 @@ def saveHotKey(key):
                     disabledHotKeys.append(
                                 HotKey(key, name, rname, alt, ctl, cmd))
 
+
 def disableHotKey(key):
     saveHotKey(key)
     for alt in range(0, 2):
@@ -95,6 +97,7 @@ def disableHotKey(key):
                 else:
                     pass
                     # print "not disabling %s" % name
+
 
 def disableAllHotKeys():
     """
@@ -123,6 +126,7 @@ def disableAllHotKeys():
                     "Page_Up", "Page_Down", "Insert", "Return", "Space"]
     for key in otherHotKeys:
         disableHotKey(key)
+
 
 def restoreAllHotKeys():
     global disabledHotKeys

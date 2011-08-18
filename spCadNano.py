@@ -150,9 +150,10 @@ def openCN():
             if gCadNanoApp.activeDocument.solidHelixGrp:
                 gCadNanoApp.activeDocument.solidHelixGrp.onPersistentDataChanged()
 
-    pluginPath = os.path.join(os.environ['CADNANO_PATH'],  "views", "solidview", "helixManip.py") 
-    if not cmds.pluginInfo( pluginPath, query=True, loaded=True ):
-            cmds.loadPlugin( pluginPath )        
+    pluginPath = os.path.join(os.environ['CADNANO_PATH'],
+                                "views", "solidview", "helixManip.py")
+    if not cmds.pluginInfo(pluginPath, query=True, loaded=True):
+            cmds.loadPlugin(pluginPath)
             cmds.spHelixManipCtxCmd("spHelixContext1")
             cmds.setToolTo("spHelixContext1")
 
