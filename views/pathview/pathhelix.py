@@ -205,7 +205,7 @@ class PathHelix(QGraphicsObject):
         dlg.setIntStep(part.step)
         dlg.setLabelText(( "Number of bases to add to the existing"\
                          + " %i bases\n(must be a multiple of %i)")\
-                         % (part.numBases(),part.step))
+                         % (part.numBases(), part.step))
         dlg.intValueSelected.connect(self.userChoseToAddNBases)
         dlg.open()
         self.addBasesDialog = dlg  # Prevent GC from eating it
@@ -214,7 +214,7 @@ class PathHelix(QGraphicsObject):
     def userChoseToAddNBases(self, numBases):
         part = self.vhelix().part()
         dim = list(part.dimensions())
-        numBases = int(numBases) / 21 * 21
+        numBases = int(numBases) / part.step * part.step
         part.setDimensions((dim[0], dim[1], dim[2]+numBases))
         self.addBasesDialog.intValueSelected.disconnect(self.userChoseToAddNBases)
         del self.addBasesDialog
