@@ -327,7 +327,7 @@ class PathHelixGroup(QGraphicsObject):
         return phs[0].keyPanDeltaX() if phs else 5
 
     def zoomToFit(self):
-        # Auto zoom to center the scene
+        """Zoom to automatically center the scene."""
         for view in self.scene().views():
             view.zoomToFit()
 
