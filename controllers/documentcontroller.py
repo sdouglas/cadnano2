@@ -251,7 +251,7 @@ class DocumentController():
         del self.pathHelixGroup
         self.sliceGraphicsItem = None
         self.pathHelixGroup = None
-        self.setDocument(Document() if not doc else doc)
+        self.solidHelixGroup = None
         self._filename = fname if fname else "untitled.nno"
         self._hasNoAssociatedFile = fname == None
         self._activePart = None
@@ -260,7 +260,12 @@ class DocumentController():
             part = doc.parts()[0]
             part.needsFittingToView.emit()
             self._activePart = part
-                
+            self.setDocument(doc)
+            if app().isInMaya() and self.solidHelixGrp:
+                self.solidHelixGrp.onPersistentDataChanged()
+        else:
+            self.setDocument(Document())
+            
 
     def openClicked(self):
         """
