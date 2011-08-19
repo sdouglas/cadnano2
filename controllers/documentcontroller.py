@@ -243,6 +243,8 @@ class DocumentController():
 
     def newDocument(self, doc=None, fname=None):
         """Creates a new Document, reusing the DocumentController."""
+        if app().isInMaya():
+            app().deleteAllMayaNodes()
         self._document.removeAllParts()  # clear out old parts
         self._undoStack.clear()  # reset undostack
         del self.sliceGraphicsItem
@@ -258,6 +260,7 @@ class DocumentController():
             part = doc.parts()[0]
             part.needsFittingToView.emit()
             self._activePart = part
+                
 
     def openClicked(self):
         """
