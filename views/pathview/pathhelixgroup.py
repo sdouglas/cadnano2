@@ -328,9 +328,8 @@ class PathHelixGroup(QGraphicsObject):
 
     def zoomToFit(self):
         # Auto zoom to center the scene
-        thescene = self.scene()
-        theview = thescene.views()[0]
-        theview.zoomToFit()
+        for view in self.scene().views():
+            view.zoomToFit()
 
     def virtualHelixAtCoordsChangedEvent(self, row, col):
         c = (row, col)

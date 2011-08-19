@@ -123,6 +123,7 @@ class Document(QObject):
             return self._part
 
         def redo(self):
+            print "self._doc._parts", self._doc._parts
             if len(self._doc._parts) == 0:
                 self._doc._parts.append(self._part)
                 self._part._setDocument(self._doc)

@@ -158,6 +158,7 @@ class CustomQGraphicsView(QGraphicsView):
         """docstring for keyPressEvent"""
         if event.key() == self._key_mod:
             self._transformEnable = True
+            QGraphicsView.keyPressEvent(self, event)
         elif event.key() == Qt.Key_Left:
             self.sceneRootItem.translate(self.keyPanDeltaX(), 0)
         elif event.key() == Qt.Key_Up:
