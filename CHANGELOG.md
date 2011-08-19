@@ -2,6 +2,10 @@
 
 * Fixed circular scaffold highlighting when opening from an nno file.
 * OSX: Reconnected objc bridge so files open via double-click or dock icon drop.
+* Fixed bug in display of square-lattice crossover locations.
+* Updated icon for AddSeq Tool.
+* Moved Frame button to the View menu and moved AutoStaple button to the top toolbar.
+
 
 ## 2.0.0
 
