@@ -134,7 +134,7 @@ class SolidHelixGroup(QObject):
                     cmds.setAttr("%s.parity" % cylinderName, parity)
                 elif self.type == LatticeType.Square:
                     cmds.setAttr("%s.rotation" % cylinderName, 33.75)
-                    cmds.setAttr("%s.rotationOffset" % cylinderName, 60)
+                    cmds.setAttr("%s.rotationOffset" % cylinderName, 240)
                     cmds.setAttr("%s.parity" % cylinderName, parity)
                 else:
                     raise NotImplementedError

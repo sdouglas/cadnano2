@@ -47,3 +47,20 @@ class DNASquarePart(DNAPart):
     def fillSimpleRep(self, sr):
         super(DNASquarePart, self).fillSimpleRep(sr)
         sr['.class'] = 'DNASquarePart'
+
+    def getVirtualHelixNeighbors(self, vhref):
+        neighbors = []
+        vh = self.getVirtualHelix(vhref, returnNoneIfAbsent=False)
+        (r,c) = vh.coord()
+        if self.virtualHelixParityEven(vh):
+            neighbors.append(self.getVirtualHelix((r,c+1)))  # p0 neighbor (p0 is a direction)
+            neighbors.append(self.getVirtualHelix((r+1,c)))  # p1 neighbor
+            neighbors.append(self.getVirtualHelix((r,c-1)))  # p2 neighbor
+            neighbors.append(self.getVirtualHelix((r-1,c)))  # p2 neighbor
+        else:
+            neighbors.append(self.getVirtualHelix((r,c-1)))  # p0 neighbor (p0 is a direction)
+            neighbors.append(self.getVirtualHelix((r-1,c)))  # p1 neighbor
+            neighbors.append(self.getVirtualHelix((r,c+1)))  # p2 neighbor
+            neighbors.append(self.getVirtualHelix((r+1,c)))  # p3 neighbor
+        return neighbors  # Note: the order and presence of Nones is important
+        # If you need the indices of available directions use range(0,len(neighbors))
