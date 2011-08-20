@@ -34,10 +34,15 @@ from handles.activeslicehandle import ActiveSliceHandle
 from handles.pathhelixhandle import PathHelixHandle
 from handles.pathhelixhandle import PathHelixHandle
 from handles.crossoverhandle import XoverHandlePair
+
 # from handles.loophandle import LoopHandleGroup
 from handles.loopgraphicsitem import LoopHandleGroup
+
 from model.enum import EndType, LatticeType, StrandType
-from .pathhelix import PathHelix
+
+# from .pathhelix import PathHelix
+from .pathhelixgraphicsitem import PathHelix
+
 from .pathselection import SelectionItemGroup
 from .pathselection import PathHelixHandleSelectionBox
 from .pathselection import BreakpointHandleSelectionBox

@@ -32,7 +32,8 @@ Created by Nick on 2011-05-18
 from exceptions import AttributeError, NotImplementedError
 from model.enum import HandleOrient
 from views import styles
-from views.pathview.pathhelix import PathHelix
+# from views.pathview.pathhelix import PathHelix
+from views.pathview.pathhelixgraphicsitem import PathHelix
 from views.pathview.pathhelixgroup import PathHelixGroup
 from abstractpathtool import AbstractPathTool
 

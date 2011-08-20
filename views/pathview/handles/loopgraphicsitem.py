@@ -158,6 +158,13 @@ class LoopGraphicsItem(QGraphicsPathItem):
         self.refreshPainterPath()
     # end def
 
+    def remove(self):
+        self.scene().removeItem(self._label)
+        self._label = None
+        self.scene().removeItem(self._seq)
+        self._seq = None
+        self.scene().removeItem(self)
+
     def label(self):
         if self._label:
             return self._label
@@ -350,7 +357,8 @@ class LoopHandleGroup(QGraphicsItem):
             handles.append(LoopGraphicsItem(parent=ph))
         while len(handles) > numLoopsNeeded:
             handle = handles.pop()
-            handle.scene().removeItem(handle)
+            handle.remove()
+            handle = None
         i = 0
         for strandtype in (StrandType.Scaffold, StrandType.Staple):
             for index, loopsize in vhelix.loop(strandtype).iteritems():
