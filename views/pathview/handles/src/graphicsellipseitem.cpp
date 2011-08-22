@@ -2,20 +2,20 @@
 
 GraphicsEllipseItem::GraphicsEllipseItem(QGraphicsItem * parent) :  QGraphicsEllipseItem(parent)
 {
-   
+    ;
 }
 
-virtual void GraphicsEllipseItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *option,
+void GraphicsEllipseItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *option,
                               QWidget *widget)
 {
-    Q_D(QGraphicsEllipseItem);
+    // Q_D(QGraphicsEllipseItem);
     Q_UNUSED(widget);
-    painter->setPen(d->pen);
-    painter->setBrush(d->brush);
-    if ((d->spanAngle != 0) && (qAbs(d->spanAngle) % (360 * 16) == 0))
-        painter->drawEllipse(d->rect);
+    painter->setPen(pen());
+    painter->setBrush(brush());
+    if ((spanAngle() != 0) && (qAbs(spanAngle()) % (360 * 16) == 0))
+        painter->drawEllipse(rect());
     else
-        painter->drawPie(d->rect, d->startAngle, d->spanAngle);
+        painter->drawPie(rect(), startAngle(), spanAngle());
 
     // if (option->state & QStyle::State_Selected)
     //     qt_graphicsItem_highlightSelected(this, painter, option);
