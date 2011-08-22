@@ -80,6 +80,7 @@ class SolidHelixGroup(QObject):
         self.mayaOrigin = (-15 * 2.25, 16 * 2.25, 0.0)
         self.helixRadius = 1.125  # diamiter is 2.25nm
         self.solidHelicesIndices = {}
+        self.solidHelicesCoords = {}
         self.solidHelicesIndicesCount = 0
 
     def part(self):
@@ -94,8 +95,9 @@ class SolidHelixGroup(QObject):
 
     def updateStrands(self, strandType):
         for vh in self._part.getVirtualHelices():
+            endpoints = vh.getSegmentsAndEndpoints(strandType)
+            segmentsCount = len(endpoints[0])
             myKey = '%d_%d_%d' % (vh.coord()[0], vh.coord()[1], strandType)
-
             if myKey not in self.solidHelicesIndices.keys():
                 if strandType == StrandType.Scaffold:
                     self.createNewHelix(vh.coord()[0], vh.coord()[1],
@@ -104,8 +106,6 @@ class SolidHelixGroup(QObject):
                     self.createNewHelix(vh.coord()[0], vh.coord()[1],
                                         strandType, 0)
             itemIndices = self.solidHelicesIndices[myKey]
-            endpoints = vh.getSegmentsAndEndpoints(strandType)
-            segmentsCount = len(endpoints[0])
             #print "%s %d %s" % (myKey, segmentsCount, endpoints)
             if (len(itemIndices) != segmentsCount):
                 # Delete current itemIndices
@@ -117,9 +117,21 @@ class SolidHelixGroup(QObject):
 
             if(segmentsCount < 1):
                 continue
+
             itemIndices = self.solidHelicesIndices[myKey]
             parity = not self._part.virtualHelixParityEven(vh)  # 0 -> even
+            
             for seg in range(segmentsCount):
+                segKey = "%s_%d" % (myKey, seg)
+                # Cache strand
+                if segKey in self.solidHelicesCoords.keys():
+                    if endpoints[0][seg][0] == self.solidHelicesCoords[segKey][0] \
+                        and endpoints[0][seg][1] == self.solidHelicesCoords[segKey][1]:
+                        continue
+                    else:
+                        self.solidHelicesCoords["%s_%d" % (myKey, seg)] = [endpoints[0][seg][0], endpoints[0][seg][1]]
+                else:
+                    self.solidHelicesCoords["%s_%d" % (myKey, seg)] = [endpoints[0][seg][0], endpoints[0][seg][1]] 
                 cylinderName = "HalfCylinderHelixNode%d" % itemIndices[seg]
                 #transformName = "DNAShapeTranform%d" % itemIndex
                 totalNumBases = vh.numBases()
@@ -158,11 +170,16 @@ class SolidHelixGroup(QObject):
                 else:
                     #shader exist connect
                     cmds.sets(meshName, forceElement="%sSG" % shaderName)
+    def updateCrossovers(self, strandType):
+         pass
+
 
     def onPersistentDataChanged(self):
         # Update in the Model
         self.updateStrands(StrandType.Scaffold)
         self.updateStrands(StrandType.Staple)
+        self.updateCrossovers(StrandType.Scaffold)
+        self.updateCrossovers(StrandType.Staple)
 
     def cadnanoToMayaCoords(self, row, col):
         # cadnanoToMayaCoords
@@ -181,6 +198,11 @@ class SolidHelixGroup(QObject):
             y = self.mayaOrigin[1] - (row * 2.0 * self.helixRadius)
         return (x, y)
 
+    def clearInternalDataStructures(self):
+        self.solidHelicesIndices.clear()
+        self.solidHelicesCoords.clear()
+        self.solidHelicesIndicesCount = 0
+
     def deleteAllMayaNodes(self):
         # Delete Transform Nodes
         #cylinders = cmds.ls("CylinderNode*")
@@ -190,8 +212,16 @@ class SolidHelixGroup(QObject):
         nodes = cmds.ls("DNAShapeTransform*", "DNAStrandShader*")
         for n in nodes:
             cmds.delete(n)
-        self.solidHelicesIndices = {}
+        self.solidHelicesIndices.clear()
+        self.solidHelicesCoords.clear()
         self.solidHelicesIndicesCount = 0
+
+    def subkeys(self, sourcedict, string):
+        newlist = []
+        for key in sourcedict.keys():
+            if key.startswith(string):
+                newlist.append(key)
+        return newlist
 
     def deleteHelix(self, row, col, strandType):
         # deleteHelix
@@ -212,7 +242,11 @@ class SolidHelixGroup(QObject):
             #items2 = cmds.ls(toonName2, et="transform")
             #for i in items2:
             #    cmds.delete(i)
-        self.solidHelicesIndices[myKey] = []
+        del self.solidHelicesIndices[myKey]
+        #delete all coords
+        keys = self.subkeys(self.solidHelicesCoords,myKey)
+        for k in keys:
+            del self.solidHelicesCoords[k]
 
     def createNewHelix(self, row, col, strandType, count=1):
         # New Helix Added

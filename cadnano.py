@@ -159,8 +159,7 @@ class CADnano(QObject):
             cmds.delete(n)
         for doc in self.documentControllers:
             if hasattr(doc, 'solidHelixGrp'):
-                doc.solidHelixGrp.solidHelicesIndices = {}
-                doc.solidHelixGrp.solidHelicesIndicesCount = 0
+                doc.solidHelixGrp.clearInternalDataStructures()
 
     def exec_(self):
         if hasattr(self, 'qApp'):
