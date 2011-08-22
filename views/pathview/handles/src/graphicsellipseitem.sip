@@ -17,7 +17,7 @@ class GraphicsEllipseItem : QGraphicsEllipseItem {
 public:
     GraphicsEllipseItem (QGraphicsItem  * parent /TransferThis/ = 0);
     virtual ~GraphicsEllipseItem();
-    virtual void paint(QPainter *, const QStyleOptionGraphicsItem *, QWidget *widget = 0) = 0;
+    void paint(QPainter *, const QStyleOptionGraphicsItem *, QWidget *widget = 0);
 
 };
 

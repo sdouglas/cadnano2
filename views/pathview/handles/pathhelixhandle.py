@@ -35,7 +35,9 @@ util.qtWrapImport('QtGui', globals(), ['QBrush', 'QFont', 'QGraphicsItem',\
                                        'QGraphicsTextItem', 'QDrag', \
                                        'QUndoCommand', 'QGraphicsEllipseItem', 'QStyle'])
 
-class PathHelixHandle(QGraphicsEllipseItem):
+from .src.graphicsellipseitem import GraphicsEllipseItem
+
+class PathHelixHandle(GraphicsEllipseItem):
     """docstring for PathHelixHandle"""
     radius = styles.PATHHELIXHANDLE_RADIUS
     rect = QRectF(0, 0, 2*radius + styles.PATHHELIXHANDLE_STROKE_WIDTH,\
@@ -62,13 +64,14 @@ class PathHelixHandle(QGraphicsEllipseItem):
         self.setNumber()
         self.setFlag(QGraphicsItem.ItemIsSelectable)
         self.setFlag(QGraphicsItem.ItemSendsScenePositionChanges)
+        self.penAndBrushSet()
         self.setRect(self.rect)
-        # self.setState(QStyle.State_HasFocus)
     # end def
 
     def penAndBrushSet(self):
         if self.number() >= 0:
             if self.isSelected():
+                print self.number(), "hov"
                 self.setBrush(self.hovBrush)
                 self.setPen(self.hovPen)
             else:
@@ -182,10 +185,10 @@ class PathHelixHandle(QGraphicsEllipseItem):
         self.destroyFocusRing()
         if selectionGroup == None:
             selectionGroup = self._phg.phhSelectionGroup
-        selectionGroup.setSelected(False)
+            selectionGroup.setSelected(False)
         selectionGroup.addToGroup(self)
         self.setSelected(True)
-        self.penAndBrushSet()
+        # self.penAndBrushSet()
         selectionGroup.mousePressEvent(event)
     # end def
     
@@ -198,22 +201,28 @@ class PathHelixHandle(QGraphicsEllipseItem):
     def itemChange(self, change, value):
         # for selection changes test against QGraphicsItem.ItemSelectedChange
         # intercept the change instead of the has changed to enable features.
-        # if change == QGraphicsItem.ItemSelectedHasChanged and self.scene():
-        if change == QGraphicsEllipseItem.ItemSelectedChange and self.scene():
+        if change == QGraphicsItem.ItemSelectedHasChanged and self.scene():
+        # if change == QGraphicsEllipseItem.ItemSelectedChange and self.scene():
             selectionGroup = self._phg.phhSelectionGroup
             lock = selectionGroup.phg().selectionLock
+            self.penAndBrushSet()
+            self.update(self.boundingRect())
             if value == True and (lock == None or lock == selectionGroup):
                 selectionGroup.addToGroup(self)
                 selectionGroup.phg().selectionLock = selectionGroup
+                # self.penAndBrushSet()
+                # print self.number(), "select"
                 return QGraphicsEllipseItem.itemChange(self, change, True)
             # end if
             else:
+                # self.penAndBrushSet()
                 return QGraphicsEllipseItem.itemChange(self, change, False)
             # end else
-            self.update(self.boundingRect())
-            self.penAndBrushSet()
         # end if
+        # elif change == QGraphicsItem.ItemSelectedHasChanged and self.scene():
+            # print self.number(), "changed"
         self.penAndBrushSet()
+        # print self.number(), "other"
         return QGraphicsEllipseItem.itemChange(self, change, value)
     # end def
 
