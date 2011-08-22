@@ -33,7 +33,8 @@ from exceptions import AttributeError, NotImplementedError
 
 from model.enum import HandleOrient, StrandType
 from views import styles
-from views.pathview.pathhelix import PathHelix
+# from views.pathview.pathhelix import PathHelix
+from views.pathview.pathhelixgraphicsitem import PathHelix
 from abstractpathtool import AbstractPathTool
 
 import util

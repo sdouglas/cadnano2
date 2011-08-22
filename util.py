@@ -112,6 +112,7 @@ def qtWrapImport(name, globaldict, fromlist):
 # from PyQt4.QtGui import QGraphicsItem, QColor
 qtWrapImport('QtGui', globals(), [ 'QGraphicsItem', 'QColor', 'QMouseEvent',\
                                    'QGraphicsSceneMouseEvent'])
+qtWrapImport('QtCore', globals(), [ 'QObject' ])
 
 def clamp(x, minX, maxX):
     if x < minX:

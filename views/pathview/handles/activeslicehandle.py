@@ -35,10 +35,10 @@ util.qtWrapImport('QtCore', globals(), ['QPointF', 'QRectF', 'Qt', 'QObject',\
                                         'pyqtSignal', 'pyqtSlot', 'QEvent'])
 util.qtWrapImport('QtGui', globals(), ['QBrush', 'QFont', 'QGraphicsItem',\
                                        'QGraphicsSimpleTextItem', 'QPen',\
-                                       'QDrag', 'QUndoCommand'])
+                                       'QDrag', 'QUndoCommand', 'QGraphicsRectItem'])
 
 
-class ActiveSliceHandle(QGraphicsItem):
+class ActiveSliceHandle(QGraphicsRectItem):
     """docstring for ActiveSliceHandle"""
     _baseWidth = styles.PATH_BASE_WIDTH
     _brush = QBrush(styles.orangefill)
@@ -62,6 +62,12 @@ class ActiveSliceHandle(QGraphicsItem):
         # self.setFlag(QGraphicsItem.ItemStacksBehindParent)
         self.setAcceptHoverEvents(True)
         self.setZValue(styles.ZACTIVESLICEHANDLE)
+        
+        self.setRect(QRectF(0, 0, self._baseWidth,\
+                      self.pathHelixGroup().boundingRect().height()))
+        self.setBrush(self._brush)
+        self.setPen(self._pen)
+        self._label.show()
 
     def controller(self):
         return self._pathHelixGroup.controller()
@@ -76,13 +82,18 @@ class ActiveSliceHandle(QGraphicsItem):
         if self._pathHelixGroup:
             self._pathHelixGroup.geometryChanged.disconnect(\
                                                    self.prepareGeometryChange)
+            newPHG.geometryChanged.disconnect(self.updateRect)
             self._pathHelixGroup.displayedVHsChanged.disconnect(self._hideIfEmptySelection)
-        if self._pathHelixGroup and self._pathHelixGroup.part():
-            self._pathHelixGroup.part().activeSliceWillChange.disconnect(\
-                                                      self._updateActiveSlice)
+        # uncomment if you want to resignal position changes
+        # if self._pathHelixGroup and self._pathHelixGroup.part():
+        #     self._pathHelixGroup.part().activeSliceWillChange.disconnect(\
+        #                                                self._updateActiveSlice)
+        # uncomment if you want to resignal position changes
         self._pathHelixGroup = newPHG
         newPHG.geometryChanged.connect(self.prepareGeometryChange)
-        newPHG.part().activeSliceWillChange.connect(self._updateActiveSlice)
+        newPHG.geometryChanged.connect(self.updateRect)
+        #
+        # newPHG.part().activeSliceWillChange.connect(self._updateActiveSlice)
         newPHG.displayedVHsChanged.connect(self._hideIfEmptySelection)
         self._hideIfEmptySelection()
         self._updateActiveSlice(newPHG.part().activeSlice())
@@ -94,7 +105,7 @@ class ActiveSliceHandle(QGraphicsItem):
         self.part().setActiveSlice(baseIndex)
     
     def _hideIfEmptySelection(self):
-        self.setVisible(len(self.pathHelixGroup().displayedVHs())>0)
+        self.setVisible(len(self.pathHelixGroup().displayedVHs()) > 0)
     
     def _updateActiveSlice(self, baseIndex):
         """The slot that receives active slice changed notifications from
@@ -106,19 +117,30 @@ class ActiveSliceHandle(QGraphicsItem):
             self._label.setText("%d" % bi)
             self._label.setX((self._baseWidth -\
                               self._label.boundingRect().width()) / 2)
+    # end def
+    
+    def updateRect(self):
+        newRect = QRectF(0, 0, self._baseWidth,\
+                    self.pathHelixGroup().boundingRect().height())
+        if newRect != self.rect():
+            self.setRect(newRect)
+        return newRect
 
-    def boundingRect(self):
-        return QRectF(0, 0, self._baseWidth,\
-                      self.pathHelixGroup().boundingRect().height())
+    # def boundingRect(self):
+    #     newRect = QRectF(0, 0, self._baseWidth,\
+    #                   self.pathHelixGroup().boundingRect().height())
+    #     if newRect != self.rect():
+    #         self.setRect(newRect)
+    #     return newRect
 
-    def paint(self, painter, option, widget=None):
-        if self.boundingRect().height() > 0:
-            painter.setBrush(self._brush)
-            painter.setPen(self._pen)
-            painter.drawRect(self.boundingRect())
-            self._label.show()
-        else:
-            self._label.hide()
+    # def paint(self, painter, option, widget=None):
+    #     if self.boundingRect().height() > 0:
+    #         painter.setBrush(self._brush)
+    #         painter.setPen(self._pen)
+    #         painter.drawRect(self.boundingRect())
+    #         self._label.show()
+    #     else:
+    #         self._label.hide()
 
     def resetBounds(self, maxBase):
         """Call after resizing virtualhelix canvas."""
@@ -150,7 +172,7 @@ class ActiveSliceHandle(QGraphicsItem):
         elif event.type() == QEvent.MouseMove:
             self.mouseMoveEvent(event)
             return True
-        QGraphicsItem.sceneEvent(self, event)
+        QGraphicsRectItem.sceneEvent(self, event)
         return False
 
     def mouseMoveEvent(self, event):
@@ -159,7 +181,11 @@ class ActiveSliceHandle(QGraphicsItem):
             return
         x = self.mapToScene(QPointF(event.pos())).x()
         dx = int((x - self.pressX)/self._baseWidth)
+        
+        # Modified to update this view in real time instead of with signalign
+        self._updateActiveSlice(self.pressBaseIdx+dx)
         self.setActiveSlice(self.pressBaseIdx+dx)
+        
 
     def mousePressEvent(self, event):
         if event.button() != Qt.LeftButton:

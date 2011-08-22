@@ -103,4 +103,6 @@ class NormalStrandGraphicsItem(QGraphicsLineItem):
         self.rightCap.setBrush(brush)
 
     def remove(self, strand):
+        self.rightCap = None
+        self.leftCap = None
         self.scene().removeItem(self)

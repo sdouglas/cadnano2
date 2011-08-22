@@ -34,7 +34,7 @@ from itertools import product
 import util
 # import Qt stuff into the module namespace with PySide, PyQt4 independence
 util.qtWrapImport('QtCore', globals(), ['QPointF', 'QRectF', 'Qt'])
-util.qtWrapImport('QtGui', globals(), [ 'QBrush', 'QFont', 'QGraphicsItem', \
+util.qtWrapImport('QtGui', globals(), [ 'QBrush', 'QFont', 'QGraphicsPathItem', \
                                         'QGraphicsSimpleTextItem', \
                                         'QFontMetrics', 'QPainterPath', \
                                         'QPolygonF', \
@@ -62,7 +62,7 @@ hashMarkGen(_ppathRD, _ppRect.topRight(), _pathUCenter, _pathCenter)
 _ppathLD = QPainterPath()
 hashMarkGen(_ppathLD, _ppRect.topLeft(), _pathUCenter, _pathCenter)
 
-class PreCrossoverHandle(QGraphicsItem):
+class PreCrossoverHandle(QGraphicsPathItem):
     scafpen = QPen(styles.pch_scaf_stroke, styles.PATH_STRAND_STROKE_WIDTH)
     scafpen.setCapStyle(Qt.FlatCap)  # or Qt.RoundCap
     scafpen.setJoinStyle(Qt.RoundJoin)
@@ -97,27 +97,26 @@ class PreCrossoverHandle(QGraphicsItem):
         x = self.baseWidth * self.fromIdx
         y = (-1.25 if self.onTopStrand() else 2.25) * self.baseWidth
         self.setPos(x, y)
-        halfLabelH = self.fm.tightBoundingRect(str(toVH.number())).height()/2
-        #halfLabelW = self.fm.boundingRect(str(toVH.number())).width()/2
-        labelX = 0
+        
+        num = toVH.number()
+        tBR = self.fm.tightBoundingRect(str(num))
+        halfLabelH = tBR.height()/2.0
+        halfLabelW = tBR.width()/2.0
+        
+        labelX = self.baseWidth/2.0 - halfLabelW #
+        if num == 1:  # adjust for the number one
+            labelX -= halfLabelW/2.0
         
         if self.onTopStrand():
-            labelY = -1.05*halfLabelH - .5
+            labelY = -0.25*halfLabelH - .5
         else:
-            labelY = 1.05*halfLabelH + .5
-        self.labelRect = QRectF(labelX,\
-                                labelY,\
-                                self.baseWidth, self.baseWidth)
+            labelY = 2*halfLabelH + .5
         self._isLabelVisible = False
+        self._label = QGraphicsSimpleTextItem(self)
+        self._label.setPos(labelX, labelY)
         self.updateVisibilityAndEnabledness()
     # end def
-        
-    def drawLabel(self, painter):
-        painter.setBrush(self.labelBrush)
-        painter.setFont(self.toHelixNumFont)
-        painter.drawText(self.labelRect, Qt.AlignCenter, str(self.toVH.number() ) )
-    # end def
-        
+
     def onTopStrand(self):
         return self.fromVH.evenParity() and self.fromStrand==StrandType.Scaffold or\
                not self.fromVH.evenParity() and self.fromStrand==StrandType.Staple
@@ -140,9 +139,17 @@ class PreCrossoverHandle(QGraphicsItem):
             self.labelBrush = self.enabbrush
         else:
             self.labelBrush = self.disabbrush
+        self.painterPath()
         self.update()
-
-    def paint(self, painter, option, widget=None):
+    # end def
+    
+    def updateLabel(self):
+        self._label.setBrush(self.labelBrush)
+        self._label.setFont(self.toHelixNumFont)
+        self._label.setText( str(self.toVH.number() ) )
+    # end def
+    
+    def painterPath(self):
         #Look Up Table
         pathLUT = (_ppathRD, _ppathRU, _ppathLD, _ppathLU)
         path = pathLUT[2*int(self.orientedLeft) + int(self.onTopStrand())]
@@ -152,13 +159,28 @@ class PreCrossoverHandle(QGraphicsItem):
                 pen = self.scafpen
             else:
                 pen = self.stappen
-        painter.setPen(pen)
-        painter.drawPath(path)
+        self.setPen(pen)
+        self.setPath(path)
         if self._isLabelVisible == True:
-            self.drawLabel(painter)
+            self.updateLabel()
+
+    # def paint(self, painter, option, widget=None):
+    #     #Look Up Table
+    #     pathLUT = (_ppathRD, _ppathRU, _ppathLD, _ppathLU)
+    #     path = pathLUT[2*int(self.orientedLeft) + int(self.onTopStrand())]
+    #     pen = self.disabpen
+    #     if self.couldFormNewCrossover():
+    #         if self.fromStrand == StrandType.Scaffold:
+    #             pen = self.scafpen
+    #         else:
+    #             pen = self.stappen
+    #     painter.setPen(pen)
+    #     painter.drawPath(path)
+    #     if self._isLabelVisible == True:
+    #         self.drawLabel(painter)
         
-    def boundingRect(self):
-        return self.rect
+    # def boundingRect(self):
+    #     return self.rect
 
     def mousePressEvent(self, event):
         if event.button() != Qt.LeftButton:
