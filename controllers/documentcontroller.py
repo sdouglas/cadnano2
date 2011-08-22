@@ -258,14 +258,13 @@ class DocumentController():
         self.win.setWindowTitle(self.documentTitle() + '[*]')
         if doc != None and doc.parts():
             part = doc.parts()[0]
-            part.needsFittingToView.emit()
             self._activePart = part
             self.setDocument(doc)
+            part.needsFittingToView.emit()  # must come after setDocument
             if app().isInMaya() and self.solidHelixGrp:
                 self.solidHelixGrp.onPersistentDataChanged()
         else:
             self.setDocument(Document())
-            
 
     def openClicked(self):
         """
@@ -278,7 +277,11 @@ class DocumentController():
             return  # user canceled in maybe save
         else:  # user did not cancel
             if hasattr(self, "filesavedialog"): # user did save
-                self.filesavedialog.finished.connect(self.openAfterMaybeSave)
+                if self.filesavedialog != None:
+                    self.filesavedialog.finished.connect(\
+                                                    self.openAfterMaybeSave)
+                else:
+                    self.openAfterMaybeSave()  # windows
             else:  # user did not save
                 self.openAfterMaybeSave()  # finalize new
 
@@ -445,7 +448,7 @@ class DocumentController():
                             "%s - Export As" % QApplication.applicationName(),
                             directory,
                             "(*.csv)")
-            self.filesavedialog = None
+            self.saveCSVdialog = None
             self.exportFile(fname)
         else:  # access through non-blocking callback
             fdialog = QFileDialog(
@@ -457,8 +460,8 @@ class DocumentController():
             fdialog.setWindowFlags(Qt.Sheet)
             fdialog.setWindowModality(Qt.WindowModal)
             # fdialog.exec_()  # or .show(), or .open()
-            self.filesavedialog = fdialog
-            self.filesavedialog.filesSelected.connect(self.exportCSVCallback)
+            self.saveCSVdialog = fdialog
+            self.saveCSVdialog.filesSelected.connect(self.exportCSVCallback)
             fdialog.open()
     # end def
 
@@ -474,10 +477,10 @@ class DocumentController():
         if not fname.lower().endswith(".csv"):
             fname += ".csv"
         # self.setFilename(fname)
-        if self.filesavedialog != None:
-            self.filesavedialog.filesSelected.disconnect(self.exportFile)
+        if self.saveCSVdialog != None:
+            self.saveCSVdialog.filesSelected.disconnect(self.exportFile)
             # manual garbage collection to prevent hang (in osx)
-            del self.filesavedialog
+            del self.saveCSVdialog
         # write the file
         output = self.activePart().getStapleSequences()
         f = open(fname, 'w')
