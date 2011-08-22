@@ -81,6 +81,7 @@ class SolidHelixGroup(QObject):
         self.helixRadius = 1.125  # diamiter is 2.25nm
         self.solidHelicesIndices = {}
         self.solidHelicesCoords = {}
+        self.solidHelicesColors = {}
         self.solidHelicesIndicesCount = 0
 
     def part(self):
@@ -120,18 +121,38 @@ class SolidHelixGroup(QObject):
 
             itemIndices = self.solidHelicesIndices[myKey]
             parity = not self._part.virtualHelixParityEven(vh)  # 0 -> even
-            
+            need_update = True
             for seg in range(segmentsCount):
                 segKey = "%s_%d" % (myKey, seg)
                 # Cache strand
                 if segKey in self.solidHelicesCoords.keys():
                     if endpoints[0][seg][0] == self.solidHelicesCoords[segKey][0] \
                         and endpoints[0][seg][1] == self.solidHelicesCoords[segKey][1]:
-                        continue
+                        need_update = False
                     else:
                         self.solidHelicesCoords["%s_%d" % (myKey, seg)] = [endpoints[0][seg][0], endpoints[0][seg][1]]
+                        need_update = True
                 else:
-                    self.solidHelicesCoords["%s_%d" % (myKey, seg)] = [endpoints[0][seg][0], endpoints[0][seg][1]] 
+                    self.solidHelicesCoords["%s_%d" % (myKey, seg)] = [endpoints[0][seg][0], endpoints[0][seg][1]]
+                    need_update = True
+                
+                color = vh.colorOfBase(strandType, int(endpoints[0][seg][0]))
+                colorval = "%d_%d_%d" % (color.red(), color.green(), color.blue())
+                #now cache color
+                if not need_update:
+                    if segKey in self.solidHelicesColors.keys():
+                        if colorval == self.solidHelicesColors[segKey]:
+                            need_update = False
+                        else:
+                            self.solidHelicesColors["%s_%d" % (myKey, seg)] = colorval
+                            need_update = True
+                    else:
+                        self.solidHelicesColors["%s_%d" % (myKey, seg)] = colorval
+                        need_update = True
+                
+                if not need_update:
+                    continue
+
                 cylinderName = "HalfCylinderHelixNode%d" % itemIndices[seg]
                 #transformName = "DNAShapeTranform%d" % itemIndex
                 totalNumBases = vh.numBases()
@@ -153,7 +174,6 @@ class SolidHelixGroup(QObject):
                 cmds.setAttr("%s.strandType" % cylinderName, strandType)
                 #shaderName = "DNAStrandShader%d" % itemIndices[seg]
                 meshName = "DNACylinderShape%d" % itemIndices[seg]
-                color = vh.colorOfBase(strandType, int(endpoints[0][seg][0]))
                 shaderName = "DNAStrandShader%d_%d_%d" % (color.red(),
                                                           color.green(),
                                                           color.blue())
@@ -201,6 +221,7 @@ class SolidHelixGroup(QObject):
     def clearInternalDataStructures(self):
         self.solidHelicesIndices.clear()
         self.solidHelicesCoords.clear()
+        self.solidHelicesColors.clear()
         self.solidHelicesIndicesCount = 0
 
     def deleteAllMayaNodes(self):
@@ -212,9 +233,7 @@ class SolidHelixGroup(QObject):
         nodes = cmds.ls("DNAShapeTransform*", "DNAStrandShader*")
         for n in nodes:
             cmds.delete(n)
-        self.solidHelicesIndices.clear()
-        self.solidHelicesCoords.clear()
-        self.solidHelicesIndicesCount = 0
+        self.clearInternalDataStructures()
 
     def subkeys(self, sourcedict, string):
         newlist = []
@@ -247,6 +266,9 @@ class SolidHelixGroup(QObject):
         keys = self.subkeys(self.solidHelicesCoords,myKey)
         for k in keys:
             del self.solidHelicesCoords[k]
+        keys = self.subkeys(self.solidHelicesColors,myKey)
+        for k in keys:
+            del self.solidHelicesColors[k]
 
     def createNewHelix(self, row, col, strandType, count=1):
         # New Helix Added
