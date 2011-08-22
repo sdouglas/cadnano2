@@ -288,7 +288,7 @@ class RangeSet(object):
                                                 keepLeft,\
                                                 undoStack)
                 replacementRanges = [splitEnds[0], rangeItem, splitEnds[1]]
-        if firstIRL < firstIndex:
+        elif firstIRL < firstIndex:
             #           [AddRange---------------------)
             #       [FirstIntersectingExistingRange) ...
             if self.canMergeRangeItems(firstIR, rangeItem):
@@ -296,13 +296,15 @@ class RangeSet(object):
                                                rangeItem,\
                                                undoStack)
                 replacementRanges = [newItem]
-            else:
+            elif firstIRAr != firstIndex:
                 newItem = self.changeRangeForItem(firstIR,\
                                                   firstIRL,\
                                                   firstIndex,\
                                                   undoStack)
                 replacementRanges = [newItem, rangeItem]
-        if lastIRAr > afterLastIndex:
+            else:
+                replacementRanges = [firstIR, rangeItem]
+        elif lastIRAr > afterLastIndex:
             #           [AddRange---------------------)
             #              ... [LastIntersectingExistingRange)
             if self.canMergeRangeItems(rangeItem, lastIR):
@@ -311,12 +313,14 @@ class RangeSet(object):
                                                lastIR,\
                                                undoStack)
                 replacementRanges.append(newItem)
-            else:
+            elif afterLastIndex != lastIRL:
                 newItem = self.changeRangeForItem(lastIR,\
                                                   afterLastIndex,\
                                                   lastIRAr,\
                                                   undoStack)
                 replacementRanges.append(newItem)
+            else:
+                replacementRanges = lastIR
         com = self.ReplaceRangeItemsCommand(self,\
                                             firstIIR,\
                                             afterLastIIR,\
@@ -474,6 +478,7 @@ class RangeSet(object):
         Returns the index in self.ranges of the range
         containing intVal or None if none does.
         """
+        assert(isinstance(intVal, (int, long)))
         if not self.ranges:
             if returnTupledIdxOfNextRangeOnFail:
                 return (0,)

@@ -85,11 +85,10 @@ class NormalStrand(Strand):
     def defaultUndoStack(self):
         return self.vBaseL.part().undoStack()
 
-    def idxsOnStrand(self, vstrand):
+    def idxs(self):
         """ Since a NormalStrand occupies exactly one vstrand, this simply
         returns the range of bases on that strand which the receiver
         occupies """
-        assert(vstrand == self.vStrand())
         return (self.vBaseL.vIndex, self.vBaseR.vIndex + 1)
 
     def numBases(self):

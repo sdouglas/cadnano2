@@ -36,7 +36,7 @@ class VStrand(QObject, RangeSet):
     This subclass of RangeSet is designed to hold Segment items as its ranges.
     """
     didAddStrand = pyqtSignal(object)
-    logger = sys.stdout
+    logger = None
 
     def __init__(self, parentVHelix=None):
         QObject.__init__(self)
@@ -313,7 +313,7 @@ class VStrand(QObject, RangeSet):
         Returns (firstIdx, afterLastIdx) simplified representation of the
         rangeItem passed in.
         """
-        return rangeItem.idxsOnStrand(self)
+        return rangeItem.idxs()
 
     def canMergeTouchingRangeItems(self, rangeItemA, rangeItemB):
         return rangeItemA.canMergeWithTouchingStrand(rangeItemB)

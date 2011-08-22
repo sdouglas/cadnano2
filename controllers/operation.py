@@ -35,8 +35,10 @@ class Operation(QObject):
         self.undoStack = undoStack
         self.undoStackIdxBeforeOperation = undoStack.index()
 
-    def rewind(self):
-        while self.undoStack.index() > self.undoStackIdxBeforeOperation:
+    def rewind(self, toIdx=None):
+        if toIdx == None:
+            toIdx = self.undoStackIdxBeforeOperation
+        while self.undoStack.index() > toIdx:
             self.undoStack.undo()
 
     def end(self):

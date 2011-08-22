@@ -72,6 +72,7 @@ class Strand(QObject):
     def conn5(self):
         return self._conn5
     def setConn3(self, newConn, useUndoStack=True, undoStack=None):
+        assert(newConn == None or isinstance(newConn, Strand))
         com = self.SetConn3Command(self, newConn)
         if useUndoStack == True and undoStack == None:
             undoStack = self.defaultUndoStack()
@@ -80,6 +81,7 @@ class Strand(QObject):
         else:
             com.redo()
     def setConn5(self, newConn, useUndoStack=True, undoStack=None):
+        assert(newConn == None or isinstance(newConn, Strand))
         com = self.SetConn5Command(self, newConn)
         if useUndoStack == True and undoStack == None:
             undoStack = self.defaultUndoStack()
@@ -289,10 +291,16 @@ class Strand(QObject):
             if strandNew5ConnectivityChanged:
                 strandNew5.connectivityChanged.emit(strandNew5)
             strand.connectivityChanged.emit(strand)
-    def connL(self):
-        return self.conn5() if self.vStrand().drawn5To3() else self.conn3()
-    def connR(self):
-        return self.conn3() if self.vStrand().drawn5To3() else self.conn5()
+    def connL(self, strand=None):
+        """ Get the strand that is covalently attached to the left end of
+        self (left is 5' if drawn5To3) """
+        if strand == None: strand = self.vStrand()
+        return self.conn5() if strand.drawn5To3() else self.conn3()
+    def connR(self, strand=None):
+        """ Get the strand that is covalently attached to the right end of
+        self (right is 3' if drawn5To3) """
+        if strand == None: strand = self.vStrand()
+        return self.conn3() if strand.drawn5To3() else self.conn5()
     def setConnL(self, newConn, useUndoStack=True, undoStack=None):
         if self.vStrand().drawn5To3():
             self.setConn5(newConn, useUndoStack, undoStack)
@@ -343,6 +351,12 @@ class Strand(QObject):
             return
         self._hasPreviewConnection5 = newVal
         self.apparentConnectivityChanged.emit(self)
+
+    def color(self):
+        return QColor()
+
+    def shouldHighlight(self):
+        return False
 
     def setdown(self, useUndoStack=True, undoStack=None):
         """ Turns a strand used for VisualFeedBack into a strand actually

@@ -41,6 +41,8 @@ from ui.mainwindow.svgbutton import SVGButton
 from model.vbase import VBase
 from views.pathview.normalstrandgraphicsitem import NormalStrandGraphicsItem
 from model.normalstrand import NormalStrand
+from model.xoverstrand import XOverStrand3, XOverStrand5
+from views.pathview.handles.xoveritem import XoverItem
 
 import util
 # import Qt stuff into the module namespace with PySide, PyQt4 independence
@@ -206,6 +208,12 @@ class PathHelix(QGraphicsObject):
     def strandAddedToVStrand(self, strand):
         if isinstance(strand, NormalStrand):
             NormalStrandGraphicsItem(strand, self)
+        elif isinstance(strand, XOverStrand3):
+            vh = self.vhelix()
+            if strand.vStrand() in (vh.scaf(), vh.stap()):
+                XoverItem(self.pathHelixGroup(), strand)
+        elif isinstance(strand, XOverStrand5):
+            pass
         else:
             raise NotImplementedError
 
@@ -299,6 +307,18 @@ class PathHelix(QGraphicsObject):
         else:
             if isTop: return VBase(self.vhelix().stap(), idx)
             else:     return VBase(self.vhelix().scaf(), idx)
+
+    def pointForVBase(self, vBase):
+        vh = self.vhelix()
+        scaf, stap = vh.scaf(), vh.stap()
+        x = self.baseWidth * vBase.vIndex
+        if vBase.vStrand == scaf:
+            y = 0 if self.evenParity() else self.baseWidth
+        elif vBase.vStrand == stap:
+            y = self.baseWidth if self.evenParity() else 0
+        else:
+            assert(False)  # This PathHelix doesn't know about vBase
+        return QPointF(x, y)
 
     ################# Crossover Handles #################
     def preXOverHandlesVisible(self):

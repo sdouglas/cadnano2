@@ -39,11 +39,11 @@ class PencilToolOperation(Operation):
         self.startVBase = startVBase
         self.lastDestVBase = startVBase
         self.newStrandInVfbPool = False
-        self.updateOperationWithDestination(startVBase)
+        self.updateDestination(startVBase)
         if self.logger:
             self.logger.write('PencilToolOperation.init(%s)\n'%startVBase)
 
-    def updateOperationWithDestination(self, newDestVBase):
+    def updateDestination(self, newDestVBase):
         """ Looks at self.startVBase and newDestVBase then calls the appropriate
         actionWhatever method on self. """
         if isinstance(newDestVBase, (int, long)):
@@ -104,7 +104,7 @@ class PencilToolOperation(Operation):
 
     def end(self):
         """ Make the changes displayed by the last call to
-        updateOperationWithDestination permanent """
+        updateDestination permanent """
         if self.logger:
             self.logger.write('PencilToolOperation.end\n')
         del self.newStrand

@@ -53,7 +53,15 @@ class VBase(object):
     def __cmp__(self, other):
         return int.__cmp__(self.vIndex, other.vIndex)
     def __eq__(self, other):
-        return self.vStrand == other.vStrand and self.vIndex == other.vIndex
+        try:
+            return self.vStrand == other.vStrand and self.vIndex == other.vIndex
+        except AttributeError:
+            return False
+    def __ne__(self, other):
+        try:
+            return self.vStrand != other.vStrand or self.vIndex != other.vIndex
+        except AttributeError:
+            return True        
     def __call__(self, i):
         """ Synonymous with sameStrand """
         return VBase(self.vStrand, i )
@@ -70,9 +78,6 @@ class VBase(object):
 
     def part(self):
         return self.vStrand.vHelix.part()
-
-    def __eq__(self, other):
-        return self.coords() == other.coords()
 
     def vComplement(self):
         """
@@ -138,6 +143,9 @@ class VBase(object):
 
     def drawn5To3(self):
         return self.vStrand.drawn5To3()
+
+    def evenParity(self):
+        return self.vHelix().evenParity()
 
     # -------------------- Querying the Model -------------------
     def exposedEnds(self):

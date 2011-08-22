@@ -23,101 +23,101 @@
 # http://www.opensource.org/licenses/mit-license.php
 
 import util, sys
+from model.strand import Strand
 util.qtWrapImport('QtCore', globals(), ['QObject', 'pyqtSignal'] )
 util.qtWrapImport('QtGui', globals(), ['QUndoCommand'] )
 nextStrandDebugIdentifier = 0
 
-class XOverStrand(Strand):
-    """
-    Owns exactly two bases, each of which is on a different vStrand.
-    Since the concepts of a "Left" and "Right" base becomes less useful
-    for a strand that crosses between vHelix, XOverStrands adopt the convention
-    that self.vBaseL==self.vBase3 and self.vBaseR==self.vBase5.
-    """
+class XOverStrand3(Strand):
+    """ Covers one base on one strand. This base exposes its 5' end to other
+    bases on the strand and has a 3' covalent bond to a base on another
+    strand represented by a XOverStrand5 object. In interactions that consider
+    the crossover as a whole (drawing the line from one PathHelix to another,
+    for instance) this strand takes responsibility for the crossover as a
+    whole. """
     logger = None
-    kind = 'xovr'
-    def __init__(self, vBase3, vBase5):
-        self._vBase3 = vBase3
-        self._vBase5 = vBase5
-        self._pt5 = None
-
+    kind = 'xovr3'
+    def __init__(self, vBase):
+        """ In order to create a XOverStrand3 / XOverStrand5 pair, first create
+        the XOverStrand3. Thin simply call xover3.conn3() to get the
+        corresponding XOverStrand5. """
+        Strand.__init__(self)
+        self._vBase = vBase
+        self._pt5 = None  # Temporary destination (in PHG coords)
+        partner = XOverStrand5(vBase=None)
+        Strand.setConn3(self, partner)
     def __repr__(self):
-        return "XOverStrand(%s, %s, %s, %s)"%(vStrand3, vBase3, vStrand5, vBase5)
-
+        return "XOverStrand3(%s)"%(self.vBase())
     def numBases(self):
-        return 2
-
-    def assertConsistent(self):
-        assert( self.vBase3.vStrand != self.vBase5.vStrand )
-        assert( self.vBase3.vStrand.isScaf() == self.vBase5.vStrand.isScaf() )
-
-    def idxsOnStrand(self, vstrand):
-        if   vstrand == self._vBase3.vStrand:
-            idx = self.vBase3
-        elif vstrand == self._vBase5.vStrand:
-            idx = self.vBase5
-        else:
-            assert(False)  # Knows not about the strand of which you speak
+        return 1
+    def idxs(self):
+        idx = self.vBase().vIndex
         return (idx, idx + 1)
+    def exposedEndsAt(self, vBase):
+        if vBase == self._vBase:
+            return '5L' if vBase.drawn5To3() else '5R'
+        return ''
+    def vStrand(self):
+        """ Since the XOverStrand only represents the 3' end of the crossover
+        in its role as a Strand, """
+        return self.vBase().vStrand
+        
+    def setConn3(self, newBase):
+        raise TypeError("A XOverStrand3's 3' end is always connected to its "\
+                        "corresponding XOverStrand5, possibly on a different"\
+                        " strand")
 
-    def vBase3(self):
-        return self._vBase3
-    def setVBase3(self, newBase, undoStack=None):
-        com = self.SetVBase3Command(self, newBase)
+    def vBase(self):
+        return self._vBase
+    def setVBase(self, newBase, undoStack=None):
+        com = XOverStrand3.SetVBaseCommand(self, newBase)
         if undoStack != None: undoStack.push(com)
         else:                 com.redo()
-    class SetVBase3Command(QUndoCommand):
-        def __init__(self, strand, newVBase3):
+    class SetVBaseCommand(QUndoCommand):
+        def __init__(self, strand, newVBase):
             QUndoCommand.__init__(self)
             self.strand = strand
-            self.newVBase3 = newVBase3
-            self.oldVBase3 = strand.vBase3
+            self.newVBase = newVBase
+            self.oldVBase = strand.vBase
         def redo(self):
-            self.strand.vBase3 = self.newVBase3
+            strand = self.strand
+            strand._vBase = self.newVBase
+            strand.didMove.emit(strand)
         def undo(self):
-            self.strand.vBase3 = self.oldVBase3
+            strand = self.strand
+            strand._vBase = self.oldVBase
+            strand.didMove.emit(strand)
 
     def pt5(self):
         """ A floating crossover's destination. A floating crossover is a
         crossover which has a defined vBase3 but has xo.vBase5()==None, created
         during force-crossover creation where the 5' end tracks the mouse until
         it is placed over a valid vBase). This is the point under the mouse in
-        PathHelixGroup. """
+        PathHelixGroup's coordinates. """
         return self._pt5
     def setPt5(self, newPt5):
         self._pt5 = newPt5
-        self.didMove.emit()
-    def vBase5(self):
-        return self._vBase5
-    def setVBase5(self, newBase, undoStack=None):
-        com = self.SetVBase5Command(self, newBase)
-        if undoStack != None: undoStack.push(com)
-        else:                 com.redo()
-    class SetVBase5Command(QUndoCommand):
-        def __init__(self, strand, newVBase3):
-            QUndoCommand.__init__(self)
-            self.strand = strand
-            self.newVBase5 = newVBase5
-            self.oldVBase5 = strand.vBase5
-        def redo(self):
-            self.strand.vBase5 = self.newVBase5
-        def undo(self):
-            self.strand.vBase5 = self.oldVBase5
+        self.didMove.emit(self)
 
+class XOverStrand5(Strand):
+    """ The partner of a XOverStrand3. To create a XOverStrand5 that is
+    properly connected to a XOverStrand3, first create the XOverStrand3 and
+    then call xover3.conn3() to get the corresponding XOverStrand5 object. """
+    def __init__(self, vBase):
+        Strand.__init__(self)
+        self._vBase = vBase
+    def __repr__(self):
+        return "XOverStrand5(%s)"%(self.vBase())
+    numBases = XOverStrand3.__dict__['numBases']  # The great method heist
+    idxs = XOverStrand3.__dict__['idxs']
+    vStrand = XOverStrand3.__dict__['vStrand']
+    vBase = XOverStrand3.__dict__['vBase']
+    setVBase = XOverStrand3.__dict__['setVBase']
     def exposedEndsAt(self, vBase):
-        """
-        Returns 'L' or 'R' if a segment exists at vStrand, idx and it exposes
-        an unbound endpoint on its 3' or 5' end. Otherwise returns None.
-        """
-        if vBase == self.vBase3:
-            return 
-        ret = ''
-        if vBase == self.vBase3:
-            drawn5To3 = self.vBase3.drawn5To3()
-            if self.conn3() == None:
-                ret += '3R' if drawn5To3 else '3L'
-        if vBase == self.vBase5:
-            drawn5To3 = self.vBase5.drawn5To3()
-            if self.conn5() == None:
-                ret += '5L' if drawn5To3 else '5R'
-        return ret
+        if vBase == self._vBase:
+            return 'R3' if self.vStrand().drawn5To3() else 'L3'
+        return ''
+
+    def setConn5(self, newConn):
+        raise TypeError("The 5' end of the 5' base of a crossover is"\
+                        "already occupied by definition")

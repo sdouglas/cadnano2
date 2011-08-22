@@ -185,11 +185,23 @@ class PathHelixGroup(QGraphicsObject):
                 return p
         return None
 
+    def vBaseAtPoint(self, pos):
+        ph = self.pathHelixAtScenePos(pos)
+        if ph == None:
+            return None
+        return ph.vBaseAtPoint(ph.mapFromItem(self, pos))
+
     def pathHelixForVHelix(self, vh):
         for p in self._pathHelixes:
             if p.vhelix() == vh:
                 return p
         return None
+
+    def pointForVBase(self, vBase):
+        ph = self.pathHelixForVHelix(vBase.vHelix())
+        if ph == None:
+            return None
+        return ph.mapToItem(self, ph.pointForVBase(vBase))
 
     def displayedVHs(self):
         """Returns the list (ordered top to bottom) of VirtualHelix

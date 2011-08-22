@@ -86,6 +86,8 @@ class VirtualHelix(QObject):
         self._scaffoldBases = []
         self.vScaf = VStrand(self)
         self.vStap = VStrand(self)
+        self.vScaf._setVHelix(self)
+        self.vStap._setVHelix(self)
         # As is the floatingXoverBase if there is one
         self.floatingXoverBase = None
 

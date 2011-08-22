@@ -26,9 +26,10 @@
 penciltool
 """
 
-import util
+import util, sys
 from abstractpathtool import AbstractPathTool
 from controllers.penciltooloperation import PencilToolOperation
+from controllers.forcetooloperation import ForceToolOperation
 util.qtWrapImport('QtCore', globals(), ['Qt'])
 util.qtWrapImport('QtGui', globals(), [ 'QGraphicsItem', 'QBrush', 'QFont',
                                         'QGraphicsSimpleTextItem', 'QPen',\
@@ -41,34 +42,68 @@ class NewPencilTool(AbstractPathTool):
     mouseMovePathHelixGroupUnused = False
     mouseReleasePathHelixGroupUnused = False
     mousePressPathHelixGroupUnused = False
+    logger = None
     
     def __init__(self, controller):
         super(NewPencilTool, self).__init__(controller)
         self.currentOperation = None
 
     def mousePressPathHelix(self, pathHelix, event):
-        draggingForceCrossover = False
-        if pathHelix:
-            phg = pathHelix.pathHelixGroup()
-            draggingForceCrossover = phg.dragging
-        if event.button() & Qt.RightButton or draggingForceCrossover:
-            print "No force crossover support yet"
-            # ForceTool.mousePressPathHelix(self, pathHelix, event)
-        elif event.buttons() & Qt.LeftButton:
+        forceToolActive = isinstance(self.currentOperation, ForceToolOperation)
+        rightClick = event.button() & Qt.RightButton
+        leftClick = event.buttons() & Qt.LeftButton
+        if forceToolActive:
+            if self.logger: self.logger.write("mousePressPathHelix>ForceEnd\n")
+            self.currentOperation.end()
+            self.currentOperation = None            
+        elif rightClick:
+            if self.logger: self.logger.write("mousePressPathHelix>Force\n")
+            dest = pathHelix.vBaseAtPoint(event.pos())
+            undoStack = pathHelix.vhelix().undoStack()
+            self.currentOperation = ForceToolOperation(dest, undoStack)
+        elif leftClick:
+            if self.logger: self.logger.write("mousePressPathHelix>Pencil\n")
             if self.currentOperation != None:
                 self.currentOperation.end()
             dest = pathHelix.vBaseAtPoint(event.pos())
             undoStack = pathHelix.vhelix().undoStack()
             self.currentOperation = PencilToolOperation(dest, undoStack)
 
+    def hoverMovePathHelix(self, pathHelix, event):
+        if self.logger: self.logger.write("hover>")
+        self.mouseMovePathHelix(pathHelix, event)
     def mouseMovePathHelix(self, pathHelix, event):
-        if self.currentOperation == None:
-            return
-        dest = pathHelix.vBaseAtPoint(event.pos())
-        dest.vStrand = self.currentOperation.startVBase.vStrand
-        self.currentOperation.updateOperationWithDestination(dest)
+        if isinstance(self.currentOperation, PencilToolOperation):
+            if self.logger: self.logger.write("mouseMovePathHelix>Pencil\n")
+            dest = pathHelix.vBaseAtPoint(event.pos())
+            dest.vStrand = self.currentOperation.startVBase.vStrand
+            self.currentOperation.updateDestination(dest)
+        elif isinstance(self.currentOperation, ForceToolOperation):
+            if self.logger: self.logger.write("mouseMovePathHelix>Force\n")
+            phg = pathHelix.pathHelixGroup()
+            pt = pathHelix.mapToItem(phg, event.pos())
+            dest = phg.vBaseAtPoint(pt)
+            if dest == None:
+                self.currentOperation.updateFloatingDestination(pt)
+            else:
+                self.currentOperation.updateDestination(dest)
+        else:
+            if self.logger: self.logger.write("mouseMovePathHelix>NOP\n")
+
+    def hoverMovePathHelixGroup(self, phg, event):
+        if self.logger: self.logger.write("hover>")
+        self.mouseMovePathHelixGroup(phg, event)
+    def mouseMovePathHelixGroup(self, phg, event):
+        if isinstance(self.currentOperation, ForceToolOperation):
+            if self.logger: self.logger.write("mouseMovePHG>Force\n")
+            self.currentOperation.updateFloatingDestination(event.pos())
+        else:
+            if self.logger: self.logger.write("mouseMovePathHelix>NOP\n")
 
     def mouseReleasePathHelix(self, pathHelix, event):
-        if self.currentOperation != None:
+        if isinstance(self.currentOperation, PencilToolOperation):
+            if self.logger: self.logger.write("mouseRelPathHelix>Pencil\n")
             self.currentOperation.end()
             self.currentOperation = None
+        else:
+            if self.logger: self.logger.write("mouseRelPathHelix>NOP\n")

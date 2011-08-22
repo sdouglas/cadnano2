@@ -33,9 +33,9 @@ import util, time
 # import Qt stuff into the module namespace with PySide, PyQt4 independence
 util.qtWrapImport('QtCore', globals(), ['QPointF', 'QRectF', 'Qt', 'QEvent'])
 util.qtWrapImport('QtGui', globals(), ['QBrush', 'QFont', 'QGraphicsItem',\
-                                       'QGraphicsSimpleTextItem', 'QPen',\
-                                       'QPolygonF', 'QPainterPath', \
-                                       'QColor', 'QFontMetrics'])
+                                'QGraphicsSimpleTextItem', 'QPen',\
+                                'QPolygonF', 'QPainterPath', \
+                                'QColor', 'QFontMetrics', 'QGraphicsPathItem'])
 
 FromSide = "FromSide"
 ToSide = "ToSide"
@@ -58,101 +58,54 @@ class XoverItem(QGraphicsPathItem):
         """
         strandItem is a the model representation of the xover strand
         """
-        super(Xover, self).__init__(phg)
-        self._clearState()
+        QGraphicsPathItem.__init__(self, phg)
+        # self._clearState()
         self._pathhelixgroup = phg
-        self._modelStrand = strandItem
+        self._strand = None
+        self.setStrand(strandItem)
+        print "XOVERITEM ONLINE %s"%strandItem
 
     def phg(self):
         return self._pathhelixgroup
 
-    def modelStrand(self):
-        """
-        """
-        return self._modelStrand
-    # end def
-
-    def _clearState(self):
-        self._pathhelixgroup = None
-        self._modelStrand = None
-        self._3primePt = None
-        self._5primePt = None
-        self._3primeDisplayConnectivity = False
-        self._5primeDisplayConnectivity = False
-        self._3primeEvenParity = True
-        self._5primeEvenParity = True
-        self._isFloating = True
-        self._painterpath = None
-
-    def destroy(self):
-        """docstring for destroy"""
-        if self._isFloating == True:
-            # Don't destroy the floating crossover
+    def strand(self):
+        return self._strand
+    def setStrand(self, strand3):
+        if self._strand == strand3:
             return
-        self.scene().removeItem(self)
-        self._clearState()
+        strand5 = strand3.conn3()
+        oldStrand3 = self._strand
+        if oldStrand3 != None:
+            oldStrand5 = oldStrand3.conn3()
+            oldStrand3.didMove.disconnect(self.strandDidMove)
+            oldStrand5.didMove.disconnect(self.strandDidMove)
+            oldStrand3.connectivityChanged.disconnect(self.conn3Changed)
+            oldStrand5.connectivityChanged.disconnect(self.conn5Changed)
+            oldStrand3.willBeRemoved.disconnect(self.strandWillBeRemoved)
+        self._strand = strand3
+        strand3.didMove.connect(self.strandDidMove)
+        strand5.didMove.connect(self.strandDidMove)
+        strand3.connectivityChanged.connect(self.conn3Changed)
+        strand5.connectivityChanged.connect(self.conn5Changed)
+        strand3.willBeRemoved.connect(self.strandWillBeRemoved)
+        self.strandDidMove()
 
-    # slot
-    def becameConnected3(self, strandItem):
-        """
-        """
-        temp = self.modelStrand().apparentlyConnectedL()
-        if self._3primeDisplayConnectivity != temp:
-            self._3primeDisplayConnectivity = temp
-    # end def
+    def conn3Changed(self):
+        pass
 
-    # slot
-    def becameConnected5(self, strandItem):
-        """
-        """
-        temp = self.modelStrand().apparentlyConnectedR()
-        if self._5primeDisplayConnectivity != temp:
-            self._5primeDisplayConnectivity = temp
-    # end def
+    def conn5Changed(self):
+        pass
 
-    # slot
-    def didMove3(self, strandItem):
-        """
-        """
-        self._3primePt, self._3primeEvenParity = self.getPoint(is3Prime=True)
-    # end def
+    def strandWillBeRemoved(self):
+        print "XOVERITEM REMOVED %s"%self.strand()
+        self.hide()
+        # self.scene().removeItem(self)
 
-    # slot
-    def didMove5(self, strandItem):
-        """
-        """
-        self._5primePt, self._5primeEvenParity = self.getPoint(is3Prime=False)
-    # end def
+    def strandDidMove(self):
+        self.updatePath()
+        self.updatePen()
 
-    def getPoint(self, is3Prime):
-        """
-        returns a tuple of the point and the bases parity as (QPointF, bool)
-        True for even parity, False for odd
-        """
-        ms = self.modelStrand()
-        vBase = ms.vBase3 if is3Prime == True else ms.vBase5
-        # test case for 5prime end floatingness
-        if vBase == None:
-            self._isFloating = True
-            return ms.pt5(), True
-        self._isFloating = False 
-        bw = self._baseWidth
-        vstrand = vBase.vStrand
-        ph = self.phg().vStrandToPathHelixDict[vstrand]
-        idx = vBase.vIndex
-        strandType = StrandType.Scaffold if vStrand.isScaf() else StrandType.Staple
-        # the offset is always the center of a base
-        offset = QPointF(bw*(idx+0.5), bw*(0.5 if ph.strandIsTop(strandType) else 1.5))
-        return offset + self.phg().mapFromItem(ph, ph.pos()), vBase.evenParity()
-    # end def
-
-    def refreshPainterPath(self):
-        if self._painterPath == None:
-        # if self.path().isEmpty() == True:
-            self.setPath(self.painterPath())
-            self.setPen(self.getPen())
-
-    def painterPath(self):
+    def updatePath(self):
         """
         Draws a quad curve from the edge of the fromBase
         to the top or bottom of the toBase (q5), and
@@ -168,25 +121,28 @@ class XoverItem(QGraphicsPathItem):
         of (rather than having strange errors popping up down the line; the
         particular instance prompting this addition cost 4 hours of time)
         """
-        ms = self.modelStrand()
+        ms = self.strand()
         bw = self._baseWidth
-        pw = self.pen().widthF()
-        pt3 = self._3primePt
-        pt5 = self._5primePt
-        isFloating = self._isFloating
+        phg = self._pathhelixgroup
+        vBase3 = self._strand.vBase()
+        vBase5 = self._strand.conn3().vBase()
+        pt3 = phg.pointForVBase(self._strand.vBase())
+        if vBase5 == None:
+            pt5 = self._strand.pt5()
+            isFloating = True
+        else:
+            pt5 = phg.pointForVBase(vBase5)
+            isFloating = False
         
         # Null source / dest => don't paint ourselves => no painterpath
         if pt3 == None\
            or pt5 == None:
             return None
 
-        if self._painterpath:
-            return self._painterpath
-
         # print "regenerating path"
         # begin calculations of how to draw labels and crossover orientations
 
-        from5To3 = ms.vStrand.drawn5to3()
+        from5To3 = ms.vStrand().drawn5To3()
         if from5To3:
             orient3 = HandleOrient.LeftUp
             labelPos3 = QPointF(pt3.x() - 0.75*bw,\
@@ -197,10 +153,7 @@ class XoverItem(QGraphicsPathItem):
             labelPos3 = QPointF(pt3.x() - 0.25*bw,\
                                 pt3.y() + 0.5*bw)
             threeExitPt = pt3 + QPointF(0, -0.5) # the point leaving the pathhelix
-        if self._toVH == None:
-            toIs5To3 = True
-        else:
-            toIs5To3 = self._toVH.directionOfStrandIs5to3(self._toStrand)
+        toIs5To3 = vBase5.drawn5To3() if vBase5 != None else from5To3
         if toIs5To3:
             orient5 = HandleOrient.RightUp
             labelPos5 = QPointF(pt5.x() - 0.25*bw, \
@@ -227,7 +180,7 @@ class XoverItem(QGraphicsPathItem):
             sameParity = False
         else:
             sameStrand = pt3.y() == pt5.y()
-            sameParity = self._3primeEvenParity == self._5primeEvenParity
+            sameParity = vBase5.evenParity() == vBase3.evenParity()
         # case 1: same strand
         if sameStrand:
             dx = abs(fiveEnterPt.x() - threeExitPt.x())
@@ -260,23 +213,19 @@ class XoverItem(QGraphicsPathItem):
         
         # draw labels
         if not isFloating:
-            painterpath.addText(labelPos3, self._toHelixNumFont, ("%d" % (ms.vBase5.idx))
-            painterpath.addText(labelPos5, self._toHelixNumFont, ("%d" % (ms.vBase3.idx)))
-        
-        self._painterpath = painterpath
-        return painterpath
-    # end def
+            painterpath.addText(labelPos3, self._toHelixNumFont, ("%d" % (vBase5.vHelix().number())))
+            painterpath.addText(labelPos5, self._toHelixNumFont, ("%d" % (vBase3.vHelix().number())))
+        self.setPath(painterpath)
 
-    def getPen(self):
-        ms = self.modelStrand()
+    def updatePen(self):
+        ms = self.strand()
         color = ms.color()
         pen = QPen(color)
-        pen.setWidth(styles.PATH_STRAND_STROKE_WIDTH)
+        #pen.setWidth(styles.PATH_STRAND_STROKE_WIDTH)
         pen.setCapStyle(Qt.SquareCap)
-        if ms.vStrand.isStap():
+        if ms.vStrand().isStap():
             if ms.shouldHighlight():
                 pen.setWidth(styles.PATH_STRAND_HIGHLIGHT_STROKE_WIDTH)
                 color.setAlpha(128)
-        return pen
-
-# end class
+        self.setPen(pen)
+# end class XOverItem
