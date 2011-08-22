@@ -1,4 +1,4 @@
-// Define the SIP wrapper to the videowidget library.
+// Define the SIP wrapper to the graphicsellipseitem library.
 
 %Module graphicsellipseitem 0
 
