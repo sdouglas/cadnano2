@@ -163,7 +163,7 @@ class PathHelix(QGraphicsPathItem):
         self.setCacheMode(QGraphicsItem.DeviceCoordinateCache)
         if app().ph != None:  # Convenience for the command line -i mode
             app().ph[vhelix.number()] = self
-        self.refreshPainterPath()
+        self.refreshPath()
     # end def
 
     def remove(self):
@@ -306,7 +306,7 @@ class PathHelix(QGraphicsPathItem):
         remy = -(rectRemove.height()*1.2)
         # bbr = self.removeBasesButton.boundingRect()
         remButton.setPos(remx, remy)
-        self.refreshPainterPath()
+        self.refreshPath()
     
     # signal to update xover graphicsitems when pathelices move
     # this must happen AFTER the pathhelices move such that the positions
@@ -362,7 +362,8 @@ class PathHelix(QGraphicsPathItem):
             # for pch in self._preXOverHandles:
             #     if pch.scene():
             #         pch.scene().removeItem(pch)
-            map(lambda pch: pch.scene().removeItem(pch) if pch.scene() else None, self._preXOverHandles)
+            map(lambda pch: pch.remove() if pch.scene() else None, self._preXOverHandles)
+            # map(lambda pch: pch.scene().removeItem(pch) if pch.scene() else None, self._preXOverHandles)
             
             self._preXOverHandles = None
             self.vhelix().part().virtualHelixAtCoordsChanged.disconnect(\
@@ -407,7 +408,7 @@ class PathHelix(QGraphicsPathItem):
         self.update()
     # end def
         
-    def refreshPainterPath(self):
+    def refreshPath(self):
         # if self._painterPath == None:
         # if self.path().isEmpty() == True:
         self.painterPath()

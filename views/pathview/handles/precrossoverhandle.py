@@ -116,6 +116,11 @@ class PreCrossoverHandle(QGraphicsPathItem):
         self._label.setPos(labelX, labelY)
         self.updateVisibilityAndEnabledness()
     # end def
+    
+    def remove(self):
+        self.scene().removeItem(self)
+        self._label = None
+    # end def
 
     def onTopStrand(self):
         return self.fromVH.evenParity() and self.fromStrand==StrandType.Scaffold or\

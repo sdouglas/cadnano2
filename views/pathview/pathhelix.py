@@ -331,7 +331,8 @@ class PathHelix(QGraphicsObject):
             # for pch in self._preXOverHandles:
             #     if pch.scene():
             #         pch.scene().removeItem(pch)
-            map(lambda pch: pch.scene().removeItem(pch) if pch.scene() else None, self._preXOverHandles)
+            map(lambda pch: pch.remove() if pch.scene() else None, self._preXOverHandles)
+            # map(lambda pch: pch.scene().removeItem(pch) if pch.scene() else None, self._preXOverHandles)
             
             self._preXOverHandles = None
             self.vhelix().part().virtualHelixAtCoordsChanged.disconnect(\

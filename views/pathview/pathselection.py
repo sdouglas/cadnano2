@@ -51,6 +51,7 @@ class SelectionItemGroup(QGraphicsItemGroup):
         self.setHandlesChildEvents(True)
         self.setFlag(QGraphicsItem.ItemIsSelectable)
         self.setFlag(QGraphicsItem.ItemIsFocusable) # for keyPressEvents
+        self.setFlag(QGraphicsItem.ItemHasNoContents)
         
         self.pen = QPen(styles.bluestroke, styles.PATH_SELECTBOX_STROKE_WIDTH)
         self._phg = parent

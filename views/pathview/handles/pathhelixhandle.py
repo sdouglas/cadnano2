@@ -33,9 +33,9 @@ util.qtWrapImport('QtCore', globals(), ['QPointF', 'QRectF', 'Qt'])
 util.qtWrapImport('QtGui', globals(), ['QBrush', 'QFont', 'QGraphicsItem',\
                                        'QGraphicsSimpleTextItem', 'QPen',\
                                        'QGraphicsTextItem', 'QDrag', \
-                                       'QUndoCommand'])
+                                       'QUndoCommand', 'QGraphicsEllipseItem', 'QStyle'])
 
-class PathHelixHandle(QGraphicsItem):
+class PathHelixHandle(QGraphicsEllipseItem):
     """docstring for PathHelixHandle"""
     radius = styles.PATHHELIXHANDLE_RADIUS
     rect = QRectF(0, 0, 2*radius + styles.PATHHELIXHANDLE_STROKE_WIDTH,\
@@ -62,25 +62,41 @@ class PathHelixHandle(QGraphicsItem):
         self.setNumber()
         self.setFlag(QGraphicsItem.ItemIsSelectable)
         self.setFlag(QGraphicsItem.ItemSendsScenePositionChanges)
+        self.setRect(self.rect)
+        # self.setState(QStyle.State_HasFocus)
     # end def
 
-    def boundingRect(self):
-        return self.rect
-
-    def paint(self, painter, option, widget=None):
+    def penAndBrushSet(self):
         if self.number() >= 0:
             if self.isSelected():
-                painter.setBrush(self.hovBrush)
-                painter.setPen(self.hovPen)
+                self.setBrush(self.hovBrush)
+                self.setPen(self.hovPen)
             else:
-                painter.setBrush(self.useBrush)
-                painter.setPen(self.usePen)
+                self.setBrush(self.useBrush)
+                self.setPen(self.usePen)
         else:
-            painter.setBrush(self.defBrush)
-            painter.setPen(self.defPen)
-        if self.beingHoveredOver:
-            painter.setPen(self.hovPen)
-        painter.drawEllipse(self.rect)
+            self.setBrush(self.defBrush)
+            self.setPen(self.defPen)
+        self.update()
+    # end def
+
+    # def boundingRect(self):
+    #     return self.rect
+
+    # def paint(self, painter, option, widget=None):
+    #     if self.number() >= 0:
+    #         if self.isSelected():
+    #             painter.setBrush(self.hovBrush)
+    #             painter.setPen(self.hovPen)
+    #         else:
+    #             painter.setBrush(self.useBrush)
+    #             painter.setPen(self.usePen)
+    #     else:
+    #         painter.setBrush(self.defBrush)
+    #         painter.setPen(self.defPen)
+    #     if self.beingHoveredOver:
+    #         painter.setPen(self.hovPen)
+    #     painter.drawEllipse(self.rect)
 
     def someVHChangedItsNumber(self, r, c):
         # If it was our VH, we need to update the number we
@@ -131,6 +147,14 @@ class PathHelixHandle(QGraphicsItem):
         hoverEnterEvent changes the PathHelixHandle brush and pen from default
         to the hover colors if necessary.
         """
+        if self.number() >= 0:
+            if self.isSelected():
+                self.setBrush(self.hovBrush)
+            else:
+                self.setBrush(self.useBrush)
+        else:
+            self.setBrush(self.defBrush)
+        self.setPen(self.hovPen)
         if self.focusRing == None:
             self.focusRing = PathHelixHandle.FocusRingPainter(self)
         self.update(self.boundingRect())
@@ -141,6 +165,7 @@ class PathHelixHandle(QGraphicsItem):
         hoverEnterEvent changes the PathHelixHanle brush and pen from hover
         to the default colors if necessary.
         """
+        self.penAndBrushSet()
         self.destroyFocusRing()
         self.update(self.boundingRect())
     # end def
@@ -160,6 +185,7 @@ class PathHelixHandle(QGraphicsItem):
         selectionGroup.setSelected(False)
         selectionGroup.addToGroup(self)
         self.setSelected(True)
+        self.penAndBrushSet()
         selectionGroup.mousePressEvent(event)
     # end def
     
@@ -173,18 +199,21 @@ class PathHelixHandle(QGraphicsItem):
         # for selection changes test against QGraphicsItem.ItemSelectedChange
         # intercept the change instead of the has changed to enable features.
         # if change == QGraphicsItem.ItemSelectedHasChanged and self.scene():
-        if change == QGraphicsItem.ItemSelectedChange and self.scene():
+        if change == QGraphicsEllipseItem.ItemSelectedChange and self.scene():
             selectionGroup = self._phg.phhSelectionGroup
             lock = selectionGroup.phg().selectionLock
             if value == True and (lock == None or lock == selectionGroup):
                 selectionGroup.addToGroup(self)
                 selectionGroup.phg().selectionLock = selectionGroup
-                return QGraphicsItem.itemChange(self, change, True)
+                return QGraphicsEllipseItem.itemChange(self, change, True)
             # end if
             else:
-                return QGraphicsItem.itemChange(self, change, False)
+                return QGraphicsEllipseItem.itemChange(self, change, False)
             # end else
             self.update(self.boundingRect())
-        return QGraphicsItem.itemChange(self, change, value)
+            self.penAndBrushSet()
+        # end if
+        self.penAndBrushSet()
+        return QGraphicsEllipseItem.itemChange(self, change, value)
     # end def
 
