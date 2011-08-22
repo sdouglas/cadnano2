@@ -3,7 +3,7 @@
 #define ELLIPSEITEM_H
 
 
-//QT_MODULE(Gui)
+// QT_MODULE(Gui)
 
 #include <QtGui/qgraphicsitem.h>
 #include <QtGui/qgraphicswidget.h>
@@ -18,14 +18,10 @@ class QStyleOptionGraphicsItem;
 class QPainter;
 QT_END_NAMESPACE
 
-class Q_GUI_EXPORT GraphicsEllipseItem : public QGraphicsEllipseItem 
-{
-    // This is needed by the Qt Meta-Object Compiler.
-    // Q_OBJECT
-    
+class GraphicsEllipseItem : public QGraphicsEllipseItem {
     public:
         GraphicsEllipseItem (QGraphicsItem *parent = 0);
-        ~GraphicsEllipseItem ();
+        virtual ~GraphicsEllipseItem () {};
         void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget = 0);
 };
 #endif
