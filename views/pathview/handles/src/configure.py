@@ -40,6 +40,10 @@ makefile = pyqtconfig.QtGuiModuleMakefile(
 # specific prefixes or extensions (e.g. the "lib" prefix on UNIX, or the
 # ".dll" extension on Windows).
 makefile.extra_libs = ["graphicsellipseitem"]
+# in case the linker can't find library files in the local directory
+dname = os.path.dirname(os.path.realpath(__file__))
+makefile.extra_lib_dirs.append(dname)
+
 
 # Generate the Makefile itself.
 makefile.generate()
