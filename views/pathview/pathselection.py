@@ -121,8 +121,9 @@ class SelectionItemGroup(QGraphicsItemGroup):
             self.selectionbox.resetTransform()
 
             # this code block is a HACK to update the boundingbox of the group
-            if self.childItems()[0] != None:
-                item = self.childItems()[0]
+            temp = self.childItems()
+            if temp != None and temp[0] != None:
+                item = temp[0]
                 self.removeFromGroup(item)
                 item.restoreParent()
                 self.addToGroup(item)
@@ -141,6 +142,8 @@ class SelectionItemGroup(QGraphicsItemGroup):
     # end def
 
     def mouseMoveEvent(self, event):
+        temp = self.childItems()[0]
+        # print self.isSelected(), temp.isSelected()
         if self.dragEnable == True:
             rf = self.getR(self.mapToScene(QPointF(event.pos())))
             # for some reason we need to skip the first mouseMoveEvent
@@ -191,16 +194,34 @@ class SelectionItemGroup(QGraphicsItemGroup):
         return QGraphicsItemGroup.itemChange(self, change, value)
     # end def
 
+    def removeChild(self, child):
+        """docstring for removeSelectedItems"""
+        if not child.isSelected():
+            # call this first before removing from the group to 
+            # prevent unecessary change events
+            child.setSelected(False)
+            
+            self.removeFromGroup(child)
+            try:
+                child.restoreParent()
+            except:
+                pass
+    # end def
+
+
     def removeSelectedItems(self):
         """docstring for removeSelectedItems"""
         for item in self.childItems():
             if not item.isSelected():
+                # call this first before removing from the group to 
+                # prevent unecessary change events
+                item.setSelected(False) 
+                
                 self.removeFromGroup(item)
                 try:
                     item.restoreParent()
                 except:
                     pass
-                item.setSelected(False)
             # end if
         # end for
     # end def
@@ -223,6 +244,7 @@ class PathHelixHandleSelectionBox(QGraphicsItem):
         self.setParentItem(itemGroup.phg())
         self.drawMe = False
         self.pen = QPen(styles.bluestroke, self.penWidth)
+        self.setZValue(styles.ZPATHHELIX+2)
     # end def
 
     def paint(self, painter, option, widget=None):
