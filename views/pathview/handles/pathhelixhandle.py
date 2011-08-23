@@ -33,15 +33,23 @@ util.qtWrapImport('QtCore', globals(), ['QPointF', 'QRectF', 'Qt'])
 util.qtWrapImport('QtGui', globals(), ['QBrush', 'QFont', 'QGraphicsItem',\
                                        'QGraphicsSimpleTextItem', 'QPen',\
                                        'QGraphicsTextItem', 'QDrag', \
-                                       'QUndoCommand', 'QGraphicsEllipseItem', 'QStyle'])
+                                       'QUndoCommand', 'QGraphicsEllipseItem',\
+                                       'QTransform', 'QStyle'])
 
 from .src.graphicsellipseitem import GraphicsEllipseItem
 
 class PathHelixHandle(GraphicsEllipseItem):
     """docstring for PathHelixHandle"""
     radius = styles.PATHHELIXHANDLE_RADIUS
+    
+    # update the following lines if you want different stroke widths 
+    # for hilighting.  Qt doesn't allow internal strokes.
     rect = QRectF(0, 0, 2*radius + styles.PATHHELIXHANDLE_STROKE_WIDTH,\
             2*radius + styles.PATHHELIXHANDLE_STROKE_WIDTH)
+    # rect = QRectF(0, 0, 2*radius, 2*radius)
+    
+    hiliteWidth = 2
+    
     defBrush = QBrush(styles.grayfill)
     defPen = QPen(styles.graystroke, styles.PATHHELIXHANDLE_STROKE_WIDTH)
     hovBrush = QBrush(styles.bluefill)
@@ -53,9 +61,7 @@ class PathHelixHandle(GraphicsEllipseItem):
         super(PathHelixHandle, self).__init__(parent)
         self.vhelix = vhelix
         vhelix.part().virtualHelixAtCoordsChanged.connect(self.someVHChangedItsNumber)
-        # self.parent = parent
         self._phg = parent
-        # self.setParentItem(parent)
         self.label = None
         self.focusRing = None
         self.beingHoveredOver = False
@@ -72,12 +78,9 @@ class PathHelixHandle(GraphicsEllipseItem):
     def penAndBrushSet(self, value):
         if self.number() >= 0:
             if value == True:
-                # print self.number(), "hov", self.isSelected()
-                # print self.number(), "hov"
                 self.setBrush(self.hovBrush)
                 self.setPen(self.hovPen)
             else:
-                # print self.number(), "clear", self.isSelected()
                 self.setBrush(self.useBrush)
                 self.setPen(self.usePen)
         else:
@@ -91,6 +94,7 @@ class PathHelixHandle(GraphicsEllipseItem):
         # are displaying!
         if (r,c) == self.vhelix.coord():
             self.setNumber()
+    # end def
 
     def setNumber(self):
         """docstring for setNumber"""
@@ -110,6 +114,7 @@ class PathHelixHandle(GraphicsEllipseItem):
         posx = self.label.boundingRect().width()/2
         posy = self.label.boundingRect().height()/2
         self.label.setPos(self.radius-posx, self.radius-posy)
+    # end def
 
     def number(self):
         """docstring for number"""
@@ -142,24 +147,10 @@ class PathHelixHandle(GraphicsEllipseItem):
             self.update(self.boundingRect())
     # end def
 
-    # def mousePressEvent(self, event):
-    #     selectionGroup = self.group()
-    #     # self.destroyFocusRing()
-    #     if selectionGroup == None:
-    #         selectionGroup = self._phg.phhSelectionGroup
-    #         print "clearing group"
-    #         selectionGroup.clearSelection(False)
-    #         selectionGroup.setSelected(False)
-    #     # self.setSelected(True)
-    #     selectionGroup.setSelected(True)
-    #     print "added to group"
-    #     self.penAndBrushSet(True)
-    #     print self.parentObject(), self.parentItem()
-    #     # selectionGroup.addToGroup(self)
-    #     selectionGroup.mousePressEvent(event)
-    # # end def
-    
     def mousePressEvent(self, event):
+        """
+        All mousePressEvents are passed to the group if it's in a group
+        """
         selectionGroup = self.group()
         if selectionGroup != None:
             selectionGroup.mousePressEvent(event)
@@ -168,6 +159,9 @@ class PathHelixHandle(GraphicsEllipseItem):
     # end def
     
     def mouseMoveEvent(self, event):
+        """
+        All mouseMoveEvents are passed to the group if it's in a group
+        """
         selectionGroup = self.group()
         if selectionGroup != None:
             selectionGroup.mousePressEvent(event)
@@ -175,8 +169,16 @@ class PathHelixHandle(GraphicsEllipseItem):
             QGraphicsItem.mouseMoveEvent(self, event)
     # end def
     
-    def restoreParent(self):
-        tempP = self._phg.mapFromItem(self.parentObject(), self.pos())
+    def restoreParent(self, pos=None):
+        """
+        Required to restore parenting and positioning in the phg
+        """
+        
+        # map the position
+        if pos == None:
+            tempP = self._phg.mapFromItem(self.parentObject(), self.pos())
+        else:
+            tempP = self._phg.mapToItem(self.parentObject(), pos)
         self.setParentItem(self._phg)
         self.penAndBrushSet(False)
 
@@ -193,7 +195,9 @@ class PathHelixHandle(GraphicsEllipseItem):
         if change == QGraphicsItem.ItemSelectedHasChanged and self.scene():
             selectionGroup = self._phg.phhSelectionGroup
             lock = selectionGroup.phg().selectionLock
-            if value == True:# and (lock == None or lock == selectionGroup):
+            
+            # only add if the selectionGroup is not locked out
+            if value == True and (lock == None or lock == selectionGroup):
                 if self.group() != selectionGroup:
                     # print "preadd", self.number(), self.parentObject(), self.group()
                     selectionGroup.addToGroup(self)

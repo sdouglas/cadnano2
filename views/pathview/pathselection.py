@@ -64,6 +64,9 @@ class SelectionItemGroup(QGraphicsItemGroup):
         self._r = 0  # latest position for moving
 
         self.lastKid = 0
+        
+        # this keeps track of mousePressEvents within the class
+        # to aid in intellignetly removing items from the group 
         self.addedToPressList = False
 
         if constraint == 'y':
@@ -122,29 +125,29 @@ class SelectionItemGroup(QGraphicsItemGroup):
             QGraphicsItemGroup.mousePressEvent(self, event)
         else:
             self.dragEnable = True
+
+            # required to get the itemChanged event to work 
+            # correctly for this
             self.setSelected(True)
+
             self.selectionbox.resetTransform()
-            
-            self.isSelecting = False
-            
+
             self.selectionbox.refreshPath()
             self.selectionbox.resetTransform()
             self.selectionbox.show()
-            
+
             # for some reason we need to skip the first mouseMoveEvent
             self.dragged = False
-                
-            # self._r0 = self.getR(self.mapToScene(QPointF(event.pos())))
-            # self._r = self._r0
+
             if self.addedToPressList == False:
                 self.addedToPressList = True
                 self.scene().views()[0].addToPressList(self)
     # end def
 
     def mouseMoveEvent(self, event):
-        temp = self.childItems()[0]
-        # print self.isSelected(), temp.isSelected()
         if self.dragEnable == True:
+            # map the item to the scene coordinates
+            # to help keep coordinates uniform
             rf = self.getR(self.mapToScene(QPointF(event.pos())))
             # for some reason we need to skip the first mouseMoveEvent
             if self.dragged == False:
@@ -168,7 +171,7 @@ class SelectionItemGroup(QGraphicsItemGroup):
         self.dragEnable = False
         # now do stuff
         # print "maybe process", self.isSelected()
-        if self.isSelected() and not (self._r0 == 0 and self._r == 0):
+        if not (self._r0 == 0 and self._r == 0):
             # print "process the box"
             self.selectionbox.processSelectedItems(self._r0, self._r)
         # end if
@@ -218,14 +221,14 @@ class SelectionItemGroup(QGraphicsItemGroup):
     # end def
 
     def removeChild(self, child):
-        """docstring for removeSelectedItems"""
-        # if not child.isSelected():
-        # call this first before removing from the group to 
-        # prevent unecessary change events
-
+        """
+        remove only the child and ask it to 
+        restore it's original parent
+        """
+        tPos = child.pos()
         self.removeFromGroup(child)
         try:
-            child.restoreParent()
+            child.restoreParent(tPos)
         except:
             print type(child.parentObject()), "Parent Error"
     # end def
@@ -237,10 +240,10 @@ class SelectionItemGroup(QGraphicsItemGroup):
             if not item.isSelected():
                 # call this first before removing from the group to 
                 # prevent unecessary change events
-                
+                tPos = item.pos()
                 self.removeFromGroup(item)
                 try:
-                    item.restoreParent()
+                    item.restoreParent(tPos)
                 except:
                     print type(item.parentObject()), "Parent Error"
             # end if
@@ -276,6 +279,7 @@ class PathHelixHandleSelectionBox(QGraphicsPathItem):
 
     def painterPath(self):
         iG = self.itemGroup
+        # the childrenBoundingRect is necessary to get this to work
         rect = self.mapRectFromItem(iG,iG.childrenBoundingRect() )
         path = QPainterPath()
         path.addRoundedRect(rect, self.radius, self.radius)
