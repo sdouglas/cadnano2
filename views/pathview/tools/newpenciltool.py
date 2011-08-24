@@ -30,7 +30,7 @@ import util, sys
 from abstractpathtool import AbstractPathTool
 from controllers.penciltooloperation import PencilToolOperation
 from controllers.forcetooloperation import ForceToolOperation
-util.qtWrapImport('QtCore', globals(), ['Qt'])
+util.qtWrapImport('QtCore', globals(), ['Qt', 'QPointF'])
 util.qtWrapImport('QtGui', globals(), [ 'QGraphicsItem', 'QBrush', 'QFont',
                                         'QGraphicsSimpleTextItem', 'QPen',\
                                         'QPolygonF', 'QPainterPath'])
@@ -72,6 +72,8 @@ class NewPencilTool(AbstractPathTool):
     def hoverMovePathHelix(self, pathHelix, event):
         if self.logger: self.logger.write("hover>")
         self.mouseMovePathHelix(pathHelix, event)
+        # self.updateLocation(pathHelix, pathHelix.mapToScene(QPointF(event.pos())))
+        
     def mouseMovePathHelix(self, pathHelix, event):
         if isinstance(self.currentOperation, PencilToolOperation):
             if self.logger: self.logger.write("mouseMovePathHelix>Pencil\n")
