@@ -32,6 +32,7 @@ import maya.OpenMaya as OpenMaya
 import maya.OpenMayaMPx as OpenMayaMPx
 import maya.cmds as cmds
 import maya.OpenMayaUI as OpenMayaUI
+import maya.mel as mel
 import sip
 
 sys.path.insert(0, os.environ['CADNANO_PATH'])
@@ -83,7 +84,7 @@ class closeCadNano(OpenMayaMPx.MPxCommand):
 
 def onExitingMaya(clientData):
     closeCN()
-    cmds.SavePreferences()
+    mel.eval( "savePrefs;" )
 
 
 def onHideEvent():
