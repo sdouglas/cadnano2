@@ -26,6 +26,7 @@ from rangeset import RangeSet
 import util, sys
 from vbase import VBase
 from model.normalstrand import NormalStrand
+from model.xoverstrand import XOverStrand3, XOverStrand5
 import strand
 util.qtWrapImport('QtCore', globals(), ['QObject', 'pyqtSignal'] )
 
@@ -171,11 +172,11 @@ class VStrand(RangeSet):
 
     def resizeStrandAt(self, idxInStrand, newFirstBase, newLastBase, useUndoStack=True, undoStack=None):
         if isinstance(idxInStrand, VBase):
-            idxInStrand = idxInStrand.vIndex
+            idxInStrand = idxInStrand.vIndex()
         if isinstance(newFirstBase, VBase):
-            newFirstBase = newFirstBase.vIndex
+            newFirstBase = newFirstBase.vIndex()
         if isinstance(newLastBase, VBase):
-            newLastBase = newLastBase.vIndex
+            newLastBase = newLastBase.vIndex()
         self.resizeRangeAtIdx(idxInStrand, newFirstBase,\
                               newLastBase + 1,\
                               useUndoStack, undoStack)
@@ -183,9 +184,9 @@ class VStrand(RangeSet):
     def clearStrand(self, firstIndex, afterLastIndex, useUndoStack=True, undoStack=None, keepLeft=True):
         #Input sanitization
         if isinstance(firstIndex, VBase):
-            firstIndex = firstIndex.vIndex
+            firstIndex = firstIndex.vIndex()
         if isinstance(afterLastIndex, VBase):
-            afterLastIndex = afterLastIndex.vIndex
+            afterLastIndex = afterLastIndex.vIndex()
         if useUndoStack and undoStack == None:
             undoStack = self.undoStack()
         #/Input sanitization
@@ -239,10 +240,10 @@ class VStrand(RangeSet):
             return
         elif firstIdx < lastIdx:
             lIdx, rIdx = firstIdx, lastIdx
-            leftHasPrivelage = True
+            leftHasPrivilege = True
         elif lastIdx < firstIdx:
             lIdx, rIdx = lastIdx, firstIdx
-            leftHasPrivelage = False
+            leftHasPrivilege = False
 
         lStrand = self.get(lIdx)
         rStrand = self.get(rIdx)
@@ -250,7 +251,7 @@ class VStrand(RangeSet):
         rIsEnd = 'L' in VBase(self, rIdx).exposedEnds()
         lIsNormalStrand = isinstance(lStrand, NormalStrand)
         rIsNormalStrand = isinstance(rStrand, NormalStrand)
-        if leftHasPrivelage:
+        if leftHasPrivilege:
             if self.logger: self.logger.write('\tleftPrivelage>')
             if lStrand == rStrand != None:
                 if self.logger: self.logger.write('0drag\n')
@@ -281,7 +282,7 @@ class VStrand(RangeSet):
                 if self.logger: self.logger.write('catchall\n')
                 newStrand = NormalStrand(VBase(self, lIdx), VBase(self, rIdx))
                 self.addStrand(newStrand)
-        elif not leftHasPrivelage:
+        elif not leftHasPrivilege:
             if self.logger: self.logger.write('\trightPrivelage>')
             if lStrand == rStrand != None:
                 if self.logger: self.logger.write('0drag\n')
@@ -312,7 +313,7 @@ class VStrand(RangeSet):
                 if self.logger: self.logger.write('catchall\n')
                 newStrand = NormalStrand(VBase(self, lIdx), VBase(self, rIdx))
                 self.addStrand(newStrand, useUndoStack=useUndoStack, undoStack=undoStack)
-        # End if leftHasPrivelage
+        # End if leftHasPrivilege
         if self.logger:
             self.logger.write('\t%s\n'%self.newStringRep())
         if undoStack:
@@ -362,6 +363,27 @@ class VStrand(RangeSet):
 
     def undoStack(self):
         return self.vHelix.undoStack()
+        
+    def possibleNewCrossoverAt(self, fromVBase, toVBase):
+        """
+        Return true if could crossover to neighbor at index.
+        Useful for seeing if potential crossovers from potentialCrossoverList
+        should be presented as points at which new a new crossover can be
+        formed.
+        """
+        fromIdx = fromVBase.vIndex()
+        toIdx = toVBase.vIndex()
+        toVStrand = toVBase.vStrand()
+        
+        if self.hasCrossoverAt(fromIdx) or toVStrand.hasCrossoverAt(toIdx):
+            return False
+        else:
+            return True if self.get(fromIdx) and toVStrand.get(toIdx) else False
+    # end def
+    
+    def hasCrossoverAt(self, index):
+        return isinstance(self.get(index), (XOverStrand3, XOverStrand5))
+    # end def
 
     ####################### Private Write API #######################
     def _setVHelix(self, newVH):

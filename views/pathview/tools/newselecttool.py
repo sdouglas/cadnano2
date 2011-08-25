@@ -23,24 +23,23 @@
 # http://www.opensource.org/licenses/mit-license.php
 
 """
-penciltool
+select
 """
 
 import util
 import sys
 from abstractpathtool import AbstractPathTool
-from controllers.penciltooloperation import PencilToolOperation
-from controllers.forcetooloperation import ForceToolOperation
+from controllers.selecttooloperation import SelectToolOperation
 
 util.qtWrapImport('QtCore', globals(), ['Qt', 'QPointF'])
-util.qtWrapImport('QtGui', globals(), [ 'QGraphicsItem', 'QBrush', 'QFont',
-                                        'QGraphicsSimpleTextItem', 'QPen',\
-                                        'QPolygonF', 'QPainterPath'])
+util.qtWrapImport('QtGui', globals(), ['QGraphicsItem', 'QBrush', 'QFont',
+                                       'QGraphicsSimpleTextItem', 'QPen',
+                                       'QPolygonF', 'QPainterPath'])
 
-class NewPencilTool(AbstractPathTool):
+class NewSelectTool(AbstractPathTool):
     """
-    PencilTool allows for creation of new staple or scaffold strands
-    by clicking and dragging on empty bases.
+    SelectTool is the default tool. It allows editing of breakpoints
+    (by clicking and dragging) and toggling of crossovers.
     """
     # And we actually use those PathHelixGroup events
     mouseMovePathHelixGroupUnused = False
@@ -49,30 +48,19 @@ class NewPencilTool(AbstractPathTool):
     logger = None
 
     def __init__(self, controller):
-        super(NewPencilTool, self).__init__(controller)
+        super(NewSelectTool, self).__init__(controller)
         self.currentOperation = None
 
     def mousePressPathHelix(self, pathHelix, event):
         pathHelix.scene().views()[0].addToPressList(pathHelix)
-        forceToolActive = isinstance(self.currentOperation, ForceToolOperation)
-        rightClick = event.button() & Qt.RightButton
-        leftClick = event.buttons() & Qt.LeftButton
-        if forceToolActive:
-            if self.logger: self.logger.write("mousePressPathHelix>ForceEnd\n")
+        # rightClick = event.button() & Qt.RightButton
+        # leftClick = event.buttons() & Qt.LeftButton
+        if self.logger: self.logger.write("mousePressPathHelix>Select\n")
+        if self.currentOperation != None:
             self.currentOperation.end()
-            self.currentOperation = None
-        elif rightClick:
-            if self.logger: self.logger.write("mousePressPathHelix>Force\n")
-            dest = pathHelix.vBaseAtPoint(event.pos())
-            undoStack = pathHelix.vhelix().undoStack()
-            self.currentOperation = ForceToolOperation(dest, undoStack)
-        elif leftClick:
-            if self.logger: self.logger.write("mousePressPathHelix>Pencil\n")
-            if self.currentOperation != None:
-                self.currentOperation.end()
-            dest = pathHelix.vBaseAtPoint(event.pos())
-            undoStack = pathHelix.vhelix().undoStack()
-            self.currentOperation = PencilToolOperation(dest, undoStack)
+        dest = pathHelix.vBaseAtPoint(event.pos())
+        undoStack = pathHelix.vhelix().undoStack()
+        self.currentOperation = SelectToolOperation(dest, undoStack)
 
     def hoverMovePathHelix(self, pathHelix, event):
         if self.logger: self.logger.write("hover>")
@@ -80,20 +68,11 @@ class NewPencilTool(AbstractPathTool):
         self.updateLocation(pathHelix, pathHelix.mapToScene(QPointF(event.pos())))
 
     def mouseMovePathHelix(self, pathHelix, event):
-        if isinstance(self.currentOperation, PencilToolOperation):
-            if self.logger: self.logger.write("mouseMovePathHelix>Pencil\n")
+        if isinstance(self.currentOperation, SelectToolOperation):
+            if self.logger: self.logger.write("mouseMovePathHelix>Select\n")
             dest = pathHelix.vBaseAtPoint(event.pos())
-            dest._vStrand = self.currentOperation.startVBase.vStrand()
+            dest.vStrand = self.currentOperation.startVBase.vStrand
             self.currentOperation.updateDestination(dest)
-        elif isinstance(self.currentOperation, ForceToolOperation):
-            if self.logger: self.logger.write("mouseMovePathHelix>Force\n")
-            phg = pathHelix.pathHelixGroup()
-            pt = pathHelix.mapToItem(phg, event.pos())
-            dest = phg.vBaseAtPoint(pt)
-            if dest == None:
-                self.currentOperation.updateFloatingDestination(pt)
-            else:
-                self.currentOperation.updateDestination(dest)
         else:
             if self.logger: self.logger.write("mouseMovePathHelix>NOP\n")
 
@@ -102,15 +81,11 @@ class NewPencilTool(AbstractPathTool):
         self.mouseMovePathHelixGroup(phg, event)
 
     def mouseMovePathHelixGroup(self, phg, event):
-        if isinstance(self.currentOperation, ForceToolOperation):
-            if self.logger: self.logger.write("mouseMovePHG>Force\n")
-            self.currentOperation.updateFloatingDestination(event.pos())
-        else:
-            if self.logger: self.logger.write("mouseMovePathHelix>NOP\n")
+        if self.logger: self.logger.write("mouseMovePathHelix>NOP\n")
 
     def mouseReleasePathHelix(self, pathHelix, event):
-        if isinstance(self.currentOperation, PencilToolOperation):
-            if self.logger: self.logger.write("mouseRelPathHelix>Pencil\n")
+        if isinstance(self.currentOperation, SelectToolOperation):
+            if self.logger: self.logger.write("mouseRelPathHelix>Select\n")
             self.currentOperation.end()
             self.currentOperation = None
         else:

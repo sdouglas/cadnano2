@@ -36,57 +36,63 @@ class VBase(object):
         object.__init__(self)
         assert(isinstance(vStrand, model.vstrand.VStrand))
         assert(isinstance(vIndex, (int, long)))
-        self.vStrand = vStrand
-        self.vIndex = vIndex
+        self._vStrand = vStrand
+        self._vIndex = vIndex
     def __repr__(self):
-        vhNum = self.vStrand.vHelix.number()
-        strandStr = "scaf" if self.vStrand.isScaf() else "stap"
-        return "v[%i].%s(%i)"%(vhNum, strandStr, self.vIndex)
+        vhNum = self._vStrand.vHelix.number()
+        strandStr = "scaf" if self._vStrand.isScaf() else "stap"
+        return "v[%i].%s(%i)"%(vhNum, strandStr, self._vIndex)
 
     def __add__(self, i):
         """ Returns the VBase on the same strand but i bases rightwards (in
         the 2D view) """
-        return VBase(self.vStrand, self.vIndex + i)
+        return VBase(self._vStrand, self._vIndex + i)
     def __sub__(self, i):
         """ Complement of __add__ """
-        return VBase(self.vStrand, self.vIndex - i)
+        return VBase(self._vStrand, self._vIndex - i)
     def __cmp__(self, other):
-        return int.__cmp__(self.vIndex, other.vIndex)
+        return int.__cmp__(self._vIndex, other._vIndex)
     def __eq__(self, other):
         try:
-            return self.vStrand == other.vStrand and self.vIndex == other.vIndex
+            return self._vStrand == other._vStrand and self._vIndex == other._vIndex
         except AttributeError:
             return False
     def __ne__(self, other):
         try:
-            return self.vStrand != other.vStrand or self.vIndex != other.vIndex
+            return self._vStrand != other._vStrand or self._vIndex != other._vIndex
         except AttributeError:
             return True        
     def __call__(self, i):
         """ Synonymous with sameStrand """
-        return VBase(self.vStrand, i )
+        return VBase(self._vStrand, i )
 
     def sameStrand(self, i):
         """ Returns the vbase on the same vstrand but at vindex i """
-        return VBase(self.vStrand, i)
+        return VBase(self._vStrand, i)
 
     def coords(self):
-        return (self.vStrand, self.vIndex)
+        return (self._vStrand, self._vIndex)
 
     def vHelix(self):
-        return self.vStrand.vHelix
+        return self._vStrand.vHelix
+        
+    def vIndex(self):
+        return self._vIndex
+        
+    def vStrand(self):
+        return self._vStrand
 
     def part(self):
-        return self.vStrand.vHelix.part()
+        return self._vStrand.vHelix.part()
 
     def undoStack(self):
-        return self.vStrand.undoStack()
+        return self._vStrand.undoStack()
 
     def vComplement(self):
         """
         Base on the same vHelix at the same vIndex but opposite strand.
         """
-        return VBase(self.vStrand.vComplement(), self.vIndex)
+        return VBase(self._vStrand.vComplement(), self._vIndex)
 
     def vPrev5(self):
         """
@@ -106,27 +112,15 @@ class VBase(object):
         else:
             return self.prevL()
 
-    def vNextR(self):
-        """
-        Returns a vbase one to the right in the path view
-        """
-        return VBase(self.vStrand, self.index + 1)
-
-    def vPrevL(self):
-        """
-        Returns a vbase one to the left in the path view
-        """
-        return VBase(self._vStrand, self._index - 1)
-
     def to5or3(self, end):
         """ Returns 5 or 3 corresponding to the input ('L', 'R', 5, or
         3) on self's vStrand """
         if end in (3, 5):
             return end
         if end == 'L':
-            return 5 if self.vStrand.drawn5To3() else 3
+            return 5 if self._vStrand.drawn5To3() else 3
         if end == 'R':
-            return 3 if self.vStrand.drawn5To3() else 5
+            return 3 if self._vStrand.drawn5To3() else 5
         if end == None:
             return end
         raise ValueError("%s not in (3, 5, 'L', 'R', None)"%str(end))
@@ -137,15 +131,15 @@ class VBase(object):
         if end in ('L', 'R'):
             return end
         if end == 3:
-            return 'R' if self.vStrand.drawn5To3() else 'L'
+            return 'R' if self._vStrand.drawn5To3() else 'L'
         if end == 5:
-            return 'L' if self.vStrand.drawn5To3() else 'R'
+            return 'L' if self._vStrand.drawn5To3() else 'R'
         if end == None:
             return end
         raise ValueError("%s not in (3, 5, 'L', 'R', None)"%str(end))
 
     def drawn5To3(self):
-        return self.vStrand.drawn5To3()
+        return self._vStrand.drawn5To3()
 
     def evenParity(self):
         return self.vHelix().evenParity()
@@ -155,7 +149,7 @@ class VBase(object):
         """ Returns a string containing some combination of 'L', 'R', '3', and
         '5', where each character is present if the corresponding end is
         exposed. """
-        containingStrand = self.vStrand.get(self.vIndex)
+        containingStrand = self._vStrand.get(self._vIndex)
         if containingStrand == None:
             return ''
         return containingStrand.exposedEndsAt(self)
@@ -163,4 +157,4 @@ class VBase(object):
     def strand(self):
         """ If a strand contains the VBase represented by self, this method
         returns the strand (otherwise None) """
-        return self.vStrand.get(self.vIndex)
+        return self._vStrand.get(self._vIndex)

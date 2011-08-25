@@ -146,7 +146,7 @@ class DNAPart(Part):
         """
         return self._oligos
 
-    def oligosIntersectingVhAt(self, vhCoords):
+    def oligosTouchingVhAt(self, vhCoords):
         pass
 
     ########################## Write API ##########################

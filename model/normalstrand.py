@@ -68,7 +68,7 @@ class NormalStrand(Strand):
     vBase5 = property(getVBase5)
 
     def vStrand(self):
-        return self.vBaseL.vStrand
+        return self.vBaseL.vStrand()
 
     def apparentlyConnectedL(self):
         return self._hasPreviewConnectionL or self.connL() != None
@@ -83,15 +83,15 @@ class NormalStrand(Strand):
         """ Since a NormalStrand occupies exactly one vstrand, this simply
         returns the range of bases on that strand which the receiver
         occupies """
-        return (self.vBaseL.vIndex, self.vBaseR.vIndex + 1)
+        return (self.vBaseL.vIndex(), self.vBaseR.vIndex() + 1)
 
     def numBases(self):
-        return self.vBaseR.vIndex + 1 - self.vBaseL.vIndex
+        return self.vBaseR.vIndex() + 1 - self.vBaseL.vIndex()
 
     def canMergeWithTouchingStrand(self, other):
         """ We already have that the ranges for self and other could merge. """
         return isinstance(other, NormalStrand) and\
-               self.vBaseL.vStrand == other.vStrand
+               self.vBaseL.vStrand() == other.vStrand()
     def mergeWith(self, other, undoStack):
         """ self retains its identity (oligo, color, oligo's sequence, etc) in
         this merge """
@@ -196,7 +196,7 @@ class NormalStrand(Strand):
         exposes an unbound endpoint on its 3' or 5' end. Otherwise returns None.http://store.apple.com/us/browse/campaigns/back_to_school?aid=www-naus-bts2011-0526-16
         """
         ret = ''
-        drawn5To3 = vBase.vStrand.drawn5To3()
+        drawn5To3 = vBase.vStrand().drawn5To3()
         if vBase == self.vBaseL:
             ret += 'L5' if drawn5To3 else 'L3'
         if vBase == self.vBaseR:

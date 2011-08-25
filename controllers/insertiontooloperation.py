@@ -34,4 +34,4 @@ class InsertionToolOperation(Operation):
     def __init__(self, vBase, undoStack):
         Operation.__init__(self, undoStack)
         strand = LoopStrand(vBase, 10)
-        vBase.vStrand.addStrand(strand, useUndoStack=True, undoStack=undoStack)
+        vBase.vStrand().addStrand(strand, useUndoStack=True, undoStack=undoStack)

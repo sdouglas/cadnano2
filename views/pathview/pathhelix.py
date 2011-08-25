@@ -22,8 +22,8 @@
 #
 # http://www.opensource.org/licenses/mit-license.php
 """
-pathhelixgraphicsitem.py
-Created by Nick on 2011-08-19.
+pathhelix.py
+Created by Shawn on 2011-01-27.
 """
 
 from exceptions import AttributeError, ValueError
@@ -32,7 +32,7 @@ from model.enum import EndType, LatticeType, StrandType
 from model.virtualhelix import VirtualHelix
 from weakref import ref
 from handles.pathhelixhandle import PathHelixHandle
-from handles.loopgraphicsitem import LoopGraphicsItem
+from handles.loophandle import LoopItem, SkipItem
 from handles.precrossoverhandle import PreCrossoverHandle
 from math import floor, pi, ceil
 from cadnano import app
@@ -40,22 +40,21 @@ from itertools import product
 from ui.mainwindow.svgbutton import SVGButton
 from model.vbase import VBase
 from views.pathview.normalstrandgraphicsitem import NormalStrandGraphicsItem
+from model.normalstrand import NormalStrand
 from model.xoverstrand import XOverStrand3, XOverStrand5
 from views.pathview.handles.xoveritem import XoverItem
-from model.normalstrand import NormalStrand
-from model.loopstrand import LoopStrand
 
 import util
 # import Qt stuff into the module namespace with PySide, PyQt4 independence
 util.qtWrapImport('QtCore', globals(), ['Qt', 'QRect', 'QLine', 'QRectF',\
                                         'QPointF', 'QPoint', 'pyqtSlot',\
-                                        'QEvent', 'SLOT',  'pyqtSignal', 'QObject'])
+                                        'QEvent', 'SLOT',  'pyqtSignal'])
 util.qtWrapImport('QtGui', globals(), ['QBrush', 'QColor', 'QFont',\
                                        'QGraphicsObject', 'QFontMetricsF',\
                                        'QGraphicsSimpleTextItem',\
                                        'QPainter', 'QPainterPath', 'QPen',\
                                        'QDrag', 'QPolygonF', 'QUndoCommand',
-                                       'QInputDialog', 'QGraphicsItem', 'QGraphicsPathItem'])
+                                       'QInputDialog', 'QGraphicsItem'])
 
 baseWidth = styles.PATH_BASE_WIDTH
 ppL5 = QPainterPath()  # Left 5' PainterPath
@@ -81,19 +80,8 @@ r3poly.append(QPointF(0.75 * baseWidth, 0.5 * baseWidth))
 r3poly.append(QPointF(0, baseWidth))
 ppR3.addPolygon(r3poly)
 
-class PHObject(QObject):
-    """
-    A placeholder class to get the benefits of QObject 
-    without needing multiple inheritance and also to still use 
-    QGraphicsPathItem instead of QGraphicsObject so we don't need to define
-    a slow paint() method in python.
-    """
-    xoverUpdate = pyqtSignal()
-    def __init__(self):
-        super(PHObject, self).__init__()
-# end class
 
-class PathHelix(QGraphicsPathItem):
+class PathHelix(QGraphicsObject):
     """
     PathHelix is the primary "view" of the VirtualHelix data.
     It manages the ui interactions from the user, such as
@@ -101,8 +89,6 @@ class PathHelix(QGraphicsPathItem):
     and updates the data model accordingly.
 
     parent should be set to...
-    
-    This class draws the minor grid.  The major grid is drawn by a subobject.
     """
     minorGridPen = QPen(styles.minorgridstroke, styles.MINOR_GRID_STROKE_WIDTH)
     minorGridPen.setCosmetic(True)
@@ -130,27 +116,23 @@ class PathHelix(QGraphicsPathItem):
     sequenceTextXCenteringOffset = sequenceFontExtraWidth / 2.
     sequenceTextYCenteringOffset = baseWidth / 2.
 
-
     def __init__(self, vhelix, pathHelixGroup):
-        QGraphicsPathItem.__init__(self)
+        super(PathHelix, self).__init__()
         self.setAcceptHoverEvents(True)  # for pathtools
         self._pathHelixGroup = pathHelixGroup
-        
-        # self.minorGrid = QGraphicsPathItem()
-        self.signalObject = PHObject()
-        self.xoverUpdate = self.signalObject.xoverUpdate
-        self.majorGrid = QGraphicsPathItem(self)
-        
-        # reset cached paths
-        self._minorGridPainterPath = None
-        self._majorGridPainterPath = None
-        
+        self._scafBreakpointHandles = []
+        self._stapBreakpointHandles = []
         self._scafXoverHandles = []
         self._stapXoverHandles = []
         self._preXOverHandles = None
         self._XOverCacheEnvironment = None
+        self._segmentPaths = None
+        self._endptPaths = None
+        self._minorGridPainterPath = None
+        self._majorGridPainterPath = None
         self.step = vhelix.part().crossSectionStep()
         self.setZValue(styles.ZPATHHELIX)
+        self.rect = QRectF()
         self._vhelix = None
         self._handle = None
         self._mouseDownBase = None
@@ -164,15 +146,7 @@ class PathHelix(QGraphicsPathItem):
         self.setCacheMode(QGraphicsItem.DeviceCoordinateCache)
         if app().ph != None:  # Convenience for the command line -i mode
             app().ph[vhelix.number()] = self
-        self.refreshPath()
     # end def
-
-    def remove(self):
-        self.signalObject = None
-        self.xoverUpdate = None
-        self.scene().removeItem(self.majorGrid)
-        self.majorGrid = None
-        self.scene().removeItem(self)
 
     def activeTool(self):
         return self.controller().activeTool()
@@ -199,14 +173,14 @@ class PathHelix(QGraphicsPathItem):
     def setVHelix(self, newVH):
         vh = self._vhelix
         if vh:
-            vh.basesModifiedSignal.disconnect(self.vhelixBasesModified)
+            vh.basesModified.disconnect(self.vhelixBasesModified)
             vh.vhelixDimensionsModified.disconnect(\
                                              self.vhelixDimensionsModified)
             vh.scaf().didAddStrand.disconnect(self.strandAddedToVStrand)
             vh.stap().didAddStrand.disconnect(self.strandAddedToVStrand)
         self._vhelix = newVH
-        newVH.basesModifiedSignal.connect(self.vhelixBasesModified)
-        newVH.dimensionsModifiedSignal.connect(self.vhelixDimensionsModified)
+        newVH.basesModified.connect(self.vhelixBasesModified)
+        newVH.dimensionsModified.connect(self.vhelixDimensionsModified)
         newVH.scaf().didAddStrand.connect(self.strandAddedToVStrand)
         newVH.stap().didAddStrand.connect(self.strandAddedToVStrand)
         self.vhelixDimensionsModified()
@@ -240,8 +214,6 @@ class PathHelix(QGraphicsPathItem):
                 XoverItem(self.pathHelixGroup(), strand)
         elif isinstance(strand, XOverStrand5):
             pass
-        elif isinstance(strand, LoopStrand):
-            LoopGraphicsItem(strand, self)
         else:
             raise NotImplementedError
 
@@ -289,32 +261,23 @@ class PathHelix(QGraphicsPathItem):
         one for staple)"""
         canvasSize = self._vhelix.part().numBases()
         self.prepareGeometryChange()
-        rect = self.boundingRect()
-        addButton = self.addBasesButton
-        rectAdd = addButton.boundingRect()
-        remButton = self.removeBasesButton
-        rectRemove = remButton.boundingRect()
-        rect.setWidth(self.baseWidth * canvasSize)
-        rect.setHeight(2 * self.baseWidth)
-        
-        # reset cached paths
-        # self._minorGridPainterPath = None
-        # self._majorGridPainterPath = None
-        
-        addx = rect.width()
-        addy = -(rectAdd.height()*1.2)
-        addButton.setPos(addx, addy)
-        addButton.show()
-        remx = addx-rectRemove.width()
-        remy = -(rectRemove.height()*1.2)
-        # bbr = self.removeBasesButton.boundingRect()
-        remButton.setPos(remx, remy)
-        self.refreshPath()
+        self.rect.setWidth(self.baseWidth * canvasSize)
+        self.rect.setHeight(2 * self.baseWidth)
+        self._minorGridPainterPath = None
+        self._majorGridPainterPath = None
+        addx = self.rect.width()
+        addy = -(self.addBasesButton.boundingRect().height()*1.2)
+        self.addBasesButton.setPos(addx, addy)
+        self.addBasesButton.show()
+        remx = self.rect.width()-self.removeBasesButton.boundingRect().width()
+        remy = -(self.removeBasesButton.boundingRect().height()*1.2)
+        bbr = self.removeBasesButton.boundingRect()
+        self.removeBasesButton.setPos(remx, remy)
     
     # signal to update xover graphicsitems when pathelices move
     # this must happen AFTER the pathhelices move such that the positions
     # of Xover endpoints are valid/new before they get recalculated
-    
+    xoverUpdate = pyqtSignal()
     def positionInPhgChanged(self):
         if self._pathHelixGroup.topmostPathHelix() == self:
             self.addBasesButton.show()
@@ -324,6 +287,9 @@ class PathHelix(QGraphicsPathItem):
             self.removeBasesButton.hide()
         # emit this signal to be picked up by XoverHandle at least
         self.xoverUpdate.emit()
+
+    def boundingRect(self):
+        return self.rect
 
     def vBaseAtPoint(self, pt, clampY=True):
         x, y = pt.x(), pt.y()
@@ -343,19 +309,16 @@ class PathHelix(QGraphicsPathItem):
             else:     return VBase(self.vhelix().scaf(), idx)
 
     def pointForVBase(self, vBase):
-        x = self.baseWidth * vBase.vIndex()
-        y = self.baseWidth * int(not self.vBaseIsTop(vBase))
-        return QPointF(x, y)
-
-    def vBaseIsTop(self, vBase):
         vh = self.vhelix()
         scaf, stap = vh.scaf(), vh.stap()
+        x = self.baseWidth * vBase.vIndex()
         if vBase.vStrand() == scaf:
-            return True if self.evenParity() else False
+            y = 0 if self.evenParity() else self.baseWidth
         elif vBase.vStrand() == stap:
-            return False if self.evenParity() else True
+            y = self.baseWidth if self.evenParity() else 0
         else:
-            assert(False)  # vBase is not on this strand's vhelix!
+            assert(False)  # This PathHelix doesn't know about vBase
+        return QPointF(x, y)
 
     ################# Crossover Handles #################
     def preXOverHandlesVisible(self):
@@ -412,24 +375,85 @@ class PathHelix(QGraphicsPathItem):
         if self.phgroup().getActiveHelix() == self:
             self.makeSelfActiveHelix()
         self.update()
-    # end def
-        
-    def refreshPath(self):
-        # if self._painterPath == None:
-        # if self.path().isEmpty() == True:
-        self.painterPath()
-    # end def
-    
-    def painterPath(self):
-        majG = self.majorGrid
-        minG = self #self.minorGrid
-        minG.setBrush(self.nobrush)
-        minG.setPen(self.minorGridPen)
-        minG.setPath(self.minorGridPainterPath())  # Minor grid lines
-        majG.setBrush(self.nobrush)
-        majG.setPen(self.majorGridPen)
-        majG.setPath(self.majorGridPainterPath())  # Major grid lines
-    # end def
+
+    ############################# Drawing ##########################
+    def paint(self, painter, option, widget=None):
+        # Note that the methods that fetch the paths
+        # cache the paths and that those caches are
+        # invalidated as the primary mechanism
+        # of updating after a change in vhelix's bases
+        if option != None and \
+           not self.boundingRect().intersects(option.exposedRect):
+            return
+        painter.save()
+        painter.setBrush(self.nobrush)
+        painter.setPen(self.minorGridPen)
+        painter.drawPath(self.minorGridPainterPath())  # Minor grid lines
+        painter.setPen(self.majorGridPen)
+        painter.drawPath(self.majorGridPainterPath())  # Major grid lines
+        painter.setBrush(Qt.NoBrush)
+        segmentPaths, endptPths = self.segmentAndEndptPaths()
+        for sp in segmentPaths:
+            pen, path = sp
+            strandRect = path.controlPointRect().adjusted(0, 0, 5, 5)
+            if option != None and not strandRect.intersects(option.exposedRect):
+                continue
+            painter.setPen(pen)
+            painter.drawPath(path)
+        painter.setPen(Qt.NoPen)
+        for ep in endptPths:
+            brush, path = ep
+            if option != None and\
+               not path.controlPointRect().intersects(option.exposedRect):
+                continue
+            painter.setBrush(brush)
+            painter.drawPath(path)
+        self.paintHorizontalBaseText(painter)
+        painter.restore()
+
+    def paintHorizontalBaseText(self, painter):
+        vh = self.vhelix()
+        scafTxt = vh.sequenceForVirtualStrand(StrandType.Scaffold)
+        scafY = self.baseWidth*0 + self.sequenceTextYCenteringOffset
+        stapTxt = vh.sequenceForVirtualStrand(StrandType.Staple)
+        stapY = self.baseWidth*1 + self.sequenceTextYCenteringOffset
+        if self.strandIsTop(StrandType.Staple):
+            # We assumed scaffold was on top. Correct that.
+            scafY, stapY = stapY, scafY
+        if vh.directionOfStrandIs5to3(StrandType.Scaffold):
+            # Text goes from 5 to 3, so staple gets vertically flipped
+            shouldVFlipScaf = False
+            # We still want the text to be drawn at the same Y coordinate,
+            # just upside down, so we undo the transform as it applies
+            # to the Y coord
+            stapY = -stapY
+        else:
+            shouldVFlipScaf = True
+            scafY = -scafY
+        scafX = stapX = self.sequenceTextXCenteringOffset
+        painter.setPen(QPen(Qt.black))
+        painter.setBrush(Qt.NoBrush)
+        painter.setFont(self.sequenceFont)
+        if shouldVFlipScaf:
+            painter.rotate(180)
+            painter.translate(-self.baseWidth*vh.numBases(), 0)
+            # draw the text and reverse the string to draw 5 prime to 3 prime
+            scafTxt = scafTxt[::-1]
+        # end if
+        else:
+            # draw the text and reverse the string to draw 5 prime to 3 prime
+            # pass
+            stapTxt = stapTxt[::-1]
+        # end else
+        # print vh.numBases()
+        painter.drawText(scafX, scafY, self.baseWidth*vh.numBases(),\
+                         self.baseWidth/2., Qt.AlignVCenter, scafTxt)
+        # flip to draw (or flip back)
+        painter.rotate(180)
+        painter.translate(-self.baseWidth*vh.numBases(), 0)
+        # stapTxt = stapTxt.replace(' ', 'K')
+        painter.drawText(stapX, stapY, self.baseWidth*vh.numBases(),\
+                                self.baseWidth/2., Qt.AlignVCenter, stapTxt)
 
     def minorGridPainterPath(self):
         """
@@ -437,8 +461,8 @@ class PathHelix(QGraphicsPathItem):
         The path also includes a border outline and a midline for
         dividing scaffold and staple bases.
         """
-        # if self._minorGridPainterPath:
-        #     return self._minorGridPainterPath
+        if self._minorGridPainterPath:
+            return self._minorGridPainterPath
         path = QPainterPath()
         canvasSize = self._vhelix.part().numBases()
         # border
@@ -452,7 +476,7 @@ class PathHelix(QGraphicsPathItem):
         # staple-scaffold divider
         path.moveTo(0, self.baseWidth)
         path.lineTo(self.baseWidth * canvasSize, self.baseWidth)
-        # self._minorGridPainterPath = path
+        self._minorGridPainterPath = path
         return path
 
     def majorGridPainterPath(self):
@@ -461,8 +485,8 @@ class PathHelix(QGraphicsPathItem):
         This is separated from the minor grid lines so different
         pens can be used for each.
         """
-        # if self._majorGridPainterPath != None:
-        #     return self._majorGridPainterPath
+        if self._majorGridPainterPath:
+            return self._majorGridPainterPath
         path = QPainterPath()
         canvasSize = self._vhelix.part().numBases()
         # major tick marks  FIX: 7 is honeycomb-specific
@@ -470,8 +494,69 @@ class PathHelix(QGraphicsPathItem):
             x = round(self.baseWidth * i) + .5
             path.moveTo(x, .5)
             path.lineTo(x, 2 * self.baseWidth - .5)
-        # self._majorGridPainterPath = path
+        self._majorGridPainterPath = path
         return path
+
+    def segmentAndEndptPaths(self):
+        """Returns an array of (pen, penPainterPath, brush, brushPainterPath)
+        for drawing segment lines and handles."""
+        if self._segmentPaths and self._endptPaths:
+            return (self._segmentPaths, self._endptPaths)
+        self._segmentPaths = []
+        self._endptPaths = []
+        vh = self.vhelix()
+        for strandType in (StrandType.Scaffold, StrandType.Staple):
+            top = self.strandIsTop(strandType)
+            segments, ends3, ends5 = self._vhelix.getSegmentsAndEndpoints(strandType)
+            # print "[%i:%s] "%(vh.number(), "scaf" if strandType==StrandType.Scaffold else "stap") + " ".join(str(b) for b in segments)
+            for (startIndex, endIndex) in segments:
+                highlight = vh.shouldHighlight(strandType, int(startIndex))
+                startPt = self.baseLocation(strandType, startIndex, centerY=True)
+                endPt = self.baseLocation(strandType, endIndex, centerY=True)
+
+                # Only draw to the edge of breakpoints.
+                if self._vhelix.hasEndAt(strandType, startIndex):
+                    startPt = (startPt[0]+styles.PATH_BASE_WIDTH/2, startPt[1])
+                elif highlight and self._vhelix.hasCrossoverAt(strandType, startIndex):
+                    # compensate for width of stroke in crossover path
+                    startPt = (startPt[0]+styles.PATH_STRAND_HIGHLIGHT_STROKE_WIDTH/2, startPt[1])
+                if self._vhelix.hasEndAt(strandType, endIndex):
+                    endPt = (endPt[0]-styles.PATH_BASE_WIDTH/2, endPt[1])
+                elif highlight and self._vhelix.hasCrossoverAt(strandType, endIndex):
+                    endPt = (endPt[0]-styles.PATH_STRAND_HIGHLIGHT_STROKE_WIDTH/2, endPt[1])
+
+                pp = QPainterPath()
+                pp.moveTo(*startPt)
+                pp.lineTo(*endPt)
+                color = vh.colorOfBase(strandType, int(startIndex))
+                width = styles.PATH_STRAND_STROKE_WIDTH
+                if highlight:
+                    color.setAlpha(128)
+                    width = styles.PATH_STRAND_HIGHLIGHT_STROKE_WIDTH
+                else:
+                    color.setAlpha(255)
+                pen = QPen(color, width)
+                pen.setCapStyle(Qt.FlatCap)
+                self._segmentPaths.append((pen, pp))
+            for e3 in ends3:
+                upperLeft = self.baseLocation(strandType, e3)
+                bp = QPainterPath()
+                color = QColor(vh.colorOfBase(strandType, e3))
+                color.setAlpha(255)
+                brush = QBrush(color)
+                bp.addPath(ppR3.translated(*upperLeft) if top else\
+                                                    ppL3.translated(*upperLeft))
+                self._endptPaths.append((brush, bp))
+            for e5 in ends5:
+                upperLeft = self.baseLocation(strandType, e5)
+                bp = QPainterPath()
+                color = QColor(vh.colorOfBase(strandType, e5))
+                color.setAlpha(255)
+                brush = QBrush(color)
+                bp.addPath(ppL5.translated(*upperLeft) if top else\
+                                                    ppR5.translated(*upperLeft))
+                self._endptPaths.append((brush, bp))
+        return (self._segmentPaths, self._endptPaths)
 
     def strandIsTop(self, strandType):
         return self.evenParity() and strandType == StrandType.Scaffold\
@@ -551,7 +636,7 @@ class PathHelix(QGraphicsPathItem):
         elif event.type() == QEvent.MouseMove:
             self.mouseMoveEvent(event)
             return True
-        QGraphicsPathItem.sceneEvent(self, event)
+        QGraphicsObject.sceneEvent(self, event)
         return False
 
 

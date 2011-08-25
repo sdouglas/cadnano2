@@ -6,41 +6,41 @@ class Oligo(QObject):
     Oligo is comprised of a list of strands under the invariant
     strands(i).next3() == strands(i+1).prev5()
     """
-	
-	def __init__(self):
-	    QObject.__init__(self)
-	    self._sequence = ""
-	    self._strands = []
-	    self._color = None
-	    self._sequence = None
-	
-	########################## Notification API ##########################
+    
+    def __init__(self):
+        QObject.__init__(self)
+        self._sequence = ""
+        self._strands = []
+        self._color = None
+        self._sequence = None
+    
+    ########################## Notification API ##########################
 
     # Args are oligo, strand, index
-	oligoWillAddStrandAtIndex = pyqtSignal(object, int)
-	# Args are oligo, strand
-	oligoDidAddStrand = pyqtSignal(object, object)
+    oligoWillAddStrandAtIndex = pyqtSignal(object, int)
+    # Args are oligo, strand
+    oligoDidAddStrand = pyqtSignal(object, object)
 
     # Args are oligo, strand
-	oligoWillRemoveStrand = pyqtSignal(object, object)
-	# Args are oligo, strand
-	oligoDidRemoveStrand = pyqtSignal(object, object)
+    oligoWillRemoveStrand = pyqtSignal(object, object)
+    # Args are oligo, strand
+    oligoDidRemoveStrand = pyqtSignal(object, object)
 
     # Arg is oligo
     oligoColorDidChange = pyqtSignal(object)
     oligoSequenceDidChange = pyqtSignal(object)
-	
-	########################## Public Read API ##########################
+    
+    ########################## Public Read API ##########################
 
-	def strands(self, i=None):
-	    """
-	    Returns the strands self is composed of in 5' to 3' order (that
-	    is, self.strands()[0] should have no prev5() and self.strands()[-1]
-	    should have no next3())
-	    """
-	    if i != None:
-	        return self._strands[i]
-	    return self._strands
+    def strands(self, i=None):
+        """
+        Returns the strands self is composed of in 5' to 3' order (that
+        is, self.strands()[0] should have no prev5() and self.strands()[-1]
+        should have no next3())
+        """
+        if i != None:
+            return self._strands[i]
+        return self._strands
 
     def length(self):
         """
@@ -66,26 +66,26 @@ class Oligo(QObject):
         self._sequence = newSeq
         self.oligoSequenceDidChange(self)
 
-	def addStrand(self, newSeg, idx=False):
-	    """
-	    Adds a strand to self's strand list such that
-	    self.strands()[idx] = newSeg
-	    """
-	    if idx == False:
-	        idx = len(self._strands)
-	    assert(newSeg not in self._strands)
-	    assert(newSeg.oligo() == None)
-	class AddStrandCommand(QUndoCommand):
-	    def __init__(self, oligo, seg, idx):
-	        self._oligo = oligo
-	        self._seg = seg
-	        self._idx = idx
-	    def redo(self):
-	        oligo, seg, idx = self._oligo, self._seg, self._idx
-	        oligo.oligoWillAddStrandAtIndex.emit(oligo, seg, idx)
-	        oligo._strands.insert(idx, seg)
-	        newSeg._setOligo(self)
-	        self.oligoDidAddStrand(self, newSeg)
+    def addStrand(self, newSeg, idx=False):
+        """
+        Adds a strand to self's strand list such that
+        self.strands()[idx] = newSeg
+        """
+        if idx == False:
+            idx = len(self._strands)
+        assert(newSeg not in self._strands)
+        assert(newSeg.oligo() == None)
+    class AddStrandCommand(QUndoCommand):
+        def __init__(self, oligo, seg, idx):
+            self._oligo = oligo
+            self._seg = seg
+            self._idx = idx
+        def redo(self):
+            oligo, seg, idx = self._oligo, self._seg, self._idx
+            oligo.oligoWillAddStrandAtIndex.emit(oligo, seg, idx)
+            oligo._strands.insert(idx, seg)
+            newSeg._setOligo(self)
+            self.oligoDidAddStrand(self, newSeg)
 
     def removeStrand(self, seg):
         """
