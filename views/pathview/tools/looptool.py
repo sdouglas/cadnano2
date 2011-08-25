@@ -30,9 +30,9 @@ from model.enum import HandleOrient, StrandType
 from views import styles
 # from views.pathview.pathhelix import PathHelix
 from views.pathview.pathhelixgraphicsitem import PathHelix
-from views.pathview.handles.loophandle import LoopItem
 from abstractpathtool import AbstractPathTool
-
+from views.pathview.handles import loopgraphicsitem
+from controllers.insertiontooloperation import InsertionToolOperation
 import util
 # import Qt stuff into the module namespace with PySide, PyQt4 independence
 util.qtWrapImport('QtCore', globals(), ['QPointF', 'QRectF', 'Qt'])
@@ -41,10 +41,9 @@ util.qtWrapImport('QtGui', globals(), [ 'QGraphicsItem', 'QBrush', 'QFont',
                                         'QPainterPath'])
 
 class LoopTool(AbstractPathTool):
-    _loopItem = LoopItem()
-    _boundingRect = _loopItem._loopPathDownRect.united(\
-                        _loopItem._loopPathUpRect)
-    _boundingRect = _boundingRect.united(AbstractPathTool._rect)
+    baseWidth = styles.PATH_BASE_WIDTH
+    _boundingRect = loopgraphicsitem.loopPathUpBR
+    _boundingRect = _boundingRect.united(loopgraphicsitem.loopPathDownBR)
     
     def __init__(self, controller, parent=None):
         """
@@ -55,59 +54,48 @@ class LoopTool(AbstractPathTool):
 
         Its parent should be *always* be a PathHelix.
         """
-        super(LoopTool, self).__init__(controller, parent)
-        _pen = QPen(styles.bluestroke, 2)
-        self.baseWidth = styles.PATH_BASE_WIDTH
-        self.hide()
+        AbstractPathTool.__init__(self, controller, parent)
         self.setZValue(styles.ZPATHTOOL)
-        self._isTop = True
+        self._vBase = None
+        self._loopPath = None
     # end def
 
+    def vBase(self):
+        return self._vBase
+    def setVBase(self, newVBase, pathHelix):
+        oldVBase = self._vBase
+        if oldVBase != None and newVBase == None:
+            self.hide()
+        if newVBase != None:
+            if self.parentItem() != pathHelix:
+                self.setParentItem(pathHelix)
+            self.setPos(pathHelix.pointForVBase(newVBase))
+            if pathHelix.vBaseIsTop(newVBase):
+                self._loopPath = loopgraphicsitem.loopPathUp
+            else:
+                self._loopPath = loopgraphicsitem.loopPathDown
+            strand = newVBase.strand()
+            self._loopPen = strand.color() if strand else styles.scafstroke
+            if not self.isVisible():
+                self.show()
+        self._vBase = newVBase
+
     def paint(self, painter, option, widget=None):
-        painter.setPen(self._pen)
+        if self._vBase == None: return
+        painter.setPen(self._pen)  # Red square
         painter.setBrush(self._brush)
         painter.drawRect(self._toolRect)
-        painter.setPen(self._loopItem.getPen())
-        painter.drawPath(self._loopItem.getLoop(self._isTop))
+        painter.setPen(self._loopPen)
+        painter.drawPath(self._loopPath)
 
     def boundingRect(self):
         return self._boundingRect
 
-    def hoverMovePathHelix(self, pathHelix, event, flag=None):
-        """
-        flag is for the case where an item in the path also needs to
-        implement the hover method
-        """
-        posItem = event.pos()
-        if flag != None:
-            posScene = pathHelix.mapToScene(QPointF(event.pos()))
-            posItem = pathHelix.mapFromScene(posScene)
-        if self.helixIndex(posItem)[1] == 1:
-            self._isTop = False
-        else:
-            self._isTop = True
-        pos = self.helixPos(posItem)
-        if pos != None:  # double check in case mouse was on some edge pixel
-            self.setPos(pos)
-    # end def
+    def hoverMovePathHelix(self, pathHelix, event):
+        self.setVBase(pathHelix.vBaseAtPoint(event.pos()), pathHelix)
 
     def mousePressPathHelix(self, pathHelix, event):
-        """
-        """
-        vh = pathHelix.vhelix()
-        posScene = pathHelix.mapToScene(QPointF(event.pos()))
-        posItem = pathHelix.mapFromScene(posScene)
-        indexp = self.helixIndex(posItem)
-        mouseDownBase = pathHelix.baseAtLocation(posItem.x(), posItem.y())
-        # only allow tool to install on a scaffold!!!
-        if mouseDownBase and mouseDownBase[0] == StrandType.Scaffold:
-            loopsize = vh.hasLoopOrSkipAt(*mouseDownBase)
-            if loopsize < 0:  # toggle from skip
-                vh.installLoop(mouseDownBase[0], mouseDownBase[1], 1)
-            elif loopsize > 0:  # loop already there
-                vh.installLoop(mouseDownBase[0], mouseDownBase[1], 0)
-            elif vh.hasStrandAt(*mouseDownBase):
-                vh.installLoop(mouseDownBase[0], mouseDownBase[1], 1)
-            pathHelix.makeSelfActiveHelix()
-    # end def
+        vb = pathHelix.vBaseAtPoint(event.pos())
+        if vb != None:
+            InsertionToolOperation(vb, vb.undoStack())
 # end class

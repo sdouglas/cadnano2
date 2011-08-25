@@ -63,7 +63,6 @@ class XoverItem(QGraphicsPathItem):
         self._pathhelixgroup = phg
         self._strand = None
         self.setStrand(strandItem)
-        print "XOVERITEM ONLINE %s"%strandItem
 
     def phg(self):
         return self._pathhelixgroup
@@ -90,14 +89,7 @@ class XoverItem(QGraphicsPathItem):
         strand3.willBeRemoved.connect(self.strandWillBeRemoved)
         self.strandDidMove()
 
-    def conn3Changed(self):
-        pass
-
-    def conn5Changed(self):
-        pass
-
     def strandWillBeRemoved(self):
-        print "XOVERITEM REMOVED %s"%self.strand()
         self.hide()
         # self.scene().removeItem(self)
 
@@ -106,70 +98,6 @@ class XoverItem(QGraphicsPathItem):
         self.updatePen()
 
     def updatePath(self):
-        self.scene().removeItem(self)
-        self._clearState()
-
-    # slot
-    def becameConnected3(self, strandItem):
-        """
-        """
-        temp = self.modelStrand().apparentlyConnectedL()
-        if self._3primeDisplayConnectivity != temp:
-            self._3primeDisplayConnectivity = temp
-    # end def
-
-    # slot
-    def becameConnected5(self, strandItem):
-        """
-        """
-        temp = self.modelStrand().apparentlyConnectedR()
-        if self._5primeDisplayConnectivity != temp:
-            self._5primeDisplayConnectivity = temp
-    # end def
-
-    # slot
-    def didMove3(self, strandItem):
-        """
-        """
-        self._3primePt, self._3primeEvenParity = self.getPoint(is3Prime=True)
-    # end def
-
-    # slot
-    def didMove5(self, strandItem):
-        """
-        """
-        self._5primePt, self._5primeEvenParity = self.getPoint(is3Prime=False)
-    # end def
-
-    def getPoint(self, is3Prime):
-        """
-        returns a tuple of the point and the bases parity as (QPointF, bool)
-        True for even parity, False for odd
-        """
-        ms = self.modelStrand()
-        vBase = ms.vBase3 if is3Prime == True else ms.vBase5
-        # test case for 5prime end floatingness
-        if vBase == None:
-            self._isFloating = True
-            return ms.pt5(), True
-        self._isFloating = False 
-        bw = self._baseWidth
-        vstrand = vBase.vStrand
-        ph = self.phg().vStrandToPathHelixDict[vstrand]
-        idx = vBase.vIndex
-        strandType = StrandType.Scaffold if vStrand.isScaf() else StrandType.Staple
-        # the offset is always the center of a base
-        offset = QPointF(bw*(idx+0.5), bw*(0.5 if ph.strandIsTop(strandType) else 1.5))
-        return offset + self.phg().mapFromItem(ph, ph.pos()), vBase.evenParity()
-    # end def
-
-    def refreshPath(self):
-        if self._painterPath == None:
-        # if self.path().isEmpty() == True:
-            self.setPath(self.painterPath())
-            self.setPen(self.getPen())
-
-    def painterPath(self):
         """
         Draws a quad curve from the edge of the fromBase
         to the top or bottom of the toBase (q5), and

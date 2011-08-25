@@ -28,65 +28,64 @@ Created by Nick on 2011-08-18.
 
 from views import styles
 from model.enum import StrandType
+from views.pathview.normalstrandgraphicsitem import ppL5, ppR5, ppL3, ppR3
 
 import util
 # import Qt stuff into the module namespace with PySide, PyQt4 independence
 util.qtWrapImport('QtCore', globals(), [ 'QPointF', 'QRectF', 'Qt'] )
 util.qtWrapImport('QtGui', globals(), [ 'QBrush', 'QFont', \
                                         'QGraphicsItem', 'QGraphicsTextItem', \
-                                        'QTextCursor', 'QPainterPath', 'QPen', \
+                                        'QTextCursor', 'QPainterPath', 'QPen',\
+                                        'QBrush', 'QColor',\
                                         'QLabel', 'QMatrix', 'QGraphicsPathItem'] )
 
-class LoopItem(object):
-    """
-    This is just the shape of the Loop item
-    """
-    _myRect = QRectF(0, 0, styles.PATH_BASE_WIDTH, styles.PATH_BASE_WIDTH)
-    _pen = QPen(styles.bluestroke, styles.LOOPWIDTH)
-    baseWidth = styles.PATH_BASE_WIDTH
-    halfbaseWidth = baseWidth / 2
-    _offset = baseWidth / 4
+baseWidth = styles.PATH_BASE_WIDTH
+halfBaseWidth = baseWidth / 2
+loopOffset = 0
 
-    def _loopGen(path, start, c1, p1, c2):
-        path.moveTo(start)
-        path.quadTo(c1, p1)
-        path.quadTo(c2, start)
-    # end def
+loopPathUp = QPainterPath()
+loopPathUp.moveTo(halfBaseWidth, halfBaseWidth)
+loopPathUp.quadTo(-halfBaseWidth, -baseWidth,    halfBaseWidth, -baseWidth)
+loopPathUp.quadTo(1.5 * baseWidth, -baseWidth,    halfBaseWidth, halfBaseWidth)
+loopPathUp.translate(loopOffset, 0)
+padding = max(styles.PATH_STRAND_STROKE_WIDTH,\
+              styles.PATH_STRAND_HIGHLIGHT_STROKE_WIDTH)
+paddingvec = (-padding, -padding, 2 * padding, 2 * padding)
+loopPathUpBR = loopPathUp.boundingRect().adjusted(*paddingvec)
 
-    _pathStart = QPointF(halfbaseWidth, halfbaseWidth)
-    _pathMidUp = QPointF(halfbaseWidth, -baseWidth)
-    _pathUpUpCtrlPt = QPointF(-halfbaseWidth, -baseWidth)
-    _pathUpDownCtrlPt = QPointF(1.5 * baseWidth, -baseWidth)
-    _pathMidDown = QPointF(halfbaseWidth, 2 * baseWidth)
-    _pathDownDownCtrlPt = QPointF(-halfbaseWidth, 2 * baseWidth)
-    _pathDownUpCtrlPt = QPointF(1.5 * baseWidth, 2 * baseWidth)
-    _loopPathUp = QPainterPath()
-    _loopGen(_loopPathUp, _pathStart, _pathUpUpCtrlPt,\
-             _pathMidUp, _pathUpDownCtrlPt)
-    _loopPathUp.translate(_offset, 0)
-    _loopPathUpRect = _loopPathUp.boundingRect()
-    _loopPathDown = QPainterPath()
-    _loopGen(_loopPathDown, _pathStart, _pathDownDownCtrlPt,\
-             _pathMidDown, _pathDownUpCtrlPt)
-    _loopPathDown.translate(_offset, 0)
-    _loopPathDownRect = _loopPathDown.boundingRect()
+loopPathDown = QPainterPath()
+loopPathDown.moveTo(halfBaseWidth, halfBaseWidth)
+loopPathDown.quadTo(-halfBaseWidth, 2 * baseWidth,\
+                    halfBaseWidth, 2 * baseWidth)
+loopPathDown.quadTo(1.5 * baseWidth, 2 * baseWidth,\
+                    halfBaseWidth, halfBaseWidth)
+loopPathDown.translate(loopOffset, 0)
+loopPathDownBR = loopPathDown.boundingRect().adjusted(*paddingvec)
 
-    def __init__(self):
-        super(LoopItem, self).__init__()
-    # end def
 
-    def getPen(self):
-        return self._pen
-    # end def
+def makeLoopPathWithConnectivity(leftConnected, loopPath, rightConnected):
+    p = QPainterPath()
+    if leftConnected:
+        p.moveTo(0, halfBaseWidth)
+        p.lineTo(halfBaseWidth + loopOffset, halfBaseWidth)
+    else:
+        p.moveTo(baseWidth / 4, halfBaseWidth)
+        p.lineTo(halfBaseWidth + loopOffset, halfBaseWidth)
+    p.addPath(loopPath)
+    if rightConnected:
+        p.moveTo(halfBaseWidth + loopOffset, halfBaseWidth)
+        p.lineTo(baseWidth, halfBaseWidth)
+    else:
+        p.moveTo(halfBaseWidth + loopOffset, halfBaseWidth)
+        p.lineTo(3 * baseWidth / 4, halfBaseWidth)
+    return p
 
-    def getLoop(self, istop):
-        if istop:
-            return self._loopPathUp
-        else:
-            return self._loopPathDown
-    # end def
-# end class
-
+loopPaths = [makeLoopPathWithConnectivity(bool(i&1),\
+                                          loopPathUp if i&2 else loopPathDown,\
+                                          bool(i&4))\
+             for i in range(7)]
+def loopPathWithConnectivity(leftConnected, onTopStrand, rightConnected):
+    return loopPaths[int(leftConnected) + 2*int(onTopStrand) + 4*int(rightConnected)]
 
 class SkipItem(object):
     """
@@ -95,7 +94,7 @@ class SkipItem(object):
     _myRect = QRectF(0, 0, styles.PATH_BASE_WIDTH, styles.PATH_BASE_WIDTH)
     _pen = QPen(styles.redstroke, styles.SKIPWIDTH)
     baseWidth = styles.PATH_BASE_WIDTH
-    halfbaseWidth = baseWidth / 2
+    halfBaseWidth = baseWidth / 2
 
     def _xGen(path, p1, p2, p3, p4):
         path.moveTo(p1)
@@ -104,7 +103,7 @@ class SkipItem(object):
         path.lineTo(p4)
     # end def
 
-    _pathStart = QPointF(halfbaseWidth, halfbaseWidth)
+    _pathStart = QPointF(halfBaseWidth, halfBaseWidth)
     _skipPath = QPainterPath()
     _xGen(_skipPath, _myRect.bottomLeft(), _myRect.topRight(), \
                         _myRect.topLeft(), _myRect.bottomRight())
@@ -124,20 +123,10 @@ class SkipItem(object):
 
 
 class LoopGraphicsItem(QGraphicsPathItem):
-    """
-    This is just the shape of the Loop item
-    """
-    _loopItem = LoopItem()
-    _skipItem = SkipItem()
-    _myRect = QRectF(0, 0, styles.PATH_BASE_WIDTH, styles.PATH_BASE_WIDTH)
-    _myRect = _myRect.united(LoopItem._loopPathUpRect)
-    _myRect = _myRect.united(LoopItem._loopPathDownRect)
-    _pen = QPen(styles.bluestroke, 2)
-    _baseWidth = styles.PATH_BASE_WIDTH
-    _offset = styles.PATH_BASE_WIDTH*0.75
-    _halfbaseWidth = _baseWidth / 2
     _font = QFont(styles.thefont, 10, QFont.Bold)
-    _myRect.adjust(-15, -15, 30, 30)
+    # _pen = QPen(styles.bluestroke, 2)
+    # _halfBaseWidth = _baseWidth / 2
+    # _myRect.adjust(-15, -15, 30, 30)
     # Bases are drawn along and above the loop path.
     # These calculations revolve around fixing the characters at a certain
     # percentage of the total arclength.
@@ -145,25 +134,38 @@ class LoopGraphicsItem(QGraphicsPathItem):
     # after the last character is the padding, and the rest is divided evenly.
     _fractionLoopToPad = .10
 
-    def __init__(self, parent=None):
-        super(LoopGraphicsItem, self).__init__(parent)
+    def __init__(self, strand, pathHelix):
+        super(LoopGraphicsItem, self).__init__(pathHelix)
         self._label = None
-        self.label()  # Poke the cache so the label actually exists
-        self._seq = QGraphicsPathItem(self)
+        self._leftCap = None
+        self._rightCap = None
         self.setZValue(styles.ZLOOPHANDLE)
-        self._loopsize = 0
-        self._index = 0
-        self._strandType = None
-        self._painterPath = None
-        self.refreshPath()
-    # end def
+        self._pathHelix = pathHelix
+        self._strand = None
+        self.setStrand(strand)
+
+    def setStrand(self, newStrand):
+        if self._strand != None:
+            self._strand.didMove.disconnect(self.refreshPosAndLabel)
+            self._strand.numBasesChanged.disconnect(self.refreshLabel)
+            self._strand.willBeRemoved.disconnect(self.remove)
+        self._strand = newStrand
+        if newStrand != None:
+            newStrand.didMove.connect(self.refreshPosAndLabel)
+            newStrand.numBasesChanged.connect(self.refreshLabel)
+            newStrand.willBeRemoved.connect(self.remove)
+            self.refreshPosAndLabel()
 
     def remove(self):
-        self.scene().removeItem(self._label)
-        self._label = None
-        self.scene().removeItem(self._seq)
-        self._seq = None
-        self.scene().removeItem(self)
+        scene = self.scene()
+        if scene == None:
+            return
+        if self._leftCap != None:
+            scene.removeItem(self._leftCap)
+        if self._rightCap != None:
+            scene.removeItem(self._rightCap)
+        scene.removeItem(self._label)
+        scene.removeItem(self)
 
     def label(self):
         if self._label:
@@ -180,12 +182,10 @@ class LoopGraphicsItem(QGraphicsPathItem):
         return label
 
     def focusOut(self):
-        print "focusing out"
         cursor = self._label.textCursor()
         cursor.clearSelection()
         self._label.setTextCursor(cursor)
         self._label.clearFocus()
-    # end def
 
     def labelMousePressEvent(self, event):
         """
@@ -219,150 +219,59 @@ class LoopGraphicsItem(QGraphicsPathItem):
         This is run on the label being changed
         or losing focus
         """
-        test = unicode(self._label.toPlainText())
         try:
-            loopsize = int(test)
-        except:
+            loopsize = int(unicode(self._label.toPlainText()))
+        except ValueError:
             loopsize = None
-        if loopsize != None and loopsize != self._loopsize:
-            self._loopsize = loopsize
-            self.parentObject().vhelix().installLoop(self._strandType,\
-                                                     self._index,\
-                                                     self._loopsize)
-            if self._loopsize:
-                self.resetPosition()
-                self._label.clearFocus()
-        # end if
+        if loopsize != None and loopsize != self._strand.numBases():
+            self._strand.setNumBases(loopsize)
+        self._label.clearFocus()
         self.focusOut()
 
-    def refreshPath(self):
-        # if self._painterPath == None:
-        # if self.path().isEmpty() == True:
-        self._painterPath = self.painterPath()
-        
-    def painterPath(self):
-        ph = self.parentObject()
-        vh = ph.vhelix()
-        strandType = self._strandType
-        istop = ph.strandIsTop(strandType)
-        index = self._index
-        loopsize = self._loopsize
-        textPath = QPainterPath()
-        if loopsize > 0:
-            painterpath = QPainterPath()
-            painterpath.addPath(self._loopItem.getLoop(istop))
-            self.setPen(QPen(vh.colorOfBase(strandType, index), styles.LOOPWIDTH))
-            # self._seq.setPen(QPen(Qt.black))
-            # self._seq.setBrush(QBrush(Qt.NoBrush))
-            self._seq.setBrush(QBrush(Qt.black))
-            # draw sequence on the loop
-            baseText = vh.sequenceForLoopAt(strandType, index)
-            if baseText[0] != ' ':  # only draw sequences if they exist
-                if istop:
-                    angleOffset = 0
-                else:
-                    angleOffset = 180
-                if len(baseText) > 20:
-                    baseText = baseText[:17] + '...'
-                fractionArclenPerChar = (1.-2*self._fractionLoopToPad)/(len(baseText)+1)
-                
-                for i in range(len(baseText)):
-                    frac = self._fractionLoopToPad + (i+1)*fractionArclenPerChar
-                    pt = painterpath.pointAtPercent(frac)
-                    tangAng = painterpath.angleAtPercent(frac)
-                    
-                    tempPath = QPainterPath()
-                    tempPath.addText(0, 0, ph.sequenceFont, baseText[i if istop else -i-1])   
-                    # perform angular translation and rotation
-                    mat = QMatrix()
-                    
-                    mat.translate(pt.x(),pt.y())
-                    
-                    mat.rotate(-tangAng + angleOffset)
-                    
-                    mat.translate(-ph.sequenceFontCharWidth/2.,
-                                              -2 if istop else ph.sequenceFontH)
-                    if not istop:
-                        mat.translate(0, -ph.sequenceFontH - styles.LOOPWIDTH)
-                                                
-                    tempPath = mat.map(tempPath)                       
-                    textPath.addPath(tempPath)
-                # end for
-            # end if
-        # end if
-        else:  # loopsize < 0 (a skip)
-            painterpath = self._skipItem.getSkip()
-            self.setPen(self._skipItem.getPen())
-        self.setPath(painterpath)
-        self._seq.setPath(textPath)
-        return painterpath
-    # end def
+    def refreshPosAndLabel(self):
+        self.setPos(self._pathHelix.pointForVBase(self._strand.vBase()))
+        self.refreshPath()
+        self.refreshLabel()
 
-    def setLabel(self, ph, strandType, index, number):
-        self._loopsize = number
-        self._index = index
-        self._strandType = strandType
-        self._label.setPlainText("%d" % (number))
-        self.setParentItem(ph)
-        self.resetPosition()
-    # end def
-
-    def resetPosition(self):
+    def refreshLabel(self):
+        self.label().setPlainText("%d" % (self._strand.numBases()))
         txtOffset = self._label.boundingRect().width()/2 
-        ph = self.parentObject()
-        posItem = ph.baseLocation(self._strandType, self._index, center=False)
-        self.setPos(posItem[0], posItem[1])
-        if ph.strandIsTop(self._strandType):
-            self._label.setPos(self._offset-txtOffset, -self._baseWidth)
+        if self._pathHelix.vBaseIsTop(self._strand.vBase()):
+            self._label.setPos(halfBaseWidth+loopOffset-txtOffset, -baseWidth)
         else:
-            self._label.setPos(self._offset-txtOffset, self._baseWidth)
-        if self._loopsize > 0:
-            self._label.show()
+            self._label.setPos(halfBaseWidth+loopOffset-txtOffset, baseWidth)
+
+    def refreshPath(self):
+        strand = self._strand
+        vbase = strand.vBase()
+        pos = self._pathHelix.pointForVBase(vbase)
+        isOnTop = self._pathHelix.vBaseIsTop(vbase)
+        drawn5To3 = vbase.drawn5To3()
+        hasLConnection = strand.connL() != None
+        hasRConnection = strand.connR() != None
+        self.setPath(loopPathWithConnectivity(hasLConnection,\
+                                              isOnTop,\
+                                              hasRConnection))
+        self.setPen(QPen(strand.color(), styles.PATH_STRAND_STROKE_WIDTH ))
+        if hasLConnection:
+            if self._leftCap and self._leftCap.isVisible():
+                self._leftCap.hide()
         else:
-            self._label.hide()
-    # end def
-
-
-class LoopHandleGroup(QGraphicsItem):
-    """
-    Loop handle consists of the LoopItem and the QLabel and manages loop
-    manipulation.
-    """
-    def __init__(self, parent=None):
-        super(LoopHandleGroup, self).__init__(parent)
-        self.setZValue(styles.ZLOOPHANDLE)
-        self.parent = parent
-        self.handles = {}
-
-    def boundingRect(self):
-        return QRectF()
-
-    def paint(self, painter, option, widget=None):
-        pass
-
-    def updateActiveHelix(self, ph):
-        """
-        Collects the locations of each type of LoopHandle from the
-        recently activated VirtualHelix vhelix. Each self._index corresponds
-        to a pair of LoopHandle that must be updated and displayed.
-        """
-        vhelix = ph.vhelix()
-        handles = self.handles.get(vhelix,[])
-        if not handles:
-            self.handles[vhelix] = handles
-        scafLoopDict = vhelix.loop(StrandType.Scaffold)
-        stapLoopDict = vhelix.loop(StrandType.Staple)
-        numLoopsNeeded = len(scafLoopDict) + len(stapLoopDict)
-        while len(handles) < numLoopsNeeded:
-            handles.append(LoopGraphicsItem(parent=ph))
-        while len(handles) > numLoopsNeeded:
-            handle = handles.pop()
-            handle.remove()
-            handle = None
-        i = 0
-        for strandtype in (StrandType.Scaffold, StrandType.Staple):
-            for index, loopsize in vhelix.loop(strandtype).iteritems():
-                handles[i].setLabel(ph, strandtype, index, loopsize)
-                handles[i].refreshPath()
-                i += 1
-
+            if self._leftCap == None:
+                self._leftCap = QGraphicsPathItem(ppL5 if drawn5To3 else ppL3, self._pathHelix)
+                self._leftCap.setPen(QPen(Qt.NoPen))
+                self._leftCap.setBrush(QBrush(QColor()))
+            self._leftCap.setPos(pos)
+            self._leftCap.show()
+        if hasRConnection:
+            if self._rightCap and self._rightCap.isVisible():
+                self._rightCap.hide()
+        else:
+            if self._rightCap == None:
+                self._rightCap = QGraphicsPathItem(ppL5 if drawn5To3 else ppL3, self._pathHelix)
+                self._rightCap.setPen(QPen(Qt.NoPen))
+                self._rightCap.setBrush(strand.color())
+            self._rightCap.setPos(pos)
+            self._rightCap.show()
+            
+                                              
