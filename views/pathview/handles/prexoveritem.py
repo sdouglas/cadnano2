@@ -90,8 +90,8 @@ class PreXoverItem(QGraphicsPathItem):
         self.toVBase = toVBase
         self.orientedLeft = orientedLeft
 
-        fromVBase.vstrand().indicesModifiedSignal.connect(self.updateVisibilityAndEnabledness)
-        toVBase.vstrand().indicesModifiedSignal.connect(self.updateVisibilityAndEnabledness)
+        fromVBase.vStrand().indicesModifiedSignal.connect(self.updateVisibilityAndEnabledness)
+        toVBase.vStrand().indicesModifiedSignal.connect(self.updateVisibilityAndEnabledness)
 
         x = self.baseWidth * self.fromVBase.vIndex()
         y = (-1.25 if self.onTopStrand() else 2.25) * self.baseWidth
@@ -129,8 +129,9 @@ class PreXoverItem(QGraphicsPathItem):
         return self._pathhelixgroup
 
     def onTopStrand(self):
-        return self.fromVH.evenParity() and self.fromStrand==StrandType.Scaffold or\
-               not self.fromVH.evenParity() and self.fromStrand==StrandType.Staple
+        vstrand = self.fromVBase.vStrand()
+        return self.fromVBase.evenParity() and vstrand.isScaf() or \
+               not self.fromVBase.evenParity() and vstrand.isStap()
 
     def couldFormNewCrossover(self):
         return self.fromVBase.vStrand().possibleNewCrossoverAt(self.fromVBase, self.toVBase)
@@ -166,7 +167,7 @@ class PreXoverItem(QGraphicsPathItem):
         path = pathLUT[2*int(self.orientedLeft) + int(self.onTopStrand())]
         pen = self.disabpen
         if self.couldFormNewCrossover():
-            if self.fromStrand == StrandType.Scaffold:
+            if self.fromVBase.vStrand().isScaf():
                 pen = self.scafpen
             else:
                 pen = self.stappen
@@ -181,7 +182,7 @@ class PreXoverItem(QGraphicsPathItem):
         if not self.couldFormNewCrossover():
             return
         # Determine upstream base
-        fromVB, toVB = self.fromVBase self.toVBase
+        fromVB, toVB = self.fromVBase, self.toVBase
         endToTakeColorFrom = 3
         if not self.is3pEndOfCrossover():
             fromVB, toVB = toVB, fromVB

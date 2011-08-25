@@ -167,6 +167,7 @@ class VirtualHelix(QObject):
                          
     def vStrandScaf(self):
         return self.vScaf
+    
     def vStrandStap(self):
         return self.vStap
              
@@ -1939,6 +1940,35 @@ class VirtualHelix(QObject):
                 if index < self.numBases():
                     ret.append([neighbor, index])
         return ret
+    # end def
+    
+    def potentialCrossoverList(self, facingRight, vStrandFrom):
+        """Returns a list of [(fromVBase, toVBase)] tuples of potential
+        crossovers
+        facingRight means 
+        facingLeft means
+        """
+        ret = []  # LUT = Look Up Table
+        vh = self
+        part = vh.part()
+        luts = (part.scafL, part.scafR, part.stapL, part.stapR)
+        isStaple = vStrandFrom.isStap()
+        
+        # these are the list of crossover points simplified
+        lut = luts[int(facingRight) + 2 * int(isStaple)]
+
+        neighbors = vh.neighbors()
+        for p in range(len(neighbors)):
+            neighbor = neighbors[p]
+            if not neighbor:
+                continue
+            for i, j in product(range(0, vh.numBases(), part.step), lut[p]):
+                index = i + j
+                vstrandTo = neighbor.vStrandStap() if isStaple else neighbor.vStrandScaf()
+                if index < vh.numBases():
+                    ret.append((vStrandFrom(index), vstrandTo(index)))
+        return ret
+
 
     def isaXover(self, fromIndex, toVH, toIndex, strandType):
         """

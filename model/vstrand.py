@@ -22,6 +22,7 @@
 #
 # http://www.opensource.org/licenses/mit-license.php
 
+from itertools import product
 from rangeset import RangeSet
 import util, sys
 from vbase import VBase
@@ -392,28 +393,6 @@ class VStrand(RangeSet):
         return isinstance(self.get(index), (XOverStrand3, XOverStrand5))
     # end def
     
-    def potentialCrossoverList(self, facingRight):
-        """Returns a list of [(fromVBase, toVBase)] tuples of potential
-        crossovers"""
-        ret = []  # LUT = Look Up Table
-        part = self._part
-        luts = (part.scafL, part.scafR, part.stapL, part.stapR)
-        isStaple = self.isStap()
-        
-        # these are the list of crossover points simplified
-        lut = luts[int(facingRight) + 2 * int(isStaple)]
-
-        neighbors = self.neighbors()
-        for p in range(len(neighbors)):
-            neighbor = neighbors[p]
-            if not neighbor:
-                continue
-            for i, j in product(range(0, self.vHelix().numBases(), part.step), lut[p]):
-                index = i + j
-                vstrand = neighbor.vstrandStap() if isStaple else neighbor.vstrandScaf()
-                if index < self.numBases():
-                    ret.append((self(index), vstrand(index)))
-        return ret
 
     ####################### Private Write API #######################
     def _setVHelix(self, newVH):

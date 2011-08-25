@@ -365,7 +365,13 @@ class PathHelix(QGraphicsPathItem):
 
     def setPreXOverHandlesVisible(self, shouldBeVisible):
         areVisible = self._preXOverHandles != None
-        if areVisible and not shouldBeVisible:
+        vh = self.vhelix()
+        isActiveHelix = self.isActiveHelix(self)
+        activeHelix = self._pathHelixGroup.getActiveHelix()
+        if activeHelix != None:
+            activeNum = activeHelix.number()
+
+        if areVisible and not shouldBeVisible and not isActiveHelix:
 
             # for pch in self._preXOverHandles:
             #     if pch.scene():
@@ -374,20 +380,23 @@ class PathHelix(QGraphicsPathItem):
             # map(lambda pch: pch.scene().removeItem(pch) if pch.scene() else None, self._preXOverHandles)
 
             self._preXOverHandles = None
-            self.vhelix().part().virtualHelixAtCoordsChanged.disconnect(\
+            vh.part().virtualHelixAtCoordsChanged.disconnect(\
                                                    self.updatePreXOverHandles)
         elif not areVisible and shouldBeVisible:
             self._preXOverHandles = []
             for strandType, facingRight in \
                     product(('vStrandScaf', 'vStrandStap'), (True, False)):
                 # Get potential crossovers in [neighborVirtualHelix, index] format
-                potentialXOvers = getattr(self.vhelix(),strandType)().potentialCrossoverList(facingRight)
-                numBases = self.vhelix().numBases()
+                potentialXOvers = vh.potentialCrossoverList(facingRight, getattr(vh,strandType)())
+                numBases = vh.numBases()
                 # assert(all(index < numBases for neighborVH, index in potentialXOvers))
 
                 for (fromVBase, toVBase) in potentialXOvers:
-                    pch = PreXoverItem(self, fromVBase, toVBase, not facingRight)
-                    self._preXOverHandles.append(pch)
+                    if isActiveHelix or \
+                        activeNum == toVBase.vHelix().number() or \
+                        activeNum == fromVBase.vHelix().number():
+                        pch = PreXoverItem(self, fromVBase, toVBase, not facingRight)
+                        self._preXOverHandles.append(pch)
                 # end for
 
             self.vhelix().part().virtualHelixAtCoordsChanged.connect(self.updatePreXOverHandles)
@@ -400,6 +409,9 @@ class PathHelix(QGraphicsPathItem):
            self.preXOverHandlesVisible():
             self.setPreXOverHandlesVisible(False)
             self.setPreXOverHandlesVisible(True)
+
+    def isActiveHelix(self, ph):
+        return self._pathHelixGroup.getActiveHelix() == ph
 
     def makeSelfActiveHelix(self):
         self._pathHelixGroup.setActiveHelix(self)
