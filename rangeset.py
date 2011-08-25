@@ -95,7 +95,6 @@ class RangeSet(QObject):
     ############################### Framework ###########################
     # If you want a RangeSet that stores something other than tuples of
     # integers representing ranges of indexes, these are the methods to override
-
     def idxs(self, rangeItem):
         """
         Returns (firstIdx, afterLastIdx) simplified representation of the
@@ -109,8 +108,11 @@ class RangeSet(QObject):
         here onto undoStack (iff undoStack is not None). It can also just return
         an entirely new object in which case undo will be handled automatically.
         """
+        print "in mergeRangeItems!"
         al, ar = self.idxs(rangeItemA)
+        print "here"
         bl, br = self.idxs(rangeItemB)
+        print "mergeRangeItems", al,ar,bl,br, (min(al, bl), max(ar, br), rangeItemB[2])
         return (min(al, bl), max(ar, br), rangeItemB[2])
 
     def changeRangeForItem(self, rangeItem, newStartIdx, newAfterLastIdx, undoStack):
@@ -290,6 +292,7 @@ class RangeSet(QObject):
            and lastIRAr > afterLastIndex:
             #           [AddRange---------------------)
             #    [OnlyTouchingRange--------------------)
+            print "A"
             if self.canMergeRangeItems(firstIR, rangeItem):
                 newItem = self.mergeRangeItems(firstIR,\
                                                rangeItem,\
@@ -305,24 +308,34 @@ class RangeSet(QObject):
         elif firstIRL < firstIndex:
             #           [AddRange---------------------)
             #       [FirstTouchingExistingRange) ...
+            print "B"
             if self.canMergeRangeItems(firstIR, rangeItem):
+                print "1"
+                print "about to call mergeRangeItems"
+                print "firstIR", firstIR
+                print "rangeItem", rangeItem
                 newItem = self.mergeRangeItems(firstIR,\
                                                rangeItem,\
                                                undoStack)
+                print "after calling mergeRangeItems"
+                print "newItem is:", newItem
                 replacementRanges = [newItem]
             elif firstIRAr != firstIndex:
+                print "2"
                 newItem = self.changeRangeForItem(firstIR,\
                                                   firstIRL,\
                                                   firstIndex,\
                                                   undoStack)
                 replacementRanges = [newItem, rangeItem]
             else:
+                print "3"
                 replacementRanges = [firstIR, rangeItem]
                 if lastIR != firstIR:
                     replacementRanges.append(lastIR)
         elif lastIRAr > afterLastIndex:
             #           [AddRange---------------------)
             #              ... [LastTouchingExistingRange)
+            print "C"
             if self.canMergeRangeItems(rangeItem, lastIR):
                 oldLastReplacementItem = replacementRanges.pop()
                 newItem = self.mergeRangeItems(oldLastReplacementItem,\
@@ -601,7 +614,7 @@ class RangeSet(QObject):
     def _idxRangeOfRangesTouchingRange(self, rangeStart, rangeEnd):
         """
         Returns a range (first, afterLast) of indices into self.ranges,
-        where the range represented by each index intersects [rangeStart,rangeEnd)
+        where the range represented by each index touches [rangeStart,rangeEnd)
         """
         if rangeStart >= rangeEnd:
             return [0, 0]  # Empty range
