@@ -15,8 +15,8 @@
     <file alias="move">images/slice-move.png</file>
     <file alias="renumber">images/slice-renumber.png</file>
     <file alias="select">images/slice-edit.png</file>
-    <file alias="go last">images/slice-go-last.png</file>
-    <file alias="go first">images/slice-go-first.png</file>
+    <file alias="go-last">images/slice-go-last.png</file>
+    <file alias="go-first">images/slice-go-first.png</file>
   </qresource>
   <qresource prefix="pathtools">
     <file alias="add-bases">images/add-bases.svg</file>

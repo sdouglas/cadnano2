@@ -1,24 +1,24 @@
+# Copyright 2011 Autodesk, Inc.  All rights reserved.
+#
 # The MIT License
 #
-# Copyright (c) 2011 Wyss Institute at Harvard University
+# Permission is hereby granted, free of charge, to any person obtaining a copy of
+# this software and associated documentation files (the "Software"), to deal in 
+# the Software without restriction, including without limitation the rights to 
+# use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
+# of the Software, and to permit persons to whom the Software is furnished to do 
+# so, subject to the following conditions:
 #
-# Permission is hereby granted, free of charge, to any person obtaining a copy
-# of this software and associated documentation files (the "Software"), to deal
-# in the Software without restriction, including without limitation the rights
-# to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-# copies of the Software, and to permit persons to whom the Software is
-# furnished to do so, subject to the following conditions:
+# The above copyright notice and this permission notice shall be included in all 
+# copies or substantial portions of the Software.
 #
-# The above copyright notice and this permission notice shall be included in
-# all copies or substantial portions of the Software.
-#
-# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-# AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR 
+# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, 
+# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE 
+# AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER 
 # LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-# OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
-# THE SOFTWARE.
+# OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE 
+# SOFTWARE.
 #
 # http://www.opensource.org/licenses/mit-license.php
 
@@ -26,7 +26,8 @@
 solidhelixgroup.py
 
 Created by Nick Conway on 2011-02-04.
-Modified by Simon Breslav starting on 2011-07-21
+Re-Created by Simon Breslav on 2011-07-21 
+(old version can found at the end of the file)
 
 For use controlling 3D solid models generated in Maya
 """
@@ -59,20 +60,23 @@ class SolidHelixGroup(QObject):
         """
         super(SolidHelixGroup, self).__init__()
         self.setPart(dnaPartInst)
-        pluginPath = os.path.join(os.environ['CADNANO_PATH'],  "views", "solidview", "helixmetanode.py")
+        pluginPath = os.path.join(os.environ['CADNANO_PATH'],  "views", "solidview", "halfcylinderhelixnode.py") 
+        #pluginPath = os.path.join(os.environ['CADNANO_PATH'],  "views", "solidview","helixmetanode.py")
 
         if(not cmds.pluginInfo(pluginPath, query=True, loaded=True)):
             cmds.loadPlugin(pluginPath)
 
         if(not cmds.pluginInfo(pluginPath, query=True, loaded=True)):
-            print "HelixMetaNode failed to load"
+            print "HalfCylinderHelixNode failed to load"
             return
 
         print "maya SolidHelixGroup created"
         self.type = htype
-        self.mayaScale = 15.0
-        self.mayaOrigin = (-self.mayaScale, self.mayaScale, 0.0)  # top left cornder of maya 3d scene X Y Z
-        self.helixRadius = 0.5
+        #self.mayaScale = 1.0
+        #later updates using basecount from the VH
+        # XXX [SB] - need to ask CandNano for rows and cols...
+        self.mayaOrigin = (-15*2.25, 16*2.25, 0.0)  # top left cornder of maya 3d scene X Y Z 
+        self.helixRadius = 1.125  # diamiter is 2.25nm
         self.solidHelicesIndices = {}
         self.solidHelicesIndicesCount = 0
 
@@ -85,7 +89,7 @@ class SolidHelixGroup(QObject):
         self._part = p
         self._part.persistentDataChanged.connect(self.onPersistentDataChanged)
         print "SolidHelixGroup.setPart: signals setup"
-
+        
     def onPersistentDataChanged(self):
         # Update in the Model
         #print "SolidHelixGroup.onPersistentDataChanged:"
@@ -93,47 +97,44 @@ class SolidHelixGroup(QObject):
         for h in self._part.getVirtualHelices():
             myKey = '%d_%d' % (h.coord()[0], h.coord()[1])
             
-            if myKey not in self.solidHelicesIndices:
+            if myKey not in self.solidHelicesIndices.keys():
                 self.createNewHelix(h.coord()[0], h.coord()[1], 1)
             itemIndices = self.solidHelicesIndices[myKey]
 
             endpoints = h.getSegmentsAndEndpoints(StrandType.Scaffold)
             segmentsCount = len(endpoints[0])
-
-            #print myKey
-            #print endpoints
-            #print segmentsCount
-            if(segmentsCount < 1):
-                continue
-
+            
             if (len(itemIndices) != segmentsCount):
                 # Delete current itemIndices
                 self.deleteHelix(h.coord()[0], h.coord()[1])
                 # create new indeces
                 self.createNewHelix( h.coord()[0], h.coord()[1], segmentsCount)
-
+            
+            if(segmentsCount < 1):
+                continue     
             itemIndices = self.solidHelicesIndices[myKey] 
-
+            parity = self._part.virtualHelixParityEven(h)
             for seg in range(segmentsCount):
-                metaName = "HelixMetaNode%d" % itemIndices[seg]
+                cylinderName = "HalfCylinderHelixNode%d" % itemIndices[seg]
                 #transformName = "DNAShapeTranform%d" % itemIndex
                 totalNumBases = h.numBases()
-                helixScale = self.mayaScale / totalNumBases
-                middleBase = totalNumBases/2
-                right = (middleBase-endpoints[0][seg][0])
-                left = (endpoints[0][seg][1]-middleBase)
-                #direction = h.directionOfStrandIs5to3(StrandType.Scaffold)
-                #if direction:
-                #    right = (middleBase-endpoints[2][seg])
-                #    left = (endpoints[1][seg]-middleBase)
-                #else:
-                #    right = (middleBase-endpoints[1][seg])
-                #    left = (endpoints[2][seg]-middleBase)
-
-                #print "right, left %d,%d" % ( right, left)
-
-                cmds.setAttr("%s.scaleFront"%metaName, right*helixScale)
-                cmds.setAttr("%s.scaleBack"%metaName, left*helixScale)
+                cmds.setAttr("%s.startBase"%cylinderName, endpoints[0][seg][0])
+                cmds.setAttr("%s.endBase"%cylinderName, endpoints[0][seg][1])
+                cmds.setAttr("%s.totalBases"%cylinderName, totalNumBases)
+                
+                
+                if self.type == LatticeType.Honeycomb:
+                    cmds.setAttr("%s.rotation" % cylinderName, 34.286)
+                    cmds.setAttr("%s.rotationOffset" % cylinderName, 30)
+                    cmds.setAttr("%s.parity"%cylinderName, parity)
+                else:
+                    cmds.setAttr("%s.rotation" % cylinderName, 33.75)
+                    cmds.setAttr("%s.rotationOffset" % cylinderName, 120)
+                    # is the parity reverse for squere grid?
+                    cmds.setAttr("%s.parity"%cylinderName, parity==0)
+                
+                #cmds.setAttr("%s.scaleFront"%metaName, right*helixScale)
+                #cmds.setAttr("%s.scaleBack"%metaName, left*helixScale)
                 #print metaName
                 #print h.getSegmentsAndEndpoints(StrandType.Scaffold)
 
@@ -154,13 +155,20 @@ class SolidHelixGroup(QObject):
         return (x, y)
 
     def deleteAllMayaNodes(self):
-        # Clear all the cylinder shapes
-        cylinders = cmds.ls("CylinderNode*")
-        transforms = cmds.ls("DNAShapeTransform*")
-        for c in cylinders:
-            cmds.delete(c)
-        for t in transforms:
-            cmds.delete(t)
+        # Delete Transform Nodes
+        #cylinders = cmds.ls("CylinderNode*")
+        #transforms = cmds.ls("DNAShapeTransform*")
+        #for t in transforms:
+        #     cmds.delete(t)
+        for itemIndices in self.solidHelicesIndices.values():
+            for i in itemIndices:
+                toonName = "DNAToon%d" % i
+                shaderName = "DNAStrandShader%d" % i
+                transformName = "DNAShapeTransform%d" % i
+                items = cmds.ls(toonName, transformName, shaderName)
+                if len(items) > 0:                
+                    cmds.delete(items)
+        
         self.solidHelicesIndices = {}
         self.solidHelicesIndicesCount = 0
 
@@ -170,11 +178,13 @@ class SolidHelixGroup(QObject):
         itemIndices = self.solidHelicesIndices[myKey]            
 
         for i in itemIndices:
-            cylinderName = "CylinderNode%d" % i
+            toonName = "DNAToon%d" % i
             transformName = "DNAShapeTransform%d" % i
-            cmds.delete(cylinderName)
-            cmds.delete(transformName)
-
+            shaderName = "DNAStrandShader%d" % i
+            items = cmds.ls(toonName, transformName, shaderName)
+            if len(items) > 0:
+                cmds.delete(items)            
+            
     def createNewHelix(self, row, col, count=1):
         # New Helix Added
         #print "SolidHelixGroup.onAtCoordsChanged: %d %d" % (row, col)
@@ -192,13 +202,16 @@ class SolidHelixGroup(QObject):
 
     def createCylinder(self, x, y, count, htype):
         # createCylinder
-        cylinderName = "CylinderNode%d" % count
+        #cylinderName = "CylinderNode%d" % count
+        cylinderName = "HalfCylinderHelixNode%d" % count
         transformName = "DNAShapeTransform%d" % count
         meshName = "DNACylinderShape%d" % count
-        metaName = "HelixMetaNode%d" % count
+        #metaName = "HelixMetaNode%d" % count
+        toonName = "DNAToonShape%d" % count
+        shaderName = "DNAStrandShader%d" % count
 
-        cmds.createNode("polyCylinder", name=cylinderName)
-        cmds.setAttr("%s.radius"%cylinderName, self.helixRadius)
+        #cmds.createNode("polyCylinder", name=cylinderName)
+        #cmds.setAttr("%s.radius"%cylinderName, self.helixRadius)
         cmds.createNode("transform", name=transformName)
         cmds.setAttr("%s.rotateX"%transformName, 90)
         cmds.setAttr("%s.translateX"%transformName, x)
@@ -208,11 +221,36 @@ class SolidHelixGroup(QObject):
 
         cmds.sets(meshName, add="initialShadingGroup")
 
-        cmds.createNode("spHelixMetaNode", name=metaName)
-        cmds.connectAttr("%s.output" % cylinderName, "%s.inputMesh" % metaName)
-        cmds.connectAttr("%s.outputMesh" % metaName, "%s.inMesh" % meshName)
-        cmds.connectAttr("%s.scale" % metaName, "%s.scaleY" % transformName)
-        cmds.connectAttr("%s.translate" % metaName, "%s.translateZ" % transformName)
+        #cmds.createNode("spHelixMetaNode", name=metaName)
+        cmds.createNode("spHalfCylinderHelixNode", name=cylinderName)
+                    
+        #cmds.connectAttr("%s.output" % cylinderName, "%s.inputMesh" % metaName)
+        cmds.connectAttr("%s.outputMesh" % cylinderName, "%s.inMesh" % meshName)
+        #cmds.connectAttr("%s.scale" % metaName, "%s.scaleY" % transformName)
+        #cmds.connectAttr("%s.translate" % metaName, "%s.translateZ" % transformName)
+        
+        # Create Crease and Profile Lines
+        cmds.createNode("pfxToon", name=toonName) 
+        cmds.connectAttr("%s.outMesh" % meshName, "%s.inputSurface[0].surface" % toonName)
+        cmds.connectAttr("%s.worldMatrix[0]" % meshName, "%s.inputSurface[0].inputWorldMatrix" % toonName)
+        cmds.setAttr("%s.displayPercent" % toonName, 100)
+        cmds.setAttr("%s.tighterProfile" % toonName, 1)
+        cmds.setAttr("%s.profileLineWidth" % toonName, 0.613497)
+        cmds.setAttr("%s.lineWidth" % toonName, 0.0245399)
+        cmds.setAttr("%s.hardCreasesOnly" % toonName, 0)
+        cmds.setAttr("%s.creaseAngleMin" % toonName, 30.920245)
+        cmds.setAttr("%s.depthOffset" % toonName, 6.533742)
+        
+        # Create a separate shader for each strand so that it can be colored 
+        # in different colors
+        # XXX [SB] - Need to refactor this, shuld group stands of the same color into one shader
+        cmds.shadingNode('lambert', asShader=True, name = shaderName)
+        cmds.sets(n="%sSG"%shaderName, r=True, nss=True, em=True)
+        cmds.connectAttr("%s.outColor"%shaderName,  "%sSG.surfaceShader"%shaderName);
+        cmds.sets(meshName, forceElement="%sSG"%shaderName)
+        cmds.setAttr("%s.color" % shaderName, 0.313725, 0.397089, 0.941176, type="double3")
+
+        #cmds.connectAttr("%s.instObjGroups[0]" % meshName, "%sSG.dagSetMember[0]" % shaderName)
 
 #class SolidHelixGroup(QObject):
 #    """

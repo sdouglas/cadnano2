@@ -22,7 +22,7 @@
 #
 # http:#www.opensource.org/licenses/mit-license.php
 """
-loophandle.py
+inserthandle.py
 Created by Shawn on 2011-05-03.
 """
 
@@ -37,17 +37,17 @@ util.qtWrapImport('QtGui', globals(), [ 'QBrush', 'QFont', \
                                         'QTextCursor', 'QPainterPath', 'QPen', \
                                         'QLabel'] )
 
-class LoopItem(object):
+class InsertItem(object):
     """
-    This is just the shape of the Loop item
+    This is just the shape of the Insert item
     """
     _myRect = QRectF(0, 0, styles.PATH_BASE_WIDTH, styles.PATH_BASE_WIDTH)
-    _pen = QPen(styles.bluestroke, styles.LOOPWIDTH)
+    _pen = QPen(styles.bluestroke, styles.INSERTWIDTH)
     baseWidth = styles.PATH_BASE_WIDTH
     halfbaseWidth = baseWidth / 2
     _offset = baseWidth / 4
 
-    def _loopGen(path, start, c1, p1, c2):
+    def _insertGen(path, start, c1, p1, c2):
         path.moveTo(start)
         path.quadTo(c1, p1)
         path.quadTo(c2, start)
@@ -60,37 +60,37 @@ class LoopItem(object):
     _pathMidDown = QPointF(halfbaseWidth, 2 * baseWidth)
     _pathDownDownCtrlPt = QPointF(-halfbaseWidth, 2 * baseWidth)
     _pathDownUpCtrlPt = QPointF(1.5 * baseWidth, 2 * baseWidth)
-    _loopPathUp = QPainterPath()
-    _loopGen(_loopPathUp, _pathStart, _pathUpUpCtrlPt,\
+    _insertPathUp = QPainterPath()
+    _insertGen(_insertPathUp, _pathStart, _pathUpUpCtrlPt,\
              _pathMidUp, _pathUpDownCtrlPt)
-    _loopPathUp.translate(_offset, 0)
-    _loopPathUpRect = _loopPathUp.boundingRect()
-    _loopPathDown = QPainterPath()
-    _loopGen(_loopPathDown, _pathStart, _pathDownDownCtrlPt,\
+    _insertPathUp.translate(_offset, 0)
+    _insertPathUpRect = _insertPathUp.boundingRect()
+    _insertPathDown = QPainterPath()
+    _insertGen(_insertPathDown, _pathStart, _pathDownDownCtrlPt,\
              _pathMidDown, _pathDownUpCtrlPt)
-    _loopPathDown.translate(_offset, 0)
-    _loopPathDownRect = _loopPathDown.boundingRect()
+    _insertPathDown.translate(_offset, 0)
+    _insertPathDownRect = _insertPathDown.boundingRect()
 
     def __init__(self):
-        super(LoopItem, self).__init__()
+        super(InsertItem, self).__init__()
     # end def
 
     def getPen(self):
         return self._pen
     # end def
 
-    def getLoop(self, istop):
+    def getInsert(self, istop):
         if istop:
-            return self._loopPathUp
+            return self._insertPathUp
         else:
-            return self._loopPathDown
+            return self._insertPathDown
     # end def
 # end class
 
 
 class SkipItem(object):
     """
-    This is just the shape of the Loop item
+    This is just the shape of the Insert item
     """
     _myRect = QRectF(0, 0, styles.PATH_BASE_WIDTH, styles.PATH_BASE_WIDTH)
     _pen = QPen(styles.redstroke, styles.SKIPWIDTH)
@@ -123,34 +123,34 @@ class SkipItem(object):
 # end class
 
 
-class LoopHandle(QGraphicsItem):
+class InsertHandle(QGraphicsItem):
     """
-    This is just the shape of the Loop item
+    This is just the shape of the Insert item
     """
-    _loopItem = LoopItem()
+    _insertItem = InsertItem()
     _skipItem = SkipItem()
     _myRect = QRectF(0, 0, styles.PATH_BASE_WIDTH, styles.PATH_BASE_WIDTH)
-    _myRect = _myRect.united(LoopItem._loopPathUpRect)
-    _myRect = _myRect.united(LoopItem._loopPathDownRect)
+    _myRect = _myRect.united(InsertItem._insertPathUpRect)
+    _myRect = _myRect.united(InsertItem._insertPathDownRect)
     _pen = QPen(styles.bluestroke, 2)
     _baseWidth = styles.PATH_BASE_WIDTH
     _offset = styles.PATH_BASE_WIDTH*0.75
     _halfbaseWidth = _baseWidth / 2
     _font = QFont(styles.thefont, 10, QFont.Bold)
     _myRect.adjust(-15, -15, 30, 30)
-    # Bases are drawn along and above the loop path.
+    # Bases are drawn along and above the insert path.
     # These calculations revolve around fixing the characters at a certain
     # percentage of the total arclength.
-    # The fraction of the loop that comes before the first character and
+    # The fraction of the insert that comes before the first character and
     # after the last character is the padding, and the rest is divided evenly.
-    _fractionLoopToPad = .10
+    _fractionInsertToPad = .10
 
     def __init__(self, parent=None):
-        super(LoopHandle, self).__init__(parent)
+        super(InsertHandle, self).__init__(parent)
         self._label = None
         self.label()  # Poke the cache so the label actually exists
-        self.setZValue(styles.ZLOOPHANDLE)
-        self._loopsize = 0
+        self.setZValue(styles.ZINSERTHANDLE)
+        self._insertsize = 0
         self._index = 0
         self._strandType = None
     # end def
@@ -211,15 +211,15 @@ class LoopHandle(QGraphicsItem):
         """
         test = unicode(self._label.toPlainText())
         try:
-            loopsize = int(test)
+            insertsize = int(test)
         except:
-            loopsize = None
-        if loopsize != None and loopsize != self._loopsize:
-            self._loopsize = loopsize
-            self.parentObject().vhelix().installLoop(self._strandType,\
+            insertsize = None
+        if insertsize != None and insertsize != self._insertsize:
+            self._insertsize = insertsize
+            self.parentObject().vhelix().installInsert(self._strandType,\
                                                      self._index,\
-                                                     self._loopsize)
-            if self._loopsize:
+                                                     self._insertsize)
+            if self._insertsize:
                 self.resetPosition()
                 self._label.setFocus(False)
         # end if
@@ -234,14 +234,14 @@ class LoopHandle(QGraphicsItem):
         strandType = self._strandType
         istop = ph.strandIsTop(strandType)
         index = self._index
-        loopsize = self._loopsize
-        if loopsize > 0:
-            path = self._loopItem.getLoop(istop)
-            painter.setPen(QPen(vh.colorOfBase(strandType, index), styles.LOOPWIDTH))
+        insertsize = self._insertsize
+        if insertsize > 0:
+            path = self._insertItem.getInsert(istop)
+            painter.setPen(QPen(vh.colorOfBase(strandType, index), styles.INSERTWIDTH))
             painter.setBrush(Qt.NoBrush)
             painter.drawPath(path)
-            # draw sequence on the loop
-            baseText = vh.sequenceForLoopAt(strandType, index)
+            # draw sequence on the insert
+            baseText = vh.sequenceForInsertAt(strandType, index)
             if baseText[0] != ' ':  # only draw sequences if they exist
                 if istop:
                     angleOffset = 0
@@ -249,12 +249,12 @@ class LoopHandle(QGraphicsItem):
                     angleOffset = 180
                 if len(baseText) > 20:
                     baseText = baseText[:17] + '...'
-                fractionArclenPerChar = (1.-2*self._fractionLoopToPad)/(len(baseText)+1)
+                fractionArclenPerChar = (1.-2*self._fractionInsertToPad)/(len(baseText)+1)
                 painter.setPen(QPen(Qt.black))
                 painter.setBrush(Qt.NoBrush)
                 painter.setFont(ph.sequenceFont)
                 for i in range(len(baseText)):
-                    frac = self._fractionLoopToPad + (i+1)*fractionArclenPerChar
+                    frac = self._fractionInsertToPad + (i+1)*fractionArclenPerChar
                     pt = path.pointAtPercent(frac)
                     tangAng = path.angleAtPercent(frac)
                     painter.save()
@@ -263,18 +263,18 @@ class LoopHandle(QGraphicsItem):
                     painter.translate(QPointF(-ph.sequenceFontCharWidth/2.,
                                               -2 if istop else ph.sequenceFontH))
                     if not istop:
-                        painter.translate(0, -ph.sequenceFontH - styles.LOOPWIDTH)
+                        painter.translate(0, -ph.sequenceFontH - styles.INSERTWIDTH)
                     painter.drawText(0, 0, baseText[i if istop else -i-1])
                     painter.restore()
             # end if
-        else:  # loopsize < 0 (a skip)
+        else:  # insertsize < 0 (a skip)
             path = self._skipItem.getSkip()
             painter.setPen(self._skipItem.getPen())
             painter.drawPath(path)
     # end def
 
     def setLabel(self, ph, strandType, index, number):
-        self._loopsize = number
+        self._insertsize = number
         self._index = index
         self._strandType = strandType
         self._label.setPlainText("%d" % (number))
@@ -291,21 +291,21 @@ class LoopHandle(QGraphicsItem):
             self._label.setPos(self._offset-txtOffset, -self._baseWidth)
         else:
             self._label.setPos(self._offset-txtOffset, self._baseWidth)
-        if self._loopsize > 0:
+        if self._insertsize > 0:
             self._label.show()
         else:
             self._label.hide()
     # end def
 
 
-class LoopHandleGroup(QGraphicsItem):
+class InsertHandleGroup(QGraphicsItem):
     """
-    Loop handle consists of the LoopItem and the QLabel and manages loop
+    Insert handle consists of the InsertItem and the QLabel and manages insert
     manipulation.
     """
     def __init__(self, parent=None):
-        super(LoopHandleGroup, self).__init__(parent)
-        self.setZValue(styles.ZLOOPHANDLE)
+        super(InsertHandleGroup, self).__init__(parent)
+        self.setZValue(styles.ZINSERTHANDLE)
         self.parent = parent
         self.handles = {}
 
@@ -317,25 +317,25 @@ class LoopHandleGroup(QGraphicsItem):
 
     def updateActiveHelix(self, ph):
         """
-        Collects the locations of each type of LoopHandle from the
+        Collects the locations of each type of InsertHandle from the
         recently activated VirtualHelix vhelix. Each self._index corresponds
-        to a pair of LoopHandle that must be updated and displayed.
+        to a pair of InsertHandle that must be updated and displayed.
         """
         vhelix = ph.vhelix()
         handles = self.handles.get(vhelix,[])
         if not handles:
             self.handles[vhelix] = handles
-        scafLoopDict = vhelix.loop(StrandType.Scaffold)
-        stapLoopDict = vhelix.loop(StrandType.Staple)
-        numLoopsNeeded = len(scafLoopDict) + len(stapLoopDict)
-        while len(handles) < numLoopsNeeded:
-            handles.append(LoopHandle(parent=ph))
-        while len(handles) > numLoopsNeeded:
+        scafInsertDict = vhelix.insert(StrandType.Scaffold)
+        stapInsertDict = vhelix.insert(StrandType.Staple)
+        numInsertsNeeded = len(scafInsertDict) + len(stapInsertDict)
+        while len(handles) < numInsertsNeeded:
+            handles.append(InsertHandle(parent=ph))
+        while len(handles) > numInsertsNeeded:
             handle = handles.pop()
             handle.scene().removeItem(handle)
         i = 0
         for strandtype in (StrandType.Scaffold, StrandType.Staple):
-            for index, loopsize in vhelix.loop(strandtype).iteritems():
-                handles[i].setLabel(ph, strandtype, index, loopsize)
+            for index, insertsize in vhelix.insert(strandtype).iteritems():
+                handles[i].setLabel(ph, strandtype, index, insertsize)
                 i += 1
 

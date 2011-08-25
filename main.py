@@ -45,10 +45,14 @@ if "-p" not in sys.argv:
     # collecting profile data.
     try:
         # If we are in Mac OS X, initialize Mac OS X specific stuff
+        supportsPythonObjCBridge = False
         import objc
-        from osx.CNApplicationDelegate import sharedDelegate as appDelegate
+        supportsPythonObjCBridge = True
     except:
         pass
+    if supportsPythonObjCBridge:
+        from osx.CNApplicationDelegate import sharedDelegate as appDelegate
+
 
 app = getAppInstance()
 app.initGui()

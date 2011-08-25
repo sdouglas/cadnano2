@@ -108,9 +108,13 @@ class BreakTool(AbstractPathTool):
         isEndpt = pathHelix.vhelix().hasEndAt(strandType, idx)
         isXover = pathHelix.vhelix().hasCrossoverAt(strandType, idx)
         if isEndpt or isXover:
-            print "Won't clear endpoint(%s)/crossover(%s)"%(str(isEndpt), str(isXover))
             return  # don't try to break endpoints or crossovers
+        color = None
         if pathHelix.vhelix().directionOfStrandIs5to3(strandType):
-            pathHelix.vhelix().legacyClearStrand(strandType, idx + 1, idx + 1)
+            if strandType == StrandType.Staple:
+                color = pathHelix.vhelix().colorOfBase(strandType, idx)
+            pathHelix.vhelix().legacyClearStrand(strandType, idx + 1, idx + 1, colorL=color)
         else:
-            pathHelix.vhelix().legacyClearStrand(strandType, idx, idx)
+            if strandType == StrandType.Staple:
+                color = pathHelix.vhelix().colorOfBase(strandType, idx + 1)
+            pathHelix.vhelix().legacyClearStrand(strandType, idx, idx, colorR=color)

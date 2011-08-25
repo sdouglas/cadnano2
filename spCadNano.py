@@ -1,26 +1,29 @@
+###############################################################################
+#
+# Copyright 2011 Autodesk, Inc.  All rights reserved.
+#
 # The MIT License
 #
-# Copyright (c) 2011 Wyss Institute at Harvard University
+# Permission is hereby granted, free of charge, to any person obtaining a copy of
+# this software and associated documentation files (the "Software"), to deal in
+# the Software without restriction, including without limitation the rights to
+# use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
+# of the Software, and to permit persons to whom the Software is furnished to do
+# so, subject to the following conditions:
 #
-# Permission is hereby granted, free of charge, to any person obtaining a copy
-# of this software and associated documentation files (the "Software"), to deal
-# in the Software without restriction, including without limitation the rights
-# to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-# copies of the Software, and to permit persons to whom the Software is
-# furnished to do so, subject to the following conditions:
-#
-# The above copyright notice and this permission notice shall be included in
-# all copies or substantial portions of the Software.
+# The above copyright notice and this permission notice shall be included in all
+# copies or substantial portions of the Software.
 #
 # THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
 # IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
 # FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
 # AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 # LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-# OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
-# THE SOFTWARE.
+# OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+# SOFTWARE.
 #
-# http://www.opensource.org/licenses/mit-license.php
+###############################################################################
+
 
 import os
 import sys
@@ -48,8 +51,6 @@ fMayaExitingCB = None
 
 gCadNanoApp = None
 
-gCadNanoObjectName = "CadNanoWindow"
-gCadNanoDock = None
 gIconPath = (
         os.environ['CADNANO_PATH'] +
         "/ui/mainwindow/images/cadnano2-app-icon_shelf.png")
@@ -107,6 +108,9 @@ def initializePlugin(mobject):
 
 # Uninitialize the script plug-in
 def uninitializePlugin(mobject):
+    global gCadNanoApp
+    if gCadNanoApp:
+        gCadNanoApp.deleteAllMayaNodes()
     closeCN()
     removeUIButton()
 
@@ -124,11 +128,9 @@ def uninitializePlugin(mobject):
 
 
 def openCN():
-    global gCadNanoDock
     global gCadNanoApp
     simplifyMayaUI()
 
-    dw = getDocumentWindow()
     if gCadNanoApp:
         for x in gCadNanoApp.documentControllers:
             if x.win:
@@ -141,28 +143,18 @@ def openCN():
         if __name__ == '__main__':
             gCadNanoApp.exec_()
         #execfile( os.environ['CADNANO_PATH'] + '/mayamain.py')
-        dw = getDocumentWindow()
-        global gCadNanoObjectName
-        dw.setObjectName(gCadNanoObjectName)
 
-    if gCadNanoDock == None:
-        ptr = OpenMayaUI.MQtUtil.mainWindow()
-        mayaWin = sip.wrapinstance(long(ptr), QObject)
-        gCadNanoDock = QDockWidget("CadNano")
-        gCadNanoDock.setFeatures(
-                                QDockWidget.DockWidgetMovable
-                                | QDockWidget.DockWidgetFloatable)
-        gCadNanoDock.setAllowedAreas(
-                                Qt.LeftDockWidgetArea
-                                | Qt.RightDockWidgetArea)
-        gCadNanoDock.setWidget(dw)
-        mayaWin.addDockWidget(Qt.DockWidgetArea(Qt.LeftDockWidgetArea),
-                                gCadNanoDock)
-        dw.setSizePolicy(QSizePolicy.MinimumExpanding,
-                            QSizePolicy.MinimumExpanding)
-        gCadNanoDock.changeEvent = changed
-        mayaWin.changeEvent = changed
-    gCadNanoDock.setVisible(True)
+    if gCadNanoApp.activeDocument:
+        if hasattr(gCadNanoApp.activeDocument, 'solidHelixGrp'):
+            if gCadNanoApp.activeDocument.solidHelixGrp:
+                gCadNanoApp.activeDocument.solidHelixGrp.onPersistentDataChanged()
+
+    pluginPath = os.path.join(os.environ['CADNANO_PATH'],  "views", "solidview", "helixManip.py") 
+    if not cmds.pluginInfo( pluginPath, query=True, loaded=True ):
+            cmds.loadPlugin( pluginPath )        
+            cmds.spHelixManipCtxCmd("spHelixContext1")
+            cmds.setToolTo("spHelixContext1")
+
 
 def changed(self, event):
     print str(event.type())
@@ -171,7 +163,8 @@ def changed(self, event):
         event.type() == QEvent.ApplicationActivate):
             print self.win.windowTitle()
             app().activeDocument = self
-    
+
+
 def simplifyMayaUI():
     mayaHotKeys.disableAllHotKeys()
     mayaUI.simplifyUI()
@@ -180,7 +173,7 @@ def simplifyMayaUI():
     myForm = cmds.formLayout(parent=myWindow)
     global gCadNanoToolbar
     gCadNanoToolbar = cmds.toolBar(
-                                "caDNAnoBox",
+                                "CADnanoBox",
                                 area='top',
                                 allowedArea='top',
                                 content=myWindow)
@@ -188,8 +181,8 @@ def simplifyMayaUI():
     global gIconPath
     closeCadNanoCmd = 'import maya.cmds;maya.cmds.closeCadNano()'
     myButton = cmds.iconTextButton(
-                               label='Quit caDNAno',
-                               annotation='Quit caDNAno interface',
+                               label='Quit CADnano',
+                               annotation='Quit CADnano interface',
                                image1=gIconPath,
                                parent=myForm,
                                command=closeCadNanoCmd)
@@ -203,17 +196,19 @@ def restoreMayaUI():
     mayaHotKeys.restoreAllHotKeys()
     mayaUI.restoreUI()
 
-    if cmds.toolBar(gCadNanoToolbar, exists=True):
-        cmds.deleteUI(gCadNanoToolbar)
+    if gCadNanoToolbar:
+        if cmds.toolBar(gCadNanoToolbar, exists=True):
+            cmds.deleteUI(gCadNanoToolbar)
 
 
 def closeCN():
-    global gCadNanoDock
     global gCadNanoApp
-    gCadNanoDock.setVisible(False)
-    for x in gCadNanoApp.documentControllers:
-        if x.win:
-            x.win.setVisible(False)
+    if gCadNanoApp.activeDocument:
+        gCadNanoApp.activeDocument.win.setVisible(False)
+    if gCadNanoApp:
+        for x in gCadNanoApp.documentControllers:
+            if x.win:
+                x.win.setVisible(False)
     restoreMayaUI()
 
 
@@ -225,8 +220,8 @@ def addUIButton():
     if cmds.formLayout(mayaMainToolbar, ex=True):
         cmds.setParent(mayaMainToolbar)
         gCadNanoButton = cmds.iconTextButton(
-                         label='caDNAno',
-                         annotation='Launch caDNAno interface',
+                         label='CADnano',
+                         annotation='Launch CADnano interface',
                          image1=gIconPath,
                          parent=mayaMainToolbar,
                          command='import maya.cmds; maya.cmds.openCadNano()')
@@ -239,15 +234,3 @@ def addUIButton():
 def removeUIButton():
     global gCadNanoButton
     cmds.deleteUI(gCadNanoButton)
-
-
-def getDocumentWindow():
-    global gCadNanoDock
-    global gCadNanoApp
-    if gCadNanoDock:
-        return gCadNanoDock.widget()
-    elif gCadNanoApp:
-        for x in gCadNanoApp.documentControllers:
-            if x.win:
-                return x.win
-    return None

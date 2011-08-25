@@ -46,7 +46,9 @@ util.qtWrapImport('QtCore', globals(), ['pyqtSignal', 'QString',
                                         'QEvent'])
 util.qtWrapImport('QtGui', globals(), ['QUndoStack', 'QFileDialog',
                                         'QAction', 'QApplication',
-                                        'QMessageBox', 'QKeySequence'])
+                                        'QMessageBox', 'QKeySequence',
+                                        'QDialog', 'QMainWindow',
+                                        'QDockWidget'])
 
 
 class DocumentController():
@@ -55,6 +57,16 @@ class DocumentController():
     submodel, etc) UI elements to their corresponding actions in the model
     """
     def __init__(self, doc=None, fname=None):
+        self._document = None
+        if app().isInMaya():
+            # There will only be one document
+            if (app().activeDocument and app().activeDocument.win and
+                                    not app().activeDocument.win.close()):
+                return
+            del app().activeDocument
+            app().deleteAllMayaNodes()
+            app().activeDocument = self
+
         app().documentControllers.add(self)
         if doc != None and doc._undoStack != None:
             self._undoStack = doc._undoStack
@@ -73,7 +85,6 @@ class DocumentController():
         self.win.changeEvent = self.changed
         self.connectWindowEventsToSelf()
         self.win.show()
-        self._document = None
         self.setDocument(Document() if not doc else doc)
         app().undoGroup.addStack(self.undoStack())
         self.win.setWindowTitle(self.documentTitle() + '[*]')
@@ -81,24 +92,59 @@ class DocumentController():
         if doc != None and doc.parts():
             doc.parts()[0].needsFittingToView.emit()
 
+        if app().isInMaya():
+            import maya.OpenMayaUI as OpenMayaUI
+            import sip
+            ptr = OpenMayaUI.MQtUtil.mainWindow()
+            mayaWin = sip.wrapinstance(long(ptr), QMainWindow)
+            self.windock = QDockWidget("CADnano")
+            self.windock.setFeatures(
+                                    QDockWidget.DockWidgetMovable
+                                    | QDockWidget.DockWidgetFloatable)
+            self.windock.setAllowedAreas(
+                                    Qt.LeftDockWidgetArea
+                                    | Qt.RightDockWidgetArea)
+            self.windock.setWidget(self.win)
+            mayaWin.addDockWidget(Qt.DockWidgetArea(Qt.LeftDockWidgetArea),
+                                    self.windock)
+            self.windock.setVisible(True)
+            if hasattr(self, 'solidHelixGrp'):
+                self.solidHelixGrp.onPersistentDataChanged()
+
     def closer(self, event):
         if self.maybeSave():
             if app().testRecordMode:
                 self.win.sliceController.testRecorder.generateTest()
             event.accept()
+            if app().isInMaya():
+                self.windock.setVisible(False)
+                del self.windock
+            app().documentControllers.remove(self)
         else:
             event.ignore()
 
     def changed(self, event):
-        if (event.type() == QEvent.ActivationChange or
-            event.type() == QEvent.WindowActivate or
-            event.type() == QEvent.ApplicationActivate):
-            if self.win.isActiveWindow() and app().activeDocument != self:
-                app().activeDocument = self
-                if hasattr(self, 'solidHelixGrp'):
-                    if self.solidHelixGrp:
-                        self.solidHelixGrp.deleteAllMayaNodes()
-                        self.solidHelixGrp.onPersistentDataChanged()
+        if app().isInMaya():
+            if (event.type() == QEvent.ActivationChange or
+                            event.type() == QEvent.Close):
+                activeDoc = None
+                docInMaya = None
+                for doc in app().documentControllers:
+                    #print (doc.win.windowTitle(), doc.win.parent(),
+                    #            doc.win.isActiveWindow())
+                    if doc.win.parent():
+                        # Assume the doc that has a parent is the one in Maya
+                        docInMaya = doc
+                    if doc.win and doc.win.isActiveWindow():
+                        activeDoc = doc
+                if not activeDoc:
+                    activeDoc = docInMaya
+                if app().activeDocument != activeDoc:
+                    app().deleteAllMayaNodes()
+                    app().activeDocument = activeDoc
+                    if hasattr(activeDoc, 'solidHelixGrp'):
+                        if activeDoc.solidHelixGrp:
+                            activeDoc.solidHelixGrp.onPersistentDataChanged()
 
     def documentTitle(self):
         fname = os.path.basename(str(self.filename()))
@@ -209,8 +255,8 @@ class DocumentController():
             return False
         fname = str(fname)
         doc = decode(file(fname).read())
-        doc.finalizeImport()  # updates staple highlighting
         DocumentController(doc, fname)
+        doc.finalizeImport()  # updates staple highlighting
         if self.filesavedialog != None:
             self.filesavedialog.filesSelected.disconnect(self.openFile)
             # manual garbage collection to prevent hang (in osx)

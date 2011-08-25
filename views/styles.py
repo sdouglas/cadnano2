@@ -112,7 +112,7 @@ cadnn1_palette = Palette(cadnn1Colors)
 default_palette = cadnn1_palette
 
 # Loop/Insertion path details
-LOOPWIDTH = 2
+INSERTWIDTH = 2
 SKIPWIDTH = 2
 
 # Add Sequence Tool
@@ -133,7 +133,7 @@ ZPREXOVERHANDLE = .9
 ZXOVERHANDLEPAIR = 1
 ZFOCUSRING = 0.0
 ZBREAKPOINTHANDLE = 2
-ZLOOPHANDLE = 4
+ZINSERTHANDLE = 4
 ZSKIPHANDLE = 2
 ZPATHTOOL = 3
 ZBREAKITEM = 2

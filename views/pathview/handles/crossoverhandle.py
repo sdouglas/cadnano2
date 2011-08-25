@@ -63,7 +63,7 @@ class XoverHandle(QGraphicsItem):
         if newBase == None or None in newBase:
             newBase = None
         if self._vh:
-            self._vh.basesModified.disconnect(self.update)
+            self._vh.basesModifiedSignal.disconnect(self.update)
         if newBase == None:
             self._ph, self._vh = None, None
             self._strand, self._idx = None, None
@@ -73,7 +73,7 @@ class XoverHandle(QGraphicsItem):
             phg = self._xoverPair._phg
             self._vh, self._strand, self._idx = newBase
             self._ph = phg.pathHelixForVHelix(self._vh)
-            self._vh.basesModified.connect(self.update)
+            self._vh.basesModifiedSignal.connect(self.update)
             self.setParentItem(self._ph)
             self.setPos(*self._ph.baseLocation(self._strand, self._idx))
             self.setLabelRect(QRectF())
@@ -170,7 +170,7 @@ class XoverHandlePair(QGraphicsItem):
             return
         self._painterpath = None
         if self._fromVH != None:
-            self._fromVH.basesModified.disconnect(self.refresh)
+            self._fromVH.basesModifiedSignal.disconnect(self.refresh)
             
             # this handles changes in pathhelix screen position
             self._xover3prime._ph.xoverUpdate.disconnect(self.refresh)
@@ -181,7 +181,7 @@ class XoverHandlePair(QGraphicsItem):
                 self.hide()
         else:
             self._fromVH, self._fromStrand, self._fromIdx = newBase
-            self._fromVH.basesModified.connect(self.refresh)
+            self._fromVH.basesModifiedSignal.connect(self.refresh)
             self._xover3prime.setBase(newBase)
             # this handles changes in pathhelix screen position
             self._xover3prime._ph.xoverUpdate.connect(self.refresh)
@@ -197,7 +197,7 @@ class XoverHandlePair(QGraphicsItem):
             return
         self._painterpath = None
         if self._toVH != None:
-            self._toVH.basesModified.disconnect(self.refresh)
+            self._toVH.basesModifiedSignal.disconnect(self.refresh)
             # this handles changes in pathhelix screen position
             self._xover5prime._ph.xoverUpdate.disconnect(self.refresh)
         if newBase == None:
@@ -206,7 +206,7 @@ class XoverHandlePair(QGraphicsItem):
         else:
             if type(newBase) in (tuple, list):
                 self._toVH, self._toStrand, self._toIdx = newBase
-                self._toVH.basesModified.connect(self.refresh)
+                self._toVH.basesModifiedSignal.connect(self.refresh)
                 # this handles changes in pathhelix screen position
                 self._xover5prime._ph.xoverUpdate.connect(self.refresh)
                 self._toPt = None
