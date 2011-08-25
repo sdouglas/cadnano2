@@ -36,9 +36,9 @@ util.qtWrapImport('QtGui', globals(), ['QBrush', 'QFont', 'QGraphicsItem',\
                                        'QUndoCommand', 'QGraphicsEllipseItem',\
                                        'QTransform', 'QStyle'])
 
-from .src.graphicsellipseitem import GraphicsEllipseItem
+#from .src.graphicsellipseitem import GraphicsEllipseItem
 
-class PathHelixHandle(GraphicsEllipseItem):
+class PathHelixHandle(QGraphicsEllipseItem):
     """docstring for PathHelixHandle"""
     radius = styles.PATHHELIXHANDLE_RADIUS
     

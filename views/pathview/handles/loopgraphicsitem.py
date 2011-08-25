@@ -35,7 +35,8 @@ import util
 util.qtWrapImport('QtCore', globals(), [ 'QPointF', 'QRectF', 'Qt'] )
 util.qtWrapImport('QtGui', globals(), [ 'QBrush', 'QFont', \
                                         'QGraphicsItem', 'QGraphicsTextItem', \
-                                        'QTextCursor', 'QPainterPath', 'QPen', \
+                                        'QTextCursor', 'QPainterPath', 'QPen',\
+                                        'QBrush', 'QColor',\
                                         'QLabel', 'QMatrix', 'QGraphicsPathItem'] )
 
 baseWidth = styles.PATH_BASE_WIDTH
@@ -159,6 +160,10 @@ class LoopGraphicsItem(QGraphicsPathItem):
         scene = self.scene()
         if scene == None:
             return
+        if self._leftCap != None:
+            scene.removeItem(self._leftCap)
+        if self._rightCap != None:
+            scene.removeItem(self._rightCap)
         scene.removeItem(self._label)
         scene.removeItem(self)
 
@@ -225,11 +230,7 @@ class LoopGraphicsItem(QGraphicsPathItem):
 
     def refreshPosAndLabel(self):
         self.setPos(self._pathHelix.pointForVBase(self._strand.vBase()))
-        if self._pathHelix.vBaseIsTop(self._strand.vBase()):
-            path = loopPathUp
-        else:
-            path = loopPathDown
-        self.setPath(path)
+        self.refreshPath()
         self.refreshLabel()
 
     def refreshLabel(self):
@@ -251,33 +252,26 @@ class LoopGraphicsItem(QGraphicsPathItem):
         self.setPath(loopPathWithConnectivity(hasLConnection,\
                                               isOnTop,\
                                               hasRConnection))
-        if strand.shouldHighlight():
-            self.setPen(QPen(strand.color(),\
-                        styles.PATH_STRAND_STROKE_WIDTH ))
-        else:
-            self.setPen(QPen(strand.color(),\
-                        styles.PATH_STRAND_HIGHLIGHT_STROKE_WIDTH ))
+        self.setPen(QPen(strand.color(), styles.PATH_STRAND_STROKE_WIDTH ))
         if hasLConnection:
             if self._leftCap and self._leftCap.isVisible():
                 self._leftCap.hide()
         else:
             if self._leftCap == None:
-                self._leftCap = QGraphicsPathItem(ppL5 if drawn5To3 else ppL3)
-                self._leftCap.setPen(Qt.NoPen)
-                self._leftCap.setBrush(strand.color())
+                self._leftCap = QGraphicsPathItem(ppL5 if drawn5To3 else ppL3, self._pathHelix)
+                self._leftCap.setPen(QPen(Qt.NoPen))
+                self._leftCap.setBrush(QBrush(QColor()))
             self._leftCap.setPos(pos)
-            if not self._leftCap.isVisible():
-                self._leftCap.show()
+            self._leftCap.show()
         if hasRConnection:
             if self._rightCap and self._rightCap.isVisible():
                 self._rightCap.hide()
         else:
             if self._rightCap == None:
-                self._rightCap = QGraphicsPathItem(ppL5 if drawn5To3 else ppL3)
-                self._rightCap.setPen(Qt.NoPen)
+                self._rightCap = QGraphicsPathItem(ppL5 if drawn5To3 else ppL3, self._pathHelix)
+                self._rightCap.setPen(QPen(Qt.NoPen))
                 self._rightCap.setBrush(strand.color())
             self._rightCap.setPos(pos)
-            if not self._rightCap.isVisible():
-                self._rightCap.show()
+            self._rightCap.show()
             
                                               
