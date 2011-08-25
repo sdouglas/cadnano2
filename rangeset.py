@@ -320,7 +320,7 @@ class RangeSet(object):
                                                   undoStack)
                 replacementRanges.append(newItem)
             else:
-                replacementRanges = lastIR
+                replacementRanges = [rangeItem, lastIR]
         com = self.ReplaceRangeItemsCommand(self,\
                                             firstIIR,\
                                             afterLastIIR,\
