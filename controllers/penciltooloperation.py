@@ -47,7 +47,7 @@ class PencilToolOperation(Operation):
         """ Looks at self.startVBase and newDestVBase then calls the appropriate
         actionWhatever method on self. """
         if isinstance(newDestVBase, (int, long)):
-            newDestVBase = VBase(self.startVBase.vStrand, newDestVBase)
+            newDestVBase = VBase(self.startVBase.vStrand(), newDestVBase)
         if newDestVBase == self.lastDestVBase:
             return
         else:
@@ -58,8 +58,8 @@ class PencilToolOperation(Operation):
         dragStartStrand = dragStartBase.strand()
         # dragEndExposedEnds = dragEndBase.exposedEnds()
         dragEndStrand = dragEndBase.strand()
-        startIdx, endIdx = dragStartBase.vIndex, dragEndBase.vIndex
-        vStrand = dragStartBase.vStrand
+        startIdx, endIdx = dragStartBase.vIndex(), dragEndBase.vIndex()
+        vStrand = dragStartBase.vStrand()
 
         if not isinstance(newDestVBase, VBase):
             return
@@ -121,7 +121,7 @@ class PencilToolOperation(Operation):
         newStrand, undoStack = self.newStrand, self.undoStack
         undoStack.beginMacro('actionAddStrand')
         newStrand.changeRange(startBase, endBase, undoStack)
-        startBase.vStrand.addStrand(newStrand, useUndoStack=True, undoStack=undoStack)
+        startBase.vStrand().addStrand(newStrand, useUndoStack=True, undoStack=undoStack)
         newStrand.setConnL(lConnection, useUndoStack=True, undoStack=undoStack)
         newStrand.setConnR(rConnection, useUndoStack=True, undoStack=undoStack)
         undoStack.endMacro()
@@ -136,12 +136,12 @@ class PencilToolOperation(Operation):
     def actionResizeStrand(self, strand, newL, newR):
         if self.logger:
             self.logger.write('PencilToolOperation.actionResizeStrand\n')
-        newL.vStrand.resizeStrandAt(strand.vBaseL, newL, newR, useUndoStack=True, undoStack=self.undoStack)
+        newL.vStrand().resizeStrandAt(strand.vBaseL, newL, newR, useUndoStack=True, undoStack=self.undoStack)
 
     def actionClearRange(self, firstIdx, afterLastIdx, keepLeft=True):
         if self.logger:
             self.logger.write('PencilToolOperation.actionClearRange\n')
-        self.startVBase.vStrand.clearRange(firstIdx,\
+        self.startVBase.vStrand().clearRange(firstIdx,\
                                            afterLastIdx,\
                                            useUndoStack=True,\
                                            undoStack=self.undoStack,\

@@ -344,16 +344,16 @@ class PathHelix(QGraphicsPathItem):
             else:     return VBase(self.vhelix().scaf(), idx)
 
     def pointForVBase(self, vBase):
-        x = self.baseWidth * vBase.vIndex
+        x = self.baseWidth * vBase.vIndex()
         y = self.baseWidth * int(not self.vBaseIsTop(vBase))
         return QPointF(x, y)
 
     def vBaseIsTop(self, vBase):
         vh = self.vhelix()
         scaf, stap = vh.scaf(), vh.stap()
-        if vBase.vStrand == scaf:
+        if vBase.vStrand() == scaf:
             return True if self.evenParity() else False
-        elif vBase.vStrand == stap:
+        elif vBase.vStrand() == stap:
             return False if self.evenParity() else True
         else:
             assert(False)  # vBase is not on this strand's vhelix!
@@ -523,12 +523,12 @@ class PathHelix(QGraphicsPathItem):
         return (x, y)
 
     def vBaseOnTop(self, vBase):
-        strand = vBase.vStrand
+        strand = vBase.vStrand()
         return self.evenParity() and strand.isScaf() or\
                not self.evenParity() and strand.isStap()
 
     def upperLeftCornerOfVBase(self, vBase):
-        x = vBase.vIndex * self.baseWidth
+        x = vBase.vIndex() * self.baseWidth
         y = 0 if self.vBaseOnTop(vBase) else self.baseWidth
         return x, y
 

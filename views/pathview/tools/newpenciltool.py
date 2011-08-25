@@ -83,7 +83,7 @@ class NewPencilTool(AbstractPathTool):
         if isinstance(self.currentOperation, PencilToolOperation):
             if self.logger: self.logger.write("mouseMovePathHelix>Pencil\n")
             dest = pathHelix.vBaseAtPoint(event.pos())
-            dest.vStrand = self.currentOperation.startVBase.vStrand
+            dest._vStrand = self.currentOperation.startVBase.vStrand()
             self.currentOperation.updateDestination(dest)
         elif isinstance(self.currentOperation, ForceToolOperation):
             if self.logger: self.logger.write("mouseMovePathHelix>Force\n")

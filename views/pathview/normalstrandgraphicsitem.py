@@ -92,7 +92,7 @@ class NormalStrandGraphicsItem(QGraphicsLineItem):
             self.rightCap.show()
         ry = ly
         self.setLine(lx, ly, rx, ry)
-        if vbL.vStrand.isScaf():
+        if vbL.vStrand().isScaf():
             pen = QPen(styles.scafstroke, styles.PATH_STRAND_STROKE_WIDTH)
             brush = QBrush(styles.handlefill)
         else:

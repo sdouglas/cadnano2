@@ -158,11 +158,11 @@ class VStrand(QObject, RangeSet):
 
     def resizeStrandAt(self, idxInStrand, newFirstBase, newLastBase, useUndoStack=True, undoStack=None):
         if isinstance(idxInStrand, VBase):
-            idxInStrand = idxInStrand.vIndex
+            idxInStrand = idxInStrand.vIndex()
         if isinstance(newFirstBase, VBase):
-            newFirstBase = newFirstBase.vIndex
+            newFirstBase = newFirstBase.vIndex()
         if isinstance(newLastBase, VBase):
-            newLastBase = newLastBase.vIndex
+            newLastBase = newLastBase.vIndex()
         self.resizeRangeAtIdx(idxInStrand, newFirstBase,\
                               newLastBase + 1,\
                               useUndoStack, undoStack)
@@ -170,9 +170,9 @@ class VStrand(QObject, RangeSet):
     def clearStrand(self, firstIndex, afterLastIndex, useUndoStack=True, undoStack=None, keepLeft=True):
         #Input sanitization
         if isinstance(firstIndex, VBase):
-            firstIndex = firstIndex.vIndex
+            firstIndex = firstIndex.vIndex()
         if isinstance(afterLastIndex, VBase):
-            afterLastIndex = afterLastIndex.vIndex
+            afterLastIndex = afterLastIndex.vIndex()
         if useUndoStack and undoStack == None:
             undoStack = self.undoStack()
         #/Input sanitization

@@ -34,7 +34,7 @@ class ForceToolOperation(Operation):
         Operation.__init__(self, undoStack)
         self.startVBase = startVBase
         self.strand = XOverStrand3(startVBase)
-        startVBase.vStrand.addStrand(self.strand,\
+        startVBase.vStrand().addStrand(self.strand,\
                                      useUndoStack=True, undoStack=undoStack)
         self.undoIdxBeforeInstall = undoStack.index()
         self.lastDestination = None  # None = floating
@@ -48,7 +48,7 @@ class ForceToolOperation(Operation):
         self.lastDestination = newVBase5
         self.rewind(self.undoIdxBeforeInstall)
         self.strand.conn3().setVBase(newVBase5)
-        newVBase5.vStrand.addStrand(self.strand.conn3(),\
+        newVBase5.vStrand().addStrand(self.strand.conn3(),\
                                     useUndoStack=True, undoStack=self.undoStack)
         if self.logger != None:
             self.logger.write('ForceToolOperation.updateDestination(%s)\n'%\

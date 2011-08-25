@@ -51,7 +51,7 @@ class XOverStrand3(Strand):
     def numBases(self):
         return 1
     def idxs(self):
-        idx = self.vBase().vIndex
+        idx = self.vBase().vIndex()
         return (idx, idx + 1)
     def exposedEndsAt(self, vBase):
         if vBase == self._vBase:
@@ -60,7 +60,7 @@ class XOverStrand3(Strand):
     def vStrand(self):
         """ Since the XOverStrand only represents the 3' end of the crossover
         in its role as a Strand, """
-        return self.vBase().vStrand
+        return self.vBase().vStrand()
         
     def setConn3(self, newBase):
         raise TypeError("A XOverStrand3's 3' end is always connected to its "\

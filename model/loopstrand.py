@@ -91,7 +91,7 @@ class LoopStrand(Strand):
             self.strand.numBasesChanged.emit(self.strand)
 
     def vStrand(self):
-        return self.vBase().vStrand
+        return self.vBase().vStrand()
 
     def exposedEndsAt(self, vBase):
         """
@@ -101,7 +101,7 @@ class LoopStrand(Strand):
         """
         ret = ''
         if vBase == self.vBase():
-            drawn5To3 = vBase.vStrand.drawn5To3()
+            drawn5To3 = vBase.vStrand().drawn5To3()
             if self.connL == None: ret += 'L5' if drawn5To3 else 'L3'
             if self.connR == None: ret += 'R3' if drawn5To3 else 'R5'
         return ret
