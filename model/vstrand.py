@@ -26,6 +26,7 @@ from rangeset import RangeSet
 import util, sys
 from vbase import VBase
 from model.normalstrand import NormalStrand
+from model.xoverstrand import XOverStrand3, XOverStrand5
 import strand
 util.qtWrapImport('QtCore', globals(), ['QObject', 'pyqtSignal'] )
 
@@ -350,6 +351,27 @@ class VStrand(QObject, RangeSet):
 
     def undoStack(self):
         return self.vHelix.undoStack()
+        
+    def possibleNewCrossoverAt(self, fromVBase, toVBase):
+        """
+        Return true if could crossover to neighbor at index.
+        Useful for seeing if potential crossovers from potentialCrossoverList
+        should be presented as points at which new a new crossover can be
+        formed.
+        """
+        fromIdx = fromVBase.vIndex()
+        toIdx = toVBase.vIndex()
+        toVStrand = toVBase.vStrand()
+        
+        if self.hasCrossoverAt(fromIdx) or toVStrand.hasCrossoverAt(toIdx):
+            return False
+        else:
+            return True if self.get(fromIdx) and toVStrand.get(toIdx) else False
+    # end def
+    
+    def hasCrossoverAt(self, index):
+        return isinstance(self.get(index), (XOverStrand3, XOverStrand5))
+    # end def
 
     ####################### Private Write API #######################
     def _setVHelix(self, newVH):
