@@ -24,6 +24,7 @@
 
 import util
 util.qtWrapImport('QtGui', globals(), [ 'QUndoCommand' ])
+util.qtWrapImport('QtCore', globals(), [ 'pyqtSignal', 'QObject' ])
 
 def rangeIntersection(firstRange, secondRange):
     ff, fl = firstRange
@@ -37,15 +38,26 @@ def rangeIntersection(firstRange, secondRange):
         return [0, 0]
     return [l, r]
 
-class RangeSet(object):
+class RangeSet(QObject):
     """
     Represents a set of objects (rangeItems or RIs) that each conceptually
     occupy a contiguous subset of the integers under the additional constraints
     1) no two items in the set overlap (occupy an identical integer)
     2) any two adjacent items a, b st canMergeRangeItems(a,b) == True upon
-       insertion of the last one to be inserted will be merged
+       insertion of the last one to be inserted will be merged.
+
+    The default implementation allows 'metadata' to be attached to each range,
+    effectively turning RangeSet into a dictionary where assigning a range of
+    keys (for i in range(10): myDict[i] = someVal) is cheap (the equivalent
+    using RangeSet would be 'myRangeSet.addRange((0, 10, someVal))'.)
     """
+    # Parameters are the pythonic range of modified indices.
+    # Participation in a merge doesn't count as modification.
+    # the object is a tuple holding a pythonic range of indices that could
+    # have been modified.
+    indicesModifiedSignal = pyqtSignal(object)
     def __init__(self):
+        QObject.__init__(self)
         self.ranges = []
         self.lastGottenRangeIdx = None
 
@@ -111,6 +123,9 @@ class RangeSet(object):
         here onto undoStack (iff undoStack is not None). It can also just return
         an entirely new object in which case undo will be handled automatically.
         """
+        oldStartIdx, oldAfterLastIdx = self.idxs(rangeItem)
+        unionStartIdx = min(oldStartIdx, newStartIdx)
+        unionAfterLastIdx = max(oldAfterLastIdx, newAfterLastIdx)
         return (newStartIdx, newAfterLastIdx, rangeItem[2])
 
     def splitRangeItem(self, rangeItem, splitStart, afterSplitEnd, keepLeft, undoStack):
@@ -129,16 +144,12 @@ class RangeSet(object):
                 (afterSplitEnd, rangeItem[1], md)]
 
     def willRemoveRangeItem(self, rangeItem):
-        """
-        Gets called on a rangeItem that used to be in self.ranges but will
-        no longer be in self.ranges.
-        """
         pass
-
+    def willInsertRangeItem(self, rangeItem):
+        pass
+    def didRemoveRangeItem(self, rangeItem):
+        pass
     def didInsertRangeItem(self, rangeItem):
-        """
-        Gets called on a rangeItem that has just been inserted into self.ranges.
-        """
         pass
 
     def boundsChanged(self):
@@ -454,6 +465,24 @@ class RangeSet(object):
             self.firstIdx = firstIdx
             self.afterLastIdx = afterLastIdx
             self.replacementRIs = replacementRIs
+            ranges = rangeSet.ranges
+            lowerBoundsOfModifiedIdxs = []
+            upperBoundsOfAfterModifiedIdxs = []
+            if afterLastIdx - firstIdx > 0:
+                upperBoundsOfAfterModifiedIdxs.append(\
+                    rangeSet.idxs(ranges[afterLastIdx - 1])[1]   )
+                lowerBoundsOfModifiedIdxs.append(\
+                    rangeSet.idxs(ranges[0])[0]   )
+            if replacementRIs:
+                upperBoundsOfAfterModifiedIdxs.append(\
+                    rangeSet.idxs(replacementRIs[-1])[1]  )
+                lowerBoundsOfModifiedIdxs.append(\
+                    rangeSet.idxs(replacementRIs[0])[0]   )
+            if lowerBoundsOfModifiedIdxs and upperBoundsOfAfterModifiedIdxs:
+                self.modifiedIdxRange = (min(lowerBoundsOfModifiedIdxs),\
+                                         max(upperBoundsOfAfterModifiedIdxs))
+            else:
+                self.modifiedIdxRange = (0, 0)
             # Resizing a rangeItem is internally done with a removal command
             # and an insertion command. We don't want to call willRemove and
             # didInsert while we are doing that (just changeRangeForItem) so
@@ -468,14 +497,28 @@ class RangeSet(object):
             replacedSet = set(id(ri) for ri in self.replacedRIs)
             replacementSet = set(id(ri) for ri in self.replacementRIs)
             suppressCallsItem = self.suppressCallsItem
-            for ri in self.replacedRIs:
-                if ri != suppressCallsItem and id(ri) not in replacementSet:
-                    rangeSet.willRemoveRangeItem(ri)
+            # Figure out who gets notifications
+            risToRemove = list(filter(lambda ri: id(ri) not in replacementSet,\
+                                      self.replacedRIs))
+            try:
+                risToRemove.remove(suppressCallsItem)
+            except ValueError:
+                pass
+            risToInsert = list(filter(lambda ri: id(ri) not in replacedSet,\
+                                      self.replacementRIs))
+            try:
+                risToInsert.remove(suppressCallsItem)
+            except ValueError:
+                pass
+            self.risToRemove, self.risToInsert = risToRemove, risToInsert
+            # Now actually perform the actions
+            map(rangeSet.willRemoveRangeItem, risToRemove)
+            map(rangeSet.willInsertRangeItem, risToInsert)
             rangeArr[self.firstIdx:self.afterLastIdx] = self.replacementRIs
-            for ri in self.replacementRIs:
-                if ri != suppressCallsItem and id(ri) not in replacedSet:
-                    rangeSet.didInsertRangeItem(ri)
+            map(rangeSet.didInsertRangeItem, risToInsert)
+            map(rangeSet.didRemoveRangeItem, risToRemove)
             if rangeSet.bounds() != oldBounds: rangeSet.boundsChanged()
+            rangeSet.indicesModifiedSignal.emit(self.modifiedIdxRange)
         def undo(self):
             assert(self.replacedRIs != None)  # Must redo before undo
             rangeSet = self.rangeSet
@@ -483,15 +526,14 @@ class RangeSet(object):
             replacedSet = set(id(ri) for ri in self.replacedRIs)
             replacementSet = set(id(ri) for ri in self.replacementRIs)
             suppressCallsItem = self.suppressCallsItem
-            for ri in self.replacementRIs:
-                if ri != suppressCallsItem and id(ri) not in replacedSet:
-                    rangeSet.willRemoveRangeItem(ri)
             lastIdx = self.firstIdx + len(self.replacementRIs)
+            map(rangeSet.willRemoveRangeItem, self.risToInsert)
+            map(rangeSet.willInsertRangeItem, self.risToRemove)
             self.rangeSet.ranges[self.firstIdx:lastIdx] = self.replacedRIs
-            for ri in self.replacedRIs:
-                if ri != suppressCallsItem and id(ri) not in replacementSet:
-                    rangeSet.didInsertRangeItem(ri)
+            map(rangeSet.didInsertRangeItem, self.risToRemove)
+            map(rangeSet.didRemoveRangeItem, self.risToInsert)
             if rangeSet.bounds() != oldBounds: rangeSet.boundsChanged()
+            rangeSet.indicesModifiedSignal.emit(self.modifiedIdxRange)
 
     ################################ Private Read API ##########################
     def _idxOfRangeContaining(self, intVal, returnTupledIdxOfNextRangeOnFail=False):

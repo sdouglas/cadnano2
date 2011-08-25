@@ -29,17 +29,21 @@ from model.normalstrand import NormalStrand
 import strand
 util.qtWrapImport('QtCore', globals(), ['QObject', 'pyqtSignal'] )
 
-class VStrand(QObject, RangeSet):
+class VStrand(RangeSet):
     """
     There are two of these per VirtualHelix. They provide the linear coordinate
     system in which VBase.vIndex() live.
     This subclass of RangeSet is designed to hold Segment items as its ranges.
     """
     didAddStrand = pyqtSignal(object)
+    # indicesModifiedSignal.emit(start, afterLast) emits a pythonic range of
+    # indices that possibly have been modified (modified = the strand object
+    # present at that idx has changed, not that an attribute of the strand
+    # object present at that idx has changed. For the latter, you have to look
+    # for signals emitted by the strand itself.)
+    #       indicesModifiedSignal = pyQtSignal(int, int)  # inherited
     logger = None
-
     def __init__(self, parentVHelix=None):
-        QObject.__init__(self)
         RangeSet.__init__(self)
         if parentVHelix != None:
             self._setVHelix(parentVHelix)
@@ -47,6 +51,7 @@ class VStrand(QObject, RangeSet):
         self.preserveLeftOligoDuringSplit = True
         # VFB = Visual FeedBack
         self.strandsWithActiveVfb = set()
+        self.indicesModifiedSignal.connect(self.logIndicesModified)
 
     def __repr__(self):
         accesorToGetSelfFromvHelix = "????"
@@ -56,6 +61,11 @@ class VStrand(QObject, RangeSet):
 
     def __call__(self, idx):
         return VBase(self, idx)
+
+    def logIndicesModified(self, rangeModified):
+        if self.logger != None:
+            self.logger.write( "%s.indicesModifiedSignal.emit(%s)\n"%\
+                                      (self, rangeModified)            )
 
     ####################### Public Read API #######################
     # Useful inherited methods:
@@ -325,13 +335,14 @@ class VStrand(QObject, RangeSet):
         return rangeItemA.mergeWith(rangeItemB, undoStack)
 
     def changeRangeForItem(self, rangeItem, newStartIdx, newAfterLastIdx, undoStack):
+        oldStartIdx, oldAfterLastIdx = rangeItem.idxs()
         return rangeItem.changeRange(newStartIdx, newAfterLastIdx - 1, undoStack)
 
-    def splitRangeItem(self, rangeItem, splitStart, splitAfterLast, keepLeft, undoStack):
-        return rangeItem.split(splitStart,\
-                               splitAfterLast,\
-                               keepLeft,\
-                               undoStack)
+    def splitRangeItem(self, strand, splitStart, splitAfterLast, keepLeft, undoStack):
+        return strand.split(splitStart,\
+                            splitAfterLast,\
+                            keepLeft,\
+                            undoStack)
 
     def willRemoveRangeItem(self, strand):
         strand.willBeRemoved.emit(strand)
@@ -340,6 +351,7 @@ class VStrand(QObject, RangeSet):
                                                    repr(strand)))
 
     def didInsertRangeItem(self, strand):
+        RangeSet.didInsertRangeItem(self, strand)
         self.didAddStrand.emit(strand)
         if strand.logger != None:
             strand.logger.write("+%i.insert() %s\n"%(strand.traceID,\
