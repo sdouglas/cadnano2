@@ -164,7 +164,12 @@ class VirtualHelix(QObject):
         else:
             raise IndexError("%s is not Scaffold=%s or Staple=%s" % \
                          (strandType, StrandType.Scaffold, StrandType.Staple))
-
+                         
+    def vStrandScaf(self):
+        return self.vScaf
+    def vStrandStap(self):
+        return self.vStap
+             
     ######################################################################
     ######################## End New Model Quarantine ####################
     ######################################################################

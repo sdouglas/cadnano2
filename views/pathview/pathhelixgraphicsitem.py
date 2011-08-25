@@ -33,7 +33,9 @@ from model.virtualhelix import VirtualHelix
 from weakref import ref
 from handles.pathhelixhandle import PathHelixHandle
 from handles.loopgraphicsitem import LoopGraphicsItem
-from handles.precrossoverhandle import PreCrossoverHandle
+# from handles.precrossoverhandle import PreCrossoverHandle
+from handles.prexoveritem import PreXoverItem
+
 from math import floor, pi, ceil
 from cadnano import app
 from itertools import product
@@ -364,32 +366,30 @@ class PathHelix(QGraphicsPathItem):
     def setPreXOverHandlesVisible(self, shouldBeVisible):
         areVisible = self._preXOverHandles != None
         if areVisible and not shouldBeVisible:
-            
+
             # for pch in self._preXOverHandles:
             #     if pch.scene():
             #         pch.scene().removeItem(pch)
             map(lambda pch: pch.remove() if pch.scene() else None, self._preXOverHandles)
             # map(lambda pch: pch.scene().removeItem(pch) if pch.scene() else None, self._preXOverHandles)
-            
+
             self._preXOverHandles = None
             self.vhelix().part().virtualHelixAtCoordsChanged.disconnect(\
                                                    self.updatePreXOverHandles)
         elif not areVisible and shouldBeVisible:
             self._preXOverHandles = []
             for strandType, facingRight in \
-              product((StrandType.Scaffold, StrandType.Staple), (True, False)):
+                    product(('vStrandScaf', 'vStrandStap'), (True, False)):
                 # Get potential crossovers in [neighborVirtualHelix, index] format
-                potentialXOvers = self.vhelix().potentialCrossoverList(facingRight, strandType)
+                potentialXOvers = getattr(self.vhelix(),strandType)().potentialCrossoverList(facingRight)
                 numBases = self.vhelix().numBases()
-                assert(all(index < numBases for neighborVH, index in potentialXOvers))
-                
-                for (neighborVH, fromIdx) in potentialXOvers:
-                    pch = PreCrossoverHandle(self, strandType, fromIdx,\
-                                             neighborVH, fromIdx,\
-                                             not facingRight)
+                # assert(all(index < numBases for neighborVH, index in potentialXOvers))
+
+                for (fromVBase, toVBase) in potentialXOvers:
+                    pch = PreXoverItem(self, fromVBase, toVBase, not facingRight)
                     self._preXOverHandles.append(pch)
                 # end for
-                                             
+
             self.vhelix().part().virtualHelixAtCoordsChanged.connect(self.updatePreXOverHandles)
         self._XOverCacheEnvironment = (self.vhelix().neighbors(), self.vhelix().numBases())
 
