@@ -162,8 +162,8 @@ class VStrand(RangeSet):
         return ''.join(strs)
 
     def strandsNearVBase(self, vbase):
-        if isinstance(idx, VBase):
-            idx = vbase.vIndex
+        if isinstance(vbase, VBase):
+            idx = vbase.vIndex()
         elif isinstance(idx, (int, long)):
             pass
         else:
@@ -337,8 +337,9 @@ class VStrand(RangeSet):
 
     def canMergeTouchingRangeItems(self, rangeItemA, rangeItemB):
         return rangeItemA.canMergeWithTouchingStrand(rangeItemB)
-         
+
     def mergeRangeItems(self, rangeItemA, rangeItemB, undoStack):
+        print "in VSTRAND mergeRangeItems"
         return rangeItemA.mergeWith(rangeItemB, undoStack)
 
     def changeRangeForItem(self, rangeItem, newStartIdx, newAfterLastIdx, undoStack):

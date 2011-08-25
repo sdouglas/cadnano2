@@ -92,6 +92,7 @@ class NormalStrand(Strand):
         """ We already have that the ranges for self and other could merge. """
         return isinstance(other, NormalStrand) and\
                self.vBaseL.vStrand() == other.vStrand()
+
     def mergeWith(self, other, undoStack):
         """ self retains its identity (oligo, color, oligo's sequence, etc) in
         this merge """
@@ -101,6 +102,7 @@ class NormalStrand(Strand):
         else:
             com.redo()
         return self
+
     class MergeCommand(QUndoCommand):
         def __init__(self, strand, otherStrand):
             QUndoCommand.__init__(self)
