@@ -50,8 +50,11 @@ class Base(object):
         self._strandtype = strandtype
         self._n = index
         self._floatingXoverDestination = None
-        self._shouldHighlight = True
         self._sequence = " "
+        if self._strandtype == StrandType.Staple:
+            self._shouldHighlight = True
+        else:
+            self._shouldHighlight = False
 
     def __str__(self):
         fiveTo3 = self._vhelix.directionOfStrandIs5to3(self._strandtype)
@@ -131,7 +134,7 @@ class Base(object):
     
     def sequence(self):
         """
-        Returns the single character sequence for the receiver (loops,
+        Returns the single character sequence for the receiver (inserts,
         skips just show up as spaces).
         This is the base that should be drawn below the segment if there
         is one.
@@ -141,18 +144,18 @@ class Base(object):
         empty = not (self._hasNeighbor3p() or self._hasNeighbor5p())
         if empty:
             return (" ", "")
-        hasSkip = self._vhelix.hasLoopOrSkipAt(self._strandtype, self._n)
+        hasSkip = self._vhelix.hasInsertOrSkipAt(self._strandtype, self._n)
         if hasSkip == -1:  # -1 actually means true
             return (" ", " ")
         elif len(self._sequence) > 1:
-            return (self._sequence[0], self.sequenceOfLoop())
+            return (self._sequence[0], self.sequenceOfInsert())
         else:
             return (self._sequence, "")
     # end def
 
     def lazy_sequence(self):
         """
-        Returns the single character sequence for the receiver (loops,
+        Returns the single character sequence for the receiver (inserts,
         skips just show up as spaces).
         This is the base that should be drawn below the segment if there
         is one.
@@ -169,30 +172,30 @@ class Base(object):
             return (" ", "")
     # end def
 
-    def sequenceOfLoop(self):
+    def sequenceOfInsert(self):
         """
         This sequence is always returned 5->3 (the first character represents
         the base that exposes the 5' end while the last char exposes its 3' end).
 
-        sequenceOfLoop()[0] is displayed on the strand and sequenceOfLoop()[1:]
-        are displayed on the loop.
+        sequenceOfInsert()[0] is displayed on the strand and sequenceOfInsert()[1:]
+        are displayed on the insert.
         """
-        actualLoopLength = self._vhelix._loop(self._strandtype).get(self._n)
-        if len(self._sequence) - 1 != actualLoopLength:
-            # print "Loop had seq %s, should have been len %i"%(self._sequence,actualLoopLength)
-            return " "*actualLoopLength
+        actualInsertLength = self._vhelix._insert(self._strandtype).get(self._n)
+        if len(self._sequence) - 1 != actualInsertLength:
+            # print "Insert had seq %s, should have been len %i"%(self._sequence,actualInsertLength)
+            return " "*actualInsertLength
         return self._sequence[1:]
         
-    def lazy_sequenceOfLoop(self):
+    def lazy_sequenceOfInsert(self):
         """
         This sequence is always returned 5->3 (the first character represents
         the base that exposes the 5' end while the last char exposes its 3' end).
 
-        sequenceOfLoop()[0] is displayed on the strand and sequenceOfLoop()[1:]
-        are displayed on the loop.
+        sequenceOfInsert()[0] is displayed on the strand and sequenceOfInsert()[1:]
+        are displayed on the insert.
         """
         baseComplement =  self._vhelix._strand(StrandType.Scaffold)[self._n]
-        return util.rcomp(baseComplement.sequenceOfLoop())
+        return util.rcomp(baseComplement.sequenceOfInsert())
 
     def __repr__(self):
         if self._3pBase:
@@ -270,9 +273,9 @@ class Base(object):
         part = self._vhelix.part()
         if part:
             self.isXoverCreated5p([self])
-            part.basesModified.add(self)
-            part.basesModified.add(toOld3)
-            part.basesModified.add(fromOld5)
+            part.modifiedBaseSet.add(self)
+            part.modifiedBaseSet.add(toOld3)
+            part.modifiedBaseSet.add(fromOld5)
         return (fromOld5, toOld3)
 
     def _unset5Prime(self, toBase, fromOld5, toOld3):
@@ -289,9 +292,9 @@ class Base(object):
         part = self._vhelix.part()
         if part:
             self.isXoverCreated5p([fromOld5, toOld3])
-            part.basesModified.add(self)
-            part.basesModified.add(toOld3)
-            part.basesModified.add(fromOld5)
+            part.modifiedBaseSet.add(self)
+            part.modifiedBaseSet.add(toOld3)
+            part.modifiedBaseSet.add(fromOld5)
         self._vhelix.setHasBeenModified()
 
     def _set3Prime(self, toBase):
@@ -317,9 +320,9 @@ class Base(object):
         part = self._vhelix.part()
         if part:
             self.isXoverCreated3p([self])
-            part.basesModified.add(self)
-            part.basesModified.add(toOld5)
-            part.basesModified.add(fromOld3)
+            part.modifiedBaseSet.add(self)
+            part.modifiedBaseSet.add(toOld5)
+            part.modifiedBaseSet.add(fromOld3)
         self._vhelix.setHasBeenModified()
         return (fromOld3, toOld5)
 
@@ -337,9 +340,9 @@ class Base(object):
         part = self._vhelix.part()
         if part:
             self.isXoverCreated3p([toOld5,fromOld3])
-            part.basesModified.add(self)
-            part.basesModified.add(toOld5)
-            part.basesModified.add(fromOld3)
+            part.modifiedBaseSet.add(self)
+            part.modifiedBaseSet.add(toOld5)
+            part.modifiedBaseSet.add(fromOld3)
         self._vhelix.setHasBeenModified()
     # end def
     

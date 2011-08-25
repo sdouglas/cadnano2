@@ -64,9 +64,11 @@ class Document(QObject):
         recalculate the staple lengths and redraw them to avoid unwanted
         highlighting.
         """
-        if self._importedFromJson == False:
-            for part in self._parts:
+        for part in self._parts:
+            if self._importedFromJson == False:
                 part.updateAcyclicLengths()
+            for vh in part.getVirtualHelices():
+                self._controller.pathHelixGroup.vhelixBasesModified(vh)
 
     def addDnaHoneycombPart(self):
         """

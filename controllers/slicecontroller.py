@@ -42,27 +42,16 @@ class SliceController(QObject):
         super(SliceController, self).__init__()
         self.mainWindow = win
         self.testRecorder = None
-        win.actionSliceSelect.triggered.connect(self.chooseSelectTool)
-        # win.actionSliceMove.triggered.connect(self.chooseMoveTool)
         win.actionSliceFirst.triggered.connect(self.sliceFirstClicked)
         win.actionSliceLast.triggered.connect(self.sliceLastClicked)
         win.actionRenumber.triggered.connect(self.renumberClicked)
 
-        self.toolset =[win.actionSliceSelect]  # win.actionSliceMove
+        self.toolset = []  # win.actionSliceMove
         ag = QActionGroup(win)
         for a in self.toolset:
             ag.addAction(a)
         ag.setExclusive(True)
         self.currentTool = None
-        self.chooseSelectTool()
-
-    def chooseSelectTool(self):
-        widget = self.mainWindow.actionSliceSelect
-        if self.currentTool is widget:
-            return
-        else:
-            self.currentTool = widget
-        widget.setChecked(True)
 
     # def chooseMoveTool(self):
     #     widget = self.mainWindow.actionSliceMove

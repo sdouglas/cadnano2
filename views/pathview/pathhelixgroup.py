@@ -34,10 +34,9 @@ from handles.activeslicehandle import ActiveSliceHandle
 from handles.pathhelixhandle import PathHelixHandle
 from handles.pathhelixhandle import PathHelixHandle
 from handles.crossoverhandle import XoverHandlePair
-
+from handles.inserthandle import InsertHandleGroup
 from model.enum import EndType, LatticeType, StrandType
 
-# from .pathhelix import PathHelix
 from .pathhelixgraphicsitem import PathHelix
 
 from .pathselection import SelectionItemGroup
@@ -273,14 +272,14 @@ class PathHelixGroup(QGraphicsObject):
         for ph in self._pathHelixes:
             vhbm = getattr(ph, 'vhelixBasesModifiedCallbackObj', None)
             if vhbm:
-                ph.vhelix().basesModified.disconnect(vhbm)
+                ph.vhelix().basesModifiedSignal.disconnect(vhbm)
         for ph in newList:
             def vhbmCallbackCreator(self, vh):
                 def vhbmCallback():
                     self.vhelixBasesModified(vh)
                 return vhbmCallback
             vhbm = vhbmCallbackCreator(self, ph.vhelix())
-            ph.vhelix().basesModified.connect(vhbm)
+            ph.vhelix().basesModifiedSignal.connect(vhbm)
         self._pathHelixes = newList
         for ph in self._pathHelixes:
             ph.positionInPhgChanged()

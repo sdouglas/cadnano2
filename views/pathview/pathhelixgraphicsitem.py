@@ -32,7 +32,6 @@ from model.enum import EndType, LatticeType, StrandType
 from model.virtualhelix import VirtualHelix
 from weakref import ref
 from handles.pathhelixhandle import PathHelixHandle
-from handles.loophandle import LoopItem, SkipItem
 from handles.loopgraphicsitem import LoopGraphicsItem
 from handles.precrossoverhandle import PreCrossoverHandle
 from math import floor, pi, ceil
@@ -200,14 +199,14 @@ class PathHelix(QGraphicsPathItem):
     def setVHelix(self, newVH):
         vh = self._vhelix
         if vh:
-            vh.basesModified.disconnect(self.vhelixBasesModified)
+            vh.basesModifiedSignal.disconnect(self.vhelixBasesModified)
             vh.vhelixDimensionsModified.disconnect(\
                                              self.vhelixDimensionsModified)
             vh.scaf().didAddStrand.disconnect(self.strandAddedToVStrand)
             vh.stap().didAddStrand.disconnect(self.strandAddedToVStrand)
         self._vhelix = newVH
-        newVH.basesModified.connect(self.vhelixBasesModified)
-        newVH.dimensionsModified.connect(self.vhelixDimensionsModified)
+        newVH.basesModifiedSignal.connect(self.vhelixBasesModified)
+        newVH.dimensionsModifiedSignal.connect(self.vhelixDimensionsModified)
         newVH.scaf().didAddStrand.connect(self.strandAddedToVStrand)
         newVH.stap().didAddStrand.connect(self.strandAddedToVStrand)
         self.vhelixDimensionsModified()

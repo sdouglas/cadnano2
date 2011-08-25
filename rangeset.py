@@ -398,6 +398,27 @@ class RangeSet(object):
         if undoStack != None:
             undoStack.endMacro()
 
+    def rangesNearIdx(self, idx):
+        """ Returns a tuple of range items relative to the range item at idx
+        (rangeItemBeforeIdx, rangeItemAtIdx, rangeItemAfterIdx)
+        where rangeItem{Before,After}Idx is None if the range at idx is
+        the first or last range, respectively. rangeItemAtIdx can be None."""
+        rangeItemIdx = self._idxOfRangeContaining(idx,\
+                                         returnTupledIdxOfNextRangeOnFail=True)
+        ranges = self.ranges
+        if isinstance(rangeItemIdx, (int, long)):
+            rangeItemAtIdx = ranges[rangeItemIdx]
+            lIdx = rangeItemIdx - 1
+            rIdx = rangeItemIdx + 1
+        else:
+            rangeItemAtIdx = None
+            rangeItemIdx = rangeItemIdx[0]
+            lIdx = rangeItemIdx - 1
+            rIdx = rangeItemIdx
+        rangeItemAfterIdx = ranges[rIdx] if rIdx < len(ranges) else None
+        rangeItemBeforeIdx = ranges[lIdx] if lIdx >= 0 else None
+        return (rangeItemBeforeIdx, rangeItemAtIdx, rangeItemAfterIdx)
+
     ################################ Private Write API #########################
     def beginCommand(self, useUndoStack, undoStack, commandDescription):
         """Called as a prefix to every public mutation method. Ensures uniform

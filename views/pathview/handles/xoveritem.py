@@ -89,6 +89,12 @@ class XoverItem(QGraphicsPathItem):
         strand3.willBeRemoved.connect(self.strandWillBeRemoved)
         self.strandDidMove()
 
+    def conn3Changed(self):
+        pass
+
+    def conn5Changed(self):
+        pass
+
     def strandWillBeRemoved(self):
         self.hide()
         # self.scene().removeItem(self)

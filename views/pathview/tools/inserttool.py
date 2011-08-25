@@ -22,7 +22,7 @@
 #
 # http://www.opensource.org/licenses/mit-license.php
 """
-looptool.py
+inserttool.py
 Created by Nick on 2011-05-03.
 """
 from exceptions import AttributeError, NotImplementedError
@@ -40,7 +40,7 @@ util.qtWrapImport('QtGui', globals(), [ 'QGraphicsItem', 'QBrush', 'QFont',
                                         'QGraphicsSimpleTextItem', 'QPen',\
                                         'QPainterPath'])
 
-class LoopTool(AbstractPathTool):
+class InsertTool(AbstractPathTool):
     baseWidth = styles.PATH_BASE_WIDTH
     _boundingRect = loopgraphicsitem.loopPathUpBR
     _boundingRect = _boundingRect.united(loopgraphicsitem.loopPathDownBR)
@@ -50,7 +50,7 @@ class LoopTool(AbstractPathTool):
         This class inherits from the PathTool class for the majority of
         methods/behaviours.  Essentially it adds merely decorator graphics
         custimazation of behaviour and data structure access particular to
-        loop insertion on a mouseclick.
+        insert addition on a mouseclick.
 
         Its parent should be *always* be a PathHelix.
         """
