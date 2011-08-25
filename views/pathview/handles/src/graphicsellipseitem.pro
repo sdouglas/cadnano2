@@ -10,3 +10,4 @@ INCLUDEPATH += .
 # Input
 HEADERS += graphicsellipseitem.h
 SOURCES += graphicsellipseitem.cpp
+CONFIG += x86_64 x86
