@@ -165,9 +165,7 @@ class SelectTool(AbstractPathTool):
         self.normalStrandToInsert = NormalStrand(VBase(vstr, idx),\
                                                  VBase(vstr, idx + 1))
         vstr.part().addVfbStrands([vstr])
-
         ph.makeSelfActiveHelix()
-
 
     def finalizeMouseDrag(self):
         if self.normalStrandToInsert == None:

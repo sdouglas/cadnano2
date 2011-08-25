@@ -30,6 +30,7 @@ from views.pathview.tools.penciltool import PencilTool
 from views.pathview.tools.inserttool import InsertTool
 from views.pathview.tools.newpenciltool import NewPencilTool
 from views.pathview.tools.selecttool import SelectTool
+from views.pathview.tools.newselecttool import NewSelectTool
 from views.pathview.tools.skiptool import SkipTool
 from views.pathview.tools.addseqtool import AddSeqTool
 import util
@@ -54,7 +55,8 @@ class PathController(QObject):
         self.testRecorder = None
         self._activeTool = None
         self._activePath = None
-        self.selectTool = SelectTool(self)
+        # self.selectTool = SelectTool(self)
+        self.selectTool = NewSelectTool(self)
         self.breakTool = BreakTool(self)
         self.eraseTool = EraseTool(self)
         self.insertTool = InsertTool(self)

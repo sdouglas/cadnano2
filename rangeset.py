@@ -209,7 +209,7 @@ class RangeSet(object):
         Returns weather or not the receiver contains all i st
         rangeStart <= i < afterRangeEnd
         """
-        idxRange = self._idxRangeOfRangesIntersectingRange(rangeStart, rangeEnd)
+        idxRange = self._idxRangeOfRangesTouchingRange(rangeStart, rangeEnd)
         previousLastIdx = None
         for i in range(*idxRange):
             l, r = self.idxs(self.ranges[i])
@@ -222,11 +222,11 @@ class RangeSet(object):
         return True
 
     def containsAnyInRange(rangeStart, rangeEnd):
-        idxRange = self._idxRangeOfRangesIntersectingRange(rangeStart, rangeEnd)
+        idxRange = self._idxRangeOfRangesTouchingRange(rangeStart, rangeEnd)
         return idxRange[1] - idxRange[0] > 0
 
-    def rangeItemsIntersectingRange(self, rangeStart, rangeEnd):
-        rangeItemIndexRange = self._idxRangeOfRangesIntersectingRange(rangeStart, rangeEnd)
+    def rangeItemsTouchingRange(self, rangeStart, rangeEnd):
+        rangeItemIndexRange = self._idxRangeOfRangesTouchingRange(rangeStart, rangeEnd)
         return self.ranges[rangeItemIndexRange[0]:rangeItemIndexRange[1]]
 
     def __iter__(self):
@@ -242,40 +242,43 @@ class RangeSet(object):
         self.idxs(rangeItem) does not overlap any other rangeItem in the receiver
         (this is enforced by deleting or truncating any rangeItems in the way)
         and tries to merge the newly inserted rangeItem with its neighbors.
+
+        Note: "touching" ranges intersect or are adjacent to rangeItem.
         """
         if rangeItem == (-25, -16, 14):
             for j in range(8, 14):
                 print "self.ranges[%i]: %s"%(j, str(self.ranges[j]))
         firstIndex, afterLastIndex = self.idxs(rangeItem)
+
         if firstIndex >= afterLastIndex:
             return
         oldBounds = self.bounds()
         undoStack = self.beginCommand(useUndoStack,\
                                       undoStack,\
                                       'RangeSet.addRange')
-        intersectingIdxRange = self._idxRangeOfRangesIntersectingRange(firstIndex - 1,
+        touchingIdxRange = self._idxRangeOfRangesTouchingRange(firstIndex - 1,
                                                                        afterLastIndex + 1)
-        # (first Index (into self.ranges) of an Intersecting Range)
-        firstIIR, afterLastIIR = intersectingIdxRange
-        if afterLastIIR == firstIIR:
+        # (first Index (into self.ranges) of an Touching Range)
+        firstTIR, afterLastTIR = touchingIdxRange
+        if afterLastTIR == firstTIR:
             com = self.ReplaceRangeItemsCommand(self,\
-                                                firstIIR,\
-                                                firstIIR,\
+                                                firstTIR,\
+                                                firstTIR,\
                                                 (rangeItem,),\
                                                 suppressCallsItem)
             self.endCommand(undoStack, com)
             return
         replacementRanges = [rangeItem]
-        # First Intersecting Range {Left idx, After right idx, MetaData}
-        firstIR = self.ranges[firstIIR]
+        # First Touching Range {Left idx, After right idx, MetaData}
+        firstIR = self.ranges[firstTIR]
         firstIRL, firstIRAr = self.idxs(firstIR)
-        lastIR = self.ranges[afterLastIIR - 1]
+        lastIR = self.ranges[afterLastTIR - 1]
         lastIRL, lastIRAr = self.idxs(lastIR)
         if firstIR == lastIR\
            and firstIRL < firstIndex\
            and lastIRAr > afterLastIndex:
             #           [AddRange---------------------)
-            #    [OnlyIntersectingRange--------------------)
+            #    [OnlyTouchingRange--------------------)
             if self.canMergeRangeItems(firstIR, rangeItem):
                 newItem = self.mergeRangeItems(firstIR,\
                                                rangeItem,\
@@ -290,7 +293,7 @@ class RangeSet(object):
                 replacementRanges = [splitEnds[0], rangeItem, splitEnds[1]]
         elif firstIRL < firstIndex:
             #           [AddRange---------------------)
-            #       [FirstIntersectingExistingRange) ...
+            #       [FirstTouchingExistingRange) ...
             if self.canMergeRangeItems(firstIR, rangeItem):
                 newItem = self.mergeRangeItems(firstIR,\
                                                rangeItem,\
@@ -304,9 +307,11 @@ class RangeSet(object):
                 replacementRanges = [newItem, rangeItem]
             else:
                 replacementRanges = [firstIR, rangeItem]
+                if lastIR != firstIR:
+                    replacementRanges.append(lastIR)
         elif lastIRAr > afterLastIndex:
             #           [AddRange---------------------)
-            #              ... [LastIntersectingExistingRange)
+            #              ... [LastTouchingExistingRange)
             if self.canMergeRangeItems(rangeItem, lastIR):
                 oldLastReplacementItem = replacementRanges.pop()
                 newItem = self.mergeRangeItems(oldLastReplacementItem,\
@@ -322,8 +327,8 @@ class RangeSet(object):
             else:
                 replacementRanges = [rangeItem, lastIR]
         com = self.ReplaceRangeItemsCommand(self,\
-                                            firstIIR,\
-                                            afterLastIIR,\
+                                            firstTIR,\
+                                            afterLastTIR,\
                                             replacementRanges,\
                                             suppressCallsItem)
         self.endCommand(undoStack, com)
@@ -335,15 +340,15 @@ class RangeSet(object):
         undoStack = self.beginCommand(useUndoStack,\
                                       undoStack,\
                                       'RangeSet.removeRange')
-        intersectingIdxRange = self._idxRangeOfRangesIntersectingRange(firstIndex,
+        touchingIdxRange = self._idxRangeOfRangesTouchingRange(firstIndex,
                                                                        afterLastIndex)
         replacementRanges = []
-        # (first Index (into self.ranges) of an Intersecting Range)
-        firstIIR, afterLastIIR = intersectingIdxRange
-        # print "\tRangeRange: %s[%i:%i]"%(self.ranges, firstIIR, afterLastIIR)
-        if afterLastIIR == firstIIR:
+        # (first Index (into self.ranges) of an Touching Range)
+        firstTIR, afterLastTIR = touchingIdxRange
+        # print "\tRangeRange: %s[%i:%i]"%(self.ranges, firstTIR, afterLastTIR)
+        if afterLastTIR == firstTIR:
             return
-        firstIR = self.ranges[firstIIR]
+        firstIR = self.ranges[firstTIR]
         firstIRL, firstIRAr = self.idxs(firstIR)
         if firstIRL < firstIndex:
             if firstIRAr > afterLastIndex:
@@ -358,7 +363,7 @@ class RangeSet(object):
                                                   firstIndex,\
                                                   undoStack)
                 replacementRanges.append(newItem)
-        lastIR = self.ranges[afterLastIIR - 1]
+        lastIR = self.ranges[afterLastTIR - 1]
         lastIRL, lastIRAr = self.idxs(lastIR)
         if lastIRAr > afterLastIndex and lastIRL >= firstIndex:
             newItem = self.changeRangeForItem(lastIR,\
@@ -367,8 +372,8 @@ class RangeSet(object):
                                               undoStack)
             replacementRanges.append(newItem)
         com = self.ReplaceRangeItemsCommand(self,\
-                                            firstIIR,\
-                                            afterLastIIR,\
+                                            firstTIR,\
+                                            afterLastTIR,\
                                             replacementRanges,\
                                             suppressCallsItem)
         self.endCommand(undoStack, com)
@@ -376,7 +381,7 @@ class RangeSet(object):
     def resizeRangeAtIdx(self, idx, newFirstIndex, newAfterLastIdx, useUndoStack=True, undoStack=None):
         """
         Finds the largest contiguous range of indices in the receiver that includes
-        idx and changes it 
+        idx and changes it.
         """
         assert(isinstance(idx, (int, long)))
         undoStack = self.beginCommand(useUndoStack,\
@@ -551,7 +556,7 @@ class RangeSet(object):
             return (m,)
         return None
 
-    def _idxRangeOfRangesIntersectingRange(self, rangeStart, rangeEnd):
+    def _idxRangeOfRangesTouchingRange(self, rangeStart, rangeEnd):
         """
         Returns a range (first, afterLast) of indices into self.ranges,
         where the range represented by each index intersects [rangeStart,rangeEnd)
@@ -563,14 +568,14 @@ class RangeSet(object):
         lenRanges = len(self.ranges)
         if not isinstance(idx, (int, long)):
             # idx is a tuple containing an integer indexing in ranges
-            # to the first range intersecting [rangeStart, infinity)
+            # to the first range touching [rangeStart, infinity)
             # or len(ranges)+1 because one couldn't be found
             assert(isinstance(idx, (list, tuple)))
             idx = idx[0]
         if idx >= lenRanges:
             return [lenRanges, lenRanges]  # Empty range
         # idx now refers to the location in self.ranges of the first
-        # range intersecting [rangeStart, infinity)
+        # range touching [rangeStart, infinity)
         lastIdx = idx
         while True:
             if lastIdx >= lenRanges:
@@ -598,7 +603,7 @@ class RangeSet(object):
             return (len(self.ranges),)
         return None
 
-    def _slowIdxRangeOfRangesIntersectingRange(self, rangeStart, rangeEnd):
+    def _slowIdxRangeOfRangesTouchingRange(self, rangeStart, rangeEnd):
         if rangeStart >= rangeEnd:
             return [0,0]
         firstIdx = None

@@ -230,10 +230,10 @@ class VStrand(QObject, RangeSet):
             return
         elif firstIdx < lastIdx:
             lIdx, rIdx = firstIdx, lastIdx
-            leftHasPrivelage = True
+            leftHasPrivilege = True
         elif lastIdx < firstIdx:
             lIdx, rIdx = lastIdx, firstIdx
-            leftHasPrivelage = False
+            leftHasPrivilege = False
 
         lStrand = self.get(lIdx)
         rStrand = self.get(rIdx)
@@ -241,7 +241,7 @@ class VStrand(QObject, RangeSet):
         rIsEnd = 'L' in VBase(self, rIdx).exposedEnds()
         lIsNormalStrand = isinstance(lStrand, NormalStrand)
         rIsNormalStrand = isinstance(rStrand, NormalStrand)
-        if leftHasPrivelage:
+        if leftHasPrivilege:
             if self.logger: self.logger.write('\tleftPrivelage>')
             if lStrand == rStrand != None:
                 if self.logger: self.logger.write('0drag\n')
@@ -272,7 +272,7 @@ class VStrand(QObject, RangeSet):
                 if self.logger: self.logger.write('catchall\n')
                 newStrand = NormalStrand(VBase(self, lIdx), VBase(self, rIdx))
                 self.addStrand(newStrand)
-        elif not leftHasPrivelage:
+        elif not leftHasPrivilege:
             if self.logger: self.logger.write('\trightPrivelage>')
             if lStrand == rStrand != None:
                 if self.logger: self.logger.write('0drag\n')
@@ -303,7 +303,7 @@ class VStrand(QObject, RangeSet):
                 if self.logger: self.logger.write('catchall\n')
                 newStrand = NormalStrand(VBase(self, lIdx), VBase(self, rIdx))
                 self.addStrand(newStrand, useUndoStack=useUndoStack, undoStack=undoStack)
-        # End if leftHasPrivelage
+        # End if leftHasPrivilege
         if self.logger:
             self.logger.write('\t%s\n'%self.newStringRep())
         if undoStack:

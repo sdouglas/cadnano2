@@ -28,32 +28,38 @@ from model.normalstrand import NormalStrand
 from operation import Operation
 from model.vbase import VBase
 
-class PencilToolOperation(Operation):
+class SelectToolOperation(Operation):
     """
     Handles interactive strand creation / destruction in the manner of the
-    Pencil Tool.
+    SelectTool.
     """
-    imposeDragBounds = True
     logger = None
+    imposeDragBounds = True
 
     def __init__(self, startVBase, undoStack):
-        """ Begin a session of pencil-tool interaction """
+        """ Begin a session of select-tool interaction """
         Operation.__init__(self, undoStack)
         self.newStrand = NormalStrand(startVBase, startVBase)
+        self.newVStrand = self.newStrand.vStrand()
         self.startVBase = startVBase
         self.lastDestVBase = startVBase
         self.newStrandInVfbPool = False
         if self.imposeDragBounds:  # calculate drag boundaries
             self.dragBoundL, self.dragBoundR = 0, startVBase.part().dimensions()[2]-1
+            strandBeforeIdx, strandAtIdx, strandAfterIdx = \
+                            self.newVStrand.strandsNearIdx(self.startVBase.vIndex)
+            if strandBeforeIdx != None:
+                self.dragBoundL = strandBeforeIdx.idxs()[1]
+            if strandAfterIdx != None:
+                self.dragBoundR = strandAfterIdx.idxs()[0]-1
         self.updateDestination(startVBase)
-        if self.logger:
-            self.logger.write('PencilToolOperation.init(%s)\n'%startVBase)
+        if self.logger: self.logger.write('SelectToolOperation.init(%s)\n'%startVBase)
 
     def updateDestination(self, newDestVBase):
         """ Looks at self.startVBase and newDestVBase then calls the appropriate
         actionWhatever method on self. """
         if isinstance(newDestVBase, (int, long)):
-            newDestVBase = VBase(self.startVBase.vStrand(), newDestVBase)
+            newDestVBase = VBase(self.startVBase.vStrand, newDestVBase)
         if newDestVBase == self.lastDestVBase:
             return
         else:
@@ -62,12 +68,12 @@ class PencilToolOperation(Operation):
         dragStartBase, dragEndBase = self.startVBase, newDestVBase
         dragStartExposedEnds = dragStartBase.exposedEnds()
         dragStartStrand = dragStartBase.strand()
-        # dragEndExposedEnds = dragEndBase.exposedEnds()
         dragEndStrand = dragEndBase.strand()
-        startIdx, endIdx = dragStartBase.vIndex(), dragEndBase.vIndex()
-        vStrand = dragStartBase.vStrand()
+        startIdx, endIdx = dragStartBase.vIndex, dragEndBase.vIndex
+        vStrand = dragStartBase.vStrand
 
         if not isinstance(newDestVBase, VBase):
+            print "not instance VBase"
             return
 
         if self.imposeDragBounds:
@@ -98,18 +104,6 @@ class PencilToolOperation(Operation):
                                     useUndoStack=True, undoStack=self.undoStack)
             else:
                 pass  # Click on an endpoint
-        elif dragStartStrand != None:
-            if endIdx < startIdx:
-                # Dragging left inside a strand
-                vStrand.clearStrand(endIdx + 1, startIdx,\
-                     useUndoStack=True, undoStack=self.undoStack, keepLeft=True)
-            elif startIdx < endIdx:
-                # Dragging right inside a strand
-                vStrand.clearStrand(startIdx, endIdx,\
-                    useUndoStack=True, undoStack=self.undoStack, keepLeft=False)
-            else: # Click inside a strand
-                vStrand.clearStrand(startIdx, startIdx,\
-                    useUndoStack=True, undoStack=self.undoStack, keepLeft=False)
         else:
             vStrand.connectStrand(startIdx, endIdx,\
                                   useUndoStack=True, undoStack=self.undoStack)
@@ -118,22 +112,22 @@ class PencilToolOperation(Operation):
         """ Make the changes displayed by the last call to
         updateDestination permanent """
         if self.logger:
-            self.logger.write('PencilToolOperation.end\n')
+            self.logger.write('SelectToolOperation.end\n')
         del self.newStrand
         del self.startVBase
         del self.newStrandInVfbPool
 
     def actionNone(self):
         if self.logger:
-            self.logger.write('PencilToolOperation.actionNone\n')
+            self.logger.write('SelectToolOperation.actionNone\n')
 
     def actionAddStrand(self, lConnection, startBase, endBase, rConnection):
         if self.logger:
-            self.logger.write('PencilToolOperation.actionAddStrand\n')
+            self.logger.write('SelectToolOperation.actionAddStrand\n')
         newStrand, undoStack = self.newStrand, self.undoStack
         undoStack.beginMacro('actionAddStrand')
         newStrand.changeRange(startBase, endBase, undoStack)
-        startBase.vStrand().addStrand(newStrand, useUndoStack=True, undoStack=undoStack)
+        startBase.vStrand.addStrand(newStrand, useUndoStack=True, undoStack=undoStack)
         newStrand.setConnL(lConnection, useUndoStack=True, undoStack=undoStack)
         newStrand.setConnR(rConnection, useUndoStack=True, undoStack=undoStack)
         undoStack.endMacro()
@@ -142,18 +136,18 @@ class PencilToolOperation(Operation):
         """ Just connect the right exposed end of lStrand to the left exposed
         end of rStrand """
         if self.logger:
-            self.logger.write('PencilToolOperation.actionJustConnect\n')
+            self.logger.write('SelectToolOperation.actionJustConnect\n')
         lStrand.setConnR(rStrand, useUndoStack=True, undoStack=self.undoStack)
 
     def actionResizeStrand(self, strand, newL, newR):
         if self.logger:
-            self.logger.write('PencilToolOperation.actionResizeStrand\n')
-        newL.vStrand().resizeStrandAt(strand.vBaseL, newL, newR, useUndoStack=True, undoStack=self.undoStack)
+            self.logger.write('SelectToolOperation.actionResizeStrand\n')
+        newL.vStrand.resizeStrandAt(strand.vBaseL, newL, newR, useUndoStack=True, undoStack=self.undoStack)
 
     def actionClearRange(self, firstIdx, afterLastIdx, keepLeft=True):
         if self.logger:
-            self.logger.write('PencilToolOperation.actionClearRange\n')
-        self.startVBase.vStrand().clearRange(firstIdx,\
+            self.logger.write('SelectToolOperation.actionClearRange\n')
+        self.startVBase.vStrand.clearRange(firstIdx,\
                                            afterLastIdx,\
                                            useUndoStack=True,\
                                            undoStack=self.undoStack,\
