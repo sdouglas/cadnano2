@@ -161,7 +161,13 @@ class VStrand(RangeSet):
             prevStrand, curStrand = curStrand, nextStrand
         return ''.join(strs)
 
-    def strandsNearIdx(self, idx):
+    def strandsNearVBase(self, vbase):
+        if isinstance(idx, VBase):
+            idx = vbase.vIndex
+        elif isinstance(idx, (int, long)):
+            pass
+        else:
+            assert(False)
         return self.rangesNearIdx(idx)
 
     ####################### Public Write API #######################
