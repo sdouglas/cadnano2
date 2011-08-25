@@ -150,6 +150,9 @@ class VStrand(QObject, RangeSet):
             prevStrand, curStrand = curStrand, nextStrand
         return ''.join(strs)
 
+    def strandsNearIdx(self, idx):
+        return self.rangesNearIdx(idx)
+
     ####################### Public Write API #######################
 
     def addStrand(self, strand, useUndoStack=True, undoStack=None):
