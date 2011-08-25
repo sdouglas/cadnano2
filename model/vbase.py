@@ -79,6 +79,9 @@ class VBase(object):
     def part(self):
         return self.vStrand.vHelix.part()
 
+    def undoStack(self):
+        return self.vStrand.undoStack()
+
     def vComplement(self):
         """
         Base on the same vHelix at the same vIndex but opposite strand.

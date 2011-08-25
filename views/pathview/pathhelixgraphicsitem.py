@@ -33,6 +33,7 @@ from model.virtualhelix import VirtualHelix
 from weakref import ref
 from handles.pathhelixhandle import PathHelixHandle
 from handles.loophandle import LoopItem, SkipItem
+from handles.loopgraphicsitem import LoopGraphicsItem
 from handles.precrossoverhandle import PreCrossoverHandle
 from math import floor, pi, ceil
 from cadnano import app
@@ -43,6 +44,7 @@ from views.pathview.normalstrandgraphicsitem import NormalStrandGraphicsItem
 from model.xoverstrand import XOverStrand3, XOverStrand5
 from views.pathview.handles.xoveritem import XoverItem
 from model.normalstrand import NormalStrand
+from model.loopstrand import LoopStrand
 
 import util
 # import Qt stuff into the module namespace with PySide, PyQt4 independence
@@ -239,6 +241,8 @@ class PathHelix(QGraphicsPathItem):
                 XoverItem(self.pathHelixGroup(), strand)
         elif isinstance(strand, XOverStrand5):
             pass
+        elif isinstance(strand, LoopStrand):
+            LoopGraphicsItem(strand, self)
         else:
             raise NotImplementedError
 
@@ -340,16 +344,19 @@ class PathHelix(QGraphicsPathItem):
             else:     return VBase(self.vhelix().scaf(), idx)
 
     def pointForVBase(self, vBase):
+        x = self.baseWidth * vBase.vIndex
+        y = self.baseWidth * int(not self.vBaseIsTop(vBase))
+        return QPointF(x, y)
+
+    def vBaseIsTop(self, vBase):
         vh = self.vhelix()
         scaf, stap = vh.scaf(), vh.stap()
-        x = self.baseWidth * vBase.vIndex
         if vBase.vStrand == scaf:
-            y = 0 if self.evenParity() else self.baseWidth
+            return True if self.evenParity() else False
         elif vBase.vStrand == stap:
-            y = self.baseWidth if self.evenParity() else 0
+            return False if self.evenParity() else True
         else:
-            assert(False)  # This PathHelix doesn't know about vBase
-        return QPointF(x, y)
+            assert(False)  # vBase is not on this strand's vhelix!
 
     ################# Crossover Handles #################
     def preXOverHandlesVisible(self):

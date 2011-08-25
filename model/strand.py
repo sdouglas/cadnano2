@@ -23,6 +23,7 @@
 # http://www.opensource.org/licenses/mit-license.php
 
 import util, sys
+from views import styles
 util.qtWrapImport('QtCore', globals(), ['QObject', 'pyqtSignal'] )
 util.qtWrapImport('QtGui', globals(), ['QUndoCommand', 'QColor'] )
 nextStrandDebugIdentifier = 0
@@ -353,6 +354,8 @@ class Strand(QObject):
         self.apparentConnectivityChanged.emit(self)
 
     def color(self):
+        if self.vStrand().isScaf():
+            return styles.scafstroke
         return QColor()
 
     def shouldHighlight(self):

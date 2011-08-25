@@ -23,6 +23,7 @@
 # http://www.opensource.org/licenses/mit-license.php
 
 import util, sys
+from model.strand import Strand
 util.qtWrapImport('QtCore', globals(), ['QObject', 'pyqtSignal'] )
 util.qtWrapImport('QtGui', globals(), ['QUndoCommand'] )
 nextStrandDebugIdentifier = 0
@@ -34,18 +35,21 @@ class LoopStrand(Strand):
     a single virtual base they bulge outwards, forming a loop.
     """
     logger = None
+    numBasesChanged = pyqtSignal(object)  # emitter passes self as the object
     def __init__(self, vBase, numberOfActualBases):
-        NormalStrand.__init__(self)
+        Strand.__init__(self)
         self._vBase = vBase
-        self.numBases = numberOfActualBases
+        self._numBases = numberOfActualBases
     def assertConsistent(self):
         Strand.assertConsistent(self)
     def __repr__(self):
         return "LoopStrand(%s, %i)"%(self.vBase, self.numBases)
-    def numBases(self): return self.numBases
     def vBase(self):    return self._vBase
     def vBaseL(self):   return self._vBase
     def vBaseR(self):   return self._vBase + 1
+    def idxs(self):
+        idx = self._vBase.vIndex
+        return (idx, idx + 1)
 
     def setVBase(self, newVBase, undoStack):
         com = SetVBaseCommand(self, newVBase)
@@ -63,6 +67,29 @@ class LoopStrand(Strand):
         def undo(self):
             self.strand.vBase = self.oldVBase
 
+    def numBases(self):
+        return self._numBases
+    def setNumBases(self, newNumBases, useUndoStack=True, undoStack=None):
+        if useUndoStack == True and undoStack == None:
+            undoStack = self.vBase().undoStack()
+            com = self.SetNumBasesCommand(self, newNumBases)
+        if useUndoStack:
+            undoStack.push(com)
+        else:
+            com.redo()
+    class SetNumBasesCommand(QUndoCommand):
+        def __init__(self, strand, newNumBases):
+            QUndoCommand.__init__(self)
+            self.oldNumBases = strand._numBases
+            self.newNumBases = newNumBases
+            self.strand = strand
+        def redo(self):
+            self.strand._numBases = self.newNumBases
+            self.strand.numBasesChanged.emit(self.strand)
+        def undo(self):
+            self.strand._numBases = self.oldNumBases
+            self.strand.numBasesChanged.emit(self.strand)
+
     def vStrand(self):
         return self.vBase().vStrand
 
@@ -72,9 +99,9 @@ class LoopStrand(Strand):
         'R', '3', and '5' where each character is present if the corresponding
         end is exposed
         """
-        drawn5To3 = vStrand.drawn5To3()
         ret = ''
         if vBase == self.vBase():
+            drawn5To3 = vBase.vStrand.drawn5To3()
             if self.connL == None: ret += 'L5' if drawn5To3 else 'L3'
             if self.connR == None: ret += 'R3' if drawn5To3 else 'R5'
         return ret
