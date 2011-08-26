@@ -145,11 +145,6 @@ class SliceHelix(QGraphicsItem):
         return self.rect
 
     ############################ User Interaction ############################
-    def mouseDoubleClickEvent(self, event):
-        self.createOrAddBasesToVirtualHelix(\
-            addBases=True,\
-            addToScaffold=event.modifiers() & Qt.ShiftModifier > 0)
-
     def sceneEvent(self, event):
         """Included for unit testing in order to grab events that are sent
         via QGraphicsScene.sendEvent()."""
@@ -209,73 +204,51 @@ class SliceHelix(QGraphicsItem):
         callable function."""
         vh = self.virtualHelix()
         if vh == None: return SliceHelix.addVHIfMissing
-        index = self.part().activeSlice()
+        idx = self.part().activeSlice()
         if modifiers & Qt.ShiftModifier:
-            if not vh.hasStrandAt(StrandType.Staple, index):
+            if vh.stap().get(idx) == None:
                 return SliceHelix.addStapAtActiveSliceIfMissing
             else:
                 return SliceHelix.nop
-        if not vh.hasStrandAt(StrandType.Scaffold, index):
+        if vh.scaf().get(idx) == None:
             return SliceHelix.addScafAtActiveSliceIfMissing
         return SliceHelix.nop
 
     def nop(self):
         pass
+
     def addScafAtActiveSliceIfMissing(self):
         vh = self.virtualHelix()
         if vh == None: return
-        index = self.part().activeSlice()
-        if vh.hasStrandAt(StrandType.Scaffold, index): return
-        vh.connectStrand(StrandType.Scaffold, index - 1, index + 1)
+        idx = self.part().activeSlice()
+        startIdx = max(0,idx-1)
+        endIdx = min(idx+1,self.part().dimensions()[2]-1)
+        undoStack = self.part().undoStack()
+        vh.scaf().connectStrand(startIdx, endIdx,\
+                                useUndoStack=True, undoStack=undoStack)
+
     def addStapAtActiveSliceIfMissing(self):
         vh = self.virtualHelix()
         if vh == None: return
-        index = self.part().activeSlice()
-        if vh.hasStrandAt(StrandType.Staple, index): return
-        vh.connectStrand(StrandType.Staple, index - 1, index + 1)
+        idx = self.part().activeSlice()
+        if vh.scaf().get(idx) != None: return
+        startIdx = max(0,idx-1)
+        endIdx = min(idx+1,self.part().dimensions()[2]-1)
+        vh.stap().connectStrand(startIdx, endIdx,\
+                                useUndoStack=True, undoStack=undoStack)
+
     def addVHIfMissing(self):
         vh = self.virtualHelix()
         if vh != None: return
         coord = (self._row, self._col)
-        index = self.part().activeSlice()
+        idx = self.part().activeSlice()
         undoStack = self.part().undoStack()
         undoStack.beginMacro("Add VH")
         vh = VirtualHelix(numBases=self.part().crossSectionStep())
         self.part().addVirtualHelixAt(coord, vh)
-        vh.connectStrand(StrandType.Scaffold, index - 1, index + 1)
+        startIdx = max(0,idx-1)
+        endIdx = min(idx+1,self.part().dimensions()[2]-1)
+        vh.scaf().connectStrand(startIdx, endIdx,\
+                                useUndoStack=True, undoStack=undoStack)
         undoStack.endMacro()
         vh.basesModifiedSignal.connect(self.update)
-
-    def createOrAddBasesToVirtualHelix(self, addBases=False,\
-                                       addToScaffold=False, isPress=True):
-        coord = (self._row, self._col)
-        vh = self.virtualHelix()
-        index = self.part().activeSlice()
-        undoStack = self.part().undoStack()
-        shouldCreateVH = vh == None
-        if vh != None:
-            hasScaf = vh.hasStrandAt(StrandType.Scaffold, index)
-            shouldConnectScaf = addBases and addToScaffold and not hasScaf
-            hasStap = vh.hasStrandAt(StrandType.Staple, index)
-            shouldConnectStap = addBases and not addBases and not hasStap
-        else:
-            shouldConnectStap = shouldConnectScaf = False
-        if isPress: self.lastMousePressAddedBases = False
-        if shouldCreateVH:
-            undoStack.beginMacro("Add helix")
-            vh = VirtualHelix(numBases=self.part().crossSectionStep())
-            self.part().addVirtualHelixAt(coord, vh)
-            vh.basesModifiedSignal.connect(self.update)
-            if len(self.part()) <= 5:
-                self.part().needsFittingToView.emit()
-            undoStack.endMacro()
-        elif shouldConnectScaf:
-            undoStack.beginMacro("Connect segment")
-            vh.connectStrand(StrandType.Scaffold, index - 1, index + 1)
-            undoStack.endMacro()
-            if isPress: self.lastMousePressAddedBases = True
-        elif shouldConnectStap:
-            undoStack.beginMacro("Connect segment")
-            vh.connectStrand(StrandType.Staple, index - 1, index + 1)
-            undoStack.endMacro()
-            if isPress: self.lastMousePressAddedBases = True
