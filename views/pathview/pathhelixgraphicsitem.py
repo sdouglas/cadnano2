@@ -149,8 +149,7 @@ class PathHelix(QGraphicsPathItem):
         
         self._scafXoverHandles = []
         self._stapXoverHandles = []
-        self._preXOverHandles = None
-        self._XOverCacheEnvironment = None
+
         self.step = vhelix.part().crossSectionStep()
         self.setZValue(styles.ZPATHHELIX)
         self._vhelix = None
@@ -162,7 +161,7 @@ class PathHelix(QGraphicsPathItem):
         self.removeBasesButton.clicked.connect(self.removeBasesClicked)
         self.setVHelix(vhelix)
         self.setFlag(QGraphicsItem.ItemUsesExtendedStyleOption)
-        self.setPreXOverHandlesVisible(False)
+
         self.setCacheMode(QGraphicsItem.DeviceCoordinateCache)
         if app().ph != None:  # Convenience for the command line -i mode
             app().ph[vhelix.number()] = self
@@ -360,55 +359,6 @@ class PathHelix(QGraphicsPathItem):
             assert(False)  # vBase is not on this strand's vhelix!
 
     ################# Crossover Handles #################
-    def preXOverHandlesVisible(self):
-        return self._preXOverHandles != None
-
-    def setPreXOverHandlesVisible(self, shouldBeVisible):
-        areVisible = self._preXOverHandles != None
-        vh = self.vhelix()
-        isActiveHelix = self.isActiveHelix(self)
-        activeHelix = self._pathHelixGroup.getActiveHelix()
-        if activeHelix != None:
-            activeNum = activeHelix.number()
-
-        if areVisible and not shouldBeVisible and not isActiveHelix:
-
-            # for pch in self._preXOverHandles:
-            #     if pch.scene():
-            #         pch.scene().removeItem(pch)
-            map(lambda pch: pch.remove() if pch.scene() else None, self._preXOverHandles)
-            # map(lambda pch: pch.scene().removeItem(pch) if pch.scene() else None, self._preXOverHandles)
-
-            self._preXOverHandles = None
-            vh.part().virtualHelixAtCoordsChanged.disconnect(\
-                                                   self.updatePreXOverHandles)
-        elif not areVisible and shouldBeVisible:
-            self._preXOverHandles = []
-            for strandType, facingRight in \
-                    product(('vStrandScaf', 'vStrandStap'), (True, False)):
-                # Get potential crossovers in [neighborVirtualHelix, index] format
-                potentialXOvers = vh.potentialCrossoverList(facingRight, getattr(vh,strandType)())
-                numBases = vh.numBases()
-                # assert(all(index < numBases for neighborVH, index in potentialXOvers))
-
-                for (fromVBase, toVBase) in potentialXOvers:
-                    if isActiveHelix or \
-                        activeNum == toVBase.vHelix().number() or \
-                        activeNum == fromVBase.vHelix().number():
-                        pch = PreXoverItem(self, fromVBase, toVBase, not facingRight)
-                        self._preXOverHandles.append(pch)
-                # end for
-
-            self.vhelix().part().virtualHelixAtCoordsChanged.connect(self.updatePreXOverHandles)
-        self._XOverCacheEnvironment = (self.vhelix().neighbors(), self.vhelix().numBases())
-
-    def updatePreXOverHandles(self):
-        cacheConstructionEnvironment = self._XOverCacheEnvironment
-        currentEnvironment = (self.vhelix().neighbors(), self.vhelix().numBases())
-        if cacheConstructionEnvironment != currentEnvironment and\
-           self.preXOverHandlesVisible():
-            self.setPreXOverHandlesVisible(False)
-            self.setPreXOverHandlesVisible(True)
 
     def isActiveHelix(self, ph):
         return self._pathHelixGroup.getActiveHelix() == ph

@@ -116,7 +116,7 @@ class PreXoverItem(QGraphicsPathItem):
         self.updateVisibilityAndEnabledness()
     # end def
     
-    def undostack(self):
+    def undoStack(self):
         return self.pathhelix.vhelix().undoStack()
     # end def
     
@@ -126,7 +126,7 @@ class PreXoverItem(QGraphicsPathItem):
     # end def
     
     def phg(self):
-        return self._pathhelixgroup
+        return self.pathhelix.pathHelixGroup()
 
     def onTopStrand(self):
         vstrand = self.fromVBase.vStrand()
@@ -188,6 +188,6 @@ class PreXoverItem(QGraphicsPathItem):
             fromVB, toVB = toVB, fromVB
             endToTakeColorFrom = 5
         # Create XoverHandlePair and store references
-        fto = ForceToolOperaton(fromVBase, self.undoStack()), 
-        fto.updateFloatingDestination(toVBase)
+        fto = ForceToolOperation(fromVB, self.undoStack())
+        fto.updateFloatingDestination(self.phg().pointForVBase(toVB))
         fto.end()

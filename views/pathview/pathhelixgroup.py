@@ -37,6 +37,9 @@ from handles.crossoverhandle import XoverHandlePair
 from handles.inserthandle import InsertHandleGroup
 from model.enum import EndType, LatticeType, StrandType
 
+from itertools import product
+from handles.prexoveritem import PreXoverItem
+
 from .pathhelixgraphicsitem import PathHelix
 
 from .pathselection import SelectionItemGroup
@@ -101,12 +104,16 @@ class PathHelixGroup(QGraphicsObject):
         self.floatingXover = XoverHandlePair(self, None, None)
         self.xovers = {}
         
+        self._preXOverHandles = None
+        self._XOverCacheEnvironment = None
+        
         self.setZValue(styles.ZPATHHELIXGROUP)
         self.selectionLock = None
         self.setAcceptHoverEvents(True)
         app().phg = self  # Convenience for the command line -i mode
         self._part.partRemoved.connect(self.destroy)  # connect destructor
         self.dragging = False
+    # end def
 
     def destroy(self):
         self._part.partRemoved.disconnect(self.destroy)
@@ -126,12 +133,90 @@ class PathHelixGroup(QGraphicsObject):
     def getActiveHelix(self):
         return self.activeHelix
 
+    # def setActiveHelix(self, newActivePH):
+    #     self.activeHelix = newActivePH
+    #     neighborVHs = newActivePH.vhelix().neighbors()
+    #     for ph in self._pathHelixes:
+    #         showHandles = ph==newActivePH# or ph.vhelix() in neighborVHs
+    #         ph.setPreXOverHandlesVisible(showHandles)
+    # # end def
+    
     def setActiveHelix(self, newActivePH):
         self.activeHelix = newActivePH
-        neighborVHs = newActivePH.vhelix().neighbors()
-        for ph in self._pathHelixes:
-            showHandles = ph==newActivePH or ph.vhelix() in neighborVHs
-            ph.setPreXOverHandlesVisible(showHandles)
+        self.setPreXOverHandlesVisible(newActivePH, True)
+    # end def
+    
+    def preXOverHandlesVisible(self):
+        return self._preXOverHandles != None
+    # end def
+    
+    def setPreXOverHandlesVisible(self, ph, shouldBeVisible):
+        """
+        self._preXoverHandles list references prexovers parented to other
+        PathHelices such that only the activeHelix maintains the list of
+        visible prexovers
+        
+        A possible more efficient solution is to maintain the list _preXoverHandles
+        in pathhelixgroup, in fact this method should live in pathhelixgroup
+        """
+        if ph == None:
+            return
+        # end if
+        areVisible = self._preXOverHandles != None
+        vh = ph.vhelix()
+        phg = self
+        part = self.part()
+        
+        # clear PCHs
+        # for pch in self._preXOverHandles:
+        #     if pch.scene():
+        #         pch.scene().removeItem(pch)
+        if areVisible:
+            map(lambda pch: pch.remove() if pch.scene() else None, self._preXOverHandles)
+
+            self._preXOverHandles = None
+            part.virtualHelixAtCoordsChanged.disconnect(\
+                                                   self.updatePreXOverHandles)
+
+        if shouldBeVisible:
+            self._preXOverHandles = []
+            for strandType, facingRight in \
+                    product(('vStrandScaf', 'vStrandStap'), (True, False)):
+                # Get potential crossovers in (fromVBase, toVBase) format
+                potentialXOvers = vh.potentialCrossoverList(facingRight, getattr(vh,strandType)())
+                numBases = vh.numBases()
+                # assert(all(index < numBases for neighborVH, index in potentialXOvers))
+                
+                for (fromVBase, toVBase) in potentialXOvers:
+                    # create one half
+                    pch = PreXoverItem(ph, fromVBase, toVBase, not facingRight)
+                    # add to list
+                    self._preXOverHandles.append(pch)
+                    # create the complement
+                    otherPH = phg.pathHelixForVHelix(toVBase.vHelix())
+                    pch = PreXoverItem(otherPH, toVBase, fromVBase, not facingRight)
+                    # add to list
+                    self._preXOverHandles.append(pch)
+                # end for
+            # end for
+            part.virtualHelixAtCoordsChanged.connect(self.updatePreXOverHandles)
+        self._XOverCacheEnvironment = (vh.neighbors(), vh.numBases())
+    # end def
+
+    def updatePreXOverHandles(self):
+        cacheConstructionEnvironment = self._XOverCacheEnvironment
+        ph = self.getActiveHelix()
+        if ph == None:
+            return
+        vh = ph.vhelix()
+        
+        currentEnvironment = (vh.neighbors(), vh.numBases())
+        if cacheConstructionEnvironment != currentEnvironment and\
+           self.preXOverHandlesVisible():
+            self.setPreXOverHandlesVisible(ph, False)
+            self.setPreXOverHandlesVisible(ph, True)
+    # end def
+
 
     def setPart(self, newPart):
         if self._part:
@@ -177,6 +262,7 @@ class PathHelixGroup(QGraphicsObject):
             if p.boundingRect().contains(pt):
                 return p
         return None
+    # end def
 
     def vBaseAtPoint(self, pos):
         ph = self.pathHelixAtScenePos(pos)
@@ -261,7 +347,7 @@ class PathHelixGroup(QGraphicsObject):
             leftmostExtent = min(leftmostExtent, -2 * phhr.width())
             rightmostExtent = max(rightmostExtent, ph.boundingRect().width())
             y += step
-            ph.updatePreXOverHandles()
+            self.updatePreXOverHandles()
         # end for
         self.prepareGeometryChange()
         self.rect = QRectF(leftmostExtent,\
