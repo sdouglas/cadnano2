@@ -53,7 +53,7 @@ class VirtualHelix(QObject):
     prohibitSingleBaseCrossovers = True
     if os.environ.get('CADNANO_NO_THOUGHTPOLICE', False) and not ignoreEnv():
         prohibitSingleBaseCrossovers = False
-    
+
     basesModifiedSignal = pyqtSignal()
     dimensionsModifiedSignal = pyqtSignal()
 
@@ -164,13 +164,13 @@ class VirtualHelix(QObject):
         else:
             raise IndexError("%s is not Scaffold=%s or Staple=%s" % \
                          (strandType, StrandType.Scaffold, StrandType.Staple))
-                         
+
     def vStrandScaf(self):
         return self.vScaf
-    
+
     def vStrandStap(self):
         return self.vStap
-             
+
     ######################################################################
     ######################## End New Model Quarantine ####################
     ######################################################################
@@ -217,10 +217,16 @@ class VirtualHelix(QObject):
         return 'vh%i' % self.number()
 
     def __repr__(self):
-        scaf = '%-2iScaffold: ' % self.number() + \
-                            ' '.join((str(b) for b in self._scaffoldBases))
-        stap = '%-2iStaple:   ' % self.number() + \
-                                ' '.join((str(b) for b in self._stapleBases))
+        """
+        Returns ASCII representation of the contents of this virtualhelix,
+        connected to the updated model.
+        """
+        # scaf = '%-2iScaffold: ' % self.number() + \
+        #                     ' '.join((str(b) for b in self._scaffoldBases))
+        # stap = '%-2iStaple:   ' % self.number() + \
+        #                         ' '.join((str(b) for b in self._stapleBases))
+        scaf = '%-2iScaffold: ' % self.number() + self.scaf().model1String()
+        stap = '%-2iStaple:   ' % self.number() + self.stap().model1String()
         return scaf + '\n' + stap
 
     def part(self):
