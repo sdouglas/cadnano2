@@ -108,11 +108,8 @@ class RangeSet(QObject):
         here onto undoStack (iff undoStack is not None). It can also just return
         an entirely new object in which case undo will be handled automatically.
         """
-        print "in mergeRangeItems!"
         al, ar = self.idxs(rangeItemA)
-        print "here"
         bl, br = self.idxs(rangeItemB)
-        print "mergeRangeItems", al,ar,bl,br, (min(al, bl), max(ar, br), rangeItemB[2])
         return (min(al, bl), max(ar, br), rangeItemB[2])
 
     def changeRangeForItem(self, rangeItem, newStartIdx, newAfterLastIdx, undoStack):
@@ -222,7 +219,7 @@ class RangeSet(QObject):
         Returns weather or not the receiver contains all i st
         rangeStart <= i < afterRangeEnd
         """
-        idxRange = self._idxRangeOfRangesTouchingRange(rangeStart, rangeEnd)
+        idxRange = self._idxRangeOfRangesIntersectingRange(rangeStart, rangeEnd)
         previousLastIdx = None
         for i in range(*idxRange):
             l, r = self.idxs(self.ranges[i])
@@ -235,11 +232,11 @@ class RangeSet(QObject):
         return True
 
     def containsAnyInRange(rangeStart, rangeEnd):
-        idxRange = self._idxRangeOfRangesTouchingRange(rangeStart, rangeEnd)
+        idxRange = self._idxRangeOfRangesIntersectingRange(rangeStart, rangeEnd)
         return idxRange[1] - idxRange[0] > 0
 
     def rangeItemsTouchingRange(self, rangeStart, rangeEnd):
-        rangeItemIndexRange = self._idxRangeOfRangesTouchingRange(rangeStart, rangeEnd)
+        rangeItemIndexRange = self._idxRangeOfRangesIntersectingRange(rangeStart, rangeEnd)
         return self.ranges[rangeItemIndexRange[0]:rangeItemIndexRange[1]]
 
     def __iter__(self):
@@ -249,7 +246,7 @@ class RangeSet(QObject):
         return self.ranges.__iter__()
 
     ################################ Public Write API ############################
-    def addRange(self, rangeItem, useUndoStack=True, undoStack=None, suppressCallsItem=None, keepLeft=True):
+    def addRange(self, rangeItemToInsert, useUndoStack=True, undoStack=None, suppressCallsItem=None, keepLeft=True):
         """
         Adds rangeItem to the receiver, ensuring that the range given by
         self.idxs(rangeItem) does not overlap any other rangeItem in the receiver
@@ -258,10 +255,9 @@ class RangeSet(QObject):
 
         Note: "touching" ranges intersect or are adjacent to rangeItem.
         """
-        if rangeItem == (-25, -16, 14):
-            for j in range(8, 14):
-                print "self.ranges[%i]: %s"%(j, str(self.ranges[j]))
-        firstIndex, afterLastIndex = self.idxs(rangeItem)
+        # print "\tadd: %s"%rangeItemToInsert
+        # print "\tstart: " + str(self.ranges)
+        firstIndex, afterLastIndex = self.idxs(rangeItemToInsert)
 
         if firstIndex >= afterLastIndex:
             return
@@ -269,93 +265,56 @@ class RangeSet(QObject):
         undoStack = self.beginCommand(useUndoStack,\
                                       undoStack,\
                                       'RangeSet.addRange')
-        touchingIdxRange = self._idxRangeOfRangesTouchingRange(firstIndex - 1,
-                                                                       afterLastIndex + 1)
-        # (first Index (into self.ranges) of an Touching Range)
-        firstTIR, afterLastTIR = touchingIdxRange
-        if afterLastTIR == firstTIR:
-            com = self.ReplaceRangeItemsCommand(self,\
-                                                firstTIR,\
-                                                firstTIR,\
-                                                (rangeItem,),\
-                                                suppressCallsItem)
-            self.endCommand(undoStack, com)
-            return
-        replacementRanges = [rangeItem]
-        # First Touching Range {Left idx, After right idx, MetaData}
-        firstIR = self.ranges[firstTIR]
-        firstIRL, firstIRAr = self.idxs(firstIR)
-        lastIR = self.ranges[afterLastTIR - 1]
-        lastIRL, lastIRAr = self.idxs(lastIR)
-        if firstIR == lastIR\
-           and firstIRL < firstIndex\
-           and lastIRAr > afterLastIndex:
-            #           [AddRange---------------------)
-            #    [OnlyTouchingRange--------------------)
-            print "A"
-            if self.canMergeRangeItems(firstIR, rangeItem):
-                newItem = self.mergeRangeItems(firstIR,\
-                                               rangeItem,\
-                                               undoStack)
-                replacementRanges = [newItem, rangeItem]
+        # middleRangeItemIdx: the index into self.ranges that one would insert a
+        # range item if one wished to insert the range item into the space
+        # celared by this removeRange command
+        middleRangeItemIdx =  self.removeRange(firstIndex, afterLastIndex,\
+                                               useUndoStack, undoStack,\
+                                               suppressCallsItem, keepLeft)
+
+        if middleRangeItemIdx > 0:
+            leftRangeItemIdx = middleRangeItemIdx - 1
+            leftRangeItem = self.ranges[leftRangeItemIdx]
+            if self.canMergeRangeItems(leftRangeItem, rangeItemToInsert):
+                # print "\t\tA"
+                mergedRangeItm = self.mergeRangeItems(leftRangeItem,\
+                                                     rangeItemToInsert,\
+                                                     undoStack)
+                firstReplacedRangeItemIdx = leftRangeItemIdx
+                itemToInsert = mergedRangeItm
             else:
-                splitEnds = self.splitRangeItem(firstIR,\
-                                                firstIndex,\
-                                                afterLastIndex,\
-                                                keepLeft,\
-                                                undoStack)
-                replacementRanges = [splitEnds[0], rangeItem, splitEnds[1]]
-        elif firstIRL < firstIndex:
-            #           [AddRange---------------------)
-            #       [FirstTouchingExistingRange) ...
-            print "B"
-            if self.canMergeRangeItems(firstIR, rangeItem):
-                print "1"
-                print "about to call mergeRangeItems"
-                print "firstIR", firstIR
-                print "rangeItem", rangeItem
-                newItem = self.mergeRangeItems(firstIR,\
-                                               rangeItem,\
-                                               undoStack)
-                print "after calling mergeRangeItems"
-                print "newItem is:", newItem
-                replacementRanges = [newItem]
-            elif firstIRAr != firstIndex:
-                print "2"
-                newItem = self.changeRangeForItem(firstIR,\
-                                                  firstIRL,\
-                                                  firstIndex,\
-                                                  undoStack)
-                replacementRanges = [newItem, rangeItem]
+                # print "\t\tB"
+                firstReplacedRangeItemIdx = middleRangeItemIdx
+                itemToInsert = rangeItemToInsert
+        else:
+            # print "\t\tC"
+            firstReplacedRangeItemIdx = 0
+            itemToInsert = rangeItemToInsert
+
+        if middleRangeItemIdx < len(self.ranges):
+            # The range that will be to the right of the inserted range
+            # because the range to be inserted hasn't been inserted yet
+            rightRangeItm = self.ranges[middleRangeItemIdx]
+            if self.canMergeRangeItems(itemToInsert, rightRangeItm):
+                mergedRangeItm = self.mergeRangeItems(itemToInsert,\
+                                                     rightRangeItm,\
+                                                     undoStack)
+                afterLastReplacedRangeItemIdx = middleRangeItemIdx + 1
+                itemToInsert = mergedRangeItm
+                # print "\t\tD"
             else:
-                print "3"
-                replacementRanges = [firstIR, rangeItem]
-                if lastIR != firstIR:
-                    replacementRanges.append(lastIR)
-        elif lastIRAr > afterLastIndex:
-            #           [AddRange---------------------)
-            #              ... [LastTouchingExistingRange)
-            print "C"
-            if self.canMergeRangeItems(rangeItem, lastIR):
-                oldLastReplacementItem = replacementRanges.pop()
-                newItem = self.mergeRangeItems(oldLastReplacementItem,\
-                                               lastIR,\
-                                               undoStack)
-                replacementRanges.append(newItem)
-            elif afterLastIndex != lastIRL:
-                newItem = self.changeRangeForItem(lastIR,\
-                                                  afterLastIndex,\
-                                                  lastIRAr,\
-                                                  undoStack)
-                replacementRanges.append(newItem)
-            else:
-                replacementRanges = [rangeItem, lastIR]
+                afterLastReplacedRangeItemIdx = middleRangeItemIdx
+                # print "\t\tE"
+        else:
+            afterLastReplacedRangeItemIdx = middleRangeItemIdx
+            # print "\t\tF"
         com = self.ReplaceRangeItemsCommand(self,\
-                                            firstTIR,\
-                                            afterLastTIR,\
-                                            replacementRanges,\
+                                            firstReplacedRangeItemIdx,\
+                                            afterLastReplacedRangeItemIdx,\
+                                            [itemToInsert],\
                                             suppressCallsItem)
         self.endCommand(undoStack, com)
+        # print "\tend: " + str(self.ranges)
 
     def removeRange(self, firstIndex, afterLastIndex, useUndoStack=True, undoStack=None, suppressCallsItem=None, keepLeft=True):
         if firstIndex >= afterLastIndex:
@@ -364,15 +323,16 @@ class RangeSet(QObject):
         undoStack = self.beginCommand(useUndoStack,\
                                       undoStack,\
                                       'RangeSet.removeRange')
-        touchingIdxRange = self._idxRangeOfRangesTouchingRange(firstIndex,
+        intersectingIdxRange = self._idxRangeOfRangesIntersectingRange(firstIndex,
                                                                        afterLastIndex)
         replacementRanges = []
         # (first Index (into self.ranges) of an Touching Range)
-        firstTIR, afterLastTIR = touchingIdxRange
-        # print "\tRangeRange: %s[%i:%i]"%(self.ranges, firstTIR, afterLastTIR)
-        if afterLastTIR == firstTIR:
-            return
-        firstIR = self.ranges[firstTIR]
+        firstIIR, afterLastIIR = intersectingIdxRange
+        # print "\tRangeRange: %s[%i:%i]"%(self.ranges, firstIIR, afterLastIIR)
+        if afterLastIIR == firstIIR:
+            if useUndoStack: undoStack.endMacro()
+            return firstIIR
+        firstIR = self.ranges[firstIIR]
         firstIRL, firstIRAr = self.idxs(firstIR)
         if firstIRL < firstIndex:
             if firstIRAr > afterLastIndex:
@@ -387,7 +347,11 @@ class RangeSet(QObject):
                                                   firstIndex,\
                                                   undoStack)
                 replacementRanges.append(newItem)
-        lastIR = self.ranges[afterLastTIR - 1]
+        # middleIdx: the index into self.ranges that one would insert a
+        # range item if one wished to insert the range item into the space
+        # celared by this removeRange command
+        middleIdx = firstIIR + len(replacementRanges)
+        lastIR = self.ranges[afterLastIIR - 1]
         lastIRL, lastIRAr = self.idxs(lastIR)
         if lastIRAr > afterLastIndex and lastIRL >= firstIndex:
             newItem = self.changeRangeForItem(lastIR,\
@@ -396,11 +360,12 @@ class RangeSet(QObject):
                                               undoStack)
             replacementRanges.append(newItem)
         com = self.ReplaceRangeItemsCommand(self,\
-                                            firstTIR,\
-                                            afterLastTIR,\
+                                            firstIIR,\
+                                            afterLastIIR,\
                                             replacementRanges,\
                                             suppressCallsItem)
         self.endCommand(undoStack, com)
+        return middleIdx
 
     def resizeRangeAtIdx(self, idx, newFirstIndex, newAfterLastIdx, useUndoStack=True, undoStack=None):
         """
@@ -611,10 +576,11 @@ class RangeSet(QObject):
             return (m,)
         return None
 
-    def _idxRangeOfRangesTouchingRange(self, rangeStart, rangeEnd):
+    def _idxRangeOfRangesIntersectingRange(self, rangeStart, rangeEnd):
         """
         Returns a range (first, afterLast) of indices into self.ranges,
-        where the range represented by each index touches [rangeStart,rangeEnd)
+        where the range represented by each index intersects [rangeStart,rangeEnd)
+        or is adjacent to [rangeStart, rangeEnd)
         """
         if rangeStart >= rangeEnd:
             return [0, 0]  # Empty range
@@ -630,7 +596,7 @@ class RangeSet(QObject):
         if idx >= lenRanges:
             return [lenRanges, lenRanges]  # Empty range
         # idx now refers to the location in self.ranges of the first
-        # range touching [rangeStart, infinity)
+        # range intersecting [rangeStart, infinity)
         lastIdx = idx
         while True:
             if lastIdx >= lenRanges:
