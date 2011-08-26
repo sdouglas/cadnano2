@@ -35,6 +35,7 @@ class SelectToolOperation(PencilToolOperation):
     """
     def __init__(self, startVBase, undoStack):
         """ Begin a session of select-tool interaction """
+        self.strandBeforeIdx = self.strandAtIdx = self.strandAfterIdx = None
         PencilToolOperation.__init__(self, startVBase, undoStack)
         if self.logger: self.logger.write('SelectToolOperation.init(%s)\n'%startVBase)
 
@@ -50,21 +51,21 @@ class SelectToolOperation(PencilToolOperation):
         self.dragBoundL = 0
         self.dragBoundR = self.startVBase.part().dimensions()[2]-1
         # prevent dragging down to single base strands
-        strandBeforeIdx, strandAtIdx, strandAfterIdx = \
+        self.strandBeforeIdx, self.strandAtIdx, self.strandAfterIdx = \
                         self.startVStrand.strandsNearVBase(self.startVBase)
-        if strandAtIdx != None:
-            if self.startVBase == strandAtIdx.vBaseL:
-                self.dragBoundR = min(strandAtIdx.vBaseR.vIndex()-1,
+        if self.strandAtIdx != None:
+            if self.startVBase == self.strandAtIdx.vBaseL:
+                self.dragBoundR = min(self.strandAtIdx.vBaseR.vIndex()-1,
                                       self.dragBoundR)
-            elif self.startVBase == strandAtIdx.vBaseR:
-                self.dragBoundL = max(strandAtIdx.vBaseL.vIndex()+1,
+            elif self.startVBase == self.strandAtIdx.vBaseR:
+                self.dragBoundL = max(self.strandAtIdx.vBaseL.vIndex()+1,
                                       self.dragBoundL)
         # prevent dragging over neighboring strands
-        if strandBeforeIdx != None:
+        if self.strandBeforeIdx != None:
             self.dragBoundL = max(self.dragBoundL,\
-                                  strandBeforeIdx.idxs()[1])
-        if strandAfterIdx != None:
-            self.dragBoundR = min(strandAfterIdx.idxs()[0]-1,
+                                  self.strandBeforeIdx.idxs()[1])
+        if self.strandAfterIdx != None:
+            self.dragBoundR = min(self.strandAfterIdx.idxs()[0]-1,
                                   self.dragBoundR)
 
     def updateDestination(self, newDestVBase):
@@ -122,16 +123,16 @@ class SelectToolOperation(PencilToolOperation):
     def actionJustConnect(self, vBase):
         """ Just connect the right exposed end of lStrand to the left exposed
         end of rStrand """
-        # ends = vBase.exposedEnds()
-        # idx = vBase.vIndex()
-        # if 'L' in ends:
-        #     if :  # check to the left for touching vBase
-        #     vBase.vStrand().connectStrand(idx, idx-1,\
-        #                           useUndoStack=True, undoStack=self.undoStack)
-        # elif 'R' in ends:
-        #     if :  # check to the right for touching vBase
-        #     vBase.vStrand().connectStrand(idx, idx+1,\
-        #                           useUndoStack=True, undoStack=self.undoStack)
+        ends = vBase.exposedEnds()
+        idx = vBase.vIndex()
+        if 'L' in ends and self.strandBeforeIdx != None:
+            if self.strandBeforeIdx.vBaseR.vIndex() == idx-1:
+                vBase.vStrand().connectStrand(idx, idx-1,\
+                                  useUndoStack=True, undoStack=self.undoStack)
+        elif 'R' in ends and self.strandAfterIdx != None:
+            if self.strandAfterIdx.vBaseL.vIndex() == idx+1:
+                vBase.vStrand().connectStrand(idx, idx+1,\
+                                  useUndoStack=True, undoStack=self.undoStack)
         if self.logger: self.logger.write('SelectToolOperation.actionJustConnect\n')
 
     def actionResizeStrand(self, vBase):
