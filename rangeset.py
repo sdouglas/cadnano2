@@ -108,11 +108,8 @@ class RangeSet(QObject):
         here onto undoStack (iff undoStack is not None). It can also just return
         an entirely new object in which case undo will be handled automatically.
         """
-        print "in mergeRangeItems!"
         al, ar = self.idxs(rangeItemA)
-        print "here"
         bl, br = self.idxs(rangeItemB)
-        print "mergeRangeItems", al,ar,bl,br, (min(al, bl), max(ar, br), rangeItemB[2])
         return (min(al, bl), max(ar, br), rangeItemB[2])
 
     def changeRangeForItem(self, rangeItem, newStartIdx, newAfterLastIdx, undoStack):
@@ -258,8 +255,8 @@ class RangeSet(QObject):
 
         Note: "touching" ranges intersect or are adjacent to rangeItem.
         """
-        print "\tadd: %s"%rangeItemToInsert
-        print "\tstart: " + str(self.ranges)
+        # print "\tadd: %s"%rangeItemToInsert
+        # print "\tstart: " + str(self.ranges)
         firstIndex, afterLastIndex = self.idxs(rangeItemToInsert)
 
         if firstIndex >= afterLastIndex:
@@ -279,18 +276,18 @@ class RangeSet(QObject):
             leftRangeItemIdx = middleRangeItemIdx - 1
             leftRangeItem = self.ranges[leftRangeItemIdx]
             if self.canMergeRangeItems(leftRangeItem, rangeItemToInsert):
-                print "\t\tA"
+                # print "\t\tA"
                 mergedRangeItm = self.mergeRangeItems(leftRangeItem,\
                                                      rangeItemToInsert,\
                                                      undoStack)
                 firstReplacedRangeItemIdx = leftRangeItemIdx
                 itemToInsert = mergedRangeItm
             else:
-                print "\t\tB"
+                # print "\t\tB"
                 firstReplacedRangeItemIdx = middleRangeItemIdx
                 itemToInsert = rangeItemToInsert
         else:
-            print "\t\tC"
+            # print "\t\tC"
             firstReplacedRangeItemIdx = 0
             itemToInsert = rangeItemToInsert
 
@@ -304,20 +301,20 @@ class RangeSet(QObject):
                                                      undoStack)
                 afterLastReplacedRangeItemIdx = middleRangeItemIdx + 1
                 itemToInsert = mergedRangeItm
-                print "\t\tD"
+                # print "\t\tD"
             else:
                 afterLastReplacedRangeItemIdx = middleRangeItemIdx
-                print "\t\tE"
+                # print "\t\tE"
         else:
             afterLastReplacedRangeItemIdx = middleRangeItemIdx
-            print "\t\tF"
+            # print "\t\tF"
         com = self.ReplaceRangeItemsCommand(self,\
                                             firstReplacedRangeItemIdx,\
                                             afterLastReplacedRangeItemIdx,\
                                             [itemToInsert],\
                                             suppressCallsItem)
         self.endCommand(undoStack, com)
-        print "\tend: " + str(self.ranges)
+        # print "\tend: " + str(self.ranges)
 
     def removeRange(self, firstIndex, afterLastIndex, useUndoStack=True, undoStack=None, suppressCallsItem=None, keepLeft=True):
         if firstIndex >= afterLastIndex:

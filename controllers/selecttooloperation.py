@@ -25,39 +25,53 @@
 import util, sys
 util.qtWrapImport('QtCore', globals(), ['QObject'])
 from model.normalstrand import NormalStrand
-from operation import Operation
+from penciltooloperation import PencilToolOperation
 from model.vbase import VBase
 
-class SelectToolOperation(Operation):
+class SelectToolOperation(PencilToolOperation):
     """
     Handles interactive strand creation / destruction in the manner of the
     SelectTool.
     """
-    logger = None
-    imposeDragBounds = True
-
     def __init__(self, startVBase, undoStack):
         """ Begin a session of select-tool interaction """
-        Operation.__init__(self, undoStack)
-        self.newStrand = NormalStrand(startVBase, startVBase)
-        self.newVStrand = self.newStrand.vStrand()
-        self.startVBase = startVBase
-        self.lastDestVBase = startVBase
-        self.newStrandInVfbPool = False
-        if self.imposeDragBounds:  # calculate drag boundaries
-            self.dragBoundL, self.dragBoundR = 0, startVBase.part().dimensions()[2]-1
-            strandBeforeIdx, strandAtIdx, strandAfterIdx = \
-                            self.newVStrand.strandsNearVBase(self.startVBase)
-            if strandBeforeIdx != None:
-                self.dragBoundL = strandBeforeIdx.idxs()[1]
-            if strandAfterIdx != None:
-                self.dragBoundR = strandAfterIdx.idxs()[0]-1
-        self.updateDestination(startVBase)
+        PencilToolOperation.__init__(self, startVBase, undoStack)
         if self.logger: self.logger.write('SelectToolOperation.init(%s)\n'%startVBase)
 
+    def setDragBounds(self):
+        """
+        Sets a more restrictive set of dragging boundaries for SelectTool.
+        
+        1. prevent dragging outside the grid
+        2. prevent dragging down to single base strands
+        3. prevent dragging over neighboring strands
+        """
+        # prevent dragging outside the grid
+        self.dragBoundL = 0
+        self.dragBoundR = self.startVBase.part().dimensions()[2]-1
+        # prevent dragging down to single base strands
+        strandBeforeIdx, strandAtIdx, strandAfterIdx = \
+                        self.startVStrand.strandsNearVBase(self.startVBase)
+        if strandAtIdx != None:
+            if self.startVBase == strandAtIdx.vBaseL:
+                self.dragBoundR = min(strandAtIdx.vBaseR.vIndex()-1,
+                                      self.dragBoundR)
+            elif self.startVBase == strandAtIdx.vBaseR:
+                self.dragBoundL = max(strandAtIdx.vBaseL.vIndex()+1,
+                                      self.dragBoundL)
+        # prevent dragging over neighboring strands
+        if strandBeforeIdx != None:
+            self.dragBoundL = max(self.dragBoundL,\
+                                  strandBeforeIdx.idxs()[1])
+        if strandAfterIdx != None:
+            self.dragBoundR = min(strandAfterIdx.idxs()[0]-1,
+                                  self.dragBoundR)
+
     def updateDestination(self, newDestVBase):
-        """ Looks at self.startVBase and newDestVBase then calls the appropriate
-        actionWhatever method on self. """
+        """
+        Looks at self.startVBase and newDestVBase then calls the appropriate
+        actionWhatever method on self.
+        """
         if isinstance(newDestVBase, (int, long)):
             newDestVBase = VBase(self.startVBase.vStrand, newDestVBase)
         if newDestVBase == self.lastDestVBase:
@@ -83,72 +97,49 @@ class SelectToolOperation(Operation):
                 endIdx = self.dragBoundR
 
         if 'R' in dragStartExposedEnds:
-            if endIdx < startIdx:
-                # Dragging a right-facing endpoint left
+            if endIdx < startIdx:  # Dragging a right-facing endpoint left
                 vStrand.clearStrand(endIdx + 1, startIdx + 1,\
-                                    useUndoStack=True, undoStack=self.undoStack)
-            elif startIdx < endIdx:
-                # Dragging a right-facing endpoint right
+                                   useUndoStack=True, undoStack=self.undoStack)
+            elif startIdx < endIdx:  # Dragging a right-facing endpoint right
+                
                 vStrand.connectStrand(startIdx, endIdx,\
-                                    useUndoStack=True, undoStack=self.undoStack)
+                                   useUndoStack=True, undoStack=self.undoStack)
             else:
                 pass  # Click on an endpoint
         elif 'L' in dragStartExposedEnds:
-            if endIdx < startIdx:
-                # Dragging a left-facing endpoint left
+            if endIdx < startIdx:  # Dragging a left-facing endpoint left
                 vStrand.connectStrand(endIdx, startIdx,\
-                                    useUndoStack=True, undoStack=self.undoStack)
-            elif startIdx < endIdx:
-                # Dragging a left-facing endpoint right
+                                   useUndoStack=True, undoStack=self.undoStack)
+            elif startIdx < endIdx:  # Dragging a left-facing endpoint right
                 vStrand.clearStrand(startIdx, endIdx,\
-                                    useUndoStack=True, undoStack=self.undoStack)
+                                   useUndoStack=True, undoStack=self.undoStack)
             else:
                 pass  # Click on an endpoint
         else:
             vStrand.connectStrand(startIdx, endIdx,\
                                   useUndoStack=True, undoStack=self.undoStack)
 
-    def end(self):
-        """ Make the changes displayed by the last call to
-        updateDestination permanent """
-        if self.logger:
-            self.logger.write('SelectToolOperation.end\n')
-        del self.newStrand
-        del self.startVBase
-        del self.newStrandInVfbPool
-
-    def actionNone(self):
-        if self.logger:
-            self.logger.write('SelectToolOperation.actionNone\n')
-
-    def actionAddStrand(self, lConnection, startBase, endBase, rConnection):
-        if self.logger:
-            self.logger.write('SelectToolOperation.actionAddStrand\n')
-        newStrand, undoStack = self.newStrand, self.undoStack
-        undoStack.beginMacro('actionAddStrand')
-        newStrand.changeRange(startBase, endBase, undoStack)
-        startBase.vStrand.addStrand(newStrand, useUndoStack=True, undoStack=undoStack)
-        newStrand.setConnL(lConnection, useUndoStack=True, undoStack=undoStack)
-        newStrand.setConnR(rConnection, useUndoStack=True, undoStack=undoStack)
-        undoStack.endMacro()
-
-    def actionJustConnect(self, lStrand, rStrand):
+    def actionJustConnect(self, vBase):
         """ Just connect the right exposed end of lStrand to the left exposed
         end of rStrand """
-        if self.logger:
-            self.logger.write('SelectToolOperation.actionJustConnect\n')
-        lStrand.setConnR(rStrand, useUndoStack=True, undoStack=self.undoStack)
+        # ends = vBase.exposedEnds()
+        # idx = vBase.vIndex()
+        # if 'L' in ends:
+        #     if :  # check to the left for touching vBase
+        #     vBase.vStrand().connectStrand(idx, idx-1,\
+        #                           useUndoStack=True, undoStack=self.undoStack)
+        # elif 'R' in ends:
+        #     if :  # check to the right for touching vBase
+        #     vBase.vStrand().connectStrand(idx, idx+1,\
+        #                           useUndoStack=True, undoStack=self.undoStack)
+        if self.logger: self.logger.write('SelectToolOperation.actionJustConnect\n')
 
-    def actionResizeStrand(self, strand, newL, newR):
-        if self.logger:
-            self.logger.write('SelectToolOperation.actionResizeStrand\n')
-        newL.vStrand.resizeStrandAt(strand.vBaseL, newL, newR, useUndoStack=True, undoStack=self.undoStack)
-
-    def actionClearRange(self, firstIdx, afterLastIdx, keepLeft=True):
-        if self.logger:
-            self.logger.write('SelectToolOperation.actionClearRange\n')
-        self.startVBase.vStrand.clearRange(firstIdx,\
-                                           afterLastIdx,\
-                                           useUndoStack=True,\
-                                           undoStack=self.undoStack,\
-                                           keepLeft=keepLeft)
+    def actionResizeStrand(self, vBase):
+        ends = vBase.exposedEnds()
+        if 'L' in ends:
+            vBase.vStrand().connectStrand(vBase.vIndex(), self.dragBoundL,\
+                                  useUndoStack=True, undoStack=self.undoStack)
+        elif 'R' in ends:
+            vBase.vStrand().connectStrand(vBase.vIndex(), self.dragBoundR,\
+                                  useUndoStack=True, undoStack=self.undoStack)
+        if self.logger: self.logger.write('SelectToolOperation.actionResizeStrand\n')
