@@ -95,7 +95,6 @@ class RangeSet(QObject):
     ############################### Framework ###########################
     # If you want a RangeSet that stores something other than tuples of
     # integers representing ranges of indexes, these are the methods to override
-
     def idxs(self, rangeItem):
         """
         Returns (firstIdx, afterLastIdx) simplified representation of the
@@ -109,8 +108,11 @@ class RangeSet(QObject):
         here onto undoStack (iff undoStack is not None). It can also just return
         an entirely new object in which case undo will be handled automatically.
         """
+        print "in mergeRangeItems!"
         al, ar = self.idxs(rangeItemA)
+        print "here"
         bl, br = self.idxs(rangeItemB)
+        print "mergeRangeItems", al,ar,bl,br, (min(al, bl), max(ar, br), rangeItemB[2])
         return (min(al, bl), max(ar, br), rangeItemB[2])
 
     def changeRangeForItem(self, rangeItem, newStartIdx, newAfterLastIdx, undoStack):

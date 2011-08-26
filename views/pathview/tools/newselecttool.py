@@ -61,6 +61,7 @@ class NewSelectTool(AbstractPathTool):
         dest = pathHelix.vBaseAtPoint(event.pos())
         undoStack = pathHelix.vhelix().undoStack()
         self.currentOperation = SelectToolOperation(dest, undoStack)
+        pathHelix.makeSelfActiveHelix()
 
     def hoverMovePathHelix(self, pathHelix, event):
         if self.logger: self.logger.write("hover>")

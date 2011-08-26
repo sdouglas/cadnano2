@@ -22,6 +22,7 @@
 #
 # http://www.opensource.org/licenses/mit-license.php
 
+from itertools import product
 from rangeset import RangeSet
 import util, sys
 from vbase import VBase
@@ -162,8 +163,8 @@ class VStrand(RangeSet):
         return ''.join(strs)
 
     def strandsNearVBase(self, vbase):
-        if isinstance(idx, VBase):
-            idx = vbase.vIndex
+        if isinstance(vbase, VBase):
+            idx = vbase.vIndex()
         elif isinstance(idx, (int, long)):
             pass
         else:
@@ -390,6 +391,7 @@ class VStrand(RangeSet):
     def hasCrossoverAt(self, index):
         return isinstance(self.get(index), (XOverStrand3, XOverStrand5))
     # end def
+    
 
     ####################### Private Write API #######################
     def _setVHelix(self, newVH):

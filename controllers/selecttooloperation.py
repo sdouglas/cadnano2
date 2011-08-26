@@ -47,7 +47,7 @@ class SelectToolOperation(Operation):
         if self.imposeDragBounds:  # calculate drag boundaries
             self.dragBoundL, self.dragBoundR = 0, startVBase.part().dimensions()[2]-1
             strandBeforeIdx, strandAtIdx, strandAfterIdx = \
-                            self.newVStrand.strandsNearIdx(self.startVBase.vIndex)
+                            self.newVStrand.strandsNearVBase(self.startVBase)
             if strandBeforeIdx != None:
                 self.dragBoundL = strandBeforeIdx.idxs()[1]
             if strandAfterIdx != None:
@@ -69,8 +69,8 @@ class SelectToolOperation(Operation):
         dragStartExposedEnds = dragStartBase.exposedEnds()
         dragStartStrand = dragStartBase.strand()
         dragEndStrand = dragEndBase.strand()
-        startIdx, endIdx = dragStartBase.vIndex, dragEndBase.vIndex
-        vStrand = dragStartBase.vStrand
+        startIdx, endIdx = dragStartBase.vIndex(), dragEndBase.vIndex()
+        vStrand = dragStartBase.vStrand()
 
         if not isinstance(newDestVBase, VBase):
             print "not instance VBase"

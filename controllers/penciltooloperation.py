@@ -62,7 +62,6 @@ class PencilToolOperation(Operation):
         dragStartBase, dragEndBase = self.startVBase, newDestVBase
         dragStartExposedEnds = dragStartBase.exposedEnds()
         dragStartStrand = dragStartBase.strand()
-        # dragEndExposedEnds = dragEndBase.exposedEnds()
         dragEndStrand = dragEndBase.strand()
         startIdx, endIdx = dragStartBase.vIndex(), dragEndBase.vIndex()
         vStrand = dragStartBase.vStrand()
