@@ -43,7 +43,7 @@ class VStrand(RangeSet):
     # object present at that idx has changed. For the latter, you have to look
     # for signals emitted by the strand itself.)
     #       indicesModifiedSignal = pyQtSignal(int, int)  # inherited
-    logger = None
+    logger = sys.stdout
     def __init__(self, parentVHelix=None):
         RangeSet.__init__(self)
         if parentVHelix != None:
@@ -65,7 +65,7 @@ class VStrand(RangeSet):
 
     def logIndicesModified(self, rangeModified):
         if self.logger != None:
-            self.logger.write( "%s.indicesModifiedSignal.emit(%s)\n"%\
+            self.logger.write( "\t%s.indicesModifiedSignal.emit(%s)\n"%\
                                       (self, rangeModified)            )
 
     ####################### Public Read API #######################
@@ -336,10 +336,10 @@ class VStrand(RangeSet):
         return rangeItem.idxs()
 
     def canMergeTouchingRangeItems(self, rangeItemA, rangeItemB):
-        return rangeItemA.canMergeWithTouchingStrand(rangeItemB)
+        return False
          
     def mergeRangeItems(self, rangeItemA, rangeItemB, undoStack):
-        return rangeItemA.mergeWith(rangeItemB, undoStack)
+        raise NotImplementedError
 
     def changeRangeForItem(self, rangeItem, newStartIdx, newAfterLastIdx, undoStack):
         oldStartIdx, oldAfterLastIdx = rangeItem.idxs()
