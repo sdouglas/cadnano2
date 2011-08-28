@@ -30,13 +30,17 @@ from model.vbase import VBase
 
 class ForceToolOperation(Operation):
     logger = sys.stdout
-    def __init__(self, startVBase, undoStack):
-        Operation.__init__(self, undoStack)
+    def __init__(self, startVBase, useUndoStack=True, undoStack=None):
+        Operation.__init__(self, useUndoStack, undoStack)
         self.startVBase = startVBase
+        self.useUndoStack = useUndoStack
+        self.undoStack = undoStack
         self.strand = XOverStrand3(startVBase)
         startVBase.vStrand().addStrand(self.strand,\
-                                     useUndoStack=True, undoStack=undoStack)
-        self.undoIdxBeforeInstall = undoStack.index()
+                                       useUndoStack=self.useUndoStack,\
+                                       undoStack=undoStack)
+        if useUndoStack:
+            self.undoIdxBeforeInstall = undoStack.index()
         self.lastDestination = None  # None = floating
         if self.logger != None:
             self.logger.write('ForceToolOperation.__init__(%s, %s)\n'%\
@@ -46,17 +50,20 @@ class ForceToolOperation(Operation):
         if self.lastDestination == newVBase5:
             return
         self.lastDestination = newVBase5
-        self.rewind(self.undoIdxBeforeInstall)
+        if self.useUndoStack:
+            self.rewind(self.undoIdxBeforeInstall)
         self.strand.conn3().setVBase(newVBase5)
         newVBase5.vStrand().addStrand(self.strand.conn3(),\
-                                    useUndoStack=True, undoStack=self.undoStack)
+                                      useUndoStack=self.useUndoStack,\
+                                      undoStack=self.undoStack)
         if self.logger != None:
             self.logger.write('ForceToolOperation.updateDestination(%s)\n'%\
                                      newVBase5)
 
     def updateFloatingDestination(self, newPt5):
         self.lastDestination = None
-        self.rewind(self.undoIdxBeforeInstall)
+        if self.useUndoStack:
+            self.rewind(self.undoIdxBeforeInstall)
         self.strand.setPt5(newPt5)
         self.strand.conn3().setVBase(None)
         if self.logger != None:

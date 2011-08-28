@@ -85,6 +85,9 @@ class PathHelixGroup(QGraphicsObject):
         self._pathHelixes = []  # Primary property
         self.activeHelix = None
         self._part = None
+        self._preXOverHandles = None
+        self._XOverCacheEnvironment = None
+
         #Picture Cache
         self.dummyChild = self.DummyChild(self)
         self.pictureCache = None
@@ -103,9 +106,6 @@ class PathHelixGroup(QGraphicsObject):
         
         self.floatingXover = XoverHandlePair(self, None, None)
         self.xovers = {}
-        
-        self._preXOverHandles = None
-        self._XOverCacheEnvironment = None
         
         self.setZValue(styles.ZPATHHELIXGROUP)
         self.selectionLock = None
@@ -209,14 +209,12 @@ class PathHelixGroup(QGraphicsObject):
         if ph == None:
             return
         vh = ph.vhelix()
-        
         currentEnvironment = (vh.neighbors(), vh.numBases())
         if cacheConstructionEnvironment != currentEnvironment and\
            self.preXOverHandlesVisible():
             self.setPreXOverHandlesVisible(ph, False)
             self.setPreXOverHandlesVisible(ph, True)
     # end def
-
 
     def setPart(self, newPart):
         if self._part:
@@ -291,10 +289,12 @@ class PathHelixGroup(QGraphicsObject):
     # changed VHs
     displayedVHsChanged = pyqtSignal()
     def setDisplayedVHs(self, vhrefs, zoomToFit=True):
-        """Spawns or destroys PathHelix such that displayedVHs
-        has the same VirtualHelix in the same order as vhrefs
-        (though displayedVHs always returns a list of VirtualHelix
-        while setDisplayedVHs can take any vhref)"""
+        """
+        Spawns or destroys PathHelix such that displayedVHs has the same
+        VirtualHelix in the same order as vhrefs (though displayedVHs always
+        returns a list of VirtualHelix while setDisplayedVHs can take any 
+        vhref)
+        """
         if self.part() != None:
             new_pathHelixList = []
             vhToPH = dict(((ph.vhelix(), ph) for ph in self._pathHelixes))
@@ -319,9 +319,11 @@ class PathHelixGroup(QGraphicsObject):
         return self._pathHelixList()[0]
 
     def _setPathHelixList(self, newList, zoomToFit=True):
-        """Give me a list of PathHelix and I'll parent them
-        to myself if necessary, position them in a column, adopt
-        their handles, and position them as well."""
+        """
+        Give me a list of PathHelix and I'll parent them to myself if
+        necessary, position them in a column, adopt their handles, and
+        position them as well.
+        """
         y = 0  # How far down from the top the next PH should be
         leftmostExtent = 0
         rightmostExtent = 0

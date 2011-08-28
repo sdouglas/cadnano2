@@ -44,7 +44,7 @@ class VStrand(RangeSet):
     # object present at that idx has changed. For the latter, you have to look
     # for signals emitted by the strand itself.)
     #       indicesModifiedSignal = pyQtSignal(int, int)  # inherited
-    logger = None
+    logger = sys.stdout
     def __init__(self, parentVHelix=None):
         RangeSet.__init__(self)
         if parentVHelix != None:
@@ -177,7 +177,8 @@ class VStrand(RangeSet):
         # A strand is a rangeItem
         self.addRange(strand, useUndoStack, undoStack)
 
-    def resizeStrandAt(self, idxInStrand, newFirstBase, newLastBase, useUndoStack=True, undoStack=None):
+    def resizeStrandAt(self, idxInStrand, newFirstBase, newLastBase,\
+                       useUndoStack=True, undoStack=None):
         if isinstance(idxInStrand, VBase):
             idxInStrand = idxInStrand.vIndex()
         if isinstance(newFirstBase, VBase):
@@ -188,7 +189,8 @@ class VStrand(RangeSet):
                               newLastBase + 1,\
                               useUndoStack, undoStack)
 
-    def clearStrand(self, firstIndex, afterLastIndex, useUndoStack=True, undoStack=None, keepLeft=True):
+    def clearStrand(self, firstIndex, afterLastIndex, useUndoStack=True,\
+                    undoStack=None, keepLeft=True):
         #Input sanitization
         if isinstance(firstIndex, VBase):
             firstIndex = firstIndex.vIndex()
@@ -338,7 +340,7 @@ class VStrand(RangeSet):
 
     def canMergeTouchingRangeItems(self, rangeItemA, rangeItemB):
         return False
-         
+
     def mergeRangeItems(self, rangeItemA, rangeItemB, undoStack):
         raise NotImplementedError
 
@@ -370,7 +372,7 @@ class VStrand(RangeSet):
 
     def undoStack(self):
         return self.vHelix.undoStack()
-        
+
     def possibleNewCrossoverAt(self, fromVBase, toVBase):
         """
         Return true if could crossover to neighbor at index.
@@ -381,17 +383,16 @@ class VStrand(RangeSet):
         fromIdx = fromVBase.vIndex()
         toIdx = toVBase.vIndex()
         toVStrand = toVBase.vStrand()
-        
+
         if self.hasCrossoverAt(fromIdx) or toVStrand.hasCrossoverAt(toIdx):
             return False
         else:
             return True if self.get(fromIdx) and toVStrand.get(toIdx) else False
     # end def
-    
+
     def hasCrossoverAt(self, index):
         return isinstance(self.get(index), (XOverStrand3, XOverStrand5))
     # end def
-    
 
     ####################### Private Write API #######################
     def _setVHelix(self, newVH):

@@ -28,12 +28,17 @@ from model.normalstrand import NormalStrand
 
 class Operation(QObject):
     """ Handles multi-step interactions with the model """
-    def __init__(self, undoStack):
+    def __init__(self, useUndoStack=True, undoStack=None):
         QObject.__init__(self)
-        # No good will come of interactive strand creation without an undo stack
-        assert(undoStack != None)
-        self.undoStack = undoStack
-        self.undoStackIdxBeforeOperation = undoStack.index()
+        # # No good will come of interactive strand creation without an undo stack
+        # assert(undoStack != None)
+        # self.undoStack = undoStack
+        # self.undoStackIdxBeforeOperation = undoStack.index()
+
+        if useUndoStack:  # need this option for non-interactive file imports
+            assert(undoStack != None)
+            self.undoStack = undoStack
+            self.undoStackIdxBeforeOperation = undoStack.index()
 
     def rewind(self, toIdx=None):
         if toIdx == None:
