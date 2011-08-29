@@ -82,7 +82,7 @@ class PreXoverItem(QGraphicsPathItem):
     # precalculate the height of a number font.  Assumes a fixed font
     # and that only numbers will be used for labels
     fm = QFontMetrics(toHelixNumFont)
-    
+
     def __init__(self, parentPH, fromVBase, toVBase, orientedLeft):
         super(PreXoverItem, self).__init__(parentPH)
         self.pathhelix = parentPH
@@ -115,16 +115,16 @@ class PreXoverItem(QGraphicsPathItem):
         self._label.setPos(labelX, labelY)
         self.updateVisibilityAndEnabledness()
     # end def
-    
+
     def undoStack(self):
         return self.pathhelix.vhelix().undoStack()
     # end def
-    
+
     def remove(self):
         self.scene().removeItem(self)
         self._label = None
     # end def
-    
+
     def phg(self):
         return self.pathhelix.pathHelixGroup()
 
@@ -154,13 +154,13 @@ class PreXoverItem(QGraphicsPathItem):
         self.painterPath()
         self.update()
     # end def
-    
+
     def updateLabel(self):
         self._label.setBrush(self.labelBrush)
         self._label.setFont(self.toHelixNumFont)
         self._label.setText( str(self.toVBase.vHelix().number() ) )
     # end def
-    
+
     def painterPath(self):
         #Look Up Table
         pathLUT = (_ppathRD, _ppathRU, _ppathLD, _ppathLU)
@@ -178,7 +178,7 @@ class PreXoverItem(QGraphicsPathItem):
 
     def mousePressEvent(self, event):
         if event.button() != Qt.LeftButton:
-            return QGraphicsItem.mousePressEvent(self, event)
+            return QGraphicsPathItem.mousePressEvent(self, event)
         if not self.couldFormNewCrossover():
             return
         # Determine upstream base
@@ -189,5 +189,5 @@ class PreXoverItem(QGraphicsPathItem):
             endToTakeColorFrom = 5
         # Create XoverHandlePair and store references
         fto = ForceToolOperation(fromVB, self.undoStack())
-        fto.updateFloatingDestination(self.phg().pointForVBase(toVB))
+        fto.updateDestination(toVB)
         fto.end()

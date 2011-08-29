@@ -1954,9 +1954,9 @@ class VirtualHelix(QObject):
                 if index < vh.numBases():
                     frVB = vStrandFrom.get(index)
                     toVB = vstrandTo.get(index)
-                    if frVB != None and toVB != None:
+                    # if frVB != None and toVB != None:
                         # return tuple (VBase, VBase) using the __call__ method in VStrand
-                        ret.append((vStrandFrom(index), vstrandTo(index)))
+                    ret.append((vStrandFrom(index), vstrandTo(index)))
         return ret
 
 
