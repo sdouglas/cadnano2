@@ -42,8 +42,7 @@ ToSide = "ToSide"
 
 class XoverItem3(QGraphicsPathItem):
     def __init__(self, ph, xover3strand):
-        QGraphicsPathItem.__init__(phg)
-        self.ph = ph
+        QGraphicsPathItem.__init__(self, ph)
         self.xover3strand = xover3strand
         self.setPen(QPen(Qt.NoPen))
     def updatePos(self):
@@ -61,8 +60,7 @@ class XoverItem3(QGraphicsPathItem):
 
 class XoverItem5(QGraphicsPathItem):
     def __init__(self, ph, xover5strand):
-        QGraphicsPathItem.__init__(phg)
-        self.ph = ph
+        QGraphicsPathItem.__init__(self, ph)
         self.xover5strand = xover5strand
         self.setPen(QPen(Qt.NoPen))
     def updatePos(self):
