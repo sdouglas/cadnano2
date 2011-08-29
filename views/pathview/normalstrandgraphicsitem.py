@@ -99,8 +99,11 @@ class NormalStrandGraphicsItem(QGraphicsLineItem):
             pen = QPen(QColor(), styles.PATH_STRAND_STROKE_WIDTH)
             brush = QBrush(QColor())
         self.setPen(pen)
-        self.leftCap.setBrush(brush)
-        self.rightCap.setBrush(brush)
+        # brush = QBrush(Qt.NoBrush)
+        # self.leftCap.setBrush(brush)
+        self.leftCap.setPen(pen)
+        # self.rightCap.setBrush(brush)
+        self.rightCap.setPen(pen)
 
     def remove(self, strand):
         self.rightCap = None

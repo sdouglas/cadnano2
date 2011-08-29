@@ -120,15 +120,15 @@ class UnitTests(CadnanoGuiTestCase):
                                        returnTupledIdxOfNextRangeOnFail=True)
             self.assertEqual(valueByFastMethod, valueBySureMethod)
 
-    def testRangeSet_idxRangeOfRangesIntersectingRange(self):
-        """RangeSet _idxRangeOfRangesIntersectingRange"""
+    def testRangeSet_idxRangeOfRangesTouchingRange(self):
+        """RangeSet _idxRangeOfRangesTouchingRange"""
         rs = self.createTestRangeSet()
         ranges = rs.ranges
         idxMin, idxMax = ranges[0][0], ranges[-1][1]
         for i in range(100):
             l = self.prng.randint(idxMin - 3, idxMax + 3)
             r = l + self.prng.randint(-3, 20)
-            valueByFastMethod = rs._idxRangeOfRangesIntersectingRange(l, r)
+            valueByFastMethod = rs._idxRangeOfRangesTouchingRange(l, r)
             valueBySureMethod = rs._slowIdxRangeOfRangesIntersectingRange(l, r)
             self.assertEqual(valueByFastMethod, valueBySureMethod)
 
