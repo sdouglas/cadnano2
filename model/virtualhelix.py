@@ -2101,21 +2101,20 @@ class VirtualHelix(QObject):
         1. Parse the scaf and stap strings into ranges and xover positions
         by calling getRangesAndXoversFromString()
         2. Call connectStrand for each of the ranges
-        3. Call ForceToolOperation to install crossovers
+        3. Send crossover locations to the part for addition on finalizeImport
         4. Apply color information
         """
+        # 1
         scaf = re.split('\s+', completeArchivedDict['scafld'])
         stap = re.split('\s+', completeArchivedDict['staple'])
         scafDir, scaf = scaf[0], scaf[1:]
         stapDir, stap = stap[0], stap[1:]
         assert(len(scaf) == len(stap) and len(stap) == self.numBases())
-
-        print self.number(), "scaf", scafDir, "stap", stapDir
-
         scafRanges, scafXoL, scafXoR = self.getRangesAndXoversFromString(scaf)
         stapRanges, stapXoL, stapXoR = self.getRangesAndXoversFromString(stap)
+        # print scafRanges, scafXoL, scafXoR
 
-        print scafRanges, scafXoL, scafXoR
+        # 2
         for i in range(0, len(scafRanges), 2):
             startIdx, endIdx = scafRanges[i:i+2]
             self.scaf().connectStrand(startIdx, endIdx, useUndoStack=False)
@@ -2123,44 +2122,31 @@ class VirtualHelix(QObject):
             startIdx, endIdx = stapRanges[i:i+2]
             self.stap().connectStrand(startIdx, endIdx, useUndoStack=False)
 
-        from controllers.forcetooloperation import ForceToolOperation
-
-        xoverpairs = set()
+        # 3
         if scafDir == "(5->3)":  # stapDir == (3->5)
             # scaffold fromVBase is a 3' left xover
-            print "scafXoL"
-            for fromIdx, toVHelixNum, toIdx in scafXoL:
-                print fromIdx, toVHelixNum, toIdx
-                fromVB = self.scaf().get(fromIdx).getVBase3()
-                toVB = self._part.getVirtualHelix(toVHelixNum).scaf().get(toIdx).getVBase5()
-                xoverpairs.add((fromVB, toVB))
+            # print "scafXoL"
+            for frIdx, toNum, toIdx in scafXoL:
+                self._part.importXover(\
+                       StrandType.Scaffold, self._number, frIdx, toNum, toIdx)
             # staple fromVBase is a 3' right xover
-            print "stapXoR"
-            for fromIdx, toVHelixNum, toIdx in stapXoR:
-                print fromIdx, toVHelixNum, toIdx
-                fromVB = self.stap().get(fromIdx).getVBase3()
-                toVB = self._part.getVirtualHelix(toVHelixNum).stap().get(toIdx).getVBase5()
-                xoverpairs.add((fromVB, toVB))
+            # print "stapXoR"
+            for frIdx, toNum, toIdx in stapXoR:
+                self._part.importXover(\
+                         StrandType.Staple, self._number, frIdx, toNum, toIdx)
         else:  # scafDir == (3<-5), stapDir = (5->3)
             # scaffold fromVBase is a 3' right xover
-            print "scafXoR"
-            for fromIdx, toVHelixNum, toIdx in scafXoR:
-                print fromIdx, toVHelixNum, toIdx
-                fromVB = self.scaf().get(fromIdx).getVBase3()
-                toVB = self._part.getVirtualHelix(toVHelixNum).scaf().get(toIdx).getVBase5()
-                xoverpairs.add((fromVB, toVB))
+            # print "scafXoR"
+            for frIdx, toNum, toIdx in scafXoR:
+                self._part.importXover(\
+                       StrandType.Scaffold, self._number, frIdx, toNum, toIdx)
             # staple fromVBase is a 3' left xover
-            print "stapXoL"
-            for fromIdx, toVHelixNum, toIdx in stapXoL:
-                print fromIdx, toVHelixNum, toIdx
-                fromVB = self.stap().get(fromIdx).getVBase3()
-                toVB = self._part.getVirtualHelix(toVHelixNum).stap().get(toIdx).getVBase5()
-                xoverpairs.add((fromVB, toVB))
-        for fromVB, toVB in xoverpairs:
-            fto = ForceToolOperation(fromVB, useUndoStack=False)
-            fto.updateDestination(toVB)
-            fto.end()
+            # print "stapXoL"
+            for frIdx, toNum, toIdx in stapXoL:
+                self._part.importXover(\
+                         StrandType.Staple, self._number, frIdx, toNum, toIdx)
 
+        # 4
         # Give bases the proper colors
         # scafColors = re.split('\s+', completeArchivedDict['scafldColors'])
         # # for i in range(len(scaf)):
