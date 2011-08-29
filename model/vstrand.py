@@ -62,8 +62,14 @@ class VStrand(RangeSet):
         return "v[%i].%s"%(self.vHelix.number(), accesorToGetSelfFromvHelix)
 
     def __call__(self, idx):
-        """docstring for __call__"""
+        """This returns a VBase of a position in a VStrand
+        regardless of whether a Strand exists at that position.
+        
+        Use VStrand.get(idx) in order to get the Strand at an index.  It will 
+        return the Strand object or None if no Strand exists at the index
+        """
         return VBase(self, idx)
+    # end def
 
     def logIndicesModified(self, rangeModified):
         if self.logger != None:

@@ -1927,28 +1927,6 @@ class VirtualHelix(QObject):
             self.redo(actuallyUndo=True)
 
     ################################ Crossovers ##############################
-    # def potentialCrossoverList(self, facingRight, strandType):
-    #     """Returns a list of [neighborVirtualHelix, index] potential
-    #     crossovers"""
-    #     ret = []  # LUT = Look Up Table
-    #     part = self._part
-    #     luts = (part.scafL, part.scafR, part.stapL, part.stapR)
-    # 
-    #     # these are the list of crossover points simplified
-    #     lut = luts[int(facingRight) +\
-    #                2 * int(strandType == StrandType.Staple)]
-    # 
-    #     neighbors = self.neighbors()
-    #     for p in range(len(neighbors)):
-    #         neighbor = neighbors[p]
-    #         if not neighbor:
-    #             continue
-    #         for i, j in product(range(0, self.numBases(), part.step), lut[p]):
-    #             index = i + j
-    #             if index < self.numBases():
-    #                 ret.append([neighbor, index])
-    #     return ret
-    # # end def
     
     def potentialCrossoverList(self, facingRight, vStrandFrom):
         """Returns a list of [(fromVBase, toVBase)] tuples of potential
@@ -1976,9 +1954,9 @@ class VirtualHelix(QObject):
                 if index < vh.numBases():
                     frVB = vStrandFrom.get(index)
                     toVB = vstrandTo.get(index)
-                    print frVB, toVB
                     if frVB != None and toVB != None:
-                        ret.append((vStrandFrom.get(index), vstrandTo.get(index)))
+                        # return tuple (VBase, VBase) using the __call__ method in VStrand
+                        ret.append((vStrandFrom(index), vstrandTo(index)))
         return ret
 
 
