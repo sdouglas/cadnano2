@@ -362,6 +362,12 @@ class Strand(QObject):
     def shouldHighlight(self):
         return False
 
+    def wasInsertedCallback(self):
+        pass
+
+    def willBeRemovedCallback(self):
+        pass
+
     def setdown(self, useUndoStack=True, undoStack=None):
         """ Turns a strand used for VisualFeedBack into a strand actually
         embedded in the data model. If we imagine that the VisualFeedBack

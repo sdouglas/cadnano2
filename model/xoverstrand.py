@@ -46,6 +46,7 @@ class XOverStrand3(Strand):
         self._pt5 = None  # Temporary destination (in PHG coords)
         partner = XOverStrand5(vBase=None)
         Strand.setConn3(self, partner)
+        self.isBeingDeleted = False
     def __repr__(self):
         return "XOverStrand3(%s)"%(self.vBase())
     def numBases(self):
@@ -98,6 +99,15 @@ class XOverStrand3(Strand):
     def setPt5(self, newPt5):
         self._pt5 = newPt5
         self.didMove.emit(self)
+    def willBeRemovedCallback(self):
+        print "%s WILL BE REMOVED"%self
+        self.isBeingDeleted = True
+        partnerXoverVBase = self.conn3().vBase()
+        if partnerXoverVBase == None or self.conn3().isBeingDeleted:
+            return None
+        partnerIdx = partnerXoverVBase.vIndex()
+        partnerXoverVBase.vStrand().clearStrand(partnerIdx, partnerIdx + 1)
+        self.isBeingDeleted = False
 
 class XOverStrand5(Strand):
     """ The partner of a XOverStrand3. To create a XOverStrand5 that is
@@ -106,6 +116,7 @@ class XOverStrand5(Strand):
     def __init__(self, vBase):
         Strand.__init__(self)
         self._vBase = vBase
+        self.isBeingDeleted = False
     def __repr__(self):
         return "XOverStrand5(%s)"%(self.vBase())
     numBases = XOverStrand3.__dict__['numBases']  # The great method heist
@@ -117,7 +128,15 @@ class XOverStrand5(Strand):
         if vBase == self._vBase:
             return 'R3' if self.vStrand().drawn5To3() else 'L3'
         return ''
-
     def setConn5(self, newConn):
         raise TypeError("The 5' end of the 5' base of a crossover is"\
                         "already occupied by definition")
+    def willBeRemovedCallback(self):
+        print "%s WILL BE REMOVED"%self
+        self.isBeingDeleted = True
+        partnerXoverVBase = self.conn5().vBase()
+        if partnerXoverVBase == None or self.conn5().isBeingDeleted:
+            return None
+        partnerIdx = partnerXoverVBase.vIndex()
+        partnerXoverVBase.vStrand().clearStrand(partnerIdx, partnerIdx + 1)
+        self.isBeingDeleted = False

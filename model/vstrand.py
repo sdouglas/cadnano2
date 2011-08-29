@@ -353,6 +353,7 @@ class VStrand(RangeSet):
                             undoStack)
 
     def willRemoveRangeItem(self, strand):
+        strand.willBeRemovedCallback()
         strand.willBeRemoved.emit(strand)
         if strand.logger != None:
             strand.logger.write("+%i.remove() %s\n"%(strand.traceID,\
@@ -361,6 +362,7 @@ class VStrand(RangeSet):
     def didInsertRangeItem(self, strand):
         RangeSet.didInsertRangeItem(self, strand)
         self.didAddStrand.emit(strand)
+        strand.wasInsertedCallback()
         if strand.logger != None:
             strand.logger.write("+%i.insert() %s\n"%(strand.traceID,\
                                                    repr(strand)))

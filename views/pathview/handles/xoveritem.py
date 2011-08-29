@@ -43,8 +43,12 @@ ToSide = "ToSide"
 class XoverItem3(QGraphicsPathItem):
     def __init__(self, ph, xover3strand):
         QGraphicsPathItem.__init__(self, ph)
+        self.ph = ph
         self.xover3strand = xover3strand
         self.setPen(QPen(Qt.NoPen))
+        self.updatePos()
+        xover3strand.willBeRemoved.connect(self.strandWillBeRemoved)
+        xover3strand.connectivityChanged.connect(self.updateConnectivity)
     def updatePos(self):
         strand = self.xover3strand
         vb = strand.vBase()
@@ -54,26 +58,32 @@ class XoverItem3(QGraphicsPathItem):
         self.setBrush(QBrush(strand.color()))
         self.updateConnectivity()
     def updateConnectivity(self):
-        self.setVisible(self.xover3strand.conn5() != None)
+        self.setVisible(self.xover3strand.conn5() == None)
     def strandWillBeRemoved(self, strand):
+        print "removing xovr3 %s"%self.xover3strand
         self.scene().removeItem(self)
 
 class XoverItem5(QGraphicsPathItem):
     def __init__(self, ph, xover5strand):
         QGraphicsPathItem.__init__(self, ph)
+        self.ph = ph
         self.xover5strand = xover5strand
         self.setPen(QPen(Qt.NoPen))
+        self.updatePos()
+        xover5strand.willBeRemoved.connect(self.strandWillBeRemoved)
+        xover5strand.connectivityChanged.connect(self.updateConnectivity)
     def updatePos(self):
         strand = self.xover5strand
         vb = strand.vBase()
         self.setPos(self.ph.pointForVBase(vb))
         # We can only expose a 3' end. But on which side?
-        self.setPath(ppR35 if vb.drawn5To3() else ppL3)
+        self.setPath(ppR3 if vb.drawn5To3() else ppL3)
         self.setBrush(QBrush(strand.color()))
         self.updateConnectivity()
     def updateConnectivity(self):
-        self.setVisible(self.xover5strand.conn3() != None)
+        self.setVisible(self.xover5strand.conn3() == None)
     def strandWillBeRemoved(self, strand):
+        print "removing xovr5 %s"%self.xover5strand
         self.scene().removeItem(self)
 
 class XoverItem(QGraphicsPathItem):
@@ -126,12 +136,13 @@ class XoverItem(QGraphicsPathItem):
         self.strandDidMove()
 
     def conn3Changed(self):
-        pass
+        self.updatePath()
 
     def conn5Changed(self):
-        pass
+        self.updatePath()
 
     def strandWillBeRemoved(self):
+        print "removing GI %s"%self._strand
         self.scene().removeItem(self)
 
     def strandDidMove(self):
@@ -159,66 +170,51 @@ class XoverItem(QGraphicsPathItem):
         phg = self._pathhelixgroup
         vBase3 = self._strand.vBase()
         vBase5 = self._strand.conn3().vBase()
-        pt3 = phg.pointForVBase(self._strand.vBase())
+        ph3 = phg.pathHelixForVHelix(vBase3.vHelix())
+        pt3 = ph3.mapToItem(phg, ph3.pointForVBase(vBase3))
+        threeIsTop = ph3.vBaseIsTop(vBase3)
+        threeIs5To3 = vBase3.drawn5To3()
         if vBase5 == None:
             pt5 = self._strand.pt5()
+            ph5 = None
+            fiveIsTop = True
+            fiveIs5To3 = True
             isFloating = True
-        else:
-            pt5 = phg.pointForVBase(vBase5)
-            isFloating = False
-        
-        # Null source / dest => don't paint ourselves => no painterpath
-        if pt3 == None\
-           or pt5 == None:
-            return None
-
-        # print "regenerating path"
-        # begin calculations of how to draw labels and crossover orientations
-
-        from5To3 = ms.vStrand().drawn5To3()
-        if from5To3:
-            orient3 = HandleOrient.LeftUp
-            labelPos3 = QPointF(pt3.x() - 0.75*bw,\
-                                    pt3.y() - 1.5*bw)
-            threeExitPt = pt3 + QPointF(0, 0.5) # the point leaving the pathhelix
-        else:
-            orient3 = HandleOrient.RightDown
-            labelPos3 = QPointF(pt3.x() - 0.25*bw,\
-                                pt3.y() + 0.5*bw)
-            threeExitPt = pt3 + QPointF(0, -0.5) # the point leaving the pathhelix
-        toIs5To3 = vBase5.drawn5To3() if vBase5 != None else from5To3
-        if toIs5To3:
-            orient5 = HandleOrient.RightUp
-            labelPos5 = QPointF(pt5.x() - 0.25*bw, \
-                                pt5.y() - 1.5*bw)
-            fiveEnterPt = pt5 + QPointF(bw/2.0, 0) # the point entering the pathhelix
-        else:
-            orient5 = HandleOrient.LeftDown
-            labelPos5 = QPointF(pt5.x() - 0.75*bw, \
-                                pt5.y() + 0.5*bw)
-            fiveEnterPt = pt5 + QPointF(bw/2.0, bw) # the point entering the pathhelix
-
-        threeInsetPt = pt3 # the centerpoint
-
-        if isFloating == True:
-            fiveEnterPt = pt5
-            fiveInsetPt = fiveEnterPt
-        else: #self._toPt == None
-            fiveInsetPt = pt5 # this is the center point
-            
-        # Determine control point of quad curve
-        c1 = QPointF()
-        if isFloating == True:
             sameStrand = False
             sameParity = False
         else:
-            sameStrand = pt3.y() == pt5.y()
-            sameParity = vBase5.evenParity() == vBase3.evenParity()
+            ph5 = phg.pathHelixForVHelix(vBase5.vHelix())
+            pt5 = ph5.mapToItem(phg, ph5.pointForVBase(vBase5))
+            fiveIsTop = ph5.vBaseIsTop(vBase5)
+            fiveIs5To3 = vBase5.drawn5To3()
+            isFloating = False
+            sameStrand = vBase3.vStrand == vBase5.vStrand
+            sameParity = fiveIs5To3 == threeIs5To3
+
+        # Null source / dest => don't paint ourselves => no painterpath
+        if pt3 == None\
+           or pt5 == None:
+            self.hide()
+            return None
+
+        # Enter/exit are relative to the direction that the path travels
+        # overall.
+        threeEnterPt = pt3 + QPointF(0 if threeIs5To3 else 1, .5)*bw
+        threeCenterPt = pt3 + QPointF(.5, .5)*bw
+        threeExitPt = pt3 + QPointF(.5, 0 if threeIsTop else 1)*bw
+        if isFloating:
+            fiveEnterPt = fiveCenterPt = fiveEnterPt = pt5
+        else:
+            fiveEnterPt = pt5 + QPointF(.5, 0 if fiveIsTop else 1)*bw
+            fiveCenterPt = pt5 + QPointF(.5, .5)*bw
+            fiveExitPt = pt5 + QPointF(1 if fiveIs5To3 else 0, .5)*bw
+
+        c1 = QPointF()
         # case 1: same strand
         if sameStrand:
             dx = abs(fiveEnterPt.x() - threeExitPt.x())
             c1.setX(0.5 * (threeExitPt.x() + fiveEnterPt.x()))
-            if orient3 in [HandleOrient.LeftUp, HandleOrient.RightUp]:
+            if threeIsTop:
                 c1.setY(threeExitPt.y() - self._yScale * dx)
             else:
                 c1.setY(threeExitPt.y() + self._yScale * dx)
@@ -229,7 +225,7 @@ class XoverItem(QGraphicsPathItem):
             c1.setY(0.5 * (threeExitPt.y() + fiveEnterPt.y()))
         # case 3: different parity
         else:
-            if orient3 == HandleOrient.LeftUp:
+            if threeIsTop and threeIs5To3:
                 c1.setX(threeExitPt.x() - self._xScale *\
                         abs(fiveEnterPt.y() - threeExitPt.y()))
             else:
@@ -239,26 +235,38 @@ class XoverItem(QGraphicsPathItem):
 
         # Construct painter path
         painterpath = QPainterPath()
-        painterpath.moveTo(threeInsetPt)
-        painterpath.lineTo(threeExitPt)
-        painterpath.quadTo(c1, fiveEnterPt)
-        painterpath.lineTo(fiveInsetPt)
+        if self._strand.conn5() != None:
+            # The xover3's non-crossing-over end (5') has a connection
+            painterpath.moveTo(threeEnterPt)
+            painterpath.lineTo(threeCenterPt)
+            painterpath.lineTo(threeExitPt)
+        else:
+            painterpath.moveTo(threeCenterPt)
+            painterpath.lineTo(threeExitPt)
+        if self._strand.conn3().conn3() != None:
+            # The xover5's non-crossing-over end (3') has a connection
+            painterpath.quadTo(c1, fiveEnterPt)
+            painterpath.lineTo(fiveCenterPt)
+            painterpath.lineTo(fiveExitPt)
+        else:
+            painterpath.quadTo(c1, fiveEnterPt)
+            painterpath.lineTo(fiveCenterPt)
         
         # draw labels
-        if not isFloating:
-            painterpath.addText(labelPos3, self._toHelixNumFont, ("%d" % (vBase5.vHelix().number())))
-            painterpath.addText(labelPos5, self._toHelixNumFont, ("%d" % (vBase3.vHelix().number())))
+        #if not isFloating:
+        #    painterpath.addText(labelPos3, self._toHelixNumFont, ("%d" % (vBase5.vHelix().number())))
+        #    painterpath.addText(labelPos5, self._toHelixNumFont, ("%d" % (vBase3.vHelix().number())))
         self.setPath(painterpath)
+        self.updatePen()
 
     def updatePen(self):
-        ms = self.strand()
-        color = ms.color()
-        pen = QPen(color)
-        #pen.setWidth(styles.PATH_STRAND_STROKE_WIDTH)
-        pen.setCapStyle(Qt.SquareCap)
-        if ms.vStrand().isStap():
-            if ms.shouldHighlight():
-                pen.setWidth(styles.PATH_STRAND_HIGHLIGHT_STROKE_WIDTH)
-                color.setAlpha(128)
+        strand = self.strand()
+        color = QColor(strand.color())
+        penWidth = styles.PATH_STRAND_STROKE_WIDTH
+        if strand.shouldHighlight():
+            penWidth = styles.PATH_STRAND_HIGHLIGHT_STROKE_WIDTH
+            color.setAlpha(128)
+        pen = QPen(QColor(), penWidth)
+        pen.setCapStyle(Qt.FlatCap)
         self.setPen(pen)
 # end class XOverItem
