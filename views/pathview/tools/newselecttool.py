@@ -52,16 +52,28 @@ class NewSelectTool(AbstractPathTool):
         self.currentOperation = None
 
     def mousePressPathHelix(self, pathHelix, event):
+        # initial setup / check input state
+        pathHelix.makeSelfActiveHelix()
         pathHelix.scene().views()[0].addToPressList(pathHelix)
-        # rightClick = event.button() & Qt.RightButton
-        # leftClick = event.buttons() & Qt.LeftButton
-        if self.logger: self.logger.write("mousePressPathHelix>Select\n")
-        if self.currentOperation != None:
-            self.currentOperation.end()
         dest = pathHelix.vBaseAtPoint(event.pos())
         undoStack = pathHelix.vhelix().undoStack()
+        shiftClick = event.modifiers() & Qt.ShiftModifier
+        altClick = event.modifiers() & Qt.AltModifier
+        # do the operation
+        if self.currentOperation != None: self.currentOperation.end()
         self.currentOperation = SelectToolOperation(dest, undoStack)
-        pathHelix.makeSelfActiveHelix()
+        if shiftClick:
+            if self.logger: self.logger.write("mousePressPathHelix>Join\n")
+            self.currentOperation.actionJustConnect(dest)
+            self.currentOperation.end()
+            self.currentOperation = None
+        elif altClick:
+            if self.logger: self.logger.write("mousePressPathHelix>Extend\n")
+            self.currentOperation.actionResizeStrand(dest)
+            self.currentOperation.end()
+            self.currentOperation = None
+        else:
+            if self.logger: self.logger.write("mousePressPathHelix>Select\n")
 
     def hoverMovePathHelix(self, pathHelix, event):
         if self.logger: self.logger.write("hover>")

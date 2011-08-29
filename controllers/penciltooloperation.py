@@ -40,14 +40,20 @@ class PencilToolOperation(Operation):
         """ Begin a session of pencil-tool interaction """
         Operation.__init__(self, undoStack)
         self.newStrand = NormalStrand(startVBase, startVBase)
+        self.startVStrand = self.newStrand.vStrand()
         self.startVBase = startVBase
         self.lastDestVBase = None
         self.newStrandInVfbPool = False
         if self.imposeDragBounds:  # calculate drag boundaries
-            self.dragBoundL, self.dragBoundR = 0, startVBase.part().dimensions()[2]-1
+            self.setDragBounds()
         self.updateDestination(startVBase)
         if self.logger:
             self.logger.write('PencilToolOperation.init(%s)\n'%startVBase)
+
+    def setDragBounds(self):
+        # prevent dragging outside the grid
+        self.dragBoundL = 0
+        self.dragBoundR = self.startVBase.part().dimensions()[2]-1
 
     def updateDestination(self, newDestVBase):
         """ Looks at self.startVBase and newDestVBase then calls the appropriate

@@ -61,7 +61,7 @@ class VBase(object):
         try:
             return self._vStrand != other._vStrand or self._vIndex != other._vIndex
         except AttributeError:
-            return True        
+            return True
     def __call__(self, i):
         """ Synonymous with sameStrand """
         return VBase(self._vStrand, i )
@@ -75,10 +75,10 @@ class VBase(object):
 
     def vHelix(self):
         return self._vStrand.vHelix
-        
+
     def vIndex(self):
         return self._vIndex
-        
+
     def vStrand(self):
         return self._vStrand
 

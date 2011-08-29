@@ -53,7 +53,7 @@ class VirtualHelix(QObject):
     prohibitSingleBaseCrossovers = True
     if os.environ.get('CADNANO_NO_THOUGHTPOLICE', False) and not ignoreEnv():
         prohibitSingleBaseCrossovers = False
-    
+
     basesModifiedSignal = pyqtSignal()
     dimensionsModifiedSignal = pyqtSignal()
 
@@ -164,13 +164,13 @@ class VirtualHelix(QObject):
         else:
             raise IndexError("%s is not Scaffold=%s or Staple=%s" % \
                          (strandType, StrandType.Scaffold, StrandType.Staple))
-                         
+
     def vStrandScaf(self):
         return self.vScaf
-    
+
     def vStrandStap(self):
         return self.vStap
-             
+
     ######################################################################
     ######################## End New Model Quarantine ####################
     ######################################################################
@@ -217,10 +217,16 @@ class VirtualHelix(QObject):
         return 'vh%i' % self.number()
 
     def __repr__(self):
-        scaf = '%-2iScaffold: ' % self.number() + \
-                            ' '.join((str(b) for b in self._scaffoldBases))
-        stap = '%-2iStaple:   ' % self.number() + \
-                                ' '.join((str(b) for b in self._stapleBases))
+        """
+        Returns ASCII representation of the contents of this virtualhelix,
+        connected to the updated model.
+        """
+        # scaf = '%-2iScaffold: ' % self.number() + \
+        #                     ' '.join((str(b) for b in self._scaffoldBases))
+        # stap = '%-2iStaple:   ' % self.number() + \
+        #                         ' '.join((str(b) for b in self._stapleBases))
+        scaf = '%-2iScaffold: ' % self.number() + self.scaf().model1String()
+        stap = '%-2iStaple:   ' % self.number() + self.stap().model1String()
         return scaf + '\n' + stap
 
     def part(self):
@@ -2064,16 +2070,33 @@ class VirtualHelix(QObject):
     # finishInitWithArchivedDict, this time with all entries
     finishInitPriority = 1.0  # AFTER DNAParts finish init
 
+    def getRangesAndXoversFromString(self, baseStrList):
+        """docstring for getRangesFromString"""
+        print "getRangesFromString"
+        ranges = []
+        xovers = []
+        for i in range(len(baseStrList)):
+            base = baseStrList[i]
+            if not base in ["_,_", "<,>"]:  # start or end of range
+                ranges.append(i)
+                if not base in ["_,>","<,_"]:  # crossover
+                    pass
+        assert(len(ranges) % 2 == 0)
+        print ranges
+
     def finishInitWithArchivedDict(self, completeArchivedDict):
         scaf = re.split('\s+', completeArchivedDict['scafld'])[1:]
         stap = re.split('\s+', completeArchivedDict['staple'])[1:]
         # Did the init method set the number of bases correctly?
         assert(len(scaf) == len(stap) and len(stap) == self.numBases())
-        # for i in range(len(scaf)):
-        #     self._scaffoldBases[i].setConnectsFromString(scaf[i])
-        #     self._stapleBases[i].setConnectsFromString(stap[i])
-        map(Base.setConnectsFromString, self._scaffoldBases, scaf)
-        map(Base.setConnectsFromString, self._stapleBases, stap)
+
+        ranges = self.getRangesAndXoversFromString(scaf)
+            
+            # self._scaffoldBases[i].setConnectsFromString(scaf[i])
+            # self._stapleBases[i].setConnectsFromString(stap[i])
+
+        # map(Base.setConnectsFromString, self._scaffoldBases, scaf)
+        # map(Base.setConnectsFromString, self._stapleBases, stap)
         # Give bases the proper colors
         scafColors = re.split('\s+', completeArchivedDict['scafldColors'])
         # for i in range(len(scaf)):
