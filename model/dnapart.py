@@ -26,12 +26,14 @@ import json
 from .part import Part
 from .virtualhelix import VirtualHelix
 from .enum import LatticeType, StrandType
+from model.xoverstrand import XOverStrand3
 from heapq import *
 import copy
 from views import styles
 from readwritelock import ReadWriteLock
 from threading import Condition
 import itertools
+
 
 import util
 # import Qt stuff into the module namespace with PySide, PyQt4 independence
@@ -118,6 +120,7 @@ class DNAPart(Part):
         
         # Model 2.0
         self._oligos = []
+        self.importedXovers = set()
 
     ######################################################################
     ######################## New Model Quarantine ########################
@@ -188,7 +191,29 @@ class DNAPart(Part):
         return styles.default_palette
 
     ########################## Bookkeeping ##########################
-    
+
+    def importXover(self, strandType, frNum, frIdx, toNum, toIdx):
+        """Stores the xover coordinates for deferred installation. 
+        Ensures all vhelices exist at the time of xover creation."""
+        self.importedXovers.add((strandType, frNum, frIdx, toNum, toIdx))
+
+    def finalizeXoverImport(self):
+        """docstring for finalizeXoverImport"""
+        while len(self.importedXovers) > 0:
+            strandType, frNum, frIdx, toNum, toIdx = self.importedXovers.pop()
+            if strandType == StrandType.Scaffold:
+                frStrand = self.getVirtualHelix(frNum).scaf()
+                toStrand = self.getVirtualHelix(toNum).scaf()
+            else:
+                frStrand = self.getVirtualHelix(frNum).stap()
+                toStrand = self.getVirtualHelix(toNum).stap()
+            frVB = frStrand.get(frIdx).getVBase3()
+            toVB = toStrand.get(toIdx).getVBase5()
+            strand = XOverStrand3(frVB)
+            frVB.vStrand().addStrand(strand, useUndoStack=False)
+            strand.conn3().setVBase(toVB)
+            toVB.vStrand().addStrand(strand.conn3(), useUndoStack=False)
+
     
     ######################################################################
     ######################## End New Model Quarantine ########################

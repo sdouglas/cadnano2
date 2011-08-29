@@ -67,6 +67,7 @@ class Document(QObject):
         for part in self._parts:
             if self._importedFromJson == False:
                 part.updateAcyclicLengths()
+            part.finalizeXoverImport()
             for vh in part.getVirtualHelices():
                 self._controller.pathHelixGroup.vhelixBasesModified(vh)
 
