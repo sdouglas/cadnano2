@@ -33,6 +33,7 @@ class Strand(QObject):
     didMove = pyqtSignal(object)  # Arg is the object emitting the signal
     willBeRemoved = pyqtSignal(object)  # Arg is the object emitting the signal
     connectivityChanged = pyqtSignal(object)  # Arg is the object emitting the s
+    oligoChanged = pyqtSignal(object)  # Arg is the oligo
     apparentConnectivityChanged = pyqtSignal(object)   # Arg is the object emitt
     didLiftoff = pyqtSignal(object)  # Arg is the object emitting the signal
     didSetdown = pyqtSignal(object)  # Arg is the object emitting the signal

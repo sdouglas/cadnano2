@@ -48,7 +48,7 @@ class LoopStrand(Strand):
     def vBaseL(self):   return self._vBase
     def vBaseR(self):   return self._vBase + 1
     def idxs(self):
-        idx = self._vBase.vIndex
+        idx = self._vBase.vIndex()
         return (idx, idx + 1)
 
     def setVBase(self, newVBase, undoStack):

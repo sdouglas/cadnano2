@@ -186,9 +186,9 @@ class NormalStrand(Strand):
                    self.changeRange(newRangeL[0], newRangeL[1], undoStack)  )
             if newRangeRValid: ret.append( NormalStrand(*newRangeR) )
         else:
+            if newRangeRValid: ret.append( NormalStrand(*newRangeL) )
             if newRangeLValid: ret.append(\
                    self.changeRange(newRangeR[0], newRangeR[1], undoStack)  )
-            if newRangeRValid: ret.append( NormalStrand(*newRangeL) )
         for strand in ret: strand.assertConsistent()
         return ret
 

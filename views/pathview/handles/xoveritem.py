@@ -28,7 +28,7 @@ Created by Nick on 2011-05-25.
 from exceptions import AttributeError, NotImplementedError
 from model.enum import HandleOrient, StrandType
 from views import styles
-
+from views.pathview.normalstrandgraphicsitem import ppL5, ppR5, ppL3, ppR3
 import util, time
 # import Qt stuff into the module namespace with PySide, PyQt4 independence
 util.qtWrapImport('QtCore', globals(), ['QPointF', 'QRectF', 'Qt', 'QEvent'])
@@ -39,6 +39,44 @@ util.qtWrapImport('QtGui', globals(), ['QBrush', 'QFont', 'QGraphicsItem',\
 
 FromSide = "FromSide"
 ToSide = "ToSide"
+
+class XoverItem3(QGraphicsPathItem):
+    def __init__(self, ph, xover3strand):
+        QGraphicsPathItem.__init__(phg)
+        self.ph = ph
+        self.xover3strand = xover3strand
+        self.setPen(QPen(Qt.NoPen))
+    def updatePos(self):
+        strand = self.xover3strand
+        vb = strand.vBase()
+        self.setPos(self.ph.pointForVBase(vb))
+        # We can only expose a 5' end. But on which side?
+        self.setPath(ppL5 if vb.drawn5To3() else ppR5)
+        self.setBrush(QBrush(strand.color()))
+        self.updateConnectivity()
+    def updateConnectivity(self):
+        self.setVisible(self.xover3strand.conn5() != None)
+    def strandWillBeRemoved(self, strand):
+        self.scene().removeItem(self)
+
+class XoverItem5(QGraphicsPathItem):
+    def __init__(self, ph, xover5strand):
+        QGraphicsPathItem.__init__(phg)
+        self.ph = ph
+        self.xover5strand = xover5strand
+        self.setPen(QPen(Qt.NoPen))
+    def updatePos(self):
+        strand = self.xover5strand
+        vb = strand.vBase()
+        self.setPos(self.ph.pointForVBase(vb))
+        # We can only expose a 3' end. But on which side?
+        self.setPath(ppR35 if vb.drawn5To3() else ppL3)
+        self.setBrush(QBrush(strand.color()))
+        self.updateConnectivity()
+    def updateConnectivity(self):
+        self.setVisible(self.xover5strand.conn3() != None)
+    def strandWillBeRemoved(self, strand):
+        self.scene().removeItem(self)
 
 class XoverItem(QGraphicsPathItem):
     """
@@ -96,8 +134,7 @@ class XoverItem(QGraphicsPathItem):
         pass
 
     def strandWillBeRemoved(self):
-        self.hide()
-        # self.scene().removeItem(self)
+        self.scene().removeItem(self)
 
     def strandDidMove(self):
         self.updatePath()

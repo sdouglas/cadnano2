@@ -41,7 +41,7 @@ class PencilToolOperation(Operation):
         Operation.__init__(self, undoStack)
         self.newStrand = NormalStrand(startVBase, startVBase)
         self.startVBase = startVBase
-        self.lastDestVBase = startVBase
+        self.lastDestVBase = None
         self.newStrandInVfbPool = False
         if self.imposeDragBounds:  # calculate drag boundaries
             self.dragBoundL, self.dragBoundR = 0, startVBase.part().dimensions()[2]-1

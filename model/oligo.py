@@ -10,10 +10,8 @@ class Oligo(QObject):
     def __init__(self):
         QObject.__init__(self)
         self._sequence = ""
-        self._strands = []
         self._color = None
-        self._sequence = None
-    
+
     ########################## Notification API ##########################
 
     # Args are oligo, strand, index

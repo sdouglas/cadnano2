@@ -44,7 +44,7 @@ class VStrand(RangeSet):
     # object present at that idx has changed. For the latter, you have to look
     # for signals emitted by the strand itself.)
     #       indicesModifiedSignal = pyQtSignal(int, int)  # inherited
-    logger = sys.stdout
+    logger = None
     def __init__(self, parentVHelix=None):
         RangeSet.__init__(self)
         if parentVHelix != None:
@@ -61,9 +61,6 @@ class VStrand(RangeSet):
         if self == self.vHelix.stap(): accesorToGetSelfFromvHelix = "stap()"
         return "v[%i].%s"%(self.vHelix.number(), accesorToGetSelfFromvHelix)
 
-    def __call__(self, idx):
-        return VBase(self, idx)
-
     def logIndicesModified(self, rangeModified):
         if self.logger != None:
             self.logger.write( "\t%s.indicesModifiedSignal.emit(%s)\n"%\
@@ -72,7 +69,6 @@ class VStrand(RangeSet):
     ####################### Public Read API #######################
     # Useful inherited methods:
     #   vstr.get(idx)            get the segment at index idx (or None)
-    #   vstr[idx]                same as get
     #   vstr.bounds()            returns a range containing all segments
     #                            this range is tight
     #   vstr.part()              the part containing vstr
@@ -208,17 +204,21 @@ class VStrand(RangeSet):
             rStrandIdx = self._idxOfRangeContaining(firstIndex)
             rStrand = self.get(firstIndex)
             if lStrand == rStrand != None:
-                if self.logger: self.logger.write('\tsplitting a strand\n')
+                if self.logger:
+                    self.logger.write('\tsplitting a strand: %s[%i:%i] = '%\
+                             (self.newStringRep(), lStrandIdx, lStrandIdx + 1))
                 replacementRanges = self.splitRangeItem(lStrand,\
                                                         firstIndex,\
                                                         afterLastIndex,\
                                                         keepLeft,\
                                                         undoStack)
+                if self.logger:
+                    self.logger.write('%s\n'%replacementRanges)
                 com = self.ReplaceRangeItemsCommand(self,\
-                                                    lStrandIdx,\
-                                                    lStrandIdx + 1,\
-                                                    replacementRanges,\
-                                                    False)
+                                                     lStrandIdx,\
+                                                     lStrandIdx + 1,\
+                                                     replacementRanges,\
+                                                     False)
                 if useUndoStack:
                     undoStack.push(com)
                 else:
