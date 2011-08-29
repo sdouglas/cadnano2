@@ -364,8 +364,9 @@ class Strand(QObject):
 
     def wasInsertedCallback(self):
         pass
-
     def willBeRemovedCallback(self):
+        pass
+    def removalWillBePushed(self):
         pass
 
     def setdown(self, useUndoStack=True, undoStack=None):
