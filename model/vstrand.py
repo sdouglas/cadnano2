@@ -61,6 +61,10 @@ class VStrand(RangeSet):
         if self == self.vHelix.stap(): accesorToGetSelfFromvHelix = "stap()"
         return "v[%i].%s"%(self.vHelix.number(), accesorToGetSelfFromvHelix)
 
+    def __call__(self, idx):
+        """docstring for __call__"""
+        return VBase(self, idx)
+
     def logIndicesModified(self, rangeModified):
         if self.logger != None:
             self.logger.write( "\t%s.indicesModifiedSignal.emit(%s)\n"%\

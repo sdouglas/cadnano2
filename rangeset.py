@@ -220,7 +220,7 @@ class RangeSet(QObject):
         Returns weather or not the receiver contains all i st
         rangeStart <= i < afterRangeEnd
         """
-        idxRange = self._idxRangeOfRangesIntersectingRange(rangeStart, rangeEnd)
+        idxRange = self._idxRangeOfRangesTouchingRange(rangeStart, rangeEnd)
         previousLastIdx = None
         for i in range(*idxRange):
             l, r = self.idxs(self.ranges[i])
@@ -233,11 +233,11 @@ class RangeSet(QObject):
         return True
 
     def containsAnyInRange(rangeStart, rangeEnd):
-        idxRange = self._idxRangeOfRangesIntersectingRange(rangeStart, rangeEnd)
+        idxRange = self._idxRangeOfRangesTouchingRange(rangeStart, rangeEnd)
         return idxRange[1] - idxRange[0] > 0
 
     def rangeItemsTouchingRange(self, rangeStart, rangeEnd):
-        rangeItemIndexRange = self._idxRangeOfRangesIntersectingRange(rangeStart, rangeEnd)
+        rangeItemIndexRange = self._idxRangeOfRangesTouchingRange(rangeStart, rangeEnd)
         return self.ranges[rangeItemIndexRange[0]:rangeItemIndexRange[1]]
 
     def __iter__(self):
@@ -315,11 +315,11 @@ class RangeSet(QObject):
         undoStack = self.beginCommand(useUndoStack,\
                                       undoStack,\
                                       'RangeSet.removeRange')
-        intersectingIdxRange = self._idxRangeOfRangesIntersectingRange(firstIndex,
+        touchingIdxRange = self._idxRangeOfRangesTouchingRange(firstIndex,
                                                                        afterLastIndex)
         replacementRanges = []
         # (first Index (into self.ranges) of an Touching Range)
-        firstIIR, afterLastIIR = intersectingIdxRange
+        firstIIR, afterLastIIR = touchingIdxRange
         # print "\tRangeRange: %s[%i:%i]"%(self.ranges, firstIIR, afterLastIIR)
         if afterLastIIR == firstIIR:
             if useUndoStack: undoStack.endMacro()
@@ -572,10 +572,10 @@ class RangeSet(QObject):
             return (m,)
         return None
 
-    def _idxRangeOfRangesIntersectingRange(self, rangeStart, rangeEnd):
+    def _idxRangeOfRangesTouchingRange(self, rangeStart, rangeEnd):
         """
         Returns a range (first, afterLast) of indices into self.ranges,
-        where the range represented by each index intersects [rangeStart,rangeEnd)
+        where the range represented by each index touches [rangeStart,rangeEnd)
         or is adjacent to [rangeStart, rangeEnd)
         """
         if rangeStart >= rangeEnd:
@@ -592,7 +592,7 @@ class RangeSet(QObject):
         if idx >= lenRanges:
             return [lenRanges, lenRanges]  # Empty range
         # idx now refers to the location in self.ranges of the first
-        # range intersecting [rangeStart, infinity)
+        # range touching [rangeStart, infinity)
         lastIdx = idx
         while True:
             if lastIdx >= lenRanges:
