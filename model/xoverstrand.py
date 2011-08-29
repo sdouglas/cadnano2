@@ -67,6 +67,8 @@ class XOverStrand3(Strand):
         raise TypeError("A XOverStrand3's 3' end is always connected to its "\
                         "corresponding XOverStrand5, possibly on a different"\
                         " strand")
+    def isFloating(self):
+        return self.conn3().isFloating()
 
     def vBase(self):
         return self._vBase
@@ -131,6 +133,14 @@ class XOverStrand5(Strand):
     def setConn5(self, newConn):
         raise TypeError("The 5' end of the 5' base of a crossover is"\
                         "already occupied by definition")
+    # end def
+
+    def isFloating(self):
+        if self._vBase == None:
+            return True
+        else: 
+            return False
+
     def removalWillBePushed(self, useUndoStack, undoStack):
         self.isBeingDeleted = True
         partnerXoverVBase = self.conn5().vBase()
