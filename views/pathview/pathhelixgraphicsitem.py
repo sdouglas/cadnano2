@@ -216,7 +216,7 @@ class PathHelix(QGraphicsPathItem):
             newVH.stap().didAddStrand.connect(self.strandAddedToVStrand)
             for vstrand in (newVH.scaf(), newVH.stap()):
                 for strand in vstrand:
-                    self.didAddStrand(strand)
+                    self.strandAddedToVStrand(strand)
         self.vhelixDimensionsModified()
         self.vhelixBasesModified()
 
