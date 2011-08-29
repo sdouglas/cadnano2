@@ -45,7 +45,7 @@ if pathadder not in sys.path:
 
 def getDefaultModules():
     """
-    gets a list modules that are
+    gets a list of modules that are
     installed Maya or Qt modules
     The list was compiled through printing and additional trial
     and error to add some additional modules at the bottom of
