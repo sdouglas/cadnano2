@@ -27,22 +27,24 @@ virtualhelix.py
 Created by Jonathan deWerd on 2011-01-26.
 """
 import sys
+from math import modf
+from random import Random
+import re, sys, os
 from exceptions import AttributeError, IndexError
 from itertools import product, imap, repeat
+from cadnano import app, ignoreEnv
+
 from .enum import LatticeType, Parity, StrandType, BreakType
 from .enum import Crossovers, EndType
 from .base import Base
-from cadnano import app, ignoreEnv
-from random import Random
-import re, sys, os
 from views import styles
-from math import modf
 from rangeset import RangeSet
 from vstrand import VStrand
 from vbase import VBase
 import strand
 
 import util
+
 # import Qt stuff into the module namespace with PySide, PyQt4 independence
 util.qtWrapImport('QtCore', globals(), ['QObject', 'pyqtSignal', 'QTimer'] )
 util.qtWrapImport('QtGui', globals(), [ 'QUndoCommand', 'QUndoStack', \
@@ -387,6 +389,7 @@ class VirtualHelix(QObject):
         isScaf = vstrand == self.vScaf
         isEven = (self._number%2) == 0
         return isEven == isScaf
+
     def directionOfStrandIs5to3(self, strandtype):
         """
         Even scaffold strands and odd staple strands are displayed
@@ -395,7 +398,6 @@ class VirtualHelix(QObject):
         isScaf = strandtype == StrandType.Scaffold
         isEven = (self._number%2) == 0
         return isEven == isScaf
-
 
     def row(self):
         """return VirtualHelix helical-axis row"""
@@ -2071,38 +2073,101 @@ class VirtualHelix(QObject):
     finishInitPriority = 1.0  # AFTER DNAParts finish init
 
     def getRangesAndXoversFromString(self, baseStrList):
-        """docstring for getRangesFromString"""
-        print "getRangesFromString"
-        ranges = []
-        xovers = []
+        """
+        Decodes the string representation of each base in baseStrList
+        and returns a tuple containing the ranges, left-xovers, and 
+        right-xovers.
+        """
+        ranges, xoL, xoR = [], [], []
         for i in range(len(baseStrList)):
             base = baseStrList[i]
             if not base in ["_,_", "<,>"]:  # start or end of range
                 ranges.append(i)
-                if not base in ["_,>","<,_"]:  # crossover
-                    pass
+                if not base in ["<,_", "_,>"]:  # crossover
+                    l, r = re.split(',', base)
+                    lm = re.match(r"(\d+):(\d+)", l)
+                    rm = re.match(r"(\d+):(\d+)", r)
+                    if lm != None:
+                        xoL.append((i, int(lm.group(1)), int(lm.group(2))))
+                    if rm != None:
+                        xoR.append((i, int(rm.group(1)), int(rm.group(2))))
         assert(len(ranges) % 2 == 0)
-        print ranges
+        return (ranges, xoL, xoR)
 
     def finishInitWithArchivedDict(self, completeArchivedDict):
-        scaf = re.split('\s+', completeArchivedDict['scafld'])[1:]
-        stap = re.split('\s+', completeArchivedDict['staple'])[1:]
-        # Did the init method set the number of bases correctly?
+        """
+        Initialization of the virtualhelix is completed as follows:
+        
+        1. Parse the scaf and stap strings into ranges and xover positions
+        by calling getRangesAndXoversFromString()
+        2. Call connectStrand for each of the ranges
+        3. Call ForceToolOperation to install crossovers
+        4. Apply color information
+        """
+        scaf = re.split('\s+', completeArchivedDict['scafld'])
+        stap = re.split('\s+', completeArchivedDict['staple'])
+        scafDir, scaf = scaf[0], scaf[1:]
+        stapDir, stap = stap[0], stap[1:]
         assert(len(scaf) == len(stap) and len(stap) == self.numBases())
 
-        ranges = self.getRangesAndXoversFromString(scaf)
-            
-            # self._scaffoldBases[i].setConnectsFromString(scaf[i])
-            # self._stapleBases[i].setConnectsFromString(stap[i])
+        print self.number(), "scaf", scafDir, "stap", stapDir
 
-        # map(Base.setConnectsFromString, self._scaffoldBases, scaf)
-        # map(Base.setConnectsFromString, self._stapleBases, stap)
+        scafRanges, scafXoL, scafXoR = self.getRangesAndXoversFromString(scaf)
+        stapRanges, stapXoL, stapXoR = self.getRangesAndXoversFromString(stap)
+
+        print scafRanges, scafXoL, scafXoR
+        for i in range(0, len(scafRanges), 2):
+            startIdx, endIdx = scafRanges[i:i+2]
+            self.scaf().connectStrand(startIdx, endIdx, useUndoStack=False)
+        for i in range(0, len(stapRanges), 2):
+            startIdx, endIdx = stapRanges[i:i+2]
+            self.stap().connectStrand(startIdx, endIdx, useUndoStack=False)
+
+        from controllers.forcetooloperation import ForceToolOperation
+
+        xoverpairs = set()
+        if scafDir == "(5->3)":  # stapDir == (3->5)
+            # scaffold fromVBase is a 3' left xover
+            print "scafXoL"
+            for fromIdx, toVHelixNum, toIdx in scafXoL:
+                print fromIdx, toVHelixNum, toIdx
+                fromVB = self.scaf().get(fromIdx).getVBase3()
+                toVB = self._part.getVirtualHelix(toVHelixNum).scaf().get(toIdx).getVBase5()
+                xoverpairs.add((fromVB, toVB))
+            # staple fromVBase is a 3' right xover
+            print "stapXoR"
+            for fromIdx, toVHelixNum, toIdx in stapXoR:
+                print fromIdx, toVHelixNum, toIdx
+                fromVB = self.stap().get(fromIdx).getVBase3()
+                toVB = self._part.getVirtualHelix(toVHelixNum).stap().get(toIdx).getVBase5()
+                xoverpairs.add((fromVB, toVB))
+        else:  # scafDir == (3<-5), stapDir = (5->3)
+            # scaffold fromVBase is a 3' right xover
+            print "scafXoR"
+            for fromIdx, toVHelixNum, toIdx in scafXoR:
+                print fromIdx, toVHelixNum, toIdx
+                fromVB = self.scaf().get(fromIdx).getVBase3()
+                toVB = self._part.getVirtualHelix(toVHelixNum).scaf().get(toIdx).getVBase5()
+                xoverpairs.add((fromVB, toVB))
+            # staple fromVBase is a 3' left xover
+            print "stapXoL"
+            for fromIdx, toVHelixNum, toIdx in stapXoL:
+                print fromIdx, toVHelixNum, toIdx
+                fromVB = self.stap().get(fromIdx).getVBase3()
+                toVB = self._part.getVirtualHelix(toVHelixNum).stap().get(toIdx).getVBase5()
+                xoverpairs.add((fromVB, toVB))
+        for fromVB, toVB in xoverpairs:
+            fto = ForceToolOperation(fromVB, useUndoStack=False)
+            fto.updateDestination(toVB)
+            fto.end()
+
         # Give bases the proper colors
-        scafColors = re.split('\s+', completeArchivedDict['scafldColors'])
-        # for i in range(len(scaf)):
-        #     self._scaffoldBases[i]._setColor(QColor(scafColors[i]))
-        map(Base._setColor, self._scaffoldBases, imap(QColor, scafColors))
-        stapColors = re.split('\s+', completeArchivedDict['stapleColors'])
-        # for i in range(len(stap)):
-        #     self._stapleBases[i]._setColor(QColor(stapColors[i]))
-        map(Base._setColor, self._stapleBases, imap(QColor, stapColors))
+        # scafColors = re.split('\s+', completeArchivedDict['scafldColors'])
+        # # for i in range(len(scaf)):
+        # #     self._scaffoldBases[i]._setColor(QColor(scafColors[i]))
+        # map(Base._setColor, self._scaffoldBases, imap(QColor, scafColors))
+
+        # stapColors = re.split('\s+', completeArchivedDict['stapleColors'])
+        # # for i in range(len(stap)):
+        # #     self._stapleBases[i]._setColor(QColor(stapColors[i]))
+        # map(Base._setColor, self._stapleBases, imap(QColor, stapColors))
