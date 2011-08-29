@@ -200,17 +200,24 @@ class PathHelix(QGraphicsPathItem):
 
     def setVHelix(self, newVH):
         vh = self._vhelix
-        if vh:
+        if vh != None:
             vh.basesModifiedSignal.disconnect(self.vhelixBasesModified)
             vh.vhelixDimensionsModified.disconnect(\
                                              self.vhelixDimensionsModified)
             vh.scaf().didAddStrand.disconnect(self.strandAddedToVStrand)
             vh.stap().didAddStrand.disconnect(self.strandAddedToVStrand)
+            scene = self.scene()
+            for c in self.childItems:
+                scene.removeItem(c)
         self._vhelix = newVH
-        newVH.basesModifiedSignal.connect(self.vhelixBasesModified)
-        newVH.dimensionsModifiedSignal.connect(self.vhelixDimensionsModified)
-        newVH.scaf().didAddStrand.connect(self.strandAddedToVStrand)
-        newVH.stap().didAddStrand.connect(self.strandAddedToVStrand)
+        if newVH != None:
+            newVH.basesModifiedSignal.connect(self.vhelixBasesModified)
+            newVH.dimensionsModifiedSignal.connect(self.vhelixDimensionsModified)
+            newVH.scaf().didAddStrand.connect(self.strandAddedToVStrand)
+            newVH.stap().didAddStrand.connect(self.strandAddedToVStrand)
+            for vstrand in (newVH.scaf(), newVH.stap()):
+                for strand in vstrand:
+                    self.didAddStrand(strand)
         self.vhelixDimensionsModified()
         self.vhelixBasesModified()
 
