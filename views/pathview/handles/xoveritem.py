@@ -93,8 +93,7 @@ class XoverItem3(QGraphicsPathItem):
         
     def updateLabel(self, partnerStrand, isLeft):
         xos = self.strand
-        # print "meth", xos.conn3().vBase(), "var", xos.conn3()._vBase, "Fuck", xos.isFloating()
-        if not xos.isFloating():# == False: 
+        if not xos.isFloating():
             if self._label == None:
                 bw = self.baseWidth
                 
@@ -116,7 +115,7 @@ class XoverItem3(QGraphicsPathItem):
 
                 if isLeft:
                     # print "ontop 5to3", partnerStrand.vBase().vHelix().number()
-                    labelX -=  0.75*bw
+                    labelX -=  0.25*bw
                 else:
                     # print "ontop 3to5", partnerStrand.vBase().vHelix().number()
                     labelX += 0.25*bw
