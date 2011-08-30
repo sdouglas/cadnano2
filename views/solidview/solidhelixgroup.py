@@ -147,7 +147,7 @@ class SolidHelixGroup(QObject):
         return (x, y)
 
     def clearInternalDataStructures(self):
-        self.solidHelixes.clear()
+        self.solidHelixes = []
         self.idStrandMapping.clear()
         nodes = cmds.ls("DNAShapeTransform*")
         self.strandCount = len(nodes)
@@ -159,7 +159,7 @@ class SolidHelixGroup(QObject):
         #    cmds.delete(n)
         # Delete Helicies in this group
         for solidhelix in self.solidHelixes:
-            strandIDs = solidhelix.StrandIDs
+            strandIDs = solidhelix.StrandIDs()
             for id in strandIDs:
                 transformName = "DNAShapeTransform%s" % id
                 if cmds.objExists(transformName):
