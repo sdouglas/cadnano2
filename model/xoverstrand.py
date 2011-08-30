@@ -116,6 +116,7 @@ class XOverStrand5(Strand):
     """ The partner of a XOverStrand3. To create a XOverStrand5 that is
     properly connected to a XOverStrand3, first create the XOverStrand3 and
     then call xover3.conn3() to get the corresponding XOverStrand5 object. """
+    kind = 'xovr5'
     def __init__(self, vBase):
         Strand.__init__(self)
         self._vBase = vBase
