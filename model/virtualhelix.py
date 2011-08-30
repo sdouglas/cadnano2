@@ -2094,7 +2094,6 @@ class VirtualHelix(QObject):
         assert(len(scaf) == len(stap) and len(stap) == self.numBases())
         scafRanges, scafXoL, scafXoR = self.getRangesAndXoversFromString(scaf)
         stapRanges, stapXoL, stapXoR = self.getRangesAndXoversFromString(stap)
-        # print scafRanges, scafXoL, scafXoR
 
         # 2
         for i in range(0, len(scafRanges), 2):
@@ -2106,25 +2105,17 @@ class VirtualHelix(QObject):
 
         # 3
         if scafDir == "(5->3)":  # stapDir == (3->5)
-            # scaffold fromVBase is a 3' left xover
-            # print "scafXoL"
-            for frIdx, toNum, toIdx in scafXoL:
+            for frIdx, toNum, toIdx in scafXoL:  # scaf frVBase is 3'L xover
                 self._part.importXover(\
                        StrandType.Scaffold, self._number, frIdx, toNum, toIdx)
-            # staple fromVBase is a 3' right xover
-            # print "stapXoR"
-            for frIdx, toNum, toIdx in stapXoR:
+            for frIdx, toNum, toIdx in stapXoR:  # stap frVBase is 3'R xover
                 self._part.importXover(\
                          StrandType.Staple, self._number, frIdx, toNum, toIdx)
         else:  # scafDir == (3<-5), stapDir = (5->3)
-            # scaffold fromVBase is a 3' right xover
-            # print "scafXoR"
-            for frIdx, toNum, toIdx in scafXoR:
+            for frIdx, toNum, toIdx in scafXoR:  # scaf frVBase is 3'R xover
                 self._part.importXover(\
                        StrandType.Scaffold, self._number, frIdx, toNum, toIdx)
-            # staple fromVBase is a 3' left xover
-            # print "stapXoL"
-            for frIdx, toNum, toIdx in stapXoL:
+            for frIdx, toNum, toIdx in stapXoL:  # stap frVBase is 3'L xover
                 self._part.importXover(\
                          StrandType.Staple, self._number, frIdx, toNum, toIdx)
 
