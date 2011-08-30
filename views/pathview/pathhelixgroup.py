@@ -113,6 +113,7 @@ class PathHelixGroup(QGraphicsObject):
         app().phg = self  # Convenience for the command line -i mode
         self._part.partRemoved.connect(self.destroy)  # connect destructor
         self.dragging = False
+        
     # end def
 
     def destroy(self):
@@ -426,6 +427,7 @@ class PathHelixGroup(QGraphicsObject):
         thescene = self.scene()
         theview = thescene.views()[0]
         theview.zoomToFit()
+        self.setCacheMode(QGraphicsItem.DeviceCoordinateCache)
 
     def virtualHelixAtCoordsChangedEvent(self, row, col):
         c = (row, col)

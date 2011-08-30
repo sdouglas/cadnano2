@@ -40,22 +40,9 @@ util.qtWrapImport('QtCore', globals(), ['pyqtSignal', 'Qt', 'QFileInfo',
                                         'QString'])
 util.qtWrapImport('QtGui', globals(), ['QGraphicsObject', 'QMainWindow',
                                         'QGraphicsScene', 'QGraphicsView',
-                                        'QApplication', 'QAction', 'QWidget'])
+                                        'QApplication', 'QAction', 'QWidget',
+                                        'QGraphicsRectItem', 'QGraphicsItem'])
 # util.qtWrapImport('QtOpenGL', globals(), ['QGLWidget', 'QGLFormat', 'QGL'])
-
-
-class SceneRoot(QGraphicsObject):
-    def __init__(self, rectsource=None):
-        super(SceneRoot, self).__init__()
-        # this sets the rect of itself to the QGraphicsScene bounding volume
-        self.rect = rectsource.sceneRect()
-
-    def paint(self, painter, option, widget):
-        pass
-
-    def boundingRect(self):
-        return self.rect
-
 
 class DocumentWindow(QMainWindow, ui_mainwindow.Ui_MainWindow):
     """docstring for DocumentWindow"""
@@ -67,7 +54,8 @@ class DocumentWindow(QMainWindow, ui_mainwindow.Ui_MainWindow):
         self.readSettings()
         # Slice setup
         self.slicescene = QGraphicsScene(parent=self.sliceGraphicsView)
-        self.sliceroot = SceneRoot(rectsource=self.slicescene)
+        self.sliceroot = QGraphicsRectItem(self.slicescene.sceneRect(), parent=None)
+        self.sliceroot.setFlag(QGraphicsItem.ItemHasNoContents)
         self.slicescene.addItem(self.sliceroot)
         assert self.sliceroot.scene() == self.slicescene
         self.sliceGraphicsView.setScene(self.slicescene)
@@ -75,7 +63,8 @@ class DocumentWindow(QMainWindow, ui_mainwindow.Ui_MainWindow):
         self.sliceController = slicecontroller.SliceController(self)
         # Path setup
         self.pathscene = QGraphicsScene(parent=self.pathGraphicsView)
-        self.pathroot = SceneRoot(rectsource=self.pathscene)
+        self.pathroot = QGraphicsRectItem(self.slicescene.sceneRect(), parent=None)
+        self.pathroot.setFlag(QGraphicsItem.ItemHasNoContents)
         self.pathscene.addItem(self.pathroot)
         assert self.pathroot.scene() == self.pathscene
 
