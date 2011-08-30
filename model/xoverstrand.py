@@ -102,10 +102,11 @@ class XOverStrand3(Strand):
         self._pt5 = newPt5
         self.didMove.emit(self)
     def removalWillBePushed(self, useUndoStack, undoStack):
-        self.isBeingDeleted = True
         partnerXoverVBase = self.conn3().vBase()
-        if partnerXoverVBase == None or self.conn3().isBeingDeleted:
+        if partnerXoverVBase == None or\
+           self.conn3().isBeingDeleted or self.isBeingDeleted:
             return None
+        self.isBeingDeleted = True
         partnerIdx = partnerXoverVBase.vIndex()
         partnerXoverVBase.vStrand().clearStrand(partnerIdx, partnerIdx + 1,\
                                                 useUndoStack, undoStack)
@@ -115,6 +116,7 @@ class XOverStrand5(Strand):
     """ The partner of a XOverStrand3. To create a XOverStrand5 that is
     properly connected to a XOverStrand3, first create the XOverStrand3 and
     then call xover3.conn3() to get the corresponding XOverStrand5 object. """
+    kind = 'xovr5'
     def __init__(self, vBase):
         Strand.__init__(self)
         self._vBase = vBase
@@ -142,10 +144,11 @@ class XOverStrand5(Strand):
             return False
 
     def removalWillBePushed(self, useUndoStack, undoStack):
-        self.isBeingDeleted = True
         partnerXoverVBase = self.conn5().vBase()
-        if partnerXoverVBase == None or self.conn5().isBeingDeleted:
+        if partnerXoverVBase == None or\
+           self.conn5().isBeingDeleted or self.isBeingDeleted:
             return None
+        self.isBeingDeleted = True
         partnerIdx = partnerXoverVBase.vIndex()
         partnerXoverVBase.vStrand().clearStrand(partnerIdx, partnerIdx + 1,\
                                                 useUndoStack, undoStack)

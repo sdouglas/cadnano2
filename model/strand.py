@@ -366,7 +366,11 @@ class Strand(QObject):
         pass
     def willBeRemovedCallback(self):
         pass
-    def removalWillBePushed(self):
+    def removalWillBePushed(self, useUndoStack, undoStack):
+        """Called before the command that causes removal of self to be pushed
+        to the undoStack is pushed (in contrast to willBeRemoved which is called
+        every time the undoStack decides to remove self). This is the place to
+        push side effects of removal onto the undo stack."""
         pass
 
     def setdown(self, useUndoStack=True, undoStack=None):

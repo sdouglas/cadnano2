@@ -43,7 +43,7 @@ class ForceToolOperation(Operation):
                                      (startVBase, undoStack))
 
     def updateDestination(self, newVBase5):
-        if self.lastDestination == newVBase5:
+        if self.lastDestination == newVBase5 or newVBase5 == self.startVBase:
             return
         self.lastDestination = newVBase5
         self.rewind(self.undoIdxBeforeInstall)
