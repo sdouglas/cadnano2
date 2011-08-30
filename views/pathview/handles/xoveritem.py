@@ -83,7 +83,6 @@ class XoverItem3(QGraphicsPathItem):
         isLeft = True if  strand.vBase().drawn5To3() else False
         self.updateLabel(strand.conn3(), isLeft)
     def strandWillBeRemoved(self, strand):
-        print "removing xovr3 %s"%self.strand
         self.strand.willBeRemoved.disconnect(self.strandWillBeRemoved)
         self.strand.connectivityChanged.disconnect(self.updateConnectivity)
         scene = self.scene()
@@ -246,7 +245,6 @@ class XoverItem(QGraphicsPathItem):
         self.updatePath()
 
     def strandWillBeRemoved(self):
-        print "removing GI %s"%self._strand
         self.disconnectSignals()
         self.scene().removeItem(self)
 
