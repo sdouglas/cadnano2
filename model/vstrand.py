@@ -270,23 +270,19 @@ class VStrand(RangeSet):
         rIsEnd = 'L' in VBase(self, rIdx).exposedEnds()
         lIsNormalStrand = isinstance(lStrand, NormalStrand)
         rIsNormalStrand = isinstance(rStrand, NormalStrand)
-        print"connectStrand"
-        print lStrand, rStrand
-        print lIsEnd, rIsEnd
-        print lIsNormalStrand, rIsNormalStrand
         if leftHasPrivilege:
             if self.logger: self.logger.write('\tleftPrivelage>')
             if lStrand == rStrand != None:
                 if self.logger: self.logger.write('0drag\n')
                 pass
-            elif lIdx + 1 == rIdx and lIsEnd and rIsEnd:
-                if self.logger: self.logger.write('connect_adjacent_endpts\n')
-                lStrand.setConnR(rStrand, useUndoStack, undoStack)
             elif lIsNormalStrand and rIsNormalStrand:
                 if self.logger: self.logger.write('lIsNorm&rIsNorm\n')
                 rConnR = rStrand.connR()
                 self.resizeStrandAt(lIdx, lStrand.vBaseL, rStrand.vBaseR, useUndoStack, undoStack)
                 lStrand.setConnR(rConnR, useUndoStack, undoStack)
+            elif lIdx + 1 == rIdx and lIsEnd and rIsEnd:
+                if self.logger: self.logger.write('connect_adjacent_endpts\n')
+                lStrand.setConnR(rStrand, useUndoStack, undoStack)
             elif lIsNormalStrand and rIsEnd:
                 if self.logger: self.logger.write('lIsNorm&rIsEnd\n')
                 self.resizeStrandAt(lIdx, lStrand.vBaseL, rIdx - 1, useUndoStack, undoStack)

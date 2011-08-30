@@ -256,8 +256,8 @@ class RangeSet(QObject):
 
         Note: "touching" ranges intersect or are adjacent to rangeItem.
         """
+        
         firstIndex, afterLastIndex = self.idxs(rangeItemToInsert)
-
         if firstIndex >= afterLastIndex:
             return
         oldBounds = self.bounds()
@@ -273,7 +273,6 @@ class RangeSet(QObject):
 
         if middleRangeItemIdx > 0:
             leftRangeItemIdx = middleRangeItemIdx - 1
-            print "addRange", self.ranges, middleRangeItemIdx, leftRangeItemIdx
             leftRangeItem = self.ranges[leftRangeItemIdx]
             if self.canMergeRangeItems(leftRangeItem, rangeItemToInsert):
                 mergedRangeItm = self.mergeRangeItems(leftRangeItem,\
@@ -366,7 +365,10 @@ class RangeSet(QObject):
                                             replacementRanges,\
                                             suppressCallsItem)
         self.endCommand(undoStack, com)
-        middleIdx = firstIIR + 1
+        if len(self.ranges) == 0:
+            middleIdx = 0  # all the intersecting ranges were cleared
+        else:
+            middleIdx = firstIIR+1  # insert to the right of remaining firstIIR
         return middleIdx
 
     def resizeRangeAtIdx(self, idx, newFirstIndex, newAfterLastIdx, useUndoStack=True, undoStack=None):
@@ -374,14 +376,12 @@ class RangeSet(QObject):
         Finds the largest contiguous range of indices in the receiver that includes
         idx and changes it.
         """
-        print "resizeRangeAtIdx", idx, newFirstIndex, newAfterLastIdx
         assert(isinstance(idx, (int, long)))
         undoStack = self.beginCommand(useUndoStack,\
                                       undoStack,\
                                       'RangeSet.resizeRangeAtIdx')
         rangeItemToResize = self.get(idx)
         oldL, oldAR = self.idxs(rangeItemToResize)
-        print "oldL, oldAR", oldL, oldAR
         self.removeRange(oldL, oldAR,\
                          useUndoStack=useUndoStack, undoStack=undoStack,\
                          suppressCallsItem=rangeItemToResize)
