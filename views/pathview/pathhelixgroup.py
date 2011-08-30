@@ -370,6 +370,7 @@ class PathHelixGroup(QGraphicsObject):
             ph.vhelix().basesModifiedSignal.connect(vhbm)
         self._pathHelixes = newList
         for ph in self._pathHelixes:
+            # this emits the signal to update the views
             ph.positionInPhgChanged()
         self.vhToPathHelix = dict(((ph.vhelix(), ph) for ph in newList))
         if zoomToFit:
