@@ -80,7 +80,7 @@ class RangeSet(QObject):
                 # Ranges are sorted, don't overlap
                 for j in range(*rangeIntersection([0, len(self.ranges)], [i - 3, i + 3])):
                     print "self.ranges[%i]: %s"%(j, self.ranges[j])                
-                print "Problem between items at idx %i, %i (can be merged, not merged)"\
+                print "Problem between items at idx %i, %i (out of order)"\
                       %(i, i + 1)
                 assert(False)  
             if ll == rf:
@@ -352,17 +352,19 @@ class RangeSet(QObject):
                                                         afterLastIndex,\
                                                         keepLeft,\
                                                         undoStack)
+                # middleIdx: the index into self.ranges that one would insert a
+                # range item if one wished to insert the range item into the space
+                # celared by this removeRange command
+                middleIdx = firstIIR + len(replacementRanges) - 1
             else:
                 newItem = self.changeRangeForItem(firstIR,\
                                                   firstIRL,\
                                                   firstIndex,\
                                                   undoStack)
                 replacementRanges.append(newItem)
-        # 
-        # middleIdx: the index into self.ranges that one would insert a
-        # range item if one wished to insert the range item into the space
-        # celared by this removeRange command
-        middleIdx = firstIIR + len(replacementRanges)
+                middleIdx = firstIIR + len(replacementRanges)
+        else:
+            middleIdx = firstIIR + len(replacementRanges)
         lastIR = self.ranges[afterLastIIR - 1]
         lastIRL, lastIRAr = self.idxs(lastIR)
         if lastIRAr > afterLastIndex and lastIRL >= firstIndex:
