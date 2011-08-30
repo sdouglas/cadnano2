@@ -41,50 +41,123 @@ FromSide = "FromSide"
 ToSide = "ToSide"
 
 class XoverItem3(QGraphicsPathItem):
+    
+    baseWidth = styles.PATH_BASE_WIDTH
+    toHelixNumFont = styles.XOVER_LABEL_FONT
+    # precalculate the height of a number font.  Assumes a fixed font
+    # and that only numbers will be used for labels
+    fm = QFontMetrics(toHelixNumFont)
+    enabbrush = QBrush(Qt.SolidPattern)  # Also for the helix number label
+    
     def __init__(self, ph, xover3strand):
-        QGraphicsPathItem.__init__(self, ph)
+        super(XoverItem3, self).__init__(ph)
         self.ph = ph
-        self.xover3strand = xover3strand
+        self.strand = xover3strand
         self.setPen(QPen(Qt.NoPen))
+        self._label = None
         self.updatePos()
         xover3strand.willBeRemoved.connect(self.strandWillBeRemoved)
         xover3strand.connectivityChanged.connect(self.updateConnectivity)
+    # end def
+    
+    def onTopStrand(self):
+        vb = self.strand.vBase()
+        vs = self.strand.vStrand()
+        return vb.evenParity() and vs.isScaf() or \
+                not vb.evenParity() and vs.isStap()
+    
     def updatePos(self):
-        strand = self.xover3strand
+        strand = self.strand
         vb = strand.vBase()
         self.setPos(self.ph.pointForVBase(vb))
         # We can only expose a 5' end. But on which side?
-        self.setPath(ppL5 if vb.drawn5To3() else ppR5)
+        isLeft = True if vb.drawn5To3() else False
+        self.setPath(ppL5 if isLeft else ppR5)
         self.setBrush(QBrush(strand.color()))
         self.updateConnectivity()
+        self.updateLabel(strand.conn3(), isLeft)
+        
     def updateConnectivity(self):
-        self.setVisible(self.xover3strand.conn5() == None)
+        strand = self.strand
+        self.setVisible(strand.conn5() == None)
+        isLeft = True if  strand.vBase().drawn5To3() else False
+        self.updateLabel(strand.conn3(), isLeft)
     def strandWillBeRemoved(self, strand):
-        print "removing xovr3 %s"%self.xover3strand
-        self.scene().removeItem(self)
+        print "removing xovr3 %s"%self.strand
+        self.strand.willBeRemoved.disconnect(self.strandWillBeRemoved)
+        self.strand.connectivityChanged.disconnect(self.updateConnectivity)
+        scene = self.scene()
+        scene.removeItem(self._label)
+        self._label = None
+        scene.removeItem(self)
+        
+    def updateLabel(self, partnerStrand, isLeft):
+        xos = self.strand
+        if not xos.isFloating():
+            if self._label == None:
+                bw = self.baseWidth
+                
+                num = partnerStrand.vBase().vHelix().number()
+                tBR = self.fm.tightBoundingRect(str(num))
+                halfLabelH = tBR.height()/2.0
+                halfLabelW = tBR.width()/2.0
 
-class XoverItem5(QGraphicsPathItem):
+
+                labelX = bw/2.0 - halfLabelW #
+
+                if num == 1:  # adjust for the number one
+                    labelX -= halfLabelW/2.0
+ 
+                if self.onTopStrand():
+                    labelY = -0.25*halfLabelH - .5 - 0.5*bw
+                else:
+                    labelY = 2*halfLabelH + .5 + 0.5*bw
+
+                if isLeft:
+                    # print "ontop 5to3", partnerStrand.vBase().vHelix().number()
+                    labelX -=  0.25*bw
+                else:
+                    # print "ontop 3to5", partnerStrand.vBase().vHelix().number()
+                    labelX += 0.25*bw
+                
+
+                self._label = QGraphicsSimpleTextItem(self)
+                self._label.setPos(labelX, labelY)
+                self._label.setBrush(self.enabbrush)
+                self._label.setFont(self.toHelixNumFont)
+            # end if
+            self._label.setText( str(partnerStrand.vBase().vHelix().number() ) )
+        # end if
+    # end def
+# end class
+
+class XoverItem5(XoverItem3):
     def __init__(self, ph, xover5strand):
-        QGraphicsPathItem.__init__(self, ph)
-        self.ph = ph
-        self.xover5strand = xover5strand
-        self.setPen(QPen(Qt.NoPen))
-        self.updatePos()
-        xover5strand.willBeRemoved.connect(self.strandWillBeRemoved)
-        xover5strand.connectivityChanged.connect(self.updateConnectivity)
+        super(XoverItem5, self).__init__(ph, xover5strand)
+    # end def
+    
+    # def onTopStrand(self):
+    #     vb = self.strand.vBase()
+    #     vs = self.strand.vStrand()
+    #     return not vb.evenParity() and vs.isScaf() or \
+    #             vb.evenParity() and vs.isStap()
+    
     def updatePos(self):
-        strand = self.xover5strand
+        strand = self.strand
         vb = strand.vBase()
         self.setPos(self.ph.pointForVBase(vb))
         # We can only expose a 3' end. But on which side?
-        self.setPath(ppR3 if vb.drawn5To3() else ppL3)
+        isLeft = False if vb.drawn5To3() else True
+        # self.setPath(ppR3 if vb.drawn5To3() else ppL3)
+        self.setPath(ppL3 if isLeft else ppR3)
         self.setBrush(QBrush(strand.color()))
         self.updateConnectivity()
+        self.updateLabel(strand.conn5(), isLeft)
+        
     def updateConnectivity(self):
-        self.setVisible(self.xover5strand.conn3() == None)
-    def strandWillBeRemoved(self, strand):
-        print "removing xovr5 %s"%self.xover5strand
-        self.scene().removeItem(self)
+        self.setVisible(self.strand.conn3() == None)
+        
+# end class
 
 class XoverItem(QGraphicsPathItem):
     """
@@ -104,7 +177,7 @@ class XoverItem(QGraphicsPathItem):
         """
         strandItem is a the model representation of the xover strand
         """
-        QGraphicsPathItem.__init__(self, phg)
+        super(XoverItem, self).__init__(phg)
         # self._clearState()
         self._pathhelixgroup = phg
         self._strand = None
@@ -118,22 +191,48 @@ class XoverItem(QGraphicsPathItem):
     def setStrand(self, strand3):
         if self._strand == strand3:
             return
-        strand5 = strand3.conn3()
-        oldStrand3 = self._strand
-        if oldStrand3 != None:
-            oldStrand5 = oldStrand3.conn3()
-            oldStrand3.didMove.disconnect(self.strandDidMove)
-            oldStrand5.didMove.disconnect(self.strandDidMove)
-            oldStrand3.connectivityChanged.disconnect(self.conn3Changed)
-            oldStrand5.connectivityChanged.disconnect(self.conn5Changed)
-            oldStrand3.willBeRemoved.disconnect(self.strandWillBeRemoved)
+        self.disconnectSignals()
+        self.connectSignals(strand3)
+        self.strandDidMove()
+        
+    def connectSignals(self, strand3):
         self._strand = strand3
+        strand5 = strand3.conn3()
         strand3.didMove.connect(self.strandDidMove)
         strand5.didMove.connect(self.strandDidMove)
         strand3.connectivityChanged.connect(self.conn3Changed)
         strand5.connectivityChanged.connect(self.conn5Changed)
         strand3.willBeRemoved.connect(self.strandWillBeRemoved)
-        self.strandDidMove()
+        phg = self._pathhelixgroup
+        callback = self.updatePath
+        ph3 = phg.pathHelixForVHelix(strand3.vBase().vHelix())
+        ph3.xoverUpdate.connect(callback)
+        # need to test for None for a Floating Xover
+        vb = strand5.vBase()
+        if vb != None:
+            ph5 = phg.pathHelixForVHelix(vb.vHelix())
+            ph5.xoverUpdate.connect(callback)
+    # end def
+    
+    def disconnectSignals(self):
+        strand3 = self._strand
+        if strand3 != None:
+            strand5 = strand3.conn3()
+            strand3.didMove.disconnect(self.strandDidMove)
+            strand5.didMove.disconnect(self.strandDidMove)
+            strand3.connectivityChanged.disconnect(self.conn3Changed)
+            strand5.connectivityChanged.disconnect(self.conn5Changed)
+            strand3.willBeRemoved.disconnect(self.strandWillBeRemoved)
+            phg = self._pathhelixgroup
+            callback = self.updatePath
+            ph3 = phg.pathHelixForVHelix(strand3.vBase().vHelix())
+            ph3.xoverUpdate.disconnect(callback)
+            # need to test for None for a Floating Xover
+            vb = strand5.vBase()
+            if vb != None:
+                ph5 = phg.pathHelixForVHelix(vb.vHelix())
+                ph5.xoverUpdate.disconnect(callback)
+    # end def
 
     def conn3Changed(self):
         self.updatePath()
@@ -143,11 +242,11 @@ class XoverItem(QGraphicsPathItem):
 
     def strandWillBeRemoved(self):
         print "removing GI %s"%self._strand
+        self.disconnectSignals()
         self.scene().removeItem(self)
 
     def strandDidMove(self):
         self.updatePath()
-        self.updatePen()
 
     def updatePath(self):
         """
@@ -165,6 +264,7 @@ class XoverItem(QGraphicsPathItem):
         of (rather than having strange errors popping up down the line; the
         particular instance prompting this addition cost 4 hours of time)
         """
+        # print "updating xover curve", self.parentObject()
         ms = self.strand()
         bw = self._baseWidth
         phg = self._pathhelixgroup
@@ -188,14 +288,15 @@ class XoverItem(QGraphicsPathItem):
             fiveIsTop = ph5.vBaseIsTop(vBase5)
             fiveIs5To3 = vBase5.drawn5To3()
             isFloating = False
-            sameStrand = vBase3.vStrand == vBase5.vStrand
+            sameStrand = vBase3.vStrand() == vBase5.vStrand()
             sameParity = fiveIs5To3 == threeIs5To3
 
         # Null source / dest => don't paint ourselves => no painterpath
-        if pt3 == None\
-           or pt5 == None:
+        if pt3 == None or pt5 == None:
             self.hide()
             return None
+        else:
+            self.show()
 
         # Enter/exit are relative to the direction that the path travels
         # overall.
@@ -252,10 +353,6 @@ class XoverItem(QGraphicsPathItem):
             painterpath.quadTo(c1, fiveEnterPt)
             painterpath.lineTo(fiveCenterPt)
         
-        # draw labels
-        #if not isFloating:
-        #    painterpath.addText(labelPos3, self._toHelixNumFont, ("%d" % (vBase5.vHelix().number())))
-        #    painterpath.addText(labelPos5, self._toHelixNumFont, ("%d" % (vBase3.vHelix().number())))
         self.setPath(painterpath)
         self.updatePen()
 

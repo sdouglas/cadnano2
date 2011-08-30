@@ -29,7 +29,7 @@ from operation import Operation
 from model.vbase import VBase
 
 class ForceToolOperation(Operation):
-    logger = sys.stdout
+    logger = None #sys.stdout
     def __init__(self, startVBase, undoStack):
         Operation.__init__(self, undoStack)
         self.startVBase = startVBase
@@ -50,6 +50,7 @@ class ForceToolOperation(Operation):
         self.strand.conn3().setVBase(newVBase5)
         newVBase5.vStrand().addStrand(self.strand.conn3(),\
                                     useUndoStack=True, undoStack=self.undoStack)
+        self.strand.connectivityChanged.emit(self.strand)
         if self.logger != None:
             self.logger.write('ForceToolOperation.updateDestination(%s)\n'%\
                                      newVBase5)
