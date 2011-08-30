@@ -169,17 +169,9 @@ class CADnano(QObject):
     def deleteAllMayaNodes(self):
         if not self.isInMaya():
             return
-        import maya.cmds as cmds
-        nodes = cmds.ls("DNAShapeTransform*", "DNAStrandShader*", "pfxToon*")
-        for n in nodes:
-            cmds.delete(n)
-        transforms = cmds.ls("DNAToon*", et="transform")
-        for t in transforms:
-            cmds.delete(t)
         for doc in self.documentControllers:
             if hasattr(doc, 'solidHelixGrp'):
-                doc.solidHelixGrp.solidHelicesIndices = {}
-                doc.solidHelixGrp.solidHelicesIndicesCount = 0
+                doc.solidHelixGrp.deleteAllNodes()
 
     def exec_(self):
         if hasattr(self, 'qApp'):

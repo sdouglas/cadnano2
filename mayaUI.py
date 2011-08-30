@@ -28,13 +28,59 @@
 import maya.cmds as cmds
 import maya.mel as mel
 
+# Original States
 hiddenElements = []
 elementsToHide = ["toolBar", "dockControl"]
-
 mainMenuBarVisible = None
+gridVisible = None
 
+modelEditors = []
+
+"""
+Hideable Stuff:
+    UIElements
+    Grid
+    MainMenuBar
+"""
 
 def simplifyUI():
+    hideUIElements()
+    hideMainMenuBar()
+    hideGrid()
+    #mel.eval("toggleModelEditorBarsInAllPanels 0;")
+
+def restoreUI():
+    restoreUIElements()
+    restoreMainMenuBar()
+    restoreGrid()
+    #mel.eval("toggleModelEditorBarsInAllPanels 1;")
+
+def setViewportQuality():
+    global modelEditors
+    for i in cmds.lsUI(panels=True):
+        if cmds.modelEditor(i, query=True, exists=True):
+            sts = cmds.modelEditor(i, query=True, stateString=True)
+            sts = sts.replace("$editorName", i)
+            modelEditors.append(sts)
+            cmds.modelEditor(i, edit=True,
+                            displayAppearance="smoothShaded",
+                            rendererName="hwRender_OpenGL_Renderer")
+
+def restoreViewportQuality():
+    global modelEditors
+    for e in modelEditors:
+        mel.eval(e)
+
+def hideMainMenuBar():
+    global mainMenuBarVisible
+    mainMenuBarVisible = cmds.optionVar(q="mainWindowMenubarVis")
+    #mel.eval("setMainMenubarVisible 0;")
+
+def restoreMainMenuBar():
+    global mainMenuBarVisible
+    #mel.eval("setMainMenubarVisible " + str(mainMenuBarVisible) + ";")
+
+def hideUIElements():
     global hiddenElements
     global elementsToHide
     for i in cmds.lsUI(ctl=True):
@@ -45,20 +91,18 @@ def simplifyUI():
                 cmds.control(i, e=True, visible=False)
                 break
 
-    global mainMenuBarVisible
-    mainMenuBarVisible = cmds.optionVar(q="mainWindowMenubarVis")
-    #mel.eval("setMainMenubarVisible 0;")
-    #mel.eval("toggleModelEditorBarsInAllPanels 0;")
-
-
-def restoreUI():
+def restoreUIElements():
     global hiddenElements
     for e in hiddenElements:
         #print "restoring... " + e
         cmds.control(e, e=True, visible=True)
     hiddenElements = []
 
-    global mainMenuBarVisible
-    print "setMainMenubarVisible " + str(mainMenuBarVisible) + ";"
-    #mel.eval("setMainMenubarVisible 1;")
-    #mel.eval("toggleModelEditorBarsInAllPanels 1;")
+def hideGrid():
+    global gridVisible
+    gridVisible = cmds.optionVar(q="showGrid")
+    cmds.grid(toggle=0)
+
+def restoreGrid():
+    global gridVisible
+    cmds.grid(toggle=gridVisible)

@@ -83,7 +83,7 @@ class closeCadNano(OpenMayaMPx.MPxCommand):
 
 def onExitingMaya(clientData):
     closeCN()
-    cmds.SavePreferences()
+    mel.eval( "savePrefs;" )
 
 
 def onHideEvent():
@@ -208,6 +208,7 @@ def closeCN():
     if gCadNanoApp:
         for x in gCadNanoApp.documentControllers:
             if x.win:
+                x.windock.setVisible(False)
                 x.win.setVisible(False)
     restoreMayaUI()
 

@@ -57,20 +57,21 @@ class NewPencilTool(AbstractPathTool):
         forceToolActive = isinstance(self.currentOperation, ForceToolOperation)
         rightClick = event.button() & Qt.RightButton
         leftClick = event.buttons() & Qt.LeftButton
+        pos = pathHelix.mapFromScene(event.scenePos())
         if forceToolActive:
             if self.logger: self.logger.write("mousePressPathHelix>ForceEnd\n")
             self.currentOperation.end()
             self.currentOperation = None
         elif rightClick:
             if self.logger: self.logger.write("mousePressPathHelix>Force\n")
-            dest = pathHelix.vBaseAtPoint(event.pos())
+            dest = pathHelix.vBaseAtPoint(pos)
             undoStack = pathHelix.vhelix().undoStack()
             self.currentOperation = ForceToolOperation(dest, undoStack)
         elif leftClick:
             if self.logger: self.logger.write("mousePressPathHelix>Pencil\n")
             if self.currentOperation != None:
                 self.currentOperation.end()
-            dest = pathHelix.vBaseAtPoint(event.pos())
+            dest = pathHelix.vBaseAtPoint(pos)
             undoStack = pathHelix.vhelix().undoStack()
             self.currentOperation = PencilToolOperation(dest, undoStack)
 
@@ -80,15 +81,16 @@ class NewPencilTool(AbstractPathTool):
         self.updateLocation(pathHelix, pathHelix.mapToScene(QPointF(event.pos())))
 
     def mouseMovePathHelix(self, pathHelix, event):
+        pos = pathHelix.mapFromScene(event.scenePos())
         if isinstance(self.currentOperation, PencilToolOperation):
             if self.logger: self.logger.write("mouseMovePathHelix>Pencil\n")
-            dest = pathHelix.vBaseAtPoint(event.pos())
+            dest = pathHelix.vBaseAtPoint(pos)
             dest._vStrand = self.currentOperation.startVBase.vStrand()
             self.currentOperation.updateDestination(dest)
         elif isinstance(self.currentOperation, ForceToolOperation):
             if self.logger: self.logger.write("mouseMovePathHelix>Force\n")
             phg = pathHelix.pathHelixGroup()
-            pt = pathHelix.mapToItem(phg, event.pos())
+            pt = pathHelix.mapToItem(phg, pos)
             dest = phg.vBaseAtPoint(pt)
             if dest == None:
                 self.currentOperation.updateFloatingDestination(pt)
