@@ -272,8 +272,11 @@ class VStrand(RangeSet):
         rIsEnd = 'L' in VBase(self, rIdx).exposedEnds()
         lIsNormalStrand = isinstance(lStrand, NormalStrand)
         rIsNormalStrand = isinstance(rStrand, NormalStrand)
+        if self.logger:
+            self.logger.write('\t(lIsEnd:%s norm:%s rIsEnd:%s norm:%s)>'%\
+                          (lIsEnd, lIsNormalStrand, rIsEnd, rIsNormalStrand))
         if leftHasPrivilege:
-            if self.logger: self.logger.write('\tleftPrivelage>')
+            if self.logger: self.logger.write('leftPrivelage>')
             if lStrand == rStrand != None:
                 if self.logger: self.logger.write('0drag\n')
                 pass
@@ -299,12 +302,28 @@ class VStrand(RangeSet):
             elif rIsNormalStrand:
                 if self.logger: self.logger.write('rIsNorm\n')
                 self.resizeStrandAt(rIdx, lIdx, rStrand.vBaseR, useUndoStack, undoStack)
+            elif lIsEnd and rIsEnd:
+                if self.logger: self.logger.write('lIsEnd&rIsEnd\n')
+                newStrand = NormalStrand(VBase(self, lIdx + 1), VBase(self, rIdx - 1))
+                self.addStrand(newStrand)
+                lStrand.setConnR(newStrand)
+                newStrand.setConnR(rStrand)
+            elif lIsEnd:
+                if self.logger: self.logger.write('lIsEnd\n')
+                newStrand = NormalStrand(VBase(self, lIdx + 1), VBase(self, rIdx))
+                self.addStrand(newStrand, useUndoStack=useUndoStack, undoStack=undoStack)
+                lStrand.setConnR(newStrand)
+            elif rIsEnd:
+                if self.logger: self.logger.write('rIsEnd\n')
+                newStrand = NormalStrand(VBase(self, lIdx), VBase(self, rIdx - 1))
+                self.addStrand(newStrand, useUndoStack=useUndoStack, undoStack=undoStack)
+                newStrand.setConnR(rStrand)
             else:
                 if self.logger: self.logger.write('catchall\n')
                 newStrand = NormalStrand(VBase(self, lIdx), VBase(self, rIdx))
                 self.addStrand(newStrand)
         elif not leftHasPrivilege:
-            if self.logger: self.logger.write('\trightPrivelage>')
+            if self.logger: self.logger.write('rightPrivelage>')
             if lStrand == rStrand != None:
                 if self.logger: self.logger.write('0drag\n')
                 pass
@@ -330,6 +349,22 @@ class VStrand(RangeSet):
             elif lIsNormalStrand:
                 if self.logger: self.logger.write('lIsNorm\n')
                 self.resizeStrandAt(lIdx, lStrand.vBaseL, rIdx, useUndoStack, undoStack)
+            elif lIsEnd and rIsEnd:
+                if self.logger: self.logger.write('lIsEnd&rIsEnd\n')
+                newStrand = NormalStrand(VBase(self, lIdx + 1), VBase(self, rIdx - 1))
+                self.addStrand(newStrand)
+                rStrand.setConnL(newStrand)
+                newStrand.setConnL(lStrand)
+            elif lIsEnd:
+                if self.logger: self.logger.write('lIsEnd\n')
+                newStrand = NormalStrand(VBase(self, lIdx + 1), VBase(self, rIdx))
+                self.addStrand(newStrand, useUndoStack=useUndoStack, undoStack=undoStack)
+                newStrand.setConnL(lStrand)
+            elif rIsEnd:
+                if self.logger: self.logger.write('rIsEnd\n')
+                newStrand = NormalStrand(VBase(self, lIdx), VBase(self, rIdx - 1))
+                self.addStrand(newStrand, useUndoStack=useUndoStack, undoStack=undoStack)
+                rStrand.setConnL(newStrand)
             else:
                 if self.logger: self.logger.write('catchall\n')
                 newStrand = NormalStrand(VBase(self, lIdx), VBase(self, rIdx))
