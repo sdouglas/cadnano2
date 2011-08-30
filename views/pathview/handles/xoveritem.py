@@ -366,7 +366,7 @@ class XoverItem(QGraphicsPathItem):
         if strand.shouldHighlight():
             penWidth = styles.PATH_STRAND_HIGHLIGHT_STROKE_WIDTH
             color.setAlpha(128)
-        pen = QPen(QColor(), penWidth)
+        pen = QPen(color, penWidth)
         pen.setCapStyle(Qt.FlatCap)
         self.setPen(pen)
 # end class XOverItem

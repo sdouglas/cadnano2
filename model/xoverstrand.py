@@ -102,10 +102,15 @@ class XOverStrand3(Strand):
         self._pt5 = newPt5
         self.didMove.emit(self)
     def removalWillBePushed(self, useUndoStack, undoStack):
-        partnerXoverVBase = self.conn3().vBase()
+        partner = self.conn3()
+        partnerXoverVBase = partner.vBase()
         if partnerXoverVBase == None or\
            self.conn3().isBeingDeleted or self.isBeingDeleted:
             return None
+        if self.conn5() != None:
+            self.setConn5(None, useUndoStack, undoStack)
+        if self.conn3().conn3() != None:
+            self.conn3().setConn3(None, useUndoStack, undoStack)
         self.isBeingDeleted = True
         partnerIdx = partnerXoverVBase.vIndex()
         partnerXoverVBase.vStrand().clearStrand(partnerIdx, partnerIdx + 1,\
@@ -148,6 +153,10 @@ class XOverStrand5(Strand):
         if partnerXoverVBase == None or\
            self.conn5().isBeingDeleted or self.isBeingDeleted:
             return None
+        if self.conn3() != None:
+            self.setConn3(None, useUndoStack, undoStack)
+        if self.conn5().conn5() != None:
+            self.conn5().setConn5(None, useUndoStack, undoStack)
         self.isBeingDeleted = True
         partnerIdx = partnerXoverVBase.vIndex()
         partnerXoverVBase.vStrand().clearStrand(partnerIdx, partnerIdx + 1,\
