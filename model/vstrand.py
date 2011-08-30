@@ -44,7 +44,7 @@ class VStrand(RangeSet):
     # object present at that idx has changed. For the latter, you have to look
     # for signals emitted by the strand itself.)
     #       indicesModifiedSignal = pyQtSignal(int, int)  # inherited
-    logger = None
+    logger = sys.stdout
     def __init__(self, parentVHelix=None):
         RangeSet.__init__(self)
         if parentVHelix != None:
@@ -231,6 +231,8 @@ class VStrand(RangeSet):
                                                      lStrandIdx + 1,\
                                                      replacementRanges,\
                                                      False)
+                for ri in com.risToRemove:
+                    ri.removalWillBePushed(useUndoStack, undoStack)
                 if useUndoStack:
                     undoStack.push(com)
                 else:
@@ -270,8 +272,11 @@ class VStrand(RangeSet):
         rIsEnd = 'L' in VBase(self, rIdx).exposedEnds()
         lIsNormalStrand = isinstance(lStrand, NormalStrand)
         rIsNormalStrand = isinstance(rStrand, NormalStrand)
+        if self.logger:
+            self.logger.write('\t(lIsEnd:%s norm:%s rIsEnd:%s norm:%s)>'%\
+                          (lIsEnd, lIsNormalStrand, rIsEnd, rIsNormalStrand))
         if leftHasPrivilege:
-            if self.logger: self.logger.write('\tleftPrivelage>')
+            if self.logger: self.logger.write('leftPrivelage>')
             if lStrand == rStrand != None:
                 if self.logger: self.logger.write('0drag\n')
                 pass
@@ -297,12 +302,28 @@ class VStrand(RangeSet):
             elif rIsNormalStrand:
                 if self.logger: self.logger.write('rIsNorm\n')
                 self.resizeStrandAt(rIdx, lIdx, rStrand.vBaseR, useUndoStack, undoStack)
+            elif lIsEnd and rIsEnd:
+                if self.logger: self.logger.write('lIsEnd&rIsEnd\n')
+                newStrand = NormalStrand(VBase(self, lIdx + 1), VBase(self, rIdx - 1))
+                self.addStrand(newStrand)
+                lStrand.setConnR(newStrand)
+                newStrand.setConnR(rStrand)
+            elif lIsEnd:
+                if self.logger: self.logger.write('lIsEnd\n')
+                newStrand = NormalStrand(VBase(self, lIdx + 1), VBase(self, rIdx))
+                self.addStrand(newStrand, useUndoStack=useUndoStack, undoStack=undoStack)
+                lStrand.setConnR(newStrand)
+            elif rIsEnd:
+                if self.logger: self.logger.write('rIsEnd\n')
+                newStrand = NormalStrand(VBase(self, lIdx), VBase(self, rIdx - 1))
+                self.addStrand(newStrand, useUndoStack=useUndoStack, undoStack=undoStack)
+                newStrand.setConnR(rStrand)
             else:
                 if self.logger: self.logger.write('catchall\n')
                 newStrand = NormalStrand(VBase(self, lIdx), VBase(self, rIdx))
                 self.addStrand(newStrand)
         elif not leftHasPrivilege:
-            if self.logger: self.logger.write('\trightPrivelage>')
+            if self.logger: self.logger.write('rightPrivelage>')
             if lStrand == rStrand != None:
                 if self.logger: self.logger.write('0drag\n')
                 pass
@@ -328,6 +349,22 @@ class VStrand(RangeSet):
             elif lIsNormalStrand:
                 if self.logger: self.logger.write('lIsNorm\n')
                 self.resizeStrandAt(lIdx, lStrand.vBaseL, rIdx, useUndoStack, undoStack)
+            elif lIsEnd and rIsEnd:
+                if self.logger: self.logger.write('lIsEnd&rIsEnd\n')
+                newStrand = NormalStrand(VBase(self, lIdx + 1), VBase(self, rIdx - 1))
+                self.addStrand(newStrand)
+                rStrand.setConnL(newStrand)
+                newStrand.setConnL(lStrand)
+            elif lIsEnd:
+                if self.logger: self.logger.write('lIsEnd\n')
+                newStrand = NormalStrand(VBase(self, lIdx + 1), VBase(self, rIdx))
+                self.addStrand(newStrand, useUndoStack=useUndoStack, undoStack=undoStack)
+                newStrand.setConnL(lStrand)
+            elif rIsEnd:
+                if self.logger: self.logger.write('rIsEnd\n')
+                newStrand = NormalStrand(VBase(self, lIdx), VBase(self, rIdx - 1))
+                self.addStrand(newStrand, useUndoStack=useUndoStack, undoStack=undoStack)
+                rStrand.setConnL(newStrand)
             else:
                 if self.logger: self.logger.write('catchall\n')
                 newStrand = NormalStrand(VBase(self, lIdx), VBase(self, rIdx))
@@ -370,6 +407,13 @@ class VStrand(RangeSet):
         if strand.logger != None:
             strand.logger.write("+%i.remove() %s\n"%(strand.traceID,\
                                                    repr(strand)))
+
+    def itemRemovalWillBePushed(self, strand, useUndoStack, undoStack):
+        """Called before the command that causes removal of self to be pushed
+        to the undoStack is pushed (in contrast to willBeRemoved which is called
+        every time the undoStack decides to remove self). This is the place to
+        push side effects of removal onto the undo stack."""
+        strand.removalWillBePushed(useUndoStack, undoStack)
 
     def didInsertRangeItem(self, strand):
         RangeSet.didInsertRangeItem(self, strand)

@@ -198,17 +198,20 @@ class DNAPart(Part):
         self.importedXovers.add((strandType, frNum, frIdx, toNum, toIdx))
 
     def finalizeXoverImport(self):
-        """docstring for finalizeXoverImport"""
+        """
+        Called after importing a part to install previously stored xovers.
+        """
         while len(self.importedXovers) > 0:
             strandType, frNum, frIdx, toNum, toIdx = self.importedXovers.pop()
+            print strandType, frNum, frIdx, toNum, toIdx
             if strandType == StrandType.Scaffold:
                 frStrand = self.getVirtualHelix(frNum).scaf()
                 toStrand = self.getVirtualHelix(toNum).scaf()
             else:
                 frStrand = self.getVirtualHelix(frNum).stap()
                 toStrand = self.getVirtualHelix(toNum).stap()
-            frVB = frStrand.get(frIdx).getVBase3()
-            toVB = toStrand.get(toIdx).getVBase5()
+            frVB = frStrand(frIdx)
+            toVB = toStrand(toIdx)
             strand = XOverStrand3(frVB)
             frVB.vStrand().addStrand(strand, useUndoStack=False)
             strand.conn3().setVBase(toVB)

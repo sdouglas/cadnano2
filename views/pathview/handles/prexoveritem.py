@@ -90,8 +90,9 @@ class PreXoverItem(QGraphicsPathItem):
         self.toVBase = toVBase
         self.orientedLeft = orientedLeft
 
-        fromVBase.vStrand().indicesModifiedSignal.connect(self.updateVisibilityAndEnabledness)
-        toVBase.vStrand().indicesModifiedSignal.connect(self.updateVisibilityAndEnabledness)
+        callback = self.updateVisibilityAndEnabledness
+        fromVBase.vStrand().indicesModifiedSignal.connect(callback)
+        toVBase.vStrand().indicesModifiedSignal.connect(callback)
 
         x = self.baseWidth * self.fromVBase.vIndex()
         y = (-1.25 if self.onTopStrand() else 2.25) * self.baseWidth
@@ -121,8 +122,13 @@ class PreXoverItem(QGraphicsPathItem):
     # end def
 
     def remove(self):
-        self.scene().removeItem(self)
+        scene = self.scene()
+        callback = self.updateVisibilityAndEnabledness
+        self.fromVBase.vStrand().indicesModifiedSignal.disconnect(callback)
+        self.toVBase.vStrand().indicesModifiedSignal.disconnect(callback)
+        scene.removeItem(self._label)
         self._label = None
+        scene.removeItem(self)
     # end def
 
     def phg(self):

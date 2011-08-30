@@ -83,7 +83,6 @@ class XoverItem3(QGraphicsPathItem):
         isLeft = True if  strand.vBase().drawn5To3() else False
         self.updateLabel(strand.conn3(), isLeft)
     def strandWillBeRemoved(self, strand):
-        print "removing xovr3 %s"%self.strand
         self.strand.willBeRemoved.disconnect(self.strandWillBeRemoved)
         self.strand.connectivityChanged.disconnect(self.updateConnectivity)
         scene = self.scene()
@@ -206,12 +205,18 @@ class XoverItem(QGraphicsPathItem):
         phg = self._pathhelixgroup
         callback = self.updatePath
         ph3 = phg.pathHelixForVHelix(strand3.vBase().vHelix())
-        ph3.xoverUpdate.connect(callback)
+        self.ph3 = ph3
+        if ph3 != None:
+            ph3.xoverUpdate.connect(self.updatePath)
         # need to test for None for a Floating Xover
         vb = strand5.vBase()
         if vb != None:
             ph5 = phg.pathHelixForVHelix(vb.vHelix())
-            ph5.xoverUpdate.connect(callback)
+            self.ph5 = ph5
+            if ph5 != None:
+                ph5.xoverUpdate.connect(self.updatePath)
+        else:
+            self.ph5 = None
     # end def
     
     def disconnectSignals(self):
@@ -224,14 +229,13 @@ class XoverItem(QGraphicsPathItem):
             strand5.connectivityChanged.disconnect(self.conn5Changed)
             strand3.willBeRemoved.disconnect(self.strandWillBeRemoved)
             phg = self._pathhelixgroup
-            callback = self.updatePath
             ph3 = phg.pathHelixForVHelix(strand3.vBase().vHelix())
-            ph3.xoverUpdate.disconnect(callback)
-            # need to test for None for a Floating Xover
-            vb = strand5.vBase()
-            if vb != None:
-                ph5 = phg.pathHelixForVHelix(vb.vHelix())
-                ph5.xoverUpdate.disconnect(callback)
+            if self.ph3 != None:
+                self.ph3.xoverUpdate.disconnect(self.updatePath)
+                self.ph3 = None
+            if self.ph5 != None:
+                self.ph5.xoverUpdate.disconnect(self.updatePath)
+                self.ph5 = None
     # end def
 
     def conn3Changed(self):
@@ -241,7 +245,6 @@ class XoverItem(QGraphicsPathItem):
         self.updatePath()
 
     def strandWillBeRemoved(self):
-        print "removing GI %s"%self._strand
         self.disconnectSignals()
         self.scene().removeItem(self)
 

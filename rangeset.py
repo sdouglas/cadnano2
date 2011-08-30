@@ -152,6 +152,13 @@ class RangeSet(QObject):
     def didInsertRangeItem(self, rangeItem):
         pass
 
+    def itemRemovalWillBePushed(self, strand, useUndoStack, undoStack):
+        """Called before the command that causes removal of self to be pushed
+        to the undoStack is pushed (in contrast to willRemoveRangeItem which is
+        called every time the undoStack decides to remove an item). This is the
+        place to push side effects of removal onto the undo stack."""
+        pass
+
     def boundsChanged(self):
         """
         Gets called whenever something in the write API causes the value
@@ -327,11 +334,11 @@ class RangeSet(QObject):
         undoStack = self.beginCommand(useUndoStack,\
                                       undoStack,\
                                       'RangeSet.removeRange')
-        touchingIdxRange = self._idxRangeOfRangesIntersectingRange(firstIndex,
+        intersectingIdxRange = self._idxRangeOfRangesIntersectingRange(firstIndex,
                                                                afterLastIndex)
         replacementRanges = []
         # (first Index (into self.ranges) of an Touching Range)
-        firstIIR, afterLastIIR = touchingIdxRange
+        firstIIR, afterLastIIR = intersectingIdxRange
         # print "\tRemoveRange: %s[%i:%i]"%(self.ranges, firstIIR, afterLastIIR)
         if afterLastIIR == firstIIR:
             if useUndoStack: undoStack.endMacro()
@@ -351,6 +358,11 @@ class RangeSet(QObject):
                                                   firstIndex,\
                                                   undoStack)
                 replacementRanges.append(newItem)
+        # 
+        # middleIdx: the index into self.ranges that one would insert a
+        # range item if one wished to insert the range item into the space
+        # celared by this removeRange command
+        middleIdx = firstIIR + len(replacementRanges)
         lastIR = self.ranges[afterLastIIR - 1]
         lastIRL, lastIRAr = self.idxs(lastIR)
         if lastIRAr > afterLastIndex and lastIRL >= firstIndex:
@@ -364,11 +376,9 @@ class RangeSet(QObject):
                                             afterLastIIR,\
                                             replacementRanges,\
                                             suppressCallsItem)
+        for ri in com.risToRemove:
+            ri.removalWillBePushed(useUndoStack, undoStack)
         self.endCommand(undoStack, com)
-        if len(self.ranges) == 0:
-            middleIdx = 0  # all the intersecting ranges were cleared
-        else:
-            middleIdx = firstIIR+1  # insert to the right of remaining firstIIR
         return middleIdx
 
     def resizeRangeAtIdx(self, idx, newFirstIndex, newAfterLastIdx, useUndoStack=True, undoStack=None):
@@ -477,13 +487,9 @@ class RangeSet(QObject):
             # removed / changeRanged / added. This is the item to which we
             # suppress willRemove and didInsert calls.
             self.suppressCallsItem = suppressCallsItem
-        def redo(self):
-            rangeSet = self.rangeSet
-            rangeArr, oldBounds = rangeSet.ranges, rangeSet.bounds()
-            self.replacedRIs = rangeArr[self.firstIdx:self.afterLastIdx]
+            self.replacedRIs = rangeSet.ranges[self.firstIdx:self.afterLastIdx]
             replacedSet = set(id(ri) for ri in self.replacedRIs)
             replacementSet = set(id(ri) for ri in self.replacementRIs)
-            suppressCallsItem = self.suppressCallsItem
             # Figure out who gets notifications
             risToRemove = list(filter(lambda ri: id(ri) not in replacementSet,\
                                       self.replacedRIs))
@@ -498,12 +504,15 @@ class RangeSet(QObject):
             except ValueError:
                 pass
             self.risToRemove, self.risToInsert = risToRemove, risToInsert
+        def redo(self):
+            rangeSet = self.rangeSet
+            rangeArr, oldBounds = rangeSet.ranges, rangeSet.bounds()
             # Now actually perform the actions
-            map(rangeSet.willRemoveRangeItem, risToRemove)
-            map(rangeSet.willInsertRangeItem, risToInsert)
+            map(rangeSet.willRemoveRangeItem, self.risToRemove)
+            map(rangeSet.willInsertRangeItem, self.risToInsert)
             rangeArr[self.firstIdx:self.afterLastIdx] = self.replacementRIs
-            map(rangeSet.didInsertRangeItem, risToInsert)
-            map(rangeSet.didRemoveRangeItem, risToRemove)
+            map(rangeSet.didInsertRangeItem, self.risToInsert)
+            map(rangeSet.didRemoveRangeItem, self.risToRemove)
             if rangeSet.bounds() != oldBounds: rangeSet.boundsChanged()
             rangeSet.indicesModifiedSignal.emit(self.modifiedIdxRange)
             if rangeSet.logger != None:
@@ -586,9 +595,9 @@ class RangeSet(QObject):
 
     def _idxRangeOfRangesIntersectingRange(self, rangeStart, rangeEnd):
         """
-        Returns a range (first, afterLast) of indices into self.ranges,
-        where the range represented by each index touches [rangeStart,rangeEnd)
-        or is adjacent to [rangeStart, rangeEnd)
+        Returns a range [first, afterLast) of indices into self.ranges,
+        such that every rangeItem in self.ranges[first:afterLast] has
+        a nonempty intersection with [rangeStart, rangeEnd)
         """
         if rangeStart >= rangeEnd:
             return [0, 0]  # Empty range
