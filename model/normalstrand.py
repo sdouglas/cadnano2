@@ -103,6 +103,16 @@ class NormalStrand(Strand):
             com.redo()
         return self
 
+    def removalWillBePushed(self, useUndoStack, undoStack):
+        """Called before the command that causes removal of self to be pushed
+        to the undoStack is pushed (in contrast to willBeRemoved which is called
+        every time the undoStack decides to remove self). This is the place to
+        push side effects of removal onto the undo stack."""
+        if self.connL() != None:
+            self.setConnL(None, useUndoStack, undoStack)
+        if self.connR() != None:
+            self.setConnR(None, useUndoStack, undoStack)
+
     class MergeCommand(QUndoCommand):
         def __init__(self, strand, otherStrand):
             QUndoCommand.__init__(self)
@@ -134,6 +144,10 @@ class NormalStrand(Strand):
             newL = self.vBaseL.sameStrand(newL)
         if type(newR) in (int, long):
             newR = self.vBaseR.sameStrand(newR)
+        if newL != self.vBaseL:
+            self.setConnL(None, useUndoStack=(undoStack != None), undoStack=undoStack)
+        if newR != self.vBaseR:
+            self.setConnR(None, useUndoStack=(undoStack != None), undoStack=undoStack)
         com = self.ChangeRangeCommand(self, newL, newR)
         if undoStack != None:
             undoStack.push(com)
@@ -182,13 +196,24 @@ class NormalStrand(Strand):
         newRangeRValid = newRangeR[0] <= newRangeR[1]
         ret = []
         if keepLeft:
-            if newRangeLValid: ret.append(\
-                   self.changeRange(newRangeL[0], newRangeL[1], undoStack)  )
-            if newRangeRValid: ret.append( NormalStrand(*newRangeR) )
+            oldConnR = self.connR()
+            if newRangeLValid:
+                oldResizedStrnd = self.changeRange(newRangeL[0], newRangeL[1], undoStack)
+                ret.append(oldResizedStrnd)
+            if newRangeRValid:
+                newStrand = NormalStrand(*newRangeR)
+                ret.append(newStrand)
+                if oldConnR != None:
+                    newStrand.setConnR(oldConnR, useUndoStack=True, undoStack=undoStack)
         else:
-            if newRangeRValid: ret.append( NormalStrand(*newRangeL) )
-            if newRangeLValid: ret.append(\
-                   self.changeRange(newRangeR[0], newRangeR[1], undoStack)  )
+            oldConnL = self.connL()
+            if newRangeLValid:
+                newStrand = NormalStrand(*newRangeL)
+                newStrand.setConnL(oldConnL)
+                ret.append(newStrand)
+            if newRangeRValid:
+                oldResizedStrnd = self.changeRange(newRangeR[0], newRangeR[1], undoStack=undoStack)
+                ret.append(oldResizedStrnd)
         for strand in ret: strand.assertConsistent()
         return ret
 
