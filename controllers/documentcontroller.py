@@ -85,6 +85,7 @@ class DocumentController():
         self.connectWindowEventsToSelf()
         self.win.show()
         self.setDocument(Document() if not doc else doc)
+        self.solidHelixGroup = None
         app().undoGroup.addStack(self.undoStack())
         self.win.setWindowTitle(self.documentTitle() + '[*]')
         if doc != None and doc.parts():

@@ -32,7 +32,7 @@ hiddenElements = []
 elementsToHide = ["toolBar", "dockControl"]
 
 mainMenuBarVisible = None
-
+gridVisible = None
 
 def simplifyUI():
     global hiddenElements
@@ -49,6 +49,9 @@ def simplifyUI():
     mainMenuBarVisible = cmds.optionVar(q="mainWindowMenubarVis")
     #mel.eval("setMainMenubarVisible 0;")
     #mel.eval("toggleModelEditorBarsInAllPanels 0;")
+    global gridVisible
+    gridVisible = cmds.optionVar(q="showGrid")
+    cmds.grid( toggle = 0 )
 
 
 def restoreUI():
@@ -60,5 +63,7 @@ def restoreUI():
 
     global mainMenuBarVisible
     print "setMainMenubarVisible " + str(mainMenuBarVisible) + ";"
-    #mel.eval("setMainMenubarVisible 1;")
+    #mel.eval("setMainMenubarVisible " + str(mainMenuBarVisible) + ";")
     #mel.eval("toggleModelEditorBarsInAllPanels 1;")
+    global gridVisible
+    cmds.grid( toggle = gridVisible )

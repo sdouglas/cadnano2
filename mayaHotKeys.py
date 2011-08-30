@@ -27,17 +27,26 @@
 
 import maya.cmds as cmds
 import string
-
 commandWhiteList = [
                 "NameComPop_hotBox",
+
+                "NameComUndo",
+                "NameComRedo",
+
+                "NameComFit_Selected_in_Active_Panel",
+                "NameComFit_Select_in_All_Panels",
+
+                "SelectToolOptionsNameCommand",
                 "TranslateToolWithSnapMarkingMenuNameCommand",
                 "RotateToolWithSnapMarkingMenuNameCommand",
                 "ScaleToolWithSnapMarkingMenuNameCommand",
-                "NameComUndo",
-                "NameComRedo",
-                "FrameSelected",
-                "IncreaseManipulatorSize",
-                "DecreaseManipulatorSize"]
+
+                "NameComIncrease_Manipulator_Size",
+                "NameComDecrease_Manipulator_Size",
+
+                "NameComWireframe_Display",
+                "NameComShaded_Display"
+                ]
 disabledHotKeys = []
 
 
@@ -46,8 +55,8 @@ class HotKey():
     alt = ""
     ctl = ""
     cmd = ""
-    name = ""
-    rname = ""
+    name = None
+    rname = None
 
     def __init__(self, key, name, rname, alt=False, ctl=False, cmd=False):
         self.key = key
@@ -64,21 +73,18 @@ def saveHotKey(key):
         for ctl in range(0, 2):
             for cmd in range(0, 2):
                 name = cmds.hotkey(
-                                key, q=True, n=True,
+                                key, query=True, name=True,
                                 alt=alt, ctl=ctl, cmd=cmd)
                 rname = cmds.hotkey(
-                                key, q=True, rn=True,
+                                key, query=True, releaseName=True,
                                 alt=alt, ctl=ctl, cmd=cmd)
-                if(name != None or rname != None):
-                    if name == None:
-                        name = ""
-                    if rname == None:
-                        rname = ""
+                if (name != None or rname != None):
                     disabledHotKeys.append(
                                 HotKey(key, name, rname, alt, ctl, cmd))
 
 
 def disableHotKey(key):
+    #print key
     saveHotKey(key)
     for alt in range(0, 2):
         for ctl in range(0, 2):
@@ -89,28 +95,50 @@ def disableHotKey(key):
                 rname = cmds.hotkey(
                                 key, q=True, rn=True,
                                 alt=alt, ctl=ctl, cmd=cmd)
-                if(commandWhiteList.count(name) == 0):
-                    cmds.hotkey(
-                            k=key, n="", rn="",
-                            alt=alt, ctl=ctl, cmd=cmd)
+                if (name != None or rname != None):
+                    if not name in commandWhiteList:
+                        cmds.hotkey(k=key, n=None, rn=None,
+                                    alt=alt, ctl=ctl, cmd=cmd)
+
+                        #print "disabling alt=%s ctl=%s cmd=%s %s - %s" % \
+                        #                    (alt, ctl, cmd, name, rname)
+                    else:
+                        #print "not disabling %s" % name
+                        pass
 
 
 def disableAllHotKeys():
-    newChars = string.printable
-    for char in newChars:
-        disableHotKey(char)
+    #Forces Maya to save prefs
+    #Sometimes Maya doesn't save the hotkeys properly
+    #   and restarts with them disabled.
+    cmds.savePrefs(hotkeys=True)
 
-    otherHotKeys = [
-                "Up", "Down", "Right", "Left",
-                "Home", "End",
-                "Page_Up", "Page_Down",
-                "Insert", "Return"]
-                #"Space" is alread covered in string.printable
-    for key in otherHotKeys:
-        disableHotKey(key)
+    """
+    This method loops through all the hotkeys we want to disable and calls
+    disableHotKey on each of them.
 
+    First we build up our own char list...
+    Why not use string.printable? Because it includes unwanted whitespace.
+    Why not just use string.letters + string.digits + string.punctuation?
+    Because Python in Maya barfs with the following in the lowercase portion
+    of string.letters: TypeError: bad argument type for built-in operation.
+    """
+    letters = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ'
+    digits = '0123456789'
+    punctuation = """!"#$%&'()*+,-./:;<=>?@[\]^_`{|}~"""
+    chars = digits + punctuation + letters
+    for c in chars:
+        disableHotKey(c)
+
+    # Function keys F1 through F12
     for key in range(1, 13):
         disableHotKey("F" + str(key))
+
+    # Other named keys
+    otherHotKeys = ["Up", "Down", "Right", "Left", "Home", "End",
+                    "Page_Up", "Page_Down", "Insert", "Return", "Space"]
+    for key in otherHotKeys:
+        disableHotKey(key)
 
 
 def restoreAllHotKeys():
@@ -124,3 +152,5 @@ def restoreAllHotKeys():
                 ctl=hotkey.ctl,
                 cmd=hotkey.cmd)
     disabledHotKeys = []
+
+    cmds.savePrefs(hotkeys=True)
