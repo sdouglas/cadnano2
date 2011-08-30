@@ -92,6 +92,7 @@ class XoverItem3(QGraphicsPathItem):
         
     def updateLabel(self, partnerStrand, isLeft):
         xos = self.strand
+        lbl = self._label
         if not xos.isFloating():
             if self._label == None:
                 bw = self.baseWidth
@@ -101,31 +102,27 @@ class XoverItem3(QGraphicsPathItem):
                 halfLabelH = tBR.height()/2.0
                 halfLabelW = tBR.width()/2.0
 
-
                 labelX = bw/2.0 - halfLabelW #
 
                 if num == 1:  # adjust for the number one
                     labelX -= halfLabelW/2.0
- 
+
                 if self.onTopStrand():
                     labelY = -0.25*halfLabelH - .5 - 0.5*bw
                 else:
                     labelY = 2*halfLabelH + .5 + 0.5*bw
 
                 if isLeft:
-                    # print "ontop 5to3", partnerStrand.vBase().vHelix().number()
                     labelX -=  0.25*bw
                 else:
-                    # print "ontop 3to5", partnerStrand.vBase().vHelix().number()
                     labelX += 0.25*bw
-                
 
-                self._label = QGraphicsSimpleTextItem(self)
-                self._label.setPos(labelX, labelY)
-                self._label.setBrush(self.enabbrush)
-                self._label.setFont(self.toHelixNumFont)
+                lbl = QGraphicsSimpleTextItem(self)
+                lbl.setPos(labelX, labelY)
+                lbl.setBrush(self.enabbrush)
+                lbl.setFont(self.toHelixNumFont)
             # end if
-            self._label.setText( str(partnerStrand.vBase().vHelix().number() ) )
+            lbl.setText( str(partnerStrand.vBase().vHelix().number() ) )
         # end if
     # end def
 # end class
@@ -134,20 +131,13 @@ class XoverItem5(XoverItem3):
     def __init__(self, ph, xover5strand):
         super(XoverItem5, self).__init__(ph, xover5strand)
     # end def
-    
-    # def onTopStrand(self):
-    #     vb = self.strand.vBase()
-    #     vs = self.strand.vStrand()
-    #     return not vb.evenParity() and vs.isScaf() or \
-    #             vb.evenParity() and vs.isStap()
-    
+
     def updatePos(self):
         strand = self.strand
         vb = strand.vBase()
         self.setPos(self.ph.pointForVBase(vb))
         # We can only expose a 3' end. But on which side?
         isLeft = False if vb.drawn5To3() else True
-        # self.setPath(ppR3 if vb.drawn5To3() else ppL3)
         self.setPath(ppL3 if isLeft else ppR3)
         self.setBrush(QBrush(strand.color()))
         self.updateConnectivity()
