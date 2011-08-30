@@ -231,6 +231,8 @@ class VStrand(RangeSet):
                                                      lStrandIdx + 1,\
                                                      replacementRanges,\
                                                      False)
+                for ri in com.risToRemove:
+                    ri.removalWillBePushed(useUndoStack, undoStack)
                 if useUndoStack:
                     undoStack.push(com)
                 else:
@@ -370,6 +372,13 @@ class VStrand(RangeSet):
         if strand.logger != None:
             strand.logger.write("+%i.remove() %s\n"%(strand.traceID,\
                                                    repr(strand)))
+
+    def itemRemovalWillBePushed(self, strand, useUndoStack, undoStack):
+        """Called before the command that causes removal of self to be pushed
+        to the undoStack is pushed (in contrast to willBeRemoved which is called
+        every time the undoStack decides to remove self). This is the place to
+        push side effects of removal onto the undo stack."""
+        strand.removalWillBePushed(useUndoStack, undoStack)
 
     def didInsertRangeItem(self, strand):
         RangeSet.didInsertRangeItem(self, strand)

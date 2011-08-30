@@ -100,10 +100,11 @@ class XOverStrand3(Strand):
         self._pt5 = newPt5
         self.didMove.emit(self)
     def removalWillBePushed(self, useUndoStack, undoStack):
-        self.isBeingDeleted = True
         partnerXoverVBase = self.conn3().vBase()
-        if partnerXoverVBase == None or self.conn3().isBeingDeleted:
+        if partnerXoverVBase == None or\
+           self.conn3().isBeingDeleted or self.isBeingDeleted:
             return None
+        self.isBeingDeleted = True
         partnerIdx = partnerXoverVBase.vIndex()
         partnerXoverVBase.vStrand().clearStrand(partnerIdx, partnerIdx + 1,\
                                                 useUndoStack, undoStack)
@@ -132,10 +133,11 @@ class XOverStrand5(Strand):
         raise TypeError("The 5' end of the 5' base of a crossover is"\
                         "already occupied by definition")
     def removalWillBePushed(self, useUndoStack, undoStack):
-        self.isBeingDeleted = True
         partnerXoverVBase = self.conn5().vBase()
-        if partnerXoverVBase == None or self.conn5().isBeingDeleted:
+        if partnerXoverVBase == None or\
+           self.conn5().isBeingDeleted or self.isBeingDeleted:
             return None
+        self.isBeingDeleted = True
         partnerIdx = partnerXoverVBase.vIndex()
         partnerXoverVBase.vStrand().clearStrand(partnerIdx, partnerIdx + 1,\
                                                 useUndoStack, undoStack)
