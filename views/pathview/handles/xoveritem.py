@@ -203,6 +203,15 @@ class XoverItem(QGraphicsPathItem):
         strand3.connectivityChanged.connect(self.conn3Changed)
         strand5.connectivityChanged.connect(self.conn5Changed)
         strand3.willBeRemoved.connect(self.strandWillBeRemoved)
+        phg = self._pathhelixgroup
+        callback = self.updatePath
+        ph3 = phg.pathHelixForVHelix(strand3.vBase().vHelix())
+        ph3.xoverUpdate.connect(callback)
+        # need to test for None for a Floating Xover
+        vb = strand5.vBase()
+        if vb != None:
+            ph5 = phg.pathHelixForVHelix(vb.vHelix())
+            ph5.xoverUpdate.connect(callback)
     # end def
     
     def disconnectSignals(self):
@@ -214,6 +223,15 @@ class XoverItem(QGraphicsPathItem):
             strand3.connectivityChanged.disconnect(self.conn3Changed)
             strand5.connectivityChanged.disconnect(self.conn5Changed)
             strand3.willBeRemoved.disconnect(self.strandWillBeRemoved)
+            phg = self._pathhelixgroup
+            callback = self.updatePath
+            ph3 = phg.pathHelixForVHelix(strand3.vBase().vHelix())
+            ph3.xoverUpdate.disconnect(callback)
+            # need to test for None for a Floating Xover
+            vb = strand5.vBase()
+            if vb != None:
+                ph5 = phg.pathHelixForVHelix(vb.vHelix())
+                ph5.xoverUpdate.disconnect(callback)
     # end def
 
     def conn3Changed(self):
