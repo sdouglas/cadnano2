@@ -34,14 +34,9 @@ class ForceToolOperation(Operation):
         Operation.__init__(self, undoStack)
         self.startVBase = startVBase
         self.strand = XOverStrand3(startVBase)
-        vstr = startVBase.vStrand()
-        vstr.addStrand(self.strand, useUndoStack=True, undoStack=undoStack)
-        idx = startVBase.vIndex()
-        if vstr.drawn5To3():
-            vstr.connectStrand(idx - 1, idx, useUndoStack=True, undoStack=undoStack)
-        else:
-            vstr.connectStrand(idx + 1, idx, useUndoStack=True, undoStack=undoStack)
-        self.undoIdxBeforeInstall = undoStack.index()
+        self.undoIdxBeforeEverything = undoStack.index()
+        self.install3()
+        self.undoIdxBeforeInstall5 = undoStack.index()
         self.lastDestination = None  # None = floating
         if self.logger != None:
             self.logger.write('ForceToolOperation.__init__(%s, %s)\n'%\
@@ -52,31 +47,52 @@ class ForceToolOperation(Operation):
         if self.lastDestination == newVBase5 or newVBase5 == self.startVBase:
             return
         self.lastDestination = newVBase5
-        self.rewind(self.undoIdxBeforeInstall)
-        self.strand.conn3().setVBase(newVBase5)
-        vstr = newVBase5.vStrand()
-        vstr.addStrand(self.strand.conn3(),\
-                       useUndoStack=True, undoStack=self.undoStack)
-        idx = newVBase5.vIndex()
-        if vstr.drawn5To3():
-            vstr.connectStrand(idx, idx + 1, useUndoStack=True, undoStack=self.undoStack)
-        else:
-            vstr.connectStrand(idx, idx - 1, useUndoStack=True, undoStack=self.undoStack)
-        self.strand.connectivityChanged.emit(self.strand)
+        self.rewind(self.undoIdxBeforeInstall5)
+        self.install5()
         if self.logger != None:
             self.logger.write('ForceToolOperation.updateDestination(%s)\n'%\
                                      newVBase5)
 
     def updateFloatingDestination(self, newPt5):
         self.lastDestination = None
-        self.rewind(self.undoIdxBeforeInstall)
+        self.rewind(self.undoIdxBeforeInstall5)
         self.strand.setPt5(newPt5)
         self.strand.conn3().setVBase(None)
         if self.logger != None:
             self.logger.write('ForceToolOperation.updateFloatingDest(%s)\n'%\
                                      newPt5)
 
+    def install3(self):
+        startVBase = self.startVBase
+        vstr, idx = startVBase.vStrand(), startVBase.vIndex()
+        vstr.addStrand(self.strand,\
+                       useUndoStack=True, undoStack=self.undoStack)
+        if vstr.drawn5To3():
+            vstr.connectStrand(idx - 1, idx,\
+                               useUndoStack=True, undoStack=self.undoStack)
+        else:
+            vstr.connectStrand(idx + 1, idx,\
+                               useUndoStack=True, undoStack=self.undoStack)
+
+    def install5(self):
+        newVBase5 = self.lastDestination
+        self.strand.conn3().setVBase(newVBase5)
+        vstr, idx = newVBase5.vStrand(), newVBase5.vIndex()
+        vstr.addStrand(self.strand.conn3(),\
+                       useUndoStack=True, undoStack=self.undoStack)
+        if vstr.drawn5To3():
+            vstr.connectStrand(idx, idx + 1,\
+                               useUndoStack=True, undoStack=self.undoStack)
+        else:
+            vstr.connectStrand(idx, idx - 1,\
+                               useUndoStack=True, undoStack=self.undoStack)
+        
     def end(self):
         if self.logger != None:
             self.logger.write('ForceToolOperation.end()\n')
+        self.rewind(self.undoIdxBeforeEverything)
+        self.undoStack.beginMacro('ForceTool')
+        self.install3()
+        self.install5()
+        self.undoStack.endMacro()
         self.strand.conn3().isBeingDragged = False
