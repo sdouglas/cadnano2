@@ -34,13 +34,13 @@ import util, time
 util.qtWrapImport('QtCore', globals(), ['QPointF', 'QRectF', 'Qt', 'QEvent'])
 util.qtWrapImport('QtGui', globals(), ['QBrush', 'QFont', 'QGraphicsItem',\
                                 'QGraphicsSimpleTextItem', 'QPen',\
-                                'QPolygonF', 'QPainterPath', 'QGraphicsRectItem', \
+                                'QPolygonF', 'QPainterPath', \
                                 'QColor', 'QFontMetrics', 'QGraphicsPathItem'])
 
 FromSide = "FromSide"
 ToSide = "ToSide"
 
-class XoverItem3(QGraphicsRectItem):
+class XoverItem3(QGraphicsPathItem):
     
     baseWidth = styles.PATH_BASE_WIDTH
     toHelixNumFont = styles.XOVER_LABEL_FONT
@@ -49,18 +49,18 @@ class XoverItem3(QGraphicsRectItem):
     fm = QFontMetrics(toHelixNumFont)
     enabbrush = QBrush(Qt.SolidPattern)  # Also for the helix number label
     nobrush = QBrush(Qt.NoBrush)
-    _rect = QRectF(0, 0, baseWidth, baseWidth)
+    # _rect = QRectF(0, 0, baseWidth, baseWidth)
 
     def __init__(self, ph, xover3strand):
         super(XoverItem3, self).__init__(ph)
         self.ph = ph
         self.strand = xover3strand
+        self.setPen(QPen(Qt.NoPen))
         self._label = None
         self.updatePos()
         xover3strand.willBeRemoved.connect(self.strandWillBeRemoved)
         xover3strand.connectivityChanged.connect(self.updateConnectivity)
         
-        self.setRect(self._rect)
         self.setPen(QPen(Qt.NoPen))
         self.setBrush(self.nobrush)
     # end def
@@ -137,19 +137,24 @@ class XoverItem3(QGraphicsRectItem):
         self.setPos(self.ph.pointForVBase(vb))
         # We can only expose a 5' end. But on which side?
         isLeft = True if vb.drawn5To3() else False
+        self.setPath(ppL5 if isLeft else ppR5)
         self.updateConnectivity()
         self.updateLabel(strand.conn3(), isLeft)
         
     def updateConnectivity(self):
         strand = self.strand
-        self.setVisible(not strand.isFloating())
+        if strand.conn5() == None:
+            self.setBrush(QBrush(strand.color()))
+        else:
+            self.setBrush(self.nobrush)
+        # self.setVisible(not strand.isFloating())
         isLeft = True if  strand.vBase().drawn5To3() else False
         self.updateLabel(strand.conn3(), isLeft)
     def strandWillBeRemoved(self, strand):
         self.strand.willBeRemoved.disconnect(self.strandWillBeRemoved)
         self.strand.connectivityChanged.disconnect(self.updateConnectivity)
         scene = self.scene()
-        # scene.removeItem(self._label)
+        scene.removeItem(self._label)
         self._label = None
         scene.removeItem(self)
         
@@ -203,11 +208,16 @@ class XoverItem5(XoverItem3):
         self.setPos(self.ph.pointForVBase(vb))
         # We can only expose a 3' end. But on which side?
         isLeft = False if vb.drawn5To3() else True
+        self.setPath(ppL3 if isLeft else ppR3)
         self.updateConnectivity()
         self.updateLabel(strand.conn5(), isLeft)
 
     def updateConnectivity(self):
         self.setVisible(not self.strand.isFloating())
+        if self.strand.conn3() == None:
+            self.setBrush(QBrush(self.strand.color()))
+        else:
+            self.setBrush(self.nobrush) 
 # end class
 
 class XoverItem(QGraphicsPathItem):
