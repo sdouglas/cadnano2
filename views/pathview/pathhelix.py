@@ -38,10 +38,10 @@ from math import floor, pi, ceil
 from cadnano import app
 from itertools import product
 from ui.mainwindow.svgbutton import SVGButton
-from model.vbase import VBase
+from model.strands.vbase import VBase
 from views.pathview.normalstrandgraphicsitem import NormalStrandGraphicsItem
-from model.normalstrand import NormalStrand
-from model.xoverstrand import XOverStrand3, XOverStrand5
+from model.strands.normalstrand import NormalStrand
+from model.strands.xoverstrand import XOverStrand3, XOverStrand5
 from views.pathview.handles.xoveritem import XoverItem
 
 import util

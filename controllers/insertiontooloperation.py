@@ -24,10 +24,10 @@
 
 import util, sys
 util.qtWrapImport('QtCore', globals(), ['QObject'])
-from model.xoverstrand import XOverStrand3
+from model.strands.xoverstrand import XOverStrand3
 from operation import Operation
-from model.vbase import VBase
-from model.loopstrand import LoopStrand
+from model.strands.vbase import VBase
+from model.strands.loopstrand import LoopStrand
 
 class InsertionToolOperation(Operation):
     logger = sys.stdout

@@ -26,7 +26,7 @@ import json
 from .part import Part
 from .virtualhelix import VirtualHelix
 from .enum import LatticeType, StrandType
-from model.xoverstrand import XOverStrand3
+from model.strands.xoverstrand import XOverStrand3
 from heapq import *
 import copy
 from views import styles

@@ -24,9 +24,9 @@
 
 import util, sys
 util.qtWrapImport('QtCore', globals(), ['QObject'])
-from model.normalstrand import NormalStrand
+from model.strands.normalstrand import NormalStrand
 from operation import Operation
-from model.vbase import VBase
+from model.strands.vbase import VBase
 
 class PencilToolOperation(Operation):
     """

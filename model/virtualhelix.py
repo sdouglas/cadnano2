@@ -38,9 +38,8 @@ from .enum import LatticeType, Parity, StrandType, BreakType
 from .enum import Crossovers, EndType
 from .base import Base
 from views import styles
-from vstrand import VStrand
-from vbase import VBase
-import strand
+from strands.vstrand import VStrand
+from strands.vbase import VBase
 
 import util
 

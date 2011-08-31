@@ -30,8 +30,8 @@ import sys
 from views import styles
 from model.enum import LatticeType
 from model.enum import StrandType
-from model.normalstrand import NormalStrand
-from model.xoverstrand import XOverStrand3, XOverStrand5
+from model.strands.normalstrand import NormalStrand
+from model.strands.xoverstrand import XOverStrand3, XOverStrand5
 
 import maya.OpenMayaUI as mui
 import maya.OpenMaya as mo

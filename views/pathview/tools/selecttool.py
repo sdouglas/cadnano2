@@ -28,11 +28,11 @@ Created by Nick Conway on 2011-05-30.
 """
 
 from abstractpathtool import AbstractPathTool
-import util, os, model.strand
+import util, os
 from cadnano import ignoreEnv
 from model.enum import StrandType
-from model.normalstrand import NormalStrand
-from model.vbase import VBase
+from model.strands.normalstrand import NormalStrand
+from model.strands.vbase import VBase
 
 # import Qt stuff into the module namespace with PySide, PyQt4 independence
 util.qtWrapImport('QtCore', globals(), ['Qt', 'QPointF'])

@@ -22,24 +22,17 @@
 #
 # http://www.opensource.org/licenses/mit-license.php
 
-import util
-util.qtWrapImport('QtCore', globals(), ['QObject'])
-from model.strands.normalstrand import NormalStrand
+import util, sys
+util.qtWrapImport('QtCore', globals(), ['QObject', 'pyqtSignal'] )
+util.qtWrapImport('QtGui', globals(), ['QUndoCommand'] )
+nextStrandDebugIdentifier = 0
 
-class Operation(QObject):
-    """ Handles multi-step interactions with the model """
-    def __init__(self, undoStack):
-        QObject.__init__(self)
-        # No good will come of interactive strand creation without an undo stack
-        assert(undoStack != None)
-        self.undoStack = undoStack
-        self.undoStackIdxBeforeOperation = undoStack.index()
-
-    def rewind(self, toIdx=None):
-        if toIdx == None:
-            toIdx = self.undoStackIdxBeforeOperation
-        while self.undoStack.index() > toIdx:
-            self.undoStack.undo()
-
-    def end(self):
-        pass
+class SkipStrand(NormalStrand):
+    """
+    Conceptual opposite of LoopStrand. Takes up 1 or more virtual bases but
+    doesn't add any real bases to the Oligo's sequence.
+    """
+    logger = None
+    def __repr__(self):
+        return "SkipStrand(%s, %s, %s)"%(self.vStrand(), self.vBaseL, self.vBaseR)
+    def numBases(self): return 0
