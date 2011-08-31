@@ -1,6 +1,6 @@
-# The MIT License
+# Copyright 2011 Autodesk, Inc.  All rights reserved.
 #
-# Copyright (c) 2011 Wyss Institute at Harvard University
+# The MIT License
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -17,10 +17,11 @@
 # FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
 # AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 # LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-# OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
-# THE SOFTWARE.
+# OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+# SOFTWARE.
 #
 # http://www.opensource.org/licenses/mit-license.php
+
 
 """
 solidhelixgroup.py
@@ -64,13 +65,17 @@ class SolidHelixGroup(QObject):
         super(SolidHelixGroup, self).__init__()
         pluginPath = os.path.join(os.environ['CADNANO_PATH'],
                                   "views",
-                                  "solidview",
-                                  "halfcylinderhelixnode.py")
+                                  "solidview")
+        hchPath = os.path.join(pluginPath, "halfcylinderhelixnode.py")
+        smiPath = os.path.join(pluginPath, "stapleModIndicator.py")
 
-        if(not cmds.pluginInfo(pluginPath, query=True, loaded=True)):
-            cmds.loadPlugin(pluginPath)
+        if(not cmds.pluginInfo(hchPath, query=True, loaded=True)):
+            cmds.loadPlugin(hchPath)
+            
+        if(not cmds.pluginInfo(smiPath, query=True, loaded=True)):
+            cmds.loadPlugin(smiPath)
 
-        if(not cmds.pluginInfo(pluginPath, query=True, loaded=True)):
+        if(not cmds.pluginInfo(hchPath, query=True, loaded=True)):
             print "HalfCylinderHelixNode failed to load"
             return
 
@@ -92,6 +97,7 @@ class SolidHelixGroup(QObject):
         if(strand in self.idStrandMapping):
             return self.idStrandMapping[strand]
         else:
+            # XXX [SB+AT] NOT THREAD SAFE
             while cmds.objExists("DNAShapeTransform%s" % self.strandCount):
                 self.strandCount += 1
             val = "%d" % self.strandCount
