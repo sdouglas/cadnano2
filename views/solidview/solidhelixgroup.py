@@ -85,16 +85,15 @@ class SolidHelixGroup(QObject):
         self.helixRadius = 1.125  # diamiter is 2.25nm
         self.solidHelixes = []
         self.setPart(dnaPartInst)
-        # In case we have more then one soidHelixGroup
-        nodes = cmds.ls("DNAShapeTransform*")
-        self.strandCount = len(nodes)
+        self.strandCount = 0
         self.idStrandMapping = {}
 
     def strandMayaID(self, strand):
         if(strand in self.idStrandMapping):
             return self.idStrandMapping[strand]
         else:
-            self.strandCount += 1
+            while cmds.objExists("DNAShapeTransform%s" % self.strandCount):
+                self.strandCount += 1
             val = "%d" % self.strandCount
             self.idStrandMapping[strand] = val
             return val
@@ -149,14 +148,9 @@ class SolidHelixGroup(QObject):
     def clearInternalDataStructures(self):
         self.solidHelixes = []
         self.idStrandMapping.clear()
-        nodes = cmds.ls("DNAShapeTransform*")
-        self.strandCount = len(nodes)
+        self.strandCount = 0
 
     def deleteAllNodes(self):
-        # Deletes All Maya Nodes
-        #nodes = cmds.ls("DNAShapeTransform*", "DNAStrandShader*")
-        #for n in nodes:
-        #    cmds.delete(n)
         # Delete Helicies in this group
         for solidhelix in self.solidHelixes:
             strandIDs = solidhelix.StrandIDs()
