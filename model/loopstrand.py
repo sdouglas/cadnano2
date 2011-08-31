@@ -44,7 +44,7 @@ class LoopStrand(Strand):
     def assertConsistent(self):
         Strand.assertConsistent(self)
     def __repr__(self):
-        return "LoopStrand(%s, %i)"%(self.vBase, self.numBases)
+        return "LoopStrand(%s, %i)"%(self.vBase(), self.numBases())
     def vBase(self):    return self._vBase
     def vBaseL(self):   return self._vBase
     def vBaseR(self):   return self._vBase + 1
@@ -94,6 +94,16 @@ class LoopStrand(Strand):
     def vStrand(self):
         return self.vBase().vStrand()
 
+    def removalWillBePushed(self, useUndoStack, undoStack):
+        """Called before the command that causes removal of self to be pushed
+        to the undoStack is pushed (in contrast to willBeRemoved which is called
+        every time the undoStack decides to remove self). This is the place to
+        push side effects of removal onto the undo stack."""
+        if self.connL() != None:
+            self.setConnL(None, useUndoStack, undoStack)
+        if self.connR() != None:
+            self.setConnR(None, useUndoStack, undoStack)
+
     def exposedEndsAt(self, vBase):
         """
         Returns a string containing some (possibly empty) combination of 'L',
@@ -103,6 +113,8 @@ class LoopStrand(Strand):
         ret = ''
         if vBase == self.vBase():
             drawn5To3 = vBase.vStrand().drawn5To3()
-            ret += 'L5' if drawn5To3 else 'L3'
-            ret += 'R3' if drawn5To3 else 'R5'
+            if self.connL() == None:
+                ret += 'L5' if drawn5To3 else 'L3'
+            if self.connR() == None:
+                ret += 'R3' if drawn5To3 else 'R5'
         return ret

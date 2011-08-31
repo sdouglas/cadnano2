@@ -224,8 +224,8 @@ class NormalStrand(Strand):
         """
         ret = ''
         drawn5To3 = vBase.vStrand().drawn5To3()
-        if vBase == self.vBaseL:
+        if vBase == self.vBaseL and self.connL() == None:
             ret += 'L5' if drawn5To3 else 'L3'
-        if vBase == self.vBaseR:
+        if vBase == self.vBaseR and self.connR() == None:
             ret += 'R3' if drawn5To3 else 'R5'
         return ret

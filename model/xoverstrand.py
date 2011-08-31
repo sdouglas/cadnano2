@@ -55,7 +55,7 @@ class XOverStrand3(Strand):
         idx = self.vBase().vIndex()
         return (idx, idx + 1)
     def exposedEndsAt(self, vBase):
-        if vBase == self._vBase:
+        if vBase == self._vBase and self.conn5() == None:
             return '5L' if vBase.drawn5To3() else '5R'
         return ''
     def vStrand(self):
@@ -126,6 +126,7 @@ class XOverStrand5(Strand):
         Strand.__init__(self)
         self._vBase = vBase
         self.isBeingDeleted = False
+        self.isBeingDragged = False
     def __repr__(self):
         return "XOverStrand5(%s)"%(self.vBase())
     numBases = XOverStrand3.__dict__['numBases']  # The great method heist
@@ -134,7 +135,7 @@ class XOverStrand5(Strand):
     vBase = XOverStrand3.__dict__['vBase']
     setVBase = XOverStrand3.__dict__['setVBase']
     def exposedEndsAt(self, vBase):
-        if vBase == self._vBase:
+        if vBase == self._vBase and self.conn3() == None:
             return 'R3' if self.vStrand().drawn5To3() else 'L3'
         return ''
     def setConn5(self, newConn):

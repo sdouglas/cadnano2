@@ -67,13 +67,8 @@ class XoverItem3(QGraphicsRectItem):
         vb = self.strand.vBase()
         vs = self.strand.vStrand()
         return vb.evenParity() and vs.isScaf() or \
-                not vb.evenParity() and vs.isStap()
-    
-    def mousePressEvent(self, event):
-        print "Remove maybe?"
-        # return QGraphicsRectItem.mousePressEvent(self, event)
-    # end def 
-    
+                not vb.evenParity() and vs.isStap() 
+
     def updatePos(self):
         strand = self.strand
         vb = strand.vBase()
@@ -356,7 +351,6 @@ class XoverItem(QGraphicsPathItem):
         
         self.setPath(painterpath)
         self.updatePen()
-        print "update xover"
 
     def updatePen(self):
         strand = self.strand()
