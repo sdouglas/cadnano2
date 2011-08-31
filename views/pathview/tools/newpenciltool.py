@@ -90,7 +90,7 @@ class NewPencilTool(AbstractPathTool):
         elif isinstance(self.currentOperation, ForceToolOperation):
             if self.logger: self.logger.write("mouseMovePathHelix>Force\n")
             phg = pathHelix.pathHelixGroup()
-            pt = pathHelix.mapToItem(phg, pos)
+            pt = pathHelix.mapToScene(pos)
             dest = phg.vBaseAtPoint(pt)
             if dest == None:
                 self.currentOperation.updateFloatingDestination(pt)
