@@ -96,7 +96,7 @@ class HalfCylinderHelixNode(OpenMayaMPx.MPxNode):
                                       self.start3DPos[1],
                                       self.start3DPos[2])
             endPosHandle = \
-                data.outputValue(HalfCylinderHelixNode.start3DPosAttr)
+                data.outputValue(HalfCylinderHelixNode.end3DPosAttr)
             endPosHandle.set3Float(self.end3DPos[0],
                                     self.end3DPos[1],
                                     self.end3DPos[2])
@@ -140,7 +140,8 @@ class HalfCylinderHelixNode(OpenMayaMPx.MPxNode):
 
         # Create Endpice verts
         vtx.append(OpenMaya.MFloatPoint(0.0, start_pos + gap, 0.0))
-        self.end3DPos = OpenMaya.MFloatPoint(0.0, start_pos + gap, 0.0)
+        self.end3DPos = OpenMaya.MFloatPoint(0.0, 0.0, start_pos + gap)
+        print start_pos + gap
         for i in range(1, numVerticesEnds):
             val = i * (180 / (numFacesEnds))
             rad = (val * math.pi) / 180
@@ -165,9 +166,8 @@ class HalfCylinderHelixNode(OpenMayaMPx.MPxNode):
         vtx.append(OpenMaya.MFloatPoint(0.0,
                             start_pos + (numMiddleSections + 1) * rise - gap,
                             0.0))
-        self.start3DPos = OpenMaya.MFloatPoint(0.0,
-                            start_pos + (numMiddleSections + 1) * rise - gap,
-                            0.0)
+        self.start3DPos = OpenMaya.MFloatPoint(0.0, 0.0,
+                            start_pos + (numMiddleSections + 1) * rise - gap)
         for i in range(1, numVerticesEnds):
             rotation = rot_ang * (1 + numMiddleSections)
             val = i * (180 / (numFacesEnds))

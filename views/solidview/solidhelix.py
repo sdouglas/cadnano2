@@ -1,6 +1,6 @@
-# The MIT License
+# Copyright 2011 Autodesk, Inc.  All rights reserved.
 #
-# Copyright (c) 2011 Wyss Institute at Harvard University
+# The MIT License
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -17,10 +17,11 @@
 # FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
 # AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 # LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-# OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
-# THE SOFTWARE.
+# OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+# SOFTWARE.
 #
 # http://www.opensource.org/licenses/mit-license.php
+
 from string import *
 import math
 import random
@@ -59,12 +60,15 @@ class SolidHelix(QObject):
         self.setVHelix(vhelix)
         self.x = x
         self.y = y
-        self.row = vhelix.row()
-        self.col = vhelix.col()
+        self._row = vhelix.row()
+        self._col = vhelix.col()
         # XXX - [SB] should not need to keep track of these IDs, should be
         # able to get it from the VH, but for now we use it when base count
         # changes
         self.strandIDs = []
+
+        self.stapleIndicatorCount = 0
+        self.stapleModIndicatorIDs = []
 
     def pathHelixGroup(self):
         return self._solidHelixGroup
@@ -151,6 +155,8 @@ class SolidHelix(QObject):
         cmds.setAttr("%s.endBase" % cylinderName,
                              endpoints[1] - 1)
         cmds.setAttr("%s.totalBases" % cylinderName, int(totalNumBases))
+        self.clearStapleModIndicators()
+        self.createStapleModIndicator(strand)
 
     def onStrandWillBeRemoved(self, strand):
         id = self._solidHelixGroup.strandMayaID(strand)
@@ -168,8 +174,8 @@ class SolidHelix(QObject):
     def vhelixDimensionsModified(self):
         #print "SolidHelix:vhelixDimensionsModified"
         totalNumBases = self._vhelix.numBases()
-        for starndID in self.strandIDs:
-            cylinderName = "HalfCylinderHelixNode%s" % starndID
+        for strandID in self.strandIDs:
+            cylinderName = "HalfCylinderHelixNode%s" % strandID
             cmds.setAttr("%s.totalBases" % cylinderName, int(totalNumBases))
 
     def vhelixBasesModified(self):
@@ -177,7 +183,79 @@ class SolidHelix(QObject):
 
     def onIndicesModifiedSignal(self, endpoints):
         pass
+    
+    def cadnanoVBaseToMayaZ(self, base, strand):
+        id = self._solidHelixGroup.strandMayaID(strand)
+        cylinderName = "HalfCylinderHelixNode%s" % id
+        if cmds.objExists(cylinderName):
+            rise = cmds.getAttr("%s.rise" % cylinderName)
+            startBase = cmds.getAttr("%s.startBase" % cylinderName)
+            startPos = cmds.getAttr("%s.startPos" % cylinderName)
+            base0Pos = startPos[0][2] + startBase*rise
+            ourPos = base0Pos - (base*rise)
+            return ourPos
+        else:
+            raise IndexError
 
+    def clearStapleModIndicators(self):
+        for id in self.stapleModIndicatorIDs:
+            transformName = "stapleModIndicatorTransform%s" % id
+            #print "delete %s" % transformName
+            if cmds.objExists(transformName):
+                cmds.delete(transformName)
+        self.stapleModIndicatorIDs = []
+        self.stapleIndicatorCount = 0
+
+    def createStapleModIndicator(self, strand):
+        strandid = self._solidHelixGroup.strandMayaID(strand)
+        mrow = self._row + 1
+        mcol = self._col + 1
+        # XXX [SB] will use self._vhelix.getPreStapleModIndexList()
+        stapleBases = [(5, mrow, mcol), (14, mrow, mcol)] 
+        for stapleBase in stapleBases:
+            # XXX [SB+AT] NOT THREAD SAFE
+            while cmds.objExists("spStapleModIndicator%s_%s" % (strandid, self.stapleIndicatorCount)):
+                self.stapleIndicatorCount += 1
+            stapleId = "%s_%s" % (strandid, self.stapleIndicatorCount)
+            (targetX, targetY) = self.pathHelixGroup().cadnanoToMayaCoords(stapleBase[1], stapleBase[2])
+            vec = (self.x-targetX, self.y-targetY)
+            coords = (self.x+vec[0]/3.7, self.y+vec[1]/3.7, self.cadnanoVBaseToMayaZ(stapleBase[0], strand));
+            self.createStapleModIndicatorNodes(coords,stapleId)
+            #print "adding StapleID %s" % stapleId
+            self.stapleModIndicatorIDs.append(stapleId)
+            
+    def createStapleModIndicatorNodes(self, coords, id):
+        stapleModIndicatorName = "spStapleModIndicator%s" % id
+        transformName = "stapleModIndicatorTransform%s" % id
+        meshName = "stapleModIndicatorMesh%s" % id
+        shaderName = "stapleModeIndicatorShader"
+        
+        cmds.createNode("transform", name=transformName)
+        cmds.setAttr("%s.rotateX" % transformName, 90)
+        cmds.setAttr("%s.translateX" % transformName, coords[0])
+        cmds.setAttr("%s.translateY" % transformName, coords[1])
+        cmds.setAttr("%s.translateZ" % transformName, coords[2])
+        cmds.createNode("mesh", name=meshName, parent=transformName)
+        cmds.createNode("spStapleModIndicator", name=stapleModIndicatorName)
+        cmds.setAttr("%s.radius" % stapleModIndicatorName, .25)
+        cmds.connectAttr("%s.outputMesh" % stapleModIndicatorName,
+                         "%s.inMesh" % meshName)
+        
+        if not cmds.objExists(shaderName):
+            # Shader does not exist create one
+            cmds.shadingNode('lambert', asShader=True, name=shaderName)
+            cmds.sets(n="%sSG" % shaderName, r=True, nss=True, em=True)
+            cmds.connectAttr("%s.outColor" % shaderName,
+                             "%sSG.surfaceShader" % shaderName)
+            cmds.setAttr("%s.color" % shaderName,
+                         0.85, 0.2, 0.2,
+                         type="double3")
+            cmds.sets(meshName, forceElement="%sSG" % shaderName)
+        else:
+            #shader exist connect
+            cmds.sets(meshName, forceElement="%sSG" % shaderName)
+
+        
     def createMayaHelixNodes(self, x, y, color, strandType, id):
         cylinderName = "HalfCylinderHelixNode%s" % id
         transformName = "DNAShapeTransform%s" % id
