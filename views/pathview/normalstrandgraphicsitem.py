@@ -98,6 +98,7 @@ class NormalStrandGraphicsItem(QGraphicsLineItem):
         else:
             pen = QPen(QColor(), styles.PATH_STRAND_STROKE_WIDTH)
             brush = QBrush(self.normalStrand.color())
+        pen.setCapStyle(Qt.FlatCap)
         self.setPen(pen)
         self.leftCap.setBrush(brush)
         self.rightCap.setBrush(brush)
