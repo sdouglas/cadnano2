@@ -23,50 +23,31 @@
 # http://www.opensource.org/licenses/mit-license.php
 
 """
-assembly.py
-
-Created by Nick Conway on 2011-01-19.
+part
+Created by Jonathan deWerd on 2011-01-26.
 """
+from exceptions import NotImplementedError
+from cadnano import app
 
-from collections import defaultdict
-# from idbank import IdBank
-
-# from PyQt4.QtCore import QObject
 import util
 # import Qt stuff into the module namespace with PySide, PyQt4 independence
-util.qtWrapImport('QtCore', globals(), ['QObject'])
+util.qtWrapImport('QtCore', globals(), ['pyqtSignal', 'QObject'])
 
+class Part(QObject):
+    # this is for removing a part from scenes
+    partRemoved = pyqtSignal()
+    
+    def __init__(self, id, *args, **kargs):
+        super(Part, self).__init__()
+        app().p = self
+    
+    def document(self):
+        return self._document
+    
+    def _setDocument(self, newDoc):
+        "Should only be called by Document"
+        self._document = newDoc
+    
+    def undoStack(self):
+        return self.document().undoStack()
 
-
-class Assembly(QObject):
-    """
-    """
-    def __init__(self, parent=None):
-        super(Assembly,self).__init__()
-        """
-        this is gonna be a list of non-specific attributes for an assembly
-        self.object_instances = defaultdict(list)  # default dictionary as a list?
-        """
-        self.parent = parent    # or parent hash?
-        self.node_type = "assembly"
-        self.color = 0
-        self.annotation = ""
-        
-        #self.instance_id_bank = IdBank()    # generate instances of themselves
-                
-        # this contains instances of this specific assembly, and other views
-        # like: self.instances[id] = [treeNode] 
-        self.instances = {}
-        
-        self.part_children = {}
-        self.mate_children = {}
-        
-        # other views
-    # end def
-# end class
-
-class AssemblyInstance(Assembly):
-    def __init__(self, name, obj_id, parent=None):
-        pass
-    # end def
-# end class

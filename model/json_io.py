@@ -32,8 +32,8 @@ Houses code that parses legacy (cadnano1) files.
 from cadnano import app
 from collections import defaultdict
 from document import Document
-from dnahoneycombpart import DNAHoneycombPart
-from dnasquarepart import DNASquarePart
+from parts.dnahoneycombpart import DNAHoneycombPart
+from parts.dnasquarepart import DNASquarePart
 from virtualhelix import VirtualHelix
 from enum import StrandType
 from enum import LatticeType

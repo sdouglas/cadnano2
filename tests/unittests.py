@@ -39,7 +39,7 @@ from tests.cadnanoguitestcase import CadnanoGuiTestCase
 from model.enum import StrandType
 from model.virtualhelix import VirtualHelix
 import unittest
-from rangeset import RangeSet, rangeIntersection
+from model.strands.rangeset import RangeSet, rangeIntersection
 import random
 seed = random.Random().randint(0,1<<32)
 enviroseed = os.environ.get('UNITTESTS_PRNG_SEED', False)

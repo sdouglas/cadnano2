@@ -33,8 +33,8 @@ except:
     use_cjson = False
     import json
 
-from .dnahoneycombpart import DNAHoneycombPart
-from .dnasquarepart import DNASquarePart
+from parts.dnahoneycombpart import DNAHoneycombPart
+from parts.dnasquarepart import DNASquarePart
 from .document import Document
 from .virtualhelix import VirtualHelix
 from json_io import doc_from_legacy_dict

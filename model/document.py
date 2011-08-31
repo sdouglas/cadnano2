@@ -29,8 +29,8 @@ Created by Jonathan deWerd on 2011-01-26.
 
 from cadnano import app
 from views import styles
-from .dnahoneycombpart import DNAHoneycombPart
-from .dnasquarepart import DNASquarePart
+from parts.dnahoneycombpart import DNAHoneycombPart
+from parts.dnasquarepart import DNASquarePart
 from .enum import LatticeType
 
 import util
