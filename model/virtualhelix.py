@@ -38,7 +38,6 @@ from .enum import LatticeType, Parity, StrandType, BreakType
 from .enum import Crossovers, EndType
 from .base import Base
 from views import styles
-from rangeset import RangeSet
 from vstrand import VStrand
 from vbase import VBase
 import strand
@@ -1199,20 +1198,6 @@ class VirtualHelix(QObject):
         self.setHasBeenModified()
         self.emitBasesModifiedIfNeeded()
 
-    def autoDragToBoundary(self, strandType, idx):
-        """docstring for autoDragToBound"""
-        dragBound = self.getDragBound(strandType, idx)
-        if idx != dragBound:
-            self.connectStrand(strandType, idx, dragBound)
-
-    def autoDragAllBreakpoints(self, strandType):
-        """Called by dnapart, extends all breakpoints as far as
-        they could have manually been dragged in the interface."""
-        ends3, ends5 = self.getEndpoints(strandType)
-        strand = self._strand(strandType)
-        for idx in sorted(ends3 + ends5):
-            self.autoDragToBoundary(strandType, idx)
-
     ################ Private Base Modification API ###########################
     # The Notification Responsibilities of a Command
     #   1) Call vh.setHasBeenModified() on every VirtualHelix that is modified.
@@ -2059,7 +2044,6 @@ class VirtualHelix(QObject):
         Decodes the string representation of each base in bases
         and returns a tuple containing the ranges xovers.
         """
-        print "getRangesAndXoversFromString", self._number
         dir = strandStr[0]
         bases = strandStr[1:]
         ranges, xovers = [], []

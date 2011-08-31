@@ -513,17 +513,6 @@ class DNAPart(Part):
         list(self.modifiedVHSet)[0].emitBasesModifiedIfNeeded()
     # end def
 
-    def autoDragAllBreakpoints(self):
-        """Carryover from cadnano1. Shift+Alt+Click on activeslichandle tells
-        all breakpoints to extend as far as possible."""
-        vhs = self.getVirtualHelices()
-        self.undoStack().beginMacro("Auto-drag Scaffold(s)")
-        # for vh in vhs:
-        #     vh.autoDragAllBreakpoints(StrandType.Scaffold)
-        map(VirtualHelix.autoDragAllBreakpoints, vhs, \
-                            itertools.repeat(StrandType.Scaffold, len(self._numberToVirtualHelix)))
-        self.undoStack().endMacro()
-
     def indexOfRightmostNonemptyBase(self):
         """
         During reduction of the number of bases in a part,

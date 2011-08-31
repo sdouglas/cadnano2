@@ -379,7 +379,8 @@ class RangeSet(QObject):
                                             replacementRanges,\
                                             suppressCallsItem)
         for ri in com.risToRemove:
-            ri.removalWillBePushed(useUndoStack, undoStack)
+            if not isinstance(ri, tuple):
+                ri.removalWillBePushed(useUndoStack, undoStack)
         self.endCommand(undoStack, com)
         return middleIdx
 
