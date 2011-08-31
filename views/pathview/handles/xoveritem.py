@@ -73,9 +73,61 @@ class XoverItem3(QGraphicsRectItem):
     # end def
     
     
-    def mousePressEvent(self, event):
-        print "Remove maybe?"
-        # return QGraphicsRectItem.mousePressEvent(self, event)
+    def undoStack(self):
+        return self.ph.vhelix().undoStack()
+    # end def
+    
+    def mousePress(self, event):
+        """
+        This works but can not work with the force tool so it is deactivated
+        """
+        strand = self.strand
+        print "Remove maybe float: ", strand.isFloating()
+        if not strand.isFloating():
+            vStrand = strand.vStrand()
+            if strand.kind == 'xovr3':
+                strandOp = strand.conn3()
+                normStrandIdxs = strand.conn5().idxs()
+                normStrandOpIdxs = strandOp.conn3().idxs() 
+            else:
+                strandOp = strand.conn5()
+                normStrandIdxs = strand.conn3().idxs()
+                normStrandOpIdxs = strandOp.conn5().idxs()
+            vStrandOp = strandOp.vStrand()
+        
+            strandIdxs = strand.idxs()
+            strandOpIdxs = strandOp.idxs()
+        
+            uStack = self.undoStack()
+            uStack.beginMacro('clearXover')
+            vStrand.clearStrand(*strandIdxs,\
+                                useUndoStack=True, undoStack=uStack)
+                                
+            s0, s1 = strandIdxs
+            nS0, nS1 = normStrandIdxs
+            if nS0 < s0:
+                connectIdxs = (nS1-1, s0)
+            else:
+                connectIdxs = (s0, nS0)
+        
+            vStrand.connectStrand(*connectIdxs,\
+                                useUndoStack=True, undoStack=uStack)
+            vStrandOp.clearStrand(*strandOpIdxs,\
+                                useUndoStack=True, undoStack=uStack)
+ 
+            s0, s1 = strandOpIdxs
+            nS0, nS1 = normStrandOpIdxs
+            if nS0 < s0:
+                connectIdxs = (nS1-1, s0)
+            else:
+                connectIdxs = (s0, nS0)
+            vStrandOp.connectStrand(*connectIdxs,\
+                                useUndoStack=True, undoStack=uStack)
+        
+            uStack.endMacro()
+        # end if
+        else:
+            QGraphicsItem.mousePressEvent(self, event)
     # end def
     
 
@@ -97,7 +149,7 @@ class XoverItem3(QGraphicsRectItem):
         self.strand.willBeRemoved.disconnect(self.strandWillBeRemoved)
         self.strand.connectivityChanged.disconnect(self.updateConnectivity)
         scene = self.scene()
-        scene.removeItem(self._label)
+        # scene.removeItem(self._label)
         self._label = None
         scene.removeItem(self)
         
@@ -133,6 +185,7 @@ class XoverItem3(QGraphicsRectItem):
                 lbl.setBrush(self.enabbrush)
                 lbl.setFont(self.toHelixNumFont)
                 self._label = lbl
+                # self.mousePressEvent = self.mousePress
             # end if
             lbl.setText( str(partnerStrand.vBase().vHelix().number() ) )      
         # end if
