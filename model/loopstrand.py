@@ -35,6 +35,7 @@ class LoopStrand(Strand):
     a single virtual base they bulge outwards, forming a loop.
     """
     logger = None
+    kind = 'loop'
     numBasesChanged = pyqtSignal(object)  # emitter passes self as the object
     def __init__(self, vBase, numberOfActualBases):
         Strand.__init__(self)
@@ -102,6 +103,6 @@ class LoopStrand(Strand):
         ret = ''
         if vBase == self.vBase():
             drawn5To3 = vBase.vStrand().drawn5To3()
-            if self.connL == None: ret += 'L5' if drawn5To3 else 'L3'
-            if self.connR == None: ret += 'R3' if drawn5To3 else 'R5'
+            ret += 'L5' if drawn5To3 else 'L3'
+            ret += 'R3' if drawn5To3 else 'R5'
         return ret

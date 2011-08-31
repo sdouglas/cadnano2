@@ -83,7 +83,7 @@ def makeLoopPathWithConnectivity(leftConnected, loopPath, rightConnected):
 loopPaths = [makeLoopPathWithConnectivity(bool(i&1),\
                                           loopPathUp if i&2 else loopPathDown,\
                                           bool(i&4))\
-             for i in range(7)]
+             for i in range(8)]
 def loopPathWithConnectivity(leftConnected, onTopStrand, rightConnected):
     return loopPaths[int(leftConnected) + 2*int(onTopStrand) + 4*int(rightConnected)]
 
@@ -139,7 +139,7 @@ class LoopGraphicsItem(QGraphicsPathItem):
         self._label = None
         self._leftCap = None
         self._rightCap = None
-        self.setZValue(styles.ZLOOPHANDLE)
+        self.setZValue(styles.ZINSERTHANDLE)
         self._pathHelix = pathHelix
         self._strand = None
         self.setStrand(strand)
@@ -149,11 +149,13 @@ class LoopGraphicsItem(QGraphicsPathItem):
             self._strand.didMove.disconnect(self.refreshPosAndLabel)
             self._strand.numBasesChanged.disconnect(self.refreshLabel)
             self._strand.willBeRemoved.disconnect(self.remove)
+            self._strand.connectivityChanged.disconnect(self.refreshPath)
         self._strand = newStrand
         if newStrand != None:
             newStrand.didMove.connect(self.refreshPosAndLabel)
             newStrand.numBasesChanged.connect(self.refreshLabel)
             newStrand.willBeRemoved.connect(self.remove)
+            newStrand.connectivityChanged.connect(self.refreshPath)
             self.refreshPosAndLabel()
 
     def remove(self):
@@ -252,19 +254,21 @@ class LoopGraphicsItem(QGraphicsPathItem):
         self.setPath(loopPathWithConnectivity(hasLConnection,\
                                               isOnTop,\
                                               hasRConnection))
-        self.setPen(QPen(strand.color(), styles.PATH_STRAND_STROKE_WIDTH ))
+        pen = QPen(strand.color(), styles.PATH_STRAND_STROKE_WIDTH )
+        pen.setCapStyle(Qt.FlatCap)
+        self.setPen(pen)
         if hasLConnection:
-            if self._leftCap and self._leftCap.isVisible():
+            if self._leftCap != None:
                 self._leftCap.hide()
         else:
             if self._leftCap == None:
                 self._leftCap = QGraphicsPathItem(ppL5 if drawn5To3 else ppL3, self._pathHelix)
                 self._leftCap.setPen(QPen(Qt.NoPen))
-                self._leftCap.setBrush(QBrush(QColor()))
+                self._leftCap.setBrush(strand.color())
             self._leftCap.setPos(pos)
             self._leftCap.show()
         if hasRConnection:
-            if self._rightCap and self._rightCap.isVisible():
+            if self._rightCap != None:
                 self._rightCap.hide()
         else:
             if self._rightCap == None:
