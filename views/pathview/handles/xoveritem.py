@@ -34,13 +34,13 @@ import util, time
 util.qtWrapImport('QtCore', globals(), ['QPointF', 'QRectF', 'Qt', 'QEvent'])
 util.qtWrapImport('QtGui', globals(), ['QBrush', 'QFont', 'QGraphicsItem',\
                                 'QGraphicsSimpleTextItem', 'QPen',\
-                                'QPolygonF', 'QPainterPath', \
+                                'QPolygonF', 'QPainterPath', 'QGraphicsRectItem', \
                                 'QColor', 'QFontMetrics', 'QGraphicsPathItem'])
 
 FromSide = "FromSide"
 ToSide = "ToSide"
 
-class XoverItem3(QGraphicsPathItem):
+class XoverItem3(QGraphicsRectItem):
     
     baseWidth = styles.PATH_BASE_WIDTH
     toHelixNumFont = styles.XOVER_LABEL_FONT
@@ -48,6 +48,8 @@ class XoverItem3(QGraphicsPathItem):
     # and that only numbers will be used for labels
     fm = QFontMetrics(toHelixNumFont)
     enabbrush = QBrush(Qt.SolidPattern)  # Also for the helix number label
+    nobrush = QBrush(Qt.NoBrush)
+    _rect = QRectF(0, 0, baseWidth, baseWidth)
     
     def __init__(self, ph, xover3strand):
         super(XoverItem3, self).__init__(ph)
@@ -58,6 +60,7 @@ class XoverItem3(QGraphicsPathItem):
         self.updatePos()
         xover3strand.willBeRemoved.connect(self.strandWillBeRemoved)
         xover3strand.connectivityChanged.connect(self.updateConnectivity)
+        self.setRect(self._rect)
     # end def
     
     def onTopStrand(self):
@@ -66,20 +69,26 @@ class XoverItem3(QGraphicsPathItem):
         return vb.evenParity() and vs.isScaf() or \
                 not vb.evenParity() and vs.isStap()
     
+    def mousePressEvent(self, event):
+        print "Remove maybe?"
+        # return QGraphicsRectItem.mousePressEvent(self, event)
+    # end def 
+    
     def updatePos(self):
         strand = self.strand
         vb = strand.vBase()
         self.setPos(self.ph.pointForVBase(vb))
         # We can only expose a 5' end. But on which side?
         isLeft = True if vb.drawn5To3() else False
-        self.setPath(ppL5 if isLeft else ppR5)
-        self.setBrush(QBrush(strand.color()))
+        # self.setPath(ppL5 if isLeft else ppR5)
+        # self.setBrush(QBrush(strand.color()))
+        self.setBrush(self.nobrush)
         self.updateConnectivity()
         self.updateLabel(strand.conn3(), isLeft)
         
     def updateConnectivity(self):
         strand = self.strand
-        self.setVisible(strand.conn5() == None)
+        self.setVisible(not strand.isFloating())
         isLeft = True if  strand.vBase().drawn5To3() else False
         self.updateLabel(strand.conn3(), isLeft)
     def strandWillBeRemoved(self, strand):
@@ -92,6 +101,7 @@ class XoverItem3(QGraphicsPathItem):
         
     def updateLabel(self, partnerStrand, isLeft):
         xos = self.strand
+        lbl = self._label
         if not xos.isFloating():
             if self._label == None:
                 bw = self.baseWidth
@@ -101,31 +111,27 @@ class XoverItem3(QGraphicsPathItem):
                 halfLabelH = tBR.height()/2.0
                 halfLabelW = tBR.width()/2.0
 
-
                 labelX = bw/2.0 - halfLabelW #
 
                 if num == 1:  # adjust for the number one
                     labelX -= halfLabelW/2.0
- 
+
                 if self.onTopStrand():
                     labelY = -0.25*halfLabelH - .5 - 0.5*bw
                 else:
                     labelY = 2*halfLabelH + .5 + 0.5*bw
 
                 if isLeft:
-                    # print "ontop 5to3", partnerStrand.vBase().vHelix().number()
                     labelX -=  0.25*bw
                 else:
-                    # print "ontop 3to5", partnerStrand.vBase().vHelix().number()
                     labelX += 0.25*bw
-                
 
-                self._label = QGraphicsSimpleTextItem(self)
-                self._label.setPos(labelX, labelY)
-                self._label.setBrush(self.enabbrush)
-                self._label.setFont(self.toHelixNumFont)
+                lbl = QGraphicsSimpleTextItem(str(num), self)
+                lbl.setPos(labelX, labelY)
+                lbl.setBrush(self.enabbrush)
+                lbl.setFont(self.toHelixNumFont)
             # end if
-            self._label.setText( str(partnerStrand.vBase().vHelix().number() ) )
+            lbl.setText( str(partnerStrand.vBase().vHelix().number() ) )      
         # end if
     # end def
 # end class
@@ -134,27 +140,22 @@ class XoverItem5(XoverItem3):
     def __init__(self, ph, xover5strand):
         super(XoverItem5, self).__init__(ph, xover5strand)
     # end def
-    
-    # def onTopStrand(self):
-    #     vb = self.strand.vBase()
-    #     vs = self.strand.vStrand()
-    #     return not vb.evenParity() and vs.isScaf() or \
-    #             vb.evenParity() and vs.isStap()
-    
+
     def updatePos(self):
         strand = self.strand
         vb = strand.vBase()
         self.setPos(self.ph.pointForVBase(vb))
         # We can only expose a 3' end. But on which side?
         isLeft = False if vb.drawn5To3() else True
-        # self.setPath(ppR3 if vb.drawn5To3() else ppL3)
-        self.setPath(ppL3 if isLeft else ppR3)
-        self.setBrush(QBrush(strand.color()))
+        # self.setPath(ppL3 if isLeft else ppR3)
+        # self.setBrush(QBrush(strand.color()))
+        self.setBrush(self.nobrush)
         self.updateConnectivity()
         self.updateLabel(strand.conn5(), isLeft)
         
     def updateConnectivity(self):
-        self.setVisible(self.strand.conn3() == None)
+        self.setVisible(not self.strand.isFloating())
+        # self.setVisible(self.strand.conn3() == None)
         
 # end class
 
@@ -168,9 +169,6 @@ class XoverItem(QGraphicsPathItem):
     _yScale = styles.PATH_XOVER_LINE_SCALE_Y  # control point y constant
     
     _rect = QRectF(0, 0, _baseWidth, _baseWidth)
-    _toHelixNumFont = styles.XOVER_LABEL_FONT
-    fm = QFontMetrics(_toHelixNumFont)
-    _labelBrush = QBrush(Qt.SolidPattern)
 
     def __init__(self, phg, strandItem):
         """
@@ -358,6 +356,7 @@ class XoverItem(QGraphicsPathItem):
         
         self.setPath(painterpath)
         self.updatePen()
+        print "update xover"
 
     def updatePen(self):
         strand = self.strand()

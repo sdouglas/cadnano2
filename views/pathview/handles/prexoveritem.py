@@ -38,7 +38,7 @@ util.qtWrapImport('QtCore', globals(), ['QPointF', 'QRectF', 'Qt'])
 util.qtWrapImport('QtGui', globals(), [ 'QBrush', 'QFont', 'QGraphicsPathItem', \
                                         'QGraphicsSimpleTextItem', \
                                         'QFontMetrics', 'QPainterPath', \
-                                        'QPolygonF', \
+                                        'QPolygonF', 'QGraphicsRectItem',\
                                         'QPen', 'QUndoCommand'])
 
 # construct paths for breakpoint handles
@@ -76,7 +76,7 @@ class PreXoverItem(QGraphicsPathItem):
     disabbrush = QBrush(styles.pch_disab_stroke)  # For the helix number label
     enabbrush = QBrush(Qt.SolidPattern)  # Also for the helix number label
     baseWidth = styles.PATH_BASE_WIDTH
-    rect = QRectF(0, 0, styles.PATH_BASE_WIDTH, styles.PATH_BASE_WIDTH)
+    rect = QRectF(0, 0, styles.PATH_BASE_WIDTH, 2.0*styles.PATH_BASE_WIDTH)
     toHelixNumFont = styles.XOVER_LABEL_FONT
 
     # precalculate the height of a number font.  Assumes a fixed font
@@ -89,13 +89,14 @@ class PreXoverItem(QGraphicsPathItem):
         self.fromVBase = fromVBase
         self.toVBase = toVBase
         self.orientedLeft = orientedLeft
-
+        
+        bw = self.baseWidth
         callback = self.updateVisibilityAndEnabledness
         fromVBase.vStrand().indicesModifiedSignal.connect(callback)
         toVBase.vStrand().indicesModifiedSignal.connect(callback)
 
-        x = self.baseWidth * self.fromVBase.vIndex()
-        y = (-1.25 if self.onTopStrand() else 2.25) * self.baseWidth
+        x = bw * self.fromVBase.vIndex()
+        y = (-1.25 if self.onTopStrand() else 2.25) * bw
         self.setPos(x, y)
         
         num = self.toVBase.vHelix().number()
@@ -103,7 +104,7 @@ class PreXoverItem(QGraphicsPathItem):
         halfLabelH = tBR.height()/2.0
         halfLabelW = tBR.width()/2.0
         
-        labelX = self.baseWidth/2.0 - halfLabelW #
+        labelX = bw/2.0 - halfLabelW #
         if num == 1:  # adjust for the number one
             labelX -= halfLabelW/2.0
         
@@ -115,6 +116,14 @@ class PreXoverItem(QGraphicsPathItem):
         self._label = QGraphicsSimpleTextItem(self)
         self._label.setPos(labelX, labelY)
         self.updateVisibilityAndEnabledness()
+    
+        # create a bounding rect item to process click events
+        # over a wide area
+        br = self.boundRect = QGraphicsRectItem(self.rect, self)
+        br.mousePressEvent = self.mousePress
+        br.setPos(0, -0.5*bw)
+        br.setPen(QPen(Qt.NoPen))
+    
     # end def
 
     def undoStack(self):
@@ -136,14 +145,17 @@ class PreXoverItem(QGraphicsPathItem):
 
     def onTopStrand(self):
         vstrand = self.fromVBase.vStrand()
-        return self.fromVBase.evenParity() and vstrand.isScaf() or \
-               not self.fromVBase.evenParity() and vstrand.isStap()
+        evenPar = self.fromVBase.evenParity()
+        return  evenPar and vstrand.isScaf() or \
+               not evenPar and vstrand.isStap()
 
     def couldFormNewCrossover(self):
-        return self.fromVBase.vStrand().possibleNewCrossoverAt(self.fromVBase, self.toVBase)
+        fb = self.fromVBase
+        return fb.vStrand().possibleNewCrossoverAt(fb, self.toVBase)
 
     def crossoverExists(self):
-        return self.fromVBase.vStrand().hasCrossoverAt(self.fromVBase.vIndex())
+        fb = self.fromVBase
+        return fb.vStrand().hasCrossoverAt(fb.vIndex())
 
     def is3pEndOfCrossover(self):
         underlyingStrand5To3 = self.fromVBase.vStrand().drawn5To3()
@@ -162,9 +174,10 @@ class PreXoverItem(QGraphicsPathItem):
     # end def
 
     def updateLabel(self):
-        self._label.setBrush(self.labelBrush)
-        self._label.setFont(self.toHelixNumFont)
-        self._label.setText( str(self.toVBase.vHelix().number() ) )
+        lbl = self._label
+        lbl.setBrush(self.labelBrush)
+        lbl.setFont(self.toHelixNumFont)
+        lbl.setText( str(self.toVBase.vHelix().number() ) )
     # end def
 
     def painterPath(self):
@@ -181,8 +194,8 @@ class PreXoverItem(QGraphicsPathItem):
         self.setPath(path)
         if self._isLabelVisible == True:
             self.updateLabel()
-
-    def mousePressEvent(self, event):
+    
+    def mousePress(self, event):
         if event.button() != Qt.LeftButton:
             return QGraphicsPathItem.mousePressEvent(self, event)
         if not self.couldFormNewCrossover():
@@ -197,3 +210,5 @@ class PreXoverItem(QGraphicsPathItem):
         fto = ForceToolOperation(fromVB, self.undoStack())
         fto.updateDestination(toVB)
         fto.end()
+    # end def
+
