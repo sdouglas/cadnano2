@@ -33,7 +33,7 @@ import maya.OpenMayaMPx as OpenMayaMPx
 import math
 
 nodeName = "spHalfCylinderHelixNode"
-id = OpenMaya.MTypeId(0x3114)
+id = OpenMaya.MTypeId(0x00117701)
 
 
 class HalfCylinderHelixNode(OpenMayaMPx.MPxNode):
