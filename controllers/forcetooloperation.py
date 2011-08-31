@@ -86,7 +86,7 @@ class ForceToolOperation(Operation):
         else:
             vstr.connectStrand(idx, idx - 1,\
                                useUndoStack=True, undoStack=self.undoStack)
-        
+
     def end(self):
         if self.logger != None:
             self.logger.write('ForceToolOperation.end()\n')

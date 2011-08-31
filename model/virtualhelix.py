@@ -2038,10 +2038,10 @@ class VirtualHelix(QObject):
         sr['.class'] = "VirtualHelix"
         sr['tentativeHelixID'] = self.number()  # Not used (just for readability)
         stapleStrand = self._strand(StrandType.Staple)
-        sr['staple'] = self.encodeStrand(StrandType.Staple)
+        sr['staple'] = self.stap().model1String()
         sr['stapleColors'] = " ".join(str(b.getColor().name()) for b in stapleStrand)
         scaffoldStrand = self._strand(StrandType.Scaffold)
-        sr['scafld'] = self.encodeStrand(StrandType.Scaffold)
+        sr['scafld'] = self.scaf().model1String()
         sr['scafldColors'] = " ".join(str(b.getColor().name()) for b in scaffoldStrand)
         # only encode scaffold inserts for version 1.5
         # sr['loops'] = dict((str(k), v) for k,v in self._scaffoldInserts.iteritems())
@@ -2054,27 +2054,29 @@ class VirtualHelix(QObject):
     # finishInitWithArchivedDict, this time with all entries
     finishInitPriority = 1.0  # AFTER DNAParts finish init
 
-    def getRangesAndXoversFromString(self, baseStrList):
+    def getRangesAndXoversFromString(self, strandStr):
         """
-        Decodes the string representation of each base in baseStrList
-        and returns a tuple containing the ranges, left-xovers, and 
-        right-xovers.
+        Decodes the string representation of each base in bases
+        and returns a tuple containing the ranges xovers.
         """
-        ranges, xoL, xoR = [], [], []
-        for i in range(len(baseStrList)):
-            base = baseStrList[i]
+        print "getRangesAndXoversFromString", self._number
+        dir = strandStr[0]
+        bases = strandStr[1:]
+        ranges, xovers = [], []
+        for i in range(len(bases)):
+            base = bases[i]
             if not base in ["_,_", "<,>"]:  # start or end of range
                 ranges.append(i)
                 if not base in ["<,_", "_,>"]:  # crossover
                     l, r = re.split(',', base)
                     lm = re.match(r"(\d+):(\d+)", l)
                     rm = re.match(r"(\d+):(\d+)", r)
-                    if lm != None:
-                        xoL.append((i, int(lm.group(1)), int(lm.group(2))))
-                    if rm != None:
-                        xoR.append((i, int(rm.group(1)), int(rm.group(2))))
+                    if dir == "(3->5)" and lm != None:
+                        xovers.append((i, int(lm.group(1)), int(lm.group(2))))
+                    if dir == "(5->3)" and rm != None:
+                        xovers.append((i, int(rm.group(1)), int(rm.group(2))))
         assert(len(ranges) % 2 == 0)
-        return (ranges, xoL, xoR)
+        return (ranges, xovers)
 
     def finishInitWithArchivedDict(self, completeArchivedDict):
         """
@@ -2089,11 +2091,9 @@ class VirtualHelix(QObject):
         # 1
         scaf = re.split('\s+', completeArchivedDict['scafld'])
         stap = re.split('\s+', completeArchivedDict['staple'])
-        scafDir, scaf = scaf[0], scaf[1:]
-        stapDir, stap = stap[0], stap[1:]
-        assert(len(scaf) == len(stap) and len(stap) == self.numBases())
-        scafRanges, scafXoL, scafXoR = self.getRangesAndXoversFromString(scaf)
-        stapRanges, stapXoL, stapXoR = self.getRangesAndXoversFromString(stap)
+        assert(len(scaf) == len(stap) and len(stap) == self.numBases()+1)
+        scafRanges, scafXovers = self.getRangesAndXoversFromString(scaf)
+        stapRanges, stapXovers = self.getRangesAndXoversFromString(stap)
 
         # 2
         for i in range(0, len(scafRanges), 2):
@@ -2104,20 +2104,12 @@ class VirtualHelix(QObject):
             self.stap().connectStrand(startIdx, endIdx, useUndoStack=False)
 
         # 3
-        if scafDir == "(5->3)":  # stapDir == (3->5)
-            for frIdx, toNum, toIdx in scafXoL:  # scaf frVBase is 3'L xover
-                self._part.importXover(\
-                       StrandType.Scaffold, self._number, frIdx, toNum, toIdx)
-            for frIdx, toNum, toIdx in stapXoR:  # stap frVBase is 3'R xover
-                self._part.importXover(\
-                         StrandType.Staple, self._number, frIdx, toNum, toIdx)
-        else:  # scafDir == (3<-5), stapDir = (5->3)
-            for frIdx, toNum, toIdx in scafXoR:  # scaf frVBase is 3'R xover
-                self._part.importXover(\
-                       StrandType.Scaffold, self._number, frIdx, toNum, toIdx)
-            for frIdx, toNum, toIdx in stapXoL:  # stap frVBase is 3'L xover
-                self._part.importXover(\
-                         StrandType.Staple, self._number, frIdx, toNum, toIdx)
+        for frIdx, toNum, toIdx in scafXovers:  # scaf frVBase is 3'L xover
+            self._part.importXover(\
+                   StrandType.Scaffold, self._number, frIdx, toNum, toIdx)
+        for frIdx, toNum, toIdx in stapXovers:  # stap frVBase is 3'R xover
+            self._part.importXover(\
+                     StrandType.Staple, self._number, frIdx, toNum, toIdx)
 
         # 4
         # Give bases the proper colors

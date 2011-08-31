@@ -203,7 +203,6 @@ class DNAPart(Part):
         """
         while len(self.importedXovers) > 0:
             strandType, frNum, frIdx, toNum, toIdx = self.importedXovers.pop()
-            print strandType, frNum, frIdx, toNum, toIdx
             if strandType == StrandType.Scaffold:
                 frStrand = self.getVirtualHelix(frNum).scaf()
                 toStrand = self.getVirtualHelix(toNum).scaf()
@@ -216,8 +215,11 @@ class DNAPart(Part):
             frVB.vStrand().addStrand(strand, useUndoStack=False)
             strand.conn3().setVBase(toVB)
             toVB.vStrand().addStrand(strand.conn3(), useUndoStack=False)
+            frConIdx = frIdx-1 if frStrand.drawn5To3() else frIdx+1
+            frStrand.connectStrand(frConIdx, frIdx, useUndoStack=False)
+            toConIdx = toIdx+1 if toStrand.drawn5To3() else toIdx-1
+            toStrand.connectStrand(toIdx, toConIdx, useUndoStack=False)
 
-    
     ######################################################################
     ######################## End New Model Quarantine ########################
     ######################################################################
