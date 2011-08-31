@@ -203,7 +203,6 @@ class DNAPart(Part):
         """
         while len(self.importedXovers) > 0:
             strandType, frNum, frIdx, toNum, toIdx = self.importedXovers.pop()
-            print strandType, frNum, frIdx, toNum, toIdx
             if strandType == StrandType.Scaffold:
                 frStrand = self.getVirtualHelix(frNum).scaf()
                 toStrand = self.getVirtualHelix(toNum).scaf()
@@ -216,8 +215,11 @@ class DNAPart(Part):
             frVB.vStrand().addStrand(strand, useUndoStack=False)
             strand.conn3().setVBase(toVB)
             toVB.vStrand().addStrand(strand.conn3(), useUndoStack=False)
+            frConIdx = frIdx-1 if frStrand.drawn5To3() else frIdx+1
+            frStrand.connectStrand(frConIdx, frIdx, useUndoStack=False)
+            toConIdx = toIdx+1 if toStrand.drawn5To3() else toIdx-1
+            toStrand.connectStrand(toIdx, toConIdx, useUndoStack=False)
 
-    
     ######################################################################
     ######################## End New Model Quarantine ########################
     ######################################################################
@@ -510,17 +512,6 @@ class DNAPart(Part):
         self.basesModifySilently = False
         list(self.modifiedVHSet)[0].emitBasesModifiedIfNeeded()
     # end def
-
-    def autoDragAllBreakpoints(self):
-        """Carryover from cadnano1. Shift+Alt+Click on activeslichandle tells
-        all breakpoints to extend as far as possible."""
-        vhs = self.getVirtualHelices()
-        self.undoStack().beginMacro("Auto-drag Scaffold(s)")
-        # for vh in vhs:
-        #     vh.autoDragAllBreakpoints(StrandType.Scaffold)
-        map(VirtualHelix.autoDragAllBreakpoints, vhs, \
-                            itertools.repeat(StrandType.Scaffold, len(self._numberToVirtualHelix)))
-        self.undoStack().endMacro()
 
     def indexOfRightmostNonemptyBase(self):
         """

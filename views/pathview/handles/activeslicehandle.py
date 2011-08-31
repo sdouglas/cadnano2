@@ -27,6 +27,7 @@ Created by Shawn on 2011-02-05.
 """
 
 from exceptions import IndexError
+from controllers.selecttooloperation import SelectToolOperation
 from views import styles
 import util
 
@@ -181,11 +182,9 @@ class ActiveSliceHandle(QGraphicsRectItem):
             return
         x = self.mapToScene(QPointF(event.pos())).x()
         dx = int((x - self.pressX)/self._baseWidth)
-        
         # Modified to update this view in real time instead of with signalign
         self._updateActiveSlice(self.pressBaseIdx+dx)
         self.setActiveSlice(self.pressBaseIdx+dx)
-        
 
     def mousePressEvent(self, event):
         if event.button() != Qt.LeftButton:
@@ -193,9 +192,22 @@ class ActiveSliceHandle(QGraphicsRectItem):
             QGraphicsItem.mousePressEvent(self, event)
             return
 
-        if (event.modifiers() & Qt.AltModifier) and \
-           (event.modifiers() & Qt.ShiftModifier):
-            self.part().autoDragAllBreakpoints()
+        altClick = event.modifiers() & Qt.AltModifier
+        shiftClick = event.modifiers() & Qt.ShiftModifier
+        if altClick and shiftClick:
+            self.part().undoStack().beginMacro("Auto-drag Scaffold(s)")
+            for vh in self.part().getVirtualHelices():
+                for vStr in vh.scaf():
+                    end3 = vStr.vBase3
+                    sto = SelectToolOperation(end3, self.part().undoStack())
+                    sto.actionResizeStrand(end3)
+                    sto.end()
+                for vStr in vh.scaf():
+                    end3 = vStr.vBase5
+                    sto = SelectToolOperation(end3, self.part().undoStack())
+                    sto.actionResizeStrand(end3)
+                    sto.end()
+            self.part().undoStack().endMacro()
 
         # try here because event passed from sceneEvent has no scenePos()
         try:
