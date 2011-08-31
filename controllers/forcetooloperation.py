@@ -91,6 +91,10 @@ class ForceToolOperation(Operation):
         if self.logger != None:
             self.logger.write('ForceToolOperation.end()\n')
         self.rewind(self.undoIdxBeforeEverything)
+        if self.lastDestination == None:
+            del self.strand
+            print "Failed ForceToolOperation.end(): self.lastDestination == None"
+            return
         self.undoStack.beginMacro('ForceTool')
         self.install3()
         self.install5()
