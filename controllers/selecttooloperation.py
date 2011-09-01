@@ -50,15 +50,19 @@ class SelectToolOperation(PencilToolOperation):
         # prevent dragging outside the grid
         self.dragBoundL = 0
         self.dragBoundR = self.startVBase.part().dimensions()[2]-1
-        # prevent dragging down to single base strands
+        # prevent dragging past single base strands
         self.strandBeforeIdx, self.strandAtIdx, self.strandAfterIdx = \
                         self.startVStrand.strandsNearVBase(self.startVBase)
         if self.strandAtIdx != None:
-            if self.startVBase == self.strandAtIdx.vBaseL:
-                self.dragBoundR = min(self.strandAtIdx.vBaseR.vIndex()-1,
+            if self.strandAtIdx.vBaseL == self.strandAtIdx.vBaseR:
+                print "single base"
+            elif self.startVBase == self.strandAtIdx.vBaseL:
+                print "baseL"
+                self.dragBoundR = min(self.strandAtIdx.vBaseR.vIndex(),
                                       self.dragBoundR)
             elif self.startVBase == self.strandAtIdx.vBaseR:
-                self.dragBoundL = max(self.strandAtIdx.vBaseL.vIndex()+1,
+                print "baseR"
+                self.dragBoundL = max(self.strandAtIdx.vBaseL.vIndex(),
                                       self.dragBoundL)
         # prevent dragging over neighboring strands
         if self.strandBeforeIdx != None:

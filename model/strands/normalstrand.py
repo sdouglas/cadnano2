@@ -155,6 +155,7 @@ class NormalStrand(Strand):
             com.redo()
         self.assertConsistent()
         return self
+
     class ChangeRangeCommand(QUndoCommand):
         def __init__(self, strand, newL, newR):
             QUndoCommand.__init__(self)
@@ -220,7 +221,8 @@ class NormalStrand(Strand):
     def exposedEndsAt(self, vBase):
         """
         Returns 'L' or 'R' if a segment exists at vStrand, idx and it
-        exposes an unbound endpoint on its 3' or 5' end. Otherwise returns None.http://store.apple.com/us/browse/campaigns/back_to_school?aid=www-naus-bts2011-0526-16
+        exposes an unbound endpoint on its 3' or 5' end. Otherwise returns
+        None.
         """
         ret = ''
         drawn5To3 = vBase.vStrand().drawn5To3()

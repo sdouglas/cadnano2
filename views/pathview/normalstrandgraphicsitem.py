@@ -54,19 +54,19 @@ r3poly.append(QPointF(0.75*baseWidth, 0.5*baseWidth))
 r3poly.append(QPointF(0, baseWidth))
 ppR3.addPolygon(r3poly)
 # single base left 5'->3'
-pp53.addRect(0.25*baseWidth, 0.125*baseWidth, 0.25*baseWidth, 0.75*baseWidth)
+pp53.addRect(0, 0.125*baseWidth, 0.5*baseWidth, 0.75*baseWidth)
 poly53 = QPolygonF()
 poly53.append(QPointF(0.5*baseWidth, 0))
 poly53.append(QPointF(baseWidth, 0.5*baseWidth))
 poly53.append(QPointF(0.5*baseWidth, baseWidth))
 pp53.addPolygon(poly53)
 # single base left 3'<-5'
-pp35.addRect(0.50*baseWidth, 0.125*baseWidth, 0.25*baseWidth, 0.75*baseWidth)
+pp35.addRect(0.50*baseWidth, 0.125*baseWidth, 0.5*baseWidth, 0.75*baseWidth)
 poly35 = QPolygonF()
 poly35.append(QPointF(0.5*baseWidth, 0))
 poly35.append(QPointF(0, 0.5*baseWidth))
 poly35.append(QPointF(0.5*baseWidth, baseWidth))
-pp53.addPolygon(poly35)
+pp35.addPolygon(poly35)
 
 NoPen = QPen(Qt.NoPen)
 
@@ -83,6 +83,8 @@ class NormalStrandGraphicsItem(QGraphicsLineItem):
         self.leftCap.setPen(NoPen)
         self.rightCap = QGraphicsPathItem(ppR3 if drawn5To3 else ppR5, self)
         self.rightCap.setPen(NoPen)
+        self.dualCap = QGraphicsPathItem(pp53 if drawn5To3 else pp35, self)
+        self.dualCap.setPen(NoPen)
         self.update(normalStrand)
 
     def update(self, strand):
@@ -107,6 +109,16 @@ class NormalStrandGraphicsItem(QGraphicsLineItem):
             self.rightCap.setPos(rUpperLeftX, rUpperLeftY)
             self.rightCap.show()
         ry = ly
+        
+        if strand.numBases() == 1 and \
+                  (self.leftCap.isVisible() and self.rightCap.isVisible):
+            self.leftCap.hide()
+            self.rightCap.hide()
+            self.dualCap.setPos(lUpperLeftX, lUpperLeftY)
+            self.dualCap.show()
+        else:
+            self.dualCap.hide()
+
         self.setLine(lx, ly, rx, ry)
         if vbL.vStrand().isScaf():
             pen = QPen(styles.scafstroke, styles.PATH_STRAND_STROKE_WIDTH)
@@ -118,6 +130,7 @@ class NormalStrandGraphicsItem(QGraphicsLineItem):
         self.setPen(pen)
         self.leftCap.setBrush(brush)
         self.rightCap.setBrush(brush)
+        self.dualCap.setBrush(brush)
 
     def remove(self, strand):
         ns = self.normalStrand
