@@ -32,6 +32,7 @@ import maya.OpenMaya as OpenMaya
 import maya.OpenMayaMPx as OpenMayaMPx
 import maya.cmds as cmds
 import maya.OpenMayaUI as OpenMayaUI
+import maya.mel as mel
 import sip
 
 sys.path.insert(0, os.environ['CADNANO_PATH'])
@@ -129,11 +130,12 @@ def uninitializePlugin(mobject):
 
 def openCN():
     global gCadNanoApp
-    simplifyMayaUI()
+    modifyMayaUI()
 
     if gCadNanoApp:
         for x in gCadNanoApp.documentControllers:
             if x.win:
+                x.windock.setVisible(True)
                 x.win.setVisible(True)
     else:
         # begin program
@@ -149,9 +151,10 @@ def openCN():
             if gCadNanoApp.activeDocument.solidHelixGrp:
                 gCadNanoApp.activeDocument.solidHelixGrp.onPersistentDataChanged()
 
-    pluginPath = os.path.join(os.environ['CADNANO_PATH'],  "views", "solidview", "helixManip.py") 
-    if not cmds.pluginInfo( pluginPath, query=True, loaded=True ):
-            cmds.loadPlugin( pluginPath )        
+    pluginPath = os.path.join(os.environ['CADNANO_PATH'],
+                                "views", "solidview", "helixManip.py")
+    if not cmds.pluginInfo(pluginPath, query=True, loaded=True):
+            cmds.loadPlugin(pluginPath)
             cmds.spHelixManipCtxCmd("spHelixContext1")
             cmds.setToolTo("spHelixContext1")
 
@@ -165,9 +168,10 @@ def changed(self, event):
             app().activeDocument = self
 
 
-def simplifyMayaUI():
+def modifyMayaUI():
     mayaHotKeys.disableAllHotKeys()
     mayaUI.simplifyUI()
+    mayaUI.setViewportQuality()
 
     myWindow = cmds.window()
     myForm = cmds.formLayout(parent=myWindow)
@@ -195,6 +199,7 @@ def simplifyMayaUI():
 def restoreMayaUI():
     mayaHotKeys.restoreAllHotKeys()
     mayaUI.restoreUI()
+    mayaUI.restoreViewportQuality()
 
     if gCadNanoToolbar:
         if cmds.toolBar(gCadNanoToolbar, exists=True):
@@ -203,9 +208,10 @@ def restoreMayaUI():
 
 def closeCN():
     global gCadNanoApp
-    if gCadNanoApp.activeDocument:
-        gCadNanoApp.activeDocument.win.setVisible(False)
     if gCadNanoApp:
+        if gCadNanoApp.activeDocument:
+            gCadNanoApp.activeDocument.win.setVisible(False)
+            gCadNanoApp.activeDocument.windock.setVisible(False)
         for x in gCadNanoApp.documentControllers:
             if x.win:
                 x.windock.setVisible(False)
