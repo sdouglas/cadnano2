@@ -23,10 +23,8 @@
 # http://www.opensource.org/licenses/mit-license.php
 
 """
-halfcylinderhelixnode.py
-
+stapleModIndicator.py
 Created by Alex Tessier on 2011-08-25
-
 A Maya Node for creating a Staple Modifier indicator on top of a Helix Shape 
 """
 import sys

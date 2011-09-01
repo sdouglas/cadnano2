@@ -24,24 +24,33 @@
 # 
 ###############################################################################
 
+"""
+helixManip.py
+Created by Alex Tessier on 2011-08
+A Maya manip for controlling Helix Shape similar to the selectTool
+"""
 
 import sys
 import maya.OpenMaya as OpenMaya
 import maya.OpenMayaUI as OpenMayaUI
 import maya.OpenMayaMPx as OpenMayaMPx
 
-helixManipId = OpenMaya.MTypeId( 0x87009 )
+helixManipId = OpenMaya.MTypeId( 0x00117702 )
 contextCmdName = "spHelixManipCtxCmd"
 nodeName = "spHelixManip"
 
 class helixManip( OpenMayaMPx.MPxManipContainer ):
     fDistanceFrontManip = OpenMaya.MDagPath()
-    fDistranceBackManip = OpenMaya.MDagPath()
+    fDistanceBackManip = OpenMaya.MDagPath()
     # startPos = OpenMaya.MObject()
     # endPos = OpenMaya.MObject()
-    start3DPosAttr = OpenMaya.MObject()
-    end3DPosAttr = OpenMaya.MObject()        
+    startBaseFloatAttr = OpenMaya.MObject()
+    endBaseFloatAttr = OpenMaya.MObject()
+    startBaseIntAttr = OpenMaya.MObject()
+    endBaseIntAttr = OpenMaya.MObject()
+    myNode = OpenMaya.MObject()
     
+        
     #fFreePointManip = OpenMaya.MDagPath()
 
     def __init__( self ):
@@ -74,33 +83,47 @@ class helixManip( OpenMayaMPx.MPxManipContainer ):
         #print "helixManip:connectToDependNode -- trying the cast this node as a dependency node"
         nodeFn = OpenMaya.MFnDependencyNode( node )
         #print nodeFn.name()
+        self.myNode = node
 
         try:
-            frontPlug  = nodeFn.findPlug( "end" )
-            backPlug = nodeFn.findPlug( "start" )
-            frontPosPlug = nodeFn.findPlug( "startPos" )
-            backPosPlug = nodeFn.findPlug( "endPos" )
+            frontPlug  = nodeFn.findPlug( "startBaseFloat" )
+            backPlug = nodeFn.findPlug( "endBaseFloat" )
             
-            distanceManipFn = OpenMayaUI.MFnDistanceManip(  self.fDistanceFrontManip )
-            distanceManipFn.connectToDistancePlug(  frontPlug )
+            distanceManipFn = OpenMayaUI.MFnDistanceManip( self.fDistanceFrontManip )
+            distanceManipFn.connectToDistancePlug( frontPlug )
             # freePointManipFn = OpenMayaUI.MFnFreePointTriadManip( self.fFreePointManip )
             # freePointManipFn.connectToPointPlug( tPlug )
 
-            distanceManipFn = OpenMayaUI.MFnDistanceManip(  self.fDistanceBackManip )
-            distanceManipFn.connectToDistancePlug(  backPlug )
+            distanceManipFn = OpenMayaUI.MFnDistanceManip( self.fDistanceBackManip )
+            distanceManipFn.connectToDistancePlug( backPlug )
+                        
+            # hookup the converter function
+            #frontIdx = distanceManipFn.startPointIndex()
+            #OpenMayaMPx.MPxManipContainer.addPlugToManipConversion( self,
+            #                                                startPointIndex )
 
             OpenMayaMPx.MPxManipContainer.finishAddingManips( self )
-            OpenMayaMPx.MPxManipContainer.connectToDependNode( self,node )
+            OpenMayaMPx.MPxManipContainer.connectToDependNode( self, node )
             #print "helixManip connected to node " + nodeFn.name()
         except:
             sys.stderr.write(  "helixManip: Error finding and connecting plugs\n" )
             # raise
-    #def compute( self, plug, data )
-    #    try:
-    #        print "helixManip computing data"
-    #    except:
-    #        print "Error in compute for helixManip node"
-    #        raise
+            
+    def plugToManipConversion( self, manipIndex ):
+            # print "plugToManipConversion ( same as startPointCallback? ) \
+            # called with index %d" % manipIndex
+            try:
+                    numData = OpenMaya.MFnNumericData()
+                    numDataObj = numData.create( OpenMaya.MFnNumericData.k3Double )
+                    
+                    # get the value from the helix node we're attached to
+                    numData.setData3Double(vec.x, vec.y, vec.z)
+                    
+                    returnData = OpenMayaUI.MManipData( numDataObj )
+            except:
+                    sys.stderr.write("ERROR: helixManip.plugToManipConversion\n")
+                    raise
+            return returnData
 
     def getRotation( self, nodePath ):
         dagFn = OpenMaya.MFnDagNode( nodePath )
@@ -117,29 +140,64 @@ class helixManip( OpenMayaMPx.MPxManipContainer ):
         dagFn.getPath( path )
         transformFn = OpenMaya.MFnTransform( path )
         return transformFn.translation( OpenMaya.MSpace.kWorld )
-    
+
+    # Getting values out of references is a little crazy in the 1.0
+    # Maya Python API.... 
+    def getFloat3PlugValue( self, plug ):
+        # Retrieve the value as an MObject
+        object = plug.asMObject()
+        
+        # TODO type checking that our plug is a float3 plug!
+        # Convert the MObject to a float3
+        numDataFn = OpenMaya.MFnNumericData(object)
+        
+        xParam = OpenMaya.MScriptUtil()
+        xParam.createFromDouble( 0.0 )
+        xPtr = xParam.asFloatPtr()
+        
+        yParam = OpenMaya.MScriptUtil()
+        yParam.createFromDouble( 0.0 )
+        yPtr = yParam.asFloatPtr()
+        
+        zParam = OpenMaya.MScriptUtil()
+        zParam.createFromDouble( 0.0 )
+        zPtr = zParam.asFloatPtr()
+        
+        numDataFn.getData3Float( xPtr, yPtr, zPtr )
+        
+        return OpenMaya.MPoint( OpenMaya.MScriptUtil.getFloat(xPtr),
+                                OpenMaya.MScriptUtil.getFloat(yPtr),
+                                OpenMaya.MScriptUtil.getFloat(zPtr) )
+
     def matchNodePosition( self, transformNode, helixNode ):
         trans = self.getTranslation( transformNode )
         q = self.getRotation( transformNode )
         
-        #helixNodeFn = OpenMaya.MFnDependencyNode( helixNode )
-        #startPos = OpenMaya.MPoint( helixNodeFn.attribute( "startPos" ) ); # TODO type checking
-        #endPos = OpenMaya.MPoint( helixNodeFn.attribute( "endPos" ) );
-        #print "startPos is"
-        #print startPos
-        #print "endPos is"
-        #print endPos
+        helixNodeFn = OpenMaya.MFnDependencyNode( helixNode )
+        startPlug = helixNodeFn.findPlug( "startPos")
+        endPlug = helixNodeFn.findPlug( "endPos" )
+        
+        startPos = self.getFloat3PlugValue( startPlug )
+        endPos = self.getFloat3PlugValue( endPlug )
+
+
         freePointManipFn1 = OpenMayaUI.MFnDistanceManip( self.fDistanceFrontManip  )
         freePointManipFn2 = OpenMayaUI.MFnDistanceManip( self.fDistanceBackManip )
-        vecZ = OpenMaya.MVector( 0.0, 1.0, 0.0 )
-        vecMinusZ = OpenMaya.MVector( 0.0, -1.0, 0.0 )
+        vecZ = OpenMaya.MVector( 0.0, 1.5, 0.0 )
+        vecMinusZ = OpenMaya.MVector( 0.0, -1.5, 0.0 )
     
-        # freePointManipFn1.setStartPoint( startPos )
+        scalingFactor = 1.0
+
+        freePointManipFn1.setStartPoint( startPos )
+        freePointManipFn1.setDrawStart( True )
+        freePointManipFn1.setScalingFactor( scalingFactor )
         freePointManipFn1.setDirection( vecZ )
         freePointManipFn1.rotateBy( q )
         freePointManipFn1.setTranslation( trans, OpenMaya.MSpace.kWorld )
-    
-        # freePointManipFn2.setStartPoint( endPos )
+        
+        freePointManipFn2.setStartPoint( endPos )
+        freePointManipFn2.setDrawStart( True )
+        freePointManipFn2.setScalingFactor( scalingFactor )
         freePointManipFn2.setDirection( vecMinusZ )
         freePointManipFn2.rotateBy( q )
         freePointManipFn2.setTranslation( trans, OpenMaya.MSpace.kWorld )
@@ -196,6 +254,14 @@ def getHelixNodeFromTransform( transformNode ):
             #print funcSig + "failed to find connecting node!"
             helixNode = None
             raise
+        
+        try:
+            nodeFn = OpenMaya.MFnDependencyNode( helixNode )
+            spPlug = nodeFn.findPlug( "startBaseFloat" )            
+        except:
+            print "NOT A HELIX NODE!"
+            helixNode = None
+            raise
             
         return helixNode    
                        
@@ -209,7 +275,8 @@ def updateManipulators( clientData ):
         selectionList = OpenMaya.MSelectionList()
 
         OpenMaya.MGlobal.getActiveSelectionList( selectionList )
-        selectionIter = OpenMaya.MItSelectionList( selectionList, OpenMaya.MFn.kInvalid )
+        selectionIter = OpenMaya.MItSelectionList( selectionList,
+                                                   OpenMaya.MFn.kInvalid )
         # selectionIter.setFilter( OpenMaya.MFn.kPluginDependNode )
         while not selectionIter.isDone():
                 #print "helixManip: walking a selecting node, should be kPluginDependNode type"
@@ -232,20 +299,21 @@ def updateManipulators( clientData ):
                 helixNode = OpenMaya.MObject();
                 helixNode = getHelixNodeFromTransform( dependNode )
                 if helixNode is None:
-                    #print "helixManip: helixNode not found!"
                     selectionIter.next()
                     continue
+                else:
+                    manipObject = OpenMaya.MObject()
+                    manipulator = \
+                        OpenMayaMPx.MPxManipContainer.newManipulator( nodeName, manipObject )
+                    if manipulator is not None:
+                        clientData.addManipulator( manipObject )
+                        transformNodePath = OpenMaya.MDagPath()
+                        # components = OpenMaya.MObject()
+                        selectionIter.getDagPath( transformNodePath )
+                        manipulator.connectToDependNode( helixNode )
+                        # this should probably be done in a converter function
+                        manipulator.matchNodePosition( transformNodePath, helixNode )
                 
-                
-                manipObject = OpenMaya.MObject() # should this be helixmetanode() ?
-                manipulator = OpenMayaMPx.MPxManipContainer.newManipulator( nodeName, manipObject )
-                if manipulator is not None:
-                    clientData.addManipulator( manipObject )
-                    transformNodePath = OpenMaya.MDagPath()
-                    # components = OpenMaya.MObject()
-                    selectionIter.getDagPath( transformNodePath )
-                    manipulator.connectToDependNode( helixNode )
-                    manipulator.matchNodePosition( transformNodePath, helixNode )
                 selectionIter.next()
                 
     
@@ -259,21 +327,21 @@ def helixManipInitialize():
         typedAttr = OpenMaya.MFnTypedAttribute()
         nAttr = OpenMaya.MFnNumericAttribute()
 
-        helixManip.start3DPosAttr = nAttr.create( 'startPos',
-                                                  'sp',
-                                                  OpenMaya.MFnNumericData.k3Float,
+        helixManip.startBaseFloatAttr = nAttr.create( 'helixManipStartPos',
+                                                  'hmsp',
+                                                  OpenMaya.MFnNumericData.kFloat,
                                                   0.0 )
         nAttr.setWritable(True)
         nAttr.setStorable(False)
-        helixManip.end3DPosAttr = nAttr.create( 'endPos',
-                                                'ep',
-                                                OpenMaya.MFnNumericData.k3Float,
+        helixManip.endBaseFloatAttr = nAttr.create( 'helixManipEndPos',
+                                                'hmep',
+                                                OpenMaya.MFnNumericData.kFloat,
                                                 0.0 )
         nAttr.setWritable(True)
         nAttr.setStorable(False)
         
-        helixManip.addAttribute( helixManip.start3DPosAttr )
-        helixManip.addAttribute( helixManip.end3DPosAttr )
+        helixManip.addAttribute( helixManip.startBaseFloatAttr )
+        helixManip.addAttribute( helixManip.endBaseFloatAttr )
         
 
 class helixManipContext( OpenMayaMPx.MPxSelectionContext ):
@@ -284,7 +352,7 @@ class helixManipContext( OpenMayaMPx.MPxSelectionContext ):
         #print "helixManip: helixManipContext toolOnSetup called"
         updateManipulators( self )
         OpenMaya.MModelMessage.addCallback(  OpenMaya.MModelMessage.kActiveListModified, 
-                                            updateManipulators, self )
+                                             updateManipulators, self )
 class helixManipCtxCmd( OpenMayaMPx.MPxContextCommand ):
     def __init__( self ):
         #print "helixManip: helixManipCtxCMd init called"
