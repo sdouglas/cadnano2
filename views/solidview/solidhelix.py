@@ -79,24 +79,15 @@ class SolidHelix(QObject):
     def setVHelix(self, newVH):
         vh = self._vhelix
         if vh:
-            vh.basesModifiedSignal.disconnect(self.vhelixBasesModified)
             vh.dimensionsModifiedSignal.disconnect(\
                                              self.vhelixDimensionsModified)
             vh.scaf().didAddStrand.disconnect(self.strandAddedToVStrand)
             vh.stap().didAddStrand.disconnect(self.strandAddedToVStrand)
-            vh.scaf().indicesModifiedSignal.disconnect(
-                                        self.onIndicesModifiedSignal)
-            vh.stap().indicesModifiedSignal.disconnect(
-                                        self.onIndicesModifiedSignal)
         self._vhelix = newVH
-        newVH.basesModifiedSignal.connect(self.vhelixBasesModified)
+      
         newVH.dimensionsModifiedSignal.connect(self.vhelixDimensionsModified)
         newVH.scaf().didAddStrand.connect(self.strandAddedToVStrand)
         newVH.stap().didAddStrand.connect(self.strandAddedToVStrand)
-        newVH.scaf().indicesModifiedSignal.connect(
-                                            self.onIndicesModifiedSignal)
-        newVH.stap().indicesModifiedSignal.connect(
-                                            self.onIndicesModifiedSignal)
 
     def number(self):
         return self._vhelix.number()
@@ -117,9 +108,6 @@ class SolidHelix(QObject):
         if isinstance(strand, NormalStrand):
             strand.didMove.connect(self.onStrandDidMove)
             strand.willBeRemoved.connect(self.onStrandWillBeRemoved)
-            strand.apparentConnectivityChanged.connect(
-                                    self.onStrandApparentConnectivityChanged)
-
             id = self._solidHelixGroup.strandMayaID(strand)
             self.strandIDs.append(id)
             #print "SolidHelix:strandAddedToVStrand-NormalStrand %s" % id
@@ -160,6 +148,8 @@ class SolidHelix(QObject):
 
     def onStrandWillBeRemoved(self, strand):
         id = self._solidHelixGroup.strandMayaID(strand)
+        strand.didMove.disconnect(self.onStrandDidMove)
+        strand.willBeRemoved.disconnect(self.onStrandWillBeRemoved)
         #print "SolidHelix:onStrandWillBeRemoved %s" % id
         transformName = "DNAShapeTransform%s" % id
         if cmds.objExists(transformName):
@@ -168,9 +158,6 @@ class SolidHelix(QObject):
         self._solidHelixGroup.deleteStrandMayaID(strand)
         #print strand
 
-    def onStrandApparentConnectivityChanged(self, strand):
-        pass
-
     def vhelixDimensionsModified(self):
         #print "SolidHelix:vhelixDimensionsModified"
         totalNumBases = self._vhelix.numBases()
@@ -178,12 +165,6 @@ class SolidHelix(QObject):
             cylinderName = "HalfCylinderHelixNode%s" % strandID
             cmds.setAttr("%s.totalBases" % cylinderName, int(totalNumBases))
 
-    def vhelixBasesModified(self):
-        pass
-
-    def onIndicesModifiedSignal(self, endpoints):
-        pass
-    
     def cadnanoVBaseToMayaZ(self, base, strand):
         id = self._solidHelixGroup.strandMayaID(strand)
         cylinderName = "HalfCylinderHelixNode%s" % id
@@ -218,7 +199,7 @@ class SolidHelix(QObject):
                 self.stapleIndicatorCount += 1
             stapleId = "%s_%s" % (strandid, self.stapleIndicatorCount)
             (targetX, targetY) = self.pathHelixGroup().cadnanoToMayaCoords(stapleBase[1], stapleBase[2])
-            vec = (self.x-targetX, self.y-targetY)
+            vec = (targetX-self.x, targetY-self.y)
             coords = (self.x+vec[0]/3.7, self.y+vec[1]/3.7, self.cadnanoVBaseToMayaZ(stapleBase[0], strand));
             self.createStapleModIndicatorNodes(coords,stapleId)
             #print "adding StapleID %s" % stapleId
