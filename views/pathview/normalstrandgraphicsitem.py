@@ -59,14 +59,14 @@ poly53 = QPolygonF()
 poly53.append(QPointF(0.5*baseWidth, 0))
 poly53.append(QPointF(baseWidth, 0.5*baseWidth))
 poly53.append(QPointF(0.5*baseWidth, baseWidth))
-poly53.addPolygon(poly53)
+pp53.addPolygon(poly53)
 # single base left 3'<-5'
 pp35.addRect(0.50*baseWidth, 0.125*baseWidth, 0.25*baseWidth, 0.75*baseWidth)
 poly35 = QPolygonF()
 poly35.append(QPointF(0.5*baseWidth, 0))
 poly35.append(QPointF(0, 0.5*baseWidth))
 poly35.append(QPointF(0.5*baseWidth, baseWidth))
-poly35.addPolygon(poly35)
+pp53.addPolygon(poly35)
 
 NoPen = QPen(Qt.NoPen)
 
