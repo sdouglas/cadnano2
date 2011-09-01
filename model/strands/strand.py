@@ -314,6 +314,27 @@ class Strand(QObject):
         else:
             self.setConn5(newConn, useUndoStack, undoStack)
 
+    def oligo(self):
+        return self._oligo
+    def setOligo(self, newOligo, useUndoStack=True, undoStack=None):
+        if useUndoStack and undoStack==None:
+            undoStack = self.defaultUndoStack()
+        com = self.SetOligoCommand(self, newOligo)
+        if useUndoStack:
+            undoStack.push(undoStack)
+        else:
+            com.redo()
+    class SetOligoCommand(QUndoCommand):
+        def __init__(self, strand, newOligo):
+            QUndoCommand.__init__(self)
+            self.strand = strand
+            self.oldOligo = strand._oligo
+            self.newOligo = newOligo
+        def redo(self):
+            self.strand._oligo = self.newOligo
+        def undo(self):
+            self.strand._oligo = self.oldOligo
+
     def clearVFB(self):
         print "clr %s"%self
     def setVFB(self, clrStart, afterClrEnd, endptsToConnect):
