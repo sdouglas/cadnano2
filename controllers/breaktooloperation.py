@@ -47,7 +47,7 @@ class BreakToolOperation(Operation):
         if vBase == None: return
         if vBase.strand() == None: return
         if not isinstance(vBase.strand(), NormalStrand): return
-        idx = vBase.vIndex() if vBase.drawn5To3() else vBase.vNext3().vIndex()
+        idx = vBase.vNext3().vIndex() if vBase.drawn5To3() else vBase.vIndex()
         if idx in vBase.strand().idxs(): return
         Operation.__init__(self, undoStack)
         self.actionBreakVstrandAt(vBase.vStrand(), idx)

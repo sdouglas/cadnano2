@@ -42,7 +42,6 @@ class NewBreakTool(AbstractPathTool):
         self.currentOperation = None
 
     def mousePressPathHelix(self, pathHelix, event):
-        print "mousePressPathHelix NewBreakTool"
         # initial setup / check input state
         pathHelix.scene().views()[0].addToPressList(pathHelix)
         undoStack = pathHelix.vhelix().undoStack()

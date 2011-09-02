@@ -34,11 +34,9 @@ from model.enum import Parity, StrandType
 
 import util
 # import Qt stuff into the module namespace with PySide, PyQt4 independence
-util.qtWrapImport('QtCore', globals(), ['Qt', 'QEvent', 'QString', 'QRectF'])
-util.qtWrapImport('QtGui', globals(), ['QGraphicsItem', 'QGraphicsObject',\
-                                       'QGraphicsSimpleTextItem',\
-                                       'QBrush', 'QPen', 'QDrag',\
-                                       'QUndoCommand'])
+util.qtWrapImport('QtCore', globals(), ['Qt', 'QEvent', 'QString', 'QRectF',
+                                        'QPointF'])
+util.qtWrapImport('QtGui', globals(), ['QGraphicsItem', 'QBrush', 'QPen'])
 
 class SliceHelix(QGraphicsItem):
     """
@@ -154,6 +152,12 @@ class SliceHelix(QGraphicsItem):
         if event.type() == QEvent.MouseButtonPress:
             self.mousePressEvent(event)
             return True
+        elif event.type() == QEvent.MouseButtonRelease:
+            self.mouseReleaseEvent(event)
+            return True
+        elif event.type() == QEvent.MouseMove:
+            self.mouseMoveEvent(event)
+            return True
         QGraphicsItem.sceneEvent(self, event)
         return False
 
@@ -184,7 +188,7 @@ class SliceHelix(QGraphicsItem):
 
     def mouseMoveEvent(self, event):
         parent = self._parent
-        posInParent = parent.mapFromItem(self, event.pos())
+        posInParent = parent.mapFromItem(self, QPointF(event.pos()))
         # Qt doesn't have any way to ask for graphicsitem(s) at a
         # particular position but it *can* do intersections, so we
         # just use those instead

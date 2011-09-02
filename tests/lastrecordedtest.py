@@ -29,7 +29,7 @@ from PyQt4.QtCore import *
 from PyQt4.QtGui import *
 import tests.cadnanoguitestcase
 from tests.cadnanoguitestcase import CadnanoGuiTestCase
-from recordedtests.recordedtest_006 import testMethod as testMethod006
+from recordedtests.recordedtest_000 import testMethod as testMethod000
 
 sys.path.insert(0, '.')
 
@@ -45,10 +45,8 @@ class LastRecordedTest(CadnanoGuiTestCase):
     def tearDown(self):
         CadnanoGuiTestCase.tearDown(self)
 
-LastRecordedTest.testMethod = testMethod006
-
+LastRecordedTest.testMethod = testMethod000
 
 if __name__ == '__main__':
     print "Running Last Recorded Test"
     tests.cadnanoguitestcase.main()
-
