@@ -56,12 +56,13 @@ class NewSelectTool(AbstractPathTool):
         pathHelix.makeSelfActiveHelix()
         pathHelix.scene().views()[0].addToPressList(pathHelix)
         dest = pathHelix.vBaseAtPoint(event.pos())
+        useLeft = pathHelix.userClickedLeftHalfOfVBase(event.pos())
         undoStack = pathHelix.vhelix().undoStack()
         shiftClick = event.modifiers() & Qt.ShiftModifier
         altClick = event.modifiers() & Qt.AltModifier
         # do the operation
         if self.currentOperation != None: self.currentOperation.end()
-        self.currentOperation = SelectToolOperation(dest, undoStack)
+        self.currentOperation = SelectToolOperation(dest, useLeft, undoStack)
         if shiftClick:
             if self.logger: self.logger.write("mousePressPathHelix>Join\n")
             self.currentOperation.actionJustConnect(dest)

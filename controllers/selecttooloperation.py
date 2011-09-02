@@ -33,10 +33,10 @@ class SelectToolOperation(PencilToolOperation):
     Handles interactive strand creation / destruction in the manner of the
     SelectTool.
     """
-    def __init__(self, startVBase, undoStack):
+    def __init__(self, startVBase, useLeft, undoStack):
         """ Begin a session of select-tool interaction """
         self.strandBeforeIdx = self.strandAtIdx = self.strandAfterIdx = None
-        PencilToolOperation.__init__(self, startVBase, undoStack)
+        PencilToolOperation.__init__(self, startVBase, useLeft, undoStack)
         if self.logger: self.logger.write('SelectToolOperation.init(%s)\n'%startVBase)
 
     def setDragBounds(self):
@@ -55,13 +55,15 @@ class SelectToolOperation(PencilToolOperation):
                         self.startVStrand.strandsNearVBase(self.startVBase)
         if self.strandAtIdx != None:
             if self.strandAtIdx.vBaseL == self.strandAtIdx.vBaseR:
-                print "single base"
+                # single-base strand, prevent erasure
+                if self.useLeft:
+                    self.dragBoundR = self.startVBase.vIndex()
+                else:
+                    self.dragBoundL = self.startVBase.vIndex()
             elif self.startVBase == self.strandAtIdx.vBaseL:
-                print "baseL"
                 self.dragBoundR = min(self.strandAtIdx.vBaseR.vIndex(),
                                       self.dragBoundR)
             elif self.startVBase == self.strandAtIdx.vBaseR:
-                print "baseR"
                 self.dragBoundL = max(self.strandAtIdx.vBaseL.vIndex(),
                                       self.dragBoundL)
         # prevent dragging over neighboring strands
@@ -86,13 +88,16 @@ class SelectToolOperation(PencilToolOperation):
         self.rewind()
         dragStartBase, dragEndBase = self.startVBase, newDestVBase
         dragStartExposedEnds = dragStartBase.exposedEnds()
+        # special case: single-base strand
+        if 'L' in dragStartExposedEnds and 'R' in dragStartExposedEnds:
+            dragStartExposedEnds = 'L' if self.useLeft else 'R'
         dragStartStrand = dragStartBase.strand()
         dragEndStrand = dragEndBase.strand()
         startIdx, endIdx = dragStartBase.vIndex(), dragEndBase.vIndex()
         vStrand = dragStartBase.vStrand()
 
         if not isinstance(newDestVBase, VBase):
-            print "not instance VBase"
+            print "not instance VBase (what did you click?!)"
             return
 
         if self.imposeDragBounds:
@@ -144,7 +149,7 @@ class SelectToolOperation(PencilToolOperation):
         if 'L' in ends:
             vBase.vStrand().connectStrand(vBase.vIndex(), self.dragBoundL,\
                                   useUndoStack=True, undoStack=self.undoStack)
-        elif 'R' in ends:
+        if 'R' in ends:
             vBase.vStrand().connectStrand(vBase.vIndex(), self.dragBoundR,\
                                   useUndoStack=True, undoStack=self.undoStack)
         if self.logger: self.logger.write('SelectToolOperation.actionResizeStrand\n')

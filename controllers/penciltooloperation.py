@@ -36,12 +36,13 @@ class PencilToolOperation(Operation):
     imposeDragBounds = True
     logger = None
 
-    def __init__(self, startVBase, undoStack):
+    def __init__(self, startVBase, useLeft, undoStack):
         """ Begin a session of pencil-tool interaction """
         Operation.__init__(self, undoStack)
         self.newStrand = NormalStrand(startVBase, startVBase)
         self.startVStrand = self.newStrand.vStrand()
         self.startVBase = startVBase
+        self.useLeft = useLeft
         self.lastDestVBase = None
         self.newStrandInVfbPool = False
         if self.imposeDragBounds:  # calculate drag boundaries
@@ -67,6 +68,9 @@ class PencilToolOperation(Operation):
         self.rewind()
         dragStartBase, dragEndBase = self.startVBase, newDestVBase
         dragStartExposedEnds = dragStartBase.exposedEnds()
+        # special case: single-base strand
+        if 'L' in dragStartExposedEnds and 'R' in dragStartExposedEnds:
+            dragStartExposedEnds = 'L' if self.useLeft else 'R'
         dragStartStrand = dragStartBase.strand()
         dragEndStrand = dragEndBase.strand()
         startIdx, endIdx = dragStartBase.vIndex(), dragEndBase.vIndex()

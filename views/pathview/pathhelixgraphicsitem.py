@@ -349,6 +349,13 @@ class PathHelix(QGraphicsPathItem):
             if isTop: return VBase(self.vhelix().stap(), idx)
             else:     return VBase(self.vhelix().scaf(), idx)
 
+    def userClickedLeftHalfOfVBase(self, pt):
+        """Used to determine which direction gets priority when user clicks
+        on a single-base strand."""
+        if (pt.x() % self.baseWidth) < self.baseWidth/2:
+            return True
+        return False
+
     def pointForVBase(self, vBase):
         x = self.baseWidth * vBase.vIndex()
         y = self.baseWidth * int(not self.vBaseIsTop(vBase))

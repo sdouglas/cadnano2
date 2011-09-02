@@ -276,7 +276,7 @@ class VStrand(RangeSet):
             self.logger.write('\t(lIsEnd:%s norm:%s rIsEnd:%s norm:%s)>'%\
                           (lIsEnd, lIsNormalStrand, rIsEnd, rIsNormalStrand))
         if leftHasPrivilege:
-            if self.logger: self.logger.write('leftPrivelage>')
+            if self.logger: self.logger.write('leftPrivilege>')
             if lStrand == rStrand != None:
                 if self.logger: self.logger.write('0drag\n')
                 pass
@@ -323,7 +323,7 @@ class VStrand(RangeSet):
                 newStrand = NormalStrand(VBase(self, lIdx), VBase(self, rIdx))
                 self.addStrand(newStrand)
         elif not leftHasPrivilege:
-            if self.logger: self.logger.write('rightPrivelage>')
+            if self.logger: self.logger.write('rightPrivilege>')
             if lStrand == rStrand != None:
                 if self.logger: self.logger.write('0drag\n')
                 pass

@@ -199,12 +199,12 @@ class ActiveSliceHandle(QGraphicsRectItem):
             for vh in self.part().getVirtualHelices():
                 for vStr in vh.scaf():
                     end3 = vStr.vBase3
-                    sto = SelectToolOperation(end3, self.part().undoStack())
+                    sto = SelectToolOperation(end3, None, self.part().undoStack())
                     sto.actionResizeStrand(end3)
                     sto.end()
                 for vStr in vh.scaf():
                     end3 = vStr.vBase5
-                    sto = SelectToolOperation(end3, self.part().undoStack())
+                    sto = SelectToolOperation(end3, None, self.part().undoStack())
                     sto.actionResizeStrand(end3)
                     sto.end()
             self.part().undoStack().endMacro()

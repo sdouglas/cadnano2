@@ -72,8 +72,9 @@ class NewPencilTool(AbstractPathTool):
             if self.currentOperation != None:
                 self.currentOperation.end()
             dest = pathHelix.vBaseAtPoint(pos)
+            useLeft = pathHelix.userClickedLeftHalfOfVBase(event.pos())
             undoStack = pathHelix.vhelix().undoStack()
-            self.currentOperation = PencilToolOperation(dest, undoStack)
+            self.currentOperation = PencilToolOperation(dest, useLeft, undoStack)
 
     def hoverMovePathHelix(self, pathHelix, event):
         if self.logger: self.logger.write("hover>")
