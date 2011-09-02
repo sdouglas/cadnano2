@@ -34,7 +34,7 @@
      <widget class="QWidget" name="tab_honeycomb">
       <attribute name="icon">
        <iconset resource="dialogicons.qrc">
-        <normaloff>:/part/honeycomb</normaloff>:/part/honeycomb</iconset>
+        <normaloff>:/part/dlg_honeycomb</normaloff>:/part/dlg_honeycomb</iconset>
       </attribute>
       <attribute name="title">
        <string>Honeycomb</string>
@@ -140,7 +140,7 @@ p, li { white-space: pre-wrap; }
      <widget class="QWidget" name="tab_square">
       <attribute name="icon">
        <iconset resource="dialogicons.qrc">
-        <normaloff>:/part/square</normaloff>:/part/square</iconset>
+        <normaloff>:/part/dlg_square</normaloff>:/part/dlg_square</iconset>
       </attribute>
       <attribute name="title">
        <string>Square</string>
@@ -265,7 +265,7 @@ p, li { white-space: pre-wrap; }
         </property>
         <property name="icon">
          <iconset resource="dialogicons.qrc">
-          <normaloff>:/pathtools/select</normaloff>:/pathtools/select</iconset>
+          <normaloff>:/pathtools/dlg_select</normaloff>:/pathtools/dlg_select</iconset>
         </property>
        </item>
        <item>
@@ -274,7 +274,7 @@ p, li { white-space: pre-wrap; }
         </property>
         <property name="icon">
          <iconset resource="dialogicons.qrc">
-          <normaloff>:/pathtools/pencil</normaloff>:/pathtools/pencil</iconset>
+          <normaloff>:/pathtools/dlg_pencil</normaloff>:/pathtools/dlg_pencil</iconset>
         </property>
        </item>
        <item>
@@ -283,7 +283,7 @@ p, li { white-space: pre-wrap; }
         </property>
         <property name="icon">
          <iconset resource="dialogicons.qrc">
-          <normaloff>:/pathtools/paint</normaloff>:/pathtools/paint</iconset>
+          <normaloff>:/pathtools/dlg_paint</normaloff>:/pathtools/dlg_paint</iconset>
         </property>
        </item>
        <item>
@@ -292,7 +292,7 @@ p, li { white-space: pre-wrap; }
         </property>
         <property name="icon">
          <iconset resource="dialogicons.qrc">
-          <normaloff>:/pathtools/addseq</normaloff>:/pathtools/addseq</iconset>
+          <normaloff>:/pathtools/dlg_addseq</normaloff>:/pathtools/dlg_addseq</iconset>
         </property>
        </item>
       </widget>

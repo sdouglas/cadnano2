@@ -19,9 +19,9 @@
     <file alias="go-first">images/slice-go-first.png</file>
   </qresource>
   <qresource prefix="pathtools">
+    <file alias="addseq">images/path-addseq.svg</file>
     <file alias="add-bases">images/add-bases.svg</file>
     <file alias="remove-bases">images/remove-bases.svg</file>
-    <file alias="pen">images/path-pen_48.png</file>
     <file alias="insert">images/path-insert_48x48.png</file>
     <file alias="frame">images/path-frame.png</file>
     <file alias="paint">images/path-paint_48.png</file>
@@ -32,6 +32,5 @@
     <file alias="select">images/path-edit_32.png</file>
     <file alias="erase">images/path-erase_48x48.png</file>
     <file alias="autostaple">images/path-staple.png</file>
-    <file alias="addseq">images/path-addseq.png</file>
   </qresource>
 </RCC>

@@ -1,12 +1,12 @@
 <RCC>
   <qresource prefix="pathtools">
-    <file alias="select">images/path-edit_32.png</file>
-    <file alias="pencil">images/path-force-xover.png</file>
-    <file alias="paint">images/path-paint_48.png</file>
-    <file alias="addseq">images/path-sequence.png</file>
+    <file alias="dlg_addseq">images/path-addseq.svg</file>
+    <file alias="dlg_select">images/path-edit_32.png</file>
+    <file alias="dlg_pencil">images/path-force-xover.png</file>
+    <file alias="dlg_paint">images/path-paint_48.png</file>
   </qresource>
   <qresource prefix="part">
-    <file alias="honeycomb">images/part-honeycomb.png</file>
-    <file alias="square">images/part-square.png</file>
+    <file alias="dlg_honeycomb">images/part-honeycomb.png</file>
+    <file alias="dlg_square">images/part-square.png</file>
   </qresource>
 </RCC>
