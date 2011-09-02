@@ -65,7 +65,7 @@ class NewSelectTool(AbstractPathTool):
         self.currentOperation = SelectToolOperation(dest, useLeft, undoStack)
         if shiftClick:
             if self.logger: self.logger.write("mousePressPathHelix>Join\n")
-            self.currentOperation.actionJustConnect(dest)
+            self.currentOperation.actionMergeWithAdjacent(dest)
             self.currentOperation.end()
             self.currentOperation = None
         elif altClick:

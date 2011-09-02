@@ -127,7 +127,7 @@ class VStrand(RangeSet):
         bases = []
         prvIdxExists = int(self.get(vStrandStartIdx - 1) != None)
         curIdxExists = int(self.get(vStrandStartIdx) != None)
-        lut = ('_,_', '_,_', 'ERR', '<,_', '_,_', '_,_', '_,>', '<,>')
+        lut = ('_,_', '_,_', '|,|', '<,_', '_,_', '_,_', '_,>', '<,>')
         for i in range(vStrandStartIdx, vStrandAfterLastIdx):
             nxtIdxExists = int(self.get(i + 1) != None)
             bases.append(lut[prvIdxExists + 2*curIdxExists + 4*nxtIdxExists])
@@ -256,9 +256,12 @@ class VStrand(RangeSet):
                                       (firstIdx, lastIdx, undoStack))
         if undoStack:
             undoStack.beginMacro('connectStrand')
+        # if firstIdx == lastIdx:
+        #     undoStack.endMacro()
+        #     return
         if firstIdx == lastIdx:
-            undoStack.endMacro()
-            return
+            lIdx = rIdx = firstIdx
+            leftHasPrivilege = True
         elif firstIdx < lastIdx:
             lIdx, rIdx = firstIdx, lastIdx
             leftHasPrivilege = True

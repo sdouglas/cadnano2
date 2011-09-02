@@ -54,7 +54,8 @@ class SelectToolOperation(PencilToolOperation):
         self.strandBeforeIdx, self.strandAtIdx, self.strandAfterIdx = \
                         self.startVStrand.strandsNearVBase(self.startVBase)
         if self.strandAtIdx != None:
-            if self.strandAtIdx.vBaseL == self.strandAtIdx.vBaseR:
+            dragStartExposedEnds = self.startVBase.exposedEnds()
+            if 'L' in dragStartExposedEnds and 'R' in dragStartExposedEnds:
                 # single-base strand, prevent erasure
                 if self.useLeft:
                     self.dragBoundR = self.startVBase.vIndex()
@@ -129,20 +130,36 @@ class SelectToolOperation(PencilToolOperation):
             vStrand.connectStrand(startIdx, endIdx,\
                                   useUndoStack=True, undoStack=self.undoStack)
 
-    def actionJustConnect(self, vBase):
-        """ Just connect the right exposed end of lStrand to the left exposed
-        end of rStrand """
+    def actionMergeWithAdjacent(self, vBase):
+        """
+        Connect the right exposed end of lStrand to the left exposed end of
+        rStrand.
+        """
         ends = vBase.exposedEnds()
         idx = vBase.vIndex()
-        if 'L' in ends and self.strandBeforeIdx != None:
+        
+        # single-base vstrand between two ends: <,_ |,| _,>
+        if ('L' in ends and 'R' in ends) and\
+           (self.strandBeforeIdx != None and self.strandAfterIdx != None) and\
+           (self.strandBeforeIdx.vBaseR.vIndex() == idx-1) and\
+           (self.strandAfterIdx.vBaseL.vIndex() == idx+1):
+            if self.useLeft:
+                    vBase.vStrand().connectStrand(idx, idx-1,\
+                                  useUndoStack=True, undoStack=self.undoStack)
+            else:
+                    vBase.vStrand().connectStrand(idx, idx+1,\
+                                  useUndoStack=True, undoStack=self.undoStack)
+        # left end exposed
+        elif 'L' in ends and self.strandBeforeIdx != None:
             if self.strandBeforeIdx.vBaseR.vIndex() == idx-1:
                 vBase.vStrand().connectStrand(idx, idx-1,\
                                   useUndoStack=True, undoStack=self.undoStack)
+        # right end exposed
         elif 'R' in ends and self.strandAfterIdx != None:
             if self.strandAfterIdx.vBaseL.vIndex() == idx+1:
                 vBase.vStrand().connectStrand(idx, idx+1,\
                                   useUndoStack=True, undoStack=self.undoStack)
-        if self.logger: self.logger.write('SelectToolOperation.actionJustConnect\n')
+        if self.logger: self.logger.write('SelectToolOperation.actionMergeWithAdjacent\n')
 
     def actionResizeStrand(self, vBase):
         ends = vBase.exposedEnds()

@@ -2048,7 +2048,10 @@ class VirtualHelix(QObject):
         ranges, xovers = [], []
         for i in range(len(bases)):
             base = bases[i]
-            if not base in ["_,_", "<,>"]:  # start or end of range
+            if base == "|,|":
+                ranges.append(i)
+                ranges.append(i)
+            elif not base in ["_,_", "<,>"]:  # start or end of range
                 ranges.append(i)
                 if not base in ["<,_", "_,>"]:  # crossover
                     l, r = re.split(',', base)

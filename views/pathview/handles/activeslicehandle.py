@@ -42,9 +42,10 @@ util.qtWrapImport('QtGui', globals(), ['QBrush', 'QFont', 'QGraphicsItem',\
 class ActiveSliceHandle(QGraphicsRectItem):
     """docstring for ActiveSliceHandle"""
     _baseWidth = styles.PATH_BASE_WIDTH
-    _brush = QBrush(styles.orangefill)
+    _brush = QBrush(styles.activeslicehandlefill)
     _labelbrush = QBrush(styles.orangestroke)
-    _pen = QPen(styles.orangestroke, styles.SLICE_HANDLE_STROKE_WIDTH)
+    _pen = QPen(styles.activeslicehandlestroke,\
+                styles.SLICE_HANDLE_STROKE_WIDTH)
     _myfont = QFont(styles.thefont, 12, QFont.Bold)
 
     def __init__(self, pathHelixGroup):

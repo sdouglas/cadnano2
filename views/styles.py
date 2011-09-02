@@ -47,13 +47,13 @@ SQUARE_PART_MAXSTEPS = 2
 # Slice Colors
 bluefill = QColor(153, 204, 255)  # 99ccff
 bluestroke = QColor(0, 102, 204)  # 0066cc
-bluishstroke = QColor(0, 182, 250)  # 
 orangefill = QColor(255, 204, 153)  # ffcc99
 orangestroke = QColor(204, 102, 51)  # cc6633
 lightorangefill = QColor(255, 234, 183)
 lightorangestroke = QColor(234, 132, 81)
 grayfill = QColor(238, 238, 238)  # eeeeee (was a1a1a1)
 graystroke = QColor(102, 102, 102)  # 666666 (was 424242)
+
 
 # Path Sizing
 PATHHELIXHANDLE_RADIUS = 30
@@ -78,6 +78,8 @@ PATH_XOVER_LINE_SCALE_X = 0.035
 PATH_XOVER_LINE_SCALE_Y = 0.035
 
 # Path Colors
+activeslicehandlefill = QColor(255, 204, 153, 128)  # ffcc99
+activeslicehandlestroke = QColor(204, 102, 51, 128)  # cc6633
 minorgridstroke = QColor(204, 204, 204)  # 999999
 majorgridstroke = QColor(153, 153, 153)  # 333333
 scafstroke = QColor(0, 102, 204)  # 0066cc
