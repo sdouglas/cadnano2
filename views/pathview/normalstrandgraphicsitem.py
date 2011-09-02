@@ -22,21 +22,21 @@
 #
 # http://www.opensource.org/licenses/mit-license.php
 
+from views import styles
 import util
 util.qtWrapImport('QtGui', globals(), [ 'QBrush', 'QGraphicsLineItem', 'QPen',\
                                         'QColor', 'QPainterPath', 'QPolygonF',\
                                         'QGraphicsPathItem'])
 util.qtWrapImport('QtCore', globals(), [ 'QPointF', 'Qt' ])
-from views import styles
 
 baseWidth = styles.PATH_BASE_WIDTH
+NoPen = QPen(Qt.NoPen)
 ppL5 = QPainterPath()  # Left 5' PainterPath
 ppR5 = QPainterPath()  # Right 5' PainterPath
 ppL3 = QPainterPath()  # Left 3' PainterPath
 ppR3 = QPainterPath()  # Right 3' PainterPath
 pp53 = QPainterPath()  # Left 5', Right 3' PainterPath
 pp35 = QPainterPath()  # Left 5', Right 3' PainterPath
-
 # set up ppL5 (left 5' blue square)
 ppL5.addRect(0.25*baseWidth, 0.125*baseWidth,0.75*baseWidth, 0.75*baseWidth)
 # set up ppR5 (right 5' blue square)
@@ -68,9 +68,11 @@ poly35.append(QPointF(0, 0.5*baseWidth))
 poly35.append(QPointF(0.5*baseWidth, baseWidth))
 pp35.addPolygon(poly35)
 
-NoPen = QPen(Qt.NoPen)
 
 class NormalStrandGraphicsItem(QGraphicsLineItem):
+    """
+    Handles drawing of 'normal' strands (i.e. not xover, loop, or skip).
+    """
     def __init__(self, normalStrand, pathHelix):
         QGraphicsLineItem.__init__(self, pathHelix)
         self.normalStrand = normalStrand
@@ -88,37 +90,45 @@ class NormalStrandGraphicsItem(QGraphicsLineItem):
         self.update(normalStrand)
 
     def update(self, strand):
+        """
+        Prepare NormalStrand for drawing:
+        1. Show or hide caps depending on L and R connectivity.
+        2. Determine line coordinates.
+        3. Apply paint styles.
+        """
+        # 0. Setup
         ph = self.pathHelix
         halfBaseWidth = ph.baseWidth / 2.0
         vbL, vbR = strand.vBaseL, strand.vBaseR
         lUpperLeftX, lUpperLeftY = ph.upperLeftCornerOfVBase(vbL)
         rUpperLeftX, rUpperLeftY = ph.upperLeftCornerOfVBase(vbR)
-        if strand.apparentlyConnectedL():
+        # 1. Cap visibilty
+        if strand.apparentlyConnectedL():  # hide left cap if L-connected
             lx = lUpperLeftX
             self.leftCap.hide()
-        else:
+        else:  # otherwise show left cap
             lx = lUpperLeftX + halfBaseWidth
             self.leftCap.setPos(lUpperLeftX, lUpperLeftY)
             self.leftCap.show()
-        ly = lUpperLeftY + halfBaseWidth
-        if strand.apparentlyConnectedR():
+        if strand.apparentlyConnectedR():  # hide right cap if R-connected
             rx = rUpperLeftX + ph.baseWidth
             self.rightCap.hide()
-        else:
+        else:  # otherwise show it
             rx = rUpperLeftX + halfBaseWidth
             self.rightCap.setPos(rUpperLeftX, rUpperLeftY)
             self.rightCap.show()
-        ry = ly
-        
+        # special case: single-base strand with no L or R connections,
+        # (unconnected caps were made visible in previous block of code)
         if strand.numBases() == 1 and \
-                  (self.leftCap.isVisible() and self.rightCap.isVisible):
-            self.leftCap.hide()
+                  (self.leftCap.isVisible() and self.rightCap.isVisible()):
+            self.leftCap.hide()  # hide 
             self.rightCap.hide()
             self.dualCap.setPos(lUpperLeftX, lUpperLeftY)
             self.dualCap.show()
         else:
             self.dualCap.hide()
-
+        # 2. Line drawing
+        ry = ly = lUpperLeftY + halfBaseWidth
         self.setLine(lx, ly, rx, ry)
         if vbL.vStrand().isScaf():
             pen = QPen(styles.scafstroke, styles.PATH_STRAND_STROKE_WIDTH)
@@ -126,6 +136,7 @@ class NormalStrandGraphicsItem(QGraphicsLineItem):
         else:
             pen = QPen(QColor(), styles.PATH_STRAND_STROKE_WIDTH)
             brush = QBrush(self.normalStrand.color())
+        # 3. Apply paint styles
         pen.setCapStyle(Qt.FlatCap)
         self.setPen(pen)
         self.leftCap.setBrush(brush)
