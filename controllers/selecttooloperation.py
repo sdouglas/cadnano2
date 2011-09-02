@@ -27,6 +27,7 @@ util.qtWrapImport('QtCore', globals(), ['QObject'])
 from model.strands.normalstrand import NormalStrand
 from penciltooloperation import PencilToolOperation
 from model.strands.vbase import VBase
+from model.strands.xoverstrand import XOverStrand3, XOverStrand5
 
 class SelectToolOperation(PencilToolOperation):
     """
@@ -61,6 +62,14 @@ class SelectToolOperation(PencilToolOperation):
                     self.dragBoundR = self.startVBase.vIndex()
                 else:
                     self.dragBoundL = self.startVBase.vIndex()
+            elif isinstance(self.strandAtIdx, XOverStrand3) or\
+                 isinstance(self.strandAtIdx, XOverStrand5):
+                 if 'L' in dragStartExposedEnds:
+                     self.dragBoundR = min(self.strandAtIdx.vBaseR.vIndex(),
+                                           self.dragBoundR)
+                 if 'R' in dragStartExposedEnds:
+                     self.dragBoundL = max(self.strandAtIdx.vBaseL.vIndex(),
+                                           self.dragBoundL)
             elif self.startVBase == self.strandAtIdx.vBaseL and\
                  'L' in dragStartExposedEnds:
                 self.dragBoundR = min(self.strandAtIdx.vBaseR.vIndex(),
@@ -98,6 +107,9 @@ class SelectToolOperation(PencilToolOperation):
         dragEndStrand = dragEndBase.strand()
         startIdx, endIdx = dragStartBase.vIndex(), dragEndBase.vIndex()
         vStrand = dragStartBase.vStrand()
+
+        if dragStartBase == newDestVBase:
+            return
 
         if not isinstance(newDestVBase, VBase):
             print "not instance VBase (what did you click?!)"

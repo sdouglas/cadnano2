@@ -25,6 +25,7 @@
 from cadnano import app
 from views.pathview.tools.breaktool import BreakTool
 from views.pathview.tools.erasetool import EraseTool
+from views.pathview.tools.newerasetool import NewEraseTool
 from views.pathview.tools.painttool import PaintTool
 from views.pathview.tools.penciltool import PencilTool
 from views.pathview.tools.inserttool import InsertTool
@@ -58,7 +59,8 @@ class PathController(QObject):
         # self.selectTool = SelectTool(self)
         self.selectTool = NewSelectTool(self)
         self.breakTool = BreakTool(self)
-        self.eraseTool = EraseTool(self)
+        # self.eraseTool = EraseTool(self)
+        self.eraseTool = NewEraseTool(self)
         self.insertTool = InsertTool(self)
         self.skipTool = SkipTool(self)
         self.breakTool = BreakTool(self)
