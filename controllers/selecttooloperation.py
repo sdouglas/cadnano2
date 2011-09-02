@@ -61,10 +61,12 @@ class SelectToolOperation(PencilToolOperation):
                     self.dragBoundR = self.startVBase.vIndex()
                 else:
                     self.dragBoundL = self.startVBase.vIndex()
-            elif self.startVBase == self.strandAtIdx.vBaseL:
+            elif self.startVBase == self.strandAtIdx.vBaseL and\
+                 'L' in dragStartExposedEnds:
                 self.dragBoundR = min(self.strandAtIdx.vBaseR.vIndex(),
                                       self.dragBoundR)
-            elif self.startVBase == self.strandAtIdx.vBaseR:
+            elif self.startVBase == self.strandAtIdx.vBaseR and\
+                 'R' in dragStartExposedEnds:
                 self.dragBoundL = max(self.strandAtIdx.vBaseL.vIndex(),
                                       self.dragBoundL)
         # prevent dragging over neighboring strands
