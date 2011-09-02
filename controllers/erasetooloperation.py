@@ -22,11 +22,11 @@
 #
 # http://www.opensource.org/licenses/mit-license.php
 
-import util, sys
-util.qtWrapImport('QtCore', globals(), ['QObject'])
+import sys
+import util
 from model.strands.normalstrand import NormalStrand
-from penciltooloperation import PencilToolOperation
 from model.strands.vbase import VBase
+from penciltooloperation import PencilToolOperation
 
 class EraseToolOperation(PencilToolOperation):
     """
@@ -37,7 +37,7 @@ class EraseToolOperation(PencilToolOperation):
     logger = None
 
     def __init__(self, startVBase, undoStack):
-        """ Begin a session of select-tool interaction """
+        """ Begin a session of erase-tool interaction """
         self.strandBeforeIdx = self.strandAtIdx = self.strandAfterIdx = None
         PencilToolOperation.__init__(self, startVBase, None, undoStack)
         if self.logger: self.logger.write('EraseToolOperation.init(%s)\n'%startVBase)

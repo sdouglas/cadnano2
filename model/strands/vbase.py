@@ -89,28 +89,22 @@ class VBase(object):
         return self._vStrand.undoStack()
 
     def vComplement(self):
-        """
-        Base on the same vHelix at the same vIndex but opposite strand.
-        """
+        """Base on the same vHelix at the same vIndex but opposite strand."""
         return VBase(self._vStrand.vComplement(), self._vIndex)
 
     def vPrev5(self):
-        """
-        Returns a VBase one base in 5' direction along the vhelix.
-        """
+        """Returns a VBase one base in 5' direction along the vstrand."""
         if self.drawn5To3():
-            return self.prevL()
+            return self-1
         else:
-            return self.prevR()
+            return self+1
 
     def vNext3(self):
-        """
-        Returns a vbase one base in 3' direction along the vhelix.
-        """
+        """Returns a vbase one base in 3' direction along the vstrand."""
         if self.drawn5To3():
-            return self.nextR()
+            return self+1
         else:
-            return self.prevL()
+            return self-1
 
     def to5or3(self, end):
         """ Returns 5 or 3 corresponding to the input ('L', 'R', 5, or

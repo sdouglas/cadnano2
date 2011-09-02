@@ -26,15 +26,11 @@
 select
 """
 
-import util
 import sys
+import util
 from abstractpathtool import AbstractPathTool
 from controllers.erasetooloperation import EraseToolOperation
 
-util.qtWrapImport('QtCore', globals(), ['Qt', 'QPointF'])
-util.qtWrapImport('QtGui', globals(), ['QGraphicsItem', 'QBrush', 'QFont',
-                                       'QGraphicsSimpleTextItem', 'QPen',
-                                       'QPolygonF', 'QPainterPath'])
 
 class NewEraseTool(AbstractPathTool):
     """
@@ -51,6 +47,8 @@ class NewEraseTool(AbstractPathTool):
         self.currentOperation = None
 
     def mousePressPathHelix(self, pathHelix, event):
+        print util.trace(5)
+        print "NewEraseTool mousePressPathHelix"
         # initial setup / check input state
         pathHelix.scene().views()[0].addToPressList(pathHelix)
         dest = pathHelix.vBaseAtPoint(event.pos())

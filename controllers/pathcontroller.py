@@ -24,12 +24,13 @@
 
 from cadnano import app
 from views.pathview.tools.breaktool import BreakTool
+from views.pathview.tools.newbreaktool import NewBreakTool
 from views.pathview.tools.erasetool import EraseTool
 from views.pathview.tools.newerasetool import NewEraseTool
 from views.pathview.tools.painttool import PaintTool
 from views.pathview.tools.penciltool import PencilTool
-from views.pathview.tools.inserttool import InsertTool
 from views.pathview.tools.newpenciltool import NewPencilTool
+from views.pathview.tools.inserttool import InsertTool
 from views.pathview.tools.selecttool import SelectTool
 from views.pathview.tools.newselecttool import NewSelectTool
 from views.pathview.tools.skiptool import SkipTool
@@ -58,12 +59,12 @@ class PathController(QObject):
         self._activePath = None
         # self.selectTool = SelectTool(self)
         self.selectTool = NewSelectTool(self)
-        self.breakTool = BreakTool(self)
+        # self.breakTool = BreakTool(self)
+        self.breakTool = NewBreakTool(self)
         # self.eraseTool = EraseTool(self)
         self.eraseTool = NewEraseTool(self)
         self.insertTool = InsertTool(self)
         self.skipTool = SkipTool(self)
-        self.breakTool = BreakTool(self)
         self.paintTool = PaintTool(self, win.pathGraphicsView.toolbar)
         #self.pencilTool = PencilTool(self)
         self.pencilTool = NewPencilTool(self)
