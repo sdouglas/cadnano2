@@ -2022,10 +2022,10 @@ class VirtualHelix(QObject):
         sr['.class'] = "VirtualHelix"
         sr['tentativeHelixID'] = self.number()  # Not used (just for readability)
         stapleStrand = self._strand(StrandType.Staple)
-        sr['staple'] = self.stap().model1String()
+        sr['staple'] = self.stap().encode()
         sr['stapleColors'] = " ".join(str(b.getColor().name()) for b in stapleStrand)
         scaffoldStrand = self._strand(StrandType.Scaffold)
-        sr['scafld'] = self.scaf().model1String()
+        sr['scafld'] = self.scaf().encode()
         sr['scafldColors'] = " ".join(str(b.getColor().name()) for b in scaffoldStrand)
         # only encode scaffold inserts for version 1.5
         # sr['loops'] = dict((str(k), v) for k,v in self._scaffoldInserts.iteritems())
@@ -2044,6 +2044,7 @@ class VirtualHelix(QObject):
         and returns a tuple containing the ranges xovers.
         """
         dir = strandStr[0]
+        assert(dir in ["(5->3)", "(3->5)"])
         bases = strandStr[1:]
         ranges, xovers = [], []
         for i in range(len(bases)):

@@ -108,6 +108,11 @@ class VStrand(RangeSet):
     def drawn5To3(self):
         return self.vHelix.strandDrawn5To3(self)
 
+    def encode(self):
+        """docstring for model1StringWithDir"""
+        strdir = "5->3" if self.drawn5To3() else "3->5"
+        return "(%s) " % (strdir) + self.model1String()
+
     def model1String(self, *x):
         """ The 'old' model represented virtual strands and the connections
         between virtual bases on those strands with a string of the form
