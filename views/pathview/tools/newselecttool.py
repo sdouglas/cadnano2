@@ -70,7 +70,7 @@ class NewSelectTool(AbstractPathTool):
             self.currentOperation = None
         elif altClick:
             if self.logger: self.logger.write("mousePressPathHelix>Extend\n")
-            self.currentOperation.actionResizeStrand(dest)
+            self.currentOperation.actionExpandStrandToFillAvailableSpace(dest)
             self.currentOperation.end()
             self.currentOperation = None
         else:
