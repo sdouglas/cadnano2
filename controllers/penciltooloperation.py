@@ -34,6 +34,7 @@ class PencilToolOperation(Operation):
     Pencil Tool.
     """
     imposeDragBounds = True
+    allowBreakingByClickingInsideStrands = True
     logger = None
 
     def __init__(self, startVBase, useLeft, undoStack):
@@ -86,34 +87,28 @@ class PencilToolOperation(Operation):
                 endIdx = self.dragBoundR
 
         if 'R' in dragStartExposedEnds:
-            if endIdx < startIdx:
-                # Dragging a right-facing endpoint left
+            if endIdx < startIdx:  # Dragging a right-facing endpoint left
                 vStrand.clearStrand(endIdx + 1, startIdx + 1,\
                                     useUndoStack=True, undoStack=self.undoStack)
-            elif startIdx < endIdx:
-                # Dragging a right-facing endpoint right
+            elif startIdx < endIdx:  # Dragging a right-facing endpoint right
                 vStrand.connectStrand(startIdx, endIdx,\
                                     useUndoStack=True, undoStack=self.undoStack)
-            else:
-                pass  # Click on an endpoint
+            else:  # Click on an endpoint
+                pass
         elif 'L' in dragStartExposedEnds:
-            if endIdx < startIdx:
-                # Dragging a left-facing endpoint left
+            if endIdx < startIdx:  # Dragging a left-facing endpoint left
                 vStrand.connectStrand(endIdx, startIdx,\
                                     useUndoStack=True, undoStack=self.undoStack)
-            elif startIdx < endIdx:
-                # Dragging a left-facing endpoint right
+            elif startIdx < endIdx:  # Dragging a left-facing endpoint right
                 vStrand.clearStrand(startIdx, endIdx,\
                                     useUndoStack=True, undoStack=self.undoStack)
             else:
                 pass  # Click on an endpoint
-        elif dragStartStrand != None:
-            if endIdx < startIdx:
-                # Dragging left inside a strand
+        elif dragStartStrand != None and allowBreakingByClickingInsideStrands:
+            if endIdx < startIdx:  # Dragging left inside a strand
                 vStrand.clearStrand(endIdx + 1, startIdx,\
                      useUndoStack=True, undoStack=self.undoStack, keepLeft=True)
-            elif startIdx < endIdx:
-                # Dragging right inside a strand
+            elif startIdx < endIdx:  # Dragging right inside a strand
                 vStrand.clearStrand(startIdx, endIdx,\
                     useUndoStack=True, undoStack=self.undoStack, keepLeft=False)
             else: # Click inside a strand
