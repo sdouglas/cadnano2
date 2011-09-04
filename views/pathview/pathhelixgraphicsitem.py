@@ -43,7 +43,7 @@ from ui.mainwindow.svgbutton import SVGButton
 from model.strands.vbase import VBase
 from views.pathview.normalstrandgraphicsitem import NormalStrandGraphicsItem
 from model.strands.xoverstrand import XOverStrand3, XOverStrand5
-from views.pathview.handles.xoveritem import XoverItem, XoverItem3, XoverItem5
+from views.pathview.handles.xoveritem import XoverItem3, XoverItem5, XoverSpline
 from model.strands.normalstrand import NormalStrand
 from model.strands.loopstrand import LoopStrand
 
@@ -243,7 +243,7 @@ class PathHelix(QGraphicsPathItem):
         if isinstance(strand, NormalStrand):
             NormalStrandGraphicsItem(strand, self)
         elif isinstance(strand, XOverStrand3):
-            XoverItem(self.pathHelixGroup(), strand)
+            XoverSpline(self.pathHelixGroup(), strand)
             XoverItem3(self, strand)
         elif isinstance(strand, XOverStrand5):
             XoverItem5(self, strand)

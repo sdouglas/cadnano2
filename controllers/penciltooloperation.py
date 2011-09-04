@@ -36,6 +36,7 @@ class PencilToolOperation(Operation):
     """
     imposeDragBounds = True
     allowBreakingByClickInsideStrands = True
+    allowSingleBaseStrandCreation = True
     logger = None
 
     def __init__(self, startVBase, useLeft, undoStack):
@@ -116,6 +117,9 @@ class PencilToolOperation(Operation):
                 vStrand.clearStrand(startIdx, startIdx,\
                     useUndoStack=True, undoStack=self.undoStack, keepLeft=False)
         else:
+            if startIdx == endIdx and \
+               self.allowSingleBaseStrandCreation == False:
+                return
             vStrand.connectStrand(startIdx, endIdx,\
                                   useUndoStack=True, undoStack=self.undoStack)
 

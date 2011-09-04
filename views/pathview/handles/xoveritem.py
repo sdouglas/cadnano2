@@ -41,7 +41,13 @@ FromSide = "FromSide"
 ToSide = "ToSide"
 
 class XoverItem3(QGraphicsPathItem):
-    
+    """
+    XoverItem3 handles:
+    1. Drawing of the 3' end of an xover, and its text label. Drawing style
+    is determined by the location of the xover with in a vhelix (is it a top
+    or bottom vstrand?).
+    2. Notifying XoverStrands in the model when connectivity changes.
+    """
     baseWidth = styles.PATH_BASE_WIDTH
     toHelixNumFont = styles.XOVER_LABEL_FONT
     # precalculate the height of a number font.  Assumes a fixed font
@@ -57,81 +63,23 @@ class XoverItem3(QGraphicsPathItem):
         self.strand = xover3strand
         self.setPen(QPen(Qt.NoPen))
         self._label = None
-        self.updatePos()
+        self.updatePositionAndAppearance()
         xover3strand.willBeRemoved.connect(self.strandWillBeRemoved)
         xover3strand.connectivityChanged.connect(self.updateConnectivity)
-        
         self.setPen(QPen(Qt.NoPen))
         self.setBrush(self.nobrush)
     # end def
 
-    def onTopStrand(self):
-        vb = self.strand.vBase()
-        vs = self.strand.vStrand()
-        return vb.evenParity() and vs.isScaf() or \
-                not vb.evenParity() and vs.isStap() 
-    # end def
-    
-    
     def undoStack(self):
         return self.ph.vhelix().undoStack()
     # end def
-    
-    def mousePress(self, event):
-        """
-        This works but can not work with the force tool so it is deactivated
-        """
-        strand = self.strand
-        print "Remove maybe float: ", strand.isFloating()
-        if not strand.isFloating():
-            vStrand = strand.vStrand()
-            if strand.kind == 'xovr3':
-                strandOp = strand.conn3()
-                normStrandIdxs = strand.conn5().idxs()
-                normStrandOpIdxs = strandOp.conn3().idxs() 
-            else:
-                strandOp = strand.conn5()
-                normStrandIdxs = strand.conn3().idxs()
-                normStrandOpIdxs = strandOp.conn5().idxs()
-            vStrandOp = strandOp.vStrand()
-        
-            strandIdxs = strand.idxs()
-            strandOpIdxs = strandOp.idxs()
-        
-            uStack = self.undoStack()
-            uStack.beginMacro('clearXover')
-            vStrand.clearStrand(*strandIdxs,\
-                                useUndoStack=True, undoStack=uStack)
-                                
-            s0, s1 = strandIdxs
-            nS0, nS1 = normStrandIdxs
-            if nS0 < s0:
-                connectIdxs = (nS1-1, s0)
-            else:
-                connectIdxs = (s0, nS0)
-        
-            vStrand.connectStrand(*connectIdxs,\
-                                useUndoStack=True, undoStack=uStack)
-            vStrandOp.clearStrand(*strandOpIdxs,\
-                                useUndoStack=True, undoStack=uStack)
- 
-            s0, s1 = strandOpIdxs
-            nS0, nS1 = normStrandOpIdxs
-            if nS0 < s0:
-                connectIdxs = (nS1-1, s0)
-            else:
-                connectIdxs = (s0, nS0)
-            vStrandOp.connectStrand(*connectIdxs,\
-                                useUndoStack=True, undoStack=uStack)
-        
-            uStack.endMacro()
-        # end if
-        else:
-            QGraphicsItem.mousePressEvent(self, event)
-    # end def
-    
 
-    def updatePos(self):
+    def updatePositionAndAppearance(self):
+        """
+        Sets position by asking the PathHelix.
+        Sets appearance by choosing among pre-defined painterpaths (from
+        normalstrandgraphicsitem) depending on drawing direction.
+        """
         strand = self.strand
         vb = strand.vBase()
         self.setPos(self.ph.pointForVBase(vb))
@@ -140,69 +88,94 @@ class XoverItem3(QGraphicsPathItem):
         self.setPath(ppL5 if isLeft else ppR5)
         self.updateConnectivity()
         self.updateLabel(strand.conn3(), isLeft)
-        
+
     def updateConnectivity(self):
         strand = self.strand
         if strand.conn5() == None:
             self.setBrush(QBrush(strand.color()))
         else:
             self.setBrush(self.nobrush)
-        # self.setVisible(not strand.isFloating())
         isLeft = True if  strand.vBase().drawn5To3() else False
         self.updateLabel(strand.conn3(), isLeft)
+
     def strandWillBeRemoved(self, strand):
+        """
+        Handles crossover destruction:
+        1. disconnect signals
+        2. clean strands that were connected to the xover item
+        Triggered by a vstrand clearStrand command, which was
+        probably triggered by a select/pencil tool mouseReleasePathHelix
+        event.
+        """
         self.strand.willBeRemoved.disconnect(self.strandWillBeRemoved)
         self.strand.connectivityChanged.disconnect(self.updateConnectivity)
         scene = self.scene()
         scene.removeItem(self._label)
         self._label = None
         scene.removeItem(self)
-        
+
     def updateLabel(self, partnerStrand, isLeft):
+        """
+        Called by updatePositionAndAppearance during init, or later by
+        updateConnectivity. Updates drawing and position of the label.
+        """
         xos = self.strand
         lbl = self._label
         if not xos.isFloating():
             if self._label == None:
                 bw = self.baseWidth
-                
                 num = partnerStrand.vBase().vHelix().number()
                 tBR = self.fm.tightBoundingRect(str(num))
                 halfLabelH = tBR.height()/2.0
                 halfLabelW = tBR.width()/2.0
-
-                labelX = bw/2.0 - halfLabelW #
-
-                if num == 1:  # adjust for the number one
-                    labelX -= halfLabelW/2.0
-
+                # determine x and y positions
+                labelX = bw/2.0 - halfLabelW
                 if self.onTopStrand():
-                    labelY = -0.25*halfLabelH - .5 - 0.5*bw
+                    labelY = -0.25*halfLabelH - 0.5 - 0.5*bw
                 else:
-                    labelY = 2*halfLabelH + .5 + 0.5*bw
-
-                if isLeft:
-                    labelX -=  0.25*bw
-                else:
-                    labelX += 0.25*bw
-
+                    labelY = 2*halfLabelH + 0.5 + 0.5*bw
+                # adjust x for left vs right
+                labelXoffset = 0.25*bw if isLeft else -0.25*bw
+                labelX += labelXoffset
+                # adjust x for numeral 1
+                if num == 1:
+                    labelX -= halfLabelW/2.0
+                # create text item
                 lbl = QGraphicsSimpleTextItem(str(num), self)
                 lbl.setPos(labelX, labelY)
                 lbl.setBrush(self.enabbrush)
                 lbl.setFont(self.toHelixNumFont)
                 self._label = lbl
-                # self.mousePressEvent = self.mousePress
             # end if
-            lbl.setText( str(partnerStrand.vBase().vHelix().number() ) )      
+            lbl.setText( str(partnerStrand.vBase().vHelix().number()))
         # end if
     # end def
+    def onTopStrand(self):
+        """Helper method for updateLabel"""
+        vb = self.strand.vBase()
+        vs = self.strand.vStrand()
+        return vb.evenParity() and vs.isScaf() or \
+                not vb.evenParity() and vs.isStap() 
+    # end def
+
 # end class
 
 class XoverItem5(XoverItem3):
+    """
+    XoverItem5 is the partner of XoverItem3. It dif
+    XoverItem3 handles:
+    1. Drawing of the 5' end of an xover, and its text label. Drawing style
+    is determined by the location of the xover with in a vhelix (is it a top
+    or bottom vstrand?).
+    2. Notifying XoverStrands in the model when connectivity changes.
+
+    """
     def __init__(self, ph, xover5strand):
         super(XoverItem5, self).__init__(ph, xover5strand)
     # end def
 
-    def updatePos(self):
+    def updatePositionAndAppearance(self):
+        """Same as XoverItem3, but exposes 3' end"""
         strand = self.strand
         vb = strand.vBase()
         self.setPos(self.ph.pointForVBase(vb))
@@ -217,25 +190,28 @@ class XoverItem5(XoverItem3):
         if self.strand.conn3() == None:
             self.setBrush(QBrush(self.strand.color()))
         else:
-            self.setBrush(self.nobrush) 
+            self.setBrush(self.nobrush)
 # end class
 
-class XoverItem(QGraphicsPathItem):
+class XoverSpline(QGraphicsPathItem):
     """
-    This class lets us draw crossovers as a child below pathhelixgroup
+    This class handles:
+    1. Drawing the spline between the XoverItem3 and XoverItem5 graphics
+    items in the path view.
+    2. Connecting and disconnecting signals the XoverStrands in this xover.
+
+    XoverSpline should be a child of PathHelixGroup.
     """
     _baseWidth = styles.PATH_BASE_WIDTH
-
     _xScale = styles.PATH_XOVER_LINE_SCALE_X  # control point x constant
     _yScale = styles.PATH_XOVER_LINE_SCALE_Y  # control point y constant
-    
     _rect = QRectF(0, 0, _baseWidth, _baseWidth)
 
     def __init__(self, phg, strandItem):
         """
         strandItem is a the model representation of the xover strand
         """
-        super(XoverItem, self).__init__(phg)
+        super(XoverSpline, self).__init__(phg)
         # self._clearState()
         self._pathhelixgroup = phg
         self._strand = None
@@ -246,13 +222,14 @@ class XoverItem(QGraphicsPathItem):
 
     def strand(self):
         return self._strand
+
     def setStrand(self, strand3):
         if self._strand == strand3:
             return
         self.disconnectSignals()
         self.connectSignals(strand3)
         self.strandDidMove()
-        
+
     def connectSignals(self, strand3):
         self._strand = strand3
         strand5 = strand3.conn3()
@@ -277,7 +254,7 @@ class XoverItem(QGraphicsPathItem):
         else:
             self.ph5 = None
     # end def
-    
+
     def disconnectSignals(self):
         strand3 = self._strand
         if strand3 != None:
@@ -319,7 +296,7 @@ class XoverItem(QGraphicsPathItem):
         If floatPos!=None, this is a floatingXover and floatPos is the
         destination point (where the mouse is) while toHelix, toIndex
         are potentially None and represent the base at floatPos.
-        
+
         Why have toStrandtype? A PathHelix should display inconsistencies
         in the model, and a crossover from one strand type to another is
         an inconsistency that would be very nice to have a visual indication
@@ -414,7 +391,6 @@ class XoverItem(QGraphicsPathItem):
         else:
             painterpath.quadTo(c1, fiveEnterPt)
             painterpath.lineTo(fiveCenterPt)
-        
         self.setPath(painterpath)
         self.updatePen()
 
