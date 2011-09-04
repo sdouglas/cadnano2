@@ -27,6 +27,7 @@ util.qtWrapImport('QtCore', globals(), ['QObject'])
 from model.strands.normalstrand import NormalStrand
 from operation import Operation
 from model.strands.vbase import VBase
+from model.strands.xoverstrand import XOverStrand3, XOverStrand5
 
 class PencilToolOperation(Operation):
     """
@@ -34,7 +35,7 @@ class PencilToolOperation(Operation):
     Pencil Tool.
     """
     imposeDragBounds = True
-    allowBreakingByClickingInsideStrands = True
+    allowBreakingByClickInsideStrands = True
     logger = None
 
     def __init__(self, startVBase, useLeft, undoStack):
@@ -104,7 +105,7 @@ class PencilToolOperation(Operation):
                                     useUndoStack=True, undoStack=self.undoStack)
             else:
                 pass  # Click on an endpoint
-        elif dragStartStrand != None and allowBreakingByClickingInsideStrands:
+        elif dragStartStrand != None and self.allowBreakingByClickInsideStrands:
             if endIdx < startIdx:  # Dragging left inside a strand
                 vStrand.clearStrand(endIdx + 1, startIdx,\
                      useUndoStack=True, undoStack=self.undoStack, keepLeft=True)
@@ -120,12 +121,22 @@ class PencilToolOperation(Operation):
 
     def end(self):
         """ Make the changes displayed by the last call to
-        updateDestination permanent """
+        updateDestination permanent. Mostly, cause trouble for a user who
+        erroneously tries to use the same PencilToolOperation twice.
+        Also perform special mouseup behavior. """
         if self.logger:
             self.logger.write('PencilToolOperation.end\n')
+        if self.startVBase == self.lastDestVBase:
+            strand = self.startVBase.strand()
+            if isinstance(strand, (XOverStrand3, XOverStrand5)):
+                self.rewind()
+                idx = self.startVBase.vIndex()
+                self.startVBase.vStrand().clearStrand(idx, idx + 1,\
+                                   useUndoStack=True, undoStack=self.undoStack)
         del self.newStrand
         del self.startVBase
         del self.newStrandInVfbPool
+        del self.lastDestVBase
 
     def actionNone(self):
         if self.logger:

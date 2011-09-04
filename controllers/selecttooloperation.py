@@ -36,7 +36,7 @@ class SelectToolOperation(PencilToolOperation):
     """
     logger = None
     imposeDragBounds = True
-    allowBreakingByClickingInsideStrands = False
+    allowBreakingByClickInsideStrands = False
     def __init__(self, startVBase, useLeft, undoStack):
         """ Begin a session of select-tool interaction """
         self.strandBeforeIdx = self.strandAtIdx = self.strandAfterIdx = None
