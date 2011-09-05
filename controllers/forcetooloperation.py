@@ -52,7 +52,6 @@ class ForceToolOperation(Operation):
         self.rewind(self.undoIdxBeforeInstall5)
         self.newOligoProvider.rewind()
         self.install5()
-        print "p3o:%s 3o:%s 5o:%s p5o:%s"%(self.strand.conn5().oligo(), self.strand.oligo(), self.strand.conn3().oligo(), self.strand.conn3().conn3().oligo())
         if self.logger != None:
             self.logger.write('ForceToolOperation.updateDestination(%s)\n'%\
                                      newVBase5)

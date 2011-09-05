@@ -146,7 +146,8 @@ class PencilToolOperation(Operation):
                         else:
                             restoreList.append((xover.vStrand(), x0, n0))
             # do the clear operation
-            vStrand.clearStrand(start, end, useUndoStack=True,\
+            vStrand.clearStrand(min(start, end), max(start, end),\
+                                useUndoStack=True,\
                                 undoStack=self.undoStack, keepLeft=keepLeft,\
                                 newOligoProvider=self.newOligoProvider)
             # restore the material 
