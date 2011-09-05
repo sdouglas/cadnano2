@@ -30,10 +30,7 @@ util.qtWrapImport('QtCore', globals(), ['Qt', 'QPointF'])
 
 
 class NewEraseTool(AbstractPathTool):
-    """
-    EraseTool is used to clear strands.
-    """
-    # And we actually use those PathHelixGroup events
+    """EraseTool is used to clear strands."""
     mouseMovePathHelixGroupUnused = False
     mouseReleasePathHelixGroupUnused = False
     mousePressPathHelixGroupUnused = False
@@ -44,8 +41,6 @@ class NewEraseTool(AbstractPathTool):
         self.currentOperation = None
 
     def mousePressPathHelix(self, pathHelix, event):
-        print util.trace(5)
-        print "NewEraseTool mousePressPathHelix"
         # initial setup / check input state
         pathHelix.scene().views()[0].addToPressList(pathHelix)
         dest = pathHelix.vBaseAtPoint(event.pos())
@@ -56,18 +51,7 @@ class NewEraseTool(AbstractPathTool):
         # do the operation
         if self.currentOperation != None: self.currentOperation.end()
         self.currentOperation = EraseToolOperation(dest, undoStack)
-        if shiftClick:
-            if self.logger: self.logger.write("mousePressPathHelix>Join\n")
-            self.currentOperation.actionMergeWithAdjacent(dest)
-            self.currentOperation.end()
-            self.currentOperation = None
-        elif altClick:
-            if self.logger: self.logger.write("mousePressPathHelix>Extend\n")
-            self.currentOperation.actionResizeStrand(dest)
-            self.currentOperation.end()
-            self.currentOperation = None
-        else:
-            if self.logger: self.logger.write("mousePressPathHelix>Select\n")
+        if self.logger: self.logger.write("mousePressPathHelix>Erase\n")
 
     def hoverMovePathHelix(self, pathHelix, event):
         if self.logger: self.logger.write("hover>")

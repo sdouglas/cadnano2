@@ -54,7 +54,7 @@ class Oligo(QObject):
 
     def sequence(self):
         return self._sequence
-    
+
     ########################## Public Write API ##########################
 
     def setColor(self, newColor):
