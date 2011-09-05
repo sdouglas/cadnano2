@@ -153,7 +153,7 @@ class PencilToolOperation(Operation):
             # restore the material 
             for strand, rStart, rEnd in restoreList:
                 strand.connectStrand(rStart, rEnd,\
-                        useUndoStack=True, ndoStack=self.undoStack,\
+                        useUndoStack=True, undoStack=self.undoStack,\
                         newOligoProvider=self.newOligoProvider)
 
     def end(self):
