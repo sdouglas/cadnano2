@@ -124,7 +124,8 @@ class PencilToolOperation(Operation):
 
         if willConnect:
             vStrand.connectStrand(start, end, useUndoStack=True,\
-                                              undoStack=self.undoStack)
+                                              undoStack=self.undoStack,\
+                                    newOligoProvider=self.newOligoProvider)
         elif willClear:
             # tally the xovers that will be cleared
             affectedStrands = vStrand.rangeItemsTouchingRange(start, end)

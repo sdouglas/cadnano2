@@ -376,9 +376,7 @@ class VStrand(RangeSet):
                 if self.logger: self.logger.write('lIsEnd\n')
                 newStrand = NormalStrand(VBase(self, lIdx + 1), VBase(self, rIdx), newOligoProvider)
                 self.addStrand(newStrand, useUndoStack=useUndoStack, undoStack=undoStack)
-                print "lIsEnd >>> addedStrand >>> oligo=%s, lStrandOligo=%s"%(newStrand.oligo(), lStrand.oligo())
                 newStrand.setConnL(lStrand, useUndoStack, undoStack, newOligoProvider)
-                print "lIsEnd >>> postConnL >>> oligo=%s, lStrandOligo=%s"%(newStrand.oligo(), lStrand.oligo())
             elif rIsEnd:
                 if self.logger: self.logger.write('rIsEnd\n')
                 newStrand = NormalStrand(VBase(self, lIdx), VBase(self, rIdx - 1), newOligoProvider)
