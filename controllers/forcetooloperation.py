@@ -27,6 +27,7 @@ util.qtWrapImport('QtCore', globals(), ['QObject'])
 from model.strands.xoverstrand import XOverStrand3
 from operation import Operation
 from model.strands.vbase import VBase
+import model.oligo
 
 class ForceToolOperation(Operation):
     logger = None #sys.stdout
@@ -35,6 +36,7 @@ class ForceToolOperation(Operation):
         self.startVBase = startVBase
         self.strand = XOverStrand3(startVBase)
         self.undoIdxBeforeEverything = undoStack.index()
+        self.newOligoProvider = model.oligo.DragOperationOligoProvider()
         self.install3()
         self.undoIdxBeforeInstall5 = undoStack.index()
         self.lastDestination = None  # None = floating
@@ -48,7 +50,9 @@ class ForceToolOperation(Operation):
             return
         self.lastDestination = newVBase5
         self.rewind(self.undoIdxBeforeInstall5)
+        self.newOligoProvider.rewind()
         self.install5()
+        print "p3o:%s 3o:%s 5o:%s p5o:%s"%(self.strand.conn5().oligo(), self.strand.oligo(), self.strand.conn3().oligo(), self.strand.conn3().conn3().oligo())
         if self.logger != None:
             self.logger.write('ForceToolOperation.updateDestination(%s)\n'%\
                                      newVBase5)
@@ -56,6 +60,7 @@ class ForceToolOperation(Operation):
     def updateFloatingDestination(self, newPt5):
         self.lastDestination = None
         self.rewind(self.undoIdxBeforeInstall5)
+        self.newOligoProvider.rewind()
         self.strand.setPt5(newPt5)
         self.strand.conn3().setVBase(None)
         if self.logger != None:
@@ -69,10 +74,12 @@ class ForceToolOperation(Operation):
                        useUndoStack=True, undoStack=self.undoStack)
         if vstr.drawn5To3():
             vstr.connectStrand(idx - 1, idx,\
-                               useUndoStack=True, undoStack=self.undoStack)
+                               useUndoStack=True, undoStack=self.undoStack,\
+                               newOligoProvider=self.newOligoProvider)
         else:
             vstr.connectStrand(idx + 1, idx,\
-                               useUndoStack=True, undoStack=self.undoStack)
+                               useUndoStack=True, undoStack=self.undoStack,\
+                               newOligoProvider=self.newOligoProvider)
 
     def install5(self):
         newVBase5 = self.lastDestination
@@ -82,15 +89,18 @@ class ForceToolOperation(Operation):
                        useUndoStack=True, undoStack=self.undoStack)
         if vstr.drawn5To3():
             vstr.connectStrand(idx, idx + 1,\
-                               useUndoStack=True, undoStack=self.undoStack)
+                               useUndoStack=True, undoStack=self.undoStack,\
+                               newOligoProvider=self.newOligoProvider)
         else:
             vstr.connectStrand(idx, idx - 1,\
-                               useUndoStack=True, undoStack=self.undoStack)
+                               useUndoStack=True, undoStack=self.undoStack,\
+                               newOligoProvider=self.newOligoProvider)
 
     def end(self):
         if self.logger != None:
             self.logger.write('ForceToolOperation.end()\n')
         self.rewind(self.undoIdxBeforeEverything)
+        self.newOligoProvider.rewind()
         if self.lastDestination == None:
             del self.strand
             print "Failed ForceToolOperation.end(): self.lastDestination == None"

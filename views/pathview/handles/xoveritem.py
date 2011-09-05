@@ -60,7 +60,6 @@ class XoverItem3(QGraphicsPathItem):
         self.updatePos()
         xover3strand.willBeRemoved.connect(self.strandWillBeRemoved)
         xover3strand.connectivityChanged.connect(self.updateConnectivity)
-        
         self.setPen(QPen(Qt.NoPen))
         self.setBrush(self.nobrush)
     # end def
@@ -150,6 +149,7 @@ class XoverItem3(QGraphicsPathItem):
         # self.setVisible(not strand.isFloating())
         isLeft = True if  strand.vBase().drawn5To3() else False
         self.updateLabel(strand.conn3(), isLeft)
+
     def strandWillBeRemoved(self, strand):
         self.strand.willBeRemoved.disconnect(self.strandWillBeRemoved)
         self.strand.connectivityChanged.disconnect(self.updateConnectivity)
@@ -260,6 +260,7 @@ class XoverItem(QGraphicsPathItem):
         strand5.didMove.connect(self.strandDidMove)
         strand3.connectivityChanged.connect(self.conn3Changed)
         strand5.connectivityChanged.connect(self.conn5Changed)
+        strand3.oligoChanged.connect(self.updatePen)
         strand3.willBeRemoved.connect(self.strandWillBeRemoved)
         phg = self._pathhelixgroup
         callback = self.updatePath

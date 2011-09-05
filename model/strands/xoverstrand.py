@@ -37,14 +37,14 @@ class XOverStrand3(Strand):
     whole. """
     logger = None
     kind = 'xovr3'
-    def __init__(self, vBase):
+    def __init__(self, vBase, newOligoProvider=None):
         """ In order to create a XOverStrand3 / XOverStrand5 pair, first create
         the XOverStrand3. Thin simply call xover3.conn3() to get the
         corresponding XOverStrand5. """
-        Strand.__init__(self)
+        Strand.__init__(self, newOligoProvider=newOligoProvider)
         self._vBase = vBase
         self._pt5 = None  # Temporary destination (in PHG coords)
-        partner = XOverStrand5(vBase=None)
+        partner = XOverStrand5(vBase=None, newOligoProvider=newOligoProvider)
         Strand.setConn3(self, partner)
         self.isBeingDeleted = False
     def __repr__(self):
@@ -101,7 +101,7 @@ class XOverStrand3(Strand):
     def setPt5(self, newPt5):
         self._pt5 = newPt5
         self.didMove.emit(self)
-    def removalWillBePushed(self, useUndoStack, undoStack):
+    def removalWillBePushed(self, useUndoStack, undoStack, newOligoProvider):
         partner = self.conn3()
         partnerXoverVBase = partner.vBase()
         if partnerXoverVBase == None or\
@@ -122,8 +122,8 @@ class XOverStrand5(Strand):
     properly connected to a XOverStrand3, first create the XOverStrand3 and
     then call xover3.conn3() to get the corresponding XOverStrand5 object. """
     kind = 'xovr5'
-    def __init__(self, vBase):
-        Strand.__init__(self)
+    def __init__(self, vBase, newOligoProvider=None):
+        Strand.__init__(self, newOligoProvider=newOligoProvider)
         self._vBase = vBase
         self.isBeingDeleted = False
         self.isBeingDragged = False
@@ -149,7 +149,7 @@ class XOverStrand5(Strand):
         else: 
             return False
 
-    def removalWillBePushed(self, useUndoStack, undoStack):
+    def removalWillBePushed(self, useUndoStack, undoStack, newOligoProvider):
         partnerXoverVBase = self.conn5().vBase()
         if partnerXoverVBase == None or\
            self.conn5().isBeingDeleted or self.isBeingDeleted:

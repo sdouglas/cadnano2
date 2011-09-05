@@ -37,8 +37,8 @@ class NormalStrand(Strand):
     """
     logger = None  # Use sys.stdout to log a trace to stdout
     kind = 'nrml'
-    def __init__(self, vBaseL, vBaseR):
-        Strand.__init__(self)
+    def __init__(self, vBaseL, vBaseR, newOligoProvider=None):
+        Strand.__init__(self, newOligoProvider=newOligoProvider)
         self.vBaseL = vBaseL
         self.vBaseR = vBaseR
         # self.vBase3 acts like self.vBaseR if self.vStrand().drawn5To3() else vBaseL
@@ -103,7 +103,7 @@ class NormalStrand(Strand):
             com.redo()
         return self
 
-    def removalWillBePushed(self, useUndoStack, undoStack):
+    def removalWillBePushed(self, useUndoStack, undoStack, newOligoProvider):
         """Called before the command that causes removal of self to be pushed
         to the undoStack is pushed (in contrast to willBeRemoved which is called
         every time the undoStack decides to remove self). This is the place to
@@ -139,15 +139,15 @@ class NormalStrand(Strand):
             otherStrand.vBaseR = self.oR
             self.strand.didMove.emit(self.strand)
 
-    def changeRange(self, newL, newR, undoStack):
+    def changeRange(self, newL, newR, undoStack, newOligoProvider):
         if type(newL) in (int, long):
             newL = self.vBaseL.sameStrand(newL)
         if type(newR) in (int, long):
             newR = self.vBaseR.sameStrand(newR)
         if newL != self.vBaseL:
-            self.setConnL(None, useUndoStack=(undoStack != None), undoStack=undoStack)
+            self.setConnL(None, useUndoStack=(undoStack != None), undoStack=undoStack, newOligoProvider=newOligoProvider)
         if newR != self.vBaseR:
-            self.setConnR(None, useUndoStack=(undoStack != None), undoStack=undoStack)
+            self.setConnR(None, useUndoStack=(undoStack != None), undoStack=undoStack, newOligoProvider=newOligoProvider)
         com = self.ChangeRangeCommand(self, newL, newR)
         if undoStack != None:
             undoStack.push(com)
@@ -179,7 +179,7 @@ class NormalStrand(Strand):
             strand.vBaseR = self.oldR
             self.strand.didMove.emit(self.strand)
 
-    def split(self, splitStart, splitAfterLast, keepLeft, undoStack):
+    def split(self, splitStart, splitAfterLast, keepLeft, undoStack, newOligoProvider):
         # keepLeft was preserveLeftOligoDuringSplit
         vStrand = self.vStrand()
         if self.logger != None:
@@ -191,21 +191,21 @@ class NormalStrand(Strand):
             splitAfterLast = VBase(vStrand, splitAfterLast)
         vBaseL, vBaseR = self.vBaseL, self.vBaseR
         assert(splitStart <= splitAfterLast)
-        newRangeL = (vBaseL, splitStart - 1)
+        newRangeL = (vBaseL, splitStart - 1, newOligoProvider)
         newRangeLValid = newRangeL[0] <= newRangeL[1]
-        newRangeR = (splitAfterLast, vBaseR)
+        newRangeR = (splitAfterLast, vBaseR, newOligoProvider)
         newRangeRValid = newRangeR[0] <= newRangeR[1]
         ret = []
         if keepLeft:
             oldConnR = self.connR()
             if newRangeLValid:
-                oldResizedStrnd = self.changeRange(newRangeL[0], newRangeL[1], undoStack)
+                oldResizedStrnd = self.changeRange(newRangeL[0], newRangeL[1], undoStack, newOligoProvider)
                 ret.append(oldResizedStrnd)
             if newRangeRValid:
                 newStrand = NormalStrand(*newRangeR)
                 ret.append(newStrand)
                 if oldConnR != None:
-                    newStrand.setConnR(oldConnR, useUndoStack=True, undoStack=undoStack)
+                    newStrand.setConnR(oldConnR, useUndoStack=True, undoStack=undoStack, newOligoProvider=newOligoProvider)
         else:
             oldConnL = self.connL()
             if newRangeLValid:
@@ -213,7 +213,7 @@ class NormalStrand(Strand):
                 newStrand.setConnL(oldConnL)
                 ret.append(newStrand)
             if newRangeRValid:
-                oldResizedStrnd = self.changeRange(newRangeR[0], newRangeR[1], undoStack=undoStack)
+                oldResizedStrnd = self.changeRange(newRangeR[0], newRangeR[1], undoStack=undoStack, newOligoProvider=newOligoProvider)
                 ret.append(oldResizedStrnd)
         for strand in ret: strand.assertConsistent()
         return ret

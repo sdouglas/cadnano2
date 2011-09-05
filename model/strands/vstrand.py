@@ -27,6 +27,7 @@ from rangeset import RangeSet
 import util, sys
 from vbase import VBase
 from normalstrand import NormalStrand
+import model.oligo
 from xoverstrand import XOverStrand3, XOverStrand5
 import strand
 util.qtWrapImport('QtCore', globals(), ['QObject', 'pyqtSignal'] )
@@ -44,7 +45,7 @@ class VStrand(RangeSet):
     # object present at that idx has changed. For the latter, you have to look
     # for signals emitted by the strand itself.)
     #       indicesModifiedSignal = pyQtSignal(int, int)  # inherited
-    logger = None
+    logger = sys.stdout
     def __init__(self, parentVHelix=None):
         RangeSet.__init__(self)
         if parentVHelix != None:
@@ -189,7 +190,7 @@ class VStrand(RangeSet):
         self.addRange(strand, useUndoStack, undoStack)
 
     def resizeStrandAt(self, idxInStrand, newFirstBase, newLastBase,\
-                       useUndoStack=True, undoStack=None):
+                       useUndoStack=True, undoStack=None, newOligoProvider=None):
         if isinstance(idxInStrand, VBase):
             idxInStrand = idxInStrand.vIndex()
         if isinstance(newFirstBase, VBase):
@@ -198,11 +199,13 @@ class VStrand(RangeSet):
             newLastBase = newLastBase.vIndex()
         self.resizeRangeAtIdx(idxInStrand, newFirstBase,\
                               newLastBase + 1,\
-                              useUndoStack, undoStack)
+                              useUndoStack, undoStack, newOligoProvider)
 
     def clearStrand(self, firstIndex, afterLastIndex, useUndoStack=True,\
-                    undoStack=None, keepLeft=True):
+                    undoStack=None, keepLeft=True, newOligoProvider=None):
         #Input sanitization
+        if newOligoProvider == None:
+            newOligoProvider = model.oligo.defaultOligoProvider
         if isinstance(firstIndex, VBase):
             firstIndex = firstIndex.vIndex()
         if isinstance(afterLastIndex, VBase):
@@ -228,7 +231,8 @@ class VStrand(RangeSet):
                                                         firstIndex,\
                                                         afterLastIndex,\
                                                         keepLeft,\
-                                                        undoStack)
+                                                        undoStack,\
+                                                        newOligoProvider)
                 if self.logger:
                     self.logger.write('%s\n'%replacementRanges)
                 com = self.ReplaceRangeItemsCommand(self,\
@@ -237,7 +241,7 @@ class VStrand(RangeSet):
                                                      replacementRanges,\
                                                      False)
                 for ri in com.risToRemove:
-                    ri.removalWillBePushed(useUndoStack, undoStack)
+                    ri.removalWillBePushed(useUndoStack, undoStack, newOligoProvider)
                 if useUndoStack:
                     undoStack.push(com)
                 else:
@@ -249,11 +253,14 @@ class VStrand(RangeSet):
             if self.logger: self.logger.write('\tremoveRange(%i,%i)\n'%\
                                       (firstIndex, afterLastIndex))
             self.removeRange(firstIndex, afterLastIndex,\
-                             useUndoStack, undoStack, keepLeft=keepLeft)
+                             useUndoStack, undoStack, keepLeft=keepLeft,\
+                             newOligoProvider=newOligoProvider)
         if useUndoStack:
             undoStack.endMacro()
 
-    def connectStrand(self, firstIdx, lastIdx, useUndoStack=True, undoStack=None):
+    def connectStrand(self, firstIdx, lastIdx, useUndoStack=True, undoStack=None, newOligoProvider=None):
+        if newOligoProvider == None:
+            newOligoProvider = model.oligo.defaultOligoProvider
         if useUndoStack and undoStack == None:
             undoStack = self.undoStack()
         if self.logger:
@@ -291,45 +298,46 @@ class VStrand(RangeSet):
             elif lIsNormalStrand and rIsNormalStrand:
                 if self.logger: self.logger.write('lIsNorm&rIsNorm\n')
                 rConnR = rStrand.connR()
-                self.resizeStrandAt(lIdx, lStrand.vBaseL, rStrand.vBaseR, useUndoStack, undoStack)
-                lStrand.setConnR(rConnR, useUndoStack, undoStack)
+                self.resizeStrandAt(lIdx, lStrand.vBaseL, rStrand.vBaseR, useUndoStack, undoStack, newOligoProvider)
+                lStrand.setConnR(rConnR, useUndoStack, undoStack, newOligoProvider)
             elif lIdx + 1 == rIdx and lIsEnd and rIsEnd:
                 if self.logger: self.logger.write('connect_adjacent_endpts\n')
-                lStrand.setConnR(rStrand, useUndoStack, undoStack)
+                lStrand.setConnR(rStrand, useUndoStack, undoStack, newOligoProvider)
             elif lIsNormalStrand and rIsEnd:
                 if self.logger: self.logger.write('lIsNorm&rIsEnd\n')
-                self.resizeStrandAt(lIdx, lStrand.vBaseL, rIdx - 1, useUndoStack, undoStack)
-                lStrand.setConnR(rStrand, useUndoStack, undoStack)
+                self.resizeStrandAt(lIdx, lStrand.vBaseL, rIdx - 1, useUndoStack, undoStack, newOligoProvider)
+                lStrand.setConnR(rStrand, useUndoStack, undoStack, newOligoProvider)
             elif rIsNormalStrand and lIsEnd:
                 if self.logger: self.logger.write('rIsNorm&lIsEnd\n')
-                self.resizeStrandAt(rIdx, lIdx + 1, rStrand.vBaseR, useUndoStack, undoStack)
-                lStrand.setConnR(rStrand, useUndoStack, undoStack)
+                self.resizeStrandAt(rIdx, lIdx + 1, rStrand.vBaseR, useUndoStack, undoStack, newOligoProvider)
+                lStrand.setConnR(rStrand, useUndoStack, undoStack, newOligoProvider)
             elif lIsNormalStrand:
                 if self.logger: self.logger.write('lIsNorm\n')
-                self.resizeStrandAt(lIdx, lStrand.vBaseL, rIdx, useUndoStack, undoStack)
+                self.resizeStrandAt(lIdx, lStrand.vBaseL, rIdx, useUndoStack, undoStack, newOligoProvider)
             elif rIsNormalStrand:
                 if self.logger: self.logger.write('rIsNorm\n')
-                self.resizeStrandAt(rIdx, lIdx, rStrand.vBaseR, useUndoStack, undoStack)
+                rStrand.setOligo(newOligoProvider.getOligo(), useUndoStack=useUndoStack, undoStack=undoStack)
+                self.resizeStrandAt(rIdx, lIdx, rStrand.vBaseR, useUndoStack, undoStack, newOligoProvider)
             elif lIsEnd and rIsEnd:
                 if self.logger: self.logger.write('lIsEnd&rIsEnd\n')
-                newStrand = NormalStrand(VBase(self, lIdx + 1), VBase(self, rIdx - 1))
-                self.addStrand(newStrand)
-                lStrand.setConnR(newStrand)
-                newStrand.setConnR(rStrand)
+                newStrand = NormalStrand(VBase(self, lIdx + 1), VBase(self, rIdx - 1), newOligoProvider)
+                self.addStrand(newStrand, useUndoStack=useUndoStack, undoStack=undoStack)
+                lStrand.setConnR(newStrand, newOligoProvider)
+                newStrand.setConnR(rStrand, newOligoProvider)
             elif lIsEnd:
                 if self.logger: self.logger.write('lIsEnd\n')
-                newStrand = NormalStrand(VBase(self, lIdx + 1), VBase(self, rIdx))
+                newStrand = NormalStrand(VBase(self, lIdx + 1), VBase(self, rIdx), newOligoProvider=newOligoProvider)
                 self.addStrand(newStrand, useUndoStack=useUndoStack, undoStack=undoStack)
-                lStrand.setConnR(newStrand)
+                lStrand.setConnR(newStrand, useUndoStack, undoStack, newOligoProvider)
             elif rIsEnd:
                 if self.logger: self.logger.write('rIsEnd\n')
-                newStrand = NormalStrand(VBase(self, lIdx), VBase(self, rIdx - 1))
+                newStrand = NormalStrand(VBase(self, lIdx), VBase(self, rIdx - 1), newOligoProvider=newOligoProvider)
                 self.addStrand(newStrand, useUndoStack=useUndoStack, undoStack=undoStack)
-                newStrand.setConnR(rStrand)
+                newStrand.setConnR(rStrand, useUndoStack, undoStack, newOligoProvider)
             else:
                 if self.logger: self.logger.write('catchall\n')
-                newStrand = NormalStrand(VBase(self, lIdx), VBase(self, rIdx))
-                self.addStrand(newStrand)
+                newStrand = NormalStrand(VBase(self, lIdx), VBase(self, rIdx), newOligoProvider=newOligoProvider)
+                self.addStrand(newStrand, useUndoStack=useUndoStack, undoStack=undoStack)
         elif not leftHasPrivilege:
             if self.logger: self.logger.write('rightPrivilege>')
             if lStrand == rStrand != None:
@@ -338,44 +346,47 @@ class VStrand(RangeSet):
             elif lIsNormalStrand and rIsNormalStrand:
                 if self.logger: self.logger.write('lIsNorm&rIsNorm\n')
                 lConnL = lStrand.connL()
-                self.resizeStrandAt(rIdx, lStrand.vBaseL, rStrand.vBaseR, useUndoStack, undoStack)
-                rStrand.setConnL(lConnL, useUndoStack, undoStack)
+                self.resizeStrandAt(rIdx, lStrand.vBaseL, rStrand.vBaseR, useUndoStack, undoStack, newOligoProvider)
+                rStrand.setConnL(lConnL, useUndoStack, undoStack, newOligoProvider)
             elif lIdx + 1 == rIdx and lIsEnd and rIsEnd:
                 if self.logger: self.logger.write('connect_adjacent_endpts\n')
-                rStrand.setConnL(lStrand, useUndoStack, undoStack)
+                rStrand.setConnL(lStrand, useUndoStack, undoStack, newOligoProvider)
             elif rIsNormalStrand and lIsEnd:
                 if self.logger: self.logger.write('rIsNorm&lIsEnd\n')
-                self.resizeStrandAt(rIdx, lIdx + 1, rStrand.vBaseR, useUndoStack, undoStack)
-                rStrand.setConnL(lStrand, useUndoStack, undoStack)
+                self.resizeStrandAt(rIdx, lIdx + 1, rStrand.vBaseR, useUndoStack, undoStack, newOligoProvider)
+                rStrand.setConnL(lStrand, useUndoStack, undoStack, newOligoProvider)
             elif lIsNormalStrand and rIsEnd:
                 if self.logger: self.logger.write('lIsNorm&rIsEnd\n')
-                self.resizeStrandAt(lIdx, lStrand.vBaseL, rIdx - 1, useUndoStack, undoStack)
-                rStrand.setConnL(lStrand, useUndoStack, undoStack)
+                self.resizeStrandAt(lIdx, lStrand.vBaseL, rIdx - 1, useUndoStack, undoStack, newOligoProvider)
+                rStrand.setConnL(lStrand, useUndoStack, undoStack, newOligoProvider)
             elif rIsNormalStrand:
                 if self.logger: self.logger.write('rIsNorm\n')
-                self.resizeStrandAt(rIdx, lIdx, rStrand.vBaseR, useUndoStack, undoStack)
+                self.resizeStrandAt(rIdx, lIdx, rStrand.vBaseR, useUndoStack, undoStack, newOligoProvider)
             elif lIsNormalStrand:
                 if self.logger: self.logger.write('lIsNorm\n')
-                self.resizeStrandAt(lIdx, lStrand.vBaseL, rIdx, useUndoStack, undoStack)
+                lStrand.setOligo(newOligoProvider.getOligo(), useUndoStack=useUndoStack, undoStack=undoStack)
+                self.resizeStrandAt(lIdx, lStrand.vBaseL, rIdx, useUndoStack, undoStack, newOligoProvider)
             elif lIsEnd and rIsEnd:
                 if self.logger: self.logger.write('lIsEnd&rIsEnd\n')
-                newStrand = NormalStrand(VBase(self, lIdx + 1), VBase(self, rIdx - 1))
-                self.addStrand(newStrand)
-                rStrand.setConnL(newStrand)
-                newStrand.setConnL(lStrand)
+                newStrand = NormalStrand(VBase(self, lIdx + 1), VBase(self, rIdx - 1), newOligoProvider)
+                self.addStrand(newStrand, useUndoStack, undoStack)
+                rStrand.setConnL(newStrand, useUndoStack, undoStack, newOligoProvider)
+                newStrand.setConnL(lStrand, useUndoStack, undoStack, newOligoProvider)
             elif lIsEnd:
                 if self.logger: self.logger.write('lIsEnd\n')
-                newStrand = NormalStrand(VBase(self, lIdx + 1), VBase(self, rIdx))
+                newStrand = NormalStrand(VBase(self, lIdx + 1), VBase(self, rIdx), newOligoProvider)
                 self.addStrand(newStrand, useUndoStack=useUndoStack, undoStack=undoStack)
-                newStrand.setConnL(lStrand)
+                print "lIsEnd >>> addedStrand >>> oligo=%s, lStrandOligo=%s"%(newStrand.oligo(), lStrand.oligo())
+                newStrand.setConnL(lStrand, useUndoStack, undoStack, newOligoProvider)
+                print "lIsEnd >>> postConnL >>> oligo=%s, lStrandOligo=%s"%(newStrand.oligo(), lStrand.oligo())
             elif rIsEnd:
                 if self.logger: self.logger.write('rIsEnd\n')
-                newStrand = NormalStrand(VBase(self, lIdx), VBase(self, rIdx - 1))
+                newStrand = NormalStrand(VBase(self, lIdx), VBase(self, rIdx - 1), newOligoProvider)
                 self.addStrand(newStrand, useUndoStack=useUndoStack, undoStack=undoStack)
-                rStrand.setConnL(newStrand)
+                rStrand.setConnL(newStrand, useUndoStack, undoStack, newOligoProvider)
             else:
                 if self.logger: self.logger.write('catchall\n')
-                newStrand = NormalStrand(VBase(self, lIdx), VBase(self, rIdx))
+                newStrand = NormalStrand(VBase(self, lIdx), VBase(self, rIdx), newOligoProvider)
                 self.addStrand(newStrand, useUndoStack=useUndoStack, undoStack=undoStack)
         # End if leftHasPrivilege
         if self.logger:
@@ -399,15 +410,15 @@ class VStrand(RangeSet):
     def mergeRangeItems(self, rangeItemA, rangeItemB, undoStack):
         raise NotImplementedError
 
-    def changeRangeForItem(self, rangeItem, newStartIdx, newAfterLastIdx, undoStack):
+    def changeRangeForItem(self, rangeItem, newStartIdx, newAfterLastIdx, undoStack, newOligoProvider):
         oldStartIdx, oldAfterLastIdx = rangeItem.idxs()
-        return rangeItem.changeRange(newStartIdx, newAfterLastIdx - 1, undoStack)
+        return rangeItem.changeRange(newStartIdx, newAfterLastIdx - 1, undoStack, newOligoProvider)
 
-    def splitRangeItem(self, strand, splitStart, splitAfterLast, keepLeft, undoStack):
+    def splitRangeItem(self, strand, splitStart, splitAfterLast, keepLeft, undoStack, newOligoProvider):
         return strand.split(splitStart,\
                             splitAfterLast,\
                             keepLeft,\
-                            undoStack)
+                            undoStack, newOligoProvider)
 
     def willRemoveRangeItem(self, strand):
         strand.willBeRemovedCallback()
@@ -416,12 +427,12 @@ class VStrand(RangeSet):
             strand.logger.write("+%i.remove() %s\n"%(strand.traceID,\
                                                    repr(strand)))
 
-    def itemRemovalWillBePushed(self, strand, useUndoStack, undoStack):
+    def itemRemovalWillBePushed(self, strand, useUndoStack, undoStack, newOligoProvider):
         """Called before the command that causes removal of self to be pushed
         to the undoStack is pushed (in contrast to willBeRemoved which is called
         every time the undoStack decides to remove self). This is the place to
         push side effects of removal onto the undo stack."""
-        strand.removalWillBePushed(useUndoStack, undoStack)
+        strand.removalWillBePushed(useUndoStack, undoStack, newOligoProvider)
 
     def didInsertRangeItem(self, strand):
         RangeSet.didInsertRangeItem(self, strand)

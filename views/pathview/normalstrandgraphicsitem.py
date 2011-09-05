@@ -80,6 +80,7 @@ class NormalStrandGraphicsItem(QGraphicsLineItem):
         normalStrand.didMove.connect(self.update)
         normalStrand.apparentConnectivityChanged.connect(self.update)
         normalStrand.willBeRemoved.connect(self.remove)
+        normalStrand.oligoChanged.connect(self.updatePensAndBrushes)
         drawn5To3 = normalStrand.drawn5To3()
         self.leftCap = QGraphicsPathItem(ppL5 if drawn5To3 else ppL3, self)
         self.leftCap.setPen(NoPen)
@@ -130,13 +131,17 @@ class NormalStrandGraphicsItem(QGraphicsLineItem):
         # 2. Line drawing
         ry = ly = lUpperLeftY + halfBaseWidth
         self.setLine(lx, ly, rx, ry)
+        self.updatePensAndBrushes(strand)
+
+    def updatePensAndBrushes(self, strand):
+        vbL, vbR = strand.vBaseL, strand.vBaseR
         if vbL.vStrand().isScaf():
             pen = QPen(styles.scafstroke, styles.PATH_STRAND_STROKE_WIDTH)
             brush = QBrush(styles.handlefill)
         else:
-            pen = QPen(QColor(), styles.PATH_STRAND_STROKE_WIDTH)
-            brush = QBrush(self.normalStrand.color())
-        # 3. Apply paint styles
+            colr = self.normalStrand.color()
+            pen = QPen(colr, styles.PATH_STRAND_STROKE_WIDTH)
+            brush = QBrush(colr)
         pen.setCapStyle(Qt.FlatCap)
         self.setPen(pen)
         self.leftCap.setBrush(brush)

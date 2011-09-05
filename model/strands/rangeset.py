@@ -113,7 +113,7 @@ class RangeSet(QObject):
         bl, br = self.idxs(rangeItemB)
         return (min(al, bl), max(ar, br), rangeItemB[2])
 
-    def changeRangeForItem(self, rangeItem, newStartIdx, newAfterLastIdx, undoStack):
+    def changeRangeForItem(self, rangeItem, newStartIdx, newAfterLastIdx, undoStack, newOligoProvider):
         """
         Changes the range corresponding to rangeItem.
         Careful, this isn't a public method. It gets called to notify a subclass
@@ -128,7 +128,7 @@ class RangeSet(QObject):
         unionAfterLastIdx = max(oldAfterLastIdx, newAfterLastIdx)
         return (newStartIdx, newAfterLastIdx, rangeItem[2])
 
-    def splitRangeItem(self, rangeItem, splitStart, afterSplitEnd, keepLeft, undoStack):
+    def splitRangeItem(self, rangeItem, splitStart, afterSplitEnd, keepLeft, undoStack, newOligoProvider):
         """
         When a range is inserted into the middle of another range (and no
         merging can occur) the existant range is split into two endpoints
@@ -152,7 +152,7 @@ class RangeSet(QObject):
     def didInsertRangeItem(self, rangeItem):
         pass
 
-    def itemRemovalWillBePushed(self, strand, useUndoStack, undoStack):
+    def itemRemovalWillBePushed(self, strand, useUndoStack, undoStack, newOligoProvider):
         """Called before the command that causes removal of self to be pushed
         to the undoStack is pushed (in contrast to willRemoveRangeItem which is
         called every time the undoStack decides to remove an item). This is the
@@ -316,7 +316,7 @@ class RangeSet(QObject):
         self.endCommand(undoStack, com)
 
     def removeRange(self, firstIndex, afterLastIndex, useUndoStack=True,\
-                    undoStack=None, suppressCallsItem=None, keepLeft=True):
+                    undoStack=None, suppressCallsItem=None, keepLeft=True, newOligoProvider=None):
         """
         Called by VStrand.clearStrand().
 
@@ -351,7 +351,8 @@ class RangeSet(QObject):
                                                         firstIndex,\
                                                         afterLastIndex,\
                                                         keepLeft,\
-                                                        undoStack)
+                                                        undoStack,\
+                                                        newOligoProvider)
                 # middleIdx: the index into self.ranges that one would insert a
                 # range item if one wished to insert the range item into the space
                 # celared by this removeRange command
@@ -360,7 +361,8 @@ class RangeSet(QObject):
                 newItem = self.changeRangeForItem(firstIR,\
                                                   firstIRL,\
                                                   firstIndex,\
-                                                  undoStack)
+                                                  undoStack,\
+                                                  newOligoProvider)
                 replacementRanges.append(newItem)
                 middleIdx = firstIIR + len(replacementRanges)
         else:
@@ -371,7 +373,8 @@ class RangeSet(QObject):
             newItem = self.changeRangeForItem(lastIR,\
                                               afterLastIndex,\
                                               lastIRAr,\
-                                              undoStack)
+                                              undoStack,\
+                                              newOligoProvider)
             replacementRanges.append(newItem)
         com = self.ReplaceRangeItemsCommand(self,\
                                             firstIIR,\
@@ -380,28 +383,28 @@ class RangeSet(QObject):
                                             suppressCallsItem)
         for ri in com.risToRemove:
             if not isinstance(ri, tuple):
-                ri.removalWillBePushed(useUndoStack, undoStack)
+                ri.removalWillBePushed(useUndoStack, undoStack, newOligoProvider)
         self.endCommand(undoStack, com)
         return middleIdx
 
-    def resizeRangeAtIdx(self, idx, newFirstIndex, newAfterLastIdx, useUndoStack=True, undoStack=None):
+    def resizeRangeAtIdx(self, idx, newFirstIndex, newAfterLastIdx, useUndoStack=True, undoStack=None, newOligoProvider=None):
         """
         Finds the largest contiguous range of indices in the receiver that includes
         idx and changes it.
         """
         assert(isinstance(idx, (int, long)))
-        undoStack = self.beginCommand(useUndoStack,\
-                                      undoStack,\
+        undoStack = self.beginCommand(useUndoStack, undoStack,\
                                       'RangeSet.resizeRangeAtIdx')
         rangeItemToResize = self.get(idx)
         oldL, oldAR = self.idxs(rangeItemToResize)
         self.removeRange(oldL, oldAR,\
                          useUndoStack=useUndoStack, undoStack=undoStack,\
-                         suppressCallsItem=rangeItemToResize)
+                         suppressCallsItem=rangeItemToResize,\
+                         newOligoProvider=newOligoProvider)
         newRangeItem = self.changeRangeForItem(rangeItemToResize,\
                                                newFirstIndex,\
                                                newAfterLastIdx,\
-                                               undoStack)
+                                               undoStack, newOligoProvider)
         # Caveat: newRangeItem might == rangeItemToResize
         self.addRange(newRangeItem,\
                       useUndoStack=useUndoStack, undoStack=undoStack,\

@@ -24,27 +24,28 @@
 
 import util, sys
 from views import styles
+from model.oligo import defaultOligoProvider, Oligo
 util.qtWrapImport('QtCore', globals(), ['QObject', 'pyqtSignal'] )
 util.qtWrapImport('QtGui', globals(), ['QUndoCommand', 'QColor'] )
 nextStrandDebugIdentifier = 0
 
 class Strand(QObject):
     logger = None  # Tracing will be written by calling logger.write
-    didMove = pyqtSignal(object)  # Arg is the object emitting the signal
-    willBeRemoved = pyqtSignal(object)  # Arg is the object emitting the signal
-    connectivityChanged = pyqtSignal(object)  # Arg is the object emitting the s
-    oligoChanged = pyqtSignal(object)  # Arg is the oligo
-    apparentConnectivityChanged = pyqtSignal(object)   # Arg is the object emitt
-    didLiftoff = pyqtSignal(object)  # Arg is the object emitting the signal
-    didSetdown = pyqtSignal(object)  # Arg is the object emitting the signal
-    def __init__(self):
+    didMove = pyqtSignal(object)  # Arg is the strand emitting the signal
+    willBeRemoved = pyqtSignal(object)  # Arg is the strand emitting the signal
+    connectivityChanged = pyqtSignal(object)  # Arg is the strand emitting the s
+    apparentConnectivityChanged = pyqtSignal(object)   # Arg is the strand emitt
+    oligoChanged = pyqtSignal(object)  # Arg is the strand emitting the signal
+    def __init__(self, newOligoProvider=None):
         QObject.__init__(self)
+        if newOligoProvider == None:
+            newOligoProvider = defaultOligoProvider
         self._conn3 = None  # The Strand connected to the 3' end of self
         self._conn5 = None  # The Strand connected to the 5' end of self
         self._lifted = False
-        self._color = QColor()
         self._hasPreviewConnection3 = False
         self._hasPreviewConnection5 = False
+        self._oligo = newOligoProvider.getOligo()
         global nextStrandDebugIdentifier
         self.traceID = nextStrandDebugIdentifier
         nextStrandDebugIdentifier += 1
@@ -73,24 +74,65 @@ class Strand(QObject):
         return self._conn3
     def conn5(self):
         return self._conn5
-    def setConn3(self, newConn, useUndoStack=True, undoStack=None):
+    def setConn3(self, newConn, useUndoStack=True, undoStack=None, newOligoProvider=None):
+        """ See setConn5 for explanation of newOligoProvider. """
         assert(newConn == None or isinstance(newConn, Strand))
-        com = self.SetConn3Command(self, newConn)
+        if newOligoProvider == None:
+            newOligoProvider = defaultOligoProvider
+        commands = [self.SetConn3Command(self, newConn)]
+        if self.conn3() != None:
+            commands.append(self.SetOligoCommand(\
+                                            self.conn3().strandsIn3Direction(),\
+                                            newOligoProvider.getOligo()       ))
+        if newConn != None:
+            commands.append(self.SetOligoCommand(newConn.strandsIn3Direction(),\
+                                                 self.oligo()  ))
+            if newConn.conn5() != None:
+                commands.append(self.SetOligoCommand(\
+                                         newConn.conn5().strandsIn5Direction(),\
+                                         newOligoProvider.getOligo()          ))
         if useUndoStack == True and undoStack == None:
             undoStack = self.defaultUndoStack()
         if undoStack != None:
-            undoStack.push(com)
+            undoStack.beginMacro('setConn3')
+            for c in commands:
+                undoStack.push(c)
+            undoStack.endMacro()
         else:
-            com.redo()
-    def setConn5(self, newConn, useUndoStack=True, undoStack=None):
+            for c in commands:
+                c.redo()
+    def setConn5(self, newConn, useUndoStack=True, undoStack=None, newOligoProvider=None):
+        """ The newOligoProvider instantiates new oligos that have been created
+        as the result of changing connections. To ensire that tool operations
+        consistently assign the same oligo objects to new oligos even after
+        a setConn[35] has been undone and a new setConn[35] has been pushed in
+        its place, the oligo provider can keep an ordered list of oligos that
+        have been assigned and re-assign them in that same order. """
         assert(newConn == None or isinstance(newConn, Strand))
-        com = self.SetConn5Command(self, newConn)
+        if newOligoProvider == None:
+            newOligoProvider = defaultOligoProvider
+        commands = [self.SetConn5Command(self, newConn)]
+        if self.conn5() != None:
+            commands.append(self.SetOligoCommand(\
+                                            self.conn5().strandsIn5Direction(),\
+                                            newOligoProvider.getOligo()       ))
+        if newConn != None:
+            commands.append(self.SetOligoCommand(newConn.strandsIn5Direction(),\
+                                                 self.oligo()  ))
+            if newConn.conn3() != None:
+                commands.append(self.SetOligoCommand(\
+                                         newConn.conn3().strandsIn3Direction(),\
+                                         newOligoProvider.getOligo()          ))
         if useUndoStack == True and undoStack == None:
             undoStack = self.defaultUndoStack()
         if undoStack != None:
-            undoStack.push(com)
+            undoStack.beginMacro('setConn5')
+            for c in commands:
+                undoStack.push(c)
+            undoStack.endMacro()
         else:
-            com.redo()
+            for c in commands:
+                c.redo()
     class SetConn3Command(QUndoCommand):
         def __init__(self, strand, strandNew3):
             QUndoCommand.__init__(self)
@@ -303,37 +345,61 @@ class Strand(QObject):
         self (right is 3' if drawn5To3) """
         if strand == None: strand = self.vStrand()
         return self.conn3() if strand.drawn5To3() else self.conn5()
-    def setConnL(self, newConn, useUndoStack=True, undoStack=None):
+    def setConnL(self, newConn, useUndoStack=True, undoStack=None, newOligoProvider=None):
         if self.vStrand().drawn5To3():
-            self.setConn5(newConn, useUndoStack, undoStack)
+            self.setConn5(newConn, useUndoStack, undoStack, newOligoProvider)
         else:
-            self.setConn3(newConn, useUndoStack, undoStack)
-    def setConnR(self, newConn, useUndoStack=True, undoStack=None):
+            self.setConn3(newConn, useUndoStack, undoStack, newOligoProvider)
+    def setConnR(self, newConn, useUndoStack=True, undoStack=None, newOligoProvider=None):
         if self.vStrand().drawn5To3():
-            self.setConn3(newConn, useUndoStack, undoStack)
+            self.setConn3(newConn, useUndoStack, undoStack, newOligoProvider)
         else:
-            self.setConn5(newConn, useUndoStack, undoStack)
+            self.setConn5(newConn, useUndoStack, undoStack, newOligoProvider)
 
     def oligo(self):
         return self._oligo
     def setOligo(self, newOligo, useUndoStack=True, undoStack=None):
         if useUndoStack and undoStack==None:
             undoStack = self.defaultUndoStack()
-        com = self.SetOligoCommand(self, newOligo)
+        com = self.SetOligoCommand(self.connectedStrands(), newOligo)
         if useUndoStack:
-            undoStack.push(undoStack)
+            undoStack.push(com)
         else:
             com.redo()
     class SetOligoCommand(QUndoCommand):
-        def __init__(self, strand, newOligo):
+        def __init__(self, strands, newOligo):
             QUndoCommand.__init__(self)
-            self.strand = strand
-            self.oldOligo = strand._oligo
+            self.strands = strands
+            self.oldOligos = [strand._oligo for strand in strands]
             self.newOligo = newOligo
         def redo(self):
-            self.strand._oligo = self.newOligo
+            for strand in self.strands:
+                strand._oligo = self.newOligo
+                strand.oligoChanged.emit(strand)
         def undo(self):
-            self.strand._oligo = self.oldOligo
+            for strand, oldOligo in zip(self.strands, self.oldOligos):
+                strand._oligo = oldOligo
+                strand.oligoChanged.emit(strand)
+
+    def strandsIn3Direction(self, includeSelf=True):
+        """ Returns a list of self and all strands that can be reached by
+        repeatedly traversing conn3() """
+        curStrand, strands = self.conn3(), ([self] if includeSelf else [])
+        while curStrand != None and curStrand != self:
+            strands.append(curStrand)
+            curStrand = curStrand.conn3()
+        return strands
+    def strandsIn5Direction(self, includeSelf=True):
+        """ Returns a list of self and all strands that can be reached by
+        repeatedly traversing conn3() """
+        curStrand, strands = self.conn5(), ([self] if includeSelf else [])
+        while curStrand != None and curStrand != self:
+            strands.append(curStrand)
+            curStrand = curStrand.conn5()
+        return strands
+    def connectedStrands(self):
+        return self.strandsIn3Direction(includeSelf=True) +\
+               self.strandsIn5Direction(includeSelf=False)
 
     def clearVFB(self):
         print "clr %s"%self
@@ -378,7 +444,7 @@ class Strand(QObject):
     def color(self):
         if self.vStrand().isScaf():
             return styles.scafstroke
-        return QColor()
+        return self.oligo().color()
 
     def shouldHighlight(self):
         return False
@@ -387,7 +453,7 @@ class Strand(QObject):
         pass
     def willBeRemovedCallback(self):
         pass
-    def removalWillBePushed(self, useUndoStack, undoStack):
+    def removalWillBePushed(self, useUndoStack, undoStack, newOligoProvider):
         """Called before the command that causes removal of self to be pushed
         to the undoStack is pushed (in contrast to willBeRemoved which is called
         every time the undoStack decides to remove self). This is the place to

@@ -94,7 +94,7 @@ class LoopStrand(Strand):
     def vStrand(self):
         return self.vBase().vStrand()
 
-    def removalWillBePushed(self, useUndoStack, undoStack):
+    def removalWillBePushed(self, useUndoStack, undoStack, newOligoProvider):
         """Called before the command that causes removal of self to be pushed
         to the undoStack is pushed (in contrast to willBeRemoved which is called
         every time the undoStack decides to remove self). This is the place to

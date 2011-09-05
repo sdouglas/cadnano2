@@ -1,5 +1,8 @@
-import styles
-from styles import bright_palette as sharedPalette
+import util
+from views import styles
+from views.styles import bright_palette as sharedPalette
+from random import Random
+util.qtWrapImport('QtCore', globals(), ['QObject', 'pyqtSignal'] )
 
 class Oligo(QObject):
     """
@@ -62,3 +65,29 @@ class Oligo(QObject):
         self._sequence = newSeq
         self.oligoSequenceDidChange(self)
 
+class RainbowOligoProvider(object):
+    """ Doesn't respect drag sessions, just lets the default (random) color
+    of the newly created oligo become its official color. During a drag session,
+    this causes a newly created oligo to get a different color every time the
+    drag operation pushes / pops (which happens whenever the mouse moves or
+    base changes), thus creating the eponymous rainbow effect. """
+    def getOligo(self):
+        return Oligo()
+class DragOperationOligoProvider(object):
+    """ Ensures that two consecutive similar actions result in assigning similar
+    colors to any new oligos that get created, defeating the rainbow effect. """
+    def __init__(self):
+        self.returnedOligos = []
+        self.nextIdx = 0
+    def getOligo(self):
+        nextIdx = self.nextIdx
+        if nextIdx < len(self.returnedOligos):
+            self.nextIdx = nextIdx + 1
+            return self.returnedOligos[nextIdx]
+        newOligo = Oligo()
+        self.returnedOligos.append(newOligo)
+        self.nextIdx = len(self.returnedOligos)
+        return newOligo
+    def rewind(self):
+        self.nextIdx = 0
+defaultOligoProvider = RainbowOligoProvider()

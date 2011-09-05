@@ -25,6 +25,7 @@
 import util, sys
 util.qtWrapImport('QtCore', globals(), ['QObject'])
 from model.strands.normalstrand import NormalStrand
+import model.oligo
 from operation import Operation
 from model.strands.vbase import VBase
 from model.strands.xoverstrand import XOverStrand3, XOverStrand5
@@ -47,6 +48,7 @@ class PencilToolOperation(Operation):
         self.useLeft = useLeft
         self.lastDestVBase = None
         self.newStrandInVfbPool = False
+        self.newOligoProvider = model.oligo.DragOperationOligoProvider()
         if self.imposeDragBounds:  # calculate drag boundaries
             self.setDragBounds()
         self.updateDestination(startVBase)
@@ -68,6 +70,7 @@ class PencilToolOperation(Operation):
         else:
             self.lastDestVBase = newDestVBase
         self.rewind()
+        self.newOligoProvider.rewind()
         dragStartBase, dragEndBase = self.startVBase, newDestVBase
         dragStartExposedEnds = dragStartBase.exposedEnds()
         # special case: single-base strand
@@ -90,34 +93,42 @@ class PencilToolOperation(Operation):
         if 'R' in dragStartExposedEnds:
             if endIdx < startIdx:  # Dragging a right-facing endpoint left
                 vStrand.clearStrand(endIdx + 1, startIdx + 1,\
-                                    useUndoStack=True, undoStack=self.undoStack)
+                                   useUndoStack=True, undoStack=self.undoStack,\
+                                   newOligoProvider=self.newOligoProvider)
             elif startIdx < endIdx:  # Dragging a right-facing endpoint right
                 vStrand.connectStrand(startIdx, endIdx,\
-                                    useUndoStack=True, undoStack=self.undoStack)
+                                   useUndoStack=True, undoStack=self.undoStack,\
+                                   newOligoProvider=self.newOligoProvider)
             else:  # Click on an endpoint
                 pass
         elif 'L' in dragStartExposedEnds:
             if endIdx < startIdx:  # Dragging a left-facing endpoint left
-                vStrand.connectStrand(endIdx, startIdx,\
-                                    useUndoStack=True, undoStack=self.undoStack)
+                vStrand.connectStrand(startIdx, endIdx,\
+                                   useUndoStack=True, undoStack=self.undoStack,\
+                                   newOligoProvider=self.newOligoProvider)
             elif startIdx < endIdx:  # Dragging a left-facing endpoint right
                 vStrand.clearStrand(startIdx, endIdx,\
-                                    useUndoStack=True, undoStack=self.undoStack)
+                                   useUndoStack=True, undoStack=self.undoStack,\
+                                   newOligoProvider=self.newOligoProvider)
             else:
                 pass  # Click on an endpoint
         elif dragStartStrand != None and self.allowBreakingByClickInsideStrands:
             if endIdx < startIdx:  # Dragging left inside a strand
                 vStrand.clearStrand(endIdx + 1, startIdx,\
-                     useUndoStack=True, undoStack=self.undoStack, keepLeft=True)
+                                useUndoStack=True, undoStack=self.undoStack,\
+                                keepLeft=True, newOligoProvider=self.newOligoProvider)
             elif startIdx < endIdx:  # Dragging right inside a strand
                 vStrand.clearStrand(startIdx, endIdx,\
-                    useUndoStack=True, undoStack=self.undoStack, keepLeft=False)
+                               useUndoStack=True, undoStack=self.undoStack,\
+                               keepLeft=False, newOligoProvider=self.newOligoProvider)
             else: # Click inside a strand
                 vStrand.clearStrand(startIdx, startIdx,\
-                    useUndoStack=True, undoStack=self.undoStack, keepLeft=False)
+                               useUndoStack=True, undoStack=self.undoStack,\
+                               keepLeft=False, newOligoProvider=self.newOligoProvider)
         else:
             vStrand.connectStrand(startIdx, endIdx,\
-                                  useUndoStack=True, undoStack=self.undoStack)
+                                 useUndoStack=True, undoStack=self.undoStack,\
+                                 newOligoProvider=self.newOligoProvider)
 
     def end(self):
         """ Make the changes displayed by the last call to
@@ -130,6 +141,7 @@ class PencilToolOperation(Operation):
             strand = self.startVBase.strand()
             if isinstance(strand, (XOverStrand3, XOverStrand5)):
                 self.rewind()
+                self.newOligoProvider.rewind()
                 idx = self.startVBase.vIndex()
                 self.startVBase.vStrand().clearStrand(idx, idx + 1,\
                                    useUndoStack=True, undoStack=self.undoStack)
@@ -137,39 +149,3 @@ class PencilToolOperation(Operation):
         del self.startVBase
         del self.newStrandInVfbPool
         del self.lastDestVBase
-
-    def actionNone(self):
-        if self.logger:
-            self.logger.write('PencilToolOperation.actionNone\n')
-
-    def actionAddStrand(self, lConnection, startBase, endBase, rConnection):
-        if self.logger:
-            self.logger.write('PencilToolOperation.actionAddStrand\n')
-        newStrand, undoStack = self.newStrand, self.undoStack
-        undoStack.beginMacro('actionAddStrand')
-        newStrand.changeRange(startBase, endBase, undoStack)
-        startBase.vStrand().addStrand(newStrand, useUndoStack=True, undoStack=undoStack)
-        newStrand.setConnL(lConnection, useUndoStack=True, undoStack=undoStack)
-        newStrand.setConnR(rConnection, useUndoStack=True, undoStack=undoStack)
-        undoStack.endMacro()
-
-    def actionJustConnect(self, lStrand, rStrand):
-        """ Just connect the right exposed end of lStrand to the left exposed
-        end of rStrand """
-        if self.logger:
-            self.logger.write('PencilToolOperation.actionJustConnect\n')
-        lStrand.setConnR(rStrand, useUndoStack=True, undoStack=self.undoStack)
-
-    def actionResizeStrand(self, strand, newL, newR):
-        if self.logger:
-            self.logger.write('PencilToolOperation.actionResizeStrand\n')
-        newL.vStrand().resizeStrandAt(strand.vBaseL, newL, newR, useUndoStack=True, undoStack=self.undoStack)
-
-    def actionClearRange(self, firstIdx, afterLastIdx, keepLeft=True):
-        if self.logger:
-            self.logger.write('PencilToolOperation.actionClearRange\n')
-        self.startVBase.vStrand().clearRange(firstIdx,\
-                                           afterLastIdx,\
-                                           useUndoStack=True,\
-                                           undoStack=self.undoStack,\
-                                           keepLeft=keepLeft)
