@@ -37,6 +37,7 @@ class PencilToolOperation(Operation):
     """
     imposeDragBounds = True
     allowBreakingByClickInsideStrands = True
+    allow1BaseStrandCreation = True
     logger = None
 
     def __init__(self, startVBase, useLeft, undoStack):
@@ -81,54 +82,77 @@ class PencilToolOperation(Operation):
         startIdx, endIdx = dragStartBase.vIndex(), dragEndBase.vIndex()
         vStrand = dragStartBase.vStrand()
 
-        if not isinstance(newDestVBase, VBase):
-            return
-
         if self.imposeDragBounds:
             if endIdx < self.dragBoundL:
                 endIdx = self.dragBoundL
             elif endIdx > self.dragBoundR:
                 endIdx = self.dragBoundR
 
+        willConnect, willClear = False, False
+        start, end, keepLeft = startIdx, endIdx, True
+
         if 'R' in dragStartExposedEnds:
             if endIdx < startIdx:  # Dragging a right-facing endpoint left
-                vStrand.clearStrand(endIdx + 1, startIdx + 1,\
-                                   useUndoStack=True, undoStack=self.undoStack,\
-                                   newOligoProvider=self.newOligoProvider)
+                willClear = True
+                start = endIdx+1
+                end = startIdx+1
             elif startIdx < endIdx:  # Dragging a right-facing endpoint right
-                vStrand.connectStrand(startIdx, endIdx,\
-                                   useUndoStack=True, undoStack=self.undoStack,\
-                                   newOligoProvider=self.newOligoProvider)
-            else:  # Click on an endpoint
-                pass
+                willConnect = True
+            else:
+                pass  # Click on an endpoint
         elif 'L' in dragStartExposedEnds:
             if endIdx < startIdx:  # Dragging a left-facing endpoint left
-                vStrand.connectStrand(startIdx, endIdx,\
-                                   useUndoStack=True, undoStack=self.undoStack,\
-                                   newOligoProvider=self.newOligoProvider)
+                willConnect = True
             elif startIdx < endIdx:  # Dragging a left-facing endpoint right
-                vStrand.clearStrand(startIdx, endIdx,\
-                                   useUndoStack=True, undoStack=self.undoStack,\
-                                   newOligoProvider=self.newOligoProvider)
+                willClear = True
             else:
                 pass  # Click on an endpoint
         elif dragStartStrand != None and self.allowBreakingByClickInsideStrands:
             if endIdx < startIdx:  # Dragging left inside a strand
-                vStrand.clearStrand(endIdx + 1, startIdx,\
-                                useUndoStack=True, undoStack=self.undoStack,\
-                                keepLeft=True, newOligoProvider=self.newOligoProvider)
+                willClear = True
+                end += 1
             elif startIdx < endIdx:  # Dragging right inside a strand
-                vStrand.clearStrand(startIdx, endIdx,\
-                               useUndoStack=True, undoStack=self.undoStack,\
-                               keepLeft=False, newOligoProvider=self.newOligoProvider)
-            else: # Click inside a strand
-                vStrand.clearStrand(startIdx, startIdx,\
-                               useUndoStack=True, undoStack=self.undoStack,\
-                               keepLeft=False, newOligoProvider=self.newOligoProvider)
+                willClear = True
+                keepLeft = False
+            else:  # Click inside a strand
+                willClear = True
+                keepLeft = False
         else:
-            vStrand.connectStrand(startIdx, endIdx,\
-                                 useUndoStack=True, undoStack=self.undoStack,\
-                                 newOligoProvider=self.newOligoProvider)
+            if startIdx == endIdx and self.allow1BaseStrandCreation == False:
+                return
+            willConnect = True
+
+        if willConnect:
+            vStrand.connectStrand(start, end, useUndoStack=True,\
+                                              undoStack=self.undoStack)
+        elif willClear:
+            # tally the xovers that will be cleared
+            affectedStrands = vStrand.rangeItemsTouchingRange(start, end)
+            restoreList = []
+            for strand in affectedStrands:
+                if isinstance(strand, (XOverStrand3, XOverStrand5)):
+                    if isinstance(strand, XOverStrand3):
+                        xover = strand.conn3()
+                        neighbor = xover.conn3()
+                    else:
+                        xover = strand.conn5()
+                        neighbor = xover.conn5()
+                    if neighbor != None:
+                        x0, x1 = xover.idxs()  # cleared xover
+                        n0, n1 = neighbor.idxs()  # neigbor
+                        if n0 < x0:
+                            restoreList.append((xover.vStrand(), n1-1, x0))
+                        else:
+                            restoreList.append((xover.vStrand(), x0, n0))
+            # do the clear operation
+            vStrand.clearStrand(start, end, useUndoStack=True,\
+                                undoStack=self.undoStack, keepLeft=keepLeft,\
+                                newOligoProvider=self.newOligoProvider)
+            # restore the material 
+            for strand, rStart, rEnd in restoreList:
+                strand.connectStrand(rStart, rEnd,\
+                        useUndoStack=True, ndoStack=self.undoStack,\
+                        newOligoProvider=self.newOligoProvider)
 
     def end(self):
         """ Make the changes displayed by the last call to
@@ -143,6 +167,7 @@ class PencilToolOperation(Operation):
                 self.rewind()
                 self.newOligoProvider.rewind()
                 idx = self.startVBase.vIndex()
+                # mark xover to replace with normalstrand here
                 self.startVBase.vStrand().clearStrand(idx, idx + 1,\
                                    useUndoStack=True, undoStack=self.undoStack)
         del self.newStrand

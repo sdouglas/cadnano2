@@ -27,6 +27,7 @@ Created by Shawn on 2011-02-05.
 """
 
 from exceptions import IndexError
+from model.strands.normalstrand import NormalStrand
 from controllers.selecttooloperation import SelectToolOperation
 from views import styles
 import util
@@ -199,11 +200,15 @@ class ActiveSliceHandle(QGraphicsRectItem):
             self.part().undoStack().beginMacro("Auto-drag Scaffold(s)")
             for vh in self.part().getVirtualHelices():
                 for vStr in vh.scaf():
+                    if not isinstance(vStr, NormalStrand):
+                        continue
                     end3 = vStr.vBase3
                     sto = SelectToolOperation(end3, None, self.part().undoStack())
                     sto.actionExpandStrandToFillAvailableSpace(end3)
                     sto.end()
                 for vStr in vh.scaf():
+                    if not isinstance(vStr, NormalStrand):
+                        continue
                     end3 = vStr.vBase5
                     sto = SelectToolOperation(end3, None, self.part().undoStack())
                     sto.actionExpandStrandToFillAvailableSpace(end3)

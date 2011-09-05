@@ -42,7 +42,7 @@ from model.strands.vbase import VBase
 from views.pathview.normalstrandgraphicsitem import NormalStrandGraphicsItem
 from model.strands.normalstrand import NormalStrand
 from model.strands.xoverstrand import XOverStrand3, XOverStrand5
-from views.pathview.handles.xoveritem import XoverItem
+from views.pathview.handles.xoveritem import XoverSpline
 
 import util
 # import Qt stuff into the module namespace with PySide, PyQt4 independence
@@ -211,7 +211,7 @@ class PathHelix(QGraphicsObject):
         elif isinstance(strand, XOverStrand3):
             vh = self.vhelix()
             if strand.vStrand() in (vh.scaf(), vh.stap()):
-                XoverItem(self.pathHelixGroup(), strand)
+                XoverSpline(self.pathHelixGroup(), strand)
         elif isinstance(strand, XOverStrand5):
             pass
         else:
