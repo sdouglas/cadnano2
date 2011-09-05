@@ -86,7 +86,6 @@ class XoverItem3(QGraphicsPathItem):
         # We can only expose a 5' end. But on which side?
         isLeft = True if vb.drawn5To3() else False
         self.setPath(ppL5 if isLeft else ppR5)
-        self.updateConnectivity()
         self.updateLabel(strand.conn3(), isLeft)
 
     def updateConnectivity(self):
@@ -138,8 +137,7 @@ class XoverItem3(QGraphicsPathItem):
                 labelXoffset = 0.25*bw if isLeft else -0.25*bw
                 labelX += labelXoffset
                 # adjust x for numeral 1
-                if num == 1:
-                    labelX -= halfLabelW/2.0
+                if num == 1: labelX -= halfLabelW/2.0
                 # create text item
                 lbl = QGraphicsSimpleTextItem(str(num), self)
                 lbl.setPos(labelX, labelY)
@@ -150,6 +148,7 @@ class XoverItem3(QGraphicsPathItem):
             lbl.setText( str(partnerStrand.vBase().vHelix().number()))
         # end if
     # end def
+
     def onTopStrand(self):
         """Helper method for updateLabel"""
         vb = self.strand.vBase()
@@ -157,8 +156,8 @@ class XoverItem3(QGraphicsPathItem):
         return vb.evenParity() and vs.isScaf() or \
                 not vb.evenParity() and vs.isStap() 
     # end def
-
 # end class
+
 
 class XoverItem5(XoverItem3):
     """
@@ -182,7 +181,6 @@ class XoverItem5(XoverItem3):
         # We can only expose a 3' end. But on which side?
         isLeft = False if vb.drawn5To3() else True
         self.setPath(ppL3 if isLeft else ppR3)
-        self.updateConnectivity()
         self.updateLabel(strand.conn5(), isLeft)
 
     def updateConnectivity(self):

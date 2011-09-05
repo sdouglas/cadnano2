@@ -36,7 +36,7 @@ class PencilToolOperation(Operation):
     """
     imposeDragBounds = True
     allowBreakingByClickInsideStrands = True
-    allowSingleBaseStrandCreation = True
+    allow1BaseStrandCreation = True
     logger = None
 
     def __init__(self, startVBase, useLeft, undoStack):
@@ -79,49 +79,60 @@ class PencilToolOperation(Operation):
         startIdx, endIdx = dragStartBase.vIndex(), dragEndBase.vIndex()
         vStrand = dragStartBase.vStrand()
 
-        if not isinstance(newDestVBase, VBase):
-            return
-
         if self.imposeDragBounds:
             if endIdx < self.dragBoundL:
                 endIdx = self.dragBoundL
             elif endIdx > self.dragBoundR:
                 endIdx = self.dragBoundR
 
+        willConnect, willClear = False, False
+        start, end, keepLeft = startIdx, endIdx, True
+
         if 'R' in dragStartExposedEnds:
             if endIdx < startIdx:  # Dragging a right-facing endpoint left
-                vStrand.clearStrand(endIdx + 1, startIdx + 1,\
-                                    useUndoStack=True, undoStack=self.undoStack)
+                willClear = True
+                start = endIdx+1
+                end = startIdx+1
             elif startIdx < endIdx:  # Dragging a right-facing endpoint right
-                vStrand.connectStrand(startIdx, endIdx,\
-                                    useUndoStack=True, undoStack=self.undoStack)
-            else:  # Click on an endpoint
-                pass
+                willConnect = True
+            else:
+                pass  # Click on an endpoint
         elif 'L' in dragStartExposedEnds:
             if endIdx < startIdx:  # Dragging a left-facing endpoint left
-                vStrand.connectStrand(endIdx, startIdx,\
-                                    useUndoStack=True, undoStack=self.undoStack)
+                willConnect = True
             elif startIdx < endIdx:  # Dragging a left-facing endpoint right
-                vStrand.clearStrand(startIdx, endIdx,\
-                                    useUndoStack=True, undoStack=self.undoStack)
+                willClear = True
             else:
                 pass  # Click on an endpoint
         elif dragStartStrand != None and self.allowBreakingByClickInsideStrands:
             if endIdx < startIdx:  # Dragging left inside a strand
-                vStrand.clearStrand(endIdx + 1, startIdx,\
-                     useUndoStack=True, undoStack=self.undoStack, keepLeft=True)
+                willClear = True
+                end += 1
             elif startIdx < endIdx:  # Dragging right inside a strand
-                vStrand.clearStrand(startIdx, endIdx,\
-                    useUndoStack=True, undoStack=self.undoStack, keepLeft=False)
-            else: # Click inside a strand
-                vStrand.clearStrand(startIdx, startIdx,\
-                    useUndoStack=True, undoStack=self.undoStack, keepLeft=False)
+                willClear = True
+                keepLeft = False
+            else:  # Click inside a strand
+                willClear = True
+                keepLeft = False
         else:
-            if startIdx == endIdx and \
-               self.allowSingleBaseStrandCreation == False:
+            if startIdx == endIdx and self.allow1BaseStrandCreation == False:
                 return
-            vStrand.connectStrand(startIdx, endIdx,\
-                                  useUndoStack=True, undoStack=self.undoStack)
+            willConnect = True
+
+        if willConnect:
+            vStrand.connectStrand(start, end, useUndoStack=True,\
+                                              undoStack=self.undoStack)
+        elif willClear:
+            affectedStrands = vStrand.rangeItemsTouchingRange(start, end)
+            for strand in affectedStrands:
+                if isinstance(strand, XOverStrand3):
+                    # mark xovers to replace with normalstrand here
+                    pass
+                elif isinstance(strand, XOverStrand5):
+                    # mark xovers to replace with normalstrand here
+                    pass
+            vStrand.clearStrand(start, end, useUndoStack=True,\
+                                undoStack=self.undoStack, keepLeft=keepLeft)
 
     def end(self):
         """ Make the changes displayed by the last call to
@@ -135,6 +146,7 @@ class PencilToolOperation(Operation):
             if isinstance(strand, (XOverStrand3, XOverStrand5)):
                 self.rewind()
                 idx = self.startVBase.vIndex()
+                # mark xover to replace with normalstrand here
                 self.startVBase.vStrand().clearStrand(idx, idx + 1,\
                                    useUndoStack=True, undoStack=self.undoStack)
         del self.newStrand
