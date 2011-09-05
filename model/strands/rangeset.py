@@ -397,10 +397,6 @@ class RangeSet(QObject):
                                       'RangeSet.resizeRangeAtIdx')
         rangeItemToResize = self.get(idx)
         oldL, oldAR = self.idxs(rangeItemToResize)
-        self.removeRange(oldL, oldAR,\
-                         useUndoStack=useUndoStack, undoStack=undoStack,\
-                         suppressCallsItem=rangeItemToResize,\
-                         newOligoProvider=newOligoProvider)
         newRangeItem = self.changeRangeForItem(rangeItemToResize,\
                                                newFirstIndex,\
                                                newAfterLastIdx,\
