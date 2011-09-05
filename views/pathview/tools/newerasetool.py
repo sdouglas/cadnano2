@@ -22,14 +22,11 @@
 #
 # http://www.opensource.org/licenses/mit-license.php
 
-"""
-select
-"""
-
 import sys
 import util
 from abstractpathtool import AbstractPathTool
 from controllers.erasetooloperation import EraseToolOperation
+util.qtWrapImport('QtCore', globals(), ['Qt', 'QPointF'])
 
 
 class NewEraseTool(AbstractPathTool):
