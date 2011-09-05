@@ -123,16 +123,31 @@ class PencilToolOperation(Operation):
             vStrand.connectStrand(start, end, useUndoStack=True,\
                                               undoStack=self.undoStack)
         elif willClear:
+            # tally the xovers that will be cleared
             affectedStrands = vStrand.rangeItemsTouchingRange(start, end)
+            restoreList = []
             for strand in affectedStrands:
-                if isinstance(strand, XOverStrand3):
-                    # mark xovers to replace with normalstrand here
-                    pass
-                elif isinstance(strand, XOverStrand5):
-                    # mark xovers to replace with normalstrand here
-                    pass
+                if isinstance(strand, (XOverStrand3, XOverStrand5)):
+                    if isinstance(strand, XOverStrand3):
+                        xover = strand.conn3()
+                        neighbor = xover.conn3()
+                    else:
+                        xover = strand.conn5()
+                        neighbor = xover.conn5()
+                    if neighbor != None:
+                        x0, x1 = xover.idxs()  # cleared xover
+                        n0, n1 = neighbor.idxs()  # neigbor
+                        if n0 < x0:
+                            restoreList.append((xover.vStrand(), n1-1, x0))
+                        else:
+                            restoreList.append((xover.vStrand(), x0, n0))
+            # do the clear operation
             vStrand.clearStrand(start, end, useUndoStack=True,\
                                 undoStack=self.undoStack, keepLeft=keepLeft)
+            # restore the material 
+            for strand, rStart, rEnd in restoreList:
+                strand.connectStrand(rStart, rEnd, useUndoStack=True,\
+                                                   undoStack=self.undoStack)
 
     def end(self):
         """ Make the changes displayed by the last call to
