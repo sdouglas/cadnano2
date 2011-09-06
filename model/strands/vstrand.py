@@ -288,8 +288,8 @@ class VStrand(RangeSet):
         lIsNormalStrand = isinstance(lStrand, NormalStrand)
         rIsNormalStrand = isinstance(rStrand, NormalStrand)
         if self.logger:
-            self.logger.write('\t(lIsEnd:%s norm:%s rIsEnd:%s norm:%s)>'%\
-                          (lIsEnd, lIsNormalStrand, rIsEnd, rIsNormalStrand))
+            self.logger.write('\t(lStrand:%s rStrand:%s lIsEnd:%s norm:%s rIsEnd:%s norm:%s)>'%\
+                          (lStrand, rStrand, lIsEnd, lIsNormalStrand, rIsEnd, rIsNormalStrand))
         if leftHasPrivilege:
             if self.logger: self.logger.write('leftPrivilege>')
             if lStrand == rStrand != None:
