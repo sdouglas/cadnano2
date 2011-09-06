@@ -396,7 +396,12 @@ class RangeSet(QObject):
         undoStack = self.beginCommand(useUndoStack, undoStack,\
                                       'RangeSet.resizeRangeAtIdx')
         rangeItemToResize = self.get(idx)
-        oldL, oldAR = self.idxs(rangeItemToResize)
+        if rangeItemToResize == None:
+            raise ValueError  # Nothing there to resize!
+        self.removeRange(newFirstIndex, newAfterLastIdx,\
+                         useUndoStack=useUndoStack, undoStack=undoStack,\
+                         suppressCallsItem=rangeItemToResize,\
+                         keepLeft=True, newOligoProvider=newOligoProvider)
         newRangeItem = self.changeRangeForItem(rangeItemToResize,\
                                                newFirstIndex,\
                                                newAfterLastIdx,\
