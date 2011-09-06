@@ -152,10 +152,15 @@ def openCN():
                 gCadNanoApp.activeDocument.solidHelixGrp.onPersistentDataChanged()
 
     pluginPath = os.path.join(os.environ['CADNANO_PATH'],
-                                "controllers", "solidcontroller", "helixManip.py")
+                                "controllers", "solidcontroller")
+    hmPath = os.path.join(pluginPath, "helixManip.py")
+    rmPath = os.path.join(pluginPath, "removedMsgCmd.py")
+    if not cmds.pluginInfo(pluginPath, query=True, loaded=True):
+            cmds.loadPlugin(rmPath)
+            cmds.spRemovedMsg()
     # XXX - [SB] Commenting out for now, since it doent's quite work yet...
     #if not cmds.pluginInfo(pluginPath, query=True, loaded=True):
-    #        cmds.loadPlugin(pluginPath)
+    #        cmds.loadPlugin(hmPath)
     #        cmds.spHelixManipCtxCmd("spHelixContext1")
     #        cmds.setToolTo("spHelixContext1")
 

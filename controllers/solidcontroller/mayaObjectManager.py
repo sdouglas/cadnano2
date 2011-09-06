@@ -43,6 +43,12 @@ class Mom:
     mayaToCn = {}
     cnToMaya = {}
     
+    def removeMapping(self, id, strand):
+        if self.mayaToCn.has_key(id):
+            del self.mayaToCn[id]
+        if self.cnToMaya.has_key(strand):
+            del self.cnToMaya[strand]
+    
     def __init__(self):
         if Mom.__instance is None:
             Mom.__instance = Mom.__impl()
