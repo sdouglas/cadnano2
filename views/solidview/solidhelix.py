@@ -158,13 +158,14 @@ class SolidHelix(QObject):
         strand.willBeRemoved.disconnect(self.onStrandWillBeRemoved)
         #print "SolidHelix:onStrandWillBeRemoved %s" % id
         transformName = "DNAShapeTransform%s" % id
+        mom = Mom()
+        c = "DNACylinderShape%s" % id
+        mom.removeMapping(c, strand)
+        
         if cmds.objExists(transformName):
             cmds.delete(transformName)
         self.strandIDs.remove(id)
         self._solidHelixGroup.deleteStrandMayaID(strand)
-        mom = Mom()
-        c = "DNACylinderShape%s" % id
-        mom.removeMapping(c, strand)
         #print strand
 
     def vhelixDimensionsModified(self):
