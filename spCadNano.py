@@ -153,10 +153,11 @@ def openCN():
 
     pluginPath = os.path.join(os.environ['CADNANO_PATH'],
                                 "views", "solidview", "helixManip.py")
-    if not cmds.pluginInfo(pluginPath, query=True, loaded=True):
-            cmds.loadPlugin(pluginPath)
-            cmds.spHelixManipCtxCmd("spHelixContext1")
-            cmds.setToolTo("spHelixContext1")
+    # XXX - [SB] Commenting out for now, since it doent's quite work yet...
+    #if not cmds.pluginInfo(pluginPath, query=True, loaded=True):
+    #        cmds.loadPlugin(pluginPath)
+    #        cmds.spHelixManipCtxCmd("spHelixContext1")
+    #        cmds.setToolTo("spHelixContext1")
 
 
 def changed(self, event):

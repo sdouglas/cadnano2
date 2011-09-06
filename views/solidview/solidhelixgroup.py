@@ -79,7 +79,7 @@ class SolidHelixGroup(QObject):
             print "HalfCylinderHelixNode failed to load"
             return
 
-        print "maya SolidHelixGroup created"
+        #print "maya SolidHelixGroup created"
         self._type = htype
         self._part = None
         #self.mayaScale = 1.0

@@ -148,8 +148,9 @@ class SolidHelix(QObject):
         cmds.setAttr("%s.endBase" % cylinderName,
                              endpoints[1] - 1)
         cmds.setAttr("%s.totalBases" % cylinderName, int(totalNumBases))
-        self.clearStapleModIndicators()
-        self.createStapleModIndicator(strand)
+        # XXX - [SB] Commenting out for now, since it doent's quite work yet...
+        #self.clearStapleModIndicators()
+        #self.createStapleModIndicator(strand)
 
     def onStrandWillBeRemoved(self, strand):
         id = self._solidHelixGroup.strandMayaID(strand)
