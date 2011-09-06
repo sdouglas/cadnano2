@@ -32,6 +32,7 @@ from model.enum import LatticeType
 from model.enum import StrandType
 from model.strands.normalstrand import NormalStrand
 from model.strands.xoverstrand import XOverStrand3, XOverStrand5
+from mayaObjectManager import Mom
 
 import maya.OpenMayaUI as mui
 import maya.OpenMaya as mo
@@ -111,17 +112,21 @@ class SolidHelix(QObject):
             id = self._solidHelixGroup.strandMayaID(strand)
             self.strandIDs.append(id)
             #print "SolidHelix:strandAddedToVStrand-NormalStrand %s" % id
+            mayaNodeInfo = ()
             if(strand.vStrand().isScaf()):
-                self.createMayaHelixNodes(self.x, self.y,
+                mayaNodeInfo = self.createMayaHelixNodes(self.x, self.y,
                                           strand.color(),
                                           StrandType.Scaffold,
                                           id)
             else:
-                self.createMayaHelixNodes(self.x, self.y,
+                mayaNodeInfo = self.createMayaHelixNodes(self.x, self.y,
                                           strand.color(),
                                           StrandType.Staple,
                                           id)
             self.onStrandDidMove(strand)
+            m = Mom()
+            m.cnToMaya[ strand ] = mayaNodeInfo
+            m.mayaToCn[ mayaNodeInfo[0] ] = strand
         elif isinstance(strand, XOverStrand3):
             #print "SolidHelix:strandAddedToVStrand-XOverStrand3"
             pass
@@ -284,3 +289,5 @@ class SolidHelix(QObject):
         else:
             #shader exist connect
             cmds.sets(meshName, forceElement="%sSG" % shaderName)
+            
+        return (cylinderName, transformName, meshName)
