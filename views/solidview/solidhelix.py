@@ -32,7 +32,7 @@ from model.enum import LatticeType
 from model.enum import StrandType
 from model.strands.normalstrand import NormalStrand
 from model.strands.xoverstrand import XOverStrand3, XOverStrand5
-from mayaObjectManager import Mom
+from controllers.solidcontroller.mayaObjectManager import Mom
 
 import maya.OpenMayaUI as mui
 import maya.OpenMaya as mo
