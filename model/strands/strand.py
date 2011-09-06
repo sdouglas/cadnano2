@@ -112,14 +112,14 @@ class Strand(QObject):
         if newOligoProvider == None:
             newOligoProvider = defaultOligoProvider
         commands = [self.SetConn5Command(self, newConn)]
-        if self.conn5() != None:
+        if self.conn5() != None:  # Give D its own oligo (see strand.pdf)
             commands.append(self.SetOligoCommand(\
                                             self.conn5().strandsIn5Direction(),\
                                             newOligoProvider.getOligo()       ))
-        if newConn != None:
+        if newConn != None:  # Give C's oligo to B
             commands.append(self.SetOligoCommand(newConn.strandsIn5Direction(),\
                                                  self.oligo()  ))
-            if newConn.conn3() != None:
+            if newConn.conn3() != None:  # Give A its own oligo
                 commands.append(self.SetOligoCommand(\
                                          newConn.conn3().strandsIn3Direction(),\
                                          newOligoProvider.getOligo()          ))

@@ -155,9 +155,9 @@ class XOverStrand5(Strand):
            self.conn5().isBeingDeleted or self.isBeingDeleted:
             return None
         if self.conn3() != None:
-            self.setConn3(None, useUndoStack, undoStack)
+            self.setConn3(None, useUndoStack, undoStack, newOligoProvider)
         if self.conn5().conn5() != None:
-            self.conn5().setConn5(None, useUndoStack, undoStack)
+            self.conn5().setConn5(None, useUndoStack, undoStack, newOligoProvider)
         self.isBeingDeleted = True
         partnerIdx = partnerXoverVBase.vIndex()
         partnerXoverVBase.vStrand().clearStrand(partnerIdx, partnerIdx + 1,\
