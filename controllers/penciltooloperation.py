@@ -129,6 +129,7 @@ class PencilToolOperation(Operation):
         elif willClear:
             # tally the xovers that will be cleared
             affectedStrands = vStrand.rangeItemsTouchingRange(start, end)
+            print "aaffectedStrands", affectedStrands
             restoreList = []
             for strand in affectedStrands:
                 if isinstance(strand, (XOverStrand3, XOverStrand5)):
@@ -145,6 +146,7 @@ class PencilToolOperation(Operation):
                             restoreList.append((xover.vStrand(), n1-1, x0))
                         else:
                             restoreList.append((xover.vStrand(), x0, n0))
+            print "restoreList", restoreList
             # do the clear operation
             vStrand.clearStrand(min(start, end), max(start, end),\
                                 useUndoStack=True,\
