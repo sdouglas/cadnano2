@@ -196,6 +196,7 @@ class DocumentController():
         self.win.actionCSV.triggered.connect(self.exportCSV)
         self.win.actionPreferences.triggered.connect(app().prefsClicked)
         self.win.actionSave_As.triggered.connect(self.saveAsClicked)
+        self.win.actionModify.triggered.connect(self.modifyClicked)
         # self.win.actionQuit.triggered.connect(self.closeClicked)
         # self.win.actionAdd.triggered.connect(self.addClicked)
         # self.win.actionDelete.triggered.connect(self.deleteClicked)
@@ -511,6 +512,10 @@ class DocumentController():
 
     def autoStapleClicked(self):
         self.activePart().autoStaple()
+
+    def modifyClicked(self):
+        """docstring for modifyClicked"""
+        print "modify toggled", "ON" if self.win.actionModify.isChecked() else "OFF"
 
     ############# Spawning / Destroying HoneycombSliceGraphicsItems ##########
     ##################### and PathHelixGroups for Parts ######################

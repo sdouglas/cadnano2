@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'mainwindow/mainwindow.ui'
 #
-# Created: Tue Aug 16 13:11:39 2011
+# Created: Mon Sep 19 14:18:12 2011
 #      by: PyQt4 UI code generator 4.8.4
 #
 # WARNING! All changes made in this file will be lost!
@@ -261,6 +261,12 @@ class Ui_MainWindow(object):
         self.actionPreferences.setObjectName(_fromUtf8("actionPreferences"))
         self.actionFrame = QtGui.QAction(MainWindow)
         self.actionFrame.setObjectName(_fromUtf8("actionFrame"))
+        self.actionModify = QtGui.QAction(MainWindow)
+        self.actionModify.setCheckable(True)
+        icon20 = QtGui.QIcon()
+        icon20.addPixmap(QtGui.QPixmap(_fromUtf8(":/pathtools/modify")), QtGui.QIcon.Normal, QtGui.QIcon.Off)
+        self.actionModify.setIcon(icon20)
+        self.actionModify.setObjectName(_fromUtf8("actionModify"))
         self.menuOpen_recent_files.addSeparator()
         self.menuFile.addAction(self.actionNew)
         self.menuFile.addAction(self.actionOpen)
@@ -286,6 +292,7 @@ class Ui_MainWindow(object):
         self.topToolBar.addAction(self.actionNewSquarePart)
         self.topToolBar.addSeparator()
         self.topToolBar.addAction(self.actionAutoStaple)
+        self.topToolBar.addAction(self.actionModify)
         self.rightToolBar.addAction(self.actionPathSelect)
         self.rightToolBar.addAction(self.actionPathPencil)
         self.rightToolBar.addAction(self.actionPathBreak)
@@ -382,6 +389,8 @@ class Ui_MainWindow(object):
         self.actionFrame.setText(QtGui.QApplication.translate("MainWindow", "Frame", None, QtGui.QApplication.UnicodeUTF8))
         self.actionFrame.setToolTip(QtGui.QApplication.translate("MainWindow", "(F)rame path view", None, QtGui.QApplication.UnicodeUTF8))
         self.actionFrame.setShortcut(QtGui.QApplication.translate("MainWindow", "F", None, QtGui.QApplication.UnicodeUTF8))
+        self.actionModify.setText(QtGui.QApplication.translate("MainWindow", "Modify", None, QtGui.QApplication.UnicodeUTF8))
+        self.actionModify.setToolTip(QtGui.QApplication.translate("MainWindow", "Modify mode", None, QtGui.QApplication.UnicodeUTF8))
 
 from views.customqgraphicsview import CustomQGraphicsView
 import icons_rc
