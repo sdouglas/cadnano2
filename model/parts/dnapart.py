@@ -259,7 +259,7 @@ class DNAPart(Part):
         return self._maxBase
 
     def __repr__(self):
-        s = '<'+self.__class__.__name__ + " " + " ".join(k in self._numberToVirtualHelix.keys()) + ">"
+        return "<%s>" % self.__class__.__name__
 
     def coordinateParityEven(self, coords):
         row, col = coords
