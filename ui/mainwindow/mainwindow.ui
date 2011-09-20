@@ -257,6 +257,7 @@
    <addaction name="actionNewSquarePart"/>
    <addaction name="separator"/>
    <addaction name="actionAutoStaple"/>
+   <addaction name="actionModify"/>
   </widget>
   <widget class="QToolBar" name="rightToolBar">
    <property name="sizePolicy">
@@ -708,6 +709,21 @@
    </property>
    <property name="shortcut">
     <string>F</string>
+   </property>
+  </action>
+  <action name="actionModify">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="icon">
+    <iconset resource="icons.qrc">
+     <normaloff>:/pathtools/modify</normaloff>:/pathtools/modify</iconset>
+   </property>
+   <property name="text">
+    <string>Modify</string>
+   </property>
+   <property name="toolTip">
+    <string>Modify mode</string>
    </property>
   </action>
  </widget>
