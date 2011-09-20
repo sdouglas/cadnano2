@@ -24,3 +24,38 @@
 # THE SOFTWARE.
 #
 # http://www.opensource.org/licenses/mit-license.php
+
+import util
+
+# import Qt stuff into the module namespace with PySide, PyQt4 independence
+util.qtWrapImport('QtCore', globals(), ['pyqtSignal', 'QObject', 'Qt'])
+util.qtWrapImport('QtGui', globals(), ['QUndoStack'])
+
+class VirtualStrand(QObject):
+    
+    def __init__(self, vhelix):
+        super(VirtualStrand, self).__init__(vhelix)
+        self._vhelix = vhelix
+        self._strands = []
+
+    # end def
+    
+    ### SIGNALS ###
+    
+    ### SLOTS ###
+    
+    
+    
+    ### Methods ###
+    def undoStack(self):
+        return self._vhelix.undoStack()
+        
+    def destroy(self):
+        # QObject also emits a destroyed() Signal
+        self.setParent(None)
+        self.deleteLater()
+    # end def
+    
+    def vhelix(self):
+        return self._vhelix
+    # end def

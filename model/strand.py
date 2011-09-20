@@ -63,6 +63,9 @@ class Strand(QObject):
     
     
     ### Methods ###
+    def undoStack(self):
+        return self._vstrand.undoStack()
+    
     def vstrand(self):
         return self._vstrand
     # end def

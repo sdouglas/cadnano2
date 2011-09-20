@@ -24,3 +24,53 @@
 # THE SOFTWARE.
 #
 # http://www.opensource.org/licenses/mit-license.php
+
+from virtualstrand import VirtualStrand
+
+import util
+
+# import Qt stuff into the module namespace with PySide, PyQt4 independence
+util.qtWrapImport('QtCore', globals(), ['pyqtSignal', 'QObject', 'Qt'])
+util.qtWrapImport('QtGui', globals(), ['QUndoStack'])
+
+class VirtualHelix(QObject):
+    
+    def __init__(self, part, idnum=0):
+        super(VirtualHelix, self).__init__(part)
+        self._coords = (None, None) # col, row
+        self._part = part
+        self._vScaf = VirtualStrand(self)
+        self._vStap = VirtualStrand(self)
+        
+        # If self._part exists, it owns self._number
+        # in that only it may modify it through the
+        # private interface. The public interface for
+        # setNumber just routes the call to the parent
+        # dnapart if one is present. If self._part == None
+        # the vhelix owns self._number and may modify it.
+        self._number = idnum
+    # end def
+    
+    ### SIGNALS ###
+    
+    ### SLOTS ###
+    
+    
+    ### Methods ###
+    def undoStack(self):
+        return self._part.undoStack()
+    # end def
+    
+    def destroy(self):
+        # QObject also emits a destroyed() Signal
+        self.setParent(None)
+        self.deleteLater()
+    # end def
+    
+    def part(self):
+        return self._part
+    # end def
+    
+    def parity(self):
+        return 
+    # end def
