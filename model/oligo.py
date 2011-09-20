@@ -63,5 +63,26 @@ class Oligo(QObject):
     def isLoop(self):
         return self._isLoop
 
+    def strandSplit(self, oldStrand, newStrand):
+        """
+        If the oligo is a loop, splitting the strand does nothing. If the
+        oligo isn't a loop, a new oligo must be created and assigned to the
+        newStrand and everything connected to it downstream.
+        """
+        pass
+
+    def strandMerge(self, strand, mergedStrand):
+        """
+        A strand merge requires assigning the priviledged strand's
+        oligo to all strands in the mergedStrand. This is done by
+        iterating over all the strands in the mergedStrand oligo.
+        """
+        pass
+
+    def strandResized(self, delta):
+        """Called by a strand after resize. Delta is used to update the
+        length, which may case an appearance change."""
+        pass
+
     ### COMMANDS ###
     

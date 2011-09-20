@@ -24,3 +24,30 @@
 # THE SOFTWARE.
 #
 # http://www.opensource.org/licenses/mit-license.php
+
+from exceptions import NotImplementedError
+import util
+# import Qt stuff into the module namespace with PySide, PyQt4 independence
+util.qtWrapImport('QtCore', globals(), ['pyqtSignal', 'QObject'])
+util.qtWrapImport('QtGui', globals(), [ 'QUndoCommand', 'QUndoStack'])
+
+class AbstractView(object):
+    def __init__(self, *args, **kwargs):
+        if self.__class__ == AbstractView:
+            raise NotImplementedError("AbstractView should be subclassed.")
+        super(AbstractView, self).__init__(self, *args, **kwargs)
+
+    ### SIGNALS ###
+
+    ### SLOTS ###
+    def partAddedSlot(self):
+        """
+        Receives notification from the model that a part has been added.
+        Views that subclass AbstractView should override this method.
+        """
+        pass
+
+    ### METHODS ###
+
+    ### COMMANDS ###
+    

@@ -24,3 +24,38 @@
 # THE SOFTWARE.
 #
 # http://www.opensource.org/licenses/mit-license.php
+
+from exceptions import NotImplementedError
+import util
+# import Qt stuff into the module namespace with PySide, PyQt4 independence
+util.qtWrapImport('QtCore', globals(), ['pyqtSignal', 'QObject'])
+util.qtWrapImport('QtGui', globals(), [ 'QUndoCommand', 'QUndoStack'])
+
+class AbstractStrandGraphicsItem(QGraphicsPathItem):
+    def __init__(self, parent):
+        """The parent should be a VirtualHelixGraphicsItem."""
+        if self.__class__ == AbstractStrandGraphicsItem:
+            raise NotImplementedError("AbstractStrandGraphicsItem should be subclassed.")
+        super(AbstractStrandGraphicsItem, self).__init__(parent)
+        self._strand = None
+        self._oligo = None
+
+    ### SIGNALS ###
+
+    ### SLOTS ###
+    def oligoAppeareanceChanged(self):
+        """docstring for oligoAppeareanceChanged"""
+        pass
+
+    def hasNewOligoSlot(self, oligo):
+        """docstring for hasNewOligoSlot"""
+        self._oligo = oligo
+        # redraw
+
+    def strandRemovedSlot(self, strand):
+        """docstring for strandRemovedSlot"""
+        pass
+
+    ### METHODS ###
+
+    ### COMMANDS ###

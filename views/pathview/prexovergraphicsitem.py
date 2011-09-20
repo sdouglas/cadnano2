@@ -24,3 +24,20 @@
 # THE SOFTWARE.
 #
 # http://www.opensource.org/licenses/mit-license.php
+
+import util
+# import Qt stuff into the module namespace with PySide, PyQt4 independence
+util.qtWrapImport('QtCore', globals(), ['pyqtSignal', 'QObject'])
+util.qtWrapImport('QtGui', globals(), [ 'QUndoCommand', 'QUndoStack'])
+
+class PreXoverGraphicsItem(QGraphicsPathItem):
+    def __init__(self, parent):
+        super(PreXoverGraphicsItem, self).__init__(parent)
+
+    ### SIGNALS ###
+
+    ### SLOTS ###
+
+    ### METHODS ###
+
+    ### COMMANDS ###

@@ -24,3 +24,31 @@
 # THE SOFTWARE.
 #
 # http://www.opensource.org/licenses/mit-license.php
+
+import util
+# import Qt stuff into the module namespace with PySide, PyQt4 independence
+util.qtWrapImport('QtCore', globals(), ['pyqtSignal', 'QObject'])
+util.qtWrapImport('QtGui', globals(), [ 'QUndoCommand', 'QUndoStack'])
+
+class AssemblyGraphicsItem(QGraphicsPathItem):
+    def __init__(self, parent):
+        super(AssemblyGraphicsItem, self).__init__(parent)
+
+    ### SIGNALS ###
+
+    ### SLOTS ###
+    def partAddedSlot(self):
+        """docstring for partParentChangedSlot"""
+        pass
+
+    def assemblyDestroyedSlot(self):
+        """Used to destroy self."""
+        pass
+
+    def assemblyMovedSlot(self):
+        """docstring for assemblyMovedSlot"""
+        pass
+
+    ### METHODS ###
+
+    ### COMMANDS ###
