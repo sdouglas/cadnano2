@@ -48,6 +48,9 @@ class Oligo(QObject):
     ### SLOTS ###
 
     ### METHODS ###
+    def undoStack(self):
+        return self._part.undoStack()
+
     def part(self):
         return self._part
 

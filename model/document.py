@@ -34,6 +34,7 @@ util.qtWrapImport('QtGui', globals(), [ 'QUndoCommand', 'QUndoStack'])
 class Document(QObject):
     def __init__(self):
         super(Document, self).__init__()
+        self._undoStack = QUndoStack()
         self._parts = []
         self._assemblies = []
 
@@ -44,6 +45,14 @@ class Document(QObject):
 
     ### METHODS ###
     # accessors
+    def undoStack(self):
+        """
+        This is the actual undoStack to use for all commands. Any children
+        needing to perform commands should just ask their parent for the
+        undoStack, and eventually the request will get here.
+        """
+        return self._undoStack
+
     def parts(self):
         """Returns a list of parts associated with the document."""
         return self._parts

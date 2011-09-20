@@ -36,33 +36,28 @@ class Part(QObject):
         super(Part, self).__init__(parent)
         self._document = None
         self._oligos = []
-        self._x = 0
-        self._y = 0
-        self._z = 0
-        self._phi = 0
-        self._theta = 0
-        self._psi = 0
+        self._position = [0, 0, 0, 0, 0, 0]  # x, y, z,phi, theta, psi
 
     ### SIGNALS ###
     partDestroyedSignal = pyqtSignal(QObject)  # self
     partMovedSignal = pyqtSignal(QObject)  # self
     partParentChangedSignal = pyqtSignal(QObject)  # new parent
-    sequenceClearedSignal = pyqtSignal(QObject) # self
+    sequenceClearedSignal = pyqtSignal(QObject)  # self
 
     ### SLOTS ###
 
     ### METHODS ###
-    def part(self):
-        return self._part
+    def undoStack(self):
+        return self._document.undoStack()
 
-    def strands(self):
-        return self._strands
+    def document(self):
+        return self._document
 
-    def length(self):
-        return self._length
+    def oligos(self):
+        return self._oligos
 
-    def isLoop(self):
-        return self._isLoop
+    def position(self):
+        return self._position
 
     ### COMMANDS ###
     

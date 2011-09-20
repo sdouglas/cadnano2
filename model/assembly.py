@@ -24,3 +24,30 @@
 # THE SOFTWARE.
 #
 # http://www.opensource.org/licenses/mit-license.php
+
+
+import util
+# import Qt stuff into the module namespace with PySide, PyQt4 independence
+util.qtWrapImport('QtCore', globals(), ['pyqtSignal', 'QObject'])
+util.qtWrapImport('QtGui', globals(), [ 'QUndoCommand', 'QUndoStack'])
+
+class Assembly(QObject):
+    def __init__(self, partList):
+        super(Assembly, self).__init__()
+        self._parts = partList
+
+    ### SIGNALS ###
+    partAddedSignal = pyqtSignal(QObject)  # new oligo
+    assemblyDestroyedSignal = pyqtSignal(QObject)  # self
+
+    ### SLOTS ###
+
+    ### METHODS ###
+    def undoStack(self):
+        return self._document.undoStack()
+
+    def destroy(self):
+        pass
+
+    ### COMMANDS ###
+    
