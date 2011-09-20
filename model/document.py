@@ -94,7 +94,7 @@ class Document(QObject):
     def parts(self):
         return self._parts
 
-    partAdded = pyqtSignal(object)
+    partAddedSignal = pyqtSignal(object)
     def addPart(self, part):
         undoStack = self.undoStack()
         c = self.AddPartCommand(self, part)
@@ -128,7 +128,7 @@ class Document(QObject):
                 self._doc._parts.append(self._part)
                 self._part._setDocument(self._doc)
                 self._doc.setSelectedPart(self._part)
-                self._doc.partAdded.emit(self._part)
+                self._doc.partAddedSignal.emit(self._part)
 
         def undo(self):
             self._part._setDocument(None)

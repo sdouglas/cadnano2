@@ -176,9 +176,9 @@ class DocumentController():
     def setDocument(self, doc):
         self._document = doc
         doc.setController(self)
-        doc.partAdded.connect(self.docPartAddedEvent)
+        doc.partAddedSignal.connect(self.docPartAddedSlot)
         for p in doc.parts():
-            self.docPartAddedEvent(p)
+            self.docPartAddedSlot(p)
 
     def undoStack(self):
         return self._undoStack
@@ -521,7 +521,7 @@ class DocumentController():
 
     ############# Spawning / Destroying HoneycombSliceGraphicsItems ##########
     ##################### and PathHelixGroups for Parts ######################
-    def docPartAddedEvent(self, part):
+    def docPartAddedSlot(self, part):
         if part.crossSectionType() == LatticeType.Honeycomb:
             self.sliceGraphicsItem = HoneycombSliceGraphicsItem(part,
                                         controller=self.win.sliceController,
