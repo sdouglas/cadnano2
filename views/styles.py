@@ -27,7 +27,6 @@ styles.py
 
 Created by Shawn on 2010-06-15.
 """
-from model.palette import Palette
 
 import util
 # import Qt stuff into the module namespace with PySide, PyQt4 independence

@@ -31,7 +31,7 @@ import objc, os
 from Foundation import *
 from AppKit import *
 from controllers.documentcontroller import DocumentController
-from model.decoder import decode
+# from model.decoder import decode
 from cadnano import app as sharedCadnanoObj
 
 class CNApplicationDelegate(NSObject):

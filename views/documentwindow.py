@@ -103,14 +103,6 @@ class DocumentWindow(QMainWindow, ui_mainwindow.Ui_MainWindow):
             self.splitter.setOrientation(Qt.Vertical)
             self.setUnifiedTitleAndToolBarOnMac(False)
 
-        # Test recording
-        if app().testRecordMode:
-            rec = TestRecorder()
-            self.sliceController.testRecorder = rec
-            self.pathController.testRecorder = rec
-            self.pathController.activeToolChanged.connect(
-                                                rec.activePathToolChangedSlot)
-
         # Edit menu setup
         self.actionUndo = docCtrlr.undoStack().createUndoAction(self)
         self.actionRedo = docCtrlr.undoStack().createRedoAction(self)

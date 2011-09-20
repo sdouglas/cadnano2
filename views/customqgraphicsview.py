@@ -183,7 +183,7 @@ class CustomQGraphicsView(QGraphicsView):
             QGraphicsView.keyReleaseEvent(self, event)
         # end else
     # end def
-    
+
     def enterEvent(self, event):
         self.setFocus()
         self.setDragMode(self._noDrag)

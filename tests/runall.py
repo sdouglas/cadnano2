@@ -25,19 +25,8 @@ def main(useXMLRunner=True):
     modelsuite = unittest.makeSuite(ModelTests)
     funsuite = unittest.makeSuite(FunctionalTests)
 
-    # load recorded tests
-    os.chdir('tests/recordedtests')
-    tests = glob.glob("recordedtest_*.py")  # get all the recorded tests
-    for test in tests:
-        mod, ext = os.path.splitext(os.path.split(test)[-1])
-        m = __import__(mod)  # dynamic import magic
-        testname = "testMethod" + mod[-3:]  # recover test number
-        setattr(RecordedTests, testname, m.testMethod)
-    os.chdir('../..')
-    recsuite = unittest.makeSuite(RecordedTests)
-
     # combine and run tests
-    alltests = unittest.TestSuite([unitsuite, modelsuite, funsuite, recsuite])
+    alltests = unittest.TestSuite([unitsuite, modelsuite, funsuite])
     if useXMLRunner:
         stream = file("testresults.xml", "w")
         runner = XMLTestRunner(stream)

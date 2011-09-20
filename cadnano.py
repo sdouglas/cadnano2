@@ -50,7 +50,6 @@ def usesPySide(*args):
     return PySide_loaded
 # end def
 
-
 def qtWrapImport(name, globaldict, fromlist):
     """
     special function that allows for the import of PySide or PyQt modules
@@ -107,10 +106,6 @@ class CADnano(QObject):
         assert(not CADnano.sharedApp)
         CADnano.sharedApp = self
         self.guiInitialized = False
-        self.testRecordMode = False
-        if "-r" in argv:
-            print "Test Recording Mode."
-            self.testRecordMode = True
 
     def initGui(self):
         if self.guiInitialized:
@@ -144,7 +139,6 @@ class CADnano(QObject):
                                 'ph': self.ph,
                                 'phg': lambda: self.phg,
                                 'pySide': self.usesPySide})
-    # end def
 
     def isInMaya(self):
         return QCoreApplication.instance().applicationName().contains(
@@ -188,12 +182,9 @@ class CADnano(QObject):
     def prefsClicked(self):
         self.prefs.showDialog()
 
-
 def ignoreEnv():
     return environ.get('CADNANO_IGNORE_ENV_VARS_EXCEPT_FOR_ME', False)
 
-
-# Convenience. No reason to feel guilty using it - CADnano is a singleton.
 def app(appArgs=None):
     if not CADnano.sharedApp:
         CADnano.sharedApp = CADnano()

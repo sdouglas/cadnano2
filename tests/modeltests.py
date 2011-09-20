@@ -69,95 +69,10 @@ class ModelTests(CadnanoGuiTestCase):
         CadnanoGuiTestCase.tearDown(self)
         # Add model-test-specific cleanup here
 
-    def testFractionalClearStrandCommand(self):
-        """Factional values of base indices"""
-        vh = VirtualHelix(numBases=8, idnum=0)
-        self.assertEqual(repr(vh), '0 Scaffold: _,_ _,_ _,_ _,_ _,_ _,_ _,_ _,_\n0 Staple:   _,_ _,_ _,_ _,_ _,_ _,_ _,_ _,_')
+    def testModel1(self):
+        """docstring for testModel1"""
+        pass
 
-        vh.connectStrand(StrandType.Scaffold, 2, 6)
-        vh.connectStrand(StrandType.Staple, 0, 7)
-        self.assertEqual(repr(vh), '0 Scaffold: _,_ _,_ _,> <,> <,> <,> <,_ _,_\n0 Staple:   _,> <,> <,> <,> <,> <,> <,> <,_')
-
-        vh.clearStrand(StrandType.Scaffold, 4, 4)
-        vh.clearStrand(StrandType.Staple, 3, 5)
-        self.assertEqual(repr(vh), '0 Scaffold: _,_ _,_ _,> <,> <,> <,> <,_ _,_\n0 Staple:   _,> <,> <,_ _,_ _,_ _,> <,> <,_')
-
-        vh.undoStack().undo()
-        vh.undoStack().undo()
-        self.assertEqual(repr(vh), '0 Scaffold: _,_ _,_ _,> <,> <,> <,> <,_ _,_\n0 Staple:   _,> <,> <,> <,> <,> <,> <,> <,_')
-
-        vh.undoStack().undo()
-        
-    def testVH(self):
-        """VirtualHelix tutorial in docs/virtualhelix.pdf"""
-        vh = VirtualHelix(numBases=8, idnum=0)
-        self.assertEqual(repr(vh), '0 Scaffold: _,_ _,_ _,_ _,_ _,_ _,_ _,_ _,_\n0 Staple:   _,_ _,_ _,_ _,_ _,_ _,_ _,_ _,_')
-
-        vh.connectStrand(StrandType.Scaffold, 2, 6)
-        vh.connectStrand(StrandType.Staple, 0, 7)
-        self.assertEqual(repr(vh), '0 Scaffold: _,_ _,_ _,> <,> <,> <,> <,_ _,_\n0 Staple:   _,> <,> <,> <,> <,> <,> <,> <,_')
-
-        vh.clearStrand(StrandType.Scaffold, 3.5, 4.5)
-        vh.clearStrand(StrandType.Staple, 2.5, 5.5)
-        self.assertEqual(repr(vh), '0 Scaffold: _,_ _,_ _,> <,_ _,> <,> <,_ _,_\n0 Staple:   _,> <,> <,_ _,_ _,_ _,> <,> <,_')
-
-        vh1 = VirtualHelix(numBases=5, idnum=1)
-        vh1.connectStrand(StrandType.Staple, 0, 4)
-        self.assertEqual(repr(vh), '0 Scaffold: _,_ _,_ _,> <,_ _,> <,> <,_ _,_\n0 Staple:   _,> <,> <,_ _,_ _,_ _,> <,> <,_')
-        self.assertEqual(repr(vh1), '1 Scaffold: _,_ _,_ _,_ _,_ _,_\n1 Staple:   _,> <,> <,> <,> <,_')
-
-        vh.installXoverFrom3To5(StrandType.Staple, 2, vh1, 2)
-        self.assertEqual(repr(vh), '0 Scaffold: _,_ _,_ _,> <,_ _,> <,> <,_ _,_\n0 Staple:   _,> <,_ 1:2,> <,_ _,_ _,> <,> <,_')
-        self.assertEqual(repr(vh1), '1 Scaffold: _,_ _,_ _,_ _,_ _,_\n1 Staple:   _,> <,_ 0:2,> <,> <,_')
-
-        vh.undoStack().undo()
-        self.assertEqual(repr(vh), '0 Scaffold: _,_ _,_ _,> <,_ _,> <,> <,_ _,_\n0 Staple:   _,> <,> <,_ _,_ _,_ _,> <,> <,_')
-        self.assertEqual(repr(vh1), '1 Scaffold: _,_ _,_ _,_ _,_ _,_\n1 Staple:   _,> <,> <,> <,> <,_')
-
-        vh1.undoStack().undo()
-        self.assertEqual(repr(vh), '0 Scaffold: _,_ _,_ _,> <,_ _,> <,> <,_ _,_\n0 Staple:   _,> <,> <,_ _,_ _,_ _,> <,> <,_')
-        self.assertEqual(repr(vh1), '1 Scaffold: _,_ _,_ _,_ _,_ _,_\n1 Staple:   _,_ _,_ _,_ _,_ _,_')
-
-        vh.undoStack().undo()
-        self.assertEqual(repr(vh), '0 Scaffold: _,_ _,_ _,> <,_ _,> <,> <,_ _,_\n0 Staple:   _,> <,> <,> <,> <,> <,> <,> <,_')
-
-        vh.undoStack().undo()
-        self.assertEqual(repr(vh), '0 Scaffold: _,_ _,_ _,> <,> <,> <,> <,_ _,_\n0 Staple:   _,> <,> <,> <,> <,> <,> <,> <,_')
-
-        vh.undoStack().undo()
-        self.assertEqual(repr(vh), '0 Scaffold: _,_ _,_ _,> <,> <,> <,> <,_ _,_\n0 Staple:   _,_ _,_ _,_ _,_ _,_ _,_ _,_ _,_')
-
-        vh.undoStack().undo()
-        self.assertEqual(repr(vh), '0 Scaffold: _,_ _,_ _,_ _,_ _,_ _,_ _,_ _,_\n0 Staple:   _,_ _,_ _,_ _,_ _,_ _,_ _,_ _,_')
-
-        vh.connectStrand(StrandType.Scaffold, 2, 4)
-        vh.connectStrand(StrandType.Scaffold, 0, 7)
-        vh.undoStack().undo()
-        self.assertEqual(repr(vh), '0 Scaffold: _,_ _,_ _,> <,> <,_ _,_ _,_ _,_\n0 Staple:   _,_ _,_ _,_ _,_ _,_ _,_ _,_ _,_')
-    
-    def testClearCrossovers(self):
-        """VirtualHelix clearStrand across xovers"""
-        vh = VirtualHelix(numBases=8, idnum=0)
-        vh.connectStrand(StrandType.Staple, 0, 7)
-        vh1 = VirtualHelix(numBases=5, idnum=1)
-        vh1.connectStrand(StrandType.Staple, 0, 5)
-        vh1.installXoverFrom3To5(StrandType.Staple, 3, vh, 2)
-        self.assertEqual(repr(vh), '0 Scaffold: _,_ _,_ _,_ _,_ _,_ _,_ _,_ _,_\n0 Staple:   _,> <,> <,1:3 _,> <,> <,> <,> <,_')
-        self.assertEqual(repr(vh1), '1 Scaffold: _,_ _,_ _,_ _,_ _,_\n1 Staple:   _,> <,> <,> <,0:2 _,_')
-        vh1.clearStrand(StrandType.Staple, 0, 5)
-        self.assertEqual(repr(vh), '0 Scaffold: _,_ _,_ _,_ _,_ _,_ _,_ _,_ _,_\n0 Staple:   _,> <,> <,_ _,> <,> <,> <,> <,_')
-        self.assertEqual(repr(vh1), '1 Scaffold: _,_ _,_ _,_ _,_ _,_\n1 Staple:   _,_ _,_ _,_ _,_ _,_')
-        vh1.undoStack().undo()
-        vh1.undoStack().undo()
-        self.assertEqual(repr(vh), '0 Scaffold: _,_ _,_ _,_ _,_ _,_ _,_ _,_ _,_\n0 Staple:   _,> <,> <,> <,> <,> <,> <,> <,_')
-        self.assertEqual(repr(vh1), '1 Scaffold: _,_ _,_ _,_ _,_ _,_\n1 Staple:   _,> <,> <,> <,> <,_')
-        vh.installXoverFrom3To5(StrandType.Staple, 2, vh1, 3)
-        self.assertEqual(repr(vh), '0 Scaffold: _,_ _,_ _,_ _,_ _,_ _,_ _,_ _,_\n0 Staple:   _,> <,_ 1:3,> <,> <,> <,> <,> <,_')
-        self.assertEqual(repr(vh1), '1 Scaffold: _,_ _,_ _,_ _,_ _,_\n1 Staple:   _,> <,> <,_ 0:2,> <,_')
-        vh1.clearStrand(StrandType.Staple, 0, 5)
-        self.assertEqual(repr(vh), '0 Scaffold: _,_ _,_ _,_ _,_ _,_ _,_ _,_ _,_\n0 Staple:   _,> <,_ _,> <,> <,> <,> <,> <,_')
-        self.assertEqual(repr(vh1), '1 Scaffold: _,_ _,_ _,_ _,_ _,_\n1 Staple:   _,_ _,_ _,_ _,_ _,_')
-        
 
 if __name__ == '__main__':
     print "Running Model Tests"

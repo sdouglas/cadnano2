@@ -27,13 +27,14 @@ import util
 util.qtWrapImport('QtCore', globals(), ['pyqtSignal', 'QObject'])
 util.qtWrapImport('QtGui', globals(), [ 'QActionGroup'])
 
+
 class SliceController(QObject):
     """
     Manages interactions between the slice widgets/UI and the model.
     """
     activeSliceLastSignal = pyqtSignal()
     activeSliceFirstSignal = pyqtSignal()
-    
+
     def __init__(self, win):
         """
         We store mainWindow because a controller's got to have
@@ -53,23 +54,12 @@ class SliceController(QObject):
         ag.setExclusive(True)
         self.currentTool = None
 
-    # def chooseMoveTool(self):
-    #     widget = self.mainWindow.actionSliceMove
-    #     if self.currentTool is widget:
-    #         return
-    #     else:
-    #         self.currentTool = widget
-    #     widget.setChecked(True)
-    # end def
-
     def sliceLastClicked(self):
         """docstring for sliceLastClicked"""
         self.activeSliceLastSignal.emit()
-    # end def
 
     def sliceFirstClicked(self):
         self.activeSliceFirstSignal.emit()
-    # end def
 
     def renumberClicked(self):
         self.mainWindow.pathController.activePath().renumber()

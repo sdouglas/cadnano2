@@ -22,17 +22,17 @@
 #
 # http://www.opensource.org/licenses/mit-license.php
 
-from cadnano import app
-from views.pathview.tools.breaktool import BreakTool
-from views.pathview.tools.erasetool import EraseTool
-from views.pathview.tools.inserttool import InsertTool
-from views.pathview.tools.painttool import PaintTool
-from views.pathview.tools.penciltool import PencilTool
-from views.pathview.tools.selecttool import SelectTool
-from views.pathview.tools.skiptool import SkipTool
-from views.pathview.tools.addseqtool import AddSeqTool
-import util
 import os
+from cadnano import app
+# from views.pathview.tools.breaktool import BreakTool
+# from views.pathview.tools.erasetool import EraseTool
+# from views.pathview.tools.inserttool import InsertTool
+# from views.pathview.tools.painttool import PaintTool
+# from views.pathview.tools.penciltool import PencilTool
+# from views.pathview.tools.selecttool import SelectTool
+# from views.pathview.tools.skiptool import SkipTool
+# from views.pathview.tools.addseqtool import AddSeqTool
+import util
 
 # import Qt stuff into the module namespace with PySide, PyQt4 independence
 util.qtWrapImport('QtCore', globals(), ['QObject', 'pyqtSignal'])
@@ -62,7 +62,6 @@ class PathController(QObject):
         self.paintTool = PaintTool(self, win.pathGraphicsView.toolbar)
         self.pencilTool = PencilTool(self)
         self.addSeqTool = AddSeqTool(self)
-        self.moveTool = None
 
         def installTool(toolName, window):
             toolWidget = getattr(window, 'actionPath' + toolName)
@@ -87,7 +86,7 @@ class PathController(QObject):
         # for toolName in tools:
         #     toolAction = installTool(toolName, win)
         #     ag.addAction(toolAction)
-        map((lambda toolName: ag.addAction(installTool(toolName, win))), tools) 
+        map((lambda toolName: ag.addAction(installTool(toolName, win))), tools)
         ag.setExclusive(True)
         # Select the preferred Startup tool
         startupToolName = app().prefs.getStartupToolName()
