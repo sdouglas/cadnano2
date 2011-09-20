@@ -24,3 +24,45 @@
 # THE SOFTWARE.
 #
 # http://www.opensource.org/licenses/mit-license.php
+
+
+import util
+# import Qt stuff into the module namespace with PySide, PyQt4 independence
+util.qtWrapImport('QtCore', globals(), ['pyqtSignal', 'QObject'])
+util.qtWrapImport('QtGui', globals(), [ 'QUndoCommand', 'QUndoStack'])
+
+class Part(QObject):
+    def __init__(self, parent=None):
+        super(Part, self).__init__(parent)
+        self._document = None
+        self._oligos = []
+        self._x = 0
+        self._y = 0
+        self._z = 0
+        self._phi = 0
+        self._theta = 0
+        self._psi = 0
+
+    ### SIGNALS ###
+    partDestroyedSignal = pyqtSignal(QObject)  # self
+    partMovedSignal = pyqtSignal(QObject)  # self
+    partParentChangedSignal = pyqtSignal(QObject)  # new parent
+    sequenceClearedSignal = pyqtSignal(QObject) # self
+
+    ### SLOTS ###
+
+    ### METHODS ###
+    def part(self):
+        return self._part
+
+    def strands(self):
+        return self._strands
+
+    def length(self):
+        return self._length
+
+    def isLoop(self):
+        return self._isLoop
+
+    ### COMMANDS ###
+    

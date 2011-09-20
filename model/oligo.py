@@ -24,3 +24,41 @@
 # THE SOFTWARE.
 #
 # http://www.opensource.org/licenses/mit-license.php
+
+
+import util
+# import Qt stuff into the module namespace with PySide, PyQt4 independence
+util.qtWrapImport('QtCore', globals(), ['pyqtSignal', 'QObject'])
+util.qtWrapImport('QtGui', globals(), [ 'QUndoCommand', 'QUndoStack'])
+
+class Oligo(QObject):
+    def __init__(self):
+        super(Oligo, self).__init__()
+        self._part = None
+        self._strands = []
+        self._length = 0
+        self._isLoop = False
+
+    ### SIGNALS ###
+    notifyMergedStrandsWithNewOligoSignal = pyqtSignal(QObject)  # new oligo
+    appearanceChangedSignal = pyqtSignal(QObject)  # self
+    sequenceAddedSignal = pyqtSignal(QObject)  # self
+    sequenceClearedSignal = pyqtSignal(QObject)  # self
+
+    ### SLOTS ###
+
+    ### METHODS ###
+    def part(self):
+        return self._part
+
+    def strands(self):
+        return self._strands
+
+    def length(self):
+        return self._length
+
+    def isLoop(self):
+        return self._isLoop
+
+    ### COMMANDS ###
+    
