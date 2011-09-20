@@ -106,8 +106,8 @@ class DocumentController():
             mayaWin.addDockWidget(Qt.DockWidgetArea(Qt.LeftDockWidgetArea),
                                     self.windock)
             self.windock.setVisible(True)
-            if hasattr(self, 'solidHelixGrp'):
-                self.solidHelixGrp.onPersistentDataChanged()
+            #if hasattr(self, 'solidHelixGrp'):
+            #    self.solidHelixGrp.onPersistentDataChanged()
 
     def closer(self, event):
         if self.maybeSave():
@@ -263,8 +263,8 @@ class DocumentController():
             self._activePart = part
             self.setDocument(doc)
             part.needsFittingToView.emit()  # must come after setDocument
-            if app().isInMaya() and self.solidHelixGrp:
-                self.solidHelixGrp.onPersistentDataChanged()
+            #if app().isInMaya() and self.solidHelixGrp:
+            #    self.solidHelixGrp.onPersistentDataChanged()
         else:
             self.setDocument(Document())
 
@@ -516,6 +516,8 @@ class DocumentController():
     def modifyClicked(self):
         """docstring for modifyClicked"""
         print "modify toggled", "ON" if self.win.actionModify.isChecked() else "OFF"
+        if app().isInMaya() and self.solidHelixGrp:
+                self.solidHelixGrp.setModifyState(self.win.actionModify.isChecked())
 
     ############# Spawning / Destroying HoneycombSliceGraphicsItems ##########
     ##################### and PathHelixGroups for Parts ######################

@@ -63,9 +63,6 @@ class SolidHelix(QObject):
         self.y = y
         self._row = vhelix.row()
         self._col = vhelix.col()
-        # XXX - [SB] should not need to keep track of these IDs, should be
-        # able to get it from the VH, but for now we use it when base count
-        # changes
         self.strandIDs = []
 
         self.stapleIndicatorCount = 0
@@ -135,6 +132,8 @@ class SolidHelix(QObject):
             pass
         else:
             raise NotImplementedError
+        if self.pathHelixGroup().isInModifyState():
+            self.upadateStapleModIndicators(True)
 
     def onStrandDidMove(self, strand):
         id = self._solidHelixGroup.strandMayaID(strand)
@@ -148,9 +147,15 @@ class SolidHelix(QObject):
         cmds.setAttr("%s.endBase" % cylinderName,
                              endpoints[1] - 1)
         cmds.setAttr("%s.totalBases" % cylinderName, int(totalNumBases))
-        # XXX - [SB] Commenting out for now, since it doent's quite work yet...
-        #self.clearStapleModIndicators()
-        #self.createStapleModIndicator(strand)
+
+    def upadateStapleModIndicators(self, on):
+        self.clearStapleModIndicators()
+        if on:
+            m = Mom()
+            for id in self.strandIDs:
+                mayaNodeInfo = "DNACylinderShape%s" % id
+                strand = m.mayaToCn[ mayaNodeInfo ]
+                self.createStapleModIndicator(strand)
 
     def onStrandWillBeRemoved(self, strand):
         id = self._solidHelixGroup.strandMayaID(strand)
@@ -182,9 +187,9 @@ class SolidHelix(QObject):
             rise = cmds.getAttr("%s.rise" % cylinderName)
             startBase = cmds.getAttr("%s.startBase" % cylinderName)
             startPos = cmds.getAttr("%s.startPos" % cylinderName)
-            base0Pos = startPos[0][2] + startBase*rise
+            base0Pos = startPos[0][1] + startBase*rise
             ourPos = base0Pos - (base*rise)
-            return ourPos
+            return ourPos-rise*0.5 # center marker on the base
         else:
             raise IndexError
 
@@ -202,7 +207,11 @@ class SolidHelix(QObject):
         mrow = self._row + 1
         mcol = self._col + 1
         # XXX [SB] will use self._vhelix.getPreStapleModIndexList()
-        stapleBases = [(5, mrow, mcol), (14, mrow, mcol)] 
+        totalNumBases = self._vhelix.numBases()
+        stapleBases = []#[(0, mrow, mcol), (totalNumBases-1, mrow, mcol)]
+        for b in range(totalNumBases):
+            stapleBases.append((b, mrow, mcol))
+
         for stapleBase in stapleBases:
             # XXX [SB+AT] NOT THREAD SAFE
             while cmds.objExists("spStapleModIndicator%s_%s" % (strandid, self.stapleIndicatorCount)):
@@ -212,7 +221,8 @@ class SolidHelix(QObject):
             vec = (targetX-self.x, targetY-self.y)
             coords = (self.x+vec[0]/3.7, self.y+vec[1]/3.7, self.cadnanoVBaseToMayaZ(stapleBase[0], strand));
             self.createStapleModIndicatorNodes(coords,stapleId)
-            #print "adding StapleID %s" % stapleId
+            #print "adding StapleID %s: " % stapleId
+            #print self.cadnanoVBaseToMayaZ(stapleBase[0], strand)
             self.stapleModIndicatorIDs.append(stapleId)
             
     def createStapleModIndicatorNodes(self, coords, id):

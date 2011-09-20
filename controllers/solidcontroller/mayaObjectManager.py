@@ -40,7 +40,9 @@ class Mom:
 
     # storage for the instance reference
     __instance = None
+    # uses DNACylinderShape as as the key, stores strand objects
     mayaToCn = {}
+    # uses strand objects as the key, stores a list of maya nodes
     cnToMaya = {}
     
     def removeMapping(self, id, strand):

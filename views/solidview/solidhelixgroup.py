@@ -91,7 +91,17 @@ class SolidHelixGroup(QObject):
         self.solidHelixes = []
         self.setPart(dnaPartInst)
         self.strandCount = 0
+        # uses strand object as the key, stores stand id
         self.idStrandMapping = {}
+        self.modifyState = False
+
+    def setModifyState(self, val):
+        self.modifyState = val
+        for sh in self.solidHelixes:
+            sh.upadateStapleModIndicators(val)
+
+    def isInModifyState(self):
+        return self.modifyState
 
     def strandMayaID(self, strand):
         if(strand in self.idStrandMapping):
@@ -120,15 +130,21 @@ class SolidHelixGroup(QObject):
                                         self.partDimensionsChanged)
             self._part.virtualHelixAtCoordsChanged.disconnect(
                                         self.onVirtualHelixAtCoordsChanged)
+            self._past.activeSliceWillChange.disconnect(self.onSelectionWillChange)
         self._part = p
         if p != None:
             p.dimensionsDidChange.connect(self.partDimensionsChanged)
             p.virtualHelixAtCoordsChanged.connect(
                                         self.onVirtualHelixAtCoordsChanged)
+            p.activeSliceWillChange.connect(self.onActiveSliceWillChange)
 
     def partDimensionsChanged(self):
         #print "SolidHelixGroup:partDimensionsChanged"
         pass
+
+    def onActiveSliceWillChange(self, list):
+        print "onSelectionWillChange"
+        print list
 
     def onVirtualHelixAtCoordsChanged(self, row, col):
         self.createNewHelix(row, col)
