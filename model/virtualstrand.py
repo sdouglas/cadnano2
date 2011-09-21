@@ -43,12 +43,17 @@ class VirtualStrand(QObject):
         self._lastSetIndex = None
     # end def
     
+    def __iter__(self):
+        """
+        Iterate over each stran in the strands list
+        """
+        return self._strands.__iter__()
+    #end def
+    
     ### SIGNALS ###
     strandAddedSignal = pyqtSignal(QObject)
     
     ### SLOTS ###
-    
-    
     
     ### Methods ###
     def undoStack(self):
