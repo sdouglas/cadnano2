@@ -66,7 +66,7 @@ def dagParentRemovedCallback( child, parent, clientData ):
                 strand = mom.mayaToCn[ c ]
                 if strand:
                     print "Strand %s : %s needs removal" % (c, strand)
-                    mom.removeMapping(c, strand)
+                    mom.removeIDMapping(c, strand)
                     startVBase = strand.vBase3
                     undoStack = strand.vStrand().vHelix.undoStack()
                     eraseOp  = EraseToolOperation(startVBase, undoStack)

@@ -165,7 +165,7 @@ class SolidHelix(QObject):
         #print "SolidHelix:onStrandWillBeRemoved %s" % id
         transformName = "DNAShapeTransform%s" % id
         mom = Mom()
-        mom.removeMapping(id, strand)
+        mom.removeIDMapping(id, strand)
         
         if cmds.objExists(transformName):
             cmds.delete(transformName)
@@ -197,6 +197,8 @@ class SolidHelix(QObject):
         for id in self.stapleModIndicatorIDs:
             transformName = "stapleModIndicatorTransform%s" % id
             #print "delete %s" % transformName
+            m = Mom()
+            m.removeStapleModMapping(id)
             if cmds.objExists(transformName):
                 cmds.delete(transformName)
         self.stapleModIndicatorIDs = []

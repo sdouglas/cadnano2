@@ -49,9 +49,17 @@ class Mom:
     # stores a objec with data (solidHelix object, baseNumber, strand object)
     stapleModToSolidHelix = {}
     
-    def removeMapping(self, id, strand):
-        if self.mayaToCn.has_key(id):
-            del self.mayaToCn[id]
+    def removeStapleModMapping(self, id):
+        key = "stapleModIndicatorMesh%s" % id
+        if self.stapleModToSolidHelix.has_key(key):
+            del self.stapleModToSolidHelix[key]
+    def removeIDMapping(self, id, strand):
+        key1 = "DNACylinderShape%s" % id
+        key2 = "HalfCylinderHelixNode%s" % id
+        if self.mayaToCn.has_key(key1):
+            del self.mayaToCn[key1]
+        if self.mayaToCn.has_key(key2):
+            del self.mayaToCn[key2]
         if self.cnToMaya.has_key(strand):
             del self.cnToMaya[strand]
     
