@@ -124,6 +124,7 @@ class SolidHelix(QObject):
             m = Mom()
             m.cnToMaya[ strand ] = mayaNodeInfo
             m.mayaToCn[ mayaNodeInfo[2] ] = strand
+            m.mayaToCn[ mayaNodeInfo[0] ] = strand
         elif isinstance(strand, XOverStrand3):
             #print "SolidHelix:strandAddedToVStrand-XOverStrand3"
             pass
@@ -164,8 +165,7 @@ class SolidHelix(QObject):
         #print "SolidHelix:onStrandWillBeRemoved %s" % id
         transformName = "DNAShapeTransform%s" % id
         mom = Mom()
-        c = "DNACylinderShape%s" % id
-        mom.removeMapping(c, strand)
+        mom.removeMapping(id, strand)
         
         if cmds.objExists(transformName):
             cmds.delete(transformName)
