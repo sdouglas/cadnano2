@@ -30,46 +30,40 @@ import util
 util.qtWrapImport('QtGui', globals(), ['QGraphicsPathItem'])
 
 
-class AbstractStrandGraphicsItem(QGraphicsPathItem):
+class AbstractDecoratorGraphicsItem(QGraphicsPathItem):
     def __init__(self, parent):
         """The parent should be a VirtualHelixGraphicsItem."""
-        if self.__class__ == AbstractStrandGraphicsItem:
-            raise NotImplementedError("AbstractStrandGraphicsItem should be subclassed.")
-        super(AbstractStrandGraphicsItem, self).__init__(parent)
+        if self.__class__ == AbstractDecoratorGraphicsItem:
+            e = "AbstractDecoratorGraphicsItem should be subclassed."
+            raise NotImplementedError(e)
+        super(AbstractDecoratorGraphicsItem, self).__init__(parent)
         self._strand = None
         self._oligo = None
 
     ### SIGNALS ###
 
     ### SLOTS ###
-    def oligoAppeareanceChanged(self):
-        """docstring for oligoAppeareanceChanged"""
+    def strandResizedSlot(self):
+        """docstring for strandResizedSlot"""
         pass
 
-    def hasNewOligoSlot(self, oligo):
-        """docstring for hasNewOligoSlot"""
-        self._oligo = oligo
-        # redraw
-
-    def strandRemovedSlot(self, strand):
-        """docstring for strandRemovedSlot"""
+    def sequenceAddedSlot(self, oligo):
+        """docstring for sequenceAddedSlot"""
         pass
 
-    def decoratorAddedSlot(self, decorator):
-        """docstring for decoratorAddedSlot"""
+    def decoratorRemovedSlot(self, oligo):
+        """docstring for sequenceClearedSlot"""
         pass
 
     ### METHODS ###
     def connectSignals(self):
-        self._oligo.appearanceChangedSignal.connect(self.oligoAppeareanceChanged)
-        self._strand.hasNewOligoSignal.connect(self.hasNewOligoSlot)
-        self._strand.destroyedSignal.connect(self.strandRemovedSlot)
-        self._strand.decoratorCreatedSignal.connect(self.decoratorAddedSlot)
+        self._strand.decoratorDestroyedSignal.connect(self.decoratorRemovedSlot)
+        self._oligo.sequenceAddedSignal.connect(self.sequenceAddedSlot)
+        self._oligo.sequenceClearedSignal.connect(self.sequenceClearedSlot)
 
     def disconnectSignals(self):
-        self._oligo.appearanceChangedSignal.disconnect(self.oligoAppeareanceChanged)
-        self._strand.hasNewOligoSignal.disconnect(self.hasNewOligoSlot)
-        self._strand.destroyedSignal.disconnect(self.strandRemovedSlot)
-        self._strand.decoratorCreatedSignal.disconnect(self.decoratorAddedSlot)
+        self._strand.resizedSignal.disconnect(self.strandResizedSlot)
+        self._oligo.sequenceAddedSignal.disconnect(self.sequenceAddedSlot)
+        self._oligo.sequenceClearedSignal.disconnect(self.sequenceClearedSlot)
 
     ### COMMANDS ###

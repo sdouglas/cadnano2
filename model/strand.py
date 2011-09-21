@@ -56,7 +56,7 @@ class Strand(QObject):
     xover3pCreatedSignal = pyqtSignal(QObject, int)
     xover3pDestroyedSignal = pyqtSignal(QObject, int)
     decoratorCreatedSignal = pyqtSignal(QObject, QObject, int)
-    decoratorDestroySignal = pyqtSignal(QObject, int)
+    decoratorDestroyedSignal = pyqtSignal(QObject, int)
     
     ### SLOTS ###
     

@@ -24,3 +24,43 @@
 # THE SOFTWARE.
 #
 # http://www.opensource.org/licenses/mit-license.php
+
+from exceptions import NotImplementedError
+import util
+# import Qt stuff into the module namespace with PySide, PyQt4 independence
+util.qtWrapImport('QtCore', globals(), ['pyqtSignal', 'QObject'])
+util.qtWrapImport('QtGui', globals(), [ 'QUndoCommand', 'QUndoStack'])
+
+class StrandGraphicsItem(QGraphicsPathItem):
+    def __init__(self, parent):
+        """The parent should be a VirtualHelixGraphicsItem."""
+        super(StrandGraphicsItem, self).__init__(parent)
+
+    ### SIGNALS ###
+
+    ### SLOTS ###
+    def strandResizedSlot(self):
+        """docstring for strandResizedSlot"""
+        pass
+
+    def sequenceAddedSlot(self, oligo):
+        """docstring for sequenceAddedSlot"""
+        pass
+
+    def sequenceClearedSlot(self, oligo):
+        """docstring for sequenceClearedSlot"""
+        pass
+
+    ### METHODS ###
+    def connectSignals(self):
+        self._strand.resizedSignal.connect(self.strandResizedSlot)
+        self._oligo.sequenceAddedSignal.connect(self.sequenceAddedSlot)
+        self._oligo.sequenceClearedSignal.connect(self.sequenceClearedSlot)
+
+    def disconnectSignals(self):
+        """docstring for disconnectSignals"""
+        self._strand.resizedSignal.disconnect(self.strandResizedSlot)
+        self._oligo.sequenceAddedSignal.disconnect(self.sequenceAddedSlot)
+        self._oligo.sequenceClearedSignal.disconnect(self.sequenceClearedSlot)
+
+    ### COMMANDS ###

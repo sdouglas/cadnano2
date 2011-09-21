@@ -24,3 +24,35 @@
 # THE SOFTWARE.
 #
 # http://www.opensource.org/licenses/mit-license.php
+
+import util
+# import Qt stuff into the module namespace with PySide, PyQt4 independence
+util.qtWrapImport('QtCore', globals(), ['pyqtSignal', 'QObject'])
+util.qtWrapImport('QtGui', globals(), [ 'QUndoCommand', 'QUndoStack'])
+
+class VirtualHelixGraphicsItem(QGraphicsPathItem):
+    def __init__(self, parent):
+        super(VirtualHelixGraphicsItem, self).__init__(parent)
+        self.virtualhelix = None
+
+    ### SIGNALS ###
+
+    ### SLOTS ###
+    def strandAddedSlot(self, strand):
+        """docstring for sequenceAddedSlot"""
+        pass
+
+    def decoratorAddedSlot(self, decorator):
+        """docstring for sequenceClearedSlot"""
+        pass
+
+    ### METHODS ###
+    def connectSignals(self):
+        """docstring for connectSignals"""
+        pass
+
+    def disconnectSignals(self):
+        """docstring for disconnectSignals"""
+        pass
+
+    ### COMMANDS ###

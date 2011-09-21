@@ -31,8 +31,10 @@ util.qtWrapImport('QtCore', globals(), ['pyqtSignal', 'QObject'])
 util.qtWrapImport('QtGui', globals(), [ 'QUndoCommand', 'QUndoStack'])
 
 class PartGraphicsItem(QGraphicsPathItem):
-    def __init__(self, parent):
+    def __init__(self, part, parent):
         super(PartGraphicsItem, self).__init__(parent)
+        self._part = part
+        self.connectSignals()
 
     ### SIGNALS ###
 
@@ -45,18 +47,35 @@ class PartGraphicsItem(QGraphicsPathItem):
         """docstring for partDestroyedSlot"""
         pass
 
-    def partMovedSlot(self):
+    def partMovedSlot(self, pos):
         """docstring for partMovedSlot"""
         pass
 
-    def xover3pCreatedSlot(self):
+    def xover3pCreatedSlot(self, strand, idx):
         """docstring for xover3pCreatedSlot"""
         pass
 
-    def xover3pDestroyedSlot(self):
+    def xover3pDestroyedSlot(self, strand, idx):
         """docstring for xover3pDestroyedSlot"""
         pass
 
     ### METHODS ###
+    def connectSignals(self):
+        self._part.partParentChangedSignal.connect(self.partParentChangedSlot)
+        self._part.partDestroyedSignal.connect(self.partDestroyedSlot)
+        self._part.partMovedSignal.connect(self.partMovedSlot)
+        for oligo in self._part.oligos():
+            for strand in oligo.strands():
+                strand.xover3pCreatedSignal.connect(self.xover3pCreatedSlot)
+                strand.xover3pDestroyedSignal.connect(self.xover3pDestroyedSlot)
+
+    def disconnectSignals(self):
+        self._part.partParentChangedSignal.disconnect(self.partParentChangedSlot)
+        self._part.partDestroyedSignal.disconnect(self.partDestroyedSlot)
+        self._part.partMovedSignal.disconnect(self.partMovedSlot)
+        for oligo in self._part.oligos():
+            for strand in oligo.strands():
+                strand.xover3pCreatedSignal.disconnect(self.xover3pCreatedSlot)
+                strand.xover3pDestroyedSignal.disconnect(self.xover3pDestroyedSlot)
 
     ### COMMANDS ###
