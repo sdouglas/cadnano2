@@ -59,3 +59,47 @@ class VirtualStrand(QObject):
     def vhelix(self):
         return self._vhelix
     # end def
+    
+    def minmax(self):
+        return self._vhelix.part().minmax()
+    
+    def bounds(self, queryIdx):
+        """
+        This is called when a virtualstrand is asked prior
+        to put a new strand in what locations are free.
+        
+        if this is called, it probably is at either end of the strand. 
+        so look at the limit indices and iterate in
+        
+        this should never be called on an index containing a strand
+        """
+        strands = self._strands
+        
+        # set the return limits to the maximum bounds of the vstrand
+        leftIdx, rightIdx = self.minmax()
+        temp = strands[0].idxs()
+        lenstrand = len(strands)
+        if  lenstrand == 0:
+            return leftIdx, rightIdx
+            
+        # check the far end first
+        strand = strands[-1]
+        lIdx, rIdx = strands.idxs()
+        if queryIdx > rIdx:
+            leftIdx = rIdx
+            return leftIdx, rightIdx
+        # end if
+        # now just check two or less
+        for strand in strands[0:-1]:
+            lIdx, rIdx = strands.idxs()
+            if leftIdx < queryIdx < lIdx:
+                rightIdx = lIdx
+                break
+            elif queryIdx > rIdx:
+                leftIdx = rIdx
+                break
+            else:
+                leftIdx = rIdx
+        # end while
+        return leftIdx, rightIdx
+    # end def

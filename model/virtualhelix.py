@@ -39,8 +39,8 @@ class VirtualHelix(QObject):
         super(VirtualHelix, self).__init__(part)
         self._coords = (None, None) # col, row
         self._part = part
-        self._vScaf = VirtualStrand(self)
-        self._vStap = VirtualStrand(self)
+        self._vScafold = VirtualStrand(self)
+        self._vStaple = VirtualStrand(self)
         
         # If self._part exists, it owns self._number
         # in that only it may modify it through the
@@ -73,4 +73,27 @@ class VirtualHelix(QObject):
     
     def parity(self):
         return 
+    # end def
+    
+    def isEvenParity(self):
+        return self._part.isEvenParity(self._coords)
+    # end def
+    
+    def vStrand(self, indexHelix, indexType):
+        """
+        This is a path view specific accessor
+        indexType == 0 means top strand
+        indexType == 1 means bottom strand
+        """
+        if indexType == 0 and self.isEvenParity():
+            return self._vScaffold
+        else
+            return self._vStaple 
+    # end def
+    
+    def vStrandBounds(self, indexHelix, indexType):
+        """
+        forwards the query to the vstrand
+        """
+        return self.vStrand(indexHelix, indexType).bounds()
     # end def

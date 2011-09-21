@@ -49,6 +49,12 @@ class Part(QObject):
     ### METHODS ###
     def undoStack(self):
         return self._document.undoStack()
+    
+    def destroy(self):
+        # QObject also emits a destroyed() Signal
+        self.setParent(None)
+        self.deleteLater()
+    # end def
 
     def document(self):
         return self._document

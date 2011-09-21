@@ -41,8 +41,7 @@ class Strand(QObject):
         
         self._strand5p = None
         self._strand3p = None
-        self.vBaseIndexL = indexL
-        self.vBaseIndexR = indexR
+        self._vBaseIndexs = (indexL, indexR)
         
         
         self._decorators = {}
@@ -79,7 +78,13 @@ class Strand(QObject):
     # end def
     
     def destroy(self):
-        
+        # QObject also emits a destroyed() Signal
+        self.setParent(None)
+        self.deleteLater()
+    # end def
+    
+    def idxs(self):
+        return self._vBaseIndexs
     # end def
     
     def resize(self):

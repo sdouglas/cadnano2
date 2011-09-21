@@ -51,6 +51,12 @@ class Oligo(QObject):
     def undoStack(self):
         return self._part.undoStack()
 
+    def destroy(self):
+        # QObject also emits a destroyed() Signal
+        self.setParent(None)
+        self.deleteLater()
+    # end def
+
     def part(self):
         return self._part
 

@@ -47,7 +47,10 @@ class Assembly(QObject):
         return self._document.undoStack()
 
     def destroy(self):
-        pass
-
+        # QObject also emits a destroyed() Signal
+        self.setParent(None)
+        self.deleteLater()
+    # end def
+    
     ### COMMANDS ###
     
