@@ -24,3 +24,20 @@
 # THE SOFTWARE.
 #
 # http://www.opensource.org/licenses/mit-license.php
+
+from exceptions import NotImplementedError
+import util
+# import Qt stuff into the module namespace with PySide, PyQt4 independence
+util.qtWrapImport('QtCore', globals(), ['pyqtSignal', 'QObject'])
+util.qtWrapImport('QtGui', globals(), [ 'QUndoCommand', 'QUndoStack'])
+
+class XoverGraphicsItem(QGraphicsPathItem):
+    def __init__(self, parent):
+        """The parent should be a VirtualHelixGraphicsItem."""
+        super(XoverGraphicsItem, self).__init__(parent)
+
+    ### SIGNALS ###
+
+    ### SLOTS ###
+
+    ### METHODS ###

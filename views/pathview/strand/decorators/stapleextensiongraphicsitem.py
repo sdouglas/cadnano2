@@ -24,3 +24,19 @@
 # THE SOFTWARE.
 #
 # http://www.opensource.org/licenses/mit-license.php
+
+from exceptions import NotImplementedError
+
+
+class StapleExtensionGraphicsItem(AbstractDecoratorGraphicsItem):
+    def __init__(self, parent):
+        """The parent should be a VirtualHelixGraphicsItem."""
+        super(StapleExtensionGraphicsItem, self).__init__(parent)
+
+    ### SIGNALS ###
+
+    ### SLOTS ###
+
+    ### METHODS ###
+
+    ### COMMANDS ###

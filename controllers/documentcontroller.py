@@ -23,35 +23,35 @@
 # http://www.opensource.org/licenses/mit-license.php
 
 import os.path
+from cadnano import app
+from model.document import Document
+from views.documentwindow import DocumentWindow
 import util
-
-# import Qt stuff into the module namespace with PySide, PyQt4 independence
-util.qtWrapImport('QtCore', globals(), ['pyqtSignal', 'QString', 'QFileInfo',
-                                        'QStringList', 'Qt', 'QEvent'])
-util.qtWrapImport('QtGui', globals(), ['QUndoStack', 'QFileDialog',
-                                        'QAction', 'QApplication',
-                                        'QMessageBox', 'QKeySequence',
-                                        'QDialog', 'QMainWindow',
-                                        'QDockWidget'])
+util.qtWrapImport('QtCore', globals(), [])
+util.qtWrapImport('QtGui', globals(), [])
 
 
 class DocumentController():
     """
     Connects UI buttons to their corresponding actions in the model.
     """
-    def __init__(self):
+    def __init__(self, doc=None, fname=None):
         """docstring for __init__"""
-        # set data items to none
-        self._window = None
+        # init variables
+        self._document = None
         self._undoStack = None
-        self._filename = None
+        self._filename = fname
         self._hasNoAssociatedFile = None
         self._sliceViewInstance = None
         self._pathViewInstance = None
         self._solidView = None
         self._activePart = None
-        # setup undostack
-        # connectSignalsToSlots
+        # setup window
+        self.win = DocumentWindow(docCtrlr=self)
+        self.win.closeEvent = self.closeEventHandler
+        self.connectWindowSignalsToSelf()
+        self.win.show()
+        self.setDocument(Document() if not doc else doc)
 
     ### SLOTS ###
     def undoStackCleanChangedSlot(self):
@@ -88,7 +88,7 @@ class DocumentController():
         
     def actionPrefsSlot(self):
         """docstring for actionPrefsSlot"""
-        pass
+        app().prefsClicked
 
     def actionModifySlot(self):
         """docstring for actionModifySlot"""
@@ -111,6 +111,34 @@ class DocumentController():
         pass
 
     ### METHODS ###
+    def connectWindowSignalsToSelf(self):
+        """docstring for connectWindowEventSignalsToSlots"""
+        self.win.actionNew.triggered.connect(self.actionNewSlot)
+        self.win.actionOpen.triggered.connect(self.actionOpenSlot)
+        self.win.actionClose.triggered.connect(self.actionCloseSlot)
+        self.win.actionSave.triggered.connect(self.actionSaveSlot)
+        self.win.actionSave_As.triggered.connect(self.actionSaveAsSlot)
+        self.win.actionSVG.triggered.connect(self.actionSVGSlot)
+        self.win.actionAutoStaple.triggered.connect(self.autoStapleClicked)
+        self.win.actionCSV.triggered.connect(self.actionCSVSlot)
+        self.win.actionPreferences.triggered.connect(self.actionPrefsSlot)
+        self.win.actionModify.triggered.connect(self.actionModifySlot)
+        self.win.actionNewHoneycombPart.triggered.connect(\
+            self.actionAddHoneycombPartSlot)
+        self.win.actionNewSquarePart.triggered.connect(\
+            self.actionAddSquarePartSlot)
+
+    def windowCloseEventHandler(self, event):
+        """Intercept close events when user attempts to close the window."""
+        if self.maybeSave():
+            event.accept()
+            if app().isInMaya():
+                self.windock.setVisible(False)
+                del self.windock
+            app().documentControllers.remove(self)
+        else:
+            event.ignore()
+
     # slot callbacks
     def actionNewSlotCallback(self):
         """docstring for actionNewSlotCallback"""
@@ -177,19 +205,19 @@ class DocumentController():
         pass
 
     # document related
-    def getDocument(self):
-        """docstring for getDocument"""
-        pass
+    def document(self):
+        """docstring for document"""
+        return self._document
 
-    def setDocument(self):
+    def setDocument(self, doc):
         """docstring for setDocument"""
-        pass
+        self._document = doc
 
     # part related
-    def getActivePart(self):
-        """docstring for getActivePart"""
-        pass
+    def activePart(self):
+        """docstring for activePart"""
+        return self._activePart
 
-    def setActivePart(self):
+    def setActivePart(self, part):
         """docstring for setActivePart"""
-        pass
+        self._activePart = part

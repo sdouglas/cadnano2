@@ -24,3 +24,20 @@
 # THE SOFTWARE.
 #
 # http://www.opensource.org/licenses/mit-license.php
+
+from exceptions import NotImplementedError
+import util
+
+
+class InsertGraphicsItem(AbstractDecoratorGraphicsItem):
+    def __init__(self, parent):
+        """The parent should be a VirtualHelixGraphicsItem."""
+        super(InsertGraphicsItem, self).__init__(parent)
+
+    ### SIGNALS ###
+
+    ### SLOTS ###
+
+    ### METHODS ###
+
+    ### COMMANDS ###

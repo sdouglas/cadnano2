@@ -103,12 +103,12 @@ cadnn1Colors = [QColor(204, 0, 0),\
                 QColor(51, 51, 51),\
                 QColor(136, 136, 136)]
 stapleColors = cadnn1Colors
-brightColors = [QColor() for i in range(10)]
-for i in range(len(brightColors)):
-    brightColors[i].setHsvF(i/12.0, 1.0, 1.0)
-bright_palette = Palette(brightColors)
-cadnn1_palette = Palette(cadnn1Colors)
-default_palette = cadnn1_palette
+# brightColors = [QColor() for i in range(10)]
+# for i in range(len(brightColors)):
+#     brightColors[i].setHsvF(i/12.0, 1.0, 1.0)
+# bright_palette = Palette(brightColors)
+# cadnn1_palette = Palette(cadnn1Colors)
+# default_palette = cadnn1_palette
 
 # Loop/Insertion path details
 INSERTWIDTH = 2
