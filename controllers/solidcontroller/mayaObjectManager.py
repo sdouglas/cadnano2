@@ -45,6 +45,10 @@ class Mom:
     # uses strand objects as the key, stores a list of maya nodes
     cnToMaya = {}
     
+    # uses stapleModIndicatorMesh% objects as the key,
+    # stores a objec with data (solidHelix object, baseNumber, strand object)
+    stapleModToSolidHelix = {}
+    
     def removeMapping(self, id, strand):
         if self.mayaToCn.has_key(id):
             del self.mayaToCn[id]

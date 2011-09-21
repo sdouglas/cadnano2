@@ -220,10 +220,12 @@ class SolidHelix(QObject):
             (targetX, targetY) = self.pathHelixGroup().cadnanoToMayaCoords(stapleBase[1], stapleBase[2])
             vec = (targetX-self.x, targetY-self.y)
             coords = (self.x+vec[0]/3.7, self.y+vec[1]/3.7, self.cadnanoVBaseToMayaZ(stapleBase[0], strand));
-            self.createStapleModIndicatorNodes(coords,stapleId)
+            stapleModNodeInfo = self.createStapleModIndicatorNodes(coords,stapleId)
             #print "adding StapleID %s: " % stapleId
             #print self.cadnanoVBaseToMayaZ(stapleBase[0], strand)
             self.stapleModIndicatorIDs.append(stapleId)
+            m = Mom()
+            m.stapleModToSolidHelix[stapleModNodeInfo[2]] = (self, stapleBase, strand)
             
     def createStapleModIndicatorNodes(self, coords, id):
         stapleModIndicatorName = "spStapleModIndicator%s" % id
@@ -255,6 +257,7 @@ class SolidHelix(QObject):
         else:
             #shader exist connect
             cmds.sets(meshName, forceElement="%sSG" % shaderName)
+        return (stapleModIndicatorName, transformName, meshName, shaderName)
 
         
     def createMayaHelixNodes(self, x, y, color, strandType, id):
