@@ -71,6 +71,10 @@ class VirtualStrand(QObject):
         return self._vhelix
     # end def
     
+    def isDrawn5to3(self):
+        return self._vHelix.isDrawn5to3(self)
+    # end def
+    
     def strandToBeDestroy(self, strand):
         strands = self.strands
         del strands[strand.idx]
@@ -183,6 +187,104 @@ class VirtualStrand(QObject):
             self.strands.insert(self.idx, self.strand)
         # end def
     # end def
+    
+    def merge(self, strandA, strandB):
+        if strandA is s
+    # end def
+    
+    class MergeCommand(QUndoCommand):
+        """
+        Must pass this two different strands, and one of the strands again
+        which is the priorityStrand
+        
+        the strandLow and strandHigh must be presorted such that strandLow
+        has a lower range than strandHigh
+        
+        lowIdx should be know ahead of time as a result of selection
+        """
+        def __init__(self, strandLow, strandHigh, lowIdx, priorityStrand):
+            super(MergeCommand, self).__init__()
+            self.strandLow = strandLow
+            self.strandHigh = strandHigh
+            pS = priorityStrand
+            self.vStrand = vStrand = pS.vStrand()
+            
+            # THIS BREAKS ISOLATION FROM VIRTUALSTRAND IF IT IS IN STRAND ARGH
+            self.idx = lowIdx
+            
+            # create the newStrand by copying the priority strand to 
+            # preserve its stuff
+            newIdxs = strandLow.lowIdx(), strandHigh.highIdx()
+            newStrand = pS.shallowCopy()
+            newStrand.setIdxs(*newIdxs)
+            newStrand.setLowConnection(strandLow.lowConnection())
+            newStrand.setHighConnection(strandHigh.HighConnection())
+            
+            otherStrand = strandLowif pS == strandLow else strandHigh
+            otherDecorators = otherStrand.decorators()
+            
+            newStrand.addDecorators(otherDecorators)
+            
+            if newStrand.oligo
+            
+            self.newStrand = newStrand
+        # end def
+        
+        def redo(self):
+            vS = self.vStrand
+            sL = self.strandLow
+            sH = self.strandHigh
+            nS = self.newStrand
+            idx = self.idx
+            
+            # Remove old strands to the vStrand  (orders matter)
+            vS.removeStrand(sL, idx)
+            vS.removeStrand(sH, idx)
+            
+            # add the newStrand to the vStrand
+            vS.addStrand(nS, idx)
+            
+            # make the oligo whole
+            nS.oligo().strandsMerge(sL, sH, nS)
+            
+            # emit Signals
+            # out with the old...
+            sL.destroyedSignal.emit(sL)
+            sH.destroyedSignal.emit(sH)
+            
+            # ...in with the new
+            vS.strandAddedSignal.emit(nS)
+        # end def
+        
+        def undo(self):
+            vS = self.vStrand
+            sL = self.strandLow
+            sH = self.strandHigh
+            nS = self.newStrand
+            idx = self.idx
+            
+            # Remove new strand from the vStrand
+            vS.removeStrand(nS, idx)
+            
+            # add the old Strands to the vStrand (orders matter)
+            vS.addStrand(sH, idx)
+            vS.addStrand(sL, idx)
+            
+            # make the oligo whole
+            nS.oligo().strandsSplit(sL, sH, nS)
+
+            # emit Signals
+            # out with the new...
+            nS.destroyedSignal.emit(nS)
+            
+            # ...in with the old
+            vS.strandAddedSignal.emit(sH)
+            vS.strandAddedSignal.emit(sL)
+            
+        # end def
+        
+    # end class
+    
     
     def couldStrandInsertAtLastIndex(self, strand):
         """

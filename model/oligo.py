@@ -69,22 +69,66 @@ class Oligo(QObject):
     def isLoop(self):
         return self._isLoop
 
-    def strandSplit(self, oldStrand, newStrand):
+    def strandSplit(self, newStrandLow, newStrandHigh, oldStrand):
         """
         If the oligo is a loop, splitting the strand does nothing. If the
         oligo isn't a loop, a new oligo must be created and assigned to the
         newStrand and everything connected to it downstream.
+        
+        When you 
         """
-        pass
+        # if you split it can't be a loop
+        if self._isLoop == True:
+            self._isLoop = False
+        else:
+            if newStrandLow.oligo() == self:
+                self._strand5p = newStrandLow
+            elif newStrandHigh.oligo() == self:
+                self._strand5p = newStrandHigh
+        # end else
+    # end def
+            
 
-    def strandMerge(self, strand, mergedStrand):
+    def strandMerge(self, oldStrandLow, oldStrandHigh, mergedStrand):
         """
         A strand merge requires assigning the priviledged strand's
         oligo to all strands in the mergedStrand. This is done by
         iterating over all the strands in the mergedStrand oligo.
         """
-        pass
-
+        # first check to see if this oligo is even needed anymore
+        if mergedStrand.oligo() != self:
+            # not needed so remove from part
+            self.part().removeOligo(self)
+        # end if
+        else:
+            # check loop status
+            if oldStrandLow.oligo() == oldStrandHigh.oligo():
+                self._isLoop = True
+            # end if
+            
+            # Now get correct 5p end to oligo
+            # there are four cases, two where it's already correctly set
+            # and two where it needs to be changed, below are the two
+            if oldStrandLow.isDrawn5to3() and self._strand5p == oldStrandHigh:
+                """
+                the oldStrandLow is more 5p than self._strand5p 
+                and the self._strand5p was pointing to the oldHighstrand but 
+                the high strand didn't have priority so make
+                the new strands oligo
+                """
+                self._strand5p = oldStrandLow.oligo()._strand5p
+            elif not oldStrandHigh.isDrawn5to3() and self._strand5p == oldStrandLow:
+                """
+                the oldStrandHigh is more 5p than self._strand5p 
+                and the self._strand5p was pointing to the oldLowStrand but the 
+                low strand didn't have priority so make
+                the new strands oligo
+                """ 
+                self._strand5p = oldStrandHigh.oligo()._strand5p
+            # end if
+        # end else
+    # end def
+    
     def strandResized(self, delta):
         """Called by a strand after resize. Delta is used to update the
         length, which may case an appearance change."""

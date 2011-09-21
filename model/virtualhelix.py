@@ -37,7 +37,7 @@ class VirtualHelix(QObject):
         super(VirtualHelix, self).__init__(part)
         self._coords = (None, None) # col, row
         self._part = part
-        self._vScafold = VirtualStrand(self)
+        self._vScaffold = VirtualStrand(self)
         self._vStaple = VirtualStrand(self)
         # If self._part exists, it owns self._number
         # in that only it may modify it through the
@@ -73,6 +73,12 @@ class VirtualHelix(QObject):
 
     def isEvenParity(self):
         return self._part.isEvenParity(self._coords)
+    # end def
+    
+    def isDrawn5to3(self, vstrand):
+        isScaf = vstrand == self._vScaffold
+        isEven = self.isEvenParity()
+        return isEven == isScaf
     # end def
 
     def vStrand(self, indexHelix, indexType):

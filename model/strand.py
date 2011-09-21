@@ -34,10 +34,10 @@ util.qtWrapImport('QtGui', globals(), ['QUndoStack'])
 
 class Strand(QObject):
     
-    def __init__(self, vstrand, indexLow, indexHigh):
+    def __init__(self, vStrand, indexLow, indexHigh):
         super(Strand, self).__init__(vstrand)
         self._oligo = None
-        self._vstrand = vstrand
+        self._vStrand = vStrand
         
         self._strand5p = None
         self._strand3p = None
@@ -48,6 +48,19 @@ class Strand(QObject):
         self._sequence = None
         self._note = None
     # end def
+    
+    def shallowCopy(self):
+        nS = Strand(self._vStrand, self.idxs())
+        nS._oligo = self._oligo
+        nS._strand5p = self._strand5p
+        nS._strand3p = self._strand3p
+        # required to shallow copy the dictionary
+        nS._decorators = dict(self._decorators.items())
+        nS._sequence = self._sequence
+        nS._note = self._note
+        return nS
+    # end def
+
     
     def __eq__(self, strand):
         return self is strand
@@ -71,21 +84,25 @@ class Strand(QObject):
     ### SIGNALS ###
     hasNewOligoSignal = pyqtSignal(QObject)
     destroyedSignal = pyqtSignal(QObject)
-    resizedSignal = pyqtSignal(QObject, int)
+    resizedSignal = pyqtSignal(QObject, tuple)
     xover3pCreatedSignal = pyqtSignal(QObject, int)
     xover3pDestroyedSignal = pyqtSignal(QObject, int)
     decoratorCreatedSignal = pyqtSignal(QObject, QObject, int)
     decoratorDestroyedSignal = pyqtSignal(QObject, int)
+    # always emit these with oldStrandLow, oldStrandHigh, newStrand
+    strandsMergeSignal = pyqtSignal(QObject, QObject, QObject)
+    # always emit these with newStrandLow, newStrandHigh, oldStrand
+    strandsSplitSignal = pyqtSignal(QObject, QObject, QObject)
     
     ### SLOTS ###
     
     
     ### Methods ###
     def undoStack(self):
-        return self._vstrand.undoStack()
+        return self._vStrand.undoStack()
     
-    def vstrand(self):
-        return self._vstrand
+    def vStrand(self):
+        return self._vStrand
     # end def
     
     def oligo(self):
@@ -95,6 +112,17 @@ class Strand(QObject):
     def setNewOligo(self, newOligo):
         
     # end def
+    
+    def decorators(self):
+        return self.decorators
+    #end def
+    
+    def addDecorators(self, additionalDecorators):
+        """
+        used in adding additional decorators during a merge operation
+        """
+        self._decorators.update(additionalDecorators)
+    # def
     
     def destroy(self):
         # QObject also emits a destroyed() Signal
@@ -106,6 +134,10 @@ class Strand(QObject):
         return self._vBaseIndices
     # end def
     
+    def setIdxs(self, idxs):
+        self._vBaseIndices = idxs
+    # end def
+        
     def lowIdx(self):
         return self._vBaseIndices[0]
     # end def
@@ -114,13 +146,65 @@ class Strand(QObject):
         return self._vBaseIndices[1]
     # end def
     
+    def isDrawn5to3(self):
+        return self._vStrand.isDrawn5to3()
+    # end def
+
+    def lowConnection(self):
+        if self.isDrawn5to3():
+            return self._strand5p
+        else:
+            return self._strand3p
+    # end def
+    
+    def setLowConnection(self, strand):
+        if self.isDrawn5to3():
+            self._strand5p = strand
+        else:
+            self._strand3p = strand
+    # end def
+    
+    def highConnection(self):
+        if self.isDrawn5to3():
+            return self._strand3p
+        else:
+            return self._strand5p
+    # end def
+    
+    def setHighConnection(self, strand):
+        if self.isDrawn5to3():
+            self._strand3p = strand
+        else:
+            self._strand5p = strand
+    # end def
+    
     def resize(self):
     
     # end def
     
-    def merge(self, idx):
+    class ResizeCommand(QUndoCommand):
+        def __init__(self, strand, newIndices):
+            super(ResizeCommand, self).__init__()
+            self.strand = strand
+            self.oldIndices = strand.idxs()
+            self.newIndices = newIndices
+        # end def
         
-    # end def
+        def redo(self):
+            std = self.strand
+            nI = self.newIndices
+            std.setIdxs(nI)
+            std.resizedSignal(std, nI)
+        # end def
+        
+        def undo(self):
+            std = self.strand
+            oI = self.oldIndices
+            std.setIdxs(oI)
+            std.resizedSignal(std, oI)
+        # end def
+        
+    # end class
     
     def split(self, idx):
         
