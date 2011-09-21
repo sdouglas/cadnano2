@@ -110,8 +110,9 @@ class VirtualStrand(QObject):
         else:
             raise IndexError("The cached index was invalid")
         self.beginCommandMacro('VirtualStrand.createStrand', useUndoStack)
-        self.addStrand(strand, idx, useUndoStack)
+        idx = self.addStrand(strand, idx, useUndoStack)
         self.endCommandMacro(useUndoStack)
+        return idx
     # end def 
     
     def addStrand(self, strand, idx=None, useUndoStack=True):
@@ -137,11 +138,16 @@ class VirtualStrand(QObject):
         # end def
         
         def redo(self):
-            self.strands.insert(self.idx, self.strand)
+            std = self.strand
+            self.strands.insert(self.idx, std)
+            if useUndoStack:
+                self.strandAddedSignal.emit(std)
         # end def
         
         def undo(self):
             self.strands.pop(self.idx)
+            if useUndoStack:
+                self.strand.strandRemovedSignal.emit()
         # end def
     # end def
     
