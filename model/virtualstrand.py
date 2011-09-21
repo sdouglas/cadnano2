@@ -74,7 +74,7 @@ class VirtualStrand(QObject):
     # end def
     
     def addStrand(self, strand):
-        idx, isInSet = findIndexOfRangeFor(strand)
+        idx, isInSet = self.findIndexOfRangeFor(strand)
         if not isInSet:
             self._strands[idx] = strand
         else:
@@ -82,7 +82,7 @@ class VirtualStrand(QObject):
     # end def
     
     def removeStrand(self, strand):
-        idx, isInSet = findIndexOfRangeFor(strand)
+        idx, isInSet = self.findIndexOfRangeFor(strand)
         if isInSet:
             del self._strands[idx]
         else:
@@ -188,7 +188,7 @@ class VirtualStrand(QObject):
                 low = middle + 1
             #end elif
             else:
-                return None, None
+                return 0, 0
         # end while
         return lowIdx, highIdx
     # end def
