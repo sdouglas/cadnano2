@@ -53,6 +53,7 @@ class Mom:
         key = "stapleModIndicatorMesh%s" % id
         if self.stapleModToSolidHelix.has_key(key):
             del self.stapleModToSolidHelix[key]
+
     def removeIDMapping(self, id, strand):
         key1 = "DNACylinderShape%s" % id
         key2 = "HalfCylinderHelixNode%s" % id
