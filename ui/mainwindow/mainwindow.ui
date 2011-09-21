@@ -251,7 +251,7 @@
    <addaction name="actionNew"/>
    <addaction name="actionOpen"/>
    <addaction name="actionSave"/>
-   <addaction name="actionCSV"/>
+   <addaction name="actionExportStaples"/>
    <addaction name="separator"/>
    <addaction name="actionNewHoneycombPart"/>
    <addaction name="actionNewSquarePart"/>
@@ -680,7 +680,7 @@
     <string>A</string>
    </property>
   </action>
-  <action name="actionCSV">
+  <action name="actionExportStaples">
    <property name="icon">
     <iconset resource="icons.qrc">
      <normaloff>:/filetools/csv</normaloff>:/filetools/csv</iconset>
