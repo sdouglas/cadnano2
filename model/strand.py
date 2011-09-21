@@ -34,14 +34,14 @@ util.qtWrapImport('QtGui', globals(), ['QUndoStack'])
 
 class Strand(QObject):
     
-    def __init__(self, vstrand, indexL, indexR):
+    def __init__(self, vstrand, indexLow, indexHigh):
         super(Strand, self).__init__(vstrand)
         self._oligo = None
         self._vstrand = vstrand
         
         self._strand5p = None
         self._strand3p = None
-        self._vBaseIndexs = (indexL, indexR)
+        self._vBaseIndices = (indexLow, indexHigh)
         
         
         self._decorators = {}
@@ -84,7 +84,15 @@ class Strand(QObject):
     # end def
     
     def idxs(self):
-        return self._vBaseIndexs
+        return self._vBaseIndices
+    # end def
+    
+    def lowIdx(self):
+        return self._vBaseIndices[0]
+    # end def
+    
+    def highIdx(self):
+        return self._vBaseIndices[1]
     # end def
     
     def resize(self):

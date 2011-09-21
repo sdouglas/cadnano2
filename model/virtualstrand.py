@@ -37,10 +37,11 @@ class VirtualStrand(QObject):
         super(VirtualStrand, self).__init__(vhelix)
         self._vhelix = vhelix
         self._strands = []
-
+        
     # end def
     
     ### SIGNALS ###
+    strandAddedSignal = pyqtSignal(QObject)
     
     ### SLOTS ###
     
@@ -60,8 +61,90 @@ class VirtualStrand(QObject):
         return self._vhelix
     # end def
     
+    def strandToBeDestroy(self, strand):
+        strands = self.strands
+        del strands[strand.idx]
+    # end def
+    
     def minmax(self):
+        """
+        return the bounds of the virtualstrand as defined in the part
+        """
         return self._vhelix.part().minmax()
+    # end def
+    
+    def addStrand(self, strand):
+        idx, isInSet = findIndexOfRangeFor(strand)
+        if not isInSet:
+            self._strands[idx] = strand
+        else:
+            raise Exception
+    # end def
+    
+    def removeStrand(self, strand):
+        idx, isInSet = findIndexOfRangeFor(strand)
+        if isInSet:
+            del self._strands[idx]
+        else:
+            raise Exception
+    # end def
+    
+    def findIndexOfRangeFor(self, strand):
+        """
+        a binary search for a strand in self._strands
+        
+        returns a tuple (int, bool) 
+        
+        returns a positive value index in self._strands
+        if the element is in the set
+        
+        returns a negative value index in self._strands
+        if the element is not in the set, to be used as an insertion point
+        
+        returns True if the strand is in range
+        
+        returns False if the strand is not in range
+            in this case, if a strand is for some reason passed to this 
+            method that overlaps an existing range, it will return 
+            a positive 1 in addition to False rather than raise an exception
+        """
+        strands = self._strands
+        lenStrands = len(strands)
+        if lenStrands == 0:
+            return None
+        # end if
+
+        low = 0
+        high = lenStrands - 1
+        while low <= high:
+            middle = low if low == high else (low + high) / 2
+            currentStrand = strands[ middle ]
+            
+            # pre get indices from strands
+            cLow, cHigh = currentStrand.idxs()
+            sLow, sHigh = strand.idxs()
+            
+            if currentStrand == strand:
+                # strand is an existing range
+                return middle, True
+            # end if
+            elif cLow > sHigh:
+                high = middle - 1
+            # end elif
+            elif cHigh < sLow:
+                low = middle + 1
+            #end elif
+            else:
+                if cLow <= sLow <= cHigh:
+                    # strand is within an existing range
+                    # but is not that range
+                    return 1, False
+                else:
+                # object not in set, here's where you'd insert it
+                    return -middle, False
+            # end else
+        return -low, False
+    # end def
     
     def bounds(self, queryIdx):
         """
@@ -72,37 +155,40 @@ class VirtualStrand(QObject):
         so look at the limit indices and iterate in
         
         this should never be called on an index containing a strand
+        
+        This returns the Pythonic range that is open around the query index
+        this is like strands[x:y]
+        which includes strands[x] but not strands[y]
+        
+        Again this is a binary search on the range
         """
         strands = self._strands
         
         # set the return limits to the maximum bounds of the vstrand
-        leftIdx, rightIdx = self.minmax()
-        temp = strands[0].idxs()
-        lenstrand = len(strands)
-        
+        lowIdx, highIdx = self.minmax()
+        lenStrands = len(strands)
         # check for zero length
-        if  lenstrand == 0:
-            return leftIdx, rightIdx
+        if  lenStrands == 0:
+            return lowIdx, highIdx
         # end if
-        
-        # check the far end first
-        strand = strands[-1]
-        lIdx, rIdx = strands.idxs()
-        if queryIdx > rIdx:
-            leftIdx = rIdx
-            return leftIdx, rightIdx
-        # end if
-        # now just check two or less
-        for strand in strands[0:-1]:
-            lIdx, rIdx = strands.idxs()
-            if leftIdx < queryIdx < lIdx:
-                rightIdx = lIdx
-                break
-            elif queryIdx > rIdx:
-                leftIdx = rIdx
-                break
+        low = 0
+        high = lenStrands - 1
+        while low <= high:
+            middle = low if low == high else (low + high) / 2
+            currentStrand = strands[ middle ]
+            cLow, cHigh = currentStrand.idxs()
+            if cLow > queryIdx:
+                # adjust bounds down
+                highIdx = cLow
+                high = middle - 1
+            # end if
+            elif cHigh < queryIdx:
+                # adjust bounds up
+                lowIdx = cHigh + 1
+                low = middle + 1
+            #end elif
             else:
-                leftIdx = rIdx
-        # end for
-        return leftIdx, rightIdx
+                return None, None
+        # end while
+        return lowIdx, highIdx
     # end def
