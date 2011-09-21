@@ -37,6 +37,7 @@ class Document(QObject):
         self._undoStack = QUndoStack()
         self._parts = []
         self._assemblies = []
+        self._controller = None
 
     ### SIGNALS ###
     partAddedSignal = pyqtSignal(object, object)  # part, controller
@@ -122,12 +123,6 @@ class Document(QObject):
             self._part._setDocument(None)
             self._doc._parts.remove(self._part)
             self._part.partRemoved.emit()
-
-    def undoStack(self):
-        if self.controller():
-            return self.controller().undoStack()
-        self._undoStack = QUndoStack()
-        return self._undoStack
 
     ################### Transient (doesn't get saved) State ##################
     selectedPartChanged = pyqtSignal(object)

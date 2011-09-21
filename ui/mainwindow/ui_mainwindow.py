@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'mainwindow/mainwindow.ui'
 #
-# Created: Mon Sep 19 14:18:12 2011
+# Created: Wed Sep 21 15:04:45 2011
 #      by: PyQt4 UI code generator 4.8.4
 #
 # WARNING! All changes made in this file will be lost!
@@ -252,11 +252,11 @@ class Ui_MainWindow(object):
         icon18.addPixmap(QtGui.QPixmap(_fromUtf8(":/pathtools/addseq")), QtGui.QIcon.Normal, QtGui.QIcon.Off)
         self.actionPathAddSeq.setIcon(icon18)
         self.actionPathAddSeq.setObjectName(_fromUtf8("actionPathAddSeq"))
-        self.actionCSV = QtGui.QAction(MainWindow)
+        self.actionExportStaples = QtGui.QAction(MainWindow)
         icon19 = QtGui.QIcon()
         icon19.addPixmap(QtGui.QPixmap(_fromUtf8(":/filetools/csv")), QtGui.QIcon.Normal, QtGui.QIcon.Off)
-        self.actionCSV.setIcon(icon19)
-        self.actionCSV.setObjectName(_fromUtf8("actionCSV"))
+        self.actionExportStaples.setIcon(icon19)
+        self.actionExportStaples.setObjectName(_fromUtf8("actionExportStaples"))
         self.actionPreferences = QtGui.QAction(MainWindow)
         self.actionPreferences.setObjectName(_fromUtf8("actionPreferences"))
         self.actionFrame = QtGui.QAction(MainWindow)
@@ -286,7 +286,7 @@ class Ui_MainWindow(object):
         self.topToolBar.addAction(self.actionNew)
         self.topToolBar.addAction(self.actionOpen)
         self.topToolBar.addAction(self.actionSave)
-        self.topToolBar.addAction(self.actionCSV)
+        self.topToolBar.addAction(self.actionExportStaples)
         self.topToolBar.addSeparator()
         self.topToolBar.addAction(self.actionNewHoneycombPart)
         self.topToolBar.addAction(self.actionNewSquarePart)
@@ -382,8 +382,8 @@ class Ui_MainWindow(object):
         self.actionPathAddSeq.setText(QtGui.QApplication.translate("MainWindow", "Seq", None, QtGui.QApplication.UnicodeUTF8))
         self.actionPathAddSeq.setToolTip(QtGui.QApplication.translate("MainWindow", "(A)dd Sequence Tool", None, QtGui.QApplication.UnicodeUTF8))
         self.actionPathAddSeq.setShortcut(QtGui.QApplication.translate("MainWindow", "A", None, QtGui.QApplication.UnicodeUTF8))
-        self.actionCSV.setText(QtGui.QApplication.translate("MainWindow", "Export", None, QtGui.QApplication.UnicodeUTF8))
-        self.actionCSV.setToolTip(QtGui.QApplication.translate("MainWindow", "export oligos as *.CSV", None, QtGui.QApplication.UnicodeUTF8))
+        self.actionExportStaples.setText(QtGui.QApplication.translate("MainWindow", "Export", None, QtGui.QApplication.UnicodeUTF8))
+        self.actionExportStaples.setToolTip(QtGui.QApplication.translate("MainWindow", "export oligos as *.CSV", None, QtGui.QApplication.UnicodeUTF8))
         self.actionPreferences.setText(QtGui.QApplication.translate("MainWindow", "Preferences", None, QtGui.QApplication.UnicodeUTF8))
         self.actionPreferences.setShortcut(QtGui.QApplication.translate("MainWindow", "Ctrl+,", None, QtGui.QApplication.UnicodeUTF8))
         self.actionFrame.setText(QtGui.QApplication.translate("MainWindow", "Frame", None, QtGui.QApplication.UnicodeUTF8))

@@ -35,84 +35,29 @@ class DocumentController():
     """
     Connects UI buttons to their corresponding actions in the model.
     """
+    ### INIT METHODS ###
     def __init__(self, doc=None, fname=None):
         """docstring for __init__"""
-        # init variables
-        self._document = None
-        self._undoStack = None
+        # initialize variables
+        self._document = Document() if not doc else doc
         self._filename = fname
+        self.win = None
+        self._undoStack = None
         self._hasNoAssociatedFile = None
         self._sliceViewInstance = None
         self._pathViewInstance = None
         self._solidView = None
         self._activePart = None
-        # setup window
+        # call other init methods
+        self.initWindow()
+        self.initMaya()
+        app().documentControllers.add(self)
+
+    def initWindow(self):
+        """docstring for initWindow"""
         self.win = DocumentWindow(docCtrlr=self)
-        self.win.closeEvent = self.closeEventHandler
         self.connectWindowSignalsToSelf()
         self.win.show()
-        self.setDocument(Document() if not doc else doc)
-
-    ### SLOTS ###
-    def undoStackCleanChangedSlot(self):
-        """docstring for undoStackCleanChangedSlot"""
-        pass
-
-    def actionNewSlot(self):
-        """docstring for actionNewSlot"""
-        pass
-
-    def actionOpenSlot(self):
-        """docstring for actionOpenSlot"""
-        pass
-
-    def actionCloseSlot(self):
-        """docstring for actionCloseSlot"""
-        pass
-
-    def actionSaveSlot(self):
-        """docstring for actionSaveSlot"""
-        pass
-
-    def actionSaveAsSlot(self):
-        """docstring for actionSaveAsSlot"""
-        pass
-
-    def actionSVGSlot(self):
-        """docstring for actionSVGSlot"""
-        pass
-
-    def actionCSVSlot(self):
-        """docstring for actionCSVSlot"""
-        pass
-        
-    def actionPrefsSlot(self):
-        """docstring for actionPrefsSlot"""
-        app().prefsClicked
-
-    def actionModifySlot(self):
-        """docstring for actionModifySlot"""
-        pass
-
-    def actionAutostapleSlot(self):
-        """docstring for actionAutostapleSlot"""
-        pass
-
-    def actionModifySlot(self):
-        """docstring for actionModifySlot"""
-        pass
-
-    def actionAddHoneycombPartSlot(self):
-        """docstring for actionAddHoneycombPartSlot"""
-        pass
-
-    def actionAddSquarePartSlot(self):
-        """docstring for actionAddSquarePartSlot"""
-        pass
-
-    ### METHODS ###
-    def undoStack(self):
-        return self._document.undoStack()
 
     def connectWindowSignalsToSelf(self):
         """This method serves to group all the signal & slot connections
@@ -123,14 +68,176 @@ class DocumentController():
         self.win.actionSave.triggered.connect(self.actionSaveSlot)
         self.win.actionSave_As.triggered.connect(self.actionSaveAsSlot)
         self.win.actionSVG.triggered.connect(self.actionSVGSlot)
-        self.win.actionAutoStaple.triggered.connect(self.autoStapleClicked)
-        self.win.actionCSV.triggered.connect(self.actionCSVSlot)
+        self.win.actionAutoStaple.triggered.connect(self.actionAutostapleSlot)
+        self.win.actionExportStaples.triggered.connect(self.actionExportStaplesSlot)
         self.win.actionPreferences.triggered.connect(self.actionPrefsSlot)
         self.win.actionModify.triggered.connect(self.actionModifySlot)
         self.win.actionNewHoneycombPart.triggered.connect(\
             self.actionAddHoneycombPartSlot)
         self.win.actionNewSquarePart.triggered.connect(\
             self.actionAddSquarePartSlot)
+        self.win.closeEvent = self.windowCloseEventHandler
+
+    def initMaya(self):
+        """docstring for initMaya"""
+        if app().isInMaya():
+            # There will only be one document
+            if (app().activeDocument and app().activeDocument.win and
+                                    not app().activeDocument.win.close()):
+                return
+            del app().activeDocument
+            app().deleteAllMayaNodes()
+            app().activeDocument = self
+
+    ### SLOTS ###
+    def undoStackCleanChangedSlot(self):
+        """The title changes to include [*] on modification."""
+        self.win.setWindowModified(not self.undoStack().isClean())
+        self.win.setWindowTitle(self.documentTitle())
+
+    def actionNewSlot(self):
+        """
+        1. If document is has no parts, do nothing.
+        2. If document is dirty, call maybeSave and continue if it succeeds.
+        3. Create a new document and swap it into the existing ctrlr/window.
+        """
+        if len(self._document.parts()) == 0:
+            # print "no parts!"
+            return  # no parts
+
+        if self.maybeSave() == False:
+            return  # user canceled in maybe save
+        else:  # user did not cancel
+            if hasattr(self, "filesavedialog"): # user did save
+                self.filesavedialog.finished.connect(self.newClickedCallback)
+            else:  # user did not save
+                self.newClickedCallback()  # finalize new
+
+    def actionOpenSlot(self):
+        """
+        1. If document is untouched, proceed to open dialog.
+        2. If document is dirty, call maybesave and continue if it succeeds.
+        Downstream, the file is selected in openAfterMaybeSave,
+        and the selected file is actually opened in openAfterMaybeSaveCallback.
+        """
+        if self.maybeSave() == False:
+            return  # user canceled in maybe save
+        else:  # user did not cancel
+            if hasattr(self, "filesavedialog"): # user did save
+                if self.filesavedialog != None:
+                    self.filesavedialog.finished.connect(\
+                                                    self.openAfterMaybeSave)
+                else:
+                    self.openAfterMaybeSave()  # windows
+            else:  # user did not save
+                self.openAfterMaybeSave()  # finalize new
+
+    def actionCloseSlot(self):
+        """This will trigger a Window closeEvent."""
+        if util.isWindows():
+            self.win.close()
+
+    def actionSaveSlot(self):
+        """SaveAs if necessary, otherwise overwrite existing file."""
+        if self._hasNoAssociatedFile:
+            self.saveFileDialog()
+            return
+        # if importedFromJson:
+        #     self.saveFileDialog()
+        #     return
+        self.writeDocumentToFile()
+
+    def actionSaveAsSlot(self):
+        """Open a save file dialog so user can choose a name."""
+        self.saveFileDialog()
+
+    def actionSVGSlot(self):
+        """docstring for actionSVGSlot"""
+        pass
+
+    def actionExportStaplesSlot(self):
+        """
+        Triggered by clicking Export Staples button. Opens a file dialog to
+        determine where the staples should be saved. The callback is
+        exportCSVCallback which collects the staple sequences and exports
+        the file.
+        """
+        fname = self.filename()
+        if fname == None:
+            directory = "."
+        else:
+            directory = QFileInfo(fname).path()
+        if util.isWindows():  # required for native looking file window
+            fname = QFileDialog.getSaveFileName(
+                            self.win,
+                            "%s - Export As" % QApplication.applicationName(),
+                            directory,
+                            "(*.csv)")
+            self.saveCSVdialog = None
+            self.exportFile(fname)
+        else:  # access through non-blocking callback
+            fdialog = QFileDialog(
+                            self.win,
+                            "%s - Export As" % QApplication.applicationName(),
+                            directory,
+                            "(*.csv)")
+            fdialog.setAcceptMode(QFileDialog.AcceptSave)
+            fdialog.setWindowFlags(Qt.Sheet)
+            fdialog.setWindowModality(Qt.WindowModal)
+            # fdialog.exec_()  # or .show(), or .open()
+            self.saveCSVdialog = fdialog
+            self.saveCSVdialog.filesSelected.connect(self.exportCSVCallback)
+            fdialog.open()
+    # end def
+
+    def actionPrefsSlot(self):
+        """docstring for actionPrefsSlot"""
+        app().prefsClicked
+
+    def actionAutostapleSlot(self):
+        """docstring for actionAutostapleSlot"""
+        self.activePart().autoStaple()
+
+    def actionModifySlot(self):
+        """docstring for actionModifySlot"""
+        pass
+
+    def actionAddHoneycombPartSlot(self):
+        """docstring for actionAddHoneycombPartSlot"""
+        part = self._document.addDnaHoneycombPart()
+        self.setActivePart(part)
+
+    def actionAddSquarePartSlot(self):
+        """docstring for actionAddSquarePartSlot"""
+        part = self._document.addDnaSquarePart()
+        self.setActivePart(part)
+
+    ### METHODS ###
+    def undoStack(self):
+        return self._document.undoStack()
+
+    def newDocument(self, doc=None, fname=None):
+        """Creates a new Document, reusing the DocumentController."""
+        if app().isInMaya():
+            app().deleteAllMayaNodes()
+        self._document.removeAllParts()  # clear out old parts
+        self._undoStack.clear()  # reset undostack
+        del self.sliceGraphicsItem
+        del self.pathHelixGroup
+        self.sliceGraphicsItem = None
+        self.pathHelixGroup = None
+        self.solidHelixGroup = None
+        self._filename = fname if fname else "untitled.nno"
+        self._hasNoAssociatedFile = fname == None
+        self._activePart = None
+        self.win.setWindowTitle(self.documentTitle() + '[*]')
+        if doc != None and doc.parts():
+            part = doc.parts()[0]
+            self._activePart = part
+            self.setDocument(doc)
+            part.needsFittingToView.emit()  # must come after setDocument
+        else:
+            self.setDocument(Document())
 
     def windowCloseEventHandler(self, event):
         """Intercept close events when user attempts to close the window."""
@@ -143,83 +250,221 @@ class DocumentController():
         else:
             event.ignore()
 
-    # slot callbacks
+    ### slot callbacks ###
     def actionNewSlotCallback(self):
-        """docstring for actionNewSlotCallback"""
-        pass
+        """
+        Gets called on completion of filesavedialog after newClicked's 
+        maybeSave. Removes the dialog if necessary, but it was probably
+        already removed by saveFileDialogCallback.
+        """
+        if hasattr(self, "filesavedialog"): # user did save
+            self.filesavedialog.finished.disconnect(self.actionNewSlotCallback)
+            del self.filesavedialog  # prevents hang (?)
+        self.newDocument()
 
     def saveFileDialogCallback(self):
         """docstring for saveFileDialogCallback"""
-        pass
+        if isinstance(selected, QStringList) or isinstance(selected, list):
+            fname = selected[0]
+        else:
+            fname = selected
+        if fname.isEmpty() or os.path.isdir(fname):
+            return False
+        fname = str(fname)
+        if not fname.lower().endswith(".nno"):
+            fname += ".nno"
+        if self.filesavedialog != None:
+            self.filesavedialog.filesSelected.disconnect(
+                                                self.saveFileDialogCallback)
+            del self.filesavedialog  # prevents hang
+        self.writeDocumentToFile(fname)
 
     def openAfterMaybeSaveCallback(self):
         """docstring for openAfterMaybeSaveCallback"""
-        pass
+        if isinstance(selected, QStringList) or isinstance(selected, list):
+            fname = selected[0]
+        else:
+            fname = selected
+        if not fname or os.path.isdir(fname):
+            return False
+        fname = str(fname)
+        doc = decode(file(fname).read())
+        self.newDocument(doc, fname)
+        doc.finalizeImport()  # updates staple highlighting
+        if self.fileopendialog != None:
+            self.fileopendialog.filesSelected.disconnect(\
+                                              self.openAfterMaybeSaveCallback)
+            # manual garbage collection to prevent hang (in osx)
+            del self.fileopendialog
 
-    # window related
-    def windowCloseMethod(self):
-        """docstring for windowCloseMethod"""
-        pass
+    ### file input ##
+    def documentTitle(self):
+        fname = os.path.basename(str(self.filename()))
+        if not self.undoStack().isClean():
+            fname += '[*]'
+        return fname
 
-    def windowChangedMethod(self):
-        """docstring for windowChangedMethod"""
-        pass
-
-    # maya window related
-    def setupMayaWindow(self):
-        """docstring for setupMayaWindow"""
-        pass
-
-    # file input
-    def getDocumentTitle(self):
-        """docstring for getDocumentTitle"""
-        pass
-
-    def getFilename(self):
-        """docstring for getFilename"""
-        pass
+    def filename(self):
+        return self._filename
 
     def setFilename(self):
-        """docstring for setFilename"""
-        pass
+        if self._filename == proposedFName:
+            return True
+        self._filename = proposedFName
+        self._hasNoAssociatedFile = False
+        self.win.setWindowTitle(self.documentTitle())
+        return True
 
     def openAfterMaybeSave(self):
         """docstring for openAfterMaybeSave"""
-        pass
+        if util.isWindows():  # required for native looking file window
+            fname = QFileDialog.getOpenFileName(
+                        None,
+                        "Open Document", "/",
+                        "CADnano1 / CADnano2 Files (*.nno *.json *.cadnano)")
+            self.filesavedialog = None
+            self.openAfterMaybeSaveCallback(fname)
+        else:  # access through non-blocking callback
+            fdialog = QFileDialog(
+                        self.win,
+                        "Open Document",
+                        "/",
+                        "CADnano1 / CADnano2 Files (*.nno *.json *.cadnano)")
+            fdialog.setAcceptMode(QFileDialog.AcceptOpen)
+            fdialog.setWindowFlags(Qt.Sheet)
+            fdialog.setWindowModality(Qt.WindowModal)
+            # fdialog.exec_()  # or .show(), or .open()
+            self.fileopendialog = fdialog
+            self.fileopendialog.filesSelected.connect(self.openAfterMaybeSaveCallback)
+            fdialog.open()  # or .show(), or .open()
 
     def openAfterMaybeSaveCallback(self):
-        """docstring for openAfterMaybeSaveCallback"""
-        pass
+        if isinstance(selected, QStringList) or isinstance(selected, list):
+            fname = selected[0]
+        else:
+            fname = selected
+        if not fname or os.path.isdir(fname):
+            return False
+        fname = str(fname)
+        doc = decode(file(fname).read())
+        # DocumentController(doc, fname)
+        self.newDocument(doc, fname)
+        doc.finalizeImport()  # updates staple highlighting
+        if self.fileopendialog != None:
+            self.fileopendialog.filesSelected.disconnect(\
+                                              self.openAfterMaybeSaveCallback)
+            # manual garbage collection to prevent hang (in osx)
+            del self.fileopendialog
 
-    # file output
+    ### file output ###
     def maybeSave(self):
-        """docstring for maybeSave"""
-        pass
+        """Save on quit, check if document changes have occured."""
+        if app().dontAskAndJustDiscardUnsavedChanges:
+            return True
+        if not self.undoStack().isClean():    # document dirty?
+            savebox = QMessageBox(QMessageBox.Warning,   "Application",
+                "The document has been modified.\nDo you want to save your changes?",
+                QMessageBox.Save | QMessageBox.Discard | QMessageBox.Cancel,
+                self.win,
+                Qt.Dialog | Qt.MSWindowsFixedSizeDialogHint | Qt.Sheet)
+            savebox.setWindowModality(Qt.WindowModal)
+            save = savebox.button(QMessageBox.Save)
+            discard = savebox.button(QMessageBox.Discard)
+            cancel = savebox.button(QMessageBox.Cancel)
+            save.setShortcut("Ctrl+S")
+            discard.setShortcut(QKeySequence("D,Ctrl+D"))
+            cancel.setShortcut(QKeySequence("C,Ctrl+C,.,Ctrl+."))
+            ret = savebox.exec_()
+            del savebox  # manual garbage collection to prevent hang (in osx)
+            if ret == QMessageBox.Save:
+                return self.saveAsClicked()
+            elif ret == QMessageBox.Cancel:
+                return False
+        return True
 
-    def writeDocumentToFile(self, filename):
-        """docstring for writeDocumentToFile"""
-        pass
+    def writeDocumentToFile(self, filename=None):
+        if filename == None:
+            assert(not self._hasNoAssociatedFile)
+            filename = self.filename()
+        try:
+            f = open(filename, 'w')
+            encode(self._document, f)
+            f.close()
+        except IOError:
+            flags = Qt.Dialog | Qt.MSWindowsFixedSizeDialogHint | Qt.Sheet
+            errorbox = QMessageBox(QMessageBox.Critical,
+                                   "CaDNAno",
+                                   "Could not write to '%s'." % filename,
+                                   QMessageBox.Ok,
+                                   self.win,
+                                   flags)
+            errorbox.setWindowModality(Qt.WindowModal)
+            errorbox.open()
+            return False
+        self.undoStack().setClean()
+        self.setFilename(filename)
+        return True
 
     def saveFileDialog(self):
-        """docstring for saveFileDialog"""
-        pass
+        """Spawn a QFileDialog to allow user to choose a filename and path."""
+        fname = self.filename()
+        if fname == None:
+            directory = "."
+        else:
+            directory = QFileInfo(fname).path()
+        if util.isWindows():  # required for native looking file window
+            fname = QFileDialog.getSaveFileName(
+                            self.win,
+                            "%s - Save As" % QApplication.applicationName(),
+                            directory,
+                            "%s (*.nno)" % QApplication.applicationName())
+            self.writeDocumentToFile(fname)
+        else:  # access through non-blocking callback
+            fdialog = QFileDialog(
+                            self.win,
+                            "%s - Save As" % QApplication.applicationName(),
+                            directory,
+                            "%s (*.nno)" % QApplication.applicationName())
+            fdialog.setAcceptMode(QFileDialog.AcceptSave)
+            fdialog.setWindowFlags(Qt.Sheet)
+            fdialog.setWindowModality(Qt.WindowModal)
+            # fdialog.exec_()  # or .show(), or .open()
+            self.filesavedialog = fdialog
+            self.filesavedialog.filesSelected.connect(
+                                                self.saveFileDialogCallback)
+            fdialog.open()
 
-    def saveFileDialogCallback(self):
-        """docstring for saveFileDialogCallback"""
-        pass
+    def saveFileDialogCallback(self, selected):
+        """If the user chose to save, write to that file."""
+        if isinstance(selected, QStringList) or isinstance(selected, list):
+            fname = selected[0]
+        else:
+            fname = selected
+        if fname.isEmpty() or os.path.isdir(fname):
+            return False
+        fname = str(fname)
+        if not fname.lower().endswith(".nno"):
+            fname += ".nno"
+        if self.filesavedialog != None:
+            self.filesavedialog.filesSelected.disconnect(
+                                                self.saveFileDialogCallback)
+            del self.filesavedialog  # prevents hang
+        self.writeDocumentToFile(fname)
 
-    # document related
+    ### document related ###
     def document(self):
         """docstring for document"""
         return self._document
 
     def setDocument(self, doc):
         """docstring for setDocument"""
+        print "in setDocument", doc
         self._document = doc
 
-    # part related
+    ### part related ##
     def activePart(self):
-        """docstring for activePart"""
+        if self._activePart == None:
+            self._activePart = self._document.selectedPart()
         return self._activePart
 
     def setActivePart(self, part):
