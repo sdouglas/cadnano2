@@ -133,16 +133,23 @@ class DocumentController():
                 self.openAfterMaybeSave()  # finalize new
 
     def actionCloseSlot(self):
-        """docstring for actionCloseSlot"""
-        pass
+        """This will trigger a Window closeEvent."""
+        if util.isWindows():
+            self.win.close()
 
     def actionSaveSlot(self):
-        """docstring for actionSaveSlot"""
-        pass
+        """SaveAs if necessary, otherwise overwrite existing file."""
+        if self._hasNoAssociatedFile:
+            self.saveFileDialog()
+            return
+        # if importedFromJson:
+        #     self.saveFileDialog()
+        #     return
+        self.writeDocumentToFile()
 
     def actionSaveAsSlot(self):
-        """docstring for actionSaveAsSlot"""
-        pass
+        """Open a save file dialog so user can choose a name."""
+        self.saveFileDialog()
 
     def actionSVGSlot(self):
         """docstring for actionSVGSlot"""
@@ -187,13 +194,9 @@ class DocumentController():
         """docstring for actionPrefsSlot"""
         app().prefsClicked
 
-    def actionModifySlot(self):
-        """docstring for actionModifySlot"""
-        pass
-
     def actionAutostapleSlot(self):
         """docstring for actionAutostapleSlot"""
-        pass
+        self.activePart().autoStaple()
 
     def actionModifySlot(self):
         """docstring for actionModifySlot"""
@@ -201,11 +204,13 @@ class DocumentController():
 
     def actionAddHoneycombPartSlot(self):
         """docstring for actionAddHoneycombPartSlot"""
-        pass
+        part = self._document.addDnaHoneycombPart()
+        self.setActivePart(part)
 
     def actionAddSquarePartSlot(self):
         """docstring for actionAddSquarePartSlot"""
-        pass
+        part = self._document.addDnaSquarePart()
+        self.setActivePart(part)
 
     ### METHODS ###
     def undoStack(self):
@@ -231,8 +236,6 @@ class DocumentController():
             self._activePart = part
             self.setDocument(doc)
             part.needsFittingToView.emit()  # must come after setDocument
-            #if app().isInMaya() and self.solidHelixGrp:
-            #    self.solidHelixGrp.onPersistentDataChanged()
         else:
             self.setDocument(Document())
 
@@ -254,7 +257,6 @@ class DocumentController():
         maybeSave. Removes the dialog if necessary, but it was probably
         already removed by saveFileDialogCallback.
         """
-        # print "newClickedCallback"
         if hasattr(self, "filesavedialog"): # user did save
             self.filesavedialog.finished.disconnect(self.actionNewSlotCallback)
             del self.filesavedialog  # prevents hang (?)
@@ -262,25 +264,38 @@ class DocumentController():
 
     def saveFileDialogCallback(self):
         """docstring for saveFileDialogCallback"""
-        pass
+        if isinstance(selected, QStringList) or isinstance(selected, list):
+            fname = selected[0]
+        else:
+            fname = selected
+        if fname.isEmpty() or os.path.isdir(fname):
+            return False
+        fname = str(fname)
+        if not fname.lower().endswith(".nno"):
+            fname += ".nno"
+        if self.filesavedialog != None:
+            self.filesavedialog.filesSelected.disconnect(
+                                                self.saveFileDialogCallback)
+            del self.filesavedialog  # prevents hang
+        self.writeDocumentToFile(fname)
 
     def openAfterMaybeSaveCallback(self):
         """docstring for openAfterMaybeSaveCallback"""
-        pass
-
-    ### window related ###
-    def windowCloseMethod(self):
-        """docstring for windowCloseMethod"""
-        pass
-
-    def windowChangedMethod(self):
-        """docstring for windowChangedMethod"""
-        pass
-
-    ### maya window related ###
-    def setupMayaWindow(self):
-        """docstring for setupMayaWindow"""
-        pass
+        if isinstance(selected, QStringList) or isinstance(selected, list):
+            fname = selected[0]
+        else:
+            fname = selected
+        if not fname or os.path.isdir(fname):
+            return False
+        fname = str(fname)
+        doc = decode(file(fname).read())
+        self.newDocument(doc, fname)
+        doc.finalizeImport()  # updates staple highlighting
+        if self.fileopendialog != None:
+            self.fileopendialog.filesSelected.disconnect(\
+                                              self.openAfterMaybeSaveCallback)
+            # manual garbage collection to prevent hang (in osx)
+            del self.fileopendialog
 
     ### file input ##
     def documentTitle(self):
@@ -391,7 +406,7 @@ class DocumentController():
         return True
 
     def saveFileDialog(self):
-        """docstring for saveFileDialog"""
+        """Spawn a QFileDialog to allow user to choose a filename and path."""
         fname = self.filename()
         if fname == None:
             directory = "."
@@ -420,7 +435,7 @@ class DocumentController():
             fdialog.open()
 
     def saveFileDialogCallback(self, selected):
-        """docstring for saveFileDialogCallback"""
+        """If the user chose to save, write to that file."""
         if isinstance(selected, QStringList) or isinstance(selected, list):
             fname = selected[0]
         else:
