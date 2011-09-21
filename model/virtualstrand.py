@@ -76,7 +76,7 @@ class VirtualStrand(QObject):
     def addStrand(self, strand):
         idx, isInSet = self.findIndexOfRangeFor(strand)
         if not isInSet:
-            self._strands[idx] = strand
+            self._strands.insert(idx, strand)
         else:
             raise Exception
     # end def
