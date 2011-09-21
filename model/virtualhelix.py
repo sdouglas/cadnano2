@@ -26,7 +26,6 @@
 # http://www.opensource.org/licenses/mit-license.php
 
 from virtualstrand import VirtualStrand
-
 import util
 
 # import Qt stuff into the module namespace with PySide, PyQt4 independence
@@ -34,14 +33,12 @@ util.qtWrapImport('QtCore', globals(), ['pyqtSignal', 'QObject', 'Qt'])
 util.qtWrapImport('QtGui', globals(), ['QUndoStack'])
 
 class VirtualHelix(QObject):
-    
     def __init__(self, part, idnum=0):
         super(VirtualHelix, self).__init__(part)
         self._coords = (None, None) # col, row
         self._part = part
         self._vScafold = VirtualStrand(self)
         self._vStaple = VirtualStrand(self)
-        
         # If self._part exists, it owns self._number
         # in that only it may modify it through the
         # private interface. The public interface for
@@ -50,35 +47,34 @@ class VirtualHelix(QObject):
         # the vhelix owns self._number and may modify it.
         self._number = idnum
     # end def
-    
+
     ### SIGNALS ###
-    
+
     ### SLOTS ###
-    
-    
+
     ### Methods ###
     def undoStack(self):
         return self._part.undoStack()
     # end def
-    
+
     def destroy(self):
         # QObject also emits a destroyed() Signal
         self.setParent(None)
         self.deleteLater()
     # end def
-    
+
     def part(self):
         return self._part
     # end def
-    
+
     def parity(self):
-        return 
+        return
     # end def
-    
+
     def isEvenParity(self):
         return self._part.isEvenParity(self._coords)
     # end def
-    
+
     def vStrand(self, indexHelix, indexType):
         """
         This is a path view specific accessor
@@ -88,9 +84,9 @@ class VirtualHelix(QObject):
         if indexType == 0 and self.isEvenParity():
             return self._vScaffold
         else
-            return self._vStaple 
+            return self._vStaple
     # end def
-    
+
     def vStrandBounds(self, indexHelix, indexType):
         """
         forwards the query to the vstrand

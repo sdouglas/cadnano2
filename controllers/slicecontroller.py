@@ -29,37 +29,39 @@ util.qtWrapImport('QtGui', globals(), [ 'QActionGroup'])
 
 
 class SliceController(QObject):
-    """
-    Manages interactions between the slice widgets/UI and the model.
-    """
-    activeSliceLastSignal = pyqtSignal()
-    activeSliceFirstSignal = pyqtSignal()
-
+    """Manages interactions between the slice widgets/UI and the model."""
     def __init__(self, win):
         """
         We store mainWindow because a controller's got to have
         references to both the layer above (UI) and the layer below (model)
         """
         super(SliceController, self).__init__()
-        self.mainWindow = win
-        self.testRecorder = None
-        win.actionSliceFirst.triggered.connect(self.sliceFirstClicked)
-        win.actionSliceLast.triggered.connect(self.sliceLastClicked)
-        win.actionRenumber.triggered.connect(self.renumberClicked)
+        self._window = win
+        self.connectWindowSignalsToSelf()
 
-        self.toolset = []  # win.actionSliceMove
-        ag = QActionGroup(win)
-        for a in self.toolset:
-            ag.addAction(a)
-        ag.setExclusive(True)
-        self.currentTool = None
+    ### SIGNALS ###
+    activeSliceSetToFirstIndexSignal = pyqtSignal()
+    activeSliceSetToLastIndexSignal = pyqtSignal()
 
-    def sliceLastClicked(self):
-        """docstring for sliceLastClicked"""
-        self.activeSliceLastSignal.emit()
+    ### SLOTS ###
+    def activeSliceFirstSlot(self):
+        """
+        Use a signal to notify the ActiveSliceHandle to move. A signal is used
+        because the SliceController must be instantiated first, and the
+        ActiveSliceHandle can later subscribe.
+        """
+        self.activeSliceSetToFirstIndexSignal.emit()
 
-    def sliceFirstClicked(self):
-        self.activeSliceFirstSignal.emit()
+    def activeSliceLastSlot(self):
+        self.activeSliceSetToLastIndexSignal.emit()
 
-    def renumberClicked(self):
-        self.mainWindow.pathController.activePath().renumber()
+    def actionRenumberSlot(self):
+        self.mainWindow.pathController.activePart().renumber()
+
+    ### METHODS ###
+    def connectWindowSignalsToSelf(self):
+        """This method serves to group all the signal & slot connections
+        made by SliceController"""
+        self._window.actionSliceFirst.triggered.connect(self.activeSliceFirstSlot)
+        self._window.actionSliceLast.triggered.connect(self.activeSliceLastSlot)
+        self._window.actionRenumber.triggered.connect(self.actionRenumberSlot)
