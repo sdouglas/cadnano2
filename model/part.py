@@ -32,12 +32,14 @@ util.qtWrapImport('QtCore', globals(), ['pyqtSignal', 'QObject'])
 util.qtWrapImport('QtGui', globals(), [ 'QUndoCommand', 'QUndoStack'])
 
 class Part(QObject):
+    _step = 21  # this is the period of the part lattice
+    
     def __init__(self, parent=None):
         super(Part, self).__init__(parent)
         self._document = None
         self._oligos = []
         self._position = [0, 0, 0, 0, 0, 0]  # x, y, z,phi, theta, psi
-
+        self._minmax = (0,self._step)
     ### SIGNALS ###
     partDestroyedSignal = pyqtSignal(QObject)  # self
     partMovedSignal = pyqtSignal(QObject)  # self
@@ -64,6 +66,13 @@ class Part(QObject):
 
     def position(self):
         return self._position
+        
+    def minmax(self):
+        """
+        return the latice indice bounds relative to the origin
+        """
+        return self._minmax
+    # end def
 
     ### COMMANDS ###
     

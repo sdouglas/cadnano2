@@ -79,9 +79,12 @@ class VirtualStrand(QObject):
         leftIdx, rightIdx = self.minmax()
         temp = strands[0].idxs()
         lenstrand = len(strands)
+        
+        # check for zero length
         if  lenstrand == 0:
             return leftIdx, rightIdx
-            
+        # end if
+        
         # check the far end first
         strand = strands[-1]
         lIdx, rIdx = strands.idxs()
@@ -100,6 +103,6 @@ class VirtualStrand(QObject):
                 break
             else:
                 leftIdx = rIdx
-        # end while
+        # end for
         return leftIdx, rightIdx
     # end def
