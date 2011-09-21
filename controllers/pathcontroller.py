@@ -24,13 +24,13 @@
 
 import os
 from cadnano import app
-# from views.pathview.tools.breaktool import BreakTool
+from views.pathview.tools.selecttool import SelectTool
+# from views.pathview.tools.penciltool import PencilTool
+from views.pathview.tools.breaktool import BreakTool
 # from views.pathview.tools.erasetool import EraseTool
 # from views.pathview.tools.inserttool import InsertTool
-# from views.pathview.tools.painttool import PaintTool
-# from views.pathview.tools.penciltool import PencilTool
-# from views.pathview.tools.selecttool import SelectTool
 # from views.pathview.tools.skiptool import SkipTool
+# from views.pathview.tools.painttool import PaintTool
 # from views.pathview.tools.addseqtool import AddSeqTool
 import util
 
@@ -42,26 +42,20 @@ util.qtWrapImport('QtGui', globals(), [ 'QActionGroup'])
 class PathController(QObject):
     """
     Manages the interactions between Path widgets / UI elements and the model.
-
-    _activeToolWidget indicates which tool is active and lets the user change
-    activeTool()
-
     """
     def __init__(self, win):
         super(PathController, self).__init__()
         self.mainWindow = win
-        self.testRecorder = None
         self._activeTool = None
-        self._activePath = None
+        self._activePart = None
         self.selectTool = SelectTool(self)
+        # self.forceTool = ForceTool(self)
         self.breakTool = BreakTool(self)
-        self.eraseTool = EraseTool(self)
-        self.insertTool = InsertTool(self)
-        self.skipTool = SkipTool(self)
-        self.breakTool = BreakTool(self)
-        self.paintTool = PaintTool(self, win.pathGraphicsView.toolbar)
-        self.pencilTool = PencilTool(self)
-        self.addSeqTool = AddSeqTool(self)
+        # self.eraseTool = EraseTool(self)
+        # self.insertTool = InsertTool(self)
+        # self.skipTool = SkipTool(self)
+        # self.paintTool = PaintTool(self, win.pathGraphicsView.toolbar)
+        # self.addSeqTool = AddSeqTool(self)
 
         def installTool(toolName, window):
             toolWidget = getattr(window, 'actionPath' + toolName)
@@ -80,8 +74,7 @@ class PathController(QObject):
             toolWidget.triggered.connect(handler)
             return toolWidget
 
-        tools = ('Select', 'Paint', 'Break', 'Erase', 'Insert', 'Skip',\
-                 'Pencil', 'AddSeq')
+        tools = ('Select', 'Break') #'Pencil', 'Erase', 'Insert', 'Skip', 'Paint', 'AddSeq')
         ag = QActionGroup(win)
         # for toolName in tools:
         #     toolAction = installTool(toolName, win)
@@ -92,21 +85,20 @@ class PathController(QObject):
         startupToolName = app().prefs.getStartupToolName()
         getattr(self, 'choose' + startupToolName + 'Tool')()
 
+    ### SIGNALS ###
+    activeToolChangedSignal = pyqtSignal(str)
+
+    ### SLOTS ###
+
+    ### METHODS ###
+    def activePart(self):
+        return self._activePart
+
+    def setActivePart(self, part):
+        self._activePart = part
+
     def activeTool(self):
         return self._activeTool
-
-    def setActivePath(self, phg):
-        self._activePath = phg
-
-    def activePath(self):
-        return self._activePath
-
-    def isSelectToolActive(self):
-        if self.activeTool() == self.selectTool:
-            return True
-        return False
-
-    activeToolChanged = pyqtSignal(str)
 
     def setActiveTool(self, newActiveTool):
         if newActiveTool == self._activeTool:
@@ -118,7 +110,12 @@ class PathController(QObject):
             self._activeTool.setActive(False)
         self._activeTool = newActiveTool
         self._activeTool.setActive(True)
-        self.activeToolChanged.emit(self._activeTool.actionName)
+        self.activeToolChangedSignal.emit(self._activeTool.actionName)
+
+    def isSelectToolActive(self):
+        if self.activeTool() == self.selectTool:
+            return True
+        return False
 
     def lastLocation(self):
         """(PathHelix, posInScene) or None, depending on where

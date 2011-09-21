@@ -31,17 +31,14 @@ import controllers.pathcontroller as pathcontroller
 import controllers.slicecontroller as slicecontroller
 from cadnano import app
 from views.pathview.colorpanel import ColorPanel
-from tests.testrecorder import TestRecorder
-
 import util
-# import Qt stuff into the module namespace with PySide, PyQt4 independence
 util.qtWrapImport('QtCore', globals(), ['pyqtSignal', 'Qt', 'QFileInfo',
                                         'QPoint', 'QSettings', 'QSize',
                                         'QString'])
-util.qtWrapImport('QtGui', globals(), ['QGraphicsObject', 'QMainWindow',
-                                        'QGraphicsScene', 'QGraphicsView',
-                                        'QApplication', 'QAction', 'QWidget'])
-# util.qtWrapImport('QtOpenGL', globals(), ['QGLWidget', 'QGLFormat', 'QGL'])
+util.qtWrapImport('QtGui', globals(), ['QAction', 'QApplication',
+                                       'QGraphicsObject', 'QGraphicsScene',
+                                       'QGraphicsView', 'QMainWindow',
+                                       'QWidget'])
 
 
 class SceneRoot(QGraphicsObject):

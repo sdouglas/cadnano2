@@ -111,8 +111,12 @@ class DocumentController():
         pass
 
     ### METHODS ###
+    def undoStack(self):
+        return self._document.undoStack()
+
     def connectWindowSignalsToSelf(self):
-        """docstring for connectWindowEventSignalsToSlots"""
+        """This method serves to group all the signal & slot connections
+        made by DocumentController"""
         self.win.actionNew.triggered.connect(self.actionNewSlot)
         self.win.actionOpen.triggered.connect(self.actionOpenSlot)
         self.win.actionClose.triggered.connect(self.actionCloseSlot)
