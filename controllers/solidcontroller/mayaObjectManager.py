@@ -44,10 +44,14 @@ class Mom:
     mayaToCn = {}
     # uses strand objects as the key, stores a list of maya nodes
     cnToMaya = {}
-    
-    def removeMapping(self, id, strand):
-        if self.mayaToCn.has_key(id):
-            del self.mayaToCn[id]
+
+    def removeIDMapping(self, id, strand):
+        key1 = "DNACylinderShape%s" % id
+        key2 = "HalfCylinderHelixNode%s" % id
+        if self.mayaToCn.has_key(key1):
+            del self.mayaToCn[key1]
+        if self.mayaToCn.has_key(key2):
+            del self.mayaToCn[key2]
         if self.cnToMaya.has_key(strand):
             del self.cnToMaya[strand]
     
