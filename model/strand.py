@@ -49,6 +49,25 @@ class Strand(QObject):
         self._note = None
     # end def
     
+    def __eq__(self, strand):
+        return self is strand
+        
+    def __ne__(self, strand):
+        return not self is strand
+
+    def __lt__(self, strand):
+        return self._vBaseIndices[1] < strand._vBaseIndices[0]
+
+    def __gt__(self, strand):
+        return self._vBaseIndices[0] > strand._vBaseIndices[1]
+
+    def __le__(self, strand):
+        return self.__eq__(strand) or self.__lt__(strand)
+
+    def __ge__(self, strand):
+        return self.__eq__(strand) or self.__gt__(strand)
+    # end def
+    
     ### SIGNALS ###
     hasNewOligoSignal = pyqtSignal(QObject)
     destroyedSignal = pyqtSignal(QObject)
