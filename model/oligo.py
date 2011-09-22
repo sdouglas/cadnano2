@@ -98,15 +98,12 @@ class Oligo(QObject):
         self.part().removeOligo(self)
     # end def
 
-    def strandSplitUpdate(self, newStrandLow, newStrandHigh, oligoHigh, oldMergedStrand):
+    def strandSplitUpdate(self, newStrand5p, newStrand3p, oligo3p, oldMergedStrand):
         """
         If the oligo is a loop, splitting the strand does nothing. If the
         oligo isn't a loop, a new oligo must be created and assigned to the
         newStrand and everything connected to it downstream.
-        
-        This always is called on a lower indexed half of a split strands
-        oligo
-        AKA strandLow --> oligoLow
+
         """
         # if you split it can't be a loop
         self._isLoop = False
@@ -115,15 +112,10 @@ class Oligo(QObject):
             # oligo
             return
         else:
-            if newStrandLow.isDrawn5to3():
-                self._strand5p = oldMergedStrand.oligo()._strand5p
-                oligoHigh._strand5p = newStrandHigh
-            else:
-                self._strand5p = newStrandLow
-                oligoHigh._strand5p = oldMergedStrand.oligo()._strand5p
+            self._strand5p = oldMergedStrand.oligo()._strand5p
+            oligo3p._strand5p = newStrand3p
         # end else
     # end def
-            
 
     def strandMergeUpdate(self, oldStrandLow, oldStrandHigh):
         """

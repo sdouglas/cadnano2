@@ -26,8 +26,10 @@
 # http://www.opensource.org/licenses/mit-license.php
 
 import util
+starmapExec = util.starmapExec
 import bisect
 from operator import itemgetter
+from itertools import izip, repeat
 
 # import Qt stuff into the module namespace with PySide, PyQt4 independence
 util.qtWrapImport('QtCore', globals(), ['pyqtSignal', 'QObject', 'Qt'])
@@ -254,7 +256,8 @@ class VirtualStrand(QObject):
             
             # set ALL of the oligos
             # this will also emit a Signal to Alert the views
-            map(lambda x: Strand.setOligo(x, olg), olg.strand5p())
+            # map(lambda x: Strand.setOligo(x, olg), olg.strand5p())
+            starmapExec( Strand.setOligo, izip(olg.strand5p(), repeat(olg)) )
             
             # add and remove the old oligos from the part
             olg.add()
@@ -289,15 +292,18 @@ class VirtualStrand(QObject):
             vS.addStrand(sH, idx)
             vS.addStrand(sL, idx)
             
-            # make the oligo whole, this fixes the oligos _strand5p and isLoop
-            lOlg.strandsSplit(sL, sH, nS)
-            hOlg.strandsSplit(sL, sH, nS)
-            
             # reset ALL of the oligos back
             # this will also emit a Signal to Alert the views
-            map(lambda x: Strand.setOligo(x, lOlg), lOlg.strand5p())
-            map(lambda x: Strand.setOligo(x, hOlg), hOlg.strand5p())
-
+            # map(lambda x: Strand.setOligo(x, lOlg), lOlg.strand5p())
+            # map(lambda x: Strand.setOligo(x, hOlg), hOlg.strand5p())
+            starmapExec( Strand.setOligo, izip(lOlg.strand5p(), repeat(lOlg)) )
+            starmapExec( Strand.setOligo, izip(hOlg.strand5p(), repeat(hOlg)) )
+            
+            # add and remove the old oligos from the part
+            olg.remove()
+            lOlg.add()
+            hOlg.add()
+            
             # emit Signals related to brand new stuff and destroyed stuff LAST
             
             # out with the new...
@@ -311,6 +317,146 @@ class VirtualStrand(QObject):
         
     # end class
     
+    def split(self, strandA, strandB):
+        if strandA is s
+    # end def
+    
+    class SplitCommand(QUndoCommand):
+        """
+        The most 5 prime new strand retains the oligo properties
+        of the original longer strand.  This new strand has the same 5 prime
+        end index as the original longer strand.
+        
+        virtualIndex is the 3 prime end of the most 5 prime new strand
+        """
+        def __init__(self, strand, rangeIdx, virtualIndex):
+            super(SplitCommand, self).__init__()
+            self.strandOld = strand
+            self.idx = rangeIdx
+            self.vStrand = vStrand = strand.vStrand()
+            self.oldOligo = oligo = strand.oligo()
+            
+            # create the newStrand by copying the priority strand to 
+            # preserve its stuff
+            # calculate strand directionality for which strand the 
+            # 3p priority end is
+            
+            # create copies
+            self.strandLow = strandLow = strand.shallowCopy()
+            self.strandHigh = strandHigh = strand.shallowCopy()
+            self.lOligo = lOligo = oligo.shallowCopy()
+            self.hOligo = hOligo = oligo.shallowCopy()
+            
+            if strand.isDrawn5to3():
+                # strandLow has priority
+                iNewLow = virtualIndex
+                colorLow, colorHigh = oligo.color(), NEWCOLOR
+                olg5p, olg3p = lOligo, hOligo
+                std5p, std3p = strandLow, strandHigh
+            # end if
+            else:
+                # strandHigh has priority
+                iNewLow = virtualIndex-1
+                colorLow, colorHigh = NEWCOLOR, oligo.color()
+                olg5p, olg3p = hOligo, lOligo
+                std5p, std3p = strandHigh, strandLow
+            # end else
+            
+            
+            # Update the Strands
+            strandLow.setHighConnection(None)
+            strandLow.setIdxs(strand.lowIdx(), iNewLow)
+            strandHigh.setLowConnection(None)
+            strandHigh.setIdxs(iNewLow + 1, strand.highIdx())
+            
+            # Update the oligos
+            lOligo.setColor(colorLow)
+            hOligo.setColor(colorHigh)
+            # update the oligo for things like its 5prime end and isLoop
+            olg5p.strandsSplitUpdate(std5p, std3p, olg3p, strand)
+            
+            # take care of splitting up decorators
+            strandLow.removeDecoratorsOutOfRange()
+            strandHigh.removeDecoratorsOutOfRange()
+        # end def
+        
+        def redo(self):
+            vS = self.vStrand
+            sL = self.strandLow
+            sH = self.strandHigh
+            oS = self.oldStrand
+            idx = self.idx
+            olg = self.oldOligo
+            lOlg = self.sLowOligo
+            hOlg = self.sHighOligo
+            
+            # Remove oldAtrand from the vStrand
+            vS.removeStrand(oS, idx)
+            
+            # add the new Strands to the vStrand (orders matter)
+            vS.addStrand(sH, idx)
+            vS.addStrand(sL, idx)
+
+            
+            # set ALL of the oligos
+            # this will also emit a Signal to Alert the views
+            starmapExec( Strand.setOligo, izip(lOlg.strand5p(), repeat(lOlg)) )
+            starmapExec( Strand.setOligo, izip(hOlg.strand5p(), repeat(hOlg)) )
+            
+            # add and remove the old oligos from the part
+            olg.remove()
+            lOlg.add()
+            hOlg.add()
+            
+            # emit Signals related to brand new stuff and destroyed stuff LAST
+            
+            # out with the old...
+            nS.destroyedSignal.emit(oS)
+            
+            # ...in with the new
+            vS.strandAddedSignal.emit(sH)
+            vS.strandAddedSignal.emit(sL)
+            
+        # end def
+        
+        def undo(self):
+            vS = self.vStrand
+            sL = self.strandLow
+            sH = self.strandHigh
+            oS = self.oldStrand
+            idx = self.idx
+            olg = self.oldOligo
+            lOlg = self.sLowOligo
+            hOlg = self.sHighOligo
+            
+            # Remove new strands to the vStrand  (orders matter)
+            vS.removeStrand(sL, idx)
+            vS.removeStrand(sH, idx)
+            
+            # add the oldStrand to the vStrand
+            vS.addStrand(oS, idx)
+            
+            # reset ALL of the oligos back
+            # this will also emit a Signal to Alert the views
+            starmapExec( Strand.setOligo, izip(olg.strand5p(), repeat(olg)) )
+            
+            # add and remove the old oligos from the part
+            olg.add()
+            lOlg.remove()
+            hOlg.remove()
+            
+            # emit Signals related to brand new stuff and destroyed stuff LAST
+            
+            # out with the new...
+            sL.destroyedSignal.emit(sL)
+            sH.destroyedSignal.emit(sH)
+            
+            # ...in with the old
+            vS.strandAddedSignal.emit(oS)
+            
+        # end def
+        
+    # end class
     
     def couldStrandInsertAtLastIndex(self, strand):
         """

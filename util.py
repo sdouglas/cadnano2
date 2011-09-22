@@ -33,6 +33,7 @@ import sys
 from os import path
 from cadnano import app
 import platform
+from itertools import dropwhile, starmap
 
 prng = Random()
 importOverrideDict = None
@@ -205,3 +206,10 @@ def isLinux():
         return True
     else:
         return False
+        
+def starmapExec(f, tupleIter):
+    """
+    takes a function f and * starmaps the list but drops the results
+    """
+    list(dropwhile(lambda x: True, starmap(f, tupleIter)))
+# end def

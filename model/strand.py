@@ -141,6 +141,16 @@ class Strand(QObject):
         self._decorators.update(additionalDecorators)
     # def
     
+    def removeDecoratorsOutOfRange(self):
+        decs = self._decorators
+        idxMin, idMax = self.idxs() 
+        for key in decs:
+            if key > idxMax or key < idxMin:
+                decs.pop(key)
+            #end if
+        # end for
+    # end def
+    
     def destroy(self):
         # QObject also emits a destroyed() Signal
         self.setParent(None)
@@ -222,10 +232,6 @@ class Strand(QObject):
         # end def
         
     # end class
-    
-    def split(self, idx):
-        
-    # end def
     
     def copy(self):
         
