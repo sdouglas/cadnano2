@@ -35,9 +35,19 @@ class Oligo(QObject):
     def __init__(self):
         super(Oligo, self).__init__()
         self._part = None
-        self._strands = []
+        self._strand5p = None
         self._length = 0
         self._isLoop = False
+    # end def
+    
+    def shallowCopy(self):
+        olg = Oligo()
+        olg._part = self._part
+        olg._strand5p = self._strand5p
+        olg._length = self._length
+        olg._isLoop = self._isLoop
+        return olg
+    # end def
 
     ### SIGNALS ###
     notifyMergedStrandsWithNewOligoSignal = pyqtSignal(QObject)  # new oligo
@@ -60,73 +70,92 @@ class Oligo(QObject):
     def part(self):
         return self._part
 
-    def strands(self):
-        return self._strands
+    def strand5p(self):
+        return self._strand5p
+
+    def setStrand5p(self, strand):
+        self._strand5p = strand
+    # end def
 
     def length(self):
         return self._length
 
+    def setLength(self, length):
+        return self._length = length
+
     def isLoop(self):
         return self._isLoop
 
-    def strandSplit(self, newStrandLow, newStrandHigh, oldStrand):
+    def add(self):
+        self.part().addOligo(self)
+    # end def
+
+    def remove(self):
+        """
+        this method merely disconnects to object from the model
+        it still lives on in the undoStack until clobbered
+        """
+        self.part().removeOligo(self)
+    # end def
+
+    def strandSplitUpdate(self, newStrandLow, newStrandHigh, oligoHigh, oldMergedStrand):
         """
         If the oligo is a loop, splitting the strand does nothing. If the
         oligo isn't a loop, a new oligo must be created and assigned to the
         newStrand and everything connected to it downstream.
         
-        When you 
+        This always is called on a lower indexed half of a split strands
+        oligo
+        AKA strandLow --> oligoLow
         """
         # if you split it can't be a loop
-        if self._isLoop == True:
-            self._isLoop = False
+        self._isLoop = False
+        if oldMergedStrand.oligo().isLoop():
+            # don't change the _strand5p cause it was  all the same
+            # oligo
+            return
         else:
-            if newStrandLow.oligo() == self:
+            if newStrandLow.isDrawn5to3():
+                self._strand5p = oldMergedStrand.oligo()._strand5p
+                oligoHigh._strand5p = newStrandHigh
+            else:
                 self._strand5p = newStrandLow
-            elif newStrandHigh.oligo() == self:
-                self._strand5p = newStrandHigh
+                oligoHigh._strand5p = oldMergedStrand.oligo()._strand5p
         # end else
     # end def
             
 
-    def strandMerge(self, oldStrandLow, oldStrandHigh, mergedStrand):
+    def strandMergeUpdate(self, oldStrandLow, oldStrandHigh):
         """
-        A strand merge requires assigning the priviledged strand's
-        oligo to all strands in the mergedStrand. This is done by
-        iterating over all the strands in the mergedStrand oligo.
+        This method correctly sets the isLoop status of the oligo and the
+        oligo
         """
-        # first check to see if this oligo is even needed anymore
-        if mergedStrand.oligo() != self:
-            # not needed so remove from part
-            self.part().removeOligo(self)
+        # check loop status
+        if oldStrandLow.oligo() == oldStrandHigh.oligo():
+            self._isLoop = True
+            # leave the _strand5p as is?
         # end if
-        else:
-            # check loop status
-            if oldStrandLow.oligo() == oldStrandHigh.oligo():
-                self._isLoop = True
-            # end if
-            
-            # Now get correct 5p end to oligo
-            # there are four cases, two where it's already correctly set
-            # and two where it needs to be changed, below are the two
-            if oldStrandLow.isDrawn5to3() and self._strand5p == oldStrandHigh:
-                """
-                the oldStrandLow is more 5p than self._strand5p 
-                and the self._strand5p was pointing to the oldHighstrand but 
-                the high strand didn't have priority so make
-                the new strands oligo
-                """
-                self._strand5p = oldStrandLow.oligo()._strand5p
-            elif not oldStrandHigh.isDrawn5to3() and self._strand5p == oldStrandLow:
-                """
-                the oldStrandHigh is more 5p than self._strand5p 
-                and the self._strand5p was pointing to the oldLowStrand but the 
-                low strand didn't have priority so make
-                the new strands oligo
-                """ 
-                self._strand5p = oldStrandHigh.oligo()._strand5p
-            # end if
-        # end else
+
+        # Now get correct 5p end to oligo
+        # there are four cases, two where it's already correctly set
+        # and two where it needs to be changed, below are the two
+        if oldStrandLow.isDrawn5to3() and self._strand5p == oldStrandHigh:
+            """
+            the oldStrandLow is more 5p than self._strand5p 
+            and the self._strand5p was pointing to the oldHighstrand but 
+            the high strand didn't have priority so make
+            the new strands oligo
+            """
+            self._strand5p = oldStrandLow.oligo()._strand5p
+        elif not oldStrandHigh.isDrawn5to3() and self._strand5p == oldStrandLow:
+            """
+            the oldStrandHigh is more 5p than self._strand5p 
+            and the self._strand5p was pointing to the oldLowStrand but the 
+            low strand didn't have priority so make
+            the new strands oligo
+            """ 
+            self._strand5p = oldStrandHigh.oligo()._strand5p
+        # end if
     # end def
     
     def strandResized(self, delta):

@@ -27,6 +27,7 @@
 
 
 import util
+from operator import attrgetter
 
 # import Qt stuff into the module namespace with PySide, PyQt4 independence
 util.qtWrapImport('QtCore', globals(), ['pyqtSignal', 'QObject', 'Qt'])
@@ -61,6 +62,25 @@ class Strand(QObject):
         return nS
     # end def
 
+    def __iter__(self):
+        """
+        iterate from self to the final _strand3p == None
+        5prime to 3prime
+        
+        Includes originalCount to check for circular linked list
+        
+        """
+        originalCount = 0
+        node = self
+        f = attrgetter('_strand3p')
+        while node and originalCount == 0:
+            yield node
+            # node = node._strand3p
+            node = f(node)
+            if node == self:
+                originalCount += 1
+        # end while
+    # end def
     
     def __eq__(self, strand):
         return self is strand
@@ -89,10 +109,6 @@ class Strand(QObject):
     xover3pDestroyedSignal = pyqtSignal(QObject, int)
     decoratorCreatedSignal = pyqtSignal(QObject, QObject, int)
     decoratorDestroyedSignal = pyqtSignal(QObject, int)
-    # always emit these with oldStrandLow, oldStrandHigh, newStrand
-    strandsMergeSignal = pyqtSignal(QObject, QObject, QObject)
-    # always emit these with newStrandLow, newStrandHigh, oldStrand
-    strandsSplitSignal = pyqtSignal(QObject, QObject, QObject)
     
     ### SLOTS ###
     
@@ -109,8 +125,9 @@ class Strand(QObject):
         return self._oligo
     # end def
     
-    def setNewOligo(self, newOligo):
-        
+    def setOligo(self, newOligo):
+        self._oligo = newOligo
+        self.hasNewOligoSignal.emit(self)
     # end def
     
     def decorators(self):

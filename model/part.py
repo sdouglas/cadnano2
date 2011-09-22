@@ -37,7 +37,7 @@ class Part(QObject):
     def __init__(self, parent=None):
         super(Part, self).__init__(parent)
         self._document = None
-        self._oligos = []
+        self._oligos = {}
         self._position = [0, 0, 0, 0, 0, 0]  # x, y, z,phi, theta, psi
         self._minmax = (0,self._step)
     ### SIGNALS ###
@@ -64,6 +64,16 @@ class Part(QObject):
     def oligos(self):
         return self._oligos
 
+    def addOligo(selg, oligo):
+        self._oligos[oligo] = True
+
+    def removeOligo(self, oligo):
+        self._oligo[oligo] = False
+        self.destroyOligo(oligo)
+        
+    def destroyOligo(self, oligo):
+        del self._oligo[oligo]
+        
     def position(self):
         return self._position
         

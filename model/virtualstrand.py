@@ -209,7 +209,14 @@ class VirtualStrand(QObject):
             pS = priorityStrand
             self.vStrand = vStrand = pS.vStrand()
             
-            # THIS BREAKS ISOLATION FROM VIRTUALSTRAND IF IT IS IN STRAND ARGH
+            # the oligos
+            self.newOligo = pS.oligo().shallowCopy()
+            self.sLowOligo = strandLow.oligo()
+            self.sHighOligo = strandHigh.oligo()
+            # update the oligo for things like its 5prime end and isLoop
+            self.newOligo.strandsMergeUpdate(strandLow, strandHigh)
+            
+            # THIS BREAKS ISOLATION FROM VIRTUALSTRAND IF IT IS IN STRAND
             self.idx = lowIdx
             
             # create the newStrand by copying the priority strand to 
@@ -220,12 +227,10 @@ class VirtualStrand(QObject):
             newStrand.setLowConnection(strandLow.lowConnection())
             newStrand.setHighConnection(strandHigh.HighConnection())
             
-            otherStrand = strandLowif pS == strandLow else strandHigh
+            # take care of merging decorators
+            otherStrand = strandLow if pS == strandLow else strandHigh
             otherDecorators = otherStrand.decorators()
-            
             newStrand.addDecorators(otherDecorators)
-            
-            if newStrand.oligo
             
             self.newStrand = newStrand
         # end def
@@ -236,6 +241,9 @@ class VirtualStrand(QObject):
             sH = self.strandHigh
             nS = self.newStrand
             idx = self.idx
+            olg = self.newOligo
+            lOlg = self.sLowOligo
+            hOlg = self.sHighOligo
             
             # Remove old strands to the vStrand  (orders matter)
             vS.removeStrand(sL, idx)
@@ -244,16 +252,24 @@ class VirtualStrand(QObject):
             # add the newStrand to the vStrand
             vS.addStrand(nS, idx)
             
-            # make the oligo whole
-            nS.oligo().strandsMerge(sL, sH, nS)
+            # set ALL of the oligos
+            # this will also emit a Signal to Alert the views
+            map(lambda x: Strand.setOligo(x, olg), olg.strand5p())
             
-            # emit Signals
+            # add and remove the old oligos from the part
+            olg.add()
+            lOlg.remove()
+            hOlg.remove()
+            
+            # emit Signals related to brand new stuff and destroyed stuff LAST
+            
             # out with the old...
             sL.destroyedSignal.emit(sL)
             sH.destroyedSignal.emit(sH)
             
             # ...in with the new
             vS.strandAddedSignal.emit(nS)
+            
         # end def
         
         def undo(self):
@@ -262,6 +278,9 @@ class VirtualStrand(QObject):
             sH = self.strandHigh
             nS = self.newStrand
             idx = self.idx
+            olg = self.newOligo
+            lOlg = self.sLowOligo
+            hOlg = self.sHighOligo
             
             # Remove new strand from the vStrand
             vS.removeStrand(nS, idx)
@@ -270,10 +289,17 @@ class VirtualStrand(QObject):
             vS.addStrand(sH, idx)
             vS.addStrand(sL, idx)
             
-            # make the oligo whole
-            nS.oligo().strandsSplit(sL, sH, nS)
+            # make the oligo whole, this fixes the oligos _strand5p and isLoop
+            lOlg.strandsSplit(sL, sH, nS)
+            hOlg.strandsSplit(sL, sH, nS)
+            
+            # reset ALL of the oligos back
+            # this will also emit a Signal to Alert the views
+            map(lambda x: Strand.setOligo(x, lOlg), lOlg.strand5p())
+            map(lambda x: Strand.setOligo(x, hOlg), hOlg.strand5p())
 
-            # emit Signals
+            # emit Signals related to brand new stuff and destroyed stuff LAST
+            
             # out with the new...
             nS.destroyedSignal.emit(nS)
             
