@@ -25,11 +25,12 @@
 #
 # http://www.opensource.org/licenses/mit-license.php
 
-
+from parts.dnahoneycombpart import DNAHoneycombPart
+from parts.dnasquarepart import DNASquarePart
 import util
-# import Qt stuff into the module namespace with PySide, PyQt4 independence
 util.qtWrapImport('QtCore', globals(), ['pyqtSignal', 'QObject'])
 util.qtWrapImport('QtGui', globals(), [ 'QUndoCommand', 'QUndoStack'])
+
 
 class Document(QObject):
     def __init__(self):
