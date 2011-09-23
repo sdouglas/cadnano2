@@ -92,7 +92,7 @@ class Oligo(QObject):
 
     def remove(self):
         """
-        this method merely disconnects to object from the model
+        this method merely disconnects the object from the model
         it still lives on in the undoStack until clobbered
         """
         self.part().removeOligo(self)

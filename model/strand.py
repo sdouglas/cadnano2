@@ -35,16 +35,17 @@ util.qtWrapImport('QtGui', globals(), ['QUndoStack'])
 
 class Strand(QObject):
     
-    def __init__(self, vStrand, indexLow, indexHigh):
-        super(Strand, self).__init__(vstrand)
+    def __init__(self, strandSet, indexLow, indexHigh):
+        super(Strand, self).__init__(strandSet)
         self._oligo = None
-        self._vStrand = vStrand
+        self._sSet = strandSet
         
         self._strand5p = None
         self._strand3p = None
         
-        # these are virtual base indices in the virtualStrand
-        # they are also referred to as simply virtualStrand indices
+        # these are virtual base indices in the StrandSet of the strands
+        # VirtualHelix
+        # they are also referred to as simply virtual indices or vIndex
         self._vBaseIndices = (indexLow, indexHigh)
         
         
@@ -54,7 +55,7 @@ class Strand(QObject):
     # end def
     
     def shallowCopy(self):
-        nS = Strand(self._vStrand, self.idxs())
+        nS = Strand(self._sSet, self.idxs())
         nS._oligo = self._oligo
         nS._strand5p = self._strand5p
         nS._strand3p = self._strand3p
@@ -78,7 +79,7 @@ class Strand(QObject):
         f = attrgetter('_strand3p')
         while node and originalCount == 0:
             yield node
-            # node = node._strand3p
+            # equivalen to: node = node._strand3p
             node = f(node)
             if node == self:
                 originalCount += 1
@@ -118,10 +119,10 @@ class Strand(QObject):
     
     ### Methods ###
     def undoStack(self):
-        return self._vStrand.undoStack()
+        return self._sSet.undoStack()
     
-    def vStrand(self):
-        return self._vStrand
+    def strandSet(self):
+        return self._sSet
     # end def
     
     def oligo(self):
@@ -177,7 +178,7 @@ class Strand(QObject):
     # end def
     
     def isDrawn5to3(self):
-        return self._vStrand.isDrawn5to3()
+        return self._sSet.isDrawn5to3()
     # end def
 
     def lowConnection(self):

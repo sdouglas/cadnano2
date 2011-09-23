@@ -25,6 +25,7 @@
 #
 # http://www.opensource.org/licenses/mit-license.php
 
+<<<<<<< HEAD
 from cadnano import app
 from part import Part
 from model.enum import LatticeType, Crossovers
