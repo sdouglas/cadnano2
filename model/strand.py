@@ -42,6 +42,9 @@ class Strand(QObject):
         
         self._strand5p = None
         self._strand3p = None
+        
+        # these are virtual base indices in the virtualStrand
+        # they are also referred to as simply virtualStrand indices
         self._vBaseIndices = (indexLow, indexHigh)
         
         
