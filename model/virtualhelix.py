@@ -25,7 +25,7 @@
 #
 # http://www.opensource.org/licenses/mit-license.php
 
-from virtualstrand import VirtualStrand
+from strandset import StrandSet
 import util
 
 # import Qt stuff into the module namespace with PySide, PyQt4 independence
@@ -37,8 +37,8 @@ class VirtualHelix(QObject):
         super(VirtualHelix, self).__init__(part)
         self._coords = (None, None) # col, row
         self._part = part
-        self._vScaffold = VirtualStrand(self)
-        self._vStaple = VirtualStrand(self)
+        self._vScaffold = StrandSet(self)
+        self._vStaple = StrandSet(self)
         # If self._part exists, it owns self._number
         # in that only it may modify it through the
         # private interface. The public interface for
@@ -75,13 +75,13 @@ class VirtualHelix(QObject):
         return self._part.isEvenParity(self._coords)
     # end def
     
-    def isDrawn5to3(self, vstrand):
-        isScaf = vstrand == self._vScaffold
+    def isDrawn5to3(self, strandSet):
+        isScaf = strandSet == self._vScaffold
         isEven = self.isEvenParity()
         return isEven == isScaf
     # end def
 
-    def vStrand(self, indexHelix, indexType):
+    def strandSet(self, indexHelix, indexType):
         """
         This is a path view specific accessor
         indexType == 0 means top strand
@@ -93,9 +93,9 @@ class VirtualHelix(QObject):
             return self._vStaple
     # end def
 
-    def vStrandBounds(self, indexHelix, indexType):
+    def strandSetBounds(self, indexHelix, indexType):
         """
-        forwards the query to the vstrand
+        forwards the query to the strandSet
         """
-        return self.vStrand(indexHelix, indexType).bounds()
+        return self.strandSet(indexHelix, indexType).bounds()
     # end def

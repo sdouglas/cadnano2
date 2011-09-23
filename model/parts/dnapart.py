@@ -24,3 +24,38 @@
 # THE SOFTWARE.
 #
 # http://www.opensource.org/licenses/mit-license.php
+
+import util
+# import Qt stuff into the module namespace with PySide, PyQt4 independence
+util.qtWrapImport('QtCore', globals(), ['pyqtSignal', 'QObject', 'Qt'])
+util.qtWrapImport('QtGui', globals(), ['QUndoStack', 'QUndoCommand'])
+
+class DNAPart(QObject):
+    """
+    
+    """
+    def __init__(self, document, parentObj):
+        """
+        parentObj = Document or Assembly
+        """
+        super(DNAPart, self).__init__(parent)
+        self._oligos = {}
+        self._parent = parentObj
+        self._document = document
+    # end def
+    
+    ### SIGNALS ###
+    
+    partDestroyedSignal = pyqtSignal(QObject)
+    partMovedSignal = pyqtSignal(tuple)
+    partParentChangedSignal = pyqtSignal(QObject)
+    
+    def addOligo(self):
+        
+    # end def
+    
+    def removeOligo(self):
+        
+    # end def
+    
+# end class
