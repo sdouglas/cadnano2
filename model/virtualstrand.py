@@ -26,8 +26,10 @@
 # http://www.opensource.org/licenses/mit-license.php
 
 import util
+starmapExec = util.starmapExec
 import bisect
 from operator import itemgetter
+from itertools import izip, repeat
 
 # import Qt stuff into the module namespace with PySide, PyQt4 independence
 util.qtWrapImport('QtCore', globals(), ['pyqtSignal', 'QObject', 'Qt'])
@@ -45,7 +47,7 @@ class VirtualStrand(QObject):
     
     def __iter__(self):
         """
-        Iterate over each stran in the strands list
+        Iterate over each strand in the strands list
         """
         return self._strands.__iter__()
     #end def
@@ -60,17 +62,18 @@ class VirtualStrand(QObject):
         if self._undoStack == None:
             self._undoStack = self._vhelix.undoStack()
         return self._undoStack
-        
+    # end def
+
     def destroy(self):
         # QObject also emits a destroyed() Signal
         self.setParent(None)
         self.deleteLater()
     # end def
-    
+
     def vhelix(self):
         return self._vhelix
     # end def
-    
+
     def isDrawn5to3(self):
         return self._vHelix.isDrawn5to3(self)
     # end def
@@ -254,7 +257,8 @@ class VirtualStrand(QObject):
             
             # set ALL of the oligos
             # this will also emit a Signal to Alert the views
-            map(lambda x: Strand.setOligo(x, olg), olg.strand5p())
+            # map(lambda x: Strand.setOligo(x, olg), olg.strand5p())
+            starmapExec( Strand.setOligo, izip(olg.strand5p(), repeat(olg)) )
             
             # add and remove the old oligos from the part
             olg.add()
@@ -289,15 +293,18 @@ class VirtualStrand(QObject):
             vS.addStrand(sH, idx)
             vS.addStrand(sL, idx)
             
-            # make the oligo whole, this fixes the oligos _strand5p and isLoop
-            lOlg.strandsSplit(sL, sH, nS)
-            hOlg.strandsSplit(sL, sH, nS)
-            
             # reset ALL of the oligos back
             # this will also emit a Signal to Alert the views
-            map(lambda x: Strand.setOligo(x, lOlg), lOlg.strand5p())
-            map(lambda x: Strand.setOligo(x, hOlg), hOlg.strand5p())
-
+            # map(lambda x: Strand.setOligo(x, lOlg), lOlg.strand5p())
+            # map(lambda x: Strand.setOligo(x, hOlg), hOlg.strand5p())
+            starmapExec( Strand.setOligo, izip(lOlg.strand5p(), repeat(lOlg)) )
+            starmapExec( Strand.setOligo, izip(hOlg.strand5p(), repeat(hOlg)) )
+            
+            # add and remove the old oligos from the part
+            olg.remove()
+            lOlg.add()
+            hOlg.add()
+            
             # emit Signals related to brand new stuff and destroyed stuff LAST
             
             # out with the new...
@@ -311,6 +318,146 @@ class VirtualStrand(QObject):
         
     # end class
     
+    def split(self, strandA, strandB):
+        if strandA is s
+    # end def
+    
+    class SplitCommand(QUndoCommand):
+        """
+        The most 5 prime new strand retains the oligo properties
+        of the original longer strand.  This new strand has the same 5 prime
+        end index as the original longer strand.
+        
+        virtualIndex is the 3 prime end of the most 5 prime new strand
+        """
+        def __init__(self, strand, rangeIdx, virtualIndex):
+            super(SplitCommand, self).__init__()
+            self.strandOld = strand
+            self.idx = rangeIdx
+            self.vStrand = vStrand = strand.vStrand()
+            self.oldOligo = oligo = strand.oligo()
+            
+            # create the newStrand by copying the priority strand to 
+            # preserve its stuff
+            # calculate strand directionality for which strand the 
+            # 3p priority end is
+            
+            # create copies
+            self.strandLow = strandLow = strand.shallowCopy()
+            self.strandHigh = strandHigh = strand.shallowCopy()
+            self.lOligo = lOligo = oligo.shallowCopy()
+            self.hOligo = hOligo = oligo.shallowCopy()
+            
+            if strand.isDrawn5to3():
+                # strandLow has priority
+                iNewLow = virtualIndex
+                colorLow, colorHigh = oligo.color(), NEWCOLOR
+                olg5p, olg3p = lOligo, hOligo
+                std5p, std3p = strandLow, strandHigh
+            # end if
+            else:
+                # strandHigh has priority
+                iNewLow = virtualIndex-1
+                colorLow, colorHigh = NEWCOLOR, oligo.color()
+                olg5p, olg3p = hOligo, lOligo
+                std5p, std3p = strandHigh, strandLow
+            # end else
+            
+            
+            # Update the Strands
+            strandLow.setHighConnection(None)
+            strandLow.setIdxs(strand.lowIdx(), iNewLow)
+            strandHigh.setLowConnection(None)
+            strandHigh.setIdxs(iNewLow + 1, strand.highIdx())
+            
+            # Update the oligos
+            lOligo.setColor(colorLow)
+            hOligo.setColor(colorHigh)
+            # update the oligo for things like its 5prime end and isLoop
+            olg5p.strandsSplitUpdate(std5p, std3p, olg3p, strand)
+            
+            # take care of splitting up decorators
+            strandLow.removeDecoratorsOutOfRange()
+            strandHigh.removeDecoratorsOutOfRange()
+        # end def
+        
+        def redo(self):
+            vS = self.vStrand
+            sL = self.strandLow
+            sH = self.strandHigh
+            oS = self.oldStrand
+            idx = self.idx
+            olg = self.oldOligo
+            lOlg = self.sLowOligo
+            hOlg = self.sHighOligo
+            
+            # Remove oldAtrand from the vStrand
+            vS.removeStrand(oS, idx)
+            
+            # add the new Strands to the vStrand (orders matter)
+            vS.addStrand(sH, idx)
+            vS.addStrand(sL, idx)
+
+            
+            # set ALL of the oligos
+            # this will also emit a Signal to Alert the views
+            starmapExec( Strand.setOligo, izip(lOlg.strand5p(), repeat(lOlg)) )
+            starmapExec( Strand.setOligo, izip(hOlg.strand5p(), repeat(hOlg)) )
+            
+            # add and remove the old oligos from the part
+            olg.remove()
+            lOlg.add()
+            hOlg.add()
+            
+            # emit Signals related to brand new stuff and destroyed stuff LAST
+            
+            # out with the old...
+            nS.destroyedSignal.emit(oS)
+            
+            # ...in with the new
+            vS.strandAddedSignal.emit(sH)
+            vS.strandAddedSignal.emit(sL)
+            
+        # end def
+        
+        def undo(self):
+            vS = self.vStrand
+            sL = self.strandLow
+            sH = self.strandHigh
+            oS = self.oldStrand
+            idx = self.idx
+            olg = self.oldOligo
+            lOlg = self.sLowOligo
+            hOlg = self.sHighOligo
+            
+            # Remove new strands to the vStrand  (orders matter)
+            vS.removeStrand(sL, idx)
+            vS.removeStrand(sH, idx)
+            
+            # add the oldStrand to the vStrand
+            vS.addStrand(oS, idx)
+            
+            # reset ALL of the oligos back
+            # this will also emit a Signal to Alert the views
+            starmapExec( Strand.setOligo, izip(olg.strand5p(), repeat(olg)) )
+            
+            # add and remove the old oligos from the part
+            olg.add()
+            lOlg.remove()
+            hOlg.remove()
+            
+            # emit Signals related to brand new stuff and destroyed stuff LAST
+            
+            # out with the new...
+            sL.destroyedSignal.emit(sL)
+            sH.destroyedSignal.emit(sH)
+            
+            # ...in with the old
+            vS.strandAddedSignal.emit(oS)
+            
+        # end def
+        
+    # end class
     
     def couldStrandInsertAtLastIndex(self, strand):
         """
@@ -330,6 +477,216 @@ class VirtualStrand(QObject):
                 return False
     # end def
     
+    def bounds(self, queryIdx):
+        """
+        This is called when a virtualStrand is asked prior
+        to put a new strand in what locations are free.
+        
+        queryIdx is a virtualStrand index and not a rangeIndex
+        
+        this should never be called on an index containing a strand,
+        but if it is, it returns None
+        
+        This returns a non-Pythonic but intuitive range tuple, that is
+        inclusive around the query index of the virtual array of bases
+        as if to return (x, y) indicating strands[x:y+1] which includes 
+        strands[x] and strands[y]
+        
+        Again this is a binary search on the range
+        """
+        strands = self._strands
+        
+        # set the return limits to the maximum bounds of the vstrand
+        lowIdx, highIdx = self.minmax()
+        lenStrands = len(strands)
+        # check for zero length
+        if  lenStrands == 0:
+            # it's all good
+            return lowIdx, highIdx
+        # end if
+        low = 0
+        high = lenStrands
+        while low < high:
+            middle = (low + high) / 2
+            currentStrand = strands[ middle ]
+            cLow, cHigh = currentStrand.idxs()
+            if cLow > queryIdx:
+                # adjust bounds down
+                highIdx = cLow - 1
+                high = middle
+            # end if
+            elif cHigh < queryIdx:
+                # adjust bounds up
+                lowIdx = cHigh + 1
+                low = middle + 1
+            #end elif
+            else:
+                # return this when the query is somehow invalid
+                # like if it is called on an index with an 
+                # existing strand
+                return None
+        # end while
+        # set the last query index result
+        self._lastSetIndex = (low + high) /2
+        # return the tuple
+        return lowIdx, highIdx
+    # end def
+    
+    def findOverlappingRanges(self, qstrand, useCache=False):
+        """
+        a binary search for a strands in self._strands overlapping with 
+        a query strands, or qstrands, indices.  
+        
+        Useful for operations on complementary strands such as applying a
+        sequence
+        
+        This is an generator for now
+        
+        Strategy:
+        1.
+            search the _strands for a strand the first strand that has a 
+            highIndex GREATER than or equal to the lowIndex of the query strand. 
+            save that strands rangeIndex as rangeIndexLow.
+            if No strand satisfies this condition, return an empty list
+            
+            Unless it matches the query strand's lowIndex exactly, 
+            Step 1 is O(log N) where N in length of self._strands to the max,
+            that is it needs to exhaust the search
+            
+            conversely you could search for first strand that has a 
+            lowIndex LESS than or equal to the lowIndex of the query strand. 
+
+        2.
+            starting at self._strands[rangeIndexLow] test each strand to see if
+            it's indexLow is LESS than or equal to qstrand.indexHigh.  If it is
+            yield/return that strand.  If it's GREATER than the indexHigh, or
+            you run out of strands to check, the generator terminates
+            
+        """
+        strands = self._strands
+        lenStrands = len(strands)
+        if lenStrands == 0:
+            return
+        # end if
+
+        low = 0
+        high = lenStrands
+        
+        qLow, qHigh = qstrand.idxs()
+        
+        # Step 1, get rangeIndexLow with a binary search
+        if useCache: #or self.doesLastSetIndexMatch(qstrand, strands):
+            # cache match!
+            rangeIndexLow = self._lastSetIndex
+        else:
+            rangeIndexLow = -1
+            while low < high:
+                middle = (low + high) / 2
+                currentStrand = strands[ middle ]
+        
+                # pre get indices from strands
+                cLow, cHigh = currentStrand.idxs()
+        
+                if cHigh == qLow:
+                    # match, break out of while loop
+                    rangeIndexLow = middle
+                    break
+                elif cHigh > qLow:
+                    # store the candidate index
+                    rangeIndexLow = middle
+                    # adjust the high index to find a better candidate if it exists
+                    high = middle - 1
+                # end elif
+                else: # cHigh < qLow
+                    # If a strand exists it must be a higher rangeIndex
+                    # leave the high the same
+                    low = middle + 1
+                #end elif
+            # end while
+        # end else
+        
+        # Step 2 create a generator on matches
+        # match on whether the strands lowIndex is 
+        # within the range of the qStrand
+        if rangeIndexLow > -1:
+            testStrands = iter(strands[rangeIndexLow:])
+            testStrand = testStrands.next()
+            qHigh += 1 # bump it up for a more efficient comparison
+            i = 0   # use this to 
+            while testStrand and testStrand.lowIdx() < qHigh:
+                yield testStrand
+                # use a nex and a default to cause a break condition
+                testStrand = next(testStrands, None)
+                i += 1
+            # end while
+            
+            # cache the last index we left of at
+            i = rangeIndexLow + i
+            """
+            if 
+            1. we ran out of strands to test adjust
+            and 
+            2. the end condition testStrands highIndex is still inside the qstrand
+            but not equal to the end point
+                adjust i down 1
+            otherwise
+            """
+            if not testStrand and testStrand.highIdx() < qHigh-1:
+                 i -= 1
+            # assign cache but double check it's a valid index
+            self._lastSetIndex = i if -1 < i < lenStrands else None
+            return
+        else:
+            # no strand was found
+            # go ahead and clear the cache
+            self._lastSetIndex = None
+            return
+    # end def
+    
+    def doesLastSetIndexMatch(self, qstrand, strands):
+        """
+        strands is passed to save a lookup
+        """
+        
+        lSI = self._lastSetIndex
+        if lSI:
+            qLow, qHigh = qstrand.idxs()
+            testStrand = strands[lSI]
+            tLow, tHigh = testStrand.idxs()
+            if not (qLow <= tLow <= qHigh or qLow <= tHigh <= qHigh):
+                return False
+            else:
+                # get a difference
+                dif = abs(qLow - tLow)
+                
+                # check neighboring strands just in case
+                difLow = dif + 1
+                if lSI > 0:
+                    tLow, tHigh = strand[lSI-1].idxs()
+                    if qLow <= tLow <= qHigh or qLow <= tHigh <= qHigh:
+                        difLow = abs(qLow - tLow)
+                # end if
+                
+                difHigh = dif + 1
+                if lSI < len(strand)-1:
+                    tLow, tHigh = strand[lSI+1].idxs()
+                    if qLow <= tLow <= qHigh or qLow <= tHigh <= qHigh:
+                        difHigh = abs(qLow - tLow)
+               # end if
+                        
+                # check that the cached strand is in fact the right guy
+                if dif < difLow and dif < difHigh:
+                    return True
+                else:
+                    False
+            # end else
+        # end if
+        else:
+            return False
+        # end else
+    # end def
+    
+
     def findIndexOfRangeFor(self, strand):
         """
         a binary search for a strand in self._strands
@@ -361,7 +718,7 @@ class VirtualStrand(QObject):
         sLow, sHigh = strand.idxs()
         
         while low < high:
-            middle = low if low == high else (low + high) / 2
+            middle = (low + high) / 2
             currentStrand = strands[ middle ]
             
             # pre get indices from strands
@@ -388,57 +745,4 @@ class VirtualStrand(QObject):
             # end else
         return -low, False
     # end def
-    
-    def bounds(self, queryIdx):
-        """
-        This is called when a virtualstrand is asked prior
-        to put a new strand in what locations are free.
-        
-        if this is called, it probably is at either end of the strand. 
-        so look at the limit indices and iterate in
-        
-        this should never be called on an index containing a strand
-        
-        This returns a non-Pythonic but intuitive range tuple, that is
-        inclusive around the query index of the virtual array of bases
-        as if to return (x, y) indicating strands[x:y+1] which includes 
-        strands[x] and strands[y]
-        
-        Again this is a binary search on the range
-        """
-        strands = self._strands
-        
-        # set the return limits to the maximum bounds of the vstrand
-        lowIdx, highIdx = self.minmax()
-        lenStrands = len(strands)
-        # check for zero length
-        if  lenStrands == 0:
-            return lowIdx, highIdx
-        # end if
-        low = 0
-        high = lenStrands
-        while low < high:
-            middle = (low + high) / 2
-            currentStrand = strands[ middle ]
-            cLow, cHigh = currentStrand.idxs()
-            if cLow > queryIdx:
-                # adjust bounds down
-                highIdx = cLow - 1
-                high = middle
-            # end if
-            elif cHigh < queryIdx:
-                # adjust bounds up
-                lowIdx = cHigh + 1
-                low = middle + 1
-            #end elif
-            else:
-                # return this when the query is somehow invalid
-                # like if it is called on an index with an 
-                # existing strand
-                return None
-        # end while
-        # set the last query index result
-        self._lastSetIndex = (low + high) /2
-        # return the tuple
-        return lowIdx, highIdx
-    # end def
+# end class
