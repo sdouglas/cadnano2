@@ -37,8 +37,8 @@ class VirtualHelix(QObject):
         super(VirtualHelix, self).__init__(part)
         self._coords = (None, None) # col, row
         self._part = part
-        self._vScaffold = StrandSet(self)
-        self._vStaple = StrandSet(self)
+        self._scafStrandSet = StrandSet(self)
+        self._stapStrandSet = StrandSet(self)
         # If self._part exists, it owns self._number
         # in that only it may modify it through the
         # private interface. The public interface for
@@ -76,21 +76,21 @@ class VirtualHelix(QObject):
     # end def
     
     def isDrawn5to3(self, strandSet):
-        isScaf = strandSet == self._vScaffold
+        isScaf = strandSet == self._scafStrandSet
         isEven = self.isEvenParity()
         return isEven == isScaf
     # end def
 
     def strandSet(self, indexHelix, indexType):
         """
-        This is a path view specific accessor
+        This is a path-view-specific accessor
         indexType == 0 means top strand
         indexType == 1 means bottom strand
         """
         if indexType == 0 and self.isEvenParity():
-            return self._vScaffold
+            return self._scafStrandSet
         else
-            return self._vStaple
+            return self._stapStrandSet
     # end def
 
     def strandSetBounds(self, indexHelix, indexType):

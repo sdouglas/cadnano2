@@ -25,20 +25,20 @@
 #
 # http://www.opensource.org/licenses/mit-license.php
 
-<<<<<<< HEAD
 from cadnano import app
 from part import Part
 from model.enum import LatticeType, Crossovers
 
+
 class HoneycombPart(DNAPart):
+    _step = 21  # 32 in square
+    _activeSlice = _step
+    _majorGridLine = _step / 3
     # Used in VirtualHelix::potentialCrossoverList
-    step = 21  # 32 in square
     scafL = Crossovers.honeycombScafLeft
     scafR = Crossovers.honeycombScafRight
     stapL = Crossovers.honeycombStapLeft
     stapR = Crossovers.honeycombStapRight
-    _activeSlice = step
-    _majorGridLine = step/3
 
     def __init__(self, *args, **kwargs):
         DNAPart.__init__(self)

@@ -26,14 +26,14 @@ from model.enum import LatticeType, Crossovers
 from dnapart import DNAPart
 
 class SquarePart(Part):
+    _step = 32  # 21 in honeycomb
+    _activeSlice = _step
+    _majorGridLine = _step / 4
     # Used in VirtualHelix::potentialCrossoverList
-    step = 32  # 21 in honeycomb
     scafL = Crossovers.squareScafLeft
     scafR = Crossovers.squareScafRight
     stapL = Crossovers.squareStapLeft
     stapR = Crossovers.squareStapRight
-    _activeSlice = step
-    _majorGridLine = step/4
 
     def __init__(self, *args, **kwargs):
         DNAPart.__init__(self)
