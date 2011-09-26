@@ -42,6 +42,7 @@ class Document(QObject):
 
     ### SIGNALS ###
     partAddedSignal = pyqtSignal(object, object)  # part, controller
+    selectedPartChangedSignal = pyqtSignal(object)  # part
 
     ### SLOTS ###
 
@@ -63,16 +64,19 @@ class Document(QObject):
         """Returns a list of assemblies associated with the document."""
         return self._assemblies
 
-    def addPart(self, part):
-        """Add part to the document via AddPartCommand."""
-        undoStack = self.undoStack()
-        c = self.AddPartCommand(self, part)
-        if undoStack != None:
-            self.undoStack().push(c)
-        else:
-            c.redo()
-        return c.part()
+    def selectedPart(self):
+        return self._selectedPart
 
+    def setSelectedPart(self, newPart):
+        if self._selectedPart == newPart:
+            return
+        self._selectedPart = newPart
+        self.selectedPartChanged.emit(newPart)
+
+
+    ### PUBLIC METHODS FOR QUERYING THE MODEL ###
+
+    ### PUBLIC METHODS FOR EDITING THE MODEL ###
     def addDnaHoneycombPart(self):
         """
         Create and store a new DNAPart and instance, and return the instance.
@@ -80,7 +84,7 @@ class Document(QObject):
         dnapart = None
         if len(self._parts) == 0:
             dnapart = DNAHoneycombPart()
-            self.addPart(dnapart)
+            self._addPart(dnapart)
         return dnapart
 
     def addDnaSquarePart(self):
@@ -90,15 +94,26 @@ class Document(QObject):
         dnapart = None
         if len(self._parts) == 0:
             dnapart = DNASquarePart()
-            self.addPart(dnapart)
+            self._addPart(dnapart)
         return dnapart
 
     def removeAllParts(self):
-        """Used to reset the document."""
+        """Used to reset the document. Not undoable."""
         while len(self._parts) > 0:
             part = self._parts.pop()
             part._setDocument(None)
             part.partRemoved.emit()
+
+    ### PRIVATE SUPPORT METHODS ###
+    def _addPart(self, part):
+        """Add part to the document via AddPartCommand."""
+        undoStack = self.undoStack()
+        c = self.AddPartCommand(self, part)
+        if undoStack != None:
+            self.undoStack().push(c)
+        else:
+            c.redo()
+        return c.part()
 
     ### COMMANDS ###
     class AddPartCommand(QUndoCommand):
@@ -125,19 +140,7 @@ class Document(QObject):
             self._doc._parts.remove(self._part)
             self._part.partRemoved.emit()
 
-    ################### Transient (doesn't get saved) State ##################
-    selectedPartChanged = pyqtSignal(object)
-
-    def selectedPart(self):
-        return self._selectedPart
-
-    def setSelectedPart(self, newPart):
-        if self._selectedPart == newPart:
-            return
-        self._selectedPart = newPart
-        self.selectedPartChanged.emit(newPart)
-
-    ########################## Archive / Unarchive ###########################
+    ### SERIALIZE / DESERIALIZE ###
     def fillSimpleRep(self, sr):
         sr['.class'] = "Document"
         sr['parts'] = self._parts
@@ -150,4 +153,4 @@ class Document(QObject):
     finishInitPriority = 0.0
     def finishInitWithArchivedDict(self, completeArchivedDict):
         for part in completeArchivedDict['parts']:
-            self.addPart(part)        
+            self._addPart(part)        

@@ -44,7 +44,7 @@ class VirtualHelix(QObject):
         # private interface. The public interface for
         # setNumber just routes the call to the parent
         # dnapart if one is present. If self._part == None
-        # the vhelix owns self._number and may modify it.
+        # the virtualhelix owns self._number and may modify it.
         self._number = idnum
     # end def
 

@@ -26,53 +26,35 @@
 # http://www.opensource.org/licenses/mit-license.php
 
 
-import util
+import cadnano2.util as util
 from operator import attrgetter
 
 # import Qt stuff into the module namespace with PySide, PyQt4 independence
 util.qtWrapImport('QtCore', globals(), ['pyqtSignal', 'QObject', 'Qt'])
-util.qtWrapImport('QtGui', globals(), ['QUndoStack'])
+util.qtWrapImport('QtGui', globals(), ['QUndoStack', 'QUndoCommand'])
 
 class Strand(QObject):
-    
     def __init__(self, strandSet, indexLow, indexHigh):
-        super(Strand, self).__init__(strandSet)
-        self._oligo = None
-        self._sSet = strandSet
-        
+        super(Strand, self).__init__()
+        self._strandSet = strandSet
+        self._indexLow = indexLow  # base index of the strand's left boundary
+        self._indexHigh = indexHigh  # base index of the right boundary
         self._strand5p = None
         self._strand3p = None
-        
-        # these are virtual base indices in the StrandSet of the strands
-        # VirtualHelix
-        # they are also referred to as simply virtual indices or vIndex
-        self._vBaseIndices = (indexLow, indexHigh)
-        
-        
-        self._decorators = {}
+        self._oligo = None
         self._sequence = None
-        self._note = None
+        self._decorators = {}
     # end def
-    
-    def shallowCopy(self):
-        nS = Strand(self._sSet, self.idxs())
-        nS._oligo = self._oligo
-        nS._strand5p = self._strand5p
-        nS._strand3p = self._strand3p
-        # required to shallow copy the dictionary
-        nS._decorators = dict(self._decorators.items())
-        nS._sequence = self._sequence
-        nS._note = self._note
-        return nS
-    # end def
+
+    def __repr__(self):
+        clsName = self.__class__.__name__
+        return "%s(%s, %s)"%(clsName, self._indexLow, self._indexHigh)
 
     def __iter__(self):
         """
-        iterate from self to the final _strand3p == None
+        Iterate from self to the final _strand3p == None
         5prime to 3prime
-        
         Includes originalCount to check for circular linked list
-        
         """
         originalCount = 0
         node = self
@@ -83,9 +65,7 @@ class Strand(QObject):
             node = f(node)
             if node == self:
                 originalCount += 1
-        # end while
-    # end def
-    
+
     def __eq__(self, strand):
         return self is strand
         
@@ -93,18 +73,17 @@ class Strand(QObject):
         return not self is strand
 
     def __lt__(self, strand):
-        return self._vBaseIndices[1] < strand._vBaseIndices[0]
+        return self._indexHigh < strand._vBaseIndices[0]
 
     def __gt__(self, strand):
-        return self._vBaseIndices[0] > strand._vBaseIndices[1]
+        return self._indexLow > strand._vBaseIndices[1]
 
     def __le__(self, strand):
         return self.__eq__(strand) or self.__lt__(strand)
 
     def __ge__(self, strand):
         return self.__eq__(strand) or self.__gt__(strand)
-    # end def
-    
+
     ### SIGNALS ###
     hasNewOligoSignal = pyqtSignal(QObject)
     destroyedSignal = pyqtSignal(QObject)
@@ -113,38 +92,42 @@ class Strand(QObject):
     xover3pDestroyedSignal = pyqtSignal(QObject, int)
     decoratorCreatedSignal = pyqtSignal(QObject, QObject, int)
     decoratorDestroyedSignal = pyqtSignal(QObject, int)
-    
+
     ### SLOTS ###
-    
-    
+
+
     ### Methods ###
     def undoStack(self):
-        return self._sSet.undoStack()
-    
+        return self._strandSet.undoStack()
+
+    def setStrandSet(self, strandSet):
+        """docstring for setStrandSet"""
+        self._strandSet = strandSet
+
     def strandSet(self):
-        return self._sSet
+        return self._strandSet
     # end def
-    
+
     def oligo(self):
         return self._oligo
     # end def
-    
+
     def setOligo(self, newOligo):
         self._oligo = newOligo
         self.hasNewOligoSignal.emit(self)
     # end def
-    
+
     def decorators(self):
         return self.decorators
     #end def
-    
+
     def addDecorators(self, additionalDecorators):
         """
         used in adding additional decorators during a merge operation
         """
         self._decorators.update(additionalDecorators)
     # def
-    
+
     def removeDecoratorsOutOfRange(self):
         decs = self._decorators
         idxMin, idMax = self.idxs() 
@@ -154,31 +137,32 @@ class Strand(QObject):
             #end if
         # end for
     # end def
-    
+
     def destroy(self):
         # QObject also emits a destroyed() Signal
         self.setParent(None)
         self.deleteLater()
     # end def
-    
+
     def idxs(self):
-        return self._vBaseIndices
+        return (self._indexLow, self._indexHigh)
     # end def
-    
+
     def setIdxs(self, idxs):
-        self._vBaseIndices = idxs
+        self._indexLow = idxs[0]
+        self._indexHigh = idxs[1]
     # end def
-        
+    
     def lowIdx(self):
-        return self._vBaseIndices[0]
+        return self._indexLow
     # end def
-    
+
     def highIdx(self):
-        return self._vBaseIndices[1]
+        return self._indexHigh
     # end def
-    
+
     def isDrawn5to3(self):
-        return self._sSet.isDrawn5to3()
+        return self._strandSet.isDrawn5to3()
     # end def
 
     def lowConnection(self):
@@ -187,32 +171,32 @@ class Strand(QObject):
         else:
             return self._strand3p
     # end def
-    
+
     def setLowConnection(self, strand):
         if self.isDrawn5to3():
             self._strand5p = strand
         else:
             self._strand3p = strand
     # end def
-    
+
     def highConnection(self):
         if self.isDrawn5to3():
             return self._strand3p
         else:
             return self._strand5p
     # end def
-    
+
     def setHighConnection(self, strand):
         if self.isDrawn5to3():
             self._strand3p = strand
         else:
             self._strand5p = strand
     # end def
-    
+
     def resize(self):
-    
+        pass
     # end def
-    
+
     class ResizeCommand(QUndoCommand):
         def __init__(self, strand, newIndices):
             super(ResizeCommand, self).__init__()
@@ -238,11 +222,25 @@ class Strand(QObject):
     # end class
     
     def copy(self):
-        
+        pass
     # end def
-    
+
+    def shallowCopy(self):
+        """docstring for shallowCopy"""
+        nS = Strand(self._strandSet, self.idxs())
+        nS._oligo = self._oligo
+        nS._strand5p = self._strand5p
+        nS._strand3p = self._strand3p
+        # required to shallow copy the dictionary
+        nS._decorators = dict(self._decorators.items())
+        nS._sequence = self._sequence
+        nS._note = self._note
+        return nS
+    # end def
+
+
     def addSequence(self):
-        
+        pass
     # end def
     
     
