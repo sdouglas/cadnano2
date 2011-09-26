@@ -1,0 +1,11 @@
+#!/bin/bash
+MAYA_ENV=`find $HOME/Library/Preferences/Autodesk -name Maya.env`
+if grep CADNANO "$MAYA_ENV" 1>/dev/null; then
+echo "Skipping Maya.env patch since it appears to already be patched."
+else
+echo "Patching Maya.env file"
+cat >> "$MAYA_ENV" <<END_HERE_DOC
+CADNANO_PATH=/Applications/cadnano2.app/Contents/Resources/cadnano2
+MAYA_PLUG_IN_PATH=\$CADNANO_PATH:\$MAYA_PLUG_IN_PATH
+END_HERE_DOC
+fi

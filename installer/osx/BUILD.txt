@@ -10,46 +10,11 @@ MAC OS X PACKAGING INSTRUCTIONS
 	   http://www.riverbankcomputing.co.uk/software/sip/download
 	c) PyQt (put the OSX .tar.gz in cadnano2/install/osx) from
 	   http://www.riverbankcomputing.co.uk/software/pyqt/download
-2) Run "python build_pkg.py" from the cadnano2/installer/osx folder.
+2) Run "sudo python build_pkg.py" from the cadnano2/installer/osx folder. It needs root to install the SIP that it builds before it builds PyQt.
+3) With luck, there is no 3, and a freshly minted cadnano2.pkg is sitting in the cadnano2/installer/osx folder.
 
 
 
-OLD MAC OS X PACKAGING INSTRUCTIONS (new = using build_pkg.py)
+CUSTOMIZATION
 
-1) Switch to the official binary distribution of Qt obtained from the official
-   site at
-   http://qt.nokia.com/downloads/qt-for-open-source-cpp-development-on-mac-os-x
-   (use `where qmake` and make sure that /usr/bin/qmake is on top)
-
-2) Delete all Qt frameworks (/Library/Frameworks/Qt*) that aren't being used by
-   cadnano. Use ActivityMonitor.app's list of open files for a process to
-   quickly determine which frameworks are being used.
-
-3) Download the latest release of PyQt from
-   http://www.riverbankcomputing.co.uk/software/pyqt/download
-   and build the source as usual (`python configure.py && make`)
-
-4) Create the installation root, say ~/Desktop/CadnanoInstallRoot
-   and `make install DESTDIR=~/Desktop/CadnanoInstallRoot` PyQt4 into it.
-
-5) Copy /Library/Frameworks/Qt* into CadnanoInstallRoot/Library/Frameworks
-   (~/Desktop/CadnanoInstallRoot/Library/Frameworks/Qt* should now exist)
-
-6) Open osx/cadnano2.xcodeproj, change the build style to "Release" (upper left)
-   and build. Now osx/build/Release/cadnano2.app should exist. Copy it into
-   ~/Desktop/CadnanoInstallRoot/Applications (which you should create).
-
-7) sudo chown -R root:admin ~/Desktop/CadnanoInstallRoot
-
-8) Open osx/cadnano-installer-template, delete everything beneath "Contents"
-   sourcelist (left side of the window, blue background). Then drag
-   ~/Desktop/CadnanoInstallRoot into the list.
-
-9) Make sure the following are set correctly (select CadnanoInstallRoot):
-   Configuration > Package Identifier = org.cadnano.allinonepkg
-   Configuration > Package Version = 2.0b6 or something
-   Configuration > Allow custom location = Not checked
-   Components > cadnano2.app > Allow Downgrade = Checked
-   Components > cadnano2.app > Allow Relocation = Not checked
-
-10) Press Build (in PackageMaker.app) and save the freshly created .pkg
+Many of the configurable aspects of OSX installer packages can be modified by changing files in the InstallerResources folder (which gets copied to cadnano2.pkg/Resources on package build). For instance, cadnano2/install/osx/InstallerResources/postflight gets copied to cadnano2.pkg/Contents/Resources/postflight, a magic location where Installer.app knows to look to run a postflight script. You will also find the License and Readme files in there that get displayed in the first stages of the installation process.
