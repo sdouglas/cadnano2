@@ -30,33 +30,19 @@ util.qtWrapImport('QtCore', globals(), ['pyqtSignal', 'QObject'])
 util.qtWrapImport('QtGui', globals(), [ 'QUndoCommand', 'QUndoStack'])
 
 
-class Part(QObject):
-    _step = 21  # this is the period of the part lattice
+class PartInstance(QObject):
 
-    def __init__(self, parent=None):
-        """
-        Parts are always parented to the document.  
-        Parts know about their oligos, and the internal geometry of a part
-        Copying a part recursively copies all elements in a part:
-            VirtualHelices, Strands, etc
-        
-        PartInstances are parented to either the document or an assembly
-        PartInstances know global position of the part
-        Copying a PartInstance only creates a new PartInstance with the same
-        Part(), with a mutable parent and position field
-        
-        """
-        super(Part, self).__init__(parent)
-        self._document = None
-        self._partInstances = []
-        self._oligos = {}
-        self._bounds = (0, 2*self._step)
+    def __init__(self, part, parent=None):
+        super(PartInstance, self).__init__(parent)
+        self._parent = parent   # parent is either a document or assembly
+        self._part = part
+        self._position = [0, 0, 0, 0, 0, 0]  # x, y, z,phi, theta, psi
     # end def
 
     ### SIGNALS ###
-    partInstanceAddedSignal = pyqtSignal(QObject)  # self
-    partDestroyedSignal = pyqtSignal(QObject)  # self
-    sequenceClearedSignal = pyqtSignal(QObject)  # self
+    partInstanceDestroyedSignal = pyqtSignal(QObject)  # self
+    partInstanceMovedSignal = pyqtSignal(QObject)  # self
+    partInstanceParentChangedSignal = pyqtSignal(QObject)  # new parent
 
     ### SLOTS ###
 
@@ -70,21 +56,7 @@ class Part(QObject):
         self.deleteLater()
     # end def
 
-    def document(self):
-        return self._document
-
-    def oligos(self):
-        return self._oligos
-
-    def addOligo(selg, oligo):
-        self._oligos[oligo] = True
-
-    def removeOligo(self, oligo):
-        self._oligo[oligo] = False
-        self.destroyOligo(oligo)
-
-    def destroyOligo(self, oligo):
-        del self._oligo[oligo]
+    def parent(selfr):
 
     def position(self):
         return self._position
@@ -94,4 +66,3 @@ class Part(QObject):
         return self._bounds
 
     ### COMMANDS ###
-    

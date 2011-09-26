@@ -25,38 +25,23 @@
 #
 # http://www.opensource.org/licenses/mit-license.php
 
+
 import util
+# import Qt stuff into the module namespace with PySide, PyQt4 independence
 util.qtWrapImport('QtCore', globals(), ['pyqtSignal', 'QObject'])
 util.qtWrapImport('QtGui', globals(), [ 'QUndoCommand', 'QUndoStack'])
 
-
-class Part(QObject):
-    _step = 21  # this is the period of the part lattice
-
-    def __init__(self, parent=None):
-        """
-        Parts are always parented to the document.  
-        Parts know about their oligos, and the internal geometry of a part
-        Copying a part recursively copies all elements in a part:
-            VirtualHelices, Strands, etc
-        
-        PartInstances are parented to either the document or an assembly
-        PartInstances know global position of the part
-        Copying a PartInstance only creates a new PartInstance with the same
-        Part(), with a mutable parent and position field
-        
-        """
-        super(Part, self).__init__(parent)
-        self._document = None
-        self._partInstances = []
-        self._oligos = {}
-        self._bounds = (0, 2*self._step)
+class AssemblyInstance(QObject):
+    def __init__(self, assembly):
+        super(AssemblyInstance, self).__init__()
+        self._assembly = assembly
+        self._parent = None
+        self._parts = partList
     # end def
-
+    
     ### SIGNALS ###
-    partInstanceAddedSignal = pyqtSignal(QObject)  # self
-    partDestroyedSignal = pyqtSignal(QObject)  # self
-    sequenceClearedSignal = pyqtSignal(QObject)  # self
+    partInstanceAddedSignal = pyqtSignal(QObject)  # new part
+    assemblyDestroyedSignal = pyqtSignal(QObject)  # self
 
     ### SLOTS ###
 
@@ -69,29 +54,5 @@ class Part(QObject):
         self.setParent(None)
         self.deleteLater()
     # end def
-
-    def document(self):
-        return self._document
-
-    def oligos(self):
-        return self._oligos
-
-    def addOligo(selg, oligo):
-        self._oligos[oligo] = True
-
-    def removeOligo(self, oligo):
-        self._oligo[oligo] = False
-        self.destroyOligo(oligo)
-
-    def destroyOligo(self, oligo):
-        del self._oligo[oligo]
-
-    def position(self):
-        return self._position
-
-    def bounds(self):
-        """Return the latice indice bounds relative to the origin."""
-        return self._bounds
-
-    ### COMMANDS ###
     
+    ### COMMANDS ###

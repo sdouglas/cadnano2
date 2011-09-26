@@ -34,10 +34,10 @@ util.qtWrapImport('QtGui', globals(), [ 'QUndoCommand', 'QUndoStack'])
 class Assembly(QObject):
     def __init__(self, partList):
         super(Assembly, self).__init__()
-        self._parts = partList
+        self._assemblyInstances = []
 
     ### SIGNALS ###
-    partAddedSignal = pyqtSignal(QObject)  # new oligo
+    assemblyInstanceAddedSignal = pyqtSignal(QObject)  # new oligo
     assemblyDestroyedSignal = pyqtSignal(QObject)  # self
 
     ### SLOTS ###

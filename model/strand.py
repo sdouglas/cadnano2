@@ -226,7 +226,11 @@ class Strand(QObject):
     # end def
 
     def shallowCopy(self):
-        """docstring for shallowCopy"""
+        """
+        can't use python module 'copy' as the dictionary _decorators
+        needs to be shallow copied as well, but wouldn't be if copy.copy()
+        is used, and copy.deepcopy is undesired
+        """
         nS = Strand(self._strandSet, self.idxs())
         nS._oligo = self._oligo
         nS._strand5p = self._strand5p

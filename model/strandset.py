@@ -41,13 +41,13 @@ class StrandSet(QObject):
     def __init__(self, virtualhelix):
         super(StrandSet, self).__init__()
         self._virtualhelix = virtualhelix
-        self._strands = []
+        self._strandList = []
         self._undoStack = None
-        self._lastSetIndex = None
+        self._lastStrandSetIndex = None
 
     def __iter__(self):
         """Iterate over each strand in the strands list."""
-        return self._strands.__iter__()
+        return self._strandList.__iter__()
 
     ### SIGNALS ###
     strandAddedSignal = pyqtSignal(QObject)
@@ -56,7 +56,7 @@ class StrandSet(QObject):
 
     ### PUBLIC METHODS FOR QUERYING THE MODEL ###
     def isDrawn5to3(self):
-        return self._vHelix.isDrawn5to3(self)
+        return self._virtualhelix.isDrawn5to3(self)
 
     def getBoundsOfEmptyRegionContaining(self, baseIdx):
         """
@@ -64,14 +64,14 @@ class StrandSet(QObject):
         bases that includes the baseIdx.
         """
         lowIdx, highIdx = self.partBounds()  # init the return values
-        lenStrands = len(self._strands)
+        lenStrands = len(self._strandList)
         if lenStrands == 0:  # empty strandset, just return the part bounds
             return (lowIdx, highIdx)
         low = 0              # index of the first (left-most) strand
         high = lenStrands    # index of the last (right-most) strand
         while low < high:    # perform binary search to find empty region
             middle = (low + high) / 2
-            currentStrand = self._strands[middle]
+            currentStrand = self._strandList[middle]
             cLow, cHigh = currentStrand.idxs()
             if baseIdx < cLow:  # baseIdx is to the left of crntStrand
                 high = middle   # continue binary search to the left
@@ -81,7 +81,7 @@ class StrandSet(QObject):
                 lowIdx = cHigh + 1  # set lowIdx to the right of crntStrand
             else:
                 return (None, None)  # baseIdx was not empty
-        self._lastSetIndex = (low + high) / 2  # set cache
+        self._lastStrandSetIndex = (low + high) / 2  # set cache
         return (lowIdx, highIdx)
 
     def partBounds(self):
@@ -89,32 +89,32 @@ class StrandSet(QObject):
         return self._virtualhelix.part().bounds()
 
     ### PUBLIC METHODS FOR EDITING THE MODEL ###
-    def addStrand(self, strand, setIdx, useUndoStack=True):
+    def addStrand(self, strand, strandSetIdx, useUndoStack=True):
         """
         Assumes a strand is being created at a valid set of indices.
         """
-        c = StrandSet.AddStrandCommand(self._strands, strand, setIdx)
+        c = StrandSet.AddStrandCommand(self._strandList, strand, strandSetIdx)
         self._execCommandList([c], desc="Create strand", useUndoStack=useUndoStack)
-        return setIdx
+        return strandSetIdx
 
-    def addDeserializedStrand(self, strand, setIdx, useUndoStack=False):
+    def addDeserializedStrand(self, strand, strandSetIdx, useUndoStack=False):
         """
         Passes a strand to AddStrandCommand that was read in from file input.
         Omits the step of checking _couldStrandInsertAtLastIndex, since
         we assume that deserialized strands will not cause collisions.
         """
-        c = StrandSet.AddStrandCommand(self._strands, strand, setIdx)
+        c = StrandSet.AddStrandCommand(self._strandList, strand, strandSetIdx)
         self._execCommandList([c], desc=None, useUndoStack=useUndoStack)
-        return setIdx
+        return strandSetIdx
 
-    def removeStrand(self, strand, setIdx=None, useUndoStack=True):
-        if not setIdx:
-            setIdx, isInSet = self._findIndexOfRangeFor(strand)
+    def removeStrand(self, strand, strandSetIdx=None, useUndoStack=True):
+        if not strandSetIdx:
+            strandSetIdx, isInSet = self._findIndexOfRangeFor(strand)
             if not isInSet:
                 raise IndexError
-        c = StrandSet.RemoveStrandCommand(self._strands, strand, setIdx)
+        c = StrandSet.RemoveStrandCommand(self._strandList, strand, strandSetIdx)
         self._execCommandList([c], desc="Delete strand", useUndoStack=useUndoStack)
-        return setIdx
+        return strandSetIdx
 
     def mergeStrands(self, lowStrand, highStrand, lowHasPriority):
         """
@@ -145,19 +145,19 @@ class StrandSet(QObject):
 
     def strandToBeDestroyed(self, strand):
         """when is this method called?"""
-        strands = self.strands
-        del strands[strand.idx]
+        strandList = self.strandList
+        del strandList[strand.idx]
 
     ### PRIVATE SUPPORT METHODS ###
     def _couldStrandInsertAtLastIndex(self, strand):
         """Verification of insertability based on cached last index."""
-        lastInd = self._lastSetIndex
+        lastInd = self._lastStrandSetIndex
         if lastInd == None:
             return False  # how do we insert the first strand if this always returns False?
         else:
-            strands = self._strands
-            sTestHigh = strands[lastInd].lowIdx()
-            sTestLow = strands[lastInd - 1].highIdx() if lastInd > 0 else -1
+            strandList = self._strandList
+            sTestHigh = strandList[lastInd].lowIdx()
+            sTestLow = strandList[lastInd - 1].highIdx() if lastInd > 0 else -1
             sLow, sHigh = strand.idxs()
             if sTestLow < sLow and sHigh < sTestHigh:
                 return True
@@ -166,7 +166,7 @@ class StrandSet(QObject):
 
     def _findOverlappingRanges(self, qstrand, useCache=False):
         """
-        a binary search for a strands in self._strands overlapping with
+        a binary search for the strands in self._strandList overlapping with
         a query strands, or qstrands, indices.
 
         Useful for operations on complementary strands such as applying a
@@ -176,26 +176,26 @@ class StrandSet(QObject):
 
         Strategy:
         1.
-            search the _strands for a strand the first strand that has a
+            search the _strandList for a strand the first strand that has a
             highIndex >= lowIndex of the query strand.
-            save that strands rangeIndex as rangeIndexLow.
+            save that strandSet index as sSetIndexLow.
             if No strand satisfies this condition, return an empty list
 
             Unless it matches the query strand's lowIndex exactly,
-            Step 1 is O(log N) where N in length of self._strands to the max,
+            Step 1 is O(log N) where N in length of self._strandList to the max,
             that is it needs to exhaust the search
 
             conversely you could search for first strand that has a
             lowIndex LESS than or equal to the lowIndex of the query strand.
 
         2.
-            starting at self._strands[rangeIndexLow] test each strand to see if
+            starting at self._strandList[sSetIndexLow] test each strand to see if
             it's indexLow is LESS than or equal to qstrand.indexHigh.  If it is
             yield/return that strand.  If it's GREATER than the indexHigh, or
             you run out of strands to check, the generator terminates
         """
-        strands = self._strands
-        lenStrands = len(strands)
+        strandList = self._strandList
+        lenStrands = len(strandList)
         if lenStrands == 0:
             return
         # end if
@@ -205,25 +205,25 @@ class StrandSet(QObject):
         qLow, qHigh = qstrand.idxs()
 
         # Step 1: get rangeIndexLow with a binary search
-        if useCache:  # or self.doesLastSetIndexMatch(qstrand, strands):
+        if useCache:  # or self.doesLastSetIndexMatch(qstrand, strandList):
             # cache match!
-            rangeIndexLow = self._lastSetIndex
+            sSetIndexLow = self._lastStrandSetIndex
         else:
-            rangeIndexLow = -1
+            sSetIndexLow = -1
             while low < high:
                 middle = (low + high) / 2
-                currentStrand = strands[middle]
+                currentStrand = strandList[middle]
 
-                # pre get indices from strands
+                # pre get indices from the currently tested strand
                 cLow, cHigh = currentStrand.idxs()
 
                 if cHigh == qLow:
                     # match, break out of while loop
-                    rangeIndexLow = middle
+                    sSetIndexLow = middle
                     break
                 elif cHigh > qLow:
                     # store the candidate index
-                    rangeIndexLow = middle
+                    sSetIndexLow = middle
                     # adjust the high index to find a better candidate if
                     # it exists
                     high = middle - 1
@@ -237,10 +237,10 @@ class StrandSet(QObject):
         # end else
 
         # Step 2: create a generator on matches
-        # match on whether the strands lowIndex is
+        # match on whether the testStrand's lowIndex is
         # within the range of the qStrand
-        if rangeIndexLow > -1:
-            testStrands = iter(strands[rangeIndexLow:])
+        if sSetIndexLow > -1:
+            testStrands = iter(strandList[rangeIndexLow:])
             testStrand = testStrands.next()
             qHigh += 1  # bump it up for a more efficient comparison
             i = 0   # use this to
@@ -252,7 +252,7 @@ class StrandSet(QObject):
             # end while
 
             # cache the last index we left of at
-            i = rangeIndexLow + i
+            i = sSetIndexLow + i
             """
             if
             1. we ran out of strands to test adjust
@@ -265,25 +265,25 @@ class StrandSet(QObject):
             if not testStrand and testStrand.highIdx() < qHigh - 1:
                 i -= 1
             # assign cache but double check it's a valid index
-            self._lastSetIndex = i if -1 < i < lenStrands else None
+            self._lastStrandSetIndex = i if -1 < i < lenStrands else None
             return
         else:
             # no strand was found
             # go ahead and clear the cache
-            self._lastSetIndex = None
+            self._lastStrandSetIndex = None
             return
     # end def
 
     def _findIndexOfRangeFor(self, strand):
         """
-        a binary search for a strand in self._strands
+        a binary search for a strand in self._strandList
 
         returns a tuple (int, bool)
 
-        returns a positive value index in self._strands
+        returns a positive value index in self._strandList
         if the element is in the set
 
-        returns a negative value index in self._strands
+        returns a negative value index in self._strandList
         if the element is not in the set, to be used as an insertion point
 
         returns True if the strand is in range
@@ -293,8 +293,8 @@ class StrandSet(QObject):
             method that overlaps an existing range, it will return
             a positive 1 in addition to False rather than raise an exception
         """
-        strands = self._strands
-        lenStrands = len(strands)
+        strandList = self._strandList
+        lenStrands = len(strandList)
         if lenStrands == 0:
             return None
         # end if
@@ -306,9 +306,9 @@ class StrandSet(QObject):
 
         while low < high:
             middle = (low + high) / 2
-            currentStrand = strands[middle]
+            currentStrand = strandList[middle]
 
-            # pre get indices from strands
+            # pre get indices from currently tested strand
             cLow, cHigh = currentStrand.idxs()
 
             if currentStrand == strand:
@@ -333,20 +333,20 @@ class StrandSet(QObject):
         return -low, False
     # end def
 
-    def _doesLastSetIndexMatch(self, qstrand, strands):
+    def _doesLastSetIndexMatch(self, qstrand, strandList):
         """
-        strands is passed to save a lookup
+        strandList is passed to save a lookup
         """
-        lSI = self._lastSetIndex
+        lSI = self._lastStrandSetIndex
         if lSI:
             qLow, qHigh = qstrand.idxs()
-            testStrand = strands[lSI]
+            testStrand = strandList[lSI]
             tLow, tHigh = testStrand.idxs()
             if not (qLow <= tLow <= qHigh or qLow <= tHigh <= qHigh):
                 return False
             else:  # get a difference
                 dif = abs(qLow - tLow)
-                # check neighboring strands just in case
+                # check neighboring strandList just in case
                 difLow = dif + 1
                 if lSI > 0:
                     tLow, tHigh = strand[lSI - 1].idxs()
@@ -386,95 +386,95 @@ class StrandSet(QObject):
         else:
             for c in commands:
                 c.redo()
+    # end def
 
     ### COMMANDS ###
     class AddStrandCommand(QUndoCommand):
         """Inserts strandToAdd into strandList at index idx."""
-        def __init__(self, strandList, strand, setIdx):
+        def __init__(self, strandList, strand, strandSetIdx):
             super(StrandSet.AddStrandCommand, self).__init__()
             self._strandList = strandList
             self._strand = strand
-            self._setIdx = setIdx
+            self._sSetIdx = strandSetIdx
 
         def redo(self):
-            print "AddStrandCommand", self._strand, self._setIdx
-            self._strandList.insert(self._setIdx, self._strand)
+            print "AddStrandCommand", self._strand, self._sSetIdx
+            self._strandList.insert(self._sSetIdx, self._strand)
             # if useUndoStack:  # how should the command gain access to this?
             #     self.strandAddedSignal.emit(self._strand)
 
         def undo(self):
-            self._strandList.pop(self._setIdx)
+            self._strandList.pop(self._sSetIdx)
             # if useUndoStack:
             #     self.strand.strandRemovedSignal.emit()
     # end class
 
     class RemoveStrandCommand(QUndoCommand):
         """docstring for RemoveStrandCommand"""
-        def __init__(self, strands, strand, setIdx):
+        def __init__(self, strandList, strand, strandSetIdx):
             super(StrandSet.RemoveStrandCommand, self).__init__()
-            self.strands = strands
-            self.strand = strand
-            self.setIdx = setIdx
+            self._strandList = strandList
+            self._strand = strand
+            self._sSetIdx = strandSetIdx
 
         def redo(self):
-            self.strands.pop(self.setIdx)
+            self._strandList.pop(self.sSetIdx)
 
         def undo(self):
-            self.strands.insert(self.setIdx, self.strand)
+            self._strandList.insert(self.sSetIdx, self._strand)
     # end class
 
     class MergeCommand(QUndoCommand):
         """
-        Must pass this two different strands, and one of the strands again
-        which is the priorityStrand
+        Must pass this two different strands, and nominally one of the strands 
+        again which is the priorityStrand.  The resulting "merged" strand has 
+        the properties of the priorityStrand's oligo.  Decorators are preserved
 
         the strandLow and strandHigh must be presorted such that strandLow
         has a lower range than strandHigh
 
-        lowIdx should be known ahead of time as a result of selection
+        lowStrandSetIdx should be known ahead of time as a result of selection
         """
-        def __init__(self, strandLow, strandHigh, lowIdx, lowHasPriority):
+        def __init__(self, strandLow, strandHigh, lowStrandSetIdx, priorityStrand):
             super(StrandSet.MergeCommand, self).__init__()
-            self.strandLow = strandLow
-            self.strandHigh = strandHigh
-            pS = strandLow if lowHasPriority else strandHigh
-            self.sSet = sSet = pS.strandSet()
+            self._strandLow = strandLow
+            self._strandHigh = strandHigh
+            pS = priorityStrand
+            self._sSet = sSet = pS.strandSet()
 
             # the oligos
-            self.newOligo = pS.oligo().shallowCopy()
-            self.sLowOligo = strandLow.oligo()
-            self.sHighOligo = strandHigh.oligo()
+            self._newOligo = pS.oligo().shallowCopy()
+            self._sLowOligo = strandLow.oligo()
+            self._sHighOligo = strandHigh.oligo()
             # update the oligo for things like its 5prime end and isLoop
-            self.newOligo.strandsMergeUpdate(strandLow, strandHigh)
+            self._newOligo.strandsMergeUpdate(strandLow, strandHigh)
 
             # THIS BREAKS ISOLATION FROM STRANDSET IF IT IS IN STRAND
-            self.idx = lowIdx
+            self._idx = lowStrandSetIdx
 
             # create the newStrand by copying the priority strand to
             # preserve its stuff
             newIdxs = strandLow.lowIdx(), strandHigh.highIdx()
-            newStrand = pS.shallowCopy()
+            newStrand = strandLow.shallowCopy()
             newStrand.setIdxs(*newIdxs)
-            newStrand.setLowConnection(strandLow.lowConnection())
-            newStrand.setHighConnection(strandHigh.HighConnection())
+            # newStrand.setLowConnection(strandLow.lowConnection())
+            newStrand.setHighConnection(strandHigh.highConnection())
 
             # take care of merging decorators
-            otherStrand = strandLow if pS == strandLow else strandHigh
-            otherDecorators = otherStrand.decorators()
-            newStrand.addDecorators(otherDecorators)
+            newStrand.addDecorators(strandHigh.decorators())
 
-            self.newStrand = newStrand
+            self._newStrand = newStrand
         # end def
 
         def redo(self):
-            sS = self.sSet
-            sL = self.strandLow
-            sH = self.strandHigh
-            nS = self.newStrand
-            idx = self.idx
-            olg = self.newOligo
-            lOlg = self.sLowOligo
-            hOlg = self.sHighOligo
+            sS = self._sSet
+            sL = self._strandLow
+            sH = self._strandHigh
+            nS = self._newStrand
+            idx = self._idx
+            olg = self._newOligo
+            lOlg = self._sLowOligo
+            hOlg = self._sHighOligo
 
             # Remove old strands to the sSet  (orders matter)
             sS.removeStrand(sL, idx)
@@ -504,14 +504,14 @@ class StrandSet(QObject):
         # end def
 
         def undo(self):
-            sS = self.sSet
-            sL = self.strandLow
-            sH = self.strandHigh
-            nS = self.newStrand
-            idx = self.idx
-            olg = self.newOligo
-            lOlg = self.sLowOligo
-            hOlg = self.sHighOligo
+            sS = self._sSet
+            sL = self._strandLow
+            sH = self._strandHigh
+            nS = self._newStrand
+            idx = self._idx
+            olg = self._newOligo
+            lOlg = self._sLowOligo
+            hOlg = self._sHighOligo
 
             # Remove new strand from the sSet
             sS.removeStrand(nS, idx)
@@ -553,10 +553,10 @@ class StrandSet(QObject):
         """
         def __init__(self, strand, strandIdx, virtualIndex):
             super(StrandSet.SplitCommand, self).__init__()
-            self.strandOld = strand
-            self.strandIdx = strandIdx
-            self.sSet = sSet = strand.strandSet()
-            self.oldOligo = oligo = strand.oligo()
+            self._strandOld = strand
+            self._strandIdx = strandIdx
+            self._sSet = sSet = strand.strandSet()
+            self._oldOligo = oligo = strand.oligo()
 
             # create the newStrand by copying the priority strand to
             # preserve its stuff
@@ -564,10 +564,10 @@ class StrandSet(QObject):
             # 3p priority end is
 
             # create copies
-            self.strandLow = strandLow = strand.shallowCopy()
-            self.strandHigh = strandHigh = strand.shallowCopy()
-            self.lOligo = lOligo = oligo.shallowCopy()
-            self.hOligo = hOligo = oligo.shallowCopy()
+            self._strandLow = strandLow = strand.shallowCopy()
+            self._strandHigh = strandHigh = strand.shallowCopy()
+            self._lOligo = lOligo = oligo.shallowCopy()
+            self._hOligo = hOligo = oligo.shallowCopy()
 
             if strand.isDrawn5to3():
                 # strandLow has priority
@@ -602,14 +602,14 @@ class StrandSet(QObject):
         # end def
 
         def redo(self):
-            sS = self.sSet
-            sL = self.strandLow
-            sH = self.strandHigh
-            oS = self.oldStrand
-            strandIdx = self.strandIdx
-            olg = self.oldOligo
-            lOlg = self.sLowOligo
-            hOlg = self.sHighOligo
+            sS = self._sSet
+            sL = self._strandLow
+            sH = self._strandHigh
+            oS = self._oldStrand
+            strandIdx = self._strandIdx
+            olg = self._oldOligo
+            lOlg = self._sLowOligo
+            hOlg = self._sHighOligo
 
             # Remove oldAtrand from the sSet
             sS.removeStrand(oS, strandIdx)
@@ -639,14 +639,14 @@ class StrandSet(QObject):
         # end def
 
         def undo(self):
-            sS = self.sSet
-            sL = self.strandLow
-            sH = self.strandHigh
-            oS = self.oldStrand
-            strandIdx = self.strandIdx
-            olg = self.oldOligo
-            lOlg = self.sLowOligo
-            hOlg = self.sHighOligo
+            sS = self._sSet
+            sL = self._strandLow
+            sH = self._strandHigh
+            oS = self._oldStrand
+            strandIdx = self._strandIdx
+            olg = self._oldOligo
+            lOlg = self._sLowOligo
+            hOlg = self._sHighOligo
 
             # Remove new strands to the sSet (order matters)
             sS.removeStrand(sL, strandIdx)
@@ -689,7 +689,7 @@ class TestStrandSet():
         ss = StrandSet(None)
         ss.partBounds = Mock(return_value=(0, 42))
         ss.addStrand(Strand(ss, 1, 5), 0, False)
-        assert len(ss._strands) == 1
+        assert len(ss._strandList) == 1
 
     # @with_setup(setUp, tearDown)
     def test_getBoundsOfEmptyRegionContaining(self):
