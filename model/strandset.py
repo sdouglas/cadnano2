@@ -237,17 +237,17 @@ class StrandSet(QObject):
         # end else
 
         # Step 2: create a generator on matches
-        # match on whether the testStrand's lowIndex is
+        # match on whether the tempStrand's lowIndex is
         # within the range of the qStrand
         if sSetIndexLow > -1:
-            testStrands = iter(strandList[rangeIndexLow:])
-            testStrand = testStrands.next()
+            tempStrands = iter(strandList[rangeIndexLow:])
+            tempStrand = tempStrands.next()
             qHigh += 1  # bump it up for a more efficient comparison
             i = 0   # use this to
-            while testStrand and testStrand.lowIdx() < qHigh:
-                yield testStrand
+            while tempStrand and tempStrand.lowIdx() < qHigh:
+                yield tempStrand
                 # use a nex and a default to cause a break condition
-                testStrand = next(testStrands, None)
+                tempStrand = next(tempStrands, None)
                 i += 1
             # end while
 
@@ -257,12 +257,12 @@ class StrandSet(QObject):
             if
             1. we ran out of strands to test adjust
             and
-            2. the end condition testStrands highIndex is still inside the
+            2. the end condition tempStrands highIndex is still inside the
             qstrand but not equal to the end point
                 adjust i down 1
             otherwise
             """
-            if not testStrand and testStrand.highIdx() < qHigh - 1:
+            if not tempStrand and tempStrand.highIdx() < qHigh - 1:
                 i -= 1
             # assign cache but double check it's a valid index
             self._lastStrandSetIndex = i if -1 < i < lenStrands else None
@@ -340,8 +340,8 @@ class StrandSet(QObject):
         lSI = self._lastStrandSetIndex
         if lSI:
             qLow, qHigh = qstrand.idxs()
-            testStrand = strandList[lSI]
-            tLow, tHigh = testStrand.idxs()
+            tempStrand = strandList[lSI]
+            tLow, tHigh = tempStrand.idxs()
             if not (qLow <= tLow <= qHigh or qLow <= tHigh <= qHigh):
                 return False
             else:  # get a difference
@@ -426,6 +426,11 @@ class StrandSet(QObject):
 
     class MergeCommand(QUndoCommand):
         """
+        This class takes two Strands and merges them.  This Class should be 
+        private to StrandSet as knowledge of a strandSetIndex outside of this
+        of the StrandSet class implies knowledge of the StrandSet 
+        implementation
+        
         Must pass this two different strands, and nominally one of the strands 
         again which is the priorityStrand.  The resulting "merged" strand has 
         the properties of the priorityStrand's oligo.  Decorators are preserved
@@ -449,7 +454,6 @@ class StrandSet(QObject):
             # update the oligo for things like its 5prime end and isLoop
             self._newOligo.strandsMergeUpdate(strandLow, strandHigh)
 
-            # THIS BREAKS ISOLATION FROM STRANDSET IF IT IS IN STRAND
             self._idx = lowStrandSetIdx
 
             # create the newStrand by copying the priority strand to

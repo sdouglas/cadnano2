@@ -25,23 +25,23 @@
 #
 # http://www.opensource.org/licenses/mit-license.php
 
-
 import util
-# import Qt stuff into the module namespace with PySide, PyQt4 independence
 util.qtWrapImport('QtCore', globals(), ['pyqtSignal', 'QObject'])
 util.qtWrapImport('QtGui', globals(), [ 'QUndoCommand', 'QUndoStack'])
 
-class AssemblyInstance(QObject):
-    def __init__(self, assembly):
-        super(AssemblyInstance, self).__init__()
-        self._assembly = assembly
-        self._parent = None
-        self._parts = partList
+class ObjectInstance(QObject):
+
+    def __init__(self, referenceObject, parent):
+        super(ObjectInstance, self).__init__(referenceObject)
+        self._parent = parent   # parent is either a document or assembly
+        self._object = referenceObject
+        self._position = [0, 0, 0, 0, 0, 0]  # x, y, z,phi, theta, psi
     # end def
-    
+
     ### SIGNALS ###
-    partInstanceAddedSignal = pyqtSignal(QObject)  # new part
-    assemblyDestroyedSignal = pyqtSignal(QObject)  # self
+    instanceDestroyedSignal = pyqtSignal(QObject)  # self
+    instanceMovedSignal = pyqtSignal(QObject)  # self
+    instanceParentChangedSignal = pyqtSignal(QObject)  # new parent
 
     ### SLOTS ###
 
@@ -54,5 +54,15 @@ class AssemblyInstance(QObject):
         self.setParent(None)
         self.deleteLater()
     # end def
+
+    def reference(self):
+        return self._object
+    # end def
     
+    def parent(self):
+        return self._parent
+
+    def position(self):
+        return self._position
+
     ### COMMANDS ###

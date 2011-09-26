@@ -33,7 +33,7 @@ util.qtWrapImport('QtGui', globals(), [ 'QUndoCommand', 'QUndoStack'])
 class Part(QObject):
     _step = 21  # this is the period of the part lattice
 
-    def __init__(self, parent=None):
+    def __init__(self, document):
         """
         Parts are always parented to the document.  
         Parts know about their oligos, and the internal geometry of a part
@@ -46,9 +46,9 @@ class Part(QObject):
         Part(), with a mutable parent and position field
         
         """
-        super(Part, self).__init__(parent)
+        super(Part, self).__init__(document)
         self._document = None
-        self._partInstances = []
+        self._partInstances = []    # This is a list of ObjectInstances
         self._oligos = {}
         self._bounds = (0, 2*self._step)
     # end def
@@ -85,9 +85,6 @@ class Part(QObject):
 
     def destroyOligo(self, oligo):
         del self._oligo[oligo]
-
-    def position(self):
-        return self._position
 
     def bounds(self):
         """Return the latice indice bounds relative to the origin."""

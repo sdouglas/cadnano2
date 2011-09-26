@@ -32,9 +32,12 @@ util.qtWrapImport('QtCore', globals(), ['pyqtSignal', 'QObject'])
 util.qtWrapImport('QtGui', globals(), [ 'QUndoCommand', 'QUndoStack'])
 
 class Assembly(QObject):
-    def __init__(self, partList):
-        super(Assembly, self).__init__()
-        self._assemblyInstances = []
+    def __init__(self, document, partList=None):
+        super(Assembly, self).__init__(document)
+        self._document = document
+        self._parts = partList          # This is a list of member parts
+        self._assemblyInstances = []    # This is a list of ObjectInstances
+    # end def
 
     ### SIGNALS ###
     assemblyInstanceAddedSignal = pyqtSignal(QObject)  # new oligo
@@ -50,6 +53,20 @@ class Assembly(QObject):
         # QObject also emits a destroyed() Signal
         self.setParent(None)
         self.deleteLater()
+    # end def
+    
+    def document(self):
+        return self._document
+    # end def
+    
+    def parts(self):
+        for part in self._parts:
+            yield part
+    # end def
+
+    def instances(self):
+        for inst in self._assemblyInstances:
+            yield inst
     # end def
     
     ### COMMANDS ###
