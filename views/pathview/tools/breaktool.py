@@ -51,14 +51,14 @@ class BreakTool(AbstractPathTool):
         self.mouseMovePartGraphicsItem(part, event)
 
     def mouseMovePartGraphicsItem(self, part, event):
-        if self.logger: self.logger.write("mouseMoveVirtualHelixGraphicsItem>NOP\n")
+        if self.logger: self.logger.write("mouseMoveVirtualHelixItem>NOP\n")
 
-    def hoverMoveVirtualHelixGraphicsItem(self, pathHelix, event):
+    def hoverMoveVirtualHelixItem(self, pathHelix, event):
         if self.logger: self.logger.write("hover>")
-        self.mouseMoveVirtualHelixGraphicsItem(pathHelix, event)
+        self.mouseMoveVirtualHelixItem(pathHelix, event)
         self.updateLocation(pathHelix, pathHelix.mapToScene(QPointF(event.pos())))
 
-    def mousePressVirtualHelixGraphicsItem(self, pathHelix, event):
+    def mousePressVirtualHelixItem(self, pathHelix, event):
         # initial setup / check input state
         pathHelix.makeSelfActiveHelix()
         pathHelix.scene().views()[0].addToPressList(pathHelix)
@@ -71,31 +71,31 @@ class BreakTool(AbstractPathTool):
         if self.currentOperation != None: self.currentOperation.end()
         self.currentOperation = BreakToolOperation(dest, useLeft, undoStack)
         if shiftClick:
-            if self.logger: self.logger.write("mousePressVirtualHelixGraphicsItem>Join\n")
+            if self.logger: self.logger.write("mousePressVirtualHelixItem>Join\n")
             self.currentOperation.actionMergeWithAdjacent(dest)
             self.currentOperation.end()
             self.currentOperation = None
         elif altClick:
-            if self.logger: self.logger.write("mousePressVirtualHelixGraphicsItem>Extend\n")
+            if self.logger: self.logger.write("mousePressVirtualHelixItem>Extend\n")
             self.currentOperation.actionExpandStrandToFillAvailableSpace(dest)
             self.currentOperation.end()
             self.currentOperation = None
         else:
-            if self.logger: self.logger.write("mousePressVirtualHelixGraphicsItem>Break\n")
+            if self.logger: self.logger.write("mousePressVirtualHelixItem>Break\n")
 
-    def mouseMoveVirtualHelixGraphicsItem(self, pathHelix, event):
+    def mouseMoveVirtualHelixItem(self, pathHelix, event):
         if isinstance(self.currentOperation, BreakToolOperation):
-            if self.logger: self.logger.write("mouseMoveVirtualHelixGraphicsItem>Break\n")
+            if self.logger: self.logger.write("mouseMoveVirtualHelixItem>Break\n")
             dest = pathHelix.vBaseAtPoint(event.pos())
             dest.vStrand = self.currentOperation.startVBase.vStrand
             self.currentOperation.updateDestination(dest)
         else:
-            if self.logger: self.logger.write("mouseMoveVirtualHelixGraphicsItem>NOP\n")
+            if self.logger: self.logger.write("mouseMoveVirtualHelixItem>NOP\n")
 
-    def mouseReleaseVirtualHelixGraphicsItem(self, pathHelix, event):
+    def mouseReleaseVirtualHelixItem(self, pathHelix, event):
         if isinstance(self.currentOperation, BreakToolOperation):
-            if self.logger: self.logger.write("mouseRelVirtualHelixGraphicsItem>Break\n")
+            if self.logger: self.logger.write("mouseRelVirtualHelixItem>Break\n")
             self.currentOperation.end()
             self.currentOperation = None
         else:
-            if self.logger: self.logger.write("mouseRelVirtualHelixGraphicsItem>NOP\n")
+            if self.logger: self.logger.write("mouseRelVirtualHelixItem>NOP\n")

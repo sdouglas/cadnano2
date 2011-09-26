@@ -199,23 +199,22 @@ class Strand(QObject):
             self.oldIndices = strand.idxs()
             self.newIndices = newIndices
         # end def
-        
+
         def redo(self):
             std = self.strand
             nI = self.newIndices
             std.setIdxs(nI)
             std.resizedSignal(std, nI)
         # end def
-        
+
         def undo(self):
             std = self.strand
             oI = self.oldIndices
             std.setIdxs(oI)
             std.resizedSignal(std, oI)
         # end def
-        
     # end class
-    
+
     def copy(self):
         pass
     # end def
@@ -253,11 +252,3 @@ class Strand(QObject):
         nS._note = self._note
         return nS
     # end def
-    
-    
-
-    def addSequence(self):
-        pass
-    # end def
-    
-    
