@@ -38,12 +38,13 @@ starmapExec = util.starmapExec
 
 
 class StrandSet(QObject):
-    def __init__(self, virtualhelix):
-        super(StrandSet, self).__init__()
-        self._virtualhelix = virtualhelix
+    def __init__(self, strandType, virtualHelix):
+        super(StrandSet, self).__init__(virtualHelix)
+        self._virtualHelix = virtualHelix
         self._strandList = []
         self._undoStack = None
         self._lastStrandSetIndex = None
+        self._strandType = strandType
 
     def __iter__(self):
         """Iterate over each strand in the strands list."""
@@ -56,7 +57,11 @@ class StrandSet(QObject):
 
     ### PUBLIC METHODS FOR QUERYING THE MODEL ###
     def isDrawn5to3(self):
-        return self._virtualhelix.isDrawn5to3(self)
+        return self._virtualHelix.isDrawn5to3(self)
+        
+    def strandType(self):
+        return self._strandType
+    # end def
 
     def getBoundsOfEmptyRegionContaining(self, baseIdx):
         """
@@ -86,7 +91,7 @@ class StrandSet(QObject):
 
     def partBounds(self):
         """Return the bounds of the StrandSet as defined in the part."""
-        return self._virtualhelix.part().bounds()
+        return self._virtualHelix.part().bounds()
 
     ### PUBLIC METHODS FOR EDITING THE MODEL ###
     def addStrand(self, strand, strandSetIdx, useUndoStack=True):
@@ -137,11 +142,11 @@ class StrandSet(QObject):
     ### PUBLIC SUPPORT METHODS ###
     def undoStack(self):
         if self._undoStack == None:
-            self._undoStack = self._virtualhelix.undoStack()
+            self._undoStack = self._virtualHelix.undoStack()
         return self._undoStack
 
-    def virtualhelix(self):
-        return self._virtualhelix
+    def virtualHelix(self):
+        return self._virtualHelix
 
     def strandToBeDestroyed(self, strand):
         """when is this method called?"""
@@ -246,7 +251,7 @@ class StrandSet(QObject):
             i = 0   # use this to
             while tempStrand and tempStrand.lowIdx() < qHigh:
                 yield tempStrand
-                # use a nex and a default to cause a break condition
+                # use a next and a default to cause a break condition
                 tempStrand = next(tempStrands, None)
                 i += 1
             # end while
@@ -678,6 +683,15 @@ class StrandSet(QObject):
             sS.strandAddedSignal.emit(oS)
         # end def
     # end class
+    
+    def deepCopy(self, virtualHelix):
+        """
+        
+        """
+        pass
+    # end def
+    
+# end class
 
 
 # from nose.tools import with_setup

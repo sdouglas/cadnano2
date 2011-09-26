@@ -90,6 +90,10 @@ class Strand(QObject):
     def strandSet(self):
         return self._strandSet
     # end def
+    
+    def virtualHelix(self):
+        return self._strandSet.virtualHelix()
+    # end def
 
     def oligo(self):
         return self._oligo
@@ -176,6 +180,14 @@ class Strand(QObject):
             self._strand5p = strand
     # end def
 
+    def set3pConnection(self, strand):
+        self._strand3p = strand
+    # end def
+
+    def set5pConnection(self, strand):
+        self._strand5p = strand
+    # end def
+
     def resize(self):
         pass
     # end def
@@ -214,7 +226,7 @@ class Strand(QObject):
         needs to be shallow copied as well, but wouldn't be if copy.copy()
         is used, and copy.deepcopy is undesired
         """
-        nS = Strand(self._strandSet, self.idxs())
+        nS = Strand(self._strandSet, *self.idxs())
         nS._oligo = self._oligo
         nS._strand5p = self._strand5p
         nS._strand3p = self._strand3p
@@ -225,6 +237,24 @@ class Strand(QObject):
         return nS
     # end def
 
+    def deepCopy(self, strandSet, oligo):
+        """
+        can't use python module 'copy' as the dictionary _decorators
+        needs to be shallow copied as well, but wouldn't be if copy.copy()
+        is used, and copy.deepcopy is undesired
+        """
+        nS = Strand(strandSet, *self.idxs())
+        nS._oligo = oligo
+        decs = nS._decorators
+        for key, decOrig in self._decorators:
+            decs[key] = decOrig.deepCopy()
+        # end fo
+        nS._sequence = self._sequence
+        nS._note = self._note
+        return nS
+    # end def
+    
+    
 
     def addSequence(self):
         pass

@@ -26,6 +26,8 @@
 # http://www.opensource.org/licenses/mit-license.php
 
 import util
+from enum import StrandType
+
 util.qtWrapImport('QtCore', globals(), ['pyqtSignal', 'QObject'])
 util.qtWrapImport('QtGui', globals(), [ 'QUndoCommand', 'QUndoStack'])
 
@@ -47,9 +49,10 @@ class Part(QObject):
         
         """
         super(Part, self).__init__(document)
-        self._document = None
+        self._document = document
         self._partInstances = []    # This is a list of ObjectInstances
         self._oligos = {}
+        self._virtualHelices = {}   # should this be a list or a dictionary?  I think dictionary
         self._bounds = (0, 2*self._step)
     # end def
 
@@ -89,6 +92,71 @@ class Part(QObject):
     def bounds(self):
         """Return the latice indice bounds relative to the origin."""
         return self._bounds
-
+    # end def
+    
+    def newPart(self):
+        """
+        reimplement this method for each type of Part
+        """
+        return Part(self._document)
+    # end def
+    
+    def shallowCopy(self):
+        part = self.newPart()
+        part._virtualHelices = dict(self._virtualHelices)
+        part._oligos = dict(self._oligos)
+        part._bounds = (self._bounds[0], self._bounds[1])
+        part._partInstances = list(self._partInstances)
+        return part
+    # end def
+    
+    def deepCopy(self):
+        """
+        1) Create a new part
+        2) copy the VirtualHelices
+        3) Now you need to map the ORIGINALs Oligos onto the COPY's Oligos
+        To do this you can for each Oligo in the ORIGINAL
+            a) get the strand5p() of the ORIGINAL
+            b) get the corresponding strand5p() in the COPY based on
+                i) lookup the hash idNum of the ORIGINAL strand5p() VirtualHelix
+                ii) get the StrandSet() that you created in Step 2 for the 
+                StrandType of the original using the hash idNum
+        """
+        # 1) new part
+        part = self.newPart()
+        for key, vhelix in self._virtualHelices:
+            # 2) Copy VirtualHelix 
+            part._virtualHelices[key] = vhelix.deepCopy(part)
+        # end for
+        # 3) Copy oligos
+        for oligo, val in self._oligos:
+            strandGenerator = oligo.strand5p()
+            strandType = oligo.strand5p().strandType()
+            newOligo = oligo.deepCopy(part)
+            lastStrand = None
+            for strand in strandGenerator:
+                idNum = strand.virtualHelix().number()
+                newVHelix = part._virtualHelices[idNum]
+                newStrandSet = newVHelix().getStrand(strandType)
+                newStrand = strand.deepCopy(newStrandSet, newOligo)
+                if lastStrand:
+                    lastStrand.set3pConnection(newStrand)
+                else: 
+                    # set the first condition
+                    newOligo.setStrand5p(newStrand)
+                newStrand.set5pConnection(lastStrand)
+                newStrandSet.addStrand(newStrand)
+                lastStrand = newStrand
+            # end for
+            # check loop condition
+            if oligo.isLoop():
+                s5 = newOligo.strand5p()
+                lastStrand.set3pconnection(s5)
+                s5.set5pconnection(lastStrand)
+            # add to part
+            oligo.add()
+        # end for
+    # end def
+    
     ### COMMANDS ###
     

@@ -27,6 +27,7 @@
 
 from strandset import StrandSet
 import util
+from enum import StrandType
 
 # import Qt stuff into the module namespace with PySide, PyQt4 independence
 util.qtWrapImport('QtCore', globals(), ['pyqtSignal', 'QObject', 'Qt'])
@@ -37,8 +38,8 @@ class VirtualHelix(QObject):
         super(VirtualHelix, self).__init__(part)
         self._coords = (None, None) # col, row
         self._part = part
-        self._scafStrandSet = StrandSet(self)
-        self._stapStrandSet = StrandSet(self)
+        self._scafStrandSet = StrandSet('scaffold', self)
+        self._stapStrandSet = StrandSet('staple', self)
         # If self._part exists, it owns self._number
         # in that only it may modify it through the
         # private interface. The public interface for
@@ -93,9 +94,38 @@ class VirtualHelix(QObject):
             return self._stapStrandSet
     # end def
 
+    def getStrand(self, strandType):
+        if strandType == StrandType.Scaffold:
+            return self._scafStrandSet
+        else:
+            return self._stapStrandSet
+    # end def
+
     def strandSetBounds(self, indexHelix, indexType):
         """
         forwards the query to the strandSet
         """
         return self.strandSet(indexHelix, indexType).bounds()
     # end def
+    
+    def shallowCopy(self):
+        pass
+    # end def
+    
+    def deepCopy(self, part):
+        """
+        This only copies as deep as the VirtualHelix
+        strands get copied at the oligo and added to the Virtual Helix
+        """
+        vh = VirtualHelix(part, self._number)
+        vh._coords = (self._coords[0], self._coords[1])
+        # If self._part exists, it owns self._number
+        # in that only it may modify it through the
+        # private interface. The public interface for
+        # setNumber just routes the call to the parent
+        # dnapart if one is present. If self._part == None
+        # the virtualhelix owns self._number and may modify it.
+        self._number = idnum
+    # end def
+    
+    

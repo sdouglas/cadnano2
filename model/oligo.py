@@ -32,18 +32,25 @@ util.qtWrapImport('QtCore', globals(), ['pyqtSignal', 'QObject'])
 util.qtWrapImport('QtGui', globals(), [ 'QUndoCommand', 'QUndoStack'])
 
 class Oligo(QObject):
-    def __init__(self):
+    def __init__(self, part):
         super(Oligo, self).__init__()
-        self._part = None
+        self._part = part
         self._strand5p = None
         self._length = 0
         self._isLoop = False
     # end def
     
     def shallowCopy(self):
-        olg = Oligo()
-        olg._part = self._part
+        olg = Oligo(self._part)
         olg._strand5p = self._strand5p
+        olg._length = self._length
+        olg._isLoop = self._isLoop
+        return olg
+    # end def
+    
+    def deepCopy(self, part):
+        olg = Oligo(part)
+        olg._strand5p = None
         olg._length = self._length
         olg._isLoop = self._isLoop
         return olg

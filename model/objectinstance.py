@@ -65,4 +65,9 @@ class ObjectInstance(QObject):
     def position(self):
         return self._position
 
+    def shallowCopy(self):
+        oi = ObjectInstance(self._object, self._parent)
+        oi._position = list(self._position)
+        return oi
+    # end def
     ### COMMANDS ###
