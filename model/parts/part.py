@@ -37,16 +37,15 @@ class Part(QObject):
 
     def __init__(self, document):
         """
-        Parts are always parented to the document.  
+        Parts are always parented to the document.
         Parts know about their oligos, and the internal geometry of a part
         Copying a part recursively copies all elements in a part:
             VirtualHelices, Strands, etc
-        
+
         PartInstances are parented to either the document or an assembly
         PartInstances know global position of the part
         Copying a PartInstance only creates a new PartInstance with the same
-        Part(), with a mutable parent and position field
-        
+        Part(), with a mutable parent and position field.
         """
         super(Part, self).__init__(document)
         self._document = document
@@ -75,6 +74,10 @@ class Part(QObject):
 
     def document(self):
         return self._document
+
+    def setDocument(self, document):
+        """docstring for setDocument"""
+        self._document = document
 
     def oligos(self):
         return self._oligos

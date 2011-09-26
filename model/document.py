@@ -25,8 +25,8 @@
 #
 # http://www.opensource.org/licenses/mit-license.php
 
-from parts.dnahoneycombpart import DNAHoneycombPart
-from parts.dnasquarepart import DNASquarePart
+from parts.honeycombpart import HoneycombPart
+from parts.squarepart import SquarePart
 import util
 util.qtWrapImport('QtCore', globals(), ['pyqtSignal', 'QObject'])
 util.qtWrapImport('QtGui', globals(), [ 'QUndoCommand', 'QUndoStack'])
@@ -39,6 +39,7 @@ class Document(QObject):
         self._parts = []
         self._assemblies = []
         self._controller = None
+        self._selectedPart = None
 
     ### SIGNALS ###
     partAddedSignal = pyqtSignal(object, object)  # part, controller
@@ -71,29 +72,28 @@ class Document(QObject):
         if self._selectedPart == newPart:
             return
         self._selectedPart = newPart
-        self.selectedPartChanged.emit(newPart)
-
+        self.selectedPartChangedSignal.emit(newPart)
 
     ### PUBLIC METHODS FOR QUERYING THE MODEL ###
 
     ### PUBLIC METHODS FOR EDITING THE MODEL ###
-    def addDnaHoneycombPart(self):
+    def addHoneycombPart(self):
         """
         Create and store a new DNAPart and instance, and return the instance.
         """
         dnapart = None
         if len(self._parts) == 0:
-            dnapart = DNAHoneycombPart()
+            dnapart = HoneycombPart(document=self)
             self._addPart(dnapart)
         return dnapart
 
-    def addDnaSquarePart(self):
+    def addSquarePart(self):
         """
         Create and store a new DNAPart and instance, and return the instance.
         """
         dnapart = None
         if len(self._parts) == 0:
-            dnapart = DNASquarePart()
+            dnapart = DNASquarePart(document=self)
             self._addPart(dnapart)
         return dnapart
 
@@ -131,9 +131,9 @@ class Document(QObject):
         def redo(self):
             if len(self._doc._parts) == 0:
                 self._doc._parts.append(self._part)
-                self._part._setDocument(self._doc)
+                self._part.setDocument(self._doc)
                 self._doc.setSelectedPart(self._part)
-                self._doc.partAddedSignal.emit(self._part)
+                self._doc.partAddedSignal.emit(self._part, self._doc._controller)
 
         def undo(self):
             self._part._setDocument(None)

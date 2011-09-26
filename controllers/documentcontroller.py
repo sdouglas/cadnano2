@@ -204,12 +204,12 @@ class DocumentController():
 
     def actionAddHoneycombPartSlot(self):
         """docstring for actionAddHoneycombPartSlot"""
-        part = self._document.addDnaHoneycombPart()
+        part = self._document.addHoneycombPart()
         self.setActivePart(part)
 
     def actionAddSquarePartSlot(self):
         """docstring for actionAddSquarePartSlot"""
-        part = self._document.addDnaSquarePart()
+        part = self._document.addSquarePart()
         self.setActivePart(part)
 
     ### METHODS ###

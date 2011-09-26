@@ -23,7 +23,7 @@
 # http://www.opensource.org/licenses/mit-license.php
 from cadnano import app
 from model.enum import LatticeType, Crossovers
-from dnapart import DNAPart
+from part import Part
 
 class SquarePart(Part):
     _step = 32  # 21 in honeycomb
@@ -36,7 +36,7 @@ class SquarePart(Part):
     stapR = Crossovers.squareStapRight
 
     def __init__(self, *args, **kwargs):
-        DNAPart.__init__(self)
+        Part.__init__(self)
         self._maxRow = kwargs.get('maxRow', app().prefs.squareRows)
         self._maxCol = kwargs.get('maxCol', app().prefs.squareCols)
         self._maxBase = kwargs.get('maxSteps', app().prefs.squareSteps) * self.step
@@ -45,5 +45,5 @@ class SquarePart(Part):
         return LatticeType.Square
 
     def fillSimpleRep(self, sr):
-        super(DNASquarePart, self).fillSimpleRep(sr)
+        super(SquarePart, self).fillSimpleRep(sr)
         sr['.class'] = 'DNASquarePart'

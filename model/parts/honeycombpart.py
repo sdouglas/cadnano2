@@ -30,7 +30,7 @@ from part import Part
 from model.enum import LatticeType, Crossovers
 
 
-class HoneycombPart(DNAPart):
+class HoneycombPart(Part):
     _step = 21  # 32 in square
     _activeSlice = _step
     _majorGridLine = _step / 3
@@ -41,10 +41,10 @@ class HoneycombPart(DNAPart):
     stapR = Crossovers.honeycombStapRight
 
     def __init__(self, *args, **kwargs):
-        DNAPart.__init__(self)
+        Part.__init__(self, *args, **kwargs)
         self._maxRow = kwargs.get('maxRow', app().prefs.honeycombRows)
         self._maxCol = kwargs.get('maxCol', app().prefs.honeycombCols)
-        self._maxBase = kwargs.get('maxSteps', app().prefs.honeycombSteps) * self.step
+        self._maxBase = kwargs.get('maxSteps', app().prefs.honeycombSteps) * self._step
 
     def crossSectionType(self):
         """Returns the cross-section type of the DNA part."""
@@ -52,5 +52,5 @@ class HoneycombPart(DNAPart):
 
     ########################## Archiving / Unarchiving #########################
     def fillSimpleRep(self, sr):
-        super(DNAHoneycombPart, self).fillSimpleRep(sr)
-        sr['.class'] = 'DNAHoneycombPart'
+        super(HoneycombPart, self).fillSimpleRep(sr)
+        sr['.class'] = 'HoneycombPart'
