@@ -117,6 +117,8 @@ class Strand(QObject):
 
     def setOligo(self, newOligo):
         self._oligo = newOligo
+        # return the signal
+        # return self.hasNewOligoSignal.emit, (self,)
         self.hasNewOligoSignal.emit(self)
     # end def
 
@@ -200,14 +202,14 @@ class Strand(QObject):
             std = self.strand
             nI = self.newIndices
             std.setIdxs(nI)
-            std.resizedSignal(std, nI)
+            std.resizedSignal.emit(std, nI)
         # end def
 
         def undo(self):
             std = self.strand
             oI = self.oldIndices
             std.setIdxs(oI)
-            std.resizedSignal(std, oI)
+            std.resizedSignal.emit(std, oI)
         # end def
     # end class
 

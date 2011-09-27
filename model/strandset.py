@@ -62,6 +62,9 @@ class StrandSet(QObject):
     def strandType(self):
         return self._strandType
     # end def
+    
+    def part(self):
+        return self._virtualHelix.part()
 
     def getBoundsOfEmptyRegionContaining(self, baseIdx):
         """
@@ -456,35 +459,95 @@ class StrandSet(QObject):
         """Inserts strandToAdd into strandList at index idx."""
         def __init__(self, strandSet, baseIdxLow, baseIdxHigh, strandSetIdx):
             super(StrandSet.CreateStrandCommand, self).__init__()
-            self._strandList = strandSet._strandList
-            self._strand = Strand(strandSet, baseIdxLow, baseIdxHigh)
+            self._strandSet = strandSet
+            strand = Strand(strandSet, baseIdxLow, baseIdxHigh)
             self._sSetIdx = strandSetIdx
-
+            self._part = strandSet.part()
+            self._newOligo = Oligo(strandSet.part())
+            self._strand = strand
+            
+            # self._signalList = []
+        # end def
+            
         def redo(self):
-            print "CreateStrandCommand", self._strand, self._sSetIdx
-            self._strandList.insert(self._sSetIdx, self._strand)
-            # if useUndoStack:  # how should the command gain access to this?
-            #     self.strandAddedSignal.emit(self._strand)
+            # signalList = []
+            strand = self._strand
+            oligo = self._newOligo
+            strandSet = self._strandSet
+            print "CreateStrandCommand", strand, self._sSetIdx
+            
+            strandSet._strandList.insert(self._sSetIdx, strand)
+            oligo.setStrand5p(strand)
+            
+            # affect the oligo
+            oligo.AddToPart(self._part)
+            
+            strand.setOligo(oligo)
+            # signalList.append(strand.setOligo(oligo))
+            
+            # setup the create strand signal
+            strandSet.strandAddedSignal.emit(strand)
+            # signalList.append((strandSet.strandAddedSignal.emit, (strand,)))
+            # self._signalList = signalList
+        # end def
 
         def undo(self):
-            self._strandList.pop(self._sSetIdx)
-            # if useUndoStack:
-            #     self.strand.strandRemovedSignal.emit()
+            # signalList = []
+            strand = self._strand
+            oligo = self._newOligo
+            strandSet = self._strandSet
+            
+            strandSet._strandList.pop(self._sSetIdx)
+            
+            strand.setOligo(None)
+            # signalList.append(strand.setOligo(None))
+            
+            oligo.setStrand5p(None)
+            oligo.removeFromPart()
+            
+            strand.strandRemovedSignal.emit(strand)
+            # signalList.append((strand.strandRemovedSignal.emit, (strand,)))
+            # since this is an undo, we just emit the signals now
+            # strandSet.emitSignals(signalList)
+        # end def
     # end class
 
     class RemoveStrandCommand(QUndoCommand):
-        """docstring for RemoveStrandCommand"""
+        """
+        This command should only be called on a strand with no connections
+        """
         def __init__(self, strandList, strand, strandSetIdx):
             super(StrandSet.RemoveStrandCommand, self).__init__()
             self._strandList = strandList
             self._strand = strand
             self._sSetIdx = strandSetIdx
+            self._oligo = strand.oligo()
+            
+            # self._signalList = []
+        # end def
 
         def redo(self):
-            self._strandList.pop(self.sSetIdx)
-
+            strand = self._strand
+            oligo = self.oligo
+            self._strandList.pop(self._sSetIdx)
+            
+            # just kill the references between each other
+            strand.setOligo(None)
+            
+            oligo.setStrand5p(None)
+            oligo.removeFromPart()
+        # end def
+        
         def undo(self):
-            self._strandList.insert(self.sSetIdx, self._strand)
+            strand = self._strand
+            oligo = self.oligo
+            
+            self._strandList.insert(self._sSetIdx, strand)
+            strand.setOligo(oligo)
+            
+            oligo.setStrand5p(strand)
+            oligo.addToPart()
+        # end def
     # end class
 
     class MergeCommand(QUndoCommand):
@@ -531,6 +594,8 @@ class StrandSet(QObject):
             newStrand.addDecorators(strandHigh.decorators())
 
             self._newStrand = newStrand
+            
+            # self._signalList = []
         # end def
 
         def redo(self):
@@ -671,6 +736,8 @@ class StrandSet(QObject):
             # take care of splitting up decorators
             strandLow.removeDecoratorsOutOfRange()
             strandHigh.removeDecoratorsOutOfRange()
+
+            # self._signalList = []
         # end def
 
         def redo(self):

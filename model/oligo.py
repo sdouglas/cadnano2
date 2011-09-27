@@ -32,9 +32,9 @@ util.qtWrapImport('QtCore', globals(), ['pyqtSignal', 'QObject'])
 util.qtWrapImport('QtGui', globals(), [ 'QUndoCommand', 'QUndoStack'])
 
 class Oligo(QObject):
-    def __init__(self, part):
-        super(Oligo, self).__init__()
-        self._part = part
+    def __init__(self, part=None):
+        super(Oligo, self).__init__(part)
+        self._part = None
         self._strand5p = None
         self._length = 0
         self._isLoop = False
@@ -90,11 +90,16 @@ class Oligo(QObject):
     def setLength(self, length):
         return self._length = length
 
+    def addStrand(self, strand):
+        return setLength(s)
+
     def isLoop(self):
         return self._isLoop
 
-    def addToPart(self):
-        self.part().addOligo(self)
+    def addToPart(self, part):
+        self._part = part
+        self.setParent(part)
+        part.addOligo(self)
     # end def
 
     def removeFromPart(self):
@@ -102,7 +107,9 @@ class Oligo(QObject):
         this method merely disconnects the object from the model
         it still lives on in the undoStack until clobbered
         """
-        self.part().removeOligo(self)
+        self._part.removeOligo(self)
+        self._part = None
+        self.setParent(None)
     # end def
 
     def strandSplitUpdate(self, newStrand5p, newStrand3p, oligo3p, oldMergedStrand):
