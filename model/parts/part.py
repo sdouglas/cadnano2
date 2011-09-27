@@ -159,6 +159,7 @@ class Part(QObject):
             # add to part
             oligo.add()
         # end for
+        return part
     # end def
     
     ### COMMANDS ###

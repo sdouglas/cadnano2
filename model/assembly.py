@@ -27,16 +27,25 @@
 
 
 import util
+from itertools import imap
+from operator import attrgetter, methodcaller
+from collenctions import defaultdict
+import parts.Part
 # import Qt stuff into the module namespace with PySide, PyQt4 independence
 util.qtWrapImport('QtCore', globals(), ['pyqtSignal', 'QObject'])
 util.qtWrapImport('QtGui', globals(), [ 'QUndoCommand', 'QUndoStack'])
 
 class Assembly(QObject):
-    def __init__(self, document, partList=None):
+    def __init__(self, document):
         super(Assembly, self).__init__(document)
         self._document = document
-        self._parts = partList          # This is a list of member parts
-        self._assemblyInstances = []    # This is a list of ObjectInstances
+        self._objInstanceList = []   # This is a list of member parts
+        
+        # This is a list of ObjectInstances of this
+        # particular assembly ONLY
+        # an Assembly can not have an ObjectIntanceList that contains itself
+        # that would be a circular reference
+        self._assemblyInstances = []
     # end def
 
     ### SIGNALS ###
@@ -59,15 +68,59 @@ class Assembly(QObject):
         return self._document
     # end def
     
-    def parts(self):
-        for part in self._parts:
-            yield part
+    def objects(self):
+        for obj in self._objInstanceList:
+            yield obj
     # end def
 
     def instances(self):
         for inst in self._assemblyInstances:
             yield inst
     # end def
+    
+    def deepCopy(self):
+        """
+        Deep copy the assembly by cloning the 
+        
+        This leaves alone assemblyInstances, and only
+        
+        To finish the job this deepCopy Assembly should be incorporated into
+        a new ObjectInstance and therefore an assemblyInstance
+        """
+        doc = self._document
+        asm = Assembly(doc)
+        newObjInstList = asm._objInstanceList
+        objInstances = self.objects()
+        
+        # create a dictionary mapping objects (keys) to lists of 
+        # ObjectInstances ([value1, value2])
+        # this uniquifies the creation of new Assemblies
+        objectDict = defaultdict(list)
+        f1 = methodcaller('reference')
+        for x in objInstances:
+            obj = f1(x)
+            objectDict[obj].append(x)
+        # end 
+        
+        # copy the all the objects
+        f2 = methodcaller('deepCopy')
+        for key, value in objectDict:
+            # create a new object 
+            newObj = f2(key)
+            # copy all of the instances relevant to this new object
+            newInsts = [objInst.deepCopy(newObj, asm) for objInst in value]
+            # add these to the list in the assembly
+            newObjInstList.extend(newInsts)
+            # add Object to the document
+            doc.addObject(newObj)
+        # end for
+        return asm
+    # end def
+    
+    def addInstance(self, assemblyInstance):
+        self._assemblyInstances.extend(assemblyInstance)
+    # end def
+        
     
     ### COMMANDS ###
     

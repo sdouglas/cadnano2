@@ -70,4 +70,10 @@ class ObjectInstance(QObject):
         oi._position = list(self._position)
         return oi
     # end def
+    
+    def deepCopy(self, referenceObject, parent):
+        oi = ObjectInstance(referenceObject, parent)
+        oi._position = list(self._position)
+        return oi
+    # end def
     ### COMMANDS ###
