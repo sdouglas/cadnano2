@@ -22,17 +22,26 @@
 #
 # http://www.opensource.org/licenses/mit-license.php
 
-from exceptions import NotImplementedError
-import util
-# import Qt stuff into the module namespace with PySide, PyQt4 independence
-util.qtWrapImport('QtCore', globals(), ['pyqtSignal', 'QObject'])
-util.qtWrapImport('QtGui', globals(), [ 'QUndoCommand', 'QUndoStack'])
+from controllers.viewrootcontroller import ViewRootController
 
-class AbstractViewRoot(object):
-    def __init__(self, *args, **kwargs):
-        if self.__class__ == AbstractView:
-            raise NotImplementedError("AbstractView should be subclassed.")
-        super(AbstractView, self).__init__(self, *args, **kwargs)
+import util
+util.qtWrapImport('QtCore', globals(), ['pyqtSignal', 'QObject'])
+util.qtWrapImport('QtGui', globals(), ['QGraphicsRectItem'])
+
+
+class PathRootItem(QGraphicsRectItem):
+    """
+    PathRootItem is the root item in the PathView. It gets added directly
+    to the pathscene by DocumentWindow. It receives two signals
+    (partAddedSignal and selectedPartChangedSignal) via its ViewRootController.
+
+    PathRootItem must instantiate its own controller to receive signals
+    from the model.
+    """
+    def __init__(self, rect, parent, document):
+        super(PathRootItem, self).__init__(rect, parent)
+        self._document = document
+        self._controller = ViewRootController(self, document)
 
     ### SIGNALS ###
 
@@ -42,9 +51,14 @@ class AbstractViewRoot(object):
         Receives notification from the model that a part has been added.
         Views that subclass AbstractView should override this method.
         """
+        print "PathRootItem.partAddedSlot!"
+        pass
+
+    def selectedPartChangedSlot(self):
+        """docstring for selectedPartChangedSlot"""
+        print "PathRootItem.selectedPartChangedSlot!"
         pass
 
     ### METHODS ###
 
     ### COMMANDS ###
-    

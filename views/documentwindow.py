@@ -22,36 +22,23 @@
 #
 # http://www.opensource.org/licenses/mit-license.php
 
-"""
-documentwindow.py
-"""
-
-import ui.mainwindow.ui_mainwindow as ui_mainwindow
-import controllers.pathcontroller as pathcontroller
-import controllers.slicecontroller as slicecontroller
 from cadnano import app
-from views.pathview.colorpanel import ColorPanel
+from pathview.colorpanel import ColorPanel
+from pathview.tools.pathtoolmanager import PathToolManager
+from sliceview.slicerootitem import SliceRootItem
+from pathview.pathrootitem import PathRootItem
+from sliceview.tools.slicetoolmanager import SliceToolManager
+import ui.mainwindow.ui_mainwindow as ui_mainwindow
 import util
+
 util.qtWrapImport('QtCore', globals(), ['pyqtSignal', 'Qt', 'QFileInfo',
                                         'QPoint', 'QSettings', 'QSize',
                                         'QString'])
 util.qtWrapImport('QtGui', globals(), ['QAction', 'QApplication',
                                        'QGraphicsObject', 'QGraphicsScene',
                                        'QGraphicsView', 'QMainWindow',
+                                       'QGraphicsItem', 'QGraphicsRectItem',
                                        'QWidget'])
-
-
-class SceneRoot(QGraphicsObject):
-    def __init__(self, rectsource=None):
-        super(SceneRoot, self).__init__()
-        # this sets the rect of itself to the QGraphicsScene bounding volume
-        self.rect = rectsource.sceneRect()
-
-    def paint(self, painter, option, widget):
-        pass
-
-    def boundingRect(self):
-        return self.rect
 
 
 class DocumentWindow(QMainWindow, ui_mainwindow.Ui_MainWindow):
@@ -59,22 +46,31 @@ class DocumentWindow(QMainWindow, ui_mainwindow.Ui_MainWindow):
     def __init__(self, parent=None, docCtrlr=None):
         super(DocumentWindow, self).__init__(parent)
         self.controller = docCtrlr
+        doc = docCtrlr.document()
         self.setupUi(self)
         self.settings = QSettings()
         self.readSettings()
         # Slice setup
         self.slicescene = QGraphicsScene(parent=self.sliceGraphicsView)
-        self.sliceroot = SceneRoot(rectsource=self.slicescene)
+        # self.sliceroot = QGraphicsRectItem(self.slicescene.sceneRect(), parent=None)
+        self.sliceroot = SliceRootItem(rect=self.slicescene.sceneRect(),\
+                                       parent=None,\
+                                       document=doc)
+        self.sliceroot.setFlag(QGraphicsItem.ItemHasNoContents)
         self.slicescene.addItem(self.sliceroot)
         assert self.sliceroot.scene() == self.slicescene
         self.sliceGraphicsView.setScene(self.slicescene)
         self.sliceGraphicsView.sceneRootItem = self.sliceroot
-        self.sliceController = slicecontroller.SliceController(self)
+        self.sliceToolManager = SliceToolManager(self)
         # Path setup
         self.pathscene = QGraphicsScene(parent=self.pathGraphicsView)
-        self.pathroot = SceneRoot(rectsource=self.pathscene)
+        self.pathroot = PathRootItem(rect=self.pathscene.sceneRect(),\
+                                     parent=None,\
+                                     document=doc)
+        self.pathroot.setFlag(QGraphicsItem.ItemHasNoContents)
         self.pathscene.addItem(self.pathroot)
         assert self.pathroot.scene() == self.pathscene
+
 
         # Uncomment the following block for  explicit pathview GL rendering
         # self.pathGraphicsView.setViewport(
@@ -92,9 +88,9 @@ class DocumentWindow(QMainWindow, ui_mainwindow.Ui_MainWindow):
         self.pathToolbar = ColorPanel()
         self.pathGraphicsView.toolbar = self.pathToolbar
         self.pathscene.addItem(self.pathToolbar)
-        self.pathController = pathcontroller.PathController(self)
-        self.sliceController.pathController = self.pathController
-        self.pathController.sliceController = self.sliceController
+        self.pathToolManager = PathToolManager(self)
+        self.sliceToolManager.pathToolManager = self.pathToolManager
+        self.pathToolManager.sliceToolManager = self.sliceToolManager
 
         if app().isInMaya():
             self.splitter.setOrientation(Qt.Vertical)

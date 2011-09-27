@@ -28,14 +28,14 @@ util.qtWrapImport('QtCore', globals(), ['pyqtSignal', 'QObject'])
 util.qtWrapImport('QtGui', globals(), [ 'QActionGroup'])
 
 
-class SliceController(QObject):
+class SliceToolManager(QObject):
     """Manages interactions between the slice widgets/UI and the model."""
     def __init__(self, win):
         """
         We store mainWindow because a controller's got to have
         references to both the layer above (UI) and the layer below (model)
         """
-        super(SliceController, self).__init__()
+        super(SliceToolManager, self).__init__()
         self._window = win
         self.connectWindowSignalsToSelf()
 
@@ -47,7 +47,7 @@ class SliceController(QObject):
     def activeSliceFirstSlot(self):
         """
         Use a signal to notify the ActiveSliceHandle to move. A signal is used
-        because the SliceController must be instantiated first, and the
+        because the SliceToolManager must be instantiated first, and the
         ActiveSliceHandle can later subscribe.
         """
         self.activeSliceSetToFirstIndexSignal.emit()
@@ -56,12 +56,12 @@ class SliceController(QObject):
         self.activeSliceSetToLastIndexSignal.emit()
 
     def actionRenumberSlot(self):
-        self.mainWindow.pathController.activePart().renumber()
+        self.mainWindow.pathToolManager.activePart().renumber()
 
     ### METHODS ###
     def connectWindowSignalsToSelf(self):
         """This method serves to group all the signal & slot connections
-        made by SliceController"""
+        made by SliceToolManager"""
         self._window.actionSliceFirst.triggered.connect(self.activeSliceFirstSlot)
         self._window.actionSliceLast.triggered.connect(self.activeSliceLastSlot)
         self._window.actionRenumber.triggered.connect(self.actionRenumberSlot)

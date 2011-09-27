@@ -31,9 +31,10 @@ util.qtWrapImport('QtCore', globals(), ['pyqtSignal', 'QObject'])
 util.qtWrapImport('QtGui', globals(), [ 'QUndoCommand', 'QUndoStack'])
 
 class PartGraphicsItem(QGraphicsPathItem):
-    def __init__(self, part, parent):
+    def __init__(self, modelPart, parent):
         super(PartGraphicsItem, self).__init__(parent)
-        self._part = part
+        self._modelPart = modelPart
+        self._controller = 
         self.connectSignals()
 
     ### SIGNALS ###
