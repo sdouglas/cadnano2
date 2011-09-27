@@ -48,7 +48,6 @@ import util
 
 from solidhelix import SolidHelix
 
-
 # import Qt stuff into the module namespace with PySide, PyQt4 independence
 util.qtWrapImport('QtCore', globals(), ['pyqtSignal', 'pyqtSlot', 'QObject'])
 
@@ -130,7 +129,7 @@ class SolidHelixGroup(QObject):
                                         self.partDimensionsChanged)
             self._part.virtualHelixAtCoordsChanged.disconnect(
                                         self.onVirtualHelixAtCoordsChanged)
-            self._past.activeSliceWillChange.disconnect(self.onSelectionWillChange)
+            self._past.activeSliceWillChange.disconnect(self.onActiveSliceWillChange)
         self._part = p
         if p != None:
             p.dimensionsDidChange.connect(self.partDimensionsChanged)
@@ -138,14 +137,17 @@ class SolidHelixGroup(QObject):
                                         self.onVirtualHelixAtCoordsChanged)
             p.activeSliceWillChange.connect(self.onActiveSliceWillChange)
 
+    @pyqtSlot()
     def partDimensionsChanged(self):
         #print "SolidHelixGroup:partDimensionsChanged"
         pass
 
+    @pyqtSlot(object)
     def onActiveSliceWillChange(self, list):
         print "onSelectionWillChange"
         print list
 
+    @pyqtSlot(int, int)
     def onVirtualHelixAtCoordsChanged(self, row, col):
         self.createNewHelix(row, col)
 

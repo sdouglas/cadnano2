@@ -47,7 +47,6 @@ solidhelix.py
 Created by Simon Breslav on 2011-08-29.
 """
 
-
 class SolidHelix(QObject):
     """
     SolidHelix is the 3D of the VirtualHelix.
@@ -102,6 +101,7 @@ class SolidHelix(QObject):
     def StrandIDs(self):
         return self.strandIDs
 
+    @pyqtSlot(object)
     def strandAddedToVStrand(self, strand):
         if isinstance(strand, NormalStrand):
             strand.didMove.connect(self.onStrandDidMove)
@@ -136,6 +136,7 @@ class SolidHelix(QObject):
         if self.pathHelixGroup().isInModifyState():
             self.upadateStapleModIndicators(True)
 
+    @pyqtSlot(object)
     def onStrandDidMove(self, strand):
         id = self._solidHelixGroup.strandMayaID(strand)
         cylinderName = "HalfCylinderHelixNode%s" % id
@@ -158,6 +159,7 @@ class SolidHelix(QObject):
                 strand = m.mayaToCn[ mayaNodeInfo ]
                 self.createStapleModIndicator(strand)
 
+    @pyqtSlot(object)
     def onStrandWillBeRemoved(self, strand):
         id = self._solidHelixGroup.strandMayaID(strand)
         strand.didMove.disconnect(self.onStrandDidMove)
@@ -173,6 +175,7 @@ class SolidHelix(QObject):
         self._solidHelixGroup.deleteStrandMayaID(strand)
         #print strand
 
+    @pyqtSlot()
     def vhelixDimensionsModified(self):
         #print "SolidHelix:vhelixDimensionsModified"
         totalNumBases = self._vhelix.numBases()
@@ -228,6 +231,7 @@ class SolidHelix(QObject):
             self.stapleModIndicatorIDs.append(stapleId)
             m = Mom()
             m.stapleModToSolidHelix[stapleModNodeInfo[2]] = (self, stapleBase, strand)
+            m.stapleModToSolidHelix[stapleModNodeInfo[1]] = (self, stapleBase, strand)
             
     def createStapleModIndicatorNodes(self, coords, id):
         stapleModIndicatorName = "spStapleModIndicator%s" % id

@@ -154,10 +154,15 @@ def openCN():
     pluginPath = os.path.join(os.environ['CADNANO_PATH'],
                                 "controllers", "solidcontroller")
     hmPath = os.path.join(pluginPath, "helixManip.py")
+    msPath = os.path.join(pluginPath, "mayaSelectionContex.py")
     rmPath = os.path.join(pluginPath, "removedMsgCmd.py")
-    if not cmds.pluginInfo(pluginPath, query=True, loaded=True):
-            cmds.loadPlugin(rmPath)
-            cmds.spRemovedMsg()
+    if not cmds.pluginInfo(rmPath, query=True, loaded=True):
+        cmds.loadPlugin(rmPath)
+        cmds.spRemovedMsg()
+    if not cmds.pluginInfo(msPath, query=True, loaded=True):
+        cmds.loadPlugin(msPath)
+        cmds.spMayaCtxCmd("spMayaCtxCmd1")
+        cmds.setToolTo("spMayaCtxCmd1")
     # XXX - [SB] Commenting out for now, since it doent's quite work yet...
     #if not cmds.pluginInfo(pluginPath, query=True, loaded=True):
     #        cmds.loadPlugin(hmPath)
