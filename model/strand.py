@@ -34,11 +34,11 @@ util.qtWrapImport('QtCore', globals(), ['pyqtSignal', 'QObject', 'Qt'])
 util.qtWrapImport('QtGui', globals(), ['QUndoStack', 'QUndoCommand'])
 
 class Strand(QObject):
-    def __init__(self, strandSet, indexLow, indexHigh):
+    def __init__(self, strandSet, baseIdxLow, baseIdxHigh):
         super(Strand, self).__init__()
         self._strandSet = strandSet
-        self._indexLow = indexLow  # base index of the strand's left boundary
-        self._indexHigh = indexHigh  # base index of the right boundary
+        self._baseIdxLow = baseIdxLow  # base index of the strand's left boundary
+        self._baseIdxHigh = baseIdxHigh  # base index of the right boundary
         self._strand5p = None
         self._strand3p = None
         self._oligo = None
@@ -64,7 +64,7 @@ class Strand(QObject):
 
     def __repr__(self):
         clsName = self.__class__.__name__
-        return "%s(%s, %s)"%(clsName, self._indexLow, self._indexHigh)
+        return "%s(%s, %s)"%(clsName, self._baseIdxLow, self._baseIdxHigh)
 
     def generator3pStrand(self):
         """
@@ -148,20 +148,20 @@ class Strand(QObject):
     # end def
 
     def idxs(self):
-        return (self._indexLow, self._indexHigh)
+        return (self._baseIdxLow, self._baseIdxHigh)
     # end def
 
     def setIdxs(self, idxs):
-        self._indexLow = idxs[0]
-        self._indexHigh = idxs[1]
+        self._baseIdxLow = idxs[0]
+        self._baseIdxHigh = idxs[1]
     # end def
-    
+
     def lowIdx(self):
-        return self._indexLow
+        return self._baseIdxLow
     # end def
 
     def highIdx(self):
-        return self._indexHigh
+        return self._baseIdxHigh
     # end def
 
     def isDrawn5to3(self):
