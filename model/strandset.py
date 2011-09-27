@@ -494,8 +494,10 @@ class StrandSet(QObject):
 
             # set ALL of the oligos
             # this will also emit a Signal to Alert the views
-            # map(lambda x: Strand.setOligo(x, olg), olg.strand5p())
-            starmapExec(Strand.setOligo, izip(olg.strand5p(), repeat(olg)))
+            setOligo = Strand.setOligo
+            for strand in olg.strand5p().generator3pStrand():
+                setOligo(strand, olg)
+            # starmapExec(Strand.setOligo, izip(olg.strand5p().generator3pStrand(), repeat(olg)))
 
             # add and remove the old oligos from the part
             olg.add()
@@ -531,10 +533,13 @@ class StrandSet(QObject):
 
             # reset ALL of the oligos back
             # this will also emit a Signal to Alert the views
-            # map(lambda x: Strand.setOligo(x, lOlg), lOlg.strand5p())
-            # map(lambda x: Strand.setOligo(x, hOlg), hOlg.strand5p())
-            starmapExec(Strand.setOligo, izip(lOlg.strand5p(), repeat(lOlg)))
-            starmapExec(Strand.setOligo, izip(hOlg.strand5p(), repeat(hOlg)))
+            setOligo = Strand.setOligo
+            for strand in lOlg.strand5p().generator3pStrand():
+                setOligo(strand, lOlg)
+            for strand in hOlg.strand5p().generator3pStrand():
+                setOligo(strand, hOlg)
+            # starmapExec(Strand.setOligo, izip(lOlg.strand5p().generator3pStrand(), repeat(lOlg)))
+            # starmapExec(Strand.setOligo, izip(hOlg.strand5p().generator3pStrand(), repeat(hOlg)))
 
             # add and remove the old oligos from the part
             olg.remove()
@@ -629,8 +634,13 @@ class StrandSet(QObject):
 
             # set ALL of the oligos
             # this will also emit a Signal to Alert the views
-            starmapExec(Strand.setOligo, izip(lOlg.strand5p(), repeat(lOlg)))
-            starmapExec(Strand.setOligo, izip(hOlg.strand5p(), repeat(hOlg)))
+            setOligo = Strand.setOligo
+            for strand in lOlg.strand5p().generator3pStrand():
+                setOligo(strand, lOlg)
+            for strand in hOlg.strand5p().generator3pStrand():
+                setOligo(strand, hOlg)
+            # starmapExec(Strand.setOligo, izip(lOlg.strand5p().generator3pStrand(), repeat(lOlg)))
+            # starmapExec(Strand.setOligo, izip(hOlg.strand5p().generator3pStrand(), repeat(hOlg)))
 
             # add and remove the old oligos from the part
             olg.remove()
@@ -666,7 +676,10 @@ class StrandSet(QObject):
 
             # reset ALL of the oligos back
             # this will also emit a Signal to alert the views
-            starmapExec(Strand.setOligo, izip(olg.strand5p(), repeat(olg)))
+            setOligo = Strand.setOligo
+            for strand in olg.strand5p().generator3pStrand():
+                setOligo(strand, olg)
+            # starmapExec(Strand.setOligo, izip(olg.strand5p().generator3pStrand(), repeat(olg)))
 
             # add and remove the old oligos from the part
             olg.add()

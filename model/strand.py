@@ -50,7 +50,7 @@ class Strand(QObject):
         clsName = self.__class__.__name__
         return "%s(%s, %s)"%(clsName, self._indexLow, self._indexHigh)
 
-    def __iter__(self):
+    def generator3pStrand(self):
         """
         Iterate from self to the final _strand3p == None
         5prime to 3prime

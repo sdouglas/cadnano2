@@ -133,7 +133,7 @@ class Part(QObject):
         # end for
         # 3) Copy oligos
         for oligo, val in self._oligos:
-            strandGenerator = oligo.strand5p()
+            strandGenerator = oligo.strand5p().generator3pStrand()
             strandType = oligo.strand5p().strandType()
             newOligo = oligo.deepCopy(part)
             lastStrand = None
@@ -153,9 +153,9 @@ class Part(QObject):
             # end for
             # check loop condition
             if oligo.isLoop():
-                s5 = newOligo.strand5p()
-                lastStrand.set3pconnection(s5)
-                s5.set5pconnection(lastStrand)
+                s5p = newOligo.strand5p()
+                lastStrand.set3pconnection(s5p)
+                s5p.set5pconnection(lastStrand)
             # add to part
             oligo.add()
         # end for
