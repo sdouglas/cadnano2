@@ -106,7 +106,7 @@ class StrandSet(QObject):
         assert(boundsLow <= baseIdxLow)
         assert(baseIdxHigh <= boundsHigh)
         strandSetIdx = self._lastStrandSetIndex
-        c = StrandSet.CreateStrandCommand(self._strandList, baseIdxLow, baseIdxHigh, strandSetIdx)
+        c = StrandSet.CreateStrandCommand(self, baseIdxLow, baseIdxHigh, strandSetIdx)
         self._execCommandList([c], desc="Create strand", useUndoStack=useUndoStack)
         return strandSetIdx
 
@@ -121,7 +121,7 @@ class StrandSet(QObject):
         assert(boundsLow <= baseIdxLow)
         assert(baseIdxHigh <= boundsHigh)
         strandSetIdx = self._lastStrandSetIndex
-        c = StrandSet.CreateStrandCommand(self._strandList, baseIdxLow, baseIdxHigh, strandSetIdx)
+        c = StrandSet.CreateStrandCommand(self, baseIdxLow, baseIdxHigh, strandSetIdx)
         self._execCommandList([c], desc=None, useUndoStack=useUndoStack)
         return strandSetIdx
 
@@ -130,7 +130,7 @@ class StrandSet(QObject):
             strandSetIdx, isInSet = self._findIndexOfRangeFor(strand)
             if not isInSet:
                 raise IndexError
-        c = StrandSet.RemoveStrandCommand(self._strandList, strand, strandSetIdx)
+        c = StrandSet.RemoveStrandCommand(self, strand, strandSetIdx)
         self._execCommandList([c], desc="Delete strand", useUndoStack=useUndoStack)
         return strandSetIdx
 
@@ -462,7 +462,6 @@ class StrandSet(QObject):
             self._strandSet = strandSet
             strand = Strand(strandSet, baseIdxLow, baseIdxHigh)
             self._sSetIdx = strandSetIdx
-            self._part = strandSet.part()
             self._newOligo = Oligo(strandSet.part())
             self._strand = strand
             
@@ -478,10 +477,10 @@ class StrandSet(QObject):
             
             strandSet._strandList.insert(self._sSetIdx, strand)
             oligo.setStrand5p(strand)
+            oligo.addStrandLength(strand)
             
             # affect the oligo
-            oligo.AddToPart(self._part)
-            
+            oligo.AddToPart(strandSet.part())
             strand.setOligo(oligo)
             # signalList.append(strand.setOligo(oligo))
             
@@ -503,6 +502,7 @@ class StrandSet(QObject):
             # signalList.append(strand.setOligo(None))
             
             oligo.setStrand5p(None)
+            oligo.removeStrandLength(strand)
             oligo.removeFromPart()
             
             strand.removedSignal.emit(strand)
@@ -516,9 +516,9 @@ class StrandSet(QObject):
         """
         This command should only be called on a strand with no connections
         """
-        def __init__(self, strandList, strand, strandSetIdx):
+        def __init__(self, strandSet, strand, strandSetIdx):
             super(StrandSet.RemoveStrandCommand, self).__init__()
-            self._strandList = strandList
+            self._strandSet = strandSet
             self._strand = strand
             self._sSetIdx = strandSetIdx
             self._oligo = strand.oligo()
@@ -529,12 +529,15 @@ class StrandSet(QObject):
         def redo(self):
             strand = self._strand
             oligo = self.oligo
-            self._strandList.pop(self._sSetIdx)
+            strandSet = self._strandSet
+            
+            strandSet._strandList.pop(self._sSetIdx)
             
             # just kill the references between each other
             strand.setOligo(None)
             
             oligo.setStrand5p(None)
+            oligo.removeStrandLength(strand)
             oligo.removeFromPart()
             
             strand.removedSignal.emit(strand)
@@ -543,12 +546,14 @@ class StrandSet(QObject):
         def undo(self):
             strand = self._strand
             oligo = self.oligo
+            strandSet = self._strandSet
             
-            self._strandList.insert(self._sSetIdx, strand)
+            strandSet._strandList.insert(self._sSetIdx, strand)
             strand.setOligo(oligo)
             
             oligo.setStrand5p(strand)
-            oligo.addToPart()
+            oligo.addStrandLength(strand)
+            oligo.addToPart(strandSet.part())
             
             strandSet.strandAddedSignal.emit(strand)
         # end def
@@ -591,7 +596,6 @@ class StrandSet(QObject):
             newIdxs = strandLow.lowIdx(), strandHigh.highIdx()
             newStrand = strandLow.shallowCopy()
             newStrand.setIdxs(*newIdxs)
-            # newStrand.setLowConnection(strandLow.lowConnection())
             newStrand.setHighConnection(strandHigh.highConnection())
 
             # take care of merging decorators

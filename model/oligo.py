@@ -101,8 +101,12 @@ class Oligo(QObject):
     def setLength(self, length):
         return self._length = length
 
-    def addStrand(self, strand):
+    def addStrandLength(self, strand):
         self.setLength(self._length+strand.length())
+    # end def
+
+    def removeStrandLength(self, strand):
+        self.setLength(self._length-strand.length())
     # end def
 
     def isLoop(self):
