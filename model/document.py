@@ -47,8 +47,7 @@ class Document(QObject):
 
     ### SLOTS ###
 
-    ### METHODS ###
-    # accessors
+    ### ACCESSORS ###
     def undoStack(self):
         """
         This is the actual undoStack to use for all commands. Any children

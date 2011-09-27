@@ -24,14 +24,14 @@
 
 import os
 from cadnano import app
-from views.pathview.tools.selecttool import SelectTool
-# from views.pathview.tools.penciltool import PencilTool
-from views.pathview.tools.breaktool import BreakTool
-# from views.pathview.tools.erasetool import EraseTool
-# from views.pathview.tools.inserttool import InsertTool
-# from views.pathview.tools.skiptool import SkipTool
-# from views.pathview.tools.painttool import PaintTool
-# from views.pathview.tools.addseqtool import AddSeqTool
+from selecttool import SelectTool
+# from penciltool import PencilTool
+from breaktool import BreakTool
+# from erasetool import EraseTool
+# from inserttool import InsertTool
+# from skiptool import SkipTool
+# from painttool import PaintTool
+# from addseqtool import AddSeqTool
 import util
 
 # import Qt stuff into the module namespace with PySide, PyQt4 independence
@@ -39,12 +39,12 @@ util.qtWrapImport('QtCore', globals(), ['QObject', 'pyqtSignal'])
 util.qtWrapImport('QtGui', globals(), [ 'QActionGroup'])
 
 
-class PathController(QObject):
+class PathToolManager(QObject):
     """
     Manages the interactions between Path widgets / UI elements and the model.
     """
     def __init__(self, win):
-        super(PathController, self).__init__()
+        super(PathToolManager, self).__init__()
         self.mainWindow = win
         self._activeTool = None
         self._activePart = None

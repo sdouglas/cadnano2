@@ -28,7 +28,7 @@ from model.document import Document
 from views.documentwindow import DocumentWindow
 import util
 util.qtWrapImport('QtCore', globals(), [])
-util.qtWrapImport('QtGui', globals(), [])
+util.qtWrapImport('QtGui', globals(), ['QMessageBox'])
 
 
 class DocumentController():
@@ -215,6 +215,9 @@ class DocumentController():
     ### METHODS ###
     def undoStack(self):
         return self._document.undoStack()
+
+    def document(self):
+        return self._document
 
     def newDocument(self, doc=None, fname=None):
         """Creates a new Document, reusing the DocumentController."""

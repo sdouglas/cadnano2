@@ -26,7 +26,7 @@
 # http://www.opensource.org/licenses/mit-license.php
 
 import util
-from enum import StrandType
+from model.enum import StrandType
 
 util.qtWrapImport('QtCore', globals(), ['pyqtSignal', 'QObject'])
 util.qtWrapImport('QtGui', globals(), [ 'QUndoCommand', 'QUndoStack'])

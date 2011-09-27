@@ -127,7 +127,7 @@ class AbstractPathTool(QGraphicsObject):
 
     def setActive(self, willBeActive, oldTool=None):
         """
-        Called by PathController.setActiveTool when the tool becomes
+        Called by PathToolManager.setActiveTool when the tool becomes
         active. Used, for example, to show/hide tool-specific ui elements.
         """
         if self.isActive() and not willBeActive:
