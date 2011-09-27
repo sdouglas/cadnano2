@@ -27,8 +27,8 @@ from cadnano import app
 from model.document import Document
 from views.documentwindow import DocumentWindow
 import util
-util.qtWrapImport('QtCore', globals(), [])
-util.qtWrapImport('QtGui', globals(), ['QMessageBox'])
+util.qtWrapImport('QtCore', globals(), ['Qt'])
+util.qtWrapImport('QtGui', globals(), ['QMessageBox', 'QKeySequence'])
 
 
 class DocumentController():
@@ -225,11 +225,11 @@ class DocumentController():
             app().deleteAllMayaNodes()
         self._document.removeAllParts()  # clear out old parts
         self._undoStack.clear()  # reset undostack
-        del self.sliceGraphicsItem
-        del self.pathHelixGroup
-        self.sliceGraphicsItem = None
-        self.pathHelixGroup = None
-        self.solidHelixGroup = None
+        # del self.sliceGraphicsItem
+        # del self.pathHelixGroup
+        # self.sliceGraphicsItem = None
+        # self.pathHelixGroup = None
+        # self.solidHelixGroup = None
         self._filename = fname if fname else "untitled.nno"
         self._hasNoAssociatedFile = fname == None
         self._activePart = None

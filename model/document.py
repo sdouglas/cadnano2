@@ -42,7 +42,7 @@ class Document(QObject):
         self._selectedPart = None
 
     ### SIGNALS ###
-    partAddedSignal = pyqtSignal(object, object)  # part, controller
+    partAddedSignal = pyqtSignal(object)  # part
     selectedPartChangedSignal = pyqtSignal(object)  # part
 
     ### SLOTS ###
@@ -132,7 +132,7 @@ class Document(QObject):
                 self._doc._parts.append(self._part)
                 self._part.setDocument(self._doc)
                 self._doc.setSelectedPart(self._part)
-                self._doc.partAddedSignal.emit(self._part, self._doc._controller)
+                self._doc.partAddedSignal.emit(self._part)
 
         def undo(self):
             self._part._setDocument(None)

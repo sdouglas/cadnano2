@@ -56,6 +56,7 @@ class Part(QObject):
     # end def
 
     ### SIGNALS ###
+    partParentChangedSignal = pyqtSignal(QObject)  # self
     partInstanceAddedSignal = pyqtSignal(QObject)  # self
     partDestroyedSignal = pyqtSignal(QObject)  # self
     sequenceClearedSignal = pyqtSignal(QObject)  # self

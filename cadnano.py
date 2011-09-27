@@ -130,7 +130,7 @@ class CADnano(QObject):
             print ("\tv\tmaps the numbers of recently created " +
                   "VirtualHelixes to the VHs themselves")
             print "\tph\tmaps virtual helix numbers to pathhelix"
-            print "\tphg()\tthe last initialized PathHelixGroup"
+            print "\tphg()\tthe last initialized PartItem"
             print "\tpySide()\ttrue iff the app is using PySide"
             print "\tquit()\tquit (for when the menu fails)"
             interact('', local={'a': self,

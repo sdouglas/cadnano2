@@ -52,9 +52,9 @@ class DocumentWindow(QMainWindow, ui_mainwindow.Ui_MainWindow):
         self.readSettings()
         # Slice setup
         self.slicescene = QGraphicsScene(parent=self.sliceGraphicsView)
-        # self.sliceroot = QGraphicsRectItem(self.slicescene.sceneRect(), parent=None)
         self.sliceroot = SliceRootItem(rect=self.slicescene.sceneRect(),\
                                        parent=None,\
+                                       window=self,\
                                        document=doc)
         self.sliceroot.setFlag(QGraphicsItem.ItemHasNoContents)
         self.slicescene.addItem(self.sliceroot)
@@ -66,11 +66,14 @@ class DocumentWindow(QMainWindow, ui_mainwindow.Ui_MainWindow):
         self.pathscene = QGraphicsScene(parent=self.pathGraphicsView)
         self.pathroot = PathRootItem(rect=self.pathscene.sceneRect(),\
                                      parent=None,\
+                                     window=self,\
                                      document=doc)
         self.pathroot.setFlag(QGraphicsItem.ItemHasNoContents)
         self.pathscene.addItem(self.pathroot)
         assert self.pathroot.scene() == self.pathscene
-
+        # Connect Slice to Path and vice versa (for ActiveSliceHandle)
+        self.pathroot.setSliceRootItem(self.sliceroot)
+        self.sliceroot.setPathRootItem(self.pathroot)
 
         # Uncomment the following block for  explicit pathview GL rendering
         # self.pathGraphicsView.setViewport(
