@@ -86,6 +86,7 @@ class Strand(QObject):
     ### SIGNALS ###
     hasNewOligoSignal = pyqtSignal(QObject)
     destroyedSignal = pyqtSignal(QObject)
+    removedSignal = pyqtSignal(QObject)
     resizedSignal = pyqtSignal(QObject, tuple)
     xover3pCreatedSignal = pyqtSignal(QObject, int)
     xover3pDestroyedSignal = pyqtSignal(QObject, int)
@@ -121,7 +122,10 @@ class Strand(QObject):
         # return self.hasNewOligoSignal.emit, (self,)
         self.hasNewOligoSignal.emit(self)
     # end def
-
+    
+    def length(self):
+        return self._baseIdxHigh - self._baseIdxLow + 1
+    # return 
     def decorators(self):
         return self.decorators
     #end def

@@ -505,7 +505,7 @@ class StrandSet(QObject):
             oligo.setStrand5p(None)
             oligo.removeFromPart()
             
-            strand.strandRemovedSignal.emit(strand)
+            strand.removedSignal.emit(strand)
             # signalList.append((strand.strandRemovedSignal.emit, (strand,)))
             # since this is an undo, we just emit the signals now
             # strandSet.emitSignals(signalList)
@@ -536,6 +536,8 @@ class StrandSet(QObject):
             
             oligo.setStrand5p(None)
             oligo.removeFromPart()
+            
+            strand.removedSignal.emit(strand)
         # end def
         
         def undo(self):
@@ -547,6 +549,8 @@ class StrandSet(QObject):
             
             oligo.setStrand5p(strand)
             oligo.addToPart()
+            
+            strandSet.strandAddedSignal.emit(strand)
         # end def
     # end class
 
@@ -630,8 +634,8 @@ class StrandSet(QObject):
             # emit Signals related to brand new stuff and destroyed stuff LAST
 
             # out with the old...
-            sL.destroyedSignal.emit(sL)
-            sH.destroyedSignal.emit(sH)
+            sL.removedSignal.emit(sL)
+            sH.removedSignal.emit(sH)
 
             # ...in with the new
             sS.strandAddedSignal.emit(nS)
@@ -672,7 +676,7 @@ class StrandSet(QObject):
             # emit Signals related to brand new stuff and destroyed stuff LAST
 
             # out with the new...
-            nS.destroyedSignal.emit(nS)
+            nS.removedSignal.emit(nS)
 
             # ...in with the old
             sS.strandAddedSignal.emit(sH)
@@ -775,7 +779,7 @@ class StrandSet(QObject):
             # emit Signals related to brand new stuff and destroyed stuff LAST
 
             # out with the old...
-            nS.destroyedSignal.emit(oS)
+            nS.removedSignal.emit(oS)
 
             # ...in with the new
             sS.strandAddedSignal.emit(sH)
@@ -814,8 +818,8 @@ class StrandSet(QObject):
             # emit Signals related to brand new stuff and destroyed stuff LAST
 
             # out with the new...
-            sL.destroyedSignal.emit(sL)
-            sH.destroyedSignal.emit(sH)
+            sL.removedSignal.emit(sL)
+            sH.removedSignal.emit(sH)
 
             # ...in with the old
             sS.strandAddedSignal.emit(oS)

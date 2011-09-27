@@ -38,6 +38,7 @@ class Oligo(QObject):
         self._strand5p = None
         self._length = 0
         self._isLoop = False
+        self._color = None
     # end def
     
     def shallowCopy(self):
@@ -45,6 +46,7 @@ class Oligo(QObject):
         olg._strand5p = self._strand5p
         olg._length = self._length
         olg._isLoop = self._isLoop
+        olg._color = self._color
         return olg
     # end def
     
@@ -53,6 +55,7 @@ class Oligo(QObject):
         olg._strand5p = None
         olg._length = self._length
         olg._isLoop = self._isLoop
+        olg._color = self._color
         return olg
     # end def
 
@@ -84,6 +87,14 @@ class Oligo(QObject):
         self._strand5p = strand
     # end def
 
+    def color(self):
+        return self._color
+    # end def
+    
+    def setColor(self):
+        pass
+    # end def
+
     def length(self):
         return self._length
 
@@ -91,7 +102,8 @@ class Oligo(QObject):
         return self._length = length
 
     def addStrand(self, strand):
-        return setLength(s)
+        self.setLength(self._length+strand.length())
+    # end def
 
     def isLoop(self):
         return self._isLoop
