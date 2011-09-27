@@ -93,11 +93,11 @@ class Oligo(QObject):
     def isLoop(self):
         return self._isLoop
 
-    def add(self):
+    def addToPart(self):
         self.part().addOligo(self)
     # end def
 
-    def remove(self):
+    def removeFromPart(self):
         """
         this method merely disconnects the object from the model
         it still lives on in the undoStack until clobbered

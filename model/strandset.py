@@ -94,21 +94,31 @@ class StrandSet(QObject):
         return self._virtualHelix.part().bounds()
 
     ### PUBLIC METHODS FOR EDITING THE MODEL ###
-    def addStrand(self, strand, strandSetIdx, useUndoStack=True):
+    def createStrand(self, baseIdxLow, baseIdxHigh, useUndoStack=True):
         """
         Assumes a strand is being created at a valid set of indices.
         """
-        c = StrandSet.AddStrandCommand(self._strandList, strand, strandSetIdx)
+        boundsLow, boundsHigh = self.getBoundsOfEmptyRegionContaining(baseIdxLow)
+        assert(baseIdxLow < baseIdxHigh)
+        assert(boundsLow <= baseIdxLow)
+        assert(baseIdxHigh <= boundsHigh)
+        strandSetIdx = self._lastStrandSetIndex
+        c = StrandSet.CreateStrandCommand(self._strandList, baseIdxLow, baseIdxHigh, strandSetIdx)
         self._execCommandList([c], desc="Create strand", useUndoStack=useUndoStack)
         return strandSetIdx
 
-    def addDeserializedStrand(self, strand, strandSetIdx, useUndoStack=False):
+    def createDeserializedStrand(self, baseIdxLow, baseIdxHigh, useUndoStack=False):
         """
         Passes a strand to AddStrandCommand that was read in from file input.
         Omits the step of checking _couldStrandInsertAtLastIndex, since
         we assume that deserialized strands will not cause collisions.
         """
-        c = StrandSet.AddStrandCommand(self._strandList, strand, strandSetIdx)
+        boundsLow, boundsHigh = self.getBoundsOfEmptyRegionContaining(baseIdxLow)
+        assert(baseIdxLow < baseIdxHigh)
+        assert(boundsLow <= baseIdxLow)
+        assert(baseIdxHigh <= boundsHigh)
+        strandSetIdx = self._lastStrandSetIndex
+        c = StrandSet.CreateStrandCommand(self._strandList, baseIdxLow, baseIdxHigh, strandSetIdx)
         self._execCommandList([c], desc=None, useUndoStack=useUndoStack)
         return strandSetIdx
 
@@ -121,19 +131,67 @@ class StrandSet(QObject):
         self._execCommandList([c], desc="Delete strand", useUndoStack=useUndoStack)
         return strandSetIdx
 
-    def mergeStrands(self, lowStrand, highStrand, lowHasPriority):
+    def mergeStrands(self, priorityStrand, otherStrand, useUndoStack=True):
         """
-        Merge the lowStrand and highStrand into a single new strand.
+        Merge the priorityStrand and otherStrand into a single new strand.
         The oligo of priority should be propagated to the other and all of
         its connections.
         """
-        idx = None # need to set this properly
-        c = StrandSet.MergeCommand(lowStrand, highStrand, idx, lowHasPriority)
-        self._execCommandList([c], desc="Merge", useUndoStack=useUndoStack)
+        lowAndHighStrands = self.canBeMerged(priorityStrand, otherStrand)
+        if lowAndHighStrands:
+            strandLow, strandigh = lowAndHighStrands
+            lowStrandSetIdx, isInSet = _findIndexOfRangeFor(strandLow)
+            if isInSet:
+                c = StrandSet.MergeCommand(strandLow, strandHigh, \
+                                                lowStrandSetIdx, firstStrand)
+                self._execCommandList([c], desc="Merge", useUndoStack=useUndoStack)
+    # end def
+    
+    def strandsCanBeMerged(self, strandA, strandB):
+        """
+        returns None if the strands can't be merged, otherwise
+        if the strands can be merge it returns the strand with the lower index
+        
+        only checks that the strands are of the same StrandSet and that the
+        end points differ by 1.  DOES NOT check if the Strands overlap, that
+        should be handled by addStrand
+        """
+        if strandA.strandSet() != strandB.strandSet():
+            return None
+        if abs(strandA.lowIdx() - strandB.highIdx() ) == 1 or \
+            abs(strandB.lowIdx() - strandA.highIdx() ) == 1:
+            if strandA.lowIndex() < strandB.lowIndex():
+                return strandA, strandB
+            else:
+                return strandB, strandA
+        else:
+            return None
+    # end def
 
-    def splitStrand(self, strand, idx):
+    def splitStrand(self, strand, baseIdx, useUndoStack=True):
         "Break strand into two strands"
-        pass
+        if strandCanBeSplit(strand, baseIdx):
+            strandSetIdx, isInSet = _findIndexOfRangeFor(strand)
+            if isInSet:
+                c = StrandSet.SplitCommand(strand, baseIdx, strandSetIdx)
+                self._execCommandList([c], desc="Split", useUndoStack=useUndoStack)
+    # end def
+
+    def strandCanBeSplit(self, strand, baseIdx):
+        """
+        Make sure the base index is within the strand
+        Don't split right next to a 3Prime end 
+        Don't split on endpoint (AKA a crossover)
+        """
+        # no endpoints
+        if baseIdx == strand.lowIdx() or baseIdx == strand.highIdx():
+            return False
+        # make sure the base index within the strand
+        elif strand.lowIdx() > baseIdx or baseIdx > strand.highIdx():
+            return False
+        elif abs(baseIdx - strand.idx3Prime()) > 1:
+            return True
+    # end def
 
     def destroy(self):
         self.setParent(None)
@@ -394,16 +452,16 @@ class StrandSet(QObject):
     # end def
 
     ### COMMANDS ###
-    class AddStrandCommand(QUndoCommand):
+    class CreateStrandCommand(QUndoCommand):
         """Inserts strandToAdd into strandList at index idx."""
-        def __init__(self, strandList, strand, strandSetIdx):
-            super(StrandSet.AddStrandCommand, self).__init__()
-            self._strandList = strandList
-            self._strand = strand
+        def __init__(self, strandSet, baseIdxLow, baseIdxHigh, strandSetIdx):
+            super(StrandSet.CreateStrandCommand, self).__init__()
+            self._strandList = strandSet._strandList
+            self._strand = Strand(strandSet, baseIdxLow, baseIdxHigh)
             self._sSetIdx = strandSetIdx
 
         def redo(self):
-            print "AddStrandCommand", self._strand, self._sSetIdx
+            print "CreateStrandCommand", self._strand, self._sSetIdx
             self._strandList.insert(self._sSetIdx, self._strand)
             # if useUndoStack:  # how should the command gain access to this?
             #     self.strandAddedSignal.emit(self._strand)
@@ -500,9 +558,9 @@ class StrandSet(QObject):
             # starmapExec(Strand.setOligo, izip(olg.strand5p().generator3pStrand(), repeat(olg)))
 
             # add and remove the old oligos from the part
-            olg.add()
-            lOlg.remove()
-            hOlg.remove()
+            olg.addToPart()
+            lOlg.removeFromPart()
+            hOlg.removeFromPart()
 
             # emit Signals related to brand new stuff and destroyed stuff LAST
 
@@ -542,9 +600,9 @@ class StrandSet(QObject):
             # starmapExec(Strand.setOligo, izip(hOlg.strand5p().generator3pStrand(), repeat(hOlg)))
 
             # add and remove the old oligos from the part
-            olg.remove()
-            lOlg.add()
-            hOlg.add()
+            olg.removeFromPart()
+            lOlg.addToPart()
+            hOlg.addToPart()
 
             # emit Signals related to brand new stuff and destroyed stuff LAST
 
@@ -565,10 +623,10 @@ class StrandSet(QObject):
 
         virtualIndex is the 3 prime end of the most 5 prime new strand
         """
-        def __init__(self, strand, strandIdx, virtualIndex):
+        def __init__(self, strand, virtualIndex, strandSetIdx):
             super(StrandSet.SplitCommand, self).__init__()
             self._strandOld = strand
-            self._strandIdx = strandIdx
+            self._sSetIdx = strandSetIdx
             self._sSet = sSet = strand.strandSet()
             self._oldOligo = oligo = strand.oligo()
 
@@ -620,17 +678,17 @@ class StrandSet(QObject):
             sL = self._strandLow
             sH = self._strandHigh
             oS = self._oldStrand
-            strandIdx = self._strandIdx
+            sSetIdx = self._sSetIdx
             olg = self._oldOligo
             lOlg = self._sLowOligo
             hOlg = self._sHighOligo
 
             # Remove oldAtrand from the sSet
-            sS.removeStrand(oS, strandIdx)
+            sS.removeStrand(oS, sSetIdx)
 
             # add the new Strands to the sSet (orders matter)
-            sS.addStrand(sH, strandIdx)
-            sS.addStrand(sL, strandIdx)
+            sS.addStrand(sH, sSetIdx)
+            sS.addStrand(sL, sSetIdx)
 
             # set ALL of the oligos
             # this will also emit a Signal to Alert the views
@@ -643,9 +701,9 @@ class StrandSet(QObject):
             # starmapExec(Strand.setOligo, izip(hOlg.strand5p().generator3pStrand(), repeat(hOlg)))
 
             # add and remove the old oligos from the part
-            olg.remove()
-            lOlg.add()
-            hOlg.add()
+            part = olg.removeFromPart()
+            lOlg.addToPart()
+            hOlg.addToPart()
 
             # emit Signals related to brand new stuff and destroyed stuff LAST
 
@@ -662,17 +720,17 @@ class StrandSet(QObject):
             sL = self._strandLow
             sH = self._strandHigh
             oS = self._oldStrand
-            strandIdx = self._strandIdx
+            sSetIdx = self._sSetIdx
             olg = self._oldOligo
             lOlg = self._sLowOligo
             hOlg = self._sHighOligo
 
             # Remove new strands to the sSet (order matters)
-            sS.removeStrand(sL, strandIdx)
-            sS.removeStrand(sH, strandIdx)
+            sS.removeStrand(sL, sSetIdx)
+            sS.removeStrand(sH, sSetIdx)
 
             # add the oldStrand to the sSet
-            sS.addStrand(oS, strandIdx)
+            sS.addStrand(oS, sSetIdx)
 
             # reset ALL of the oligos back
             # this will also emit a Signal to alert the views
@@ -682,9 +740,9 @@ class StrandSet(QObject):
             # starmapExec(Strand.setOligo, izip(olg.strand5p().generator3pStrand(), repeat(olg)))
 
             # add and remove the old oligos from the part
-            olg.add()
-            lOlg.remove()
-            hOlg.remove()
+            olg.addToPart()
+            lOlg.removeFromPart()
+            hOlg.removeFromPart()
 
             # emit Signals related to brand new stuff and destroyed stuff LAST
 

@@ -44,6 +44,22 @@ class Strand(QObject):
         self._oligo = None
         self._sequence = None
         self._decorators = {}
+        # dynamic methods for mapping high/low connection /indices 
+        # to corresponding 3Prime 5Prime 
+        if strandSet.isDrawn5to3():
+            self.idx5Prime = self.lowIdx
+            self.idx3Prime = self.highIdx
+            self.lowConnection = self.connection5p
+            self.setLowConnection = self.set5pConnection
+            self.highConnection = self.connection3p
+            self.setHighConnection = self.set3pConnection
+        else:
+            self.idx5Prime = self.highIdx
+            self.idx3Prime = self.lowIdx
+            self.lowConnection = self.connection3p
+            self.setLowConnection = self.set3pConnection
+            self.highConnection = self.connection5p
+            self.setHighConnection = self.set5pConnection
     # end def
 
     def __repr__(self):
@@ -152,32 +168,12 @@ class Strand(QObject):
         return self._strandSet.isDrawn5to3()
     # end def
 
-    def lowConnection(self):
-        if self.isDrawn5to3():
-            return self._strand5p
-        else:
-            return self._strand3p
+    def connection3p(self):
+        return self._strand3p
     # end def
 
-    def setLowConnection(self, strand):
-        if self.isDrawn5to3():
-            self._strand5p = strand
-        else:
-            self._strand3p = strand
-    # end def
-
-    def highConnection(self):
-        if self.isDrawn5to3():
-            return self._strand3p
-        else:
-            return self._strand5p
-    # end def
-
-    def setHighConnection(self, strand):
-        if self.isDrawn5to3():
-            self._strand3p = strand
-        else:
-            self._strand5p = strand
+    def connection5p(self):
+        return self._strand5p
     # end def
 
     def set3pConnection(self, strand):
