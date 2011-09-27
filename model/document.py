@@ -92,7 +92,7 @@ class Document(QObject):
         """
         dnapart = None
         if len(self._parts) == 0:
-            dnapart = DNASquarePart(document=self)
+            dnapart = SquarePart(document=self)
             self._addPart(dnapart)
         return dnapart
 
