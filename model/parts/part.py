@@ -35,6 +35,12 @@ util.qtWrapImport('QtGui', globals(), [ 'QUndoCommand', 'QUndoStack'])
 
 
 class Part(QObject):
+    """
+    A Part is a group of VirtualHelix items that are on the same lattice.
+    Parts are the model component that most directly corresponds to a
+    DNA origami design.
+    """
+
     _step = 21  # this is the period of the part lattice
     _radius = 3
     
@@ -70,6 +76,7 @@ class Part(QObject):
     # end def
 
     ### SIGNALS ###
+    partParentChangedSignal = pyqtSignal(QObject)  # self
     partInstanceAddedSignal = pyqtSignal(QObject)  # self
     partDestroyedSignal = pyqtSignal(QObject)  # self
     sequenceClearedSignal = pyqtSignal(QObject)  # self

@@ -30,19 +30,19 @@ class PartItemController():
         self.connectSignals()
 
     def connectSignals(self):
-        self._modelPart.partParentChangedSignal.connect(_partItem.partParentChangedSlot)
-        self._modelPart.partDestroyedSignal.connect(_partItem.partDestroyedSlot)
-        self._modelPart.partMovedSignal.connect(_partItem.partMovedSlot)
+        self._modelPart.partParentChangedSignal.connect(self._partItem.partParentChangedSlot)
+        self._modelPart.partDestroyedSignal.connect(self._partItem.partDestroyedSlot)
+        # self._modelPart.partMovedSignal.connect(self._partItem.partMovedSlot)
         for oligo in self._modelPart.oligos():
             for strand in oligo.strands():
-                strand.xover3pCreatedSignal.connect(_partItem.xover3pCreatedSlot)
-                strand.xover3pDestroyedSignal.connect(_partItem.xover3pDestroyedSlot)
+                strand.xover3pCreatedSignal.connect(self._partItem.xover3pCreatedSlot)
+                strand.xover3pDestroyedSignal.connect(self._partItem.xover3pDestroyedSlot)
 
     def disconnectSignals(self):
-        self._modelPart.partParentChangedSignal.disconnect(_partItem.partParentChangedSlot)
-        self._modelPart.partDestroyedSignal.disconnect(_partItem.partDestroyedSlot)
-        self._modelPart.partMovedSignal.disconnect(_partItem.partMovedSlot)
+        self._modelPart.partParentChangedSignal.disconnect(self._partItem.partParentChangedSlot)
+        self._modelPart.partDestroyedSignal.disconnect(self._partItem.partDestroyedSlot)
+        # self._modelPart.partMovedSignal.disconnect(self._partItem.partMovedSlot)
         for oligo in self._modelPart.oligos():
             for strand in oligo.strands():
-                strand.xover3pCreatedSignal.disconnect(_partItem.xover3pCreatedSlot)
-                strand.xover3pDestroyedSignal.disconnect(_partItem.xover3pDestroyedSlot)
+                strand.xover3pCreatedSignal.disconnect(self._partItem.xover3pCreatedSlot)
+                strand.xover3pDestroyedSignal.disconnect(self._partItem.xover3pDestroyedSlot)

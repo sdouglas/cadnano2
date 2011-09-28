@@ -38,21 +38,55 @@ class SliceRootItem(QGraphicsRectItem):
     PathRootItem must instantiate its own controller to receive signals
     from the model.
     """
-    def __init__(self, rect, parent, document):
+    def __init__(self, rect, parent, window, document):
         super(SliceRootItem, self).__init__(rect, parent)
+        self._window = window
         self._document = document
         self._controller = ViewRootController(self, document)
+        self._pathRootItem = None
 
     ### SIGNALS ###
 
     ### SLOTS ###
-    def partAddedSlot(self):
+    def partAddedSlot(self, part):
         """
         Receives notification from the model that a part has been added.
         Views that subclass AbstractView should override this method.
         """
         print "SliceRootItem.partAddedSlot!"
-        pass
+        return
+
+        if part.crossSectionType() == LatticeType.Honeycomb:
+            self.sliceGraphicsItem = HoneycombSliceGraphicsItem(part,
+                                        controller=win.sliceToolManager,
+                                        parent=win.sliceroot)
+        else:
+            self.sliceGraphicsItem = SquareSliceGraphicsItem(part,
+                                        controller=win.sliceToolManager,
+                                        parent=win.sliceroot)
+
+
+        win = self._window
+        win.sliceToolManager.activeSliceLastSignal.connect(
+                      self.pathHelixGroup.activeSliceHandle().moveToLastSlice)
+        win.sliceToolManager.activeSliceFirstSignal.connect(
+                     self.pathHelixGroup.activeSliceHandle().moveToFirstSlice)
+
+        for vh in part.getVirtualHelices():
+            xos = vh.get3PrimeXovers(StrandType.Scaffold)
+            for xo in xos:
+                toBase = (xo[1][0], xo[1][2])
+                self.pathHelixGroup.createXoverItem(
+                                            xo[0], toBase, StrandType.Scaffold)
+            xos = vh.get3PrimeXovers(StrandType.Staple)
+            for xo in xos:
+                toBase = (xo[1][0], xo[1][2])
+                self.pathHelixGroup.createXoverItem(
+                                            xo[0], toBase, StrandType.Staple)
+        # end for
+        self.setActivePart(part)
+
+
 
     def selectedPartChangedSlot(self):
         """docstring for selectedPartChangedSlot"""
@@ -60,5 +94,8 @@ class SliceRootItem(QGraphicsRectItem):
         pass
 
     ### METHODS ###
+    def setPathRootItem(self, pathRoot):
+        """docstring for setPathRootItem"""
+        self._pathRootItem = pathRoot
 
     ### COMMANDS ###

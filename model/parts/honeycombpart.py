@@ -27,7 +27,14 @@
 
 from cadnano import app
 from part import Part
-from model.enum import LatticeType, Crossovers
+from model.enum import LatticeType
+
+
+class Crossovers:
+    honeycombScafLeft = [[1, 11], [8, 18], [4, 15]]
+    honeycombScafRight = [[2, 12], [9, 19], [5, 16]]
+    honeycombStapLeft = [[6], [13], [20]]
+    honeycombStapRight = [[7], [14], [0]]
 
 root3 = 1.732051
 

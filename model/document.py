@@ -33,6 +33,11 @@ util.qtWrapImport('QtGui', globals(), [ 'QUndoCommand', 'QUndoStack'])
 
 
 class Document(QObject):
+    """
+    The Document class is the root of the model. It has two main purposes:
+    1. Serve as the parent all Part objects within the model.
+    2. Track all sub-model actions on its undoStack.
+    """
     def __init__(self):
         super(Document, self).__init__()
         self._undoStack = QUndoStack()
@@ -42,7 +47,7 @@ class Document(QObject):
         self._selectedPart = None
 
     ### SIGNALS ###
-    partAddedSignal = pyqtSignal(object, object)  # part, controller
+    partAddedSignal = pyqtSignal(object)  # part
     selectedPartChangedSignal = pyqtSignal(object)  # part
 
     ### SLOTS ###
@@ -92,7 +97,7 @@ class Document(QObject):
         """
         dnapart = None
         if len(self._parts) == 0:
-            dnapart = DNASquarePart(document=self)
+            dnapart = SquarePart(document=self)
             self._addPart(dnapart)
         return dnapart
 
@@ -132,7 +137,7 @@ class Document(QObject):
                 self._doc._parts.append(self._part)
                 self._part.setDocument(self._doc)
                 self._doc.setSelectedPart(self._part)
-                self._doc.partAddedSignal.emit(self._part, self._doc._controller)
+                self._doc.partAddedSignal.emit(self._part)
 
         def undo(self):
             self._part._setDocument(None)

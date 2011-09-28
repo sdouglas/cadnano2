@@ -23,6 +23,7 @@
 # http://www.opensource.org/licenses/mit-license.php
 
 from controllers.viewrootcontroller import ViewRootController
+from partitem import PartItem
 
 import util
 util.qtWrapImport('QtCore', globals(), ['pyqtSignal', 'QObject'])
@@ -38,27 +39,45 @@ class PathRootItem(QGraphicsRectItem):
     PathRootItem must instantiate its own controller to receive signals
     from the model.
     """
-    def __init__(self, rect, parent, document):
+    def __init__(self, rect, parent, window, document):
         super(PathRootItem, self).__init__(rect, parent)
+        self._window = window
         self._document = document
         self._controller = ViewRootController(self, document)
+        self._sliceRootItem = None
+        self._modelPart = None
+        self._partItems = []
 
     ### SIGNALS ###
 
     ### SLOTS ###
-    def partAddedSlot(self):
+    def partAddedSlot(self, modelPart):
         """
         Receives notification from the model that a part has been added.
-        Views that subclass AbstractView should override this method.
+        The Pathview doesn't need to do anything on part addition, since
+        the Sliceview handles setting up the appropriate lattice.
         """
         print "PathRootItem.partAddedSlot!"
-        pass
+        self._modelPart = modelPart
+        win = self._window
+        partItem = PartItem(modelPart,\
+                            toolManager=win.pathToolManager,\
+                            parent=win.pathroot)
+        self._partItems.append(partItem)
+        win.pathToolManager.setActivePart(partItem)
 
-    def selectedPartChangedSlot(self):
-        """docstring for selectedPartChangedSlot"""
-        print "PathRootItem.selectedPartChangedSlot!"
+    def selectedPartChangedSlot(self, modelPart):
+        """Given a newly selected modelPart, update the scene to indicate
+        that modelPart is selected and the previously selected part is
+        deselected."""
         pass
+        
+        # if partItem in self._partItems:
+        #     self._window.setActivePart(partItem)
 
     ### METHODS ###
+    def setSliceRootItem(self, sliceRoot):
+        """docstring for setPathRootItem"""
+        self._sliceRootItem = sliceRoot
 
     ### COMMANDS ###
