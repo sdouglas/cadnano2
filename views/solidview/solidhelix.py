@@ -183,7 +183,7 @@ class SolidHelix(QObject):
             cylinderName = "HalfCylinderHelixNode%s" % strandID
             cmds.setAttr("%s.totalBases" % cylinderName, int(totalNumBases))
 
-    def cadnanoVBaseToMayaZ(self, base, strand):
+    def cadnanoVBaseToMayaCoords(self, base, strand):
         id = self._solidHelixGroup.strandMayaID(strand)
         cylinderName = "HalfCylinderHelixNode%s" % id
         if cmds.objExists(cylinderName):
@@ -192,7 +192,25 @@ class SolidHelix(QObject):
             startPos = cmds.getAttr("%s.startPos" % cylinderName)
             base0Pos = startPos[0][1] + startBase*rise
             ourPos = base0Pos - (base*rise)
-            return ourPos-rise*0.5 # center marker on the base
+            zComp = ourPos#-rise*0.5 # center marker on the base
+            
+            rotation = cmds.getAttr("%s.rotation" % cylinderName)
+            radius = cmds.getAttr("%s.radius" % cylinderName)
+            parity = cmds.getAttr("%s.parity" % cylinderName)
+            strandType = cmds.getAttr("%s.strandType" % cylinderName)
+            rotationOffset = cmds.getAttr("%s.rotationOffset" % cylinderName)
+            
+            starting_rotation = (math.pi * (not parity)) + rotationOffset + \
+                                (math.pi * strandType)
+            
+            fullrotation = -rotation * base * math.pi / 180
+            #print fullrotation
+            
+            xComp = self.x + radius * math.cos(starting_rotation + fullrotation)
+            yComp = self.y + radius * math.sin(starting_rotation + fullrotation)
+            #print "%f %f %f" % (xComp, yComp, zComp)
+            return (xComp, yComp, zComp)
+            
         else:
             raise IndexError
 
@@ -208,23 +226,25 @@ class SolidHelix(QObject):
         self.stapleIndicatorCount = 0
 
     def createStapleModIndicator(self, strand):
+        print "createStapleModIndicator"
         strandid = self._solidHelixGroup.strandMayaID(strand)
-        mrow = self._row + 1
-        mcol = self._col + 1
+        #mrow = self._row + 1
+        #mcol = self._col + 1
         # XXX [SB] will use self._vhelix.getPreStapleModIndexList()
         totalNumBases = self._vhelix.numBases()
         stapleBases = []#[(0, mrow, mcol), (totalNumBases-1, mrow, mcol)]
         for b in range(totalNumBases):
-            stapleBases.append((b, mrow, mcol))
+            stapleBases.append(b)
 
         for stapleBase in stapleBases:
             # XXX [SB+AT] NOT THREAD SAFE
             while cmds.objExists("spStapleModIndicator%s_%s" % (strandid, self.stapleIndicatorCount)):
                 self.stapleIndicatorCount += 1
             stapleId = "%s_%s" % (strandid, self.stapleIndicatorCount)
-            (targetX, targetY) = self.pathHelixGroup().cadnanoToMayaCoords(stapleBase[1], stapleBase[2])
-            vec = (targetX-self.x, targetY-self.y)
-            coords = (self.x+vec[0]/3.7, self.y+vec[1]/3.7, self.cadnanoVBaseToMayaZ(stapleBase[0], strand));
+            #(targetX, targetY) = self.pathHelixGroup().cadnanoToMayaCoords(stapleBase[1], stapleBase[2])
+            #vec = (targetX-self.x, targetY-self.y)
+            #coords = (self.x+vec[0]/3.7, self.y+vec[1]/3.7, self.cadnanoVBaseToMayaZ(stapleBase, strand));
+            coords = self.cadnanoVBaseToMayaCoords(stapleBase, strand)
             stapleModNodeInfo = self.createStapleModIndicatorNodes(coords,stapleId)
             #print "adding StapleID %s: " % stapleId
             #print self.cadnanoVBaseToMayaZ(stapleBase[0], strand)

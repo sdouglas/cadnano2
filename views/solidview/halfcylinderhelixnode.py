@@ -143,7 +143,7 @@ class HalfCylinderHelixNode(OpenMayaMPx.MPxNode):
         # Create Endpice verts
         vtx.append(OpenMaya.MFloatPoint(0.0, start_pos + gap, 0.0))
         self.end3DPos = OpenMaya.MFloatPoint(0.0, start_pos + gap, 0.0)
-        print start_pos + gap
+        #print start_pos + gap
         for i in range(1, numVerticesEnds):
             val = i * (180 / (numFacesEnds))
             rad = (val * math.pi) / 180

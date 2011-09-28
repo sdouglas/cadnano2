@@ -53,7 +53,7 @@ class Mom:
     def staplePreDecoratorSelected(self, name):
         if self.stapleModToSolidHelix.has_key(name):
             modData = self.stapleModToSolidHelix[name]
-            self.__instance.preDecoratorSelectedSignal.emit(modData[2], modData[1][0])
+            self.__instance.preDecoratorSelectedSignal.emit(modData[2], modData[1])
 
     def removeStapleModMapping(self, id):
         key1 = "stapleModIndicatorMesh%s" % id
