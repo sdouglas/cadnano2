@@ -38,6 +38,16 @@ starmapExec = util.starmapExec
 
 
 class StrandSet(QObject):
+    """
+    StrandSet is a container class for Strands, and provides the several
+    publicly accessible methods for editing strands, including operations
+    for creation, destruction, resizing, splitting, and merging strands.
+
+    Views may also query StrandSet for information that is useful in
+    determining that edits can be made, such as the bounds of empty
+    space in which a strand can be resized.
+    """
+
     def __init__(self, strandType, virtualHelix):
         super(StrandSet, self).__init__(virtualHelix)
         self._virtualHelix = virtualHelix
@@ -58,11 +68,11 @@ class StrandSet(QObject):
     ### PUBLIC METHODS FOR QUERYING THE MODEL ###
     def isDrawn5to3(self):
         return self._virtualHelix.isDrawn5to3(self)
-        
+
     def strandType(self):
         return self._strandType
     # end def
-    
+
     def part(self):
         return self._virtualHelix.part()
 
@@ -149,20 +159,20 @@ class StrandSet(QObject):
                                                 lowStrandSetIdx, firstStrand)
                 self._execCommandList([c], desc="Merge", useUndoStack=useUndoStack)
     # end def
-    
+
     def strandsCanBeMerged(self, strandA, strandB):
         """
         returns None if the strands can't be merged, otherwise
         if the strands can be merge it returns the strand with the lower index
-        
+
         only checks that the strands are of the same StrandSet and that the
         end points differ by 1.  DOES NOT check if the Strands overlap, that
         should be handled by addStrand
         """
         if strandA.strandSet() != strandB.strandSet():
             return None
-        if abs(strandA.lowIdx() - strandB.highIdx() ) == 1 or \
-            abs(strandB.lowIdx() - strandA.highIdx() ) == 1:
+        if abs(strandA.lowIdx() - strandB.highIdx()) == 1 or \
+            abs(strandB.lowIdx() - strandA.highIdx()) == 1:
             if strandA.lowIndex() < strandB.lowIndex():
                 return strandA, strandB
             else:
@@ -183,7 +193,7 @@ class StrandSet(QObject):
     def strandCanBeSplit(self, strand, baseIdx):
         """
         Make sure the base index is within the strand
-        Don't split right next to a 3Prime end 
+        Don't split right next to a 3Prime end
         Don't split on endpoint (AKA a crossover)
         """
         # no endpoints
@@ -464,26 +474,26 @@ class StrandSet(QObject):
             self._sSetIdx = strandSetIdx
             self._newOligo = Oligo(strandSet.part())
             self._strand = strand
-            
+
             # self._signalList = []
         # end def
-            
+
         def redo(self):
             # signalList = []
             strand = self._strand
             oligo = self._newOligo
             strandSet = self._strandSet
             print "CreateStrandCommand", strand, self._sSetIdx
-            
+
             strandSet._strandList.insert(self._sSetIdx, strand)
             oligo.setStrand5p(strand)
             oligo.addStrandLength(strand)
-            
+
             # affect the oligo
             oligo.AddToPart(strandSet.part())
             strand.setOligo(oligo)
             # signalList.append(strand.setOligo(oligo))
-            
+
             # setup the create strand signal
             strandSet.strandAddedSignal.emit(strand)
             # signalList.append((strandSet.strandAddedSignal.emit, (strand,)))
@@ -495,16 +505,16 @@ class StrandSet(QObject):
             strand = self._strand
             oligo = self._newOligo
             strandSet = self._strandSet
-            
+
             strandSet._strandList.pop(self._sSetIdx)
-            
+
             strand.setOligo(None)
             # signalList.append(strand.setOligo(None))
-            
+
             oligo.setStrand5p(None)
             oligo.removeStrandLength(strand)
             oligo.removeFromPart()
-            
+
             strand.removedSignal.emit(strand)
             # signalList.append((strand.strandRemovedSignal.emit, (strand,)))
             # since this is an undo, we just emit the signals now
@@ -522,7 +532,7 @@ class StrandSet(QObject):
             self._strand = strand
             self._sSetIdx = strandSetIdx
             self._oligo = strand.oligo()
-            
+
             # self._signalList = []
         # end def
 
@@ -530,44 +540,44 @@ class StrandSet(QObject):
             strand = self._strand
             oligo = self.oligo
             strandSet = self._strandSet
-            
+
             strandSet._strandList.pop(self._sSetIdx)
-            
+
             # just kill the references between each other
             strand.setOligo(None)
-            
+
             oligo.setStrand5p(None)
             oligo.removeStrandLength(strand)
             oligo.removeFromPart()
-            
+
             strand.removedSignal.emit(strand)
         # end def
-        
+
         def undo(self):
             strand = self._strand
             oligo = self.oligo
             strandSet = self._strandSet
-            
+
             strandSet._strandList.insert(self._sSetIdx, strand)
             strand.setOligo(oligo)
-            
+
             oligo.setStrand5p(strand)
             oligo.addStrandLength(strand)
             oligo.addToPart(strandSet.part())
-            
+
             strandSet.strandAddedSignal.emit(strand)
         # end def
     # end class
 
     class MergeCommand(QUndoCommand):
         """
-        This class takes two Strands and merges them.  This Class should be 
+        This class takes two Strands and merges them.  This Class should be
         private to StrandSet as knowledge of a strandSetIndex outside of this
-        of the StrandSet class implies knowledge of the StrandSet 
+        of the StrandSet class implies knowledge of the StrandSet
         implementation
-        
-        Must pass this two different strands, and nominally one of the strands 
-        again which is the priorityStrand.  The resulting "merged" strand has 
+
+        Must pass this two different strands, and nominally one of the strands
+        again which is the priorityStrand.  The resulting "merged" strand has
         the properties of the priorityStrand's oligo.  Decorators are preserved
 
         the strandLow and strandHigh must be presorted such that strandLow
@@ -602,7 +612,7 @@ class StrandSet(QObject):
             newStrand.addDecorators(strandHigh.decorators())
 
             self._newStrand = newStrand
-            
+
             # self._signalList = []
         # end def
 
@@ -829,19 +839,18 @@ class StrandSet(QObject):
             sS.strandAddedSignal.emit(oS)
         # end def
     # end class
-    
+
     def deepCopy(self, virtualHelix):
-        """
-        
-        """
+        """docstring for deepCopy"""
         pass
     # end def
-    
 # end class
 
 
 # from nose.tools import with_setup
 from mock import Mock
+
+
 class TestStrandSet():
     def setUp(self):
         pass
@@ -872,4 +881,3 @@ class TestStrandSet():
         ss.addStrand(Strand(ss, 30, 35), 2, False)
         assert ss.getBoundsOfEmptyRegionContaining(21) == (21, 29)
         assert ss.getBoundsOfEmptyRegionContaining(36) == (36, 42)
-

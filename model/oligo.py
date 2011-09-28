@@ -32,6 +32,12 @@ util.qtWrapImport('QtCore', globals(), ['pyqtSignal', 'QObject'])
 util.qtWrapImport('QtGui', globals(), [ 'QUndoCommand', 'QUndoStack'])
 
 class Oligo(QObject):
+    """
+    The Oligo is a group of Strands that are connected via 5' and/or 3'
+    connections. It corresponds to the physical DNA strand, and is thus
+    used tracking and storing properties that are common to a single strand,
+    such as its color.
+    """
     def __init__(self, part=None):
         super(Oligo, self).__init__(part)
         self._part = None

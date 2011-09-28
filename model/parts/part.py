@@ -33,6 +33,12 @@ util.qtWrapImport('QtGui', globals(), [ 'QUndoCommand', 'QUndoStack'])
 
 
 class Part(QObject):
+    """
+    A Part is a group of VirtualHelix items that are on the same lattice.
+    Parts are the model component that most directly corresponds to a
+    DNA origami design.
+    """
+
     _step = 21  # this is the period of the part lattice
 
     def __init__(self, document):

@@ -33,6 +33,11 @@ util.qtWrapImport('QtGui', globals(), [ 'QUndoCommand', 'QUndoStack'])
 
 
 class Document(QObject):
+    """
+    The Document class is the root of the model. It has two main purposes:
+    1. Serve as the parent all Part objects within the model.
+    2. Track all sub-model actions on its undoStack.
+    """
     def __init__(self):
         super(Document, self).__init__()
         self._undoStack = QUndoStack()

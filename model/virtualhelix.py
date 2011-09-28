@@ -34,6 +34,13 @@ util.qtWrapImport('QtCore', globals(), ['pyqtSignal', 'QObject', 'Qt'])
 util.qtWrapImport('QtGui', globals(), ['QUndoStack'])
 
 class VirtualHelix(QObject):
+    """
+    VirtualHelix is a container class for two StrandSet objects (one scaffold
+    and one staple). The Strands all share the same helix axis. It is called
+    "virtual" because many different Strands (i.e. sub-oligos) combine to
+    form the "helix", just as many fibers may be braided together to 
+    form a length of rope.
+    """
     def __init__(self, part, idnum=0):
         super(VirtualHelix, self).__init__(part)
         self._coords = (None, None) # col, row
