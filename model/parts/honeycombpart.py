@@ -41,7 +41,7 @@ root3 = 1.732051
 class HoneycombPart(Part):
     _step = 21  # 32 in square
     _activeSlice = _step
-    _majorGridLine = _step / 3
+    _subStepSize = _step / 3
     # Used in VirtualHelix::potentialCrossoverList
     scafL = Crossovers.honeycombScafLeft
     scafR = Crossovers.honeycombScafRight

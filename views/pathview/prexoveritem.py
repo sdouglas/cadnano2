@@ -34,10 +34,10 @@ class PreXoverItem(QGraphicsPathItem):
     def __init__(self, parent):
         super(PreXoverItem, self).__init__(parent)
 
-    ### SIGNALS ###
+    ### DRAWING METHODS ###
 
-    ### SLOTS ###
-
-    ### METHODS ###
-
-    ### COMMANDS ###
+    ### TOOL METHODS ###
+    def selectToolMousePress(self, event):
+        """removexover(fromStrand, fromIdx, toStrand, toIdx)"""
+        pass
+    # end def

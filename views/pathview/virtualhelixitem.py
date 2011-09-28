@@ -30,7 +30,8 @@ import util
 # import Qt stuff into the module namespace with PySide, PyQt4 independence
 util.qtWrapImport('QtCore', globals(), ['pyqtSignal', 'QObject', 'Qt'])
 util.qtWrapImport('QtGui', globals(), ['QBrush', 'QGraphicsItem',\
-                                       'QGraphicsPathItem','QPen',])
+                                       'QGraphicsPathItem','QPen',\
+                                       'QPainterPath'])
 
 class VirtualHelixItem(QGraphicsPathItem):
     baseWidth = styles.PATH_BASE_WIDTH
@@ -38,11 +39,11 @@ class VirtualHelixItem(QGraphicsPathItem):
     majorGridPen = QPen(styles.majorgridstroke, styles.MAJOR_GRID_STROKE_WIDTH)
     minorGridPen.setCosmetic(True)
     majorGridPen.setCosmetic(True)
-    nobrush = QBrush(Qt.NoBrush)
 
     def __init__(self, parent, modelVirtualHelix):
         super(VirtualHelixItem, self).__init__(parent)
         self._partItem = parent
+        self._modelPart = parent.modelPart()
         self._modelVirtualHelix = modelVirtualHelix
         self.setAcceptHoverEvents(True)  # for pathtools
         self.setFlag(QGraphicsItem.ItemUsesExtendedStyleOption)
@@ -61,41 +62,13 @@ class VirtualHelixItem(QGraphicsPathItem):
         """docstring for sequenceClearedSlot"""
         pass
 
-    ### DRAWING ##
+    ### DRAWING METHODS ###
     def paint(self, painter, option, widget=None):
-        # Note that the methods that fetch the paths
-        # cache the paths and that those caches are
-        # invalidated as the primary mechanism
-        # of updating after a change in vhelix's bases
-        if option != None and \
-           not self.boundingRect().intersects(option.exposedRect):
-            return
-        painter.save()
-        painter.setBrush(self.nobrush)
+        painter.setBrush(Qt.NoBrush)
         painter.setPen(self.minorGridPen)
         painter.drawPath(self.minorGridPainterPath())  # Minor grid lines
         painter.setPen(self.majorGridPen)
         painter.drawPath(self.majorGridPainterPath())  # Major grid lines
-        painter.setBrush(Qt.NoBrush)
-        segmentPaths, endptPths = self.segmentAndEndptPaths()
-        for sp in segmentPaths:
-            pen, path = sp
-            strandRect = path.controlPointRect().adjusted(0, 0, 5, 5)
-            if option != None and not strandRect.intersects(option.exposedRect):
-                continue
-            painter.setPen(pen)
-            painter.drawPath(path)
-        painter.setPen(Qt.NoPen)
-        for ep in endptPths:
-            brush, path = ep
-            if option != None and\
-               not path.controlPointRect().intersects(option.exposedRect):
-                continue
-            painter.setBrush(brush)
-            painter.drawPath(path)
-        self.paintHorizontalBaseText(painter)
-        painter.restore()
-    #end def
 
     def minorGridPainterPath(self):
         """
@@ -106,12 +79,12 @@ class VirtualHelixItem(QGraphicsPathItem):
         if self._minorGridPainterPath:
             return self._minorGridPainterPath
         path = QPainterPath()
-        canvasSize = self._vhelix.part().numBases()
+        canvasSize = self._modelPart.maxBaseIdx()
         # border
         path.addRect(0, 0, self.baseWidth * canvasSize, 2 * self.baseWidth)
         # minor tick marks
         for i in range(canvasSize):
-            if (i % self._vhelix.part().majorGrid() != 0):
+            if (i % self._modelPart.subStepSize() != 0):
                 x = round(self.baseWidth * i) + .5
                 path.moveTo(x, 0)
                 path.lineTo(x, 2 * self.baseWidth)
@@ -130,12 +103,32 @@ class VirtualHelixItem(QGraphicsPathItem):
         if self._majorGridPainterPath:
             return self._majorGridPainterPath
         path = QPainterPath()
-        canvasSize = self._vhelix.part().numBases()
-        # major tick marks  FIX: 7 is honeycomb-specific
-        for i in range(0, canvasSize + 1, self._vhelix.part().majorGrid()):
+        canvasSize = self._modelPart.maxBaseIdx()
+        # major tick marks
+        for i in range(0, canvasSize + 1, self._modelPart.subStepSize()):
             x = round(self.baseWidth * i) + .5
             path.moveTo(x, .5)
             path.lineTo(x, 2 * self.baseWidth - .5)
         self._majorGridPainterPath = path
         return path
-    
+
+    ### TOOL METHODS ###
+    def selectToolMousePress(self, event):
+        """virtualhelix.getVStrandAndDragBounds(pos), store startIdx"""
+        pass
+    # end def
+
+    def selectToolMouseMove(self, event):
+        """draw pseudoStrandGraphicsItem from startIdx to endIdx"""
+        pass
+    # end def
+
+    def selectToolMouseRelease(self, event):
+        """if startIdx != end, vhelix.createNewStrand(startIdx, endIdx)"""
+        pass
+    # end def
+
+    ### COORDINATE UTILITIES ###
+    def baseAtPoint(self, pt):
+        """Returns the (strandType, baseIdx) corresponding
+        to pt in virtualhelix."""

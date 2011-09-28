@@ -82,3 +82,8 @@ class PartItem(QGraphicsPathItem):
         print "PartItem.xover3pDestroyedSlot"
         pass
 
+    ### METHODS ###
+    def modelPart(self):
+        """Return a reference to the model's part object"""
+        return self._modelPart
+
