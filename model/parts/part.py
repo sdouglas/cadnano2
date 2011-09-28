@@ -144,11 +144,20 @@ class Part(QObject):
         # nested for loop in one line
         latticeToSpatial = self.latticeToSpatial
         for latticeCoord in product(range(self._maxRow), range(self._maxCol))
-            yield latticeToSpatial(*latticeCoord, scaleFactor)
+            row, col = latticeCoord
+            x, y = latticeToSpatial(*latticeCoord, scaleFactor)
+            yield x, y, row, col
         # latticeCoordGen = product(range(self._maxRow), range(self._maxCol))
         # return starmap(self.latticeToSpatial, \
         #                 izip( latticeCoordGen, repeat(scaleFactor)))
     # end def
+    
+    def dimensions(self):
+        """
+        return a tuple of the max X and maxY coordinates of the lattice
+        """
+        return latticeToSpatial(self._maxRow, self._maxCol)
+    # end def 
     
     def latticeToSpatial(self, row, col, scaleFactor=1.0):
         """
