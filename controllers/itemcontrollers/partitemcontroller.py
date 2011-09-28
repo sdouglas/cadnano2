@@ -32,6 +32,8 @@ class PartItemController():
     def connectSignals(self):
         self._modelPart.partParentChangedSignal.connect(self._partItem.partParentChangedSlot)
         self._modelPart.partDestroyedSignal.connect(self._partItem.partDestroyedSlot)
+        self._modelPart.virtualHelixAddedSignal.connect(self._partItem.virtualHelixAddedSlot)
+        self._modelPart.virtualHelixRemovedSignal.connect(self._partItem.virtualHelixRemovedSlot)
         # self._modelPart.partMovedSignal.connect(self._partItem.partMovedSlot)
         for oligo in self._modelPart.oligos():
             for strand in oligo.strands():
@@ -41,6 +43,8 @@ class PartItemController():
     def disconnectSignals(self):
         self._modelPart.partParentChangedSignal.disconnect(self._partItem.partParentChangedSlot)
         self._modelPart.partDestroyedSignal.disconnect(self._partItem.partDestroyedSlot)
+        self._modelPart.virtualHelixAddedSignal.disconnect(self._partItem.virtualHelixAddedSlot)
+        self._modelPart.virtualHelixRemovedSignal.disconnect(self._partItem.virtualHelixRemovedSlot)
         # self._modelPart.partMovedSignal.disconnect(self._partItem.partMovedSlot)
         for oligo in self._modelPart.oligos():
             for strand in oligo.strands():

@@ -26,6 +26,7 @@
 # http://www.opensource.org/licenses/mit-license.php
 
 from controllers.itemcontrollers.partitemcontroller import PartItemController
+from virtualhelixitem import VirtualHelixItem
 
 import util
 # import Qt stuff into the module namespace with PySide, PyQt4 independence
@@ -56,6 +57,19 @@ class PartItem(QGraphicsPathItem):
     def partMovedSlot(self, pos):
         """docstring for partMovedSlot"""
         print "PartItem.partMovedSlot"
+        pass
+
+    def virtualHelixAddedSlot(self, modelVirtualHelix):
+        """
+        When a virtual helix is added to the model, this slot handles
+        the instantiation of a virtualhelix item.
+        """
+        print "PartItem.virtualHelixAddedSlot"
+        virtualHelixItem = VirtualHelixItem(self, modelVirtualHelix)
+
+    def virtualHelixRemovedSlot(self):
+        """docstring for virtualHelixAddedSlot"""
+        print "PartItem.virtualHelixRemovedSlot"
         pass
 
     def xover3pCreatedSlot(self, strand, idx):

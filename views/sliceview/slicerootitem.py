@@ -90,7 +90,6 @@ class SliceRootItem(QGraphicsRectItem):
 
     def selectedPartChangedSlot(self):
         """docstring for selectedPartChangedSlot"""
-        print "SliceRootItem.selectedPartChangedSlot!"
         pass
 
     ### METHODS ###
@@ -98,4 +97,3 @@ class SliceRootItem(QGraphicsRectItem):
         """docstring for setPathRootItem"""
         self._pathRootItem = pathRoot
 
-    ### COMMANDS ###

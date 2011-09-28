@@ -31,7 +31,7 @@ from operator import mul
 from model.enum import StrandType
 
 util.qtWrapImport('QtCore', globals(), ['pyqtSignal', 'QObject'])
-util.qtWrapImport('QtGui', globals(), [ 'QUndoCommand', 'QUndoStack'])
+util.qtWrapImport('QtGui', globals(), [])
 
 
 class Part(QObject):
@@ -61,7 +61,7 @@ class Part(QObject):
         self._partInstances = []    # This is a list of ObjectInstances
         self._oligos = {}
         self._vHelicesDict = {}   # should this be a list or a dictionary?  I think dictionary
-        self._bounds = (0, 2*self._step)
+        self._maxBaseIdx = (0, 2*self._step)
         self._maxRow = 50
         self._maxCol = 50
         self._maxBase = 4*self._step
@@ -72,8 +72,6 @@ class Part(QObject):
         self.reserveBin = set()
         self.highestUsedOdd = -1  # Used iff the recycle bin is empty and highestUsedOdd+2 is not in the reserve bin
         self.highestUsedEven = -2  # same
-        
-        
     # end def
 
     ### SIGNALS ###
@@ -81,8 +79,9 @@ class Part(QObject):
     partInstanceAddedSignal = pyqtSignal(QObject)  # self
     partDestroyedSignal = pyqtSignal(QObject)  # self
     sequenceClearedSignal = pyqtSignal(QObject)  # self
-    virtualHelixAddedSignal = pyqtSignal(QObject) # vh
-    
+    virtualHelixAddedSignal = pyqtSignal(QObject)  # virtualhelix
+    virtualHelixRemovedSignal = pyqtSignal(QObject)  # virtualhelix
+
     ### SLOTS ###
 
     ### METHODS ###
@@ -115,9 +114,9 @@ class Part(QObject):
     def destroyOligo(self, oligo):
         del self._oligo[oligo]
 
-    def bounds(self):
+    def maxBaseIdx(self):
         """Return the latice indice bounds relative to the origin."""
-        return self._bounds
+        return self._maxBaseIdx
     # end def
     
     def isEvenParity(self, row, column):
@@ -330,7 +329,7 @@ class Part(QObject):
         part = self.newPart()
         part._virtualHelices = dict(self._virtualHelices)
         part._oligos = dict(self._oligos)
-        part._bounds = (self._bounds[0], self._bounds[1])
+        part._maxBaseIdx = self._maxBaseIdx
         part._partInstances = list(self._partInstances)
         return part
     # end def

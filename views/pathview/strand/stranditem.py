@@ -29,7 +29,7 @@ from exceptions import NotImplementedError
 import util
 # import Qt stuff into the module namespace with PySide, PyQt4 independence
 util.qtWrapImport('QtCore', globals(), ['pyqtSignal', 'QObject'])
-util.qtWrapImport('QtGui', globals(), [ 'QUndoCommand', 'QUndoStack'])
+util.qtWrapImport('QtGui', globals(), [])
 
 class StrandItem(QGraphicsPathItem):
     def __init__(self, parent):

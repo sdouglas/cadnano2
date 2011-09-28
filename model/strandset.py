@@ -1,6 +1,3 @@
-#!/usr/bin/env python
-# encoding: utf-8
-
 # The MIT License
 #
 # Copyright (c) 2011 Wyss Institute at Harvard University
@@ -25,16 +22,14 @@
 #
 # http://www.opensource.org/licenses/mit-license.php
 
+import random
 from operator import itemgetter
 from itertools import izip, repeat
 from strand import Strand
-
 import cadnano2.util as util
 # import Qt stuff into the module namespace with PySide, PyQt4 independence
 util.qtWrapImport('QtCore', globals(), ['pyqtSignal', 'QObject', 'Qt'])
 util.qtWrapImport('QtGui', globals(), ['QUndoStack', 'QUndoCommand'])
-
-starmapExec = util.starmapExec
 
 
 class StrandSet(QObject):
@@ -98,7 +93,7 @@ class StrandSet(QObject):
         Returns the (tight) bounds of the contiguous stretch of unpopulated
         bases that includes the baseIdx.
         """
-        lowIdx, highIdx = self.partBounds()  # init the return values
+        lowIdx, highIdx = 0, self.partMaxBaseIdx()  # init the return values
         lenStrands = len(self._strandList)
         
         # not sure how to set this up this to help in caching
@@ -124,9 +119,9 @@ class StrandSet(QObject):
         self._lastStrandSetIndex = (low + high) / 2  # set cache
         return (lowIdx, highIdx)
 
-    def partBounds(self):
+    def partMaxBaseIdx(self):
         """Return the bounds of the StrandSet as defined in the part."""
-        return self._virtualHelix.part().bounds()
+        return self._virtualHelix.part().maxBaseIdx()
 
     ### PUBLIC METHODS FOR EDITING THE MODEL ###
     def createStrand(self, baseIdxLow, baseIdxHigh, useUndoStack=True):
@@ -475,65 +470,55 @@ class StrandSet(QObject):
 
     ### COMMANDS ###
     class CreateStrandCommand(QUndoCommand):
-        """Inserts strandToAdd into strandList at index idx."""
+        """
+        Create a new Strand based with bounds (baseIdxLow, baseIdxHigh),
+        and insert it into the strandSet at position strandSetIdx. Also,
+        create a new Oligo, add it to the Part, and point the new Strand
+        at the oligo.
+        """
         def __init__(self, strandSet, baseIdxLow, baseIdxHigh, strandSetIdx):
             super(StrandSet.CreateStrandCommand, self).__init__()
             self._strandSet = strandSet
-            strand = Strand(strandSet, baseIdxLow, baseIdxHigh)
             self._sSetIdx = strandSetIdx
+            self._strand = Strand(strandSet, baseIdxLow, baseIdxHigh)
             self._newOligo = Oligo(strandSet.part())
-            self._strand = strand
-
-            # self._signalList = []
         # end def
 
         def redo(self):
-            # signalList = []
+            # Add the new strand to the StrandSet strandList
             strand = self._strand
-            oligo = self._newOligo
             strandSet = self._strandSet
-            print "CreateStrandCommand", strand, self._sSetIdx
-
             strandSet._strandList.insert(self._sSetIdx, strand)
+            # Set up the new oligo
+            oligo = self._newOligo
             oligo.setStrand5p(strand)
-            oligo.addStrandLength(strand)
-
-            # affect the oligo
+            oligo.incrementStrandLength(strand)
             oligo.AddToPart(strandSet.part())
             strand.setOligo(oligo)
-            # signalList.append(strand.setOligo(oligo))
-
-            # setup the create strand signal
+            # Emit a signal to notify on completion
             strandSet.strandAddedSignal.emit(strand)
-            # signalList.append((strandSet.strandAddedSignal.emit, (strand,)))
-            # self._signalList = signalList
         # end def
 
         def undo(self):
-            # signalList = []
+            # Remove the strand from StrandSet strandList
             strand = self._strand
-            oligo = self._newOligo
             strandSet = self._strandSet
-
             strandSet._strandList.pop(self._sSetIdx)
-
-            strand.setOligo(None)
-            # signalList.append(strand.setOligo(None))
-
+            # Get rid of the new oligo
+            oligo = self._newOligo
             oligo.setStrand5p(None)
-            oligo.removeStrandLength(strand)
+            oligo.decrementStrandLength(strand)
             oligo.removeFromPart()
-
+            strand.setOligo(None)
+            # Emit a signal to notify on completion
             strand.removedSignal.emit(strand)
-            # signalList.append((strand.strandRemovedSignal.emit, (strand,)))
-            # since this is an undo, we just emit the signals now
-            # strandSet.emitSignals(signalList)
         # end def
     # end class
 
     class RemoveStrandCommand(QUndoCommand):
         """
-        This command should only be called on a strand with no connections
+        RemoveStrandCommand deletes a strand. It should only be called on
+        strands with no connections to other strands.
         """
         def __init__(self, strandSet, strand, strandSetIdx):
             super(StrandSet.RemoveStrandCommand, self).__init__()
@@ -541,39 +526,35 @@ class StrandSet(QObject):
             self._strand = strand
             self._sSetIdx = strandSetIdx
             self._oligo = strand.oligo()
-
-            # self._signalList = []
         # end def
 
         def redo(self):
+            # Remove the strand
             strand = self._strand
-            oligo = self.oligo
             strandSet = self._strandSet
-
             strandSet._strandList.pop(self._sSetIdx)
-
-            # just kill the references between each other
-            strand.setOligo(None)
-
+            # Remove the strand from the oligo
+            oligo = self.oligo
             oligo.setStrand5p(None)
-            oligo.removeStrandLength(strand)
+            oligo.decrementStrandLength(strand)
             oligo.removeFromPart()
-
+            strand.setOligo(None)  # remove cross refs
+            # Emit a signal to notify on completion
             strand.removedSignal.emit(strand)
         # end def
 
         def undo(self):
+            # Restore the strand
             strand = self._strand
-            oligo = self.oligo
             strandSet = self._strandSet
-
             strandSet._strandList.insert(self._sSetIdx, strand)
-            strand.setOligo(oligo)
-
+            # Restore the oligo
+            oligo = self.oligo
             oligo.setStrand5p(strand)
-            oligo.addStrandLength(strand)
+            oligo.incrementStrandLength(strand)
             oligo.addToPart(strandSet.part())
-
+            strand.setOligo(oligo)
+            # Emit a signal to notify on completion
             strandSet.strandAddedSignal.emit(strand)
         # end def
     # end class
@@ -596,33 +577,27 @@ class StrandSet(QObject):
         """
         def __init__(self, strandLow, strandHigh, lowStrandSetIdx, priorityStrand):
             super(StrandSet.MergeCommand, self).__init__()
+            # Store strands
             self._strandLow = strandLow
             self._strandHigh = strandHigh
             pS = priorityStrand
             self._sSet = sSet = pS.strandSet()
-
-            # the oligos
+            # Store oligos
             self._newOligo = pS.oligo().shallowCopy()
             self._sLowOligo = strandLow.oligo()
             self._sHighOligo = strandHigh.oligo()
-            # update the oligo for things like its 5prime end and isLoop
+            # Update the oligo for things like its 5prime end and isLoop
             self._newOligo.strandsMergeUpdate(strandLow, strandHigh)
-
-            self._idx = lowStrandSetIdx
-
-            # create the newStrand by copying the priority strand to
-            # preserve its stuff
+            self._sSetIdx = lowStrandSetIdx
+            # Create the newStrand by copying the priority strand to
+            # preserve its properties
             newIdxs = strandLow.lowIdx(), strandHigh.highIdx()
             newStrand = strandLow.shallowCopy()
             newStrand.setIdxs(*newIdxs)
             newStrand.setHighConnection(strandHigh.highConnection())
-
-            # take care of merging decorators
+            # Merging any decorators
             newStrand.addDecorators(strandHigh.decorators())
-
             self._newStrand = newStrand
-
-            # self._signalList = []
         # end def
 
         def redo(self):
@@ -630,38 +605,26 @@ class StrandSet(QObject):
             sL = self._strandLow
             sH = self._strandHigh
             nS = self._newStrand
-            idx = self._idx
+            idx = self._sSetIdx
             olg = self._newOligo
             lOlg = self._sLowOligo
             hOlg = self._sHighOligo
-
-            # Remove old strands to the sSet  (orders matter)
+            # Remove old strands from the sSet (reusing idx, so order matters)
             sS.removeStrand(sL, idx)
             sS.removeStrand(sH, idx)
-
-            # add the newStrand to the sSet
+            # Add the newStrand to the sSet
             sS.addStrand(nS, idx)
-
-            # set ALL of the oligos
-            # this will also emit a Signal to Alert the views
-            setOligo = Strand.setOligo
+            # Traverse the strands via 3'conns to assign the new oligo
             for strand in olg.strand5p().generator3pStrand():
-                setOligo(strand, olg)
-            # starmapExec(Strand.setOligo, izip(olg.strand5p().generator3pStrand(), repeat(olg)))
-
-            # add and remove the old oligos from the part
+                Strand.setOligo(strand, olg)  # emits hasNewOligoSignal
+            # Add new oligo and remove old oligos
             olg.addToPart()
             lOlg.removeFromPart()
             hOlg.removeFromPart()
-
-            # emit Signals related to brand new stuff and destroyed stuff LAST
-
-            # out with the old...
-            sL.removedSignal.emit(sL)
-            sH.removedSignal.emit(sH)
-
-            # ...in with the new
-            sS.strandAddedSignal.emit(nS)
+            # Emit Signals related to destruction and addition
+            sL.removedSignal.emit(sL)  # out with the old...
+            sH.removedSignal.emit(sH)  # out with the old...
+            sS.strandAddedSignal.emit(nS)  # ...in with the new
         # end def
 
         def undo(self):
@@ -669,102 +632,81 @@ class StrandSet(QObject):
             sL = self._strandLow
             sH = self._strandHigh
             nS = self._newStrand
-            idx = self._idx
+            idx = self._sSetIdx
             olg = self._newOligo
             lOlg = self._sLowOligo
             hOlg = self._sHighOligo
-
-            # Remove new strand from the sSet
+            # Remove the newStrand from the sSet
             sS.removeStrand(nS, idx)
-
-            # add the old Strands to the sSet (orders matter)
+            # Add old strands to the sSet (reusing idx, so order matters)
             sS.addStrand(sH, idx)
             sS.addStrand(sL, idx)
-
-            # reset ALL of the oligos back
-            # this will also emit a Signal to Alert the views
-            setOligo = Strand.setOligo
+            # Traverse the strands via 3'conns to assign the old oligo
             for strand in lOlg.strand5p().generator3pStrand():
-                setOligo(strand, lOlg)
+                Strand.setOligo(strand, lOlg)  # emits hasNewOligoSignal
             for strand in hOlg.strand5p().generator3pStrand():
-                setOligo(strand, hOlg)
-            # starmapExec(Strand.setOligo, izip(lOlg.strand5p().generator3pStrand(), repeat(lOlg)))
-            # starmapExec(Strand.setOligo, izip(hOlg.strand5p().generator3pStrand(), repeat(hOlg)))
-
-            # add and remove the old oligos from the part
+                Strand.setOligo(strand, hOlg)  # emits hasNewOligoSignal
+            # Remove new oligo and add old oligos
             olg.removeFromPart()
             lOlg.addToPart()
             hOlg.addToPart()
-
-            # emit Signals related to brand new stuff and destroyed stuff LAST
-
-            # out with the new...
-            nS.removedSignal.emit(nS)
-
-            # ...in with the old
-            sS.strandAddedSignal.emit(sH)
-            sS.strandAddedSignal.emit(sL)
+            # Emit Signals related to destruction and addition
+            nS.removedSignal.emit(nS)  # out with the new...
+            sS.strandAddedSignal.emit(sH)  # ...in with the old
+            sS.strandAddedSignal.emit(sL)  # ...in with the old
         # end def
     # end class
 
     class SplitCommand(QUndoCommand):
         """
-        The most 5 prime new strand retains the oligo properties
-        of the original longer strand.  This new strand has the same 5 prime
-        end index as the original longer strand.
+        The SplitCommand takes as input a strand and "splits" the strand in
+        two, such that one new strand 3' end is at baseIdx, and the other
+        new strand 5' end is at baseIdx +/- 1 (depending on the direction
+        of the strands).
 
-        virtualIndex is the 3 prime end of the most 5 prime new strand
+        Under the hood:
+        On redo, this command actually is creates two new copies of the
+        original strand, resizes each and modifies their connections.
+        On undo, the new copies are removed and the original is restored.
         """
-        def __init__(self, strand, virtualIndex, strandSetIdx):
+        def __init__(self, strand, baseIdx, strandSetIdx):
             super(StrandSet.SplitCommand, self).__init__()
+            # Store inputs
             self._strandOld = strand
             self._sSetIdx = strandSetIdx
             self._sSet = sSet = strand.strandSet()
             self._oldOligo = oligo = strand.oligo()
-
-            # create the newStrand by copying the priority strand to
-            # preserve its stuff
-            # calculate strand directionality for which strand the
-            # 3p priority end is
-
-            # create copies
+            # Create copies
             self._strandLow = strandLow = strand.shallowCopy()
             self._strandHigh = strandHigh = strand.shallowCopy()
             self._lOligo = lOligo = oligo.shallowCopy()
             self._hOligo = hOligo = oligo.shallowCopy()
-
-            if strand.isDrawn5to3():
-                # strandLow has priority
-                iNewLow = virtualIndex
-                colorLow, colorHigh = oligo.color(), NEWCOLOR
+            # Determine oligo retention based on strand priority
+            if strand.isDrawn5to3():  # strandLow has priority
+                iNewLow = baseIdx
+                colorLow = oligo.color()
+                colorHigh = random.choice(styles.stapleColors).name()
                 olg5p, olg3p = lOligo, hOligo
                 std5p, std3p = strandLow, strandHigh
-            # end if
-            else:
-                # strandHigh has priority
-                iNewLow = virtualIndex - 1
-                colorLow, colorHigh = NEWCOLOR, oligo.color()
+            else:  # strandHigh has priority
+                iNewLow = baseIdx - 1
+                colorLow = random.choice(styles.stapleColors).name()
+                colorHigh = oligo.color()
                 olg5p, olg3p = hOligo, lOligo
                 std5p, std3p = strandHigh, strandLow
-            # end else
-
-            # Update the Strands
+            # Update strand connectivity
             strandLow.setHighConnection(None)
-            strandLow.setIdxs(strand.lowIdx(), iNewLow)
             strandHigh.setLowConnection(None)
+            # Resize strands and update decorators
+            strandLow.setIdxs(strand.lowIdx(), iNewLow)
             strandHigh.setIdxs(iNewLow + 1, strand.highIdx())
-
-            # Update the oligos
-            lOligo.setColor(colorLow)
-            hOligo.setColor(colorHigh)
-            # update the oligo for things like its 5prime end and isLoop
-            olg5p.strandsSplitUpdate(std5p, std3p, olg3p, strand)
-
-            # take care of splitting up decorators
             strandLow.removeDecoratorsOutOfRange()
             strandHigh.removeDecoratorsOutOfRange()
-
-            # self._signalList = []
+            # Update the oligo color
+            lOligo.setColor(colorLow)
+            hOligo.setColor(colorHigh)
+            # Update the oligo for things like its 5prime end and isLoop
+            olg5p.strandsSplitUpdate(std5p, std3p, olg3p, strand)
         # end def
 
         def redo(self):
@@ -772,41 +714,28 @@ class StrandSet(QObject):
             sL = self._strandLow
             sH = self._strandHigh
             oS = self._oldStrand
-            sSetIdx = self._sSetIdx
+            idx = self._sSetIdx
             olg = self._oldOligo
             lOlg = self._sLowOligo
             hOlg = self._sHighOligo
-
-            # Remove oldAtrand from the sSet
-            sS.removeStrand(oS, sSetIdx)
-
-            # add the new Strands to the sSet (orders matter)
-            sS.addStrand(sH, sSetIdx)
-            sS.addStrand(sL, sSetIdx)
-
-            # set ALL of the oligos
-            # this will also emit a Signal to Alert the views
-            setOligo = Strand.setOligo
+            # Remove old Strand from the sSet
+            sS.removeStrand(oS, idx)
+            # Add new strands to the sSet (reusing idx, so order matters)
+            sS.addStrand(sH, idx)
+            sS.addStrand(sL, idx)
+            # Traverse the strands via 3'conns to assign the new oligos
             for strand in lOlg.strand5p().generator3pStrand():
-                setOligo(strand, lOlg)
+                Strand.setOligo(strand, lOlg)  # emits hasNewOligoSignal
             for strand in hOlg.strand5p().generator3pStrand():
-                setOligo(strand, hOlg)
-            # starmapExec(Strand.setOligo, izip(lOlg.strand5p().generator3pStrand(), repeat(lOlg)))
-            # starmapExec(Strand.setOligo, izip(hOlg.strand5p().generator3pStrand(), repeat(hOlg)))
-
-            # add and remove the old oligos from the part
+                Strand.setOligo(strand, hOlg)  # emits hasNewOligoSignal
+            # Add new oligo and remove old oligos from the part
             part = olg.removeFromPart()
             lOlg.addToPart()
             hOlg.addToPart()
-
-            # emit Signals related to brand new stuff and destroyed stuff LAST
-
-            # out with the old...
-            nS.removedSignal.emit(oS)
-
-            # ...in with the new
-            sS.strandAddedSignal.emit(sH)
-            sS.strandAddedSignal.emit(sL)
+            # Emit Signals related to destruction and addition
+            nS.removedSignal.emit(oS)  # out with the old...
+            sS.strandAddedSignal.emit(sH)  # ...in with the new
+            sS.strandAddedSignal.emit(sL)  # ...in with the new
         # end def
 
         def undo(self):
@@ -814,38 +743,26 @@ class StrandSet(QObject):
             sL = self._strandLow
             sH = self._strandHigh
             oS = self._oldStrand
-            sSetIdx = self._sSetIdx
+            idx = self._sSetIdx
             olg = self._oldOligo
             lOlg = self._sLowOligo
             hOlg = self._sHighOligo
-
-            # Remove new strands to the sSet (order matters)
-            sS.removeStrand(sL, sSetIdx)
-            sS.removeStrand(sH, sSetIdx)
-
-            # add the oldStrand to the sSet
-            sS.addStrand(oS, sSetIdx)
-
-            # reset ALL of the oligos back
-            # this will also emit a Signal to alert the views
-            setOligo = Strand.setOligo
+            # Remove new strands from the sSet (reusing idx, so order matters)
+            sS.removeStrand(sL, idx)
+            sS.removeStrand(sH, idx)
+            # Add the old strand to the sSet
+            sS.addStrand(oS, idx)
+            # Traverse the strands via 3'conns to assign the old oligo
             for strand in olg.strand5p().generator3pStrand():
-                setOligo(strand, olg)
-            # starmapExec(Strand.setOligo, izip(olg.strand5p().generator3pStrand(), repeat(olg)))
-
-            # add and remove the old oligos from the part
+                Strand.setOligo(strand, olg)
+            # Add old oligo and remove new oligos from the part
             olg.addToPart()
             lOlg.removeFromPart()
             hOlg.removeFromPart()
-
-            # emit Signals related to brand new stuff and destroyed stuff LAST
-
-            # out with the new...
-            sL.removedSignal.emit(sL)
-            sH.removedSignal.emit(sH)
-
-            # ...in with the old
-            sS.strandAddedSignal.emit(oS)
+            # Emit Signals related to destruction and addition
+            sL.removedSignal.emit(sL)  # out with the new...
+            sH.removedSignal.emit(sH)  # out with the new...
+            sS.strandAddedSignal.emit(oS)  # ...in with the old
         # end def
     # end class
 
@@ -859,7 +776,6 @@ class StrandSet(QObject):
 # from nose.tools import with_setup
 from mock import Mock
 
-
 class TestStrandSet():
     def setUp(self):
         pass
@@ -868,17 +784,17 @@ class TestStrandSet():
         pass
 
     def test_addStrand(self):
-        ss = StrandSet(None)
-        ss.partBounds = Mock(return_value=(0, 42))
-        ss.addStrand(Strand(ss, 1, 5), 0, False)
+        ss = StrandSet(None, None)
+        ss.maxBaseIdx = Mock(return_value=42)
+        ss.createStrand(1, 5, 0, False)
         assert len(ss._strandList) == 1
 
     # @with_setup(setUp, tearDown)
     def test_getBoundsOfEmptyRegionContaining(self):
-        ss = StrandSet(None)
-        ss.partBounds = Mock(return_value=(0, 42))
-        ss.addStrand(Strand(ss, 1, 5), 0, False)
-        ss.addStrand(Strand(ss, 10, 20), 1, False)
+        ss = StrandSet(None, None)
+        ss.maxBaseIdx = Mock(return_value=(0, 42))
+        ss.createStrand(Strand(ss, 1, 5), 0, False)
+        ss.createStrand(Strand(ss, 10, 20), 1, False)
         assert ss.getBoundsOfEmptyRegionContaining(0) == (0, 0)
         assert ss.getBoundsOfEmptyRegionContaining(6) == (6, 9)
         assert ss.getBoundsOfEmptyRegionContaining(7) == (6, 9)
@@ -887,6 +803,6 @@ class TestStrandSet():
         assert ss.getBoundsOfEmptyRegionContaining(21) == (21, 42)
         assert ss.getBoundsOfEmptyRegionContaining(30) == (21, 42)
         assert ss.getBoundsOfEmptyRegionContaining(42) == (21, 42)
-        ss.addStrand(Strand(ss, 30, 35), 2, False)
+        ss.createStrand(Strand(ss, 30, 35), 2, False)
         assert ss.getBoundsOfEmptyRegionContaining(21) == (21, 29)
         assert ss.getBoundsOfEmptyRegionContaining(36) == (36, 42)
