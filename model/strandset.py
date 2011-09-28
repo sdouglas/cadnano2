@@ -107,7 +107,7 @@ class StrandSet(QObject):
         assert(baseIdxHigh <= boundsHigh)
         strandSetIdx = self._lastStrandSetIndex
         c = StrandSet.CreateStrandCommand(self, baseIdxLow, baseIdxHigh, strandSetIdx)
-        self._execCommandList([c], desc="Create strand", useUndoStack=useUndoStack)
+        util._execCommandList(self, [c], desc="Create strand", useUndoStack=useUndoStack)
         return strandSetIdx
 
     def createDeserializedStrand(self, baseIdxLow, baseIdxHigh, useUndoStack=False):
@@ -122,7 +122,7 @@ class StrandSet(QObject):
         assert(baseIdxHigh <= boundsHigh)
         strandSetIdx = self._lastStrandSetIndex
         c = StrandSet.CreateStrandCommand(self, baseIdxLow, baseIdxHigh, strandSetIdx)
-        self._execCommandList([c], desc=None, useUndoStack=useUndoStack)
+        util._execCommandList(self, [c], desc=None, useUndoStack=useUndoStack)
         return strandSetIdx
 
     def removeStrand(self, strand, strandSetIdx=None, useUndoStack=True):
@@ -131,7 +131,7 @@ class StrandSet(QObject):
             if not isInSet:
                 raise IndexError
         c = StrandSet.RemoveStrandCommand(self, strand, strandSetIdx)
-        self._execCommandList([c], desc="Delete strand", useUndoStack=useUndoStack)
+        util._execCommandList(self, [c], desc="Delete strand", useUndoStack=useUndoStack)
         return strandSetIdx
 
     def mergeStrands(self, priorityStrand, otherStrand, useUndoStack=True):
@@ -147,7 +147,7 @@ class StrandSet(QObject):
             if isInSet:
                 c = StrandSet.MergeCommand(strandLow, strandHigh, \
                                                 lowStrandSetIdx, firstStrand)
-                self._execCommandList([c], desc="Merge", useUndoStack=useUndoStack)
+                util._execCommandList(self, [c], desc="Merge", useUndoStack=useUndoStack)
     # end def
     
     def strandsCanBeMerged(self, strandA, strandB):
@@ -177,7 +177,7 @@ class StrandSet(QObject):
             strandSetIdx, isInSet = _findIndexOfRangeFor(strand)
             if isInSet:
                 c = StrandSet.SplitCommand(strand, baseIdx, strandSetIdx)
-                self._execCommandList([c], desc="Split", useUndoStack=useUndoStack)
+                util._execCommandList(self, [c], desc="Split", useUndoStack=useUndoStack)
     # end def
 
     def strandCanBeSplit(self, strand, baseIdx):
@@ -433,25 +433,6 @@ class StrandSet(QObject):
         else:
             return False
         # end else
-    # end def
-
-    def _execCommandList(self, commands, desc=None, useUndoStack=False):
-        """
-        This is a wrapper for performing QUndoCommands, meant to ensure
-        uniform handling of the undoStack and macro descriptions.
-
-        When using the undoStack, commands are pushed onto self.undoStack()
-        as part of a macro with description desc. Otherwise, command redo
-        methods are called directly.
-        """
-        if useUndoStack:
-            self.undoStack().beginMacro(commandDescription)
-            for c in commands:
-                self.undoStack().push(c)
-            self.undoStack().endMacro()
-        else:
-            for c in commands:
-                c.redo()
     # end def
 
     ### COMMANDS ###

@@ -36,13 +36,45 @@ class SquarePart(Part):
     stapR = Crossovers.squareStapRight
 
     def __init__(self, *args, **kwargs):
-        Part.__init__(self)
+        super(SquarePart, self).__init__(self, *args, **kwargs)
         self._maxRow = kwargs.get('maxRow', app().prefs.squareRows)
         self._maxCol = kwargs.get('maxCol', app().prefs.squareCols)
-        self._maxBase = kwargs.get('maxSteps', app().prefs.squareSteps) * self.step
+        self._maxBase = kwargs.get('maxSteps', app().prefs.squareSteps) * self._step
 
     def crossSectionType(self):
         return LatticeType.Square
+    # end def
+    
+    def isEvenParity(self, row, column):
+        """
+        To be implemented by Part subclass, pass
+        """
+        return (row % 2) == (column % 2)
+    # end def
+    
+    def isOddParity(self, row, column):
+
+        return (row % 2) ^ (column % 2)
+    # end def
+    
+    def latticeToSpatial(self, row, column, scaleFactor=1.0):
+        """
+        make sure self._radius is a float
+        """
+        radius = self._radius
+        x = row*2*radius
+        y = column*2*radius
+        return scaleFactor*x, scaleFactor*y
+    # end def
+
+    def spatialToLattice(self, x, y, scaleFactor=1.0):
+        """
+        """
+        radius = self._radius
+        row = int(x/(2*radius*scaleFactor) + 0.5)
+        column = int(y/(2*radius*scaleFactor) + 0.5)
+        return row, column
+    # end def
 
     def fillSimpleRep(self, sr):
         super(SquarePart, self).fillSimpleRep(sr)

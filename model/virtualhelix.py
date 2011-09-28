@@ -34,9 +34,9 @@ util.qtWrapImport('QtCore', globals(), ['pyqtSignal', 'QObject', 'Qt'])
 util.qtWrapImport('QtGui', globals(), ['QUndoStack'])
 
 class VirtualHelix(QObject):
-    def __init__(self, part, idnum=0):
+    def __init__(self, part, row, col, idnum=0):
         super(VirtualHelix, self).__init__(part)
-        self._coords = (None, None) # col, row
+        self._coords = (row, col) # col, row
         self._part = part
         self._scafStrandSet = StrandSet('scaffold', self)
         self._stapStrandSet = StrandSet('staple', self)
@@ -50,6 +50,7 @@ class VirtualHelix(QObject):
     # end def
 
     ### SIGNALS ###
+    virtualHelixRemovedSignal = pyqtSignal(QObject) # self
 
     ### SLOTS ###
 
@@ -67,9 +68,31 @@ class VirtualHelix(QObject):
     def part(self):
         return self._part
     # end def
+    
+    def setPart(self, newPart):
+        self._part = newPart
+        self.setParent(newPart)
+    # end def
+    
+    def coords(self):
+        return self._coords
+    # end def
+    
+    def translateCoords(self, deltaCoords):
+        """
+        for expanding a helix
+        """
+         deltaRow, deltaCol = deltaCoords
+         row, col = self._coords
+         self._coords = row + deltaRow, col + deltaCol
+    # end def
+    
+    def number(self):
+        return self._number
+    # end def
 
-    def parity(self):
-        return
+    def setNumber(self):
+        
     # end def
 
     def isEvenParity(self):

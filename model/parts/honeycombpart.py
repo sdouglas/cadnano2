@@ -29,6 +29,7 @@ from cadnano import app
 from part import Part
 from model.enum import LatticeType, Crossovers
 
+root3 = 1.732051
 
 class HoneycombPart(Part):
     _step = 21  # 32 in square
@@ -41,14 +42,51 @@ class HoneycombPart(Part):
     stapR = Crossovers.honeycombStapRight
 
     def __init__(self, *args, **kwargs):
-        Part.__init__(self, *args, **kwargs)
+        super(HoneycombPart, self).__init__(self, *args, **kwargs)
         self._maxRow = kwargs.get('maxRow', app().prefs.honeycombRows)
         self._maxCol = kwargs.get('maxCol', app().prefs.honeycombCols)
         self._maxBase = kwargs.get('maxSteps', app().prefs.honeycombSteps) * self._step
-
+        
     def crossSectionType(self):
         """Returns the cross-section type of the DNA part."""
         return LatticeType.Honeycomb
+        
+    def isEvenParity(self, row, column):
+        """
+        To be implemented by Part subclass, pass
+        """
+        return (row % 2) == (column % 2)
+    # end def
+    
+    def isOddParity(self, row, column):
+        return (row % 2) ^ (column % 2)
+    # end def
+        
+    def latticeToSpatial(self, row, column, scaleFactor=1.0):
+        """
+        make sure self._radius is a float
+        """
+        radius = self._radius
+        x = column*radius*root3
+        if isOddParity(latticeCoord):   # odd parity
+            y = row*radius*3 + radius
+        else:                           # even parity
+            y = row*radius*3
+        return scaleFactor*x, scaleFactor*y
+    # end def
+
+    def spatialToLattice(self, x, y, scaleFactor=1.0):
+        radius = self._radius
+        column = int(x/(radius*root3*scaleFactor) + 0.5)
+        
+        rowTemp = y/(radius*scaleFactor)
+        if (rowTemp % 3) + 0.5 > 1.0:
+            # odd parity
+            row = int((rowTemp-1)/3 + 0.5)
+        else:
+            # even parity
+            row = int(rowTemp/3 + 0.5)
+    # end def
 
     ########################## Archiving / Unarchiving #########################
     def fillSimpleRep(self, sr):
