@@ -76,6 +76,23 @@ class StrandSet(QObject):
     def part(self):
         return self._virtualHelix.part()
 
+    def getNeighbors(self, strand):
+        strandSetIdx, isInSet = _findIndexOfRangeFor(strand)
+        sList = self._strandList
+        if isInSet:
+            if strandSetIdx > 0:
+                lowStrand = sList[strandSetIdx]
+            else:
+                lowStrand = None
+            if strandSetIdx < len(sList) - 2:
+                highStrand = sList[strandSetIdx + 1]
+            else:
+                highStrand = None
+            return lowStrand, highStrand
+        else:
+            raise IndexError
+    # end def
+
     def getBoundsOfEmptyRegionContaining(self, baseIdx):
         """
         Returns the (tight) bounds of the contiguous stretch of unpopulated
@@ -83,8 +100,13 @@ class StrandSet(QObject):
         """
         lowIdx, highIdx = self.partBounds()  # init the return values
         lenStrands = len(self._strandList)
+        
+        # not sure how to set this up this to help in caching
+        # lastIdx = self._lastStrandSetIndex
+        
         if lenStrands == 0:  # empty strandset, just return the part bounds
             return (lowIdx, highIdx)
+
         low = 0              # index of the first (left-most) strand
         high = lenStrands    # index of the last (right-most) strand
         while low < high:    # perform binary search to find empty region
@@ -370,11 +392,16 @@ class StrandSet(QObject):
             a positive 1 in addition to False rather than raise an exception
         """
         strandList = self._strandList
+        lastIdx = self._lastStrandSetIndex
         lenStrands = len(strandList)
         if lenStrands == 0:
             return None
         # end if
-
+        
+        # check cache
+        if lastIdx and lastIdx < lenStrands and strandList[lastIdx] == strand:
+            return lastIdx, True
+        
         low = 0
         high = lenStrands
 
@@ -389,6 +416,7 @@ class StrandSet(QObject):
 
             if currentStrand == strand:
                 # strand is an existing range
+                self._lastStrandSetIndex = middle
                 return middle, True
             # end if
             elif cLow > sHigh:

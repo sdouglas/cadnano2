@@ -111,7 +111,11 @@ class Strand(QObject):
     def virtualHelix(self):
         return self._strandSet.virtualHelix()
     # end def
-
+    
+    def part(self):
+        return self._strandSet.part()
+    # end def
+    
     def oligo(self):
         return self._oligo
     # end def
@@ -192,6 +196,30 @@ class Strand(QObject):
 
     def resize(self):
         pass
+    # end def
+    
+    def getResizeBounds(self, index):
+        """
+        returns a tuple (lowInd, highInd)
+        of indices for use with resizing a strand from one endpoint
+        
+        use this information the move an endpoint as low as lowInd + 1 and as
+        high as highInd - 1
+        """
+        neighbors = self._strandSet.getNeighbors(self)
+        if index == self._baseIdxLow:
+            if neighbors[0]:
+                low = neighbors[0].highIdx()
+            else:
+                low = self.part().minBaseIndex()-1
+            return low, self._baseIdxHigh
+        else:
+            # Assume it's the self._baseIdxHigh
+            if neighbors[1]:
+                high = neighbors[1].lowIdx()
+            else:
+                high = self.part().maxBaseIndex()
+            return self._baseIdxLow, high
     # end def
 
     class ResizeCommand(QUndoCommand):

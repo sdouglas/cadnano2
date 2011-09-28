@@ -65,6 +65,7 @@ class Part(QObject):
         self._maxRow = 50
         self._maxCol = 50
         self._maxBase = 4*self._step
+        self._minBase = 0
         
         # ID assignment infra
         self.oddRecycleBin, self.evenRecycleBin = [], []
@@ -124,6 +125,14 @@ class Part(QObject):
         To be implemented by Part subclass, pass
         """
         raise NotImplementedError
+    # end def
+    
+    def minBaseIndex(self):
+        return self._minBase
+    # end def
+    
+    def maxBaseIndex(self):
+        return self._maxBase
     # end def
     
     def generatorFullLattice(self, scaleFactor=1.0):
