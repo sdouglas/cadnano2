@@ -141,18 +141,28 @@ class VirtualHelixItem(QGraphicsEllipseItem):
     def number(self):
         return self.virtualHelix().number()
 
-    def selected(self):
-        return self.focusRing != None
-
-    def setSelected(self, select):
-        if select and not self.focusRing:
-            self.focusRing = SliceHelix.FocusRingPainter(self.parentItem())
-            self.focusRing.setPos(self.pos())
-            self.focusRing.setZValue(styles.ZFOCUSRING)
-        if not select and self.focusRing:
-            self.focusRing.scene().removeItem(self.focusRing)
-            self.focusRing = None
-    # end def
+    # def isSelected(self):
+    #     return self.focusRing != None
+    # 
+    # def setSelected(self, select):
+    #     if select and not self.focusRing:
+    #         self.focusRing = SliceHelix.FocusRingPainter(self.parentItem())
+    #         self.focusRing.setPos(self.pos())
+    #         self.focusRing.setZValue(styles.ZFOCUSRING)
+    #     if not select and self.focusRing:
+    #         self.focusRing.scene().removeItem(self.focusRing)
+    #         self.focusRing = None
+    # # end def
+    
+    # def selectAllBehavior(self):
+    #     # If the selection is configured to always select
+    #     # everything, we don't draw a focus ring around everything,
+    #     # instead we only draw a focus ring around the hovered obj.
+    #     if self.part() == None:
+    #         return False
+    #     else:
+    #         return self.part().selectAllBehavior()
+    # # end def
 
     ############################ Painting ############################
     class FocusRingPainter(QGraphicsItem):
@@ -189,16 +199,13 @@ class VirtualHelixItem(QGraphicsEllipseItem):
             painter.setBrush(Qt.NoBrush)
             painter.drawEllipse(self.rect)
 
-    def boundingRect(self):
-        return self.rect
-
     ############################ User Interaction ############################
     def sceneEvent(self, event):
         """Included for unit testing in order to grab events that are sent
         via QGraphicsScene.sendEvent()."""
-        if self._parent.sliceController.testRecorder:
-            coord = (self._row, self._col)
-            self._parent.sliceController.testRecorder.sliceSceneEvent(event, coord)
+        # if self._parent.sliceController.testRecorder:
+        #     coord = (self._row, self._col)
+        #     self._parent.sliceController.testRecorder.sliceSceneEvent(event, coord)
         if event.type() == QEvent.MouseButtonPress:
             self.mousePressEvent(event)
             return True
@@ -211,62 +218,61 @@ class VirtualHelixItem(QGraphicsEllipseItem):
         QGraphicsItem.sceneEvent(self, event)
         return False
 
-    def selectAllBehavior(self):
-        # If the selection is configured to always select
-        # everything, we don't draw a focus ring around everything,
-        # instead we only draw a focus ring around the hovered obj.
-        if self.part() == None:
-            return False
-        else:
-            return self.part().selectAllBehavior()
-
     def hoverEnterEvent(self, event):
-        # If the selection is configured to always select
-        # everything, we don't draw a focus ring around everything,
-        # instead we only draw a focus ring around the hovered obj.
-        if self.selectAllBehavior():
-            self.setSelected(True)
+        """
+        If the selection is configured to always select
+        everything, we don't draw a focus ring around everything,
+        instead we only draw a focus ring around the hovered obj.
+        """
+        # if self.selectAllBehavior():
+        #     self.setSelected(True)
+        # forward the event to the helixItem as well
+        self.helixItem.hoverEnterEvent(event)
+    # end def
 
     def hoverLeaveEvent(self, event):
-        if self.selectAllBehavior():
-            self.setSelected(False)
+        # if self.selectAllBehavior():
+        #     self.setSelected(False)
+        self.helixItem.hoverEnterEvent(event)
+    # end def
 
-    def mousePressEvent(self, event):
-        action = self.decideAction(event.modifiers())
-        action(self)
-        self.dragSessionAction = action
+    # def mousePressEvent(self, event):
+    #     action = self.decideAction(event.modifiers())
+    #     action(self)
+    #     self.dragSessionAction = action
+    # 
+    # def mouseMoveEvent(self, event):
+    #     parent = self._helixItem
+    #     posInParent = parent.mapFromItem(self, QPointF(event.pos()))
+    #     # Qt doesn't have any way to ask for graphicsitem(s) at a
+    #     # particular position but it *can* do intersections, so we
+    #     # just use those instead
+    #     parent.probe.setPos(posInParent)
+    #     for ci in parent.probe.collidingItems():
+    #         if isinstance(ci, SliceHelix):
+    #             self.dragSessionAction(ci)
+    # # end def
 
-    def mouseMoveEvent(self, event):
-        parent = self._parent
-        posInParent = parent.mapFromItem(self, QPointF(event.pos()))
-        # Qt doesn't have any way to ask for graphicsitem(s) at a
-        # particular position but it *can* do intersections, so we
-        # just use those instead
-        parent.probe.setPos(posInParent)
-        for ci in parent.probe.collidingItems():
-            if isinstance(ci, SliceHelix):
-                self.dragSessionAction(ci)
+    # def mouseReleaseEvent(self, event):
+    #     self.part().needsFittingToView.emit()
 
-    def mouseReleaseEvent(self, event):
-        self.part().needsFittingToView.emit()
-
-    def decideAction(self, modifiers):
-        """ On mouse press, an action (add scaffold at the active slice, add
-        segment at the active slice, or create virtualhelix if missing) is
-        decided upon and will be applied to all other slices happened across by
-        mouseMoveEvent. The action is returned from this method in the form of a
-        callable function."""
-        vh = self.virtualHelix()
-        if vh == None: return SliceHelix.addVHIfMissing
-        idx = self.part().activeSlice()
-        if modifiers & Qt.ShiftModifier:
-            if vh.stap().get(idx) == None:
-                return SliceHelix.addStapAtActiveSliceIfMissing
-            else:
-                return SliceHelix.nop
-        if vh.scaf().get(idx) == None:
-            return SliceHelix.addScafAtActiveSliceIfMissing
-        return SliceHelix.nop
-
-    def nop(self):
-        pass
+    # def decideAction(self, modifiers):
+    #     """ On mouse press, an action (add scaffold at the active slice, add
+    #     segment at the active slice, or create virtualhelix if missing) is
+    #     decided upon and will be applied to all other slices happened across by
+    #     mouseMoveEvent. The action is returned from this method in the form of a
+    #     callable function."""
+    #     vh = self.virtualHelix()
+    #     if vh == None: return SliceHelix.addVHIfMissing
+    #     idx = self.part().activeSlice()
+    #     if modifiers & Qt.ShiftModifier:
+    #         if vh.stap().get(idx) == None:
+    #             return SliceHelix.addStapAtActiveSliceIfMissing
+    #         else:
+    #             return SliceHelix.nop
+    #     if vh.scaf().get(idx) == None:
+    #         return SliceHelix.addScafAtActiveSliceIfMissing
+    #     return SliceHelix.nop
+    # 
+    # def nop(self):
+    #     pass

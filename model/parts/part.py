@@ -31,7 +31,7 @@ from operator import mul
 from model.enum import StrandType
 
 util.qtWrapImport('QtCore', globals(), ['pyqtSignal', 'QObject'])
-util.qtWrapImport('QtGui', globals(), [])
+util.qtWrapImport('QtGui', globals(), ['QUndoCommand'])
 
 
 class Part(QObject):
@@ -44,7 +44,7 @@ class Part(QObject):
     _step = 21  # this is the period of the part lattice
     _radius = 3
     
-    def __init__(self, document):
+    def __init__(self, *args, **kwargs):
         """
         Parts are always parented to the document.
         Parts know about their oligos, and the internal geometry of a part
@@ -56,8 +56,10 @@ class Part(QObject):
         Copying a PartInstance only creates a new PartInstance with the same
         Part(), with a mutable parent and position field.
         """
-        super(Part, self).__init__(document)
-        self._document = document
+        if self.__class__ == Part:
+            raise NotImplementedError("This class is abstract. Perhaps you want HoneycombPart.")
+        self._document = kwargs.get('document', None)
+        super(Part, self).__init__(parent=self._document)
         self._partInstances = []    # This is a list of ObjectInstances
         self._oligos = {}
         self._vHelicesDict = {}   # should this be a list or a dictionary?  I think dictionary
@@ -142,9 +144,9 @@ class Part(QObject):
         """
         # nested for loop in one line
         latticeToSpatial = self.latticeToSpatial
-        for latticeCoord in product(range(self._maxRow), range(self._maxCol))
+        for latticeCoord in product(range(self._maxRow), range(self._maxCol)):
             row, col = latticeCoord
-            x, y = latticeToSpatial(*latticeCoord, scaleFactor)
+            x, y = latticeToSpatial(row, col, scaleFactor)
             yield x, y, row, col
         # latticeCoordGen = product(range(self._maxRow), range(self._maxCol))
         # return starmap(self.latticeToSpatial, \
@@ -316,7 +318,7 @@ class Part(QObject):
             super(Part.AddVirtualHelixCommand, self).__init__()
             self._part = part
             self._parityEven = self.isEvenParity((row,col))
-            idNum = part.reserveHelixIDNumber(self._parityEven, requestedIDnum=None))
+            idNum = part.reserveHelixIDNumber(self._parityEven, requestedIDnum=None)
             self._vhelix = VirtualHelix(part, row, col, idNum)
             self._idNum = idNum
         # end def

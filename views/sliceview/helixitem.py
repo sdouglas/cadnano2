@@ -42,12 +42,18 @@ class HelixItem(QGraphicsEllipseItem):
     """docstring for HelixItem"""
     
     # set up default, hover, and active drawing styles
-    defaultBrush = QBrush(styles.grayfill)
-    defaultPen = QPen(styles.graystroke, styles.SLICE_HELIX_STROKE_WIDTH)
-    hoverBrush = QBrush(styles.bluefill)
-    hoverPen = QPen(styles.bluestroke, styles.SLICE_HELIX_HILIGHT_WIDTH)
-    radius = styles.SLICE_HELIX_RADIUS
-    _rect = QRectF(0, 0, 2 * radius, 2 * radius)
+    _defaultBrush = QBrush(styles.grayfill)
+    _defaultPen = QPen(styles.graystroke, styles.SLICE_HELIX_STROKE_WIDTH)
+    _hoverBrush = QBrush(styles.bluefill)
+    _hoverPen = QPen(styles.bluestroke, styles.SLICE_HELIX_HILIGHT_WIDTH)
+    _radius = styles.SLICE_HELIX_RADIUS
+    temp = styles.SLICE_HELIX_STROKE_WIDTH
+    _rectDefault = QRectF(-temp/2, -temp/2, 2 * _radius, 2 * _radius)
+    temp = styles.SLICE_HELIX_HILIGHT_WIDTH - temp
+    _rectAdjusted = _rectDefault.adjusted(-temp/2, -temp/2, temp, temp)
+    temp /= 2
+    _adjustmentPlus = (temp, temp)
+    _adjustmentMinus = (-temp, -temp)
 
     def __init__(self, row, col, partItem):
         """
@@ -58,27 +64,16 @@ class HelixItem(QGraphicsEllipseItem):
         self._partItem = partItem
         self.label = None
         self.focusRing = None
-        self.beingHoveredOver = False
+        self._isHovered = False
         self.setAcceptsHoverEvents(True)
         self.font = styles.PATHHELIXHANDLE_FONT
-        self.penAndBrushSet(False)
-        self.setRect(self._rect)
+        # self.penAndBrushSet(False)
+        self.setRect(self._rectDefault)
         self.setZValue(styles.ZPATHHELIX)
         
         x, y = partItem.part().latticeToSpatial(row, column)
         self.setPos(x, y)
         self._coord = (row, column)
-    # end def
-    
-    
-    def hoverEnterEvent(self, event):
-        """
-        hoverEnterEvent changes the HelixItem brush and pen from default
-        to the hover colors if necessary.
-        """
-        self.setBrush(self.hoverBrush)
-        self.setPen(self.hoverPen)
-        self.update(self.boundingRect())
     # end def
     
     def virtualHelix(self):
@@ -108,15 +103,55 @@ class HelixItem(QGraphicsEllipseItem):
     def part(self):
         return self._partItem.part()
     # end def
+    
+    def translateVH(self, delta):
+        """
+        used to update a child virtual helix position on a hover event
+        delta is a tuple of x and y values to translate
+        
+        positive delta happens when hover happens
+        negative delta when something unhovers
+        """
+        temp = self.virtualHelixItem()
+        
+        # xor the check to translate, 
+        # convert to a QRectF adjustment if necessary
+        check = (delta > 0) ^ self._isHovered
+        if temp and check:
+            temp.translate(*delta)
+    # end def
+    
+    def setHovered(self):
+        self.setBrush(self.hoverBrush)
+        self.setPen(self.hoverPen)
+        self.update(self.boundingRect())
+        self.translateVH(self._adjustmentPlus)
+        self._isHovered = True
+        self.setRect(self._rectHovered)
+    # end def
+    
+    def hoverEnterEvent(self, event):
+        """
+        hoverEnterEvent changes the HelixItem brush and pen from default
+        to the hover colors if necessary.
+        """
+        self.setHovered()
+    # end def
+    
+    def setNotHovered(self):
+        self.setBrush(self.defaultBrush)
+        self.setPen(self.defaultPen)
+        self.translateVH(self._adjustmentMinus)
+        self._isHovered = False
+        self.setRect(self._rectDefault)
+    # end def
 
     def hoverLeaveEvent(self, event):
         """
         hoverEnterEvent changes the HelixItem brush and pen from hover
         to the default colors if necessary.
         """
-        self.setBrush(self.defaultBrush)
-        self.setPen(self.defaultPen)
-        self.update(self.boundingRect())
+        self.setNotHovered()
     # end def
     
     def mousePressEvent(self, event):
@@ -203,10 +238,8 @@ class HelixItem(QGraphicsEllipseItem):
         coord = self._coord
         part = self.part()
         
-        if vh != None: return
-        
-        idx = part.activeSlice()
-        undoStack = part.undoStack()
+        if vh != None: 
+            return
         part.addVirtualHelixAt(coord)
     # end def
     

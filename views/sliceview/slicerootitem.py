@@ -23,6 +23,7 @@
 # http://www.opensource.org/licenses/mit-license.php
 
 from controllers.viewrootcontroller import ViewRootController
+from .partitem import PartItem
 
 import util
 util.qtWrapImport('QtCore', globals(), ['pyqtSignal', 'QObject'])
@@ -44,6 +45,7 @@ class SliceRootItem(QGraphicsRectItem):
         self._document = document
         self._controller = ViewRootController(self, document)
         self._pathRootItem = None
+        self._instanceItems = {}
 
     ### SIGNALS ###
 
@@ -54,37 +56,9 @@ class SliceRootItem(QGraphicsRectItem):
         Views that subclass AbstractView should override this method.
         """
         print "SliceRootItem.partAddedSlot!"
-        return
-
-        if part.crossSectionType() == LatticeType.Honeycomb:
-            self.sliceGraphicsItem = HoneycombSliceGraphicsItem(part,
-                                        controller=win.sliceToolManager,
-                                        parent=win.sliceroot)
-        else:
-            self.sliceGraphicsItem = SquareSliceGraphicsItem(part,
-                                        controller=win.sliceToolManager,
-                                        parent=win.sliceroot)
-
-
-        win = self._window
-        win.sliceToolManager.activeSliceLastSignal.connect(
-                      self.pathHelixGroup.activeSliceHandle().moveToLastSlice)
-        win.sliceToolManager.activeSliceFirstSignal.connect(
-                     self.pathHelixGroup.activeSliceHandle().moveToFirstSlice)
-
-        for vh in part.getVirtualHelices():
-            xos = vh.get3PrimeXovers(StrandType.Scaffold)
-            for xo in xos:
-                toBase = (xo[1][0], xo[1][2])
-                self.pathHelixGroup.createXoverItem(
-                                            xo[0], toBase, StrandType.Scaffold)
-            xos = vh.get3PrimeXovers(StrandType.Staple)
-            for xo in xos:
-                toBase = (xo[1][0], xo[1][2])
-                self.pathHelixGroup.createXoverItem(
-                                            xo[0], toBase, StrandType.Staple)
-        # end for
-        self.setActivePart(part)
+        partItem = PartItem(part, parent=self._pathRootItem)
+        self._instanceItems[partItem] = partItem
+    # end def
 
 
 
