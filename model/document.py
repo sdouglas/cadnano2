@@ -140,9 +140,9 @@ class Document(QObject):
                 self._doc.partAddedSignal.emit(self._part)
 
         def undo(self):
-            self._part._setDocument(None)
+            self._part.setDocument(None)
             self._doc._parts.remove(self._part)
-            self._part.partRemoved.emit()
+            self._part.removedSignal.emit(self._part)
 
     ### SERIALIZE / DESERIALIZE ###
     def fillSimpleRep(self, sr):

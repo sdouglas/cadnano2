@@ -51,6 +51,8 @@ class HelixItem(QGraphicsEllipseItem):
     _rectDefault = QRectF(-temp/2, -temp/2, 2 * _radius, 2 * _radius)
     temp = styles.SLICE_HELIX_HILIGHT_WIDTH - temp
     _rectHovered = _rectDefault.adjusted(-temp/2, -temp/2, temp, temp)
+    _ZDefault = styles.ZSLICEHELIX 
+    _ZHovered = _ZDefault+1 
     temp /= 2
     _adjustmentPlus = (temp, temp)
     _adjustmentMinus = (-temp, -temp)
@@ -64,15 +66,14 @@ class HelixItem(QGraphicsEllipseItem):
         self._partItem = partItem
         self.label = None
         self.hide()
-        self.focusRing = None
         self._isHovered = False
         self.setAcceptsHoverEvents(True)
         self.font = styles.PATHHELIXHANDLE_FONT
         # self.penAndBrushSet(False)
-        self.setRect(self._rectDefault)
-        self.setZValue(styles.ZPATHHELIX)
         
-        x, y = partItem.part().latticeToSpatial(row, column)
+        self.setNotHovered()
+        
+        x, y = partItem.part().latticeToSpatial(row, column, partItem.scaleFactor())
         self.setPos(x, y)
         self._coord = (row, column)
         self.show()
@@ -120,7 +121,8 @@ class HelixItem(QGraphicsEllipseItem):
         # convert to a QRectF adjustment if necessary
         check = (delta > 0) ^ self._isHovered
         if temp and check:
-            temp.translate(*delta)
+            pass
+            # temp.translate(*delta)
     # end def
     
     def setHovered(self):
@@ -129,6 +131,7 @@ class HelixItem(QGraphicsEllipseItem):
         self.update(self.boundingRect())
         self.translateVH(self._adjustmentPlus)
         self._isHovered = True
+        self.setZValue(self._ZHovered)
         self.setRect(self._rectHovered)
     # end def
     
@@ -145,6 +148,7 @@ class HelixItem(QGraphicsEllipseItem):
         self.setPen(self._defaultPen)
         self.translateVH(self._adjustmentMinus)
         self._isHovered = False
+        self.setZValue(self._ZDefault)
         self.setRect(self._rectDefault)
     # end def
 
@@ -174,9 +178,9 @@ class HelixItem(QGraphicsEllipseItem):
                 self.dragSessionAction(ci)
     # end def
 
-    def mouseReleaseEvent(self, event):
-        self.part().needsFittingToView.emit()
-    # end def 
+    # def mouseReleaseEvent(self, event):
+    #     self.part().needsFittingToView.emit()
+    # # end def 
 
     def decideAction(self, modifiers):
         """ On mouse press, an action (add scaffold at the active slice, add
@@ -242,7 +246,7 @@ class HelixItem(QGraphicsEllipseItem):
         
         if vh != None: 
             return
-        part.addVirtualHelixAt(coord)
+        part.createVirtualHelix(*coord)
     # end def
     
     

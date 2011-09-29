@@ -29,6 +29,7 @@ import util
 from itertools import product, starmap, izip, repeat
 from operator import mul
 from model.enum import StrandType
+from model.virtualhelix import VirtualHelix
 
 util.qtWrapImport('QtCore', globals(), ['pyqtSignal', 'QObject'])
 util.qtWrapImport('QtGui', globals(), ['QUndoCommand'])
@@ -42,7 +43,7 @@ class Part(QObject):
     """
 
     _step = 21  # this is the period of the part lattice
-    _radius = 3
+    _radius = 1.125 # in nanometer
     
     def __init__(self, *args, **kwargs):
         """
@@ -63,7 +64,7 @@ class Part(QObject):
         self._partInstances = []    # This is a list of ObjectInstances
         self._oligos = {}
         self._vHelicesDict = {}   # should this be a list or a dictionary?  I think dictionary
-        self._maxBaseIdx = (0, 2*self._step)
+        
         self._maxRow = 50
         self._maxCol = 50
         self._maxBase = 4*self._step
@@ -103,6 +104,11 @@ class Part(QObject):
     def setDocument(self, document):
         """docstring for setDocument"""
         self._document = document
+    # end def
+    
+    def radius(self):
+        return self._radius
+    # end def
 
     def oligos(self):
         return self._oligos
@@ -116,11 +122,6 @@ class Part(QObject):
 
     def destroyOligo(self, oligo):
         del self._oligo[oligo]
-
-    def maxBaseIdx(self):
-        """Return the latice indice bounds relative to the origin."""
-        return self._maxBaseIdx
-    # end def
     
     def isEvenParity(self, row, column):
         """
@@ -129,12 +130,17 @@ class Part(QObject):
         raise NotImplementedError
     # end def
     
-    def minBaseIndex(self):
+    def minBaseIdx(self):
         return self._minBase
     # end def
     
-    def maxBaseIndex(self):
+    def maxBaseIdx(self):
         return self._maxBase
+    # end def
+    
+    def maxBaseIndices(self):
+        """Return the latice indice bounds relative to the origin."""
+        return self._minBase, self._maxBase
     # end def
     
     def generatorSpatialLattice(self, scaleFactor=1.0):
@@ -316,9 +322,9 @@ class Part(QObject):
     class CreateVirtualHelixCommand(QUndoCommand):
         """Inserts strandToAdd into strandList at index idx."""
         def __init__(self, part, row, col):
-            super(Part.AddVirtualHelixCommand, self).__init__()
+            super(Part.CreateVirtualHelixCommand, self).__init__()
             self._part = part
-            self._parityEven = self.isEvenParity((row,col))
+            self._parityEven = part.isEvenParity(row,col)
             idNum = part.reserveHelixIDNumber(self._parityEven, requestedIDnum=None)
             self._vhelix = VirtualHelix(part, row, col, idNum)
             self._idNum = idNum
@@ -402,7 +408,7 @@ class Part(QObject):
         num = requestedIDnum
         if num != None: # We are handling a request for a particular number
             assert num >= 0, long(num) == num
-            assert not num in self._numberToVirtualHelix
+            # assert not num in self._numberToVirtualHelix
             if num in self.oddRecycleBin:
                 self.oddRecycleBin.remove(num)
                 heapify(self.oddRecycleBin)

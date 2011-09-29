@@ -48,14 +48,15 @@ class VirtualHelixItem(QGraphicsEllipseItem):
     and paints its corresponding VirtualHelix number.
     """
     # set up default, hover, and active drawing styles
-    useBrush = QBrush(styles.orangefill)
-    usePen = QPen(styles.orangestroke, styles.SLICE_HELIX_STROKE_WIDTH)
-    radius = styles.SLICE_HELIX_RADIUS
-    outOfSlicePen = QPen(styles.lightorangestroke,\
+    _useBrush = QBrush(styles.orangefill)
+    _usePen = QPen(styles.orangestroke, styles.SLICE_HELIX_STROKE_WIDTH)
+    _radius = styles.SLICE_HELIX_RADIUS
+    _outOfSlicePen = QPen(styles.lightorangestroke,\
                          styles.SLICE_HELIX_STROKE_WIDTH)
-    outOfSliceBrush = QBrush(styles.lightorangefill)
-    rect = QRectF(0, 0, 2 * radius, 2 * radius)
-    font = styles.SLICE_NUM_FONT
+    _outOfSliceBrush = QBrush(styles.lightorangefill)
+    _rect = QRectF(0, 0, 2 * _radius, 2 * _radius)
+    _font = styles.SLICE_NUM_FONT
+    _ZVALUE = styles.ZSLICEHELIX+2
 
     def __init__(self, virtualHelix, helixItem):
         """
@@ -66,12 +67,15 @@ class VirtualHelixItem(QGraphicsEllipseItem):
         self._helixItem = helixItem
         self.hide()
         # drawing related
-        self.focusRing = None
-        self.beingHoveredOver = False
+
+        self.isHovered = False
         self.setAcceptsHoverEvents(True)
-        self.setFlag(QGraphicsItem.ItemIsSelectable)
-        self.setZValue(styles.ZSLICEHELIX)
+        # self.setFlag(QGraphicsItem.ItemIsSelectable)
+        self.setZValue(self._ZVALUE)
         self.lastMousePressAddedBases = False
+        
+        self.setBrush(self._useBrush)
+        self.setPen(self._usePen)
         self.setRect(self._rect)
         
         # handle the label specific stuff
@@ -102,7 +106,8 @@ class VirtualHelixItem(QGraphicsEllipseItem):
     
     def createLabel(self):
         label = QGraphicsSimpleTextItem("%d" % self._virtualHelix.number())
-        label.setFont(self.font)
+        label.setFont(self._font)
+        label.setZValue(self._ZVALUE)
         label.setParentItem(self)
         return label
     # end def
@@ -115,7 +120,7 @@ class VirtualHelixItem(QGraphicsEllipseItem):
         radius = self._radius
         
         label.setText("%d" % num)
-        y_val = self.radius / 3
+        y_val = radius / 3
         if num < 10:
             label.setPos(radius / 1.5, y_val)
         elif num < 100:
@@ -227,13 +232,13 @@ class VirtualHelixItem(QGraphicsEllipseItem):
         # if self.selectAllBehavior():
         #     self.setSelected(True)
         # forward the event to the helixItem as well
-        self.helixItem.hoverEnterEvent(event)
+        self._helixItem.hoverEnterEvent(event)
     # end def
 
     def hoverLeaveEvent(self, event):
         # if self.selectAllBehavior():
         #     self.setSelected(False)
-        self.helixItem.hoverEnterEvent(event)
+        self._helixItem.hoverEnterEvent(event)
     # end def
 
     # def mousePressEvent(self, event):

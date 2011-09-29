@@ -224,7 +224,7 @@ def _execCommandList(self, commands, desc=None, useUndoStack=False):
     methods are called directly.
     """
     if useUndoStack:
-        self.undoStack().beginMacro(commandDescription)
+        self.undoStack().beginMacro(desc)
         for c in commands:
             self.undoStack().push(c)
         self.undoStack().endMacro()

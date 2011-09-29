@@ -53,7 +53,7 @@ class PartItem(QGraphicsItem):
     is the parent of all SliceHelix items, and is responsible for spawning
     and positioning them according to the part dimensions.
     """
-    radius = styles.SLICE_HELIX_RADIUS
+    _radius = styles.SLICE_HELIX_RADIUS
     
     def __init__(self, modelPart, parent=None):
         """
@@ -63,6 +63,7 @@ class PartItem(QGraphicsItem):
         super(PartItem, self).__init__(parent)
         # data related
         self._part = modelPart
+        self._scaleFactor = self._radius/modelPart.radius()
         self.setZValue(100)
         
         # make sure paint doesn't get called
@@ -192,6 +193,10 @@ class PartItem(QGraphicsItem):
     def boundingRect(self):
         return self._rect
 
+    def scaleFactor(self):
+        return self._scaleFactor
+    # end def
+    
     def paint(self, painter, option, widget=None):
         pass
 

@@ -48,8 +48,14 @@ class VirtualHelixItem(QGraphicsPathItem):
         self.setAcceptHoverEvents(True)  # for pathtools
         self.setFlag(QGraphicsItem.ItemUsesExtendedStyleOption)
         self.setCacheMode(QGraphicsItem.DeviceCoordinateCache)
+        
+        self.setBrush(QBrush(Qt.NoBrush))
+        self.setPen(self.minorGridPen)
         self._minorGridPainterPath = None
         self._majorGridPainterPath = None
+        self._minorGridPainterPath = self.minorGridPainterPath()
+        self._majorGridPainterPath = self.majorGridPainterPath()
+        self.setPath(self._minorGridPainterPath)
 
     ### SIGNALS ###
 
@@ -62,13 +68,13 @@ class VirtualHelixItem(QGraphicsPathItem):
         """docstring for sequenceClearedSlot"""
         pass
 
-    ### DRAWING METHODS ###
-    def paint(self, painter, option, widget=None):
-        painter.setBrush(Qt.NoBrush)
-        painter.setPen(self.minorGridPen)
-        painter.drawPath(self.minorGridPainterPath())  # Minor grid lines
-        painter.setPen(self.majorGridPen)
-        painter.drawPath(self.majorGridPainterPath())  # Major grid lines
+    # ### DRAWING METHODS ###
+    # def paint(self, painter, option, widget=None):
+    #     painter.setBrush(Qt.NoBrush)
+    #     painter.setPen(self.minorGridPen)
+    #     painter.drawPath(self.minorGridPainterPath())  # Minor grid lines
+    #     painter.setPen(self.majorGridPen)
+    #     painter.drawPath(self.majorGridPainterPath())  # Major grid lines
 
     def minorGridPainterPath(self):
         """

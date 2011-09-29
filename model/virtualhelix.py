@@ -99,8 +99,8 @@ class VirtualHelix(QObject):
         return self._number
     # end def
 
-    def setNumber(self):
-        pass
+    def setNumber(self, number):
+        self._number = number
     # end def
 
     def isEvenParity(self):
