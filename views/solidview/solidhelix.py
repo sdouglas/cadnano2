@@ -226,7 +226,7 @@ class SolidHelix(QObject):
         self.stapleIndicatorCount = 0
 
     def createStapleModIndicator(self, strand):
-        print "createStapleModIndicator"
+        #print "createStapleModIndicator"
         strandid = self._solidHelixGroup.strandMayaID(strand)
         #mrow = self._row + 1
         #mcol = self._col + 1
