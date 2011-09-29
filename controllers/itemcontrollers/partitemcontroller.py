@@ -37,6 +37,10 @@ class PartItemController():
         modelPart.removedSignal.connect(partItem.removedSlot)
         modelPart.destroyedSignal.connect(partItem.destroyedSlot)
         modelPart.virtualHelixAddedSignal.connect(partItem.virtualHelixAddedSlot)
+        
+        modelPart.virtualHelixChangedSignal.connect( \
+                                               partItem.updatePreXOverHandlesSlot)
+        
 
         for oligo in modelPart.oligos():
             for strand in oligo.strands():
@@ -51,6 +55,9 @@ class PartItemController():
         modelPart.removedSignal.disconnect(partItem.destroyedSlot)
         modelPart.destroyedSignal.disconnect(partItem.destroyedSlot)
         modelPart.virtualHelixAddedSignal.disconnect(partItem.virtualHelixAddedSlot)
+        
+        modelPart.virtualHelixChangedSignal.disconnect( \
+                                               partItem.updatePreXOverHandlesSlot)
 
         for oligo in modelPart.oligos():
             for strand in oligo.strands():

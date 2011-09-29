@@ -138,6 +138,10 @@ class PartItem(QGraphicsItem):
         # TODO test to see if self._virtualHelixHash is necessary
         self._virtualHelixHash[coords] = VirtualHelixItem(vh, helixItem)
     # end def
+    
+    def updatePreXOverHandlesSlot(self, virtualHelix):
+        pass
+    # end def
 
     ############################ Private Methods ############################
     def _upperLeftCornerForCoords(self, row, col):

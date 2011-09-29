@@ -84,8 +84,10 @@ class Part(QObject):
     destroyedSignal = pyqtSignal(QObject)  # self
     sequenceClearedSignal = pyqtSignal(QObject)  # self
     virtualHelixAddedSignal = pyqtSignal(QObject)  # virtualhelix
-    virtualHelixRemovedSignal = pyqtSignal(QObject)  # virtualhelix
 
+    virtualHelixChangedSignal = pyqtSignal(QObject) # emit the coordinates
+    # virtualHelixAtCoordsChangedSignal = pyqtSignal(int, int) # emit the coordinates
+    
     ### SLOTS ###
 
     ### METHODS ###
