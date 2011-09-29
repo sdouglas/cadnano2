@@ -44,30 +44,23 @@ class SliceRootItem(QGraphicsRectItem):
         self._window = window
         self._document = document
         self._controller = ViewRootController(self, document)
-        self._pathRootItem = None
         self._instanceItems = {}
 
     ### SIGNALS ###
 
     ### SLOTS ###
-    def partAddedSlot(self, part):
+    def partAddedSlot(self, modelPart):
         """
         Receives notification from the model that a part has been added.
         Views that subclass AbstractView should override this method.
         """
-        print "SliceRootItem.partAddedSlot!"
-        partItem = PartItem(part, parent=self._pathRootItem)
+        self._modelPart = modelPart
+        win = self._window
+        partItem = PartItem(modelPart, parent=win.sliceroot)
         self._instanceItems[partItem] = partItem
     # end def
-
-
 
     def selectedPartChangedSlot(self):
         """docstring for selectedPartChangedSlot"""
         pass
-
-    ### METHODS ###
-    def setPathRootItem(self, pathRoot):
-        """docstring for setPathRootItem"""
-        self._pathRootItem = pathRoot
 

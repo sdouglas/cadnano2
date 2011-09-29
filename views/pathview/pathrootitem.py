@@ -44,7 +44,6 @@ class PathRootItem(QGraphicsRectItem):
         self._window = window
         self._document = document
         self._controller = ViewRootController(self, document)
-        self._sliceRootItem = None
         self._modelPart = None
         self._partItems = []
 
@@ -76,8 +75,3 @@ class PathRootItem(QGraphicsRectItem):
         #     self._window.setActivePart(partItem)
 
     ### METHODS ###
-    def setSliceRootItem(self, sliceRoot):
-        """docstring for setPathRootItem"""
-        self._sliceRootItem = sliceRoot
-
-    ### COMMANDS ###

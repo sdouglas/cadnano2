@@ -71,9 +71,6 @@ class DocumentWindow(QMainWindow, ui_mainwindow.Ui_MainWindow):
         self.pathroot.setFlag(QGraphicsItem.ItemHasNoContents)
         self.pathscene.addItem(self.pathroot)
         assert self.pathroot.scene() == self.pathscene
-        # Connect Slice to Path and vice versa (for ActiveSliceHandle)
-        self.pathroot.setSliceRootItem(self.sliceroot)
-        self.sliceroot.setPathRootItem(self.pathroot)
 
         # Uncomment the following block for  explicit pathview GL rendering
         # self.pathGraphicsView.setViewport(
