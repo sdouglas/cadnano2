@@ -33,11 +33,11 @@ class PartItemController():
         modelPart = self._modelPart
         partItem = self._partItem
 
-        modelPart.partParentChangedSignal.connect(partItem.partParentChangedSlot)
-        modelPart.partDestroyedSignal.connect(partItem.partDestroyedSlot)
+        modelPart.parentChangedSignal.connect(partItem.parentChangedSlot)
+        modelPart.removedSignal.connect(partItem.removedSlot)
+        modelPart.destroyedSignal.connect(partItem.destroyedSlot)
         modelPart.virtualHelixAddedSignal.connect(partItem.virtualHelixAddedSlot)
-        
-        # self._modelPart.partMovedSignal.connect(self._partItem.partMovedSlot)
+
         for oligo in modelPart.oligos():
             for strand in oligo.strands():
                 strand.xover3pCreatedSignal.connect(partItem.xover3pCreatedSlot)
@@ -47,11 +47,11 @@ class PartItemController():
         modelPart = self._modelPart
         partItem = self._partItem
         
-        modelPart.partParentChangedSignal.disconnect(partItem.partParentChangedSlot)
-        modelPart.partDestroyedSignal.disconnect(partItem.partDestroyedSlot)
+        modelPart.parentChangedSignal.disconnect(partItem.parentChangedSlot)
+        modelPart.removedSignal.disconnect(partItem.destroyedSlot)
+        modelPart.destroyedSignal.disconnect(partItem.destroyedSlot)
         modelPart.virtualHelixAddedSignal.disconnect(partItem.virtualHelixAddedSlot)
 
-        # self._modelPart.partMovedSignal.disconnect(self._partItem.partMovedSlot)
         for oligo in modelPart.oligos():
             for strand in oligo.strands():
                 strand.xover3pCreatedSignal.disconnect(partItem.xover3pCreatedSlot)

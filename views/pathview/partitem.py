@@ -44,17 +44,22 @@ class PartItem(QGraphicsPathItem):
     ### SIGNALS ###
 
     ### SLOTS ###
-    def partParentChangedSlot(self):
+    def parentChangedSlot(self):
         """docstring for partParentChangedSlot"""
         print "PartItem.partParentChangedSlot"
         pass
 
-    def partDestroyedSlot(self):
+    def removedSlot(self):
         """docstring for partDestroyedSlot"""
         print "PartItem.partDestroyedSlot"
         pass
 
-    def partMovedSlot(self, pos):
+    def destroyedSlot(self):
+        """docstring for partDestroyedSlot"""
+        print "PartItem.partDestroyedSlot"
+        pass
+
+    def movedSlot(self, pos):
         """docstring for partMovedSlot"""
         print "PartItem.partMovedSlot"
         pass

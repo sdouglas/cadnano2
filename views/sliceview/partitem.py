@@ -31,7 +31,7 @@ Created by Nick Conway on 2010-06-15.
 
 from exceptions import NotImplementedError
 from heapq import *
-from views.pathview.handles.activeslicehandle import ActiveSliceHandle
+# from views.pathview.handles.activeslicehandle import ActiveSliceHandle
 from model.enum import LatticeType, Parity, StrandType
 from .virtualhelixitem import VirtualHelixItem
 from .helixitem import HelixItem
@@ -56,11 +56,18 @@ class PartItem(QGraphicsItem):
     radius = styles.SLICE_HELIX_RADIUS
     
     def __init__(self, modelPart, parent=None):
+        """
+        modelPart is the modelPart it mirrors
+        parent should be  either a SliceRootItem, or an AssemblyItem
+        """
         super(PartItem, self).__init__(parent)
         # data related
         self._part = modelPart
         self.setZValue(100)
-
+        
+        # make sure paint doesn't get called
+        self.setFlag(QGraphicsItem.ItemHasNoContents)
+        
         # The deselector grabs mouse events that missed a slice
         # and clears the selection when it gets one
         self.deselector = PartItem.Deselector(self)
@@ -76,15 +83,13 @@ class PartItem(QGraphicsItem):
         self._nrows, self._ncols = 0, 0
         self._rect = QRectF(0, 0, 0, 0)
         # initialize the PartItem with an empty set of old coords
-        self._setLatticeSlot([], part.generatorFullLattice())
+        self._setLattice([], modelPart.generatorFullLattice())
 
         # Cache of VHs that were active as of last call to activeSliceChanged
         # If None, all slices will be redrawn and the cache will be filled.
         self._previouslyActiveVHs = None
         # Connect destructor. This is for removing a part from scenes.
-        modelPart.partRemoved.connect(self.destroy)
         self.probe = self.IntersectionProbe(self)
-        modelPart.virtualHelixAddedSignal.connect()
         
         self._controller = PartItemController(self, modelPart)
     # end def
@@ -92,19 +97,25 @@ class PartItem(QGraphicsItem):
     ### SIGNALS ###
 
     ### SLOTS ###
-    def partParentChangedSlot(self):
-        """docstring for partParentChangedSlot"""
-        print "PartItem.partParentChangedSlot"
+    def parentChangedSlot(self):
+        """docstring for parentChangedSlot"""
+        print "PartItem.parentChangedSlot"
         pass
 
-    def partDestroyedSlot(self):
-        """docstring for partDestroyedSlot"""
-        print "PartItem.partDestroyedSlot"
+    def removedSlot(self):
+        """docstring for removedSlot"""
+        print "PartItem.removedSlot"
         self.scene().removeItem(self)
         self.setPart(None)
-   # end def
+    # end def
 
-    def partMovedSlot(self, pos):
+    def destroyedSlot(self):
+        """docstring for destroyedSlot"""
+        print "PartItem.destroyedSlot"
+        pass
+    # end def
+
+    def movedSlot(self, pos):
         """docstring for partMovedSlot"""
         print "PartItem.partMovedSlot"
         pass
@@ -151,17 +162,23 @@ class PartItem(QGraphicsItem):
         cols in response to a change in the dimensions of the
         part represented by the receiver"""
         oldSet = set(oldCoords)
+        oldList = list(oldSet)
         newSet = set(newCoords)
-        for coord in oldCoords:
+        newList = list(newSet)
+        
+        for coord in oldList:
             if coord not in newSet:
                 self._killHelixItemAt(*coord)
         # end for
-        for coord in newCoords:
+        print "attempting to spawn helix"
+        for coord in newList:
+            # print "test 1"
             if coord not in oldSet:
+                # print "spawning helix"
                 self._spawnHelixItemAt(*coord)
         # end for
-        self._updateGeometry(newCols, newRows)
-        self.prepareGeometryChange()
+        # self._updateGeometry(newCols, newRows)
+        # self.prepareGeometryChange()
         # the Deselector copies our rect so it changes too
         self.deselector.prepareGeometryChange()
         self.zoomToFit()
@@ -187,18 +204,6 @@ class PartItem(QGraphicsItem):
         return self._part
 
     def setPart(self, newPart):
-        if self._part:
-            self._part.dimensionsWillChange.disconnect(self._setDimensions)
-            self._part.selectionWillChange.disconnect(self.selectionWillChange)
-            self._part.activeSliceWillChange.disconnect(self.activeSliceChanged)
-            self._part.virtualHelixAtCoordsChanged.disconnect(self.vhAtCoordsChanged)
-        if newPart != None:
-            self._setLatticeSlot(self._
-            self._setDimensions(newPart.dimensions())
-            newPart.dimensionsWillChange.connect(self._setDimensions)
-            newPart.selectionWillChange.connect(self.selectionWillChange)
-            newPart.activeSliceWillChange.connect(self.activeSliceChanged)
-            newPart.virtualHelixAtCoordsChanged.connect(self.vhAtCoordsChanged)
         self._part = newPart
 
     def getVirtualHelixItemByCoord(self, row, column):

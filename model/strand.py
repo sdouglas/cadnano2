@@ -26,7 +26,8 @@
 # http://www.opensource.org/licenses/mit-license.php
 
 
-import cadnano2.util as util
+import util
+# import cadnano2.util as util
 from operator import attrgetter
 
 # import Qt stuff into the module namespace with PySide, PyQt4 independence

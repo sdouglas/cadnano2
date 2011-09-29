@@ -35,13 +35,13 @@ util.qtWrapImport('QtGui', globals(), ['QUndoStack'])
 
 class VirtualHelix(QObject):
     def __init__(self, part, row, col, idnum=0):
-    """
-    VirtualHelix is a container class for two StrandSet objects (one scaffold
-    and one staple). The Strands all share the same helix axis. It is called
-    "virtual" because many different Strands (i.e. sub-oligos) combine to
-    form the "helix", just as many fibers may be braided together to 
-    form a length of rope.
-    """
+        """
+        VirtualHelix is a container class for two StrandSet objects (one scaffold
+        and one staple). The Strands all share the same helix axis. It is called
+        "virtual" because many different Strands (i.e. sub-oligos) combine to
+        form the "helix", just as many fibers may be braided together to 
+        form a length of rope.
+        """
         super(VirtualHelix, self).__init__(part)
         self._coords = (row, col) # col, row
         self._part = part
@@ -90,9 +90,9 @@ class VirtualHelix(QObject):
         """
         for expanding a helix
         """
-         deltaRow, deltaCol = deltaCoords
-         row, col = self._coords
-         self._coords = row + deltaRow, col + deltaCol
+        deltaRow, deltaCol = deltaCoords
+        row, col = self._coords
+        self._coords = row + deltaRow, col + deltaCol
     # end def
     
     def number(self):
@@ -100,7 +100,7 @@ class VirtualHelix(QObject):
     # end def
 
     def setNumber(self):
-        
+        pass
     # end def
 
     def isEvenParity(self):
@@ -121,7 +121,7 @@ class VirtualHelix(QObject):
         """
         if indexType == 0 and self.isEvenParity():
             return self._scafStrandSet
-        else
+        else:
             return self._stapStrandSet
     # end def
 

@@ -77,9 +77,10 @@ class Part(QObject):
     # end def
 
     ### SIGNALS ###
-    partParentChangedSignal = pyqtSignal(QObject)  # self
-    partInstanceAddedSignal = pyqtSignal(QObject)  # self
-    partDestroyedSignal = pyqtSignal(QObject)  # self
+    parentChangedSignal = pyqtSignal(QObject)  # self
+    instanceAddedSignal = pyqtSignal(QObject)  # self
+    removedSignal = pyqtSignal(QObject)  # self
+    destroyedSignal = pyqtSignal(QObject)  # self
     sequenceClearedSignal = pyqtSignal(QObject)  # self
     virtualHelixAddedSignal = pyqtSignal(QObject)  # virtualhelix
     virtualHelixRemovedSignal = pyqtSignal(QObject)  # virtualhelix

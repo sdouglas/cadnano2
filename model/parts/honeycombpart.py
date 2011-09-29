@@ -75,9 +75,9 @@ class HoneycombPart(Part):
         """
         radius = self._radius
         x = column*radius*root3
-        if isOddParity(latticeCoord):   # odd parity
+        if self.isOddParity(row, column):   # odd parity
             y = row*radius*3 + radius
-        else:                           # even parity
+        else:                               # even parity
             y = row*radius*3
         return scaleFactor*x, scaleFactor*y
     # end def

@@ -50,19 +50,20 @@ class HelixItem(QGraphicsEllipseItem):
     temp = styles.SLICE_HELIX_STROKE_WIDTH
     _rectDefault = QRectF(-temp/2, -temp/2, 2 * _radius, 2 * _radius)
     temp = styles.SLICE_HELIX_HILIGHT_WIDTH - temp
-    _rectAdjusted = _rectDefault.adjusted(-temp/2, -temp/2, temp, temp)
+    _rectHovered = _rectDefault.adjusted(-temp/2, -temp/2, temp, temp)
     temp /= 2
     _adjustmentPlus = (temp, temp)
     _adjustmentMinus = (-temp, -temp)
 
-    def __init__(self, row, col, partItem):
+    def __init__(self, row, column, partItem):
         """
-        coord is a coordinate in Lattice terms
+        row, column is a coordinate in Lattice terms
         partItem is a PartItem that will act as a QGraphicsItem parent
         """
         super(HelixItem, self).__init__(parent=partItem)
         self._partItem = partItem
         self.label = None
+        self.hide()
         self.focusRing = None
         self._isHovered = False
         self.setAcceptsHoverEvents(True)
@@ -74,6 +75,7 @@ class HelixItem(QGraphicsEllipseItem):
         x, y = partItem.part().latticeToSpatial(row, column)
         self.setPos(x, y)
         self._coord = (row, column)
+        self.show()
     # end def
     
     def virtualHelix(self):
@@ -122,8 +124,8 @@ class HelixItem(QGraphicsEllipseItem):
     # end def
     
     def setHovered(self):
-        self.setBrush(self.hoverBrush)
-        self.setPen(self.hoverPen)
+        self.setBrush(self._hoverBrush)
+        self.setPen(self._hoverPen)
         self.update(self.boundingRect())
         self.translateVH(self._adjustmentPlus)
         self._isHovered = True
@@ -139,8 +141,8 @@ class HelixItem(QGraphicsEllipseItem):
     # end def
     
     def setNotHovered(self):
-        self.setBrush(self.defaultBrush)
-        self.setPen(self.defaultPen)
+        self.setBrush(self._defaultBrush)
+        self.setPen(self._defaultPen)
         self.translateVH(self._adjustmentMinus)
         self._isHovered = False
         self.setRect(self._rectDefault)
