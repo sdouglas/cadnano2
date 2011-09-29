@@ -31,21 +31,17 @@ class XoverItemController(AbstractStrandItemController):
         super(XoverItemController, self).__init__(strandItem, modelStrand)
         self.connectSignals()
     # end def
-    
+
     def connectSignals(self):
         AbstractStrandItemController.connectSignals(self)
-        
-        sItem = self._strandItem
         mS = self._modelStrand
-        
-        mS.xover3pDestroyedSignal.connect(sItem.xover3pDestroyedSlot)
+        sI = self._strandItem
+        mS.strandXover3pDestroyedSignal.connect(sI.xover3pDestroyedSlot)
     # end def
-    
+
     def disconnectSignals(self):
         AbstractStrandItemController.disconnectSignals(self)
-        
-        sItem = self._strandItem
         mS = self._modelStrand
-        
-        mS.xover3pDestroyedSignal.disconnect(sItem.xover3pDestroyedSlot)
+        sI = self._strandItem
+        mS.strandXover3pDestroyedSignal.disconnect(sI.xover3pDestroyedSlot)
     # end def

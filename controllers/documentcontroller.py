@@ -238,7 +238,7 @@ class DocumentController():
             part = doc.parts()[0]
             self._activePart = part
             self.setDocument(doc)
-            part.needsFittingToView.emit()  # must come after setDocument
+            part.partNeedsFittingToViewSignal.emit()  # must come after setDocument
         else:
             self.setDocument(Document())
 

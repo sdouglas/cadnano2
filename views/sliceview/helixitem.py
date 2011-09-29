@@ -179,7 +179,7 @@ class HelixItem(QGraphicsEllipseItem):
     # end def
 
     # def mouseReleaseEvent(self, event):
-    #     self.part().needsFittingToView.emit()
+    #     self.part().partNeedsFittingToViewSignal.emit()
     # # end def 
 
     def decideAction(self, modifiers):

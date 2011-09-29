@@ -57,7 +57,7 @@ class StrandSet(QObject):
         return self._strandList.__iter__()
 
     ### SIGNALS ###
-    strandAddedSignal = pyqtSignal(QObject)
+    strandsetStrandAddedSignal = pyqtSignal(QObject)
 
     ### SLOTS ###
 
@@ -497,7 +497,7 @@ class StrandSet(QObject):
             oligo.AddToPart(strandSet.part())
             strand.setOligo(oligo)
             # Emit a signal to notify on completion
-            strandSet.strandAddedSignal.emit(strand)
+            strandSet.strandsetStrandAddedSignal.emit(strand)
         # end def
 
         def undo(self):
@@ -556,7 +556,7 @@ class StrandSet(QObject):
             oligo.addToPart(strandSet.part())
             strand.setOligo(oligo)
             # Emit a signal to notify on completion
-            strandSet.strandAddedSignal.emit(strand)
+            strandSet.strandsetStrandAddedSignal.emit(strand)
         # end def
     # end class
 
@@ -617,7 +617,7 @@ class StrandSet(QObject):
             sS.addStrand(nS, idx)
             # Traverse the strands via 3'conns to assign the new oligo
             for strand in olg.strand5p().generator3pStrand():
-                Strand.setOligo(strand, olg)  # emits hasNewOligoSignal
+                Strand.setOligo(strand, olg)  # emits strandHasNewOligoSignal
             # Add new oligo and remove old oligos
             olg.addToPart()
             lOlg.removeFromPart()
@@ -625,7 +625,7 @@ class StrandSet(QObject):
             # Emit Signals related to destruction and addition
             sL.removedSignal.emit(sL)  # out with the old...
             sH.removedSignal.emit(sH)  # out with the old...
-            sS.strandAddedSignal.emit(nS)  # ...in with the new
+            sS.strandsetStrandAddedSignal.emit(nS)  # ...in with the new
         # end def
 
         def undo(self):
@@ -644,17 +644,17 @@ class StrandSet(QObject):
             sS.addStrand(sL, idx)
             # Traverse the strands via 3'conns to assign the old oligo
             for strand in lOlg.strand5p().generator3pStrand():
-                Strand.setOligo(strand, lOlg)  # emits hasNewOligoSignal
+                Strand.setOligo(strand, lOlg)  # emits strandHasNewOligoSignal
             for strand in hOlg.strand5p().generator3pStrand():
-                Strand.setOligo(strand, hOlg)  # emits hasNewOligoSignal
+                Strand.setOligo(strand, hOlg)  # emits strandHasNewOligoSignal
             # Remove new oligo and add old oligos
             olg.removeFromPart()
             lOlg.addToPart()
             hOlg.addToPart()
             # Emit Signals related to destruction and addition
             nS.removedSignal.emit(nS)  # out with the new...
-            sS.strandAddedSignal.emit(sH)  # ...in with the old
-            sS.strandAddedSignal.emit(sL)  # ...in with the old
+            sS.strandsetStrandAddedSignal.emit(sH)  # ...in with the old
+            sS.strandsetStrandAddedSignal.emit(sL)  # ...in with the old
         # end def
     # end class
 
@@ -726,17 +726,17 @@ class StrandSet(QObject):
             sS.addStrand(sL, idx)
             # Traverse the strands via 3'conns to assign the new oligos
             for strand in lOlg.strand5p().generator3pStrand():
-                Strand.setOligo(strand, lOlg)  # emits hasNewOligoSignal
+                Strand.setOligo(strand, lOlg)  # emits strandHasNewOligoSignal
             for strand in hOlg.strand5p().generator3pStrand():
-                Strand.setOligo(strand, hOlg)  # emits hasNewOligoSignal
+                Strand.setOligo(strand, hOlg)  # emits strandHasNewOligoSignal
             # Add new oligo and remove old oligos from the part
             part = olg.removeFromPart()
             lOlg.addToPart()
             hOlg.addToPart()
             # Emit Signals related to destruction and addition
             nS.removedSignal.emit(oS)  # out with the old...
-            sS.strandAddedSignal.emit(sH)  # ...in with the new
-            sS.strandAddedSignal.emit(sL)  # ...in with the new
+            sS.strandsetStrandAddedSignal.emit(sH)  # ...in with the new
+            sS.strandsetStrandAddedSignal.emit(sL)  # ...in with the new
         # end def
 
         def undo(self):
@@ -763,7 +763,7 @@ class StrandSet(QObject):
             # Emit Signals related to destruction and addition
             sL.removedSignal.emit(sL)  # out with the new...
             sH.removedSignal.emit(sH)  # out with the new...
-            sS.strandAddedSignal.emit(oS)  # ...in with the old
+            sS.strandsetStrandAddedSignal.emit(oS)  # ...in with the old
         # end def
     # end class
 

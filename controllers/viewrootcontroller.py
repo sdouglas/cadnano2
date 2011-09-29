@@ -24,15 +24,19 @@
 
 
 class ViewRootController():
-    def __init__(self, viewRoot, doc):
+    def __init__(self, viewRoot, modelDocument):
         self._viewRoot = viewRoot
-        self._document = doc
+        self._modelDocument = modelDocument
         self.connectSignals()
 
     def connectSignals(self):
-        self._document.partAddedSignal.connect(self._viewRoot.partAddedSlot)
-        self._document.selectedPartChangedSignal.connect(self._viewRoot.selectedPartChangedSlot)
+        mD = self._modelDocument
+        vR = self._viewRoot
+        mD.documentPartAddedSignal.connect(vR.partAddedSlot)
+        mD.documentSelectedPartChangedSignal.connect(vR.selectedPartChangedSlot)
 
     def disconnectSignals(self):
-        self._document.partAddedSignal.disconnect(self._viewRoot.partAddedSlot)
-        self._document.selectedPartChangedSignal.disconnect(self._viewRoot.selectedPartChangedSlot)
+        mD = self._modelDocument
+        vR = self._viewRoot
+        mD.documentPartAddedSignal.disconnect(vR.partAddedSlot)
+        mD.documentSelectedPartChangedSignal.disconnect(vR.selectedPartChangedSlot)

@@ -66,10 +66,10 @@ class Oligo(QObject):
     # end def
 
     ### SIGNALS ###
-    notifyMergedStrandsWithNewOligoSignal = pyqtSignal(QObject)  # new oligo
-    appearanceChangedSignal = pyqtSignal(QObject)  # self
-    sequenceAddedSignal = pyqtSignal(QObject)  # self
-    sequenceClearedSignal = pyqtSignal(QObject)  # self
+    oligoIdentityChangedSignal = pyqtSignal(QObject)  # new oligo
+    oligoAppearanceChangedSignal = pyqtSignal(QObject)  # self
+    oligoSequenceAddedSignal = pyqtSignal(QObject)  # self
+    oligoSequenceClearedSignal = pyqtSignal(QObject)  # self
 
     ### SLOTS ###
 

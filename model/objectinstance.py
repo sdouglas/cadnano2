@@ -39,9 +39,9 @@ class ObjectInstance(QObject):
     # end def
 
     ### SIGNALS ###
-    instanceDestroyedSignal = pyqtSignal(QObject)  # self
-    instanceMovedSignal = pyqtSignal(QObject)  # self
-    instanceParentChangedSignal = pyqtSignal(QObject)  # new parent
+    objinstanceDestroyedSignal = pyqtSignal(QObject)  # self
+    objinstanceMovedSignal = pyqtSignal(QObject)  # self
+    objinstanceParentChangedSignal = pyqtSignal(QObject)  # new parent
 
     ### SLOTS ###
 

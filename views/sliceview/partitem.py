@@ -22,23 +22,11 @@
 #
 # http://www.opensource.org/licenses/mit-license.php
 
-
-"""
-slicegraphicsitem.py
-
-Created by Nick Conway on 2010-06-15.
-"""
-
-from exceptions import NotImplementedError
-from heapq import *
 # from views.pathview.handles.activeslicehandle import ActiveSliceHandle
-from model.enum import LatticeType, Parity, StrandType
-from .virtualhelixitem import VirtualHelixItem
-from .helixitem import HelixItem
-from views import styles
-
 from controllers.itemcontrollers.partitemcontroller import PartItemController
-
+from helixitem import HelixItem
+from virtualhelixitem import VirtualHelixItem
+from views import styles
 import util
 # import Qt stuff into the module namespace with PySide, PyQt4 independence
 util.qtWrapImport('QtCore', globals(), ['QRectF', 'QPointF', 'QEvent', 'Qt', \
@@ -170,16 +158,12 @@ class PartItem(QGraphicsItem):
         oldList = list(oldSet)
         newSet = set(newCoords)
         newList = list(newSet)
-        
         for coord in oldList:
             if coord not in newSet:
                 self._killHelixItemAt(*coord)
         # end for
-        print "attempting to spawn helix"
         for coord in newList:
-            # print "test 1"
             if coord not in oldSet:
-                # print "spawning helix"
                 self._spawnHelixItemAt(*coord)
         # end for
         # self._updateGeometry(newCols, newRows)

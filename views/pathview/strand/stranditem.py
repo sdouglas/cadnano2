@@ -29,7 +29,7 @@ from exceptions import NotImplementedError
 import util
 # import Qt stuff into the module namespace with PySide, PyQt4 independence
 util.qtWrapImport('QtCore', globals(), ['pyqtSignal', 'QObject'])
-util.qtWrapImport('QtGui', globals(), ['Qt'])
+util.qtWrapImport('QtGui', globals(), [])
 
 class StrandItem(QGraphicsPathItem):
     def __init__(self, parent):
@@ -53,48 +53,14 @@ class StrandItem(QGraphicsPathItem):
 
     ### METHODS ###
     def connectSignals(self):
-        self._strand.resizedSignal.connect(self.strandResizedSlot)
+        self._strand.strandResizedSignal.connect(self.strandResizedSlot)
         self._oligo.sequenceAddedSignal.connect(self.sequenceAddedSlot)
         self._oligo.sequenceClearedSignal.connect(self.sequenceClearedSlot)
 
     def disconnectSignals(self):
         """docstring for disconnectSignals"""
-        self._strand.resizedSignal.disconnect(self.strandResizedSlot)
+        self._strand.strandResizedSignal.disconnect(self.strandResizedSlot)
         self._oligo.sequenceAddedSignal.disconnect(self.sequenceAddedSlot)
         self._oligo.sequenceClearedSignal.disconnect(self.sequenceClearedSlot)
 
-    ### TOOL METHODS ###
-    def breakToolMouseRelease(self, event):
-        """
-        if strandCanBeSplit(strand, baseIdx):
-            strandSet.splitStrand(strand, baseIdx)
-        """
-        pass
-    # end def
-
-    def decoratorToolMouseRelease(self, event):
-        """
-        if strandDecoratorCanBeAdded(strand, baseIdx):
-            strandSet.addDecorator(strand, baseIdx, decorator)
-        """
-        pass
-    # end def
-
-    def forceToolMouseRelease(self, event):
-        """
-        if self._fromStrand == None:   # first mouse release
-            if strand is present, store fromStrand, fromIdx
-        else:  # second mouse release
-            if strand is present, install xover from fromStrand, fromIdx
-        if strandDecoratorCanBeAdded(strand, baseIdx):
-            strandSet.addDecorator(strand, baseIdx, decorator)
-        """
-        pass
-    # end def
-
-    def forceToolEscapeKeyPressed(self):
-        """
-        if fromStrand, fromIdx != None, None: set to None, None
-        clear drawing
-        """
-        pass
+    ### COMMANDS ###

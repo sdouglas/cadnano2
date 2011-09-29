@@ -30,11 +30,14 @@ class AssemblyItemController():
         self.connectSignals()
 
     def connectSignals(self):
-        self._modelAssembly.partAddedSignal.connect(_assemblyItem.partAddedSlot)
-        self._modelAssembly.assemblyMovedSignal.connect(_assemblyItem.assemblyMovedSlot)
-        self._modelAssembly.assemblyDestroyedSignal.connect(_assemblyItem.assemblyDestroyedSlot)
+        mA = self._modelAssembly
+        aI = self._assemblyItem
+        mA.assemblyPartAddedSignal.connect(aI.partAddedSlot)
+        mA.assemblyMovedSignal.connect(aI.assemblyMovedSlot)
+        mA.assemblyDestroyedSignal.connect(aI.assemblyDestroyedSlot)
 
     def disconnectSignals(self):
-        self._modelAssembly.partAddedSignal.disconnect(_assemblyItem.partAddedSlot)
-        self._modelAssembly.assemblyMovedSignal.disconnect(_assemblyItem.assemblyMovedSlot)
-        self._modelAssembly.assemblyDestroyedSignal.disconnect(_assemblyItem.assemblyDestroyedSlot)
+        mA = self._modelAssembly
+        mA.assemblyPartAddedSignal.disconnect(aI.partAddedSlot)
+        mA.assemblyMovedSignal.disconnect(aI.assemblyMovedSlot)
+        mA.assemblyDestroyedSignal.disconnect(aI.assemblyDestroyedSlot)

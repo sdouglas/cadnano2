@@ -62,7 +62,7 @@ class AbstractDecoratorItem(QGraphicsPathItem):
         self._oligo.sequenceClearedSignal.connect(self.sequenceClearedSlot)
 
     def disconnectSignals(self):
-        self._strand.resizedSignal.disconnect(self.strandResizedSlot)
+        self._strand.strandResizedSignal.disconnect(self.strandResizedSlot)
         self._oligo.sequenceAddedSignal.disconnect(self.sequenceAddedSlot)
         self._oligo.sequenceClearedSignal.disconnect(self.sequenceClearedSlot)
 

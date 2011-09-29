@@ -47,8 +47,8 @@ class Document(QObject):
         self._selectedPart = None
 
     ### SIGNALS ###
-    partAddedSignal = pyqtSignal(object)  # part
-    selectedPartChangedSignal = pyqtSignal(object)  # part
+    documentPartAddedSignal = pyqtSignal(object)  # part
+    documentSelectedPartChangedSignal = pyqtSignal(object)  # part
 
     ### SLOTS ###
 
@@ -76,7 +76,7 @@ class Document(QObject):
         if self._selectedPart == newPart:
             return
         self._selectedPart = newPart
-        self.selectedPartChangedSignal.emit(newPart)
+        self.documentSelectedPartChangedSignal.emit(newPart)
 
     ### PUBLIC METHODS FOR QUERYING THE MODEL ###
 
@@ -137,12 +137,12 @@ class Document(QObject):
                 self._doc._parts.append(self._part)
                 self._part.setDocument(self._doc)
                 self._doc.setSelectedPart(self._part)
-                self._doc.partAddedSignal.emit(self._part)
+                self._doc.documentPartAddedSignal.emit(self._part)
 
         def undo(self):
             self._part.setDocument(None)
             self._doc._parts.remove(self._part)
-            self._part.removedSignal.emit(self._part)
+            self._part.partRemovedSignal.emit(self._part)
 
     ### SERIALIZE / DESERIALIZE ###
     def fillSimpleRep(self, sr):

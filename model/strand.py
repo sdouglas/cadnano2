@@ -85,14 +85,14 @@ class Strand(QObject):
     # end def
 
     ### SIGNALS ###
-    hasNewOligoSignal = pyqtSignal(QObject)
-    destroyedSignal = pyqtSignal(QObject)
-    removedSignal = pyqtSignal(QObject)
-    resizedSignal = pyqtSignal(QObject, tuple)
-    xover3pCreatedSignal = pyqtSignal(QObject, int)
-    xover3pDestroyedSignal = pyqtSignal(QObject, int)
-    decoratorCreatedSignal = pyqtSignal(QObject, QObject, int)
-    decoratorDestroyedSignal = pyqtSignal(QObject, int)
+    strandHasNewOligoSignal = pyqtSignal(QObject)
+    strandDestroyedSignal = pyqtSignal(QObject)
+    strandRemovedSignal = pyqtSignal(QObject)
+    strandResizedSignal = pyqtSignal(QObject, tuple)
+    strandXover3pCreatedSignal = pyqtSignal(QObject, int)
+    strandXover3pDestroyedSignal = pyqtSignal(QObject, int)
+    strandDecoratorCreatedSignal = pyqtSignal(QObject, QObject, int)
+    strandDecoratorDestroyedSignal = pyqtSignal(QObject, int)
 
     ### SLOTS ###
 
@@ -124,8 +124,8 @@ class Strand(QObject):
     def setOligo(self, newOligo):
         self._oligo = newOligo
         # return the signal
-        # return self.hasNewOligoSignal.emit, (self,)
-        self.hasNewOligoSignal.emit(self)
+        # return self.strandHasNewOligoSignal.emit, (self,)
+        self.strandHasNewOligoSignal.emit(self)
     # end def
     
     def length(self):
@@ -235,14 +235,14 @@ class Strand(QObject):
             std = self.strand
             nI = self.newIndices
             std.setIdxs(nI)
-            std.resizedSignal.emit(std, nI)
+            std.strandResizedSignal.emit(std, nI)
         # end def
 
         def undo(self):
             std = self.strand
             oI = self.oldIndices
             std.setIdxs(oI)
-            std.resizedSignal.emit(std, oI)
+            std.strandResizedSignal.emit(std, oI)
         # end def
     # end class
 

@@ -25,11 +25,11 @@
 #
 # http://www.opensource.org/licenses/mit-license.php
 
-import util
-from itertools import product, starmap, izip, repeat
-from operator import mul
+from heapq import heapify, heappush
+from itertools import product
 from model.enum import StrandType
 from model.virtualhelix import VirtualHelix
+import util
 
 util.qtWrapImport('QtCore', globals(), ['pyqtSignal', 'QObject'])
 util.qtWrapImport('QtGui', globals(), ['QUndoCommand'])
@@ -78,12 +78,23 @@ class Part(QObject):
     # end def
 
     ### SIGNALS ###
+<<<<<<< Updated upstream
     parentChangedSignal = pyqtSignal(QObject)  # self
     instanceAddedSignal = pyqtSignal(QObject)  # self
     removedSignal = pyqtSignal(QObject)  # self
     destroyedSignal = pyqtSignal(QObject)  # self
     sequenceClearedSignal = pyqtSignal(QObject)  # self
     virtualHelixAddedSignal = pyqtSignal(QObject)  # virtualhelix
+=======
+    partParentChangedSignal = pyqtSignal(QObject)  # self
+    partInstanceAddedSignal = pyqtSignal(QObject)  # self
+    partRemovedSignal = pyqtSignal(QObject)  # self
+    partDestroyedSignal = pyqtSignal(QObject)  # self
+    partSequenceClearedSignal = pyqtSignal(QObject)  # self
+    partNeedsFittingToViewSignal = pyqtSignal(QObject)  # virtualhelix
+    partVirtualHelixAddedSignal = pyqtSignal(QObject)  # virtualhelix
+    partVirtualHelixRemovedSignal = pyqtSignal(QObject)  # virtualhelix
+>>>>>>> Stashed changes
 
     virtualHelixChangedSignal = pyqtSignal(QObject) # emit the coordinates
     # virtualHelixAtCoordsChangedSignal = pyqtSignal(int, int) # emit the coordinates
@@ -336,29 +347,25 @@ class Part(QObject):
             vh = self._vhelix
             part = self._part
             idNum = self._idNum
-
             vh.setPart(part)
             part._addVirtualHelix(vh)
             vh.setNumber(idNum)
             if not vh.number():
                 part.reserveHelixIDNumber(self._parityEven, requestedIDnum=idNum)
             # end if
-            part.virtualHelixAddedSignal.emit(vh)
+            part.partVirtualHelixAddedSignal.emit(vh)
         # end def
 
         def undo(self):
             vh = self._vhelix
             part = self._part
-            idNum = self_idNum
-
+            idNum = self._idNum
             part._removeVirtualHelix(vh)
             part.recycleHelixIDNumber(idNum)
-
             # clear out part references
             vh.setPart(None)
             vh.setNumber(None)
-
-            vh.virtualHelixRemovedSignal.emit(vh)
+            vh.virtualhelixRemovedSignal.emit(vh)
         # end def
     # end class
 
@@ -377,13 +384,13 @@ class Part(QObject):
         def redo(self):
             vh = self._vhelix
             part = self._part
-            idNum = self_idNum
+            idNum = self._idNum
             part._removeVirtualHelix(vh)
             part.recycleHelixIDNumber(idNum)
             # clear out part references
             vh.setPart(None)
             vh.setNumber(None)
-            vh.virtualHelixRemovedSignal.emit(vh)
+            vh.virtualhelixRemovedSignal.emit(vh)
         # end def
 
         def undo(self):
@@ -395,7 +402,7 @@ class Part(QObject):
             vh.setNumber(idNum)
             if not vh.number():
                 part.reserveHelixIDNumber(self._parityEven, requestedIDnum=idNum)
-            part.virtualHelixAddedSignal.emit(vh)
+            part.partVirtualHelixAddedSignal.emit(vh)
         # end def
     # end class
 

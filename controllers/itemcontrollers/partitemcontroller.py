@@ -30,9 +30,10 @@ class PartItemController():
         self.connectSignals()
 
     def connectSignals(self):
-        modelPart = self._modelPart
-        partItem = self._partItem
+        mP = self._modelPart
+        pI = self._partItem
 
+<<<<<<< Updated upstream
         modelPart.parentChangedSignal.connect(partItem.parentChangedSlot)
         modelPart.removedSignal.connect(partItem.removedSlot)
         modelPart.destroyedSignal.connect(partItem.destroyedSlot)
@@ -41,13 +42,19 @@ class PartItemController():
         modelPart.virtualHelixChangedSignal.connect( \
                                                partItem.updatePreXOverHandlesSlot)
         
+=======
+        mP.partParentChangedSignal.connect(pI.parentChangedSlot)
+        mP.partRemovedSignal.connect(pI.removedSlot)
+        mP.partDestroyedSignal.connect(pI.destroyedSlot)
+        mP.partVirtualHelixAddedSignal.connect(pI.virtualHelixAddedSlot)
+>>>>>>> Stashed changes
 
-        for oligo in modelPart.oligos():
-            for strand in oligo.strands():
-                strand.xover3pCreatedSignal.connect(partItem.xover3pCreatedSlot)
-                #strand.xover3pDestroyedSignal.connect(partItem.xover3pDestroyedSlot)
+        for mOligo in mP.oligos():
+            for mStrand in mOligo.strands():
+                mStrand.strandXover3pCreatedSignal.connect(pI.xover3pCreatedSlot)
 
     def disconnectSignals(self):
+<<<<<<< Updated upstream
         modelPart = self._modelPart
         partItem = self._partItem
         
@@ -63,3 +70,16 @@ class PartItemController():
             for strand in oligo.strands():
                 strand.xover3pCreatedSignal.disconnect(partItem.xover3pCreatedSlot)
                 #strand.xover3pDestroyedSignal.disconnect(partItem.xover3pDestroyedSlot)
+=======
+        mP = self._modelPart
+        pI = self._partItem
+
+        mP.partParentChangedSignal.disconnect(pI.parentChangedSlot)
+        mP.partRemovedSignal.disconnect(pI.destroyedSlot)
+        mP.partDestroyedSignal.disconnect(pI.destroyedSlot)
+        mP.partVirtualHelixAddedSignal.disconnect(pI.virtualHelixAddedSlot)
+
+        for mOligo in mP.oligos():
+            for mStrand in mOligo.strands():
+                mStrand.strandXover3pCreatedSignal.disconnect(pI.xover3pCreatedSlot)
+>>>>>>> Stashed changes

@@ -23,31 +23,15 @@
 # http://www.opensource.org/licenses/mit-license.php
 
 class VirtualHelixItemController():
-    def __init__(self, virtualHelixItem, modelVirtualHelix):
-        self._virtualHelixItem = virtualHelixItem
-        self._modelVirtualHelix = modelVirtualHelix
+    def __init__(self, virtualhelixItem, modelStrandSet):
+        self._virtualhelixItem = virtualhelixItem
+        self._modelStrandSet = modelStrandSet
         self.connectSignals()
 
     def connectSignals(self):
-        vhItem = self._virtualHelixItem
-        mvh = self._virtualHelix
-        
-        mvh.numberChangedSignal.connect(vhItem.numberChangedSlot)
-        mvh.removedSignal.connect(vhItem.removedSlot)
-        
-        for strandSet in mvh.getStrandSets()
-            strandSet.strandAddedSignal.connect(vhItem.strandAddedSlot)
-            strandSet.decoratorAddedSignal.connect(vhItem.decoratorAddedSlot)
-    # end def
+        self._modelStrandSet.strandsetStrandAddedSignal.connect(self._virtualhelixItem.strandAddedSlot)
+        self._modelStrandSet.decoratorAddedSignal.connect(self._virtualhelixItem.decoratorAddedSlot)
 
     def disconnectSignals(self):
-        vhItem = self._virtualHelixItem
-        mvh = self._virtualHelix
-
-        mvh.numberChangedSignal.disconnect(vhItem.numberChangedSlot)
-        mvh.removedSignal.disconnect(vhItem.removedSlot)
-
-        for strandSet in mvh.getStrandSets()
-            strandSet.strandAddedSignal.disconnect(vhItem.strandAddedSlot)
-            strandSet.decoratorAddedSignal.disconnect(vhItem.decoratorAddedSlot)
-    # end def
+        self._modelStrandSet.strandsetStrandAddedSignal.disconnect(self._virtualhelixItem.strandAddedSlot)
+        self._modelStrandSet.decoratorAddedSignal.disconnect(self._virtualhelixItem.decoratorAddedSlot)
