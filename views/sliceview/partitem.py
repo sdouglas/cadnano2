@@ -33,8 +33,11 @@ from exceptions import NotImplementedError
 from heapq import *
 from views.pathview.handles.activeslicehandle import ActiveSliceHandle
 from model.enum import LatticeType, Parity, StrandType
-from .slicehelix import SliceHelix
+from .virtualhelixitem import VirtualHelixItem
+from .helixitem import HelixItem
 from views import styles
+
+from controllers.itemcontrollers.partitemcontroller import PartItemController
 
 import util
 # import Qt stuff into the module namespace with PySide, PyQt4 independence
@@ -42,7 +45,6 @@ util.qtWrapImport('QtCore', globals(), ['QRectF', 'QPointF', 'QEvent', 'Qt', \
                                         'pyqtSignal', 'pyqtSlot', 'QObject'])
 util.qtWrapImport('QtGui', globals(), [ 'QGraphicsItem', 'QBrush', \
                                         'QPainterPath', 'QPen'])
-
 
 class PartItem(QGraphicsItem):
     """
@@ -53,13 +55,10 @@ class PartItem(QGraphicsItem):
     """
     radius = styles.SLICE_HELIX_RADIUS
     
-    def __init__(self, part, controller=None, parent=None):
-        super(PartItem, self).__init__()
+    def __init__(self, modelPart, parent=None):
+        super(PartItem, self).__init__(parent)
         # data related
-        self._part = None
-        self.sliceController = controller
-        self.parent = parent
-        self.setParentItem(parent)
+        self._part = modelPart
         self.setZValue(100)
 
         # The deselector grabs mouse events that missed a slice
@@ -72,22 +71,56 @@ class PartItem(QGraphicsItem):
         # Invariant: keys in _helixhash = range(_nrows) x range(_ncols)
         # where x is the cartesian product
         self._helixhash = {}
+        self._virtualHelixHash = {}
+        
         self._nrows, self._ncols = 0, 0
         self._rect = QRectF(0, 0, 0, 0)
-        self.setPart(part)
+        # initialize the PartItem with an empty set of old coords
+        self._setLatticeSlot([], part.generatorFullLattice())
 
         # Cache of VHs that were active as of last call to activeSliceChanged
         # If None, all slices will be redrawn and the cache will be filled.
         self._previouslyActiveVHs = None
         # Connect destructor. This is for removing a part from scenes.
-        self._part.partRemoved.connect(self.destroy)
+        modelPart.partRemoved.connect(self.destroy)
         self.probe = self.IntersectionProbe(self)
+        modelPart.virtualHelixAddedSignal.connect()
+        
+        self._controller = PartItemController(self, modelPart)
     # end def
 
-    def destroy(self):
-        self._part.partRemoved.disconnect(self.destroy)
+    ### SIGNALS ###
+
+    ### SLOTS ###
+    def partParentChangedSlot(self):
+        """docstring for partParentChangedSlot"""
+        print "PartItem.partParentChangedSlot"
+        pass
+
+    def partDestroyedSlot(self):
+        """docstring for partDestroyedSlot"""
+        print "PartItem.partDestroyedSlot"
         self.scene().removeItem(self)
         self.setPart(None)
+   # end def
+
+    def partMovedSlot(self, pos):
+        """docstring for partMovedSlot"""
+        print "PartItem.partMovedSlot"
+        pass
+
+    def xover3pCreatedSlot(self, strand, idx):
+        """docstring for xover3pCreatedSlot"""
+        print "PartItem.xover3pCreatedSlot"
+        pass
+
+    def xover3pDestroyedSlot(self, strand, idx):
+        """docstring for xover3pDestroyedSlot"""
+        print "PartItem.xover3pDestroyedSlot"
+        pass
+
+    def destroy(self):
+
     # end def
 
     ############################ Private Methods ############################
@@ -97,68 +130,38 @@ class PartItem(QGraphicsItem):
     def _updateGeometry(self):
         self._rect = QRectF(0, 0, *self.part().dimensions() )
 
-    def _spawnVHelixItemAt(self, row, column):
-        x, y = self.part().latticeToSpatial(row, column)
-        pt = QPointF(x,y)
-        helix = VirtualHelixItem(pt, self)
-        helix.setFlag(QGraphicsItem.ItemStacksBehindParent, True)
+    def _spawnHelixItemAt(self, row, column):
+        helix = HelixItem(row, column, self)
+        # helix.setFlag(QGraphicsItem.ItemStacksBehindParent, True)
         self._helixhash[(row, column)] = helix
     # end def
 
-    def _killVHelixItemAt(row, column):
+    def _killHelixItemAt(row, column):
         s = self._helixhash[(row, column)]
         s.scene().removeItem(s)
         del self._helixhash[(row, column)]
+    # end def
 
-    def _setDimensions(self, newDims):
+    def _setLattice(self, oldCoords, newCoords):
         """A private method used to change the number of rows,
         cols in response to a change in the dimensions of the
         part represented by the receiver"""
-        newRows, newCols, ignore = newDims
-        if self._nrows > newRows:
-            for r in range(newRows, self._nrows):
-                for c in range(self._ncols):
-                    self._killSliceAt(r, c)
-        elif newRows > self._nrows:
-            for r in range(self._nrows, newRows):
-                for c in range(self._ncols):
-                    self._spawnSliceAt(r, c)
-        self._nrows = newRows
-        # We now have the right number of rows
-        if self._ncols > newCols:
-            for c in range(newCol, self._ncols):
-                for r in range(self._nrows):
-                    self._killSliceAt(r, c)
-        elif newCols > self._ncols:
-            for c in range(self._ncols, newCols):
-                for r in range(self._nrows):
-                    self._spawnSliceAt(r, c)
-        self._ncols = newCols
+        oldSet = set(oldCoords)
+        newSet = set(newCoords)
+        for coord in oldCoords:
+            if coord not in newSet:
+                self._killHelixItemAt(*coord)
+        # end for
+        for coord in newCoords:
+            if coord not in oldSet:
+                self._spawnHelixItemAt(*coord)
+        # end for
         self._updateGeometry(newCols, newRows)
         self.prepareGeometryChange()
         # the Deselector copies our rect so it changes too
         self.deselector.prepareGeometryChange()
         self.zoomToFit()
-
-        def _setLattice(self, oldCoords, newCoords):
-            """A private method used to change the number of rows,
-            cols in response to a change in the dimensions of the
-            part represented by the receiver"""
-            oldSet = set(oldCoords)
-            newSet = set(newCoords)
-            for coord in oldCoords:
-                if coord not in newSet:
-                    self._killVHelixItemAt(*coord)
-            # end for
-            for coord in newCoords:
-                if coord not in oldSet:
-                    self._spawnVHelixItemAt(*coord)
-            # end for
-            self._updateGeometry(newCols, newRows)
-            self.prepareGeometryChange()
-            # the Deselector copies our rect so it changes too
-            self.deselector.prepareGeometryChange()
-            self.zoomToFit()
+    # end def
 
     ############################# Public Methods #############################
     def mousePressEvent(self, event):
@@ -186,6 +189,7 @@ class PartItem(QGraphicsItem):
             self._part.activeSliceWillChange.disconnect(self.activeSliceChanged)
             self._part.virtualHelixAtCoordsChanged.disconnect(self.vhAtCoordsChanged)
         if newPart != None:
+            self._setLatticeSlot(self._
             self._setDimensions(newPart.dimensions())
             newPart.dimensionsWillChange.connect(self._setDimensions)
             newPart.selectionWillChange.connect(self.selectionWillChange)
@@ -232,11 +236,11 @@ class PartItem(QGraphicsItem):
         """The deselector lives behind all the slices and observes mouse press
         events that miss slices, emptying the selection when they do"""
         def __init__(self, parentHGI):
-            super(SliceGraphicsItem.Deselector, self).__init__()
+            super(PartItem.Deselector, self).__init__()
             self.parentHGI = parentHGI
         def mousePressEvent(self, event):
             self.parentHGI.part().setSelection(())
-            super(SliceGraphicsItem.Deselector, self).mousePressEvent(event)
+            super(PartItem.Deselector, self).mousePressEvent(event)
         def boundingRect(self):
             return self.parentHGI.boundingRect()
         def paint(self, painter, option, widget=None):

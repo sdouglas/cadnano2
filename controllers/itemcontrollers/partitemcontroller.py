@@ -30,19 +30,27 @@ class PartItemController():
         self.connectSignals()
 
     def connectSignals(self):
-        self._modelPart.partParentChangedSignal.connect(self._partItem.partParentChangedSlot)
-        self._modelPart.partDestroyedSignal.connect(self._partItem.partDestroyedSlot)
+        modelPart = self._modelPart
+        partItem = self._partItem
+        
+        modelPart.partParentChangedSignal.connect(partItem.partParentChangedSlot)
+        modelPart.partDestroyedSignal.connect(partItem.partDestroyedSlot)
+        modelPart.virtualHelixAddedSignal.connect(partItem.virtualHelixAddedSlot)
         # self._modelPart.partMovedSignal.connect(self._partItem.partMovedSlot)
-        for oligo in self._modelPart.oligos():
+        for oligo in modelPart.oligos():
             for strand in oligo.strands():
-                strand.xover3pCreatedSignal.connect(self._partItem.xover3pCreatedSlot)
-                strand.xover3pDestroyedSignal.connect(self._partItem.xover3pDestroyedSlot)
+                strand.xover3pCreatedSignal.connect(partItem.xover3pCreatedSlot)
+                strand.xover3pDestroyedSignal.connect(partItem.xover3pDestroyedSlot)
 
     def disconnectSignals(self):
-        self._modelPart.partParentChangedSignal.disconnect(self._partItem.partParentChangedSlot)
-        self._modelPart.partDestroyedSignal.disconnect(self._partItem.partDestroyedSlot)
+        modelPart = self._modelPart
+        partItem = self._partItem
+        
+        modelPart.partParentChangedSignal.disconnect(partItem.partParentChangedSlot)
+        modelPart.partDestroyedSignal.disconnect(partItem.partDestroyedSlot)
+        modelPart.virtualHelixAddedSignal.disconnect(partItem.virtualHelixAddedSlot)
         # self._modelPart.partMovedSignal.disconnect(self._partItem.partMovedSlot)
-        for oligo in self._modelPart.oligos():
+        for oligo in modelPart.oligos():
             for strand in oligo.strands():
-                strand.xover3pCreatedSignal.disconnect(self._partItem.xover3pCreatedSlot)
-                strand.xover3pDestroyedSignal.disconnect(self._partItem.xover3pDestroyedSlot)
+                strand.xover3pCreatedSignal.disconnect(partItem.xover3pCreatedSlot)
+                strand.xover3pDestroyedSignal.disconnect(partItem.xover3pDestroyedSlot)

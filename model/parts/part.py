@@ -135,7 +135,7 @@ class Part(QObject):
         return self._maxBase
     # end def
     
-    def generatorFullLattice(self, scaleFactor=1.0):
+    def generatorSpatialLattice(self, scaleFactor=1.0):
         """
         returns a generator that yields the XY spatial lattice points to draw
         
@@ -150,6 +150,15 @@ class Part(QObject):
         # latticeCoordGen = product(range(self._maxRow), range(self._maxCol))
         # return starmap(self.latticeToSpatial, \
         #                 izip( latticeCoordGen, repeat(scaleFactor)))
+    # end def
+    
+    def generatorFullLattice(self):
+        """
+        returns a generator that yields the row, column lattice points to draw
+        
+        relative to the part origin
+        """
+        return product(range(self._maxRow), range(self._maxCol))
     # end def
     
     def dimensions(self):
