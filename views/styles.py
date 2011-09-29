@@ -55,8 +55,8 @@ grayfill = QColor(238, 238, 238)  # eeeeee (was a1a1a1)
 graystroke = QColor(102, 102, 102)  # 666666 (was 424242)
 
 # Path Sizing
-PATHHELIXHANDLE_RADIUS = 30
-PATHHELIXHANDLE_STROKE_WIDTH = 2
+VIRTUALHELIXHANDLEITEM_RADIUS = 30
+VIRTUALHELIXHANDLEITEM_STROKE_WIDTH = 2
 PATH_BASE_WIDTH = 20  # used to size bases (grid squares, handles, etc)
 PATH_HELIX_HEIGHT = 2 * PATH_BASE_WIDTH  # staple + scaffold
 PATH_HELIX_PADDING = 50 # gap between PathHelix objects in path view
@@ -154,7 +154,7 @@ else: # linux
     XOVER_LABEL_FONT = QFont(thefont, thefontsize, QFont.Bold)
      
 SLICE_NUM_FONT = QFont(thefont, 10, QFont.Bold)
-PATHHELIXHANDLE_FONT = QFont(thefont, 3*thefontsize, QFont.Bold)
+VIRTUALHELIXHANDLEITEM_FONT = QFont(thefont, 3*thefontsize, QFont.Bold)
 XOVER_LABEL_COLOR = QColor(0,0,0) 
 
 # Overwrite for Maya

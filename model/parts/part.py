@@ -63,11 +63,11 @@ class Part(QObject):
         super(Part, self).__init__(parent=self._document)
         self._partInstances = []    # This is a list of ObjectInstances
         self._oligos = {}
-        self._vHelicesDict = {}   # should this be a list or a dictionary?  I think dictionary
+        self._virtualHelixHash = {}   # should this be a list or a dictionary?  I think dictionary
         
         self._maxRow = 50
         self._maxCol = 50
-        self._maxBase = 4*self._step
+        self._maxBase = 2*self._step
         self._minBase = 0
         
         # ID assignment infra
@@ -75,17 +75,11 @@ class Part(QObject):
         self.reserveBin = set()
         self.highestUsedOdd = -1  # Used iff the recycle bin is empty and highestUsedOdd+2 is not in the reserve bin
         self.highestUsedEven = -2  # same
+        
+        self._activeBaseIndex = self._step
     # end def
 
     ### SIGNALS ###
-<<<<<<< Updated upstream
-    parentChangedSignal = pyqtSignal(QObject)  # self
-    instanceAddedSignal = pyqtSignal(QObject)  # self
-    removedSignal = pyqtSignal(QObject)  # self
-    destroyedSignal = pyqtSignal(QObject)  # self
-    sequenceClearedSignal = pyqtSignal(QObject)  # self
-    virtualHelixAddedSignal = pyqtSignal(QObject)  # virtualhelix
-=======
     partParentChangedSignal = pyqtSignal(QObject)  # self
     partInstanceAddedSignal = pyqtSignal(QObject)  # self
     partRemovedSignal = pyqtSignal(QObject)  # self
@@ -93,12 +87,10 @@ class Part(QObject):
     partSequenceClearedSignal = pyqtSignal(QObject)  # self
     partNeedsFittingToViewSignal = pyqtSignal(QObject)  # virtualhelix
     partVirtualHelixAddedSignal = pyqtSignal(QObject)  # virtualhelix
-    partVirtualHelixRemovedSignal = pyqtSignal(QObject)  # virtualhelix
->>>>>>> Stashed changes
-
-    virtualHelixChangedSignal = pyqtSignal(QObject) # emit the coordinates
-    # virtualHelixAtCoordsChangedSignal = pyqtSignal(int, int) # emit the coordinates
     
+    partVirtualHelixChangedSignal = pyqtSignal(QObject) # emit the coordinates
+    # virtualHelixAtCoordsChangedSignal = pyqtSignal(int, int) # emit the coordinates
+
     ### SLOTS ###
 
     ### METHODS ###
@@ -141,6 +133,14 @@ class Part(QObject):
         To be implemented by Part subclass, pass
         """
         raise NotImplementedError
+    # end def
+    
+    def activeBaseIndex(self):
+        return self._activeBaseIndex
+    # end def
+    
+    def setActiveBaseIndex(self, idx):
+        self._activeBaseIndex = idx
     # end def
     
     def minBaseIdx(self):
@@ -239,11 +239,11 @@ class Part(QObject):
     # end def
 
     def virtualHelixAtCoord(self, coord):
-        self._vHelicesDict[coord]
+        self._virtualHelixHash[coord]
     # end def
 
     def hasVirtualHelixAtCoord(self, coord):
-        return coord in self._vHelicesDict
+        return coord in self._virtualHelixHash
     # end def
 
     def _addVirtualHelix(self, virtualHelix):
@@ -251,7 +251,7 @@ class Part(QObject):
         private method for adding a virtualHelix to the Parts data structure
         of virtualHelix references
         """
-        self._vHelicesDict[virtualHelix.coords()] = virtualHelix
+        self._virtualHelixHash[virtualHelix.coords()] = virtualHelix
     # end def
 
     def _removeVirtualHelix(self, virtualHelix):
@@ -259,7 +259,7 @@ class Part(QObject):
         private method for adding a virtualHelix to the Parts data structure
         of virtualHelix references
         """
-        del self._vHelicesDict[virtualHelix.coords()]
+        del self._virtualHelixHash[virtualHelix.coords()]
     # end def
 
     def subStepSize(self):

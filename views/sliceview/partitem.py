@@ -216,7 +216,7 @@ class PartItem(QGraphicsItem):
     def activeSliceChanged(self, newActiveSliceZIndex):
         newlyActiveVHs = set()
         part = self.part()
-        activeSlice = part.activeSlice()
+        activeSlice = part.activeBaseIndex()
         if self._previouslyActiveVHs:
             for vh in part.getVirtualHelices():
                 isActiveNow = vh.hasBaseAt(StrandType.Scaffold, activeSlice)

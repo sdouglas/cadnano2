@@ -27,6 +27,11 @@
 
 from controllers.itemcontrollers.partitemcontroller import PartItemController
 from virtualhelixitem import VirtualHelixItem
+from views import styles
+
+from .pathselection import SelectionItemGroup
+from .pathselection import PathHelixHandleSelectionBox
+from .pathselection import BreakpointHandleSelectionBox
 
 import util
 # import Qt stuff into the module namespace with PySide, PyQt4 independence
@@ -39,9 +44,15 @@ class PartItem(QGraphicsPathItem):
         super(PartItem, self).__init__(parent)
         self._modelPart = modelPart
         self._virtualHelixHash = {}
+        self._virtualHelixList = []
         self._toolManager = toolManager
         self._controller = PartItemController(self, modelPart)
-
+        self._vhiHSelectionGroup = SelectionItemGroup(\
+                                                 boxtype=PathHelixHandleSelectionBox,\
+                                                 constraint='y',\
+                                                 parent=self)
+    # end def
+        
     ### SIGNALS ###
 
     ### SLOTS ###
@@ -75,9 +86,13 @@ class PartItem(QGraphicsPathItem):
         vhi = VirtualHelixItem(self, modelVirtualHelix)
         vhi.setPos
         self._virtualHelixHash[vh.coords()] = vhi
+        self._virtualHelixList.append(vhi)
+        self._setVirtualHelixItemList(self._virtualHelixList)
+    # end def
 
     def updatePreXOverHandlesSlot(self, virtualHelix):
-        pass
+        if self.activeVirtualHelix().isNeighbor(virtualHelix):
+            self.setPreXOverHandlesVisible(self.activeVirtualHelix)
     # end def
     
     def xover3pCreatedSlot(self, strand, idx):
@@ -111,26 +126,25 @@ class PartItem(QGraphicsPathItem):
         vhiHRect = None
         
         for vhi in newList:
-            vhi.setParentItem(self.dummyChild)
             vhi.setPos(0, y)
             if not vhiRect:
-                vhiRect = vhi.boundingRect().height()
+                vhiRect = vhi.boundingRect()
                 step = vhiRect.height() + styles.PATH_HELIX_PADDING
             # end if
             
             # get the VirtualHelixItemHandle
             vhiH = vhi.handle()
             
-            if vhiH.parentItem() != self.vhihSelectionGroup:
+            if vhiH.parentItem() != self._vhiHSelectionGroup:
                 vhiH.setParentItem(self)
                 
             if not vhiHRect:
-                vhiHRect = vhih.boundingRect()
+                vhiHRect = vhiH.boundingRect()
             
             vhiH.setPos(-2 * vhiHRect.width(), y + (vhiRect.height() - vhiHRect.height()) / 2)
             
             leftmostExtent = min(leftmostExtent, -2 * vhiHRect.width())
-            rightmostExtent = max(rightmostExtent, vhiH.width())
+            rightmostExtent = max(rightmostExtent, vhiRect.width())
             y += step
             # self.updatePreXOverHandles()
         # end for
@@ -170,7 +184,7 @@ class PartItem(QGraphicsPathItem):
         partItem = self
         part = self.part()
         
-        # clear PCHs
+        # clear visible PCHs
         # for pch in self._preXOverHandles:
         #     if pch.scene():
         #         pch.scene().removeItem(pch)
@@ -200,7 +214,6 @@ class PartItem(QGraphicsPathItem):
                     self._preXOverHandles.append(pch)
                 # end for
             # end for
-            part.virtualHelixAtCoordsChanged.connect(self.updatePreXOverHandles)
         self._XOverCacheEnvironment = (vh.neighbors(), vh.numBases())
     # end def
 

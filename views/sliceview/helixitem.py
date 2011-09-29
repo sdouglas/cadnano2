@@ -64,11 +64,9 @@ class HelixItem(QGraphicsEllipseItem):
         """
         super(HelixItem, self).__init__(parent=partItem)
         self._partItem = partItem
-        self.label = None
         self.hide()
         self._isHovered = False
         self.setAcceptsHoverEvents(True)
-        self.font = styles.PATHHELIXHANDLE_FONT
         # self.penAndBrushSet(False)
         
         self.setNotHovered()
@@ -194,7 +192,7 @@ class HelixItem(QGraphicsEllipseItem):
         if vh == None: 
             return HelixItem.addVHIfMissing
             
-        idx = part.activeSlice()
+        idx = part.activeBaseIndex()
         if modifiers & Qt.ShiftModifier:
             if vh.stap().get(idx) == None:
                 return HelixItem.addStapAtActiveSliceIfMissing
@@ -214,7 +212,7 @@ class HelixItem(QGraphicsEllipseItem):
         if vh == None: 
             return
             
-        idx = part.activeSlice()
+        idx = part.activeBaseIndex()
         startIdx = max(0,idx-1)
         endIdx = min(idx+1, part.dimensions()[2]-1)
         undoStack = part.undoStack()
@@ -229,7 +227,7 @@ class HelixItem(QGraphicsEllipseItem):
         if vh == None: 
             return
             
-        idx = part.activeSlice()
+        idx = part.activeBaseIndex()
         if vh.scaf().get(idx) != None: 
             return
             
