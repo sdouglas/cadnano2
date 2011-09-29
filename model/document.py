@@ -29,7 +29,7 @@ from parts.honeycombpart import HoneycombPart
 from parts.squarepart import SquarePart
 import util
 util.qtWrapImport('QtCore', globals(), ['pyqtSignal', 'QObject'])
-util.qtWrapImport('QtGui', globals(), [ 'QUndoCommand', 'QUndoStack'])
+util.qtWrapImport('QtGui', globals(), ['QUndoCommand', 'QUndoStack'])
 
 
 class Document(QObject):

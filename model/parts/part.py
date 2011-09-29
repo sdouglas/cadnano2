@@ -31,7 +31,7 @@ from operator import mul
 from model.enum import StrandType
 
 util.qtWrapImport('QtCore', globals(), ['pyqtSignal', 'QObject'])
-util.qtWrapImport('QtGui', globals(), [ 'QUndoCommand', 'QUndoStack'])
+util.qtWrapImport('QtGui', globals(), [])
 
 
 class Part(QObject):
@@ -61,7 +61,7 @@ class Part(QObject):
         self._partInstances = []    # This is a list of ObjectInstances
         self._oligos = {}
         self._vHelicesDict = {}   # should this be a list or a dictionary?  I think dictionary
-        self._bounds = (0, 2*self._step)
+        self._maxBaseIdx = (0, 2*self._step)
         self._maxRow = 50
         self._maxCol = 50
         self._maxBase = 4*self._step
@@ -72,8 +72,6 @@ class Part(QObject):
         self.reserveBin = set()
         self.highestUsedOdd = -1  # Used iff the recycle bin is empty and highestUsedOdd+2 is not in the reserve bin
         self.highestUsedEven = -2  # same
-        
-        
     # end def
 
     ### SIGNALS ###
@@ -81,8 +79,9 @@ class Part(QObject):
     partInstanceAddedSignal = pyqtSignal(QObject)  # self
     partDestroyedSignal = pyqtSignal(QObject)  # self
     sequenceClearedSignal = pyqtSignal(QObject)  # self
-    virtualHelixAddedSignal = pyqtSignal(QObject) # vh
-    
+    virtualHelixAddedSignal = pyqtSignal(QObject)  # virtualhelix
+    virtualHelixRemovedSignal = pyqtSignal(QObject)  # virtualhelix
+
     ### SLOTS ###
 
     ### METHODS ###
@@ -115,9 +114,9 @@ class Part(QObject):
     def destroyOligo(self, oligo):
         del self._oligo[oligo]
 
-    def bounds(self):
+    def maxBaseIdx(self):
         """Return the latice indice bounds relative to the origin."""
-        return self._bounds
+        return self._maxBaseIdx
     # end def
     
     def isEvenParity(self, row, column):
@@ -166,39 +165,39 @@ class Part(QObject):
         return a tuple of the max X and maxY coordinates of the lattice
         """
         return latticeToSpatial(self._maxRow, self._maxCol)
-    # end def 
-    
+    # end def
+
     def latticeToSpatial(self, row, col, scaleFactor=1.0):
         """
         To be implemented by Part subclass
         returns a tuple of the XY spatial Coordinates mapping from the lattice
         coordinates, relative to the Part Instance Position
-        
+
         returns the upperLeftCorner for a given tuple of lattice Coordinates
         """
         raise NotImplementedError
     # end def
-    
+
     def spatialToLattice(self, x, y, scaleFactor=1.0):
         """
-        returns a tuple of the lattice coordinates mapping from the 
+        returns a tuple of the lattice coordinates mapping from the
         XY spatial Coordinates
         must account for rounding errors converting ints to floats
-        
+
         spatialCoord is relative to the Part Instance Position
-        
+
         Assumes spatialCoord is a with +/- 0.5 of a true valid 
         lattice position
         """
         raise NotImplementedError
     # end def
-    
+
     def createVirtualHelix(self, row, col, useUndoStack=True):
         c = Part.CreateVirtualHelixCommand(self, row, col)
         util._execCommandList(self, [c], desc="Add VirtualHelix", \
                                                 useUndoStack=useUndoStack)
     # end def
-    
+
     def removeVirtualHelix(self, virtualHelix=None, coord=None, useUndoStack=True):
         """
         takes a virtualHelix or coord to remove a virtual helix
@@ -209,22 +208,22 @@ class Part(QObject):
             if self.hasVirtualHelixAtCoord(coord):
                 virtualHelix = self.virtualHelixAtCoord(coord)
             else:
-                raise Exception 
+                raise Exception
         else:
             raise Exception 
         c = Part.RemoveVirtualHelixCommand(self, virtualHelix)
         util._execCommandList(self, [c], desc="Remove VirtualHelix", \
                                                     useUndoStack=useUndoStack)
     # end def
-    
+
     def virtualHelixAtCoord(self, coord):
         self._vHelicesDict[coord]
     # end def
-    
+
     def hasVirtualHelixAtCoord(self, coord):
         return coord in self._vHelicesDict
     # end def
-    
+
     def _addVirtualHelix(self, virtualHelix):
         """
         private method for adding a virtualHelix to the Parts data structure
@@ -232,7 +231,7 @@ class Part(QObject):
         """
         self._vHelicesDict[virtualHelix.coords()] = virtualHelix
     # end def
-    
+
     def _removeVirtualHelix(self, virtualHelix):
         """
         private method for adding a virtualHelix to the Parts data structure
@@ -241,92 +240,9 @@ class Part(QObject):
         del self._vHelicesDict[virtualHelix.coords()]
     # end def
 
-    ### COMMANDS ###
-    class CreateVirtualHelixCommand(QUndoCommand):
-        """Inserts strandToAdd into strandList at index idx."""
-        def __init__(self, part, row, col):
-            super(Part.AddVirtualHelixCommand, self).__init__()
-            self._part = part
-            self._parityEven = self.isEvenParity((row,col))
-            idNum = part.reserveHelixIDNumber(self._parityEven, requestedIDnum=None))
-            self._vhelix = VirtualHelix(part, row, col, idNum)
-            self._idNum = idNum
-        # end def
-
-        def redo(self):
-            vh = self._vhelix
-            part = self._part
-            idNum = self._idNum
-            
-            vh.setPart(part)
-            part._addVirtualHelix(vh)
-            vh.setNumber(idNum)
-            if not vh.number():
-                part.reserveHelixIDNumber(self._parityEven, requestedIDnum=idNum)
-            # end if
-            part.virtualHelixAddedSignal.emit(vh)
-        # end def
-
-        def undo(self):
-            vh = self._vhelix
-            part = self._part
-            idNum = self_idNum
-            
-            part._removeVirtualHelix(vh)
-            part.recycleHelixIDNumber(idNum)
-            
-            # clear out part references
-            vh.setPart(None)
-            vh.setNumber(None)
-            
-            vh.virtualHelixRemovedSignal.emit(vh)
-        # end def
-
-    # end class
-    
-    ### COMMANDS ###
-    class RemoveVirtualHelixCommand(QUndoCommand):
-        """Inserts strandToAdd into strandList at index idx."""
-        def __init__(self, part, virtualHelix):
-            super(Part.RemoveVirtualHelixCommand, self).__init__()
-            self._part = part
-            self._vhelix = virtualHelix
-            self._idNum = virtualHelix.number()
-            
-            # is the number even or odd?  Assumes a valid idNum, row,col combo
-            self._parityEven = (self._idNum % 2) == 0
-        # end def
-
-        def redo(self):
-            vh = self._vhelix
-            part = self._part
-            idNum = self_idNum
-            
-            part._removeVirtualHelix(vh)
-            part.recycleHelixIDNumber(idNum)
-            
-            # clear out part references
-            vh.setPart(None)
-            vh.setNumber(None)
-
-            vh.virtualHelixRemovedSignal.emit(vh)
-        # end def
-
-        def undo(self):
-            vh = self._vhelix
-            part = self._part
-            idNum = self._idNum
-            
-            vh.setPart(part)
-            part._addVirtualHelix(vh)
-            vh.setNumber(idNum)
-            if not vh.number():
-                part.reserveHelixIDNumber(self._parityEven, requestedIDnum=idNum)
-            
-            part.virtualHelixAddedSignal.emit(vh)
-        # end def
-
-    # end class
+    def subStepSize(self):
+        """docstring for subStepSize"""
+        return self._subStepSize
 
     def newPart(self):
         """
@@ -339,11 +255,11 @@ class Part(QObject):
         part = self.newPart()
         part._virtualHelices = dict(self._virtualHelices)
         part._oligos = dict(self._oligos)
-        part._bounds = (self._bounds[0], self._bounds[1])
+        part._maxBaseIdx = self._maxBaseIdx
         part._partInstances = list(self._partInstances)
         return part
     # end def
-    
+
     def deepCopy(self):
         """
         1) Create a new part
@@ -392,7 +308,86 @@ class Part(QObject):
         # end for
         return part
     # end def
-    
+
+    ### COMMANDS ###
+    class CreateVirtualHelixCommand(QUndoCommand):
+        """Inserts strandToAdd into strandList at index idx."""
+        def __init__(self, part, row, col):
+            super(Part.AddVirtualHelixCommand, self).__init__()
+            self._part = part
+            self._parityEven = self.isEvenParity((row,col))
+            idNum = part.reserveHelixIDNumber(self._parityEven, requestedIDnum=None))
+            self._vhelix = VirtualHelix(part, row, col, idNum)
+            self._idNum = idNum
+        # end def
+
+        def redo(self):
+            vh = self._vhelix
+            part = self._part
+            idNum = self._idNum
+
+            vh.setPart(part)
+            part._addVirtualHelix(vh)
+            vh.setNumber(idNum)
+            if not vh.number():
+                part.reserveHelixIDNumber(self._parityEven, requestedIDnum=idNum)
+            # end if
+            part.virtualHelixAddedSignal.emit(vh)
+        # end def
+
+        def undo(self):
+            vh = self._vhelix
+            part = self._part
+            idNum = self_idNum
+
+            part._removeVirtualHelix(vh)
+            part.recycleHelixIDNumber(idNum)
+
+            # clear out part references
+            vh.setPart(None)
+            vh.setNumber(None)
+
+            vh.virtualHelixRemovedSignal.emit(vh)
+        # end def
+    # end class
+
+    ### COMMANDS ###
+    class RemoveVirtualHelixCommand(QUndoCommand):
+        """Inserts strandToAdd into strandList at index idx."""
+        def __init__(self, part, virtualHelix):
+            super(Part.RemoveVirtualHelixCommand, self).__init__()
+            self._part = part
+            self._vhelix = virtualHelix
+            self._idNum = virtualHelix.number()
+            # is the number even or odd?  Assumes a valid idNum, row,col combo
+            self._parityEven = (self._idNum % 2) == 0
+        # end def
+
+        def redo(self):
+            vh = self._vhelix
+            part = self._part
+            idNum = self_idNum
+            part._removeVirtualHelix(vh)
+            part.recycleHelixIDNumber(idNum)
+            # clear out part references
+            vh.setPart(None)
+            vh.setNumber(None)
+            vh.virtualHelixRemovedSignal.emit(vh)
+        # end def
+
+        def undo(self):
+            vh = self._vhelix
+            part = self._part
+            idNum = self._idNum
+            vh.setPart(part)
+            part._addVirtualHelix(vh)
+            vh.setNumber(idNum)
+            if not vh.number():
+                part.reserveHelixIDNumber(self._parityEven, requestedIDnum=idNum)
+            part.virtualHelixAddedSignal.emit(vh)
+        # end def
+    # end class
+
     ############################# VirtualHelix ID Number Management #############################
     # Used in both square, honeycomb lattices and so it's shared here
     def reserveHelixIDNumber(self, parityEven=True, requestedIDnum=None):

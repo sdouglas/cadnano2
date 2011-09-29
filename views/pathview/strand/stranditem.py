@@ -29,7 +29,7 @@ from exceptions import NotImplementedError
 import util
 # import Qt stuff into the module namespace with PySide, PyQt4 independence
 util.qtWrapImport('QtCore', globals(), ['pyqtSignal', 'QObject'])
-util.qtWrapImport('QtGui', globals(), [ 'QUndoCommand', 'QUndoStack'])
+util.qtWrapImport('QtGui', globals(), ['Qt'])
 
 class StrandItem(QGraphicsPathItem):
     def __init__(self, parent):
@@ -63,4 +63,38 @@ class StrandItem(QGraphicsPathItem):
         self._oligo.sequenceAddedSignal.disconnect(self.sequenceAddedSlot)
         self._oligo.sequenceClearedSignal.disconnect(self.sequenceClearedSlot)
 
-    ### COMMANDS ###
+    ### TOOL METHODS ###
+    def breakToolMouseRelease(self, event):
+        """
+        if strandCanBeSplit(strand, baseIdx):
+            strandSet.splitStrand(strand, baseIdx)
+        """
+        pass
+    # end def
+
+    def decoratorToolMouseRelease(self, event):
+        """
+        if strandDecoratorCanBeAdded(strand, baseIdx):
+            strandSet.addDecorator(strand, baseIdx, decorator)
+        """
+        pass
+    # end def
+
+    def forceToolMouseRelease(self, event):
+        """
+        if self._fromStrand == None:   # first mouse release
+            if strand is present, store fromStrand, fromIdx
+        else:  # second mouse release
+            if strand is present, install xover from fromStrand, fromIdx
+        if strandDecoratorCanBeAdded(strand, baseIdx):
+            strandSet.addDecorator(strand, baseIdx, decorator)
+        """
+        pass
+    # end def
+
+    def forceToolEscapeKeyPressed(self):
+        """
+        if fromStrand, fromIdx != None, None: set to None, None
+        clear drawing
+        """
+        pass

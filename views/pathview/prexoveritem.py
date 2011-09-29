@@ -28,16 +28,16 @@
 import util
 # import Qt stuff into the module namespace with PySide, PyQt4 independence
 util.qtWrapImport('QtCore', globals(), ['pyqtSignal', 'QObject'])
-util.qtWrapImport('QtGui', globals(), [ 'QUndoCommand', 'QUndoStack'])
+util.qtWrapImport('QtGui', globals(), [])
 
 class PreXoverItem(QGraphicsPathItem):
     def __init__(self, parent):
         super(PreXoverItem, self).__init__(parent)
 
-    ### SIGNALS ###
+    ### DRAWING METHODS ###
 
-    ### SLOTS ###
-
-    ### METHODS ###
-
-    ### COMMANDS ###
+    ### TOOL METHODS ###
+    def selectToolMousePress(self, event):
+        """removexover(fromStrand, fromIdx, toStrand, toIdx)"""
+        pass
+    # end def

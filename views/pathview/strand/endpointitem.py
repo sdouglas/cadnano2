@@ -29,7 +29,7 @@ from exceptions import NotImplementedError
 import util
 # import Qt stuff into the module namespace with PySide, PyQt4 independence
 util.qtWrapImport('QtCore', globals(), ['pyqtSignal', 'QObject'])
-util.qtWrapImport('QtGui', globals(), [ 'QUndoCommand', 'QUndoStack'])
+util.qtWrapImport('QtGui', globals(), [])
 
 class EndpointItem(QGraphicsPathItem):
     def __init__(self, parent):
@@ -40,4 +40,31 @@ class EndpointItem(QGraphicsPathItem):
 
     ### SLOTS ###
 
-    ### METHODS ###
+    ### TOOL METHODS ###
+    def selectToolMousePress(self, event):
+        """docstring for selectToolMousePress"""
+        # self._dragBounds = strand.getDragBounds()
+        # self._startIdx = 
+        pass
+    # end def
+
+    def selectToolMouseMove(self, event):
+        """docstring for selectToolMouseMove"""
+        # snap to grid location
+        # notify stranditem to redraw horiz line
+        pass
+    # end def
+
+    def selectToolMouseRelease(self, event):
+        """docstring for selectToolMouseRelease"""
+        endIdx = 
+        if self._startIdx
+        pass
+    # end def
+
+    def mergeToolMouseRelease(self, event):
+        """Attempts to merge strand with its neighbor."""
+        # if strandset.strandsCanBeMerged(priorityStrand, otherStrand):
+        #     strandset.mergeStrands(priorityStrand, otherStrand)
+        pass
+    # end def

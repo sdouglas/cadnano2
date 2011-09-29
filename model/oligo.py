@@ -29,7 +29,7 @@
 import util
 # import Qt stuff into the module namespace with PySide, PyQt4 independence
 util.qtWrapImport('QtCore', globals(), ['pyqtSignal', 'QObject'])
-util.qtWrapImport('QtGui', globals(), [ 'QUndoCommand', 'QUndoStack'])
+util.qtWrapImport('QtGui', globals(), [])
 
 class Oligo(QObject):
     """
@@ -107,11 +107,11 @@ class Oligo(QObject):
     def setLength(self, length):
         return self._length = length
 
-    def addStrandLength(self, strand):
+    def incrementStrandLength(self, strand):
         self.setLength(self._length+strand.length())
     # end def
 
-    def removeStrandLength(self, strand):
+    def decrementStrandLength(self, strand):
         self.setLength(self._length-strand.length())
     # end def
 
@@ -185,7 +185,7 @@ class Oligo(QObject):
             self._strand5p = oldStrandHigh.oligo()._strand5p
         # end if
     # end def
-    
+
     def strandResized(self, delta):
         """Called by a strand after resize. Delta is used to update the
         length, which may case an appearance change."""

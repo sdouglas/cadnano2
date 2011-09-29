@@ -36,7 +36,7 @@ class Crossovers:
 class SquarePart(Part):
     _step = 32  # 21 in honeycomb
     _activeSlice = _step
-    _majorGridLine = _step / 4
+    _subStepSize = _step / 4
     # Used in VirtualHelix::potentialCrossoverList
     scafL = Crossovers.squareScafLeft
     scafR = Crossovers.squareScafRight
