@@ -186,7 +186,7 @@ class SelectionItemGroup(QGraphicsItemGroup):
             self.selectionbox.hide()
             self.selectionbox.resetTransform()
             self.removeSelectedItems()
-            self.partItem().selectionLock = None
+            self.partItem().setSelectionLock(None)
             self.clearFocus() # this is to disable delete keyPressEvents
         # end if
         else:
@@ -262,9 +262,9 @@ class PathHelixHandleSelectionBox(QGraphicsPathItem):
 
     def __init__(self, itemGroup):
         super(PathHelixHandleSelectionBox, self).__init__(itemGroup.partItem())
-        self.itemGroup = itemGroup
+        self._itemGroup = itemGroup
         self._rect = itemGroup.boundingRect()
-        self.partItem = itemGroup.partItem()
+        self._partItem = itemGroup.partItem()
         self.setParentItem(itemGroup.partItem())
         self.hide()
         self.setPen(self._boxPen)
@@ -277,7 +277,7 @@ class PathHelixHandleSelectionBox(QGraphicsPathItem):
     # end def
 
     def painterPath(self):
-        iG = self.itemGroup
+        iG = self._itemGroup
         # the childrenBoundingRect is necessary to get this to work
         rect = self.mapRectFromItem(iG,iG.childrenBoundingRect() )
         radius = self._radius
@@ -293,7 +293,7 @@ class PathHelixHandleSelectionBox(QGraphicsPathItem):
 
     def processSelectedItems(self, rStart, rEnd):
         """docstring for processSelectedItems"""
-        margin = styles.PATHHELIXHANDLE_RADIUS
+        margin = styles.VIRTUALHELIXHANDLEITEM_RADIUS
         delta = (rEnd - rStart)  # r delta
         midHeight = (self.boundingRect().height()) / 2 - margin
         helixHeight = self._helixHeight
@@ -305,8 +305,8 @@ class PathHelixHandleSelectionBox(QGraphicsPathItem):
         else:  # moved up, delta is negative
             indexDelta = int((delta + midHeight) / helixHeight)
         # sort on y to determine the extremes of the selection group
-        items = sorted(self.itemGroup.childItems(), key=lambda vhhi: vhhi.y())
-        self.partItem.reorderHelices(items[0].number(),\
+        items = sorted(self._itemGroup.childItems(), key=lambda vhhi: vhhi.y())
+        self._partItem.reorderHelices(items[0].number(),\
                                    items[-1].number(),\
                                    indexDelta)
     # end def

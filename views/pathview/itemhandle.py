@@ -211,8 +211,8 @@ class VirtualHelixItemHandle(QGraphicsEllipseItem):
         partItem = self._partItem
         
         if change == QGraphicsItem.ItemSelectedHasChanged and self.scene():
-            selectionGroup = partItem.phhSelectionGroup
-            lock = selectionGroup.partItem().selectionLock
+            selectionGroup = partItem.vhiHandleSelectionGroup()
+            lock = selectionGroup.partItem().selectionLock()
             
             # only add if the selectionGroup is not locked out
             if value == True and (lock == None or lock == selectionGroup):
@@ -220,7 +220,7 @@ class VirtualHelixItemHandle(QGraphicsEllipseItem):
                     # print "preadd", self.number(), self.parentItem(), self.group()
                     selectionGroup.addToGroup(self)
                     # print "postadd", self.number(), self.parentItem(), self.group()
-                    selectionGroup.partItem().selectionLock = selectionGroup
+                    selectionGroup.partItem().setSelectionLock(selectionGroup)
                     self.penAndBrushSet(True)
                     return
             # end if
@@ -231,8 +231,11 @@ class VirtualHelixItemHandle(QGraphicsEllipseItem):
             # end else
         # end if
         elif change == QGraphicsItem.ItemSelectedChange and self.scene():
-            selectionGroup = partItem.phhSelectionGroup
-            lock = selectionGroup.partItem().selectionLock
+            selectionGroup = partItem.vhiHandleSelectionGroup()
+            
+            temp = selectionGroup.partItem()
+            lock = temp.selectionLock() if temp else None
+            
             if value == True and (lock == None or lock == selectionGroup):
                 self.penAndBrushSet(True)
                 return True

@@ -56,7 +56,7 @@ class VirtualHelixItem(QGraphicsEllipseItem):
     _outOfSliceBrush = QBrush(styles.lightorangefill)
     _rect = QRectF(0, 0, 2 * _radius, 2 * _radius)
     _font = styles.SLICE_NUM_FONT
-    _ZVALUE = styles.ZSLICEHELIX+2
+    _ZVALUE = styles.ZSLICEHELIX+3
 
     def __init__(self, virtualHelix, helixItem):
         """

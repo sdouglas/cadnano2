@@ -44,7 +44,6 @@ class VirtualHelixItem(QGraphicsPathItem):
     def __init__(self, partItem, modelVirtualHelix):
         super(VirtualHelixItem, self).__init__(partItem)
         self._partItem = partItem
-        self._modelPart = partItem.modelPart()
         self._modelVirtualHelix = modelVirtualHelix
         self.setAcceptHoverEvents(True)  # for pathtools
         self.setFlag(QGraphicsItem.ItemUsesExtendedStyleOption)
@@ -85,16 +84,17 @@ class VirtualHelixItem(QGraphicsPathItem):
         dividing scaffold and staple bases.
         """
         bw = self._baseWidth
+        part = self.part()
         
         if self._minorGridPainterPath:
             return self._minorGridPainterPath
         path = QPainterPath()
-        canvasSize = self._modelPart.maxBaseIdx()
+        canvasSize = part.maxBaseIdx()
         # border
         path.addRect(0, 0, bw * canvasSize, 2 * bw)
         # minor tick marks
         for i in range(canvasSize):
-            if (i % self._modelPart.subStepSize() != 0):
+            if (i % part.subStepSize() != 0):
                 x = round(bw * i) + .5
                 path.moveTo(x, 0)
                 path.lineTo(x, 2 * bw)
@@ -111,13 +111,14 @@ class VirtualHelixItem(QGraphicsPathItem):
         pens can be used for each.
         """
         bw = self._baseWidth
+        part = self.part()
         
         if self._majorGridPainterPath:
             return self._majorGridPainterPath
         path = QPainterPath()
-        canvasSize = self._modelPart.maxBaseIdx()
+        canvasSize = part.maxBaseIdx()
         # major tick marks
-        for i in range(0, canvasSize + 1, self._modelPart.subStepSize()):
+        for i in range(0, canvasSize + 1, part.subStepSize()):
             x = round(bw * i) + .5
             path.moveTo(x, .5)
             path.lineTo(x, 2 * bw - .5)
@@ -126,6 +127,14 @@ class VirtualHelixItem(QGraphicsPathItem):
     
     def handle(self):
         return self._handle
+    # end def
+    
+    def number(self):
+        return self._modelVirtualHelix.number()
+    # end def
+    
+    def part(self):
+        return self._partItem.modelPart()
     # end def
 
     ### TOOL METHODS ###

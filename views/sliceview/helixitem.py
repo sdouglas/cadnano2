@@ -48,9 +48,9 @@ class HelixItem(QGraphicsEllipseItem):
     _hoverPen = QPen(styles.bluestroke, styles.SLICE_HELIX_HILIGHT_WIDTH)
     _radius = styles.SLICE_HELIX_RADIUS
     temp = styles.SLICE_HELIX_STROKE_WIDTH
-    _rectDefault = QRectF(-temp/2, -temp/2, 2 * _radius, 2 * _radius)
-    temp = styles.SLICE_HELIX_HILIGHT_WIDTH - temp
-    _rectHovered = _rectDefault.adjusted(-temp/2, -temp/2, temp, temp)
+    _rectDefault = QRectF(0, 0, 2 * _radius, 2 * _radius)
+    temp = (styles.SLICE_HELIX_HILIGHT_WIDTH - temp)/2
+    _rectHovered = _rectDefault.adjusted(-temp, -temp, temp, temp)
     _ZDefault = styles.ZSLICEHELIX 
     _ZHovered = _ZDefault+1 
     temp /= 2
@@ -67,7 +67,6 @@ class HelixItem(QGraphicsEllipseItem):
         self.hide()
         self._isHovered = False
         self.setAcceptsHoverEvents(True)
-        # self.penAndBrushSet(False)
         
         self.setNotHovered()
         
@@ -127,7 +126,7 @@ class HelixItem(QGraphicsEllipseItem):
         self.setBrush(self._hoverBrush)
         self.setPen(self._hoverPen)
         self.update(self.boundingRect())
-        self.translateVH(self._adjustmentPlus)
+        # self.translateVH(self._adjustmentPlus)
         self._isHovered = True
         self.setZValue(self._ZHovered)
         self.setRect(self._rectHovered)
@@ -144,7 +143,7 @@ class HelixItem(QGraphicsEllipseItem):
     def setNotHovered(self):
         self.setBrush(self._defaultBrush)
         self.setPen(self._defaultPen)
-        self.translateVH(self._adjustmentMinus)
+        # self.translateVH(self._adjustmentMinus)
         self._isHovered = False
         self.setZValue(self._ZDefault)
         self.setRect(self._rectDefault)

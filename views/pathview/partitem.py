@@ -51,6 +51,7 @@ class PartItem(QGraphicsPathItem):
                                                  boxtype=PathHelixHandleSelectionBox,\
                                                  constraint='y',\
                                                  parent=self)
+        self._selectionLock = None
     # end def
         
     ### SIGNALS ###
@@ -113,7 +114,7 @@ class PartItem(QGraphicsPathItem):
 
     def _setVirtualHelixItemList(self, newList, zoomToFit=True):
         """
-        Give me a list of VirtualHelix and I'll parent them to myself if
+        Give me a list of VirtualHelixItems and I'll parent them to myself if
         necessary, position them in a column, adopt their handles, and
         position them as well.
         """
@@ -148,9 +149,39 @@ class PartItem(QGraphicsPathItem):
             y += step
             # self.updatePreXOverHandles()
         # end for
-        self._virtualHelixList = newList
+        self._virtualHelixItemList = newList
         if zoomToFit:
             self.scene().views()[0].zoomToFit()
+    # end def
+    
+    def reorderHelices(self, first, last, indexDelta):
+        """
+        Reorder helices by moving helices _pathHelixList[first:last]
+        by a distance delta in the list. Notify each PathHelix and
+        PathHelixHandle of its new location.
+        """
+        vhiList = self._virtualHelixItemList
+        helixNumbers = [vhi.number() for vhi in vhiList]
+        firstIndex = helixNumbers.index(first)
+        lastIndex = helixNumbers.index(last) + 1
+        
+        if indexDelta < 0:  # move group earlier in the list
+            newIndex = max(0, indexDelta + firstIndex)
+            newList = vhiList[0:newIndex] +\
+                                vhiList[firstIndex:lastIndex] +\
+                                vhiList[newIndex:firstIndex] +\
+                                vhiList[lastIndex:]
+        # end if
+        else:  # move group later in list
+            newIndex = min(len(vhiList), indexDelta + lastIndex)
+            newList = vhiList[:firstIndex] +\
+                                 vhiList[lastIndex:newIndex] +\
+                                 vhiList[firstIndex:lastIndex] +\
+                                 vhiList[newIndex:]
+        # end else
+        
+        # call the method to move the items and store the list
+        self._setVirtualHelixItemList(newList, zoomToFit=False)
     # end def
     
     def activeVirtualHelixItem(self):
@@ -160,6 +191,18 @@ class PartItem(QGraphicsPathItem):
         if newActiveVHI != self._activeVirtualHelixItem:
             self._modelPart.setActiveVirtualHelix(newActiveVHI.virtualHelix())
             self.setPreXOverHandlesVisible(newActiveVHI, True)
+    # end def
+    
+    def vhiHandleSelectionGroup(self):
+        return self._vhiHSelectionGroup
+    # end def
+    
+    def selectionLock(self):
+        return self._selectionLock
+    # end def
+    
+    def setSelectionLock(self, locker):
+        self._selectionLock = locker
     # end def
     
     def preXOverHandlesVisible(self):
