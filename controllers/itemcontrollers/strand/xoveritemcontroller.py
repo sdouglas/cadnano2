@@ -27,6 +27,25 @@ from controllers.itemcontrollers.strand.abstractstranditemcontroller \
 
 
 class XoverItemController(AbstractStrandItemController):
-    def __init__(self, strandItem, modelOligo, modelStrand):
-        super(XoverItemController, self).__init__(strandItem, modelOligo, modelStrand)
-
+    def __init__(self, strandItem, modelStrand):
+        super(XoverItemController, self).__init__(strandItem, modelStrand)
+        self.connectSignals()
+    # end def
+    
+    def connectSignals(self):
+        AbstractStrandItemController.connectSignals(self)
+        
+        sItem = self._strandItem
+        mS = self._modelStrand
+        
+        mS.xover3pDestroyedSignal.connect(sItem.xover3pDestroyedSlot)
+    # end def
+    
+    def disconnectSignals(self):
+        AbstractStrandItemController.disconnectSignals(self)
+        
+        sItem = self._strandItem
+        mS = self._modelStrand
+        
+        mS.xover3pDestroyedSignal.disconnect(sItem.xover3pDestroyedSlot)
+    # end def

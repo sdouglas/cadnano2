@@ -119,8 +119,12 @@ class PartItem(QGraphicsItem):
         print "PartItem.xover3pDestroyedSlot"
         pass
 
-    def destroy(self):
-
+    def virtualHelixAddedSlot(self, virtualHelix):
+        vh = virtualHelix
+        coords = vh.coords()
+        helixItem = self._helixhash[coords]
+        # TODO test to see if self._virtualHelixHash is necessary
+        self._virtualHelixHash[coords] = VirtualHelixItem(vh, helixItem)
     # end def
 
     ############################ Private Methods ############################

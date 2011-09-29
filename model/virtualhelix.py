@@ -57,8 +57,9 @@ class VirtualHelix(QObject):
     # end def
 
     ### SIGNALS ###
-    virtualHelixRemovedSignal = pyqtSignal(QObject) # self
-
+    removedSignal = pyqtSignal(QObject) # self
+    numberChangedSignal = pyqtSignal(QObject) # self
+    
     ### SLOTS ###
 
     ### Methods ###
@@ -124,12 +125,18 @@ class VirtualHelix(QObject):
             return self._stapStrandSet
     # end def
 
-    def getStrand(self, strandType):
+    def getStrandSet(self, strandType):
         if strandType == StrandType.Scaffold:
             return self._scafStrandSet
         else:
             return self._stapStrandSet
     # end def
+
+    def getStrandSets(self):
+        """
+        return a tuple of the scaffold and staple StrandSets
+        """
+        return self._scafStrandSet, self._stapStrandSet
 
     def strandSetBounds(self, indexHelix, indexType):
         """

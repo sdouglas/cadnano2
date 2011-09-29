@@ -34,9 +34,10 @@ from model.enum import Parity, StrandType
 
 import util
 # import Qt stuff into the module namespace with PySide, PyQt4 independence
-util.qtWrapImport('QtCore', globals(), ['Qt', 'QEvent', 'QString', 'QRectF',
+util.qtWrapImport('QtCore', globals(), ['Qt', 'QEvent', 'QString', 'QRectF',\
                                         'QPointF'])
-util.qtWrapImport('QtGui', globals(), ['QGraphicsEllipseItem', 'QBrush', 'QPen'])
+util.qtWrapImport('QtGui', globals(), ['QGraphicsEllipseItem', \
+                                'QGraphicsSimpleTextItem', 'QBrush', 'QPen'])
 
 class VirtualHelixItem(QGraphicsEllipseItem):
     """
@@ -76,9 +77,28 @@ class VirtualHelixItem(QGraphicsEllipseItem):
         # handle the label specific stuff
         self._label = self.createLabel()
         self.setNumber()
-        virtualHelix.numberChangedSignal.connect(self.numberChangedSlot)
+        
         self.show()
     # end def
+    
+    ### SIGNALS ###
+
+    ### SLOTS ###
+    def numberChangedSlot(self, virtualHelix):
+        """
+        receives a signal containing a virtualHelix and the oldNumber 
+        as a safety check
+        """
+        self.setNumber()
+    # end def
+    
+    def removedSlot(self, virtualHelix):
+        self._virtualHelix = None
+        self._helixItem = None
+        self.scene().removeItem(self)
+    # end def
+    
+    ###
     
     def createLabel(self):
         label = QGraphicsSimpleTextItem("%d" % self._virtualHelix.number())
@@ -132,15 +152,6 @@ class VirtualHelixItem(QGraphicsEllipseItem):
         if not select and self.focusRing:
             self.focusRing.scene().removeItem(self.focusRing)
             self.focusRing = None
-    # end def
-    
-    ### SLOTS ###
-    def numberChangedSlot(self, virtualHelix, oldNum):
-        """
-        receives a signal containing a virtualHelix and the oldNumber 
-        as a safety check
-        """
-        
     # end def
 
     ############################ Painting ############################

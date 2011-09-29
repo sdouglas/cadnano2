@@ -86,9 +86,21 @@ class HelixItem(QGraphicsEllipseItem):
         virtualHelixItem should be the HelixItems only child if it exists
         and virtualHelix should be it member
         """
+        temp = self.virtualHelixItem()
+        if temp:
+            return temp.virtualHelix()
+        else:
+            return None
+    # end def
+    
+    def virtualHelixItem(self):
+        """
+        virtualHelixItem should be the HelixItems only child if it exists
+        and virtualHelix should be it member
+        """
         temp = self.childItems()
         if len(temp) > 0:
-            return temp[0].virtualHelix()
+            return temp[0]
         else:
             return None
     # end def

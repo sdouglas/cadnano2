@@ -27,16 +27,53 @@ from controllers.itemcontrollers.strand.abstractstranditemcontroller \
 
 
 class StrandItemController(AbstractStrandItemController):
-    def __init__(self, strandItem, modelOligo, modelStrand):
-        super(StrandItemController, self).__init__(strandItem, modelOligo, modelStrand)
-
+    def __init__(self, strandItem, modelStrand):
+        super(StrandItemController, self).__init__(strandItem, modelStrand)
+        self.connectSignals()
+    # end def
     ### METHODS ###
+    def reconnectOligoSignals(self, newOligo):
+        AbstractStrandItemController.disconnectOligoSignals(self)
+        self.disconnectOligoSignals()
+        self._modelOligo = newOligo
+        AbstractStrandItemController.connectOligoSignals(self)
+        self.connectOligoSignals()
+    # end def
+    
     def connectSignals(self):
-        self.modelStrand.resizedSignal.connect(self._strandItem.strandResizedSlot)
-        self.modelOligo.sequenceAddedSignal.connect(self._strandItem.sequenceAddedSlot)
-        self.modelOligo.sequenceClearedSignal.connect(self._strandItem.sequenceClearedSlot)
+        AbstractStrandItemController.connectSignals(self)
+        
+        sItem = self._strandItem
+        mS = self._modelStrand
+        
+        mS.resizedSignal.connect(sItem.strandResizedSlot)
+        self.connectOligoSignals()
+    # end def
+    
+    def connectOligoSignals(self):
+        
+        sItem = self._strandItem
+        mO = self._modelOligo
+        
+        mO.sequenceAddedSignal.connect(sItem.sequenceAddedSlot)
+        mO.sequenceClearedSignal.connect(sItem.sequenceClearedSlot)
+    # end def
 
     def disconnectSignals(self):
-        self.modelStrand.resizedSignal.disconnect(self._strandItem.strandResizedSlot)
-        self.modelOligo.sequenceAddedSignal.disconnect(self._strandItem.sequenceAddedSlot)
-        self.modelOligo.sequenceClearedSignal.disconnect(self._strandItem.sequenceClearedSlot)
+        AbstractStrandItemController.disconnectSignals(self)
+        
+        sItem = self._strandItem
+        mS = self._modelStrand
+        
+        mS.resizedSignal.disconnect(sItem.strandResizedSlot)
+        self.disconnectOligoSignals()
+    # end def
+    
+    def disconnectOligoSignals(self):
+
+        sItem = self._strandItem
+        mO = self._modelOligo
+
+        mO.sequenceAddedSignal.disconnect(sItem.sequenceAddedSlot)
+        mO.sequenceClearedSignal.disconnect(sItem.sequenceClearedSlot)
+    # end def

@@ -287,7 +287,7 @@ class Part(QObject):
             for strand in strandGenerator:
                 idNum = strand.virtualHelix().number()
                 newVHelix = part._virtualHelices[idNum]
-                newStrandSet = newVHelix().getStrand(strandType)
+                newStrandSet = newVHelix().getStrandSet(strandType)
                 newStrand = strand.deepCopy(newStrandSet, newOligo)
                 if lastStrand:
                     lastStrand.set3pConnection(newStrand)
