@@ -46,7 +46,7 @@ class Oligo(QObject):
         self._isLoop = False
         self._color = "#0066cc"
     # end def
-    
+
     def shallowCopy(self):
         olg = Oligo(self._part)
         olg._strand5p = self._strand5p
@@ -55,7 +55,7 @@ class Oligo(QObject):
         olg._color = self._color
         return olg
     # end def
-    
+
     def deepCopy(self, part):
         olg = Oligo(part)
         olg._strand5p = None
@@ -139,7 +139,6 @@ class Oligo(QObject):
         If the oligo is a loop, splitting the strand does nothing. If the
         oligo isn't a loop, a new oligo must be created and assigned to the
         newStrand and everything connected to it downstream.
-
         """
         # if you split it can't be a loop
         self._isLoop = False
@@ -155,8 +154,7 @@ class Oligo(QObject):
 
     def strandMergeUpdate(self, oldStrandLow, oldStrandHigh):
         """
-        This method correctly sets the isLoop status of the oligo and the
-        oligo
+        This method sets the isLoop status of the oligo and the oligo.
         """
         # check loop status
         if oldStrandLow.oligo() == oldStrandHigh.oligo():

@@ -60,7 +60,10 @@ class StrandSet(QObject):
         return self._strandList.__iter__()
 
     def __repr__(self):
-        type = self._strandType[:4]
+        if self._strandType == 0:
+            type = 'scaf'
+        else:
+            type = 'stap'
         num = self._virtualHelix.number()
         return "%s_StrandSet(%d)" % (type, num)
 
@@ -144,9 +147,6 @@ class StrandSet(QObject):
         Assumes a strand is being created at a valid set of indices.
         """
         boundsLow, boundsHigh = self.getBoundsOfEmptyRegionContaining(baseIdxLow)
-        assert(baseIdxLow < baseIdxHigh)
-        assert(boundsLow <= baseIdxLow)
-        assert(baseIdxHigh <= boundsHigh)
         strandSetIdx, canInsert = self.getIndexToInsert(baseIdxLow, baseIdxHigh)
         if canInsert:
             c = StrandSet.CreateStrandCommand(self, baseIdxLow, baseIdxHigh, strandSetIdx)
@@ -400,13 +400,13 @@ class StrandSet(QObject):
             """
             if
             1. we ran out of strands to test adjust
-            and
+                OR
             2. the end condition tempStrands highIndex is still inside the
             qstrand but not equal to the end point
                 adjust i down 1
             otherwise
             """
-            if not tempStrand and tempStrand.highIdx() < qHigh - 1:
+            if not tempStrand or tempStrand.highIdx() < qHigh - 1:
                 i -= 1
             # assign cache but double check it's a valid index
             self._lastStrandSetIndex = i if -1 < i < lenStrands else None

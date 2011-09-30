@@ -162,21 +162,30 @@ class VirtualHelixItem(QGraphicsPathItem):
 
     ### EVENT HANDLERS ###
     def mousePressEvent(self, event):
-        """Parses a mousePressEvent and forwards it as necessary."""
+        """
+        Parses a mousePressEvent to extract strandSet and base index,
+        forwarding them to approproate tool method as necessary.
+        """
         toolMethodName = str(self._activeTool()) + "MousePress"
         if hasattr(self, toolMethodName):
             strandSet, idx = self.baseAtPoint(event.pos())
             getattr(self, toolMethodName)(strandSet, idx)
 
     def mouseMoveEvent(self, event):
-        """Parses a mouseMoveEvent and forwards it as necessary."""
+        """
+        Parses a mouseMoveEvent to extract strandSet and base index,
+        forwarding them to approproate tool method as necessary.
+        """
         toolMethodName = str(self._activeTool()) + "MouseMove"
         if hasattr(self, toolMethodName):
             strandSet, idx = self.baseAtPoint(event.pos())
             getattr(self, toolMethodName)(strandSet, idx)
 
     def mouseReleaseEvent(self, event):
-        """Parses a mouseMoveEvent and forwards it as necessary."""
+        """
+        Parses a mouseReleaseEvent to extract strandSet and base index,
+        forwarding them to approproate tool method as necessary.
+        """
         toolMethodName = str(self._activeTool()) + "MouseRelease"
         if hasattr(self, toolMethodName):
             strandSet, idx = self.baseAtPoint(event.pos())
@@ -207,13 +216,13 @@ class VirtualHelixItem(QGraphicsPathItem):
 
     ### TOOL METHODS ###
     def selectToolMousePress(self, strandSet, idx):
-        """virtualhelix.getVStrandAndDragBounds(pos), store startIdx"""
+        """strand.getDragBounds"""
         print "%s: %s[%s]" % (util.methodName(), strandSet, idx)
         pass
     # end def
 
     def selectToolMouseMove(self, strandSet, idx):
-        """draw pseudoStrandGraphicsItem from startIdx to endIdx"""
+        """move endpoint to new location"""
         print "%s: %s[%s]" % (util.methodName(), strandSet, idx)
         pass
     # end def

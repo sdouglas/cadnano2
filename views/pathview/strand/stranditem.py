@@ -117,9 +117,7 @@ class StrandItem(QGraphicsLineItem):
         pass
     # end def
 
-    ### METHODS ###
-
-
+    ### DRAWING METHODS ###
     def update(self, strand):
         """
         Prepare NormalStrand for drawing:
@@ -187,7 +185,4 @@ class StrandItem(QGraphicsLineItem):
         self._highCap.setBrush(brush)
         self._dualCap.setBrush(brush)
     # end def
-    
 
-    ### COMMANDS ###
-    
