@@ -58,6 +58,11 @@ class StrandSet(QObject):
         """Iterate over each strand in the strands list."""
         return self._strandList.__iter__()
 
+    def __repr__(self):
+        type = self._strandType[:4]
+        num = self._virtualHelix.number()
+        return "%s_StrandSet(%d)" % (type, num)
+
     ### SIGNALS ###
     strandsetStrandAddedSignal = pyqtSignal(QObject)
 

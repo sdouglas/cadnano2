@@ -76,7 +76,10 @@ class VirtualHelix(QObject):
     def part(self):
         return self._part
     # end def
-    
+
+    def number(self):
+        return self._number
+
     def setPart(self, newPart):
         self._part = newPart
         self.setParent(newPart)
@@ -113,19 +116,25 @@ class VirtualHelix(QObject):
         return isEven == isScaf
     # end def
 
-    def strandSet(self, indexHelix, indexType):
+    def getStrandSetByIdx(self, idx):
         """
         This is a path-view-specific accessor
-        indexType == 0 means top strand
-        indexType == 1 means bottom strand
+        idx == 0 means top strand
+        idx == 1 means bottom strand
         """
-        if indexType == 0 and self.isEvenParity():
-            return self._scafStrandSet
+        if idx == 0:
+            if self.isEvenParity():
+                return self._scafStrandSet
+            else:
+                return self._stapStrandSet
         else:
-            return self._stapStrandSet
+            if self.isEvenParity():
+                return self._stapStrandSet
+            else:
+                return self._scafStrandSet
     # end def
 
-    def getStrandSet(self, strandType):
+    def getStrandSetByType(self, strandType):
         if strandType == StrandType.Scaffold:
             return self._scafStrandSet
         else:
@@ -152,11 +161,11 @@ class VirtualHelix(QObject):
         """
         return self.strandSet(indexHelix, indexType).bounds()
     # end def
-    
+
     def shallowCopy(self):
         pass
     # end def
-    
+
     def deepCopy(self, part):
         """
         This only copies as deep as the VirtualHelix
@@ -172,5 +181,3 @@ class VirtualHelix(QObject):
         # the virtualhelix owns self._number and may modify it.
         self._number = idnum
     # end def
-    
-    

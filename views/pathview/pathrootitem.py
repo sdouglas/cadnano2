@@ -61,7 +61,7 @@ class PathRootItem(QGraphicsRectItem):
         self._modelPart = modelPart
         win = self._window
         partItem = PartItem(modelPart,\
-                            toolManager=win.pathToolManager,\
+                            activeTool=win.pathToolManager.activeTool,\
                             parent=win.pathroot)
         self._partItems.append(partItem)
         win.pathToolManager.setActivePart(partItem)

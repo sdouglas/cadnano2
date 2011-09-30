@@ -40,12 +40,12 @@ util.qtWrapImport('QtGui', globals(), ['QUndoCommand', 'QUndoStack',
                                        'QGraphicsPathItem'])
 
 class PartItem(QGraphicsPathItem):
-    def __init__(self, modelPart, toolManager, parent):
+    def __init__(self, modelPart, activeTool, parent):
         super(PartItem, self).__init__(parent)
         self._modelPart = modelPart
         self._virtualHelixHash = {}
         self._virtualHelixList = []
-        self._toolManager = toolManager
+        self._activeTool = activeTool
         self._controller = PartItemController(self, modelPart)
         self._vhiHSelectionGroup = SelectionItemGroup(\
                                                  boxtype=PathHelixHandleSelectionBox,\
@@ -84,7 +84,7 @@ class PartItem(QGraphicsPathItem):
         """
         # print "PartItem.virtualHelixAddedSlot"
         vh = modelVirtualHelix
-        vhi = VirtualHelixItem(self, modelVirtualHelix)
+        vhi = VirtualHelixItem(self, modelVirtualHelix, self._activeTool)
         vhi.setPos
         self._virtualHelixHash[vh.coords()] = vhi
         self._virtualHelixList.append(vhi)

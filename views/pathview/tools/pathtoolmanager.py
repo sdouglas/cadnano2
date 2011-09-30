@@ -25,13 +25,13 @@
 import os
 from cadnano import app
 from selecttool import SelectTool
-# from penciltool import PencilTool
+from penciltool import PencilTool
 from breaktool import BreakTool
-# from erasetool import EraseTool
-# from inserttool import InsertTool
-# from skiptool import SkipTool
-# from painttool import PaintTool
-# from addseqtool import AddSeqTool
+from erasetool import EraseTool
+from inserttool import InsertTool
+from skiptool import SkipTool
+from painttool import PaintTool
+from addseqtool import AddSeqTool
 import util
 
 # import Qt stuff into the module namespace with PySide, PyQt4 independence
@@ -49,13 +49,13 @@ class PathToolManager(QObject):
         self._activeTool = None
         self._activePart = None
         self.selectTool = SelectTool(self)
-        # self.forceTool = ForceTool(self)
+        self.pencilTool = PencilTool(self)
         self.breakTool = BreakTool(self)
-        # self.eraseTool = EraseTool(self)
-        # self.insertTool = InsertTool(self)
-        # self.skipTool = SkipTool(self)
-        # self.paintTool = PaintTool(self, win.pathGraphicsView.toolbar)
-        # self.addSeqTool = AddSeqTool(self)
+        self.eraseTool = EraseTool(self)
+        self.insertTool = InsertTool(self)
+        self.skipTool = SkipTool(self)
+        self.paintTool = PaintTool(self) # (self, win.pathGraphicsView.toolbar)
+        self.addSeqTool = AddSeqTool(self)
 
         def installTool(toolName, window):
             toolWidget = getattr(window, 'actionPath' + toolName)
@@ -74,11 +74,9 @@ class PathToolManager(QObject):
             toolWidget.triggered.connect(handler)
             return toolWidget
 
-        tools = ('Select', 'Break') #'Pencil', 'Erase', 'Insert', 'Skip', 'Paint', 'AddSeq')
+        tools = ('Select', 'Pencil', 'Break', 'Erase', 'Insert', 'Skip', 'Paint', 'AddSeq')
         ag = QActionGroup(win)
-        # for toolName in tools:
-        #     toolAction = installTool(toolName, win)
-        #     ag.addAction(toolAction)
+        # Call installTool on every tool
         map((lambda toolName: ag.addAction(installTool(toolName, win))), tools)
         ag.setExclusive(True)
         # Select the preferred Startup tool

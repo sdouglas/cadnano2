@@ -28,13 +28,12 @@ util.qtWrapImport('QtCore', globals(), [])
 util.qtWrapImport('QtGui', globals(), [])
 
 
-class SelectTool(AbstractPathTool):
+class PencilTool(AbstractPathTool):
     """
-    SelectTool is the default tool. It allows editing of breakpoints
-    (by clicking and dragging) and toggling of crossovers.
+    docstring for PencilTool
     """
     def __init__(self, controller):
-        super(SelectTool, self).__init__(controller)
+        super(PencilTool, self).__init__(controller)
 
     def __repr__(self):
-        return "selectTool"  # first letter should be lowercase
+        return "pencilTool"  # first letter should be lowercase
