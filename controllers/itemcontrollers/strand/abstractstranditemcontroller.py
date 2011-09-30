@@ -64,6 +64,7 @@ class AbstractStrandItemController(object):
 
     def disconnectSignals(self):
         mS = self._modelStrand
+        sI = self._strandItem
         
         AbstractStrandItemController.disconnectOligoSignals(self)
         mS.strandHasNewOligoSignal.disconnect(sI.strandHasNewOligoSlot)

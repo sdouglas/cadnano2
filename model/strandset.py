@@ -25,9 +25,11 @@
 import random
 from operator import itemgetter
 from itertools import izip, repeat
+
 from strand import Strand
 from oligo import Oligo
 from enum import StrandType
+from views import styles 
 
 import util
 # import cadnano2.util as util
@@ -535,7 +537,8 @@ class StrandSet(QObject):
             self._strandSet = strandSet
             self._sSetIdx = strandSetIdx
             self._strand = Strand(strandSet, baseIdxLow, baseIdxHigh)
-            self._newOligo = Oligo(strandSet.part())
+            color = None if strandSet.isScaffold() else random.choice(styles.stapleColors).name()
+            self._newOligo = Oligo(color, strandSet.part())
         # end def
 
         def redo(self):

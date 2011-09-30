@@ -76,3 +76,6 @@ class PathRootItem(QGraphicsRectItem):
         #     self._window.setActivePart(partItem)
 
     ### METHODS ###
+    def removePartItem(self, partItem):
+        self._partItems.remove(partItem)
+    # end def 

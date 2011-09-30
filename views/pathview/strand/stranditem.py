@@ -55,7 +55,7 @@ class StrandItem(QGraphicsLineItem):
         self._highCap = highCap
         self._dualCap = dualCap
         self._controller = StrandItemController(self, modelStrand)
-
+        print "I am a new strand"
         self.update(modelStrand)
     # end def
 
@@ -78,11 +78,13 @@ class StrandItem(QGraphicsLineItem):
     def strandRemovedSlot(self, strand):
         self._modelStrand = None
         scene = self.scene()
-        scene.removeItem(self._highCap)
-        self.scene().removeItem(self._lowCap)
+        # scene.removeItem(self._highCap)
+        # scene.removeItem(self._lowCap)
         self._highCap = None
         self._lowCap = None
         scene.removeItem(self)
+        self._controller.disconnectSignals()
+        self._controller = None
     # end def
     
     def strandDestroyedSlot(self, strand):

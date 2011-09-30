@@ -122,11 +122,11 @@ class Part(QObject):
         self._oligos[oligo] = True
 
     def removeOligo(self, oligo):
-        self._oligo[oligo] = False
+        self._oligos[oligo] = False
         self.destroyOligo(oligo)
 
     def destroyOligo(self, oligo):
-        del self._oligo[oligo]
+        del self._oligos[oligo]
     
     def isEvenParity(self, row, column):
         """
@@ -365,7 +365,7 @@ class Part(QObject):
             # clear out part references
             vh.setPart(None)
             vh.setNumber(None)
-            vh.virtualhelixRemovedSignal.emit(vh)
+            vh.virtualHelixRemovedSignal.emit(vh)
         # end def
     # end class
 

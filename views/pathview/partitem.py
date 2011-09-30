@@ -111,6 +111,10 @@ class PartItem(QGraphicsPathItem):
     def modelPart(self):
         """Return a reference to the model's part object"""
         return self._modelPart
+        
+    def removeVirtualHelix(self, virtualHelix):
+        self._virtualHelixItemList.remove(virtualHelix)
+    # end
 
     def _setVirtualHelixItemList(self, newList, zoomToFit=True):
         """

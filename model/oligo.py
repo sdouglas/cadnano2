@@ -38,13 +38,13 @@ class Oligo(QObject):
     used tracking and storing properties that are common to a single strand,
     such as its color.
     """
-    def __init__(self, part=None):
+    def __init__(self, color=None, part=None):
         super(Oligo, self).__init__(part)
         self._part = None
         self._strand5p = None
         self._length = 0
         self._isLoop = False
-        self._color = "#0066cc"
+        self._color = color if color else "#0066cc"
     # end def
 
     def shallowCopy(self):
