@@ -26,6 +26,8 @@ import random
 from operator import itemgetter
 from itertools import izip, repeat
 from strand import Strand
+from oligo import Oligo
+
 import util
 # import cadnano2.util as util
 # import Qt stuff into the module namespace with PySide, PyQt4 independence
@@ -138,10 +140,15 @@ class StrandSet(QObject):
         assert(baseIdxLow < baseIdxHigh)
         assert(boundsLow <= baseIdxLow)
         assert(baseIdxHigh <= boundsHigh)
-        strandSetIdx = self._lastStrandSetIndex
-        c = StrandSet.CreateStrandCommand(self, baseIdxLow, baseIdxHigh, strandSetIdx)
-        util._execCommandList(self, [c], desc="Create strand", useUndoStack=useUndoStack)
-        return strandSetIdx
+        strandSetIdx, canInsert = self.getIndexToInsert(baseIdxLow, baseIdxHigh)
+        if canInsert:
+            c = StrandSet.CreateStrandCommand(self, baseIdxLow, baseIdxHigh, strandSetIdx)
+            util._execCommandList(self, [c], desc="Create strand", useUndoStack=useUndoStack)
+            return strandSetIdx
+        else:
+            return -1
+    # end def
+        
 
     def createDeserializedStrand(self, baseIdxLow, baseIdxHigh, useUndoStack=False):
         """
@@ -153,10 +160,13 @@ class StrandSet(QObject):
         assert(baseIdxLow < baseIdxHigh)
         assert(boundsLow <= baseIdxLow)
         assert(baseIdxHigh <= boundsHigh)
-        strandSetIdx = self._lastStrandSetIndex
-        c = StrandSet.CreateStrandCommand(self, baseIdxLow, baseIdxHigh, strandSetIdx)
-        util._execCommandList(self, [c], desc=None, useUndoStack=useUndoStack)
-        return strandSetIdx
+        strandSetIdx, canInsert = self.getIndexToInsert(baseIdxLow, baseIdxHigh)
+        if canInsert:
+            c = StrandSet.CreateStrandCommand(self, baseIdxLow, baseIdxHigh, strandSetIdx)
+            util._execCommandList(self, [c], desc=None, useUndoStack=useUndoStack)
+            return strandSetIdx
+        else:
+            return -1
 
     def removeStrand(self, strand, strandSetIdx=None, useUndoStack=True):
         if not strandSetIdx:
@@ -246,6 +256,34 @@ class StrandSet(QObject):
         """when is this method called?"""
         strandList = self.strandList
         del strandList[strand.idx]
+        
+    def hasStrandAt(self, idxLow, idxHigh):
+        """
+        """
+        dummyStrand = Strand(self, idxLow, idxHigh)
+        strandList = [s for s in self._findOverlappingRanges(dummyStrand)]
+        dummyStrand._strandSet = None
+        dummyStrand.deleteLater()
+        dummyStrand = None
+        return len(strandList) > 0
+    # end def
+    
+    def getIndexToInsert(self, idxLow, idxHigh):
+        """
+        """
+        canInsert = True
+        dummyStrand = Strand(self, idxLow, idxHigh)
+        if self._couldStrandInsertAtLastIndex(dummyStrand):
+            return self._lastStrandSetIndex, canInsert
+        
+        idx, isInSet = self._findIndexOfRangeFor(dummyStrand)
+        dummyStrand._strandSet = None
+        dummyStrand.deleteLater()
+        dummyStrand = None
+        if idx > 0:
+            canInsert = False
+        return abs(idx), canInsert
+    # end def
 
     ### PRIVATE SUPPORT METHODS ###
     def _couldStrandInsertAtLastIndex(self, strand):
@@ -339,7 +377,7 @@ class StrandSet(QObject):
         # match on whether the tempStrand's lowIndex is
         # within the range of the qStrand
         if sSetIndexLow > -1:
-            tempStrands = iter(strandList[rangeIndexLow:])
+            tempStrands = iter(strandList[sSetIndexLow:])
             tempStrand = tempStrands.next()
             qHigh += 1  # bump it up for a more efficient comparison
             i = 0   # use this to
@@ -369,7 +407,7 @@ class StrandSet(QObject):
         else:
             # no strand was found
             # go ahead and clear the cache
-            self._lastStrandSetIndex = None
+            self._lastStrandSetIndex = None if len(self._strandList) > 0 else 0
             return
     # end def
 
@@ -396,7 +434,7 @@ class StrandSet(QObject):
         lastIdx = self._lastStrandSetIndex
         lenStrands = len(strandList)
         if lenStrands == 0:
-            return None
+            return 0, False
         # end if
         
         # check cache
@@ -430,11 +468,14 @@ class StrandSet(QObject):
                 if cLow <= sLow <= cHigh or cLow <= sHigh <= cHigh:
                     # strand is within an existing range
                     # but is not that range
+                    self._lastStrandSetIndex = None
                     return 1, False
                 else:
-                # object not in set, here's where you'd insert it
+                    # strand not in set, here's where you'd insert it
+                    self._lastStrandSetIndex = middle
                     return -middle, False
             # end else
+        self._lastStrandSetIndex = low
         return -low, False
     # end def
 
@@ -499,7 +540,7 @@ class StrandSet(QObject):
             oligo = self._newOligo
             oligo.setStrand5p(strand)
             oligo.incrementStrandLength(strand)
-            oligo.AddToPart(strandSet.part())
+            oligo.addToPart(strandSet.part())
             strand.setOligo(oligo)
             # Emit a signal to notify on completion
             strandSet.strandsetStrandAddedSignal.emit(strand)

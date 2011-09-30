@@ -140,6 +140,14 @@ class VirtualHelix(QObject):
         else:
             return self._stapStrandSet
     # end def
+    
+    def scaffoldStrandSet(self):
+        return self._scafStrandSet
+    # end def
+    
+    def stapleStrandSet(self):
+        return self._stapStrandSet
+    # end def
 
     def getStrandSets(self):
         """

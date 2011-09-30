@@ -123,6 +123,7 @@ class HelixItem(QGraphicsEllipseItem):
     # end def
     
     def setHovered(self):
+        # self.setFlag(QGraphicsItem.ItemHasNoContents, False)  
         self.setBrush(self._hoverBrush)
         self.setPen(self._hoverPen)
         self.update(self.boundingRect())
@@ -141,6 +142,10 @@ class HelixItem(QGraphicsEllipseItem):
     # end def
     
     def setNotHovered(self):
+        """
+        """
+        # drawMe = False if self.virtualHelixItem() else True
+        # self.setFlag(QGraphicsItem.ItemHasNoContents, drawMe)  
         self.setBrush(self._defaultBrush)
         self.setPen(self._defaultPen)
         # self.translateVH(self._adjustmentMinus)
@@ -192,12 +197,15 @@ class HelixItem(QGraphicsEllipseItem):
             return HelixItem.addVHIfMissing
             
         idx = part.activeBaseIndex()
+        scafSSet, stapSSet = vh.getStrandSets()
         if modifiers & Qt.ShiftModifier:
-            if vh.stap().get(idx) == None:
+            if not stapSSet.hasStrandAt(idx-1, idx+1):
+                print "add a staple strand"
                 return HelixItem.addStapAtActiveSliceIfMissing
             else:
                 return HelixItem.nop
-        if vh.scaf().get(idx) == None:
+        if not scafSSet.hasStrandAt(idx-1, idx+1):
+            print "add a scaffold strand"
             return HelixItem.addScafAtActiveSliceIfMissing
         return HelixItem.nop
     # end def
@@ -213,10 +221,8 @@ class HelixItem(QGraphicsEllipseItem):
             
         idx = part.activeBaseIndex()
         startIdx = max(0,idx-1)
-        endIdx = min(idx+1, part.dimensions()[2]-1)
-        undoStack = part.undoStack()
-        vh.scaf().connectStrand(startIdx, endIdx,\
-                                useUndoStack=True, undoStack=undoStack)
+        endIdx = min(idx+1, part.dimensions()[1]-1)
+        vh.scaffoldStrandSet().createStrand(startIdx, endIdx)
     # end def
 
     def addStapAtActiveSliceIfMissing(self):
@@ -231,9 +237,8 @@ class HelixItem(QGraphicsEllipseItem):
             return
             
         startIdx = max(0,idx-1)
-        endIdx = min(idx+1, part.dimensions()[2]-1)
-        vh.stap().connectStrand(startIdx, endIdx,\
-                                useUndoStack=True, undoStack=undoStack)
+        endIdx = min(idx+1, part.dimensions()[1]-1)
+        vh.scaffoldStrandSet().createStrand(startIdx, endIdx)
     # end def
 
     def addVHIfMissing(self):
@@ -243,7 +248,11 @@ class HelixItem(QGraphicsEllipseItem):
         
         if vh != None: 
             return
+        uS = part.undoStack()
+        uS.beginMacro("Slice Click")
         part.createVirtualHelix(*coord)
+        # vh.scaffoldStrandSet().createStrand(startIdx, endIdx)
+        uS.endMacro()
     # end def
     
     
