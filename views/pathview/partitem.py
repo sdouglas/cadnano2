@@ -64,8 +64,16 @@ class PartItem(QGraphicsPathItem):
 
     def removedSlot(self):
         """docstring for partDestroyedSlot"""
-        print "PartItem.partDestroyedSlot"
-        pass
+        scene = self.scene()
+        self.parentItem().removePartItem(self)
+        scene.removeItem(self)
+        self._modelPart = None
+        self._virtualHelixHash = None
+        self._virtualHelixList = None
+        self._controller.disconnectSignals()
+        self._controller = None
+    # end def
+        
 
     def destroyedSlot(self):
         """docstring for partDestroyedSlot"""

@@ -50,7 +50,7 @@ class PartItemController():
         pI = self._partItem
 
         mP.partParentChangedSignal.disconnect(pI.parentChangedSlot)
-        mP.partRemovedSignal.disconnect(pI.destroyedSlot)
+        mP.partRemovedSignal.disconnect(pI.removedSlot)
         mP.partDestroyedSignal.disconnect(pI.destroyedSlot)
         mP.partVirtualHelixAddedSignal.disconnect(pI.virtualHelixAddedSlot)
 
