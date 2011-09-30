@@ -93,7 +93,7 @@ class StrandItem(QGraphicsLineItem):
         self.update(strand)
     # end def
         
-    def strandXover3pRemoveSlot(self, strand):
+    def strandXover3pRemovedSlot(self, strand):
         self.update(strand)
     # end def
     
@@ -129,7 +129,8 @@ class StrandItem(QGraphicsLineItem):
         """
         # 0. Setup
         vhi = self._virtualHelixItem
-        halfBaseWidth = vhi._baseWidth / 2.0
+        bw = vhi._baseWidth
+        halfBaseWidth = bw / 2.0
         lowIdx, highIdx = strand.lowIdx(), strand.highIdx()
         
         lUpperLeftX, lUpperLeftY = vhi.upperLeftCornerOfBase(lowIdx, strand)
@@ -148,7 +149,7 @@ class StrandItem(QGraphicsLineItem):
             lowCap.setPos(lUpperLeftX, lUpperLeftY)
             lowCap.show()
         if strand.highConnection() != None:  # hide high cap if High-connected
-            hx = hUpperLeftX + vhi.baseWidth
+            hx = hUpperLeftX + bw
             highCap.hide()
         else:  # otherwise show it
             hx = hUpperLeftX + halfBaseWidth

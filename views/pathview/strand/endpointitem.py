@@ -74,7 +74,7 @@ poly35.append(QPointF(0.5*baseWidth, baseWidth))
 pp35.addPolygon(poly35)
 
 class EndpointItem(QGraphicsPathItem):
-    def __init__(self, strandItem, isDrawn5to3, captype):
+    def __init__(self, strandItem, captype, isDrawn5to3):
         """The parent should be a StrandItem."""
         super(EndpointItem, self).__init__(strandItem)
         self._strandItem = strandItem
@@ -86,6 +86,7 @@ class EndpointItem(QGraphicsPathItem):
             path = ppR3 if isDrawn5to3 else ppR5
         else:
             path = pp53 if isDrawn5to3 else pp35
+        # self.hide()
         self.setPath(path)
     # end def
         

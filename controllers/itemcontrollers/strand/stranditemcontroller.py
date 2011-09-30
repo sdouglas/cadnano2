@@ -46,7 +46,7 @@ class StrandItemController(AbstractStrandItemController):
         sI = self._strandItem
         mS.strandResizedSignal.connect(sI.strandResizedSlot)
         mS.strandXover3pCreatedSignal.connect(sI.strandXover3pCreatedSlot)
-        mS.strandXover3pRemovedSignal.connect(sI.strandXover3pRemoveSlot)
+        mS.strandXover3pRemovedSignal.connect(sI.strandXover3pRemovedSlot)
         self.connectOligoSignals()
     # end def
 
