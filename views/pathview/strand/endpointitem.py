@@ -148,6 +148,7 @@ class EndpointItem(QGraphicsPathItem):
         newX = int(floor((self.x() + x)/_baseWidth)*_baseWidth)
         self.setPos(newX, self.y())
         # notify stranditem to redraw horiz line
+        self._strandItem.updateLine(self)
     # end def
 
     def selectToolMouseRelease(self, x):

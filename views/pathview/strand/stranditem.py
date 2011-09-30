@@ -33,7 +33,8 @@ from views import styles
 import util
 # import Qt stuff into the module namespace with PySide, PyQt4 independence
 util.qtWrapImport('QtCore', globals(), ['pyqtSignal', 'QObject', 'Qt'])
-util.qtWrapImport('QtGui', globals(), ['QGraphicsLineItem', 'QGraphicsPathItem', 'QPen', 'QColor', 'QBrush'])
+util.qtWrapImport('QtGui', globals(), ['QGraphicsLineItem', 'QGraphicsPathItem',
+                                       'QPen', 'QColor', 'QBrush'])
 
 NoPen = QPen(Qt.NoPen)
 
@@ -179,6 +180,21 @@ class StrandItem(QGraphicsLineItem):
         self.setLine(lx, ly, hx, hy)
         self.updatePensAndBrushes(strand)
     # end def
+
+    def updateLine(self, movedCap):
+        # setup
+        halfBaseWidth = self._virtualHelixItem._baseWidth / 2.0
+        line = self.line()
+        # set new line coords
+        if movedCap == self._lowCap:
+            p1 = line.p1()
+            p1.setX(self._lowCap.pos().x() + halfBaseWidth)
+            line.setP1(p1)
+        else:
+            p2 = line.p2()
+            p2.setX(self._highCap.pos().x() + halfBaseWidth)
+            line.setP2(p2)
+        self.setLine(line)
 
     def updatePensAndBrushes(self, strand):
         lowIdx, highIdx = strand.lowIdx(), strand.highIdx()
