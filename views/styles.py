@@ -77,6 +77,8 @@ PATH_XOVER_LINE_SCALE_X = 0.035
 PATH_XOVER_LINE_SCALE_Y = 0.035
 
 # Path Colors
+activeslicehandlefill = QColor(255, 204, 153, 128)  # ffcc99
+activeslicehandlestroke = QColor(204, 102, 51, 128)  # cc6633
 minorgridstroke = QColor(204, 204, 204)  # 999999
 majorgridstroke = QColor(153, 153, 153)  # 333333
 scafstroke = QColor(0, 102, 204)  # 0066cc

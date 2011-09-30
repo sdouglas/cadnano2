@@ -25,13 +25,15 @@
 #
 # http://www.opensource.org/licenses/mit-license.php
 
+from views import styles
+
 from controllers.itemcontrollers.partitemcontroller import PartItemController
 from virtualhelixitem import VirtualHelixItem
-from views import styles
 
 from .pathselection import SelectionItemGroup
 from .pathselection import PathHelixHandleSelectionBox
 from .pathselection import BreakpointHandleSelectionBox
+from activesliceitem import ActiveSliceItem
 
 import util
 # import Qt stuff into the module namespace with PySide, PyQt4 independence
@@ -46,6 +48,7 @@ class PartItem(QGraphicsPathItem):
         self._virtualHelixHash = {}
         self._virtualHelixList = []
         self._activeTool = activeTool
+        self._activeSliceItem = ActiveSliceItem(self)
         self._controller = PartItemController(self, modelPart)
         self._vhiHSelectionGroup = SelectionItemGroup(\
                                                  boxtype=PathHelixHandleSelectionBox,\
@@ -203,6 +206,10 @@ class PartItem(QGraphicsPathItem):
         if newActiveVHI != self._activeVirtualHelixItem:
             self._modelPart.setActiveVirtualHelix(newActiveVHI.virtualHelix())
             self.setPreXOverHandlesVisible(newActiveVHI, True)
+    # end def
+    
+    def numberOfVirtualHelices(self):
+        return len(self._virtualHelixList)
     # end def
     
     def vhiHandleSelectionGroup(self):

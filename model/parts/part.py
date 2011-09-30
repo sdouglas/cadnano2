@@ -90,6 +90,9 @@ class Part(QObject):
     
     partVirtualHelixChangedSignal = pyqtSignal(QObject) # emit the coordinates
     # virtualHelixAtCoordsChangedSignal = pyqtSignal(int, int) # emit the coordinates
+    
+    partActiveSliceResizeSignal = pyqtSignal(QObject)    # self
+    partActiveSliceIndexSignal = pyqtSignal(QObject, int)   # self, index
 
     ### SLOTS ###
 
@@ -141,6 +144,7 @@ class Part(QObject):
     
     def setActiveBaseIndex(self, idx):
         self._activeBaseIndex = idx
+        self.partActiveSliceIndexSignal.emit(self, idx)
     # end def
     
     def minBaseIdx(self):
@@ -237,6 +241,13 @@ class Part(QObject):
         util._execCommandList(self, [c], desc="Remove VirtualHelix", \
                                                     useUndoStack=useUndoStack)
     # end def
+
+    def getVirtualHelices(self):
+        """
+        yield an iterator to the virtualHelix references in the part
+        """
+        return  self._virtualHelixHash.itervalues()
+    # def 
 
     def virtualHelixAtCoord(self, coord):
         self._virtualHelixHash[coord]
@@ -354,6 +365,7 @@ class Part(QObject):
                 part.reserveHelixIDNumber(self._parityEven, requestedIDnum=idNum)
             # end if
             part.partVirtualHelixAddedSignal.emit(vh)
+            part.partActiveSliceResizeSignal.emit(part)
         # end def
 
         def undo(self):
@@ -366,6 +378,7 @@ class Part(QObject):
             vh.setPart(None)
             vh.setNumber(None)
             vh.virtualHelixRemovedSignal.emit(vh)
+            part.partActiveSliceResizeSignal.emit(part)
         # end def
     # end class
 
@@ -391,6 +404,7 @@ class Part(QObject):
             vh.setPart(None)
             vh.setNumber(None)
             vh.virtualhelixRemovedSignal.emit(vh)
+            part.partActiveSliceResizeSignal.emit(part)
         # end def
 
         def undo(self):
@@ -403,6 +417,7 @@ class Part(QObject):
             if not vh.number():
                 part.reserveHelixIDNumber(self._parityEven, requestedIDnum=idNum)
             part.partVirtualHelixAddedSignal.emit(vh)
+            part.partActiveSliceResizeSignal.emit(part)
         # end def
     # end class
 

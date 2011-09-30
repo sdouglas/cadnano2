@@ -23,42 +23,26 @@
 # http://www.opensource.org/licenses/mit-license.php
 
 
-class PartItemController(object):
-    def __init__(self, partItem, modelPart):
-        self._partItem = partItem
+class ActiveSliceItemController(object):
+    def __init__(self, activeSliceItem, modelPart):
+        self._activeSliceItem = activeSliceItem
         self._modelPart = modelPart
         self.connectSignals()
 
     def connectSignals(self):
+        aSI = self._activeSliceItem
         mP = self._modelPart
-        pI = self._partItem
-
-        mP.partParentChangedSignal.connect(pI.parentChangedSlot)
-        mP.partRemovedSignal.connect(pI.removedSlot)
-        mP.partDestroyedSignal.connect(pI.destroyedSlot)
-        mP.partVirtualHelixAddedSignal.connect(pI.virtualHelixAddedSlot)
-        mP.partVirtualHelixChangedSignal.connect( \
-                                               pI.updatePreXOverHandlesSlot)
-
-        for mOligo in mP.oligos():
-            for mStrand in mOligo.strands():
-                mStrand.strandXover3pCreatedSignal.connect(pI.xover3pCreatedSlot)
+        
+        mP.partActiveSliceResizeSignal.connect(aSI.updateRectSlot)
+        mP.partActiveSliceIndexSignal.connect(aSI.updateIndexSlot)
     # end def
 
     def disconnectSignals(self):
+        aSI = self._activeSliceItem
         mP = self._modelPart
-        pI = self._partItem
-
-        mP.partParentChangedSignal.disconnect(pI.parentChangedSlot)
-        mP.partRemovedSignal.disconnect(pI.removedSlot)
-        mP.partDestroyedSignal.disconnect(pI.destroyedSlot)
-        mP.partVirtualHelixAddedSignal.disconnect(pI.virtualHelixAddedSlot)
-
-        mP.partVirtualHelixChangedSignal.disconnect( \
-                                               pI.updatePreXOverHandlesSlot)
-
-        for mOligo in mP.oligos():
-            for mStrand in mOligo.strands():
-                mStrand.strandXover3pCreatedSignal.disconnect(pI.xover3pCreatedSlot)
+        
+        mP.partActiveSliceResizeSignal.disconnect(aSI.updateRectSlot)
+        mP.partActiveSliceIndexSignal.disconnect(aSI.updateIndex)
     # end def
+    
 # end class
