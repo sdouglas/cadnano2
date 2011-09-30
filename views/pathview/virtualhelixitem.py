@@ -28,6 +28,9 @@
 from math import floor
 from views import styles
 from itemhandle import VirtualHelixItemHandle
+from controllers.itemcontrollers.virtualhelixitemcontroller import VirtualHelixItemController
+from .strand.stranditem import StrandItem
+
 import util
 # import Qt stuff into the module namespace with PySide, PyQt4 independence
 util.qtWrapImport('QtCore', globals(), ['pyqtSignal', 'QObject', 'Qt'])
@@ -59,20 +62,44 @@ class VirtualHelixItem(QGraphicsPathItem):
         self._majorGridPainterPath = self.majorGridPainterPath()
         self.setPath(self._minorGridPainterPath)
         self._handle = VirtualHelixItemHandle(modelVirtualHelix, partItem)
+        
+        self._controller = VirtualHelixItemController(self, modelVirtualHelix)
     # end def
 
     ### SIGNALS ###
 
     ### SLOTS ###
     def strandAddedSlot(self, strand):
-        """docstring for sequenceAddedSlot"""
-        pass
+        """docstring for strandAddedSlot"""
+        print " adding Strand"
+        temp = StrandItem(strand, self)
+    # end def
 
     def decoratorAddedSlot(self, decorator):
         """docstring for sequenceClearedSlot"""
         pass
 
+    def virtualHelixNumberChangedSlot(self, virtualHelix):
+        pass
+    # end def
+
+    def virtualHelixRemovedSlot(self, virtualHelix):
+        pass
+    # end def
+
     # ### DRAWING METHODS ###
+    def isStrandOnTop(self, strand):
+        sS = strand.strandSet()
+        vh = self._modelVirtualHelix
+        return vh.isEvenParity() and sS.isScaffold() or\
+               not vh.isEvenParity() and sS.isStaple()
+
+    def upperLeftCornerOfBase(self, idx, strand):
+        x = idx * self._baseWidth
+        y = 0 if self.isStrandOnTop(strand) else self._baseWidth
+        return x, y
+    # end def
+    
     def minorGridPainterPath(self):
         """
         Returns a QPainterPath object for the minor grid lines.

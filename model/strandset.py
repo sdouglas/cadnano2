@@ -27,6 +27,7 @@ from operator import itemgetter
 from itertools import izip, repeat
 from strand import Strand
 from oligo import Oligo
+from enum import StrandType
 
 import util
 # import cadnano2.util as util
@@ -64,7 +65,7 @@ class StrandSet(QObject):
         return "%s_StrandSet(%d)" % (type, num)
 
     ### SIGNALS ###
-    strandsetStrandAddedSignal = pyqtSignal(QObject)
+    strandSetStrandAddedSignal = pyqtSignal(QObject)
 
     ### SLOTS ###
 
@@ -75,6 +76,12 @@ class StrandSet(QObject):
     def strandType(self):
         return self._strandType
     # end def
+    
+    def isStaple(self):
+        return self._strandType == StrandType.Staple
+
+    def isScaffold(self):
+        return self._strandType == StrandType.Scaffold
 
     def part(self):
         return self._virtualHelix.part()
@@ -543,7 +550,7 @@ class StrandSet(QObject):
             oligo.addToPart(strandSet.part())
             strand.setOligo(oligo)
             # Emit a signal to notify on completion
-            strandSet.strandsetStrandAddedSignal.emit(strand)
+            strandSet.strandSetStrandAddedSignal.emit(strand)
         # end def
 
         def undo(self):
@@ -558,7 +565,7 @@ class StrandSet(QObject):
             oligo.removeFromPart()
             strand.setOligo(None)
             # Emit a signal to notify on completion
-            strand.removedSignal.emit(strand)
+            strand.strandRemovedSignal.emit(strand)
         # end def
     # end class
 

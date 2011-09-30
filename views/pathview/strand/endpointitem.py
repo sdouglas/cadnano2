@@ -26,13 +26,14 @@
 # http://www.opensource.org/licenses/mit-license.php
 
 from exceptions import NotImplementedError
+from views import styles
 import util
 # import Qt stuff into the module namespace with PySide, PyQt4 independence
-util.qtWrapImport('QtCore', globals(), ['pyqtSignal', 'QObject'])
-util.qtWrapImport('QtGui', globals(), [])
+util.qtWrapImport('QtCore', globals(), ['pyqtSignal', 'QObject', 'QPointF', 'Qt'])
+util.qtWrapImport('QtGui', globals(), ['QGraphicsPathItem', 'QPen', 'QPainterPath', 'QPolygonF'])
 
 baseWidth = styles.PATH_BASE_WIDTH
-NoPen = QPen(Qt.NoPen)
+
 ppL5 = QPainterPath()  # Left 5' PainterPath
 ppR5 = QPainterPath()  # Right 5' PainterPath
 ppL3 = QPainterPath()  # Left 3' PainterPath
@@ -77,14 +78,14 @@ class EndpointItem(QGraphicsPathItem):
         """The parent should be a StrandItem."""
         super(EndpointItem, self).__init__(strandItem)
         self._strandItem = strandItem
-        self._is5prime = is5prime
+        self._captype = captype
         self._isDrawn5to3 = isDrawn5to3
-        if captype = 'low':
-            path = ppL5 if drawn5To3 else ppL3
-        elif captype = 'high':
-            path = ppR3 if drawn5To3 else ppR5
+        if captype == 'low':
+            path = ppL5 if isDrawn5to3 else ppL3
+        elif captype == 'high':
+            path = ppR3 if isDrawn5to3 else ppR5
         else:
-            path = pp53 if drawn5To3 else pp35
+            path = pp53 if isDrawn5to3 else pp35
         self.setPath(path)
     # end def
         
@@ -109,8 +110,6 @@ class EndpointItem(QGraphicsPathItem):
 
     def selectToolMouseRelease(self, event):
         """docstring for selectToolMouseRelease"""
-        endIdx = 
-        if self._startIdx
         pass
     # end def
 

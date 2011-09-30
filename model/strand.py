@@ -90,7 +90,7 @@ class Strand(QObject):
     strandRemovedSignal = pyqtSignal(QObject)
     strandResizedSignal = pyqtSignal(QObject, tuple)
     strandXover3pCreatedSignal = pyqtSignal(QObject, int)
-    strandXover3pDestroyedSignal = pyqtSignal(QObject, int)
+    strandXover3pRemovedSignal = pyqtSignal(QObject, int)
     strandDecoratorCreatedSignal = pyqtSignal(QObject, QObject, int)
     strandDecoratorDestroyedSignal = pyqtSignal(QObject, int)
 
@@ -107,6 +107,10 @@ class Strand(QObject):
 
     def strandSet(self):
         return self._strandSet
+    # end def
+    
+    def numBases(self):
+        return self._baseIdxHigh - self._baseIdxLow + 1
     # end def
     
     def virtualHelix(self):

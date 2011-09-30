@@ -23,33 +23,57 @@
 # http://www.opensource.org/licenses/mit-license.php
 
 from exceptions import NotImplementedError
-from controllers.itemcontrollers.abstractitemcontroller import AbstractItemController
+# from controllers.itemcontrollers.abstractitemcontroller import AbstractItemController
 
 
-class AbstractStrandItemController():
-    def __init__(self, strandItem, modelOligo, modelStrand):
+class AbstractStrandItemController(object):
+    def __init__(self, strandItem, modelStrand):
         if self.__class__ == AbstractStrandItemController:
             e = "AbstractStrandItemController should be subclassed."
             raise NotImplementedError(e)
         self._strandItem = strandItem
-        self._modelOligo = modelOligo
+        self._modelOligo = modelStrand.oligo()
         self._modelStrand = modelStrand
-        self.connectSignals()
-
+        
+        # don't call this here as super call in subclass will install two signals
+        # self.connectSignals()
+    # end def
+    
+    def reconnectOligoSignals(self, newOligo):
+        self.disconnectOligoSignals()
+        self._modelOligo = newOligo
+        self.connectOligoSignals()
+    # end def
+    
     def connectSignals(self):
-        mO = self._modelOligo
         mS = self._modelStrand
         sI = self._strandItem
-        mo.appearanceChangedSignal.connect(sI.oligoAppeareanceChanged)
-        mS.strandHasNewOligoSignal.connect(sI.hasNewOligoSlot)
-        mS.destroyedSignal.connect(sI.strandRemovedSlot)
-        mS.decoratorCreatedSignal.connect(sI.decoratorAddedSlot)
+        
+        AbstractStrandItemController.connectOligoSignals(self)
+        mS.strandHasNewOligoSignal.connect(sI.strandHasNewOligoSlot)
+        mS.strandRemovedSignal.connect(sI.strandRemovedSlot)
+        mS.strandDestroyedSignal.connect(sI.strandDestroyedSlot)
+        mS.strandDecoratorCreatedSignal.connect(sI.strandDecoratorCreatedSlot)
+    # end def
+    
+    def connectOligoSignals(self):
+        sI = self._strandItem
+        mO = self._modelOligo
+        mO.oligoAppearanceChangedSignal.connect(sI.oligoAppeareanceChangedSlot)
+    # end def
 
     def disconnectSignals(self):
-        mO = self._modelOligo
         mS = self._modelStrand
+        
+        AbstractStrandItemController.disconnectOligoSignals(self)
+        mS.strandHasNewOligoSignal.disconnect(sI.strandHasNewOligoSlot)
+        mS.strandRemovedSignal.disconnect(sI.strandRemovedSlot)
+        mS.strandDestroyedSignal.disconnect(sI.strandDestroyedSlot)
+        mS.strandDecoratorCreatedSignal.disconnect(sI.strandDecoratorCreatedSlot)
+    # end def
+    
+    def disconnectOligoSignals(self):
         sI = self._strandItem
-        mo.appearanceChangedSignal.disconnect(sI.oligoAppeareanceChanged)
-        mS.strandHasNewOligoSignal.disconnect(sI.hasNewOligoSlot)
-        mS.destroyedSignal.disconnect(sI.strandRemovedSlot)
-        mS.decoratorCreatedSignal.disconnect(sI.decoratorAddedSlot)
+        mO = self._modelOligo
+        mO.oligoAppearanceChangedSignal.disconnect(sI.oligoAppeareanceChangedSlot)
+    # end def

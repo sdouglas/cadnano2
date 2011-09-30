@@ -44,7 +44,7 @@ class Oligo(QObject):
         self._strand5p = None
         self._length = 0
         self._isLoop = False
-        self._color = None
+        self._color = "#9ccff"
     # end def
     
     def shallowCopy(self):

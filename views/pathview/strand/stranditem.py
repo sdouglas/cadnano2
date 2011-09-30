@@ -27,12 +27,15 @@
 
 from exceptions import NotImplementedError
 from controllers.itemcontrollers.strand.stranditemcontroller import StrandItemController
-from endpointitem import EndPointItem
+from endpointitem import EndpointItem
+from views import styles
 
 import util
 # import Qt stuff into the module namespace with PySide, PyQt4 independence
-util.qtWrapImport('QtCore', globals(), ['pyqtSignal', 'QObject'])
-util.qtWrapImport('QtGui', globals(), ['QGraphicsLineItem', 'QGraphicsPathItem'])
+util.qtWrapImport('QtCore', globals(), ['pyqtSignal', 'QObject', 'Qt'])
+util.qtWrapImport('QtGui', globals(), ['QGraphicsLineItem', 'QGraphicsPathItem', 'QPen', 'QColor', 'QBrush'])
+
+NoPen = QPen(Qt.NoPen)
 
 class StrandItem(QGraphicsLineItem):
     def __init__(self, modelStrand, virtualHelixItem):
@@ -40,12 +43,12 @@ class StrandItem(QGraphicsLineItem):
         super(StrandItem, self).__init__(virtualHelixItem)
         self._modelStrand = modelStrand
         self._virtualHelixItem = virtualHelixItem
-        isDrawn5To3 = modelStrand.drawn5To3()
-        lowCap = EndPointItem(self, 'low', isDrawn5To3)
+        isDrawn5To3 = modelStrand.strandSet().isDrawn5to3()
+        lowCap = EndpointItem(self, 'low', isDrawn5To3)
         lowCap.setPen(NoPen)
-        highCap = EndPointItem(self, 'high', isDrawn5To3)
+        highCap = EndpointItem(self, 'high', isDrawn5To3)
         highCap.setPen(NoPen)
-        dualCap = EndPointItem(self, 'dual', isDrawn5To3)
+        dualCap = EndpointItem(self, 'dual', isDrawn5To3)
         dualCap.setPen(NoPen)
         
         self._lowCap = lowCap
@@ -70,6 +73,49 @@ class StrandItem(QGraphicsLineItem):
     def sequenceClearedSlot(self, oligo):
         """docstring for sequenceClearedSlot"""
         pass
+    # end def
+    
+    def strandRemovedSlot(self, strand):
+        self._modelStrand = None
+        scene = self.scene()
+        scene.removeItem(self._highCap)
+        self.scene().removeItem(self._lowCap)
+        self._highCap = None
+        self._lowCap = None
+        scene.removeItem(self)
+    # end def
+    
+    def strandDestroyedSlot(self, strand):
+        pass
+    # end def
+    
+    def strandXover3pCreatedSlot(self, strand):
+        self.update(strand)
+    # end def
+        
+    def strandXover3pRemoveSlot(self, strand):
+        self.update(strand)
+    # end def
+    
+    def oligoAppeareanceChangedSlot(self, oligo):
+        pass
+    # end def
+    
+    def oligoSequenceAddedSlot(self, oligo):
+        pass
+    # end def
+    
+    def oligoSequenceClearedSlot(self, oligo):
+        pass
+    # end def
+    
+    def strandHasNewOligoSlot(self, strand):
+        pass
+    # end def
+    
+    def strandDecoratorCreatedSlot(self, strand):
+        pass
+    # end def
 
     ### METHODS ###
 
@@ -83,35 +129,35 @@ class StrandItem(QGraphicsLineItem):
         """
         # 0. Setup
         vhi = self._virtualHelixItem
-        halfBaseWidth = vhi.baseWidth / 2.0
+        halfBaseWidth = vhi._baseWidth / 2.0
         lowIdx, highIdx = strand.lowIdx(), strand.highIdx()
         
-        lUpperLeftX, lUpperLeftY = vhi.upperLeftCornerOfBase(lowIdx)
-        hUpperLeftX, hUpperLeftY = vhi.upperLeftCornerOfBase(highIdx)
+        lUpperLeftX, lUpperLeftY = vhi.upperLeftCornerOfBase(lowIdx, strand)
+        hUpperLeftX, hUpperLeftY = vhi.upperLeftCornerOfBase(highIdx, strand)
         
         lowCap = self._lowCap
         highCap = self._highCap
         dualCap = self._dualCap
         
         # 1. Cap visibilty
-        if strand.apparentlyConnectedL():  # hide left cap if L-connected
+        if strand.lowConnection() != None:  # hide low cap if Low-connected
             lx = lUpperLeftX
-            leftCap.hide()
+            lowCap.hide()
         else:  # otherwise show left cap
             lx = lUpperLeftX + halfBaseWidth
-            leftCap.setPos(lUpperLeftX, lUpperLeftY)
-            leftCap.show()
-        if strand.apparentlyConnectedR():  # hide right cap if R-connected
-            hx = rUpperLeftX + vhi.baseWidth
+            lowCap.setPos(lUpperLeftX, lUpperLeftY)
+            lowCap.show()
+        if strand.highConnection() != None:  # hide high cap if High-connected
+            hx = hUpperLeftX + vhi.baseWidth
             highCap.hide()
         else:  # otherwise show it
-            hx = rUpperLeftX + halfBaseWidth
-            highCap.setPos(rUpperLeftX, rUpperLeftY)
+            hx = hUpperLeftX + halfBaseWidth
+            highCap.setPos(hUpperLeftX, hUpperLeftY)
             highCap.show()
-        # special case: single-base strand with no L or R connections,
+        # special case: single-base strand with no L or H connections,
         # (unconnected caps were made visible in previous block of code)
         if strand.numBases() == 1 and \
-                  (self.leftCap.isVisible() and self.rightCap.isVisible()):
+                  (lowCap.isVisible() and highCap.isVisible()):
             lowCap.hide()  # hide 
             highCap.hide()
             dualCap.setPos(lUpperLeftX, lUpperLeftY)
@@ -122,15 +168,16 @@ class StrandItem(QGraphicsLineItem):
         hy = ly = lUpperLeftY + halfBaseWidth
         self.setLine(lx, ly, hx, hy)
         self.updatePensAndBrushes(strand)
-
+    # end def
+    
     def updatePensAndBrushes(self, strand):
         lowIdx, highIdx = strand.lowIdx(), strand.highIdx()
         
-        if strand.isScaf():
+        if strand.strandSet().isScaffold():
             pen = QPen(styles.scafstroke, styles.PATH_STRAND_STROKE_WIDTH)
             brush = QBrush(styles.handlefill)
         else:
-            colr = self._modelStrand.oligo().color()
+            colr = QColor(self._modelStrand.oligo().color())
             pen = QPen(colr, styles.PATH_STRAND_STROKE_WIDTH)
             brush = QBrush(colr)
         pen.setCapStyle(Qt.FlatCap)
@@ -138,18 +185,6 @@ class StrandItem(QGraphicsLineItem):
         self._lowCap.setBrush(brush)
         self._highCap.setBrush(brush)
         self._dualCap.setBrush(brush)
-
-    def remove(self, strand):
-        ns = self.normalStrand
-        ns.didMove.disconnect(self.update)
-        ns.apparentConnectivityChanged.disconnect(self.update)
-        ns.willBeRemoved.disconnect(self.remove)
-        scene = self.scene()
-        scene.removeItem(self.rightCap)
-        self.scene().removeItem(self.leftCap)
-        self.rightCap = None
-        self.leftCap = None
-        scene.removeItem(self)
     # end def
     
 

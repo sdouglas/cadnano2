@@ -45,14 +45,16 @@ class StrandItemController(AbstractStrandItemController):
         mS = self._modelStrand
         sI = self._strandItem
         mS.strandResizedSignal.connect(sI.strandResizedSlot)
+        mS.strandXover3pCreatedSignal.connect(sI.strandXover3pCreatedSlot)
+        mS.strandXover3pRemovedSignal.connect(sI.strandXover3pRemoveSlot)
         self.connectOligoSignals()
     # end def
 
     def connectOligoSignals(self):
         mO = self._modelOligo
         sI = self._strandItem
-        mO.sequenceAddedSignal.connect(sI.sequenceAddedSlot)
-        mO.sequenceClearedSignal.connect(sI.sequenceClearedSlot)
+        mO.oligoSequenceAddedSignal.connect(sI.oligoSequenceAddedSlot)
+        mO.oligoSequenceClearedSignal.connect(sI.oligoSequenceClearedSlot)
     # end def
 
     def disconnectSignals(self):
@@ -60,12 +62,14 @@ class StrandItemController(AbstractStrandItemController):
         mS = self._modelStrand
         sI = self._strandItem
         mS.strandResizedSignal.disconnect(sI.strandResizedSlot)
+        mS.strandXover3pCreatedSignal.disconnect(sI.strandXover3pCreatedSlot)
+        mS.strandXover3pRemovedSignal.disconnect(sI.strandXover3pRemovedSlot)
         self.disconnectOligoSignals()
     # end def
 
     def disconnectOligoSignals(self):
         mO = self._modelOligo
         sI = self._strandItem
-        mO.sequenceAddedSignal.disconnect(sI.sequenceAddedSlot)
-        mO.sequenceClearedSignal.disconnect(sI.sequenceClearedSlot)
+        mO.oligoSequenceAddedSignal.disconnect(sI.oligoSequenceAddedSlot)
+        mO.oligoSequenceClearedSignal.disconnect(sI.oligoSequenceClearedSlot)
     # end def
