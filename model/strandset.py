@@ -81,7 +81,7 @@ class StrandSet(QObject):
     def strandType(self):
         return self._strandType
     # end def
-    
+
     def isStaple(self):
         return self._strandType == StrandType.Staple
 
