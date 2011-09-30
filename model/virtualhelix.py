@@ -45,8 +45,8 @@ class VirtualHelix(QObject):
         super(VirtualHelix, self).__init__(part)
         self._coords = (row, col) # col, row
         self._part = part
-        self._scafStrandSet = StrandSet('scaffold', self)
-        self._stapStrandSet = StrandSet('staple', self)
+        self._scafStrandSet = StrandSet(StrandType.Scaffold, self)
+        self._stapStrandSet = StrandSet(StrandType.Staple, self)
         # If self._part exists, it owns self._number
         # in that only it may modify it through the
         # private interface. The public interface for
