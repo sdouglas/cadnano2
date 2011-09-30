@@ -21,81 +21,19 @@
 # THE SOFTWARE.
 #
 # http://www.opensource.org/licenses/mit-license.php
-import util
 import sys
 from abstractpathtool import AbstractPathTool
-
-util.qtWrapImport('QtCore', globals(), ['Qt', 'QPointF'])
-util.qtWrapImport('QtGui', globals(), ['QGraphicsItem', 'QBrush', 'QFont',
-                                       'QGraphicsSimpleTextItem', 'QPen',
-                                       'QPolygonF', 'QPainterPath'])
+import util
+util.qtWrapImport('QtCore', globals(), [])
+util.qtWrapImport('QtGui', globals(), [])
 
 
 class BreakTool(AbstractPathTool):
     """
-    BreakTool is the default tool. It allows editing of breakpoints
-    (by clicking and dragging) and toggling of crossovers.
+    docstring for BreakTool
     """
-    # And we actually use those PartGraphicsItem events
-    mouseMovePartGraphicsItemUnused = False
-    mouseReleasePartGraphicsItemUnused = False
-    mousePressPartGraphicsItemUnused = False
-    logger = None
-
     def __init__(self, controller):
         super(BreakTool, self).__init__(controller)
-        self.currentOperation = None
 
-    def hoverMovePartGraphicsItem(self, part, event):
-        if self.logger: self.logger.write("hover>")
-        self.mouseMovePartGraphicsItem(part, event)
-
-    def mouseMovePartGraphicsItem(self, part, event):
-        if self.logger: self.logger.write("mouseMoveVirtualHelixItem>NOP\n")
-
-    def hoverMoveVirtualHelixItem(self, pathHelix, event):
-        if self.logger: self.logger.write("hover>")
-        self.mouseMoveVirtualHelixItem(pathHelix, event)
-        self.updateLocation(pathHelix, pathHelix.mapToScene(QPointF(event.pos())))
-
-    def mousePressVirtualHelixItem(self, pathHelix, event):
-        # initial setup / check input state
-        pathHelix.makeSelfActiveHelix()
-        pathHelix.scene().views()[0].addToPressList(pathHelix)
-        dest = pathHelix.vBaseAtPoint(event.pos())
-        useLeft = pathHelix.userClickedLeftHalfOfVBase(event.pos())
-        undoStack = pathHelix.vhelix().undoStack()
-        shiftClick = event.modifiers() & Qt.ShiftModifier
-        altClick = event.modifiers() & Qt.AltModifier
-        # do the operation
-        if self.currentOperation != None: self.currentOperation.end()
-        self.currentOperation = BreakToolOperation(dest, useLeft, undoStack)
-        if shiftClick:
-            if self.logger: self.logger.write("mousePressVirtualHelixItem>Join\n")
-            self.currentOperation.actionMergeWithAdjacent(dest)
-            self.currentOperation.end()
-            self.currentOperation = None
-        elif altClick:
-            if self.logger: self.logger.write("mousePressVirtualHelixItem>Extend\n")
-            self.currentOperation.actionExpandStrandToFillAvailableSpace(dest)
-            self.currentOperation.end()
-            self.currentOperation = None
-        else:
-            if self.logger: self.logger.write("mousePressVirtualHelixItem>Break\n")
-
-    def mouseMoveVirtualHelixItem(self, pathHelix, event):
-        if isinstance(self.currentOperation, BreakToolOperation):
-            if self.logger: self.logger.write("mouseMoveVirtualHelixItem>Break\n")
-            dest = pathHelix.vBaseAtPoint(event.pos())
-            dest.vStrand = self.currentOperation.startVBase.vStrand
-            self.currentOperation.updateDestination(dest)
-        else:
-            if self.logger: self.logger.write("mouseMoveVirtualHelixItem>NOP\n")
-
-    def mouseReleaseVirtualHelixItem(self, pathHelix, event):
-        if isinstance(self.currentOperation, BreakToolOperation):
-            if self.logger: self.logger.write("mouseRelVirtualHelixItem>Break\n")
-            self.currentOperation.end()
-            self.currentOperation = None
-        else:
-            if self.logger: self.logger.write("mouseRelVirtualHelixItem>NOP\n")
+    def __repr__(self):
+        return "breakTool"  # first letter should be lowercase

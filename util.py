@@ -26,6 +26,7 @@
 util
 Created by Jonathan deWerd.
 """
+import inspect
 from traceback import extract_stack
 from random import Random
 import string
@@ -206,7 +207,11 @@ def isLinux():
         return True
     else:
         return False
-        
+
+def methodName():
+    """Returns string containing name of the calling method."""
+    return inspect.stack()[1][3]
+
 def starmapExec(f, tupleIter):
     """
     takes a function f and * starmaps the list but drops the results

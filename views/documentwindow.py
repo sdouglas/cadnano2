@@ -71,16 +71,6 @@ class DocumentWindow(QMainWindow, ui_mainwindow.Ui_MainWindow):
         self.pathroot.setFlag(QGraphicsItem.ItemHasNoContents)
         self.pathscene.addItem(self.pathroot)
         assert self.pathroot.scene() == self.pathscene
-
-        # Uncomment the following block for  explicit pathview GL rendering
-        # self.pathGraphicsView.setViewport(
-        #                           QGLWidget(QGLFormat(QGL.SampleBuffers)))
-        # self.pathGraphicsView.setViewportUpdateMode(
-        #                                   QGraphicsView.FullViewportUpdate)
-        # self.pathGraphicsView.setAutoFillBackground ( True )
-        # self.pathscene.setBackgroundBrush(Qt.white)
-        # self.pathscene.setItemIndexMethod(QGraphicsScene.NoIndex)
-
         self.pathGraphicsView.setScene(self.pathscene)
         self.pathGraphicsView.sceneRootItem = self.pathroot
         self.pathGraphicsView.setScaleFitFactor(0.9)
