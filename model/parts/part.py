@@ -118,7 +118,7 @@ class Part(QObject):
     def oligos(self):
         return self._oligos
 
-    def addOligo(selg, oligo):
+    def addOligo(self, oligo):
         self._oligos[oligo] = True
 
     def removeOligo(self, oligo):
@@ -186,7 +186,7 @@ class Part(QObject):
         """
         return a tuple of the max X and maxY coordinates of the lattice
         """
-        return latticeToSpatial(self._maxRow, self._maxCol)
+        return self.latticeToSpatial(self._maxRow, self._maxCol)
     # end def
 
     def latticeToSpatial(self, row, col, scaleFactor=1.0):

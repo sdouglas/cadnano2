@@ -104,7 +104,7 @@ class VirtualHelix(QObject):
     # end def
 
     def isEvenParity(self):
-        return self._part.isEvenParity(self._coords)
+        return self._part.isEvenParity(*self._coords)
     # end def
     
     def isDrawn5to3(self, strandSet):
@@ -130,6 +130,14 @@ class VirtualHelix(QObject):
             return self._scafStrandSet
         else:
             return self._stapStrandSet
+    # end def
+    
+    def scaffoldStrandSet(self):
+        return self._scafStrandSet
+    # end def
+    
+    def stapleStrandSet(self):
+        return self._stapStrandSet
     # end def
 
     def getStrandSets(self):

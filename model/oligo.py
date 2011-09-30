@@ -105,7 +105,7 @@ class Oligo(QObject):
         return self._length
 
     def setLength(self, length):
-        return self._length = length
+        self._length = length
 
     def incrementStrandLength(self, strand):
         self.setLength(self._length+strand.length())

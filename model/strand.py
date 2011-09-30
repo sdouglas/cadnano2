@@ -36,7 +36,7 @@ util.qtWrapImport('QtGui', globals(), ['QUndoStack', 'QUndoCommand'])
 
 class Strand(QObject):
     def __init__(self, strandSet, baseIdxLow, baseIdxHigh):
-        super(Strand, self).__init__()
+        super(Strand, self).__init__(strandSet)
         self._strandSet = strandSet
         self._baseIdxLow = baseIdxLow  # base index of the strand's left boundary
         self._baseIdxHigh = baseIdxHigh  # base index of the right boundary
