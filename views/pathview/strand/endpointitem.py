@@ -25,6 +25,7 @@
 #
 # http://www.opensource.org/licenses/mit-license.php
 
+from math import floor
 from exceptions import NotImplementedError
 from views import styles
 import util
@@ -32,7 +33,7 @@ import util
 util.qtWrapImport('QtCore', globals(), ['pyqtSignal', 'QObject', 'QPointF', 'Qt'])
 util.qtWrapImport('QtGui', globals(), ['QGraphicsPathItem', 'QPen', 'QPainterPath', 'QPolygonF'])
 
-baseWidth = styles.PATH_BASE_WIDTH
+_baseWidth = styles.PATH_BASE_WIDTH
 
 ppL5 = QPainterPath()  # Left 5' PainterPath
 ppR5 = QPainterPath()  # Right 5' PainterPath
@@ -41,36 +42,36 @@ ppR3 = QPainterPath()  # Right 3' PainterPath
 pp53 = QPainterPath()  # Left 5', Right 3' PainterPath
 pp35 = QPainterPath()  # Left 5', Right 3' PainterPath
 # set up ppL5 (left 5' blue square)
-ppL5.addRect(0.25*baseWidth, 0.125*baseWidth,0.75*baseWidth, 0.75*baseWidth)
+ppL5.addRect(0.25*_baseWidth, 0.125*_baseWidth,0.75*_baseWidth, 0.75*_baseWidth)
 # set up ppR5 (right 5' blue square)
-ppR5.addRect(0, 0.125*baseWidth, 0.75*baseWidth, 0.75*baseWidth)
+ppR5.addRect(0, 0.125*_baseWidth, 0.75*_baseWidth, 0.75*_baseWidth)
 # set up ppL3 (left 3' blue triangle)
 l3poly = QPolygonF()
-l3poly.append(QPointF(baseWidth, 0))
-l3poly.append(QPointF(0.25*baseWidth, 0.5*baseWidth))
-l3poly.append(QPointF(baseWidth, baseWidth))
+l3poly.append(QPointF(_baseWidth, 0))
+l3poly.append(QPointF(0.25*_baseWidth, 0.5*_baseWidth))
+l3poly.append(QPointF(_baseWidth, _baseWidth))
 ppL3.addPolygon(l3poly)
 # set up ppR3 (right 3' blue triangle)
 r3poly = QPolygonF()
 r3poly.append(QPointF(0, 0))
-r3poly.append(QPointF(0.75*baseWidth, 0.5*baseWidth))
-r3poly.append(QPointF(0, baseWidth))
+r3poly.append(QPointF(0.75*_baseWidth, 0.5*_baseWidth))
+r3poly.append(QPointF(0, _baseWidth))
 ppR3.addPolygon(r3poly)
 
 
 # single base left 5'->3'
-pp53.addRect(0, 0.125*baseWidth, 0.5*baseWidth, 0.75*baseWidth)
+pp53.addRect(0, 0.125*_baseWidth, 0.5*_baseWidth, 0.75*_baseWidth)
 poly53 = QPolygonF()
-poly53.append(QPointF(0.5*baseWidth, 0))
-poly53.append(QPointF(baseWidth, 0.5*baseWidth))
-poly53.append(QPointF(0.5*baseWidth, baseWidth))
+poly53.append(QPointF(0.5*_baseWidth, 0))
+poly53.append(QPointF(_baseWidth, 0.5*_baseWidth))
+poly53.append(QPointF(0.5*_baseWidth, _baseWidth))
 pp53.addPolygon(poly53)
 # single base left 3'<-5'
-pp35.addRect(0.50*baseWidth, 0.125*baseWidth, 0.5*baseWidth, 0.75*baseWidth)
+pp35.addRect(0.50*_baseWidth, 0.125*_baseWidth, 0.5*_baseWidth, 0.75*_baseWidth)
 poly35 = QPolygonF()
-poly35.append(QPointF(0.5*baseWidth, 0))
-poly35.append(QPointF(0, 0.5*baseWidth))
-poly35.append(QPointF(0.5*baseWidth, baseWidth))
+poly35.append(QPointF(0.5*_baseWidth, 0))
+poly35.append(QPointF(0, 0.5*_baseWidth))
+poly35.append(QPointF(0.5*_baseWidth, _baseWidth))
 pp35.addPolygon(poly35)
 
 class EndpointItem(QGraphicsPathItem):
@@ -78,45 +79,95 @@ class EndpointItem(QGraphicsPathItem):
         """The parent should be a StrandItem."""
         super(EndpointItem, self).__init__(strandItem)
         self._strandItem = strandItem
+        self._activeTool = strandItem.activeTool()
         self._captype = captype
         self._isDrawn5to3 = isDrawn5to3
+        self._selectToolMousePressIdx = None
         if captype == 'low':
             path = ppL5 if isDrawn5to3 else ppL3
         elif captype == 'high':
             path = ppR3 if isDrawn5to3 else ppR5
         else:
             path = pp53 if isDrawn5to3 else pp35
-        # self.hide()
         self.setPath(path)
     # end def
-        
+
+    def __repr__(self):
+        return "%s" % self.__class__.__name__
+
     ### SIGNALS ###
 
     ### SLOTS ###
 
+    ### ACCESSORS ###
+    def idx(self):
+        """Look up baseIdx, as determined by srandItem idxs and cap type."""
+        if self._captype == 'low':
+            return self._strandItem.idxs()[0]
+        else:  # high or dual, doesn't matter
+            return self._strandItem.idxs()[1]
+
+    ### EVENT HANDLERS ###
+    def mousePressEvent(self, event):
+        """
+        Parses a mousePressEvent, calling the approproate tool method as
+        necessary.
+        """
+        toolMethodName = str(self._activeTool()) + "MousePress"
+        if hasattr(self, toolMethodName):  # if the tool method exists
+            getattr(self, toolMethodName)(event.pos().x())  # call it
+
+    def mouseMoveEvent(self, event):
+        """
+        Parses a mouseMoveEvent, calling the approproate tool method as
+        necessary.
+        """
+        toolMethodName = str(self._activeTool()) + "MouseMove"
+        if hasattr(self, toolMethodName):  # if the tool method exists
+            getattr(self, toolMethodName)(event.pos().x())  # call it
+
+    def mouseReleaseEvent(self, event):
+        """
+        Parses a mouseReleaseEvent, calling the approproate tool method as
+        necessary.
+        """
+        toolMethodName = str(self._activeTool()) + "MouseRelease"
+        if hasattr(self, toolMethodName):  # if the tool method exists
+            getattr(self, toolMethodName)(event.pos().x())  # call it
+
     ### TOOL METHODS ###
-    def selectToolMousePress(self, event):
+    def selectToolMousePress(self, x):
         """docstring for selectToolMousePress"""
-        # self._dragBounds = strand.getDragBounds()
-        # self._startIdx = 
-        pass
+        print "%s.%s [%d]" % (self, util.methodName(), self.idx())
+        self._selectToolMousePressIdx = self.idx()
     # end def
 
-    def selectToolMouseMove(self, event):
+    def selectToolMouseMove(self, x):
         """docstring for selectToolMouseMove"""
         # snap to grid location
+        newX = int(floor((self.x() + x)/_baseWidth)*_baseWidth)
+        self.setPos(newX, self.y())
         # notify stranditem to redraw horiz line
-        pass
+        self._strandItem.updateLine(self)
     # end def
 
-    def selectToolMouseRelease(self, event):
+    def selectToolMouseRelease(self, x):
         """docstring for selectToolMouseRelease"""
-        pass
+        baseIdx = int(floor(self.x() / _baseWidth))
+        print "%s.%s [%d]" % (self, util.methodName(), baseIdx)
+        if self._selectToolMousePressIdx != None:
+            if baseIdx != self._selectToolMousePressIdx:
+                # do the resize here
+                pass
+            self._selectToolMousePressIdx = None
+        else:
+            raise  # mouse release after phantom press
     # end def
 
-    def mergeToolMouseRelease(self, event):
+    def mergeToolMouseRelease(self, idx):
         """Attempts to merge strand with its neighbor."""
         # if strandset.strandsCanBeMerged(priorityStrand, otherStrand):
         #     strandset.mergeStrands(priorityStrand, otherStrand)
+        print "%s.%s [%d]" % (self, util.methodName(), idx)
         pass
     # end def

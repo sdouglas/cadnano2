@@ -99,7 +99,11 @@ class VirtualHelixItem(QGraphicsPathItem):
         self._controller = None
     # end def
 
-    # ### DRAWING METHODS ###
+    ### ACCESSORS ###
+    def activeTool(self):
+        return self._activeTool
+
+    ### DRAWING METHODS ###
     def isStrandOnTop(self, strand):
         sS = strand.strandSet()
         vh = self._modelVirtualHelix
@@ -244,4 +248,3 @@ class VirtualHelixItem(QGraphicsPathItem):
         print "%s: %s[%s]" % (util.methodName(), strandSet, idx)
         pass
     # end def
-

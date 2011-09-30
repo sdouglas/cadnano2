@@ -33,7 +33,8 @@ from views import styles
 import util
 # import Qt stuff into the module namespace with PySide, PyQt4 independence
 util.qtWrapImport('QtCore', globals(), ['pyqtSignal', 'QObject', 'Qt'])
-util.qtWrapImport('QtGui', globals(), ['QGraphicsLineItem', 'QGraphicsPathItem', 'QPen', 'QColor', 'QBrush'])
+util.qtWrapImport('QtGui', globals(), ['QGraphicsLineItem', 'QGraphicsPathItem',
+                                       'QPen', 'QColor', 'QBrush'])
 
 NoPen = QPen(Qt.NoPen)
 
@@ -43,6 +44,7 @@ class StrandItem(QGraphicsLineItem):
         super(StrandItem, self).__init__(virtualHelixItem)
         self._modelStrand = modelStrand
         self._virtualHelixItem = virtualHelixItem
+        self._activeTool = virtualHelixItem.activeTool()
         isDrawn5To3 = modelStrand.strandSet().isDrawn5to3()
         lowCap = EndpointItem(self, 'low', isDrawn5To3)
         lowCap.setPen(NoPen)
@@ -50,7 +52,7 @@ class StrandItem(QGraphicsLineItem):
         highCap.setPen(NoPen)
         dualCap = EndpointItem(self, 'dual', isDrawn5To3)
         dualCap.setPen(NoPen)
-        
+
         self._lowCap = lowCap
         self._highCap = highCap
         self._dualCap = dualCap
@@ -74,7 +76,7 @@ class StrandItem(QGraphicsLineItem):
         """docstring for sequenceClearedSlot"""
         pass
     # end def
-    
+
     def strandRemovedSlot(self, strand):
         self._modelStrand = None
         scene = self.scene()
@@ -86,38 +88,46 @@ class StrandItem(QGraphicsLineItem):
         self._controller.disconnectSignals()
         self._controller = None
     # end def
-    
+
     def strandDestroyedSlot(self, strand):
         pass
     # end def
-    
+
     def strandXover3pCreatedSlot(self, strand):
         self.update(strand)
     # end def
-        
+
     def strandXover3pRemovedSlot(self, strand):
         self.update(strand)
     # end def
-    
+
     def oligoAppeareanceChangedSlot(self, oligo):
         pass
     # end def
-    
+
     def oligoSequenceAddedSlot(self, oligo):
         pass
     # end def
-    
+
     def oligoSequenceClearedSlot(self, oligo):
         pass
     # end def
-    
+
     def strandHasNewOligoSlot(self, strand):
         pass
     # end def
-    
+
     def strandDecoratorCreatedSlot(self, strand):
         pass
     # end def
+
+    ### ACCESSORS ###
+    def activeTool(self):
+        return self._activeTool
+    # end def
+
+    def idxs(self):
+        return self._modelStrand.idxs()
 
     ### DRAWING METHODS ###
     def update(self, strand):
@@ -132,14 +142,14 @@ class StrandItem(QGraphicsLineItem):
         bw = vhi._baseWidth
         halfBaseWidth = bw / 2.0
         lowIdx, highIdx = strand.lowIdx(), strand.highIdx()
-        
+
         lUpperLeftX, lUpperLeftY = vhi.upperLeftCornerOfBase(lowIdx, strand)
         hUpperLeftX, hUpperLeftY = vhi.upperLeftCornerOfBase(highIdx, strand)
-        
+
         lowCap = self._lowCap
         highCap = self._highCap
         dualCap = self._dualCap
-        
+
         # 1. Cap visibilty
         if strand.lowConnection() != None:  # hide low cap if Low-connected
             lx = lUpperLeftX
@@ -170,10 +180,24 @@ class StrandItem(QGraphicsLineItem):
         self.setLine(lx, ly, hx, hy)
         self.updatePensAndBrushes(strand)
     # end def
-    
+
+    def updateLine(self, movedCap):
+        # setup
+        halfBaseWidth = self._virtualHelixItem._baseWidth / 2.0
+        line = self.line()
+        # set new line coords
+        if movedCap == self._lowCap:
+            p1 = line.p1()
+            p1.setX(self._lowCap.pos().x() + halfBaseWidth)
+            line.setP1(p1)
+        else:
+            p2 = line.p2()
+            p2.setX(self._highCap.pos().x() + halfBaseWidth)
+            line.setP2(p2)
+        self.setLine(line)
+
     def updatePensAndBrushes(self, strand):
         lowIdx, highIdx = strand.lowIdx(), strand.highIdx()
-        
         if strand.strandSet().isScaffold():
             pen = QPen(styles.scafstroke, styles.PATH_STRAND_STROKE_WIDTH)
             brush = QBrush(styles.handlefill)
