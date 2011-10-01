@@ -36,8 +36,6 @@ util.qtWrapImport('QtCore', globals(), ['pyqtSignal', 'QObject', 'Qt'])
 util.qtWrapImport('QtGui', globals(), ['QGraphicsLineItem', 'QGraphicsPathItem',
                                        'QPen', 'QColor', 'QBrush'])
 
-NoPen = QPen(Qt.NoPen)
-
 class StrandItem(QGraphicsLineItem):
     def __init__(self, modelStrand, virtualHelixItem):
         """The parent should be a VirtualHelixItem."""
@@ -46,18 +44,10 @@ class StrandItem(QGraphicsLineItem):
         self._virtualHelixItem = virtualHelixItem
         self._activeTool = virtualHelixItem.activeTool()
         isDrawn5To3 = modelStrand.strandSet().isDrawn5to3()
-        lowCap = EndpointItem(self, 'low', isDrawn5To3)
-        lowCap.setPen(NoPen)
-        highCap = EndpointItem(self, 'high', isDrawn5To3)
-        highCap.setPen(NoPen)
-        dualCap = EndpointItem(self, 'dual', isDrawn5To3)
-        dualCap.setPen(NoPen)
-
-        self._lowCap = lowCap
-        self._highCap = highCap
-        self._dualCap = dualCap
+        self._lowCap = EndpointItem(self, 'low', isDrawn5To3)
+        self._highCap = EndpointItem(self, 'high', isDrawn5To3)
+        self._dualCap = EndpointItem(self, 'dual', isDrawn5To3)
         self._controller = StrandItemController(self, modelStrand)
-        print "I am a new strand"
         self.update(modelStrand)
     # end def
 
@@ -66,7 +56,12 @@ class StrandItem(QGraphicsLineItem):
     ### SLOTS ###
     def strandResizedSlot(self):
         """docstring for strandResizedSlot"""
-        pass
+        lowMoved = self._lowCap.updatePosIfNecessary(self.idxs()[0])
+        highMoved = self._highCap.updatePosIfNecessary(self.idxs()[1])
+        if lowMoved:
+            self.updateLine(self._lowCap)
+        if highMoved:
+            self.updateLine(self._highCap)
 
     def sequenceAddedSlot(self, oligo):
         """docstring for sequenceAddedSlot"""

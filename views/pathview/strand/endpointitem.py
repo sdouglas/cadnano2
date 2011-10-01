@@ -58,7 +58,6 @@ r3poly.append(QPointF(0.75*_baseWidth, 0.5*_baseWidth))
 r3poly.append(QPointF(0, _baseWidth))
 ppR3.addPolygon(r3poly)
 
-
 # single base left 5'->3'
 pp53.addRect(0, 0.125*_baseWidth, 0.5*_baseWidth, 0.75*_baseWidth)
 poly53 = QPolygonF()
@@ -80,16 +79,14 @@ class EndpointItem(QGraphicsPathItem):
         super(EndpointItem, self).__init__(strandItem)
         self._strandItem = strandItem
         self._activeTool = strandItem.activeTool()
-        self._captype = captype
+        self._capType = captype
         self._isDrawn5to3 = isDrawn5to3
-        self._selectToolMousePressIdx = None
-        if captype == 'low':
-            path = ppL5 if isDrawn5to3 else ppL3
-        elif captype == 'high':
-            path = ppR3 if isDrawn5to3 else ppR5
-        else:
-            path = pp53 if isDrawn5to3 else pp35
-        self.setPath(path)
+        self._setDragBounds = None
+        self._lowDragBound = None
+        self._highDragBound = None
+        self._initCapSpecificState()
+        self.setPen(QPen(Qt.NoPen))
+
     # end def
 
     def __repr__(self):
@@ -101,11 +98,75 @@ class EndpointItem(QGraphicsPathItem):
 
     ### ACCESSORS ###
     def idx(self):
-        """Look up baseIdx, as determined by srandItem idxs and cap type."""
-        if self._captype == 'low':
+        """Look up baseIdx, as determined by strandItem idxs and cap type."""
+        if self._capType == 'low':
             return self._strandItem.idxs()[0]
         else:  # high or dual, doesn't matter
             return self._strandItem.idxs()[1]
+
+    ### PUBLIC METHODS FOR POSITIONING ###
+    def updatePosIfNecessary(self, idx):
+        """Update position if necessary and return True if updated."""
+        x = int(idx*_baseWidth)
+        if x != self.x():
+            self.setPos(x, self.y())
+            return True
+        return False
+
+    ### PRIVATE SUPPORT METHODS ###
+    def _initCapSpecificState(self):
+        cT = self._capType
+        if cT == 'low':
+            path = ppL5 if self._isDrawn5to3 else ppL3
+            self._setDragBounds = self._setDragBoundsLowCap
+        elif cT == 'high':
+            path = ppR3 if self._isDrawn5to3 else ppR5
+            self._setDragBounds = self._setDragBoundsHighCap
+        elif cT == 'dual':
+            path = pp53 if self._isDrawn5to3 else pp35
+            self._setDragBounds = self._setDragBoundsLowCap
+            # self._setDragBounds = _setDragBoundsDualCap
+        self.setPath(path)
+
+    def _setDragBoundsLowCap(self):
+        """
+        Determines (inclusive) low and high drag boundaries for a low cap.
+        Gets bound to _setDragBounds by _initCapSpecificState, and is
+        called by selectToolMousePress.
+
+        low bound is determined by checking for lower strands.
+        high bound is the index of this strand's high cap.
+        """
+        # determine low bound
+        self._lowDragBound = 0
+        # determine high bound
+        self._highDragBound = self._strandItem.idxs()[1] - 1
+        print "%s.%s (%d, %d)" % (self, util.methodName(), self._lowDragBound, self._highDragBound)
+
+    def _setDragBoundsHighCap(self):
+        """
+        Determines (inclusive) low and high drag boundaries for a high cap.
+        Gets bound to _setDragBounds by _initCapSpecificState, and is
+        called by selectToolMousePress.
+
+        low bound is the index of this strand's low cap.
+        high bound is determined by checking for higher strands.
+        """
+        # determine low bound
+        self._lowDragBound = self._strandItem.idxs()[0] + 1
+        # determine high bound
+        self._highDragBound = self._strandItem._virtualHelixItem._modelVirtualHelix.part().maxBaseIdx()-1
+        print "%s.%s (%d, %d)" % (self, util.methodName(), self._lowDragBound, self._highDragBound)
+
+    def _getNewIdxsForResize(self, baseIdx):
+        """Returns a tuple containing idxs to be passed to the """
+        cT = self._capType
+        if cT == 'low':
+            return (baseIdx, self._strandItem.idxs()[1])
+        elif cT == 'high':
+            return (self._strandItem.idxs()[0], baseIdx)
+        elif cT == 'dual':
+            raise NotImplementedError
 
     ### EVENT HANDLERS ###
     def mousePressEvent(self, event):
@@ -115,7 +176,7 @@ class EndpointItem(QGraphicsPathItem):
         """
         toolMethodName = str(self._activeTool()) + "MousePress"
         if hasattr(self, toolMethodName):  # if the tool method exists
-            getattr(self, toolMethodName)(event.pos().x())  # call it
+            getattr(self, toolMethodName)()  # call it
 
     def mouseMoveEvent(self, event):
         """
@@ -124,7 +185,10 @@ class EndpointItem(QGraphicsPathItem):
         """
         toolMethodName = str(self._activeTool()) + "MouseMove"
         if hasattr(self, toolMethodName):  # if the tool method exists
-            getattr(self, toolMethodName)(event.pos().x())  # call it
+            idx = int(floor((self.x()+event.pos().x()) / _baseWidth))
+            if idx != self._moveIdx:  # did we actually move?
+                self._moveIdx = idx
+                getattr(self, toolMethodName)(idx)  # call the tool method
 
     def mouseReleaseEvent(self, event):
         """
@@ -133,35 +197,39 @@ class EndpointItem(QGraphicsPathItem):
         """
         toolMethodName = str(self._activeTool()) + "MouseRelease"
         if hasattr(self, toolMethodName):  # if the tool method exists
+            del self._moveIdx
             getattr(self, toolMethodName)(event.pos().x())  # call it
 
     ### TOOL METHODS ###
-    def selectToolMousePress(self, x):
-        """docstring for selectToolMousePress"""
+    def selectToolMousePress(self):
+        """
+        Set the _moveIdx for future comparison by mouseMoveEvent.
+        Set the allowed drag bounds for use by selectToolMouseMove.
+        """
         print "%s.%s [%d]" % (self, util.methodName(), self.idx())
-        self._selectToolMousePressIdx = self.idx()
+        self._moveIdx = self.idx()
+        self._setDragBounds()
     # end def
 
-    def selectToolMouseMove(self, x):
-        """docstring for selectToolMouseMove"""
-        # snap to grid location
-        newX = int(floor((self.x() + x)/_baseWidth)*_baseWidth)
-        self.setPos(newX, self.y())
-        # notify stranditem to redraw horiz line
-        self._strandItem.updateLine(self)
+    def selectToolMouseMove(self, idx):
+        """
+        Given a new index (pre-validated as different from the prev index),
+        calculate the new x coordinate for self, move there, and notify the
+        parent strandItem to redraw its horizontal line.
+        """
+        if idx >= self._lowDragBound and idx <= self._highDragBound:
+            x = int(idx*_baseWidth)
+            self.setPos(x, self.y())
+            self._strandItem.updateLine(self)
     # end def
 
     def selectToolMouseRelease(self, x):
         """docstring for selectToolMouseRelease"""
         baseIdx = int(floor(self.x() / _baseWidth))
+        if baseIdx != self.idx():
+            newIdxs = self._getNewIdxsForResize(baseIdx)
+            self._strandItem._modelStrand.resize(newIdxs)
         print "%s.%s [%d]" % (self, util.methodName(), baseIdx)
-        if self._selectToolMousePressIdx != None:
-            if baseIdx != self._selectToolMousePressIdx:
-                # do the resize here
-                pass
-            self._selectToolMousePressIdx = None
-        else:
-            raise  # mouse release after phantom press
     # end def
 
     def mergeToolMouseRelease(self, idx):

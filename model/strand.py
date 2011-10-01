@@ -199,8 +199,9 @@ class Strand(QObject):
         self._strand5p = strand
     # end def
 
-    def resize(self):
-        pass
+    def resize(self, newIdxs, useUndoStack=True):
+        c = Strand.ResizeCommand(self, newIdxs)
+        util._execCommandList(self, [c], desc="Resize strand", useUndoStack=useUndoStack)
     # end def
     
     def getResizeBounds(self, index):
@@ -228,16 +229,16 @@ class Strand(QObject):
     # end def
 
     class ResizeCommand(QUndoCommand):
-        def __init__(self, strand, newIndices):
-            super(ResizeCommand, self).__init__()
+        def __init__(self, strand, newIdxs):
+            super(Strand.ResizeCommand, self).__init__()
             self.strand = strand
             self.oldIndices = strand.idxs()
-            self.newIndices = newIndices
+            self.newIdxs = newIdxs
         # end def
 
         def redo(self):
             std = self.strand
-            nI = self.newIndices
+            nI = self.newIdxs
             std.setIdxs(nI)
             std.strandResizedSignal.emit(std, nI)
         # end def
