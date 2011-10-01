@@ -84,7 +84,7 @@ class Strand(QObject):
 
     def __repr__(self):
         clsName = self.__class__.__name__
-        return "%s(%s, %s)"%(clsName, self._baseIdxLow, self._baseIdxHigh)
+        return "<%s(%s, %s)>"%(clsName, self._baseIdxLow, self._baseIdxHigh)
 
     def generator3pStrand(self):
         """
@@ -221,17 +221,20 @@ class Strand(QObject):
         When a neighbor is not present, just use the Part boundary.
         """
         neighbors = self._strandSet.getNeighbors(self)
+        print "getResizeBounds", neighbors
         if idx == self._baseIdxLow:
             if neighbors[0]:
                 low = neighbors[0].highIdx()+1
             else:
                 low = self.part().minBaseIdx()
+            print "low", low, self._baseIdxHigh-1
             return low, self._baseIdxHigh-1
         else:  # self._baseIdxHigh
             if neighbors[1]:
                 high = neighbors[1].lowIdx()-1
             else:
                 high = self.part().maxBaseIdx()
+            print "high", self._baseIdxLow+1, high
             return self._baseIdxLow+1, high
     # end def
 

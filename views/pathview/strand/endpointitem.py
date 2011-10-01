@@ -81,7 +81,6 @@ class EndpointItem(QGraphicsPathItem):
         self._activeTool = strandItem.activeTool()
         self._capType = captype
         self._isDrawn5to3 = isDrawn5to3
-        self._setDragBounds = None
         self._lowDragBound = None
         self._highDragBound = None
         self._initCapSpecificState()
@@ -118,53 +117,11 @@ class EndpointItem(QGraphicsPathItem):
         cT = self._capType
         if cT == 'low':
             path = ppL5 if self._isDrawn5to3 else ppL3
-            self._setDragBounds = self._setDragBoundsLowCap
         elif cT == 'high':
             path = ppR3 if self._isDrawn5to3 else ppR5
-            self._setDragBounds = self._setDragBoundsHighCap
         elif cT == 'dual':
             path = pp53 if self._isDrawn5to3 else pp35
-            self._setDragBounds = self._setDragBoundsLowCap
-            # self._setDragBounds = _setDragBoundsDualCap
         self.setPath(path)
-
-    def _setDragBoundsLowCap(self):
-        """
-        Determines (inclusive) low and high drag boundaries for a low cap.
-        Gets bound to _setDragBounds by _initCapSpecificState, and is
-        called by selectToolMousePress.
-
-        low bound is determined by checking for lower strands.
-        high bound is the index of this strand's high cap.
-        """
-
-        tt = self._strandItem._modelStrand.getResizeBounds(self.idx())
-        print "lowcap", tt
-
-        # determine low bound
-        self._lowDragBound = 0
-        # determine high bound
-        self._highDragBound = self._strandItem.idxs()[1] - 1
-        print "%s.%s (%d, %d)" % (self, util.methodName(), self._lowDragBound, self._highDragBound)
-
-    def _setDragBoundsHighCap(self):
-        """
-        Determines (inclusive) low and high drag boundaries for a high cap.
-        Gets bound to _setDragBounds by _initCapSpecificState, and is
-        called by selectToolMousePress.
-
-        low bound is the index of this strand's low cap.
-        high bound is determined by checking for higher strands.
-        """
-
-        tt = self._strandItem._modelStrand.getResizeBounds(self.idx())
-        print "highcap", tt
-
-        # determine low bound
-        self._lowDragBound = self._strandItem.idxs()[0] + 1
-        # determine high bound
-        self._highDragBound = self._strandItem._virtualHelixItem._modelVirtualHelix.part().maxBaseIdx()-1
-        print "%s.%s (%d, %d)" % (self, util.methodName(), self._lowDragBound, self._highDragBound)
 
     def _getNewIdxsForResize(self, baseIdx):
         """Returns a tuple containing idxs to be passed to the """
@@ -180,8 +137,9 @@ class EndpointItem(QGraphicsPathItem):
     def mousePressEvent(self, event):
         """
         Parses a mousePressEvent, calling the approproate tool method as
-        necessary.
+        necessary. Stores _moveIdx for future comparison.
         """
+        self._moveIdx = self.idx()
         toolMethodName = str(self._activeTool()) + "MousePress"
         if hasattr(self, toolMethodName):  # if the tool method exists
             getattr(self, toolMethodName)()  # call it
@@ -189,7 +147,7 @@ class EndpointItem(QGraphicsPathItem):
     def mouseMoveEvent(self, event):
         """
         Parses a mouseMoveEvent, calling the approproate tool method as
-        necessary.
+        necessary. Updates _moveIdx if it changed.
         """
         toolMethodName = str(self._activeTool()) + "MouseMove"
         if hasattr(self, toolMethodName):  # if the tool method exists
@@ -201,22 +159,23 @@ class EndpointItem(QGraphicsPathItem):
     def mouseReleaseEvent(self, event):
         """
         Parses a mouseReleaseEvent, calling the approproate tool method as
-        necessary.
+        necessary. Deletes _moveIdx if necessary.
         """
         toolMethodName = str(self._activeTool()) + "MouseRelease"
         if hasattr(self, toolMethodName):  # if the tool method exists
-            del self._moveIdx
             getattr(self, toolMethodName)(event.pos().x())  # call it
+        if hasattr(self, '_moveIdx'):
+            del self._moveIdx
 
     ### TOOL METHODS ###
     def selectToolMousePress(self):
         """
-        Set the _moveIdx for future comparison by mouseMoveEvent.
         Set the allowed drag bounds for use by selectToolMouseMove.
         """
         print "%s.%s [%d]" % (self, util.methodName(), self.idx())
-        self._moveIdx = self.idx()
-        self._setDragBounds()
+        self._lowDragBound, self._highDragBound = \
+                    self._strandItem._modelStrand.getResizeBounds(self.idx())
+        print "bounds", self._lowDragBound, self._highDragBound
     # end def
 
     def selectToolMouseMove(self, idx):
@@ -225,10 +184,10 @@ class EndpointItem(QGraphicsPathItem):
         calculate the new x coordinate for self, move there, and notify the
         parent strandItem to redraw its horizontal line.
         """
-        if idx >= self._lowDragBound and idx <= self._highDragBound:
-            x = int(idx*_baseWidth)
-            self.setPos(x, self.y())
-            self._strandItem.updateLine(self)
+        idx = util.clamp(idx, self._lowDragBound, self._highDragBound)
+        x = int(idx * _baseWidth)
+        self.setPos(x, self.y())
+        self._strandItem.updateLine(self)
     # end def
 
     def selectToolMouseRelease(self, x):

@@ -67,7 +67,7 @@ class StrandSet(QObject):
         else:
             type = 'stap'
         num = self._virtualHelix.number()
-        return "%s_StrandSet(%d)" % (type, num)
+        return "<%s_StrandSet(%d)>" % (type, num)
 
     ### SIGNALS ###
     strandSetStrandAddedSignal = pyqtSignal(QObject)
@@ -297,11 +297,12 @@ class StrandSet(QObject):
     def _couldStrandInsertAtLastIndex(self, strand):
         """Verification of insertability based on cached last index."""
         lastInd = self._lastStrandSetIndex
+        print "_couldStrandInsertAtLastIndex lastInd, _strandList:", lastInd, self._strandList
         if lastInd == None:
             return False  # how do we insert the first strand if this always returns False?
         else:
             strandList = self._strandList
-            sTestHigh = strandList[lastInd].lowIdx()
+            sTestHigh = strandList[lastInd].lowIdx() if lastInd < len(strandList) else self.partMaxBaseIdx()
             sTestLow = strandList[lastInd - 1].highIdx() if lastInd > 0 else -1
             sLow, sHigh = strand.idxs()
             if sTestLow < sLow and sHigh < sTestHigh:
