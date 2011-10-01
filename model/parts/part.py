@@ -25,6 +25,7 @@
 #
 # http://www.opensource.org/licenses/mit-license.php
 
+from exceptions import KeyError
 from heapq import heapify, heappush
 from itertools import product
 from model.enum import StrandType
@@ -40,182 +41,127 @@ class Part(QObject):
     A Part is a group of VirtualHelix items that are on the same lattice.
     Parts are the model component that most directly corresponds to a
     DNA origami design.
+
+    Parts are always parented to the document.
+    Parts know about their oligos, and the internal geometry of a part
+    Copying a part recursively copies all elements in a part:
+        VirtualHelices, Strands, etc
+
+    PartInstances are parented to either the document or an assembly
+    PartInstances know global position of the part
+    Copying a PartInstance only creates a new PartInstance with the same
+    Part(), with a mutable parent and position field.
     """
 
     _step = 21  # this is the period of the part lattice
     _radius = 1.125 # in nanometer
-    
+
     def __init__(self, *args, **kwargs):
         """
-        Parts are always parented to the document.
-        Parts know about their oligos, and the internal geometry of a part
-        Copying a part recursively copies all elements in a part:
-            VirtualHelices, Strands, etc
-
-        PartInstances are parented to either the document or an assembly
-        PartInstances know global position of the part
-        Copying a PartInstance only creates a new PartInstance with the same
-        Part(), with a mutable parent and position field.
+        Sets the paernt document, sets bounds for part dimensions, and sets up
+        bookkeeping for partInstances, Oligos, VirtualHelix's, and helix ID
+        number assignment.
         """
         if self.__class__ == Part:
-            raise NotImplementedError("This class is abstract. Perhaps you want HoneycombPart.")
+            e = "This class is abstract. Perhaps you want HoneycombPart."
+            raise NotImplementedError(e)
         self._document = kwargs.get('document', None)
         super(Part, self).__init__(parent=self._document)
+        # Data structure
         self._partInstances = []    # This is a list of ObjectInstances
         self._oligos = {}
-        self._virtualHelixHash = {}   # should this be a list or a dictionary?  I think dictionary
-        
+        self._virtualHelixHash = {}
+        # Dimensions
         self._maxRow = 50
         self._maxCol = 50
-        self._maxBase = 2*self._step
         self._minBase = 0
-        
-        # ID assignment infra
+        self._maxBase = 2*self._step
+        # ID assignment
         self.oddRecycleBin, self.evenRecycleBin = [], []
         self.reserveBin = set()
-        self.highestUsedOdd = -1  # Used iff the recycle bin is empty and highestUsedOdd+2 is not in the reserve bin
-        self.highestUsedEven = -2  # same
-        
+        self._highestUsedOdd = -1  # Used iff the recycle bin is empty and highestUsedOdd+2 is not in the reserve bin
+        self._highestUsedEven = -2  # same
         self._activeBaseIndex = self._step
     # end def
 
     ### SIGNALS ###
-    partParentChangedSignal = pyqtSignal(QObject)  # self
-    partInstanceAddedSignal = pyqtSignal(QObject)  # self
-    partRemovedSignal = pyqtSignal(QObject)  # self
-    partDestroyedSignal = pyqtSignal(QObject)  # self
-    partSequenceClearedSignal = pyqtSignal(QObject)  # self
-    partNeedsFittingToViewSignal = pyqtSignal(QObject)  # virtualhelix
-    partVirtualHelixAddedSignal = pyqtSignal(QObject)  # virtualhelix
-    
-    partVirtualHelixChangedSignal = pyqtSignal(QObject) # emit the coordinates
-    # virtualHelixAtCoordsChangedSignal = pyqtSignal(int, int) # emit the coordinates
-    
-    partActiveSliceResizeSignal = pyqtSignal(QObject)    # self
-    partActiveSliceIndexSignal = pyqtSignal(QObject, int)   # self, index
+    partActiveSliceIndexSignal = pyqtSignal(QObject, int)  # self, index
+    partActiveSliceResizeSignal = pyqtSignal(QObject)      # self
+    partDestroyedSignal = pyqtSignal(QObject)              # self
+    partInstanceAddedSignal = pyqtSignal(QObject)          # self
+    partNeedsFittingToViewSignal = pyqtSignal(QObject)     # virtualhelix
+    partParentChangedSignal = pyqtSignal(QObject)          # self
+    partRemovedSignal = pyqtSignal(QObject)                # self
+    partSequenceClearedSignal = pyqtSignal(QObject)        # self
+    partVirtualHelixAddedSignal = pyqtSignal(QObject)      # virtualhelix
+    partVirtualHelixChangedSignal = pyqtSignal(QObject)    # coords
 
     ### SLOTS ###
 
-    ### METHODS ###
+    ### ACCESSORS ###
     def undoStack(self):
         return self._document.undoStack()
-
-    def destroy(self):
-        # QObject also emits a destroyed() Signal
-        self.setParent(None)
-        self.deleteLater()
     # end def
 
     def document(self):
         return self._document
+    # end def
 
     def setDocument(self, document):
-        """docstring for setDocument"""
         self._document = document
-    # end def
-    
-    def radius(self):
-        return self._radius
     # end def
 
     def oligos(self):
         return self._oligos
 
-    def addOligo(self, oligo):
-        self._oligos[oligo] = True
+    def subStepSize(self):
+        """Note: _subStepSize is defined in subclasses."""
+        return self._subStepSize
 
-    def removeOligo(self, oligo):
-        self._oligos[oligo] = False
-        self.destroyOligo(oligo)
 
-    def destroyOligo(self, oligo):
-        del self._oligos[oligo]
-    
+    ### PUBLIC METHODS FOR QUERYING THE MODEL ###
+    def dimensions(self):
+        """Returns a tuple of the max X and maxY coordinates of the lattice."""
+        return self.latticeCoordToPositionXY(self._maxRow, self._maxCol)
+    # end def
+
     def isEvenParity(self, row, column):
-        """
-        To be implemented by Part subclass, pass
-        """
+        """Should be overridden when subclassing."""
         raise NotImplementedError
     # end def
-    
-    def activeBaseIndex(self):
-        return self._activeBaseIndex
+
+    def hasVirtualHelixAtCoord(self, coord):
+        return coord in self._virtualHelixHash
     # end def
-    
-    def setActiveBaseIndex(self, idx):
-        self._activeBaseIndex = idx
-        self.partActiveSliceIndexSignal.emit(self, idx)
+
+    def radius(self):
+        return self._radius
     # end def
-    
-    def minBaseIdx(self):
-        return self._minBase
+
+    def getVirtualHelices(self):
+        """yield an iterator to the virtualHelix references in the part"""
+        return  self._virtualHelixHash.itervalues()
     # end def
-    
+
     def maxBaseIdx(self):
         return self._maxBase
     # end def
-    
-    def maxBaseIndices(self):
-        """Return the latice indice bounds relative to the origin."""
-        return self._minBase, self._maxBase
-    # end def
-    
-    def generatorSpatialLattice(self, scaleFactor=1.0):
-        """
-        returns a generator that yields the XY spatial lattice points to draw
-        
-        relative to the part origin
-        """
-        # nested for loop in one line
-        latticeToSpatial = self.latticeToSpatial
-        for latticeCoord in product(range(self._maxRow), range(self._maxCol)):
-            row, col = latticeCoord
-            x, y = latticeToSpatial(row, col, scaleFactor)
-            yield x, y, row, col
-        # latticeCoordGen = product(range(self._maxRow), range(self._maxCol))
-        # return starmap(self.latticeToSpatial, \
-        #                 izip( latticeCoordGen, repeat(scaleFactor)))
-    # end def
-    
-    def generatorFullLattice(self):
-        """
-        returns a generator that yields the row, column lattice points to draw
-        
-        relative to the part origin
-        """
-        return product(range(self._maxRow), range(self._maxCol))
-    # end def
-    
-    def dimensions(self):
-        """
-        return a tuple of the max X and maxY coordinates of the lattice
-        """
-        return self.latticeToSpatial(self._maxRow, self._maxCol)
+
+    def minBaseIdx(self):
+        return self._minBase
     # end def
 
-    def latticeToSpatial(self, row, col, scaleFactor=1.0):
-        """
-        To be implemented by Part subclass
-        returns a tuple of the XY spatial Coordinates mapping from the lattice
-        coordinates, relative to the Part Instance Position
-
-        returns the upperLeftCorner for a given tuple of lattice Coordinates
-        """
-        raise NotImplementedError
+    def virtualHelixAtCoord(self, coord):
+        self._virtualHelixHash[coord]
     # end def
 
-    def spatialToLattice(self, x, y, scaleFactor=1.0):
-        """
-        returns a tuple of the lattice coordinates mapping from the
-        XY spatial Coordinates
-        must account for rounding errors converting ints to floats
+    ### PUBLIC METHODS FOR EDITING THE MODEL ###
+    def activeBaseIndex(self):
+        return self._activeBaseIndex
+    # end def
 
-        spatialCoord is relative to the Part Instance Position
-
-        Assumes spatialCoord is a with +/- 0.5 of a true valid 
-        lattice position
-        """
-        raise NotImplementedError
+    def addOligo(self, oligo):
+        self._oligos[oligo] = True
     # end def
 
     def createVirtualHelix(self, row, col, useUndoStack=True):
@@ -224,9 +170,68 @@ class Part(QObject):
                                                 useUndoStack=useUndoStack)
     # end def
 
+    def destroy(self):
+        self.setParent(None)
+        self.deleteLater()  # QObject also emits a destroyed() Signal
+    # end def
+
+    def generatorFullLattice(self):
+        """
+        Returns a generator that yields the row, column lattice points to draw
+        relative to the part origin.
+        """
+        return product(range(self._maxRow), range(self._maxCol))
+    # end def
+
+    def generatorSpatialLattice(self, scaleFactor=1.0):
+        """
+        Returns a generator that yields the XY spatial lattice points to draw
+        relative to the part origin.
+        """
+        # nested for loop in one line
+        latticeCoordToPositionXY = self.latticeCoordToPositionXY
+        for latticeCoord in product(range(self._maxRow), range(self._maxCol)):
+            row, col = latticeCoord
+            x, y = latticeCoordToPositionXY(row, col, scaleFactor)
+            yield x, y, row, col
+    # end def
+
+    def latticeCoordToPositionXY(self, row, col, scaleFactor=1.0):
+        """
+        Returns a tuple of the (x,y) position for a given lattice row and
+        column.
+
+        Note: The x,y position is the upperLeftCorner for the given
+        coordinate, and relative to the part instance.
+        """
+        raise NotImplementedError  # To be implemented by Part subclass
+    # end def
+
+    def positionToCoord(self, x, y, scaleFactor=1.0):
+        """
+        Returns a tuple (row, column) lattice coordinate for a given
+        x and y position that is within +/- 0.5 of a true valid lattice
+        position.
+
+        Note: mapping should account for int-to-float rounding errors.
+        x,y is relative to the Part Instance Position.
+        """
+        raise NotImplementedError  # To be implemented by Part subclass
+    # end def
+
+    def newPart(self):
+        return Part(self._document)
+    # end def
+
+    def removeOligo(self, oligo):
+        self._oligos[oligo] = False
+        del self._oligos[oligo]
+    # end def
+
     def removeVirtualHelix(self, virtualHelix=None, coord=None, useUndoStack=True):
         """
-        takes a virtualHelix or coord to remove a virtual helix
+        Removes a VirtualHelix from the model. Accepts a reference to the 
+        VirtualHelix, or a (row,col) lattice coordinate to perform a lookup.
         """
         if virtualHelix and self.hasVirtualHelixAtCoord(virtualHelix.coord()):
             coord = virtualHelix.coord()
@@ -234,29 +239,22 @@ class Part(QObject):
             if self.hasVirtualHelixAtCoord(coord):
                 virtualHelix = self.virtualHelixAtCoord(coord)
             else:
-                raise Exception
+                e = "virtualhelix not found by coord lookup"
+                raise KeyError(e)
         else:
-            raise Exception 
+            e = "Cannot remove virtualhelix: No ref or coord provided."
+            raise KeyError(e)
         c = Part.RemoveVirtualHelixCommand(self, virtualHelix)
         util._execCommandList(self, [c], desc="Remove VirtualHelix", \
                                                     useUndoStack=useUndoStack)
     # end def
 
-    def getVirtualHelices(self):
-        """
-        yield an iterator to the virtualHelix references in the part
-        """
-        return  self._virtualHelixHash.itervalues()
-    # def 
-
-    def virtualHelixAtCoord(self, coord):
-        self._virtualHelixHash[coord]
+    def setActiveBaseIndex(self, idx):
+        self._activeBaseIndex = idx
+        self.partActiveSliceIndexSignal.emit(self, idx)
     # end def
 
-    def hasVirtualHelixAtCoord(self, coord):
-        return coord in self._virtualHelixHash
-    # end def
-
+    ### PRIVATE SUPPORT METHODS ###
     def _addVirtualHelix(self, virtualHelix):
         """
         private method for adding a virtualHelix to the Parts data structure
@@ -265,25 +263,62 @@ class Part(QObject):
         self._virtualHelixHash[virtualHelix.coords()] = virtualHelix
     # end def
 
-    def _removeVirtualHelix(self, virtualHelix):
+    def _reserveHelixIDNumber(self, parityEven=True, requestedIDnum=None):
         """
-        private method for adding a virtualHelix to the Parts data structure
-        of virtualHelix references
+        Reserves and returns a unique numerical label appropriate for a
+        virtualhelix of a given parity. If a specific index is preferable
+        (say, for undo/redo) it can be requested in num.
         """
-        del self._virtualHelixHash[virtualHelix.coords()]
+        num = requestedIDnum
+        if num != None: # We are handling a request for a particular number
+            assert num >= 0, long(num) == num
+            # assert not num in self._numberToVirtualHelix
+            if num in self.oddRecycleBin:
+                self.oddRecycleBin.remove(num)
+                heapify(self.oddRecycleBin)
+                return num
+            if num in self.evenRecycleBin:
+                self.evenRecycleBin.remove(num)
+                heapify(self.evenRecycleBin)
+                return num
+            self.reserveBin.add(num)
+            return num
+        # end if
+        else:
+            # Just find any valid index (subject to parity constraints)
+            if parityEven:
+                 if len(self.evenRecycleBin):
+                     return heappop(self.evenRecycleBin)
+                 else:
+                     while self._highestUsedEven + 2 in self.reserveBin:
+                         self._highestUsedEven += 2
+                     self._highestUsedEven += 2
+                     return self._highestUsedEven
+            else:
+                if len(self.oddRecycleBin):
+                    return heappop(self.oddRecycleBin)
+                else:
+                    while self._highestUsedOdd + 2 in self.reserveBin:
+                        self._highestUsedOdd += 2
+                    self._highestUsedOdd += 2
+                    return self._highestUsedOdd
+        # end else
     # end def
 
-    def subStepSize(self):
-        """docstring for subStepSize"""
-        return self._subStepSize
-
-    def newPart(self):
+    def _recycleHelixIDNumber(self, n):
         """
-        reimplement this method for each type of Part
+        The caller's contract is to ensure that n is not used in *any* helix
+        at the time of the calling of this function (or afterwards, unless
+        reserveLabelForHelix returns the label again).
         """
-        return Part(self._document)
+        if n % 2 == 0:
+            heappush(self.evenRecycleBin,n)
+        else:
+            heappush(self.oddRecycleBin,n)
     # end def
 
+
+    ### PUBLIC SUPPORT METHODS ###
     def shallowCopy(self):
         part = self.newPart()
         part._virtualHelices = dict(self._virtualHelices)
@@ -349,7 +384,7 @@ class Part(QObject):
             super(Part.CreateVirtualHelixCommand, self).__init__()
             self._part = part
             self._parityEven = part.isEvenParity(row,col)
-            idNum = part.reserveHelixIDNumber(self._parityEven, requestedIDnum=None)
+            idNum = part._reserveHelixIDNumber(self._parityEven, requestedIDnum=None)
             self._vhelix = VirtualHelix(part, row, col, idNum)
             self._idNum = idNum
         # end def
@@ -362,7 +397,7 @@ class Part(QObject):
             part._addVirtualHelix(vh)
             vh.setNumber(idNum)
             if not vh.number():
-                part.reserveHelixIDNumber(self._parityEven, requestedIDnum=idNum)
+                part._reserveHelixIDNumber(self._parityEven, requestedIDnum=idNum)
             # end if
             part.partVirtualHelixAddedSignal.emit(vh)
             part.partActiveSliceResizeSignal.emit(part)
@@ -373,7 +408,7 @@ class Part(QObject):
             part = self._part
             idNum = self._idNum
             part._removeVirtualHelix(vh)
-            part.recycleHelixIDNumber(idNum)
+            part._recycleHelixIDNumber(idNum)
             # clear out part references
             vh.setPart(None)
             vh.setNumber(None)
@@ -382,7 +417,6 @@ class Part(QObject):
         # end def
     # end class
 
-    ### COMMANDS ###
     class RemoveVirtualHelixCommand(QUndoCommand):
         """Inserts strandToAdd into strandList at index idx."""
         def __init__(self, part, virtualHelix):
@@ -399,7 +433,7 @@ class Part(QObject):
             part = self._part
             idNum = self._idNum
             part._removeVirtualHelix(vh)
-            part.recycleHelixIDNumber(idNum)
+            part._recycleHelixIDNumber(idNum)
             # clear out part references
             vh.setPart(None)
             vh.setNumber(None)
@@ -415,66 +449,9 @@ class Part(QObject):
             part._addVirtualHelix(vh)
             vh.setNumber(idNum)
             if not vh.number():
-                part.reserveHelixIDNumber(self._parityEven, requestedIDnum=idNum)
+                part._reserveHelixIDNumber(self._parityEven, requestedIDnum=idNum)
             part.partVirtualHelixAddedSignal.emit(vh)
             part.partActiveSliceResizeSignal.emit(part)
         # end def
     # end class
-
-    ############################# VirtualHelix ID Number Management #############################
-    # Used in both square, honeycomb lattices and so it's shared here
-    def reserveHelixIDNumber(self, parityEven=True, requestedIDnum=None):
-        """
-        Reserves and returns a unique numerical label appropriate for a virtualhelix of
-        a given parity. If a specific index is preferable (say, for undo/redo) it can be
-        requested in num.
-        """
-        num = requestedIDnum
-        if num != None: # We are handling a request for a particular number
-            assert num >= 0, long(num) == num
-            # assert not num in self._numberToVirtualHelix
-            if num in self.oddRecycleBin:
-                self.oddRecycleBin.remove(num)
-                heapify(self.oddRecycleBin)
-                return num
-            if num in self.evenRecycleBin:
-                self.evenRecycleBin.remove(num)
-                heapify(self.evenRecycleBin)
-                return num
-            self.reserveBin.add(num)
-            return num
-        # end if
-        else:
-            # Just find any valid index (subject to parity constraints)
-            if parityEven:
-                 if len(self.evenRecycleBin):
-                     return heappop(self.evenRecycleBin)
-                 else:
-                     while self.highestUsedEven + 2 in self.reserveBin:
-                         self.highestUsedEven += 2
-                     self.highestUsedEven += 2
-                     return self.highestUsedEven
-            else:
-                if len(self.oddRecycleBin):
-                    return heappop(self.oddRecycleBin)
-                else:
-                    while self.highestUsedOdd + 2 in self.reserveBin:
-                        self.highestUsedOdd += 2
-                    self.highestUsedOdd += 2
-                    return self.highestUsedOdd
-        # end else
-    # end def
-
-    def recycleHelixIDNumber(self, n):
-        """
-        The caller's contract is to ensure that n is not used in *any* helix
-        at the time of the calling of this function (or afterwards, unless
-        reserveLabelForHelix returns the label again)"""
-        if n % 2 == 0:
-            heappush(self.evenRecycleBin,n)
-        else:
-            heappush(self.oddRecycleBin,n)
-    # end def
-    
-    ### COMMANDS ###
     

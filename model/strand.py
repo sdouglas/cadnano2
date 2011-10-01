@@ -35,6 +35,25 @@ util.qtWrapImport('QtCore', globals(), ['pyqtSignal', 'QObject', 'Qt'])
 util.qtWrapImport('QtGui', globals(), ['QUndoStack', 'QUndoCommand'])
 
 class Strand(QObject):
+    """
+    A Strand is a continuous stretch of bases that are all in the same
+    StrandSet (recall: a VirtualHelix is made up of two StrandSets).
+
+    Every Strand has two endpoints. The naming convention for keeping track
+    of these endpoints is based on the relative numeric value of those
+    endpoints (low and high). Thus, Strand has a '_baseIdxLow', which is its
+    index with the lower numeric value (typically positioned on the left),
+    and a '_baseIdxHigh' which is the higher-value index (typically positioned
+    on the right)
+
+    Strands can be linked to other strands by "connections". References to
+    connected strands are named "_strand5p" and "_strand3p", which correspond
+    to the 5' and 3' phosphate linkages in the physical DNA strand, 
+    respectively. Since Strands can point 5'-to-3' in either the low-to-high
+    or high-to-low directions, connection accessor methods (lowConnection and
+    highConnection) are bound during the init for convenience.
+    """
+
     def __init__(self, strandSet, baseIdxLow, baseIdxHigh):
         super(Strand, self).__init__(strandSet)
         self._strandSet = strandSet
@@ -97,78 +116,41 @@ class Strand(QObject):
     ### SLOTS ###
 
 
-    ### Methods ###
+    ### ACCESSORS ###
     def undoStack(self):
         return self._strandSet.undoStack()
 
-    def setStrandSet(self, strandSet):
-        """docstring for setStrandSet"""
-        self._strandSet = strandSet
+    def decorators(self):
+        return self.decorators
+    # end def
 
-    def strandSet(self):
-        return self._strandSet
-    # end def
-    
-    def numBases(self):
-        return self._baseIdxHigh - self._baseIdxLow + 1
-    # end def
-    
-    def virtualHelix(self):
-        return self._strandSet.virtualHelix()
-    # end def
-    
     def part(self):
         return self._strandSet.part()
     # end def
-    
+
     def oligo(self):
         return self._oligo
     # end def
 
-    def setOligo(self, newOligo):
-        self._oligo = newOligo
-        # return the signal
-        # return self.strandHasNewOligoSignal.emit, (self,)
-        self.strandHasNewOligoSignal.emit(self)
-    # end def
-    
-    def length(self):
-        return self._baseIdxHigh - self._baseIdxLow + 1
-    # return 
-    def decorators(self):
-        return self.decorators
-    #end def
-
-    def addDecorators(self, additionalDecorators):
-        """
-        used in adding additional decorators during a merge operation
-        """
-        self._decorators.update(additionalDecorators)
-    # def
-
-    def removeDecoratorsOutOfRange(self):
-        decs = self._decorators
-        idxMin, idMax = self.idxs() 
-        for key in decs:
-            if key > idxMax or key < idxMin:
-                decs.pop(key)
-            #end if
-        # end for
+    def strandSet(self):
+        return self._strandSet
     # end def
 
-    def destroy(self):
-        # QObject also emits a destroyed() Signal
-        self.setParent(None)
-        self.deleteLater()
+    def virtualHelix(self):
+        return self._strandSet.virtualHelix()
+    # end def
+
+    ### PUBLIC METHODS FOR QUERYING THE MODEL ###
+    def connection3p(self):
+        return self._strand3p
+    # end def
+
+    def connection5p(self):
+        return self._strand5p
     # end def
 
     def idxs(self):
         return (self._baseIdxLow, self._baseIdxHigh)
-    # end def
-
-    def setIdxs(self, idxs):
-        self._baseIdxLow = idxs[0]
-        self._baseIdxHigh = idxs[1]
     # end def
 
     def lowIdx(self):
@@ -183,14 +165,11 @@ class Strand(QObject):
         return self._strandSet.isDrawn5to3()
     # end def
 
-    def connection3p(self):
-        return self._strand3p
+    def length(self):
+        return self._baseIdxHigh - self._baseIdxLow + 1
     # end def
 
-    def connection5p(self):
-        return self._strand5p
-    # end def
-
+    ### PUBLIC METHODS FOR EDITING THE MODEL ###
     def set3pConnection(self, strand):
         self._strand3p = strand
     # end def
@@ -199,57 +178,83 @@ class Strand(QObject):
         self._strand5p = strand
     # end def
 
+    def setIdxs(self, idxs):
+        self._baseIdxLow = idxs[0]
+        self._baseIdxHigh = idxs[1]
+    # end def
+
+    def setStrandSet(self, strandSet):
+        self._strandSet = strandSet
+    # end def
+
+    def setOligo(self, newOligo):
+        self._oligo = newOligo
+        self.strandHasNewOligoSignal.emit(self)
+    # end def
+
+    def addDecorators(self, additionalDecorators):
+        """
+        used in adding additional decorators during a merge operation
+        """
+        self._decorators.update(additionalDecorators)
+    # def
+
+    def destroy(self):
+        # QObject also emits a destroyed() Signal
+        self.setParent(None)
+        self.deleteLater()
+    # end def
+
+    def getResizeBounds(self, idx):
+        """
+        Determines (inclusive) low and high drag boundaries resizing
+        from an endpoint located at idx.
+
+        When resizing from _baseIdxLow:
+            low bound is determined by checking for lower neighbor strands.
+            high bound is the index of this strand's high cap, minus 1.
+
+        When resizing from _baseIdxHigh:
+            low bound is the index of this strand's low cap, plus 1.
+            high bound is determined by checking for higher neighbor strands.
+
+        When a neighbor is not present, just use the Part boundary.
+        """
+        neighbors = self._strandSet.getNeighbors(self)
+        if idx == self._baseIdxLow:
+            if neighbors[0]:
+                low = neighbors[0].highIdx()+1
+            else:
+                low = self.part().minBaseIdx()
+            return low, self._baseIdxHigh-1
+        else:  # self._baseIdxHigh
+            if neighbors[1]:
+                high = neighbors[1].lowIdx()-1
+            else:
+                high = self.part().maxBaseIdx()
+            return self._baseIdxLow+1, high
+    # end def
+
     def resize(self, newIdxs, useUndoStack=True):
         c = Strand.ResizeCommand(self, newIdxs)
         util._execCommandList(self, [c], desc="Resize strand", useUndoStack=useUndoStack)
     # end def
-    
-    def getResizeBounds(self, index):
+
+    ### PUBLIC SUPPORT METHODS ### 
+    def removeDecoratorsOutOfRange(self):
         """
-        returns a tuple (lowInd, highInd)
-        of indices for use with resizing a strand from one endpoint
-        
-        use this information the move an endpoint as low as lowInd + 1 and as
-        high as highInd - 1
+        Called by StrandSet's SplitCommand after copying the strand to be
+        split. Either copy could have extra decorators that the copy should
+        not retain.
         """
-        neighbors = self._strandSet.getNeighbors(self)
-        if index == self._baseIdxLow:
-            if neighbors[0]:
-                low = neighbors[0].highIdx()
-            else:
-                low = self.part().minBaseIndex()-1
-            return low, self._baseIdxHigh
-        else:
-            # Assume it's the self._baseIdxHigh
-            if neighbors[1]:
-                high = neighbors[1].lowIdx()
-            else:
-                high = self.part().maxBaseIndex()
-            return self._baseIdxLow, high
+        decs = self._decorators
+        idxMin, idMax = self.idxs() 
+        for key in decs:
+            if key > idxMax or key < idxMin:
+                decs.pop(key)
+            #end if
+        # end for
     # end def
-
-    class ResizeCommand(QUndoCommand):
-        def __init__(self, strand, newIdxs):
-            super(Strand.ResizeCommand, self).__init__()
-            self.strand = strand
-            self.oldIndices = strand.idxs()
-            self.newIdxs = newIdxs
-        # end def
-
-        def redo(self):
-            std = self.strand
-            nI = self.newIdxs
-            std.setIdxs(nI)
-            std.strandResizedSignal.emit(std, nI)
-        # end def
-
-        def undo(self):
-            std = self.strand
-            oI = self.oldIndices
-            std.setIdxs(oI)
-            std.strandResizedSignal.emit(std, oI)
-        # end def
-    # end class
 
     def copy(self):
         pass
@@ -288,3 +293,29 @@ class Strand(QObject):
         nS._note = self._note
         return nS
     # end def
+
+    ### COMMANDS ###
+    class ResizeCommand(QUndoCommand):
+        def __init__(self, strand, newIdxs):
+            super(Strand.ResizeCommand, self).__init__()
+            self.strand = strand
+            self.oldIndices = strand.idxs()
+            self.newIdxs = newIdxs
+        # end def
+
+        def redo(self):
+            std = self.strand
+            nI = self.newIdxs
+            print "ResizeCommand", nI
+            std.setIdxs(nI)
+            std.strandResizedSignal.emit(std, nI)
+        # end def
+
+        def undo(self):
+            std = self.strand
+            oI = self.oldIndices
+            std.setIdxs(oI)
+            std.strandResizedSignal.emit(std, oI)
+        # end def
+    # end class
+

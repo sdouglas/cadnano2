@@ -70,7 +70,7 @@ class HelixItem(QGraphicsEllipseItem):
         
         self.setNotHovered()
         
-        x, y = partItem.part().latticeToSpatial(row, column, partItem.scaleFactor())
+        x, y = partItem.part().latticeCoordToPositionXY(row, column, partItem.scaleFactor())
         self.setPos(x, y)
         self._coord = (row, column)
         self.show()

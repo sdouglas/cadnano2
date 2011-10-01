@@ -64,7 +64,7 @@ class SquarePart(Part):
         return (row % 2) ^ (column % 2)
     # end def
     
-    def latticeToSpatial(self, row, column, scaleFactor=1.0):
+    def latticeCoordToPositionXY(self, row, column, scaleFactor=1.0):
         """
         make sure self._radius is a float
         """
@@ -74,7 +74,7 @@ class SquarePart(Part):
         return scaleFactor*x, scaleFactor*y
     # end def
 
-    def spatialToLattice(self, x, y, scaleFactor=1.0):
+    def positionToCoord(self, x, y, scaleFactor=1.0):
         """
         """
         radius = self._radius

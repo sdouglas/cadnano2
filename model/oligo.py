@@ -33,10 +33,13 @@ util.qtWrapImport('QtGui', globals(), [])
 
 class Oligo(QObject):
     """
-    The Oligo is a group of Strands that are connected via 5' and/or 3'
+    Oligo is a group of Strands that are connected via 5' and/or 3'
     connections. It corresponds to the physical DNA strand, and is thus
     used tracking and storing properties that are common to a single strand,
     such as its color.
+
+    Commands that affect Strands (e.g. create, remove, merge, split) are also
+    responsible for updating the affected Oligos.
     """
     def __init__(self, color=None, part=None):
         super(Oligo, self).__init__(part)

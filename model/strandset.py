@@ -46,7 +46,7 @@ class StrandSet(QObject):
 
     Views may also query StrandSet for information that is useful in
     determining that edits can be made, such as the bounds of empty
-    space in which a strand can be resized.
+    space in which a strand can be created or resized.
     """
 
     def __init__(self, strandType, virtualHelix):
@@ -92,7 +92,7 @@ class StrandSet(QObject):
         return self._virtualHelix.part()
 
     def getNeighbors(self, strand):
-        strandSetIdx, isInSet = _findIndexOfRangeFor(strand)
+        strandSetIdx, isInSet = self._findIndexOfRangeFor(strand)
         sList = self._strandList
         if isInSet:
             if strandSetIdx > 0:
@@ -157,7 +157,6 @@ class StrandSet(QObject):
         else:
             return -1
     # end def
-        
 
     def createDeserializedStrand(self, baseIdxLow, baseIdxHigh, useUndoStack=False):
         """
@@ -195,7 +194,7 @@ class StrandSet(QObject):
         lowAndHighStrands = self.canBeMerged(priorityStrand, otherStrand)
         if lowAndHighStrands:
             strandLow, strandigh = lowAndHighStrands
-            lowStrandSetIdx, isInSet = _findIndexOfRangeFor(strandLow)
+            lowStrandSetIdx, isInSet = self._findIndexOfRangeFor(strandLow)
             if isInSet:
                 c = StrandSet.MergeCommand(strandLow, strandHigh, \
                                                 lowStrandSetIdx, firstStrand)
@@ -226,7 +225,7 @@ class StrandSet(QObject):
     def splitStrand(self, strand, baseIdx, useUndoStack=True):
         "Break strand into two strands"
         if strandCanBeSplit(strand, baseIdx):
-            strandSetIdx, isInSet = _findIndexOfRangeFor(strand)
+            strandSetIdx, isInSet = self._findIndexOfRangeFor(strand)
             if isInSet:
                 c = StrandSet.SplitCommand(strand, baseIdx, strandSetIdx)
                 util._execCommandList(self, [c], desc="Split", useUndoStack=useUndoStack)

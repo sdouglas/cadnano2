@@ -48,7 +48,7 @@ class StrandItem(QGraphicsLineItem):
         self._highCap = EndpointItem(self, 'high', isDrawn5To3)
         self._dualCap = EndpointItem(self, 'dual', isDrawn5To3)
         self._controller = StrandItemController(self, modelStrand)
-        self.update(modelStrand)
+        self._update(modelStrand)
     # end def
 
     ### SIGNALS ###
@@ -56,6 +56,7 @@ class StrandItem(QGraphicsLineItem):
     ### SLOTS ###
     def strandResizedSlot(self):
         """docstring for strandResizedSlot"""
+        print "strandResizedSlot", self.idxs()
         lowMoved = self._lowCap.updatePosIfNecessary(self.idxs()[0])
         highMoved = self._highCap.updatePosIfNecessary(self.idxs()[1])
         if lowMoved:
@@ -89,11 +90,11 @@ class StrandItem(QGraphicsLineItem):
     # end def
 
     def strandXover3pCreatedSlot(self, strand):
-        self.update(strand)
+        self._update(strand)
     # end def
 
     def strandXover3pRemovedSlot(self, strand):
-        self.update(strand)
+        self._update(strand)
     # end def
 
     def oligoAppeareanceChangedSlot(self, oligo):
@@ -124,8 +125,24 @@ class StrandItem(QGraphicsLineItem):
     def idxs(self):
         return self._modelStrand.idxs()
 
-    ### DRAWING METHODS ###
-    def update(self, strand):
+    ### PUBLIC METHODS FOR DRAWING / LAYOUT ###
+    def updateLine(self, movedCap):
+        # setup
+        halfBaseWidth = self._virtualHelixItem._baseWidth / 2.0
+        line = self.line()
+        # set new line coords
+        if movedCap == self._lowCap:
+            p1 = line.p1()
+            p1.setX(self._lowCap.pos().x() + halfBaseWidth)
+            line.setP1(p1)
+        else:
+            p2 = line.p2()
+            p2.setX(self._highCap.pos().x() + halfBaseWidth)
+            line.setP2(p2)
+        self.setLine(line)
+
+    ### PRIVATE SUPPORT METHODS ###
+    def _update(self, strand):
         """
         Prepare NormalStrand for drawing:
         1. Show or hide caps depending on L and R connectivity.
@@ -162,7 +179,7 @@ class StrandItem(QGraphicsLineItem):
             highCap.show()
         # special case: single-base strand with no L or H connections,
         # (unconnected caps were made visible in previous block of code)
-        if strand.numBases() == 1 and \
+        if strand.length() == 1 and \
                   (lowCap.isVisible() and highCap.isVisible()):
             lowCap.hide()  # hide 
             highCap.hide()
@@ -173,25 +190,10 @@ class StrandItem(QGraphicsLineItem):
         # 2. Line drawing
         hy = ly = lUpperLeftY + halfBaseWidth
         self.setLine(lx, ly, hx, hy)
-        self.updatePensAndBrushes(strand)
+        self._updatePensAndBrushes(strand)
     # end def
 
-    def updateLine(self, movedCap):
-        # setup
-        halfBaseWidth = self._virtualHelixItem._baseWidth / 2.0
-        line = self.line()
-        # set new line coords
-        if movedCap == self._lowCap:
-            p1 = line.p1()
-            p1.setX(self._lowCap.pos().x() + halfBaseWidth)
-            line.setP1(p1)
-        else:
-            p2 = line.p2()
-            p2.setX(self._highCap.pos().x() + halfBaseWidth)
-            line.setP2(p2)
-        self.setLine(line)
-
-    def updatePensAndBrushes(self, strand):
+    def _updatePensAndBrushes(self, strand):
         lowIdx, highIdx = strand.lowIdx(), strand.highIdx()
         if strand.strandSet().isScaffold():
             pen = QPen(styles.scafstroke, styles.PATH_STRAND_STROKE_WIDTH)
@@ -206,4 +208,27 @@ class StrandItem(QGraphicsLineItem):
         self._highCap.setBrush(brush)
         self._dualCap.setBrush(brush)
     # end def
+
+    ### EVENT HANDLERS ###
+    def mousePressEvent(self, event):
+        """
+        Parses a mousePressEvent, calling the approproate tool method as
+        necessary.
+        """
+        toolMethodName = str(self._activeTool()) + "MousePress"
+        if hasattr(self, toolMethodName):  # if the tool method exists
+            getattr(self, toolMethodName)()  # call it
+
+    ### TOOL METHODS ###
+    def breakToolMousePress(self):
+        """
+        Set the _moveIdx for future comparison by mouseMoveEvent.
+        Set the allowed drag bounds for use by selectToolMouseMove.
+        """
+        print "%s.%s [%d]" % (self, util.methodName(), self.idx())
+        self._modelStrand
+
+    # end def
+
+
 

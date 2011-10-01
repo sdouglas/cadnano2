@@ -27,7 +27,7 @@
 
 from math import floor
 from views import styles
-from itemhandle import VirtualHelixItemHandle
+from virtualhelixhandleitem import VirtualHelixHandleItem
 from controllers.itemcontrollers.virtualhelixitemcontroller import VirtualHelixItemController
 from .strand.stranditem import StrandItem
 
@@ -53,7 +53,6 @@ class VirtualHelixItem(QGraphicsPathItem):
         self.setAcceptHoverEvents(True)  # for pathtools
         self.setFlag(QGraphicsItem.ItemUsesExtendedStyleOption)
         self.setCacheMode(QGraphicsItem.DeviceCoordinateCache)
-        
         self.setBrush(QBrush(Qt.NoBrush))
         self.setPen(self.minorGridPen)
         self._minorGridPainterPath = None
@@ -61,8 +60,7 @@ class VirtualHelixItem(QGraphicsPathItem):
         self._minorGridPainterPath = self.minorGridPainterPath()
         self._majorGridPainterPath = self.majorGridPainterPath()
         self.setPath(self._minorGridPainterPath)
-        self._handle = VirtualHelixItemHandle(modelVirtualHelix, partItem)
-        
+        self._handle = VirtualHelixHandleItem(modelVirtualHelix, partItem)
         self._controller = VirtualHelixItemController(self, modelVirtualHelix)
     # end def
 
@@ -70,13 +68,22 @@ class VirtualHelixItem(QGraphicsPathItem):
 
     ### SLOTS ###
     def strandAddedSlot(self, strand):
-        """docstring for strandAddedSlot"""
-        print " adding Strand"
-        temp = StrandItem(strand, self)
+        """
+        Instantiates a StrandItem upon notification that the model has a
+        new Strand.  The StrandItem is responsible for creating its own
+        controller for communication with the model, and for adding itself to
+        its parent (which is *this* VirtualHelixItem, i.e. 'self').
+        """
+        StrandItem(strand, self)
     # end def
 
     def decoratorAddedSlot(self, decorator):
-        """docstring for sequenceClearedSlot"""
+        """
+        Instantiates a DecoratorItem upon notification that the model has a
+        new Decorator.  The Decorator is responsible for creating its own
+        controller for communication with the model, and for adding itself to
+        its parent (which is *this* VirtualHelixItem, i.e. 'self').
+        """
         pass
 
     def virtualHelixNumberChangedSlot(self, virtualHelix):

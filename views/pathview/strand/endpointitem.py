@@ -104,7 +104,7 @@ class EndpointItem(QGraphicsPathItem):
         else:  # high or dual, doesn't matter
             return self._strandItem.idxs()[1]
 
-    ### PUBLIC METHODS FOR POSITIONING ###
+    ### PUBLIC METHODS FOR DRAWING / LAYOUT ###
     def updatePosIfNecessary(self, idx):
         """Update position if necessary and return True if updated."""
         x = int(idx*_baseWidth)
@@ -137,6 +137,10 @@ class EndpointItem(QGraphicsPathItem):
         low bound is determined by checking for lower strands.
         high bound is the index of this strand's high cap.
         """
+
+        tt = self._strandItem._modelStrand.getResizeBounds(self.idx())
+        print "lowcap", tt
+
         # determine low bound
         self._lowDragBound = 0
         # determine high bound
@@ -152,6 +156,10 @@ class EndpointItem(QGraphicsPathItem):
         low bound is the index of this strand's low cap.
         high bound is determined by checking for higher strands.
         """
+
+        tt = self._strandItem._modelStrand.getResizeBounds(self.idx())
+        print "highcap", tt
+
         # determine low bound
         self._lowDragBound = self._strandItem.idxs()[0] + 1
         # determine high bound

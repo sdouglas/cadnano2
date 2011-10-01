@@ -148,7 +148,7 @@ class PartItem(QGraphicsPathItem):
                 step = vhiRect.height() + styles.PATH_HELIX_PADDING
             # end if
             
-            # get the VirtualHelixItemHandle
+            # get the VirtualHelixHandleItem
             vhiH = vhi.handle()
             
             if vhiH.parentItem() != self._vhiHSelectionGroup:
