@@ -221,7 +221,7 @@ class Strand(QObject):
         When a neighbor is not present, just use the Part boundary.
         """
         neighbors = self._strandSet.getNeighbors(self)
-        print "getResizeBounds", neighbors
+        print "getResizeBounds neighbors:", neighbors
         if idx == self._baseIdxLow:
             if neighbors[0]:
                 low = neighbors[0].highIdx()+1
