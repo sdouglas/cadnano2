@@ -118,8 +118,8 @@ class VirtualHelix(QObject):
     # end def
     
     def hasStrandAtIdx(self, idx):
-        return self._scafStrandSet.hasStrandAt(idx, idx+1) #and \
-            #self.stapleStrandSet.hasStrandAt(idx, idx+1)
+        return self._scafStrandSet.hasStrandAt(idx, idx) #and \
+            #self.stapleStrandSet.hasStrandAt(idx, idx)
     # end 
 
     def getStrandSetByIdx(self, idx):
