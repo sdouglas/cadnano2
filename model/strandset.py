@@ -92,14 +92,15 @@ class StrandSet(QObject):
         return self._virtualHelix.part()
 
     def getNeighbors(self, strand):
-        strandSetIdx, isInSet = self._findIndexOfRangeFor(strand)
+        isInSet, overlap, strandSetIdx = self._findIndexOfRangeFor(strand)
+        print "getNeighbors", strand, strandSetIdx, isInSet
         sList = self._strandList
         if isInSet:
             if strandSetIdx > 0:
-                lowStrand = sList[strandSetIdx]
+                lowStrand = sList[strandSetIdx - 1]
             else:
                 lowStrand = None
-            if strandSetIdx < len(sList) - 2:
+            if strandSetIdx < len(sList) - 1:
                 highStrand = sList[strandSetIdx + 1]
             else:
                 highStrand = None
@@ -125,15 +126,15 @@ class StrandSet(QObject):
         low = 0              # index of the first (left-most) strand
         high = lenStrands    # index of the last (right-most) strand
         while low < high:    # perform binary search to find empty region
-            middle = (low + high) / 2
-            currentStrand = self._strandList[middle]
-            cLow, cHigh = currentStrand.idxs()
-            if baseIdx < cLow:  # baseIdx is to the left of crntStrand
-                high = middle   # continue binary search to the left
-                highIdx = cLow - 1  # set highIdx to left of crntStrand
-            elif baseIdx > cHigh:   # baseIdx is to the right of crntStrand
-                low = middle + 1    # continue binary search to the right
-                lowIdx = cHigh + 1  # set lowIdx to the right of crntStrand
+            mid = (low + high) / 2
+            midStrand = self._strandList[mid]
+            mLow, mHigh = midStrand.idxs()
+            if baseIdx < mLow:  # baseIdx is to the left of crntStrand
+                high = mid   # continue binary search to the left
+                highIdx = mLow - 1  # set highIdx to left of crntStrand
+            elif baseIdx > mHigh:   # baseIdx is to the right of crntStrand
+                low = mid + 1    # continue binary search to the right
+                lowIdx = mHigh + 1  # set lowIdx to the right of crntStrand
             else:
                 return (None, None)  # baseIdx was not empty
         self._lastStrandSetIndex = (low + high) / 2  # set cache
@@ -149,7 +150,7 @@ class StrandSet(QObject):
         Assumes a strand is being created at a valid set of indices.
         """
         boundsLow, boundsHigh = self.getBoundsOfEmptyRegionContaining(baseIdxLow)
-        strandSetIdx, canInsert = self.getIndexToInsert(baseIdxLow, baseIdxHigh)
+        canInsert, strandSetIdx = self.getIndexToInsert(baseIdxLow, baseIdxHigh)
         if canInsert:
             c = StrandSet.CreateStrandCommand(self, baseIdxLow, baseIdxHigh, strandSetIdx)
             util._execCommandList(self, [c], desc="Create strand", useUndoStack=useUndoStack)
@@ -168,7 +169,7 @@ class StrandSet(QObject):
         assert(baseIdxLow < baseIdxHigh)
         assert(boundsLow <= baseIdxLow)
         assert(baseIdxHigh <= boundsHigh)
-        strandSetIdx, canInsert = self.getIndexToInsert(baseIdxLow, baseIdxHigh)
+        canInsert, strandSetIdx = self.getIndexToInsert(baseIdxLow, baseIdxHigh)
         if canInsert:
             c = StrandSet.CreateStrandCommand(self, baseIdxLow, baseIdxHigh, strandSetIdx)
             util._execCommandList(self, [c], desc=None, useUndoStack=useUndoStack)
@@ -178,7 +179,7 @@ class StrandSet(QObject):
 
     def removeStrand(self, strand, strandSetIdx=None, useUndoStack=True):
         if not strandSetIdx:
-            strandSetIdx, isInSet = self._findIndexOfRangeFor(strand)
+            isInSet, overlap, strandSetIdx = self._findIndexOfRangeFor(strand)
             if not isInSet:
                 raise IndexError
         c = StrandSet.RemoveStrandCommand(self, strand, strandSetIdx)
@@ -194,7 +195,7 @@ class StrandSet(QObject):
         lowAndHighStrands = self.canBeMerged(priorityStrand, otherStrand)
         if lowAndHighStrands:
             strandLow, strandigh = lowAndHighStrands
-            lowStrandSetIdx, isInSet = self._findIndexOfRangeFor(strandLow)
+            isInSet, overlap, lowStrandSetIdx = self._findIndexOfRangeFor(strandLow)
             if isInSet:
                 c = StrandSet.MergeCommand(strandLow, strandHigh, \
                                                 lowStrandSetIdx, firstStrand)
@@ -225,7 +226,7 @@ class StrandSet(QObject):
     def splitStrand(self, strand, baseIdx, useUndoStack=True):
         "Break strand into two strands"
         if strandCanBeSplit(strand, baseIdx):
-            strandSetIdx, isInSet = self._findIndexOfRangeFor(strand)
+            isInSet, overlap, strandSetIdx = self._findIndexOfRangeFor(strand)
             if isInSet:
                 c = StrandSet.SplitCommand(strand, baseIdx, strandSetIdx)
                 util._execCommandList(self, [c], desc="Split", useUndoStack=useUndoStack)
@@ -282,24 +283,22 @@ class StrandSet(QObject):
         canInsert = True
         dummyStrand = Strand(self, idxLow, idxHigh)
         if self._couldStrandInsertAtLastIndex(dummyStrand):
-            return self._lastStrandSetIndex, canInsert
-        
-        idx, isInSet = self._findIndexOfRangeFor(dummyStrand)
+            return canInsert, self._lastStrandSetIndex
+        isInSet, overlap, idx = self._findIndexOfRangeFor(dummyStrand)
         dummyStrand._strandSet = None
         dummyStrand.deleteLater()
         dummyStrand = None
-        if idx > 0:
+        if overlap:
             canInsert = False
-        return abs(idx), canInsert
+        return canInsert, idx
     # end def
 
     ### PRIVATE SUPPORT METHODS ###
     def _couldStrandInsertAtLastIndex(self, strand):
         """Verification of insertability based on cached last index."""
         lastInd = self._lastStrandSetIndex
-        print "_couldStrandInsertAtLastIndex lastInd, _strandList:", lastInd, self._strandList
         if lastInd == None:
-            return False  # how do we insert the first strand if this always returns False?
+            return False
         else:
             strandList = self._strandList
             sTestHigh = strandList[lastInd].lowIdx() if lastInd < len(strandList) else self.partMaxBaseIdx()
@@ -357,27 +356,27 @@ class StrandSet(QObject):
         else:
             sSetIndexLow = -1
             while low < high:
-                middle = (low + high) / 2
-                currentStrand = strandList[middle]
+                mid = (low + high) / 2
+                midStrand = strandList[mid]
 
                 # pre get indices from the currently tested strand
-                cLow, cHigh = currentStrand.idxs()
+                mLow, mHigh = midStrand.idxs()
 
-                if cHigh == qLow:
+                if mHigh == qLow:
                     # match, break out of while loop
-                    sSetIndexLow = middle
+                    sSetIndexLow = mid
                     break
-                elif cHigh > qLow:
+                elif mHigh > qLow:
                     # store the candidate index
-                    sSetIndexLow = middle
+                    sSetIndexLow = mid
                     # adjust the high index to find a better candidate if
                     # it exists
-                    high = middle - 1
+                    high = mid - 1
                 # end elif
-                else:  # cHigh < qLow
+                else:  # mHigh < qLow
                     # If a strand exists it must be a higher rangeIndex
                     # leave the high the same
-                    low = middle + 1
+                    low = mid + 1
                 #end elif
             # end while
         # end else
@@ -422,70 +421,80 @@ class StrandSet(QObject):
 
     def _findIndexOfRangeFor(self, strand):
         """
-        a binary search for a strand in self._strandList
+        Performs a binary search for strand in self._strandList.
 
-        returns a tuple (int, bool)
+        If the strand is found, we want to return its index and we don't care
+        about whether it overlaps with anything.
 
-        returns a positive value index in self._strandList
-        if the element is in the set
+        If the strand is not found, we want to return whether it would
+        overlap with any existing strands, and if not, the index where it
+        would go.
 
-        returns a negative value index in self._strandList
-        if the element is not in the set, to be used as an insertion point
-
-        returns True if the strand is in range
-
-        returns False if the strand is not in range
-            in this case, if a strand is for some reason passed to this
-            method that overlaps an existing range, it will return
-            a positive 1 in addition to False rather than raise an exception
+        Returns a tuple (found, overlap, idx)
+            found is True if strand in self._strandList
+            overlap is True if strand is not found, and would overlap with
+            existing strands in self._strandList
+            idx is the index where the strand was found if found is True
+            idx is the index where the strand could be inserted if found
+            is False and overlap is False.
         """
+        # setup
         strandList = self._strandList
         lastIdx = self._lastStrandSetIndex
         lenStrands = len(strandList)
+        # base case: empty list, can insert at 0
         if lenStrands == 0:
-            return 0, False
-        # end if
-        
+            return (False, False, 0)
         # check cache
-        if lastIdx and lastIdx < lenStrands and strandList[lastIdx] == strand:
-            return lastIdx, True
-        
-        low = 0
-        high = lenStrands
-
+        if lastIdx:
+            if lastIdx < lenStrands and strandList[lastIdx] == strand:
+                return (True, False, lastIdx)
+        # init search bounds
+        low, high = 0, lenStrands
         sLow, sHigh = strand.idxs()
-
+        # perform binary search
         while low < high:
-            middle = (low + high) / 2
-            currentStrand = strandList[middle]
-
-            # pre get indices from currently tested strand
-            cLow, cHigh = currentStrand.idxs()
-
-            if currentStrand == strand:
-                # strand is an existing range
-                self._lastStrandSetIndex = middle
-                return middle, True
-            # end if
-            elif cLow > sHigh:
-                high = middle - 1
-            # end elif
-            elif cHigh < sLow:
-                low = middle + 1
-            # end elif
+            mid = (low+high)/2
+            midStrand = strandList[mid]
+            mLow, mHigh = midStrand.idxs()
+            if midStrand == strand:
+                self._lastStrandSetIndex = mid
+                return (True, False, mid)
+            elif mHigh < sLow:
+                #  strand                [sLow----)
+                # mStrand  (----mHigh]
+                low = mid + 1  # search higher
+            elif mLow > sHigh:
+                #  strand  (----sHigh]
+                # mStrand                [mLow----)
+                high = mid  # search lower
             else:
-                if cLow <= sLow <= cHigh or cLow <= sHigh <= cHigh:
-                    # strand is within an existing range
-                    # but is not that range
+                if mLow <= sLow <= mHigh:
+                    # overlap: right side of mStrand
+                    #  strand         [sLow---------------)
+                    # mStrand  [mLow----------mHigh]
                     self._lastStrandSetIndex = None
-                    return 1, False
+                    return (False, True, None)
+                elif mLow <= sHigh <= mHigh:
+                    # overlap: left side of mStrand
+                    #  strand  (--------------sHigh]
+                    # mStrand         [mLow-----------mHigh]
+                    self._lastStrandSetIndex = None
+                    return (False, True, None)
+                elif sLow <= mLow and mHigh <= sHigh:
+                    # overlap: strand encompases existing
+                    #  strand  [sLow-------------------sHigh]
+                    # mStrand         [mLow----mHigh]
+                    # note: inverse case is already covered above
+                    self._lastStrandSetIndex = None
+                    return (False, True, None)
                 else:
                     # strand not in set, here's where you'd insert it
-                    self._lastStrandSetIndex = middle
-                    return -middle, False
+                    self._lastStrandSetIndex = mid
+                    return (False, False, mid)
             # end else
         self._lastStrandSetIndex = low
-        return -low, False
+        return (False, False, low)
     # end def
 
     def _doesLastSetIndexMatch(self, qstrand, strandList):
@@ -837,6 +846,53 @@ class StrandSet(QObject):
         """docstring for deepCopy"""
         pass
     # end def
+
+    def slow_findIndexOfRangeFor(self, strand):
+        """For testing purposes, should return correct values."""
+        print "in slow_findIndexOfRangeFor"
+        print strand, self._strandList
+        strandList = self._strandList
+        lenStrands = len(strandList)
+        if lenStrands == 0:
+            found = False
+            insertAtIdx = 0
+            return (insertAtIdx, found)
+
+        # is the strand in the list?
+        if strand in self._strandList:
+            found = True
+        else:
+            found = False
+            
+        if found:
+            foundAtIdx = strandList.index(strand)
+            return (foundAtIdx, found)
+        else:  # find where to insert it
+            # case 1: needs to insert first
+            firstStrand = strandList[0]
+            if strand.highIdx() < firstStrand.lowIdx():
+                insertAtIdx = 0
+                return (insertAtIdx, found)
+            # case 2: needs to insert last
+            lastStrand = strandList[-1]
+            if strand.lowIdx() > lastStrand.lowIdx():
+                insertAtIdx = len(strandList)
+                return (insertAtIdx, found)
+            # case 3: we already overlapped with a single element list
+            if lenStrands == 1:
+                return (1, found)
+            # case 4: needs to insert in between two elements
+            i = 0
+            j = 1
+            while j < lenStrands:
+                strand_i = strandList[i]
+                strand_j = strandList[j]
+                if strand.lowIdx() > strand_i.highIdx() and \
+                   strand.highIdx() < strand_j.lowIdx():
+                    return (j, found)
+            # case 5: could not insert due to some overlap
+            return (1, found)
+
 # end class
 
 
@@ -850,26 +906,115 @@ class TestStrandSet():
     def tearDown(self):
         pass
 
-    def test_addStrand(self):
-        ss = StrandSet(None, None)
-        ss.maxBaseIdx = Mock(return_value=42)
-        ss.createStrand(1, 5, 0, False)
-        assert len(ss._strandList) == 1
+    def test_findIndexOfRangeFor(self):
+        # Test strandsets with 0, 1, 2, and 3 elements for each type
+        # of search: 
+        #   exact-hit
+        #   miss-low-without-overlap
+        #   miss-high-without-overlap
+        #   miss-low-with-overlap
+        #   miss-high-with-overlap
+        #   overlap-inside-strand-bounds
+        #   overlap-outside-strand-bounds
+        #   overlap-with-multiple-strands
+        
+        # ssEmpty: []
+        #   search for <Strand( 3,  5)> -> found=F, overlap=F, idx=0
+
+        # ssOne = [<Strand(10, 15)>]
+        #   search for <Strand(10, 15)> -> found=T, overlap=F, idx=0
+        #   search for <Strand( 3,  5)> -> found=F, overlap=F, idx=0
+        #   search for <Strand(20, 25)> -> found=F, overlap=F, idx=1
+        #   search for <Strand( 3, 12)> -> found=F, overlap=T, idx=None
+        #   search for <Strand(13, 20)> -> found=F, overlap=T, idx=None
+        #   search for <Strand( 0, 20)> -> found=F, overlap=T, idx=None
+        #   search for <Strand(11, 14)> -> found=F, overlap=T, idx=None
+
+        # ssTwo: [<Strand(3, 5)>, <Strand(10, 15)>]
+        #   search for <Strand( 3,  5)> -> found=T, overlap=F, idx=0
+        #   search for <Strand(10, 15)> -> found=T, overlap=F, idx=1
+        #   search for <Strand( 0,  2)> -> found=F, overlap=F, idx=0
+        #   search for <Strand( 6,  9)> -> found=F, overlap=F, idx=1
+        #   search for <Strand(20, 25)> -> found=F, overlap=F, idx=2
+
+
+        #   search for <Strand( 0,  4)> -> found=F, overlap=T, idx=None
+        #   search for <Strand( 0,  4)> -> found=F, overlap=T, idx=None
+        #   search for <Strand(13, 20)> -> found=F, overlap=T, idx=None
+
+
+        # ssThree: [<Strand(3, 5)>, <Strand(10, 15)>, <Strand(20, 25)>]
+
+
+        # create the strand sets
+        ssTemp = StrandSet(None, None)
+        ssTemp.isDrawn5to3 = Mock(return_value=True)
+        ssEmpty = StrandSet(None, None)
+        ssEmpty.isDrawn5to3 = Mock(return_value=True)
+        ssOne = StrandSet(None, None)
+        ssOne.isDrawn5to3 = Mock(return_value=True)
+        ssOne._strandList = [Strand(ssOne, 10, 15)]
+        ssTwo = StrandSet(None, None)
+        ssTwo.isDrawn5to3 = Mock(return_value=True)
+        ssTwo._strandList = [Strand(ssTwo, 3, 5), Strand(ssTwo, 10, 15)]
+
+        # test ssEmpty
+        strand = ssTwo._strandList[0]
+        found, overlap, idx = ssEmpty._findIndexOfRangeFor(strand)
+        assert found == False and overlap == False and idx == 0
+
+        # test ssOne
+        #   search [<Strand(10, 15)>] for <Strand(10, 15)>
+        strand = ssOne._strandList[0]
+        found, overlap, idx = ssOne._findIndexOfRangeFor(strand)
+        assert found == True and overlap == False and idx == 0
+
+        #   search [<Strand(10, 15)>] for <Strand(3, 5)>
+        strand = Strand(ssTemp, 3, 5)
+        found, overlap, idx = ssOne._findIndexOfRangeFor(strand)
+        assert found == False and overlap == False and idx == 0
+
+        #   search [<Strand(10, 15)>] for <Strand(20, 25)>
+        strand = Strand(ssTemp, 20, 25)
+        found, overlap, idx = ssOne._findIndexOfRangeFor(strand)
+        assert found == False and overlap == False and idx == 1
+
+        #   search [<Strand(10, 15)>] for <Strand( 3, 12)>
+        strand = Strand(ssTemp, 3, 12)
+        found, overlap, idx = ssOne._findIndexOfRangeFor(strand)
+        assert found == False and overlap == True and idx == None
+
+        #   search [<Strand(10, 15)>] for <Strand(13, 20)>
+        strand = Strand(ssTemp, 13, 20)
+        found, overlap, idx = ssOne._findIndexOfRangeFor(strand)
+        assert found == False and overlap == True and idx == None
+
+        #   search [<Strand(10, 15)>] for <Strand(0, 20)>
+        strand = Strand(ssTemp, 0, 20)
+        found, overlap, idx = ssOne._findIndexOfRangeFor(strand)
+        print found, overlap, idx
+        assert found == False and overlap == True and idx == None
+
+        #   search [<Strand(10, 15)>] for <Strand(11, 14)>
+        strand = Strand(ssTemp, 11, 14)
+        found, overlap, idx = ssOne._findIndexOfRangeFor(strand)
+        assert found == False and overlap == True and idx == None
+
 
     # @with_setup(setUp, tearDown)
-    def test_getBoundsOfEmptyRegionContaining(self):
-        ss = StrandSet(None, None)
-        ss.maxBaseIdx = Mock(return_value=(0, 42))
-        ss.createStrand(Strand(ss, 1, 5), 0, False)
-        ss.createStrand(Strand(ss, 10, 20), 1, False)
-        assert ss.getBoundsOfEmptyRegionContaining(0) == (0, 0)
-        assert ss.getBoundsOfEmptyRegionContaining(6) == (6, 9)
-        assert ss.getBoundsOfEmptyRegionContaining(7) == (6, 9)
-        assert ss.getBoundsOfEmptyRegionContaining(8) == (6, 9)
-        assert ss.getBoundsOfEmptyRegionContaining(9) == (6, 9)
-        assert ss.getBoundsOfEmptyRegionContaining(21) == (21, 42)
-        assert ss.getBoundsOfEmptyRegionContaining(30) == (21, 42)
-        assert ss.getBoundsOfEmptyRegionContaining(42) == (21, 42)
-        ss.createStrand(Strand(ss, 30, 35), 2, False)
-        assert ss.getBoundsOfEmptyRegionContaining(21) == (21, 29)
-        assert ss.getBoundsOfEmptyRegionContaining(36) == (36, 42)
+    # def test_getBoundsOfEmptyRegionContaining(self):
+    #     ss = StrandSet(None, None)
+    #     ss.maxBaseIdx = Mock(return_value=(0, 42))
+    #     ss.createStrand(Strand(ss, 1, 5), 0, False)
+    #     ss.createStrand(Strand(ss, 10, 20), 1, False)
+    #     assert ss.getBoundsOfEmptyRegionContaining(0) == (0, 0)
+    #     assert ss.getBoundsOfEmptyRegionContaining(6) == (6, 9)
+    #     assert ss.getBoundsOfEmptyRegionContaining(7) == (6, 9)
+    #     assert ss.getBoundsOfEmptyRegionContaining(8) == (6, 9)
+    #     assert ss.getBoundsOfEmptyRegionContaining(9) == (6, 9)
+    #     assert ss.getBoundsOfEmptyRegionContaining(21) == (21, 42)
+    #     assert ss.getBoundsOfEmptyRegionContaining(30) == (21, 42)
+    #     assert ss.getBoundsOfEmptyRegionContaining(42) == (21, 42)
+    #     ss.createStrand(Strand(ss, 30, 35), 2, False)
+    #     assert ss.getBoundsOfEmptyRegionContaining(21) == (21, 29)
+    #     assert ss.getBoundsOfEmptyRegionContaining(36) == (36, 42)
