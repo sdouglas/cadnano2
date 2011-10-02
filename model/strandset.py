@@ -563,7 +563,7 @@ class StrandSet(QObject):
             strand.setOligo(oligo)
             # Emit a signal to notify on completion
             strandSet.strandSetStrandAddedSignal.emit(strand)
-            
+            # for updating the Slice View displayed helices
             strandSet.part().partStrandChangedSignal.emit(strandSet.virtualHelix())
         # end def
 
@@ -580,7 +580,7 @@ class StrandSet(QObject):
             strand.setOligo(None)
             # Emit a signal to notify on completion
             strand.strandRemovedSignal.emit(strand)
-            
+            # for updating the Slice View displayed helices
             strandSet.part().partStrandChangedSignal.emit(strandSet.virtualHelix())
         # end def
     # end class
@@ -612,7 +612,7 @@ class StrandSet(QObject):
             strand.setOligo(None)  # remove cross refs
             # Emit a signal to notify on completion
             strand.removedSignal.emit(strand)
-            
+            # for updating the Slice View displayed helices
             strandSet.part().partStrandChangedSignal.emit(strandSet.virtualHelix())
         # end def
 
@@ -630,7 +630,7 @@ class StrandSet(QObject):
             strand.setOligo(oligo)
             # Emit a signal to notify on completion
             strandSet.strandsetStrandAddedSignal.emit(strand)
-            
+            # for updating the Slice View displayed helices
             strandSet.part().partStrandChangedSignal.emit(strandSet.virtualHelix())
         # end def
     # end class

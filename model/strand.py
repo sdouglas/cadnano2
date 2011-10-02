@@ -309,26 +309,28 @@ class Strand(QObject):
         def redo(self):
             std = self.strand
             nI = self.newIdxs
-            strandSet = self.strand.stranSet()
+            strandSet = self.strand.strandSet()
             part = strandSet.part()
             
             print "ResizeCommand", nI
             std.setIdxs(nI)
             std.strandResizedSignal.emit(std, nI)
-            if nI[0] <= part.activeBaseIdx() <= nI[1]:
-                part.partStrandChangedSignal.emit(strandSet.virtualHelix())
+            
+            # for updating the Slice View displayed helices
+            part.partStrandChangedSignal.emit(strandSet.virtualHelix())
         # end def
 
         def undo(self):
             std = self.strand
             oI = self.oldIndices
-            strandSet = self.strand.stranSet()
+            strandSet = self.strand.strandSet()
             part = strandSet.part()
              
             std.setIdxs(oI)
             std.strandResizedSignal.emit(std, oI)
-            if oI[0] <= part.activeBaseIdx() <= oI[1]:
-                part.partStrandChangedSignal.emit(strandSet.virtualHelix())
+            
+            # for updating the Slice View displayed helices
+            part.partStrandChangedSignal.emit(strandSet.virtualHelix())
         # end def
     # end class
 
