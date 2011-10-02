@@ -68,8 +68,9 @@ class PartItem(QGraphicsPathItem):
 
     def removedSlot(self):
         """docstring for partDestroyedSlot"""
-        scene = self.scene()
+        self._activeSliceItem.removed()
         self.parentItem().removePartItem(self)
+        scene = self.scene()
         scene.removeItem(self)
         self._modelPart = None
         self._virtualHelixHash = None
@@ -77,7 +78,6 @@ class PartItem(QGraphicsPathItem):
         self._controller.disconnectSignals()
         self._controller = None
     # end def
-        
 
     def destroyedSlot(self):
         """docstring for partDestroyedSlot"""
@@ -120,7 +120,7 @@ class PartItem(QGraphicsPathItem):
 
 
     ### METHODS ###
-    def modelPart(self):
+    def part(self):
         """Return a reference to the model's part object"""
         return self._modelPart
         

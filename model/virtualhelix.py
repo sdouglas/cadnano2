@@ -116,6 +116,11 @@ class VirtualHelix(QObject):
         isEven = self.isEvenParity()
         return isEven == isScaf
     # end def
+    
+    def hasStrandAtIdx(self, idx):
+        return self._scafStrandSet.hasStrandAt(idx, idx+1) #and \
+            #self.stapleStrandSet.hasStrandAt(idx, idx+1)
+    # end 
 
     def getStrandSetByIdx(self, idx):
         """

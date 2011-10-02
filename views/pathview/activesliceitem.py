@@ -40,7 +40,7 @@ util.qtWrapImport('QtGui', globals(), ['QBrush', 'QFont', 'QGraphicsItem',\
 
 
 class ActiveSliceItem(QGraphicsRectItem):
-    """docstring for ActiveSliceItem"""
+    """ActiveSliceItem for the Path View"""
     _baseWidth = styles.PATH_BASE_WIDTH
     _brush = QBrush(styles.activeslicehandlefill)
     _labelbrush = QBrush(styles.orangestroke)
@@ -72,7 +72,7 @@ class ActiveSliceItem(QGraphicsRectItem):
         self.setPen(self._pen)
         self._label.show()
         
-        self._controller = ActiveSliceItemController(self, partItem.modelPart())
+        self._controller = ActiveSliceItemController(self, partItem.part())
     # end def
     
     ### SLOTS ###
@@ -106,10 +106,17 @@ class ActiveSliceItem(QGraphicsRectItem):
     ### METHODS ###
 
     def part(self):
-        return self._partItem.modelPart()
+        return self._partItem.part()
 
     def partItem(self):
         return self._partItem
+        
+    def removed(self):
+        self._partItem = None
+        self._label = None
+        self._controller.disconnectSignals()
+        self.controller = None
+    # end def
 
     def activeBaseIndex(self):
         return self.part().activeBaseIndex()
@@ -193,6 +200,7 @@ class ActiveSliceItem(QGraphicsRectItem):
             self._dragMode = True
             self.pressX = self.mapToScene(QPointF(event.pos())).x()
             self._pressBaseIdx = self.activeBaseIndex()
+            self._controller.disconnectSignals()
         except AttributeError, e:
             # print e
             pass
@@ -202,6 +210,7 @@ class ActiveSliceItem(QGraphicsRectItem):
         """Snaps to grid after mouse released. Updates vhelix data according
         to what movement took place."""
         self._dragMode = False
+        self._controller.connectSignals()
 
     def moveToLastSlice(self):
         """Moves to the last slice position."""

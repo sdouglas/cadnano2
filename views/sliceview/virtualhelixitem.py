@@ -147,6 +147,15 @@ class VirtualHelixItem(QGraphicsEllipseItem):
     def number(self):
         return self.virtualHelix().number()
 
+    def setActiveSliceView(self, isActiveNow):
+        if isActiveNow:
+            self.setPen(self._usePen)
+            self.setBrush(self._useBrush)
+        else:
+            self.setPen(self._outOfSlicePen)
+            self.setBrush(self._outOfSliceBrush)
+    # end def
+
     # def isSelected(self):
     #     return self.focusRing != None
     # 

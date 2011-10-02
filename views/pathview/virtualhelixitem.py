@@ -180,7 +180,7 @@ class VirtualHelixItem(QGraphicsPathItem):
     # end def
 
     def part(self):
-        return self._partItem.modelPart()
+        return self._partItem.part()
     # end def
 
     ### EVENT HANDLERS ###

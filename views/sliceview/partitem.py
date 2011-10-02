@@ -26,6 +26,8 @@
 from controllers.itemcontrollers.partitemcontroller import PartItemController
 from helixitem import HelixItem
 from virtualhelixitem import VirtualHelixItem
+from activesliceitem import ActiveSliceItem
+
 from views import styles
 import util
 # import Qt stuff into the module namespace with PySide, PyQt4 independence
@@ -36,10 +38,9 @@ util.qtWrapImport('QtGui', globals(), [ 'QGraphicsItem', 'QBrush', \
 
 class PartItem(QGraphicsItem):
     """
-    SliceGraphicsItem is an abstract class to be inherited by
-    HoneycombSliceGraphicsItem or SquareSliceGraphicsItem. SliceGraphicsItem
-    is the parent of all SliceHelix items, and is responsible for spawning
-    and positioning them according to the part dimensions.
+    PartItem for the Path View sis an abstract class to be inherited by
+    Part Item is the parent of all SliceHelix items, and is responsible for 
+    spawning and positioning them according to the part dimensions.
     """
     _radius = styles.SLICE_HELIX_RADIUS
     
@@ -81,6 +82,7 @@ class PartItem(QGraphicsItem):
         self.probe = self.IntersectionProbe(self)
         
         self._controller = PartItemController(self, modelPart)
+        self._activeSliceItem = ActiveSliceItem(self, modelPart.activeBaseIndex())
     # end def
 
     ### SIGNALS ###
@@ -93,12 +95,9 @@ class PartItem(QGraphicsItem):
 
     def removedSlot(self):
         """docstring for removedSlot"""
-        print "PartItem.removedSlot"
-        
-    def removedSlot(self):
-        """docstring for partDestroyedSlot"""
-        scene = self.scene()
+        self._activeSliceItem.removed()
         self.parentItem().removePartItem(self)
+        scene = self.scene()
         scene.removeItem(self)
         self._part = None
         self.probe = None
@@ -223,24 +222,6 @@ class PartItem(QGraphicsItem):
             return
         for sh in self._helixhash.itervalues():
             sh.setSelected(sh.virtualHelix() in newSel)
-
-    def activeSliceChanged(self, newActiveSliceZIndex):
-        newlyActiveVHs = set()
-        part = self.part()
-        activeSlice = part.activeBaseIndex()
-        if self._previouslyActiveVHs:
-            for vh in part.getVirtualHelices():
-                isActiveNow = vh.hasBaseAt(StrandType.Scaffold, activeSlice)
-                if isActiveNow != (vh in self._previouslyActiveVHs):
-                    self._helixhash[vh.coords()].update()
-                if isActiveNow:
-                    newlyActiveVHs.add(vh)
-        else:
-            for vh in part.getVirtualHelices():
-                isActiveNow = vh.hasBaseAt(StrandType.Scaffold, activeSlice)
-                if isActiveNow:
-                    newlyActiveVHs.add(vh)
-            self.update()
 
     def vhAtCoordsChanged(self, row, col):
         self._helixhash[(row, col)].update()
