@@ -84,7 +84,7 @@ class ActiveSliceItem(QGraphicsRectItem):
         if newRect != self.rect():
             self.setRect(newRect)
         self._hideIfEmptySelection()
-        print "updating activesliceitem", self._partItem.virtualHelixBoundingRect().height()
+        # print "updating activesliceitem", self._partItem.virtualHelixBoundingRect().height()
         self.updateIndexSlot(part, part.activeBaseIndex())  
         return newRect
     # end def
@@ -160,8 +160,8 @@ class ActiveSliceItem(QGraphicsRectItem):
         x = self.mapToScene(QPointF(event.pos())).x()
         dx = int((x - self.pressX)/self._baseWidth)
         # Modified to update this view in real time instead of with signalign
-        self._updateActiveSliceSlot(self.pressBaseIdx+dx)
-        self.setActiveSlice(self.pressBaseIdx+dx)
+        self.updateIndexSlot(None, self._pressBaseIdx+dx)
+        self.setActiveBaseIndex(self._pressBaseIdx+dx)
 
     def mousePressEvent(self, event):
         if event.button() != Qt.LeftButton:
@@ -192,7 +192,7 @@ class ActiveSliceItem(QGraphicsRectItem):
             self.scene().views()[0].addToPressList(self)
             self._dragMode = True
             self.pressX = self.mapToScene(QPointF(event.pos())).x()
-            self.pressBaseIdx = self.activeSlice()
+            self._pressBaseIdx = self.activeBaseIndex()
         except AttributeError, e:
             # print e
             pass
