@@ -48,7 +48,7 @@ class ActiveSliceItem(QGraphicsRectItem):
                 styles.SLICE_HANDLE_STROKE_WIDTH)
     _font = QFont(styles.thefont, 12, QFont.Bold)
 
-    def __init__(self, partItem):
+    def __init__(self, partItem, activeBaseIndex):
         super(ActiveSliceItem, self).__init__(partItem)
         self._partItem = partItem
         self._activeSlice = 0
@@ -67,6 +67,7 @@ class ActiveSliceItem(QGraphicsRectItem):
         
         self.setRect(QRectF(0, 0, self._baseWidth,\
                       self._partItem.boundingRect().height()))
+        self.setPos(activeBaseIndex*self._baseWidth, 0)
         self.setBrush(self._brush)
         self.setPen(self._pen)
         self._label.show()
@@ -79,21 +80,22 @@ class ActiveSliceItem(QGraphicsRectItem):
     def updateRectSlot(self, part):
         bw = self._baseWidth
         newRect = QRectF(0, 0, bw,\
-                    self._partItem.boundingRect().height())
+                    self._partItem.virtualHelixBoundingRect().height())
         if newRect != self.rect():
             self.setRect(newRect)
         self._hideIfEmptySelection()
-        print "updating activesliceitem"
+        print "updating activesliceitem", self._partItem.virtualHelixBoundingRect().height()
+        self.updateIndexSlot(part, part.activeBaseIndex())  
         return newRect
     # end def
     
-    def updateIndexSlot(self, part, index):
+    def updateIndexSlot(self, part, baseIndex):
         """The slot that receives active slice changed notifications from
         the part and changes the receiver to reflect the part"""
         label = self._label
         bw = self._baseWidth
 
-        bi = util.clamp(int(baseIndex), 0, self.part().numBases()-1)
+        bi = util.clamp(int(baseIndex), 0, self.part().maxBaseIdx()-1)
         self.setPos(bi * bw, -styles.PATH_HELIX_PADDING)
         self._activeSlice = bi
         if label:
@@ -104,7 +106,7 @@ class ActiveSliceItem(QGraphicsRectItem):
     ### METHODS ###
 
     def part(self):
-        return self._partItem.part()
+        return self._partItem.modelPart()
 
     def partItem(self):
         return self._partItem

@@ -37,7 +37,7 @@ from activesliceitem import ActiveSliceItem
 
 import util
 # import Qt stuff into the module namespace with PySide, PyQt4 independence
-util.qtWrapImport('QtCore', globals(), ['pyqtSignal', 'QObject'])
+util.qtWrapImport('QtCore', globals(), ['pyqtSignal', 'QObject', 'QRectF'])
 util.qtWrapImport('QtGui', globals(), ['QUndoCommand', 'QUndoStack',
                                        'QGraphicsPathItem'])
 
@@ -48,13 +48,14 @@ class PartItem(QGraphicsPathItem):
         self._virtualHelixHash = {}
         self._virtualHelixList = []
         self._activeTool = activeTool
-        self._activeSliceItem = ActiveSliceItem(self)
+        self._activeSliceItem = ActiveSliceItem(self, modelPart.activeBaseIndex())
         self._controller = PartItemController(self, modelPart)
         self._vhiHSelectionGroup = SelectionItemGroup(\
                                                  boxtype=PathHelixHandleSelectionBox,\
                                                  constraint='y',\
                                                  parent=self)
         self._selectionLock = None
+        self._vHRect = QRectF()
     # end def
         
     ### SIGNALS ###
@@ -125,6 +126,7 @@ class PartItem(QGraphicsPathItem):
         
     def removeVirtualHelix(self, virtualHelix):
         self._virtualHelixItemList.remove(virtualHelix)
+        self._setVirtualHelixItemList(self._virtualHelixList)
     # end
 
     def _setVirtualHelixItemList(self, newList, zoomToFit=True):
@@ -164,9 +166,17 @@ class PartItem(QGraphicsPathItem):
             y += step
             # self.updatePreXOverHandles()
         # end for
+        self._vHRect = QRectF(leftmostExtent,\
+                           -40,\
+                           -leftmostExtent + rightmostExtent,\
+                           y + 40)
         self._virtualHelixItemList = newList
         if zoomToFit:
             self.scene().views()[0].zoomToFit()
+    # end def
+    
+    def virtualHelixBoundingRect(self):
+        return self._vHRect
     # end def
     
     def reorderHelices(self, first, last, indexDelta):

@@ -26,7 +26,7 @@
 # http://www.opensource.org/licenses/mit-license.php
 
 from exceptions import KeyError
-from heapq import heapify, heappush
+from heapq import heapify, heappush, heappop
 from itertools import product
 from model.enum import StrandType
 from model.virtualhelix import VirtualHelix
@@ -261,6 +261,15 @@ class Part(QObject):
         of virtualHelix references
         """
         self._virtualHelixHash[virtualHelix.coords()] = virtualHelix
+    # end def
+
+
+    def _removeVirtualHelix(self, virtualHelix):
+        """
+        private method for adding a virtualHelix to the Parts data structure
+        of virtualHelix references
+        """
+        del self._virtualHelixHash[virtualHelix.coords()]
     # end def
 
     def _reserveHelixIDNumber(self, parityEven=True, requestedIDnum=None):
