@@ -562,6 +562,8 @@ class StrandSet(QObject):
             strand.setOligo(oligo)
             # Emit a signal to notify on completion
             strandSet.strandSetStrandAddedSignal.emit(strand)
+            # for updating the Slice View displayed helices
+            strandSet.part().partStrandChangedSignal.emit(strandSet.virtualHelix())
         # end def
 
         def undo(self):
@@ -577,6 +579,8 @@ class StrandSet(QObject):
             strand.setOligo(None)
             # Emit a signal to notify on completion
             strand.strandRemovedSignal.emit(strand)
+            # for updating the Slice View displayed helices
+            strandSet.part().partStrandChangedSignal.emit(strandSet.virtualHelix())
         # end def
     # end class
 
@@ -600,12 +604,15 @@ class StrandSet(QObject):
             strandSet._strandList.pop(self._sSetIdx)
             # Remove the strand from the oligo
             oligo = self.oligo
+            
             oligo.setStrand5p(None)
             oligo.decrementStrandLength(strand)
             oligo.removeFromPart()
             strand.setOligo(None)  # remove cross refs
             # Emit a signal to notify on completion
             strand.removedSignal.emit(strand)
+            # for updating the Slice View displayed helices
+            strandSet.part().partStrandChangedSignal.emit(strandSet.virtualHelix())
         # end def
 
         def undo(self):
@@ -615,12 +622,15 @@ class StrandSet(QObject):
             strandSet._strandList.insert(self._sSetIdx, strand)
             # Restore the oligo
             oligo = self.oligo
+            
             oligo.setStrand5p(strand)
             oligo.incrementStrandLength(strand)
             oligo.addToPart(strandSet.part())
             strand.setOligo(oligo)
             # Emit a signal to notify on completion
             strandSet.strandsetStrandAddedSignal.emit(strand)
+            # for updating the Slice View displayed helices
+            strandSet.part().partStrandChangedSignal.emit(strandSet.virtualHelix())
         # end def
     # end class
 

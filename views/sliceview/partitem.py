@@ -77,7 +77,6 @@ class PartItem(QGraphicsItem):
 
         # Cache of VHs that were active as of last call to activeSliceChanged
         # If None, all slices will be redrawn and the cache will be filled.
-        self._previouslyActiveVHs = None
         # Connect destructor. This is for removing a part from scenes.
         self.probe = self.IntersectionProbe(self)
         
@@ -134,7 +133,8 @@ class PartItem(QGraphicsItem):
         coords = vh.coords()
         helixItem = self._helixhash[coords]
         # TODO test to see if self._virtualHelixHash is necessary
-        self._virtualHelixHash[coords] = VirtualHelixItem(vh, helixItem)
+        vhi = VirtualHelixItem(vh, helixItem)
+        self._virtualHelixHash[coords] = vhi
     # end def
     
     def updatePreXOverHandlesSlot(self, virtualHelix):
@@ -211,7 +211,7 @@ class PartItem(QGraphicsItem):
 
     def getVirtualHelixItemByCoord(self, row, column):
         if (row, column) in self._helixhash:
-            return self._helixhash[(row, column)]
+            return self._virtualHelixHash[(row, column)]
         else:
             return None
 

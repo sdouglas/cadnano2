@@ -95,7 +95,8 @@ class Part(QObject):
     partSequenceClearedSignal = pyqtSignal(QObject)        # self
     partVirtualHelixAddedSignal = pyqtSignal(QObject)      # virtualhelix
     partVirtualHelixChangedSignal = pyqtSignal(QObject)    # coords
-
+    # for updating the Slice View displayed helices
+    partStrandChangedSignal = pyqtSignal(QObject)           # virtualHelix
     ### SLOTS ###
 
     ### ACCESSORS ###

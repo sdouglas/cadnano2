@@ -103,6 +103,10 @@ class ActiveSliceItem(QGraphicsRectItem):
             label.setX((bw - label.boundingRect().width()) / 2)
     # end def
     
+    def strandChangedSlot(self, vh):
+        pass
+    # end def
+    
     ### METHODS ###
 
     def part(self):

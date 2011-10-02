@@ -71,6 +71,13 @@ class ActiveSliceItem(QGraphicsRectItem):
             vhi.setActiveSliceView(isActiveNow)
     # end def
     
+    def strandChangedSlot(self, vh):
+        partItem = self._partItem
+        vhi = partItem.getVirtualHelixItemByCoord(*vh.coords())
+        isActiveNow = vh.hasStrandAtIdx(partItem.part().activeBaseIndex())
+        vhi.setActiveSliceView(isActiveNow)
+    # end def
+    
     ### METHODS ###
     def part(self):
         return self._partItem.part()
