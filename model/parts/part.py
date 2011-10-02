@@ -95,7 +95,7 @@ class Part(QObject):
     partSequenceClearedSignal = pyqtSignal(QObject)        # self
     partVirtualHelixAddedSignal = pyqtSignal(QObject)      # virtualhelix
     partVirtualHelixChangedSignal = pyqtSignal(QObject)    # coords
-
+    partStrandChangedSignal = pyqtSignal(QObject)           # virtualHelix
     ### SLOTS ###
 
     ### ACCESSORS ###

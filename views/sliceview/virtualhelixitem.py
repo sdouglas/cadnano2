@@ -74,8 +74,8 @@ class VirtualHelixItem(QGraphicsEllipseItem):
         self.setZValue(self._ZVALUE)
         self.lastMousePressAddedBases = False
         
-        self.setBrush(self._useBrush)
-        self.setPen(self._usePen)
+        self.setBrush(self._outOfSliceBrush)
+        self.setPen(self._outOfSlicePen)
         self.setRect(self._rect)
         
         # handle the label specific stuff

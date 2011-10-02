@@ -35,6 +35,7 @@ class ActiveSliceItemController(object):
         
         mP.partActiveSliceResizeSignal.connect(aSI.updateRectSlot)
         mP.partActiveSliceIndexSignal.connect(aSI.updateIndexSlot)
+        mP.partStrandChangedSignal.connect(aSI.strandChangedSlot)
     # end def
 
     def disconnectSignals(self):
@@ -43,6 +44,7 @@ class ActiveSliceItemController(object):
         
         mP.partActiveSliceResizeSignal.disconnect(aSI.updateRectSlot)
         mP.partActiveSliceIndexSignal.disconnect(aSI.updateIndex)
+        mP.partStrandChangedSignal.disconnect(aSI.strandChangedSlot)
     # end def
     
 # end class

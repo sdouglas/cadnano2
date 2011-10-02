@@ -39,6 +39,7 @@ util.qtWrapImport('QtGui', globals(), ['QBrush', 'QGraphicsItem',\
                                        'QPainterPath'])
 
 class VirtualHelixItem(QGraphicsPathItem):
+    """VirtualHelixItem for PathView"""
     _baseWidth = styles.PATH_BASE_WIDTH
     minorGridPen = QPen(styles.minorgridstroke, styles.MINOR_GRID_STROKE_WIDTH)
     majorGridPen = QPen(styles.majorgridstroke, styles.MAJOR_GRID_STROKE_WIDTH)
