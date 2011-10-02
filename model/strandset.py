@@ -93,7 +93,6 @@ class StrandSet(QObject):
 
     def getNeighbors(self, strand):
         isInSet, overlap, strandSetIdx = self._findIndexOfRangeFor(strand)
-        print "getNeighbors", strand, strandSetIdx, isInSet
         sList = self._strandList
         if isInSet:
             if strandSetIdx > 0:
@@ -846,53 +845,6 @@ class StrandSet(QObject):
         """docstring for deepCopy"""
         pass
     # end def
-
-    def slow_findIndexOfRangeFor(self, strand):
-        """For testing purposes, should return correct values."""
-        print "in slow_findIndexOfRangeFor"
-        print strand, self._strandList
-        strandList = self._strandList
-        lenStrands = len(strandList)
-        if lenStrands == 0:
-            found = False
-            insertAtIdx = 0
-            return (insertAtIdx, found)
-
-        # is the strand in the list?
-        if strand in self._strandList:
-            found = True
-        else:
-            found = False
-            
-        if found:
-            foundAtIdx = strandList.index(strand)
-            return (foundAtIdx, found)
-        else:  # find where to insert it
-            # case 1: needs to insert first
-            firstStrand = strandList[0]
-            if strand.highIdx() < firstStrand.lowIdx():
-                insertAtIdx = 0
-                return (insertAtIdx, found)
-            # case 2: needs to insert last
-            lastStrand = strandList[-1]
-            if strand.lowIdx() > lastStrand.lowIdx():
-                insertAtIdx = len(strandList)
-                return (insertAtIdx, found)
-            # case 3: we already overlapped with a single element list
-            if lenStrands == 1:
-                return (1, found)
-            # case 4: needs to insert in between two elements
-            i = 0
-            j = 1
-            while j < lenStrands:
-                strand_i = strandList[i]
-                strand_j = strandList[j]
-                if strand.lowIdx() > strand_i.highIdx() and \
-                   strand.highIdx() < strand_j.lowIdx():
-                    return (j, found)
-            # case 5: could not insert due to some overlap
-            return (1, found)
-
 # end class
 
 
@@ -907,8 +859,8 @@ class TestStrandSet():
         pass
 
     def test_findIndexOfRangeFor(self):
-        # Test strandsets with 0, 1, 2, and 3 elements for each type
-        # of search: 
+        # Test strandsets with 0, 1, or 2 elements for each type
+        # of search:
         #   exact-hit
         #   miss-low-without-overlap
         #   miss-high-without-overlap
@@ -917,7 +869,7 @@ class TestStrandSet():
         #   overlap-inside-strand-bounds
         #   overlap-outside-strand-bounds
         #   overlap-with-multiple-strands
-        
+
         # ssEmpty: []
         #   search for <Strand( 3,  5)> -> found=F, overlap=F, idx=0
 
@@ -936,15 +888,9 @@ class TestStrandSet():
         #   search for <Strand( 0,  2)> -> found=F, overlap=F, idx=0
         #   search for <Strand( 6,  9)> -> found=F, overlap=F, idx=1
         #   search for <Strand(20, 25)> -> found=F, overlap=F, idx=2
-
-
         #   search for <Strand( 0,  4)> -> found=F, overlap=T, idx=None
         #   search for <Strand( 0,  4)> -> found=F, overlap=T, idx=None
         #   search for <Strand(13, 20)> -> found=F, overlap=T, idx=None
-
-
-        # ssThree: [<Strand(3, 5)>, <Strand(10, 15)>, <Strand(20, 25)>]
-
 
         # create the strand sets
         ssTemp = StrandSet(None, None)
@@ -968,36 +914,76 @@ class TestStrandSet():
         strand = ssOne._strandList[0]
         found, overlap, idx = ssOne._findIndexOfRangeFor(strand)
         assert found == True and overlap == False and idx == 0
-
         #   search [<Strand(10, 15)>] for <Strand(3, 5)>
         strand = Strand(ssTemp, 3, 5)
         found, overlap, idx = ssOne._findIndexOfRangeFor(strand)
         assert found == False and overlap == False and idx == 0
-
         #   search [<Strand(10, 15)>] for <Strand(20, 25)>
         strand = Strand(ssTemp, 20, 25)
         found, overlap, idx = ssOne._findIndexOfRangeFor(strand)
         assert found == False and overlap == False and idx == 1
-
         #   search [<Strand(10, 15)>] for <Strand( 3, 12)>
         strand = Strand(ssTemp, 3, 12)
         found, overlap, idx = ssOne._findIndexOfRangeFor(strand)
         assert found == False and overlap == True and idx == None
-
         #   search [<Strand(10, 15)>] for <Strand(13, 20)>
         strand = Strand(ssTemp, 13, 20)
         found, overlap, idx = ssOne._findIndexOfRangeFor(strand)
         assert found == False and overlap == True and idx == None
-
         #   search [<Strand(10, 15)>] for <Strand(0, 20)>
         strand = Strand(ssTemp, 0, 20)
         found, overlap, idx = ssOne._findIndexOfRangeFor(strand)
-        print found, overlap, idx
         assert found == False and overlap == True and idx == None
-
         #   search [<Strand(10, 15)>] for <Strand(11, 14)>
         strand = Strand(ssTemp, 11, 14)
         found, overlap, idx = ssOne._findIndexOfRangeFor(strand)
+        assert found == False and overlap == True and idx == None
+
+        # test ssTwo
+        # ssTwo: [<Strand(3, 5)>, <Strand(10, 15)>]
+        #   search [<Strand(3, 5)>, <Strand(10, 15)>] for <Strand(3, 5)>
+        strand = ssTwo._strandList[0]
+        found, overlap, idx = ssTwo._findIndexOfRangeFor(strand)
+        assert found == True and overlap == False and idx == 0
+        #   search [<Strand(3, 5)>, <Strand(10, 15)>] for <Strand(10, 15)>
+        strand = ssTwo._strandList[1]
+        found, overlap, idx = ssTwo._findIndexOfRangeFor(strand)
+        assert found == True and overlap == False and idx == 1
+        #   search [<Strand(3, 5)>, <Strand(10, 15)>] for <Strand(0, 2)>
+        strand = Strand(ssTemp, 0, 2)
+        found, overlap, idx = ssTwo._findIndexOfRangeFor(strand)
+        assert found == False and overlap == False and idx == 0
+        #   search [<Strand(3, 5)>, <Strand(10, 15)>] for <Strand(6, 9)>
+        strand = Strand(ssTemp, 6, 9)
+        found, overlap, idx = ssTwo._findIndexOfRangeFor(strand)
+        assert found == False and overlap == False and idx == 1
+        #   search [<Strand(3, 5)>, <Strand(10, 15)>] for <Strand(20, 25)>
+        strand = Strand(ssTemp, 20, 25)
+        found, overlap, idx = ssTwo._findIndexOfRangeFor(strand)
+        assert found == False and overlap == False and idx == 2
+        #   search [<Strand(3, 5)>, <Strand(10, 15)>] for <Strand(0, 4)>
+        strand = Strand(ssTemp, 0, 4)
+        found, overlap, idx = ssTwo._findIndexOfRangeFor(strand)
+        assert found == False and overlap == True and idx == None
+        #   search [<Strand(3, 5)>, <Strand(10, 15)>] for <Strand(4, 7)>
+        strand = Strand(ssTemp, 4, 7)
+        found, overlap, idx = ssTwo._findIndexOfRangeFor(strand)
+        assert found == False and overlap == True and idx == None
+        #   search [<Strand(3, 5)>, <Strand(10, 15)>] for <Strand(8, 12)>
+        strand = Strand(ssTemp, 8, 12)
+        found, overlap, idx = ssTwo._findIndexOfRangeFor(strand)
+        assert found == False and overlap == True and idx == None
+        #   search [<Strand(3, 5)>, <Strand(10, 15)>] for <Strand(13, 20)>
+        strand = Strand(ssTemp, 13, 20)
+        found, overlap, idx = ssTwo._findIndexOfRangeFor(strand)
+        assert found == False and overlap == True and idx == None
+        #   search [<Strand(3, 5)>, <Strand(10, 15)>] for <Strand(0, 13)>
+        strand = Strand(ssTemp, 0, 13)
+        found, overlap, idx = ssTwo._findIndexOfRangeFor(strand)
+        assert found == False and overlap == True and idx == None
+        #   search [<Strand(3, 5)>, <Strand(10, 15)>] for <Strand(0, 20)>
+        strand = Strand(ssTemp, 0, 20)
+        found, overlap, idx = ssTwo._findIndexOfRangeFor(strand)
         assert found == False and overlap == True and idx == None
 
 
