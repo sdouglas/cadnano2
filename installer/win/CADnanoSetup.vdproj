@@ -1113,6 +1113,12 @@
         }
         "Entry"
         {
+        "MsmKey" = "8:_8389A68B46CC48D18C2CFB2452E3A9EA"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
         "MsmKey" = "8:_83EE88D71FAE4A9EAF0D8B0FBF71282E"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
@@ -5914,6 +5920,26 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_8389A68B46CC48D18C2CFB2452E3A9EA"
+            {
+            "SourcePath" = "8:..\\..\\views\\solidview\\stapleModIndicator.py"
+            "TargetName" = "8:stapleModIndicator.py"
+            "Tag" = "8:"
+            "Folder" = "8:_7E745C63AA534DC391794FF3FD10AE6C"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_83EE88D71FAE4A9EAF0D8B0FBF71282E"
             {
             "SourcePath" = "8:..\\..\\views\\pathview\\tools\\addseqtool.py"
@@ -10068,7 +10094,7 @@
         "Name" = "8:Microsoft Visual Studio"
         "ProductName" = "8:CADnano2"
         "ProductCode" = "8:{49CC731E-0ACC-45B3-95DE-D5FEE79E7053}"
-        "PackageCode" = "8:{A2C3C9A9-005D-42FD-B71A-582246CAE744}"
+        "PackageCode" = "8:{A4E965C7-1F29-4D90-B111-2E36D8ADA44B}"
         "UpgradeCode" = "8:{7847B28E-424B-41B9-9FAB-AB40B3BCF38A}"
         "AspNetVersion" = "8:4.0.30319.0"
         "RestartWWWService" = "11:FALSE"
