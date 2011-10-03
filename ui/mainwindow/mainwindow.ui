@@ -251,6 +251,7 @@
    <addaction name="actionNew"/>
    <addaction name="actionOpen"/>
    <addaction name="actionSave"/>
+   <addaction name="actionSVG"/>
    <addaction name="actionExportStaples"/>
    <addaction name="separator"/>
    <addaction name="actionNewHoneycombPart"/>

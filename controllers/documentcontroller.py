@@ -27,9 +27,17 @@ from cadnano import app
 from model.document import Document
 from views.documentwindow import DocumentWindow
 import util
-util.qtWrapImport('QtCore', globals(), ['Qt'])
-util.qtWrapImport('QtGui', globals(), ['QMessageBox', 'QKeySequence'])
-
+util.qtWrapImport('QtCore', globals(), ['QFileInfo', 'QRect', 'QString',
+                                        'QStringList', 'QSize', 'Qt'])
+util.qtWrapImport('QtGui', globals(), ['QDockWidget', 'QKeySequence',
+                                       'QFileDialog', 'QMessageBox'])
+util.qtWrapImport('QtGui', globals(), ['QApplication', 'QDialog', 
+                                       'QDockWidget', 'QFileDialog',
+                                       'QKeySequence', 'QGraphicsItem',
+                                       'QMainWindow',
+                                       'QMessageBox', 'QPainter',
+                                       'QStyleOptionGraphicsItem'])
+util.qtWrapImport('QtSvg', globals(), ['QSvgGenerator'])
 
 class DocumentController():
     """
@@ -153,7 +161,69 @@ class DocumentController():
 
     def actionSVGSlot(self):
         """docstring for actionSVGSlot"""
-        pass
+
+        fname = os.path.basename(str(self.filename()))
+        if fname == None:
+            directory = "."
+        else:
+            directory = QFileInfo(fname).path()
+
+        fdialog = QFileDialog(
+                    self.win,
+                    "%s - Save As" % QApplication.applicationName(),
+                    directory,
+                    "%s (*.svg)" % QApplication.applicationName())
+        fdialog.setAcceptMode(QFileDialog.AcceptSave)
+        fdialog.setWindowFlags(Qt.Sheet)
+        fdialog.setWindowModality(Qt.WindowModal)
+        self.svgsavedialog = fdialog
+        self.svgsavedialog.filesSelected.connect(self.saveSVGDialogCallback)
+        fdialog.open()
+
+    class DummyChild(QGraphicsItem):
+        def boundingRect(self):
+            return QRect(200, 200) # self.parentObject().boundingRect()
+        def paint(self, painter, option, widget=None):
+            pass
+
+    def saveSVGDialogCallback(self, selected):
+        if isinstance(selected, QStringList) or isinstance(selected, list):
+            fname = selected[0]
+        else:
+            fname = selected
+        if fname.isEmpty() or os.path.isdir(fname):
+            return False
+        fname = str(fname)
+        if not fname.lower().endswith(".svg"):
+            fname += ".svg"
+        if self.svgsavedialog != None:
+            self.svgsavedialog.filesSelected.disconnect(self.saveSVGDialogCallback)
+            del self.svgsavedialog  # prevents hang
+
+        generator = QSvgGenerator()
+        generator.setFileName(fname)
+        generator.setSize(QSize(200, 200))
+        generator.setViewBox(QRect(0, 0, 2000, 2000))
+        painter = QPainter()
+
+        # Render through scene
+        # painter.begin(generator)
+        # self.win.pathscene.render(painter)
+        # painter.end()
+
+        # Render item-by-item
+        painter = QPainter()
+        styleOption = QStyleOptionGraphicsItem()
+        q = [self.win.pathroot]
+        painter.begin(generator)
+        while q:
+            graphicsItem = q.pop()
+            transform = graphicsItem.itemTransform(self.win.sliceroot)[0]
+            painter.setTransform(transform)
+            if graphicsItem.isVisible():
+                graphicsItem.paint(painter, styleOption, None)
+                q.extend(graphicsItem.childItems())
+        painter.end()
 
     def actionExportStaplesSlot(self):
         """
@@ -396,7 +466,7 @@ class DocumentController():
         except IOError:
             flags = Qt.Dialog | Qt.MSWindowsFixedSizeDialogHint | Qt.Sheet
             errorbox = QMessageBox(QMessageBox.Critical,
-                                   "CaDNAno",
+                                   "CADnano",
                                    "Could not write to '%s'." % filename,
                                    QMessageBox.Ok,
                                    self.win,
