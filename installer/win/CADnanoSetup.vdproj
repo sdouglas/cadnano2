@@ -471,6 +471,12 @@
         }
         "Entry"
         {
+        "MsmKey" = "8:_3B7DAFDB6E6249CFA46A60D623477398"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
         "MsmKey" = "8:_3BD4C365F5D741A0A9FCD98131CCD714"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
@@ -1798,6 +1804,12 @@
         "Entry"
         {
         "MsmKey" = "8:_D7B2D732B0CA4AA3B9084979ADEEFBE4"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_D81B5294B19E4B549BF8BA8DBE8A511D"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
         }
@@ -3768,6 +3780,26 @@
             "TargetName" = "8:loop_size_1.csv"
             "Tag" = "8:"
             "Folder" = "8:_5B2472A31F2C4A9EB6B3729B9DED991E"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_3B7DAFDB6E6249CFA46A60D623477398"
+            {
+            "SourcePath" = "8:..\\..\\views\\pathview\\normalstrandgraphicsitem.py"
+            "TargetName" = "8:normalstrandgraphicsitem.py"
+            "Tag" = "8:"
+            "Folder" = "8:_CBC56F9A23C74C9D83892CA9ACAD3926"
             "Condition" = "8:"
             "Transitive" = "11:FALSE"
             "Vital" = "11:TRUE"
@@ -8202,6 +8234,26 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_D81B5294B19E4B549BF8BA8DBE8A511D"
+            {
+            "SourcePath" = "8:..\\..\\views\\pathview\\pathhelixgraphicsitem.py"
+            "TargetName" = "8:pathhelixgraphicsitem.py"
+            "Tag" = "8:"
+            "Folder" = "8:_CBC56F9A23C74C9D83892CA9ACAD3926"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_D99300BABB5B449085250B5E120EAA5E"
             {
             "SourcePath" = "8:..\\..\\tests\\functionaltestinputs\\skip.json"
@@ -10016,7 +10068,7 @@
         "Name" = "8:Microsoft Visual Studio"
         "ProductName" = "8:CADnano2"
         "ProductCode" = "8:{49CC731E-0ACC-45B3-95DE-D5FEE79E7053}"
-        "PackageCode" = "8:{5B7CF082-6A40-4348-9A99-74E217454866}"
+        "PackageCode" = "8:{A2C3C9A9-005D-42FD-B71A-582246CAE744}"
         "UpgradeCode" = "8:{7847B28E-424B-41B9-9FAB-AB40B3BCF38A}"
         "AspNetVersion" = "8:4.0.30319.0"
         "RestartWWWService" = "11:FALSE"
@@ -10421,7 +10473,7 @@
                             "ContextData" = "8:1;True=1;False=0"
                             "Attributes" = "3:0"
                             "Setting" = "3:0"
-                            "Value" = "3:0"
+                            "Value" = "3:1"
                             "DefaultValue" = "3:1"
                             "UsePlugInResources" = "11:TRUE"
                             }

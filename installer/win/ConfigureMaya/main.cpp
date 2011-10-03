@@ -101,6 +101,8 @@ int main(int argc, char* argv[])
 	res &= modifyMayaEnvironment(mayaSettingsPath, cadnanoPath);
 	res &= modifyMayaPluginPrefs(mayaSettingsPath);
 
+	SendMessageTimeout( HWND_BROADCAST, WM_SETTINGCHANGE, NULL, (LPARAM)"Environment", NULL, NULL, NULL);
+
 	if( !res ){
 		MessageBox( NULL, "CadNano plugin for Autodesk Maya configurations failed", NULL, NULL);
 		return -1;
@@ -108,4 +110,3 @@ int main(int argc, char* argv[])
 		return 0;
 	}
 }
-
