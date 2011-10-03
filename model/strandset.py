@@ -370,7 +370,7 @@ class StrandSet(QObject):
                     sSetIndexLow = mid
                     # adjust the high index to find a better candidate if
                     # it exists
-                    high = mid - 1
+                    high = mid
                 # end elif
                 else:  # mHigh < qLow
                     # If a strand exists it must be a higher rangeIndex

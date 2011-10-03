@@ -179,41 +179,6 @@ class VirtualHelixItem(QGraphicsEllipseItem):
     #         return self.part().selectAllBehavior()
     # # end def
 
-    # ############################ Painting ############################
-    # class FocusRingPainter(QGraphicsItem):
-    #     def paint(self, painter, option, widget=None):
-    #         painter.setPen(SliceHelix.hovPen)
-    #         painter.drawEllipse(SliceHelix.rect)
-    # 
-    #     def boundingRect(self):
-    #         return SliceHelix.rect.adjusted(-1, -1, 2, 2)
-    # 
-    # def paint(self, painter, option, widget=None):
-    #     vh = self.virtualHelix()
-    #     if vh:
-    #         if vh.hasBaseAt(StrandType.Scaffold, self.part().activeSlice()):
-    #             painter.setBrush(self.useBrush)
-    #             painter.setPen(self.usePen)
-    #         else:
-    #             painter.setBrush(self.outOfSliceBrush)
-    #             painter.setPen(self.outOfSlicePen)
-    #         painter.drawEllipse(self.rect)
-    #         num = QString(str(self.virtualHelix().number()))
-    #         painter.setPen(Qt.SolidLine)
-    #         painter.setBrush(Qt.NoBrush)
-    #         painter.setFont(styles.SLICE_NUM_FONT)
-    #         painter.drawText(0, 0, 2 * self.radius, 2 * self.radius,\
-    #                          Qt.AlignHCenter + Qt.AlignVCenter, num)
-    #     else:  # We are virtualhelix-less
-    #         pass
-    #         painter.setBrush(self.defBrush)
-    #         painter.setPen(self.defPen)
-    #         painter.drawEllipse(self.rect)
-    #     if self.beingHoveredOver:
-    #         painter.setPen(self.hovPen)
-    #         painter.setBrush(Qt.NoBrush)
-    #         painter.drawEllipse(self.rect)
-
     ############################ User Interaction ############################
     def sceneEvent(self, event):
         """Included for unit testing in order to grab events that are sent
