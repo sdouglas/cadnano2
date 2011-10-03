@@ -169,6 +169,39 @@ class Strand(QObject):
         return self._baseIdxHigh - self._baseIdxLow + 1
     # end def
 
+    def getResizeBounds(self, idx):
+        """
+        Determines (inclusive) low and high drag boundaries resizing
+        from an endpoint located at idx.
+
+        When resizing from _baseIdxLow:
+            low bound is determined by checking for lower neighbor strands.
+            high bound is the index of this strand's high cap, minus 1.
+
+        When resizing from _baseIdxHigh:
+            low bound is the index of this strand's low cap, plus 1.
+            high bound is determined by checking for higher neighbor strands.
+
+        When a neighbor is not present, just use the Part boundary.
+        """
+        neighbors = self._strandSet.getNeighbors(self)
+        print "getResizeBounds neighbors:", neighbors
+        if idx == self._baseIdxLow:
+            if neighbors[0]:
+                low = neighbors[0].highIdx()+1
+            else:
+                low = self.part().minBaseIdx()
+            print "low", low, self._baseIdxHigh-1
+            return low, self._baseIdxHigh-1
+        else:  # self._baseIdxHigh
+            if neighbors[1]:
+                high = neighbors[1].lowIdx()-1
+            else:
+                high = self.part().maxBaseIdx()
+            print "high", self._baseIdxLow+1, high
+            return self._baseIdxLow+1, high
+    # end def
+
     ### PUBLIC METHODS FOR EDITING THE MODEL ###
     def set3pConnection(self, strand):
         self._strand3p = strand
@@ -203,39 +236,6 @@ class Strand(QObject):
         # QObject also emits a destroyed() Signal
         self.setParent(None)
         self.deleteLater()
-    # end def
-
-    def getResizeBounds(self, idx):
-        """
-        Determines (inclusive) low and high drag boundaries resizing
-        from an endpoint located at idx.
-
-        When resizing from _baseIdxLow:
-            low bound is determined by checking for lower neighbor strands.
-            high bound is the index of this strand's high cap, minus 1.
-
-        When resizing from _baseIdxHigh:
-            low bound is the index of this strand's low cap, plus 1.
-            high bound is determined by checking for higher neighbor strands.
-
-        When a neighbor is not present, just use the Part boundary.
-        """
-        neighbors = self._strandSet.getNeighbors(self)
-        print "getResizeBounds neighbors:", neighbors
-        if idx == self._baseIdxLow:
-            if neighbors[0]:
-                low = neighbors[0].highIdx()+1
-            else:
-                low = self.part().minBaseIdx()
-            print "low", low, self._baseIdxHigh-1
-            return low, self._baseIdxHigh-1
-        else:  # self._baseIdxHigh
-            if neighbors[1]:
-                high = neighbors[1].lowIdx()-1
-            else:
-                high = self.part().maxBaseIdx()
-            print "high", self._baseIdxLow+1, high
-            return self._baseIdxLow+1, high
     # end def
 
     def resize(self, newIdxs, useUndoStack=True):

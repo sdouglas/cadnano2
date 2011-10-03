@@ -74,22 +74,22 @@ class StrandSet(QObject):
 
     ### SLOTS ###
 
+    ### ACCESSORS ###
+    def part(self):
+        return self._virtualHelix.part()
+
     ### PUBLIC METHODS FOR QUERYING THE MODEL ###
     def isDrawn5to3(self):
         return self._virtualHelix.isDrawn5to3(self)
 
     def strandType(self):
         return self._strandType
-    # end def
 
     def isStaple(self):
         return self._strandType == StrandType.Staple
 
     def isScaffold(self):
         return self._strandType == StrandType.Scaffold
-
-    def part(self):
-        return self._virtualHelix.part()
 
     def getNeighbors(self, strand):
         isInSet, overlap, strandSetIdx = self._findIndexOfRangeFor(strand)

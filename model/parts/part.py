@@ -121,6 +121,10 @@ class Part(QObject):
 
 
     ### PUBLIC METHODS FOR QUERYING THE MODEL ###
+    def activeBaseIndex(self):
+        return self._activeBaseIndex
+    # end def
+
     def dimensions(self):
         """Returns a tuple of the max X and maxY coordinates of the lattice."""
         return self.latticeCoordToPositionXY(self._maxRow, self._maxCol)
@@ -157,10 +161,6 @@ class Part(QObject):
     # end def
 
     ### PUBLIC METHODS FOR EDITING THE MODEL ###
-    def activeBaseIndex(self):
-        return self._activeBaseIndex
-    # end def
-
     def addOligo(self, oligo):
         self._oligos[oligo] = True
     # end def
@@ -263,7 +263,6 @@ class Part(QObject):
         """
         self._virtualHelixHash[virtualHelix.coords()] = virtualHelix
     # end def
-
 
     def _removeVirtualHelix(self, virtualHelix):
         """

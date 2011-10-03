@@ -98,10 +98,6 @@ class VirtualHelix(QObject):
         row, col = self._coords
         self._coords = row + deltaRow, col + deltaCol
     # end def
-    
-    def number(self):
-        return self._number
-    # end def
 
     def setNumber(self, number):
         self._number = number
