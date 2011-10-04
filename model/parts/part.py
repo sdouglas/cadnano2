@@ -27,7 +27,7 @@
 
 from exceptions import KeyError
 from heapq import heapify, heappush, heappop
-from itertools import product
+from itertools import product, izip
 from model.enum import StrandType
 from model.virtualhelix import VirtualHelix
 import util
@@ -94,7 +94,7 @@ class Part(QObject):
     partRemovedSignal = pyqtSignal(QObject)                # self
     partSequenceClearedSignal = pyqtSignal(QObject)        # self
     partVirtualHelixAddedSignal = pyqtSignal(QObject)      # virtualhelix
-    partVirtualHelixChangedSignal = pyqtSignal(QObject)    # coords
+    # partVirtualHelixChangedSignal = pyqtSignal(QObject)    # coords
     # for updating the Slice View displayed helices
     partStrandChangedSignal = pyqtSignal(QObject)           # virtualHelix
     ### SLOTS ###
@@ -157,7 +157,14 @@ class Part(QObject):
     # end def
 
     def virtualHelixAtCoord(self, coord):
-        self._virtualHelixHash[coord]
+        """
+        Looks for a virtualHelix at the coordinate, coord = (row, colum)
+        if it exists it is returned, else None is returned
+        """
+        try:
+            return self._virtualHelixHash[coord]
+        except:
+            return None
     # end def
 
     ### PUBLIC METHODS FOR EDITING THE MODEL ###
@@ -384,6 +391,90 @@ class Part(QObject):
             oligo.add()
         # end for
         return part
+    # end def
+    
+    def getVirtualHelixNeighbors(self, virtualHelix):
+        """
+        returns the list of neighboring virtualHelices based on parity of an
+        input virtualHelix
+        
+        If a potential neighbor doesn't exist, None is returned in it's place
+        """
+        neighbors = []
+        vh = virtualHelix
+        # assign the method to a a local variable
+        getVH = self.virtualHelixAtCoord
+        # get the vh's row and column r,c 
+        (r,c) = vh.coord()
+        
+        if self.isEvenParity(r, c):
+            neighbors.append(getVH((r,c+1)))  # p0 neighbor (p0 is a direction)
+            neighbors.append(getVH((r-1,c)))  # p1 neighbor
+            neighbors.append(getVH((r,c-1)))  # p2 neighbor
+        else:
+            neighbors.append(getVH((r,c-1)))  # p0 neighbor (p0 is a direction)
+            neighbors.append(getVH((r+1,c)))  # p1 neighbor
+            neighbors.append(getVH((r,c+1)))  # p2 neighbor
+        return neighbors  # Note: the order and presence of Nones is important
+        # If you need the indices of available directions use range(0,len(neighbors))
+    # end def
+    
+    def areVirtualHelicesNeighbors(self, virtualHelixA, virtualHelixB):
+        """
+        returns True or False
+        """
+        return virtualHelixB in self.getVirtualHelixNeighbors(virtualHelixA)
+    # end def
+    
+    def potentialCrossoverList(self, virtualHelix):
+        """
+        Returns a list of tuples 
+        (neighborVirtualHelix, index, strandType)
+        where 
+        neighborVirtualHelix is a virtualHelix neighbor of the arg virtualHelix
+        index is the index where a potential Xover might occur
+        strandType is from the enum (StrandType.Scaffold, StrandType.Staple)
+        """
+        ret = []  # LUT = Look Up Table
+        part = self
+        # these are the list of crossover points simplified
+        # they depend on whether the strandType is scaffold or staple
+        luts = ((part._scafL, part._scafH), (part._stapL, part._stapH))
+        sTs = (StrandType.Scaffold, StrandType.Staple)
+        numBases = part.maxBaseIdx()
+        
+        # create a range for the helical length dimension of the Part, 
+        # incrementing by the lattice step size.
+        baseRange = range(0, numBases, part._step)
+
+        fromStrandSets = vh.getStrandSets()
+        neighbors = self.getVirtualHelixNeighbors(vh)
+
+        for neighbor in neighbors:
+            if not neighbor:
+                continue
+            toStrandSets = neighbor.getStrandSets()
+            for fromSS, toSS, lut, st in izip(fromStrandSets, toStrandSets, luts, sTs):
+                # test eah period of each lattice for each StrandType
+                for i, j in product(baseRange, lut):
+                    index = i + j
+                    if index < numBases:
+                        if fromSS.hasNoStrandAtOrNoXover(idx) and \
+                                toSS.hasNoStrandAtOrNoXover(idx):
+                            ret.append((neighbor, index, st))
+                        # end if
+                    # end if
+                # end for
+            # end for
+        # end for
+        return ret
+    # end def
+    
+    def possibleXoverAt(self, fromVirtualHelix, toVirtualHelix, strandType, idx):
+        fromSS = fromVirtualHelix.getStrandSetByType(strandType)
+        toSS = toVirtualHelix.getStrandSetByType(strandType)
+        return fromSS.hasStrandAtAndNoXover(idx) and \
+                toSS.hasStrandAtAndNoXover(idx):
     # end def
 
     ### COMMANDS ###
