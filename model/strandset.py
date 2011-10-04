@@ -278,7 +278,7 @@ class StrandSet(QObject):
     # end def
     
     def hasStrandAtAndNoXover(self, idx):
-        dummyStrand = Strand(self, idxLow, idxHigh)
+        dummyStrand = Strand(self, idx, idx)
         strandList = [s for s in self._findOverlappingRanges(dummyStrand)]
         dummyStrand._strandSet = None
         dummyStrand.setParent(None)
@@ -291,7 +291,7 @@ class StrandSet(QObject):
     # end def
     
     def hasNoStrandAtOrNoXover(self, idx):
-        dummyStrand = Strand(self, idxLow, idxHigh)
+        dummyStrand = Strand(self, idx, idx)
         strandList = [s for s in self._findOverlappingRanges(dummyStrand)]
         dummyStrand._strandSet = None
         dummyStrand.setParent(None)

@@ -28,6 +28,8 @@
 import util
 from views import styles
 
+from model.enum import StrandType
+
 # import Qt stuff into the module namespace with PySide, PyQt4 independence
 util.qtWrapImport('QtCore', globals(), ['QPointF', 'QRectF', 'Qt'])
 util.qtWrapImport('QtGui', globals(), [ 'QBrush', 'QFont', 'QGraphicsPathItem', \
@@ -72,7 +74,9 @@ _enabbrush = QBrush(Qt.SolidPattern)  # Also for the helix number label
 _baseWidth = styles.PATH_BASE_WIDTH
 _rect = QRectF(0, 0, styles.PATH_BASE_WIDTH, 1.2*styles.PATH_BASE_WIDTH)
 _toHelixNumFont = styles.XOVER_LABEL_FONT
-
+# precalculate the height of a number font.  Assumes a fixed font
+# and that only numbers will be used for labels
+_fm = QFontMetrics(_toHelixNumFont)
 
 class PreXoverItem(QGraphicsPathItem):
     def __init__(self,  fromVirtualHelixItem, toVirtualHelixItem, index, strandType, isLowIdx):
@@ -84,16 +88,18 @@ class PreXoverItem(QGraphicsPathItem):
         # translate from Low to Left for the Path View
         self._isLowIndex = isLowIdx
 
-        self._pen = _scafpen if strandType == StrandType.Scaffold else _stapPen
+        self._pen = _scafpen if strandType == StrandType.Scaffold else _stappen
         
         bw = _baseWidth
 
-        x = bw * self.fromVBase.vIndex()
-        y = (-1.25 if self.onTopStrand() else 2.25) * bw
+        isOnTop = fromVirtualHelixItem.isStrandTypeOnTop(strandType)
+
+        x = bw * index
+        y = (-1.25 if isOnTop else 2.25) * bw
         self.setPos(x, y)
 
         num = toVirtualHelixItem.number()
-        tBR = self.fm.tightBoundingRect(str(num))
+        tBR = _fm.tightBoundingRect(str(num))
         halfLabelH = tBR.height()/2.0
         halfLabelW = tBR.width()/2.0
 
@@ -101,7 +107,7 @@ class PreXoverItem(QGraphicsPathItem):
         if num == 1:  # adjust for the number one
             labelX -= halfLabelW/2.0
 
-        if self.onTopStrand():
+        if isOnTop:
             labelY = -0.25*halfLabelH - .5
         else:
             labelY = 2*halfLabelH + .5
@@ -111,14 +117,14 @@ class PreXoverItem(QGraphicsPathItem):
 
         # create a bounding rect item to process click events
         # over a wide area
-        br = self._boundRect = QGraphicsRectItem(self.rect, self)
+        br = self._boundRect = QGraphicsRectItem(_rect, self)
         br.mousePressEvent = self.mousePress
-        yoffset = 0.2*bw if fromVirtualHelixItem.isStrandTypeOnTop(strandType) else -0.4*bw
+        yoffset = 0.2*bw if isOnTop else -0.4*bw
         br.setPos(0, yoffset)
         br.setPen(QPen(Qt.NoPen))
         
-        self.updateLabel()
         self.updateStyle()
+        self.updateLabel()
         self.setPainterPath()
     # end def
 
@@ -139,6 +145,7 @@ class PreXoverItem(QGraphicsPathItem):
         pathLUT = (_ppathRD, _ppathRU, _ppathLD, _ppathLU)
         
         vhi = self._fromVHItem
+        st= self._sType
         
         path = pathLUT[2*int(self._isLowIndex) + int(vhi.isStrandTypeOnTop(st))]
 
@@ -154,19 +161,21 @@ class PreXoverItem(QGraphicsPathItem):
         """
         fromVH = self._fromVHItem.virtualHelix()
         toVH = self._toVHItem.virtualHelix()
-        part = fromVHI.part()
+        part = self._fromVHItem.part()
         
         pen = _disabpen
+        self._labelBrush = _disabbrush
         if part.possibleXoverAt(fromVH, toVH, self._sType, self._idx):
             pen = self._pen
+            self._labelBrush = _enabbrush
         self.setPen(pen)
     # end def
     
     def updateLabel(self):
         lbl = self._label
         lbl.setBrush(self._labelBrush)
-        lbl.setFont(self._toHelixNumFont)
-        lbl.setText( str(toVirtualHelixItem.number() ) )
+        lbl.setFont(_toHelixNumFont)
+        lbl.setText( str(self._toVHItem.number() ) )
     # end def
 
     ### TOOL METHODS ###
@@ -174,3 +183,11 @@ class PreXoverItem(QGraphicsPathItem):
         """removexover(fromStrand, fromIdx, toStrand, toIdx)"""
         pass
     # end def
+
+    def mousePress(self, event):
+        if event.button() != Qt.LeftButton:
+            return QGraphicsPathItem.mousePressEvent(self, event)
+        else:
+            pass
+    # end def
+    

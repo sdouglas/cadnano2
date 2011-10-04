@@ -57,6 +57,9 @@ class PartItem(QGraphicsPathItem):
                                                  parent=self)
         self._selectionLock = None
         self._vHRect = QRectF()
+        
+        self._activeVirtualHelixItem = None
+        self._preXOverItems = []
     # end def
         
     ### SIGNALS ###
@@ -105,8 +108,12 @@ class PartItem(QGraphicsPathItem):
     # end def
 
     def updatePreXOverItemsSlot(self, virtualHelix):
-        if self.part().areVirtualHelicesNeighbors(self.activeVirtualHelix(), virtualHelix):
-            self.setPreXOverItemsVisible(self.activeVirtualHelix)
+        part = self.part()
+        print "dddoooooo"
+        if part.areVirtualHelicesNeighbors(part.activeVirtualHelix(), virtualHelix):
+            vhi = self.itemForVirtualHelix(virtualHelix)
+            self.setActiveVirtualHelixItem(vhi)
+            self.setPreXOverItemsVisible(self.activeVirtualHelixItem())
     # end def
     
     def xover3pCreatedSlot(self, strand, idx):
@@ -118,7 +125,6 @@ class PartItem(QGraphicsPathItem):
         """docstring for xover3pDestroyedSlot"""
         print "PartItem.xover3pDestroyedSlot"
         pass
-
 
     ### METHODS ###
     def part(self):
@@ -214,32 +220,32 @@ class PartItem(QGraphicsPathItem):
         # call the method to move the items and store the list
         self._setVirtualHelixItemList(newList, zoomToFit=False)
     # end def
-    
+
     def activeVirtualHelixItem(self):
         return self._activeVirtualHelixItem
-    
+
     def setActiveVirtualHelixItem(self, newActiveVHI):
         if newActiveVHI != self._activeVirtualHelixItem:
+            self._activeVirtualHelixItem = newActiveVHI
             self._modelPart.setActiveVirtualHelix(newActiveVHI.virtualHelix())
-            self.setPreXOverItemsVisible(newActiveVHI, True)
     # end def
-    
+
     def numberOfVirtualHelices(self):
         return len(self._virtualHelixItemList)
     # end def
-    
+
     def vhiHandleSelectionGroup(self):
         return self._vhiHSelectionGroup
     # end def
-    
+
     def selectionLock(self):
         return self._selectionLock
     # end def
-    
+
     def setSelectionLock(self, locker):
         self._selectionLock = locker
     # end def
-    
+
     # def preXOverHandlesVisible(self):
     #     return self._preXOverItems != None
     # # end def
@@ -253,11 +259,12 @@ class PartItem(QGraphicsPathItem):
         A possible more efficient solution is to maintain the list _preXOverItems
         in pathhelixgroup, in fact this method should live in pathhelixgroup
         """
+        print "pooooooooooop"
         vhi = virtualHelixItem
         if vhi == None:
             return
         # end if
-        areVisible = self._preXOverItems != None
+        # areVisible = self._preXOverItems != None
         vh = vhi.virtualHelix()
         partItem = self
         part = self.part()
@@ -272,7 +279,7 @@ class PartItem(QGraphicsPathItem):
         potentialXOvers = part.potentialCrossoverList(vh)
         for neighbor, index, strandType, isLowIdx in potentialXOvers:
             # create one half
-            neighborVHI = partitem.itemForVirtualHelix(neighbor)
+            neighborVHI = self.itemForVirtualHelix(neighbor)
             pxi = PreXoverItem(vhi, neighborVHI, index, strandType, isLowIdx)
             # add to list
             self._preXOverItems.append(pxi)
@@ -281,6 +288,7 @@ class PartItem(QGraphicsPathItem):
             # add to list
             self._preXOverItems.append(pxi)
         # end for
+        print "this many pxi items: ", len(self._preXOverItems)
     # end def
 
     # def updatePreXOverItems(self):

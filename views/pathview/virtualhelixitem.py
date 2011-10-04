@@ -31,6 +31,8 @@ from virtualhelixhandleitem import VirtualHelixHandleItem
 from controllers.itemcontrollers.virtualhelixitemcontroller import VirtualHelixItemController
 from .strand.stranditem import StrandItem
 
+from model.enum import StrandType
+
 import util
 # import Qt stuff into the module namespace with PySide, PyQt4 independence
 util.qtWrapImport('QtCore', globals(), ['pyqtSignal', 'QObject', 'Qt'])
@@ -190,6 +192,10 @@ class VirtualHelixItem(QGraphicsPathItem):
     def part(self):
         return self._partItem.part()
     # end def
+    
+    def virtualHelix(self):
+        return self._modelVirtualHelix
+    # end def
 
     ### EVENT HANDLERS ###
     def mousePressEvent(self, event):
@@ -197,6 +203,7 @@ class VirtualHelixItem(QGraphicsPathItem):
         Parses a mousePressEvent to extract strandSet and base index,
         forwarding them to approproate tool method as necessary.
         """
+        self.part().setActiveVirtualHelix(self.virtualHelix())
         toolMethodName = str(self._activeTool()) + "MousePress"
         if hasattr(self, toolMethodName):
             strandSet, idx = self.baseAtPoint(event.pos())
