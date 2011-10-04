@@ -56,7 +56,6 @@ class StrandItem(QGraphicsLineItem):
     ### SLOTS ###
     def strandResizedSlot(self):
         """docstring for strandResizedSlot"""
-        print "strandResizedSlot", self.idxs()
         lowMoved = self._lowCap.updatePosIfNecessary(self.idxs()[0])
         highMoved = self._highCap.updatePosIfNecessary(self.idxs()[1])
         if lowMoved:
