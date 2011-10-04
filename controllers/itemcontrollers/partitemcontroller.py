@@ -37,8 +37,8 @@ class PartItemController(object):
         mP.partRemovedSignal.connect(pI.removedSlot)
         mP.partDestroyedSignal.connect(pI.destroyedSlot)
         mP.partVirtualHelixAddedSignal.connect(pI.virtualHelixAddedSlot)
-        mP.partVirtualHelixChangedSignal.connect( \
-                                               pI.updatePreXOverHandlesSlot)
+        mP.partStrandChangedSignal.connect( \
+                                               pI.updatePreXOverItemsSlot)
 
         for mOligo in mP.oligos():
             for mStrand in mOligo.strands():
@@ -54,8 +54,8 @@ class PartItemController(object):
         mP.partDestroyedSignal.disconnect(pI.destroyedSlot)
         mP.partVirtualHelixAddedSignal.disconnect(pI.virtualHelixAddedSlot)
 
-        mP.partVirtualHelixChangedSignal.disconnect( \
-                                               pI.updatePreXOverHandlesSlot)
+        mP.partStrandChangedSignal.disconnect( \
+                                               pI.updatePreXOverItemsSlot)
 
         for mOligo in mP.oligos():
             for mStrand in mOligo.strands():

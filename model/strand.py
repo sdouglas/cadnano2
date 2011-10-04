@@ -169,6 +169,19 @@ class Strand(QObject):
         return self._baseIdxHigh - self._baseIdxLow + 1
     # end def
 
+    def hasXoverAt(self, idx):
+        """
+        An xover is necessarily at an enpoint of a strand
+        """
+        if idx == self.highIdx():
+            return True if self.highConnection() != None else False
+        elif idx == self.lowIdx():
+            return True if self.lowConnection() != None else False
+        else:
+            return False
+    # end def
+                
+
     def getResizeBounds(self, idx):
         """
         Determines (inclusive) low and high drag boundaries resizing

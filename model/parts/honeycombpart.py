@@ -31,10 +31,10 @@ from model.enum import LatticeType
 
 
 class Crossovers:
-    honeycombScafLeft = [[1, 11], [8, 18], [4, 15]]
-    honeycombScafRight = [[2, 12], [9, 19], [5, 16]]
-    honeycombStapLeft = [[6], [13], [20]]
-    honeycombStapRight = [[7], [14], [0]]
+    honeycombScafLow = [[1, 11], [8, 18], [4, 15]]
+    honeycombScafHigh = [[2, 12], [9, 19], [5, 16]]
+    honeycombStapLow = [[6], [13], [20]]
+    honeycombStapHigh = [[7], [14], [0]]
 
 root3 = 1.732051
 
@@ -43,10 +43,10 @@ class HoneycombPart(Part):
     _activeBaseIndex = _step
     _subStepSize = _step / 3
     # Used in VirtualHelix::potentialCrossoverList
-    scafL = Crossovers.honeycombScafLeft
-    scafR = Crossovers.honeycombScafRight
-    stapL = Crossovers.honeycombStapLeft
-    stapR = Crossovers.honeycombStapRight
+    _scafL = Crossovers.honeycombScafLow
+    _scafH = Crossovers.honeycombScafHigh
+    _stapL = Crossovers.honeycombStapLow
+    _stapH = Crossovers.honeycombStapHigh
 
     def __init__(self, *args, **kwargs):
         super(HoneycombPart, self).__init__(self, *args, **kwargs)
