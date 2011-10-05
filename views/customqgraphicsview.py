@@ -117,7 +117,7 @@ class CustomQGraphicsView(QGraphicsView):
             self.setViewport(QGLWidget(QGLFormat(QGL.SampleBuffers)))
             self.setViewportUpdateMode(QGraphicsView.FullViewportUpdate)
         else:
-            self.setViewportUpdateMode(QtGui.QGraphicsView.MinimalViewportUpdate)
+            self.setViewportUpdateMode(QGraphicsView.MinimalViewportUpdate)
     # end def
 
     def setScaleFitFactor(self, value):

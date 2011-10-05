@@ -109,7 +109,6 @@ class PartItem(QGraphicsPathItem):
 
     def updatePreXOverItemsSlot(self, virtualHelix):
         part = self.part()
-        print "dddoooooo"
         if part.areVirtualHelicesNeighbors(part.activeVirtualHelix(), virtualHelix):
             vhi = self.itemForVirtualHelix(virtualHelix)
             self.setActiveVirtualHelixItem(vhi)
@@ -259,7 +258,6 @@ class PartItem(QGraphicsPathItem):
         A possible more efficient solution is to maintain the list _preXOverItems
         in pathhelixgroup, in fact this method should live in pathhelixgroup
         """
-        print "pooooooooooop"
         vhi = virtualHelixItem
         if vhi == None:
             return
