@@ -175,10 +175,9 @@ class PartItem(QObject):
         print "solidview.PartItem.virtualHelixAddedSlot"
         self.createNewVirtualHelixItem(virtualHelix)
 
-    @pyqtSlot()
-    def updatePreXOverHandlesSlot(self, virtualHelix):
-        print "solidview.PartItem.updatePreXOverHandlesSlot"
-        pass
+    @pyqtSlot(object)
+    def updatePreXOverItemsSlot(self, virtualHelix):
+        print "solidview.PartItem.updatePreXOverItemsSlot"
 
     ### METHODS ###
     def cadnanoToMayaCoords(self, row, col):
