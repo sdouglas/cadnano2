@@ -139,10 +139,12 @@ class EndpointItem(QGraphicsPathItem):
         Parses a mousePressEvent, calling the approproate tool method as
         necessary. Stores _moveIdx for future comparison.
         """
+        
         self._moveIdx = self.idx()
         toolMethodName = str(self._activeTool()) + "MousePress"
         if hasattr(self, toolMethodName):  # if the tool method exists
-            getattr(self, toolMethodName)()  # call it
+            modifiers = event.modifiers()
+            getattr(self, toolMethodName)(modifiers)  # call tool method
 
     def mouseMoveEvent(self, event):
         """
@@ -153,8 +155,9 @@ class EndpointItem(QGraphicsPathItem):
         if hasattr(self, toolMethodName):  # if the tool method exists
             idx = int(floor((self.x()+event.pos().x()) / _baseWidth))
             if idx != self._moveIdx:  # did we actually move?
+                modifiers = event.modifiers()
                 self._moveIdx = idx
-                getattr(self, toolMethodName)(idx)  # call the tool method
+                getattr(self, toolMethodName)(modifiers, idx)  # call tool method
 
     def mouseReleaseEvent(self, event):
         """
@@ -163,12 +166,14 @@ class EndpointItem(QGraphicsPathItem):
         """
         toolMethodName = str(self._activeTool()) + "MouseRelease"
         if hasattr(self, toolMethodName):  # if the tool method exists
-            getattr(self, toolMethodName)(event.pos().x())  # call it
+            modifiers = event.modifiers()
+            x = event.pos().x()
+            getattr(self, toolMethodName)(modifiers, x)  # call tool method
         if hasattr(self, '_moveIdx'):
             del self._moveIdx
 
     ### TOOL METHODS ###
-    def selectToolMousePress(self):
+    def selectToolMousePress(self, modifiers):
         """
         Set the allowed drag bounds for use by selectToolMouseMove.
         """
@@ -178,7 +183,7 @@ class EndpointItem(QGraphicsPathItem):
         print "bounds", self._lowDragBound, self._highDragBound
     # end def
 
-    def selectToolMouseMove(self, idx):
+    def selectToolMouseMove(self, modifiers, idx):
         """
         Given a new index (pre-validated as different from the prev index),
         calculate the new x coordinate for self, move there, and notify the
@@ -190,19 +195,31 @@ class EndpointItem(QGraphicsPathItem):
         self._strandItem.updateLine(self)
     # end def
 
-    def selectToolMouseRelease(self, x):
-        """docstring for selectToolMouseRelease"""
+    def selectToolMouseRelease(self, modifiers, x):
+        """
+        If the positional-calculated idx differs from the model idx, it means
+        we have moved and should notify the model to resize.
+
+        If the mouse event had a key modifier, perform special actions:
+            shift = attempt to merge with a neighbor
+            alt = extend to max drag bound
+        """
+        mStrand = self._strandItem._modelStrand
         baseIdx = int(floor(self.x() / _baseWidth))
         if baseIdx != self.idx():
             newIdxs = self._getNewIdxsForResize(baseIdx)
-            self._strandItem._modelStrand.resize(newIdxs)
-        print "%s.%s [%d]" % (self, util.methodName(), baseIdx)
-    # end def
+            mStrand.resize(newIdxs)
 
-    def mergeToolMouseRelease(self, idx):
-        """Attempts to merge strand with its neighbor."""
-        # if strandset.strandsCanBeMerged(priorityStrand, otherStrand):
-        #     strandset.mergeStrands(priorityStrand, otherStrand)
-        print "%s.%s [%d]" % (self, util.methodName(), idx)
-        pass
+        if modifiers & Qt.AltModifier:
+            print "altclick"
+            if self._capType == 'low':
+                newIdxs = self._getNewIdxsForResize(self._lowDragBound)
+            else:
+                newIdxs = self._getNewIdxsForResize(self._highDragBound)
+            mStrand.resize(newIdxs)
+
+        elif modifiers & Qt.ShiftModifier:
+            print "shiftclick"
+            mStrand.merge()
+
     # end def
