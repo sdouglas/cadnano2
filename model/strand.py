@@ -25,10 +25,9 @@
 #
 # http://www.opensource.org/licenses/mit-license.php
 
-
-import util
-# import cadnano2.util as util
+from exceptions import IndexError
 from operator import attrgetter
+import util
 
 # import Qt stuff into the module namespace with PySide, PyQt4 independence
 util.qtWrapImport('QtCore', globals(), ['pyqtSignal', 'QObject', 'Qt'])
@@ -54,14 +53,14 @@ class Strand(QObject):
     highConnection) are bound during the init for convenience.
     """
 
-    def __init__(self, strandSet, baseIdxLow, baseIdxHigh):
+    def __init__(self, strandSet, baseIdxLow, baseIdxHigh, oligo=None):
         super(Strand, self).__init__(strandSet)
         self._strandSet = strandSet
         self._baseIdxLow = baseIdxLow  # base index of the strand's left boundary
         self._baseIdxHigh = baseIdxHigh  # base index of the right boundary
+        self._oligo = oligo
         self._strand5p = None
         self._strand3p = None
-        self._oligo = None
         self._sequence = None
         self._decorators = {}
         # dynamic methods for mapping high/low connection /indices 
@@ -121,7 +120,7 @@ class Strand(QObject):
         return self._strandSet.undoStack()
 
     def decorators(self):
-        return self.decorators
+        return self._decorators
     # end def
 
     def part(self):
@@ -230,9 +229,10 @@ class Strand(QObject):
         self._strandSet = strandSet
     # end def
 
-    def setOligo(self, newOligo):
+    def setOligo(self, newOligo, emitSignal=True):
         self._oligo = newOligo
-        self.strandHasNewOligoSignal.emit(self)
+        if emitSignal:
+            self.strandHasNewOligoSignal.emit(self)
     # end def
 
     def addDecorators(self, additionalDecorators):
@@ -253,15 +253,20 @@ class Strand(QObject):
         util._execCommandList(self, [c], desc="Resize strand", useUndoStack=useUndoStack)
     # end def
 
-    def extendToBound(self, ):
-        """
-        Checks boundary for resize, and the
-        """
-        pass
-
-    def merge(self):
-        """docstring for merge"""
-        pass
+    def merge(self, idx):
+        """Check for neighbor."""
+        lowNeighbor, highNeighbor = self._strandSet.getNeighbors(self)
+        # determine where to check for neighboring endpoint
+        if idx == self._baseIdxLow:
+            if lowNeighbor:
+                if lowNeighbor.highIdx() == idx - 1:
+                    self._strandSet.mergeStrands(self, lowNeighbor)
+        elif idx == self._baseIdxHigh:
+            if highNeighbor:
+                if highNeighbor.lowIdx() == idx + 1:
+                    self._strandSet.mergeStrands(self, highNeighbor)
+        else:
+            raise IndexError
 
     ### PUBLIC SUPPORT METHODS ### 
     def removeDecoratorsOutOfRange(self):
@@ -296,7 +301,6 @@ class Strand(QObject):
         # required to shallow copy the dictionary
         nS._decorators = dict(self._decorators.items())
         nS._sequence = self._sequence
-        nS._note = self._note
         return nS
     # end def
 
@@ -313,7 +317,6 @@ class Strand(QObject):
             decs[key] = decOrig.deepCopy()
         # end fo
         nS._sequence = self._sequence
-        nS._note = self._note
         return nS
     # end def
 

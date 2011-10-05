@@ -37,7 +37,7 @@ class VirtualHelixItemController():
         mvh.virtualHelixRemovedSignal.connect(vhItem.virtualHelixRemovedSlot)
 
         for strandSet in mvh.getStrandSets():
-            strandSet.strandSetStrandAddedSignal.connect(vhItem.strandAddedSlot)
+            strandSet.strandsetStrandAddedSignal.connect(vhItem.strandAddedSlot)
             # strandSet.decoratorAddedSignal.connect(vhItem.decoratorAddedSlot)
     # end def
 
@@ -49,5 +49,5 @@ class VirtualHelixItemController():
         mvh.virtualHelixRemovedSignal.disconnect(vhItem.virtualHelixRemovedSlot)
 
         for strandSet in mvh.getStrandSets():
-            strandSet.strandSetStrandAddedSignal.disconnect(vhItem.strandAddedSlot)
+            strandSet.strandsetStrandAddedSignal.disconnect(vhItem.strandAddedSlot)
             # strandSet.decoratorAddedSignal.disconnect(vhItem.decoratorAddedSlot)
