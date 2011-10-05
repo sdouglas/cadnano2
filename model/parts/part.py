@@ -591,3 +591,40 @@ class Part(QObject):
         # end def
     # end class
     
+    class CreateXoverCommand(QUndoCommand):
+        """
+        Creates a Xover from the 3 prime strand to the 5 prime strand
+        this needs to 
+        1. preserve the old oligo of the 5prime strand
+        2. install the crossover
+        3. apply the 3 prime strand oligo to the 5 prime strand
+        
+        """
+        def __init__(self, part, strand3p, idx3p, strand5p, idx5p):
+            super(Part.CreateXoverCommand, self).__init__()
+            self._part = part
+            self._strand3p = strand3p
+            self._idx3p = idx3p
+            self._strand5p = strand5p
+            self._idx5p = idx5p
+            
+            self._oldOligo5p = strand5p.oligo()
+        # end def
+
+        def redo(self):
+            part = part
+            strand3p = strand3p
+            idx3p = idx3p
+            strand5p = strand5p
+            idx5p = idx5p
+        # end def
+
+        def undo(self):
+            part = self._part
+            strand3p = self._strand3p
+            idx3p = self._idx3p
+            strand5p = self._strand5p
+            idx5p = self._idx5p
+
+        # end def
+    # end class
