@@ -26,6 +26,7 @@
 # http://www.opensource.org/licenses/mit-license.php
 
 from exceptions import NotImplementedError
+from math import floor
 from controllers.itemcontrollers.strand.stranditemcontroller import StrandItemController
 from endpointitem import EndpointItem
 from views import styles
@@ -35,6 +36,8 @@ import util
 util.qtWrapImport('QtCore', globals(), ['pyqtSignal', 'QObject', 'Qt'])
 util.qtWrapImport('QtGui', globals(), ['QGraphicsLineItem', 'QGraphicsPathItem',
                                        'QPen', 'QColor', 'QBrush'])
+
+_baseWidth = styles.PATH_BASE_WIDTH
 
 class StrandItem(QGraphicsLineItem):
     def __init__(self, modelStrand, virtualHelixItem):
@@ -214,19 +217,20 @@ class StrandItem(QGraphicsLineItem):
         Parses a mousePressEvent, calling the approproate tool method as
         necessary.
         """
+        # lowIdx = self._modelStrand.lowIdx()
+        idx = int(floor((event.pos().x()) / _baseWidth))
         toolMethodName = str(self._activeTool()) + "MousePress"
         if hasattr(self, toolMethodName):  # if the tool method exists
-            getattr(self, toolMethodName)()  # call it
+            getattr(self, toolMethodName)(idx)  # call it
 
     ### TOOL METHODS ###
-    def breakToolMousePress(self):
+    def breakToolMousePress(self, idx):
         """
         Set the _moveIdx for future comparison by mouseMoveEvent.
         Set the allowed drag bounds for use by selectToolMouseMove.
         """
-        print "%s.%s [%d]" % (self, util.methodName(), self.idx())
-        self._modelStrand
-
+        mStrand = self._modelStrand
+        mStrand.split(idx)
     # end def
 
 
