@@ -102,8 +102,8 @@ class Oligo(QObject):
         return self._color
     # end def
     
-    def setColor(self):
-        pass
+    def setColor(self, color):
+        self._color = color
     # end def
 
     def length(self):

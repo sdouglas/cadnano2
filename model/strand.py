@@ -179,7 +179,6 @@ class Strand(QObject):
         else:
             return False
     # end def
-                
 
     def getResizeBounds(self, idx):
         """
@@ -242,10 +241,13 @@ class Strand(QObject):
         self._decorators.update(additionalDecorators)
     # def
 
+    def split(self, idx):
+        """docstring for break"""
+        self._strandSet.splitStrand(self, idx)
+
     def destroy(self):
-        # QObject also emits a destroyed() Signal
         self.setParent(None)
-        self.deleteLater()
+        self.deleteLater()  # QObject also emits a destroyed() Signal
     # end def
 
     def resize(self, newIdxs, useUndoStack=True):

@@ -75,7 +75,7 @@ class Part(QObject):
         self._maxRow = 50
         self._maxCol = 50
         self._minBase = 0
-        self._maxBase = 2*self._step
+        self._maxBase = 2*self._step-1
         # ID assignment
         self.oddRecycleBin, self.evenRecycleBin = [], []
         self.reserveBin = set()
