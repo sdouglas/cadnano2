@@ -30,7 +30,8 @@ from exceptions import NotImplementedError
 from views import styles
 import util
 # import Qt stuff into the module namespace with PySide, PyQt4 independence
-util.qtWrapImport('QtCore', globals(), ['pyqtSignal', 'QObject', 'QPointF', 'Qt'])
+util.qtWrapImport('QtCore', globals(), ['pyqtSignal', 'QObject', 'QPointF',
+                                        'QRectF', 'Qt'])
 util.qtWrapImport('QtGui', globals(), ['QGraphicsPathItem', 'QPen', 'QPainterPath', 'QPolygonF'])
 
 _baseWidth = styles.PATH_BASE_WIDTH
@@ -73,6 +74,8 @@ poly35.append(QPointF(0, 0.5*_baseWidth))
 poly35.append(QPointF(0.5*_baseWidth, _baseWidth))
 pp35.addPolygon(poly35)
 
+
+
 class EndpointItem(QGraphicsPathItem):
     def __init__(self, strandItem, captype, isDrawn5to3):
         """The parent should be a StrandItem."""
@@ -111,6 +114,10 @@ class EndpointItem(QGraphicsPathItem):
             self.setPos(x, self.y())
             return True
         return False
+
+    def boundingRect(self):
+        """docstring for boundingRect"""
+        return QRectF(0, 0, _baseWidth, _baseWidth)
 
     ### PRIVATE SUPPORT METHODS ###
     def _initCapSpecificState(self):
@@ -177,10 +184,9 @@ class EndpointItem(QGraphicsPathItem):
         """
         Set the allowed drag bounds for use by selectToolMouseMove.
         """
-        print "%s.%s [%d]" % (self, util.methodName(), self.idx())
+        # print "%s.%s [%d]" % (self, util.methodName(), self.idx())
         self._lowDragBound, self._highDragBound = \
                     self._strandItem._modelStrand.getResizeBounds(self.idx())
-        print "bounds", self._lowDragBound, self._highDragBound
     # end def
 
     def selectToolMouseMove(self, modifiers, idx):
@@ -211,7 +217,6 @@ class EndpointItem(QGraphicsPathItem):
             mStrand.resize(newIdxs)
 
         if modifiers & Qt.AltModifier:
-            print "altclick"
             if self._capType == 'low':
                 newIdxs = self._getNewIdxsForResize(self._lowDragBound)
             else:
@@ -219,7 +224,6 @@ class EndpointItem(QGraphicsPathItem):
             mStrand.resize(newIdxs)
 
         elif modifiers & Qt.ShiftModifier:
-            print "shiftclick"
-            mStrand.merge()
+            mStrand.merge(self.idx())
 
     # end def

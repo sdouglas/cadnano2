@@ -41,9 +41,9 @@ class Oligo(QObject):
     Commands that affect Strands (e.g. create, remove, merge, split) are also
     responsible for updating the affected Oligos.
     """
-    def __init__(self, color=None, part=None):
+    def __init__(self, part, color=None):
         super(Oligo, self).__init__(part)
-        self._part = None
+        self._part = part
         self._strand5p = None
         self._length = 0
         self._isLoop = False
