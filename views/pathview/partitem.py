@@ -60,6 +60,7 @@ class PartItem(QGraphicsPathItem):
         
         self._activeVirtualHelixItem = None
         self._preXOverItems = []
+        self._xovers = {}
     # end def
         
     ### SIGNALS ###
@@ -115,12 +116,14 @@ class PartItem(QGraphicsPathItem):
             self.setPreXOverItemsVisible(self.activeVirtualHelixItem())
     # end def
     
-    def xover3pCreatedSlot(self, strand, idx):
+    def xoverCreatedSlot(self, part, virtualHelix3p, strandType3p, idx3p \
+                                    virtualHelix5p, strandType5p, idx5p):
         """docstring for xover3pCreatedSlot"""
         print "PartItem.xover3pCreatedSlot"
         pass
 
-    def xover3pDestroyedSlot(self, strand, idx):
+    def xoverRemovedSlot(self, part, virtualHelix3p, strandType3p, idx3p \
+                                    virtualHelix5p, strandType5p, idx5p):
         """docstring for xover3pDestroyedSlot"""
         print "PartItem.xover3pDestroyedSlot"
         pass

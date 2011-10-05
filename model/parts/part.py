@@ -97,8 +97,15 @@ class Part(QObject):
     partSequenceClearedSignal = pyqtSignal(QObject)        # self
     partVirtualHelixAddedSignal = pyqtSignal(QObject)      # virtualhelix
     partVirtualHelixChangedSignal = pyqtSignal(QObject)    # coords (for a renumber)
+    
     # for updating the Slice View displayed helices
     partStrandChangedSignal = pyqtSignal(QObject)           # virtualHelix
+    
+    # Part, VirtualHelixFrom, StrandType, index, VirtualHelixTo, StrandType, index
+    partXOverAddedSignal = pyqtSignal(QObject, QObject, int, int, QObject, int, int)
+    
+    # Part, VirtualHelixFrom, StrandType, index, VirtualHelixTo, StrandType, index
+    partXOverRemovedSignal = pyqtSignal(QObject, QObject, int, int, QObject, int, int)
     ### SLOTS ###
 
     ### ACCESSORS ###
@@ -187,6 +194,31 @@ class Part(QObject):
         c = Part.CreateVirtualHelixCommand(self, row, col)
         util._execCommandList(self, [c], desc="Add VirtualHelix", \
                                                 useUndoStack=useUndoStack)
+    # end def
+    
+    def createSimpleXover(fromVirtualHelix, toVirtualHelix, \
+                                    strandType, idx, useUndoStack=True):
+        fromSS = fromVirtualHelix.getStrandSetByType(strandType)
+        toSS = toVirtualHelix.getStrandSetByType(strandType)
+        fromStrand = fromSS.getStrand(idx)
+        toStrand = toSS.getStrand(idx)
+        if fromStrand.idx3Prime() == idx:
+            strand3p = fromStrand
+            strand5p = toStrand
+        else:
+            strand5p = fromStrand
+            strand3p = toStrand
+        c = Part.CreateXoverCommand(self, self, strand3p, idx, strand5p, idx)
+        util._execCommandList(self, [c], desc="Create Xover", \
+                                                useUndoStack=useUndoStack)
+    # end def
+    
+    # end def
+    def createXover(self, vh):
+        """
+        1. fnd strands
+        """
+        pass
     # end def
 
     def destroy(self):
@@ -598,7 +630,6 @@ class Part(QObject):
         1. preserve the old oligo of the 5prime strand
         2. install the crossover
         3. apply the 3 prime strand oligo to the 5 prime strand
-        
         """
         def __init__(self, part, strand3p, idx3p, strand5p, idx5p):
             super(Part.CreateXoverCommand, self).__init__()
@@ -620,13 +651,22 @@ class Part(QObject):
             olg = strand3p.oligo()
             
             # 2. install the Xover 
-            strand3p.set5pConnection(strand5p)
-            strand5p.set3pConnection(strand3p)
+            strand3p.set3pConnection(strand5p)
+            strand5p.set5pConnection(strand3p)
             
             # 3. apply the 3 prime strand oligo to the 5 prime strand
             for strand in strand5p.generator3pStrand():
                 Strand.setOligo(strand, olg)  # emits strandHasNewOligoSignal
             
+            ss3 = strand3p.strandSet()
+            vh3p = ss3.virtualHelix()
+            st3p = ss3.strandType()
+            ss5 = strand5p.strandSet()
+            vh5p = ss5.virtualHelix()
+            st5p = ss5.strandType()
+            part.partXOverAddedSignal.emit(part, \
+                                        vh3p, st3p, idx3p, \
+                                        vh5p, st5p, idx5p,)
         # end def
 
         def undo(self):
@@ -638,12 +678,21 @@ class Part(QObject):
             olg = self._oldOligo5p
             
             # 2. uninstall the Xover 
-            strand3p.set5pConnection(None)
-            strand5p.set3pConnection(None)
+            strand3p.set3pConnection(None)
+            strand5p.set5pConnection(None)
             
             # 3. apply the old 5 prime strand oligo to the 5 prime strand
             for strand in strand5p.generator3pStrand():
                 Strand.setOligo(strand, olg)  # emits strandHasNewOligoSignal
             
+            ss3 = strand3p.strandSet()
+            vh3p = ss3.virtualHelix()
+            st3p = ss3.strandType()
+            ss5 = strand5p.strandSet()
+            vh5p = ss5.virtualHelix()
+            st5p = ss5.strandType()
+            part.partXOverRemovedSignal.emit(part, \
+                                        vh3p, st3p, idx3p, \
+                                        vh5p, st5p, idx5p,)
         # end def
     # end class

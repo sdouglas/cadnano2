@@ -158,14 +158,16 @@ class PartItem(QObject):
         print "solidview.PartItem.movedSlot"
         pass
 
-    @pyqtSlot(object, object)
-    def xover3pCreatedSlot(self, strand, idx):
+    @pyqtSlot(QObject, QObject, int, int, QObject, int, int)
+    def xoverAddedSlot(self, part, virtualHelix3p, strandType3p, idx3p \
+                                    virtualHelix5p, strandType5p, idx5p):
         """docstring for xover3pCreatedSlot"""
         print "solidview.PartItem.xover3pCreatedSlot"
         pass
 
-    @pyqtSlot(object, object)
-    def xover3pDestroyedSlot(self, strand, idx):
+    @pyqtSlot(QObject, QObject, int, int, QObject, int, int)
+    def xoverRemovedSlot(self, part, virtualHelix3p, strandType3p, idx3p \
+                                    virtualHelix5p, strandType5p, idx5p):
         """docstring for xover3pDestroyedSlot"""
         print "solidview.PartItem.xover3pDestroyedSlot"
         pass

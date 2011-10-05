@@ -319,6 +319,18 @@ class StrandSet(QObject):
             canInsert = False
         return canInsert, idx
     # end def
+    
+    def getStrand(self, idx):
+        """
+        """
+        dummyStrand = Strand(self, idx, idx)
+        strandList = [s for s in self._findOverlappingRanges(dummyStrand)]
+        dummyStrand._strandSet = None
+        dummyStrand.setParent(None)
+        dummyStrand.deleteLater()
+        dummyStrand = None
+        return strandList[0] if len(strandList) > 0 else None
+    # end def
 
     ### PRIVATE SUPPORT METHODS ###
     def _addToStrandList(self, strand, idx):

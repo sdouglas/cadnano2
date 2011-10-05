@@ -192,7 +192,11 @@ class PreXoverItem(QGraphicsPathItem):
             return QGraphicsPathItem.mousePressEvent(self, event)
         else:
             if self._isActive:
+                fromVH = self._fromVHItem.virtualHelix()
+                toVH = self._toVHItem.virtualHelix()
+                part = self._fromVHItem.part()
                 print "Prexover clicked, install from %d, to %d" % (self._fromVHItem.number(), self._toVHItem.number())
+                part.createSimpleXover(fromVH, toVH, self._sType, self._idx)
             pass
     # end def
     
