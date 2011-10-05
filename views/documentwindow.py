@@ -27,6 +27,7 @@ from pathview.colorpanel import ColorPanel
 from pathview.tools.pathtoolmanager import PathToolManager
 from sliceview.slicerootitem import SliceRootItem
 from pathview.pathrootitem import PathRootItem
+from solidview.solidrootitem import SolidRootItem
 from sliceview.tools.slicetoolmanager import SliceToolManager
 import ui.mainwindow.ui_mainwindow as ui_mainwindow
 import util
@@ -99,6 +100,7 @@ class DocumentWindow(QMainWindow, ui_mainwindow.Ui_MainWindow):
         if app().isInMaya():
             self.splitter.setOrientation(Qt.Vertical)
             self.setUnifiedTitleAndToolBarOnMac(False)
+            self.solidroot = SolidRootItem(parent=None, document=doc)
 
         # Edit menu setup
         self.actionUndo = docCtrlr.undoStack().createUndoAction(self)
