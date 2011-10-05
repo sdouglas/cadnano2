@@ -60,6 +60,22 @@ class DocumentController():
         self.initWindow()
         self.initMaya()
         app().documentControllers.add(self)
+        if app().isInMaya():
+            import maya.OpenMayaUI as OpenMayaUI
+            import sip
+            ptr = OpenMayaUI.MQtUtil.mainWindow()
+            mayaWin = sip.wrapinstance(long(ptr), QMainWindow)
+            self.windock = QDockWidget("CADnano")
+            self.windock.setFeatures(
+                                    QDockWidget.DockWidgetMovable
+                                    | QDockWidget.DockWidgetFloatable)
+            self.windock.setAllowedAreas(
+                                    Qt.LeftDockWidgetArea
+                                    | Qt.RightDockWidgetArea)
+            self.windock.setWidget(self.win)
+            mayaWin.addDockWidget(Qt.DockWidgetArea(Qt.LeftDockWidgetArea),
+                                    self.windock)
+            self.windock.setVisible(True)
 
     def initWindow(self):
         """docstring for initWindow"""
