@@ -288,7 +288,6 @@ class PartItem(QGraphicsPathItem):
             # add to list
             self._preXOverItems.append(pxi)
         # end for
-        print "this many pxi items: ", len(self._preXOverItems)
     # end def
 
     # def updatePreXOverItems(self):
