@@ -44,6 +44,12 @@ import util
 util.qtWrapImport('QtCore', globals(), ['Qt'])
 util.qtWrapImport('QtGui', globals(),  ['QGraphicsView', 'qApp', 'QPen'])
 
+# for OpenGL mode
+try:
+    from OpenGL import GL
+    from PyQt4.QtOpenGL import QGLWidget, QGLFormat, QGL
+except:
+    GL = False
 
 class CustomQGraphicsView(QGraphicsView):
     """
@@ -106,6 +112,12 @@ class CustomQGraphicsView(QGraphicsView):
         # Misc
         self._pressList = []  # bookkeeping to handle passing mouseevents
         self.toolbar = None  # custom hack for the paint tool palette
+        
+        if GL:
+            self.setViewport(QGLWidget(QGLFormat(QGL.SampleBuffers)))
+            self.setViewportUpdateMode(QGraphicsView.FullViewportUpdate)
+        else:
+            self.setViewportUpdateMode(QGraphicsView.MinimalViewportUpdate)
     # end def
 
     def setScaleFitFactor(self, value):
@@ -200,12 +212,18 @@ class CustomQGraphicsView(QGraphicsView):
         breaks this feature.
         """
         if self._transformEnable == True:
+            
+            # self._skipEvent = False if self._skipEvent == True else True
+            
             if self.dragMode() == self._yesDrag:
                 # Add stuff to handle the pan event
                 xf = event.posF().x()
                 yf = event.posF().y()
-                self.sceneRootItem.translate((xf - self._x0)/self.transform().m11(),\
-                                             (yf - self._y0)/self.transform().m11())
+                factor = self.transform().m11()
+                self.sceneRootItem.translate((xf - self._x0)/factor,\
+                                             (yf - self._y0)/factor)
+                # self.translate((xf - self._x0)/factor,\
+                #                             (yf - self._y0)/factor)
                 self._x0 = xf
                 self._y0 = yf
             elif self._dollyZoomEnable == True:

@@ -137,7 +137,7 @@ class PartItem(QGraphicsItem):
         self._virtualHelixHash[coords] = vhi
     # end def
     
-    def updatePreXOverHandlesSlot(self, virtualHelix):
+    def updatePreXOverItemsSlot(self, virtualHelix):
         pass
     # end def
 

@@ -27,20 +27,20 @@ from model.enum import LatticeType
 from part import Part
 
 class Crossovers:
-    squareScafLeft = [[4, 26, 15], [18, 28, 7], [10, 20, 31], [2, 12, 23]]
-    squareScafRight = [[5, 27, 16], [19, 29, 8], [11, 21, 0], [3, 13, 24]]
-    squareStapLeft = [[31], [23], [15], [7]]
-    squareStapRight = [[0], [24], [16], [8]]
+    squareScafLow = [[4, 26, 15], [18, 28, 7], [10, 20, 31], [2, 12, 23]]
+    squareScafHigh = [[5, 27, 16], [19, 29, 8], [11, 21, 0], [3, 13, 24]]
+    squareStapLow = [[31], [23], [15], [7]]
+    squareStapHigh = [[0], [24], [16], [8]]
 
 
 class SquarePart(Part):
     _step = 32  # 21 in honeycomb
     _subStepSize = _step / 4
     # Used in VirtualHelix::potentialCrossoverList
-    scafL = Crossovers.squareScafLeft
-    scafR = Crossovers.squareScafRight
-    stapL = Crossovers.squareStapLeft
-    stapR = Crossovers.squareStapRight
+    _scafL = Crossovers.squareScafLow
+    _scafH = Crossovers.squareScafHigh
+    _stapL = Crossovers.squareStapLow
+    _stapH = Crossovers.squareStapHigh
 
     def __init__(self, *args, **kwargs):
         super(SquarePart, self).__init__(self, *args, **kwargs)

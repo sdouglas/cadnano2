@@ -271,9 +271,36 @@ class StrandSet(QObject):
         dummyStrand = Strand(self, idxLow, idxHigh)
         strandList = [s for s in self._findOverlappingRanges(dummyStrand)]
         dummyStrand._strandSet = None
+        dummyStrand.setParent(None)
         dummyStrand.deleteLater()
         dummyStrand = None
         return len(strandList) > 0
+    # end def
+    
+    def hasStrandAtAndNoXover(self, idx):
+        dummyStrand = Strand(self, idx, idx)
+        strandList = [s for s in self._findOverlappingRanges(dummyStrand)]
+        dummyStrand._strandSet = None
+        dummyStrand.setParent(None)
+        dummyStrand.deleteLater()
+        dummyStrand = None
+        if len(strandList) > 0:
+            return False if strandList[0].hasXoverAt(idx) else True
+        else:
+            return False
+    # end def
+    
+    def hasNoStrandAtOrNoXover(self, idx):
+        dummyStrand = Strand(self, idx, idx)
+        strandList = [s for s in self._findOverlappingRanges(dummyStrand)]
+        dummyStrand._strandSet = None
+        dummyStrand.setParent(None)
+        dummyStrand.deleteLater()
+        dummyStrand = None
+        if len(strandList) > 0:
+            return False if strandList[0].hasXoverAt(idx) else True
+        else:
+            return True
     # end def
     
     def getIndexToInsert(self, idxLow, idxHigh):
@@ -285,6 +312,7 @@ class StrandSet(QObject):
             return canInsert, self._lastStrandSetIndex
         isInSet, overlap, idx = self._findIndexOfRangeFor(dummyStrand)
         dummyStrand._strandSet = None
+        dummyStrand.setParent(None)
         dummyStrand.deleteLater()
         dummyStrand = None
         if overlap:

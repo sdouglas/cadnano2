@@ -169,6 +169,19 @@ class Strand(QObject):
         return self._baseIdxHigh - self._baseIdxLow + 1
     # end def
 
+    def hasXoverAt(self, idx):
+        """
+        An xover is necessarily at an enpoint of a strand
+        """
+        if idx == self.highIdx():
+            return True if self.highConnection() != None else False
+        elif idx == self.lowIdx():
+            return True if self.lowConnection() != None else False
+        else:
+            return False
+    # end def
+                
+
     def getResizeBounds(self, idx):
         """
         Determines (inclusive) low and high drag boundaries resizing
@@ -185,20 +198,17 @@ class Strand(QObject):
         When a neighbor is not present, just use the Part boundary.
         """
         neighbors = self._strandSet.getNeighbors(self)
-        print "getResizeBounds neighbors:", neighbors
         if idx == self._baseIdxLow:
             if neighbors[0]:
                 low = neighbors[0].highIdx()+1
             else:
                 low = self.part().minBaseIdx()
-            print "low", low, self._baseIdxHigh-1
             return low, self._baseIdxHigh-1
         else:  # self._baseIdxHigh
             if neighbors[1]:
                 high = neighbors[1].lowIdx()-1
             else:
                 high = self.part().maxBaseIdx()
-            print "high", self._baseIdxLow+1, high
             return self._baseIdxLow+1, high
     # end def
 
@@ -242,6 +252,16 @@ class Strand(QObject):
         c = Strand.ResizeCommand(self, newIdxs)
         util._execCommandList(self, [c], desc="Resize strand", useUndoStack=useUndoStack)
     # end def
+
+    def extendToBound(self, ):
+        """
+        Checks boundary for resize, and the
+        """
+        pass
+
+    def merge(self):
+        """docstring for merge"""
+        pass
 
     ### PUBLIC SUPPORT METHODS ### 
     def removeDecoratorsOutOfRange(self):
@@ -311,11 +331,10 @@ class Strand(QObject):
             nI = self.newIdxs
             strandSet = self.strand.strandSet()
             part = strandSet.part()
-            
-            print "ResizeCommand", nI
+
             std.setIdxs(nI)
             std.strandResizedSignal.emit(std, nI)
-            
+
             # for updating the Slice View displayed helices
             part.partStrandChangedSignal.emit(strandSet.virtualHelix())
         # end def
@@ -325,10 +344,10 @@ class Strand(QObject):
             oI = self.oldIndices
             strandSet = self.strand.strandSet()
             part = strandSet.part()
-             
+
             std.setIdxs(oI)
             std.strandResizedSignal.emit(std, oI)
-            
+
             # for updating the Slice View displayed helices
             part.partStrandChangedSignal.emit(strandSet.virtualHelix())
         # end def
