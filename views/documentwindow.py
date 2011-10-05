@@ -27,7 +27,7 @@ from pathview.colorpanel import ColorPanel
 from pathview.tools.pathtoolmanager import PathToolManager
 from sliceview.slicerootitem import SliceRootItem
 from pathview.pathrootitem import PathRootItem
-from solidview.solidrootitem import SolidRootItem
+
 from sliceview.tools.slicetoolmanager import SliceToolManager
 import ui.mainwindow.ui_mainwindow as ui_mainwindow
 import util
@@ -98,6 +98,7 @@ class DocumentWindow(QMainWindow, ui_mainwindow.Ui_MainWindow):
         self.pathToolManager.sliceToolManager = self.sliceToolManager
 
         if app().isInMaya():
+            from solidview.solidrootitem import SolidRootItem
             self.splitter.setOrientation(Qt.Vertical)
             self.setUnifiedTitleAndToolBarOnMac(False)
             self.solidroot = SolidRootItem(parent=None, document=doc)

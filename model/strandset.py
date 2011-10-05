@@ -695,8 +695,6 @@ class StrandSet(QObject):
             self._sSet = sSet = pS.strandSet()
             # Store oligos
             self._newOligo = pS.oligo().shallowCopy()
-            print "_newOligo from shallowCopy: ", self._newOligo, self._newOligo.part()
-            print "ps part", pS.part(), pS.oligo().part()
             self._sLowOligo = strandLow.oligo()
             self._sHighOligo = strandHigh.oligo()
             # Update the oligo for things like its 5prime end and isLoop
@@ -732,10 +730,9 @@ class StrandSet(QObject):
                 Strand.setOligo(strand, olg)  # emits strandHasNewOligoSignal
             # Add new oligo and remove old oligos
             olg.addToPart(sS.part())
-            print "A",olg.part(), lOlg.part(), hOlg.part()
             lOlg.removeFromPart()
             hOlg.removeFromPart()
-            print "B",olg.part(), lOlg.part(), hOlg.part()
+
             # Emit Signals related to destruction and addition
             sL.strandRemovedSignal.emit(sL)  # out with the old...
             sH.strandRemovedSignal.emit(sH)  # out with the old...

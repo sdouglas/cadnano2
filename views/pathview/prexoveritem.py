@@ -87,7 +87,9 @@ class PreXoverItem(QGraphicsPathItem):
         self._sType = strandType
         # translate from Low to Left for the Path View
         self._isLowIndex = isLowIdx
-
+        
+        self._isActive = False
+        
         self._pen = _scafpen if strandType == StrandType.Scaffold else _stappen
         
         bw = _baseWidth
@@ -167,6 +169,7 @@ class PreXoverItem(QGraphicsPathItem):
         self._labelBrush = _disabbrush
         if part.possibleXoverAt(fromVH, toVH, self._sType, self._idx):
             pen = self._pen
+            self._isActive = True
             self._labelBrush = _enabbrush
         self.setPen(pen)
     # end def
@@ -188,6 +191,8 @@ class PreXoverItem(QGraphicsPathItem):
         if event.button() != Qt.LeftButton:
             return QGraphicsPathItem.mousePressEvent(self, event)
         else:
+            if self._isActive:
+                print "Prexover clicked, install from %d, to %d" % (self._fromVHItem.number(), self._toVHItem.number())
             pass
     # end def
     

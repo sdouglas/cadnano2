@@ -130,9 +130,10 @@ class PartItem(QGraphicsPathItem):
         """Return a reference to the model's part object"""
         return self._modelPart
         
-    def removeVirtualHelix(self, virtualHelix):
-        self._virtualHelixItemList.remove(virtualHelix)
-        del self._virtualHelixHash[virtualHelix.coords()]
+    def removeVirtualHelixItem(self, virtualHelixItem):
+        vh = virtualHelixItem.virtualHelix()
+        self._virtualHelixItemList.remove(virtualHelixItem)
+        del self._virtualHelixHash[vh.coords()]
         self._setVirtualHelixItemList(self._virtualHelixItemList)
     # end
 

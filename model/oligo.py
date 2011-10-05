@@ -27,9 +27,11 @@
 
 
 import util
+import copy
 # import Qt stuff into the module namespace with PySide, PyQt4 independence
 util.qtWrapImport('QtCore', globals(), ['pyqtSignal', 'QObject'])
 util.qtWrapImport('QtGui', globals(), [])
+
 
 class Oligo(QObject):
     """
@@ -133,7 +135,10 @@ class Oligo(QObject):
         it still lives on in the undoStack until clobbered
         """
         self._part.removeOligo(self)
-        self._part = None
+        
+        # don't set part to none because we are passing the same reference around
+        # self._part = None
+        
         self.setParent(None)
     # end def
 

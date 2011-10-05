@@ -96,7 +96,7 @@ class Part(QObject):
     partRemovedSignal = pyqtSignal(QObject)                # self
     partSequenceClearedSignal = pyqtSignal(QObject)        # self
     partVirtualHelixAddedSignal = pyqtSignal(QObject)      # virtualhelix
-    # partVirtualHelixChangedSignal = pyqtSignal(QObject)    # coords
+    partVirtualHelixChangedSignal = pyqtSignal(QObject)    # coords (for a renumber)
     # for updating the Slice View displayed helices
     partStrandChangedSignal = pyqtSignal(QObject)           # virtualHelix
     ### SLOTS ###
@@ -612,11 +612,21 @@ class Part(QObject):
         # end def
 
         def redo(self):
-            part = part
-            strand3p = strand3p
-            idx3p = idx3p
-            strand5p = strand5p
-            idx5p = idx5p
+            part = self._part
+            strand3p = self._strand3p
+            idx3p = self._idx3p
+            strand5p = self._strand5p
+            idx5p = self._idx5p
+            olg = strand3p.oligo()
+            
+            # 2. install the Xover 
+            strand3p.set5pConnection(strand5p)
+            strand5p.set3pConnection(strand3p)
+            
+            # 3. apply the 3 prime strand oligo to the 5 prime strand
+            for strand in strand5p.generator3pStrand():
+                Strand.setOligo(strand, olg)  # emits strandHasNewOligoSignal
+            
         # end def
 
         def undo(self):
@@ -625,6 +635,15 @@ class Part(QObject):
             idx3p = self._idx3p
             strand5p = self._strand5p
             idx5p = self._idx5p
-
+            olg = self._oldOligo5p
+            
+            # 2. uninstall the Xover 
+            strand3p.set5pConnection(None)
+            strand5p.set3pConnection(None)
+            
+            # 3. apply the old 5 prime strand oligo to the 5 prime strand
+            for strand in strand5p.generator3pStrand():
+                Strand.setOligo(strand, olg)  # emits strandHasNewOligoSignal
+            
         # end def
     # end class
