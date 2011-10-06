@@ -38,7 +38,7 @@ util.qtWrapImport('QtGui', globals(), ['QBrush', 'QFont', 'QGraphicsItem',\
 
 #from .src.graphicsellipseitem import GraphicsEllipseItem
 
-class HelixItem(QGraphicsEllipseItem):
+class EmptyHelixItem(QGraphicsEllipseItem):
     """docstring for HelixItem"""
     
     # set up default, hover, and active drawing styles
@@ -62,7 +62,7 @@ class HelixItem(QGraphicsEllipseItem):
         row, column is a coordinate in Lattice terms
         partItem is a PartItem that will act as a QGraphicsItem parent
         """
-        super(HelixItem, self).__init__(parent=partItem)
+        super(EmptyHelixItem, self).__init__(parent=partItem)
         self._partItem = partItem
         self.hide()
         self._isHovered = False
@@ -176,7 +176,7 @@ class HelixItem(QGraphicsEllipseItem):
         # just use those instead
         partItem.probe.setPos(posInParent)
         for ci in partItem.probe.collidingItems():
-            if isinstance(ci, HelixItem):
+            if isinstance(ci, EmptyHelixItem):
                 self.dragSessionAction(ci)
     # end def
 
@@ -194,20 +194,20 @@ class HelixItem(QGraphicsEllipseItem):
         part = self.part()
         
         if vh == None: 
-            return HelixItem.addVHIfMissing
+            return EmptyHelixItem.addVHIfMissing
             
         idx = part.activeBaseIndex()
         scafSSet, stapSSet = vh.getStrandSets()
         if modifiers & Qt.ShiftModifier:
             if not stapSSet.hasStrandAt(idx-1, idx+1):
                 print "add a staple strand"
-                return HelixItem.addStapAtActiveSliceIfMissing
+                return EmptyHelixItem.addStapAtActiveSliceIfMissing
             else:
-                return HelixItem.nop
+                return EmptyHelixItem.nop
         if not scafSSet.hasStrandAt(idx-1, idx+1):
             print "add a scaffold strand"
-            return HelixItem.addScafAtActiveSliceIfMissing
-        return HelixItem.nop
+            return EmptyHelixItem.addScafAtActiveSliceIfMissing
+        return EmptyHelixItem.nop
     # end def
 
     def nop(self):

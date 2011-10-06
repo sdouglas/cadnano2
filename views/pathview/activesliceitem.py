@@ -146,24 +146,6 @@ class ActiveSliceItem(QGraphicsRectItem):
         QGraphicsItem.hoverLeaveEvent(self, event)
     # end def
 
-    # def sceneEvent(self, event):
-    #     """Included for unit testing in order to grab events that are sent
-    #     via QGraphicsScene.sendEvent()."""
-    #     if self._partItem.controller().testRecorder:
-    #         self._partItem.controller().testRecorder.ashSceneEvent(event)
-    #     if event.type() == QEvent.MouseButtonPress:
-    #         self.mousePressEvent(event)
-    #         return True
-    #     # Uncomment next 3 lines if mouseReleaseEvent is ever implemented
-    #     # elif event.type() == QEvent.MouseButtonRelease:
-    #     #     self.mouseReleaseEvent(event)
-    #     #     return True
-    #     elif event.type() == QEvent.MouseMove:
-    #         self.mouseMoveEvent(event)
-    #         return True
-    #     QGraphicsRectItem.sceneEvent(self, event)
-    #     return False
-
     def mouseMoveEvent(self, event):
         """Snaps handle into place when dragging."""
         if not self._dragMode:
@@ -185,16 +167,25 @@ class ActiveSliceItem(QGraphicsRectItem):
         if altClick and shiftClick:
             self.part().undoStack().beginMacro("Auto-drag Scaffold(s)")
             for vh in self.part().getVirtualHelices():
+                # resize 3' first
                 for strand in vh.scaffoldStrandSet():
-                    
-                    # INSERT code to expand to FILL SPACE
-                    indx3p = strand.idx3Prime()
-                    indx3p = strand.idx3Prime()
-                # end for
-                for strand in vh.stapleStrandSet():
-                    # INSERT code to expand to FILL SPACE
-                    indx3p = strand.idx3Prime()
-                    indx3p = strand.idx3Prime()
+                    idx5p = strand.idx5Prime()
+                    idx3p = strand.idx3Prime()
+                    lo, hi = strand.getResizeBounds(idx3p)
+                    if strand.isDrawn5to3():
+                        strand.resize((idx5p, hi))
+                    else:
+                        strand.resize((lo, idx5p))
+                # resize 5' second
+                for strand in vh.scaffoldStrandSet():
+                    idx5p = strand.idx5Prime()
+                    idx3p = strand.idx3Prime()
+                    lo, hi = strand.getResizeBounds(idx5p)
+                    if strand.isDrawn5to3():
+                        strand.resize((lo, idx3p))
+                    else:
+                        strand.resize((idx3p, hi))
+
                 # end for
             self.part().undoStack().endMacro()
 

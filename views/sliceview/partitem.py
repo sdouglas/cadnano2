@@ -24,7 +24,7 @@
 
 # from views.pathview.handles.activeslicehandle import ActiveSliceHandle
 from controllers.itemcontrollers.partitemcontroller import PartItemController
-from helixitem import HelixItem
+from emptyhelixitem import EmptyHelixItem
 from virtualhelixitem import VirtualHelixItem
 from activesliceitem import ActiveSliceItem
 
@@ -65,9 +65,9 @@ class PartItem(QGraphicsItem):
         self.deselector.setFlag(QGraphicsItem.ItemStacksBehindParent)
         self.deselector.setZValue(-1)
 
-        # Invariant: keys in _helixhash = range(_nrows) x range(_ncols)
+        # Invariant: keys in _emptyhelixhash = range(_nrows) x range(_ncols)
         # where x is the cartesian product
-        self._helixhash = {}
+        self._emptyhelixhash = {}
         self._virtualHelixHash = {}
         
         self._nrows, self._ncols = 0, 0
@@ -100,7 +100,7 @@ class PartItem(QGraphicsItem):
         scene.removeItem(self)
         self._part = None
         self.probe = None
-        self._helixhash = None
+        self._emptyhelixhash = None
         self._virtualHelixHash = None
         self.deselector = None
         self._controller.disconnectSignals()
@@ -133,9 +133,9 @@ class PartItem(QGraphicsItem):
     def virtualHelixAddedSlot(self, virtualHelix):
         vh = virtualHelix
         coords = vh.coords()
-        helixItem = self._helixhash[coords]
+        emptyHelixItem = self._emptyhelixhash[coords]
         # TODO test to see if self._virtualHelixHash is necessary
-        vhi = VirtualHelixItem(vh, helixItem)
+        vhi = VirtualHelixItem(vh, emptyHelixItem)
         self._virtualHelixHash[coords] = vhi
     # end def
     
@@ -150,16 +150,16 @@ class PartItem(QGraphicsItem):
     def _updateGeometry(self):
         self._rect = QRectF(0, 0, *self.part().dimensions() )
 
-    def _spawnHelixItemAt(self, row, column):
-        helix = HelixItem(row, column, self)
+    def _spawnEmptyHelixItemAt(self, row, column):
+        helix = EmptyHelixItem(row, column, self)
         # helix.setFlag(QGraphicsItem.ItemStacksBehindParent, True)
-        self._helixhash[(row, column)] = helix
+        self._emptyhelixhash[(row, column)] = helix
     # end def
 
     def _killHelixItemAt(row, column):
-        s = self._helixhash[(row, column)]
+        s = self._emptyhelixhash[(row, column)]
         s.scene().removeItem(s)
-        del self._helixhash[(row, column)]
+        del self._emptyhelixhash[(row, column)]
     # end def
 
     def _setLattice(self, oldCoords, newCoords):
@@ -176,7 +176,7 @@ class PartItem(QGraphicsItem):
         # end for
         for coord in newList:
             if coord not in oldSet:
-                self._spawnHelixItemAt(*coord)
+                self._spawnEmptyHelixItemAt(*coord)
         # end for
         # self._updateGeometry(newCols, newRows)
         # self.prepareGeometryChange()
@@ -212,7 +212,7 @@ class PartItem(QGraphicsItem):
         self._part = newPart
 
     def getVirtualHelixItemByCoord(self, row, column):
-        if (row, column) in self._helixhash:
+        if (row, column) in self._emptyhelixhash:
             return self._virtualHelixHash[(row, column)]
         else:
             return None
@@ -222,11 +222,11 @@ class PartItem(QGraphicsItem):
             return
         if self.part().selectAllBehavior():
             return
-        for sh in self._helixhash.itervalues():
+        for sh in self._emptyhelixhash.itervalues():
             sh.setSelected(sh.virtualHelix() in newSel)
 
     def vhAtCoordsChanged(self, row, col):
-        self._helixhash[(row, col)].update()
+        self._emptyhelixhash[(row, col)].update()
 
     class Deselector(QGraphicsItem):
         """The deselector lives behind all the slices and observes mouse press
