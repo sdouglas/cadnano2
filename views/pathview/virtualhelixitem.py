@@ -94,10 +94,12 @@ class VirtualHelixItem(QGraphicsPathItem):
     # end def
 
     def virtualHelixRemovedSlot(self, virtualHelix):
-        self._partItem.removeVirtualHelixItem(self)
+        print "So removed"
+        
         scene = self.scene()
         scene.removeItem(self._handle)
         scene.removeItem(self)
+        self._partItem.removeVirtualHelixItem(self)
         
         self._partItem = None
         self._modelVirtualHelix = None
@@ -191,6 +193,10 @@ class VirtualHelixItem(QGraphicsPathItem):
 
     def part(self):
         return self._partItem.part()
+    # end def
+    
+    def partItem(self):
+        return self._partItem
     # end def
     
     def virtualHelix(self):

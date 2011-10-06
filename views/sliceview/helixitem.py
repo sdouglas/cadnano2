@@ -27,6 +27,11 @@ Created by Nick on 2011-09-28.
 """
 from views import styles
 
+try:
+    from OpenGL import GL
+except:
+    GL = False
+import math
 import util
 # import Qt stuff into the module namespace with PySide, PyQt4 independence
 util.qtWrapImport('QtCore', globals(), ['QPointF', 'QRectF', 'Qt'])
@@ -56,7 +61,9 @@ class HelixItem(QGraphicsEllipseItem):
     temp /= 2
     _adjustmentPlus = (temp, temp)
     _adjustmentMinus = (-temp, -temp)
-
+    # _PI = 3.141592
+    # _temp = [x*_PI*0.1 for x in range(20)]
+    # _temp = [(math.sin(angle) * _radius, math.cos(angle) * _radius) for angle in _temp]
     def __init__(self, row, column, partItem):
         """
         row, column is a coordinate in Lattice terms
@@ -251,5 +258,41 @@ class HelixItem(QGraphicsEllipseItem):
         # vh.scaffoldStrandSet().createStrand(startIdx, endIdx)
         uS.endMacro()
     # end def
+
+    # if GL:    
+    #     def paint(self, painter, option, widget):
+    #         painter.beginNativePainting()
+    #   
+    #         radius = self._radius
+    # 
+    #         # GL.glPushAttrib(GL.GL_ALL_ATTRIB_BITS)
+    #         # GL.glClear(GL.GL_COLOR_BUFFER_BIT)
+    # 
+    #         # Draw the filled circle
+    # 
+    #         GL.glColor3f (1, 0.5, 0)       # Set to orange
+    # 
+    #         GL.glBegin (GL.GL_POLYGON)
+    #         for X, Y in self._temp:
+    #             GL.glVertex2f (X,Y)
+    #         # end for
+    #         GL.glEnd()
+    # 
+    #         # Draw the anti-aliased outline
+    # 
+    #         # GL.glEnable(GL.GL_BLEND)
+    #         # GL.glBlendFunc(GL.GL_SRC_ALPHA, GL.GL_ONE_MINUS_SRC_ALPHA)
+    #         # GL.glEnable(GL.GL_LINE_SMOOTH)
+    #         
+    #         # GL.glBegin(GL.GL_LINE_LOOP)
+    #         # for angle in [x*PI*0.01 for x in range(200)]:
+    #         #     GL.glVertex2f(X + math.sin(angle) * radius, Y + math.cos(angle) * radius)
+    #         # # end for
+    #         # GL.glDisable(GL.GL_BLEND)
+    #         # GL.glEnd()
+    #         # GL.glPopAttrib()
+    #         painter.endNativePainting()
+    #     # end def
+    # # end if
     
     

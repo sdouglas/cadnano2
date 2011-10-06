@@ -59,7 +59,7 @@ class PartItem(QGraphicsPathItem):
         self._vHRect = QRectF()
         
         self._activeVirtualHelixItem = None
-        self._preXOverItems = []
+        self._preXoverItems = []
         self._xovers = {}
     # end def
         
@@ -108,25 +108,25 @@ class PartItem(QGraphicsPathItem):
         self._setVirtualHelixItemList(self._virtualHelixItemList)
     # end def
 
-    def updatePreXOverItemsSlot(self, virtualHelix):
+    def updatePreXoverItemsSlot(self, virtualHelix):
         part = self.part()
         if part.areVirtualHelicesNeighbors(part.activeVirtualHelix(), virtualHelix):
             vhi = self.itemForVirtualHelix(virtualHelix)
             self.setActiveVirtualHelixItem(vhi)
-            self.setPreXOverItemsVisible(self.activeVirtualHelixItem())
+            self.setPreXoverItemsVisible(self.activeVirtualHelixItem())
     # end def
     
-    def xoverAddedSlot(self, part, virtualHelix3p, strandType3p, idx3p, \
-                                    virtualHelix5p, strandType5p, idx5p):
-        """docstring for xover3pCreatedSlot"""
-        print "PartItem.xover3pCreatedSlot"
-        pass
-
-    def xoverRemovedSlot(self, part, virtualHelix3p, strandType3p, idx3p, \
-                                    virtualHelix5p, strandType5p, idx5p):
-        """docstring for xover3pDestroyedSlot"""
-        print "PartItem.xover3pDestroyedSlot"
-        pass
+    # def xoverAddedSlot(self, part, virtualHelix3p, strandType3p, idx3p, \
+    #                                 virtualHelix5p, strandType5p, idx5p):
+    #     """docstring for xover3pCreatedSlot"""
+    #     print "PartItem.xover3pCreatedSlot"
+    #     pass
+    # 
+    # def xoverRemovedSlot(self, part, virtualHelix3p, strandType3p, idx3p, \
+    #                                 virtualHelix5p, strandType5p, idx5p):
+    #     """docstring for xover3pDestroyedSlot"""
+    #     print "PartItem.xover3pDestroyedSlot"
+    #     pass
 
     ### METHODS ###
     def part(self):
@@ -179,7 +179,7 @@ class PartItem(QGraphicsPathItem):
             leftmostExtent = min(leftmostExtent, -2 * vhiHRect.width())
             rightmostExtent = max(rightmostExtent, vhiRect.width())
             y += step
-            # self.updatePreXOverItems()
+            # self.updatePreXoverItems()
         # end for
         self._vHRect = QRectF(leftmostExtent,\
                            -40,\
@@ -249,58 +249,62 @@ class PartItem(QGraphicsPathItem):
         self._selectionLock = locker
     # end def
 
-    # def preXOverHandlesVisible(self):
-    #     return self._preXOverItems != None
+    # def preXoverHandlesVisible(self):
+    #     return self._preXoverItems != None
     # # end def
     
-    def setPreXOverItemsVisible(self, virtualHelixItem):
+    def setPreXoverItemsVisible(self, virtualHelixItem):
         """
-        self._preXOverItems list references prexovers parented to other
+        self._preXoverItems list references prexovers parented to other
         PathHelices such that only the activeHelix maintains the list of
         visible prexovers
         
-        A possible more efficient solution is to maintain the list _preXOverItems
+        A possible more efficient solution is to maintain the list _preXoverItems
         in pathhelixgroup, in fact this method should live in pathhelixgroup
         """
         vhi = virtualHelixItem
         if vhi == None:
             return
         # end if
-        # areVisible = self._preXOverItems != None
+        # areVisible = self._preXoverItems != None
         vh = vhi.virtualHelix()
         partItem = self
         part = self.part()
 
         # clear all PreXoverItems
-        map(PreXoverItem.remove, self._preXOverItems)
-        # map(lambda pch: pch.remove() if pch.scene() else None, self._preXOverItems)
+        map(PreXoverItem.remove, self._preXoverItems)
+        # map(lambda pch: pch.remove() if pch.scene() else None, self._preXoverItems)
 
-        self._preXOverItems = None
+        self._preXoverItems = None
 
-        self._preXOverItems = []
-        potentialXOvers = part.potentialCrossoverList(vh)
-        for neighbor, index, strandType, isLowIdx in potentialXOvers:
+        self._preXoverItems = []
+        potentialXovers = part.potentialCrossoverList(vh)
+        for neighbor, index, strandType, isLowIdx in potentialXovers:
             # create one half
             neighborVHI = self.itemForVirtualHelix(neighbor)
             pxi = PreXoverItem(vhi, neighborVHI, index, strandType, isLowIdx)
             # add to list
-            self._preXOverItems.append(pxi)
+            self._preXoverItems.append(pxi)
             # create the complement
             pxi = PreXoverItem(neighborVHI, vhi, index, strandType, isLowIdx)
             # add to list
-            self._preXOverItems.append(pxi)
+            self._preXoverItems.append(pxi)
         # end for
     # end def
 
-    # def updatePreXOverItems(self):
-    #     cacheConstructionEnvironment = self._XOverCacheEnvironment
+    def updatePreXoverItems(self):
+        self.setPreXoverItemsVisible(self.activeVirtualHelixItem())
+    # end def
+    
+    # def updatePreXoverItems(self):
+    #     cacheConstructionEnvironment = self._XoverCacheEnvironment
     #     vhi = self.activeVirtualHelixItem()
     #     if vhi == None:
     #         return
     #     vh = vhi.virtualHelix()
     #     currentEnvironment = (vh.neighbors(), vh.numBases())
     #     if cacheConstructionEnvironment != currentEnvironment and\
-    #        self.preXOverHandlesVisible():
-    #         self.setPreXOverItemsVisible(vhi, False)
-    #         self.setPreXOverItemsVisible(vhi, True)
+    #        self.preXoverHandlesVisible():
+    #         self.setPreXoverItemsVisible(vhi, False)
+    #         self.setPreXoverItemsVisible(vhi, True)
     # # end def

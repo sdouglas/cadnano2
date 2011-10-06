@@ -37,7 +37,7 @@ try:
     from OpenGL import GL
 except:
     GL = False
-    
+
 util.qtWrapImport('QtCore', globals(), ['pyqtSignal', 'Qt', 'QFileInfo',
                                         'QPoint', 'QSettings', 'QSize',
                                         'QString'])
@@ -171,6 +171,7 @@ class DocumentWindow(QMainWindow, ui_mainwindow.Ui_MainWindow):
 
         GL.glClearColor(1.0, 1.0, 1.0, 1.0)
         GL.glClear(GL.GL_COLOR_BUFFER_BIT | GL.GL_DEPTH_BUFFER_BIT)
+        
         painter.endNativePainting()
 
     # end def

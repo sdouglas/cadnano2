@@ -30,6 +30,8 @@ from heapq import heapify, heappush, heappop
 from itertools import product, izip
 from model.enum import StrandType
 from model.virtualhelix import VirtualHelix
+from model.strand import Strand
+
 import util
 
 util.qtWrapImport('QtCore', globals(), ['pyqtSignal', 'QObject'])
@@ -101,11 +103,11 @@ class Part(QObject):
     # for updating the Slice View displayed helices
     partStrandChangedSignal = pyqtSignal(QObject)           # virtualHelix
     
-    # Part, VirtualHelixFrom, StrandType, index, VirtualHelixTo, StrandType, index
-    partXOverAddedSignal = pyqtSignal(QObject, QObject, int, int, QObject, int, int)
-    
-    # Part, VirtualHelixFrom, StrandType, index, VirtualHelixTo, StrandType, index
-    partXOverRemovedSignal = pyqtSignal(QObject, QObject, int, int, QObject, int, int)
+    # # Part, VirtualHelixFrom, StrandType, index, VirtualHelixTo, StrandType, index
+    # partXoverAddedSignal = pyqtSignal(QObject, QObject, int, int, QObject, int, int)
+    # 
+    # # Part, VirtualHelixFrom, StrandType, index, VirtualHelixTo, StrandType, index
+    # partXoverRemovedSignal = pyqtSignal(QObject, QObject, int, int, QObject, int, int)
     ### SLOTS ###
 
     ### ACCESSORS ###
@@ -196,7 +198,7 @@ class Part(QObject):
                                                 useUndoStack=useUndoStack)
     # end def
     
-    def createSimpleXover(fromVirtualHelix, toVirtualHelix, \
+    def createSimpleXover(self, fromVirtualHelix, toVirtualHelix, \
                                     strandType, idx, useUndoStack=True):
         fromSS = fromVirtualHelix.getStrandSetByType(strandType)
         toSS = toVirtualHelix.getStrandSetByType(strandType)
@@ -208,7 +210,7 @@ class Part(QObject):
         else:
             strand5p = fromStrand
             strand3p = toStrand
-        c = Part.CreateXoverCommand(self, self, strand3p, idx, strand5p, idx)
+        c = Part.CreateXoverCommand(self, strand3p, idx, strand5p, idx)
         util._execCommandList(self, [c], desc="Create Xover", \
                                                 useUndoStack=useUndoStack)
     # end def
@@ -664,9 +666,8 @@ class Part(QObject):
             ss5 = strand5p.strandSet()
             vh5p = ss5.virtualHelix()
             st5p = ss5.strandType()
-            part.partXOverAddedSignal.emit(part, \
-                                        vh3p, st3p, idx3p, \
-                                        vh5p, st5p, idx5p,)
+            strand3p.strandXover3pAddedSignal.emit(strand3p,strand5p)
+            strand5p.strandUpdateSignal.emit(strand5p)
         # end def
 
         def undo(self):
@@ -691,8 +692,8 @@ class Part(QObject):
             ss5 = strand5p.strandSet()
             vh5p = ss5.virtualHelix()
             st5p = ss5.strandType()
-            part.partXOverRemovedSignal.emit(part, \
-                                        vh3p, st3p, idx3p, \
-                                        vh5p, st5p, idx5p,)
+            strand3p.strandXover3pRemovedSignal.emit(strand3p, \
+                                        vh5p, st5p, idx5p)
+            strand5p.strandUpdateSignal.emit(strand5p)
         # end def
     # end class

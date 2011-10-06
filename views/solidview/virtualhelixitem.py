@@ -32,7 +32,7 @@ from model.enum import LatticeType
 from model.enum import StrandType
 from model.virtualhelix import VirtualHelix
 #from model.strands.normalstrand import NormalStrand
-#from model.strands.xoverstrand import XOverStrand3, XOverStrand5
+#from model.strands.xoverstrand import XoverStrand3, XoverStrand5
 
 from controllers.mayacontrollers.mayaObjectManager import Mom
 from controllers.itemcontrollers.virtualhelixitemcontroller import VirtualHelixItemController
@@ -187,11 +187,11 @@ class VirtualHelixItem(QObject):
     #        m.cnToMaya[ strand ] = mayaNodeInfo
     #        m.mayaToCn[ mayaNodeInfo[2] ] = strand
     #        m.mayaToCn[ mayaNodeInfo[0] ] = strand
-    #    elif isinstance(strand, XOverStrand3):
-    #        #print "SolidHelix:strandAddedToVStrand-XOverStrand3"
+    #    elif isinstance(strand, XoverStrand3):
+    #        #print "SolidHelix:strandAddedToVStrand-XoverStrand3"
     #        pass
-    #    elif isinstance(strand, XOverStrand5):
-    #        #print "SolidHelix:strandAddedToVStrand-XOverStrand5"
+    #    elif isinstance(strand, XoverStrand5):
+    #        #print "SolidHelix:strandAddedToVStrand-XoverStrand5"
     #        pass
     #    else:
     #        raise NotImplementedError

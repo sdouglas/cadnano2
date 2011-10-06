@@ -30,6 +30,7 @@ from math import floor
 from controllers.itemcontrollers.strand.stranditemcontroller import StrandItemController
 from endpointitem import EndpointItem
 from views import styles
+from xoveritem import XoverItem
 
 import util
 # import Qt stuff into the module namespace with PySide, PyQt4 independence
@@ -91,11 +92,26 @@ class StrandItem(QGraphicsLineItem):
         pass
     # end def
 
-    def strandXover3pCreatedSlot(self, strand):
-        self._update(strand)
+    def strandXover3pCreatedSlot(self, strand3p, strand5p):
+        partItem = self._virtualHelixItem.partItem()
+        xo = XoverItem(partItem, strand3p, strand5p)
+        # self.addXoverItem(xo)
+        self._update(strand3p)
+        partItem.updatePreXoverItems()
     # end def
 
-    def strandXover3pRemovedSlot(self, strand):
+    # def strandXover3pRemovedSlot(self, strand3p, strand5p):
+    #     self._update(strand3p)
+    # # end def
+    
+    # def strandXover5pCreatedSlot(self, strand5p):
+    #     self._update(strand5p)
+    # # end def
+
+    def strandUpdateSlot(self, strand):
+        """
+        Slot for just updating connectivity and color, and endpoint showing
+        """
         self._update(strand)
     # end def
 
@@ -126,6 +142,9 @@ class StrandItem(QGraphicsLineItem):
 
     def idxs(self):
         return self._modelStrand.idxs()
+        
+    def virtualHelixItem(self):
+        return self._virtualHelixItem
 
     ### PUBLIC METHODS FOR DRAWING / LAYOUT ###
     def updateLine(self, movedCap):

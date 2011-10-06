@@ -105,7 +105,11 @@ class Oligo(QObject):
     def setColor(self, color):
         self._color = color
     # end def
-
+    
+    def shouldHighlight(self):
+        return True if self.length() > 40 else False
+    # def 
+    
     def length(self):
         return self._length
 

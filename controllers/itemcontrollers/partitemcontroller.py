@@ -38,13 +38,13 @@ class PartItemController(object):
         mP.partDestroyedSignal.connect(pI.destroyedSlot)
         mP.partVirtualHelixAddedSignal.connect(pI.virtualHelixAddedSlot)
         mP.partStrandChangedSignal.connect( \
-                                               pI.updatePreXOverItemsSlot)
-        mP.partXOverAddedSignal.connect( pI.xoverAddedSlot)
-        mP.partXOverRemovedSignal.connect( pI.xoverRemovedSlot)
+                                               pI.updatePreXoverItemsSlot)
+        # mP.partXoverAddedSignal.connect( pI.xoverAddedSlot)
+        # mP.partXoverRemovedSignal.connect( pI.xoverRemovedSlot)
 
         # for mOligo in mP.oligos():
         #     for mStrand in mOligo.strands():
-        #         mStrand.strandXover3pCreatedSignal.connect(pI.xover3pCreatedSlot)
+        #         mStrand.strandXover3pAddedSignal.connect(pI.xover3pCreatedSlot)
     # end def
 
     def disconnectSignals(self):
@@ -57,13 +57,13 @@ class PartItemController(object):
         mP.partVirtualHelixAddedSignal.disconnect(pI.virtualHelixAddedSlot)
 
         mP.partStrandChangedSignal.disconnect( \
-                                               pI.updatePreXOverItemsSlot)
+                                               pI.updatePreXoverItemsSlot)
 
-        mP.partXOverAddedSignal.disconnect( pI.xoverAddedSlot)
-        mP.partXOverRemovedSignal.disconnect( pI.xoverRemovedSlot)
+        # mP.partXoverAddedSignal.disconnect( pI.xoverAddedSlot)
+        # mP.partXoverRemovedSignal.disconnect( pI.xoverRemovedSlot)
 
         # for mOligo in mP.oligos():
         #     for mStrand in mOligo.strands():
-        #         mStrand.strandXover3pCreatedSignal.disconnect(pI.xover3pCreatedSlot)
+        #         mStrand.strandXover3pAddedSignal.disconnect(pI.xover3pCreatedSlot)
     # end def
 # end class
