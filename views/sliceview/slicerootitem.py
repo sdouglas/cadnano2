@@ -64,6 +64,11 @@ class SliceRootItem(QGraphicsRectItem):
         """docstring for selectedPartChangedSlot"""
         pass
 
+    ### ACCESSORS ###
+    def sliceToolManager(self):
+        """docstring for sliceToolManager"""
+        return self._window.sliceToolManager
+
     ### METHODS ###
     def removePartItem(self, partItem):
         del self._instanceItems[partItem]

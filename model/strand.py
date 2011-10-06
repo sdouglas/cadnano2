@@ -160,6 +160,14 @@ class Strand(QObject):
         return self._baseIdxHigh
     # end def
 
+    def idx3Prime(self):
+        """docstring for idx3Prime"""
+        return self.idx3Prime
+
+    def idx5Prime(self):
+        """docstring for idx3Prime"""
+        return self.idx5Prime
+
     def isDrawn5to3(self):
         return self._strandSet.isDrawn5to3()
     # end def

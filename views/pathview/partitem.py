@@ -129,10 +129,15 @@ class PartItem(QGraphicsPathItem):
     #     pass
 
     ### METHODS ###
+    def activeTool(self):
+        return self._activeTool
+    # end def
+
     def part(self):
         """Return a reference to the model's part object"""
         return self._modelPart
-        
+    # end def
+
     def removeVirtualHelixItem(self, virtualHelixItem):
         vh = virtualHelixItem.virtualHelix()
         self._virtualHelixItemList.remove(virtualHelixItem)
@@ -143,7 +148,7 @@ class PartItem(QGraphicsPathItem):
     def itemForVirtualHelix(self, virtualHelix):
         return self._virtualHelixHash[virtualHelix.coords()]
     # end def
-    
+
     def _setVirtualHelixItemList(self, newList, zoomToFit=True):
         """
         Give me a list of VirtualHelixItems and I'll parent them to myself if
@@ -153,33 +158,32 @@ class PartItem(QGraphicsPathItem):
         y = 0  # How far down from the top the next PH should be
         leftmostExtent = 0
         rightmostExtent = 0
-        
+
         scene = self.scene()
         vhiRect = None
         vhiHRect = None
-        
+
         for vhi in newList:
             vhi.setPos(0, y)
             if not vhiRect:
                 vhiRect = vhi.boundingRect()
                 step = vhiRect.height() + styles.PATH_HELIX_PADDING
             # end if
-            
+
             # get the VirtualHelixHandleItem
             vhiH = vhi.handle()
-            
             if vhiH.parentItem() != self._vhiHSelectionGroup:
                 vhiH.setParentItem(self)
-                
+
             if not vhiHRect:
                 vhiHRect = vhiH.boundingRect()
-            
+
             vhiH.setPos(-2 * vhiHRect.width(), y + (vhiRect.height() - vhiHRect.height()) / 2)
-            
+
             leftmostExtent = min(leftmostExtent, -2 * vhiHRect.width())
             rightmostExtent = max(rightmostExtent, vhiRect.width())
             y += step
-            # self.updatePreXoverItems()
+
         # end for
         self._vHRect = QRectF(leftmostExtent,\
                            -40,\
@@ -189,11 +193,11 @@ class PartItem(QGraphicsPathItem):
         if zoomToFit:
             self.scene().views()[0].zoomToFit()
     # end def
-    
+
     def virtualHelixBoundingRect(self):
         return self._vHRect
     # end def
-    
+
     def reorderHelices(self, first, last, indexDelta):
         """
         Reorder helices by moving helices _pathHelixList[first:last]
@@ -204,7 +208,7 @@ class PartItem(QGraphicsPathItem):
         helixNumbers = [vhi.number() for vhi in vhiList]
         firstIndex = helixNumbers.index(first)
         lastIndex = helixNumbers.index(last) + 1
-        
+
         if indexDelta < 0:  # move group earlier in the list
             newIndex = max(0, indexDelta + firstIndex)
             newList = vhiList[0:newIndex] +\
@@ -219,7 +223,7 @@ class PartItem(QGraphicsPathItem):
                                  vhiList[firstIndex:lastIndex] +\
                                  vhiList[newIndex:]
         # end else
-        
+
         # call the method to move the items and store the list
         self._setVirtualHelixItemList(newList, zoomToFit=False)
     # end def

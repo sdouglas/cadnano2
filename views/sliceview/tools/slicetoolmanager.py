@@ -42,6 +42,7 @@ class SliceToolManager(QObject):
     ### SIGNALS ###
     activeSliceSetToFirstIndexSignal = pyqtSignal()
     activeSliceSetToLastIndexSignal = pyqtSignal()
+    activePartRenumber = pyqtSignal()
 
     ### SLOTS ###
     def activeSliceFirstSlot(self):
@@ -50,13 +51,19 @@ class SliceToolManager(QObject):
         because the SliceToolManager must be instantiated first, and the
         ActiveSliceHandle can later subscribe.
         """
-        self.activeSliceSetToFirstIndexSignal.emit()
+        part = self._window.selectedPart()
+        if part != None:
+            part.setActiveBaseIndex(0)
 
     def activeSliceLastSlot(self):
-        self.activeSliceSetToLastIndexSignal.emit()
+        part = self._window.selectedPart()
+        if part != None:
+            part.setActiveBaseIndex(part.maxBaseIdx()-1)
 
     def actionRenumberSlot(self):
-        self.mainWindow.pathToolManager.activePart().renumber()
+        part = self._window.selectedPart()
+        if part != None:
+            part.renumber()
 
     ### METHODS ###
     def connectWindowSignalsToSelf(self):

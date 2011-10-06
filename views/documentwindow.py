@@ -32,12 +32,6 @@ from sliceview.tools.slicetoolmanager import SliceToolManager
 import ui.mainwindow.ui_mainwindow as ui_mainwindow
 import util
 
-# for OpenGL mode
-try:
-    from OpenGL import GL
-except:
-    GL = False
-
 util.qtWrapImport('QtCore', globals(), ['pyqtSignal', 'Qt', 'QFileInfo',
                                         'QPoint', 'QSettings', 'QSize',
                                         'QString'])
@@ -47,6 +41,11 @@ util.qtWrapImport('QtGui', globals(), ['QAction', 'QApplication',
                                        'QGraphicsItem', 'QGraphicsRectItem',
                                        'QWidget', 'QPaintEngine'])
 
+# for OpenGL mode
+try:
+    from OpenGL import GL
+except:
+    GL = False
 
 class DocumentWindow(QMainWindow, ui_mainwindow.Ui_MainWindow):
     """docstring for DocumentWindow"""
@@ -56,13 +55,9 @@ class DocumentWindow(QMainWindow, ui_mainwindow.Ui_MainWindow):
         doc = docCtrlr.document()
         self.setupUi(self)
         self.settings = QSettings()
-        self.readSettings()
+        self._readSettings()
         # Slice setup
         self.slicescene = QGraphicsScene(parent=self.sliceGraphicsView)
-        
-        if GL:
-            self.slicescene.drawBackground = self.drawBackground
-        
         self.sliceroot = SliceRootItem(rect=self.slicescene.sceneRect(),\
                                        parent=None,\
                                        window=self,\
@@ -75,10 +70,6 @@ class DocumentWindow(QMainWindow, ui_mainwindow.Ui_MainWindow):
         self.sliceToolManager = SliceToolManager(self)
         # Path setup
         self.pathscene = QGraphicsScene(parent=self.pathGraphicsView)
-        
-        if GL:
-            self.pathscene.drawBackground = self.drawBackground
-        
         self.pathroot = PathRootItem(rect=self.pathscene.sceneRect(),\
                                      parent=None,\
                                      window=self,\
@@ -89,13 +80,16 @@ class DocumentWindow(QMainWindow, ui_mainwindow.Ui_MainWindow):
         self.pathGraphicsView.setScene(self.pathscene)
         self.pathGraphicsView.sceneRootItem = self.pathroot
         self.pathGraphicsView.setScaleFitFactor(0.9)
-
         self.pathToolbar = ColorPanel()
         self.pathGraphicsView.toolbar = self.pathToolbar
         self.pathscene.addItem(self.pathToolbar)
         self.pathToolManager = PathToolManager(self)
         self.sliceToolManager.pathToolManager = self.pathToolManager
         self.pathToolManager.sliceToolManager = self.sliceToolManager
+
+        if GL:
+            self.slicescene.drawBackground = self.drawBackground
+            self.pathscene.drawBackground = self.drawBackground
 
         if app().isInMaya():
             from solidview.solidrootitem import SolidRootItem
@@ -125,17 +119,16 @@ class DocumentWindow(QMainWindow, ui_mainwindow.Ui_MainWindow):
         self.menuEdit.insertAction(self.actionRedo, self.actionUndo)
         self.splitter.setSizes([400, 400])  # balance splitter size
 
+    ### ACCESSORS ###
     def undoStack(self):
         return self.controller.undoStack()
 
+    def selectedPart(self):
+        return self.controller.document().selectedPart()
+
+    ### EVENT HANDLERS ###
     def focusInEvent(self):
         app().undoGroup.setActiveStack(self.controller.undoStack())
-
-    def readSettings(self):
-        self.settings.beginGroup("MainWindow")
-        self.resize(self.settings.value("size", QSize(1100, 800)).toSize())
-        self.move(self.settings.value("pos", QPoint(200, 200)).toPoint())
-        self.settings.endGroup()
 
     def moveEvent(self, event):
         """Reimplemented to save state on move."""
@@ -154,11 +147,10 @@ class DocumentWindow(QMainWindow, ui_mainwindow.Ui_MainWindow):
         QWidget.changeEvent(self, event)
     # end def
 
-
+    ### DRAWING RELATED ###
     def drawBackground(self, painter, rect):
         """
-        This method is for overloading the QGraphicsScene 
-        
+        This method is for overloading the QGraphicsScene.
         """
         if painter.paintEngine().type() != QPaintEngine.OpenGL and \
             painter.paintEngine().type() != QPaintEngine.OpenGL2:
@@ -166,12 +158,17 @@ class DocumentWindow(QMainWindow, ui_mainwindow.Ui_MainWindow):
             qWarning("OpenGLScene: drawBackground needs a QGLWidget to be set as viewport on the graphics view");
             return
         # end if
-
         painter.beginNativePainting()
-
         GL.glClearColor(1.0, 1.0, 1.0, 1.0)
         GL.glClear(GL.GL_COLOR_BUFFER_BIT | GL.GL_DEPTH_BUFFER_BIT)
         
         painter.endNativePainting()
-
     # end def
+
+    ### PRIVATE HELPER METHODS ###
+    def _readSettings(self):
+        self.settings.beginGroup("MainWindow")
+        self.resize(self.settings.value("size", QSize(1100, 800)).toSize())
+        self.move(self.settings.value("pos", QPoint(200, 200)).toPoint())
+        self.settings.endGroup()
+
