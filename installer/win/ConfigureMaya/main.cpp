@@ -162,6 +162,8 @@ bool modifyMayaEnvironment( string mayaSettingsPath, string cadnanoPath, bool ad
 		}
 
 	}
+
+	return true;
 }
 
 bool modifyMayaPluginPrefs( string mayaSettingsPath, bool add = true )
@@ -223,45 +225,55 @@ int main(int argc, char* argv[])
 	string mayaPath(argv[2]);
 	string cadnanoPath(argv[3]);
 	string platform(argv[4]);
-
+	/*
 	for(int i = 0; i < 5; i++){
 		cout << "argv[" << i << "] = " << argv[i] << endl;
 	}
-
-	//Maya Settings by default are stored in
-	//x86: %USERPROFILE%\Documents\maya\2012
-	//x64: %USERPROFILE%\Documents\maya\2012-x64
-
-	char buffer[250];
-	ExpandEnvironmentStrings("%USERPROFILE%",buffer,250);
-	string userProfile = buffer;
-	string mayaSettingsPath = userProfile + "\\Documents\\maya\\2012";
-
-	if( platform.compare("x64") == 0 )
-	{
-		mayaSettingsPath += "-x64\\";
-	}else{
-		mayaSettingsPath += "\\";
-	}
-
+	*/
 	bool res = true;
 
-	if( appMode == "/Install" ) {
-		res &= CreateDirectories( mayaSettingsPath );
-		res &= modifyMayaEnvironment(mayaSettingsPath, cadnanoPath);
-		res &= modifyMayaPluginPrefs(mayaSettingsPath);
-	}else if( appMode == "/Uninstall" || appMode == "/Rollback" ){
-		res &= modifyMayaEnvironment(mayaSettingsPath, cadnanoPath, false);
-		res &= modifyMayaPluginPrefs(mayaSettingsPath, false);
+	//Maya Settings by default are stored in
+	//x86: %FOLDERID_Documents%\maya\2012
+	//x64: %FOLDERID_Documents%\maya\2012-x64
+	char szPath[MAX_PATH];
+	HRESULT hr;
+	LPITEMIDLIST pidl;
+	hr = SHGetFolderLocation( NULL, CSIDL_PERSONAL, NULL, 0, &pidl);
+	if (SUCCEEDED(hr) && SHGetPathFromIDList (pidl, (LPSTR)szPath)) {
+		
+		string userProfile( szPath );
+		string mayaSettingsPath = userProfile + "\\maya\\2012";
+
+		if( platform.compare("x64") == 0 )
+		{
+			mayaSettingsPath += "-x64\\";
+		}else{
+			mayaSettingsPath += "\\";
+		}
+
+		cerr << "Settings folder found at: " << mayaSettingsPath << endl;
+
+		if( appMode == "/Install" ) {
+			res &= CreateDirectories( mayaSettingsPath );
+			res &= modifyMayaEnvironment(mayaSettingsPath, cadnanoPath);
+			res &= modifyMayaPluginPrefs(mayaSettingsPath);
+		}else if( appMode == "/Uninstall" || appMode == "/Rollback" ){
+			res &= modifyMayaEnvironment(mayaSettingsPath, cadnanoPath, false);
+			res &= modifyMayaPluginPrefs(mayaSettingsPath, false);
+		}
+	}else{
+		cerr << "Documents folder could not be retrieved." << endl;
+		res = false;
 	}
+	ILFree(pidl);
 
 	//Declare environment variable change, since the installer doesn't do this for us
 	SendMessageTimeout( HWND_BROADCAST, WM_SETTINGCHANGE, NULL, (LPARAM)"Environment", NULL, NULL, NULL);
 
-	if( !res ){
+	if( res ){
+		return 0;
+	}else{
 		MessageBox( NULL, "CadNano plugin for Autodesk Maya configurations failed", NULL, NULL);
 		return -1;
-	}else{
-		return 0;
 	}
 }
