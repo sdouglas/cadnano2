@@ -108,6 +108,7 @@ class Strand(QObject):
     strandRemovedSignal = pyqtSignal(QObject)
     strandResizedSignal = pyqtSignal(QObject, tuple)
     strandXover3pAddedSignal = pyqtSignal(QObject, QObject) # strand3p, strand5p
+    strandXover3pRemovedSignal = pyqtSignal(QObject, QObject) # strand3p, strand5p
     strandUpdateSignal = pyqtSignal(QObject) # strand
     strandDecoratorAddedSignal = pyqtSignal(QObject, QObject, int)
     strandDecoratorDestroyedSignal = pyqtSignal(QObject, int)

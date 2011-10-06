@@ -119,8 +119,8 @@ class StrandItem(QObject):
         print "solidview.StrandItem.strandDestroyedSlot"
     # end def
 
-    def strandXover3pCreatedSlot(self, strand):
-        print "solidview.StrandItem.strandXover3pCreatedSlot"
+    def strandXover3pAddedSlot(self, strand):
+        print "solidview.StrandItem.strandXover3pAddedSlot"
     # end def
 
     def strandXover3pRemovedSlot(self, strand):
@@ -143,8 +143,8 @@ class StrandItem(QObject):
         print "solidview.StrandItem.strandHasNewOligoSlot"
     # end def
 
-    def strandDecoratorCreatedSlot(self, strand):
-        print "solidview.StrandItem.strandDecoratorCreatedSlot"
+    def strandDecoratorAddedSlot(self, strand):
+        print "solidview.StrandItem.strandDecoratorAddedSlot"
     # end def
 
     def createMayaHelixNodes(self, x, y, colorname, strandType, id):

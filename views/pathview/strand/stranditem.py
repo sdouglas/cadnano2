@@ -92,10 +92,10 @@ class StrandItem(QGraphicsLineItem):
         pass
     # end def
 
-    def strandXover3pCreatedSlot(self, strand3p, strand5p):
+    def strandXover3pAddedSlot(self, strand3p, strand5p):
         partItem = self._virtualHelixItem.partItem()
         xo = XoverItem(partItem, strand3p, strand5p)
-        # self.addXoverItem(xo)
+        partItem.addXoverItem(xo)
         self._update(strand3p)
         partItem.updatePreXoverItems()
     # end def
@@ -104,7 +104,7 @@ class StrandItem(QGraphicsLineItem):
     #     self._update(strand3p)
     # # end def
     
-    # def strandXover5pCreatedSlot(self, strand5p):
+    # def strandXover5pAddedSlot(self, strand5p):
     #     self._update(strand5p)
     # # end def
 
@@ -131,7 +131,7 @@ class StrandItem(QGraphicsLineItem):
         pass
     # end def
 
-    def strandDecoratorCreatedSlot(self, strand):
+    def strandDecoratorAddedSlot(self, strand):
         pass
     # end def
 

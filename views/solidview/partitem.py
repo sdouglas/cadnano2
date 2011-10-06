@@ -161,8 +161,8 @@ class PartItem(QObject):
     # @pyqtSlot(QObject, QObject, int, int, QObject, int, int)
     # def xoverAddedSlot(self, part, virtualHelix3p, strandType3p, idx3p, \
     #                                 virtualHelix5p, strandType5p, idx5p):
-    #     """docstring for xover3pCreatedSlot"""
-    #     print "solidview.PartItem.xover3pCreatedSlot"
+    #     """docstring for xover3pAddedSlot"""
+    #     print "solidview.PartItem.xover3pAddedSlot"
     #     pass
     # 
     # @pyqtSlot(QObject, QObject, int, int, QObject, int, int)

@@ -77,6 +77,10 @@ class XoverNode3(QGraphicsRectItem):
         return self._strand
     # end def
     
+    def strandType(self):
+        return self._strand.strandSet().strandType()
+    # end def
+    
     def idx(self):
         return self._idx
     # end def
@@ -209,7 +213,6 @@ class XoverItem(QGraphicsPathItem):
     This class handles:
     1. Drawing the spline between the XoverNode3 and XoverNode5 graphics
     items in the path view.
-    2. Connecting and disconnecting signals the XoverStrands in this xover.
 
     XoverItem should be a child of a PartItem.
     """
@@ -228,21 +231,60 @@ class XoverItem(QGraphicsPathItem):
         vhi5p = partItem.itemForVirtualHelix(strand5p.virtualHelix())
         self._node5 = XoverNode5(vhi5p, strand5p, strand5p.idx5Prime())
         
+        # wire it up to the 3 prime strand, wire it to the 5 prime strand
+        # to allow killing an xoveritem on deletion of a strand
+        self._controller = XoverItemController(self, strand3p)
+        
         self.updatePath()
     # end def
     
     ### SLOTS ###
-    def xover3pRemovedSlot(self):
+    def strandHasNewOligoSlot(self, strand):
         pass
+    def strandRemovedSlot(self, strand):
+        
+        pass
+    def strandDestroyedSlot(self, strand):
+        pass
+    def strandDecoratorAddedSlot(self, strand):
+        pass
+    def oligoAppeareanceChangedSlot(self, oligo):
+        pass
+    # end def
+    
+    def xover3pRemovedSlot(self):
+        self._partItem.removeXoverItem(self)
+        self._controller.disconnectSignals()
+        scene = self.scence()
+        scene.removeItem(self)
     # end def
     
     ### METHODS ###
 
     def part(self):
         return self._partItem.part()
+        
+    def oligo(self):
+        return self._node3.strand().oligo()
 
-    def strand(self):
-        return self._strandItem3p.strand()
+    def virtualHelixItems(self):
+        """
+        return a tuple of the associated virtualHelixItems
+        """
+        return self._node3.virtualHelixItem(), self._node5.virtualHelixItem()
+    # end def
+    
+    def indicesAndStrandTypes(self):
+        """
+        return a tuple of the associated virtualHelixItems
+        indices and StrandTypes
+        """
+        node3 = self._node3
+        node5 = self._node5
+        iAST3p = node3.idx(), node3.strandType()
+        iAST5p = node5.idx(), node5.strandType()
+        return iAST3p, iAST5p
+    # end def
 
     def updatePath(self):
         """

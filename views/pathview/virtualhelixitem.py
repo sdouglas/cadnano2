@@ -114,6 +114,10 @@ class VirtualHelixItem(QGraphicsPathItem):
     ### ACCESSORS ###
     def activeTool(self):
         return self._activeTool
+        
+    def coords(self):
+        return self._modelVirtualHelix.coords()
+    # end def
 
     ### DRAWING METHODS ###
     def isStrandOnTop(self, strand):

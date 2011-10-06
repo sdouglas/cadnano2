@@ -44,7 +44,7 @@ class PartItemController(object):
 
         # for mOligo in mP.oligos():
         #     for mStrand in mOligo.strands():
-        #         mStrand.strandXover3pAddedSignal.connect(pI.xover3pCreatedSlot)
+        #         mStrand.strandXover3pAddedSignal.connect(pI.xover3pAddedSlot)
     # end def
 
     def disconnectSignals(self):
@@ -64,6 +64,6 @@ class PartItemController(object):
 
         # for mOligo in mP.oligos():
         #     for mStrand in mOligo.strands():
-        #         mStrand.strandXover3pAddedSignal.disconnect(pI.xover3pCreatedSlot)
+        #         mStrand.strandXover3pAddedSignal.disconnect(pI.xover3pAddedSlot)
     # end def
 # end class

@@ -25,6 +25,7 @@
 #
 # http://www.opensource.org/licenses/mit-license.php
 
+from collections import defaultdict
 from views import styles
 
 from controllers.itemcontrollers.partitemcontroller import PartItemController
@@ -60,7 +61,8 @@ class PartItem(QGraphicsPathItem):
         
         self._activeVirtualHelixItem = None
         self._preXoverItems = []
-        self._xovers = {}
+        # keyed by virtualHelix row and column, and then by index and strandType
+        self._xoverItems = defaultdict(dict)
     # end def
         
     ### SIGNALS ###
@@ -118,8 +120,8 @@ class PartItem(QGraphicsPathItem):
     
     # def xoverAddedSlot(self, part, virtualHelix3p, strandType3p, idx3p, \
     #                                 virtualHelix5p, strandType5p, idx5p):
-    #     """docstring for xover3pCreatedSlot"""
-    #     print "PartItem.xover3pCreatedSlot"
+    #     """docstring for xover3pAddedSlot"""
+    #     print "PartItem.xover3pAddedSlot"
     #     pass
     # 
     # def xoverRemovedSlot(self, part, virtualHelix3p, strandType3p, idx3p, \
@@ -183,7 +185,7 @@ class PartItem(QGraphicsPathItem):
             leftmostExtent = min(leftmostExtent, -2 * vhiHRect.width())
             rightmostExtent = max(rightmostExtent, vhiRect.width())
             y += step
-
+            self.updateXoverItems(vhi)
         # end for
         self._vHRect = QRectF(leftmostExtent,\
                            -40,\
@@ -245,6 +247,28 @@ class PartItem(QGraphicsPathItem):
         return self._vhiHSelectionGroup
     # end def
 
+    def addXoverItem(self, xoverItem):
+        # use xoverItems twice! once for each end of the xover
+        vhi3p, vhi5p = xoverItem.virtualHelixItems()
+        iAST3P, iAST5P = xoverItem.indicesAndStrandTypes()
+        self._xoverItems[vhi3p.coords()][iAST3P] = xoverItem
+        self._xoverItems[vhi5p.coords()][iAST5P] = xoverItem
+    # def 
+
+    def removeXoverItem(self, xoverItem):
+        # use xoverItems twice! once for each end of the xover
+        vhi3p, vhi5p = xoverItem.virtualHelixItems()
+        iAST3P, iAST5P = xoverItem.indicesAndStrandTypes()
+        del self._xoverItems[vhi3p.coords()][iAST3P]
+        del self._xoverItems[vhi5p.coords()][iAST5P]
+    # def
+    
+    def updateXoverItems(self, virtualHelixItem):
+        coords = virtualHelixItem.coords()
+        for xoveritem in self._xoverItems[coords].itervalues():
+            xoveritem.updatePath()
+    # end def
+    
     def selectionLock(self):
         return self._selectionLock
     # end def

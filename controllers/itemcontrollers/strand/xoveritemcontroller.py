@@ -36,7 +36,7 @@ class XoverItemController(AbstractStrandItemController):
         AbstractStrandItemController.connectSignals(self)
         mS = self._modelStrand
         xI = self._strandItem
-        mS.strandXover3pRemovedSignal.connect(sI.xover3pRemovedSlot)
+        mS.strandXover3pRemovedSignal.connect(xI.xover3pRemovedSlot)
     # end def
 
     def disconnectSignals(self):

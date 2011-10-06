@@ -120,8 +120,8 @@ class PartItem(QGraphicsItem):
 
     # def xoverAddedSlot(self, part, virtualHelix3p, strandType3p, idx3p, \
     #                                 virtualHelix5p, strandType5p, idx5p):
-    #     """docstring for xoverCreatedSlot"""
-    #     print "PartItem.xoverCreatedSlot"
+    #     """docstring for xoverAddedSlot"""
+    #     print "PartItem.xoverAddedSlot"
     #     pass
     # 
     # def xoverRemovedSlot(self, part, virtualHelix3p, strandType3p, idx3p, \
