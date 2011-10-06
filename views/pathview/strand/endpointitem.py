@@ -25,8 +25,8 @@
 #
 # http://www.opensource.org/licenses/mit-license.php
 
-from math import floor
 from exceptions import NotImplementedError
+from math import floor
 from views import styles
 import util
 # import Qt stuff into the module namespace with PySide, PyQt4 independence
@@ -146,6 +146,7 @@ class EndpointItem(QGraphicsPathItem):
         Parses a mousePressEvent, calling the approproate tool method as
         necessary. Stores _moveIdx for future comparison.
         """
+        self.scene().views()[0].addToPressList(self)
         self._moveIdx = self.idx()
         toolMethodName = str(self._activeTool()) + "MousePress"
         if hasattr(self, toolMethodName):  # if the tool method exists

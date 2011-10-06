@@ -57,7 +57,6 @@ class PathRootItem(QGraphicsRectItem):
         The Pathview doesn't need to do anything on part addition, since
         the Sliceview handles setting up the appropriate lattice.
         """
-        print "PathRootItem.partAddedSlot!"
         self._modelPart = modelPart
         win = self._window
         partItem = PartItem(modelPart,\

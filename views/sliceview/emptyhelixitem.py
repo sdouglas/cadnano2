@@ -200,12 +200,10 @@ class EmptyHelixItem(QGraphicsEllipseItem):
         scafSSet, stapSSet = vh.getStrandSets()
         if modifiers & Qt.ShiftModifier:
             if not stapSSet.hasStrandAt(idx-1, idx+1):
-                print "add a staple strand"
                 return EmptyHelixItem.addStapAtActiveSliceIfMissing
             else:
                 return EmptyHelixItem.nop
         if not scafSSet.hasStrandAt(idx-1, idx+1):
-            print "add a scaffold strand"
             return EmptyHelixItem.addScafAtActiveSliceIfMissing
         return EmptyHelixItem.nop
     # end def
