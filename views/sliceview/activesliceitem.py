@@ -41,49 +41,42 @@ util.qtWrapImport('QtGui', globals(), ['QBrush', 'QFont', 'QGraphicsItem',\
 
 class ActiveSliceItem(QGraphicsRectItem):
     """ActiveSliceItem for the Slice View"""
-    _baseWidth = styles.PATH_BASE_WIDTH
-    _brush = QBrush(styles.activeslicehandlefill)
-    _labelbrush = QBrush(styles.orangestroke)
-    _pen = QPen(styles.activeslicehandlestroke,\
-                styles.SLICE_HANDLE_STROKE_WIDTH)
-    _font = QFont(styles.thefont, 12, QFont.Bold)
-
     def __init__(self, partItem, activeBaseIndex):
         super(ActiveSliceItem, self).__init__(partItem)
         self._partItem = partItem
-        self.setFlag(QGraphicsItem.ItemHasNoContents)
-        
         self._controller = ActiveSliceItemController(self, partItem.part())
+        self.setFlag(QGraphicsItem.ItemHasNoContents)
     # end def
-    
-    ### SLOTS ###
-    def updateRectSlot(self, part):
-        pass
-    # end def
-    
-    def updateIndexSlot(self, newActiveSliceZIndex):
-        newlyActiveVHs = set()
-        part = self.part()
-        activeBaseIdx = part.activeBaseIndex()
 
+    ### SLOTS ###
+    def strandChangedSlot(self, vh):
+        partItem = self._partItem
+        vhi = partItem.getVirtualHelixItemByCoord(*vh.coords())
+        isActiveNow = vh.hasStrandAtIdx(partItem.part().activeBaseIndex())
+        vhi.setActiveSliceView(isActiveNow)
+    # end def
+
+    def updateIndexSlot(self, newActiveSliceZIndex):
+        part = self.part()
+        if part.numberOfVirtualHelices() == 0:
+            return
+        newlyActiveVHs = set()
+        activeBaseIdx = part.activeBaseIndex()
         for vhi in self._partItem._virtualHelixHash.itervalues():
             isActiveNow = vhi.virtualHelix().hasStrandAtIdx(activeBaseIdx)
             vhi.setActiveSliceView(isActiveNow)
     # end def
-    
-    def strandChangedSlot(self, vh):
-        partItem = self._partItem
-        vhi = partItem.getVirtualHelixItemByCoord(*vh.coords())
-        
-        isActiveNow = vh.hasStrandAtIdx(partItem.part().activeBaseIndex())
-        vhi.setActiveSliceView(isActiveNow)
+
+    def updateRectSlot(self, part):
+        pass
     # end def
-    
-    ### METHODS ###
+
+    ### ACCESSORS ###
     def part(self):
         return self._partItem.part()
     # end def
-    
+
+    ### PUBLIC METHODS FOR DRAWING / LAYOUT ###
     def removed(self):
         self._partItem = None
         self._controller.disconnectSignals()

@@ -86,6 +86,10 @@ class Part(QObject):
         self._activeVirtualHelix = None
     # end def
 
+    def __repr__(self):
+        clsName = self.__class__.__name__
+        return "<%s (%d)>" % (clsName, id(self))
+
     ### SIGNALS ###
     partActiveSliceIndexSignal = pyqtSignal(QObject, int)  # self, index
     partActiveSliceResizeSignal = pyqtSignal(QObject)      # self
@@ -172,6 +176,10 @@ class Part(QObject):
 
     def minBaseIdx(self):
         return self._minBase
+    # end def
+
+    def numberOfVirtualHelices(self):
+        return len(self._virtualHelixHash)
     # end def
 
     def virtualHelixAtCoord(self, coord):
@@ -300,6 +308,9 @@ class Part(QObject):
                                                     useUndoStack=useUndoStack)
     # end def
 
+    def renumber(self):
+        print "%s: renumber() called." % self
+        
     def setActiveBaseIndex(self, idx):
         self._activeBaseIndex = idx
         self.partActiveSliceIndexSignal.emit(self, idx)

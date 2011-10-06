@@ -74,6 +74,14 @@ class PathRootItem(QGraphicsRectItem):
         # if partItem in self._partItems:
         #     self._window.setActivePart(partItem)
 
+    ### ACCESSORS ###
+    def sliceToolManager(self):
+        """
+        Used for getting access to button signals that need to be connected
+        to item slots.
+        """
+        return self._window.sliceToolManager
+
     ### METHODS ###
     def removePartItem(self, partItem):
         self._partItems.remove(partItem)

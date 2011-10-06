@@ -75,20 +75,10 @@ class ActiveSliceItem(QGraphicsRectItem):
         self.setPos(activeBaseIndex*_baseWidth, 0)
         self.setBrush(_brush)
         self.setPen(_pen)
-        self._label.show()
+        # self._label.show()
     # end def
 
     ### SLOTS ###
-    def moveToFirstSliceSlot(self):
-        """Moves to the last slice position."""
-        self._setActiveBaseIndex(0)
-    # end def
-
-    def moveToLastSliceSlot(self):
-        """Moves to the last slice position."""
-        self._setActiveBaseIndex(self.part().maxBaseIdx() - 1)
-    # end def
-
     def strandChangedSlot(self, vh):
         pass
     # end def
@@ -145,7 +135,9 @@ class ActiveSliceItem(QGraphicsRectItem):
 
     ### PRIVATE SUPPORT METHODS ###
     def _hideIfEmptySelection(self):
-        self.setVisible(self._partItem.numberOfVirtualHelices() > 0)
+        vis = self.part().numberOfVirtualHelices() > 0
+        self.setVisible(vis)
+        self._label.setVisible(vis)
     # end def
 
     def _setActiveBaseIndex(self, baseIndex):
