@@ -32,57 +32,38 @@ util.qtWrapImport('QtGui', globals(), [ 'QGraphicsItem', 'QGraphicsItemGroup', \
                                         'QBrush', 'QFont', 'QPen', \
                                         'QGraphicsObject'])
 
-# There's a bug where C++ will free orphaned
-# graphics items out from under pyqt. To avoid
-# this, "mother" adopts orphaned graphics items.
-mother = QGraphicsItemGroup()
+_bw = styles.PATH_BASE_WIDTH
+_toolRect = QRectF(0, 0, _bw, _bw)  # protected not private
+_rect = QRectF(-styles.PATH_BASE_HL_STROKE_WIDTH,\
+               -styles.PATH_BASE_HL_STROKE_WIDTH,\
+               _bw + 2*styles.PATH_BASE_HL_STROKE_WIDTH,\
+               _bw + 2*styles.PATH_BASE_HL_STROKE_WIDTH)
+_pen = QPen(styles.redstroke, styles.PATH_BASE_HL_STROKE_WIDTH)
+_brush = QBrush(Qt.NoBrush)
+
+# There's a bug where C++ will free orphaned graphics items out from
+# under pyqt. To avoid this, "_mother" adopts orphaned graphics items.
+_mother = QGraphicsItemGroup()
+
 
 class AbstractPathTool(QGraphicsObject):
-    """
-    Abstract base class to be subclassed by all other pathview tools.
-
-    AbstractPathTool is an abstract class for tools that can handle events
-    forwarded in the style of util.defineEventForwardingMethodsForClass.
-    
-    In other words, the activeTool() gets events from various graphics objects
-    in the pathview and then makes the corresponding changes to the model.
-    
-    The displayed content then updates automatically via notifications from
-    the model.
-    * the activeTool gets events from graphics items and does the work
-      (changes the model). Possible future configuration of the activeTool()
-      can be done on the instances of various tools kept in the controller,
-      like selectTool.
-    * graphics items that make up the view sit back and watch the model,
-      updating when it changes
-    """
-    _baseWidth = styles.PATH_BASE_WIDTH
-    _toolRect = QRectF(0, 0,\
-                       _baseWidth, _baseWidth)  # protected not private
-    _rect = QRectF(-styles.PATH_BASE_HL_STROKE_WIDTH,\
-                   -styles.PATH_BASE_HL_STROKE_WIDTH,\
-                   _baseWidth + 2*styles.PATH_BASE_HL_STROKE_WIDTH,\
-                   _baseWidth + 2*styles.PATH_BASE_HL_STROKE_WIDTH)
-    _pen = QPen(styles.redstroke, styles.PATH_BASE_HL_STROKE_WIDTH)
-    _brush = QBrush(Qt.NoBrush)
-    
+    """Abstract base class to be subclassed by all other pathview tools."""
     def __init__(self, controller, parent=None):
         super(AbstractPathTool, self).__init__(parent)
         self._active = False
         self._controller = controller
         self._lastLocation = None
-    
+
     ######################## Drawing #######################################
     def paint(self, painter, option, widget=None):
         painter.setPen(self._pen)
         painter.setBrush(self._brush)
         painter.drawRect(self._toolRect)
-    
+
     def boundingRect(self):
         return self._rect
-    
-    ######################### Positioning and Parenting ####################
 
+    ######################### Positioning and Parenting ####################
     def hoverEnterPathHelix(self, pathHelix, event):
         self.updateLocation(pathHelix, pathHelix.mapToScene(QPointF(event.pos())))
 
@@ -114,8 +95,8 @@ class AbstractPathTool(QGraphicsObject):
             self._lastLocation = None
             if self.isVisible():
                 self.hide()
-            if self.parentItem() != mother:
-                self.setParentItem(mother)
+            if self.parentItem() != _mother:
+                self.setParentItem(_mother)
 
     def lastLocation(self):
         """A tuple (PathHelix, QPoint) representing the last
@@ -131,12 +112,12 @@ class AbstractPathTool(QGraphicsObject):
         active. Used, for example, to show/hide tool-specific ui elements.
         """
         if self.isActive() and not willBeActive:
-            self.setParentItem(mother)
+            self.setParentItem(_mother)
             self.hide()
 
     def isActive(self):
         """Returns isActive"""
-        return self._active != mother
+        return self._active != _mother
 
     def widgetClicked(self):
         """Called every time a widget representing self gets clicked,
@@ -161,8 +142,8 @@ class AbstractPathTool(QGraphicsObject):
         lies within.
         point is in PathHelix coordinates.
         """
-        x = int(int(point.x()) / self._baseWidth)
-        y = int(int(point.y()) / self._baseWidth)
+        x = int(int(point.x()) / _bw)
+        y = int(int(point.y()) / _bw)
         return (x, y)
     # end def
 
@@ -172,11 +153,11 @@ class AbstractPathTool(QGraphicsObject):
         it is within.
         point is in PathHelix coordinates
         """
-        col = int(int(point.x()) / self._baseWidth)
-        row = int(int(point.y()) / self._baseWidth)
+        col = int(int(point.x()) / _bw)
+        row = int(int(point.y()) / _bw)
         # Doesn't know numBases, can't check if point is too far right
         if col < 0 or row < 0 or row > 1:
             return None
-        return QPointF(col*self._baseWidth, row*self._baseWidth)
+        return QPointF(col*_bw, row*_bw)
     # end def
 # end class
