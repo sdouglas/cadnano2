@@ -142,7 +142,7 @@ class StrandItem(QGraphicsLineItem):
 
     def idxs(self):
         return self._modelStrand.idxs()
-        
+
     def virtualHelixItem(self):
         return self._virtualHelixItem
 

@@ -225,5 +225,14 @@ class EndpointItem(QGraphicsPathItem):
 
         elif modifiers & Qt.ShiftModifier:
             mStrand.merge(self.idx())
-
     # end def
+
+    def addSeqToolMousePress(self, modifiers):
+        """
+        Checks that a scaffold was clicked, and then calls apply sequence
+        to the clicked strand via its oligo.
+        """
+        mStrand = self._strandItem._modelStrand
+        if mStrand.isScaffold():
+            self._activeTool().applySequence(mStrand.oligo())
+
