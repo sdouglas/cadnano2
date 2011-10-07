@@ -125,6 +125,12 @@ class Strand(QObject):
         return self._decorators
     # end def
 
+    def isStaple(self):
+        return self._strandSet.isStaple()
+
+    def isScaffold(self):
+        return self._strandSet.isScaffold()
+
     def part(self):
         return self._strandSet.part()
     # end def

@@ -80,8 +80,13 @@ class Oligo(QObject):
     ### SLOTS ###
 
     ### METHODS ###
+    def applySequence(self, sequence):
+        print "oligo.applySequence\n", sequence
+    # end def
+
     def undoStack(self):
         return self._part.undoStack()
+    # end def
 
     def destroy(self):
         # QObject also emits a destroyed() Signal
@@ -102,25 +107,27 @@ class Oligo(QObject):
     def color(self):
         return self._color
     # end def
+
+    def setColor(self, color):
+        self._color = color
+    # end def
+
+    def shouldHighlight(self):
+        return True if self.length() > 40 else False
+    # end def
     
     def sequence(self):
         return ''.join( [Strand.sequence(strand) \
                         for strand in self.strand5p().generator3pStrand()] )
     # end def
-    
-    def setColor(self, color):
-        self._color = color
-    # end def
-    
-    def shouldHighlight(self):
-        return True if self.length() > 40 else False
-    # def 
-    
+
     def length(self):
         return self._length
+    # end def
 
     def setLength(self, length):
         self._length = length
+    # end def
 
     def incrementStrandLength(self, strand):
         self.setLength(self._length+strand.length())
