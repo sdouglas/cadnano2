@@ -22,26 +22,28 @@
 #
 # http://www.opensource.org/licenses/mit-license.php
 
-from controllers.itemcontrollers.strand.abstractstranditemcontroller \
-     import AbstractStrandItemController
-
-
-class XoverItemController(AbstractStrandItemController):
-    def __init__(self, xoverItem, modelStrand):
-        super(XoverItemController, self).__init__(xoverItem, modelStrand)
+class XoverItemController(object):
+    def __init__(self, xoverItem, modelStrand3p):
+        self._xoverItem = xoverItem
+        self._modelStrand3p = modelStrand3p
         self.connectSignals()
     # end def
 
     def connectSignals(self):
-        AbstractStrandItemController.connectSignals(self)
-        mS = self._modelStrand
-        xI = self._strandItem
-        mS.strandXover3pRemovedSignal.connect(xI.xover3pRemovedSlot)
+        xI = self._xoverItem
+        s3p = self._modelStrand3p
+        mO = s3p.oligo()
+        
+        mO.oligoAppearanceChangedSignal.connect(xI.oligoAppeareanceChangedSlot)
+        s3p.strandXover3pRemovedSignal.connect(xI.xover3pRemovedSlot)
+        
     # end def
 
     def disconnectSignals(self):
-        AbstractStrandItemController.disconnectSignals(self)
-        mS = self._modelStrand
-        xI = self._strandItem
-        mS.strandXover3pRemovedSignal.disconnect(xI.xover3pRemovedSlot)
+        xI = self._xoverItem
+        s3p = self._modelStrand3p
+        mO = s3p.oligo()
+        
+        mO.oligoAppearanceChangedSignal.connect(xI.oligoAppeareanceChangedSlot)
+        s3p.strandXover3pRemovedSignal.connect(xI.xover3pRemovedSlot)
     # end def
