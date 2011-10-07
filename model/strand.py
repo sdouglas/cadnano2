@@ -140,7 +140,8 @@ class Strand(QObject):
     # end def
     
     def sequence(self):
-        return self._sequence
+        temp = self._sequence
+        return temp if temp else ''
     # end def
 
     def strandSet(self):
@@ -156,6 +157,7 @@ class Strand(QObject):
         return the tuple (used, unused) portion of the sequenceString
         """
         if sequenceString == None:
+            self._sequence = None
             return None, None
         length = self.length()
         self._sequence = sequenceString[0:length]
@@ -171,6 +173,7 @@ class Strand(QObject):
         return the tuple (used, unused) portion of the sequenceString
         """
         if sequenceString == None:
+            self._sequence = None
             return None, None
             
         sLowIdx, sHighIdx = self._baseIdxLow, self._baseIdxHigh
@@ -181,13 +184,16 @@ class Strand(QObject):
         
         temp = array('c', sequenceString)
         if self._sequence == None:
-            tempSelf = array('c', ''.join([' ' for x in range(self.length())]) )
+            tempSelf = array('c', ''.join(['Z' for x in range(self.length())]) )
         else:
             tempSelf = array('c'. self._sequence)
             
-        length = highIdx-lowIdx
-        tempSelf[lowIdx:highIdx] = temp[0:length]
+        length = highIdx-lowIdx+1
+        print tempSelf
+        tempSelf[lowIdx-sLowIdx:highIdx-sLowIdx+1] = temp[0:length]
         self._sequence = tempSelf.tostring()
+        # print "strs ", self._sequence, tempSelf.tostring()
+        # print "lens", self.length(), length
         return self._sequence, temp[length:].tostring()
     # end def
 

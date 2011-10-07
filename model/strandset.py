@@ -112,7 +112,7 @@ class StrandSet(QObject):
         """
         """
         vh = self.virtualHelix()
-        if isStaple():
+        if self.isStaple():
             return vh.scaffoldStrandSet()
         else:
             return vh.stapleStrandSet()

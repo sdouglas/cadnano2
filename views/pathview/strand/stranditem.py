@@ -265,7 +265,7 @@ class StrandItem(QGraphicsLineItem):
         seqLbl = self._seqLabel
         strand = self.strand()
         seqTxt = strand.sequence()
-        seqTxt = "ACG"
+        # seqTxt = "ACG"
         
         if seqTxt == None:
             seqLbl.hide()
