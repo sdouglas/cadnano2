@@ -76,7 +76,7 @@ class StrandItem(QGraphicsLineItem):
         self.updateSequenceText()
         
         self._controller = StrandItemController(self, modelStrand)
-        self._update(modelStrand)
+        self._updateAppearance(modelStrand)
     # end def
 
     ### SIGNALS ###
@@ -120,23 +120,23 @@ class StrandItem(QGraphicsLineItem):
         partItem = self._virtualHelixItem.partItem()
         xo = XoverItem(partItem, strand3p, strand5p)
         partItem.addXoverItem(xo)
-        self._update(strand3p)
+        self._updateAppearance(strand3p)
         partItem.updatePreXoverItems()
     # end def
 
     # def strandXover3pRemovedSlot(self, strand3p, strand5p):
-    #     self._update(strand3p)
+    #     self._updateAppearance(strand3p)
     # # end def
     
     # def strandXover5pAddedSlot(self, strand5p):
-    #     self._update(strand5p)
+    #     self._updateAppearance(strand5p)
     # # end def
 
     def strandUpdateSlot(self, strand):
         """
         Slot for just updating connectivity and color, and endpoint showing
         """
-        self._update(strand)
+        self._updateAppearance(strand)
     # end def
 
     def oligoAppeareanceChangedSlot(self, oligo):
@@ -191,7 +191,7 @@ class StrandItem(QGraphicsLineItem):
         self.setLine(line)
 
     ### PRIVATE SUPPORT METHODS ###
-    def _update(self, strand):
+    def _updateAppearance(self, strand):
         """
         Prepare Strand for drawing, positions are relative to the VirtualHelixItem:
         1. Show or hide caps depending on L and R connectivity.
@@ -321,6 +321,4 @@ class StrandItem(QGraphicsLineItem):
         mStrand = self._modelStrand
         mStrand.split(idx)
     # end def
-
-
 

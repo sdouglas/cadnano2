@@ -205,21 +205,36 @@ class Part(QObject):
         util._execCommandList(self, [c], desc="Add VirtualHelix", \
                                                 useUndoStack=useUndoStack)
     # end def
-    
+
     def createSimpleXover(self, fromVirtualHelix, toVirtualHelix, \
-                                    strandType, idx, useUndoStack=True):
+                                    strandType, baseIdx, useUndoStack=True):
+        # prexoveritem needs to store left or right, and determine
+        # locally whether it is from or to
+        # pass that info in here in and then do the breaks
+
         fromSS = fromVirtualHelix.getStrandSetByType(strandType)
         toSS = toVirtualHelix.getStrandSetByType(strandType)
-        fromStrand = fromSS.getStrand(idx)
-        toStrand = toSS.getStrand(idx)
-        if fromStrand.idx3Prime() == idx:
+        fromStrand = fromSS.getStrand(baseIdx)
+        toStrand = toSS.getStrand(baseIdx)
+        if fromStrand.idx3Prime() == baseIdx:
             strand3p = fromStrand
             strand5p = toStrand
         else:
             strand5p = fromStrand
             strand3p = toStrand
-        c = Part.CreateXoverCommand(self, strand3p, idx, strand5p, idx)
-        util._execCommandList(self, [c], desc="Create Xover", \
+
+        cmds = []
+        if fromSS.strandCanBeSplit(fromStrand, baseIdx):
+            isInSet, overlap, strandSetIdx = fromSS._findIndexOfRangeFor(fromStrand)
+            if isInSet:
+                cmds.append(fromSS.SplitCommand(fromStrand, baseIdx, strandSetIdx))
+        if toSS.strandCanBeSplit(toStrand, baseIdx):
+            isInSet, overlap, strandSetIdx = toSS._findIndexOfRangeFor(toStrand)
+            if isInSet:
+                cmds.append(fromSS.SplitCommand(toStrand, baseIdx, strandSetIdx))
+
+        cmds.append(Part.CreateXoverCommand(self, strand3p, baseIdx, strand5p, baseIdx))
+        util._execCommandList(self, cmds, desc="Create Xover", \
                                                 useUndoStack=useUndoStack)
     # end def
     
