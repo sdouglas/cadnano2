@@ -118,10 +118,21 @@ qtWrapImport('QtGui', globals(), [ 'QGraphicsItem', 'QColor', 'QMouseEvent',\
 def clamp(x, minX, maxX):
     if x < minX:
         return minX
-    if x > maxX:
+    elif x > maxX:
         return maxX
     else:
         return x
+
+def overlap(x,y, a,b):
+    """
+    finds the overlap of the range x to y in a to b
+    assumes an overlap exists, i.e.
+        y >= a and b >= x
+    """
+    c = clamp(x, a, b)
+    d = clamp(y, a, b) 
+    return c, d
+# end def
 
 def trace(n):
     """Returns a stack trace n frames deep"""

@@ -107,6 +107,16 @@ class StrandSet(QObject):
         else:
             raise IndexError
     # end def
+    
+    def complimentStrandSet(self):
+        """
+        """
+        vh = self.virtualHelix()
+        if isStaple():
+            return vh.scaffoldStrandSet()
+        else:
+            return vh.stapleStrandSet()
+    # end def
 
     def getBoundsOfEmptyRegionContaining(self, baseIdx):
         """

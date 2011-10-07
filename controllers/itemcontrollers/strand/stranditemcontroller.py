@@ -33,6 +33,9 @@ class StrandItemController(AbstractStrandItemController):
     # end def
 
     def reconnectOligoSignals(self, newOligo):
+        """
+        use this for whenever a strands oligo changes
+        """
         AbstractStrandItemController.disconnectOligoSignals(self)
         self.disconnectOligoSignals()
         self._modelOligo = newOligo
@@ -51,7 +54,8 @@ class StrandItemController(AbstractStrandItemController):
     # end def
 
     def connectOligoSignals(self):
-        mO = self._modelOligo
+        mO = self._modelStrand.oligo()
+        self._modelOligo = mO
         sI = self._strandItem
         mO.oligoSequenceAddedSignal.connect(sI.oligoSequenceAddedSlot)
         mO.oligoSequenceClearedSignal.connect(sI.oligoSequenceClearedSlot)

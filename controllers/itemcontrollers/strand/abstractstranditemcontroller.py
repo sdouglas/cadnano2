@@ -41,7 +41,6 @@ class AbstractStrandItemController(object):
     
     def reconnectOligoSignals(self, newOligo):
         self.disconnectOligoSignals()
-        self._modelOligo = newOligo
         self.connectOligoSignals()
     # end def
     
@@ -58,7 +57,9 @@ class AbstractStrandItemController(object):
     
     def connectOligoSignals(self):
         sI = self._strandItem
-        mO = self._modelOligo
+        mO = self._modelStrand.oligo()
+        self._modelOligo = mO
+        
         mO.oligoAppearanceChangedSignal.connect(sI.oligoAppeareanceChangedSlot)
     # end def
 
