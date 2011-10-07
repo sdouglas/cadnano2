@@ -28,9 +28,10 @@
 
 import util
 import copy
+from strand import Strand
 # import Qt stuff into the module namespace with PySide, PyQt4 independence
 util.qtWrapImport('QtCore', globals(), ['pyqtSignal', 'QObject'])
-util.qtWrapImport('QtGui', globals(), [])
+util.qtWrapImport('QtGui', globals(), ['QUndoCommand'])
 
 
 class Oligo(QObject):
@@ -100,6 +101,11 @@ class Oligo(QObject):
 
     def color(self):
         return self._color
+    # end def
+    
+    def sequence(self):
+        return ''.join( [Strand.sequence(strand) \
+                        for strand in self.strand5p().generator3pStrand()] )
     # end def
     
     def setColor(self, color):
@@ -202,4 +208,46 @@ class Oligo(QObject):
         pass
 
     ### COMMANDS ###
+    class ApplySequenceCommand(QUndoCommand):
+        def __init__(self, oligo, sequence):
+            super(Oligo.ApplySequenceCommand, self).__init__()
+            self._oligo = oligo
+            self._newSequence = sequence
+            self._oldSequence = oligo.sequence()
+            self._strandType = oligo._strand5p.strandSet().strandType()
+        # end def
+
+        def redo(self):
+            olg = self._oligo
+            nS = self._newSequence
+            
+            for strand in olg.strand5p().generator3pStrand():
+                usedSeq, nS = strand.setSequence(nS)
+                
+                compSS = strand.strandSet().complimentStrandSet(self._strandType)
+                for compStrand in compSS._findOverlappingRanges(strand):
+                    subUsedSeq, usedSeq = compStrand.setComplimentSequence(usedSeq, strand)
+                # end for
+            # for
+
+            olg.oligoSequenceAddedSignal.emit(olg)
+        # end def
+
+        def undo(self):
+            olg = self._oligo
+            oS = self._oldSequence
+            
+            for strand in olg.strand5p().generator3pStrand():
+                usedSeq, oS = strand.setSequence(oS)
+                
+                compSS = strand.strandSet().complimentStrandSet(self._strandType)
+                for compStrand in compSS._findOverlappingRanges(strand):
+                    subUsedSeq, usedSeq = compStrand.setComplimentSequence(usedSeq, strand)
+                # end for
+            # for
+
+            olg.oligoSequenceClearedSignal.emit(olg)
+        # end def
+        
+    # end class
     

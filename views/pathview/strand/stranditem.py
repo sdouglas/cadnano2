@@ -36,9 +36,25 @@ import util
 # import Qt stuff into the module namespace with PySide, PyQt4 independence
 util.qtWrapImport('QtCore', globals(), ['pyqtSignal', 'QObject', 'Qt'])
 util.qtWrapImport('QtGui', globals(), ['QGraphicsLineItem', 'QGraphicsPathItem',
-                                       'QPen', 'QColor', 'QBrush'])
+                                       'QPen', 'QColor', 'QBrush', 'QFont', \
+                                       'QFontMetricsF', 'QGraphicsSimpleTextItem'])
 
 _baseWidth = styles.PATH_BASE_WIDTH
+
+_sequenceFont = QFont("Monaco")
+if hasattr(QFont, 'Monospace'):
+    _sequenceFont.setStyleHint(QFont.Monospace)
+_sequenceFont.setFixedPitch(True)
+_sequenceFontH = _baseWidth / 3.
+_sequenceFont.setPixelSize(_sequenceFontH)
+_sequenceFontMetrics = QFontMetricsF(_sequenceFont)
+_sequenceFontCharWidth = _sequenceFontMetrics.width('A')
+_sequerceFontCharHeight = _sequenceFontMetrics.height()
+_sequenceFontExtraWidth = _baseWidth - _sequenceFontCharWidth
+_sequenceFont.setLetterSpacing(QFont.AbsoluteSpacing,
+                              _sequenceFontExtraWidth)
+_sequenceTextXCenteringOffset = _sequenceFontExtraWidth / 4.
+_sequenceTextYCenteringOffset = _baseWidth / 2.
 
 class StrandItem(QGraphicsLineItem):
     def __init__(self, modelStrand, virtualHelixItem):
@@ -47,10 +63,18 @@ class StrandItem(QGraphicsLineItem):
         self._modelStrand = modelStrand
         self._virtualHelixItem = virtualHelixItem
         self._activeTool = virtualHelixItem.activeTool()
-        isDrawn5To3 = modelStrand.strandSet().isDrawn5to3()
-        self._lowCap = EndpointItem(self, 'low', isDrawn5To3)
-        self._highCap = EndpointItem(self, 'high', isDrawn5To3)
-        self._dualCap = EndpointItem(self, 'dual', isDrawn5To3)
+        
+        isDrawn5to3 = modelStrand.strandSet().isDrawn5to3()
+        self._lowCap = EndpointItem(self, 'low', isDrawn5to3)
+        self._highCap = EndpointItem(self, 'high', isDrawn5to3)
+        self._dualCap = EndpointItem(self, 'dual', isDrawn5to3)
+        
+        self._isDrawn5to3 = isDrawn5to3
+        self._isOnTop = virtualHelixItem.isStrandOnTop(modelStrand)
+        
+        self._seqLabel = QGraphicsSimpleTextItem(self)
+        self.updateSequenceText()
+        
         self._controller = StrandItemController(self, modelStrand)
         self._update(modelStrand)
     # end def
@@ -120,11 +144,11 @@ class StrandItem(QGraphicsLineItem):
     # end def
 
     def oligoSequenceAddedSlot(self, oligo):
-        pass
+        self.updateSequenceText()
     # end def
 
     def oligoSequenceClearedSlot(self, oligo):
-        pass
+        self.updateSequenceText()
     # end def
 
     def strandHasNewOligoSlot(self, strand):
@@ -140,6 +164,10 @@ class StrandItem(QGraphicsLineItem):
         return self._activeTool
     # end def
 
+    def strand(self):
+        return self._modelStrand
+    # end def
+    
     def idxs(self):
         return self._modelStrand.idxs()
         
@@ -165,7 +193,7 @@ class StrandItem(QGraphicsLineItem):
     ### PRIVATE SUPPORT METHODS ###
     def _update(self, strand):
         """
-        Prepare NormalStrand for drawing:
+        Prepare Strand for drawing, positions are relative to the VirtualHelixItem:
         1. Show or hide caps depending on L and R connectivity.
         2. Determine line coordinates.
         3. Apply paint styles.
@@ -228,6 +256,48 @@ class StrandItem(QGraphicsLineItem):
         self._lowCap.setBrush(brush)
         self._highCap.setBrush(brush)
         self._dualCap.setBrush(brush)
+    # end def
+
+    def updateSequenceText(self):
+        """
+        """
+        bw = _baseWidth
+        seqLbl = self._seqLabel
+        strand = self.strand()
+        seqTxt = strand.sequence()
+        seqTxt = "ACG"
+        
+        if seqTxt == None:
+            seqLbl.hide()
+            return
+        # end if
+        
+        # seqLbl.setPen(QPen( Qt.NoPen))    # leave the Pen as None for unless required
+        seqLbl.setBrush(QBrush(Qt.black))
+        seqLbl.setFont(_sequenceFont)
+        
+        # this will always draw from the 5 Prime end!
+        seqX = 2*_sequenceTextXCenteringOffset + bw*strand.idx5Prime()
+        seqY = -_sequenceTextYCenteringOffset
+        
+        if not self._isOnTop:
+            # offset it towards the bottom
+            seqY += 3*bw
+            # offset X by the reverse centering offset and the 
+            # length of the string 
+            seqX += _sequenceTextXCenteringOffset 
+            
+            # rotate the characters upside down this does not affect positioning
+            # coordinate system, +Y is still Down, and +X is still Right
+            seqLbl.setRotation(180)
+            # draw the text and reverse the string to draw 5 prime to 3 prime
+            seqTxt = seqTxt[::-1]
+        # end if
+        
+        seqLbl.setPos(seqX,seqY)
+        seqLbl.setText(seqTxt)
+        
+        seqLbl.show()
     # end def
 
     ### EVENT HANDLERS ###

@@ -28,6 +28,7 @@
 from exceptions import IndexError
 from operator import attrgetter
 import util
+from array import array
 
 # import Qt stuff into the module namespace with PySide, PyQt4 independence
 util.qtWrapImport('QtCore', globals(), ['pyqtSignal', 'QObject', 'Qt'])
@@ -131,6 +132,10 @@ class Strand(QObject):
     def oligo(self):
         return self._oligo
     # end def
+    
+    def sequence(self):
+        return self._sequence
+    # end def
 
     def strandSet(self):
         return self._strandSet
@@ -138,6 +143,46 @@ class Strand(QObject):
 
     def virtualHelix(self):
         return self._strandSet.virtualHelix()
+    # end def
+    
+    def setSequence(self, sequenceString):
+        """
+        return the tuple (used, unused) portion of the sequenceString
+        """
+        if sequenceString == None:
+            return None, None
+        length = self.length()
+        self._sequence = sequenceString[0:length]
+        
+        return self._sequence, sequenceString[length:]
+    # end def
+    
+    def setComplimentSequence(self, sequenceString, strand):
+        """
+        This version takes anothers strand and only sets the indices that
+        align with the given complimentary strand
+        
+        return the tuple (used, unused) portion of the sequenceString
+        """
+        if sequenceString == None:
+            return None, None
+            
+        sLowIdx, sHighIdx = self._baseIdxLow, self._baseIdxHigh
+        cLowIdx, cHighIdx = strand.idxs()
+        
+        # get the ovelap
+        lowIdx, highIdx = util.overlap(sLowIdx, sHighIdx, cLowIdx, cHighIdx)
+        
+        temp = array('c', sequenceString)
+        if self._sequence == None:
+            tempSelf = array('c', ''.join([' ' for x in range(self.length())]) )
+        else:
+            tempSelf = array('c'. self._sequence)
+            
+        length = highIdx-lowIdx
+        tempSelf[lowIdx:highIdx] = temp[0:length]
+        self._sequence = tempSelf.tostring()
+        return self._sequence, temp[length:].tostring()
     # end def
 
     ### PUBLIC METHODS FOR QUERYING THE MODEL ###
