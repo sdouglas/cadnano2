@@ -703,8 +703,8 @@ class Part(QObject):
             ss5 = strand5p.strandSet()
             vh5p = ss5.virtualHelix()
             st5p = ss5.strandType()
-            strand3p.strandXover3pRemovedSignal.emit(strand3p, \
-                                        vh5p, st5p, idx5p)
+            strand3p.strandXover3pRemovedSignal.emit(strand3p, strand5p)
             strand5p.strandUpdateSignal.emit(strand5p)
+            strand3p.strandUpdateSignal.emit(strand3p)
         # end def
     # end class

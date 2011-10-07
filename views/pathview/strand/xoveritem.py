@@ -255,7 +255,9 @@ class XoverItem(QGraphicsPathItem):
     def xover3pRemovedSlot(self):
         self._partItem.removeXoverItem(self)
         self._controller.disconnectSignals()
-        scene = self.scence()
+        scene = self.scene()
+        scene.removeItem(self._node3)
+        scene.removeItem(self._node5)
         scene.removeItem(self)
     # end def
     

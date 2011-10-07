@@ -159,6 +159,7 @@ class DocumentWindow(QMainWindow, ui_mainwindow.Ui_MainWindow):
             return
         # end if
         painter.beginNativePainting()
+        GL.glDisable(GL.GL_DEPTH_TEST) # disable for 2D drawing
         GL.glClearColor(1.0, 1.0, 1.0, 1.0)
         GL.glClear(GL.GL_COLOR_BUFFER_BIT | GL.GL_DEPTH_BUFFER_BIT)
         
