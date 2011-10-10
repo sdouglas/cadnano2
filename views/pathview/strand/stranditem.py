@@ -291,7 +291,7 @@ class StrandItem(QGraphicsLineItem):
             # coordinate system, +Y is still Down, and +X is still Right
             seqLbl.setRotation(180)
             # draw the text and reverse the string to draw 5 prime to 3 prime
-            seqTxt = seqTxt[::-1]
+            # seqTxt = seqTxt[::-1]
         # end if
         
         seqLbl.setPos(seqX,seqY)

@@ -192,6 +192,9 @@ complement = string.maketrans('ACGTacgt','TGCATGCA')
 def rcomp(seqStr):
     """Returns the reverse complement of the sequence in seqStr."""
     return seqStr.translate(complement)[::-1]
+def comp(seqStr):
+    """Returns the complement of the sequence in seqStr."""
+    return seqStr.translate(complement)
 
 whitetoQ = string.maketrans(' ','?')
 def markwhite(seqStr):

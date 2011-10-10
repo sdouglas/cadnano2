@@ -66,7 +66,8 @@ class Strand(QObject):
         self._decorators = {}
         # dynamic methods for mapping high/low connection /indices 
         # to corresponding 3Prime 5Prime 
-        if strandSet.isDrawn5to3():
+        isDrawn5to3 = strandSet.isDrawn5to3()
+        if isDrawn5to3:
             self.idx5Prime = self.lowIdx
             self.idx3Prime = self.highIdx
             self.lowConnection = self.connection5p
@@ -80,6 +81,7 @@ class Strand(QObject):
             self.setLowConnection = self.set3pConnection
             self.highConnection = self.connection5p
             self.setHighConnection = self.set5pConnection
+        self._isDrawn5to3 = isDrawn5to3
     # end def
 
     def __repr__(self):
@@ -154,15 +156,17 @@ class Strand(QObject):
     
     def setSequence(self, sequenceString):
         """
+        Applies sequence string from 5' to 3'  
         return the tuple (used, unused) portion of the sequenceString
         """
         if sequenceString == None:
             self._sequence = None
             return None, None
         length = self.length()
-        self._sequence = sequenceString[0:length]
-        
-        return self._sequence, sequenceString[length:]
+        temp = sequenceString[0:length]
+        # self._sequence = temp if self._isDrawn5to3 else temp[::-1]
+        self._sequence = temp 
+        return temp, sequenceString[length:]
     # end def
     
     def setComplimentSequence(self, sequenceString, strand):
@@ -171,6 +175,11 @@ class Strand(QObject):
         align with the given complimentary strand
         
         return the tuple (used, unused) portion of the sequenceString
+        
+        This will always be opposite of it's compliement by virtue of the fact 
+        that while setSequence() is always applied 5' to 3', this is 
+        applied low index to high index mirroring the compliments sequence
+        
         """
         if sequenceString == None:
             self._sequence = None
@@ -182,19 +191,26 @@ class Strand(QObject):
         # get the ovelap
         lowIdx, highIdx = util.overlap(sLowIdx, sHighIdx, cLowIdx, cHighIdx)
         
-        temp = array('c', sequenceString)
+        # only get the characters we're using, while we're at it, make it the
+        # reverse compliment
+        length = highIdx-lowIdx+1
+        
+        useSeq = util.comp(sequenceString)
+        if not self._isDrawn5to3:
+           useSeq = useSeq[::-1]
+           
+        temp = array('c', useSeq)
         if self._sequence == None:
             tempSelf = array('c', ''.join(['Z' for x in range(self.length())]) )
         else:
             tempSelf = array('c'. self._sequence)
-            
-        length = highIdx-lowIdx+1
-        print tempSelf
+        
+        #print tempSelf
         tempSelf[lowIdx-sLowIdx:highIdx-sLowIdx+1] = temp[0:length]
         self._sequence = tempSelf.tostring()
         # print "strs ", self._sequence, tempSelf.tostring()
         # print "lens", self.length(), length
-        return self._sequence, temp[length:].tostring()
+        return self._sequence, sequenceString[length:]
     # end def
 
     ### PUBLIC METHODS FOR QUERYING THE MODEL ###
