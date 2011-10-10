@@ -115,7 +115,7 @@ class PreXoverItem(QGraphicsPathItem):
 
         # create a bounding rect item to process click events
         # over a wide area
-        br = self._boundRect = QGraphicsRectItem(_rect, self)
+        br = self._boundRectItem = QGraphicsRectItem(_rect, self)
         br.mousePressEvent = self.mousePress
         yoffset = 0.2*bw if isOnTop else -0.4*bw
         br.setPos(0, yoffset)
@@ -129,13 +129,14 @@ class PreXoverItem(QGraphicsPathItem):
     ### DRAWING METHODS ###
     def remove(self):
         scene = self.scene()
-        scene.removeItem(self._label)
+        if scene:
+            scene.removeItem(self._label)
+            scene.removeItem(self._boundRectItem)
+            scene.removeItem(self)
         self._label = None
-        scene.removeItem(self._boundRect)
-        self._boundRect = None
+        self._boundRectItem = None
         self._fromVHItem = None
         self._toVHItem = None
-        scene.removeItem(self)
     # end def
 
     def setPainterPath(self):

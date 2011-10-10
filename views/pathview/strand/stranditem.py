@@ -177,16 +177,16 @@ class StrandItem(QGraphicsLineItem):
     ### PUBLIC METHODS FOR DRAWING / LAYOUT ###
     def updateLine(self, movedCap):
         # setup
-        halfBaseWidth = self._virtualHelixItem._baseWidth / 2.0
+        bw = self._virtualHelixItem._baseWidth
         line = self.line()
         # set new line coords
         if movedCap == self._lowCap:
             p1 = line.p1()
-            p1.setX(self._lowCap.pos().x() + halfBaseWidth)
+            p1.setX(self._lowCap.pos().x() + bw)
             line.setP1(p1)
         else:
             p2 = line.p2()
-            p2.setX(self._highCap.pos().x() + halfBaseWidth)
+            p2.setX(self._highCap.pos().x())
             line.setP2(p2)
         self.setLine(line)
 
@@ -213,14 +213,14 @@ class StrandItem(QGraphicsLineItem):
 
         # 1. Cap visibilty
         if strand.lowConnection() != None:  # hide low cap if Low-connected
-            lx = lUpperLeftX
+            lx = lUpperLeftX + halfBaseWidth
             lowCap.hide()
         else:  # otherwise show left cap
             lx = lUpperLeftX + halfBaseWidth
             lowCap.setPos(lUpperLeftX, lUpperLeftY)
             lowCap.show()
         if strand.highConnection() != None:  # hide high cap if High-connected
-            hx = hUpperLeftX + bw
+            hx = hUpperLeftX + halfBaseWidth
             highCap.hide()
         else:  # otherwise show it
             hx = hUpperLeftX + halfBaseWidth
