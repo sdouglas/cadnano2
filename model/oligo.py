@@ -82,7 +82,7 @@ class Oligo(QObject):
     ### METHODS ###
     def applySequence(self, sequence, useUndoStack=True):
         c = Oligo.ApplySequenceCommand(self, sequence,)
-        util._execCommandList(self, [c], desc="Apply Sequence", useUndoStack=useUndoStack)
+        util.execCommandList(self, [c], desc="Apply Sequence", useUndoStack=useUndoStack)
     # end def
 
     def undoStack(self):

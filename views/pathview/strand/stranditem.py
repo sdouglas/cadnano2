@@ -63,18 +63,18 @@ class StrandItem(QGraphicsLineItem):
         self._modelStrand = modelStrand
         self._virtualHelixItem = virtualHelixItem
         self._activeTool = virtualHelixItem.activeTool()
-        
+
         isDrawn5to3 = modelStrand.strandSet().isDrawn5to3()
         self._lowCap = EndpointItem(self, 'low', isDrawn5to3)
         self._highCap = EndpointItem(self, 'high', isDrawn5to3)
         self._dualCap = EndpointItem(self, 'dual', isDrawn5to3)
-        
+
         self._isDrawn5to3 = isDrawn5to3
         self._isOnTop = virtualHelixItem.isStrandOnTop(modelStrand)
-        
+
         self._seqLabel = QGraphicsSimpleTextItem(self)
         self.updateSequenceText()
-        
+
         self._controller = StrandItemController(self, modelStrand)
         self._updateAppearance(modelStrand)
     # end def

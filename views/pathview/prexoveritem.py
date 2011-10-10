@@ -84,18 +84,14 @@ class PreXoverItem(QGraphicsPathItem):
         self._fromVHItem = fromVirtualHelixItem
         self._toVHItem = toVirtualHelixItem
         self._idx = index
-        self._sType = strandType
+        self._strandType = strandType
         # translate from Low to Left for the Path View
         self._isLowIndex = isLowIdx
-        
         self._isActive = False
-        
         self._pen = _scafpen if strandType == StrandType.Scaffold else _stappen
-        
-        bw = _baseWidth
-
         isOnTop = fromVirtualHelixItem.isStrandTypeOnTop(strandType)
 
+        bw = _baseWidth
         x = bw * index
         y = (-1.25 if isOnTop else 2.25) * bw
         self.setPos(x, y)
@@ -124,7 +120,7 @@ class PreXoverItem(QGraphicsPathItem):
         yoffset = 0.2*bw if isOnTop else -0.4*bw
         br.setPos(0, yoffset)
         br.setPen(QPen(Qt.NoPen))
-        
+
         self.updateStyle()
         self.updateLabel()
         self.setPainterPath()
@@ -141,39 +137,36 @@ class PreXoverItem(QGraphicsPathItem):
         self._toVHItem = None
         scene.removeItem(self)
     # end def
-    
+
     def setPainterPath(self):
-        #Look Up Table
-        pathLUT = (_ppathRD, _ppathRU, _ppathLD, _ppathLU)
-        
+        """
+        Sets the PainterPath according to the index (low = Left, high = Right)
+        and strand position (top = Up, bottom = Down).
+        """
+        pathLUT = (_ppathRD, _ppathRU, _ppathLD, _ppathLU)  # Lookup table
         vhi = self._fromVHItem
-        st= self._sType
-        
+        st = self._strandType
         path = pathLUT[2*int(self._isLowIndex) + int(vhi.isStrandTypeOnTop(st))]
-
         self.setPath(path)
-
     # end def
-    
+
     def updateStyle(self):
         """
-        If a PreXover can be installed the pen is a bold color
-        
+        If a PreXover can be installed the pen is a bold color,
         otherwise the PreXover is drawn with a disabled or muted color
         """
         fromVH = self._fromVHItem.virtualHelix()
         toVH = self._toVHItem.virtualHelix()
         part = self._fromVHItem.part()
-        
         pen = _disabpen
         self._labelBrush = _disabbrush
-        if part.possibleXoverAt(fromVH, toVH, self._sType, self._idx):
+        if part.possibleXoverAt(fromVH, toVH, self._strandType, self._idx):
             pen = self._pen
             self._isActive = True
             self._labelBrush = _enabbrush
         self.setPen(pen)
     # end def
-    
+
     def updateLabel(self):
         lbl = self._label
         lbl.setBrush(self._labelBrush)
@@ -190,13 +183,22 @@ class PreXoverItem(QGraphicsPathItem):
     def mousePress(self, event):
         if event.button() != Qt.LeftButton:
             return QGraphicsPathItem.mousePressEvent(self, event)
-        else:
-            if self._isActive:
-                fromVH = self._fromVHItem.virtualHelix()
-                toVH = self._toVHItem.virtualHelix()
-                part = self._fromVHItem.part()
-                print "Prexover clicked, install from %d, to %d" % (self._fromVHItem.number(), self._toVHItem.number())
-                part.createSimpleXover(fromVH, toVH, self._sType, self._idx)
-            pass
+
+        if self._isActive:
+            fromVH = self._fromVHItem.virtualHelix()
+            toVH = self._toVHItem.virtualHelix()
+            fromSS = fromVH.getStrandSetByType(self._strandType)
+            toSS = toVH.getStrandSetByType(self._strandType)
+            fromStrand = fromSS.getStrand(self._idx)
+            toStrand = toSS.getStrand(self._idx)
+            part = self._fromVHItem.part()
+            # determine if we are a 5' or a 3' end
+            if self.path() in [_ppathLU, _ppathRD]:  # 3'
+                strand5p = toStrand
+                strand3p = fromStrand
+            else:  # 5'
+                strand5p = fromStrand
+                strand3p = toStrand
+            part.createSimpleXover(strand5p, strand3p, self._idx)
     # end def
     

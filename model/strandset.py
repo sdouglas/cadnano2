@@ -162,7 +162,7 @@ class StrandSet(QObject):
         canInsert, strandSetIdx = self.getIndexToInsert(baseIdxLow, baseIdxHigh)
         if canInsert:
             c = StrandSet.CreateStrandCommand(self, baseIdxLow, baseIdxHigh, strandSetIdx)
-            util._execCommandList(self, [c], desc="Create strand", useUndoStack=useUndoStack)
+            util.execCommandList(self, [c], desc="Create strand", useUndoStack=useUndoStack)
             return strandSetIdx
         else:
             return -1
@@ -181,7 +181,7 @@ class StrandSet(QObject):
         canInsert, strandSetIdx = self.getIndexToInsert(baseIdxLow, baseIdxHigh)
         if canInsert:
             c = StrandSet.CreateStrandCommand(self, baseIdxLow, baseIdxHigh, strandSetIdx)
-            util._execCommandList(self, [c], desc=None, useUndoStack=useUndoStack)
+            util.execCommandList(self, [c], desc=None, useUndoStack=useUndoStack)
             return strandSetIdx
         else:
             return -1
@@ -192,7 +192,7 @@ class StrandSet(QObject):
             if not isInSet:
                 raise IndexError
         c = StrandSet.RemoveStrandCommand(self, strand, strandSetIdx)
-        util._execCommandList(self, [c], desc="Remove strand", useUndoStack=useUndoStack)
+        util.execCommandList(self, [c], desc="Remove strand", useUndoStack=useUndoStack)
         return strandSetIdx
 
     def mergeStrands(self, priorityStrand, otherStrand, useUndoStack=True):
@@ -208,7 +208,7 @@ class StrandSet(QObject):
             if isInSet:
                 c = StrandSet.MergeCommand(strandLow, strandHigh, \
                                                 lowStrandSetIdx, priorityStrand)
-                util._execCommandList(self, [c], desc="Merge", useUndoStack=useUndoStack)
+                util.execCommandList(self, [c], desc="Merge", useUndoStack=useUndoStack)
     # end def
 
     def strandsCanBeMerged(self, strandA, strandB):
@@ -238,7 +238,7 @@ class StrandSet(QObject):
             isInSet, overlap, strandSetIdx = self._findIndexOfRangeFor(strand)
             if isInSet:
                 c = StrandSet.SplitCommand(strand, baseIdx, strandSetIdx)
-                util._execCommandList(self, [c], desc="Split", useUndoStack=useUndoStack)
+                util.execCommandList(self, [c], desc="Split", useUndoStack=useUndoStack)
     # end def
 
     def strandCanBeSplit(self, strand, baseIdx):

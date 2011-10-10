@@ -346,7 +346,7 @@ class Strand(QObject):
 
     def resize(self, newIdxs, useUndoStack=True):
         c = Strand.ResizeCommand(self, newIdxs)
-        util._execCommandList(self, [c], desc="Resize strand", useUndoStack=useUndoStack)
+        util.execCommandList(self, [c], desc="Resize strand", useUndoStack=useUndoStack)
     # end def
 
     def merge(self, idx):

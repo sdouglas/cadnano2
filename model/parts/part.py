@@ -202,39 +202,47 @@ class Part(QObject):
 
     def createVirtualHelix(self, row, col, useUndoStack=True):
         c = Part.CreateVirtualHelixCommand(self, row, col)
-        util._execCommandList(self, [c], desc="Add VirtualHelix", \
+        util.execCommandList(self, [c], desc="Add VirtualHelix", \
                                                 useUndoStack=useUndoStack)
     # end def
 
-    def createSimpleXover(self, fromVirtualHelix, toVirtualHelix, \
-                                    strandType, baseIdx, useUndoStack=True):
+    def createSimpleXover(self, strand5p, strand3p, baseIdx, useUndoStack=True):
         # prexoveritem needs to store left or right, and determine
         # locally whether it is from or to
         # pass that info in here in and then do the breaks
-
-        fromSS = fromVirtualHelix.getStrandSetByType(strandType)
-        toSS = toVirtualHelix.getStrandSetByType(strandType)
-        fromStrand = fromSS.getStrand(baseIdx)
-        toStrand = toSS.getStrand(baseIdx)
-        if fromStrand.idx3Prime() == baseIdx:
-            strand3p = fromStrand
-            strand5p = toStrand
-        else:
-            strand5p = fromStrand
-            strand3p = toStrand
-
+        print "createSimpleXover", strand5p, strand3p, baseIdx
+        ss5p = strand5p.strandSet()
+        ss3p = strand3p.strandSet()
         cmds = []
-        if fromSS.strandCanBeSplit(fromStrand, baseIdx):
-            isInSet, overlap, strandSetIdx = fromSS._findIndexOfRangeFor(fromStrand)
-            if isInSet:
-                cmds.append(fromSS.SplitCommand(fromStrand, baseIdx, strandSetIdx))
-        if toSS.strandCanBeSplit(toStrand, baseIdx):
-            isInSet, overlap, strandSetIdx = toSS._findIndexOfRangeFor(toStrand)
-            if isInSet:
-                cmds.append(fromSS.SplitCommand(toStrand, baseIdx, strandSetIdx))
 
-        cmds.append(Part.CreateXoverCommand(self, strand3p, baseIdx, strand5p, baseIdx))
-        util._execCommandList(self, cmds, desc="Create Xover", \
+        # is the 5' end ready for xover installation?
+        if strand5p.idx5Prime() == baseIdx:  # yes, idx already matches
+            xoStrand5 = strand5p
+        else:  # no, let's try to split
+            offset5p = -1 if ss5p.isDrawn5to3() else 1
+            if ss5p.strandCanBeSplit(strand5p, baseIdx+offset5p):
+                found, overlap, ssIdx = ss5p._findIndexOfRangeFor(strand5p)
+                if found:
+                    c = ss5p.SplitCommand(strand5p, baseIdx+offset5p, ssIdx)
+                    cmds.append(c)
+                    xoStrand5 = c._strandHigh if ss5p.isDrawn5to3() else c._strandLow
+            else:  # can't split... abort
+                return
+
+        # is the 3' end ready for xover installation?
+        if strand3p.idx3Prime() == baseIdx:  # yes, idx already matches
+            xoStrand3 = strand3p
+        else:
+            if ss3p.strandCanBeSplit(strand3p, baseIdx):
+                found, overlap, ssIdx = ss3p._findIndexOfRangeFor(strand3p)
+                if found:
+                    d = ss3p.SplitCommand(strand3p, baseIdx, ssIdx)
+                    cmds.append(d)
+                    xoStrand3 = d._strandLow if ss3p.isDrawn5to3() else d._strandHigh
+            else:  # can't split... abort
+                return
+        cmds.append(Part.CreateXoverCommand(self, xoStrand3, baseIdx, xoStrand5, baseIdx))
+        util.execCommandList(self, cmds, desc="Create Xover", \
                                                 useUndoStack=useUndoStack)
     # end def
     
@@ -321,7 +329,7 @@ class Part(QObject):
             e = "Cannot remove virtualhelix: No ref or coord provided."
             raise KeyError(e)
         c = Part.RemoveVirtualHelixCommand(self, virtualHelix)
-        util._execCommandList(self, [c], desc="Remove VirtualHelix", \
+        util.execCommandList(self, [c], desc="Remove VirtualHelix", \
                                                     useUndoStack=useUndoStack)
     # end def
 
@@ -666,7 +674,6 @@ class Part(QObject):
             self._idx3p = idx3p
             self._strand5p = strand5p
             self._idx5p = idx5p
-            
             self._oldOligo5p = strand5p.oligo()
         # end def
 
@@ -677,15 +684,15 @@ class Part(QObject):
             strand5p = self._strand5p
             idx5p = self._idx5p
             olg = strand3p.oligo()
-            
-            # 2. install the Xover 
+
+            # 2. install the Xover
             strand3p.set3pConnection(strand5p)
             strand5p.set5pConnection(strand3p)
-            
+
             # 3. apply the 3 prime strand oligo to the 5 prime strand
             for strand in strand5p.generator3pStrand():
                 Strand.setOligo(strand, olg)  # emits strandHasNewOligoSignal
-            
+
             ss3 = strand3p.strandSet()
             vh3p = ss3.virtualHelix()
             st3p = ss3.strandType()
@@ -703,15 +710,15 @@ class Part(QObject):
             strand5p = self._strand5p
             idx5p = self._idx5p
             olg = self._oldOligo5p
-            
-            # 2. uninstall the Xover 
+
+            # 2. uninstall the Xover
             strand3p.set3pConnection(None)
             strand5p.set5pConnection(None)
-            
+
             # 3. apply the old 5 prime strand oligo to the 5 prime strand
             for strand in strand5p.generator3pStrand():
                 Strand.setOligo(strand, olg)  # emits strandHasNewOligoSignal
-            
+
             ss3 = strand3p.strandSet()
             vh3p = ss3.virtualHelix()
             st3p = ss3.strandType()

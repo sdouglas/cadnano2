@@ -233,7 +233,7 @@ def starmapExec(f, tupleIter):
     list(dropwhile(lambda x: True, starmap(f, tupleIter)))
 # end def
 
-def _execCommandList(self, commands, desc=None, useUndoStack=False):
+def execCommandList(self, commands, desc=None, useUndoStack=False):
     """
     This is a wrapper for performing QUndoCommands, meant to ensure
     uniform handling of the undoStack and macro descriptions.
