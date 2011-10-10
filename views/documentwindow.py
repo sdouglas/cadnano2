@@ -47,6 +47,8 @@ try:
 except:
     GL = False
 
+GL = False
+
 class DocumentWindow(QMainWindow, ui_mainwindow.Ui_MainWindow):
     """docstring for DocumentWindow"""
     def __init__(self, parent=None, docCtrlr=None):

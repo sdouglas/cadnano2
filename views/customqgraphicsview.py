@@ -51,6 +51,8 @@ try:
 except:
     GL = False
 
+GL = False
+
 class CustomQGraphicsView(QGraphicsView):
     """
     Base class for QGraphicsViews with Mouse Zoom and Pan support via the

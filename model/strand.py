@@ -174,12 +174,20 @@ class Strand(QObject):
         This version takes anothers strand and only sets the indices that
         align with the given complimentary strand
         
-        return the tuple (used, unused) portion of the sequenceString
+        return the used portion of the sequenceString
         
-        This will always be opposite of it's compliement by virtue of the fact 
-        that while setSequence() is always applied 5' to 3', this is 
-        applied low index to high index mirroring the compliments sequence
+        As it depends which direction this is going, and strings are stored in
+        memory left to right, we need to test for isDrawn5to3 to map the reverse
+        compliment appropriately, as we traverse overlapping strands. 
         
+        We reverse the sequence ahead of time if we are applying it 5' to 3',
+        otherwise we reverse the sequence post parsing if it's 3' to 5'
+        
+        Again, sequences are stored as strings in memory 5' to 3' so we need
+        to jump through these hoops to iterate 5' to 3' through them correctly
+        
+        Perhaps it's wiser to merely store them left to right and reverse them
+        at draw time, or export time
         """
         if sequenceString == None:
             self._sequence = None
@@ -195,22 +203,26 @@ class Strand(QObject):
         # reverse compliment
         length = highIdx-lowIdx+1
         
-        useSeq = util.comp(sequenceString)
-        if not self._isDrawn5to3:
-           useSeq = useSeq[::-1]
-           
+        
+        useSeq = sequenceString[::-1] if self._isDrawn5to3 else sequenceString
+        
         temp = array('c', useSeq)
         if self._sequence == None:
             tempSelf = array('c', ''.join(['Z' for x in range(self.length())]) )
         else:
             tempSelf = array('c'. self._sequence)
         
-        #print tempSelf
-        tempSelf[lowIdx-sLowIdx:highIdx-sLowIdx+1] = temp[0:length]
+        # generate the index into the compliment string
+        start = lowIdx - cLowIdx
+        end = start + length
+        tempSelf[lowIdx-sLowIdx:highIdx-sLowIdx+1] = temp[start:end]
         self._sequence = tempSelf.tostring()
-        # print "strs ", self._sequence, tempSelf.tostring()
-        # print "lens", self.length(), length
-        return self._sequence, sequenceString[length:]
+        
+        # if we need to reverse it do it now
+        if not self._isDrawn5to3:
+            self._sequence = self._sequence[::-1]
+
+        return self._sequence
     # end def
 
     ### PUBLIC METHODS FOR QUERYING THE MODEL ###
