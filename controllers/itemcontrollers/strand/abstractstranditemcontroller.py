@@ -39,7 +39,7 @@ class AbstractStrandItemController(object):
         # self.connectSignals()
     # end def
     
-    def reconnectOligoSignals(self, newOligo):
+    def reconnectOligoSignals(self):
         self.disconnectOligoSignals()
         self.connectOligoSignals()
     # end def

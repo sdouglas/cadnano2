@@ -240,7 +240,8 @@ class XoverItem(QGraphicsPathItem):
     
     ### SLOTS ###
     def strandHasNewOligoSlot(self, strand):
-        pass
+        self._controller.reconnectOligoSignals()
+    # end def
     def strandRemovedSlot(self, strand):
         
         pass

@@ -152,7 +152,7 @@ class StrandItem(QGraphicsLineItem):
     # end def
 
     def strandHasNewOligoSlot(self, strand):
-        pass
+        self._controller.reconnectOligoSignals()
     # end def
 
     def strandDecoratorAddedSlot(self, strand):

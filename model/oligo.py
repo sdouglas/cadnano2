@@ -235,7 +235,7 @@ class Oligo(QObject):
             
             for strand in olg.strand5p().generator3pStrand():
                 usedSeq, nS = strand.setSequence(nS)
-                
+
                 # get the compliment ahead of time
                 usedSeq = util.comp(usedSeq)
                 compSS = strand.strandSet().complimentStrandSet()
@@ -259,7 +259,7 @@ class Oligo(QObject):
                 usedSeq, oS = strand.setSequence(oS)
                 
                 # get the compliment ahead of time
-                usedSeq = util.comp(usedSeq)
+                usedSeq = util.comp(usedSeq) if usedSeq else None
                 compSS = strand.strandSet().complimentStrandSet()
                 for compStrand in compSS._findOverlappingRanges(strand):
                     subUsedSeq = compStrand.setComplimentSequence(usedSeq, strand)
