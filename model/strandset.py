@@ -907,9 +907,6 @@ class StrandSet(QObject):
 # end class
 
 
-# from nose.tools import with_setup
-from mock import Mock
-
 class TestStrandSet():
     def setUp(self):
         pass
@@ -918,6 +915,7 @@ class TestStrandSet():
         pass
 
     def test_findIndexOfRangeFor(self):
+        from mock import Mock
         # Test strandsets with 0, 1, or 2 elements for each type
         # of search:
         #   exact-hit
