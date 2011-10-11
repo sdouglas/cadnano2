@@ -109,14 +109,11 @@ class Document(QObject):
             part.partRemoved.emit()
 
     ### PRIVATE SUPPORT METHODS ###
-    def _addPart(self, part):
+    def _addPart(self, part, useUndoStack=True):
         """Add part to the document via AddPartCommand."""
         undoStack = self.undoStack()
         c = self.AddPartCommand(self, part)
-        if undoStack != None:
-            self.undoStack().push(c)
-        else:
-            c.redo()
+        util.execCommandList(self, [c], desc="Add part", useUndoStack=useUndoStack)
         return c.part()
 
     ### COMMANDS ###

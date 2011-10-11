@@ -247,8 +247,8 @@ class EmptyHelixItem(QGraphicsEllipseItem):
         vh = self.virtualHelix()
         coord = self._coord
         part = self.part()
-        
-        if vh != None: 
+
+        if vh != None:
             return
         uS = part.undoStack()
         uS.beginMacro("Slice Click")
