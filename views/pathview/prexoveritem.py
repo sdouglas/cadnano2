@@ -200,6 +200,6 @@ class PreXoverItem(QGraphicsPathItem):
             else:  # 5'
                 strand5p = fromStrand
                 strand3p = toStrand
-            part.createSimpleXover(strand5p, strand3p, self._idx)
+            part.createXover(strand5p, self._idx, strand3p)
     # end def
     

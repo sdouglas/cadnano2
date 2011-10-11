@@ -79,6 +79,7 @@ class Document(QObject):
         """
         Create and store a new DNAPart and instance, and return the instance.
         """
+        print "addHoneycombPart"
         dnapart = None
         if len(self._parts) == 0:
             dnapart = HoneycombPart(document=self)
@@ -116,18 +117,9 @@ class Document(QObject):
     ### PRIVATE SUPPORT METHODS ###
     def _addPart(self, part, useUndoStack=True):
         """Add part to the document via AddPartCommand."""
-        undoStack = self.undoStack()
         c = self.AddPartCommand(self, part)
         util.execCommandList(self, [c], desc="Add part", useUndoStack=useUndoStack)
         return c.part()
-
-    def _resetViewRootControllers(self):
-        """
-        Allows the new document, via its controller, to notify the window
-        that its root-level controllers should be reset.
-        """
-        print "_resetViewRootControllers", self._controller
-        self._controller.resetViewRootControllers()
 
     ### COMMANDS ###
     class AddPartCommand(QUndoCommand):

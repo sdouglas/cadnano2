@@ -128,7 +128,7 @@ class DocumentController():
         3. Create a new document and swap it into the existing ctrlr/window.
         """
         if len(self._document.parts()) == 0:
-            # print "no parts!"
+            print "No existing parts, so no new document"
             return  # no parts
 
         if self.maybeSave() == False:
@@ -334,13 +334,13 @@ class DocumentController():
         self._hasNoAssociatedFile = fname == None
         self._activePart = None
         self.win.setWindowTitle(self.documentTitle() + '[*]')
-        if doc == None:
-            doc = Document()
-        self.setDocument(doc)
-        if doc.parts():
-            part = doc.parts()[0]
-            self._activePart = part
-            part.partNeedsFittingToViewSignal.emit()
+        # if doc == None:
+        #     doc = Document()
+        # self.setDocument(doc)
+        # if doc.parts():
+        #     part = doc.parts()[0]
+        #     self._activePart = part
+        #     part.partNeedsFittingToViewSignal.emit()
 
 
     ### SLOT CALLBACKS ###
@@ -352,6 +352,17 @@ class DocumentController():
         """
         if hasattr(self, "filesavedialog"): # user did save
             self.filesavedialog.finished.disconnect(self.actionNewSlotCallback)
+            del self.filesavedialog  # prevents hang (?)
+        self.newDocument()
+
+    def newClickedCallback(self):
+        """
+        Gets called on completion of filesavedialog after newClicked's 
+        maybeSave. Removes the dialog if necessary, but it was probably
+        already removed by saveFileDialogCallback.
+        """
+        if hasattr(self, "filesavedialog"): # user did save
+            self.filesavedialog.finished.disconnect(self.newClickedCallback)
             del self.filesavedialog  # prevents hang (?)
         self.newDocument()
 
@@ -371,8 +382,8 @@ class DocumentController():
         if not fname or os.path.isdir(fname):
             return False
         fname = str(fname)
-        doc = decode(file(fname).read(), self)
-        self.newDocument(doc, fname)
+        self.newDocument(fname=fname)
+        decode(self._document, file(fname).read())
         # doc.finalizeImport()  # updates staple highlighting
         if self.fileopendialog != None:
             self.fileopendialog.filesSelected.disconnect(\
@@ -419,7 +430,7 @@ class DocumentController():
     def filename(self):
         return self._filename
 
-    def setFilename(self):
+    def setFilename(self, proposedFName):
         if self._filename == proposedFName:
             return True
         self._filename = proposedFName
@@ -452,11 +463,6 @@ class DocumentController():
             self.fileopendialog = fdialog
             self.fileopendialog.filesSelected.connect(self.openAfterMaybeSaveCallback)
             fdialog.open()
-
-    def resetViewRootControllers(self):
-        """Called by the document to notify the window that a file has
-        been loaded and ViewRootControllers should be recreated."""
-        self.win.resetViewRootControllers()
 
     ### FILE OUTPUT ###
     def maybeSave(self):

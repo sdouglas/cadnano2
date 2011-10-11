@@ -205,52 +205,44 @@ class Part(QObject):
                                                 useUndoStack=useUndoStack)
     # end def
 
-    def createSimpleXover(self, strand5p, strand3p, baseIdx, useUndoStack=True):
+    def createXover(self, strand3p, idx3p, strand5p, idx5p, useUndoStack=True):
         # prexoveritem needs to store left or right, and determine
         # locally whether it is from or to
         # pass that info in here in and then do the breaks
-        print "createSimpleXover", strand5p, strand3p, baseIdx
         ss5p = strand5p.strandSet()
         ss3p = strand3p.strandSet()
         cmds = []
 
         # is the 5' end ready for xover installation?
-        if strand5p.idx5Prime() == baseIdx:  # yes, idx already matches
+        if strand5p.idx5Prime() == idx5p:  # yes, idx already matches
             xoStrand5 = strand5p
         else:  # no, let's try to split
             offset5p = -1 if ss5p.isDrawn5to3() else 1
-            if ss5p.strandCanBeSplit(strand5p, baseIdx+offset5p):
+            if ss5p.strandCanBeSplit(strand5p, idx5p+offset5p):
                 found, overlap, ssIdx = ss5p._findIndexOfRangeFor(strand5p)
                 if found:
-                    c = ss5p.SplitCommand(strand5p, baseIdx+offset5p, ssIdx)
+                    c = ss5p.SplitCommand(strand5p, idx5p+offset5p, ssIdx)
                     cmds.append(c)
                     xoStrand5 = c._strandHigh if ss5p.isDrawn5to3() else c._strandLow
             else:  # can't split... abort
                 return
 
         # is the 3' end ready for xover installation?
-        if strand3p.idx3Prime() == baseIdx:  # yes, idx already matches
+        if strand3p.idx3Prime() == idx3p:  # yes, idx already matches
             xoStrand3 = strand3p
         else:
-            if ss3p.strandCanBeSplit(strand3p, baseIdx):
+            if ss3p.strandCanBeSplit(strand3p, idx3p):
                 found, overlap, ssIdx = ss3p._findIndexOfRangeFor(strand3p)
                 if found:
-                    d = ss3p.SplitCommand(strand3p, baseIdx, ssIdx)
+                    d = ss3p.SplitCommand(strand3p, idx3p, ssIdx)
                     cmds.append(d)
                     xoStrand3 = d._strandLow if ss3p.isDrawn5to3() else d._strandHigh
             else:  # can't split... abort
                 return
-        cmds.append(Part.CreateXoverCommand(self, xoStrand3, baseIdx, xoStrand5, baseIdx))
+        c = Part.CreateXoverCommand(self, xoStrand3, idx3p, xoStrand5, idx5p)
+        cmds.append(c)
         util.execCommandList(self, cmds, desc="Create Xover", \
                                                 useUndoStack=useUndoStack)
-    # end def
-    
-    # end def
-    def createXover(self, vh):
-        """
-        1. fnd strands
-        """
-        pass
     # end def
 
     def destroy(self):
@@ -410,7 +402,6 @@ class Part(QObject):
         else:
             heappush(self.oddRecycleBin,n)
     # end def
-
 
     ### PUBLIC SUPPORT METHODS ###
     def shallowCopy(self):

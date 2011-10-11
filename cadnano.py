@@ -160,6 +160,7 @@ class CADnano(QObject):
             self.qApp.exec_()
 
     def newDocument(self, isFirstNewDoc=False):
+        print "cadnano: newDocument"
         from controllers.documentcontroller import DocumentController
         defaultFile = environ.get('CADNANO_DEFAULT_DOCUMENT', None)
         if defaultFile and isFirstNewDoc:

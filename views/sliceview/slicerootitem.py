@@ -55,8 +55,7 @@ class SliceRootItem(QGraphicsRectItem):
         Views that subclass AbstractView should override this method.
         """
         self._modelPart = modelPart
-        win = self._window
-        partItem = PartItem(modelPart, parent=win.sliceroot)
+        partItem = PartItem(modelPart, parent=self)
         self._instanceItems[partItem] = partItem
     # end def
 
