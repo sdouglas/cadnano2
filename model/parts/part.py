@@ -486,9 +486,9 @@ class Part(QObject):
 
         # assign the method to a a local variable
         getVH = self.virtualHelixAtCoord
-        # get the vh's row and column r,c 
+        # get the vh's row and column r,c
         (r,c) = vh.coords()
-        
+
         if self.isEvenParity(r, c):
             neighbors.append(getVH((r,c+1)))  # p0 neighbor (p0 is a direction)
             neighbors.append(getVH((r-1,c)))  # p1 neighbor
@@ -511,18 +511,16 @@ class Part(QObject):
     
     def potentialCrossoverList(self, virtualHelix):
         """
-        Returns a list of tuples 
-        (neighborVirtualHelix, index, strandType, isLowIdx)
-        where 
-        
+        Returns a list of tuples
+            (neighborVirtualHelix, index, strandType, isLowIdx)
+
+        where:
+
         neighborVirtualHelix is a virtualHelix neighbor of the arg virtualHelix
-        
         index is the index where a potential Xover might occur
-        
         strandType is from the enum (StrandType.Scaffold, StrandType.Staple)
-        
-        isLowIdx is whether or not it's the at the low index (left in the Path view) 
-        of a potential Xover site
+        isLowIdx is whether or not it's the at the low index (left in the Path
+        view) of a potential Xover site
         """
         vh = virtualHelix
         ret = []  # LUT = Look Up Table
