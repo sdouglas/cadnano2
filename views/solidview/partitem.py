@@ -81,7 +81,6 @@ class PartItem(QObject):
         #print "maya PartItem created"
         self._type = modelPart.crossSectionType()
 
-
         #self.mayaScale = 1.0
         #later updates using basecount from the VH
         # XXX [SB] - need to ask CandNano for rows and cols...
