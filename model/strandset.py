@@ -631,12 +631,16 @@ class StrandSet(QObject):
             strandSet._strandList.pop(self._sSetIdx)
             # Get rid of the new oligo
             oligo = self._newOligo
+            
             oligo.setStrand5p(None)
             oligo.decrementStrandLength(strand)
             oligo.removeFromPart()
-            strand.setOligo(None)
+            
             # Emit a signal to notify on completion
             strand.strandRemovedSignal.emit(strand)
+            
+            strand.setOligo(None)
+
             # for updating the Slice View displayed helices
             strandSet.part().partStrandChangedSignal.emit(strandSet.virtualHelix())
         # end def
@@ -666,9 +670,12 @@ class StrandSet(QObject):
             oligo.setStrand5p(None)
             oligo.decrementStrandLength(strand)
             oligo.removeFromPart()
-            strand.setOligo(None)  # remove cross refs
+            
             # Emit a signal to notify on completion
             strand.strandRemovedSignal.emit(strand)
+            
+            strand.setOligo(None)  # remove cross refs
+            
             # for updating the Slice View displayed helices
             strandSet.part().partStrandChangedSignal.emit(strandSet.virtualHelix())
         # end def

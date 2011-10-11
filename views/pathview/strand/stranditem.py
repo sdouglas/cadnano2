@@ -101,15 +101,15 @@ class StrandItem(QGraphicsLineItem):
     # end def
 
     def strandRemovedSlot(self, strand):
-        self._modelStrand = None
+        # self._modelStrand = None
+        self._controller.disconnectSignals()
+        self._controller = None
         scene = self.scene()
         # scene.removeItem(self._highCap)
         # scene.removeItem(self._lowCap)
         self._highCap = None
         self._lowCap = None
         scene.removeItem(self)
-        self._controller.disconnectSignals()
-        self._controller = None
     # end def
 
     def strandDestroyedSlot(self, strand):
