@@ -37,8 +37,8 @@ import sip
 
 sys.path.insert(0, os.environ['CADNANO_PATH'])
 
-import mayaHotKeys
-import mayaUI
+import views.solidview.mayaHotKeys as mayaHotKeys
+import views.solidview.mayaUI as mayaUI
 
 import util
 util.qtWrapImport('QtGui', globals(), ['qApp', 'QDockWidget', 'QSizePolicy'])

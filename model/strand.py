@@ -208,7 +208,7 @@ class Strand(QObject):
         
         temp = array('c', useSeq)
         if self._sequence == None:
-            tempSelf = array('c', ''.join(['Z' for x in range(self.length())]) )
+            tempSelf = array('c', ''.join(['_' for x in range(self.length())]) )
         else:
             tempSelf = array('c'. self._sequence)
         

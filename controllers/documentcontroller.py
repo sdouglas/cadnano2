@@ -55,36 +55,48 @@ class DocumentController():
         self._hasNoAssociatedFile = None
         self._sliceViewInstance = None
         self._pathViewInstance = None
-        self._solidView = None
         self._activePart = None
         # call other init methods
-        self.initWindow()
-        self.initMaya()
-        app().documentControllers.add(self)
+        self._initWindow()
         if app().isInMaya():
-            import maya.OpenMayaUI as OpenMayaUI
-            import sip
-            ptr = OpenMayaUI.MQtUtil.mainWindow()
-            mayaWin = sip.wrapinstance(long(ptr), QMainWindow)
-            self.windock = QDockWidget("CADnano")
-            self.windock.setFeatures(
-                                    QDockWidget.DockWidgetMovable
-                                    | QDockWidget.DockWidgetFloatable)
-            self.windock.setAllowedAreas(
-                                    Qt.LeftDockWidgetArea
-                                    | Qt.RightDockWidgetArea)
-            self.windock.setWidget(self.win)
-            mayaWin.addDockWidget(Qt.DockWidgetArea(Qt.LeftDockWidgetArea),
-                                    self.windock)
-            self.windock.setVisible(True)
+            self._initMaya()
+        app().documentControllers.add(self)
 
-    def initWindow(self):
+    def _initWindow(self):
         """docstring for initWindow"""
         self.win = DocumentWindow(docCtrlr=self)
-        self.connectWindowSignalsToSelf()
+        self._connectWindowSignalsToSelf()
         self.win.show()
 
-    def connectWindowSignalsToSelf(self):
+    def _initMaya(self):
+        """
+        Initialize Maya-related state. Delete Maya nodes if there
+        is an old document left over from the same session. Set up
+        the Maya window.
+        """
+        # There will only be one document
+        if (app().activeDocument and app().activeDocument.win and
+                                not app().activeDocument.win.close()):
+            return
+        del app().activeDocument
+        app().deleteAllMayaNodes()
+        app().activeDocument = self
+
+        import maya.OpenMayaUI as OpenMayaUI
+        import sip
+        ptr = OpenMayaUI.MQtUtil.mainWindow()
+        mayaWin = sip.wrapinstance(long(ptr), QMainWindow)
+        self.windock = QDockWidget("CADnano")
+        self.windock.setFeatures(QDockWidget.DockWidgetMovable
+                                 | QDockWidget.DockWidgetFloatable)
+        self.windock.setAllowedAreas(Qt.LeftDockWidgetArea
+                                     | Qt.RightDockWidgetArea)
+        self.windock.setWidget(self.win)
+        mayaWin.addDockWidget(Qt.DockWidgetArea(Qt.LeftDockWidgetArea),
+                                self.windock)
+        self.windock.setVisible(True)
+
+    def _connectWindowSignalsToSelf(self):
         """This method serves to group all the signal & slot connections
         made by DocumentController"""
         self.win.actionNew.triggered.connect(self.actionNewSlot)
@@ -102,17 +114,6 @@ class DocumentController():
         self.win.actionNewSquarePart.triggered.connect(\
             self.actionAddSquarePartSlot)
         self.win.closeEvent = self.windowCloseEventHandler
-
-    def initMaya(self):
-        """docstring for initMaya"""
-        if app().isInMaya():
-            # There will only be one document
-            if (app().activeDocument and app().activeDocument.win and
-                                    not app().activeDocument.win.close()):
-                return
-            del app().activeDocument
-            app().deleteAllMayaNodes()
-            app().activeDocument = self
 
     ### SLOTS ###
     def undoStackCleanChangedSlot(self):
@@ -299,13 +300,30 @@ class DocumentController():
         part = self._document.addSquarePart()
         self.setActivePart(part)
 
-    ### METHODS ###
-    def undoStack(self):
-        return self._document.undoStack()
-
+    ### ACCESSORS ###
     def document(self):
         return self._document
 
+    def setDocument(self, doc):
+        """
+        Sets the controller's document, and informs the document that
+        this is its controller.
+        """
+        self._document = doc
+        doc.setController(self)
+
+    def activePart(self):
+        if self._activePart == None:
+            self._activePart = self._document.selectedPart()
+        return self._activePart
+
+    def setActivePart(self, part):
+        self._activePart = part
+
+    def undoStack(self):
+        return self._document.undoStack()
+
+    ### PRIVATE SUPPORT METHODS ###
     def newDocument(self, doc=None, fname=None):
         """Creates a new Document, reusing the DocumentController."""
         if app().isInMaya():
@@ -316,26 +334,16 @@ class DocumentController():
         self._hasNoAssociatedFile = fname == None
         self._activePart = None
         self.win.setWindowTitle(self.documentTitle() + '[*]')
-        if doc != None and doc.parts():
+        if doc == None:
+            doc = Document()
+        self.setDocument(doc)
+        if doc.parts():
             part = doc.parts()[0]
             self._activePart = part
-            self.setDocument(doc)
-            part.partNeedsFittingToViewSignal.emit()  # must come after setDocument
-        else:
-            self.setDocument(Document())
+            part.partNeedsFittingToViewSignal.emit()
 
-    def windowCloseEventHandler(self, event):
-        """Intercept close events when user attempts to close the window."""
-        if self.maybeSave():
-            event.accept()
-            if app().isInMaya():
-                self.windock.setVisible(False)
-                del self.windock
-            app().documentControllers.remove(self)
-        else:
-            event.ignore()
 
-    ### slot callbacks ###
+    ### SLOT CALLBACKS ###
     def actionNewSlotCallback(self):
         """
         Gets called on completion of filesavedialog after newClicked's 
@@ -363,7 +371,7 @@ class DocumentController():
         if not fname or os.path.isdir(fname):
             return False
         fname = str(fname)
-        doc = decode(file(fname).read())
+        doc = decode(file(fname).read(), self)
         self.newDocument(doc, fname)
         # doc.finalizeImport()  # updates staple highlighting
         if self.fileopendialog != None:
@@ -389,7 +397,19 @@ class DocumentController():
             del self.filesavedialog  # prevents hang
         self.writeDocumentToFile(fname)
 
-    ### file input ##
+    ### EVENT HANDLERS ###
+    def windowCloseEventHandler(self, event):
+        """Intercept close events when user attempts to close the window."""
+        if self.maybeSave():
+            event.accept()
+            if app().isInMaya():
+                self.windock.setVisible(False)
+                del self.windock
+            app().documentControllers.remove(self)
+        else:
+            event.ignore()
+
+    ### FILE INPUT ##
     def documentTitle(self):
         fname = os.path.basename(str(self.filename()))
         if not self.undoStack().isClean():
@@ -433,7 +453,12 @@ class DocumentController():
             self.fileopendialog.filesSelected.connect(self.openAfterMaybeSaveCallback)
             fdialog.open()
 
-    ### file output ###
+    def resetViewRootControllers(self):
+        """Called by the document to notify the window that a file has
+        been loaded and ViewRootControllers should be recreated."""
+        self.win.resetViewRootControllers()
+
+    ### FILE OUTPUT ###
     def maybeSave(self):
         """Save on quit, check if document changes have occured."""
         if app().dontAskAndJustDiscardUnsavedChanges:
@@ -482,35 +507,6 @@ class DocumentController():
         self.setFilename(filename)
         return True
 
-    def saveFileDialog(self):
-        """Spawn a QFileDialog to allow user to choose a filename and path."""
-        fname = self.filename()
-        if fname == None:
-            directory = "."
-        else:
-            directory = QFileInfo(fname).path()
-        if util.isWindows():  # required for native looking file window
-            fname = QFileDialog.getSaveFileName(
-                            self.win,
-                            "%s - Save As" % QApplication.applicationName(),
-                            directory,
-                            "%s (*.nno)" % QApplication.applicationName())
-            self.writeDocumentToFile(fname)
-        else:  # access through non-blocking callback
-            fdialog = QFileDialog(
-                            self.win,
-                            "%s - Save As" % QApplication.applicationName(),
-                            directory,
-                            "%s (*.nno)" % QApplication.applicationName())
-            fdialog.setAcceptMode(QFileDialog.AcceptSave)
-            fdialog.setWindowFlags(Qt.Sheet)
-            fdialog.setWindowModality(Qt.WindowModal)
-            # fdialog.exec_()  # or .show(), or .open()
-            self.filesavedialog = fdialog
-            self.filesavedialog.filesSelected.connect(
-                                                self.saveFileDialogCallback)
-            fdialog.open()
-
     def saveFileDialogCallback(self, selected):
         """If the user chose to save, write to that file."""
         if isinstance(selected, QStringList) or isinstance(selected, list):
@@ -527,23 +523,3 @@ class DocumentController():
                                                 self.saveFileDialogCallback)
             del self.filesavedialog  # prevents hang
         self.writeDocumentToFile(fname)
-
-    ### document related ###
-    def document(self):
-        """docstring for document"""
-        return self._document
-
-    def setDocument(self, doc):
-        """docstring for setDocument"""
-        print "in setDocument", doc
-        self._document = doc
-
-    ### part related ##
-    def activePart(self):
-        if self._activePart == None:
-            self._activePart = self._document.selectedPart()
-        return self._activePart
-
-    def setActivePart(self, part):
-        """docstring for setActivePart"""
-        self._activePart = part

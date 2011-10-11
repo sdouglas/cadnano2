@@ -72,12 +72,6 @@ class Document(QObject):
     def selectedPart(self):
         return self._selectedPart
 
-    def setSelectedPart(self, newPart):
-        if self._selectedPart == newPart:
-            return
-        self._selectedPart = newPart
-        self.documentSelectedPartChangedSignal.emit(newPart)
-
     ### PUBLIC METHODS FOR QUERYING THE MODEL ###
 
     ### PUBLIC METHODS FOR EDITING THE MODEL ###
@@ -105,8 +99,19 @@ class Document(QObject):
         """Used to reset the document. Not undoable."""
         while len(self._parts) > 0:
             part = self._parts.pop()
-            part._setDocument(None)
-            part.partRemoved.emit()
+            part.setDocument(None)
+            part.partRemovedSignal.emit(part)
+
+    def setSelectedPart(self, newPart):
+        if self._selectedPart == newPart:
+            return
+        self._selectedPart = newPart
+        self.documentSelectedPartChangedSignal.emit(newPart)
+
+    ### PUBLIC SUPPORT METHODS ###
+    def setController(self, controller):
+        """Called by DocumentController setDocument method."""
+        self._controller = controller
 
     ### PRIVATE SUPPORT METHODS ###
     def _addPart(self, part, useUndoStack=True):
@@ -115,6 +120,14 @@ class Document(QObject):
         c = self.AddPartCommand(self, part)
         util.execCommandList(self, [c], desc="Add part", useUndoStack=useUndoStack)
         return c.part()
+
+    def _resetViewRootControllers(self):
+        """
+        Allows the new document, via its controller, to notify the window
+        that its root-level controllers should be reset.
+        """
+        print "_resetViewRootControllers", self._controller
+        self._controller.resetViewRootControllers()
 
     ### COMMANDS ###
     class AddPartCommand(QUndoCommand):

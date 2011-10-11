@@ -128,6 +128,13 @@ class DocumentWindow(QMainWindow, ui_mainwindow.Ui_MainWindow):
     def selectedPart(self):
         return self.controller.document().selectedPart()
 
+    ### PUBLIC SUPPORT METHODS ###
+    def resetViewRootControllers(self):
+        doc = self.controller.document()
+        self.pathroot.resetDocumentAndController(doc)
+        self.sliceroot.resetDocumentAndController(doc)
+        # notify solidroot (i.e. mayaroot) here?
+
     ### EVENT HANDLERS ###
     def focusInEvent(self):
         app().undoGroup.setActiveStack(self.controller.undoStack())

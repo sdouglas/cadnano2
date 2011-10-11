@@ -72,13 +72,11 @@ class Mom:
             del self.mayaToCn[key2]
         if self.cnToMaya.has_key(strand):
             del self.cnToMaya[strand]
-    
+
     def __init__(self):
-        
         if Mom.__instance is None:
             Mom.__instance = Mom.__impl()
             #super(Mom, self).__init__()
-
         self.__dict__['_Mom__instance'] = Mom.__instance
 
     def __getattr__(self, attr):

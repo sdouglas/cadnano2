@@ -50,10 +50,14 @@ STAPLE = "staple"
 INSERTION = "insertion"
 DELETION = "deletion"
 
-def doc_from_legacy_dict(obj):
+def doc_from_legacy_dict(obj, documentController):
     """
     Takes a loaded legacy dictionary, returns a loaded Document
     """
+    doc = Document()
+    documentController.newDocument(doc)
+    print "doc_from_legacy_dict", doc, doc._controller
+
     numBases = len(obj['vstrands'][0]['scaf'])
     dialog = QDialog()
     dialogLT = Ui_LatticeType()
@@ -75,14 +79,11 @@ def doc_from_legacy_dict(obj):
         else:
             latticeType = LatticeType.Honeycomb
 
-    doc = Document()
-
     # create part according to lattice type
     if latticeType == LatticeType.Honeycomb:
         steps = numBases/21
         part = HoneycombPart(document=doc, maxRow=30, maxCol=32, maxSteps=steps)
     elif latticeType == LatticeType.Square:
-        part = doc.addSquarePart()
         isSQ100 = True  # check for custom SQ100 format
         for helix in obj['vstrands']:
             if helix['col'] != 0:
@@ -102,6 +103,7 @@ def doc_from_legacy_dict(obj):
         raise TypeError("Lattice type not recognized")
 
     doc._addPart(part)
+    doc._resetViewRootControllers()
     # part.setDimensions((numRows, numCols, numBases))
     # part.setName(obj["name"])
 
