@@ -132,7 +132,7 @@ class VirtualHelixItem(QObject):
         id = self._partItem.strandMayaID(strand)
         self.strandIDs.append(id)
         #print "SolidHelix:strandAddedToVStrand-NormalStrand %s" % id
-        StrandItem(id, strand, self)
+        si = StrandItem(id, strand, self)
     # end def
 
     @pyqtSlot(object)
