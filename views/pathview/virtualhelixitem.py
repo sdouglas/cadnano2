@@ -148,15 +148,14 @@ class VirtualHelixItem(QGraphicsPathItem):
         if self._minorGridPainterPath:
             return self._minorGridPainterPath
         path = QPainterPath()
-        canvasSize = part.maxBaseIdx()
+        canvasSize = part.maxBaseIdx()+1
         # border
         path.addRect(0, 0, bw * canvasSize, 2 * bw)
         # minor tick marks
         for i in range(canvasSize):
-            # if (i % part.subStepSize() != 0):
-                x = round(bw * i) + .5
-                path.moveTo(x, 0)
-                path.lineTo(x, 2 * bw)
+            x = round(bw * i) + .5
+            path.moveTo(x, 0)
+            path.lineTo(x, 2 * bw)
         # staple-scaffold divider
         path.moveTo(0, bw)
         path.lineTo(bw * canvasSize, bw)

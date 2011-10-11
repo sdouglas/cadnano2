@@ -46,24 +46,20 @@ class SquarePart(Part):
         super(SquarePart, self).__init__(self, *args, **kwargs)
         self._maxRow = kwargs.get('maxRow', app().prefs.squareRows)
         self._maxCol = kwargs.get('maxCol', app().prefs.squareCols)
-        self._maxBase = kwargs.get('maxSteps', app().prefs.squareSteps) * self._step
+        self._maxBase = kwargs.get('maxSteps', app().prefs.squareSteps) * self._step - 1
 
     def crossSectionType(self):
         return LatticeType.Square
     # end def
-    
+
     def isEvenParity(self, row, column):
-        """
-        To be implemented by Part subclass, pass
-        """
         return (row % 2) == (column % 2)
     # end def
-    
-    def isOddParity(self, row, column):
 
+    def isOddParity(self, row, column):
         return (row % 2) ^ (column % 2)
     # end def
-    
+
     def latticeCoordToPositionXY(self, row, column, scaleFactor=1.0):
         """
         make sure self._radius is a float
