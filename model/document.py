@@ -72,12 +72,6 @@ class Document(QObject):
     def selectedPart(self):
         return self._selectedPart
 
-    def setSelectedPart(self, newPart):
-        if self._selectedPart == newPart:
-            return
-        self._selectedPart = newPart
-        self.documentSelectedPartChangedSignal.emit(newPart)
-
     ### PUBLIC METHODS FOR QUERYING THE MODEL ###
 
     ### PUBLIC METHODS FOR EDITING THE MODEL ###
@@ -85,6 +79,7 @@ class Document(QObject):
         """
         Create and store a new DNAPart and instance, and return the instance.
         """
+        print "addHoneycombPart"
         dnapart = None
         if len(self._parts) == 0:
             dnapart = HoneycombPart(document=self)
@@ -105,13 +100,23 @@ class Document(QObject):
         """Used to reset the document. Not undoable."""
         while len(self._parts) > 0:
             part = self._parts.pop()
-            part._setDocument(None)
-            part.partRemoved.emit()
+            part.setDocument(None)
+            part.partRemovedSignal.emit(part)
+
+    def setSelectedPart(self, newPart):
+        if self._selectedPart == newPart:
+            return
+        self._selectedPart = newPart
+        self.documentSelectedPartChangedSignal.emit(newPart)
+
+    ### PUBLIC SUPPORT METHODS ###
+    def setController(self, controller):
+        """Called by DocumentController setDocument method."""
+        self._controller = controller
 
     ### PRIVATE SUPPORT METHODS ###
     def _addPart(self, part, useUndoStack=True):
         """Add part to the document via AddPartCommand."""
-        undoStack = self.undoStack()
         c = self.AddPartCommand(self, part)
         util.execCommandList(self, [c], desc="Add part", useUndoStack=useUndoStack)
         return c.part()

@@ -166,7 +166,7 @@ class EndpointItem(QGraphicsPathItem):
                 self._moveIdx = idx
                 getattr(self, toolMethodName)(modifiers, idx)  # call tool method
 
-    def mouseReleaseEvent(self, event):
+    def customMouseRelease(self, event):
         """
         Parses a mouseReleaseEvent, calling the approproate tool method as
         necessary. Deletes _moveIdx if necessary.

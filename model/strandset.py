@@ -107,7 +107,7 @@ class StrandSet(QObject):
         else:
             raise IndexError
     # end def
-    
+
     def complimentStrandSet(self):
         """
         """
@@ -274,7 +274,7 @@ class StrandSet(QObject):
         """when is this method called?"""
         strandList = self.strandList
         del strandList[strand.idx]
-        
+
     def hasStrandAt(self, idxLow, idxHigh):
         """
         """
@@ -286,7 +286,7 @@ class StrandSet(QObject):
         dummyStrand = None
         return len(strandList) > 0
     # end def
-    
+
     def hasStrandAtAndNoXover(self, idx):
         dummyStrand = Strand(self, idx, idx)
         strandList = [s for s in self._findOverlappingRanges(dummyStrand)]
@@ -299,7 +299,7 @@ class StrandSet(QObject):
         else:
             return False
     # end def
-    
+
     def hasNoStrandAtOrNoXover(self, idx):
         dummyStrand = Strand(self, idx, idx)
         strandList = [s for s in self._findOverlappingRanges(dummyStrand)]
@@ -312,7 +312,7 @@ class StrandSet(QObject):
         else:
             return True
     # end def
-    
+
     def getIndexToInsert(self, idxLow, idxHigh):
         """
         """
@@ -329,11 +329,10 @@ class StrandSet(QObject):
             canInsert = False
         return canInsert, idx
     # end def
-    
-    def getStrand(self, idx):
-        """
-        """
-        dummyStrand = Strand(self, idx, idx)
+
+    def getStrand(self, baseIdx):
+        """Returns the strand that overlaps with baseIdx."""
+        dummyStrand = Strand(self, baseIdx, baseIdx)
         strandList = [s for s in self._findOverlappingRanges(dummyStrand)]
         dummyStrand._strandSet = None
         dummyStrand.setParent(None)

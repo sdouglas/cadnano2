@@ -32,10 +32,10 @@ except:
     use_cjson = False
     import json
 
-def decode(string):
+def decode(document, string):
     if use_cjson:
         packageObject = cjson.decode(string)
     else:
         packageObject = json.loads(string)
     if packageObject.get('.format', None) != 'caDNAno2':
-        return doc_from_legacy_dict(packageObject)
+        return doc_from_legacy_dict(document, packageObject)

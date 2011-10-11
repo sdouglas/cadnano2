@@ -22,9 +22,9 @@
 #
 # http://www.opensource.org/licenses/mit-license.php
 
+from exceptions import ImportError
 from controllers.viewrootcontroller import ViewRootController
-from .partitem import PartItem
-
+from partitem import PartItem
 import util
 util.qtWrapImport('QtCore', globals(), ['pyqtSignal', 'QObject'])
 util.qtWrapImport('QtGui', globals(), ['QGraphicsRectItem'])
@@ -55,8 +55,7 @@ class SliceRootItem(QGraphicsRectItem):
         Views that subclass AbstractView should override this method.
         """
         self._modelPart = modelPart
-        win = self._window
-        partItem = PartItem(modelPart, parent=win.sliceroot)
+        partItem = PartItem(modelPart, parent=self)
         self._instanceItems[partItem] = partItem
     # end def
 
@@ -73,3 +72,11 @@ class SliceRootItem(QGraphicsRectItem):
     def removePartItem(self, partItem):
         del self._instanceItems[partItem]
     # end def
+
+    def resetDocumentAndController(self, document):
+        """docstring for resetDocumentAndController"""
+        self._document = document
+        self._controller = ViewRootController(self, document)
+        if len(self._instanceItems) > 0:
+            raise ImportError
+

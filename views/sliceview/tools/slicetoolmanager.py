@@ -37,7 +37,7 @@ class SliceToolManager(QObject):
         """
         super(SliceToolManager, self).__init__()
         self._window = win
-        self.connectWindowSignalsToSelf()
+        self._connectWindowSignalsToSelf()
 
     ### SIGNALS ###
     activeSliceSetToFirstIndexSignal = pyqtSignal()
@@ -66,7 +66,7 @@ class SliceToolManager(QObject):
             part.renumber()
 
     ### METHODS ###
-    def connectWindowSignalsToSelf(self):
+    def _connectWindowSignalsToSelf(self):
         """This method serves to group all the signal & slot connections
         made by SliceToolManager"""
         self._window.actionSliceFirst.triggered.connect(self.activeSliceFirstSlot)

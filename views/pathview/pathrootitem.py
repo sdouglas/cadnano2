@@ -22,9 +22,9 @@
 #
 # http://www.opensource.org/licenses/mit-license.php
 
+from exceptions import ImportError
 from controllers.viewrootcontroller import ViewRootController
 from partitem import PartItem
-
 import util
 util.qtWrapImport('QtCore', globals(), ['pyqtSignal', 'QObject'])
 util.qtWrapImport('QtGui', globals(), ['QGraphicsRectItem'])
@@ -57,11 +57,12 @@ class PathRootItem(QGraphicsRectItem):
         The Pathview doesn't need to do anything on part addition, since
         the Sliceview handles setting up the appropriate lattice.
         """
+        print "PathRootItem partAddedSlot", modelPart
         self._modelPart = modelPart
         win = self._window
         partItem = PartItem(modelPart,\
                             activeTool=win.pathToolManager.activeTool,\
-                            parent=win.pathroot)
+                            parent=self)
         self._partItems.append(partItem)
         win.pathToolManager.setActivePart(partItem)
 
@@ -70,7 +71,6 @@ class PathRootItem(QGraphicsRectItem):
         that modelPart is selected and the previously selected part is
         deselected."""
         pass
-        
         # if partItem in self._partItems:
         #     self._window.setActivePart(partItem)
 
@@ -85,4 +85,9 @@ class PathRootItem(QGraphicsRectItem):
     ### METHODS ###
     def removePartItem(self, partItem):
         self._partItems.remove(partItem)
-    # end def 
+    # end def
+
+    def resetDocumentAndController(self, document):
+        """docstring for resetDocumentAndController"""
+        self._document = document
+        self._controller = ViewRootController(self, document)

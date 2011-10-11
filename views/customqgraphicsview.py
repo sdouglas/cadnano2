@@ -271,7 +271,7 @@ class CustomQGraphicsView(QGraphicsView):
                 event_pos = event.pos()
                 for item in self._pressList:
                     try:
-                        item.customMouseRelease(event_pos)
+                        item.customMouseRelease(event)
                     except:
                         item.mouseReleaseEvent(event)
                 #end for

@@ -95,23 +95,20 @@ class StrandItem(QObject):
 
     @pyqtSlot(object)
     def strandRemovedSlot(self, strand):
-        id = self._virtualHelixItem.partItem().strandMayaID(strand)
-        print "solidview.StrandItem.onStrandWillBeRemoved %s" % id
-        transformName = "DNAShapeTransform%s" % id
         mom = Mom()
+        id = mom.strandMayaID(strand)
+        print "solidview.StrandItem.strandRemovedSlot %s" % id
         mom.removeIDMapping(id, strand)
-        
+        transformName = "%s%s" % (mom.helixTransformName, id)
         if cmds.objExists(transformName):
             cmds.delete(transformName)
-
         self._virtualHelixItem.StrandIDs().remove(id)
-        self._virtualHelixItem.partItem().deleteStrandMayaID(strand)
-
         #print strand
         self._modelStrand = None
         self._controller.disconnectSignals()
         self._controller = None
-        print "solidview.StrandItem.sequenceClearedSlot"
+        
+        print "solidview.StrandItem.strandRemovedSlot done"
 
     @pyqtSlot(object)
     def strandDestroyedSlot(self, strand):
@@ -140,8 +137,9 @@ class StrandItem(QObject):
     @pyqtSlot(object)
     def strandHasNewOligoSlot(self, strand):
         print "solidview.StrandItem.strandHasNewOligoSlot"
+        mom = Mom()
         self._controller.reconnectOligoSignals()
-        id = self._virtualHelixItem.partItem().strandMayaID(strand)
+        id = mom.strandMayaID(strand)
         self.updateColor(id, strand.oligo().color())
 
     def strandInsertionAddedSlot(self, strand, insertion):
@@ -174,10 +172,11 @@ class StrandItem(QObject):
 
     ### METHODS ###
     def createMayaHelixNodes(self, x, y, colorname, strandType, id):
-        cylinderName = "HalfCylinderHelixNode%s" % id
-        transformName = "DNAShapeTransform%s" % id
-        meshName = "DNACylinderShape%s" % id
-        shaderName = "DNAStrandShader%s" % id
+        m = Mom()
+        cylinderName = "%s%s" % (m.helixNodeName, id)
+        transformName = "%s%s" % (m.helixTransformName, id)
+        meshName = "%s%s" % (m.helixMeshName, id)
+        shaderName = "%s%s" % (m.helixShaderName, id)
 
         cmds.createNode("transform", name=transformName)
         cmds.setAttr("%s.rotateX" % transformName, 90)
@@ -209,10 +208,11 @@ class StrandItem(QObject):
         return (cylinderName, transformName, meshName)
 
     def updateColor(self, id, colorname):
-        meshName = "DNACylinderShape%s" % id
+        m = Mom()
+        meshName = "%s%s" % (m.helixMeshName,id)
         color = QColor(colorname)
         colorval = "%d_%d_%d" % (color.red(), color.green(), color.blue())
-        shaderName = "DNAStrandShader%d_%d_%d" % (color.red(),
+        shaderName = "%s%d_%d_%d" % (m.helixShaderName,color.red(),
                                                   color.green(),
                                                   color.blue())
         if not cmds.objExists(shaderName):
@@ -230,8 +230,9 @@ class StrandItem(QObject):
             cmds.sets(meshName, forceElement="%sSG" % shaderName)
 
     def updateSize(self):
-        id = self._virtualHelixItem.partItem().strandMayaID(self._modelStrand)
-        cylinderName = "HalfCylinderHelixNode%s" % id
+        mom = Mom()
+        id = mom.strandMayaID(self._modelStrand)
+        cylinderName = "%s%s" % (mom.helixNodeName, id)
         endpoints = self._modelStrand.idxs()
         totalNumBases = self._virtualHelixItem.vhelix().part().maxBaseIdx()
         cmds.setAttr("%s.startBase" % cylinderName,

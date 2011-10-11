@@ -309,12 +309,6 @@
         }
         "Entry"
         {
-        "MsmKey" = "8:_3A06EBA263AB4880BDD672F720EC0C2F"
-        "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
         "MsmKey" = "8:_3AC3F9435D9645DE9818A74D63C330D3"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
@@ -681,6 +675,12 @@
         }
         "Entry"
         {
+        "MsmKey" = "8:_8399B38DE6D84C0B95F68B12C386A4C3"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
         "MsmKey" = "8:_83B6A73EFD19422592C315B1FE0980C6"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
@@ -915,6 +915,12 @@
         }
         "Entry"
         {
+        "MsmKey" = "8:_BA433EFE8E3B4430A641CE66267BC1F1"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
         "MsmKey" = "8:_BA5B7C6667DF43D5B0890D76E63E49CE"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
@@ -1143,12 +1149,6 @@
         }
         "Entry"
         {
-        "MsmKey" = "8:_EE48CAA3333E4A519E3BDBE0345B4BB6"
-        "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
         "MsmKey" = "8:_F1737EC33C6D4D91B1819FF70A1C3E25"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
@@ -1232,6 +1232,19 @@
             "PrerequisitesLocation" = "2:1"
             "Url" = "8:"
             "ComponentsUrl" = "8:"
+                "Items"
+                {
+                    "{EDC2488A-8267-493A-A98E-7D9C3B36CDF3}:.NETFramework,Version=v4.0,Profile=Client"
+                    {
+                    "Name" = "8:Microsoft .NET Framework 4 Client Profile (x86 and x64)"
+                    "ProductCode" = "8:.NETFramework,Version=v4.0,Profile=Client"
+                    }
+                    "{EDC2488A-8267-493A-A98E-7D9C3B36CDF3}:Microsoft.Windows.Installer.3.1"
+                    {
+                    "Name" = "8:Windows Installer 3.1"
+                    "ProductCode" = "8:Microsoft.Windows.Installer.3.1"
+                    }
+                }
             }
         }
         "Release"
@@ -1256,6 +1269,19 @@
             "PrerequisitesLocation" = "2:1"
             "Url" = "8:"
             "ComponentsUrl" = "8:"
+                "Items"
+                {
+                    "{EDC2488A-8267-493A-A98E-7D9C3B36CDF3}:.NETFramework,Version=v4.0,Profile=Client"
+                    {
+                    "Name" = "8:Microsoft .NET Framework 4 Client Profile (x86 and x64)"
+                    "ProductCode" = "8:.NETFramework,Version=v4.0,Profile=Client"
+                    }
+                    "{EDC2488A-8267-493A-A98E-7D9C3B36CDF3}:Microsoft.Windows.Installer.3.1"
+                    {
+                    "Name" = "8:Windows Installer 3.1"
+                    "ProductCode" = "8:Microsoft.Windows.Installer.3.1"
+                    }
+                }
             }
         }
     }
@@ -2238,26 +2264,6 @@
             "TargetName" = "8:Science09_beachball_v1.csv"
             "Tag" = "8:"
             "Folder" = "8:_CA7C7CB9B6F44FF9AFA832DB42ACDF74"
-            "Condition" = "8:"
-            "Transitive" = "11:FALSE"
-            "Vital" = "11:TRUE"
-            "ReadOnly" = "11:FALSE"
-            "Hidden" = "11:FALSE"
-            "System" = "11:FALSE"
-            "Permanent" = "11:FALSE"
-            "SharedLegacy" = "11:FALSE"
-            "PackageAs" = "3:1"
-            "Register" = "3:1"
-            "Exclude" = "11:FALSE"
-            "IsDependency" = "11:FALSE"
-            "IsolateTo" = "8:"
-            }
-            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_3A06EBA263AB4880BDD672F720EC0C2F"
-            {
-            "SourcePath" = "8:..\\..\\..\\mayaUI.py"
-            "TargetName" = "8:mayaUI.py"
-            "Tag" = "8:"
-            "Folder" = "8:_0969E8665EC94BB2A1FB615DC65E5093"
             "Condition" = "8:"
             "Transitive" = "11:FALSE"
             "Vital" = "11:TRUE"
@@ -3492,6 +3498,26 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_8399B38DE6D84C0B95F68B12C386A4C3"
+            {
+            "SourcePath" = "8:..\\..\\..\\views\\solidview\\mayaUI.py"
+            "TargetName" = "8:mayaUI.py"
+            "Tag" = "8:"
+            "Folder" = "8:_CAC65934C299487187183E8934BD45EF"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_83B6A73EFD19422592C315B1FE0980C6"
             {
             "SourcePath" = "8:..\\..\\..\\tests\\functionaltestinputs\\simple42.nno"
@@ -4272,6 +4298,26 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_BA433EFE8E3B4430A641CE66267BC1F1"
+            {
+            "SourcePath" = "8:..\\..\\..\\views\\solidview\\mayaHotKeys.py"
+            "TargetName" = "8:mayaHotKeys.py"
+            "Tag" = "8:"
+            "Folder" = "8:_CAC65934C299487187183E8934BD45EF"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_BA5B7C6667DF43D5B0890D76E63E49CE"
             {
             "SourcePath" = "8:..\\..\\..\\model\\enum.py"
@@ -5018,26 +5064,6 @@
             "TargetName" = "8:strandset.py"
             "Tag" = "8:"
             "Folder" = "8:_17BF768FB21047B2995C448082AF4797"
-            "Condition" = "8:"
-            "Transitive" = "11:FALSE"
-            "Vital" = "11:TRUE"
-            "ReadOnly" = "11:FALSE"
-            "Hidden" = "11:FALSE"
-            "System" = "11:FALSE"
-            "Permanent" = "11:FALSE"
-            "SharedLegacy" = "11:FALSE"
-            "PackageAs" = "3:1"
-            "Register" = "3:1"
-            "Exclude" = "11:FALSE"
-            "IsDependency" = "11:FALSE"
-            "IsolateTo" = "8:"
-            }
-            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_EE48CAA3333E4A519E3BDBE0345B4BB6"
-            {
-            "SourcePath" = "8:..\\..\\..\\mayaHotKeys.py"
-            "TargetName" = "8:mayaHotKeys.py"
-            "Tag" = "8:"
-            "Folder" = "8:_0969E8665EC94BB2A1FB615DC65E5093"
             "Condition" = "8:"
             "Transitive" = "11:FALSE"
             "Vital" = "11:TRUE"
