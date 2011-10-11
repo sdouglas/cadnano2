@@ -38,6 +38,7 @@ class Crossovers:
 
 root3 = 1.732051
 
+
 class HoneycombPart(Part):
     _step = 21  # 32 in square
     _activeBaseIndex = _step
@@ -52,27 +53,22 @@ class HoneycombPart(Part):
         super(HoneycombPart, self).__init__(self, *args, **kwargs)
         self._maxRow = kwargs.get('maxRow', app().prefs.honeycombRows)
         self._maxCol = kwargs.get('maxCol', app().prefs.honeycombCols)
-        self._maxBase = kwargs.get('maxSteps', app().prefs.honeycombSteps) * self._step
-        
+        self._maxBase = kwargs.get('maxSteps', app().prefs.honeycombSteps) * self._step - 1
+
     def crossSectionType(self):
         """Returns the cross-section type of the DNA part."""
         return LatticeType.Honeycomb
-        
+
     def isEvenParity(self, row, column):
-        """
-        To be implemented by Part subclass, pass
-        """
         return (row % 2) == (column % 2)
     # end def
-    
+
     def isOddParity(self, row, column):
         return (row % 2) ^ (column % 2)
     # end def
-        
+
     def latticeCoordToPositionXY(self, row, column, scaleFactor=1.0):
-        """
-        make sure self._radius is a float
-        """
+        """make sure self._radius is a float"""
         radius = self._radius
         x = column*radius*root3
         if self.isOddParity(row, column):   # odd parity
@@ -85,7 +81,7 @@ class HoneycombPart(Part):
     def positionToCoord(self, x, y, scaleFactor=1.0):
         radius = self._radius
         column = int(x/(radius*root3*scaleFactor) + 0.5)
-        
+
         rowTemp = y/(radius*scaleFactor)
         if (rowTemp % 3) + 0.5 > 1.0:
             # odd parity

@@ -58,7 +58,7 @@ class ActiveSliceItem(QGraphicsRectItem):
         self._activeTool = partItem.activeTool()
         self._activeSlice = 0
         self._lowDragBound = 0
-        self._highDragBound = self.part().maxBaseIdx() - 1
+        self._highDragBound = self.part().maxBaseIdx()
         self._controller = ActiveSliceItemController(self, partItem.part())
 
         self._label = QGraphicsSimpleTextItem("", parent=self)
@@ -99,7 +99,7 @@ class ActiveSliceItem(QGraphicsRectItem):
         the part and changes the receiver to reflect the part"""
         label = self._label
         bw = _baseWidth
-        bi = util.clamp(int(baseIndex), 0, self.part().maxBaseIdx()-1)
+        bi = util.clamp(int(baseIndex), 0, self.part().maxBaseIdx())
         self.setPos(bi * bw, -styles.PATH_HELIX_PADDING)
         self._activeSlice = bi
         if label:
