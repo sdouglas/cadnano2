@@ -32,7 +32,7 @@ import maya.OpenMaya as mo
 import maya.cmds as cmds
 import util
 
-util.qtWrapImport('QtCore', globals(), ['pyqtSignal', 'QObject', 'Qt'])
+util.qtWrapImport('QtCore', globals(), ['pyqtSignal', 'pyqtSlot', 'QObject', 'Qt'])
 util.qtWrapImport('QtGui', globals(), ['QColor'])
 
 """
@@ -68,36 +68,35 @@ class StrandItem(QObject):
         m.cnToMaya[ modelStrand ] = mayaNodeInfo
         m.mayaToCn[ mayaNodeInfo[2] ] = modelStrand
         m.mayaToCn[ mayaNodeInfo[0] ] = modelStrand
+        self.updateSize()
     # end def
 
     ### SLOTS ###
+    @pyqtSlot()
     def strandResizedSlot(self):
         """strandResizedSlot"""
         print "solidview.StrandItem.strandResizedSlot", self._modelStrand.idxs()
-        id = self._virtualHelixItem.partItem().strandMayaID(self._modelStrand)
-        cylinderName = "HalfCylinderHelixNode%s" % id
-        # XXX - [SB] why is there +1 in 2nd component of idxs?
-        endpoints = self._modelStrand.idxs()
-        totalNumBases = self._virtualHelixItem.vhelix().part().maxBaseIdx()
-        cmds.setAttr("%s.startBase" % cylinderName,
-                             endpoints[0])
-    
-        cmds.setAttr("%s.endBase" % cylinderName,
-                             endpoints[1] - 1)
-        cmds.setAttr("%s.totalBases" % cylinderName, int(totalNumBases))
+        self.updateSize()
 
+    @pyqtSlot()
+    def strandUpdateSlot(self):
+        """strandUpdateSlot"""
+        print "solidview.StrandItem.strandUpdateSlot"
+
+    @pyqtSlot(object)
     def sequenceAddedSlot(self, oligo):
         """sequenceAddedSlot"""
         print "solidview.StrandItem.sequenceAddedSlot"
 
+    @pyqtSlot(object)
     def sequenceClearedSlot(self, oligo):
         """sequenceClearedSlot"""
         print "solidview.StrandItem.sequenceClearedSlot"
-    # end def
 
+    @pyqtSlot(object)
     def strandRemovedSlot(self, strand):
         id = self._virtualHelixItem.partItem().strandMayaID(strand)
-        #print "SolidHelix:onStrandWillBeRemoved %s" % id
+        print "solidview.StrandItem.onStrandWillBeRemoved %s" % id
         transformName = "DNAShapeTransform%s" % id
         mom = Mom()
         mom.removeIDMapping(id, strand)
@@ -113,40 +112,43 @@ class StrandItem(QObject):
         self._controller.disconnectSignals()
         self._controller = None
         print "solidview.StrandItem.sequenceClearedSlot"
-    # end def
 
+    @pyqtSlot(object)
     def strandDestroyedSlot(self, strand):
         print "solidview.StrandItem.strandDestroyedSlot"
-    # end def
 
+    @pyqtSlot(object)
     def strandXover3pAddedSlot(self, strand):
         print "solidview.StrandItem.strandXover3pAddedSlot"
-    # end def
 
+    @pyqtSlot(object)
     def strandXover3pRemovedSlot(self, strand):
         print "solidview.StrandItem.strandXover3pRemovedSlot"
-    # end def
 
+    @pyqtSlot(object)
     def oligoAppeareanceChangedSlot(self, oligo):
         print "solidview.StrandItem.oligoAppeareanceChangedSlot"
-    # end def
 
+    @pyqtSlot(object)
     def oligoSequenceAddedSlot(self, oligo):
         print "solidview.StrandItem.oligoSequenceAddedSlot"
-    # end def
 
+    @pyqtSlot(object)
     def oligoSequenceClearedSlot(self, oligo):
         print "solidview.StrandItem.oligoSequenceClearedSlot"
-    # end def
 
+    @pyqtSlot(object)
     def strandHasNewOligoSlot(self, strand):
         print "solidview.StrandItem.strandHasNewOligoSlot"
-    # end def
+        self._controller.reconnectOligoSignals()
+        id = self._virtualHelixItem.partItem().strandMayaID(strand)
+        self.updateColor(id, strand.oligo().color())
 
+    @pyqtSlot(object)
     def strandDecoratorAddedSlot(self, strand):
         print "solidview.StrandItem.strandDecoratorAddedSlot"
-    # end def
 
+    ### METHODS ###
     def createMayaHelixNodes(self, x, y, colorname, strandType, id):
         cylinderName = "HalfCylinderHelixNode%s" % id
         transformName = "DNAShapeTransform%s" % id
@@ -177,6 +179,13 @@ class StrandItem(QObject):
             raise NotImplementedError
 
         cmds.setAttr("%s.strandType" % cylinderName, strandType)
+        
+        self.updateColor(id, colorname)
+        
+        return (cylinderName, transformName, meshName)
+
+    def updateColor(self, id, colorname):
+        meshName = "DNACylinderShape%s" % id
         color = QColor(colorname)
         colorval = "%d_%d_%d" % (color.red(), color.green(), color.blue())
         shaderName = "DNAStrandShader%d_%d_%d" % (color.red(),
@@ -195,8 +204,16 @@ class StrandItem(QObject):
         else:
             #shader exist connect
             cmds.sets(meshName, forceElement="%sSG" % shaderName)
-            
-        return (cylinderName, transformName, meshName)
 
-
+    def updateSize(self):
+        id = self._virtualHelixItem.partItem().strandMayaID(self._modelStrand)
+        cylinderName = "HalfCylinderHelixNode%s" % id
+        endpoints = self._modelStrand.idxs()
+        totalNumBases = self._virtualHelixItem.vhelix().part().maxBaseIdx()
+        cmds.setAttr("%s.startBase" % cylinderName,
+                             endpoints[0])
+    
+        cmds.setAttr("%s.endBase" % cylinderName,
+                             endpoints[1])
+        cmds.setAttr("%s.totalBases" % cylinderName, int(totalNumBases))
 
