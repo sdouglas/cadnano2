@@ -30,6 +30,7 @@ Created by Alex Tessier on 2011-08
 A singleton manager for tracking maya to cn and reverse
 lookups
 """
+import maya.cmds as cmds
 import util
 util.qtWrapImport('QtCore', globals(), ['QObject', 'pyqtSignal'] )
 
@@ -37,6 +38,7 @@ class Mom:
     class __impl(QObject):
         """ Implementation of the singleton interface """
         preDecoratorSelectedSignal = pyqtSignal(object, int)
+        strandCount = 0
         def myId(self):
             return id(self)
 
@@ -49,29 +51,60 @@ class Mom:
     # uses stapleModIndicatorMesh% objects as the key,
     # stores a objec with data (solidHelix object, baseNumber, strand object)
     stapleModToSolidHelix = {}
-
+    # uses strand object as the key, stores stand id
+    idStrandMapping = {}
+    
+    # MayaNames
+    helixTransformName  = "DNAShapeTransform"
+    helixNodeName       = "HalfCylinderHelixNode"
+    helixMeshName       = "DNACylinderShape"
+    helixShaderName     = "DNAStrandShader"
+    
+    decoratorTransformName  = "stapleDecoratorTransform"
+    decoratorNodeName       = "spStapleModIndicator"
+    decoratorMeshName       = "stapleModIndicatorMesh"
+    decoratorShaderName     = "stapleModeIndicatorShader"
+    
     def staplePreDecoratorSelected(self, name):
         if self.stapleModToSolidHelix.has_key(name):
             modData = self.stapleModToSolidHelix[name]
             self.__instance.preDecoratorSelectedSignal.emit(modData[2], modData[1])
 
     def removeStapleModMapping(self, id):
-        key1 = "stapleModIndicatorMesh%s" % id
-        key2 = "stapleModIndicatorTransform%s" % id
+        key1 = "%s%s" % (self.decoratorMeshName, id)
+        key2 = "%s%s" % (self.decoratorTransformName, id)
         if self.stapleModToSolidHelix.has_key(key1):
             del self.stapleModToSolidHelix[key1]
         if self.stapleModToSolidHelix.has_key(key2):
             del self.stapleModToSolidHelix[key2]
 
     def removeIDMapping(self, id, strand):
-        key1 = "DNACylinderShape%s" % id
-        key2 = "HalfCylinderHelixNode%s" % id
+        key1 = "%s%s" % (self.helixMeshName, id)
+        key2 = "%s%s" % (self.helixNodeName, id)
         if self.mayaToCn.has_key(key1):
             del self.mayaToCn[key1]
         if self.mayaToCn.has_key(key2):
             del self.mayaToCn[key2]
+        self.deleteStrandMayaID(strand)
+    
+    def strandMayaID(self, strand):
+        if(strand in self.idStrandMapping):
+            return self.idStrandMapping[strand]
+        else:
+            self.__instance.strandCount += 1
+            # XXX [SB+AT] NOT THREAD SAFE
+            while cmds.objExists("%s%s" %
+                                 (self.helixTransformName, self.__instance.strandCount)):
+                self.__instance.strandCount += 1
+            val = "%d" % self.strandCount
+            self.idStrandMapping[strand] = val
+            return val
+
+    def deleteStrandMayaID(self, strand):
         if self.cnToMaya.has_key(strand):
             del self.cnToMaya[strand]
+        if self.idStrandMapping.has_key(strand):
+            del self.idStrandMapping[strand]
     
     def __init__(self):
         
