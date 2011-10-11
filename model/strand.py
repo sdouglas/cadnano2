@@ -189,10 +189,6 @@ class Strand(QObject):
         Perhaps it's wiser to merely store them left to right and reverse them
         at draw time, or export time
         """
-        if sequenceString == None:
-            self._sequence = None
-            return None, None
-            
         sLowIdx, sHighIdx = self._baseIdxLow, self._baseIdxHigh
         cLowIdx, cHighIdx = strand.idxs()
         
@@ -203,14 +199,19 @@ class Strand(QObject):
         # reverse compliment
         length = highIdx-lowIdx+1
         
-        
-        useSeq = sequenceString[::-1] if self._isDrawn5to3 else sequenceString
+        # see if we are applyng 
+        if sequenceString == None:
+            # clear out string for in case of not total overlap
+            useSeq = ''.join([' ' for x in range(length)])
+        else:
+            # use the string as is
+            useSeq = sequenceString[::-1] if self._isDrawn5to3 else sequenceString
         
         temp = array('c', useSeq)
         if self._sequence == None:
-            tempSelf = array('c', ''.join(['Z' for x in range(self.length())]) )
+            tempSelf = array('c', ''.join([' ' for x in range(self.length())]) )
         else:
-            tempSelf = array('c'. self._sequence)
+            tempSelf = array('c', self._sequence if self._isDrawn5to3 else self._sequence[::-1])
         
         # generate the index into the compliment string
         start = lowIdx - cLowIdx
@@ -222,6 +223,10 @@ class Strand(QObject):
         if not self._isDrawn5to3:
             self._sequence = self._sequence[::-1]
 
+        # test to see if the string is empty(), annoyingly expensive
+        if len(self._sequence.strip()) == 0:
+            self._sequence = None
+            
         return self._sequence
     # end def
 
@@ -397,7 +402,7 @@ class Strand(QObject):
         nS._strand3p = self._strand3p
         # required to shallow copy the dictionary
         nS._decorators = dict(self._decorators.items())
-        nS._sequence = self._sequence
+        nS._sequence = None# self._sequence
         return nS
     # end def
 
