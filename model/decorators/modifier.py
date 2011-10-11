@@ -25,36 +25,28 @@
 #
 # http://www.opensource.org/licenses/mit-license.php
 
-from exceptions import NotImplementedError
-import util
-util.qtWrapImport('QtGui', globals(), ['QGraphicsPathItem'])
-
-
-class AbstractDecoratorItem(QGraphicsPathItem):
-    def __init__(self, parent):
-        """The parent should be a VirtualHelixItem."""
-        if self.__class__ == AbstractDecoratorItem:
-            e = "AbstractDecoratorItem should be subclassed."
+class Modifier(object):
+    """
+    Modifiers do affect an applied sequence and do not store a sequence
+    themselves.  They cause a base changed to another sequence.
+    Modifiers DO NOT affect the length of a strand
+    """
+    def __init__(self, idx):
+        if self.__class__ == Modifier:
+            e = "Modifier should be subclassed."
             raise NotImplementedError(e)
-        super(AbstractDecoratorItem, self).__init__(parent)
-        self._strand = None
-        self._oligo = None
+        self._mType = None
+        self._lowIdx  = idx
+        self._highIdx = self._lowIdx
+        self._privateSequence = None
+    # end def
 
-    ### SIGNALS ###
-
-    ### SLOTS ###
-    def strandResizedSlot(self):
-        """docstring for strandResizedSlot"""
-        pass
-
-    def sequenceAddedSlot(self, oligo):
-        """docstring for sequenceAddedSlot"""
-        pass
-
-    def decoratorRemovedSlot(self, oligo):
-        """docstring for sequenceClearedSlot"""
-        pass
-
-    ### METHODS ###
-
-    ### COMMANDS ###
+    def length(self):
+        """
+        This is the length of a sequence that is immutable by the strand
+        """
+        return self._highIdx - self._lowIdx + 1
+        
+    def modifierType(self):
+        return self._mtype
+# end class

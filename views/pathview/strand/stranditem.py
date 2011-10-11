@@ -31,6 +31,7 @@ from controllers.itemcontrollers.strand.stranditemcontroller import StrandItemCo
 from endpointitem import EndpointItem
 from views import styles
 from xoveritem import XoverItem
+from decorators.insertionitem import InsertionItem
 
 import util
 # import Qt stuff into the module namespace with PySide, PyQt4 independence
@@ -77,6 +78,8 @@ class StrandItem(QGraphicsLineItem):
 
         self._controller = StrandItemController(self, modelStrand)
         self._updateAppearance(modelStrand)
+        
+        self._decorators = {}
     # end def
 
     ### SIGNALS ###
@@ -124,14 +127,6 @@ class StrandItem(QGraphicsLineItem):
         partItem.updatePreXoverItems()
     # end def
 
-    # def strandXover3pRemovedSlot(self, strand3p, strand5p):
-    #     self._updateAppearance(strand3p)
-    # # end def
-    
-    # def strandXover5pAddedSlot(self, strand5p):
-    #     self._updateAppearance(strand5p)
-    # # end def
-
     def strandUpdateSlot(self, strand):
         """
         Slot for just updating connectivity and color, and endpoint showing
@@ -155,7 +150,32 @@ class StrandItem(QGraphicsLineItem):
         self._controller.reconnectOligoSignals()
     # end def
 
-    def strandDecoratorAddedSlot(self, strand):
+    def strandInsertionAddedSlot(self, strand, insertion):
+        pass
+        # self._decorators[insertion.idx()] = InsertionItem(self._virtualHelixItem, insertion)
+    # end def
+    def strandInsertionChangedSlot(self, strand, insertion):
+        pass
+    # end def
+    def strandInsertionRemovedSlot(self, strand, index):
+        pass
+    # end def
+    def strandDecoratorAddedSlot(self, strand, decorator):
+        pass
+    # end def
+    def strandDecoratorChangedSlot(self, strand, decorator):
+        pass
+    # end def
+    def strandDecoratorRemovedSlot(self, strand, index):
+        pass
+    # end def
+    def strandModifierAddedSlot(self, strand, modifier):
+        pass
+    # end def
+    def strandModifierChangedSlot(self, strand, modifier):
+        pass
+    # end def
+    def strandModifierRemovedSlot(self, strand, index):
         pass
     # end def
 

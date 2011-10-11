@@ -25,36 +25,30 @@
 #
 # http://www.opensource.org/licenses/mit-license.php
 
-from exceptions import NotImplementedError
-import util
-util.qtWrapImport('QtGui', globals(), ['QGraphicsPathItem'])
+class Insertion(object):
+    """
+    Insertions do affect an applied sequence and do not store a sequence
+    themselves.  They are a skip if the length is less than 0
+    """
+    def __init__(self, index, length):
+        self._length = length
+        self._index  = index
+    # end def
 
-
-class AbstractDecoratorItem(QGraphicsPathItem):
-    def __init__(self, parent):
-        """The parent should be a VirtualHelixItem."""
-        if self.__class__ == AbstractDecoratorItem:
-            e = "AbstractDecoratorItem should be subclassed."
-            raise NotImplementedError(e)
-        super(AbstractDecoratorItem, self).__init__(parent)
-        self._strand = None
-        self._oligo = None
-
-    ### SIGNALS ###
-
-    ### SLOTS ###
-    def strandResizedSlot(self):
-        """docstring for strandResizedSlot"""
-        pass
-
-    def sequenceAddedSlot(self, oligo):
-        """docstring for sequenceAddedSlot"""
-        pass
-
-    def decoratorRemovedSlot(self, oligo):
-        """docstring for sequenceClearedSlot"""
-        pass
-
-    ### METHODS ###
-
-    ### COMMANDS ###
+    def length(self):
+        """
+        This is the length of a sequence that is immutable by the strand
+        """
+        return self._length
+        
+    def setLength(self, length):
+        self._length = length
+    # end def
+        
+    def idx(self):
+        return self._index
+    # end def
+    
+    def isSkip(self):
+        return self.length() < 0
+# end class

@@ -144,9 +144,33 @@ class StrandItem(QObject):
         id = self._virtualHelixItem.partItem().strandMayaID(strand)
         self.updateColor(id, strand.oligo().color())
 
-    @pyqtSlot(object)
-    def strandDecoratorAddedSlot(self, strand):
-        print "solidview.StrandItem.strandDecoratorAddedSlot"
+    def strandInsertionAddedSlot(self, strand, insertion):
+        pass
+    # end def
+    def strandInsertionChangedSlot(self, strand, insertion):
+        pass
+    # end def
+    def strandInsertionRemovedSlot(self, strand, index):
+        pass
+    # end def
+    def strandDecoratorAddedSlot(self, strand, decorator):
+        pass
+    # end def
+    def strandDecoratorChangedSlot(self, strand, decorator):
+        pass
+    # end def
+    def strandDecoratorRemovedSlot(self, strand, index):
+        pass
+    # end def
+    def strandModifierAddedSlot(self, strand, modifier):
+        pass
+    # end def
+    def strandModifierChangedSlot(self, strand, modifier):
+        pass
+    # end def
+    def strandModifierRemovedSlot(self, strand, index):
+        pass
+    # end def
 
     ### METHODS ###
     def createMayaHelixNodes(self, x, y, colorname, strandType, id):

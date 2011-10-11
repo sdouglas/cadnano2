@@ -25,36 +25,34 @@
 #
 # http://www.opensource.org/licenses/mit-license.php
 
-from exceptions import NotImplementedError
+from exceptions import IndexError
+from operator import attrgetter
 import util
-util.qtWrapImport('QtGui', globals(), ['QGraphicsPathItem'])
+from array import array
 
+# import Qt stuff into the module namespace with PySide, PyQt4 independence
+util.qtWrapImport('QtCore', globals(), ['pyqtSignal', 'QObject', 'Qt'])
+util.qtWrapImport('QtGui', globals(), ['QUndoStack', 'QUndoCommand'])
 
-class AbstractDecoratorItem(QGraphicsPathItem):
-    def __init__(self, parent):
-        """The parent should be a VirtualHelixItem."""
-        if self.__class__ == AbstractDecoratorItem:
-            e = "AbstractDecoratorItem should be subclassed."
+class Decorator(object):
+    """
+    Decorators do not affect an applied sequence
+    """
+    def __init__(self, index):
+        if self.__class__ == Decorator:
+            e = "Decorator should be subclassed."
             raise NotImplementedError(e)
-        super(AbstractDecoratorItem, self).__init__(parent)
-        self._strand = None
-        self._oligo = None
+        self._index = idex
+        self._dType = None
+        self._privateSequence = None
+    # end def
 
-    ### SIGNALS ###
-
-    ### SLOTS ###
-    def strandResizedSlot(self):
-        """docstring for strandResizedSlot"""
-        pass
-
-    def sequenceAddedSlot(self, oligo):
-        """docstring for sequenceAddedSlot"""
-        pass
-
-    def decoratorRemovedSlot(self, oligo):
-        """docstring for sequenceClearedSlot"""
-        pass
-
-    ### METHODS ###
-
-    ### COMMANDS ###
+    def privateLength(self):
+        """
+        This is the length of a sequence that is immutable by the strand
+        """
+        return length(self._privateSequence)
+        
+    def decoratorType(self):
+        return self._dtype
+# end class

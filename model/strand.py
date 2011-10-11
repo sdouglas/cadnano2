@@ -29,6 +29,7 @@ from exceptions import IndexError
 from operator import attrgetter
 import util
 from array import array
+from decorators.insertion import Insertion
 
 # import Qt stuff into the module namespace with PySide, PyQt4 independence
 util.qtWrapImport('QtCore', globals(), ['pyqtSignal', 'QObject', 'Qt'])
@@ -63,7 +64,11 @@ class Strand(QObject):
         self._strand5p = None
         self._strand3p = None
         self._sequence = None
+        
+        self._insertions = {}
         self._decorators = {}
+        self._modifiers = {}
+        
         # dynamic methods for mapping high/low connection /indices 
         # to corresponding 3Prime 5Prime 
         isDrawn5to3 = strandSet.isDrawn5to3()
@@ -113,8 +118,15 @@ class Strand(QObject):
     strandXover3pAddedSignal = pyqtSignal(QObject, QObject) # strand3p, strand5p
     strandXover3pRemovedSignal = pyqtSignal(QObject, QObject) # strand3p, strand5p
     strandUpdateSignal = pyqtSignal(QObject) # strand
-    strandDecoratorAddedSignal = pyqtSignal(QObject, QObject, int)
-    strandDecoratorDestroyedSignal = pyqtSignal(QObject, int)
+    strandInsertionAddedSignal = pyqtSignal(QObject, object)    # strand, insertion object
+    strandInsertionChangedSignal = pyqtSignal(QObject, object)    # strand, insertion object
+    strandInsertionRemovedSignal = pyqtSignal(QObject, int)     # strand, insertion index
+    strandDecoratorAddedSignal = pyqtSignal(QObject, object)    # strand, decorator object
+    strandDecoratorChangedSignal = pyqtSignal(QObject, object)    # strand, decorator object
+    strandDecoratorRemovedSignal = pyqtSignal(QObject, int)     # strand, decorator object
+    strandModifierAddedSignal = pyqtSignal(QObject, object)     # strand, modifier object
+    strandModifierChangedSignal = pyqtSignal(QObject, object)     # strand, modifier object
+    strandModifierRemovedSignal = pyqtSignal(QObject, int)      # strand, modifier object
 
     ### SLOTS ###
 
@@ -368,21 +380,90 @@ class Strand(QObject):
                     self._strandSet.mergeStrands(self, highNeighbor)
         else:
             raise IndexError
+    # end def
+    
+    def addInsertion(self, idx, length, useUndoStack=True):
+        """
+        length should be 
+        1 or more for an insertion 
+        -1 for a skip
+        """
+        idxLow, idxHigh = self.indices()
+        if idxLow <= idx <= idxHigh:
+            if not hasInsertionAt(idx):
+                # make sure length is -1 if a skip
+                if length < 0:
+                    length = -1
+                c = AddInsertionCommand(self, idx, length)
+                util.execCommandList(self, [c], desc="Add Insertion", useUndoStack=useUndoStack)
+            # end if
+        # end if
+    # end def
+    
+    def removeInsertion(self, idx, useUndoStack=True):
+        idxLow, idxHigh = self.indices()
+        if idxLow <= idx <= idxHigh:
+            if hasInsertionAt(idx):
+                c = RemoveInsertionCommand(self, idx)
+                util.execCommandList(self, [c], desc="Remove Insertion", useUndoStack=useUndoStack)
+            # end if
+        # end if
+    # end def
+    
+    def changeInsertion(self, idx, length, useUndoStack=True):
+        idxLow, idxHigh = self.indices()
+        if idxLow <= idx <= idxHigh:
+            if hasInsertionAt(idx):
+                if length == 0:
+                    self.removeInsertion(idx)
+                else:
+                    # make sure length is -1 if a skip
+                    if length < 0:
+                        length = -1
+                    c = ChangeInsertionCommand(self, idx, length)
+                    util.execCommandList(self, [c], desc="Change Insertion", useUndoStack=useUndoStack)
+            # end if
+        # end if
+    # end def
 
-    ### PUBLIC SUPPORT METHODS ### 
+    ### PUBLIC SUPPORT METHODS ###
+    
+    def hasInsertionAt(self, idx):
+        return idx in self._insertions
+    # end def
+    
+    def hasDecoratorAt(self, idx):
+        return idx in self._decorators
+    # end def
+    
+    def hasModifierAt(self, idx):
+        return idx in self._modifiers
+    # end def
+    
     def removeDecoratorsOutOfRange(self):
         """
         Called by StrandSet's SplitCommand after copying the strand to be
         split. Either copy could have extra decorators that the copy should
         not retain.
+        
+        Removes Insertions, Decorators, and Modifiers
+        
+        Problably want to wrap with a macro
         """
+        insts = self._insertions
         decs = self._decorators
+        mods = self._modifiers
         idxMin, idMax = self.idxs() 
-        for key in decs:
+        cList = []
+        for key in insts:
             if key > idxMax or key < idxMin:
-                decs.pop(key)
+                cList.append(Strand.RemoveInsertionCommand(self, key))
             #end if
         # end for
+        """
+        ADD CODE HERE TO HANDLE DECORATORS AND MODIFIERS
+        """
+        util.execCommandList(self, cList, desc="Remove Insertions", useUndoStack=True)
     # end def
 
     def copy(self):
@@ -454,6 +535,81 @@ class Strand(QObject):
 
             # for updating the Slice View displayed helices
             part.partStrandChangedSignal.emit(strandSet.virtualHelix())
+        # end def
+    # end class
+    
+    class AddInsertionCommand(QUndoCommand):
+        def __init__(self, strand, idx, length):
+            super(Strand.AddInsertionCommand, self).__init__()
+            self._strand = strand
+            self._idx = idx
+            self._length = length
+            self._insertion = Insertion(idx, length)
+        # end def
+        
+        def redo(self):
+            strand = self._strand
+            inst = self._insertion
+            strand._insertion[self._idx] = inst
+            strand.strandInsertionAddedSignal.emit(strand, inst)
+        # end def
+        
+        def undo(self):
+            idx = self._idx
+            del strand._insertion[idx]
+            strand.strandInsertionRemovedSignal.emit(strand, idx)
+        # end def
+    # end class
+
+    class RemoveInsertionCommand(QUndoCommand):
+        def __init__(self, strand, idx):
+            super(Strand.RemoveInsertionCommand, self).__init__()
+            self._strand = strand
+            self._idx = idx
+            self._insertion = strand._insertion[idx]
+        # end def
+        
+        def undo(self):
+            idx = self._idx
+            del strand._insertion[idx]
+            strand.strandInsertionRemovedSignal.emit(strand, idx)
+        # end def
+        
+        def undo(self):
+            strand = self._strand
+            inst = self._insertion
+            strand._insertion[self._idx] = inst
+            strand.strandInsertionAddedSignal.emit(strand, inst)
+        # end def
+        
+    # end class
+
+    class ChangeInsertionCommand(QUndoCommand):
+        """
+        Changes the length of an insertion to a non-zero value
+        the caller of this needs to handle the case where a zero length
+        is required and call RemoveInsertionCommand
+        """
+        def __init__(self, strand, idx, newLength):
+            super(Strand.ChangeInsertionCommand, self).__init__()
+            self._strand = strand
+            self._idx = idx
+            self._newLength = newLength
+            self._oldLength = strand._insertion[idx].length()
+        # end def
+        
+        def undo(self):
+            strand = self._strand
+            inst = strand._insertion[self._idx]
+            inst.setLength(self._newLength)
+            strand.strandInsertionChangedSignal.emit(strand, inst)
+        # end def
+        
+        def undo(self):
+            strand = self._strand
+            inst = strand._insertion[self._idx]
+            inst.setLength(self._oldLength)
+            strand.strandInsertionChangedSignal.emit(strand, inst)
         # end def
     # end class
 
