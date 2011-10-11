@@ -176,7 +176,10 @@ class Oligo(QObject):
             # oligo
             return
         else:
-            self._strand5p = oldMergedStrand.oligo()._strand5p
+            if oldMergedStrand.connection5p() == None:
+                self._strand5p = newStrand5p
+            else:
+                self._strand5p = oldMergedStrand.oligo()._strand5p
             oligo3p._strand5p = newStrand3p
         # end else
     # end def
