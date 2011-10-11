@@ -86,6 +86,10 @@ class StrandItem(QObject):
                              endpoints[1] - 1)
         cmds.setAttr("%s.totalBases" % cylinderName, int(totalNumBases))
 
+    def strandUpdateSlot(self):
+        """strandUpdateSlot"""
+        print "solidview.StrandItem.strandUpdateSlot"
+
     def sequenceAddedSlot(self, oligo):
         """sequenceAddedSlot"""
         print "solidview.StrandItem.sequenceAddedSlot"
