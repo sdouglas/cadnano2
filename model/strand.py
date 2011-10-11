@@ -301,7 +301,6 @@ class Strand(QObject):
                 high = neighbors[1].lowIdx()-1
             else:
                 high = self.part().maxBaseIdx()
-                print "high =", high
             return self._baseIdxLow+1, high
     # end def
 

@@ -60,7 +60,7 @@ class Part(QObject):
 
     def __init__(self, *args, **kwargs):
         """
-        Sets the paernt document, sets bounds for part dimensions, and sets up
+        Sets the parent document, sets bounds for part dimensions, and sets up
         bookkeeping for partInstances, Oligos, VirtualHelix's, and helix ID
         number assignment.
         """
@@ -97,19 +97,18 @@ class Part(QObject):
     partActiveSliceResizeSignal = pyqtSignal(QObject)      # self
     partDestroyedSignal = pyqtSignal(QObject)              # self
     partInstanceAddedSignal = pyqtSignal(QObject)          # self
-    partNeedsFittingToViewSignal = pyqtSignal(QObject)     # virtualhelix
+    partNeedsFittingToViewSignal = pyqtSignal()
     partParentChangedSignal = pyqtSignal(QObject)          # self
     partRemovedSignal = pyqtSignal(QObject)                # self
     partSequenceClearedSignal = pyqtSignal(QObject)        # self
     partVirtualHelixAddedSignal = pyqtSignal(QObject)      # virtualhelix
     partVirtualHelixChangedSignal = pyqtSignal(QObject)    # coords (for a renumber)
-    
+
     # for updating the Slice View displayed helices
     partStrandChangedSignal = pyqtSignal(QObject)           # virtualHelix
-    
+
     # # Part, VirtualHelixFrom, StrandType, index, VirtualHelixTo, StrandType, index
     # partXoverAddedSignal = pyqtSignal(QObject, QObject, int, int, QObject, int, int)
-    # 
     # # Part, VirtualHelixFrom, StrandType, index, VirtualHelixTo, StrandType, index
     # partXoverRemovedSignal = pyqtSignal(QObject, QObject, int, int, QObject, int, int)
     ### SLOTS ###

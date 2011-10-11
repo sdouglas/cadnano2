@@ -25,6 +25,7 @@
 import os.path
 from cadnano import app
 from model.document import Document
+from model.io.decoder import decode
 from views.documentwindow import DocumentWindow
 import util
 util.qtWrapImport('QtCore', globals(), ['QFileInfo', 'QRect', 'QString',
@@ -310,12 +311,7 @@ class DocumentController():
         if app().isInMaya():
             app().deleteAllMayaNodes()
         self._document.removeAllParts()  # clear out old parts
-        self._undoStack.clear()  # reset undostack
-        # del self.sliceGraphicsItem
-        # del self.pathHelixGroup
-        # self.sliceGraphicsItem = None
-        # self.pathHelixGroup = None
-        # self.solidHelixGroup = None
+        self._document.undoStack().clear()  # reset undostack
         self._filename = fname if fname else "untitled.nno"
         self._hasNoAssociatedFile = fname == None
         self._activePart = None
@@ -351,6 +347,31 @@ class DocumentController():
             del self.filesavedialog  # prevents hang (?)
         self.newDocument()
 
+    def openAfterMaybeSaveCallback(self, selected):
+        """
+        Receives file selection info from the dialog created by
+        openAfterMaybeSave, following user input.
+
+        Extracts the file name and passes it to the decode method, which
+        returns a new document doc, which is then set as the open document
+        by newDocument. Calls finalizeImport and disconnects dialog signaling.
+        """
+        if isinstance(selected, QStringList) or isinstance(selected, list):
+            fname = selected[0]
+        else:
+            fname = selected
+        if not fname or os.path.isdir(fname):
+            return False
+        fname = str(fname)
+        doc = decode(file(fname).read())
+        self.newDocument(doc, fname)
+        # doc.finalizeImport()  # updates staple highlighting
+        if self.fileopendialog != None:
+            self.fileopendialog.filesSelected.disconnect(\
+                                              self.openAfterMaybeSaveCallback)
+            # manual garbage collection to prevent hang (in osx)
+            del self.fileopendialog
+
     def saveFileDialogCallback(self):
         """docstring for saveFileDialogCallback"""
         if isinstance(selected, QStringList) or isinstance(selected, list):
@@ -367,24 +388,6 @@ class DocumentController():
                                                 self.saveFileDialogCallback)
             del self.filesavedialog  # prevents hang
         self.writeDocumentToFile(fname)
-
-    def openAfterMaybeSaveCallback(self):
-        """docstring for openAfterMaybeSaveCallback"""
-        if isinstance(selected, QStringList) or isinstance(selected, list):
-            fname = selected[0]
-        else:
-            fname = selected
-        if not fname or os.path.isdir(fname):
-            return False
-        fname = str(fname)
-        doc = decode(file(fname).read())
-        self.newDocument(doc, fname)
-        doc.finalizeImport()  # updates staple highlighting
-        if self.fileopendialog != None:
-            self.fileopendialog.filesSelected.disconnect(\
-                                              self.openAfterMaybeSaveCallback)
-            # manual garbage collection to prevent hang (in osx)
-            del self.fileopendialog
 
     ### file input ##
     def documentTitle(self):
@@ -405,7 +408,11 @@ class DocumentController():
         return True
 
     def openAfterMaybeSave(self):
-        """docstring for openAfterMaybeSave"""
+        """
+        This is the method that initiates file opening. It is called by
+        actionOpenSlot to spawn a QFileDialog and connect it to a callback
+        method.
+        """
         if util.isWindows():  # required for native looking file window
             fname = QFileDialog.getOpenFileName(
                         None,
@@ -422,28 +429,9 @@ class DocumentController():
             fdialog.setAcceptMode(QFileDialog.AcceptOpen)
             fdialog.setWindowFlags(Qt.Sheet)
             fdialog.setWindowModality(Qt.WindowModal)
-            # fdialog.exec_()  # or .show(), or .open()
             self.fileopendialog = fdialog
             self.fileopendialog.filesSelected.connect(self.openAfterMaybeSaveCallback)
-            fdialog.open()  # or .show(), or .open()
-
-    def openAfterMaybeSaveCallback(self):
-        if isinstance(selected, QStringList) or isinstance(selected, list):
-            fname = selected[0]
-        else:
-            fname = selected
-        if not fname or os.path.isdir(fname):
-            return False
-        fname = str(fname)
-        doc = decode(file(fname).read())
-        # DocumentController(doc, fname)
-        self.newDocument(doc, fname)
-        doc.finalizeImport()  # updates staple highlighting
-        if self.fileopendialog != None:
-            self.fileopendialog.filesSelected.disconnect(\
-                                              self.openAfterMaybeSaveCallback)
-            # manual garbage collection to prevent hang (in osx)
-            del self.fileopendialog
+            fdialog.open()
 
     ### file output ###
     def maybeSave(self):

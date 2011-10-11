@@ -187,7 +187,6 @@ class EndpointItem(QGraphicsPathItem):
         # print "%s.%s [%d]" % (self, util.methodName(), self.idx())
         self._lowDragBound, self._highDragBound = \
                     self._strandItem._modelStrand.getResizeBounds(self.idx())
-        print self._lowDragBound, self._highDragBound
     # end def
 
     def selectToolMouseMove(self, modifiers, idx):
