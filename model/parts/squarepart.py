@@ -65,8 +65,8 @@ class SquarePart(Part):
         make sure self._radius is a float
         """
         radius = self._radius
-        x = row*2*radius
-        y = column*2*radius
+        y = row*2*radius
+        x = column*2*radius
         return scaleFactor*x, scaleFactor*y
     # end def
 
@@ -74,8 +74,8 @@ class SquarePart(Part):
         """
         """
         radius = self._radius
-        row = int(x/(2*radius*scaleFactor) + 0.5)
-        column = int(y/(2*radius*scaleFactor) + 0.5)
+        row = int(y/(2*radius*scaleFactor) + 0.5)
+        column = int(x/(2*radius*scaleFactor) + 0.5)
         return row, column
     # end def
 
