@@ -391,11 +391,11 @@ class Strand(QObject):
         print "addInsertion", idx, length
         idxLow, idxHigh = self.idxs()
         if idxLow <= idx <= idxHigh:
-            if not hasInsertionAt(idx):
+            if not self.hasInsertionAt(idx):
                 # make sure length is -1 if a skip
                 if length < 0:
                     length = -1
-                c = AddInsertionCommand(self, idx, length)
+                c = Strand.AddInsertionCommand(self, idx, length)
                 util.execCommandList(self, [c], desc="Add Insertion", useUndoStack=useUndoStack)
             # end if
         # end if
@@ -404,8 +404,8 @@ class Strand(QObject):
     def removeInsertion(self, idx, useUndoStack=True):
         idxLow, idxHigh = self.idxs()
         if idxLow <= idx <= idxHigh:
-            if hasInsertionAt(idx):
-                c = RemoveInsertionCommand(self, idx)
+            if self.hasInsertionAt(idx):
+                c = Strand.RemoveInsertionCommand(self, idx)
                 util.execCommandList(self, [c], desc="Remove Insertion", useUndoStack=useUndoStack)
             # end if
         # end if
@@ -414,14 +414,14 @@ class Strand(QObject):
     def changeInsertion(self, idx, length, useUndoStack=True):
         idxLow, idxHigh = self.idxs()
         if idxLow <= idx <= idxHigh:
-            if hasInsertionAt(idx):
+            if self.hasInsertionAt(idx):
                 if length == 0:
                     self.removeInsertion(idx)
                 else:
                     # make sure length is -1 if a skip
                     if length < 0:
                         length = -1
-                    c = ChangeInsertionCommand(self, idx, length)
+                    c = Strand.ChangeInsertionCommand(self, idx, length)
                     util.execCommandList(self, [c], desc="Change Insertion", useUndoStack=useUndoStack)
             # end if
         # end if
@@ -550,13 +550,13 @@ class Strand(QObject):
         def redo(self):
             strand = self._strand
             inst = self._insertion
-            strand._insertion[self._idx] = inst
+            strand._insertions[self._idx] = inst
             strand.strandInsertionAddedSignal.emit(strand, inst)
         # end def
 
         def undo(self):
             idx = self._idx
-            del strand._insertion[idx]
+            del strand._insertions[idx]
             strand.strandInsertionRemovedSignal.emit(strand, idx)
         # end def
     # end class
@@ -571,14 +571,14 @@ class Strand(QObject):
 
         def undo(self):
             idx = self._idx
-            del strand._insertion[idx]
+            del strand._insertions[idx]
             strand.strandInsertionRemovedSignal.emit(strand, idx)
         # end def
 
         def undo(self):
             strand = self._strand
             inst = self._insertion
-            strand._insertion[self._idx] = inst
+            strand._insertions[self._idx] = inst
             strand.strandInsertionAddedSignal.emit(strand, inst)
         # end def
     # end class
@@ -599,14 +599,14 @@ class Strand(QObject):
 
         def undo(self):
             strand = self._strand
-            inst = strand._insertion[self._idx]
+            inst = strand._insertions[self._idx]
             inst.setLength(self._newLength)
             strand.strandInsertionChangedSignal.emit(strand, inst)
         # end def
 
         def undo(self):
             strand = self._strand
-            inst = strand._insertion[self._idx]
+            inst = strand._insertions[self._idx]
             inst.setLength(self._oldLength)
             strand.strandInsertionChangedSignal.emit(strand, inst)
         # end def

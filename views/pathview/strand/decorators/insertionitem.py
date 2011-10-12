@@ -36,7 +36,7 @@ import util
 util.qtWrapImport('QtCore', globals(), [ 'QPointF', 'QRectF', 'Qt'] )
 util.qtWrapImport('QtGui', globals(), [ 'QBrush', 'QFont', \
                                         'QGraphicsItem', 'QGraphicsTextItem', \
-                                        'QTextCursor', 'QPainterPath', 'QPen', \
+                                        'QTextCursor', 'QPainterPath', 'QPen', 'QColor',\
                                         'QLabel', 'QGraphicsPathItem', 'QMatrix', 'QFontMetricsF'] )
 
 _baseWidth = _bw = styles.PATH_BASE_WIDTH
@@ -101,9 +101,9 @@ class InsertionPath(object):
 
     def getInsert(self, istop):
         if istop:
-            return self._insertPathUp
+            return _insertPathUp
         else:
-            return self._insertPathDown
+            return _insertPathDown
     # end def
 # end class
 
@@ -241,20 +241,20 @@ class InsertionItem(QGraphicsItem):
         self.focusOut()
 
     def boundingRect(self):
-        return self._bigRect
+        return _bigRect
 
     def updatePath(self):
         vhi = self._vHI
         strand = self._strand
         isOnTop = self._isOnTop
-        insertion = self.insertion
-        index = insertion.index()
-        insertSize = self.insertion.length()
+        insertion = self._insertion
+        index = insertion.idx()
+        insertSize = insertion.length()
         pathItem = self._pathItem
 
         if insertSize > 0:
             pathItem.setPath(self._insertPath.getInsert(isOnTop))
-            pathItem.setPen(QPen(strand.oligo().color(), styles.INSERTWIDTH))
+            pathItem.setPen(QPen(QColor(strand.oligo().color()), styles.INSERTWIDTH))
             pathItem.setBrush(QBrush(Qt.NoBrush))
         else:  # insertsize < 0 (a skip)
             pathItem.setPath(self._skipItem.getSkip())
@@ -312,12 +312,12 @@ class InsertionItem(QGraphicsItem):
         lbl = self._label
         txtOffset = lbl.boundingRect().width()/2 
         vhi = self._vHI
-        x, y = vhi.upperLeftCornerOfBase(self._index, self._strand)
+        x, y = vhi.upperLeftCornerOfBase(self._insertion.idx(), self._strand)
         self.setPos(x, y)
         if self._isOnTop:
-            lbl.setPos(self._offset2-txtOffset, -_bw)
+            lbl.setPos(_offset2-txtOffset, -_bw)
         else:
-            lbl.setPos(self._offset2-txtOffset, _bw)
+            lbl.setPos(_offset2-txtOffset, _bw)
         if self._insertion.length() > 0:
             lbl.show()
         else:
