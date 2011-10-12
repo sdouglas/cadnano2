@@ -102,7 +102,8 @@ class StrandItem(QObject):
         transformName = "%s%s" % (mom.helixTransformName, id)
         if cmds.objExists(transformName):
             cmds.delete(transformName)
-        self._virtualHelixItem.StrandIDs().remove(id)
+        if id in self._virtualHelixItem.StrandIDs():
+            self._virtualHelixItem.StrandIDs().remove(id)
         #print strand
         self._modelStrand = None
         self._controller.disconnectSignals()
