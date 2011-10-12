@@ -35,12 +35,14 @@ from decorators.insertionitem import InsertionItem
 
 import util
 # import Qt stuff into the module namespace with PySide, PyQt4 independence
-util.qtWrapImport('QtCore', globals(), ['pyqtSignal', 'QObject', 'Qt'])
+util.qtWrapImport('QtCore', globals(), ['pyqtSignal', 'QObject', 'Qt', 'QRectF'])
 util.qtWrapImport('QtGui', globals(), ['QGraphicsLineItem', 'QGraphicsPathItem',
                                        'QPen', 'QColor', 'QBrush', 'QFont', \
-                                       'QFontMetricsF', 'QGraphicsSimpleTextItem'])
+                                       'QFontMetricsF', 'QGraphicsSimpleTextItem', \
+                                       'QGraphicsRectItem'])
 
 _baseWidth = styles.PATH_BASE_WIDTH
+_defaultRect = QRectF(0,0, _baseWidth, _baseWidth)
 
 class StrandItem(QGraphicsLineItem):
     
@@ -61,6 +63,12 @@ class StrandItem(QGraphicsLineItem):
 
         self._seqLabel = QGraphicsSimpleTextItem(self)
         self._updateSequenceText()
+
+        # create a bounding rect item to process click events
+        # over a wide area
+        br = self._boundRectItem = QGraphicsRectItem(_defaultRect, self)
+        br.mousePressEvent = self.mousePressEvent
+        br.setPen(QPen(Qt.NoPen))
 
         self._controller = StrandItemController(self, modelStrand)
         self._updateAppearance(modelStrand)
@@ -94,8 +102,10 @@ class StrandItem(QGraphicsLineItem):
         self._controller.disconnectSignals()
         self._controller = None
         scene = self.scene()
+        # scene.removeItem(self._boundRectItem)
         # scene.removeItem(self._highCap)
         # scene.removeItem(self._lowCap)
+        self._boundRectItem = None
         self._highCap = None
         self._lowCap = None
         scene.removeItem(self)
@@ -140,12 +150,12 @@ class StrandItem(QGraphicsLineItem):
         self._insertionItems[insertion.idx()] = InsertionItem(self._virtualHelixItem, strand, insertion)
     # end def
     def strandInsertionChangedSlot(self, strand, insertion):
-        self._insertionItems[insertion.idx()].update()
+        self._insertionItems[insertion.idx()].updateItem()
     # end def
     def strandInsertionRemovedSlot(self, strand, index):
-        instItem = self._decorators[insertion.idx()]
+        instItem = self._insertionItems[index]
         instItem.remove()
-        del self._insertionItems[insertion.idx()]
+        del self._insertionItems[index]
     # end def
     def strandDecoratorAddedSlot(self, strand, decorator):
         pass
@@ -185,16 +195,25 @@ class StrandItem(QGraphicsLineItem):
     def updateLine(self, movedCap):
         # setup
         bw = self._virtualHelixItem._baseWidth
+        br = self._boundRectItem
         line = self.line()
         # set new line coords
         if movedCap == self._lowCap:
             p1 = line.p1()
-            p1.setX(self._lowCap.pos().x() + bw)
+            newX = self._lowCap.pos().x() + bw
+            p1.setX(newX)
             line.setP1(p1)
+            temp = br.rect()
+            temp.setLeft(newX)
+            br.setRect(temp)
         else:
             p2 = line.p2()
-            p2.setX(self._highCap.pos().x())
+            newX = self._highCap.pos().x()
+            p2.setX(newX)
             line.setP2(p2)
+            temp = br.rect()
+            temp.setRight(newX)
+            br.setRect(temp)
         self.setLine(line)
 
     ### PRIVATE SUPPORT METHODS ###
@@ -246,6 +265,7 @@ class StrandItem(QGraphicsLineItem):
         # 2. Line drawing
         hy = ly = lUpperLeftY + halfBaseWidth
         self.setLine(lx, ly, hx, hy)
+        self._boundRectItem.setRect(QRectF(lUpperLeftX+bw, lUpperLeftY, bw*(highIdx-lowIdx-1), bw))
         self._updatePensAndBrushes(strand)
     # end def
 
