@@ -44,7 +44,7 @@ class VirtualHelix(QObject):
 
     def __init__(self, part, row, col, idnum=0):
         super(VirtualHelix, self).__init__(part)
-        self._coords = (row, col) # col, row
+        self._coord = (row, col) # col, row
         self._part = part
         self._scafStrandSet = StrandSet(StrandType.Scaffold, self)
         self._stapStrandSet = StrandSet(StrandType.Staple, self)
@@ -86,8 +86,8 @@ class VirtualHelix(QObject):
         self.setParent(newPart)
     # end def
     
-    def coords(self):
-        return self._coords
+    def coord(self):
+        return self._coord
     # end def
     
     def translateCoords(self, deltaCoords):
@@ -95,8 +95,8 @@ class VirtualHelix(QObject):
         for expanding a helix
         """
         deltaRow, deltaCol = deltaCoords
-        row, col = self._coords
-        self._coords = row + deltaRow, col + deltaCol
+        row, col = self._coord
+        self._coord = row + deltaRow, col + deltaCol
     # end def
 
     def setNumber(self, number):
@@ -104,7 +104,7 @@ class VirtualHelix(QObject):
     # end def
 
     def isEvenParity(self):
-        return self._part.isEvenParity(*self._coords)
+        return self._part.isEvenParity(*self._coord)
     # end def
 
     def isDrawn5to3(self, strandSet):
@@ -173,7 +173,7 @@ class VirtualHelix(QObject):
         strands get copied at the oligo and added to the Virtual Helix
         """
         vh = VirtualHelix(part, self._number)
-        vh._coords = (self._coords[0], self._coords[1])
+        vh._coords = (self._coord[0], self._coord[1])
         # If self._part exists, it owns self._number
         # in that only it may modify it through the
         # private interface. The public interface for

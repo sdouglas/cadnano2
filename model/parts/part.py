@@ -28,6 +28,8 @@
 from exceptions import KeyError
 from heapq import heapify, heappush, heappop
 from itertools import product, izip
+from collections import defaultdict
+
 from model.enum import StrandType
 from model.virtualhelix import VirtualHelix
 from model.strand import Strand
@@ -86,6 +88,7 @@ class Part(QObject):
         
         self._activeBaseIndex = self._step
         self._activeVirtualHelix = None
+        self._insertions =  defaultdict(dict)   # dictionary of insertions per virtualhelix
     # end def
 
     def __repr__(self):
@@ -328,6 +331,13 @@ class Part(QObject):
         util.execCommandList(self, [c], desc="Remove VirtualHelix", \
                                                     useUndoStack=useUndoStack)
     # end def
+    
+    def insertions(self):
+        """
+        return dictionary of insertions
+        """
+        return self._insertions
+    # end def
 
     def renumber(self):
         print "%s: renumber() called." % self
@@ -352,7 +362,7 @@ class Part(QObject):
         private method for adding a virtualHelix to the Parts data structure
         of virtualHelix references
         """
-        self._virtualHelixHash[virtualHelix.coords()] = virtualHelix
+        self._virtualHelixHash[virtualHelix.coord()] = virtualHelix
     # end def
 
     def _removeVirtualHelix(self, virtualHelix):
@@ -360,7 +370,7 @@ class Part(QObject):
         private method for adding a virtualHelix to the Parts data structure
         of virtualHelix references
         """
-        del self._virtualHelixHash[virtualHelix.coords()]
+        del self._virtualHelixHash[virtualHelix.coord()]
     # end def
 
     def _reserveHelixIDNumber(self, parityEven=True, requestedIDnum=None):
@@ -491,7 +501,7 @@ class Part(QObject):
         # assign the method to a a local variable
         getVH = self.virtualHelixAtCoord
         # get the vh's row and column r,c
-        (r,c) = vh.coords()
+        (r,c) = vh.coord()
 
         if self.isEvenParity(r, c):
             neighbors.append(getVH((r,c+1)))  # p0 neighbor (p0 is a direction)
@@ -732,3 +742,5 @@ class Part(QObject):
             strand3p.strandUpdateSignal.emit(strand3p)
         # end def
     # end class
+
+# end class

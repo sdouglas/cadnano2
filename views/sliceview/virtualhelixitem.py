@@ -143,6 +143,7 @@ class VirtualHelixItem(QGraphicsEllipseItem):
 
     def virtualHelix(self):
         return self._virtualHelix
+    # end def
 
     def number(self):
         return self.virtualHelix().number()

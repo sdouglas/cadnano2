@@ -138,22 +138,22 @@ class SkipPath(object):
     # end def
 # end class
 
-class InsertionItem(QGraphicsItem):
+class SubInsertionItem(QGraphicsItem):
     """
     This is just the shape of the Insert item
     """
     _insertPath = InsertionPath()
     _skipPath = SkipPath()
 
-    def __init__(self, virtualHelixItem, strand, insertion):
-        super(InsertionItem, self).__init__(virtualHelixItem)
-        self._vHI = virtualHelixItem
-        self._strand = strand
-        self._insertion = insertion
-        self._isOnTop = virtualHelixItem.isStrandOnTop(strand)
-        
+    def __init__(self, insertionItem, isOnTop):
+        super(SubInsertionItem, self).__init__(insertionItem)
+        self._strand = None
+        self._insertion = insertionItem._insertion
+        self._isOnTop = isOnTop
+        if not isOnTop:
+            self.setY(_bw)
         self.hide()
-        
+
         # do label stuff to depict the length of the insertion
         label = QGraphicsTextItem("", parent=self)
         label.setFont(_font)
@@ -164,22 +164,20 @@ class InsertionItem(QGraphicsItem):
         label.setTextWidth(-1)
         self._label = label
         self.updateLabel()
-        
         self._pathItem = QGraphicsPathItem(parent=self)
         self._seqItem = QGraphicsPathItem(parent=self)
-        self._updatePath()
+        self.updatePath()
+        self.resetPosition()
         self.setZValue(styles.ZINSERTHANDLE)
         self.setFlags(QGraphicsItem.ItemHasNoContents)
-        
-        self.show()
     # end def
 
     def focusOut(self):
-        # print "focusing out"
-        cursor = self._label.textCursor()
+        lbl = self._label
+        cursor = lbl.textCursor()
         cursor.clearSelection()
-        self._label.setTextCursor(cursor)
-        self._label.clearFocus()
+        lbl.setTextCursor(cursor)
+        lbl.clearFocus()
     # end def
 
     def remove(self):
@@ -189,7 +187,7 @@ class InsertionItem(QGraphicsItem):
         scene.removeItem(self._seqItem)
         scene.removeItem(self)
     # end def
-    
+
     def labelMousePressEvent(self, event):
         """
         Pre-selects the text for editing when you click
@@ -226,46 +224,55 @@ class InsertionItem(QGraphicsItem):
         lbl = self._label
         test = unicode(lbl.toPlainText())
         try:
-            insertsize = int(test)
+            insertionSize = int(test)
         except:
-            insertsize = None
-        if insertsize != None and insertsize != self._insertsize:
-            self._insertsize = insertsize
-            self.parentObject().vhelix().installInsert(self._strandType,\
-                                                     self._index,\
-                                                     self._insertsize)
-            if self._insertsize:
+            insertionSize = None
+        insertion = self._insertion
+        length = insertion.length()
+        if insertionSize != None and insertionSize != length:
+            self._strand.changeInsertion(insertion.idx(), insertionSize)
+            if insertion.length():
                 self.resetPosition()
-                lbl.setFocus(False)
         # end if
         self.focusOut()
 
     def boundingRect(self):
         return _bigRect
 
-    def _updatePath(self):
-        vhi = self._vHI
-        strand = self._strand
-        isOnTop = self._isOnTop
-        insertion = self._insertion
-        index = insertion.idx()
-        insertSize = insertion.length()
-        pathItem = self._pathItem
+    def updateItem(self, strand):
+        self._strand = strand
+        self.updatePath()
+        self.updateLabel()
+        self.resetPosition()
+    # end def
 
-        if insertSize > 0:
+    def updatePath(self):
+        strand = self._strand
+        if strand == None:
+            self.hide()
+            return
+        else:
+            self.show()
+
+        isOnTop = self._isOnTop
+        pathItem = self._pathItem
+        skipPath = self._skipPath
+
+        if self._insertion.length() > 0:
             pathItem.setPath(self._insertPath.getInsert(isOnTop))
             pathItem.setPen(QPen(QColor(strand.oligo().color()), styles.INSERTWIDTH))
             pathItem.setBrush(QBrush(Qt.NoBrush))
-        else:  # insertsize < 0 (a skip)
-            pathItem.setPath(self._skipItem.getSkip())
-            painter.setPen(self._skipItem.getPen())
+        else:  # insertionSize < 0 (a skip)
+            pathItem.setPath(skipPath.getSkip())
+            pathItem.setPen(skipPath.getPen())
     # end def
-    
+
     def _updateSequenceText(self):
         seqItem = self._seqItem
         strand = self._strand
         isOnTop = self._isOnTop
-        
+        index = self._insertion.idx()
+
         # draw sequence on the insert
         baseText = strand.sequenceForInsertAt(index)
         if baseText:  # only draw sequences if they exist i.e. not None!
@@ -286,7 +293,7 @@ class InsertionItem(QGraphicsItem):
                 pt = seqPath.pointAtPercent(frac)
                 tangAng = seqPath.angleAtPercent(frac)
                 # painter.save()
-                
+
                 normalPath = QPainterPath()
                 normalPath.setFont(styles.SEQUENCEFONT)
                 normalPath.translate(pt)
@@ -296,30 +303,82 @@ class InsertionItem(QGraphicsItem):
                 rotatedPath = mat.map(tempPath)
 
                 rotatedPath.translate(QPointF(-styles.SEQUENCEFONTCHARWIDTH/2.,
-                                          -2 if isOnTop else syles.SEQUENCEFONTH))
+                                          -2 if isOnTop else styles.SEQUENCEFONTH))
                 if not isOnTop:
                     rotatedPath.translate(0, -syles.SEQUENCEFONTH - styles.INSERTWIDTH)
                 seqPath.addPath(rotatedPath)
         # end if
     # end def
-    
+
     def updateLabel(self):
         self._label.setPlainText("%d" % (self._insertion.length()))
-        self.resetPosition()
     # end def
 
     def resetPosition(self):
         lbl = self._label
-        txtOffset = lbl.boundingRect().width()/2 
-        vhi = self._vHI
-        x, y = vhi.upperLeftCornerOfBase(self._insertion.idx(), self._strand)
-        self.setPos(x, y)
+        txtOffset = lbl.boundingRect().width()/2
+        insertion = self._insertion
         if self._isOnTop:
             lbl.setPos(_offset2-txtOffset, -_bw)
         else:
             lbl.setPos(_offset2-txtOffset, _bw)
-        if self._insertion.length() > 0:
+        if insertion.length() > 0:
             lbl.show()
         else:
             lbl.hide()
     # end def
+# end class
+
+class InsertionItem(QGraphicsItem):
+    """
+    Insert handle consists of the InsertItem and the QLabel and manages insert
+    manipulation.
+    """
+    def __init__(self, virtualHelixItem, strand, insertion):
+        super(InsertionItem, self).__init__(parent=virtualHelixItem)
+        self._vHI = virtualHelixItem
+        self._strand = strand
+        self._insertion = insertion
+        self.hide()
+        isOnTop = self._isOnTop = virtualHelixItem.isStrandOnTop(strand)
+
+        self._subItems = [SubInsertionItem(self, isOnTop), \
+                                SubInsertionItem(self, not isOnTop)]
+
+        self.setZValue(styles.ZINSERTHANDLE)
+        self.setFlags(QGraphicsItem.ItemHasNoContents)
+
+        self.setPos(_baseWidth*insertion.idx(), 0)
+        self.updateItem()
+        self.show()
+    # end def
+
+    def boundingRect(self):
+        return QRectF()
+
+    def paint(self, painter, option, widget=None):
+        pass
+
+    def updateItem(self):
+        """
+        Collects the locations of each type of InsertHandle from the
+        recently activated VirtualHelix vhelix. Each self._index corresponds
+        to a pair of InsertHandle that must be updated and displayed.
+        """
+        vhi = self._vHI
+        items = self._subItems
+        strand = self._strand
+
+        strandComp = strand.strandSet().complimentStrandSet().getStrand(self._insertion.idx())
+        items[0].updateItem(strand)
+        items[1].updateItem(strandComp)
+    # end def
+
+    def remove(self):
+        for item in self._subItems:
+            item.remove()
+        # end for
+        self._subItems = None
+        scene = self.scene()
+        scene.removeItem(self)
+# end def

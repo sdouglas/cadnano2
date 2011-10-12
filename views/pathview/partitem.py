@@ -109,7 +109,7 @@ class PartItem(QGraphicsPathItem):
         vh = modelVirtualHelix
         vhi = VirtualHelixItem(self, modelVirtualHelix, self._activeTool)
         vhi.setPos
-        self._virtualHelixHash[vh.coords()] = vhi
+        self._virtualHelixHash[vh.coord()] = vhi
         self._virtualHelixItemList.append(vhi)
         self._setVirtualHelixItemList(self._virtualHelixItemList)
     # end def
@@ -148,9 +148,16 @@ class PartItem(QGraphicsPathItem):
         return self._modelPart
     # end def
 
-    def selectionLock(self):
-        return self._selectionLock
-    # end def
+    def removeVirtualHelixItem(self, virtualHelixItem):
+        vh = virtualHelixItem.virtualHelix()
+        self._virtualHelixItemList.remove(virtualHelixItem)
+        del self._virtualHelixHash[vh.coord()]
+        self._setVirtualHelixItemList(self._virtualHelixItemList)
+    # end
+
+    def itemForVirtualHelix(self, virtualHelix):
+        return self._virtualHelixHash[virtualHelix.coord()]
+
 
     def virtualHelixBoundingRect(self):
         return self._vHRect
@@ -208,36 +215,31 @@ class PartItem(QGraphicsPathItem):
     # end def
 
     ### PUBLIC METHODS ###
+    def numberOfVirtualHelices(self):
+        return len(self._virtualHelixItemList)
+    # end def
+    
     def addXoverItem(self, xoverItem):
         # use xoverItems twice! once for each end of the xover
         vhi3p, vhi5p = xoverItem.virtualHelixItems()
         iAST3P, iAST5P = xoverItem.indicesAndStrandTypes()
-        self._xoverItems[vhi3p.coords()][iAST3P] = xoverItem
-        self._xoverItems[vhi5p.coords()][iAST5P] = xoverItem
-    # end def
-
-    def itemForVirtualHelix(self, virtualHelix):
-        return self._virtualHelixHash[virtualHelix.coords()]
-    # end def
-
-    def numberOfVirtualHelices(self):
-        return len(self._virtualHelixItemList)
-    # end def
-
-    def removeVirtualHelixItem(self, virtualHelixItem):
-        vh = virtualHelixItem.virtualHelix()
-        self._virtualHelixItemList.remove(virtualHelixItem)
-        del self._virtualHelixHash[vh.coords()]
-        self._setVirtualHelixItemList(self._virtualHelixItemList)
+        self._xoverItems[vhi3p.coord()][iAST3P] = xoverItem
+        self._xoverItems[vhi5p.coord()][iAST5P] = xoverItem
     # end def
 
     def removeXoverItem(self, xoverItem):
         # use xoverItems twice! once for each end of the xover
         vhi3p, vhi5p = xoverItem.virtualHelixItems()
         iAST3P, iAST5P = xoverItem.indicesAndStrandTypes()
-        del self._xoverItems[vhi3p.coords()][iAST3P]
-        del self._xoverItems[vhi5p.coords()][iAST5P]
+        del self._xoverItems[vhi3p.coord()][iAST3P]
+        del self._xoverItems[vhi5p.coord()][iAST5P]
     # end def
+
+    def updateXoverItems(self, virtualHelixItem):
+         coord = virtualHelixItem.coord()
+         for xoveritem in self._xoverItems[coord].itervalues():
+             xoveritem.updatePath()
+     # end def
 
     def reorderHelices(self, first, last, indexDelta):
         """
@@ -273,6 +275,14 @@ class PartItem(QGraphicsPathItem):
         if newActiveVHI != self._activeVirtualHelixItem:
             self._activeVirtualHelixItem = newActiveVHI
             self._modelPart.setActiveVirtualHelix(newActiveVHI.virtualHelix())
+    # end def
+    
+    def selectionLock(self):
+        return self._selectionLock
+    # end def
+
+    def setSelectionLock(self, locker):
+        self._selectionLock = locker
     # end def
 
     def setPreXoverItemsVisible(self, virtualHelixItem):
@@ -311,18 +321,8 @@ class PartItem(QGraphicsPathItem):
         # end for
     # end def
 
-    def setSelectionLock(self, locker):
-        self._selectionLock = locker
-    # end def
-
     def updatePreXoverItems(self):
         self.setPreXoverItemsVisible(self.activeVirtualHelixItem())
-    # end def
-
-    def updateXoverItems(self, virtualHelixItem):
-        coords = virtualHelixItem.coords()
-        for xoveritem in self._xoverItems[coords].itervalues():
-            xoveritem._updatePath()
     # end def
 
     ### COORDINATE METHODS ###

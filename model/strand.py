@@ -65,7 +65,6 @@ class Strand(QObject):
         self._strand3p = None  # 3' connection to another strand
         self._sequence = None
 
-        self._insertions = {}
         self._decorators = {}
         self._modifiers = {}
 
@@ -174,10 +173,11 @@ class Strand(QObject):
         if sequenceString == None:
             self._sequence = None
             return None, None
-        length = self.length()
+        length = self.totalLength()
         temp = sequenceString[0:length]
         # self._sequence = temp if self._isDrawn5to3 else temp[::-1]
-        self._sequence = temp 
+        self._sequence = temp
+        print temp
         return temp, sequenceString[length:]
     # end def
 
@@ -228,17 +228,19 @@ class Strand(QObject):
 
         # only get the characters we're using, while we're at it, make it the
         # reverse compliment
-        length = highIdx-lowIdx+1
 
-        # see if we are applyng
-        if sequenceString == None:  # clear string for case of partial overlap
+        length = self.totalLength()
+        
+        # see if we are applyng 
+        if sequenceString == None:
+            # clear out string for in case of not total overlap
             useSeq = ''.join([' ' for x in range(length)])
         else:  # use the string as is
             useSeq = sequenceString[::-1] if self._isDrawn5to3 else sequenceString
 
         temp = array('c', useSeq)
         if self._sequence == None:
-            tempSelf = array('c', ''.join([' ' for x in range(self.length())]) )
+            tempSelf = array('c', ''.join([' ' for x in range(length)]) )
         else:
             tempSelf = array('c', self._sequence if self._isDrawn5to3 else self._sequence[::-1])
 
@@ -295,6 +297,59 @@ class Strand(QObject):
     def length(self):
         return self._baseIdxHigh - self._baseIdxLow + 1
     # end def
+    
+    def totalLength(self):
+        """
+        includes the length of insertions in addition to the bases
+        """
+        tL = 0
+        coord = self.virtualHelix().coord()
+        for insertion in self.part().insertions()[coord].itervalues():
+            tL += insertion.length()
+        return tL + self.length()
+    # end def
+
+    def getSequenceList(self):
+        """
+        return the list of sequences strings comprising the sequence and the
+        inserts as a tuple with the index of the insertion
+        [(idx, (strandItemString, insertionItemString), ...]
+        
+        This takes advantage of the fact the python iterates a dictionary
+        by keys in order so if keys are indices, the insertions will iterate out
+        from low index to high index 
+        """
+        seqList = []
+        isDrawn5to3 = self._isDrawn5to3
+        seq = self._sequence if isDrawn5to3 else self._sequence[::-1]
+        # assumes a sequence has been applied correctly and is up to date
+        tL = self.totalLength()
+        
+        offsetLast = 0
+        lengthSoFar = 0
+        lI, hI = self.idxs()
+        
+        coord = self.virtualHelix().coord()
+        insertionsDict = self.part().insertions()[coord]
+
+        for index, insertion in insertionsDict.iteritems():
+            offset = index + 1 - lI + lengthSoFar
+            lengthSoFar += insertion.length()
+            seqItem = seq[offsetLast:offset] # the stranditem seq
+            offsetLast = offset + lengthSoFar
+            seqInsertion = seq[offset:offsetLast] # the insertions sequence
+            seqList.append((index, (seqItem, seqInsertion)))
+        # end for
+        # append the last bit of the strand
+        seqList.append((lI+tL, (seq[offsetLast:tL],'')))
+        if not isDrawn5to3:
+            # reverse it again so all sub sequences are from 5' to 3'
+            for i in range(len(seqList)):
+                index, temp = seqList[i]
+                seqList[i] = (index, (temp[0][::-1], temp[1][::-1]) )
+        return seqList
+    # end def
+        
 
     def hasXoverAt(self, idx):
         """
@@ -424,7 +479,7 @@ class Strand(QObject):
         # end if
     # end def
 
-    def removeInsertion(self, idx, useUndoStack=True):
+    def removeInsertion(self,  idx, useUndoStack=True):
         idxLow, idxHigh = self.idxs()
         if idxLow <= idx <= idxHigh:
             if self.hasInsertionAt(idx):
@@ -435,6 +490,7 @@ class Strand(QObject):
     # end def
 
     def changeInsertion(self, idx, length, useUndoStack=True):
+        
         idxLow, idxHigh = self.idxs()
         if idxLow <= idx <= idxHigh:
             if self.hasInsertionAt(idx):
@@ -452,7 +508,9 @@ class Strand(QObject):
 
     ### PUBLIC SUPPORT METHODS ###
     def hasInsertionAt(self, idx):
-        return idx in self._insertions
+        coord = self.virtualHelix().coord()
+        insts = self.part().insertions()[coord]
+        return idx in insts
     # end def
 
     def hasDecoratorAt(self, idx):
@@ -473,7 +531,35 @@ class Strand(QObject):
 
         Problably want to wrap with a macro
         """
-        insts = self._insertions
+        coord = self.virtualHelix().coord()
+        insts = self.part().insertions()[coord]
+        decs = self._decorators
+        mods = self._modifiers
+        idxMin, idMax = self.idxs() 
+        cList = []
+        for key in insts:
+            if key > idxMax or key < idxMin:
+                cList.append(Strand.RemoveInsertionCommand(self, key))
+            #end if
+        # end for
+        """
+        ADD CODE HERE TO HANDLE DECORATORS AND MODIFIERS
+        """
+        util.execCommandList(self, cList, desc="Remove Insertions", useUndoStack=True)
+    # end def
+    
+    def addDecoratorsInRange(self):
+        """
+        Called by StrandSet's SplitCommand after copying the strand to be
+        split. Either copy could have extra decorators that the copy should
+        not retain.
+
+        Removes Insertions, Decorators, and Modifiers
+
+        Problably want to wrap with a macro
+        """
+        coord = self.virtualHelix().coord()
+        insts = self.part().insertions()[coord]
         decs = self._decorators
         mods = self._modifiers
         idxMin, idMax = self.idxs() 
@@ -560,11 +646,13 @@ class Strand(QObject):
             part.partStrandChangedSignal.emit(strandSet.virtualHelix())
         # end def
     # end class
-
+    
     class AddInsertionCommand(QUndoCommand):
         def __init__(self, strand, idx, length):
             super(Strand.AddInsertionCommand, self).__init__()
             self._strand = strand
+            coord = strand.virtualHelix().coord()
+            self._insertions = strand.part().insertions()[coord]
             self._idx = idx
             self._length = length
             self._insertion = Insertion(idx, length)
@@ -573,37 +661,41 @@ class Strand(QObject):
         def redo(self):
             strand = self._strand
             inst = self._insertion
-            strand._insertions[self._idx] = inst
+            self._insertions[self._idx] = inst
             strand.strandInsertionAddedSignal.emit(strand, inst)
         # end def
 
         def undo(self):
             strand = self._strand
             idx = self._idx
-            del strand._insertions[idx]
+            del self._insertions[idx]
             strand.strandInsertionRemovedSignal.emit(strand, idx)
         # end def
     # end class
-
+    
     class RemoveInsertionCommand(QUndoCommand):
         def __init__(self, strand, idx):
             super(Strand.RemoveInsertionCommand, self).__init__()
             self._strand = strand
+            coord = strand.virtualHelix().coord()
+            self._insertions = strand.part().insertions()[coord]
             self._idx = idx
-            self._insertion = strand._insertions[idx]
+            self._insertion = strand.part()._insertions[idx]
         # end def
 
         def redo(self):
             strand = self._strand
+            coord = self._coord
             idx = self._idx
-            del strand._insertions[idx]
+            del self._insertions[idx]
             strand.strandInsertionRemovedSignal.emit(strand, idx)
         # end def
 
         def undo(self):
             strand = self._strand
+            coord = self._coord
             inst = self._insertion
-            strand._insertions[self._idx] = inst
+            self._insertions[self._idx] = inst
             strand.strandInsertionAddedSignal.emit(strand, inst)
         # end def
     # end class
@@ -617,21 +709,23 @@ class Strand(QObject):
         def __init__(self, strand, idx, newLength):
             super(Strand.ChangeInsertionCommand, self).__init__()
             self._strand = strand
+            coord = strand.virtualHelix().coord()
+            self._insertions = strand.part().insertions()[coord]
             self._idx = idx
             self._newLength = newLength
-            self._oldLength = strand._insertions[idx].length()
+            self._oldLength = self._insertions[idx].length()
         # end def
 
         def redo(self):
             strand = self._strand
-            inst = strand._insertions[self._idx]
+            inst = self._insertions[self._idx]
             inst.setLength(self._newLength)
             strand.strandInsertionChangedSignal.emit(strand, inst)
         # end def
 
         def undo(self):
             strand = self._strand
-            inst = strand._insertions[self._idx]
+            inst = self._insertions[self._idx]
             inst.setLength(self._oldLength)
             strand.strandInsertionChangedSignal.emit(strand, inst)
         # end def

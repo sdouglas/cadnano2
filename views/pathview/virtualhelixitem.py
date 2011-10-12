@@ -66,6 +66,9 @@ class VirtualHelixItem(QGraphicsPathItem):
         self._majorGridPainterPath = self.majorGridPainterPath()
         self.setPath(self._minorGridPainterPath)
         self._handle = VirtualHelixHandleItem(modelVirtualHelix, partItem)
+        
+        self._insertionItems = {}
+        
         self._controller = VirtualHelixItemController(self, modelVirtualHelix)
     # end def
 
@@ -114,8 +117,8 @@ class VirtualHelixItem(QGraphicsPathItem):
     def activeTool(self):
         return self._activeTool
 
-    def coords(self):
-        return self._modelVirtualHelix.coords()
+    def coord(self):
+        return self._modelVirtualHelix.coord()
     # end def
 
     def window(self):
@@ -207,6 +210,10 @@ class VirtualHelixItem(QGraphicsPathItem):
     def virtualHelix(self):
         return self._modelVirtualHelix
     # end def
+    
+    def insertionItems(self):
+        return self._insertionItems
+    # end def
 
     ### EVENT HANDLERS ###
     def mousePressEvent(self, event):
@@ -214,7 +221,6 @@ class VirtualHelixItem(QGraphicsPathItem):
         Parses a mousePressEvent to extract strandSet and base index,
         forwarding them to approproate tool method as necessary.
         """
-        self.scene().views()[0].addToPressList(self)
         self.part().setActiveVirtualHelix(self.virtualHelix())
         toolMethodName = str(self._activeTool()) + "MousePress"
         if hasattr(self, toolMethodName):
@@ -231,7 +237,7 @@ class VirtualHelixItem(QGraphicsPathItem):
             strandSet, idx = self.baseAtPoint(event.pos())
             getattr(self, toolMethodName)(strandSet, idx)
 
-    def customMouseRelease(self, event):
+    def mouseReleaseEvent(self, event):
         """
         Parses a mouseReleaseEvent to extract strandSet and base index,
         forwarding them to approproate tool method as necessary.
