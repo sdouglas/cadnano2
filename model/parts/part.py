@@ -449,11 +449,11 @@ class Part(QObject):
                 newStrandSet = newVHelix().getStrandSetByType(strandType)
                 newStrand = strand.deepCopy(newStrandSet, newOligo)
                 if lastStrand:
-                    lastStrand.set3pConnection(newStrand)
+                    lastStrand.setConnection3p(newStrand)
                 else: 
                     # set the first condition
                     newOligo.setStrand5p(newStrand)
-                newStrand.set5pConnection(lastStrand)
+                newStrand.setConnection5p(lastStrand)
                 newStrandSet.addStrand(newStrand)
                 lastStrand = newStrand
             # end for
@@ -680,8 +680,8 @@ class Part(QObject):
             olg = strand3p.oligo()
 
             # 2. install the Xover
-            strand3p.set3pConnection(strand5p)
-            strand5p.set5pConnection(strand3p)
+            strand3p.setConnection3p(strand5p)
+            strand5p.setConnection5p(strand3p)
 
             # 3. apply the 3 prime strand oligo to the 5 prime strand
             for strand in strand5p.generator3pStrand():
@@ -706,8 +706,8 @@ class Part(QObject):
             olg = self._oldOligo5p
 
             # 2. uninstall the Xover
-            strand3p.set3pConnection(None)
-            strand5p.set5pConnection(None)
+            strand3p.setConnection3p(None)
+            strand5p.setConnection5p(None)
 
             # 3. apply the old 5 prime strand oligo to the 5 prime strand
             for strand in strand5p.generator3pStrand():
