@@ -115,11 +115,11 @@ class PreXoverItem(QGraphicsPathItem):
 
         # create a bounding rect item to process click events
         # over a wide area
-        br = self._boundRectItem = QGraphicsRectItem(_rect, self)
-        br.mousePressEvent = self.mousePress
+        self._clickArea = cA = QGraphicsRectItem(_rect, self)
+        cA.mousePressEvent = self.mousePress
         yoffset = 0.2*bw if isOnTop else -0.4*bw
-        br.setPos(0, yoffset)
-        br.setPen(QPen(Qt.NoPen))
+        cA.setPos(0, yoffset)
+        cA.setPen(QPen(Qt.NoPen))
 
         self.updateStyle()
         self.updateLabel()
@@ -131,10 +131,10 @@ class PreXoverItem(QGraphicsPathItem):
         scene = self.scene()
         if scene:
             scene.removeItem(self._label)
-            scene.removeItem(self._boundRectItem)
+            scene.removeItem(self._clickArea)
             scene.removeItem(self)
         self._label = None
-        self._boundRectItem = None
+        self._clickArea = None
         self._fromVHItem = None
         self._toVHItem = None
     # end def

@@ -97,13 +97,12 @@ class StrandItem(QObject):
     def strandRemovedSlot(self, strand):
         mom = Mom()
         id = mom.strandMayaID(strand)
-        mom.removeIDMapping(id, strand)
         print "solidview.StrandItem.strandRemovedSlot %s" % id
+        mom.removeIDMapping(id, strand)
         transformName = "%s%s" % (mom.helixTransformName, id)
         if cmds.objExists(transformName):
             cmds.delete(transformName)
-        if id in self._virtualHelixItem.StrandIDs():
-            self._virtualHelixItem.StrandIDs().remove(id)
+        self._virtualHelixItem.StrandIDs().remove(id)
         #print strand
         self._modelStrand = None
         self._controller.disconnectSignals()
@@ -124,8 +123,8 @@ class StrandItem(QObject):
         print "solidview.StrandItem.strandXover3pRemovedSlot"
 
     @pyqtSlot(object)
-    def oligoAppeareanceChangedSlot(self, oligo):
-        print "solidview.StrandItem.oligoAppeareanceChangedSlot"
+    def oligoAppearanceChangedSlot(self, oligo):
+        print "solidview.StrandItem.oligoAppearanceChangedSlot"
 
     @pyqtSlot(object)
     def oligoSequenceAddedSlot(self, oligo):

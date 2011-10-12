@@ -28,30 +28,32 @@ from exceptions import NotImplementedError
 
 class AbstractStrandItemController(object):
     def __init__(self, strandItem, modelStrand):
+        """
+        Do not call connectSignals here.  subclasses
+        will install two sets of signals.
+        """
         if self.__class__ == AbstractStrandItemController:
             e = "AbstractStrandItemController should be subclassed."
             raise NotImplementedError(e)
         self._strandItem = strandItem
-        self._modelOligo = modelStrand.oligo()
         self._modelStrand = modelStrand
-        
-        # don't call this here as super call in subclass will install two signals
-        # self.connectSignals()
+        self._modelOligo = modelStrand.oligo()
     # end def
-    
+
     def reconnectOligoSignals(self):
         self.disconnectOligoSignals()
         self.connectOligoSignals()
     # end def
-    
+
     def connectSignals(self):
+        """Connects modelStrant signals to strandItem slots."""
         mS = self._modelStrand
         sI = self._strandItem
-        
+
         AbstractStrandItemController.connectOligoSignals(self)
         mS.strandHasNewOligoSignal.connect(sI.strandHasNewOligoSlot)
         mS.strandRemovedSignal.connect(sI.strandRemovedSlot)
-        
+
         mS.strandInsertionAddedSignal.connect(sI.strandInsertionAddedSlot)
         mS.strandInsertionChangedSignal.connect(sI.strandInsertionChangedSlot)
         mS.strandInsertionRemovedSignal.connect(sI.strandInsertionRemovedSlot)
@@ -62,19 +64,18 @@ class AbstractStrandItemController(object):
         mS.strandModifierChangedSignal.connect(sI.strandModifierChangedSlot)
         mS.strandModifierRemovedSignal.connect(sI.strandModifierRemovedSlot)
     # end def
-    
+
     def connectOligoSignals(self):
         sI = self._strandItem
         mO = self._modelStrand.oligo()
         self._modelOligo = mO
-        
-        mO.oligoAppearanceChangedSignal.connect(sI.oligoAppeareanceChangedSlot)
+        mO.oligoAppearanceChangedSignal.connect(sI.oligoAppearanceChangedSlot)
     # end def
 
     def disconnectSignals(self):
         mS = self._modelStrand
         sI = self._strandItem
-        
+
         AbstractStrandItemController.disconnectOligoSignals(self)
         mS.strandHasNewOligoSignal.disconnect(sI.strandHasNewOligoSlot)
         mS.strandRemovedSignal.disconnect(sI.strandRemovedSlot)
@@ -88,11 +89,10 @@ class AbstractStrandItemController(object):
         mS.strandModifierAddedSignal.disconnect(sI.strandModifierAddedSlot)
         mS.strandModifierChangedSignal.disconnect(sI.strandModifierChangedSlot)
         mS.strandModifierRemovedSignal.disconnect(sI.strandModifierRemovedSlot)
-        
     # end def
-    
+
     def disconnectOligoSignals(self):
         sI = self._strandItem
         mO = self._modelOligo
-        mO.oligoAppearanceChangedSignal.disconnect(sI.oligoAppeareanceChangedSlot)
+        mO.oligoAppearanceChangedSignal.disconnect(sI.oligoAppearanceChangedSlot)
     # end def

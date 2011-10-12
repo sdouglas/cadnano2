@@ -222,37 +222,36 @@ class XoverItem(QGraphicsPathItem):
         strandItem is a the model representation of the xover strand
         """
         super(XoverItem, self).__init__(partItem)
-
         self._partItem = partItem
-        
-        vhi3p = partItem.itemForVirtualHelix(strand3p.virtualHelix())
-        self._node3 = XoverNode3(vhi3p, strand3p, strand3p.idx3Prime())
-        
-        vhi5p = partItem.itemForVirtualHelix(strand5p.virtualHelix())
-        self._node5 = XoverNode5(vhi5p, strand5p, strand5p.idx5Prime())
-        
         # wire it up to the 3 prime strand, wire it to the 5 prime strand
+        vhi3p = partItem.itemForVirtualHelix(strand3p.virtualHelix())
+        vhi5p = partItem.itemForVirtualHelix(strand5p.virtualHelix())
+        self._node3 = XoverNode3(vhi3p, strand3p, strand3p.idx3Prime())
+        self._node5 = XoverNode5(vhi5p, strand5p, strand5p.idx5Prime())
         # to allow killing an xoveritem on deletion of a strand
         self._controller = XoverItemController(self, strand3p)
-        
-        self.updatePath()
+        self._updatePath()
     # end def
-    
+
     ### SLOTS ###
+    def oligoAppearanceChangedSlot(self, oligo):
+        self._updatePen()
+    # end def
+
     def strandHasNewOligoSlot(self, strand):
         self._controller.reconnectOligoSignals()
     # end def
+
     def strandRemovedSlot(self, strand):
-        
-        pass
-    def strandDestroyedSlot(self, strand):
-        pass
-    def strandDecoratorAddedSlot(self, strand):
-        pass
-    def oligoAppeareanceChangedSlot(self, oligo):
         pass
     # end def
-    
+    def strandDestroyedSlot(self, strand):
+        pass
+    # end def
+    def strandDecoratorAddedSlot(self, strand):
+        pass
+    # end def
+
     def xover3pRemovedSlot(self):
         self._controller.disconnectSignals()
         self._controller = None
@@ -262,7 +261,7 @@ class XoverItem(QGraphicsPathItem):
         self._partItem.removeXoverItem(self)
         scene.removeItem(self)
     # end def
-    
+
     ### METHODS ###
 
     def part(self):
@@ -290,7 +289,7 @@ class XoverItem(QGraphicsPathItem):
         return iAST3p, iAST5p
     # end def
 
-    def updatePath(self):
+    def _updatePath(self):
         """
         Draws a quad curve from the edge of the fromBase
         to the top or bottom of the toBase (q5), and
@@ -397,10 +396,10 @@ class XoverItem(QGraphicsPathItem):
             painterpath.quadTo(c1, fiveEnterPt)
             painterpath.lineTo(fiveCenterPt)
         self.setPath(painterpath)
-        self.updatePen()
+        self._updatePen()
     # end def
 
-    def updatePen(self):
+    def _updatePen(self):
         oligo = self._node3.strand().oligo()
         color = QColor(oligo.color())
         penWidth = styles.PATH_STRAND_STROKE_WIDTH

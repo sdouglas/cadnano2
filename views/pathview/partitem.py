@@ -322,7 +322,7 @@ class PartItem(QGraphicsPathItem):
     def updateXoverItems(self, virtualHelixItem):
         coords = virtualHelixItem.coords()
         for xoveritem in self._xoverItems[coords].itervalues():
-            xoveritem.updatePath()
+            xoveritem._updatePath()
     # end def
 
     ### COORDINATE METHODS ###
