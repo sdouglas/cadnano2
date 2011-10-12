@@ -35,12 +35,15 @@ from decorators.insertionitem import InsertionItem
 
 import util
 # import Qt stuff into the module namespace with PySide, PyQt4 independence
-util.qtWrapImport('QtCore', globals(), ['pyqtSignal', 'QObject', 'Qt'])
+util.qtWrapImport('QtCore', globals(), ['pyqtSignal', 'QObject', 'Qt', 'QRectF'])
 util.qtWrapImport('QtGui', globals(), ['QGraphicsLineItem', 'QGraphicsPathItem',
                                        'QPen', 'QColor', 'QBrush', 'QFont', \
-                                       'QFontMetricsF', 'QGraphicsSimpleTextItem'])
+                                       'QFontMetricsF', 'QGraphicsSimpleTextItem', \
+                                       'QGraphicsRectItem'])
 
 _baseWidth = styles.PATH_BASE_WIDTH
+_defaultRect = QRectF(0,0, _baseWidth, _baseWidth)
+_noPen = QPen(Qt.NoPen)
 
 class StrandItem(QGraphicsLineItem):
     def __init__(self, modelStrand, virtualHelixItem):
@@ -62,6 +65,10 @@ class StrandItem(QGraphicsLineItem):
         # label
         self._seqLabel = QGraphicsSimpleTextItem(self)
         self._updateSequenceText()
+        # create a larger click area rect to capture mouse events
+        br = self._boundRectItem = QGraphicsRectItem(_defaultRect, self)
+        br.mousePressEvent = self.mousePressEvent
+        br.setPen(_noPen)
         # initial refresh
         self._updateAppearance(modelStrand)
     # end def
@@ -92,8 +99,10 @@ class StrandItem(QGraphicsLineItem):
         self._controller.disconnectSignals()
         self._controller = None
         scene = self.scene()
+        # scene.removeItem(self._boundRectItem)
         # scene.removeItem(self._highCap)
         # scene.removeItem(self._lowCap)
+        self._boundRectItem = None
         self._highCap = None
         self._lowCap = None
         scene.removeItem(self)
@@ -140,13 +149,13 @@ class StrandItem(QGraphicsLineItem):
 
     # end def
     def strandInsertionChangedSlot(self, strand, insertion):
-        self._insertionItems[insertion.idx()].update()
+        self._insertionItems[insertion.idx()].updateItem()
     # end def
 
     def strandInsertionRemovedSlot(self, strand, index):
-        instItem = self._decorators[insertion.idx()]
+        instItem = self._insertionItems[index]
         instItem.remove()
-        del self._insertionItems[insertion.idx()]
+        del self._insertionItems[index]
     # end def
 
     def strandDecoratorAddedSlot(self, strand, decorator):
@@ -190,16 +199,25 @@ class StrandItem(QGraphicsLineItem):
     def updateLine(self, movedCap):
         # setup
         bw = _baseWidth
+        br = self._boundRectItem
         line = self.line()
         # set new line coords
         if movedCap == self._lowCap:
             p1 = line.p1()
-            p1.setX(self._lowCap.pos().x() + bw)
+            newX = self._lowCap.pos().x() + bw
+            p1.setX(newX)
             line.setP1(p1)
+            temp = br.rect()
+            temp.setLeft(newX)
+            br.setRect(temp)
         else:
             p2 = line.p2()
-            p2.setX(self._highCap.pos().x())
+            newX = self._highCap.pos().x()
+            p2.setX(newX)
             line.setP2(p2)
+            temp = br.rect()
+            temp.setRight(newX)
+            br.setRect(temp)
         self.setLine(line)
 
     ### PRIVATE SUPPORT METHODS ###
@@ -251,6 +269,7 @@ class StrandItem(QGraphicsLineItem):
         # 2. Line drawing
         hy = ly = lUpperLeftY + halfBaseWidth
         self.setLine(lx, ly, hx, hy)
+        self._boundRectItem.setRect(QRectF(lUpperLeftX+bw, lUpperLeftY, bw*(highIdx-lowIdx-1), bw))
         self._updatePensAndBrushes(strand)
     # end def
 
@@ -272,43 +291,39 @@ class StrandItem(QGraphicsLineItem):
 
     def _updateSequenceText(self):
         """
+        docstring for _updateSequenceText
         """
         bw = _baseWidth
         seqLbl = self._seqLabel
         strand = self.strand()
         seqTxt = strand.sequence()
-        # seqTxt = "ACG"
-        
+
         if seqTxt == None:
             seqLbl.hide()
             return
         # end if
-        
-        # seqLbl.setPen(QPen( Qt.NoPen))    # leave the Pen as None for unless required
+
+        # seqLbl.setPen(QPen( Qt.NoPen))  # leave Pen = None unless required
         seqLbl.setBrush(QBrush(Qt.black))
         seqLbl.setFont(styles.SEQUENCEFONT)
-        
+
         # this will always draw from the 5 Prime end!
         seqX = 2*styles.SEQUENCETEXTXCENTERINGOFFSET + bw*strand.idx5Prime()
         seqY = -styles.SEQUENCETEXTYCENTERINGOFFSET
-        
+
         if not self._isOnTop:
             # offset it towards the bottom
             seqY += 3*bw
-            # offset X by the reverse centering offset and the 
-            # length of the string 
-            seqX += styles.SEQUENCETEXTXCENTERINGOFFSET 
-            
+            # offset X by the reverse centering offset and the string length
+            seqX += styles.SEQUENCETEXTXCENTERINGOFFSET
             # rotate the characters upside down this does not affect positioning
             # coordinate system, +Y is still Down, and +X is still Right
             seqLbl.setRotation(180)
             # draw the text and reverse the string to draw 5 prime to 3 prime
             # seqTxt = seqTxt[::-1]
         # end if
-        
         seqLbl.setPos(seqX,seqY)
         seqLbl.setText(seqTxt)
-        
         seqLbl.show()
     # end def
 

@@ -168,6 +168,9 @@ class InsertionItem(QGraphicsItem):
         self._pathItem = QGraphicsPathItem(parent=self)
         self._seqItem = QGraphicsPathItem(parent=self)
         self.updatePath()
+        
+        self.resetPosition()
+        
         self.setZValue(styles.ZINSERTHANDLE)
         self.setFlags(QGraphicsItem.ItemHasNoContents)
         
@@ -176,10 +179,12 @@ class InsertionItem(QGraphicsItem):
 
     def focusOut(self):
         # print "focusing out"
-        cursor = self._label.textCursor()
+        lbl = self._label
+        
+        cursor = lbl.textCursor()
         cursor.clearSelection()
-        self._label.setTextCursor(cursor)
-        self._label.clearFocus()
+        lbl.setTextCursor(cursor)
+        lbl.clearFocus()
     # end def
 
     def remove(self):
@@ -226,45 +231,46 @@ class InsertionItem(QGraphicsItem):
         lbl = self._label
         test = unicode(lbl.toPlainText())
         try:
-            insertsize = int(test)
+            insertionSize = int(test)
         except:
-            insertsize = None
-        if insertsize != None and insertsize != self._insertsize:
-            self._insertsize = insertsize
-            self.parentObject().vhelix().installInsert(self._strandType,\
-                                                     self._index,\
-                                                     self._insertsize)
-            if self._insertsize:
+            insertionSize = None
+        insertion = self._insertion
+        length = insertion.length()
+        if insertionSize != None and insertionSize != length:
+            self._strand.changeInsertion(insertion.idx(), insertionSize)
+            if insertion.length():
                 self.resetPosition()
-                lbl.setFocus(False)
         # end if
         self.focusOut()
 
     def boundingRect(self):
         return _bigRect
+        
+    def updateItem(self):
+        self.updatePath()
+        self.resetPosition()
+    # end def
 
     def updatePath(self):
-        vhi = self._vHI
         strand = self._strand
         isOnTop = self._isOnTop
-        insertion = self._insertion
-        index = insertion.idx()
-        insertSize = insertion.length()
         pathItem = self._pathItem
-
-        if insertSize > 0:
+        skipPath = self._skipPath
+        
+        if self._insertion.length() > 0:
             pathItem.setPath(self._insertPath.getInsert(isOnTop))
             pathItem.setPen(QPen(QColor(strand.oligo().color()), styles.INSERTWIDTH))
             pathItem.setBrush(QBrush(Qt.NoBrush))
-        else:  # insertsize < 0 (a skip)
-            pathItem.setPath(self._skipItem.getSkip())
-            painter.setPen(self._skipItem.getPen())
+        else:  # insertionSize < 0 (a skip)
+            pathItem.setPath(skipPath.getSkip())
+            pathItem.setPen(skipPath.getPen())
     # end def
     
     def _updateSequenceText(self):
         seqItem = self._seqItem
         strand = self._strand
         isOnTop = self._isOnTop
+        index = self._insertion.idx()
         
         # draw sequence on the insert
         baseText = strand.sequenceForInsertAt(index)
@@ -305,20 +311,21 @@ class InsertionItem(QGraphicsItem):
     
     def updateLabel(self):
         self._label.setPlainText("%d" % (self._insertion.length()))
-        self.resetPosition()
     # end def
 
     def resetPosition(self):
         lbl = self._label
-        txtOffset = lbl.boundingRect().width()/2 
+        txtOffset = lbl.boundingRect().width()/2
+        insertion = self._insertion
         vhi = self._vHI
-        x, y = vhi.upperLeftCornerOfBase(self._insertion.idx(), self._strand)
+        
+        x, y = vhi.upperLeftCornerOfBase(insertion.idx(), self._strand)
         self.setPos(x, y)
         if self._isOnTop:
             lbl.setPos(_offset2-txtOffset, -_bw)
         else:
             lbl.setPos(_offset2-txtOffset, _bw)
-        if self._insertion.length() > 0:
+        if insertion.length() > 0:
             lbl.show()
         else:
             lbl.hide()

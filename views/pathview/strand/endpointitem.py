@@ -32,7 +32,9 @@ import util
 # import Qt stuff into the module namespace with PySide, PyQt4 independence
 util.qtWrapImport('QtCore', globals(), ['pyqtSignal', 'QObject', 'QPointF',
                                         'QRectF', 'Qt'])
-util.qtWrapImport('QtGui', globals(), ['QGraphicsPathItem', 'QPen', 'QPainterPath', 'QPolygonF'])
+util.qtWrapImport('QtGui', globals(), ['QGraphicsPathItem', 'QPen', \
+                                        'QPainterPath', 'QPolygonF', \
+                                        'QGraphicsRectItem'])
 
 _baseWidth = styles.PATH_BASE_WIDTH
 
@@ -74,6 +76,7 @@ poly35.append(QPointF(0, 0.5*_baseWidth))
 poly35.append(QPointF(0.5*_baseWidth, _baseWidth))
 pp35.addPolygon(poly35)
 
+_defaultRect = QRectF(0, 0, _baseWidth, _baseWidth)
 
 
 class EndpointItem(QGraphicsPathItem):
@@ -88,6 +91,12 @@ class EndpointItem(QGraphicsPathItem):
         self._highDragBound = None
         self._initCapSpecificState()
         self.setPen(QPen(Qt.NoPen))
+        
+        # for easier mouseclick
+        br = self._boundRectItem = QGraphicsRectItem(_defaultRect, self)
+        br.mousePressEvent = self.mousePressEvent
+        br.mouseMoveEvent = self.mouseMoveEvent
+        br.setPen(QPen(Qt.NoPen))
     # end def
 
     def __repr__(self):
@@ -113,10 +122,6 @@ class EndpointItem(QGraphicsPathItem):
             self.setPos(x, self.y())
             return True
         return False
-
-    def boundingRect(self):
-        """docstring for boundingRect"""
-        return QRectF(0, 0, _baseWidth, _baseWidth)
 
     ### PRIVATE SUPPORT METHODS ###
     def _initCapSpecificState(self):

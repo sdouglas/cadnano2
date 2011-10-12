@@ -62,23 +62,19 @@ def dagParentRemovedCallback( child, parent, clientData ):
     mom = Mom()
     children = child.fullPathName().split("|")
     for c in children:
-        if c.startswith("DNACylinderShape"):
+        if c.startswith(mom.helixMeshName):
             if mom.mayaToCn.has_key(c):
                 strand = mom.mayaToCn[ c ]
                 if strand:
-                    print "Strand %s : %s needs removal" % (c, strand)
+                    #print "Strand %s : %s needs removal" % (c, strand)
                     mom.removeIDMapping(c, strand)
-                    #startVBase = strand.vBase3
-                    #undoStack = strand.vStrand().vHelix.undoStack()
-                    #eraseOp  = EraseToolOperation(startVBase, undoStack)
-                    #eraseOp.actionEraseVstrandAt(strand)
-                    #eraseOp.end()
+                    strand.strandSet().removeStrand(strand)
                 else:
                     print "Error: no Strand inside mayaObjectModel"
             else:
                 pass
                 #print "dagParentRemovedCallback: %s already deleted" % c
-        elif c.startswith("stapleModIndicatorMesh"):
+        elif c.startswith(mom.decoratorMeshName):
             if mom.stapleModToSolidHelix.has_key(c):
                 stapleModObject = mom.stapleModToSolidHelix[ c ]
                 solidHelix = stapleModObject[0]

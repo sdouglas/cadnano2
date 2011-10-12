@@ -555,6 +555,7 @@ class Strand(QObject):
         # end def
 
         def undo(self):
+            strand = self._strand
             idx = self._idx
             del strand._insertions[idx]
             strand.strandInsertionRemovedSignal.emit(strand, idx)
@@ -566,10 +567,11 @@ class Strand(QObject):
             super(Strand.RemoveInsertionCommand, self).__init__()
             self._strand = strand
             self._idx = idx
-            self._insertion = strand._insertion[idx]
+            self._insertion = strand._insertions[idx]
         # end def
 
-        def undo(self):
+        def redo(self):
+            strand = self._strand
             idx = self._idx
             del strand._insertions[idx]
             strand.strandInsertionRemovedSignal.emit(strand, idx)
@@ -594,10 +596,10 @@ class Strand(QObject):
             self._strand = strand
             self._idx = idx
             self._newLength = newLength
-            self._oldLength = strand._insertion[idx].length()
+            self._oldLength = strand._insertions[idx].length()
         # end def
 
-        def undo(self):
+        def redo(self):
             strand = self._strand
             inst = strand._insertions[self._idx]
             inst.setLength(self._newLength)
