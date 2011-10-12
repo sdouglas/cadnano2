@@ -99,11 +99,11 @@ class Part(QObject):
     partInstanceAddedSignal = pyqtSignal(QObject)          # self
     partNeedsFittingToViewSignal = pyqtSignal()
     partParentChangedSignal = pyqtSignal(QObject)          # self
+    partPreDecoratorSelectedSignal = pyqtSignal(int, int, int)  # row, col, baseIdx
     partRemovedSignal = pyqtSignal(QObject)                # self
     partSequenceClearedSignal = pyqtSignal(QObject)        # self
     partVirtualHelixAddedSignal = pyqtSignal(QObject)      # virtualhelix
     partVirtualHelixChangedSignal = pyqtSignal(QObject)    # coords (for a renumber)
-
     # for updating the Slice View displayed helices
     partStrandChangedSignal = pyqtSignal(QObject)           # virtualHelix
 
@@ -332,6 +332,14 @@ class Part(QObject):
     def renumber(self):
         print "%s: renumber() called." % self
     # end def
+
+    def selectPreDecorator(self, row, col, baseIdx):
+        """
+        Handles view notifications that a predecorator has been selected.
+        Will be used to emit a signal preDecoratorSelectedSignal
+        """
+        print "PreDecorator was selected at (%d, %d)[%d]" % (row, col, baseIdx)
+        # partPreDecoratorSelectedSignal.emit(row, col, baseIdx)
 
     def setActiveBaseIndex(self, idx):
         self._activeBaseIndex = idx
