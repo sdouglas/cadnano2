@@ -261,7 +261,7 @@ class InsertionItem(QGraphicsItem):
             painter.setPen(self._skipItem.getPen())
     # end def
     
-    def updateSequenceText(self):
+    def _updateSequenceText(self):
         seqItem = self._seqItem
         strand = self._strand
         isOnTop = self._isOnTop

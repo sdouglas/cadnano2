@@ -326,7 +326,7 @@ class Part(QObject):
 
     def renumber(self):
         print "%s: renumber() called." % self
-        
+
     def setActiveBaseIndex(self, idx):
         self._activeBaseIndex = idx
         self.partActiveSliceIndexSignal.emit(self, idx)

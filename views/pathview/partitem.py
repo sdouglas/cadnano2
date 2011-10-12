@@ -70,7 +70,7 @@ class PartItem(QGraphicsPathItem):
     ### SLOTS ###
     def parentChangedSlot(self):
         """docstring for partParentChangedSlot"""
-        print "PartItem.partParentChangedSlot"
+        # print "PartItem.partParentChangedSlot"
         pass
 
     def removedSlot(self):
@@ -88,12 +88,12 @@ class PartItem(QGraphicsPathItem):
 
     def destroyedSlot(self):
         """docstring for partDestroyedSlot"""
-        print "PartItem.partDestroyedSlot"
+        # print "PartItem.partDestroyedSlot"
         pass
 
     def movedSlot(self, pos):
         """docstring for partMovedSlot"""
-        print "PartItem.partMovedSlot"
+        # print "PartItem.partMovedSlot"
         pass
 
     def virtualHelixAddedSlot(self, modelVirtualHelix):

@@ -60,7 +60,7 @@ class StrandItem(QGraphicsLineItem):
         self._isOnTop = virtualHelixItem.isStrandOnTop(modelStrand)
 
         self._seqLabel = QGraphicsSimpleTextItem(self)
-        self.updateSequenceText()
+        self._updateSequenceText()
 
         self._controller = StrandItemController(self, modelStrand)
         self._updateAppearance(modelStrand)
@@ -125,11 +125,11 @@ class StrandItem(QGraphicsLineItem):
     # end def
 
     def oligoSequenceAddedSlot(self, oligo):
-        self.updateSequenceText()
+        self._updateSequenceText()
     # end def
 
     def oligoSequenceClearedSlot(self, oligo):
-        self.updateSequenceText()
+        self._updateSequenceText()
     # end def
 
     def strandHasNewOligoSlot(self, strand):
@@ -265,7 +265,7 @@ class StrandItem(QGraphicsLineItem):
         self._dualCap.setBrush(brush)
     # end def
 
-    def updateSequenceText(self):
+    def _updateSequenceText(self):
         """
         """
         bw = _baseWidth
@@ -310,22 +310,44 @@ class StrandItem(QGraphicsLineItem):
     ### EVENT HANDLERS ###
     def mousePressEvent(self, event):
         """
-        Parses a mousePressEvent, calling the approproate tool method as
-        necessary.
+        Parses a mousePressEvent to extract strandSet and base index,
+        forwarding them to approproate tool method as necessary.
         """
-        # lowIdx = self._modelStrand.lowIdx()
-        idx = int(floor((event.pos().x()) / _baseWidth))
+        self.scene().views()[0].addToPressList(self)
         toolMethodName = str(self._activeTool()) + "MousePress"
-        if hasattr(self, toolMethodName):  # if the tool method exists
-            getattr(self, toolMethodName)(idx)  # call it
+        if hasattr(self, toolMethodName):
+            idx = int(floor((event.pos().x()) / _baseWidth))
+            getattr(self, toolMethodName)(idx)
+
+    def mouseMoveEvent(self, event):
+        """
+        Parses a mouseMoveEvent to extract strandSet and base index,
+        forwarding them to approproate tool method as necessary.
+        """
+        toolMethodName = str(self._activeTool()) + "MouseMove"
+        if hasattr(self, toolMethodName):
+            idx = int(floor((event.pos().x()) / _baseWidth))
+            getattr(self, toolMethodName)(idx)
+
+    def customMouseRelease(self, event):
+        """
+        Parses a mouseReleaseEvent to extract strandSet and base index,
+        forwarding them to approproate tool method as necessary.
+        """
+        toolMethodName = str(self._activeTool()) + "MouseRelease"
+        if hasattr(self, toolMethodName):
+            idx = int(floor((event.pos().x()) / _baseWidth))
+            getattr(self, toolMethodName)(idx)
 
     ### TOOL METHODS ###
     def breakToolMousePress(self, idx):
-        """
-        Set the _moveIdx for future comparison by mouseMoveEvent.
-        Set the allowed drag bounds for use by selectToolMouseMove.
-        """
+        """Break the strand is possible."""
         mStrand = self._modelStrand
         mStrand.split(idx)
     # end def
 
+    def insertionToolMousePress(self, idx):
+        """Add an insert to the strand if possible."""
+        mStrand = self._modelStrand
+        localIdx = idx - mStrand.lowIdx()
+        mStrand.addInsertion(self, localIdx, 1)

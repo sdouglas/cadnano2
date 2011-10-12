@@ -2520,8 +2520,8 @@
             }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_48E4D8C0589E40A6ABB614AB01D013B1"
             {
-            "SourcePath" = "8:..\\..\\..\\views\\pathview\\tools\\inserttool.py"
-            "TargetName" = "8:inserttool.py"
+            "SourcePath" = "8:..\\..\\..\\views\\pathview\\tools\\insertiontool.py"
+            "TargetName" = "8:insertiontool.py"
             "Tag" = "8:"
             "Folder" = "8:_527FE82D934C462DA91152C628B00986"
             "Condition" = "8:"

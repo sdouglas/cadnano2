@@ -289,7 +289,7 @@
    <addaction name="actionPathPencil"/>
    <addaction name="actionPathBreak"/>
    <addaction name="actionPathErase"/>
-   <addaction name="actionPathInsert"/>
+   <addaction name="actionPathInsertion"/>
    <addaction name="actionPathSkip"/>
    <addaction name="actionPathPaint"/>
    <addaction name="actionPathAddSeq"/>
@@ -567,7 +567,7 @@
     <string>N</string>
    </property>
   </action>
-  <action name="actionPathInsert">
+  <action name="actionPathInsertion">
    <property name="checkable">
     <bool>true</bool>
    </property>

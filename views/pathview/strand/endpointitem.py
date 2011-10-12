@@ -88,7 +88,6 @@ class EndpointItem(QGraphicsPathItem):
         self._highDragBound = None
         self._initCapSpecificState()
         self.setPen(QPen(Qt.NoPen))
-
     # end def
 
     def __repr__(self):

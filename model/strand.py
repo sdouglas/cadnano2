@@ -381,14 +381,15 @@ class Strand(QObject):
         else:
             raise IndexError
     # end def
-    
+
     def addInsertion(self, idx, length, useUndoStack=True):
         """
         length should be 
         1 or more for an insertion 
         -1 for a skip
         """
-        idxLow, idxHigh = self.indices()
+        print "addInsertion", idx, length
+        idxLow, idxHigh = self.idxs()
         if idxLow <= idx <= idxHigh:
             if not hasInsertionAt(idx):
                 # make sure length is -1 if a skip
@@ -399,9 +400,9 @@ class Strand(QObject):
             # end if
         # end if
     # end def
-    
+
     def removeInsertion(self, idx, useUndoStack=True):
-        idxLow, idxHigh = self.indices()
+        idxLow, idxHigh = self.idxs()
         if idxLow <= idx <= idxHigh:
             if hasInsertionAt(idx):
                 c = RemoveInsertionCommand(self, idx)
@@ -409,9 +410,9 @@ class Strand(QObject):
             # end if
         # end if
     # end def
-    
+
     def changeInsertion(self, idx, length, useUndoStack=True):
-        idxLow, idxHigh = self.indices()
+        idxLow, idxHigh = self.idxs()
         if idxLow <= idx <= idxHigh:
             if hasInsertionAt(idx):
                 if length == 0:
@@ -427,11 +428,10 @@ class Strand(QObject):
     # end def
 
     ### PUBLIC SUPPORT METHODS ###
-    
     def hasInsertionAt(self, idx):
         return idx in self._insertions
     # end def
-    
+
     def hasDecoratorAt(self, idx):
         return idx in self._decorators
     # end def
@@ -445,9 +445,9 @@ class Strand(QObject):
         Called by StrandSet's SplitCommand after copying the strand to be
         split. Either copy could have extra decorators that the copy should
         not retain.
-        
+
         Removes Insertions, Decorators, and Modifiers
-        
+
         Problably want to wrap with a macro
         """
         insts = self._insertions
@@ -537,7 +537,7 @@ class Strand(QObject):
             part.partStrandChangedSignal.emit(strandSet.virtualHelix())
         # end def
     # end class
-    
+
     class AddInsertionCommand(QUndoCommand):
         def __init__(self, strand, idx, length):
             super(Strand.AddInsertionCommand, self).__init__()
@@ -546,14 +546,14 @@ class Strand(QObject):
             self._length = length
             self._insertion = Insertion(idx, length)
         # end def
-        
+
         def redo(self):
             strand = self._strand
             inst = self._insertion
             strand._insertion[self._idx] = inst
             strand.strandInsertionAddedSignal.emit(strand, inst)
         # end def
-        
+
         def undo(self):
             idx = self._idx
             del strand._insertion[idx]
@@ -568,20 +568,19 @@ class Strand(QObject):
             self._idx = idx
             self._insertion = strand._insertion[idx]
         # end def
-        
+
         def undo(self):
             idx = self._idx
             del strand._insertion[idx]
             strand.strandInsertionRemovedSignal.emit(strand, idx)
         # end def
-        
+
         def undo(self):
             strand = self._strand
             inst = self._insertion
             strand._insertion[self._idx] = inst
             strand.strandInsertionAddedSignal.emit(strand, inst)
         # end def
-        
     # end class
 
     class ChangeInsertionCommand(QUndoCommand):
@@ -597,14 +596,14 @@ class Strand(QObject):
             self._newLength = newLength
             self._oldLength = strand._insertion[idx].length()
         # end def
-        
+
         def undo(self):
             strand = self._strand
             inst = strand._insertion[self._idx]
             inst.setLength(self._newLength)
             strand.strandInsertionChangedSignal.emit(strand, inst)
         # end def
-        
+
         def undo(self):
             strand = self._strand
             inst = strand._insertion[self._idx]
@@ -612,4 +611,3 @@ class Strand(QObject):
             strand.strandInsertionChangedSignal.emit(strand, inst)
         # end def
     # end class
-

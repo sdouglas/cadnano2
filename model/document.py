@@ -79,7 +79,6 @@ class Document(QObject):
         """
         Create and store a new DNAPart and instance, and return the instance.
         """
-        print "addHoneycombPart"
         dnapart = None
         if len(self._parts) == 0:
             dnapart = HoneycombPart(document=self)
