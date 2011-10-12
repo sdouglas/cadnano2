@@ -50,8 +50,9 @@ class AbstractPathTool(QGraphicsObject):
     """Abstract base class to be subclassed by all other pathview tools."""
     def __init__(self, controller, parent=None):
         super(AbstractPathTool, self).__init__(parent)
-        self._active = False
         self._controller = controller
+        self._window = controller.window
+        self._active = False
         self._lastLocation = None
 
     ######################## Drawing #######################################

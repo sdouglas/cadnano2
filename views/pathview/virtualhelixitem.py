@@ -35,14 +35,16 @@ from model.enum import StrandType
 
 import util
 # import Qt stuff into the module namespace with PySide, PyQt4 independence
-util.qtWrapImport('QtCore', globals(), ['pyqtSignal', 'QObject', 'Qt'])
+util.qtWrapImport('QtCore', globals(), ['pyqtSignal', 'QObject', 'Qt', 'QRectF'])
 util.qtWrapImport('QtGui', globals(), ['QBrush', 'QGraphicsItem',\
                                        'QGraphicsPathItem','QPen',\
                                        'QPainterPath'])
 
+_baseWidth = styles.PATH_BASE_WIDTH
+
+
 class VirtualHelixItem(QGraphicsPathItem):
     """VirtualHelixItem for PathView"""
-    _baseWidth = styles.PATH_BASE_WIDTH
     minorGridPen = QPen(styles.minorgridstroke, styles.MINOR_GRID_STROKE_WIDTH)
     majorGridPen = QPen(styles.majorgridstroke, styles.MAJOR_GRID_STROKE_WIDTH)
     minorGridPen.setCosmetic(True)
@@ -111,10 +113,13 @@ class VirtualHelixItem(QGraphicsPathItem):
     ### ACCESSORS ###
     def activeTool(self):
         return self._activeTool
-        
+
     def coords(self):
         return self._modelVirtualHelix.coords()
     # end def
+
+    def window(self):
+        return self._partItem.window()
 
     ### DRAWING METHODS ###
     def isStrandOnTop(self, strand):
@@ -131,18 +136,18 @@ class VirtualHelixItem(QGraphicsPathItem):
     # end def
 
     def upperLeftCornerOfBase(self, idx, strand):
-        x = idx * self._baseWidth
-        y = 0 if self.isStrandOnTop(strand) else self._baseWidth
+        x = idx * _baseWidth
+        y = 0 if self.isStrandOnTop(strand) else _baseWidth
         return x, y
     # end def
-    
+
     def minorGridPainterPath(self):
         """
         Returns a QPainterPath object for the minor grid lines.
         The path also includes a border outline and a midline for
         dividing scaffold and staple bases.
         """
-        bw = self._baseWidth
+        bw = _baseWidth
         part = self.part()
         
         if self._minorGridPainterPath:
@@ -168,7 +173,7 @@ class VirtualHelixItem(QGraphicsPathItem):
         This is separated from the minor grid lines so different
         pens can be used for each.
         """
-        bw = self._baseWidth
+        bw = _baseWidth
         part = self.part()
         
         if self._majorGridPainterPath:
@@ -194,11 +199,11 @@ class VirtualHelixItem(QGraphicsPathItem):
     def part(self):
         return self._partItem.part()
     # end def
-    
+
     def partItem(self):
         return self._partItem
     # end def
-    
+
     def virtualHelix(self):
         return self._modelVirtualHelix
     # end def
@@ -236,7 +241,6 @@ class VirtualHelixItem(QGraphicsPathItem):
             strandSet, idx = self.baseAtPoint(event.pos())
             getattr(self, toolMethodName)(strandSet, idx)
 
-
     ### COORDINATE UTILITIES ###
     def baseAtPoint(self, pos):
         """
@@ -248,17 +252,23 @@ class VirtualHelixItem(QGraphicsPathItem):
         """
         x, y = pos.x(), pos.y()
         mVH = self._modelVirtualHelix
-        baseIdx = int(floor(x / self._baseWidth))
+        baseIdx = int(floor(x / _baseWidth))
         minBase, maxBase = 0, mVH.part().maxBaseIdx()
         if baseIdx < minBase or baseIdx >= maxBase:
             baseIdx = util.clamp(baseIdx, minBase, maxBase-1)
         if y < 0:
             y = 0  # HACK: zero out y due to erroneous click
-        strandIdx = floor(y * 1. / self._baseWidth)
+        strandIdx = floor(y * 1. / _baseWidth)
         if strandIdx < 0 or strandIdx > 1:
             strandIdx = int(util.clamp(strandIdx, 0, 1))
         strandSet = mVH.getStrandSetByIdx(strandIdx)
         return (strandSet, baseIdx)
+
+    def keyPanDeltaX(self):
+        """How far a single press of the left or right arrow key should move
+        the scene (in scene space)"""
+        dx = self._partItem.part().stepSize() * _baseWidth
+        return self.mapToScene(QRectF(0, 0, dx, 1)).boundingRect().width()
 
     ### TOOL METHODS ###
     def selectToolMousePress(self, strandSet, idx):

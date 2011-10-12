@@ -45,7 +45,7 @@ class PathToolManager(QObject):
     """
     def __init__(self, win):
         super(PathToolManager, self).__init__()
-        self.mainWindow = win
+        self.window = win
         self._activeTool = None
         self._activePart = None
         self.selectTool = SelectTool(self)
@@ -103,7 +103,6 @@ class PathToolManager(QObject):
             return
         if self.lastLocation():
             newActiveTool.updateLocation(*self.lastLocation())
-        currentPathHelix = None
         if self._activeTool:
             self._activeTool.setActive(False)
         self._activeTool = newActiveTool

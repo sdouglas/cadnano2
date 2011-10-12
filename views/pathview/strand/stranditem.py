@@ -43,37 +43,34 @@ util.qtWrapImport('QtGui', globals(), ['QGraphicsLineItem', 'QGraphicsPathItem',
 
 _baseWidth = styles.PATH_BASE_WIDTH
 _defaultRect = QRectF(0,0, _baseWidth, _baseWidth)
+_noPen = QPen(Qt.NoPen)
 
 class StrandItem(QGraphicsLineItem):
-    
     def __init__(self, modelStrand, virtualHelixItem):
         """The parent should be a VirtualHelixItem."""
         super(StrandItem, self).__init__(virtualHelixItem)
         self._modelStrand = modelStrand
         self._virtualHelixItem = virtualHelixItem
         self._activeTool = virtualHelixItem.activeTool()
-
+        self._controller = StrandItemController(self, modelStrand)
+        self._insertionItems = {}
+        # caps
         isDrawn5to3 = modelStrand.strandSet().isDrawn5to3()
         self._lowCap = EndpointItem(self, 'low', isDrawn5to3)
         self._highCap = EndpointItem(self, 'high', isDrawn5to3)
         self._dualCap = EndpointItem(self, 'dual', isDrawn5to3)
-
+        # orientation
         self._isDrawn5to3 = isDrawn5to3
         self._isOnTop = virtualHelixItem.isStrandOnTop(modelStrand)
-
+        # label
         self._seqLabel = QGraphicsSimpleTextItem(self)
         self._updateSequenceText()
-
-        # create a bounding rect item to process click events
-        # over a wide area
+        # create a larger click area rect to capture mouse events
         br = self._boundRectItem = QGraphicsRectItem(_defaultRect, self)
         br.mousePressEvent = self.mousePressEvent
-        br.setPen(QPen(Qt.NoPen))
-
-        self._controller = StrandItemController(self, modelStrand)
+        br.setPen(_noPen)
+        # initial refresh
         self._updateAppearance(modelStrand)
-        
-        self._insertionItems = {}
     # end def
 
     ### SIGNALS ###
@@ -147,16 +144,20 @@ class StrandItem(QGraphicsLineItem):
     # end def
 
     def strandInsertionAddedSlot(self, strand, insertion):
-        self._insertionItems[insertion.idx()] = InsertionItem(self._virtualHelixItem, strand, insertion)
+        insItem = InsertionItem(self._virtualHelixItem, strand, insertion)
+        self._insertionItems[insertion.idx()] = insItem
+
     # end def
     def strandInsertionChangedSlot(self, strand, insertion):
         self._insertionItems[insertion.idx()].updateItem()
     # end def
+
     def strandInsertionRemovedSlot(self, strand, index):
         instItem = self._insertionItems[index]
         instItem.remove()
         del self._insertionItems[index]
     # end def
+
     def strandDecoratorAddedSlot(self, strand, decorator):
         pass
     # end def
@@ -184,17 +185,20 @@ class StrandItem(QGraphicsLineItem):
     def strand(self):
         return self._modelStrand
     # end def
-    
+
     def idxs(self):
         return self._modelStrand.idxs()
 
     def virtualHelixItem(self):
         return self._virtualHelixItem
 
+    def window(self):
+        return self._virtualHelixItem.window()
+
     ### PUBLIC METHODS FOR DRAWING / LAYOUT ###
     def updateLine(self, movedCap):
         # setup
-        bw = self._virtualHelixItem._baseWidth
+        bw = _baseWidth
         br = self._boundRectItem
         line = self.line()
         # set new line coords
@@ -226,7 +230,7 @@ class StrandItem(QGraphicsLineItem):
         """
         # 0. Setup
         vhi = self._virtualHelixItem
-        bw = vhi._baseWidth
+        bw = _baseWidth
         halfBaseWidth = bw / 2.0
         lowIdx, highIdx = strand.lowIdx(), strand.highIdx()
 
@@ -287,43 +291,39 @@ class StrandItem(QGraphicsLineItem):
 
     def _updateSequenceText(self):
         """
+        docstring for _updateSequenceText
         """
         bw = _baseWidth
         seqLbl = self._seqLabel
         strand = self.strand()
         seqTxt = strand.sequence()
-        # seqTxt = "ACG"
-        
+
         if seqTxt == None:
             seqLbl.hide()
             return
         # end if
-        
-        # seqLbl.setPen(QPen( Qt.NoPen))    # leave the Pen as None for unless required
+
+        # seqLbl.setPen(QPen( Qt.NoPen))  # leave Pen = None unless required
         seqLbl.setBrush(QBrush(Qt.black))
         seqLbl.setFont(styles.SEQUENCEFONT)
-        
+
         # this will always draw from the 5 Prime end!
         seqX = 2*styles.SEQUENCETEXTXCENTERINGOFFSET + bw*strand.idx5Prime()
         seqY = -styles.SEQUENCETEXTYCENTERINGOFFSET
-        
+
         if not self._isOnTop:
             # offset it towards the bottom
             seqY += 3*bw
-            # offset X by the reverse centering offset and the 
-            # length of the string 
-            seqX += styles.SEQUENCETEXTXCENTERINGOFFSET 
-            
+            # offset X by the reverse centering offset and the string length
+            seqX += styles.SEQUENCETEXTXCENTERINGOFFSET
             # rotate the characters upside down this does not affect positioning
             # coordinate system, +Y is still Down, and +X is still Right
             seqLbl.setRotation(180)
             # draw the text and reverse the string to draw 5 prime to 3 prime
             # seqTxt = seqTxt[::-1]
         # end if
-        
         seqLbl.setPos(seqX,seqY)
         seqLbl.setText(seqTxt)
-        
         seqLbl.show()
     # end def
 
@@ -369,6 +369,12 @@ class StrandItem(QGraphicsLineItem):
     def insertionToolMousePress(self, idx):
         """Add an insert to the strand if possible."""
         mStrand = self._modelStrand
-        # localIdx = idx - mStrand.lowIdx()
-        # mStrand.addInsertion(self, localIdx, 1)
         mStrand.addInsertion(idx, 1)
+
+    def paintToolMousePress(self, idx):
+        """Add an insert to the strand if possible."""
+        mStrand = self._modelStrand
+        color = self.window().pathColorPanel.colorName()
+        print "paintToolMousePress", color
+        mStrand.oligo().setColor(color)
+

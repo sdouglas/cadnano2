@@ -37,3 +37,14 @@ class PaintTool(AbstractPathTool):
 
     def __repr__(self):
         return "paintTool"  # first letter should be lowercase
+
+    def setActive(self, willBeActive):
+        """Show the ColorPicker widget when active, hide when inactive."""
+        if willBeActive:
+            self._window.pathColorPanel.show()
+        else:
+            self._window.pathColorPanel.hide()
+
+    def widgetClicked(self):
+        """Cycle through colors on 'p' keypress"""
+        self._window.pathColorPanel.nextColor()
