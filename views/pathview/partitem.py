@@ -45,26 +45,27 @@ util.qtWrapImport('QtGui', globals(), ['QUndoCommand', 'QUndoStack',
 
 class PartItem(QGraphicsPathItem):
     def __init__(self, modelPart, activeTool, parent):
+        """parent should always be pathrootitem"""
         super(PartItem, self).__init__(parent)
         self._modelPart = modelPart
-        self._virtualHelixHash = {}
-        self._virtualHelixItemList = []
         self._activeTool = activeTool
         self._activeSliceItem = ActiveSliceItem(self, modelPart.activeBaseIndex())
-        self._controller = PartItemController(self, modelPart)
-        self._vhiHSelectionGroup = SelectionItemGroup(\
-                                                 boxtype=PathHelixHandleSelectionBox,\
-                                                 constraint='y',\
-                                                 parent=self)
-        self._selectionLock = None
-        self._vHRect = QRectF()
-        
         self._activeVirtualHelixItem = None
+        self._controller = PartItemController(self, modelPart)
+        self._virtualHelixHash = {}
+        self._virtualHelixItemList = []
+        self._vHRect = QRectF()
+        # crossover-related
         self._preXoverItems = []
-        # keyed by virtualHelix row and column, and then by index and strandType
-        self._xoverItems = defaultdict(dict)
+        self._xoverItems = defaultdict(dict)  # key: [coord][idx,strandtype]
+        # selection-related
+        self._selectionLock = None
+        self._vhiHSelectionGroup = SelectionItemGroup(\
+                                         boxtype=PathHelixHandleSelectionBox,\
+                                         constraint='y',\
+                                         parent=self)
     # end def
-        
+
     ### SIGNALS ###
 
     ### SLOTS ###
@@ -72,6 +73,7 @@ class PartItem(QGraphicsPathItem):
         """docstring for partParentChangedSlot"""
         # print "PartItem.partParentChangedSlot"
         pass
+    # end def
 
     def removedSlot(self):
         """docstring for partDestroyedSlot"""
@@ -90,11 +92,13 @@ class PartItem(QGraphicsPathItem):
         """docstring for partDestroyedSlot"""
         # print "PartItem.partDestroyedSlot"
         pass
+    # end def
 
     def movedSlot(self, pos):
         """docstring for partMovedSlot"""
         # print "PartItem.partMovedSlot"
         pass
+    # end def
 
     def virtualHelixAddedSlot(self, modelVirtualHelix):
         """
@@ -117,22 +121,26 @@ class PartItem(QGraphicsPathItem):
             self.setActiveVirtualHelixItem(vhi)
             self.setPreXoverItemsVisible(self.activeVirtualHelixItem())
     # end def
-    
+
     # def xoverAddedSlot(self, part, virtualHelix3p, strandType3p, idx3p, \
     #                                 virtualHelix5p, strandType5p, idx5p):
     #     """docstring for xover3pAddedSlot"""
     #     print "PartItem.xover3pAddedSlot"
     #     pass
-    # 
+
     # def xoverRemovedSlot(self, part, virtualHelix3p, strandType3p, idx3p, \
     #                                 virtualHelix5p, strandType5p, idx5p):
     #     """docstring for xover3pDestroyedSlot"""
     #     print "PartItem.xover3pDestroyedSlot"
     #     pass
 
-    ### METHODS ###
+    ### ACCESSORS ###
     def activeTool(self):
         return self._activeTool
+    # end def
+
+    def activeVirtualHelixItem(self):
+        return self._activeVirtualHelixItem
     # end def
 
     def part(self):
@@ -140,17 +148,23 @@ class PartItem(QGraphicsPathItem):
         return self._modelPart
     # end def
 
-    def removeVirtualHelixItem(self, virtualHelixItem):
-        vh = virtualHelixItem.virtualHelix()
-        self._virtualHelixItemList.remove(virtualHelixItem)
-        del self._virtualHelixHash[vh.coords()]
-        self._setVirtualHelixItemList(self._virtualHelixItemList)
-    # end
-
-    def itemForVirtualHelix(self, virtualHelix):
-        return self._virtualHelixHash[virtualHelix.coords()]
+    def selectionLock(self):
+        return self._selectionLock
     # end def
 
+    def virtualHelixBoundingRect(self):
+        return self._vHRect
+    # end def
+
+    def vhiHandleSelectionGroup(self):
+        return self._vhiHSelectionGroup
+    # end def
+
+    def window(self):
+        return self.parentItem().window()
+    # end def
+
+    ### PRIVATE METHODS ###
     def _setVirtualHelixItemList(self, newList, zoomToFit=True):
         """
         Give me a list of VirtualHelixItems and I'll parent them to myself if
@@ -187,17 +201,42 @@ class PartItem(QGraphicsPathItem):
             y += step
             self.updateXoverItems(vhi)
         # end for
-        self._vHRect = QRectF(leftmostExtent,\
-                           -40,\
-                           -leftmostExtent + rightmostExtent,\
-                           y + 40)
+        self._vHRect = QRectF(leftmostExtent, -40, -leftmostExtent + rightmostExtent, y + 40)
         self._virtualHelixItemList = newList
         if zoomToFit:
             self.scene().views()[0].zoomToFit()
     # end def
 
-    def virtualHelixBoundingRect(self):
-        return self._vHRect
+    ### PUBLIC METHODS ###
+    def addXoverItem(self, xoverItem):
+        # use xoverItems twice! once for each end of the xover
+        vhi3p, vhi5p = xoverItem.virtualHelixItems()
+        iAST3P, iAST5P = xoverItem.indicesAndStrandTypes()
+        self._xoverItems[vhi3p.coords()][iAST3P] = xoverItem
+        self._xoverItems[vhi5p.coords()][iAST5P] = xoverItem
+    # end def
+
+    def itemForVirtualHelix(self, virtualHelix):
+        return self._virtualHelixHash[virtualHelix.coords()]
+    # end def
+
+    def numberOfVirtualHelices(self):
+        return len(self._virtualHelixItemList)
+    # end def
+
+    def removeVirtualHelixItem(self, virtualHelixItem):
+        vh = virtualHelixItem.virtualHelix()
+        self._virtualHelixItemList.remove(virtualHelixItem)
+        del self._virtualHelixHash[vh.coords()]
+        self._setVirtualHelixItemList(self._virtualHelixItemList)
+    # end def
+
+    def removeXoverItem(self, xoverItem):
+        # use xoverItems twice! once for each end of the xover
+        vhi3p, vhi5p = xoverItem.virtualHelixItems()
+        iAST3P, iAST5P = xoverItem.indicesAndStrandTypes()
+        del self._xoverItems[vhi3p.coords()][iAST3P]
+        del self._xoverItems[vhi5p.coords()][iAST5P]
     # end def
 
     def reorderHelices(self, first, last, indexDelta):
@@ -230,57 +269,12 @@ class PartItem(QGraphicsPathItem):
         self._setVirtualHelixItemList(newList, zoomToFit=False)
     # end def
 
-    def activeVirtualHelixItem(self):
-        return self._activeVirtualHelixItem
-
     def setActiveVirtualHelixItem(self, newActiveVHI):
         if newActiveVHI != self._activeVirtualHelixItem:
             self._activeVirtualHelixItem = newActiveVHI
             self._modelPart.setActiveVirtualHelix(newActiveVHI.virtualHelix())
     # end def
 
-    def numberOfVirtualHelices(self):
-        return len(self._virtualHelixItemList)
-    # end def
-
-    def vhiHandleSelectionGroup(self):
-        return self._vhiHSelectionGroup
-    # end def
-
-    def addXoverItem(self, xoverItem):
-        # use xoverItems twice! once for each end of the xover
-        vhi3p, vhi5p = xoverItem.virtualHelixItems()
-        iAST3P, iAST5P = xoverItem.indicesAndStrandTypes()
-        self._xoverItems[vhi3p.coords()][iAST3P] = xoverItem
-        self._xoverItems[vhi5p.coords()][iAST5P] = xoverItem
-    # def 
-
-    def removeXoverItem(self, xoverItem):
-        # use xoverItems twice! once for each end of the xover
-        vhi3p, vhi5p = xoverItem.virtualHelixItems()
-        iAST3P, iAST5P = xoverItem.indicesAndStrandTypes()
-        del self._xoverItems[vhi3p.coords()][iAST3P]
-        del self._xoverItems[vhi5p.coords()][iAST5P]
-    # def
-    
-    def updateXoverItems(self, virtualHelixItem):
-        coords = virtualHelixItem.coords()
-        for xoveritem in self._xoverItems[coords].itervalues():
-            xoveritem.updatePath()
-    # end def
-    
-    def selectionLock(self):
-        return self._selectionLock
-    # end def
-
-    def setSelectionLock(self, locker):
-        self._selectionLock = locker
-    # end def
-
-    # def preXoverHandlesVisible(self):
-    #     return self._preXoverItems != None
-    # # end def
-    
     def setPreXoverItemsVisible(self, virtualHelixItem):
         """
         self._preXoverItems list references prexovers parented to other
@@ -294,18 +288,15 @@ class PartItem(QGraphicsPathItem):
         if vhi == None:
             return
         # end if
-        # areVisible = self._preXoverItems != None
+
         vh = vhi.virtualHelix()
         partItem = self
         part = self.part()
 
         # clear all PreXoverItems
         map(PreXoverItem.remove, self._preXoverItems)
-        # map(lambda pch: pch.remove() if pch.scene() else None, self._preXoverItems)
-
-        self._preXoverItems = None
-
         self._preXoverItems = []
+
         potentialXovers = part.potentialCrossoverList(vh)
         for neighbor, index, strandType, isLowIdx in potentialXovers:
             # create one half
@@ -320,19 +311,34 @@ class PartItem(QGraphicsPathItem):
         # end for
     # end def
 
+    def setSelectionLock(self, locker):
+        self._selectionLock = locker
+    # end def
+
     def updatePreXoverItems(self):
         self.setPreXoverItemsVisible(self.activeVirtualHelixItem())
     # end def
-    
-    # def updatePreXoverItems(self):
-    #     cacheConstructionEnvironment = self._XoverCacheEnvironment
-    #     vhi = self.activeVirtualHelixItem()
-    #     if vhi == None:
-    #         return
-    #     vh = vhi.virtualHelix()
-    #     currentEnvironment = (vh.neighbors(), vh.numBases())
-    #     if cacheConstructionEnvironment != currentEnvironment and\
-    #        self.preXoverHandlesVisible():
-    #         self.setPreXoverItemsVisible(vhi, False)
-    #         self.setPreXoverItemsVisible(vhi, True)
-    # # end def
+
+    def updateXoverItems(self, virtualHelixItem):
+        coords = virtualHelixItem.coords()
+        for xoveritem in self._xoverItems[coords].itervalues():
+            xoveritem.updatePath()
+    # end def
+
+    ### COORDINATE METHODS ###
+    def keyPanDeltaX(self):
+        """How far a single press of the left or right arrow key should move
+        the scene (in scene space)"""
+        vhs = self._virtualHelixItemList
+        return vhs[0].keyPanDeltaX() if vhs else 5
+
+    def keyPanDeltaY(self):
+        """How far an an arrow key should move the scene (in scene space)
+        for a single press"""
+        vhs = self._virtualHelixItemList
+        if not len(vhs) > 1:
+            return 5
+        dy = vhs[0].pos().y() - vhs[1].pos().y()
+        dummyRect = QRectF(0, 0, 1, dy)
+        return self.mapToScene(dummyRect).boundingRect().height()
+

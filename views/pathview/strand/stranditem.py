@@ -43,29 +43,27 @@ util.qtWrapImport('QtGui', globals(), ['QGraphicsLineItem', 'QGraphicsPathItem',
 _baseWidth = styles.PATH_BASE_WIDTH
 
 class StrandItem(QGraphicsLineItem):
-    
     def __init__(self, modelStrand, virtualHelixItem):
         """The parent should be a VirtualHelixItem."""
         super(StrandItem, self).__init__(virtualHelixItem)
         self._modelStrand = modelStrand
         self._virtualHelixItem = virtualHelixItem
         self._activeTool = virtualHelixItem.activeTool()
-
+        self._controller = StrandItemController(self, modelStrand)
+        self._insertionItems = {}
+        # caps
         isDrawn5to3 = modelStrand.strandSet().isDrawn5to3()
         self._lowCap = EndpointItem(self, 'low', isDrawn5to3)
         self._highCap = EndpointItem(self, 'high', isDrawn5to3)
         self._dualCap = EndpointItem(self, 'dual', isDrawn5to3)
-
+        # orientation
         self._isDrawn5to3 = isDrawn5to3
         self._isOnTop = virtualHelixItem.isStrandOnTop(modelStrand)
-
+        # label
         self._seqLabel = QGraphicsSimpleTextItem(self)
         self._updateSequenceText()
-
-        self._controller = StrandItemController(self, modelStrand)
+        # initial refresh
         self._updateAppearance(modelStrand)
-        
-        self._insertionItems = {}
     # end def
 
     ### SIGNALS ###
@@ -137,16 +135,20 @@ class StrandItem(QGraphicsLineItem):
     # end def
 
     def strandInsertionAddedSlot(self, strand, insertion):
-        self._insertionItems[insertion.idx()] = InsertionItem(self._virtualHelixItem, strand, insertion)
+        insItem = InsertionItem(self._virtualHelixItem, strand, insertion)
+        self._insertionItems[insertion.idx()] = insItem
+
     # end def
     def strandInsertionChangedSlot(self, strand, insertion):
         self._insertionItems[insertion.idx()].update()
     # end def
+
     def strandInsertionRemovedSlot(self, strand, index):
         instItem = self._decorators[insertion.idx()]
         instItem.remove()
         del self._insertionItems[insertion.idx()]
     # end def
+
     def strandDecoratorAddedSlot(self, strand, decorator):
         pass
     # end def
@@ -174,17 +176,20 @@ class StrandItem(QGraphicsLineItem):
     def strand(self):
         return self._modelStrand
     # end def
-    
+
     def idxs(self):
         return self._modelStrand.idxs()
 
     def virtualHelixItem(self):
         return self._virtualHelixItem
 
+    def window(self):
+        return self._virtualHelixItem.window()
+
     ### PUBLIC METHODS FOR DRAWING / LAYOUT ###
     def updateLine(self, movedCap):
         # setup
-        bw = self._virtualHelixItem._baseWidth
+        bw = _baseWidth
         line = self.line()
         # set new line coords
         if movedCap == self._lowCap:
@@ -207,7 +212,7 @@ class StrandItem(QGraphicsLineItem):
         """
         # 0. Setup
         vhi = self._virtualHelixItem
-        bw = vhi._baseWidth
+        bw = _baseWidth
         halfBaseWidth = bw / 2.0
         lowIdx, highIdx = strand.lowIdx(), strand.highIdx()
 
@@ -349,6 +354,12 @@ class StrandItem(QGraphicsLineItem):
     def insertionToolMousePress(self, idx):
         """Add an insert to the strand if possible."""
         mStrand = self._modelStrand
-        # localIdx = idx - mStrand.lowIdx()
-        # mStrand.addInsertion(self, localIdx, 1)
         mStrand.addInsertion(idx, 1)
+
+    def paintToolMousePress(self, idx):
+        """Add an insert to the strand if possible."""
+        mStrand = self._modelStrand
+        color = self.window().pathColorPanel.colorName()
+        print "paintToolMousePress", color
+        mStrand.oligo().setColor(color)
+

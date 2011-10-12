@@ -82,9 +82,9 @@ class DocumentWindow(QMainWindow, ui_mainwindow.Ui_MainWindow):
         self.pathGraphicsView.setScene(self.pathscene)
         self.pathGraphicsView.sceneRootItem = self.pathroot
         self.pathGraphicsView.setScaleFitFactor(0.9)
-        self.pathToolbar = ColorPanel()
-        self.pathGraphicsView.toolbar = self.pathToolbar
-        self.pathscene.addItem(self.pathToolbar)
+        self.pathColorPanel = ColorPanel()
+        self.pathGraphicsView.toolbar = self.pathColorPanel  # HACK for customqgraphicsview
+        self.pathscene.addItem(self.pathColorPanel)
         self.pathToolManager = PathToolManager(self)
         self.sliceToolManager.pathToolManager = self.pathToolManager
         self.pathToolManager.sliceToolManager = self.sliceToolManager

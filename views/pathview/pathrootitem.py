@@ -82,7 +82,10 @@ class PathRootItem(QGraphicsRectItem):
         """
         return self._window.sliceToolManager
 
-    ### METHODS ###
+    def window(self):
+        return self._window
+
+    ### PUBLIC METHODS ###
     def removePartItem(self, partItem):
         self._partItems.remove(partItem)
     # end def
@@ -91,3 +94,4 @@ class PathRootItem(QGraphicsRectItem):
         """docstring for resetDocumentAndController"""
         self._document = document
         self._controller = ViewRootController(self, document)
+    # end def
