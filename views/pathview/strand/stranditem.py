@@ -73,7 +73,6 @@ class StrandItem(QGraphicsLineItem):
         self._controller = StrandItemController(self, modelStrand)
         self._updateAppearance(modelStrand)
         
-        self._insertionItems = {}
     # end def
 
     ### SIGNALS ###
@@ -87,7 +86,10 @@ class StrandItem(QGraphicsLineItem):
             self.updateLine(self._lowCap)
         if highMoved:
             self.updateLine(self._highCap)
-
+        for insertionItem in self.insertionItems().itervalues():
+            insertionItem.updateItem()
+    # end def
+    
     def sequenceAddedSlot(self, oligo):
         """docstring for sequenceAddedSlot"""
         pass
@@ -147,15 +149,15 @@ class StrandItem(QGraphicsLineItem):
     # end def
 
     def strandInsertionAddedSlot(self, strand, insertion):
-        self._insertionItems[insertion.idx()] = InsertionItem(self._virtualHelixItem, strand, insertion)
+        self.insertionItems()[insertion.idx()] = InsertionItem(self._virtualHelixItem, strand, insertion)
     # end def
     def strandInsertionChangedSlot(self, strand, insertion):
-        self._insertionItems[insertion.idx()].updateItem()
+        self.insertionItems()[insertion.idx()].updateItem()
     # end def
     def strandInsertionRemovedSlot(self, strand, index):
-        instItem = self._insertionItems[index]
+        instItem = self.insertionItems()[index]
         instItem.remove()
-        del self._insertionItems[index]
+        del self.insertionItems()[index]
     # end def
     def strandDecoratorAddedSlot(self, strand, decorator):
         pass
@@ -179,6 +181,10 @@ class StrandItem(QGraphicsLineItem):
     ### ACCESSORS ###
     def activeTool(self):
         return self._activeTool
+    # end def
+
+    def insertionItems(self):
+        return self._virtualHelixItem.insertionItems()
     # end def
 
     def strand(self):
@@ -292,13 +298,20 @@ class StrandItem(QGraphicsLineItem):
         seqLbl = self._seqLabel
         strand = self.strand()
         seqTxt = strand.sequence()
+        isDrawn3to5 = not self._isDrawn5to3
+        
         # seqTxt = "ACG"
         
-        if seqTxt == None:
+        if seqTxt == '':
             seqLbl.hide()
             return
         # end if
         
+        seqList = [x[1][0] for x in strand.getSequenceList()]
+
+        if isDrawn3to5:
+            seqList = seqList[::-1]
+        seqTxt = ''.join(seqList)
         # seqLbl.setPen(QPen( Qt.NoPen))    # leave the Pen as None for unless required
         seqLbl.setBrush(QBrush(Qt.black))
         seqLbl.setFont(styles.SEQUENCEFONT)
@@ -307,7 +320,7 @@ class StrandItem(QGraphicsLineItem):
         seqX = 2*styles.SEQUENCETEXTXCENTERINGOFFSET + bw*strand.idx5Prime()
         seqY = -styles.SEQUENCETEXTYCENTERINGOFFSET
         
-        if not self._isOnTop:
+        if isDrawn3to5:
             # offset it towards the bottom
             seqY += 3*bw
             # offset X by the reverse centering offset and the 

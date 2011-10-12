@@ -138,19 +138,20 @@ class SkipPath(object):
     # end def
 # end class
 
-class InsertionItem(QGraphicsItem):
+class SubInsertionItem(QGraphicsItem):
     """
     This is just the shape of the Insert item
     """
     _insertPath = InsertionPath()
     _skipPath = SkipPath()
 
-    def __init__(self, virtualHelixItem, strand, insertion):
-        super(InsertionItem, self).__init__(virtualHelixItem)
-        self._vHI = virtualHelixItem
-        self._strand = strand
-        self._insertion = insertion
-        self._isOnTop = virtualHelixItem.isStrandOnTop(strand)
+    def __init__(self, insertionItem, isOnTop):
+        super(SubInsertionItem, self).__init__(insertionItem)
+        self._strand = None
+        self._insertion = insertionItem._insertion
+        self._isOnTop = isOnTop
+        if not isOnTop:
+            self.setY(_bw) 
         
         self.hide()
         
@@ -174,7 +175,6 @@ class InsertionItem(QGraphicsItem):
         self.setZValue(styles.ZINSERTHANDLE)
         self.setFlags(QGraphicsItem.ItemHasNoContents)
         
-        self.show()
     # end def
 
     def focusOut(self):
@@ -246,13 +246,21 @@ class InsertionItem(QGraphicsItem):
     def boundingRect(self):
         return _bigRect
         
-    def updateItem(self):
+    def updateItem(self, strand):
+        self._strand = strand
         self.updatePath()
+        self.updateLabel()
         self.resetPosition()
     # end def
 
     def updatePath(self):
         strand = self._strand
+        if strand == None:
+            self.hide()
+            return
+        else:
+            self.show()
+            
         isOnTop = self._isOnTop
         pathItem = self._pathItem
         skipPath = self._skipPath
@@ -302,7 +310,7 @@ class InsertionItem(QGraphicsItem):
                 rotatedPath = mat.map(tempPath)
 
                 rotatedPath.translate(QPointF(-styles.SEQUENCEFONTCHARWIDTH/2.,
-                                          -2 if isOnTop else syles.SEQUENCEFONTH))
+                                          -2 if isOnTop else styles.SEQUENCEFONTH))
                 if not isOnTop:
                     rotatedPath.translate(0, -syles.SEQUENCEFONTH - styles.INSERTWIDTH)
                 seqPath.addPath(rotatedPath)
@@ -317,10 +325,7 @@ class InsertionItem(QGraphicsItem):
         lbl = self._label
         txtOffset = lbl.boundingRect().width()/2
         insertion = self._insertion
-        vhi = self._vHI
         
-        x, y = vhi.upperLeftCornerOfBase(insertion.idx(), self._strand)
-        self.setPos(x, y)
         if self._isOnTop:
             lbl.setPos(_offset2-txtOffset, -_bw)
         else:
@@ -330,3 +335,58 @@ class InsertionItem(QGraphicsItem):
         else:
             lbl.hide()
     # end def
+# end class
+
+class InsertionItem(QGraphicsItem):
+    """
+    Insert handle consists of the InsertItem and the QLabel and manages insert
+    manipulation.
+    """
+    def __init__(self, virtualHelixItem, strand, insertion):
+        super(InsertionItem, self).__init__(parent=virtualHelixItem)
+        self._vHI = virtualHelixItem
+        self._strand = strand
+        self._insertion = insertion
+        self.hide()
+        isOnTop = self._isOnTop = virtualHelixItem.isStrandOnTop(strand)
+        
+        self._subItems = [SubInsertionItem(self, isOnTop), \
+                                SubInsertionItem(self, not isOnTop)]
+        
+        self.setZValue(styles.ZINSERTHANDLE)
+        self.setFlags(QGraphicsItem.ItemHasNoContents)
+        
+        self.setPos(_baseWidth*insertion.idx(), 0)
+        self.updateItem()
+        self.show()
+    # end def
+    
+    def boundingRect(self):
+        return QRectF()
+
+    def paint(self, painter, option, widget=None):
+        pass
+
+    def updateItem(self):
+        """
+        Collects the locations of each type of InsertHandle from the
+        recently activated VirtualHelix vhelix. Each self._index corresponds
+        to a pair of InsertHandle that must be updated and displayed.
+        """
+        vhi = self._vHI
+        items = self._subItems
+        strand = self._strand
+        
+        strandComp = strand.strandSet().complimentStrandSet().getStrand(self._insertion.idx())
+        items[0].updateItem(strand)
+        items[1].updateItem(strandComp)
+    # end def
+    
+    def remove(self):
+        for item in self._subItems:
+            item.remove()
+        # end for
+        self._subItems = None
+        scene = self.scene()
+        scene.removeItem(self)
+# end def

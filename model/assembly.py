@@ -29,7 +29,7 @@
 import util
 from itertools import imap
 from operator import attrgetter, methodcaller
-from collenctions import defaultdict
+from collections import defaultdict
 import parts.Part
 # import Qt stuff into the module namespace with PySide, PyQt4 independence
 util.qtWrapImport('QtCore', globals(), ['pyqtSignal', 'QObject'])

@@ -105,7 +105,7 @@ class PartItem(QGraphicsPathItem):
         vh = modelVirtualHelix
         vhi = VirtualHelixItem(self, modelVirtualHelix, self._activeTool)
         vhi.setPos
-        self._virtualHelixHash[vh.coords()] = vhi
+        self._virtualHelixHash[vh.coord()] = vhi
         self._virtualHelixItemList.append(vhi)
         self._setVirtualHelixItemList(self._virtualHelixItemList)
     # end def
@@ -143,12 +143,12 @@ class PartItem(QGraphicsPathItem):
     def removeVirtualHelixItem(self, virtualHelixItem):
         vh = virtualHelixItem.virtualHelix()
         self._virtualHelixItemList.remove(virtualHelixItem)
-        del self._virtualHelixHash[vh.coords()]
+        del self._virtualHelixHash[vh.coord()]
         self._setVirtualHelixItemList(self._virtualHelixItemList)
     # end
 
     def itemForVirtualHelix(self, virtualHelix):
-        return self._virtualHelixHash[virtualHelix.coords()]
+        return self._virtualHelixHash[virtualHelix.coord()]
     # end def
 
     def _setVirtualHelixItemList(self, newList, zoomToFit=True):
@@ -251,20 +251,20 @@ class PartItem(QGraphicsPathItem):
         # use xoverItems twice! once for each end of the xover
         vhi3p, vhi5p = xoverItem.virtualHelixItems()
         iAST3P, iAST5P = xoverItem.indicesAndStrandTypes()
-        self._xoverItems[vhi3p.coords()][iAST3P] = xoverItem
-        self._xoverItems[vhi5p.coords()][iAST5P] = xoverItem
+        self._xoverItems[vhi3p.coord()][iAST3P] = xoverItem
+        self._xoverItems[vhi5p.coord()][iAST5P] = xoverItem
     # def 
 
     def removeXoverItem(self, xoverItem):
         # use xoverItems twice! once for each end of the xover
         vhi3p, vhi5p = xoverItem.virtualHelixItems()
         iAST3P, iAST5P = xoverItem.indicesAndStrandTypes()
-        del self._xoverItems[vhi3p.coords()][iAST3P]
-        del self._xoverItems[vhi5p.coords()][iAST5P]
+        del self._xoverItems[vhi3p.coord()][iAST3P]
+        del self._xoverItems[vhi5p.coord()][iAST5P]
     # def
     
     def updateXoverItems(self, virtualHelixItem):
-        coords = virtualHelixItem.coords()
+        coords = virtualHelixItem.coord()
         for xoveritem in self._xoverItems[coords].itervalues():
             xoveritem.updatePath()
     # end def

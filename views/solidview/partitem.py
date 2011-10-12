@@ -47,7 +47,6 @@ import maya.OpenMaya as mo
 import maya.cmds as cmds
 import util
 
-from controllers.mayacontrollers.mayaObjectManager import Mom
 from controllers.itemcontrollers.partitemcontroller import PartItemController
 from virtualhelixitem import VirtualHelixItem
 
@@ -82,6 +81,7 @@ class PartItem(QObject):
         #print "maya PartItem created"
         self._type = modelPart.crossSectionType()
 
+
         #self.mayaScale = 1.0
         #later updates using basecount from the VH
         # XXX [SB] - need to ask CandNano for rows and cols...
@@ -93,6 +93,9 @@ class PartItem(QObject):
         self._part = modelPart
         self._controller = PartItemController(self, modelPart)
 
+        self.strandCount = 0
+        # uses strand object as the key, stores stand id
+        self.idStrandMapping = {}
         self.modifyState = False
 
     def setModifyState(self, val):
@@ -102,6 +105,20 @@ class PartItem(QObject):
 
     def isInModifyState(self):
         return self.modifyState
+
+    def strandMayaID(self, strand):
+        if(strand in self.idStrandMapping):
+            return self.idStrandMapping[strand]
+        else:
+            # XXX [SB+AT] NOT THREAD SAFE
+            while cmds.objExists("DNAShapeTransform%s" % self.strandCount):
+                self.strandCount += 1
+            val = "%d" % self.strandCount
+            self.idStrandMapping[strand] = val
+            return val
+
+    def deleteStrandMayaID(self, strand):
+        del self.idStrandMapping[strand]
 
     def type(self):
         return self._type
@@ -189,18 +206,17 @@ class PartItem(QObject):
         self.strandCount = 0
 
     def deleteAllNodes(self):
-        m = Mom()
         # Delete Helicies in this group
         for vhelixItem in self.virtualHelixItems:
             strandIDs = vhelixItem.StrandIDs()
             for id in strandIDs:
-                transformName ="%s%s" % (m.helixTransformName, id)
+                transformName = "DNAShapeTransform%s" % id
                 if cmds.objExists(transformName):
                     cmds.delete(transformName)
         self.clearInternalDataStructures()
 
     def createNewVirtualHelixItem(self, virtualHelix):
-        coords = virtualHelix.coords()
+        coords = virtualHelix.coord()
         print "solidview.PartItem.createNewVirtualHelixItem: %d %d" % (coords[0], coords[1])
         # figure out Maya Coordinates
         x, y = self.cadnanoToMayaCoords(coords[0], coords[1])

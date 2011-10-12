@@ -49,6 +49,7 @@ class PartItem(QGraphicsItem):
         modelPart is the modelPart it mirrors
         parent should be  either a SliceRootItem, or an AssemblyItem
         """
+        print "PartItem __init__", parent
         super(PartItem, self).__init__(parent)
         # data related
         self._part = modelPart
@@ -89,7 +90,7 @@ class PartItem(QGraphicsItem):
     ### SLOTS ###
     def parentChangedSlot(self):
         """docstring for parentChangedSlot"""
-        # print "PartItem.parentChangedSlot"
+        print "PartItem.parentChangedSlot"
         pass
 
     def removedSlot(self):
@@ -109,13 +110,13 @@ class PartItem(QGraphicsItem):
 
     def destroyedSlot(self):
         """docstring for destroyedSlot"""
-        # print "PartItem.destroyedSlot"
+        print "PartItem.destroyedSlot"
         pass
     # end def
 
     def movedSlot(self, pos):
         """docstring for partMovedSlot"""
-        # print "PartItem.partMovedSlot"
+        print "PartItem.partMovedSlot"
         pass
 
     # def xoverAddedSlot(self, part, virtualHelix3p, strandType3p, idx3p, \
@@ -132,7 +133,7 @@ class PartItem(QGraphicsItem):
 
     def virtualHelixAddedSlot(self, virtualHelix):
         vh = virtualHelix
-        coords = vh.coords()
+        coords = vh.coord()
         emptyHelixItem = self._emptyhelixhash[coords]
         # TODO test to see if self._virtualHelixHash is necessary
         vhi = VirtualHelixItem(vh, emptyHelixItem)
@@ -166,6 +167,7 @@ class PartItem(QGraphicsItem):
         """A private method used to change the number of rows,
         cols in response to a change in the dimensions of the
         part represented by the receiver"""
+        print "_setLattice", oldCoords, newCoords
         oldSet = set(oldCoords)
         oldList = list(oldSet)
         newSet = set(newCoords)
