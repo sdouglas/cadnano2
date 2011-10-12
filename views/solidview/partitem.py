@@ -97,8 +97,12 @@ class PartItem(QObject):
 
     def setModifyState(self, val):
         self.modifyState = val
+        self.updateModifyState()
+    
+    def updateModifyState(self):
         for sh in self.virtualHelixItems:
-            sh.upadateStapleModIndicators(val)
+            sh.setModifyState(self.modifyState)
+            sh.updateDecorators()
 
     def isInModifyState(self):
         return self.modifyState
@@ -141,24 +145,11 @@ class PartItem(QObject):
         print "solidview.PartItem.movedSlot"
         pass
 
-    # @pyqtSlot(QObject, QObject, int, int, QObject, int, int)
-    # def xoverAddedSlot(self, part, virtualHelix3p, strandType3p, idx3p, \
-    #                                 virtualHelix5p, strandType5p, idx5p):
-    #     """docstring for xover3pAddedSlot"""
-    #     print "solidview.PartItem.xover3pAddedSlot"
-    #     pass
-    # 
-    # @pyqtSlot(QObject, QObject, int, int, QObject, int, int)
-    # def xoverRemovedSlot(self, part, virtualHelix3p, strandType3p, idx3p, \
-    #                                 virtualHelix5p, strandType5p, idx5p):
-    #     """docstring for xover3pDestroyedSlot"""
-    #     print "solidview.PartItem.xover3pDestroyedSlot"
-    #     pass
-
     @pyqtSlot(object)
     def virtualHelixAddedSlot(self, virtualHelix):
         print "solidview.PartItem.virtualHelixAddedSlot"
-        self.createNewVirtualHelixItem(virtualHelix)
+        sh = self.createNewVirtualHelixItem(virtualHelix)
+        sh.setModifyState(self.modifyState)
 
     @pyqtSlot(object)
     def updatePreXoverItemsSlot(self, virtualHelix):
@@ -207,6 +198,7 @@ class PartItem(QObject):
         print virtualHelix
         newHelix = VirtualHelixItem(self, virtualHelix, x, y)
         self.virtualHelixItems.append(newHelix)
+        return newHelix
 
     def removeVirtualHelix(self, vhelixItem):
         self.virtualHelixItems.remove(vhelixItem)

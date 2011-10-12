@@ -75,10 +75,12 @@ def dagParentRemovedCallback( child, parent, clientData ):
                 pass
                 #print "dagParentRemovedCallback: %s already deleted" % c
         elif c.startswith(mom.decoratorMeshName):
-            if mom.stapleModToSolidHelix.has_key(c):
-                stapleModObject = mom.stapleModToSolidHelix[ c ]
-                solidHelix = stapleModObject[0]
-                solidHelix.upadateStapleModIndicators(True)
+            if mom.decoratorToVirtualHelixItem.has_key(c):
+                pass
+                #decoratorObject = mom.decoratorToVirtualHelixItem[ c ]
+                #virtualHelixItem = decoratorObject[0]
+                #virtualHelixItem.updateDecorators()
+                
 
 def createParentAddedCallback(stringData):
     # global declares module level variables that will be assigned
