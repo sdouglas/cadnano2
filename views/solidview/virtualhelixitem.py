@@ -70,6 +70,7 @@ class VirtualHelixItem(QObject):
         self._row = coords[0]
         self._col = coords[1]
         self.strandIDs = []
+        self._modState = False
 
         self.stapleIndicatorCount = 0
         self.stapleModIndicatorIDs = []
@@ -116,6 +117,9 @@ class VirtualHelixItem(QObject):
 
     def StrandIDs(self):
         return self.strandIDs
+    
+    def setModifyState(self, val):
+        self._modState = val
 
     ### SLOTS ###
     @pyqtSlot(object)
@@ -134,6 +138,8 @@ class VirtualHelixItem(QObject):
         self.strandIDs.append(id)
         #print "SolidHelix:strandAddedToVStrand-NormalStrand %s" % id
         StrandItem(id, strand, self)
+        self.updateDecorators()
+        print "solidview.VirtualHelixItem.strandAddedSlot done %s" % id
     # end def
 
     @pyqtSlot(object)
@@ -163,88 +169,16 @@ class VirtualHelixItem(QObject):
         self._controller = None
     # end def
 
-    #old
-    #@pyqtSlot(object)
-    #def strandAddedToVStrand(self, strand):
-    #    if isinstance(strand, NormalStrand):
-    #        strand.didMove.connect(self.onStrandDidMove)
-    #        strand.willBeRemoved.connect(self.onStrandWillBeRemoved)
-    #        id = self._partItem.strandMayaID(strand)
-    #        self.strandIDs.append(id)
-    #        #print "SolidHelix:strandAddedToVStrand-NormalStrand %s" % id
-    #        mayaNodeInfo = ()
-    #        if(strand.vStrand().isScaf()):
-    #            mayaNodeInfo = self.createMayaHelixNodes(self.x, self.y,
-    #                                      strand.color(),
-    #                                      StrandType.Scaffold,
-    #                                      id)
-    #        else:
-    #            mayaNodeInfo = self.createMayaHelixNodes(self.x, self.y,
-    #                                      strand.color(),
-    #                                      StrandType.Staple,
-    #                                      id)
-    #        self.onStrandDidMove(strand)
-    #        m = Mom()
-    #        m.cnToMaya[ strand ] = mayaNodeInfo
-    #        m.mayaToCn[ mayaNodeInfo[2] ] = strand
-    #        m.mayaToCn[ mayaNodeInfo[0] ] = strand
-    #    elif isinstance(strand, XoverStrand3):
-    #        #print "SolidHelix:strandAddedToVStrand-XoverStrand3"
-    #        pass
-    #    elif isinstance(strand, XoverStrand5):
-    #        #print "SolidHelix:strandAddedToVStrand-XoverStrand5"
-    #        pass
-    #    else:
-    #        raise NotImplementedError
-    #    if self.pathHelixGroup().isInModifyState():
-    #        self.upadateStapleModIndicators(True)
-
-    #@pyqtSlot(object)
-    #def onStrandDidMove(self, strand):
-    #    id = self._partItem.strandMayaID(strand)
-    #    cylinderName = "HalfCylinderHelixNode%s" % id
-    #    # XXX - [SB] why is there +1 in 2nd component of idxs?
-    #    endpoints = strand.idxs()
-    #    totalNumBases = self._vhelix.numBases()
-    #    cmds.setAttr("%s.startBase" % cylinderName,
-    #                         endpoints[0])
-    #
-    #    cmds.setAttr("%s.endBase" % cylinderName,
-    #                         endpoints[1] - 1)
-    #    cmds.setAttr("%s.totalBases" % cylinderName, int(totalNumBases))
-
-    def upadateStapleModIndicators(self, on):
-        self.clearStapleModIndicators()
-        if on:
+    def updateDecorators(self):
+        print "solidview.VirtualHelixItem.upadateStapleModIndicators"
+        self.clearDecorators()
+        if self._modState:
             m = Mom()
             for id in self.strandIDs:
-                mayaNodeInfo = "DNACylinderShape%s" % id
+                mayaNodeInfo = "%s%s" % (m.helixMeshName,id)
+                print "mayaNodeInfo: %s" % mayaNodeInfo
                 strand = m.mayaToCn[ mayaNodeInfo ]
-                self.createStapleModIndicator(strand)
-
-    #@pyqtSlot(object)
-    #def onStrandWillBeRemoved(self, strand):
-    #    id = self._partItem.strandMayaID(strand)
-    #    strand.didMove.disconnect(self.onStrandDidMove)
-    #    strand.willBeRemoved.disconnect(self.onStrandWillBeRemoved)
-    #    #print "SolidHelix:onStrandWillBeRemoved %s" % id
-    #    transformName = "DNAShapeTransform%s" % id
-    #    mom = Mom()
-    #    mom.removeIDMapping(id, strand)
-    #    
-    #    if cmds.objExists(transformName):
-    #        cmds.delete(transformName)
-    #    self.strandIDs.remove(id)
-    #    self._partItem.deleteStrandMayaID(strand)
-    #    #print strand
-    #
-    #@pyqtSlot()
-    #def vhelixDimensionsModified(self):
-    #    #print "SolidHelix:vhelixDimensionsModified"
-    #    totalNumBases = self._vhelix.numBases()
-    #    for strandID in self.strandIDs:
-    #        cylinderName = "HalfCylinderHelixNode%s" % strandID
-    #        cmds.setAttr("%s.totalBases" % cylinderName, int(totalNumBases))
+                self.createDecorators(strand)
 
     def cadnanoVBaseToMayaCoords(self, base, strand):
         id = self._partItem.strandMayaID(strand)
@@ -277,25 +211,25 @@ class VirtualHelixItem(QObject):
         else:
             raise IndexError
 
-    def clearStapleModIndicators(self):
+    def clearDecorators(self):
+        m = Mom()
         for id in self.stapleModIndicatorIDs:
             transformName = "stapleModIndicatorTransform%s" % id
             #print "delete %s" % transformName
             m = Mom()
-            m.removeStapleModMapping(id)
+            m.removeDecoratorMapping(id)
             if cmds.objExists(transformName):
                 cmds.delete(transformName)
         self.stapleModIndicatorIDs = []
         self.stapleIndicatorCount = 0
 
-    def createStapleModIndicator(self, strand):
+    def createDecorators(self, strand):
         #print "createStapleModIndicator"
-        strandid = self._partItem.strandMayaID(strand)
-        #mrow = self._row + 1
-        #mcol = self._col + 1
+        m = Mom()
+        strandid = m.strandMayaID(strand)
         # XXX [SB] will use self._vhelix.getPreStapleModIndexList()
-        totalNumBases = self._vhelix.numBases()
-        stapleBases = []#[(0, mrow, mcol), (totalNumBases-1, mrow, mcol)]
+        totalNumBases = self._vhelix.part().maxBaseIdx()
+        stapleBases = []
         for b in range(totalNumBases):
             stapleBases.append(b)
 
@@ -304,23 +238,19 @@ class VirtualHelixItem(QObject):
             while cmds.objExists("spStapleModIndicator%s_%s" % (strandid, self.stapleIndicatorCount)):
                 self.stapleIndicatorCount += 1
             stapleId = "%s_%s" % (strandid, self.stapleIndicatorCount)
-            #(targetX, targetY) = self.pathHelixGroup().cadnanoToMayaCoords(stapleBase[1], stapleBase[2])
-            #vec = (targetX-self.x, targetY-self.y)
-            #coords = (self.x+vec[0]/3.7, self.y+vec[1]/3.7, self.cadnanoVBaseToMayaZ(stapleBase, strand));
             coords = self.cadnanoVBaseToMayaCoords(stapleBase, strand)
-            stapleModNodeInfo = self.createStapleModIndicatorNodes(coords,stapleId)
-            #print "adding StapleID %s: " % stapleId
-            #print self.cadnanoVBaseToMayaZ(stapleBase[0], strand)
+            stapleModNodeInfo = self.createDecoratorNodes(coords,stapleId)
             self.stapleModIndicatorIDs.append(stapleId)
             m = Mom()
-            m.stapleModToSolidHelix[stapleModNodeInfo[2]] = (self, stapleBase, strand)
-            m.stapleModToSolidHelix[stapleModNodeInfo[1]] = (self, stapleBase, strand)
+            m.decoratorToVirtualHelixItem[stapleModNodeInfo[2]] = (self, stapleBase, strand)
+            m.decoratorToVirtualHelixItem[stapleModNodeInfo[1]] = (self, stapleBase, strand)
             
-    def createStapleModIndicatorNodes(self, coords, id):
-        stapleModIndicatorName = "spStapleModIndicator%s" % id
-        transformName = "stapleModIndicatorTransform%s" % id
-        meshName = "stapleModIndicatorMesh%s" % id
-        shaderName = "stapleModeIndicatorShader"
+    def createDecoratorNodes(self, coords, id):
+        m = Mom()
+        stapleModIndicatorName = "%s%s" % (m.decoratorNodeName, id)
+        transformName = "%s%s" % (m.decoratorTransformName, id)
+        meshName = "%s%s" % (m.decoratorMeshName, id)
+        shaderName = "%s" % m.decoratorShaderName
         
         cmds.createNode("transform", name=transformName)
         cmds.setAttr("%s.rotateX" % transformName, 90)
@@ -328,7 +258,7 @@ class VirtualHelixItem(QObject):
         cmds.setAttr("%s.translateY" % transformName, coords[1])
         cmds.setAttr("%s.translateZ" % transformName, coords[2])
         cmds.createNode("mesh", name=meshName, parent=transformName)
-        cmds.createNode("spStapleModIndicator", name=stapleModIndicatorName)
+        cmds.createNode("spPreDecoratorNode", name=stapleModIndicatorName)
         cmds.setAttr("%s.radius" % stapleModIndicatorName, .25)
         cmds.connectAttr("%s.outputMesh" % stapleModIndicatorName,
                          "%s.inMesh" % meshName)

@@ -51,8 +51,8 @@ class Strand(QObject):
     connected strands are named "_strand5p" and "_strand3p", which correspond
     to the 5' and 3' phosphate linkages in the physical DNA strand, 
     respectively. Since Strands can point 5'-to-3' in either the low-to-high
-    or high-to-low directions, connection accessor methods (lowConnection and
-    highConnection) are bound during the init for convenience.
+    or high-to-low directions, connection accessor methods (connectionLow and
+    connectionHigh) are bound during the init for convenience.
     """
 
     def __init__(self, strandSet, baseIdxLow, baseIdxHigh, oligo=None):
@@ -61,30 +61,30 @@ class Strand(QObject):
         self._baseIdxLow = baseIdxLow  # base index of the strand's left boundary
         self._baseIdxHigh = baseIdxHigh  # base index of the right boundary
         self._oligo = oligo
-        self._strand5p = None
-        self._strand3p = None
+        self._strand5p = None  # 5' connection to another strand
+        self._strand3p = None  # 3' connection to another strand
         self._sequence = None
-        
+
         self._decorators = {}
         self._modifiers = {}
-        
-        # dynamic methods for mapping high/low connection /indices 
-        # to corresponding 3Prime 5Prime 
+
+        # dynamic methods for mapping high/low connection /indices
+        # to corresponding 3Prime 5Prime
         isDrawn5to3 = strandSet.isDrawn5to3()
         if isDrawn5to3:
             self.idx5Prime = self.lowIdx
             self.idx3Prime = self.highIdx
-            self.lowConnection = self.connection5p
-            self.setLowConnection = self.set5pConnection
-            self.highConnection = self.connection3p
-            self.setHighConnection = self.set3pConnection
+            self.connectionLow = self.connection5p
+            self.connectionHigh = self.connection3p
+            self.setConnectionLow = self.setConnection5p
+            self.setConnectionHigh = self.setConnection3p
         else:
             self.idx5Prime = self.highIdx
             self.idx3Prime = self.lowIdx
-            self.lowConnection = self.connection3p
-            self.setLowConnection = self.set3pConnection
-            self.highConnection = self.connection5p
-            self.setHighConnection = self.set5pConnection
+            self.connectionLow = self.connection3p
+            self.connectionHigh = self.connection5p
+            self.setConnectionLow = self.setConnection3p
+            self.setConnectionHigh = self.setConnection5p
         self._isDrawn5to3 = isDrawn5to3
     # end def
 
@@ -151,7 +151,7 @@ class Strand(QObject):
     def oligo(self):
         return self._oligo
     # end def
-    
+
     def sequence(self):
         temp = self._sequence
         return temp if temp else ''
@@ -164,10 +164,10 @@ class Strand(QObject):
     def virtualHelix(self):
         return self._strandSet.virtualHelix()
     # end def
-    
+
     def setSequence(self, sequenceString):
         """
-        Applies sequence string from 5' to 3'  
+        Applies sequence string from 5' to 3'
         return the tuple (used, unused) portion of the sequenceString
         """
         if sequenceString == None:
@@ -180,57 +180,76 @@ class Strand(QObject):
         print temp
         return temp, sequenceString[length:]
     # end def
-    
+
+    def getPreDecoratorIdxList(self):
+        """
+        Return positions where predecorators should be displayed. This is
+        just a very simple check for the presence of xovers on the strand.
+
+        Will refine later by checking for lattice neighbors in 3D.
+        """
+        ret = range(self._baseIdxLow, self._baseIdxHigh+1)
+        if self.connectionLow() != None:
+            ret.remove(self._baseIdxLow)
+            if self._baseIdxLow+1 in ret:
+                ret.remove(self._baseIdxLow+1)
+        if self.connectionHigh() != None:
+            ret.remove(self._baseIdxHigh)
+            if self._baseIdxHigh-1 in ret:
+                ret.remove(self._baseIdxHigh-1)
+        return ret
+    # end def
+
     def setComplimentSequence(self, sequenceString, strand):
         """
         This version takes anothers strand and only sets the indices that
         align with the given complimentary strand
-        
+
         return the used portion of the sequenceString
-        
+
         As it depends which direction this is going, and strings are stored in
         memory left to right, we need to test for isDrawn5to3 to map the reverse
-        compliment appropriately, as we traverse overlapping strands. 
-        
+        compliment appropriately, as we traverse overlapping strands.
+
         We reverse the sequence ahead of time if we are applying it 5' to 3',
         otherwise we reverse the sequence post parsing if it's 3' to 5'
-        
+
         Again, sequences are stored as strings in memory 5' to 3' so we need
         to jump through these hoops to iterate 5' to 3' through them correctly
-        
+
         Perhaps it's wiser to merely store them left to right and reverse them
         at draw time, or export time
         """
         sLowIdx, sHighIdx = self._baseIdxLow, self._baseIdxHigh
         cLowIdx, cHighIdx = strand.idxs()
-        
+
         # get the ovelap
         lowIdx, highIdx = util.overlap(sLowIdx, sHighIdx, cLowIdx, cHighIdx)
-        
+
         # only get the characters we're using, while we're at it, make it the
         # reverse compliment
+
         length = self.totalLength()
         
         # see if we are applyng 
         if sequenceString == None:
             # clear out string for in case of not total overlap
             useSeq = ''.join([' ' for x in range(length)])
-        else:
-            # use the string as is
+        else:  # use the string as is
             useSeq = sequenceString[::-1] if self._isDrawn5to3 else sequenceString
-        
+
         temp = array('c', useSeq)
         if self._sequence == None:
             tempSelf = array('c', ''.join([' ' for x in range(length)]) )
         else:
             tempSelf = array('c', self._sequence if self._isDrawn5to3 else self._sequence[::-1])
-        
+
         # generate the index into the compliment string
         start = lowIdx - cLowIdx
         end = start + length
         tempSelf[lowIdx-sLowIdx:highIdx-sLowIdx+1] = temp[start:end]
         self._sequence = tempSelf.tostring()
-        
+
         # if we need to reverse it do it now
         if not self._isDrawn5to3:
             self._sequence = self._sequence[::-1]
@@ -238,7 +257,7 @@ class Strand(QObject):
         # test to see if the string is empty(), annoyingly expensive
         if len(self._sequence.strip()) == 0:
             self._sequence = None
-            
+
         return self._sequence
     # end def
 
@@ -337,9 +356,9 @@ class Strand(QObject):
         An xover is necessarily at an enpoint of a strand
         """
         if idx == self.highIdx():
-            return True if self.highConnection() != None else False
+            return True if self.connectionHigh() != None else False
         elif idx == self.lowIdx():
-            return True if self.lowConnection() != None else False
+            return True if self.connectionLow() != None else False
         else:
             return False
     # end def
@@ -375,13 +394,21 @@ class Strand(QObject):
     # end def
 
     ### PUBLIC METHODS FOR EDITING THE MODEL ###
-    def set3pConnection(self, strand):
+    def setConnection3p(self, strand):
         self._strand3p = strand
     # end def
 
-    def set5pConnection(self, strand):
+    def setConnection5p(self, strand):
         self._strand5p = strand
     # end def
+
+    def setConnectionLow(self):
+        """Gets bound to setConnection5p or setConnection3p in __init__."""
+        pass
+
+    def setConnectionHigh(self):
+        """Gets bound to setConnection5p or setConnection3p in __init__."""
+        pass
 
     def setIdxs(self, idxs):
         self._baseIdxLow = idxs[0]
@@ -399,14 +426,12 @@ class Strand(QObject):
     # end def
 
     def addDecorators(self, additionalDecorators):
-        """
-        used in adding additional decorators during a merge operation
-        """
+        """Used to add decorators during a merge operation."""
         self._decorators.update(additionalDecorators)
-    # def
+    # end def
 
     def split(self, idx):
-        """docstring for break"""
+        """Called by view items to split this strand at idx."""
         self._strandSet.splitStrand(self, idx)
 
     def destroy(self):
@@ -491,11 +516,11 @@ class Strand(QObject):
     def hasDecoratorAt(self, idx):
         return idx in self._decorators
     # end def
-    
+
     def hasModifierAt(self, idx):
         return idx in self._modifiers
     # end def
-    
+
     def removeDecoratorsOutOfRange(self):
         """
         Called by StrandSet's SplitCommand after copying the strand to be
@@ -705,3 +730,4 @@ class Strand(QObject):
             strand.strandInsertionChangedSignal.emit(strand, inst)
         # end def
     # end class
+# end class

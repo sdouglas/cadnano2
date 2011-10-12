@@ -62,4 +62,8 @@ class SolidRootItem(QObject):
     ### METHODS ###
     def removePartItem(self, partItem):
         self._partItems.remove(partItem)
+    
+    def setModifyState(self, val):
+        for p in self._partItems:
+            p.setModifyState(val)
     # end def 

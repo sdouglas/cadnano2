@@ -125,10 +125,10 @@ class StrandSet(QObject):
         """
         lowIdx, highIdx = 0, self.partMaxBaseIdx()  # init the return values
         lenStrands = len(self._strandList)
-        
+
         # not sure how to set this up this to help in caching
         # lastIdx = self._lastStrandSetIndex
-        
+
         if lenStrands == 0:  # empty strandset, just return the part bounds
             return (lowIdx, highIdx)
 
@@ -733,7 +733,7 @@ class StrandSet(QObject):
             newIdxs = strandLow.lowIdx(), strandHigh.highIdx()
             newStrand = strandLow.shallowCopy()
             newStrand.setIdxs(newIdxs)
-            newStrand.setHighConnection(strandHigh.highConnection())
+            newStrand.setConnectionHigh(strandHigh.connectionHigh())
             # Merging any decorators
             newStrand.addDecorators(strandHigh.decorators())
             self._newStrand = newStrand
@@ -835,8 +835,8 @@ class StrandSet(QObject):
                 olg5p, olg3p = hOligo, lOligo
                 std5p, std3p = strandHigh, strandLow
             # Update strand connectivity
-            strandLow.setHighConnection(None)
-            strandHigh.setLowConnection(None)
+            strandLow.setConnectionHigh(None)
+            strandHigh.setConnectionLow(None)
             # Resize strands and update decorators
             strandLow.setIdxs((strand.lowIdx(), iNewLow))
             strandHigh.setIdxs((iNewLow + 1, strand.highIdx()))

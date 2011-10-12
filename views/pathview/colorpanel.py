@@ -25,11 +25,10 @@
 from views import styles
 import util
 util.qtWrapImport('QtCore', globals(), ['QRectF', 'Qt'])
-util.qtWrapImport('QtGui', globals(),  ['QBrush', 'QGraphicsItem', 'QColorDialog'])
+util.qtWrapImport('QtGui', globals(),  ['QBrush', 'QColorDialog', 'QGraphicsItem'])
 
 
 class ColorPanel(QGraphicsItem):
-    """docstring for ColorPanel"""
     _colors = styles.stapleColors
     _pen = Qt.NoPen
 
@@ -39,8 +38,8 @@ class ColorPanel(QGraphicsItem):
         self.setFlag(QGraphicsItem.ItemIgnoresTransformations)
         self.colordialog = QColorDialog()
         self.colordialog.setOption(QColorDialog.DontUseNativeDialog)
-        self._colorIndex = 0
-        self._color = self._colors[0]
+        self._colorIndex = -1  # init on -1, painttool will cycle to 0
+        self._color = self._colors[self._colorIndex]
         self._brush = QBrush(self._color)
         self.hide()
 

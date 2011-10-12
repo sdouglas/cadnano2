@@ -102,11 +102,11 @@ class Part(QObject):
     partInstanceAddedSignal = pyqtSignal(QObject)          # self
     partNeedsFittingToViewSignal = pyqtSignal()
     partParentChangedSignal = pyqtSignal(QObject)          # self
+    partPreDecoratorSelectedSignal = pyqtSignal(int, int, int)  # row, col, baseIdx
     partRemovedSignal = pyqtSignal(QObject)                # self
     partSequenceClearedSignal = pyqtSignal(QObject)        # self
     partVirtualHelixAddedSignal = pyqtSignal(QObject)      # virtualhelix
     partVirtualHelixChangedSignal = pyqtSignal(QObject)    # coords (for a renumber)
-
     # for updating the Slice View displayed helices
     partStrandChangedSignal = pyqtSignal(QObject)           # virtualHelix
 
@@ -117,25 +117,30 @@ class Part(QObject):
     ### SLOTS ###
 
     ### ACCESSORS ###
-    def undoStack(self):
-        return self._document.undoStack()
-    # end def
-
     def document(self):
         return self._document
+    # end def
+
+    def oligos(self):
+        return self._oligos
     # end def
 
     def setDocument(self, document):
         self._document = document
     # end def
 
-    def oligos(self):
-        return self._oligos
+    def stepSize(self):
+        return self._step
+    # end def
 
     def subStepSize(self):
         """Note: _subStepSize is defined in subclasses."""
         return self._subStepSize
+    # end def
 
+    def undoStack(self):
+        return self._document.undoStack()
+    # end def
 
     ### PUBLIC METHODS FOR QUERYING THE MODEL ###
     def activeBaseIndex(self):
@@ -336,6 +341,15 @@ class Part(QObject):
 
     def renumber(self):
         print "%s: renumber() called." % self
+    # end def
+
+    def selectPreDecorator(self, row, col, baseIdx):
+        """
+        Handles view notifications that a predecorator has been selected.
+        Will be used to emit a signal preDecoratorSelectedSignal
+        """
+        print "PreDecorator was selected at (%d, %d)[%d]" % (row, col, baseIdx)
+        # partPreDecoratorSelectedSignal.emit(row, col, baseIdx)
 
     def setActiveBaseIndex(self, idx):
         self._activeBaseIndex = idx
@@ -453,11 +467,11 @@ class Part(QObject):
                 newStrandSet = newVHelix().getStrandSetByType(strandType)
                 newStrand = strand.deepCopy(newStrandSet, newOligo)
                 if lastStrand:
-                    lastStrand.set3pConnection(newStrand)
+                    lastStrand.setConnection3p(newStrand)
                 else: 
                     # set the first condition
                     newOligo.setStrand5p(newStrand)
-                newStrand.set5pConnection(lastStrand)
+                newStrand.setConnection5p(lastStrand)
                 newStrandSet.addStrand(newStrand)
                 lastStrand = newStrand
             # end for
@@ -471,7 +485,7 @@ class Part(QObject):
         # end for
         return part
     # end def
-    
+
     def getVirtualHelixNeighbors(self, virtualHelix):
         """
         returns the list of neighboring virtualHelices based on parity of an
@@ -500,7 +514,7 @@ class Part(QObject):
         return neighbors  # Note: the order and presence of Nones is important
         # If you need the indices of available directions use range(0,len(neighbors))
     # end def
-    
+
     def areVirtualHelicesNeighbors(self, virtualHelixA, virtualHelixB):
         """
         returns True or False
@@ -508,7 +522,7 @@ class Part(QObject):
         return virtualHelixB in self.getVirtualHelixNeighbors(virtualHelixA) or \
             virtualHelixA == virtualHelixB
     # end def
-    
+
     def potentialCrossoverList(self, virtualHelix):
         """
         Returns a list of tuples
@@ -545,7 +559,7 @@ class Part(QObject):
         for neighbor, lut in izip(neighbors, lutsNeighbor):
             if not neighbor:
                 continue
-                
+
             # now arrange again for iteration
             # (_scafL[i], _scafH[i]), (_stapL[i], _stapH[i]) )
             # so we can pair by StrandType
@@ -656,7 +670,7 @@ class Part(QObject):
             part.partActiveSliceResizeSignal.emit(part)
         # end def
     # end class
-    
+
     class CreateXoverCommand(QUndoCommand):
         """
         Creates a Xover from the 3 prime strand to the 5 prime strand
@@ -684,8 +698,8 @@ class Part(QObject):
             olg = strand3p.oligo()
 
             # 2. install the Xover
-            strand3p.set3pConnection(strand5p)
-            strand5p.set5pConnection(strand3p)
+            strand3p.setConnection3p(strand5p)
+            strand5p.setConnection5p(strand3p)
 
             # 3. apply the 3 prime strand oligo to the 5 prime strand
             for strand in strand5p.generator3pStrand():
@@ -710,8 +724,8 @@ class Part(QObject):
             olg = self._oldOligo5p
 
             # 2. uninstall the Xover
-            strand3p.set3pConnection(None)
-            strand5p.set5pConnection(None)
+            strand3p.setConnection3p(None)
+            strand5p.setConnection5p(None)
 
             # 3. apply the old 5 prime strand oligo to the 5 prime strand
             for strand in strand5p.generator3pStrand():

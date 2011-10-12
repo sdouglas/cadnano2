@@ -49,8 +49,8 @@ class Mom:
     # uses strand objects as the key, stores a list of maya nodes
     cnToMaya = {}
     # uses stapleModIndicatorMesh% objects as the key,
-    # stores a objec with data (solidHelix object, baseNumber, strand object)
-    stapleModToSolidHelix = {}
+    # stores a objec with data (virualHelixItem object, baseNumber, strand object)
+    decoratorToVirtualHelixItem = {}
     # uses strand object as the key, stores stand id
     idStrandMapping = {}
     
@@ -66,17 +66,17 @@ class Mom:
     decoratorShaderName     = "stapleModeIndicatorShader"
     
     def staplePreDecoratorSelected(self, name):
-        if self.stapleModToSolidHelix.has_key(name):
-            modData = self.stapleModToSolidHelix[name]
+        if self.decoratorToVirtualHelixItem.has_key(name):
+            modData = self.decoratorToVirtualHelixItem[name]
             self.__instance.preDecoratorSelectedSignal.emit(modData[2], modData[1])
 
-    def removeStapleModMapping(self, id):
+    def removeDecoratorMapping(self, id):
         key1 = "%s%s" % (self.decoratorMeshName, id)
         key2 = "%s%s" % (self.decoratorTransformName, id)
-        if self.stapleModToSolidHelix.has_key(key1):
-            del self.stapleModToSolidHelix[key1]
-        if self.stapleModToSolidHelix.has_key(key2):
-            del self.stapleModToSolidHelix[key2]
+        if self.decoratorToVirtualHelixItem.has_key(key1):
+            del self.decoratorToVirtualHelixItem[key1]
+        if self.decoratorToVirtualHelixItem.has_key(key2):
+            del self.decoratorToVirtualHelixItem[key2]
 
     def removeIDMapping(self, id, strand):
         key1 = "%s%s" % (self.helixMeshName, id)

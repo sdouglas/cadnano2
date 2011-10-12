@@ -106,17 +106,16 @@ class VirtualHelix(QObject):
     def isEvenParity(self):
         return self._part.isEvenParity(*self._coord)
     # end def
-    
+
     def isDrawn5to3(self, strandSet):
         isScaf = strandSet == self._scafStrandSet
         isEven = self.isEvenParity()
         return isEven == isScaf
     # end def
-    
+
     def hasStrandAtIdx(self, idx):
-        return self._scafStrandSet.hasStrandAt(idx, idx) #and \
-            #self.stapleStrandSet.hasStrandAt(idx, idx)
-    # end 
+        return self._scafStrandSet.hasStrandAt(idx, idx)
+    # end def
 
     def getStrandSetByIdx(self, idx):
         """
@@ -142,11 +141,11 @@ class VirtualHelix(QObject):
         else:
             return self._stapStrandSet
     # end def
-    
+
     def scaffoldStrandSet(self):
         return self._scafStrandSet
     # end def
-    
+
     def stapleStrandSet(self):
         return self._stapStrandSet
     # end def
