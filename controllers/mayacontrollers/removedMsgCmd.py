@@ -67,7 +67,6 @@ def dagParentRemovedCallback( child, parent, clientData ):
                 strand = mom.mayaToCn[ c ]
                 if strand:
                     #print "Strand %s : %s needs removal" % (c, strand)
-                    mom.removeIDMapping(c, strand)
                     strand.strandSet().removeStrand(strand)
                 else:
                     print "Error: no Strand inside mayaObjectModel"

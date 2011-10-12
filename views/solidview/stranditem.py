@@ -97,8 +97,8 @@ class StrandItem(QObject):
     def strandRemovedSlot(self, strand):
         mom = Mom()
         id = mom.strandMayaID(strand)
-        print "solidview.StrandItem.strandRemovedSlot %s" % id
         mom.removeIDMapping(id, strand)
+        print "solidview.StrandItem.strandRemovedSlot %s" % id
         transformName = "%s%s" % (mom.helixTransformName, id)
         if cmds.objExists(transformName):
             cmds.delete(transformName)
