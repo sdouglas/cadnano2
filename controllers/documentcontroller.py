@@ -135,7 +135,8 @@ class DocumentController():
             return  # user canceled in maybe save
         else:  # user did not cancel
             if hasattr(self, "filesavedialog"): # user did save
-                self.filesavedialog.finished.connect(self.newClickedCallback)
+                if self.filesavedialog != None:
+                    self.filesavedialog.finished.connect(self.newClickedCallback)
             else:  # user did not save
                 self.newClickedCallback()  # finalize new
 
@@ -151,8 +152,7 @@ class DocumentController():
         else:  # user did not cancel
             if hasattr(self, "filesavedialog"): # user did save
                 if self.filesavedialog != None:
-                    self.filesavedialog.finished.connect(\
-                                                    self.openAfterMaybeSave)
+                    self.filesavedialog.finished.connect(self.openAfterMaybeSave)
                 else:
                     self.openAfterMaybeSave()  # windows
             else:  # user did not save
@@ -385,8 +385,9 @@ class DocumentController():
         self.newDocument(fname=fname)
         decode(self._document, file(fname).read())
         # doc.finalizeImport()  # updates staple highlighting
-        if self.fileopendialog != None:
-            self.fileopendialog.filesSelected.disconnect(\
+        if hasattr(self, "filesavedialog"): # user did save
+            if self.fileopendialog != None:
+                self.fileopendialog.filesSelected.disconnect(\
                                               self.openAfterMaybeSaveCallback)
             # manual garbage collection to prevent hang (in osx)
             del self.fileopendialog
