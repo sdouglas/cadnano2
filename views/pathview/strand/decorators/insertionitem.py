@@ -37,7 +37,7 @@ util.qtWrapImport('QtCore', globals(), [ 'QPointF', 'QRectF', 'Qt'] )
 util.qtWrapImport('QtGui', globals(), [ 'QBrush', 'QFont', \
                                         'QGraphicsItem', 'QGraphicsTextItem', \
                                         'QTextCursor', 'QPainterPath', 'QPen', \
-                                        'QLabel'] )
+                                        'QLabel', 'QGraphicsPathItem', 'QMatrix', 'QFontMetricsF'] )
 
 _baseWidth = _bw = styles.PATH_BASE_WIDTH
 _halfbaseWidth = _hbw = _baseWidth / 2
@@ -86,7 +86,6 @@ _bigRect.adjust(-15, -15, 30, 30)
 # after the last character is the padding, and the rest is divided evenly.
 _fractionInsertToPad = .10
 
-
 class InsertionPath(object):
     """
     This is just the shape of the Insert item
@@ -97,7 +96,7 @@ class InsertionPath(object):
     # end def
 
     def getPen(self):
-        return self._pen
+        return _bpen
     # end def
 
     def getInsert(self, istop):
@@ -122,7 +121,6 @@ class SkipPath(object):
     This is just the shape of the Insert item
     """
     
-    
     _skipPath = QPainterPath()
     _xGen(_skipPath, _myRect.bottomLeft(), _myRect.topRight(), \
                         _myRect.topLeft(), _myRect.bottomRight())
@@ -132,7 +130,7 @@ class SkipPath(object):
     # end def
 
     def getPen(self):
-        return self._pen
+        return _rpen
     # end def
 
     def getSkip(self):
@@ -149,19 +147,14 @@ class InsertionItem(QGraphicsItem):
 
     def __init__(self, virtualHelixItem, strand, insertion):
         super(InsertionItem, self).__init__(virtualHelixItem)
-        self._label = None
         self._vHI = virtualHelixItem
         self._strand = strand
         self._insertion = insertion
+        self._isOnTop = virtualHelixItem.isStrandOnTop(strand)
         
-        self.label()  # Poke the cache so the label actually exists
-        self.setZValue(styles.ZINSERTHANDLE)
+        self.hide()
         
-    # end def
-
-    def label(self):
-        if self._label:
-            return self._label
+        # do label stuff to depict the length of the insertion
         label = QGraphicsTextItem("", parent=self)
         label.setFont(_font)
         label.setTextInteractionFlags(Qt.TextEditorInteraction)
@@ -170,7 +163,16 @@ class InsertionItem(QGraphicsItem):
         label.mousePressEvent = self.labelMousePressEvent
         label.setTextWidth(-1)
         self._label = label
-        return label
+        self.updateLabel()
+        
+        self._pathItem = QGraphicsPathItem(parent=self)
+        self._seqItem = QGraphicsPathItem(parent=self)
+        self.updatePath()
+        self.setZValue(styles.ZINSERTHANDLE)
+        self.setFlags(QGraphicsItem.ItemHasNoContents)
+        
+        self.show()
+    # end def
 
     def focusOut(self):
         # print "focusing out"
@@ -180,6 +182,14 @@ class InsertionItem(QGraphicsItem):
         self._label.clearFocus()
     # end def
 
+    def remove(self):
+        scene = self.scene()
+        scene.removeItem(self._label)
+        scene.removeItem(self._pathItem)
+        scene.removeItem(self._seqItem)
+        scene.removeItem(self)
+    # end def
+    
     def labelMousePressEvent(self, event):
         """
         Pre-selects the text for editing when you click
@@ -233,72 +243,83 @@ class InsertionItem(QGraphicsItem):
     def boundingRect(self):
         return self._bigRect
 
-    def paint(self, painter, option, widget=None):
-        ph = self.parentObject()
-        vh = ph.vhelix()
-        strandType = self._strandType
-        istop = ph.strandIsTop(strandType)
-        index = self._index
-        insertsize = self._insertsize
-        
-        if insertsize > 0:
-            path = self._insertItem.getInsert(istop)
-            painter.setPen(QPen(vh.colorOfBase(strandType, index), styles.INSERTWIDTH))
-            painter.setBrush(Qt.NoBrush)
-            painter.drawPath(path)
-            # draw sequence on the insert
-            baseText = vh.sequenceForInsertAt(strandType, index)
-            if baseText[0] != ' ':  # only draw sequences if they exist
-                if istop:
-                    angleOffset = 0
-                else:
-                    angleOffset = 180
-                if len(baseText) > 20:
-                    baseText = baseText[:17] + '...'
-                fractionArclenPerChar = (1.-2*self._fractionInsertToPad)/(len(baseText)+1)
-                painter.setPen(QPen(Qt.black))
-                painter.setBrush(Qt.NoBrush)
-                painter.setFont(ph.sequenceFont)
-                for i in range(len(baseText)):
-                    frac = self._fractionInsertToPad + (i+1)*fractionArclenPerChar
-                    pt = path.pointAtPercent(frac)
-                    tangAng = path.angleAtPercent(frac)
-                    painter.save()
-                    painter.translate(pt)
-                    painter.rotate(-tangAng + angleOffset)
-                    painter.translate(QPointF(-ph.sequenceFontCharWidth/2.,
-                                              -2 if istop else ph.sequenceFontH))
-                    if not istop:
-                        painter.translate(0, -ph.sequenceFontH - styles.INSERTWIDTH)
-                    painter.drawText(0, 0, baseText[i if istop else -i-1])
-                    painter.restore()
-            # end if
-        else:  # insertsize < 0 (a skip)
-            path = self._skipItem.getSkip()
-            painter.setPen(self._skipItem.getPen())
-            painter.drawPath(path)
-    # end def
+    def updatePath(self):
+        vhi = self._vHI
+        strand = self._strand
+        isOnTop = self._isOnTop
+        insertion = self.insertion
+        index = insertion.index()
+        insertSize = self.insertion.length()
+        pathItem = self._pathItem
 
-    def setLabel(self, ph, strandType, index, number):
-        self._insertsize = number
-        self._index = index
-        self._strandType = strandType
-        self._label.setPlainText("%d" % (number))
-        self.setParentItem(ph)
+        if insertSize > 0:
+            pathItem.setPath(self._insertPath.getInsert(isOnTop))
+            pathItem.setPen(QPen(strand.oligo().color(), styles.INSERTWIDTH))
+            pathItem.setBrush(QBrush(Qt.NoBrush))
+        else:  # insertsize < 0 (a skip)
+            pathItem.setPath(self._skipItem.getSkip())
+            painter.setPen(self._skipItem.getPen())
+    # end def
+    
+    def updateSequenceText(self):
+        seqItem = self._seqItem
+        strand = self._strand
+        isOnTop = self._isOnTop
+        
+        # draw sequence on the insert
+        baseText = strand.sequenceForInsertAt(index)
+        if baseText:  # only draw sequences if they exist i.e. not None!
+            lenBT = len(baseText)
+            if isOnTop:
+                angleOffset = 0
+            else:
+                angleOffset = 180
+            if lenBT > 20:
+                baseText = baseText[:17] + '...'
+            fractionArclenPerChar = (1.-2*_fractionInsertToPad)/(lenBT+1)
+            seqItem.setPen(QPen(Qt.black))
+            seqItem.setBrush(QBrush(Qt.NoBrush))
+
+            seqPath = QPainterPath()
+            for i in range(lenBT):
+                frac = _fractionInsertToPad + (i+1)*fractionArclenPerChar
+                pt = seqPath.pointAtPercent(frac)
+                tangAng = seqPath.angleAtPercent(frac)
+                # painter.save()
+                
+                normalPath = QPainterPath()
+                normalPath.setFont(styles.SEQUENCEFONT)
+                normalPath.translate(pt)
+                normalPath.addText(0, 0, baseText[i if isOnTop else -i-1])
+                mat = QMatrix()
+                mat.rotate(-tangAng + angleOffset)
+                rotatedPath = mat.map(tempPath)
+
+                rotatedPath.translate(QPointF(-styles.SEQUENCEFONTCHARWIDTH/2.,
+                                          -2 if isOnTop else syles.SEQUENCEFONTH))
+                if not isOnTop:
+                    rotatedPath.translate(0, -syles.SEQUENCEFONTH - styles.INSERTWIDTH)
+                seqPath.addPath(rotatedPath)
+        # end if
+    # end def
+    
+    def updateLabel(self):
+        self._label.setPlainText("%d" % (self._insertion.length()))
         self.resetPosition()
     # end def
 
     def resetPosition(self):
-        txtOffset = self._label.boundingRect().width()/2 
-        ph = self.parentObject()
-        posItem = ph.baseLocation(self._strandType, self._index, center=False)
-        self.setPos(posItem[0], posItem[1])
-        if ph.strandIsTop(self._strandType):
-            self._label.setPos(self._offset2-txtOffset, -self._baseWidth)
+        lbl = self._label
+        txtOffset = lbl.boundingRect().width()/2 
+        vhi = self._vHI
+        x, y = vhi.upperLeftCornerOfBase(self._index, self._strand)
+        self.setPos(x, y)
+        if self._isOnTop:
+            lbl.setPos(self._offset2-txtOffset, -_bw)
         else:
-            self._label.setPos(self._offset2-txtOffset, self._baseWidth)
-        if self._insertsize > 0:
-            self._label.show()
+            lbl.setPos(self._offset2-txtOffset, _bw)
+        if self._insertion.length() > 0:
+            lbl.show()
         else:
-            self._label.hide()
+            lbl.hide()
     # end def
