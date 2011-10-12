@@ -30,7 +30,7 @@ Created by Shawn on 2010-06-15.
 
 import util
 # import Qt stuff into the module namespace with PySide, PyQt4 independence
-util.qtWrapImport('QtGui', globals(), [ 'QColor', 'QFont'])
+util.qtWrapImport('QtGui', globals(), [ 'QColor', 'QFont', 'QFontMetricsF'])
 
 # Slice Sizing
 SLICE_HELIX_RADIUS = 15
@@ -137,6 +137,23 @@ ZBREAKPOINTHANDLE = 2
 ZINSERTHANDLE = 4
 ZSKIPHANDLE = 2
 ZPATHTOOL = 3
+
+# sequence stuff
+SEQUENCEFONT = QFont("Monaco")
+if hasattr(QFont, 'Monospace'):
+    SEQUENCEFONT.setStyleHint(QFont.Monospace)
+SEQUENCEFONT.setFixedPitch(True)
+SEQUENCEFONTH = PATH_BASE_WIDTH / 3.
+SEQUENCEFONT.setPixelSize(SEQUENCEFONTH)
+SEQUENCEFONTMETRICS = QFontMetricsF(SEQUENCEFONT)
+SEQUENCEFONTCHARWIDTH = SEQUENCEFONTMETRICS.width('A')
+SEQUENCEFONTCHARHEIGHT = SEQUENCEFONTMETRICS.height()
+SEQUENCEFONTEXTRAWIDTH = PATH_BASE_WIDTH - SEQUENCEFONTCHARWIDTH
+SEQUENCEFONT.setLetterSpacing(QFont.AbsoluteSpacing,
+                             SEQUENCEFONTEXTRAWIDTH)
+SEQUENCETEXTXCENTERINGOFFSET = SEQUENCEFONTEXTRAWIDTH / 4.
+SEQUENCETEXTYCENTERINGOFFSET = PATH_BASE_WIDTH / 2.
+
 ZBREAKITEM = 2
 
 if util.isMac():

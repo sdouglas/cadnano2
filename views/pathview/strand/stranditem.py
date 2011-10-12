@@ -42,22 +42,8 @@ util.qtWrapImport('QtGui', globals(), ['QGraphicsLineItem', 'QGraphicsPathItem',
 
 _baseWidth = styles.PATH_BASE_WIDTH
 
-_sequenceFont = QFont("Monaco")
-if hasattr(QFont, 'Monospace'):
-    _sequenceFont.setStyleHint(QFont.Monospace)
-_sequenceFont.setFixedPitch(True)
-_sequenceFontH = _baseWidth / 3.
-_sequenceFont.setPixelSize(_sequenceFontH)
-_sequenceFontMetrics = QFontMetricsF(_sequenceFont)
-_sequenceFontCharWidth = _sequenceFontMetrics.width('A')
-_sequerceFontCharHeight = _sequenceFontMetrics.height()
-_sequenceFontExtraWidth = _baseWidth - _sequenceFontCharWidth
-_sequenceFont.setLetterSpacing(QFont.AbsoluteSpacing,
-                              _sequenceFontExtraWidth)
-_sequenceTextXCenteringOffset = _sequenceFontExtraWidth / 4.
-_sequenceTextYCenteringOffset = _baseWidth / 2.
-
 class StrandItem(QGraphicsLineItem):
+    
     def __init__(self, modelStrand, virtualHelixItem):
         """The parent should be a VirtualHelixItem."""
         super(StrandItem, self).__init__(virtualHelixItem)
@@ -79,7 +65,7 @@ class StrandItem(QGraphicsLineItem):
         self._controller = StrandItemController(self, modelStrand)
         self._updateAppearance(modelStrand)
         
-        self._decorators = {}
+        self._insertionItems = {}
     # end def
 
     ### SIGNALS ###
@@ -151,14 +137,15 @@ class StrandItem(QGraphicsLineItem):
     # end def
 
     def strandInsertionAddedSlot(self, strand, insertion):
-        pass
-        # self._decorators[insertion.idx()] = InsertionItem(self._virtualHelixItem, insertion)
+        self._insertionItems[insertion.idx()] = InsertionItem(self._virtualHelixItem, insertion)
     # end def
     def strandInsertionChangedSlot(self, strand, insertion):
-        pass
+        self._insertionItems[insertion.idx()].update()
     # end def
     def strandInsertionRemovedSlot(self, strand, index):
-        pass
+        instItem = self._decorators[insertion.idx()]
+        instItem.remove()
+        del self._insertionItems[insertion.idx()]
     # end def
     def strandDecoratorAddedSlot(self, strand, decorator):
         pass
@@ -294,18 +281,18 @@ class StrandItem(QGraphicsLineItem):
         
         # seqLbl.setPen(QPen( Qt.NoPen))    # leave the Pen as None for unless required
         seqLbl.setBrush(QBrush(Qt.black))
-        seqLbl.setFont(_sequenceFont)
+        seqLbl.setFont(styles.SEQUENCEFONT)
         
         # this will always draw from the 5 Prime end!
-        seqX = 2*_sequenceTextXCenteringOffset + bw*strand.idx5Prime()
-        seqY = -_sequenceTextYCenteringOffset
+        seqX = 2*styles.SEQUENCETEXTXCENTERINGOFFSET + bw*strand.idx5Prime()
+        seqY = -styles.SEQUENCETEXTYCENTERINGOFFSET
         
         if not self._isOnTop:
             # offset it towards the bottom
             seqY += 3*bw
             # offset X by the reverse centering offset and the 
             # length of the string 
-            seqX += _sequenceTextXCenteringOffset 
+            seqX += styles.SEQUENCETEXTXCENTERINGOFFSET 
             
             # rotate the characters upside down this does not affect positioning
             # coordinate system, +Y is still Down, and +X is still Right
