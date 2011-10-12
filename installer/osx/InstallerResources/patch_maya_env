@@ -1,0 +1,10 @@
+#!/bin/bash
+if grep CADNANO "$1" 1>/dev/null; then
+echo "Skipping patch for $1 since it appears to already be patched."
+else
+echo "Patching $1"
+cat >> "$1" <<END_HERE_DOC
+CADNANO_PATH=/Applications/cadnano2.app/Contents/Resources/cadnano2
+MAYA_PLUG_IN_PATH=\$CADNANO_PATH:\$MAYA_PLUG_IN_PATH
+END_HERE_DOC
+fi
