@@ -77,6 +77,7 @@ poly35.append(QPointF(0.5*_baseWidth, _baseWidth))
 pp35.addPolygon(poly35)
 
 _defaultRect = QRectF(0, 0, _baseWidth, _baseWidth)
+_noPen = QPen(Qt.NoPen)
 
 
 class EndpointItem(QGraphicsPathItem):
@@ -91,12 +92,11 @@ class EndpointItem(QGraphicsPathItem):
         self._highDragBound = None
         self._initCapSpecificState()
         self.setPen(QPen(Qt.NoPen))
-        
         # for easier mouseclick
-        br = self._boundRectItem = QGraphicsRectItem(_defaultRect, self)
-        br.mousePressEvent = self.mousePressEvent
-        br.mouseMoveEvent = self.mouseMoveEvent
-        br.setPen(QPen(Qt.NoPen))
+        self._clickArea = cA = QGraphicsRectItem(_defaultRect, self)
+        cA.mousePressEvent = self.mousePressEvent
+        cA.mouseMoveEvent = self.mouseMoveEvent
+        cA.setPen(_noPen)
     # end def
 
     def __repr__(self):
@@ -239,4 +239,10 @@ class EndpointItem(QGraphicsPathItem):
         mStrand = self._strandItem._modelStrand
         if mStrand.isScaffold():
             self._activeTool().applySequence(mStrand.oligo())
+
+    def paintToolMousePress(self, modifiers):
+        """Add an insert to the strand if possible."""
+        mStrand = self._strandItem._modelStrand
+        color = self._strandItem.window().pathColorPanel.colorName()
+        mStrand.oligo().applyColor(color)
 

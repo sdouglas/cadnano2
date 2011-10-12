@@ -66,9 +66,9 @@ class StrandItem(QGraphicsLineItem):
         self._seqLabel = QGraphicsSimpleTextItem(self)
         self._updateSequenceText()
         # create a larger click area rect to capture mouse events
-        br = self._boundRectItem = QGraphicsRectItem(_defaultRect, self)
-        br.mousePressEvent = self.mousePressEvent
-        br.setPen(_noPen)
+        self._clickArea = cA = QGraphicsRectItem(_defaultRect, self)
+        cA.mousePressEvent = self.mousePressEvent
+        cA.setPen(_noPen)
         # initial refresh
         self._updateAppearance(modelStrand)
     # end def
@@ -102,10 +102,10 @@ class StrandItem(QGraphicsLineItem):
         self._controller.disconnectSignals()
         self._controller = None
         scene = self.scene()
-        # scene.removeItem(self._boundRectItem)
+        # scene.removeItem(self._clickArea)
         # scene.removeItem(self._highCap)
         # scene.removeItem(self._lowCap)
-        self._boundRectItem = None
+        self._clickArea = None
         self._highCap = None
         self._lowCap = None
         scene.removeItem(self)
@@ -130,8 +130,8 @@ class StrandItem(QGraphicsLineItem):
         self._updateAppearance(strand)
     # end def
 
-    def oligoAppeareanceChangedSlot(self, oligo):
-        pass
+    def oligoAppearanceChangedSlot(self, oligo):
+        self._updatePensAndBrushes(self._modelStrand)
     # end def
 
     def oligoSequenceAddedSlot(self, oligo):
@@ -204,7 +204,7 @@ class StrandItem(QGraphicsLineItem):
     def updateLine(self, movedCap):
         # setup
         bw = _baseWidth
-        br = self._boundRectItem
+        cA = self._clickArea
         line = self.line()
         # set new line coords
         if movedCap == self._lowCap:
@@ -212,17 +212,17 @@ class StrandItem(QGraphicsLineItem):
             newX = self._lowCap.pos().x() + bw
             p1.setX(newX)
             line.setP1(p1)
-            temp = br.rect()
+            temp = cA.rect()
             temp.setLeft(newX)
-            br.setRect(temp)
+            cA.setRect(temp)
         else:
             p2 = line.p2()
             newX = self._highCap.pos().x()
             p2.setX(newX)
             line.setP2(p2)
-            temp = br.rect()
+            temp = cA.rect()
             temp.setRight(newX)
-            br.setRect(temp)
+            cA.setRect(temp)
         self.setLine(line)
 
     ### PRIVATE SUPPORT METHODS ###
@@ -274,7 +274,7 @@ class StrandItem(QGraphicsLineItem):
         # 2. Line drawing
         hy = ly = lUpperLeftY + halfBaseWidth
         self.setLine(lx, ly, hx, hy)
-        self._boundRectItem.setRect(QRectF(lUpperLeftX+bw, lUpperLeftY, bw*(highIdx-lowIdx-1), bw))
+        self._clickArea.setRect(QRectF(lUpperLeftX+bw, lUpperLeftY, bw*(highIdx-lowIdx-1), bw))
         self._updatePensAndBrushes(strand)
     # end def
 
@@ -389,6 +389,5 @@ class StrandItem(QGraphicsLineItem):
         """Add an insert to the strand if possible."""
         mStrand = self._modelStrand
         color = self.window().pathColorPanel.colorName()
-        print "paintToolMousePress", color
-        mStrand.oligo().setColor(color)
+        mStrand.oligo().applyColor(color)
 

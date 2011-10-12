@@ -215,7 +215,6 @@ class PartItem(QGraphicsPathItem):
     # end def
 
     ### PUBLIC METHODS ###
-
     def numberOfVirtualHelices(self):
         return len(self._virtualHelixItemList)
     # end def

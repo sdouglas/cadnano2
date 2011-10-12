@@ -79,20 +79,10 @@ class Oligo(QObject):
 
     ### SLOTS ###
 
-    ### METHODS ###
-    def applySequence(self, sequence, useUndoStack=True):
-        c = Oligo.ApplySequenceCommand(self, sequence,)
-        util.execCommandList(self, [c], desc="Apply Sequence", useUndoStack=useUndoStack)
-    # end def
+    ### ACCESSORS ###
 
     def undoStack(self):
         return self._part.undoStack()
-    # end def
-
-    def destroy(self):
-        # QObject also emits a destroyed() Signal
-        self.setParent(None)
-        self.deleteLater()
     # end def
 
     def part(self):
@@ -109,14 +99,14 @@ class Oligo(QObject):
         return self._color
     # end def
 
-    def setColor(self, color):
-        self._color = color
+    ### PUBLIC METHODS FOR QUERYING THE MODEL ###
+    def isLoop(self):
+        return self._isLoop
+
+    def length(self):
+        return self._length
     # end def
 
-    def shouldHighlight(self):
-        return True if self.length() > 40 else False
-    # end def
-    
     def sequence(self):
         if self.strand5p().sequence():
             return ''.join( [Strand.sequence(strand) \
@@ -125,63 +115,62 @@ class Oligo(QObject):
             return None
     # end def
 
-    def length(self):
-        return self._length
+    def shouldHighlight(self):
+        return True if self.length() > 40 else False
     # end def
 
-    def setLength(self, length):
-        self._length = length
+    ### PUBLIC METHODS FOR EDITING THE MODEL ###
+    def applyColor(self, color, useUndoStack=True):
+        if color == self._color:
+            return  # oligo already has color
+        c = Oligo.ApplyColorCommand(self, color)
+        util.execCommandList(self, [c], desc="Color Oligo", useUndoStack=useUndoStack)
     # end def
 
-    def incrementStrandLength(self, strand):
-        self.setLength(self._length+strand.length())
+    def applySequence(self, sequence, useUndoStack=True):
+        c = Oligo.ApplySequenceCommand(self, sequence)
+        util.execCommandList(self, [c], desc="Apply Sequence", useUndoStack=useUndoStack)
     # end def
 
-    def decrementStrandLength(self, strand):
-        self.setLength(self._length-strand.length())
-    # end def
-
-    def isLoop(self):
-        return self._isLoop
-
+    ### PUBLIC SUPPORT METHODS ###
     def addToPart(self, part):
         self._part = part
         self.setParent(part)
         part.addOligo(self)
     # end def
 
+    def destroy(self):
+        # QObject also emits a destroyed() Signal
+        self.setParent(None)
+        self.deleteLater()
+    # end def
+
+    def decrementStrandLength(self, strand):
+        self.setLength(self._length-strand.length())
+    # end def
+
+    def incrementStrandLength(self, strand):
+        self.setLength(self._length+strand.length())
+    # end def
+
     def removeFromPart(self):
         """
-        this method merely disconnects the object from the model
-        it still lives on in the undoStack until clobbered
+        This method merely disconnects the object from the model.
+        It still lives on in the undoStack until clobbered
+
+        Note: don't set self._part = None because we need to continue passing
+        the same reference around.
         """
         self._part.removeOligo(self)
-        
-        # don't set part to none because we are passing the same reference around
-        # self._part = None
-        
         self.setParent(None)
     # end def
 
-    def strandSplitUpdate(self, newStrand5p, newStrand3p, oligo3p, oldMergedStrand):
-        """
-        If the oligo is a loop, splitting the strand does nothing. If the
-        oligo isn't a loop, a new oligo must be created and assigned to the
-        newStrand and everything connected to it downstream.
-        """
-        # if you split it can't be a loop
-        self._isLoop = False
-        if oldMergedStrand.oligo().isLoop():
-            # don't change the _strand5p cause it was  all the same
-            # oligo
-            return
-        else:
-            if oldMergedStrand.connection5p() == None:
-                self._strand5p = newStrand5p
-            else:
-                self._strand5p = oldMergedStrand.oligo()._strand5p
-            oligo3p._strand5p = newStrand3p
-        # end else
+    def setColor(self, color):
+        self._color = color
+    # end def
+
+    def setLength(self, length):
+        self._length = length
     # end def
 
     def strandMergeUpdate(self, oldStrandLow, oldStrandHigh):
@@ -217,11 +206,57 @@ class Oligo(QObject):
     # end def
 
     def strandResized(self, delta):
-        """Called by a strand after resize. Delta is used to update the
-        length, which may case an appearance change."""
+        """
+        Called by a strand after resize. Delta is used to update the length,
+        which may case an appearance change.
+        """
         pass
+    # end def
+
+    def strandSplitUpdate(self, newStrand5p, newStrand3p, oligo3p, oldMergedStrand):
+        """
+        If the oligo is a loop, splitting the strand does nothing. If the
+        oligo isn't a loop, a new oligo must be created and assigned to the
+        newStrand and everything connected to it downstream.
+        """
+        # if you split it can't be a loop
+        self._isLoop = False
+        if oldMergedStrand.oligo().isLoop():
+            # don't change the _strand5p cause it was all the same oligo
+            return
+        else:
+            if oldMergedStrand.connection5p() == None:
+                self._strand5p = newStrand5p
+            else:
+                self._strand5p = oldMergedStrand.oligo()._strand5p
+            oligo3p._strand5p = newStrand3p
+        # end else
+    # end def
+
+    ### PRIVATE SUPPORT METHODS ###
 
     ### COMMANDS ###
+    class ApplyColorCommand(QUndoCommand):
+        def __init__(self, oligo, color):
+            super(Oligo.ApplyColorCommand, self).__init__()
+            self._oligo = oligo
+            self._newColor = color
+            self._oldColor = oligo.color()
+        # end def
+
+        def redo(self):
+            olg = self._oligo
+            olg.setColor(self._newColor)
+            olg.oligoAppearanceChangedSignal.emit(olg)
+        # end def
+
+        def undo(self):
+            olg = self._oligo
+            olg.setColor(self._oldColor)
+            olg.oligoAppearanceChangedSignal.emit(olg)
+        # end def
+    # end class
+
     class ApplySequenceCommand(QUndoCommand):
         def __init__(self, oligo, sequence):
             super(Oligo.ApplySequenceCommand, self).__init__()

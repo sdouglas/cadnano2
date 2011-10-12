@@ -151,10 +151,9 @@ class SubInsertionItem(QGraphicsItem):
         self._insertion = insertionItem._insertion
         self._isOnTop = isOnTop
         if not isOnTop:
-            self.setY(_bw) 
-        
+            self.setY(_bw)
         self.hide()
-        
+
         # do label stuff to depict the length of the insertion
         label = QGraphicsTextItem("", parent=self)
         label.setFont(_font)
@@ -165,22 +164,16 @@ class SubInsertionItem(QGraphicsItem):
         label.setTextWidth(-1)
         self._label = label
         self.updateLabel()
-        
         self._pathItem = QGraphicsPathItem(parent=self)
         self._seqItem = QGraphicsPathItem(parent=self)
         self.updatePath()
-        
         self.resetPosition()
-        
         self.setZValue(styles.ZINSERTHANDLE)
         self.setFlags(QGraphicsItem.ItemHasNoContents)
-        
     # end def
 
     def focusOut(self):
-        # print "focusing out"
         lbl = self._label
-        
         cursor = lbl.textCursor()
         cursor.clearSelection()
         lbl.setTextCursor(cursor)
@@ -194,7 +187,7 @@ class SubInsertionItem(QGraphicsItem):
         scene.removeItem(self._seqItem)
         scene.removeItem(self)
     # end def
-    
+
     def labelMousePressEvent(self, event):
         """
         Pre-selects the text for editing when you click
@@ -245,7 +238,7 @@ class SubInsertionItem(QGraphicsItem):
 
     def boundingRect(self):
         return _bigRect
-        
+
     def updateItem(self, strand):
         self._strand = strand
         self.updatePath()
@@ -260,11 +253,11 @@ class SubInsertionItem(QGraphicsItem):
             return
         else:
             self.show()
-            
+
         isOnTop = self._isOnTop
         pathItem = self._pathItem
         skipPath = self._skipPath
-        
+
         if self._insertion.length() > 0:
             pathItem.setPath(self._insertPath.getInsert(isOnTop))
             pathItem.setPen(QPen(QColor(strand.oligo().color()), styles.INSERTWIDTH))
@@ -273,13 +266,13 @@ class SubInsertionItem(QGraphicsItem):
             pathItem.setPath(skipPath.getSkip())
             pathItem.setPen(skipPath.getPen())
     # end def
-    
+
     def _updateSequenceText(self):
         seqItem = self._seqItem
         strand = self._strand
         isOnTop = self._isOnTop
         index = self._insertion.idx()
-        
+
         # draw sequence on the insert
         baseText = strand.sequenceForInsertAt(index)
         if baseText:  # only draw sequences if they exist i.e. not None!
@@ -300,7 +293,7 @@ class SubInsertionItem(QGraphicsItem):
                 pt = seqPath.pointAtPercent(frac)
                 tangAng = seqPath.angleAtPercent(frac)
                 # painter.save()
-                
+
                 normalPath = QPainterPath()
                 normalPath.setFont(styles.SEQUENCEFONT)
                 normalPath.translate(pt)
@@ -316,7 +309,7 @@ class SubInsertionItem(QGraphicsItem):
                 seqPath.addPath(rotatedPath)
         # end if
     # end def
-    
+
     def updateLabel(self):
         self._label.setPlainText("%d" % (self._insertion.length()))
     # end def
@@ -325,7 +318,6 @@ class SubInsertionItem(QGraphicsItem):
         lbl = self._label
         txtOffset = lbl.boundingRect().width()/2
         insertion = self._insertion
-        
         if self._isOnTop:
             lbl.setPos(_offset2-txtOffset, -_bw)
         else:
@@ -349,18 +341,18 @@ class InsertionItem(QGraphicsItem):
         self._insertion = insertion
         self.hide()
         isOnTop = self._isOnTop = virtualHelixItem.isStrandOnTop(strand)
-        
+
         self._subItems = [SubInsertionItem(self, isOnTop), \
                                 SubInsertionItem(self, not isOnTop)]
-        
+
         self.setZValue(styles.ZINSERTHANDLE)
         self.setFlags(QGraphicsItem.ItemHasNoContents)
-        
+
         self.setPos(_baseWidth*insertion.idx(), 0)
         self.updateItem()
         self.show()
     # end def
-    
+
     def boundingRect(self):
         return QRectF()
 
@@ -376,12 +368,12 @@ class InsertionItem(QGraphicsItem):
         vhi = self._vHI
         items = self._subItems
         strand = self._strand
-        
+
         strandComp = strand.strandSet().complimentStrandSet().getStrand(self._insertion.idx())
         items[0].updateItem(strand)
         items[1].updateItem(strandComp)
     # end def
-    
+
     def remove(self):
         for item in self._subItems:
             item.remove()
