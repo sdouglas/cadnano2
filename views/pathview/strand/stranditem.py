@@ -137,7 +137,7 @@ class StrandItem(QGraphicsLineItem):
     # end def
 
     def strandInsertionAddedSlot(self, strand, insertion):
-        self._insertionItems[insertion.idx()] = InsertionItem(self._virtualHelixItem, insertion)
+        self._insertionItems[insertion.idx()] = InsertionItem(self._virtualHelixItem, strand, insertion)
     # end def
     def strandInsertionChangedSlot(self, strand, insertion):
         self._insertionItems[insertion.idx()].update()
@@ -349,5 +349,6 @@ class StrandItem(QGraphicsLineItem):
     def insertionToolMousePress(self, idx):
         """Add an insert to the strand if possible."""
         mStrand = self._modelStrand
-        localIdx = idx - mStrand.lowIdx()
-        mStrand.addInsertion(self, localIdx, 1)
+        # localIdx = idx - mStrand.lowIdx()
+        # mStrand.addInsertion(self, localIdx, 1)
+        mStrand.addInsertion(idx, 1)
