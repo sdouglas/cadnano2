@@ -194,12 +194,12 @@ class PreXoverItem(QGraphicsPathItem):
             toStrand = toSS.getStrand(self._idx)
             part = self._fromVHItem.part()
             # determine if we are a 5' or a 3' end
-            if self.path() in [_ppathLU, _ppathRD]:  # 3'
-                strand5p = toStrand
-                strand3p = fromStrand
-            else:  # 5'
+            if self.path() in [_ppathLU, _ppathRD]:  # 3' end of strand5p clicked
                 strand5p = fromStrand
                 strand3p = toStrand
-            part.createXover(strand3p, self._idx, strand5p, self._idx)
+            else:  # 5'
+                strand5p = toStrand
+                strand3p = fromStrand
+            part.createXover(strand5p, self._idx, strand3p, self._idx)
     # end def
     

@@ -114,8 +114,8 @@ class Strand(QObject):
     strandDestroyedSignal = pyqtSignal(QObject)
     strandRemovedSignal = pyqtSignal(QObject)
     strandResizedSignal = pyqtSignal(QObject, tuple)
-    strandXover3pAddedSignal = pyqtSignal(QObject, QObject) # strand3p, strand5p
-    strandXover3pRemovedSignal = pyqtSignal(QObject, QObject) # strand3p, strand5p
+    strandXover5pAddedSignal = pyqtSignal(QObject, QObject) # strand3p, strand5p
+    strandXover5pRemovedSignal = pyqtSignal(QObject, QObject) # strand3p, strand5p
     strandUpdateSignal = pyqtSignal(QObject) # strand
     strandInsertionAddedSignal = pyqtSignal(QObject, object)    # strand, insertion object
     strandInsertionChangedSignal = pyqtSignal(QObject, object)    # strand, insertion object

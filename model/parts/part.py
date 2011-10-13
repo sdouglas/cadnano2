@@ -213,7 +213,7 @@ class Part(QObject):
                                                 useUndoStack=useUndoStack)
     # end def
 
-    def createXover(self, strand3p, idx3p, strand5p, idx5p, useUndoStack=True):
+    def createXover(self, strand5p, idx5p, strand3p, idx3p, useUndoStack=True):
         # prexoveritem needs to store left or right, and determine
         # locally whether it is from or to
         # pass that info in here in and then do the breaks
@@ -222,32 +222,32 @@ class Part(QObject):
         cmds = []
 
         # is the 5' end ready for xover installation?
-        if strand5p.idx5Prime() == idx5p:  # yes, idx already matches
-            xoStrand5 = strand5p
+        if strand3p.idx5Prime() == idx5p:  # yes, idx already matches
+            xoStrand3 = strand3p
         else:  # no, let's try to split
-            offset5p = -1 if ss5p.isDrawn5to3() else 1
-            if ss5p.strandCanBeSplit(strand5p, idx5p+offset5p):
-                found, overlap, ssIdx = ss5p._findIndexOfRangeFor(strand5p)
+            offset3p = -1 if ss3p.isDrawn5to3() else 1
+            if ss3p.strandCanBeSplit(strand3p, idx3p+offset3p):
+                found, overlap, ssIdx = ss3p._findIndexOfRangeFor(strand3p)
                 if found:
-                    c = ss5p.SplitCommand(strand5p, idx5p+offset5p, ssIdx)
+                    c = ss3p.SplitCommand(strand3p, idx3p+offset3p, ssIdx)
                     cmds.append(c)
-                    xoStrand5 = c._strandHigh if ss5p.isDrawn5to3() else c._strandLow
+                    xoStrand3 = c._strandHigh if ss3p.isDrawn5to3() else c._strandLow
             else:  # can't split... abort
                 return
 
         # is the 3' end ready for xover installation?
-        if strand3p.idx3Prime() == idx3p:  # yes, idx already matches
-            xoStrand3 = strand3p
+        if strand5p.idx3Prime() == idx5p:  # yes, idx already matches
+            xoStrand5 = strand5p
         else:
-            if ss3p.strandCanBeSplit(strand3p, idx3p):
-                found, overlap, ssIdx = ss3p._findIndexOfRangeFor(strand3p)
+            if ss5p.strandCanBeSplit(strand5p, idx5p):
+                found, overlap, ssIdx = ss5p._findIndexOfRangeFor(strand5p)
                 if found:
-                    d = ss3p.SplitCommand(strand3p, idx3p, ssIdx)
+                    d = ss5p.SplitCommand(strand5p, idx5p, ssIdx)
                     cmds.append(d)
-                    xoStrand3 = d._strandLow if ss3p.isDrawn5to3() else d._strandHigh
+                    xoStrand5 = d._strandLow if ss5p.isDrawn5to3() else d._strandHigh
             else:  # can't split... abort
                 return
-        c = Part.CreateXoverCommand(self, xoStrand3, idx3p, xoStrand5, idx5p)
+        c = Part.CreateXoverCommand(self, xoStrand5, idx5p, xoStrand3, idx3p)
         cmds.append(c)
         util.execCommandList(self, cmds, desc="Create Xover", \
                                                 useUndoStack=useUndoStack)
@@ -678,83 +678,73 @@ class Part(QObject):
 
     class CreateXoverCommand(QUndoCommand):
         """
-        Creates a Xover from the 3 prime strand to the 5 prime strand
-        this needs to 
-        1. preserve the old oligo of the 5prime strand
+        Creates a Xover from the 3' end of strand5p to the 5' end of strand3p
+        this needs to
+        1. preserve the old oligo of strand3p
         2. install the crossover
-        3. apply the 3 prime strand oligo to the 5 prime strand
+        3. apply the strand5p oligo to the strand3p
         """
-        def __init__(self, part, strand3p, idx3p, strand5p, idx5p):
+        def __init__(self, part, strand5p, strand5pIdx, strand3p, strand3pIdx):
             super(Part.CreateXoverCommand, self).__init__()
             self._part = part
-            self._strand3p = strand3p
-            self._idx3p = idx3p
             self._strand5p = strand5p
-            self._idx5p = idx5p
-            self._oldOligo5p = strand5p.oligo()
-            self._oldStrand5p = strand3p.oligo().strand5p()
+            self._strand5pIdx = strand5pIdx
+            self._strand3p = strand3p
+            self._strand3pIdx = strand3pIdx
+            self._oldOligo3p = strand3p.oligo()
         # end def
 
         def redo(self):
             part = self._part
-            strand3p = self._strand3p
-            idx3p = self._idx3p
             strand5p = self._strand5p
-            most5p = self._oldOligo5p.strand5p()
-            idx5p = self._idx5p
-            olg = strand3p.oligo()
+            strand5pIdx = self._strand5pIdx
+            strand3p = self._strand3p
+            strand3pIdx = self._strand3pIdx
+            olg = strand5p.oligo()
 
-            
             # 2. apply the 3 prime strand oligo to the 5 prime strand
-            for strand in most5p.generator3pStrand():
+            for strand in strand3p.generator3pStrand():
                 Strand.setOligo(strand, olg)  # emits strandHasNewOligoSignal
-            
-            # 3. install the Xover
-            strand3p.setConnection3p(strand5p)
-            strand5p.setConnection5p(strand3p)
-            
-            # 4. update the 3 prime oligo to the 5 prime strands most 5 prime
-            olg.setStrand5p(most5p)
 
-            ss3 = strand3p.strandSet()
-            vh3p = ss3.virtualHelix()
-            st3p = ss3.strandType()
+            # 3. install the Xover
+            strand5p.setConnection3p(strand3p)
+            strand3p.setConnection5p(strand5p)
+
             ss5 = strand5p.strandSet()
             vh5p = ss5.virtualHelix()
             st5p = ss5.strandType()
-            strand3p.strandXover3pAddedSignal.emit(strand3p,strand5p)
-            strand5p.strandUpdateSignal.emit(strand5p)
+            ss3 = strand3p.strandSet()
+            vh3p = ss3.virtualHelix()
+            st3p = ss3.strandType()
+            strand5p.strandXover5pAddedSignal.emit(strand5p, strand3p)
+            strand3p.strandUpdateSignal.emit(strand3p)
         # end def
 
         def undo(self):
             part = self._part
-            strand3p = self._strand3p
-            idx3p = self._idx3p
             strand5p = self._strand5p
-            idx5p = self._idx5p
-            olg = self._oldOligo5p
+            strand5pIdx = self._strand5pIdx
+            strand3p = self._strand3p
+            strand3pIdx = self._strand3pIdx
+            olg = self._oldOligo3p
 
             # 2. uninstall the Xover
-            strand3p.setConnection3p(None)
-            strand5p.setConnection5p(None)
+            strand5p.setConnection3p(None)
+            strand3p.setConnection5p(None)
 
-            # 3. apply the old 5 prime strand oligo to the 5 prime strand
-            for strand in olg.strand5p().generator3pStrand():
+            # 3. apply the old oligo to strand3p
+            for strand in strand3p.generator3pStrand():
                 Strand.setOligo(strand, olg)  # emits strandHasNewOligoSignal
 
-            # 4. update the 3 prime oligo to the old 3 prime oligo's strand
-            strand3p.oligo().setStrand5p(self._oldStrand5p)
-
-            ss3 = strand3p.strandSet()
-            vh3p = ss3.virtualHelix()
-            st3p = ss3.strandType()
             ss5 = strand5p.strandSet()
             vh5p = ss5.virtualHelix()
             st5p = ss5.strandType()
-            strand3p.strandXover3pRemovedSignal.emit(strand3p, strand5p)
+            ss3 = strand3p.strandSet()
+            vh3p = ss3.virtualHelix()
+            st3p = ss3.strandType()
+            strand5p.strandXover5pRemovedSignal.emit(strand5p, strand3p)
             strand5p.strandUpdateSignal.emit(strand5p)
             strand3p.strandUpdateSignal.emit(strand3p)
         # end def
     # end class
-
 # end class

@@ -118,12 +118,12 @@ class StrandItem(QObject):
         print "solidview.StrandItem.strandDestroyedSlot"
 
     @pyqtSlot(object)
-    def strandXover3pAddedSlot(self, strand):
-        print "solidview.StrandItem.strandXover3pAddedSlot"
+    def strandXover5pAddedSlot(self, strand):
+        print "solidview.StrandItem.strandXover5pAddedSlot"
 
     @pyqtSlot(object)
-    def strandXover3pRemovedSlot(self, strand):
-        print "solidview.StrandItem.strandXover3pRemovedSlot"
+    def strandXover5pRemovedSlot(self, strand):
+        print "solidview.StrandItem.strandXover5pRemovedSlot"
 
     @pyqtSlot(object)
     def oligoAppearanceChangedSlot(self, oligo):

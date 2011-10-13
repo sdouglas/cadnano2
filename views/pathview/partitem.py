@@ -124,14 +124,14 @@ class PartItem(QGraphicsPathItem):
 
     # def xoverAddedSlot(self, part, virtualHelix3p, strandType3p, idx3p, \
     #                                 virtualHelix5p, strandType5p, idx5p):
-    #     """docstring for xover3pAddedSlot"""
-    #     print "PartItem.xover3pAddedSlot"
+    #     """docstring for xover5pAddedSlot"""
+    #     print "PartItem.xover5pAddedSlot"
     #     pass
 
     # def xoverRemovedSlot(self, part, virtualHelix3p, strandType3p, idx3p, \
     #                                 virtualHelix5p, strandType5p, idx5p):
-    #     """docstring for xover3pDestroyedSlot"""
-    #     print "PartItem.xover3pDestroyedSlot"
+    #     """docstring for xover5pDestroyedSlot"""
+    #     print "PartItem.xover5pDestroyedSlot"
     #     pass
 
     ### ACCESSORS ###

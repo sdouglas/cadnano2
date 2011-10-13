@@ -46,7 +46,7 @@ class XoverItemController(object):
         
         s3p.strandHasNewOligoSignal.connect(xI.strandHasNewOligoSlot)
         mO.oligoAppearanceChangedSignal.connect(xI.oligoAppearanceChangedSlot)
-        s3p.strandXover3pRemovedSignal.connect(xI.xover3pRemovedSlot)
+        s3p.strandXover5pRemovedSignal.connect(xI.xover5pRemovedSlot)
         
     # end def
 
@@ -57,5 +57,5 @@ class XoverItemController(object):
         
         s3p.strandHasNewOligoSignal.disconnect(xI.strandHasNewOligoSlot)
         mO.oligoAppearanceChangedSignal.disconnect(xI.oligoAppearanceChangedSlot)
-        s3p.strandXover3pRemovedSignal.connect(xI.xover3pRemovedSlot)
+        s3p.strandXover5pRemovedSignal.connect(xI.xover5pRemovedSlot)
     # end def
