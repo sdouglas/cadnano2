@@ -221,18 +221,27 @@ class PartItem(QGraphicsPathItem):
     
     def addXoverItem(self, xoverItem):
         # use xoverItems twice! once for each end of the xover
-        vhi3p, vhi5p = xoverItem.virtualHelixItems()
-        iAST3P, iAST5P = xoverItem.indicesAndStrandTypes()
-        self._xoverItems[vhi3p.coord()][iAST3P] = xoverItem
+        vhi5p, vhi3p = xoverItem.virtualHelixItems()
+        iAST5P, iAST3P = xoverItem.indicesAndStrandTypes()
         self._xoverItems[vhi5p.coord()][iAST5P] = xoverItem
+        self._xoverItems[vhi3p.coord()][iAST3P] = xoverItem
     # end def
 
     def removeXoverItem(self, xoverItem):
         # use xoverItems twice! once for each end of the xover
-        vhi3p, vhi5p = xoverItem.virtualHelixItems()
-        iAST3P, iAST5P = xoverItem.indicesAndStrandTypes()
-        del self._xoverItems[vhi3p.coord()][iAST3P]
+        vhi5p, vhi3p = xoverItem.virtualHelixItems()
+        iAST5P, iAST3P = xoverItem.indicesAndStrandTypes()
         del self._xoverItems[vhi5p.coord()][iAST5P]
+        del self._xoverItems[vhi3p.coord()][iAST3P]
+    # end def
+    
+    def updateXoverItemAt(self, virtualHelixItem, strand):
+        idx = strand.idx3Prime()
+        strandType = strand.strandSet().strandType()
+        if (idx, strandType) in self._xoverItems[virtualHelixItem.coord()]:
+            xoverItem = self._xoverItems[virtualHelixItem.coord()][(idx, strandType)]
+            xoverItem._updatePath()
+        # end if
     # end def
 
     def updateXoverItems(self, virtualHelixItem):

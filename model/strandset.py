@@ -737,6 +737,8 @@ class StrandSet(QObject):
             # Merging any decorators
             newStrand.addDecorators(strandHigh.decorators())
             self._newStrand = newStrand
+            
+            self._strand5pXover = strandHigh if strandLow.isDrawn5to3() else strandLow
         # end def
 
         def redo(self):
@@ -757,10 +759,18 @@ class StrandSet(QObject):
             # update connectivity of strands
             nScL = nS.connectionLow()
             if nScL:
-                nScL.setConnectionHigh(nS)
+                if ( nS.isDrawn5to3() and nScL.isDrawn5to3() ) or \
+                    ( not nS.isDrawn5to3() and not nScL.isDrawn5to3() ) :
+                    nScL.setConnectionHigh(nS)
+                else:
+                    nScL.setConnectionLow(nS)
             nScH = nS.connectionHigh()
             if nHcH:
-                nScH.setConnectionLow(nS)
+                if ( nS.isDrawn5to3() and nScH.isDrawn5to3() ) or \
+                    ( not nS.isDrawn5to3() and not nScH.isDrawn5to3() ) :
+                    nScH.setConnectionLow(nS)
+                else:
+                    nScH.setConnectionHigh(nS)
             
             # Traverse the strands via 3'conns to assign the new oligo
             for strand in olg.strand5p().generator3pStrand():
@@ -773,6 +783,8 @@ class StrandSet(QObject):
             # Emit Signals related to destruction and addition
             sL.strandRemovedSignal.emit(sL)  # out with the old...
             sH.strandRemovedSignal.emit(sH)  # out with the old...
+            # correct Xover Signals
+            self._strand5pXover.strand5pHasSwappedSignal.emit(self._strand5pXover, nS)
             sS.strandsetStrandAddedSignal.emit(nS)  # ...in with the new
         # end def
 
@@ -794,10 +806,18 @@ class StrandSet(QObject):
             # update connectivity of strands
             sLcL = sL.connectionLow()
             if sLcL:
-                sLcL.setConnectionHigh(sL)
+                if ( sL.isDrawn5to3() and sLcL.isDrawn5to3() ) or \
+                    ( not sL.isDrawn5to3() and not sLcL.isDrawn5to3() ) :
+                    sLcL.setConnectionHigh(sL)
+                else:
+                    sLcL.setConnectionLow(sL)
             sHcH = sH.connectionHigh()
             if sHcH:
-                sHcH.setConnectionLow(sH)
+                if ( sH.isDrawn5to3() and sHcH.isDrawn5to3() ) or \
+                    ( not sH.isDrawn5to3() and not sHcH.isDrawn5to3() ) :
+                    sHcH.setConnectionLow(sH)
+                else:
+                    sHcH.setConnectionHigh(sH)
             
             # Traverse the strands via 3'conns to assign the old oligo
             for strand in lOlg.strand5p().generator3pStrand():
@@ -808,8 +828,11 @@ class StrandSet(QObject):
             olg.removeFromPart()
             lOlg.addToPart(sL.part())
             hOlg.addToPart(sH.part())
+            
             # Emit Signals related to destruction and addition
             nS.strandRemovedSignal.emit(nS)  # out with the new...
+            # correct Xover Signals
+            nS.strand5pHasSwappedSignal.emit(nS, self._strand5pXover)
             sS.strandsetStrandAddedSignal.emit(sH)  # ...in with the old
             sS.strandsetStrandAddedSignal.emit(sL)  # ...in with the old
         # end def
@@ -852,23 +875,26 @@ class StrandSet(QObject):
                 colorHigh = oligo.color()
                 olg5p, olg3p = hOligo, lOligo
                 std5p, std3p = strandHigh, strandLow
+            # this is for updating a connected xover view object
+            # there is only ever one xover a strand is in charge of
+            self._strand3p = std3p
+            self._strand5p = std5p
+            
             # Update strand connectivity
-            print "1"
             strandLow.setConnectionHigh(None)
             strandHigh.setConnectionLow(None)
-            print "2"
+
             # Resize strands and update decorators
             strandLow.setIdxs((strand.lowIdx(), iNewLow))
             strandHigh.setIdxs((iNewLow + 1, strand.highIdx()))
             strandLow.removeDecoratorsOutOfRange()
             strandHigh.removeDecoratorsOutOfRange()
-            print "3"
+
             # Update the oligo color
             lOligo.setColor(colorLow)
             hOligo.setColor(colorHigh)
             # Update the oligo for things like its 5prime end and isLoop
             olg5p.strandSplitUpdate(std5p, std3p, olg3p, strand)
-            print "4"
         # end def
 
         def redo(self):
@@ -880,40 +906,45 @@ class StrandSet(QObject):
             olg = self._oldOligo
             lOlg = self._lOligo
             hOlg = self._hOligo
-            print "r1"
+
             # Remove old Strand from the sSet
             sS._removeFromStrandList(oS)
-            print "r2"
+
             # Add new strands to the sSet (reusing idx, so order matters)
             sS._addToStrandList(sH, idx)
             sS._addToStrandList(sL, idx)
-            print "r3"
-            
+
             # update connectivity of strands
             sLcL = sL.connectionLow()
-            print "sL, sLcL", sL, sLcL
             if sLcL:
-                sLcL.setConnectionHigh(sL)
-            sHcL = sH.connectionLow()
+                if ( oS.isDrawn5to3() and sLcL.isDrawn5to3() ) or \
+                    ( not oS.isDrawn5to3() and not sLcL.isDrawn5to3() ) :
+                    sLcL.setConnectionHigh(sL)
+                else:
+                    sLcL.setConnectionLow(sL)
             sHcH = sH.connectionHigh()
-            print "sH, sHcL, sHcH", sH, sHcL, sHcH
             if sHcH:
-                sHcH.setConnectionLow(sH)
-            print "r4"
+                if ( oS.isDrawn5to3() and sHcH.isDrawn5to3() ) or \
+                    ( not oS.isDrawn5to3() and not sHcH.isDrawn5to3() ) :
+                    sHcH.setConnectionLow(sH)
+                else:
+                   sHcH.setConnectionHigh(sH) 
             
+            # correct Xover Signals
+            oS.strand5pHasSwappedSignal.emit(oS, self._strand3p)
+
             # Traverse the strands via 3'conns to assign the new oligos
             for strand in lOlg.strand5p().generator3pStrand():
-                print strand
                 Strand.setOligo(strand, lOlg)  # emits strandHasNewOligoSignal
-            print "r5"
+
             for strand in hOlg.strand5p().generator3pStrand():
-                print strand
                 Strand.setOligo(strand, hOlg)  # emits strandHasNewOligoSignal
-            print "r6"
+
             # Add new oligo and remove old oligos from the part
             part = olg.removeFromPart()
             lOlg.addToPart(sL.part())
             hOlg.addToPart(sH.part())
+            
             # Emit Signals related to destruction and addition
             oS.strandRemovedSignal.emit(oS)  # out with the old...
             sS.strandsetStrandAddedSignal.emit(sH)  # ...in with the new
@@ -938,10 +969,21 @@ class StrandSet(QObject):
             # update connectivity of strands
             oScL = oS.connectionLow()
             if oScL:
-                oScL.setConnectionHigh(oS)
+                if ( oS.isDrawn5to3() and oScL.isDrawn5to3() ) or \
+                    ( not oS.isDrawn5to3() and not oScL.isDrawn5to3() ) :
+                    oScL.setConnectionHigh(oS)
+                else:
+                    oScL.setConnectionLow(oS)
             oScH = oS.connectionHigh()
             if oScH:
-                oScH.setConnectionLow(oS)
+                if ( oS.isDrawn5to3() and oScH.isDrawn5to3() ) or \
+                    ( not oS.isDrawn5to3() and not oScH.isDrawn5to3() ) :
+                    oScH.setConnectionLow(oS)
+                else:
+                    oScH.setConnectionHigh(oS)
+            
+            # correct Xover Signals
+            self._strand3p.strand5pHasSwappedSignal.emit(self._strand3p, oS)
             
             # Traverse the strands via 3'conns to assign the old oligo
             for strand in olg.strand5p().generator3pStrand():
@@ -950,10 +992,12 @@ class StrandSet(QObject):
             olg.addToPart(sS.part())
             lOlg.removeFromPart()
             hOlg.removeFromPart()
+            
             # Emit Signals related to destruction and addition
             sL.strandRemovedSignal.emit(sL)  # out with the new...
             sH.strandRemovedSignal.emit(sH)  # out with the new...
             sS.strandsetStrandAddedSignal.emit(oS)  # ...in with the old
+            
         # end def
     # end class
 

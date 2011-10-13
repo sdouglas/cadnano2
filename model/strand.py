@@ -127,7 +127,7 @@ class Strand(QObject):
     strandModifierAddedSignal = pyqtSignal(QObject, object)     # strand, modifier object
     strandModifierChangedSignal = pyqtSignal(QObject, object)     # strand, modifier object
     strandModifierRemovedSignal = pyqtSignal(QObject, int)      # strand, modifier object
-
+    strand5pHasSwappedSignal = pyqtSignal(QObject, QObject)     # strand5pOld, strand5pNew
     ### SLOTS ###
 
 
@@ -325,7 +325,7 @@ class Strand(QObject):
         seq = self._sequence if isDrawn5to3 else self._sequence[::-1]
         # assumes a sequence has been applied correctly and is up to date
         tL = self.totalLength()
-        
+
         offsetLast = 0
         lengthSoFar = 0
         lI, hI = self.idxs()
@@ -396,12 +396,10 @@ class Strand(QObject):
 
     ### PUBLIC METHODS FOR EDITING THE MODEL ###
     def setConnection3p(self, strand):
-        print "setConnection3p", strand
         self._strand3p = strand
     # end def
 
     def setConnection5p(self, strand):
-        print "setConnection5p", strand
         self._strand5p = strand
     # end def
 

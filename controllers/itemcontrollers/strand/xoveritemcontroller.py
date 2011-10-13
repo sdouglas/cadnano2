@@ -23,10 +23,10 @@
 # http://www.opensource.org/licenses/mit-license.php
 
 class XoverItemController(object):
-    def __init__(self, xoverItem, modelStrand3p):
+    def __init__(self, xoverItem, modelStrand5p):
         self._xoverItem = xoverItem
-        self._modelStrand3p = modelStrand3p
-        self._modelOligo = modelStrand3p.oligo()
+        self._modelStrand5p = modelStrand5p
+        self._modelOligo = modelStrand5p.oligo()
         self.connectSignals()
     # end def
     
@@ -37,25 +37,33 @@ class XoverItemController(object):
         self.disconnectSignals()
         self.connectSignals()
     # end def
+    
+    def reconnectSignals(self, strand):
+        self.disconnectSignals()
+        self._modelStrand5p = strand
+        self.connectSignals()
+    # end def
 
     def connectSignals(self):
         xI = self._xoverItem
-        s3p = self._modelStrand3p
-        mO = s3p.oligo()
+        s5p = self._modelStrand5p
+        mO = s5p.oligo()
         self._modelOligo = mO
         
-        s3p.strandHasNewOligoSignal.connect(xI.strandHasNewOligoSlot)
+        s5p.strand5pHasSwappedSignal.connect(xI.strandSwapSlot)
+        s5p.strandHasNewOligoSignal.connect(xI.strandHasNewOligoSlot)
         mO.oligoAppearanceChangedSignal.connect(xI.oligoAppearanceChangedSlot)
-        s3p.strandXover5pRemovedSignal.connect(xI.xover5pRemovedSlot)
+        s5p.strandXover5pRemovedSignal.connect(xI.xover5pRemovedSlot)
         
     # end def
 
     def disconnectSignals(self):
         xI = self._xoverItem
-        s3p = self._modelStrand3p
+        s5p = self._modelStrand5p
         mO = self._modelOligo
         
-        s3p.strandHasNewOligoSignal.disconnect(xI.strandHasNewOligoSlot)
+        s5p.strand5pHasSwappedSignal.disconnect(xI.strandSwapSlot)
+        s5p.strandHasNewOligoSignal.disconnect(xI.strandHasNewOligoSlot)
         mO.oligoAppearanceChangedSignal.disconnect(xI.oligoAppearanceChangedSlot)
-        s3p.strandXover5pRemovedSignal.connect(xI.xover5pRemovedSlot)
+        s5p.strandXover5pRemovedSignal.connect(xI.xover5pRemovedSlot)
     # end def

@@ -246,9 +246,7 @@ def execCommandList(modelObject, commands, desc=None, useUndoStack=True):
         print "<QUndoStack %d> %s" % (id(modelObject.undoStack()), desc)
         modelObject.undoStack().beginMacro(desc)
         for c in commands:
-            print "pre",c
             modelObject.undoStack().push(c)
-            print "post",c
         modelObject.undoStack().endMacro()
     else:
         # print "<NoUndoStack> %s" % (desc)

@@ -143,6 +143,12 @@ class VirtualHelixItem(QGraphicsPathItem):
         y = 0 if self.isStrandOnTop(strand) else _baseWidth
         return x, y
     # end def
+    
+    def upperLeftCornerOfBaseType(self, idx, strandType):
+        x = idx * _baseWidth
+        y = 0 if self.isStrandTypeOnTop(strandType) else _baseWidth
+        return x, y
+    # end def
 
     def minorGridPainterPath(self):
         """

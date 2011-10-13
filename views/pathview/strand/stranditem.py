@@ -115,11 +115,11 @@ class StrandItem(QGraphicsLineItem):
         pass
     # end def
 
-    def strandXover5pAddedSlot(self, strand3p, strand5p):
+    def strandXover5pAddedSlot(self, strand5p, strand3p):
         partItem = self._virtualHelixItem.partItem()
-        xo = XoverItem(partItem, strand3p, strand5p)
+        xo = XoverItem(partItem, strand5p, strand3p)
         partItem.addXoverItem(xo)
-        self._updateAppearance(strand3p)
+        self._updateAppearance(strand5p)
         partItem.updatePreXoverItems()
     # end def
 
@@ -143,6 +143,9 @@ class StrandItem(QGraphicsLineItem):
     # end def
 
     def strandHasNewOligoSlot(self, strand):
+        vhi = self._virtualHelixItem
+        partItem = vhi.partItem()
+        partItem.updateXoverItemAt(vhi, strand)
         self._controller.reconnectOligoSignals()
         self._updatePensAndBrushes(self._modelStrand)
     # end def
@@ -313,7 +316,8 @@ class StrandItem(QGraphicsLineItem):
         # end if
         
         seqList = [x[1][0] for x in strand.getSequenceList()]
-
+        print seqList
+        
         if isDrawn3to5:
             seqList = seqList[::-1]
         seqTxt = ''.join(seqList)
