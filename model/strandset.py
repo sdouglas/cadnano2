@@ -753,6 +753,15 @@ class StrandSet(QObject):
             sS._removeFromStrandList(sH)
             # Add the newStrand to the sSet
             sS._addToStrandList(nS, idx)
+            
+            # update connectivity of strands
+            nScL = nS.connectionLow()
+            if nScL:
+                nScL.setConnectionHigh(nS)
+            nScH = nS.connectionHigh()
+            if nHcH:
+                nScH.setConnectionLow(nS)
+            
             # Traverse the strands via 3'conns to assign the new oligo
             for strand in olg.strand5p().generator3pStrand():
                 Strand.setOligo(strand, olg)  # emits strandHasNewOligoSignal
@@ -781,6 +790,15 @@ class StrandSet(QObject):
             # Add old strands to the sSet (reusing idx, so order matters)
             sS._addToStrandList(sH, idx)
             sS._addToStrandList(sL, idx)
+            
+            # update connectivity of strands
+            sLcL = sL.connectionLow()
+            if sLcL:
+                sLcL.setConnectionHigh(sL)
+            sHcH = sH.connectionHigh()
+            if sHcH:
+                sHcH.setConnectionLow(sH)
+            
             # Traverse the strands via 3'conns to assign the old oligo
             for strand in lOlg.strand5p().generator3pStrand():
                 Strand.setOligo(strand, lOlg)  # emits strandHasNewOligoSignal
@@ -863,6 +881,15 @@ class StrandSet(QObject):
             # Add new strands to the sSet (reusing idx, so order matters)
             sS._addToStrandList(sH, idx)
             sS._addToStrandList(sL, idx)
+            
+            # update connectivity of strands
+            sLcL = sL.connectionLow()
+            if sLcL:
+                sLcL.setConnectionHigh(sL)
+            sHcH = sH.connectionHigh()
+            if sHcH:
+                sHcH.setConnectionLow(sH)
+            
             # Traverse the strands via 3'conns to assign the new oligos
             for strand in lOlg.strand5p().generator3pStrand():
                 Strand.setOligo(strand, lOlg)  # emits strandHasNewOligoSignal
@@ -892,6 +919,15 @@ class StrandSet(QObject):
             sS._removeFromStrandList(sH)
             # Add the old strand to the sSet
             sS._addToStrandList(oS, idx)
+            
+            # update connectivity of strands
+            oScL = oS.connectionLow()
+            if oScL:
+                oScL.setConnectionHigh(oS)
+            oScH = oS.connectionHigh()
+            if oScH:
+                oScH.setConnectionLow(oS)
+            
             # Traverse the strands via 3'conns to assign the old oligo
             for strand in olg.strand5p().generator3pStrand():
                 Strand.setOligo(strand, olg)

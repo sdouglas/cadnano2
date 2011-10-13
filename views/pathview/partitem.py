@@ -238,7 +238,7 @@ class PartItem(QGraphicsPathItem):
     def updateXoverItems(self, virtualHelixItem):
          coord = virtualHelixItem.coord()
          for xoveritem in self._xoverItems[coord].itervalues():
-             xoveritem.updatePath()
+             xoveritem._updatePath()
      # end def
 
     def reorderHelices(self, first, last, indexDelta):

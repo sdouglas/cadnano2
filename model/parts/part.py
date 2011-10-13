@@ -687,6 +687,7 @@ class Part(QObject):
             self._strand5p = strand5p
             self._idx5p = idx5p
             self._oldOligo5p = strand5p.oligo()
+            self._oldStrand5p = strand3p.oligo().strand5p()
         # end def
 
         def redo(self):
@@ -694,16 +695,21 @@ class Part(QObject):
             strand3p = self._strand3p
             idx3p = self._idx3p
             strand5p = self._strand5p
+            most5p = self._oldOligo5p.strand5p()
             idx5p = self._idx5p
             olg = strand3p.oligo()
 
-            # 2. install the Xover
+            
+            # 2. apply the 3 prime strand oligo to the 5 prime strand
+            for strand in most5p.generator3pStrand():
+                Strand.setOligo(strand, olg)  # emits strandHasNewOligoSignal
+            
+            # 3. install the Xover
             strand3p.setConnection3p(strand5p)
             strand5p.setConnection5p(strand3p)
-
-            # 3. apply the 3 prime strand oligo to the 5 prime strand
-            for strand in strand5p.generator3pStrand():
-                Strand.setOligo(strand, olg)  # emits strandHasNewOligoSignal
+            
+            # 4. update the 3 prime oligo to the 5 prime strands most 5 prime
+            olg.setStrand5p(most5p)
 
             ss3 = strand3p.strandSet()
             vh3p = ss3.virtualHelix()
@@ -728,8 +734,11 @@ class Part(QObject):
             strand5p.setConnection5p(None)
 
             # 3. apply the old 5 prime strand oligo to the 5 prime strand
-            for strand in strand5p.generator3pStrand():
+            for strand in olg.strand5p().generator3pStrand():
                 Strand.setOligo(strand, olg)  # emits strandHasNewOligoSignal
+
+            # 4. update the 3 prime oligo to the old 3 prime oligo's strand
+            strand3p.oligo().setStrand5p(self._oldStrand5p)
 
             ss3 = strand3p.strandSet()
             vh3p = ss3.virtualHelix()

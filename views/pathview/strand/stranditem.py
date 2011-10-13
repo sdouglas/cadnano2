@@ -144,6 +144,7 @@ class StrandItem(QGraphicsLineItem):
 
     def strandHasNewOligoSlot(self, strand):
         self._controller.reconnectOligoSignals()
+        self._updatePensAndBrushes(self._modelStrand)
     # end def
 
     def strandInsertionAddedSlot(self, strand, insertion):
