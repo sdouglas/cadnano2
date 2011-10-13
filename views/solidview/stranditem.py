@@ -77,6 +77,7 @@ class StrandItem(QObject):
         """strandResizedSlot"""
         print "solidview.StrandItem.strandResizedSlot", self._modelStrand.idxs()
         self.updateSize()
+        self._virtualHelixItem.updateDecorators()
 
     @pyqtSlot()
     def strandUpdateSlot(self):
@@ -104,6 +105,7 @@ class StrandItem(QObject):
             cmds.delete(transformName)
         if id in self._virtualHelixItem.StrandIDs():
             self._virtualHelixItem.StrandIDs().remove(id)
+        self._virtualHelixItem.updateDecorators()
         #print strand
         self._modelStrand = None
         self._controller.disconnectSignals()

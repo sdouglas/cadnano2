@@ -60,6 +60,9 @@ class SolidRootItem(QObject):
         print "SolidRootItem.selectedPartChangedSlot"
 
     ### METHODS ###
+    def partItems(self):
+        return self._partItems
+
     def removePartItem(self, partItem):
         self._partItems.remove(partItem)
     

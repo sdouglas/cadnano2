@@ -43,6 +43,8 @@ def selectionCallback( clientData ):
         OpenMaya.MGlobal.getActiveSelectionList( selectionList )
         selectionIter = OpenMaya.MItSelectionList( selectionList,
                                                    OpenMaya.MFn.kInvalid )
+        decoratorList = []
+        m = Mom()
         while not selectionIter.isDone():
                 dependNode = OpenMaya.MObject()
                 dagNode = OpenMaya.MFnDagNode()
@@ -56,9 +58,10 @@ def selectionCallback( clientData ):
                         selectionIter.next()
                         continue
 
-                m = Mom()
-                if dagNode.name().startswith("stapleModIndicatorTransform"):
-                    m.staplePreDecoratorSelected(dagNode.name())
+                
+                if dagNode.name().startswith(m.decoratorTransformName):
+                    if dagNode.name() not in decoratorList:
+                        decoratorList.append(dagNode.name())
 
                 #helixNode = OpenMaya.MObject();
                 #helixNode = getHelixNodeFromTransform( dependNode )
@@ -78,6 +81,7 @@ def selectionCallback( clientData ):
                 #        # this should probably be done in a converter function
                 #        manipulator.matchNodePosition( transformNodePath, helixNode )
                 selectionIter.next()
+        m.staplePreDecoratorSelected(decoratorList)
 
 class mayaSelctionContext( OpenMayaMPx.MPxSelectionContext ):
     def __init__( self ):

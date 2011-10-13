@@ -84,26 +84,16 @@ class VirtualHelixItem(QObject):
         return self._vhelix
 
     def setVHelix(self, newVH):
-        #vh = self._vhelix
-        #if vh:
-        #    vh.dimensionsModifiedSignal.disconnect(\
-        #                                     self.vhelixDimensionsModified)
-        #    vh.scaf().didAddStrand.disconnect(self.strandAddedToVStrand)
-        #    vh.stap().didAddStrand.disconnect(self.strandAddedToVStrand)
         self._vhelix = newVH
-      
-        #newVH.dimensionsModifiedSignal.connect(self.vhelixDimensionsModified)
-        #newVH.scaf().didAddStrand.connect(self.strandAddedToVStrand)
-        #newVH.stap().didAddStrand.connect(self.strandAddedToVStrand)
 
     def number(self):
         return self._vhelix.number()
 
     def row(self):
-        return self._vhelix.row()
+        return self._row
 
     def col(self):
-        return self._vhelix.col()
+        return self._col
         
     def x(self):
         return self._x
@@ -176,7 +166,8 @@ class VirtualHelixItem(QObject):
                 mayaNodeInfo = "%s%s" % (m.helixMeshName,id)
                 print "mayaNodeInfo: %s" % mayaNodeInfo
                 strand = m.mayaToCn[ mayaNodeInfo ]
-                self.createDecorators(strand)
+                if(strand.strandSet().isStaple()):
+                    self.createDecorators(strand)
 
     def cadnanoVBaseToMayaCoords(self, base, strand):
         m = Mom()
@@ -228,9 +219,9 @@ class VirtualHelixItem(QObject):
         strandid = m.strandMayaID(strand)
         # XXX [SB] will use self._vhelix.getPreStapleModIndexList()
         totalNumBases = self._vhelix.part().maxBaseIdx()
-        stapleBases = []
-        for b in range(totalNumBases):
-            stapleBases.append(b)
+        stapleBases = strand.getPreDecoratorIdxList()
+        #for b in range(totalNumBases):
+        #    stapleBases.append(b)
 
         for stapleBase in stapleBases:
             # XXX [SB+AT] NOT THREAD SAFE
