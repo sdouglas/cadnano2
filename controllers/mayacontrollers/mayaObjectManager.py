@@ -30,6 +30,7 @@ Created by Alex Tessier on 2011-08
 A singleton manager for tracking maya to cn and reverse
 lookups
 """
+from cadnano import app
 import maya.cmds as cmds
 import util
 util.qtWrapImport('QtCore', globals(), ['QObject', 'pyqtSignal'] )
@@ -37,7 +38,7 @@ util.qtWrapImport('QtCore', globals(), ['QObject', 'pyqtSignal'] )
 class Mom:
     class __impl(QObject):
         """ Implementation of the singleton interface """
-        preDecoratorSelectedSignal = pyqtSignal(object, int)
+        #preDecoratorSelectedSignal = pyqtSignal(object)
         strandCount = 0
         def myId(self):
             return id(self)
@@ -65,10 +66,22 @@ class Mom:
     decoratorMeshName       = "stapleModIndicatorMesh"
     decoratorShaderName     = "stapleModeIndicatorShader"
     
-    def staplePreDecoratorSelected(self, name):
-        if self.decoratorToVirtualHelixItem.has_key(name):
-            modData = self.decoratorToVirtualHelixItem[name]
-            self.__instance.preDecoratorSelectedSignal.emit(modData[2], modData[1])
+    def staplePreDecoratorSelected(self, listNames):
+        selectionList = []
+        for name in listNames:
+            if self.decoratorToVirtualHelixItem.has_key(name):
+                (virualHelixItem, baseIdx, strand) = \
+                                        self.decoratorToVirtualHelixItem[name]
+                selectionList.append((virualHelixItem.row(),
+                                                virualHelixItem.col(),
+                                                baseIdx))
+        # XXX - [SB] we want to only send the signal to "active part" but
+        # not sure how to get that
+        for doc in app().documentControllers:
+            if doc.win.actionModify.isChecked():
+                for partItem in doc.win.solidroot.partItems():
+                    partModel = partItem.part()
+                    partModel.selectPreDecorator(selectionList)
 
     def removeDecoratorMapping(self, id):
         key1 = "%s%s" % (self.decoratorMeshName, id)

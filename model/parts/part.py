@@ -343,13 +343,18 @@ class Part(QObject):
         print "%s: renumber() called." % self
     # end def
 
-    def selectPreDecorator(self, row, col, baseIdx):
+    def selectPreDecorator(self, selectionList):
         """
         Handles view notifications that a predecorator has been selected.
         Will be used to emit a signal preDecoratorSelectedSignal
         """
-        print "PreDecorator was selected at (%d, %d)[%d]" % (row, col, baseIdx)
-        # partPreDecoratorSelectedSignal.emit(row, col, baseIdx)
+        if(len(selectionList) == 0):
+            #print "all PreDecorators were unselected"
+            pass
+        for sel in selectionList:
+            (row, col, baseIdx) = (sel[0], sel[1], sel[2])
+            print "PreDecorator was selected at (%d, %d)[%d]" % (row, col, baseIdx)
+            # partPreDecoratorSelectedSignal.emit(row, col, baseIdx)
 
     def setActiveBaseIndex(self, idx):
         self._activeBaseIndex = idx
