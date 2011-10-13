@@ -853,18 +853,22 @@ class StrandSet(QObject):
                 olg5p, olg3p = hOligo, lOligo
                 std5p, std3p = strandHigh, strandLow
             # Update strand connectivity
+            print "1"
             strandLow.setConnectionHigh(None)
             strandHigh.setConnectionLow(None)
+            print "2"
             # Resize strands and update decorators
             strandLow.setIdxs((strand.lowIdx(), iNewLow))
             strandHigh.setIdxs((iNewLow + 1, strand.highIdx()))
             strandLow.removeDecoratorsOutOfRange()
             strandHigh.removeDecoratorsOutOfRange()
+            print "3"
             # Update the oligo color
             lOligo.setColor(colorLow)
             hOligo.setColor(colorHigh)
             # Update the oligo for things like its 5prime end and isLoop
             olg5p.strandSplitUpdate(std5p, std3p, olg3p, strand)
+            print "4"
         # end def
 
         def redo(self):
@@ -876,25 +880,36 @@ class StrandSet(QObject):
             olg = self._oldOligo
             lOlg = self._lOligo
             hOlg = self._hOligo
+            print "r1"
             # Remove old Strand from the sSet
             sS._removeFromStrandList(oS)
+            print "r2"
             # Add new strands to the sSet (reusing idx, so order matters)
             sS._addToStrandList(sH, idx)
             sS._addToStrandList(sL, idx)
+            print "r3"
             
             # update connectivity of strands
             sLcL = sL.connectionLow()
+            print "sL, sLcL", sL, sLcL
             if sLcL:
                 sLcL.setConnectionHigh(sL)
+            sHcL = sH.connectionLow()
             sHcH = sH.connectionHigh()
+            print "sH, sHcL, sHcH", sH, sHcL, sHcH
             if sHcH:
                 sHcH.setConnectionLow(sH)
+            print "r4"
             
             # Traverse the strands via 3'conns to assign the new oligos
             for strand in lOlg.strand5p().generator3pStrand():
+                print strand
                 Strand.setOligo(strand, lOlg)  # emits strandHasNewOligoSignal
+            print "r5"
             for strand in hOlg.strand5p().generator3pStrand():
+                print strand
                 Strand.setOligo(strand, hOlg)  # emits strandHasNewOligoSignal
+            print "r6"
             # Add new oligo and remove old oligos from the part
             part = olg.removeFromPart()
             lOlg.addToPart(sL.part())

@@ -90,7 +90,8 @@ class Strand(QObject):
 
     def __repr__(self):
         clsName = self.__class__.__name__
-        return "<%s(%s, %s)>"%(clsName, self._baseIdxLow, self._baseIdxHigh)
+        s = "%s.<%s(%s, %s)>"%(self._strandSet.__repr__(), clsName, self._baseIdxLow, self._baseIdxHigh)
+        return s
 
     def generator3pStrand(self):
         """
@@ -395,20 +396,22 @@ class Strand(QObject):
 
     ### PUBLIC METHODS FOR EDITING THE MODEL ###
     def setConnection3p(self, strand):
+        print "setConnection3p", strand
         self._strand3p = strand
     # end def
 
     def setConnection5p(self, strand):
+        print "setConnection5p", strand
         self._strand5p = strand
     # end def
 
-    def setConnectionLow(self):
-        """Gets bound to setConnection5p or setConnection3p in __init__."""
-        pass
-
-    def setConnectionHigh(self):
-        """Gets bound to setConnection5p or setConnection3p in __init__."""
-        pass
+    # def setConnectionLow(self):
+    #     """Gets bound to setConnection5p or setConnection3p in __init__."""
+    #     pass
+    # 
+    # def setConnectionHigh(self):
+    #     """Gets bound to setConnection5p or setConnection3p in __init__."""
+    #     pass
 
     def setIdxs(self, idxs):
         self._baseIdxLow = idxs[0]

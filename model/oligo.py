@@ -132,6 +132,9 @@ class Oligo(QObject):
         util.execCommandList(self, [c], desc="Apply Sequence", useUndoStack=useUndoStack)
     # end def
 
+    def setLoop(self, bool):
+        self._isLoop = bool
+
     ### PUBLIC SUPPORT METHODS ###
     def addToPart(self, part):
         self._part = part

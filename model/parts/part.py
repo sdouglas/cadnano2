@@ -690,20 +690,28 @@ class Part(QObject):
         # end def
 
         def redo(self):
+            print "AAA"
             part = self._part
             strand5p = self._strand5p
             strand5pIdx = self._strand5pIdx
             strand3p = self._strand3p
             strand3pIdx = self._strand3pIdx
             olg = strand5p.oligo()
-
+            print "AA"
             # 2. apply the 3 prime strand oligo to the 5 prime strand
-            for strand in strand3p.generator3pStrand():
-                Strand.setOligo(strand, olg)  # emits strandHasNewOligoSignal
-
+            if olg == strand3p.oligo():
+                olg.setLoop(True)
+            else:
+                print "A"
+                for strand in strand3p.generator3pStrand():
+                    print "B", strand
+                    Strand.setOligo(strand, olg)  # emits strandHasNewOligoSignal
+                    print "C", strand
+                print "D"
             # 3. install the Xover
             strand5p.setConnection3p(strand3p)
             strand3p.setConnection5p(strand5p)
+            print "E"
 
             ss5 = strand5p.strandSet()
             vh5p = ss5.virtualHelix()
@@ -711,8 +719,10 @@ class Part(QObject):
             ss3 = strand3p.strandSet()
             vh3p = ss3.virtualHelix()
             st3p = ss3.strandType()
+            print "F"
             strand5p.strandXover5pAddedSignal.emit(strand5p, strand3p)
             strand3p.strandUpdateSignal.emit(strand3p)
+            print "G"
         # end def
 
         def undo(self):
@@ -728,8 +738,11 @@ class Part(QObject):
             strand3p.setConnection5p(None)
 
             # 3. apply the old oligo to strand3p
-            for strand in strand3p.generator3pStrand():
-                Strand.setOligo(strand, olg)  # emits strandHasNewOligoSignal
+            if olg.isLoop():
+                olg.setLoop(False)
+            else:
+                for strand in strand3p.generator3pStrand():
+                    Strand.setOligo(strand, olg)  # emits strandHasNewOligoSignal
 
             ss5 = strand5p.strandSet()
             vh5p = ss5.virtualHelix()
