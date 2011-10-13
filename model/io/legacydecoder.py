@@ -186,16 +186,18 @@ def doc_from_legacy_dict(document, obj):
         stapStrandSet = fromVh.stapleStrandSet()
         # install scaffold xovers
         for (idx3p, toVhNum, idx5p) in scaf_xo[vhNum]:
-            strand3p = scafStrandSet.getStrand(idx3p)
+            # idx3p is 3' end of strand5p, idx5p is 5' end of strand3p
+            strand5p = scafStrandSet.getStrand(idx3p)
             toVh = part.virtualHelixAtCoord(vhNumToCoord[toVhNum])
-            strand5p = toVh.scaffoldStrandSet().getStrand(idx5p)
-            part.createXover(strand3p, idx3p, strand5p, idx5p, useUndoStack=False)
+            strand3p = toVh.scaffoldStrandSet().getStrand(idx5p)
+            part.createXover(strand5p, idx5p, strand3p, idx3p, useUndoStack=False)
         # install staple xovers
         for (idx3p, toVhNum, idx5p) in stap_xo[vhNum]:
-            strand3p = stapStrandSet.getStrand(idx3p)
+            # idx3p is 3' end of strand5p, idx5p is 5' end of strand3p
+            strand5p = stapStrandSet.getStrand(idx3p)
             toVh = part.virtualHelixAtCoord(vhNumToCoord[toVhNum])
-            strand5p = toVh.stapleStrandSet().getStrand(idx5p)
-            part.createXover(strand3p, idx3p, strand5p, idx5p, useUndoStack=False)
+            strand3p = toVh.stapleStrandSet().getStrand(idx5p)
+            part.createXover(strand5p, idx5p, strand3p, idx3p, useUndoStack=False)
 
     # helixNo = -1
     # for helix in obj['vstrands']:
