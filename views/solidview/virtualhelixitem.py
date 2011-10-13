@@ -77,7 +77,6 @@ class VirtualHelixItem(QObject):
         
         self._controller = VirtualHelixItemController(self, modelVirtualHelix)
         
-
     def partItem(self):
         return self._partItem
 
@@ -131,12 +130,11 @@ class VirtualHelixItem(QObject):
         its parent (which is *this* VirtualHelixItem, i.e. 'self').
         """
         print "solidview.VirtualHelixItem.strandAddedSlot"
-        print strand
         #strand.didMove.connect(self.onStrandDidMove)
         #strand.willBeRemoved.connect(self.onStrandWillBeRemoved)
-        id = self._partItem.strandMayaID(strand)
+        m = Mom()
+        id = m.strandMayaID(strand)
         self.strandIDs.append(id)
-        #print "SolidHelix:strandAddedToVStrand-NormalStrand %s" % id
         StrandItem(id, strand, self)
         self.updateDecorators()
         print "solidview.VirtualHelixItem.strandAddedSlot done %s" % id
@@ -181,8 +179,9 @@ class VirtualHelixItem(QObject):
                 self.createDecorators(strand)
 
     def cadnanoVBaseToMayaCoords(self, base, strand):
-        id = self._partItem.strandMayaID(strand)
-        cylinderName = "HalfCylinderHelixNode%s" % id
+        m = Mom()
+        id = m.strandMayaID(strand)
+        cylinderName = "%s%s" % (m.helixNodeName,id)
         if cmds.objExists(cylinderName):
             rise = cmds.getAttr("%s.rise" % cylinderName)
             startBase = cmds.getAttr("%s.startBase" % cylinderName)
@@ -214,7 +213,7 @@ class VirtualHelixItem(QObject):
     def clearDecorators(self):
         m = Mom()
         for id in self.stapleModIndicatorIDs:
-            transformName = "stapleModIndicatorTransform%s" % id
+            transformName = "%s%s" % (m.decoratorTransformName, id)
             #print "delete %s" % transformName
             m = Mom()
             m.removeDecoratorMapping(id)
@@ -235,7 +234,7 @@ class VirtualHelixItem(QObject):
 
         for stapleBase in stapleBases:
             # XXX [SB+AT] NOT THREAD SAFE
-            while cmds.objExists("spStapleModIndicator%s_%s" % (strandid, self.stapleIndicatorCount)):
+            while cmds.objExists("%s%s_%s" % (m.decoratorNodeName, strandid, self.stapleIndicatorCount)):
                 self.stapleIndicatorCount += 1
             stapleId = "%s_%s" % (strandid, self.stapleIndicatorCount)
             coords = self.cadnanoVBaseToMayaCoords(stapleBase, strand)
