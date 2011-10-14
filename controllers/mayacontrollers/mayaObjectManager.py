@@ -40,6 +40,7 @@ class Mom:
         """ Implementation of the singleton interface """
         #preDecoratorSelectedSignal = pyqtSignal(object)
         strandCount = 0
+        selectionCountCache = 0
         def myId(self):
             return id(self)
 
@@ -75,6 +76,11 @@ class Mom:
                 selectionList.append((virualHelixItem.row(),
                                                 virualHelixItem.col(),
                                                 baseIdx))
+        if len(selectionList) == 0 and self.__instance.selectionCountCache == 0:
+            # a dumb cache check to prevent deselection to be brotcaseted too
+            # many times, but could couse problems
+            return
+
         # XXX - [SB] we want to only send the signal to "active part" but
         # not sure how to get that
         for doc in app().documentControllers:
@@ -82,6 +88,7 @@ class Mom:
                 for partItem in doc.win.solidroot.partItems():
                     partModel = partItem.part()
                     partModel.selectPreDecorator(selectionList)
+        self.__instance.selectionCountCache = len(selectionList)
 
     def removeDecoratorMapping(self, id):
         key1 = "%s%s" % (self.decoratorMeshName, id)
