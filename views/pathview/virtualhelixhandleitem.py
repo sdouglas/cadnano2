@@ -94,6 +94,12 @@ class VirtualHelixHandleItem(QGraphicsEllipseItem):
             self.setPen(self.defPen)
         self.update(self.boundingRect())
     # end def
+    
+    def paint(self, painter, option, widget):
+        painter.setPen(self.pen())
+        painter.setBrush(self.brush())
+        painter.drawEllipse(self.rect())
+    # end def
 
     def someVHChangedItsNumber(self, r, c):
         # If it was our VH, we need to update the number we
