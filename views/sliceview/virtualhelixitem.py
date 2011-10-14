@@ -31,6 +31,7 @@ Created by Shawn on 2010-06-15.
 from views import styles
 from model.virtualhelix import VirtualHelix
 from model.enum import Parity, StrandType
+from controllers.itemcontrollers.virtualhelixitemcontroller import VirtualHelixItemController
 
 import util
 # import Qt stuff into the module namespace with PySide, PyQt4 independence
@@ -58,13 +59,13 @@ class VirtualHelixItem(QGraphicsEllipseItem):
     _font = styles.SLICE_NUM_FONT
     _ZVALUE = styles.ZSLICEHELIX+3
 
-    def __init__(self, virtualHelix, helixItem):
+    def __init__(self, modelVirtualHelix, emptyHelixItem):
         """
-        helixItem is a HelixItem that will act as a QGraphicsItem parent
+        emptyHelixItem is a EmptyHelixItem that will act as a QGraphicsItem parent
         """
-        super(VirtualHelixItem, self).__init__(parent=helixItem)
-        self._virtualHelix = virtualHelix
-        self._helixItem = helixItem
+        super(VirtualHelixItem, self).__init__(parent=emptyHelixItem)
+        self._virtualHelix = modelVirtualHelix
+        self._emptyHelixItem = emptyHelixItem
         self.hide()
         # drawing related
 
@@ -82,13 +83,15 @@ class VirtualHelixItem(QGraphicsEllipseItem):
         self._label = self.createLabel()
         self.setNumber()
         
+        self._controller = VirtualHelixItemController(self, modelVirtualHelix)
+        
         self.show()
     # end def
     
     ### SIGNALS ###
 
     ### SLOTS ###
-    def numberChangedSlot(self, virtualHelix):
+    def virtualHelixNumberChangedSlot(self, virtualHelix):
         """
         receives a signal containing a virtualHelix and the oldNumber 
         as a safety check
@@ -96,10 +99,17 @@ class VirtualHelixItem(QGraphicsEllipseItem):
         self.setNumber()
     # end def
     
-    def removedSlot(self, virtualHelix):
+    def virtualHelixRemovedSlot(self, virtualHelix):
+        self._controller.disconnectSignals()
+        self._controller = None
+        self._emptyHelixItem.setNotHovered()
         self._virtualHelix = None
-        self._helixItem = None
+        self._emptyHelixItem = None
         self.scene().removeItem(self)
+    # end def
+    
+    def strandAddedSlot(self, strand):
+        pass
     # end def
     
     ###
@@ -139,7 +149,7 @@ class VirtualHelixItem(QGraphicsEllipseItem):
     # end def
     
     def part(self):
-        return self._helixItem.part()
+        return self._emptyHelixItem.part()
 
     def virtualHelix(self):
         return self._virtualHelix
@@ -207,14 +217,14 @@ class VirtualHelixItem(QGraphicsEllipseItem):
         """
         # if self.selectAllBehavior():
         #     self.setSelected(True)
-        # forward the event to the helixItem as well
-        self._helixItem.hoverEnterEvent(event)
+        # forward the event to the emptyHelixItem as well
+        self._emptyHelixItem.hoverEnterEvent(event)
     # end def
 
     def hoverLeaveEvent(self, event):
         # if self.selectAllBehavior():
         #     self.setSelected(False)
-        self._helixItem.hoverEnterEvent(event)
+        self._emptyHelixItem.hoverEnterEvent(event)
     # end def
 
     # def mousePressEvent(self, event):

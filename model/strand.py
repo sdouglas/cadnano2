@@ -230,25 +230,31 @@ class Strand(QObject):
         # only get the characters we're using, while we're at it, make it the
         # reverse compliment
 
-        length = self.totalLength()
+        totalLength = self.totalLength()
         
         # see if we are applyng 
         if sequenceString == None:
             # clear out string for in case of not total overlap
-            useSeq = ''.join([' ' for x in range(length)])
+            useSeq = ''.join([' ' for x in range(totalLength)])
         else:  # use the string as is
             useSeq = sequenceString[::-1] if self._isDrawn5to3 else sequenceString
 
         temp = array('c', useSeq)
         if self._sequence == None:
-            tempSelf = array('c', ''.join([' ' for x in range(length)]) )
+            tempSelf = array('c', ''.join([' ' for x in range(totalLength)]) )
         else:
             tempSelf = array('c', self._sequence if self._isDrawn5to3 else self._sequence[::-1])
 
         # generate the index into the compliment string
-        start = lowIdx - cLowIdx
-        end = start + length
-        tempSelf[lowIdx-sLowIdx:highIdx-sLowIdx+1] = temp[start:end]
+        if sLowIdx < lowIdx:
+            a = self.insertionLengthBetweenIdxs(sLowIdx, lowIdx-1)
+        else:
+            a = 0
+        b = self.insertionLengthBetweenIdxs(lowIdx, highIdx)
+        c = strand.insertionLengthBetweenIdxs(cLowIdx, lowIdx)
+        start = lowIdx - cLowIdx + c
+        end = start + b + highIdx-lowIdx +1
+        tempSelf[lowIdx-sLowIdx+a:highIdx-sLowIdx+1 + a+ b] = temp[start:end]
         self._sequence = tempSelf.tostring()
 
         # if we need to reverse it do it now
@@ -258,7 +264,7 @@ class Strand(QObject):
         # test to see if the string is empty(), annoyingly expensive
         if len(self._sequence.strip()) == 0:
             self._sequence = None
-
+        print self._sequence, totalLength, "comp"
         return self._sequence
     # end def
 
@@ -299,15 +305,46 @@ class Strand(QObject):
         return self._baseIdxHigh - self._baseIdxLow + 1
     # end def
     
+    def insertionsOnStrand(self, idxL=None, idxH=None):
+        """
+        if passed indices it will use those as a bounds
+        """
+        insertions = []
+        coord = self.virtualHelix().coord()
+        insertionsDict = self.part().insertions()[coord]
+        sortedIndices = sorted(insertionsDict.keys())
+        if idxL == None:
+            idxL, idxH = self.idxs()
+        for index in sortedIndices:
+            insertion = insertionsDict[index]
+            if idxL <= insertion.idx() <= idxH:
+                insertions.append(insertion)
+            # end if
+        # end for
+        return insertions
+    # end def
+    
     def totalLength(self):
         """
         includes the length of insertions in addition to the bases
         """
         tL = 0
-        coord = self.virtualHelix().coord()
-        for insertion in self.part().insertions()[coord].itervalues():
+        insertions = self.insertionsOnStrand()
+        
+        for insertion in insertions:
             tL += insertion.length()
         return tL + self.length()
+    # end def
+    
+    def insertionLengthBetweenIdxs(self, idxL, idxH):
+        """
+        includes the length of insertions in addition to the bases
+        """
+        tL = 0
+        insertions = self.insertionsOnStrand(idxL, idxH)
+        for insertion in insertions:
+            tL += insertion.length()
+        return tL
     # end def
 
     def getSequenceList(self):
@@ -330,19 +367,20 @@ class Strand(QObject):
         lengthSoFar = 0
         lI, hI = self.idxs()
         
-        coord = self.virtualHelix().coord()
-        insertionsDict = self.part().insertions()[coord]
-
-        for index, insertion in insertionsDict.iteritems():
+        for insertion in self.insertionsOnStrand():
+            iLength = insertion.length()
+            index = insertion.idx()
             offset = index + 1 - lI + lengthSoFar
-            lengthSoFar += insertion.length()
+            lengthSoFar += iLength
             seqItem = seq[offsetLast:offset] # the stranditem seq
-            offsetLast = offset + lengthSoFar
+            offsetLast = offset + iLength
             seqInsertion = seq[offset:offsetLast] # the insertions sequence
             seqList.append((index, (seqItem, seqInsertion)))
         # end for
         # append the last bit of the strand
+        print seq[offsetLast:tL]
         seqList.append((lI+tL, (seq[offsetLast:tL],'')))
+        print seqList
         if not isDrawn5to3:
             # reverse it again so all sub sequences are from 5' to 3'
             for i in range(len(seqList)):
