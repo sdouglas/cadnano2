@@ -49,7 +49,6 @@ class PartItem(QGraphicsItem):
         modelPart is the modelPart it mirrors
         parent should be  either a SliceRootItem, or an AssemblyItem
         """
-        print "PartItem __init__", parent
         super(PartItem, self).__init__(parent)
         # data related
         self._part = modelPart
@@ -167,7 +166,6 @@ class PartItem(QGraphicsItem):
         """A private method used to change the number of rows,
         cols in response to a change in the dimensions of the
         part represented by the receiver"""
-        print "_setLattice", oldCoords, newCoords
         oldSet = set(oldCoords)
         oldList = list(oldSet)
         newSet = set(newCoords)

@@ -31,8 +31,9 @@ import objc, os
 from Foundation import *
 from AppKit import *
 from controllers.documentcontroller import DocumentController
-# from model.decoder import decode
+from model.io.decoder import decode
 from cadnano import app as sharedCadnanoObj
+
 
 class CNApplicationDelegate(NSObject):
     def application_openFile_(self, app, f):
@@ -42,8 +43,8 @@ class CNApplicationDelegate(NSObject):
         if extension not in ('.nno', '.json', '.cadnano'):
             print "Could not open file %s (bad extension %s)"%(f, extension)
             return
-        doc = decode(file(str(f)).read())
-        DocumentController(doc, str(f))
+        dc = list(sharedCadnanoObj().documentControllers)[0]
+        decode(dc.document(), file(str(f)).read())
         return None
 
     def application_openFiles_(self, app, fs):

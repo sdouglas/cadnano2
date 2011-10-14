@@ -29,7 +29,7 @@ class XoverItemController(object):
         self._modelOligo = modelStrand5p.oligo()
         self.connectSignals()
     # end def
-    
+
     def reconnectOligoSignals(self):
         """
         use this for whenever a strands oligo changes
@@ -37,7 +37,7 @@ class XoverItemController(object):
         self.disconnectSignals()
         self.connectSignals()
     # end def
-    
+
     def reconnectSignals(self, strand):
         self.disconnectSignals()
         self._modelStrand5p = strand
@@ -49,19 +49,18 @@ class XoverItemController(object):
         s5p = self._modelStrand5p
         mO = s5p.oligo()
         self._modelOligo = mO
-        
+
         s5p.strand5pHasSwappedSignal.connect(xI.strandSwapSlot)
         s5p.strandHasNewOligoSignal.connect(xI.strandHasNewOligoSlot)
         mO.oligoAppearanceChangedSignal.connect(xI.oligoAppearanceChangedSlot)
         s5p.strandXover5pRemovedSignal.connect(xI.xover5pRemovedSlot)
-        
     # end def
 
     def disconnectSignals(self):
         xI = self._xoverItem
         s5p = self._modelStrand5p
         mO = self._modelOligo
-        
+
         s5p.strand5pHasSwappedSignal.disconnect(xI.strandSwapSlot)
         s5p.strandHasNewOligoSignal.disconnect(xI.strandHasNewOligoSlot)
         mO.oligoAppearanceChangedSignal.disconnect(xI.oligoAppearanceChangedSlot)

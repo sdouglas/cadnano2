@@ -70,8 +70,7 @@ class StrandItem(QGraphicsLineItem):
         cA.mousePressEvent = self.mousePressEvent
         cA.setPen(_noPen)
         # xover comming from the 3p end
-        self._xover3pEnd = XoverItem(virtualHelixItem) 
-        
+        self._xover3pEnd = XoverItem(virtualHelixItem)
         # initial refresh
         self._updateAppearance(modelStrand)
     # end def
@@ -229,6 +228,7 @@ class StrandItem(QGraphicsLineItem):
             temp = cA.rect()
             temp.setRight(newX)
             cA.setRect(temp)
+        print line
         self.setLine(line)
 
     ### PRIVATE SUPPORT METHODS ###
@@ -395,14 +395,21 @@ class StrandItem(QGraphicsLineItem):
         mStrand.split(idx)
     # end def
 
+    def eraseToolMousePress(self, idx):
+        mStrand = self._modelStrand
+        mStrand.strandSet().removeStrand(mStrand)
+    # end def
+
     def insertionToolMousePress(self, idx):
         """Add an insert to the strand if possible."""
         mStrand = self._modelStrand
         mStrand.addInsertion(idx, 1)
+    # end def
 
     def paintToolMousePress(self, idx):
         """Add an insert to the strand if possible."""
         mStrand = self._modelStrand
         color = self.window().pathColorPanel.colorName()
         mStrand.oligo().applyColor(color)
+    # end def
 

@@ -45,10 +45,10 @@ class DocumentController():
     Connects UI buttons to their corresponding actions in the model.
     """
     ### INIT METHODS ###
-    def __init__(self, doc=None, fname=None):
+    def __init__(self, fname=None):
         """docstring for __init__"""
         # initialize variables
-        self._document = Document() if not doc else doc
+        self._document = Document()
         self._filename = fname
         self.win = None
         self._undoStack = None
