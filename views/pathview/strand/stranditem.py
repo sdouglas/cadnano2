@@ -69,6 +69,9 @@ class StrandItem(QGraphicsLineItem):
         self._clickArea = cA = QGraphicsRectItem(_defaultRect, self)
         cA.mousePressEvent = self.mousePressEvent
         cA.setPen(_noPen)
+        # xover comming from the 3p end
+        self._xover3pEnd = XoverItem(virtualHelixItem) 
+        
         # initial refresh
         self._updateAppearance(modelStrand)
     # end def
@@ -105,6 +108,8 @@ class StrandItem(QGraphicsLineItem):
         # scene.removeItem(self._clickArea)
         # scene.removeItem(self._highCap)
         # scene.removeItem(self._lowCap)
+        self._xover3pEnd.remove()
+        self._xover3pEnd = None
         self._clickArea = None
         self._highCap = None
         self._lowCap = None
@@ -115,13 +120,10 @@ class StrandItem(QGraphicsLineItem):
         pass
     # end def
 
-    def strandXover5pAddedSlot(self, strand5p, strand3p):
+    def strandXover5pChangedSlot(self, strand5p, strand3p):
         partItem = self._virtualHelixItem.partItem()
-        xo = XoverItem(partItem, strand5p, strand3p)
-        partItem.addXoverItem(xo)
-        self._updateAppearance(strand5p)
         partItem.updatePreXoverItems()
-    # end def
+    #  end def
 
     def strandUpdateSlot(self, strand):
         """
@@ -143,11 +145,11 @@ class StrandItem(QGraphicsLineItem):
     # end def
 
     def strandHasNewOligoSlot(self, strand):
-        vhi = self._virtualHelixItem
-        partItem = vhi.partItem()
-        partItem.updateXoverItemAt(vhi, strand)
+        strand = self._modelStrand
         self._controller.reconnectOligoSignals()
-        self._updatePensAndBrushes(self._modelStrand)
+        self._updatePensAndBrushes(strand)
+        if strand.connection3p():
+            self._xover3pEnd._updatePen(strand)
     # end def
 
     def strandInsertionAddedSlot(self, strand, insertion):
@@ -275,6 +277,14 @@ class StrandItem(QGraphicsLineItem):
             dualCap.show()
         else:
             dualCap.hide()
+            
+        # 2. Xover drawing
+        if strand.connection3p():
+            self._xover3pEnd.update(strand)
+            self._xover3pEnd.showIt()
+        else:
+            self._xover3pEnd.hideIt()
+        
         # 2. Line drawing
         hy = ly = lUpperLeftY + halfBaseWidth
         self.setLine(lx, ly, hx, hy)

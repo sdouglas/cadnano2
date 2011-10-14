@@ -783,8 +783,6 @@ class StrandSet(QObject):
             # Emit Signals related to destruction and addition
             sL.strandRemovedSignal.emit(sL)  # out with the old...
             sH.strandRemovedSignal.emit(sH)  # out with the old...
-            # correct Xover Signals
-            self._strand5pXover.strand5pHasSwappedSignal.emit(self._strand5pXover, nS)
             sS.strandsetStrandAddedSignal.emit(nS)  # ...in with the new
         # end def
 
@@ -831,8 +829,6 @@ class StrandSet(QObject):
             
             # Emit Signals related to destruction and addition
             nS.strandRemovedSignal.emit(nS)  # out with the new...
-            # correct Xover Signals
-            nS.strand5pHasSwappedSignal.emit(nS, self._strand5pXover)
             sS.strandsetStrandAddedSignal.emit(sH)  # ...in with the old
             sS.strandsetStrandAddedSignal.emit(sL)  # ...in with the old
         # end def
@@ -929,9 +925,6 @@ class StrandSet(QObject):
                     sHcH.setConnectionLow(sH)
                 else:
                    sHcH.setConnectionHigh(sH) 
-            
-            # correct Xover Signals
-            oS.strand5pHasSwappedSignal.emit(oS, self._strand3p)
 
             # Traverse the strands via 3'conns to assign the new oligos
             for strand in lOlg.strand5p().generator3pStrand():
@@ -981,9 +974,6 @@ class StrandSet(QObject):
                     oScH.setConnectionLow(oS)
                 else:
                     oScH.setConnectionHigh(oS)
-            
-            # correct Xover Signals
-            self._strand3p.strand5pHasSwappedSignal.emit(self._strand3p, oS)
             
             # Traverse the strands via 3'conns to assign the old oligo
             for strand in olg.strand5p().generator3pStrand():

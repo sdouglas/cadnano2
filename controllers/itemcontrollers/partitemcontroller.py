@@ -39,12 +39,6 @@ class PartItemController(object):
         mP.partVirtualHelixAddedSignal.connect(pI.virtualHelixAddedSlot)
         mP.partStrandChangedSignal.connect( \
                                                pI.updatePreXoverItemsSlot)
-        # mP.partXoverAddedSignal.connect( pI.xoverAddedSlot)
-        # mP.partXoverRemovedSignal.connect( pI.xoverRemovedSlot)
-
-        # for mOligo in mP.oligos():
-        #     for mStrand in mOligo.strands():
-        #         mStrand.strandXover5pAddedSignal.connect(pI.xover5pAddedSlot)
     # end def
 
     def disconnectSignals(self):
@@ -59,11 +53,5 @@ class PartItemController(object):
         mP.partStrandChangedSignal.disconnect( \
                                                pI.updatePreXoverItemsSlot)
 
-        # mP.partXoverAddedSignal.disconnect( pI.xoverAddedSlot)
-        # mP.partXoverRemovedSignal.disconnect( pI.xoverRemovedSlot)
-
-        # for mOligo in mP.oligos():
-        #     for mStrand in mOligo.strands():
-        #         mStrand.strandXover5pAddedSignal.disconnect(pI.xover5pAddedSlot)
     # end def
 # end class

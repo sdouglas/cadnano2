@@ -31,6 +31,7 @@ from views import styles
 from controllers.itemcontrollers.partitemcontroller import PartItemController
 from virtualhelixitem import VirtualHelixItem
 from prexoveritem import PreXoverItem
+from strand.xoveritem import XoverNode3
 
 from .pathselection import SelectionItemGroup
 from .pathselection import PathHelixHandleSelectionBox
@@ -57,7 +58,6 @@ class PartItem(QGraphicsPathItem):
         self._vHRect = QRectF()
         # crossover-related
         self._preXoverItems = []
-        self._xoverItems = defaultdict(dict)  # key: [coord][idx,strandtype]
         # selection-related
         self._selectionLock = None
         self._vhiHSelectionGroup = SelectionItemGroup(\
@@ -121,18 +121,6 @@ class PartItem(QGraphicsPathItem):
             self.setActiveVirtualHelixItem(vhi)
             self.setPreXoverItemsVisible(self.activeVirtualHelixItem())
     # end def
-
-    # def xoverAddedSlot(self, part, virtualHelix3p, strandType3p, idx3p, \
-    #                                 virtualHelix5p, strandType5p, idx5p):
-    #     """docstring for xover5pAddedSlot"""
-    #     print "PartItem.xover5pAddedSlot"
-    #     pass
-
-    # def xoverRemovedSlot(self, part, virtualHelix3p, strandType3p, idx3p, \
-    #                                 virtualHelix5p, strandType5p, idx5p):
-    #     """docstring for xover5pDestroyedSlot"""
-    #     print "PartItem.xover5pDestroyedSlot"
-    #     pass
 
     ### ACCESSORS ###
     def activeTool(self):
@@ -218,36 +206,11 @@ class PartItem(QGraphicsPathItem):
     def numberOfVirtualHelices(self):
         return len(self._virtualHelixItemList)
     # end def
-    
-    def addXoverItem(self, xoverItem):
-        # use xoverItems twice! once for each end of the xover
-        vhi5p, vhi3p = xoverItem.virtualHelixItems()
-        iAST5P, iAST3P = xoverItem.indicesAndStrandTypes()
-        self._xoverItems[vhi5p.coord()][iAST5P] = xoverItem
-        self._xoverItems[vhi3p.coord()][iAST3P] = xoverItem
-    # end def
-
-    def removeXoverItem(self, xoverItem):
-        # use xoverItems twice! once for each end of the xover
-        vhi5p, vhi3p = xoverItem.virtualHelixItems()
-        iAST5P, iAST3P = xoverItem.indicesAndStrandTypes()
-        del self._xoverItems[vhi5p.coord()][iAST5P]
-        del self._xoverItems[vhi3p.coord()][iAST3P]
-    # end def
-    
-    def updateXoverItemAt(self, virtualHelixItem, strand):
-        idx = strand.idx3Prime()
-        strandType = strand.strandSet().strandType()
-        if (idx, strandType) in self._xoverItems[virtualHelixItem.coord()]:
-            xoverItem = self._xoverItems[virtualHelixItem.coord()][(idx, strandType)]
-            xoverItem._updatePath()
-        # end if
-    # end def
 
     def updateXoverItems(self, virtualHelixItem):
-         coord = virtualHelixItem.coord()
-         for xoveritem in self._xoverItems[coord].itervalues():
-             xoveritem._updatePath()
+        for item in virtualHelixItem.childItems():
+            if isinstance(item, XoverNode3):
+                item.refreshXover()
      # end def
 
     def reorderHelices(self, first, last, indexDelta):

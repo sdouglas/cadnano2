@@ -26,10 +26,7 @@ xoveritem.py
 Created by Nick on 2011-05-25.
 """
 from exceptions import AttributeError, NotImplementedError
-from model.enum import HandleOrient, StrandType
 from views import styles
-
-from controllers.itemcontrollers.strand.xoveritemcontroller import XoverItemController
 
 import util, time
 
@@ -57,31 +54,37 @@ class XoverNode3(QGraphicsRectItem):
     This is a QGraphicsRectItem to allow actions and also a 
     QGraphicsSimpleTextItem to allow a label to be drawn
     """
-    def __init__(self, virtualHelixItem, strand3p, idx):
+    def __init__(self, virtualHelixItem, xoverItem, strand3p, idx):
         super(XoverNode3, self).__init__(virtualHelixItem)
         self._vhi = virtualHelixItem
+        self._xoverItem = xoverItem
         self._idx = idx
         self._isOnTop = virtualHelixItem.isStrandOnTop(strand3p)
         self._isDrawn5to3 = strand3p.strandSet().isDrawn5to3()
         self._strandType = strand3p.strandSet().strandType()
 
-        self._partnerVirtualHelix = self.partnerVirtualHelix(strand3p)
+        self.setPartnerVirtualHelix(strand3p)
 
         self.setPen(QPen(Qt.NoPen))
         self._label = None
-        self.updatePositionAndAppearance()
         self.setPen(QPen(Qt.NoPen))
         self.setBrush(_nobrush)
         self.setRect(_rect)
     # end def
-
-    
+        
     def strandType(self):
         return self._strandType
     # end def
     
-    def partnerVirtualHelix(self,strand):
-        return strand.connection5p().virtualHelix()
+    def refreshXover(self):
+        self._xoverItem.refreshXover()
+    # end def
+    
+    def setPartnerVirtualHelix(self,strand):
+        if strand.connection5p():
+            self._partnerVirtualHelix = strand.connection5p().virtualHelix()
+        else:
+            self._partnerVirtualHelix = None
     # end def
     
     def idx(self):
@@ -110,20 +113,13 @@ class XoverNode3(QGraphicsRectItem):
         Sets appearance by choosing among pre-defined painterpaths (from
         normalstrandgraphicsitem) depending on drawing direction.
         """
-        # strand = self._strand
         self.setPos(*self.point())
         # We can only expose a 5' end. But on which side?
         isLeft = True if self._isDrawn5to3 else False
-        # self.setPath(ppL5 if isLeft else ppR5)
         self.updateLabel(isLeft)
     # end def
 
     def updateConnectivity(self):
-        # strand = self._strand
-        # if strand.connection3p() == None:
-        #     self.setBrush(QBrush(strand.oligo().color()))
-        # else:
-        #     self.setBrush(_nobrush)
         isLeft = True if self._isDrawn5to3 else False
         self.updateLabel(isLeft)
     # end def
@@ -186,33 +182,25 @@ class XoverNode5(XoverNode3):
     2. Notifying XoverStrands in the model when connectivity changes.
 
     """
-    def __init__(self, virtualHelixItem, strand5p, idx):
-        super(XoverNode5, self).__init__(virtualHelixItem, strand5p, idx)
+    def __init__(self, virtualHelixItem, xoverItem, strand5p, idx):
+        super(XoverNode5, self).__init__(virtualHelixItem, xoverItem, strand5p, idx)
     # end def
     
-    def partnerVirtualHelix(self, strand):
-        return strand.connection3p().virtualHelix()
+    def setPartnerVirtualHelix(self, strand):
+        if strand.connection3p():
+            self._partnerVirtualHelix = strand.connection3p().virtualHelix()
+        else:
+            self._partnerVirtualHelix = None
     # end def
 
     def updatePositionAndAppearance(self):
         """Same as XoverItem3, but exposes 3' end"""
-        # strand = self._strand
         self.setPos(*self.point())
         # # We can only expose a 3' end. But on which side?
         isLeft = False if self._isDrawn5to3 else True
-        # self.setPath(ppL3 if isLeft else ppR3)
         self.updateLabel(isLeft)
     # end def
 
-    def updateConnectivity(self):
-        # strand = self._strand
-        # self.setVisible(not strand.isFloating())
-        # if strand.connection5p() == None:
-        #     self.setBrush(QBrush(strand.oligo().color()))
-        # else:
-        #     self.setBrush(_nobrush)
-        pass
-    # end def
 # end class
 
 class XoverItem(QGraphicsPathItem):
@@ -224,91 +212,66 @@ class XoverItem(QGraphicsPathItem):
     XoverItem should be a child of a PartItem.
     """
 
-    def __init__(self, partItem, strand5p, strand3p):
+    def __init__(self, virtualHelixItem):
         """
-        strandItem is a the model representation of the xover strand
+        strandItem is a the model representation of the 5prime most strand
+        of a Xover
         """
-        super(XoverItem, self).__init__(partItem)
-        self._partItem = partItem
-        # wire it up to the 3 prime strand, wire it to the 5 prime strand
-        if strand3p:
-            vhi3p = partItem.itemForVirtualHelix(strand3p.virtualHelix())
-            self._node3 = XoverNode3(vhi3p, strand3p, strand3p.idx5Prime())
-        else: # it's floating TBD
-            self._node3 = None
-        vhi5p = partItem.itemForVirtualHelix(strand5p.virtualHelix())
-        self._node5 = XoverNode5(vhi5p, strand5p, strand5p.idx3Prime())
-        # to allow killing an xoveritem on deletion of a strand
-        self._controller = XoverItemController(self, strand5p)
-        self._updatePath()
+        super(XoverItem, self).__init__(virtualHelixItem.partItem())
+        self._virtualHelixItem = virtualHelixItem
+        self._strand5p = None
+        self._node5 = None
+        self._node3 = None
+        self.hide()
     # end def
 
     ### SLOTS ###
-    def oligoAppearanceChangedSlot(self, oligo):
-        self._updatePen()
-    # end def
 
-    def strandHasNewOligoSlot(self, strand):
-        self._controller.reconnectOligoSignals()
-    # end def
-    
-    def strandSwapSlot(self, strandOld, strandNew):
-        print "swapping strands"
-        self._controller.reconnectSignals(strandNew)
-    # end def
-
-    def strandRemovedSlot(self, strand):
-        pass
-    # end def
-    def strandDestroyedSlot(self, strand):
-        pass
-    # end def
-    def strandDecoratorAddedSlot(self, strand):
-        pass
-    # end def
-
-    def xover5pRemovedSlot(self):
-        self._controller.disconnectSignals()
-        self._controller = None
+    ### METHODS ###
+    def remove(self):
         scene = self.scene()
-        scene.removeItem(self._node3)
-        scene.removeItem(self._node5)
-        self._partItem.removeXoverItem(self)
+        if self._node3:
+            scene.removeItem(self._node3)
+            scene.removeItem(self._node5)
         scene.removeItem(self)
     # end def
 
-    ### METHODS ###
-
-    def part(self):
-        return self._partItem.part()
-        
-    def oligo(self):
-        return self._controller._modelStrand5p.oligo()
-
-    def virtualHelixItems(self):
-        """
-        return a tuple of the associated virtualHelixItems
-        """
-        return self._node5.virtualHelixItem(), self._node3.virtualHelixItem()
+    def hideIt(self):
+        self.hide()
+        if self._node3:
+            self._node3.hide()
+            self._node5.hide()
     # end def
     
-    def indicesAndStrandTypes(self):
-        """
-        return a tuple of the associated virtualHelixItems
-        indices and StrandTypes
-        """
-        node3 = self._node3
-        node5 = self._node5
-        iAST3p = node3.idx(), node3.strandType()
-        iAST5p = node5.idx(), node5.strandType()
-        return iAST5p, iAST3p
-    # end def
-    
-    def strand5p(self):
-        return self._controller._modelStrand5p
+    def showIt(self):
+        self.show()
+        if self._node3:
+            self._node3.show()
+            self._node5.show()
     # end def
 
-    def _updatePath(self):
+    def refreshXover(self):
+        if self._strand5p:
+            self.update(self._strand5p)
+    # end def
+
+    def update(self, strand5p):
+        self._strand5p = strand5p
+        strand3p = strand5p.connection3p()
+        vhi5p = self._virtualHelixItem
+        partItem = vhi5p.partItem()
+        if self._node5 == None:
+            self._node5 = XoverNode5(vhi5p, self, strand5p, strand5p.idx3Prime())
+        if strand3p != None:
+            if self._node3 == None:
+                vhi3p = partItem.itemForVirtualHelix(strand3p.virtualHelix())
+                self._node3 = XoverNode3(vhi3p, self, strand3p, strand3p.idx5Prime())
+
+            self._node5.setPartnerVirtualHelix(strand5p)
+            self._updatePath(strand5p)
+    # end def
+
+    def _updatePath(self, strand5p):
         """
         Draws a quad curve from the edge of the fromBase
         to the top or bottom of the toBase (q5), and
@@ -322,14 +285,11 @@ class XoverItem(QGraphicsPathItem):
         # print "updating xover curve", self.parentObject()
         node3 = self._node3
         node5 = self._node5
-        
-        # strand5p = node5.strand()
-        strand5p = self.strand5p()
+
         bw = _baseWidth
-        part = self.part()
-        partItem = self._partItem
         
-        vhi5 = node5.virtualHelixItem()
+        vhi5 = self._virtualHelixItem
+        partItem = vhi5.partItem()
         pt5 = vhi5.mapToItem(partItem, *node5.point())
                             
         fiveIsTop = node5.isOnTop()
@@ -414,12 +374,15 @@ class XoverItem(QGraphicsPathItem):
         else:
             painterpath.quadTo(c1, threeEnterPt)
             painterpath.lineTo(threeCenterPt)
+            
+        node3.updatePositionAndAppearance()
+        node5.updatePositionAndAppearance()
         self.setPath(painterpath)
-        self._updatePen()
+        self._updatePen(strand5p)
     # end def
 
-    def _updatePen(self):
-        oligo = self.oligo()
+    def _updatePen(self, strand5p):
+        oligo = strand5p.oligo()
         color = QColor(oligo.color())
         penWidth = styles.PATH_STRAND_STROKE_WIDTH
         if oligo.shouldHighlight():

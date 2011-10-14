@@ -719,7 +719,7 @@ class Part(QObject):
             vh3p = ss3.virtualHelix()
             st3p = ss3.strandType()
 
-            strand5p.strandXover5pAddedSignal.emit(strand5p, strand3p)
+            strand5p.strandXover5pChangedSignal.emit(strand5p, strand3p)
             strand5p.strandUpdateSignal.emit(strand5p)
             strand3p.strandUpdateSignal.emit(strand3p)
         # end def
@@ -749,7 +749,8 @@ class Part(QObject):
             ss3 = strand3p.strandSet()
             vh3p = ss3.virtualHelix()
             st3p = ss3.strandType()
-            strand5p.strandXover5pRemovedSignal.emit(strand5p, strand3p)
+            
+            strand5p.strandXover5pChangedSignal.emit(strand5p, strand3p)
             strand5p.strandUpdateSignal.emit(strand5p)
             strand3p.strandUpdateSignal.emit(strand3p)
         # end def
