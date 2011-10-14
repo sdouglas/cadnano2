@@ -349,8 +349,8 @@ class Part(QObject):
         Will be used to emit a signal preDecoratorSelectedSignal
         """
         if(len(selectionList) == 0):
-            #print "all PreDecorators were unselected"
-            pass
+            print "all PreDecorators were unselected"
+            #partPreDecoratorUnSelectedSignal.emit()
         for sel in selectionList:
             (row, col, baseIdx) = (sel[0], sel[1], sel[2])
             print "PreDecorator was selected at (%d, %d)[%d]" % (row, col, baseIdx)
