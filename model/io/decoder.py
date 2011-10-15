@@ -38,4 +38,4 @@ def decode(document, string):
     else:
         packageObject = json.loads(string)
     if packageObject.get('.format', None) != 'caDNAno2':
-        return doc_from_legacy_dict(document, packageObject)
+        doc_from_legacy_dict(document, packageObject)

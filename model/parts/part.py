@@ -88,7 +88,7 @@ class Part(QObject):
         
         self._activeBaseIndex = self._step
         self._activeVirtualHelix = None
-        self._insertions =  defaultdict(dict)   # dictionary of insertions per virtualhelix
+        self._insertions = defaultdict(dict)  # dictionary of insertions per virtualhelix
     # end def
 
     def __repr__(self):

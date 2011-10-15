@@ -529,7 +529,6 @@ class Strand(QObject):
     # end def
 
     def changeInsertion(self, idx, length, useUndoStack=True):
-        
         idxLow, idxHigh = self.idxs()
         if idxLow <= idx <= idxHigh:
             if self.hasInsertionAt(idx):
@@ -552,6 +551,16 @@ class Strand(QObject):
         return idx in insts
     # end def
 
+    def hasConnection3p(self):
+        if self._strand3p != None:
+            return True
+        return False
+
+    def hasConnection5p(self):
+        if self._strand5p != None:
+            return True
+        return False
+
     def hasDecoratorAt(self, idx):
         return idx in self._decorators
     # end def
@@ -560,7 +569,7 @@ class Strand(QObject):
         return idx in self._modifiers
     # end def
 
-    def removeDecoratorsOutOfRange(self):
+    def getRemoveInsertionCommandsAfterSplit(self):
         """
         Called by StrandSet's SplitCommand after copying the strand to be
         split. Either copy could have extra decorators that the copy should
@@ -574,44 +583,21 @@ class Strand(QObject):
         insts = self.part().insertions()[coord]
         decs = self._decorators
         mods = self._modifiers
-        idxMin, idMax = self.idxs() 
-        cList = []
+        idxMin, idxMax = self.idxs()
+        commands = []
         for key in insts:
             if key > idxMax or key < idxMin:
-                cList.append(Strand.RemoveInsertionCommand(self, key))
+                print "removing %s insertion at %d" % (self, key)
+                commands.append(Strand.RemoveInsertionCommand(self, key))
             #end if
+            else:
+                print "keeping %s insertion at %d" % (self, key)
         # end for
         """
         ADD CODE HERE TO HANDLE DECORATORS AND MODIFIERS
         """
-        util.execCommandList(self, cList, desc="Remove Insertions", useUndoStack=True)
-    # end def
-    
-    def addDecoratorsInRange(self):
-        """
-        Called by StrandSet's SplitCommand after copying the strand to be
-        split. Either copy could have extra decorators that the copy should
-        not retain.
-
-        Removes Insertions, Decorators, and Modifiers
-
-        Problably want to wrap with a macro
-        """
-        coord = self.virtualHelix().coord()
-        insts = self.part().insertions()[coord]
-        decs = self._decorators
-        mods = self._modifiers
-        idxMin, idMax = self.idxs() 
-        cList = []
-        for key in insts:
-            if key > idxMax or key < idxMin:
-                cList.append(Strand.RemoveInsertionCommand(self, key))
-            #end if
-        # end for
-        """
-        ADD CODE HERE TO HANDLE DECORATORS AND MODIFIERS
-        """
-        util.execCommandList(self, cList, desc="Remove Insertions", useUndoStack=True)
+        return commands
+        # util.execCommandList(self, cList, desc="Remove Insertions", useUndoStack=True)
     # end def
 
     def copy(self):
@@ -685,7 +671,7 @@ class Strand(QObject):
             part.partStrandChangedSignal.emit(strandSet.virtualHelix())
         # end def
     # end class
-    
+
     class AddInsertionCommand(QUndoCommand):
         def __init__(self, strand, idx, length):
             super(Strand.AddInsertionCommand, self).__init__()
@@ -711,20 +697,20 @@ class Strand(QObject):
             strand.strandInsertionRemovedSignal.emit(strand, idx)
         # end def
     # end class
-    
+
     class RemoveInsertionCommand(QUndoCommand):
         def __init__(self, strand, idx):
             super(Strand.RemoveInsertionCommand, self).__init__()
             self._strand = strand
+            self._idx = idx
             coord = strand.virtualHelix().coord()
             self._insertions = strand.part().insertions()[coord]
-            self._idx = idx
-            self._insertion = strand.part()._insertions[idx]
+            self._insertion = self._insertions[idx]
         # end def
 
         def redo(self):
             strand = self._strand
-            coord = self._coord
+            coord = strand.virtualHelix().coord()
             idx = self._idx
             del self._insertions[idx]
             strand.strandInsertionRemovedSignal.emit(strand, idx)
@@ -732,7 +718,7 @@ class Strand(QObject):
 
         def undo(self):
             strand = self._strand
-            coord = self._coord
+            coord = strand.virtualHelix().coord()
             inst = self._insertion
             self._insertions[self._idx] = inst
             strand.strandInsertionAddedSignal.emit(strand, inst)

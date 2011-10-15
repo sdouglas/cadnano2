@@ -655,7 +655,12 @@ class StrandSet(QObject):
             self._strandSet = strandSet
             self._strand = strand
             self._sSetIdx = strandSetIdx
+            self._oldStrand5p = strand.connection5p()
+            self._oldStrand3p = strand.connection3p()
             self._oligo = strand.oligo()
+            self._newOligo5p = None
+            self._newOligo3p = None
+            print "Rm init", strand, strand.connection5p(), strand.connection3p()
         # end def
 
         def redo(self):
@@ -663,18 +668,35 @@ class StrandSet(QObject):
             strand = self._strand
             strandSet = self._strandSet
             strandSet._strandList.pop(self._sSetIdx)
-            # Remove the strand from the oligo
+            strand5p = self._oldStrand5p
+            strand3p = self._oldStrand3p
             oligo = self._oligo
-            
-            oligo.setStrand5p(None)
-            oligo.decrementStrandLength(strand)
-            oligo.removeFromPart()
-            
+
+            # Clear connections and update oligos
+            if strand5p != None:
+                strand5p.setConnection3p(None)
+                strand5p.strandXover5pChangedSignal.emit(strand5p, strand)
+                strand5p.strandUpdateSignal.emit(strand5p)
+                olg5p = self._newOligo5p = oligo.shallowCopy()
+                for s5p in oligo.strand5p().generator3pStrand():
+                    Strand.setOligo(s5p, olg5p)
+            if strand3p != None:
+                strand3p.setConnection5p(None)
+                strand3p.strandUpdateSignal.emit(strand3p)
+                if oligo.isLoop():
+                    # don't need 2nd copy, just go back and update 1st copy
+                    self._newOligo5p.setLoop(False)
+                else:
+                    # apply 2nd oligo copy to all 3' downstream strands
+                    olg3p = self._newOligo3p = oligo.shallowCopy()
+                    color = random.choice(styles.stapleColors).name()
+                    olg3p.setColor(color)
+                    olg3p.setStrand5p(strand3p)
+                    for s3p in strand3p.generator3pStrand():
+                        Strand.setOligo(s3p, olg3p)
+
             # Emit a signal to notify on completion
             strand.strandRemovedSignal.emit(strand)
-            
-            strand.setOligo(None)  # remove cross refs
-            
             # for updating the Slice View displayed helices
             strandSet.part().partStrandChangedSignal.emit(strandSet.virtualHelix())
         # end def
@@ -684,17 +706,30 @@ class StrandSet(QObject):
             strand = self._strand
             strandSet = self._strandSet
             strandSet._strandList.insert(self._sSetIdx, strand)
-            # Restore the oligo
+            strand5p = self._oldStrand5p
+            strand3p = self._oldStrand3p
             oligo = self._oligo
-            
-            oligo.setStrand5p(strand)
-            oligo.incrementStrandLength(strand)
+
+            # Restore connections to this strand
+            if strand5p != None:
+                strand5p.setConnection3p(strand)
+                strand5p.strandUpdateSignal.emit(strand5p)
+
+            if strand3p != None:
+                strand3p.setConnection5p(strand)
+                strand3p.strandUpdateSignal.emit(strand3p)
+
+            # Restore the oligo
             oligo.addToPart(strandSet.part())
-            strand.setOligo(oligo)
+            for s5p in oligo.strand5p().generator3pStrand():
+                Strand.setOligo(s5p, oligo)
             # Emit a signal to notify on completion
             strandSet.strandsetStrandAddedSignal.emit(strand)
             # for updating the Slice View displayed helices
             strandSet.part().partStrandChangedSignal.emit(strandSet.virtualHelix())
+
+            print "Rm undo", strand, strand.connection5p(), strand.connection3p()
+
         # end def
     # end class
 
@@ -883,8 +918,6 @@ class StrandSet(QObject):
             # Resize strands and update decorators
             strandLow.setIdxs((strand.lowIdx(), iNewLow))
             strandHigh.setIdxs((iNewLow + 1, strand.highIdx()))
-            strandLow.removeDecoratorsOutOfRange()
-            strandHigh.removeDecoratorsOutOfRange()
 
             # Update the oligo color
             lOligo.setColor(colorLow)

@@ -165,10 +165,11 @@ class CADnano(QObject):
         if defaultFile and isFirstNewDoc:
             defaultFile = path.expanduser(defaultFile)
             defaultFile = path.expandvars(defaultFile)
+            dc = DocumentController()
+            doc = dc.document()
             from model.decoder import decode
-            doc = decode(file(defaultFile).read())
+            decode(doc, file(defaultFile).read())
             print "Loaded default document: %s" % doc
-            dc = DocumentController(doc, defaultFile)
         else:
             docCtrlrCount = len(self.documentControllers)
             if docCtrlrCount == 0:  # first dc
