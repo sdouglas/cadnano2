@@ -365,20 +365,30 @@ class Strand(QObject):
 
         offsetLast = 0
         lengthSoFar = 0
+        iLength = 0
         lI, hI = self.idxs()
         
         for insertion in self.insertionsOnStrand():
             iLength = insertion.length()
             index = insertion.idx()
             offset = index + 1 - lI + lengthSoFar
+            if iLength < 0:
+                offset -= 1
+            # end if
             lengthSoFar += iLength
             seqItem = seq[offsetLast:offset] # the stranditem seq
-            offsetLast = offset + iLength
+            
+            # Because skips literally skip displaying a character at a base
+            # position, this needs to be accounted for seperately
+            if iLength < 0:
+                seqItem += ' '
+                offsetLast = offset
+            else:
+                offsetLast = offset + iLength
             seqInsertion = seq[offset:offsetLast] # the insertions sequence
             seqList.append((index, (seqItem, seqInsertion)))
         # end for
         # append the last bit of the strand
-        print seq[offsetLast:tL]
         seqList.append((lI+tL, (seq[offsetLast:tL],'')))
         print seqList
         if not isDrawn5to3:

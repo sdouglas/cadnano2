@@ -229,7 +229,6 @@ class StrandItem(QGraphicsLineItem):
             temp = cA.rect()
             temp.setRight(newX)
             cA.setRect(temp)
-        print line
         self.setLine(line)
 
     ### PRIVATE SUPPORT METHODS ###
@@ -338,6 +337,7 @@ class StrandItem(QGraphicsLineItem):
         strand = self.strand()
         seqTxt = strand.sequence()
         isDrawn3to5 = not self._isDrawn5to3
+        textXCenteringOffset = styles.SEQUENCETEXTXCENTERINGOFFSET
         
         # seqTxt = "ACG"
         
@@ -358,14 +358,14 @@ class StrandItem(QGraphicsLineItem):
         seqLbl.setFont(styles.SEQUENCEFONT)
 
         # this will always draw from the 5 Prime end!
-        seqX = 2*styles.SEQUENCETEXTXCENTERINGOFFSET + bw*strand.idx5Prime()
+        seqX = 2*textXCenteringOffset + bw*strand.idx5Prime()
         seqY = -styles.SEQUENCETEXTYCENTERINGOFFSET
         
         if isDrawn3to5:
             # offset it towards the bottom
             seqY += 3*bw
             # offset X by the reverse centering offset and the string length
-            seqX += styles.SEQUENCETEXTXCENTERINGOFFSET
+            seqX += textXCenteringOffset
             # rotate the characters upside down this does not affect positioning
             # coordinate system, +Y is still Down, and +X is still Right
             seqLbl.setRotation(180)
