@@ -117,31 +117,37 @@ class StrandItem(QObject):
 
     @pyqtSlot(object)
     def strandDestroyedSlot(self, strand):
-        print "solidview.StrandItem.strandDestroyedSlot"
+        #print "solidview.StrandItem.strandDestroyedSlot"
+        pass
 
     @pyqtSlot(object)
     def strandXover5pChangedSlot(self, strand):
-        print "solidview.StrandItem.strandXover5pChangedSlot"
+        #print "solidview.StrandItem.strandXover5pChangedSlot"
+        pass
 
     @pyqtSlot(object)
     def strandXover5pRemovedSlot(self, strand):
-        print "solidview.StrandItem.strandXover5pRemovedSlot"
+        #print "solidview.StrandItem.strandXover5pRemovedSlot"
+        pass
 
     @pyqtSlot(object)
     def oligoAppearanceChangedSlot(self, oligo):
-        print "solidview.StrandItem.oligoAppeareanceChangedSlot"
+        #print "solidview.StrandItem.oligoAppeareanceChangedSlot"
+        pass
 
     @pyqtSlot(object)
     def oligoSequenceAddedSlot(self, oligo):
-        print "solidview.StrandItem.oligoSequenceAddedSlot"
+        #print "solidview.StrandItem.oligoSequenceAddedSlot"
+        pass
 
     @pyqtSlot(object)
     def oligoSequenceClearedSlot(self, oligo):
-        print "solidview.StrandItem.oligoSequenceClearedSlot"
+        #print "solidview.StrandItem.oligoSequenceClearedSlot"
+        pass
 
     @pyqtSlot(object)
     def strandHasNewOligoSlot(self, strand):
-        print "solidview.StrandItem.strandHasNewOligoSlot"
+        #print "solidview.StrandItem.strandHasNewOligoSlot"
         mom = Mom()
         self._controller.reconnectOligoSignals()
         id = mom.strandMayaID(strand)

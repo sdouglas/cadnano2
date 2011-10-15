@@ -51,7 +51,7 @@ class SolidRootItem(QObject):
         """
         Receives notification from the model that a part has been added.
         """
-        print "SolidRootItem.partAddedSlot!"
+        #print "SolidRootItem.partAddedSlot!"
         self._modelPart = modelPart
         partItem = PartItem(modelPart, self)
         self._partItems.append(partItem)

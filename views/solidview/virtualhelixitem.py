@@ -121,7 +121,7 @@ class VirtualHelixItem(QObject):
         controller for communication with the model, and for adding itself to
         its parent (which is *this* VirtualHelixItem, i.e. 'self').
         """
-        print "solidview.VirtualHelixItem.strandAddedSlot"
+        #print "solidview.VirtualHelixItem.strandAddedSlot"
         #strand.didMove.connect(self.onStrandDidMove)
         #strand.willBeRemoved.connect(self.onStrandWillBeRemoved)
         m = Mom()
@@ -129,7 +129,7 @@ class VirtualHelixItem(QObject):
         self.strandIDs.append(id)
         StrandItem(id, strand, self)
         self.updateDecorators()
-        print "solidview.VirtualHelixItem.strandAddedSlot done %s" % id
+        #print "solidview.VirtualHelixItem.strandAddedSlot done %s" % id
     # end def
 
     @pyqtSlot(object)
@@ -140,7 +140,7 @@ class VirtualHelixItem(QObject):
         controller for communication with the model, and for adding itself to
         its parent (which is *this* VirtualHelixItem, i.e. 'self').
         """
-        print "solidview.VirtualHelixItem.decoratorAddedSlot"
+        #print "solidview.VirtualHelixItem.decoratorAddedSlot"
         pass
 
     @pyqtSlot(object)
@@ -151,7 +151,7 @@ class VirtualHelixItem(QObject):
 
     @pyqtSlot(object)
     def virtualHelixRemovedSlot(self, virtualHelix):
-        print "solidview.VirtualHelixItem.virtualHelixRemovedSlot"
+        #print "solidview.VirtualHelixItem.virtualHelixRemovedSlot"
         self._partItem.removeVirtualHelix(self)
         self._partItem = None
         self._modelVirtualHelix = None
@@ -160,13 +160,13 @@ class VirtualHelixItem(QObject):
     # end def
 
     def updateDecorators(self):
-        print "solidview.VirtualHelixItem.upadateStapleModIndicators"
+        #print "solidview.VirtualHelixItem.upadateStapleModIndicators"
         self.clearDecorators()
         if self._modState:
             m = Mom()
             for id in self.strandIDs:
                 mayaNodeInfo = "%s%s" % (m.helixMeshName, id)
-                print "mayaNodeInfo: %s" % mayaNodeInfo
+                #print "mayaNodeInfo: %s" % mayaNodeInfo
                 strand = m.mayaToCn[mayaNodeInfo]
                 if(strand.strandSet().isStaple()):
                     self.createDecorators(strand)
