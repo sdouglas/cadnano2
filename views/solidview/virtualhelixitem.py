@@ -35,7 +35,8 @@ from model.virtualhelix import VirtualHelix
 #from model.strands.xoverstrand import XoverStrand3, XoverStrand5
 
 from controllers.mayacontrollers.mayaObjectManager import Mom
-from controllers.itemcontrollers.virtualhelixitemcontroller import VirtualHelixItemController
+from controllers.itemcontrollers.virtualhelixitemcontroller \
+                                            import VirtualHelixItemController
 
 import maya.OpenMayaUI as mui
 import maya.OpenMaya as mo
@@ -52,6 +53,7 @@ util.qtWrapImport('QtGui', globals(), ['QColor'])
 virtualhelixitem.py
 Created by Simon Breslav on 2011-08-29.
 """
+
 
 class VirtualHelixItem(QObject):
     """
@@ -74,9 +76,9 @@ class VirtualHelixItem(QObject):
 
         self.stapleIndicatorCount = 0
         self.stapleModIndicatorIDs = []
-        
+
         self._controller = VirtualHelixItemController(self, modelVirtualHelix)
-        
+
     def partItem(self):
         return self._partItem
 
@@ -94,7 +96,7 @@ class VirtualHelixItem(QObject):
 
     def col(self):
         return self._col
-        
+
     def x(self):
         return self._x
 
@@ -106,7 +108,7 @@ class VirtualHelixItem(QObject):
 
     def StrandIDs(self):
         return self.strandIDs
-    
+
     def setModifyState(self, val):
         self._modState = val
 
@@ -163,41 +165,39 @@ class VirtualHelixItem(QObject):
         if self._modState:
             m = Mom()
             for id in self.strandIDs:
-                mayaNodeInfo = "%s%s" % (m.helixMeshName,id)
+                mayaNodeInfo = "%s%s" % (m.helixMeshName, id)
                 print "mayaNodeInfo: %s" % mayaNodeInfo
-                strand = m.mayaToCn[ mayaNodeInfo ]
+                strand = m.mayaToCn[mayaNodeInfo]
                 if(strand.strandSet().isStaple()):
                     self.createDecorators(strand)
 
     def cadnanoVBaseToMayaCoords(self, base, strand):
         m = Mom()
         id = m.strandMayaID(strand)
-        cylinderName = "%s%s" % (m.helixNodeName,id)
+        cylinderName = "%s%s" % (m.helixNodeName, id)
         if cmds.objExists(cylinderName):
             rise = cmds.getAttr("%s.rise" % cylinderName)
             startBase = cmds.getAttr("%s.startBase" % cylinderName)
             startPos = cmds.getAttr("%s.startPos" % cylinderName)
-            base0Pos = startPos[0][1] + startBase*rise
-            ourPos = base0Pos - (base*rise)
-            zComp = ourPos#-rise*0.5 # center marker on the base
-            
+            base0Pos = startPos[0][1] + startBase * rise
+            ourPos = base0Pos - (base * rise)
+            zComp = ourPos
+
             rotation = cmds.getAttr("%s.rotation" % cylinderName)
             radius = cmds.getAttr("%s.radius" % cylinderName)
             parity = cmds.getAttr("%s.parity" % cylinderName)
             strandType = cmds.getAttr("%s.strandType" % cylinderName)
             rotationOffset = cmds.getAttr("%s.rotationOffset" % cylinderName)
-            
             starting_rotation = (math.pi * (not parity)) + rotationOffset + \
                                 (math.pi * strandType)
-            
             fullrotation = -rotation * base * math.pi / 180
             #print fullrotation
-            
-            xComp = self._x + radius * math.cos(starting_rotation + fullrotation)
-            yComp = self._y + radius * math.sin(starting_rotation + fullrotation)
+            xComp = self._x + radius * \
+                    math.cos(starting_rotation + fullrotation)
+            yComp = self._y + radius * \
+                    math.sin(starting_rotation + fullrotation)
             #print "%f %f %f" % (xComp, yComp, zComp)
             return (xComp, yComp, zComp)
-            
         else:
             raise IndexError
 
@@ -225,23 +225,29 @@ class VirtualHelixItem(QObject):
 
         for stapleBase in stapleBases:
             # XXX [SB+AT] NOT THREAD SAFE
-            while cmds.objExists("%s%s_%s" % (m.decoratorNodeName, strandid, self.stapleIndicatorCount)):
+            while cmds.objExists("%s%s_%s" % (m.decoratorNodeName,
+                                              strandid,
+                                              self.stapleIndicatorCount)):
                 self.stapleIndicatorCount += 1
             stapleId = "%s_%s" % (strandid, self.stapleIndicatorCount)
             coords = self.cadnanoVBaseToMayaCoords(stapleBase, strand)
-            stapleModNodeInfo = self.createDecoratorNodes(coords,stapleId)
+            stapleModNodeInfo = self.createDecoratorNodes(coords, stapleId)
             self.stapleModIndicatorIDs.append(stapleId)
             m = Mom()
-            m.decoratorToVirtualHelixItem[stapleModNodeInfo[2]] = (self, stapleBase, strand)
-            m.decoratorToVirtualHelixItem[stapleModNodeInfo[1]] = (self, stapleBase, strand)
-            
+            m.decoratorToVirtualHelixItem[stapleModNodeInfo[2]] = (self,
+                                                                   stapleBase,
+                                                                   strand)
+            m.decoratorToVirtualHelixItem[stapleModNodeInfo[1]] = (self,
+                                                                   stapleBase,
+                                                                   strand)
+
     def createDecoratorNodes(self, coords, id):
         m = Mom()
         stapleModIndicatorName = "%s%s" % (m.decoratorNodeName, id)
         transformName = "%s%s" % (m.decoratorTransformName, id)
         meshName = "%s%s" % (m.decoratorMeshName, id)
         shaderName = "%s" % m.decoratorShaderName
-        
+
         cmds.createNode("transform", name=transformName)
         cmds.setAttr("%s.rotateX" % transformName, 90)
         cmds.setAttr("%s.translateX" % transformName, coords[0])
@@ -252,7 +258,7 @@ class VirtualHelixItem(QObject):
         cmds.setAttr("%s.radius" % stapleModIndicatorName, .25)
         cmds.connectAttr("%s.outputMesh" % stapleModIndicatorName,
                          "%s.inMesh" % meshName)
-        
+
         if not cmds.objExists(shaderName):
             # Shader does not exist create one
             cmds.shadingNode('lambert', asShader=True, name=shaderName)
@@ -267,6 +273,3 @@ class VirtualHelixItem(QObject):
             #shader exist connect
             cmds.sets(meshName, forceElement="%sSG" % shaderName)
         return (stapleModIndicatorName, transformName, meshName, shaderName)
-
-        
-    

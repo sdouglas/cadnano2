@@ -295,7 +295,6 @@ def nodeInitialize():
     nAttr.setStorable(True)
     nAttr.setWritable(True)
 
-
     HalfCylinderHelixNode.totalBasesAttr = nAttr.create('totalBases',
                                     'tb',
                                     OpenMaya.MFnNumericData.kInt,

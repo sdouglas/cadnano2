@@ -22,7 +22,6 @@
 #
 # http://www.opensource.org/licenses/mit-license.php
 
-
 """
 partitem.py
 
@@ -71,7 +70,7 @@ class PartItem(QObject):
 
         if(not cmds.pluginInfo(hchPath, query=True, loaded=True)):
             cmds.loadPlugin(hchPath)
-            
+
         if(not cmds.pluginInfo(smiPath, query=True, loaded=True)):
             cmds.loadPlugin(smiPath)
 
@@ -98,7 +97,7 @@ class PartItem(QObject):
     def setModifyState(self, val):
         self.modifyState = val
         self.updateModifyState()
-    
+
     def updateModifyState(self):
         for sh in self.virtualHelixItems:
             sh.setModifyState(self.modifyState)
@@ -185,14 +184,15 @@ class PartItem(QObject):
         for vhelixItem in self.virtualHelixItems:
             strandIDs = vhelixItem.StrandIDs()
             for id in strandIDs:
-                transformName ="%s%s" % (m.helixTransformName, id)
+                transformName = "%s%s" % (m.helixTransformName, id)
                 if cmds.objExists(transformName):
                     cmds.delete(transformName)
         self.clearInternalDataStructures()
 
     def createNewVirtualHelixItem(self, virtualHelix):
         coords = virtualHelix.coord()
-        print "solidview.PartItem.createNewVirtualHelixItem: %d %d" % (coords[0], coords[1])
+        print "solidview.PartItem.createNewVirtualHelixItem: %d %d" % \
+                                                        (coords[0], coords[1])
         # figure out Maya Coordinates
         x, y = self.cadnanoToMayaCoords(coords[0], coords[1])
         print virtualHelix
@@ -202,4 +202,3 @@ class PartItem(QObject):
 
     def removeVirtualHelix(self, vhelixItem):
         self.virtualHelixItems.remove(vhelixItem)
-
