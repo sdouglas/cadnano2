@@ -79,7 +79,7 @@ class StrandItem(QGraphicsLineItem):
     ### SIGNALS ###
 
     ### SLOTS ###
-    def strandResizedSlot(self):
+    def strandResizedSlot(self, strand, indices):
         """docstring for strandResizedSlot"""
         lowMoved = self._lowCap.updatePosIfNecessary(self.idxs()[0])
         highMoved = self._highCap.updatePosIfNecessary(self.idxs()[1])
@@ -87,8 +87,7 @@ class StrandItem(QGraphicsLineItem):
             self.updateLine(self._lowCap)
         if highMoved:
             self.updateLine(self._highCap)
-        for insertionItem in self.insertionItems().itervalues():
-            insertionItem.updateItem()
+        self.refreshInsertionItems(strand)
     # end def
     
     def sequenceAddedSlot(self, oligo):
@@ -110,6 +109,8 @@ class StrandItem(QGraphicsLineItem):
         # scene.removeItem(self._lowCap)
         self._xover3pEnd.remove()
         self._xover3pEnd = None
+        for insertionItem in self.insertionItems():
+            insertionItem.remove()
         self._clickArea = None
         self._highCap = None
         self._lowCap = None
@@ -190,7 +191,7 @@ class StrandItem(QGraphicsLineItem):
     # end def
 
     def insertionItems(self):
-        return self._virtualHelixItem.insertionItems()
+        return self._insertionItems
     # end def
 
     def strand(self):
@@ -284,12 +285,32 @@ class StrandItem(QGraphicsLineItem):
             self._xover3pEnd.showIt()
         else:
             self._xover3pEnd.hideIt()
+            
+        # 3. Refresh insertionItems if necessary drawing
+        self.refreshInsertionItems(strand)
         
-        # 2. Line drawing
+        # 4. Line drawing
         hy = ly = lUpperLeftY + halfBaseWidth
         self.setLine(lx, ly, hx, hy)
         self._clickArea.setRect(QRectF(lUpperLeftX+bw, lUpperLeftY, bw*(highIdx-lowIdx-1), bw))
         self._updatePensAndBrushes(strand)
+    # end def
+    
+    def refreshInsertionItems(self, strand):
+        """
+        could just refresh all of them (remove all, add all)
+        """
+        iItems = self.insertionItems()
+        iModel = strand.insertionsOnStrand()
+        # remove all in items
+        for index, iItem in iItems.items():
+            iItem.remove()
+            del iItems[index]
+        # end for
+        # add in the ones supposed to be there
+        for insertion in iModel:
+            iItems[insertion.idx()] = InsertionItem(self._virtualHelixItem, strand, insertion)
+        # end for
     # end def
 
     def _updatePensAndBrushes(self, strand):

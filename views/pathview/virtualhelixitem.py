@@ -67,8 +67,6 @@ class VirtualHelixItem(QGraphicsPathItem):
         self.setPath(self._minorGridPainterPath)
         self._handle = VirtualHelixHandleItem(modelVirtualHelix, partItem)
         
-        self._insertionItems = {}
-        
         self._controller = VirtualHelixItemController(self, modelVirtualHelix)
     # end def
 
@@ -215,10 +213,6 @@ class VirtualHelixItem(QGraphicsPathItem):
 
     def virtualHelix(self):
         return self._modelVirtualHelix
-    # end def
-    
-    def insertionItems(self):
-        return self._insertionItems
     # end def
 
     ### EVENT HANDLERS ###

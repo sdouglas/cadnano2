@@ -138,22 +138,25 @@ class SkipPath(object):
     # end def
 # end class
 
-class SubInsertionItem(QGraphicsItem):
+_insertPath = InsertionPath()
+_skipPath = SkipPath()
+
+class InsertionItem(QGraphicsPathItem):
     """
     This is just the shape of the Insert item
     """
-    _insertPath = InsertionPath()
-    _skipPath = SkipPath()
 
-    def __init__(self, insertionItem, isOnTop):
-        super(SubInsertionItem, self).__init__(insertionItem)
-        self._strand = None
-        self._insertion = insertionItem._insertion
-        self._isOnTop = isOnTop
-        if not isOnTop:
-            self.setY(_bw)
+    def __init__(self, virtualHelixItem, strand, insertion):
+        super(InsertionItem, self).__init__(virtualHelixItem)
+        self._strand = strand
+        self._insertion = insertion
+        isOnTop = self._isOnTop = virtualHelixItem.isStrandOnTop(strand)
+        if isOnTop:
+            self.setPos(_bw*insertion.idx(), 0)
+        else:
+            self.setPos(_bw*insertion.idx(), _bw)
         self.hide()
-
+        self.setZValue(styles.ZINSERTHANDLE)
         # do label stuff to depict the length of the insertion
         label = QGraphicsTextItem("", parent=self)
         label.setFont(_font)
@@ -163,13 +166,9 @@ class SubInsertionItem(QGraphicsItem):
         label.mousePressEvent = self.labelMousePressEvent
         label.setTextWidth(-1)
         self._label = label
-        self.updateLabel()
-        self._pathItem = QGraphicsPathItem(parent=self)
         self._seqItem = QGraphicsPathItem(parent=self)
-        self.updatePath()
-        self.resetPosition()
-        self.setZValue(styles.ZINSERTHANDLE)
-        self.setFlags(QGraphicsItem.ItemHasNoContents)
+        self.updateItem()
+        self.show()
     # end def
 
     def focusOut(self):
@@ -183,8 +182,9 @@ class SubInsertionItem(QGraphicsItem):
     def remove(self):
         scene = self.scene()
         scene.removeItem(self._label)
-        scene.removeItem(self._pathItem)
+        self._label = None
         scene.removeItem(self._seqItem)
+        self._seqItem = None
         scene.removeItem(self)
     # end def
 
@@ -236,11 +236,7 @@ class SubInsertionItem(QGraphicsItem):
         # end if
         self.focusOut()
 
-    def boundingRect(self):
-        return _bigRect
-
-    def updateItem(self, strand):
-        self._strand = strand
+    def updateItem(self):
         self.updatePath()
         self.updateLabel()
         self.resetPosition()
@@ -255,16 +251,14 @@ class SubInsertionItem(QGraphicsItem):
             self.show()
 
         isOnTop = self._isOnTop
-        pathItem = self._pathItem
-        skipPath = self._skipPath
 
         if self._insertion.length() > 0:
-            pathItem.setPath(self._insertPath.getInsert(isOnTop))
-            pathItem.setPen(QPen(QColor(strand.oligo().color()), styles.INSERTWIDTH))
-            pathItem.setBrush(QBrush(Qt.NoBrush))
+            self.setPath(_insertPath.getInsert(isOnTop))
+            self.setPen(QPen(QColor(strand.oligo().color()), styles.INSERTWIDTH))
+            self.setBrush(QBrush(Qt.NoBrush))
         else:  # insertionSize < 0 (a skip)
-            pathItem.setPath(skipPath.getSkip())
-            pathItem.setPen(skipPath.getPen())
+            self.setPath(_skipPath.getSkip())
+            self.setPen(_skipPath.getPen())
     # end def
 
     def _updateSequenceText(self):
@@ -328,57 +322,3 @@ class SubInsertionItem(QGraphicsItem):
             lbl.hide()
     # end def
 # end class
-
-class InsertionItem(QGraphicsItem):
-    """
-    Insert handle consists of the InsertItem and the QLabel and manages insert
-    manipulation.
-    """
-    def __init__(self, virtualHelixItem, strand, insertion):
-        super(InsertionItem, self).__init__(parent=virtualHelixItem)
-        self._vHI = virtualHelixItem
-        self._strand = strand
-        self._insertion = insertion
-        self.hide()
-        isOnTop = self._isOnTop = virtualHelixItem.isStrandOnTop(strand)
-
-        self._subItems = [SubInsertionItem(self, isOnTop), \
-                                SubInsertionItem(self, not isOnTop)]
-
-        self.setZValue(styles.ZINSERTHANDLE)
-        self.setFlags(QGraphicsItem.ItemHasNoContents)
-
-        self.setPos(_baseWidth*insertion.idx(), 0)
-        self.updateItem()
-        self.show()
-    # end def
-
-    def boundingRect(self):
-        return QRectF()
-
-    def paint(self, painter, option, widget=None):
-        pass
-
-    def updateItem(self):
-        """
-        Collects the locations of each type of InsertHandle from the
-        recently activated VirtualHelix vhelix. Each self._index corresponds
-        to a pair of InsertHandle that must be updated and displayed.
-        """
-        vhi = self._vHI
-        items = self._subItems
-        strand = self._strand
-
-        strandComp = strand.strandSet().complimentStrandSet().getStrand(self._insertion.idx())
-        items[0].updateItem(strand)
-        items[1].updateItem(strandComp)
-    # end def
-
-    def remove(self):
-        for item in self._subItems:
-            item.remove()
-        # end for
-        self._subItems = None
-        scene = self.scene()
-        scene.removeItem(self)
-# end def
