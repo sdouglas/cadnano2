@@ -33,6 +33,7 @@ from collections import defaultdict
 from model.enum import StrandType
 from model.virtualhelix import VirtualHelix
 from model.strand import Strand
+from model.strandset import StrandSet
 
 import util
 
@@ -207,6 +208,132 @@ class Part(QObject):
         self._oligos[oligo] = True
     # end def
 
+    def autoStaple(self):
+        """Autostaple does the following:
+        1. Clear existing staple strands by iterating over each strand 
+        and calling RemoveStrandCommand on each. The next strand to remove
+        is always at index 0.
+        2. Create strands that span regions where scaffold is present.
+        3. 
+        """
+        util.beginSuperMacro(self, desc="Auto-Staple")
+
+        cmds = []
+        # clear existing staple strands
+        for vh in self.getVirtualHelices():
+            stapSS = vh.stapleStrandSet()
+            for strand in stapSS:
+                c = StrandSet.RemoveStrandCommand(stapSS, strand, 0)  # rm
+                cmds.append(c)
+
+        # create strands that span all bases where scaffold is present
+        for vh in self.getVirtualHelices():
+            segments = []
+            scafSS = vh.scaffoldStrandSet()
+            for strand in scafSS:
+                lo, hi = strand.idxs()
+                if len(segments) == 0:
+                    segments.append([lo,hi])  # insert 1st strand
+                elif segments[-1][1] == lo-1:
+                    segments[-1][1] = hi  # extend
+                else:
+                    segments.append([lo,hi])  # insert another strand
+            stapSS = vh.stapleStrandSet()
+            for i in range(len(segments)):
+                lo, hi = segments[i]
+                c = StrandSet.CreateStrandCommand(stapSS, lo, hi, i)
+                cmds.append(c)
+        util.execCommandList(self, cmds, desc="Create staples")
+
+        # split strands before installing xovers
+        for vh in self.getVirtualHelices():
+            stapSS = vh.stapleStrandSet()
+            is5to3 = stapSS.isDrawn5to3()
+            potentialXovers = self.potentialCrossoverList(vh)
+            for neighborVh, idx, strandType, isLowIdx in potentialXovers:
+                if strandType != StrandType.Staple:
+                    continue
+                if isLowIdx and is5to3:
+                    strand = stapSS.getStrand(idx)
+                    neighborSS = neighborVh.stapleStrandSet()
+                    nStrand = neighborSS.getStrand(idx)
+                    if strand == None or nStrand == None:
+                        continue
+                    # check for bases on both strands at [idx-1:idx+3]
+                    if strand.lowIdx() < idx and strand.highIdx() > idx+1 and\
+                       nStrand.lowIdx() < idx and nStrand.highIdx() > idx+1:
+                        stapSS.splitStrand(strand, idx)
+                        neighborSS.splitStrand(nStrand, idx+1)
+                if not isLowIdx and not is5to3:
+                    strand = stapSS.getStrand(idx)
+                    neighborSS = neighborVh.stapleStrandSet()
+                    nStrand = neighborSS.getStrand(idx)
+                    if strand == None or nStrand == None:
+                        continue
+                    # check for bases on both strands at [idx-1:idx+3]
+                    if strand.lowIdx() < idx-1 and strand.highIdx() > idx and\
+                       nStrand.lowIdx() < idx-1 and nStrand.highIdx() > idx:
+                        stapSS.splitStrand(strand, idx)
+                        neighborSS.splitStrand(nStrand, idx-1)
+
+        # create crossovers wherever possible (from strand5p only)
+        for vh in self.getVirtualHelices():
+            stapSS = vh.stapleStrandSet()
+            is5to3 = stapSS.isDrawn5to3()
+            potentialXovers = self.potentialCrossoverList(vh)
+            for neighborVh, idx, strandType, isLowIdx in potentialXovers:
+                if strandType != StrandType.Staple:
+                    continue
+                if (isLowIdx and is5to3) or (not isLowIdx and not is5to3):
+                    strand = stapSS.getStrand(idx)
+                    neighborSS = neighborVh.stapleStrandSet()
+                    nStrand = neighborSS.getStrand(idx)
+                    if strand == None or nStrand == None:
+                        continue
+                    self.createXover(strand, idx, nStrand, idx)
+        # do all the commands
+        util.endSuperMacro(self)
+
+    def _splitBeforeAutoXovers(self, vh5p, vh3p, idx, useUndoStack=True):
+        # prexoveritem needs to store left or right, and determine
+        # locally whether it is from or to
+        # pass that info in here in and then do the breaks
+        ss5p = strand5p.strandSet()
+        ss3p = strand3p.strandSet()
+        cmds = []
+
+        # is the 5' end ready for xover installation?
+        if strand3p.idx5Prime() == idx5p:  # yes, idx already matches
+            xoStrand3 = strand3p
+        else:  # no, let's try to split
+            offset3p = -1 if ss3p.isDrawn5to3() else 1
+            if ss3p.strandCanBeSplit(strand3p, idx3p+offset3p):
+                found, overlap, ssIdx = ss3p._findIndexOfRangeFor(strand3p)
+                if found:
+                    c = ss3p.SplitCommand(strand3p, idx3p+offset3p, ssIdx)
+                    cmds.append(c)
+                    xoStrand3 = c._strandHigh if ss3p.isDrawn5to3() else c._strandLow
+            else:  # can't split... abort
+                return
+
+        # is the 3' end ready for xover installation?
+        if strand5p.idx3Prime() == idx5p:  # yes, idx already matches
+            xoStrand5 = strand5p
+        else:
+            if ss5p.strandCanBeSplit(strand5p, idx5p):
+                found, overlap, ssIdx = ss5p._findIndexOfRangeFor(strand5p)
+                if found:
+                    d = ss5p.SplitCommand(strand5p, idx5p, ssIdx)
+                    cmds.append(d)
+                    xoStrand5 = d._strandLow if ss5p.isDrawn5to3() else d._strandHigh
+            else:  # can't split... abort
+                return
+        c = Part.CreateXoverCommand(self, xoStrand5, idx5p, xoStrand3, idx3p)
+        cmds.append(c)
+        util.execCommandList(self, cmds, desc="Create Xover", \
+                                                useUndoStack=useUndoStack)
+    # end def
+
     def createVirtualHelix(self, row, col, useUndoStack=True):
         c = Part.CreateVirtualHelixCommand(self, row, col)
         util.execCommandList(self, [c], desc="Add VirtualHelix", \
@@ -331,11 +458,9 @@ class Part(QObject):
         util.execCommandList(self, [c], desc="Remove VirtualHelix", \
                                                     useUndoStack=useUndoStack)
     # end def
-    
+
     def insertions(self):
-        """
-        return dictionary of insertions
-        """
+        """return dictionary of insertions."""
         return self._insertions
     # end def
 
