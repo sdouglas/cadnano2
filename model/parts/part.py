@@ -86,6 +86,7 @@ class Part(QObject):
         self.reserveBin = set()
         self._highestUsedOdd = -1  # Used iff the recycle bin is empty and highestUsedOdd+2 is not in the reserve bin
         self._highestUsedEven = -2  # same
+        self._importedVHelixOrder = None
         
         self._activeBaseIndex = self._step
         self._activeVirtualHelix = None
@@ -108,6 +109,8 @@ class Part(QObject):
     partSequenceClearedSignal = pyqtSignal(QObject)        # self
     partVirtualHelixAddedSignal = pyqtSignal(QObject)      # virtualhelix
     partVirtualHelixChangedSignal = pyqtSignal(QObject)    # coords (for a renumber)
+    partVirtualHelicesReorderedSignal = pyqtSignal(list)   # list of coords
+
     # for updating the Slice View displayed helices
     partStrandChangedSignal = pyqtSignal(QObject)           # virtualHelix
 
@@ -715,13 +718,18 @@ class Part(QObject):
         # end for
         return ret
     # end def
-    
+
     def possibleXoverAt(self, fromVirtualHelix, toVirtualHelix, strandType, idx):
         fromSS = fromVirtualHelix.getStrandSetByType(strandType)
         toSS = toVirtualHelix.getStrandSetByType(strandType)
         return fromSS.hasStrandAtAndNoXover(idx) and \
                 toSS.hasStrandAtAndNoXover(idx)
     # end def
+
+    def setImportedVHelixOrder(self, orderedCoordList):
+        """Used on file import to store the order of the virtual helices."""
+        self._importedVHelixOrder = orderedCoordList
+        self.partVirtualHelicesReorderedSignal.emit(orderedCoordList)
 
     ### COMMANDS ###
     class CreateVirtualHelixCommand(QUndoCommand):

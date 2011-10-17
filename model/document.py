@@ -69,10 +69,9 @@ class Document(QObject):
         """Returns a list of assemblies associated with the document."""
         return self._assemblies
 
+    ### PUBLIC METHODS FOR QUERYING THE MODEL ###
     def selectedPart(self):
         return self._selectedPart
-
-    ### PUBLIC METHODS FOR QUERYING THE MODEL ###
 
     ### PUBLIC METHODS FOR EDITING THE MODEL ###
     def addHoneycombPart(self):
@@ -144,18 +143,3 @@ class Document(QObject):
             self._part.setDocument(None)
             self._doc._parts.remove(self._part)
             self._part.partRemovedSignal.emit(self._part)
-
-    ### SERIALIZE / DESERIALIZE ###
-    def fillSimpleRep(self, sr):
-        sr['.class'] = "Document"
-        sr['parts'] = self._parts
-
-    # First objects that are being unarchived are sent
-    # ClassNameFrom.classAttribute(incompleteArchivedDict)
-    # which has only strings and numbers in its dict and then,
-    # sometime later (with ascending finishInitPriority) they get
-    # finishInitWithArchivedDict, this time with all entries
-    finishInitPriority = 0.0
-    def finishInitWithArchivedDict(self, completeArchivedDict):
-        for part in completeArchivedDict['parts']:
-            self._addPart(part)        

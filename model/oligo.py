@@ -273,7 +273,7 @@ class Oligo(QObject):
             olg = self._oligo
             nS = self._newSequence
             oligoList = [olg]
-            
+
             for strand in olg.strand5p().generator3pStrand():
                 usedSeq, nS = strand.setSequence(nS)
 

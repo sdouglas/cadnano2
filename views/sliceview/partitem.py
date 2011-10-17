@@ -118,6 +118,9 @@ class PartItem(QGraphicsItem):
         print "PartItem.partMovedSlot"
         pass
 
+    def reorderedSlot(self, orderedCoordList):
+        pass
+
     # def xoverAddedSlot(self, part, virtualHelix3p, strandType3p, idx3p, \
     #                                 virtualHelix5p, strandType5p, idx5p):
     #     """docstring for xoverAddedSlot"""

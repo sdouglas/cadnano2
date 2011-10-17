@@ -26,19 +26,17 @@
 # http://www.opensource.org/licenses/mit-license.php
 
 from collections import defaultdict
-from views import styles
-
+from activesliceitem import ActiveSliceItem
 from controllers.itemcontrollers.partitemcontroller import PartItemController
-from virtualhelixitem import VirtualHelixItem
+from pathselection import SelectionItemGroup
+from pathselection import PathHelixHandleSelectionBox
+from pathselection import BreakpointHandleSelectionBox
 from prexoveritem import PreXoverItem
 from strand.xoveritem import XoverNode3
-
-from .pathselection import SelectionItemGroup
-from .pathselection import PathHelixHandleSelectionBox
-from .pathselection import BreakpointHandleSelectionBox
-from activesliceitem import ActiveSliceItem
-
+from views import styles
+from virtualhelixitem import VirtualHelixItem
 import util
+
 # import Qt stuff into the module namespace with PySide, PyQt4 independence
 util.qtWrapImport('QtCore', globals(), ['pyqtSignal', 'QObject', 'QRectF'])
 util.qtWrapImport('QtGui', globals(), ['QUndoCommand', 'QUndoStack',
@@ -87,6 +85,15 @@ class PartItem(QGraphicsPathItem):
         self._controller.disconnectSignals()
         self._controller = None
     # end def
+
+    def reorderedSlot(self, orderedCoordList):
+        """docstring for reorderedSlot"""
+        newList = self._virtualHelixItemList
+        decorated = [(orderedCoordList.index(vhi.coord()), vhi)\
+                        for vhi in self._virtualHelixItemList]
+        decorated.sort()
+        newList = [vhi for idx, vhi in decorated]
+        self._setVirtualHelixItemList(newList)
 
     def destroyedSlot(self):
         """docstring for partDestroyedSlot"""
@@ -146,7 +153,6 @@ class PartItem(QGraphicsPathItem):
     def itemForVirtualHelix(self, virtualHelix):
         return self._virtualHelixHash[virtualHelix.coord()]
 
-
     def virtualHelixBoundingRect(self):
         return self._vHRect
     # end def
@@ -203,6 +209,13 @@ class PartItem(QGraphicsPathItem):
     # end def
 
     ### PUBLIC METHODS ###
+    def getOrderedVirtualHelixList(self):
+        """Used for encoding."""
+        ret = []
+        for vhi in self._virtualHelixItemList:
+            ret.append(vhi.coord())
+        return ret
+
     def numberOfVirtualHelices(self):
         return len(self._virtualHelixItemList)
     # end def

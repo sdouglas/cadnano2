@@ -22,20 +22,17 @@
 #
 # http://www.opensource.org/licenses/mit-license.php
 
+import json
 from exceptions import ImportError
 from legacydecoder import doc_from_legacy_dict
 
-try:
-    use_cjson = True
-    import cjson
-except:
-    use_cjson = False
-    import json
 
 def decode(document, string):
-    if use_cjson:
+    try:  # try to do it fast
+        import cjson
         packageObject = cjson.decode(string)
-    else:
+    except:  # fall back to if cjson not available or on decode error
         packageObject = json.loads(string)
+
     if packageObject.get('.format', None) != 'caDNAno2':
         doc_from_legacy_dict(document, packageObject)

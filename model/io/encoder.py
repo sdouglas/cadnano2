@@ -1,6 +1,3 @@
-#!/usr/bin/env python
-# encoding: utf-8
-
 # The MIT License
 #
 # Copyright (c) 2011 Wyss Institute at Harvard University
@@ -25,30 +22,10 @@
 #
 # http://www.opensource.org/licenses/mit-license.php
 
-class Insertion(object):
-    """
-    Insertions do affect an applied sequence and do not store a sequence
-    themselves.  They are a skip if the length is less than 0
-    """
-    def __init__(self, index, length):
-        self._length = length
-        self._index  = index
-    # end def
+from json import dumps
+from legacyencoder import legacy_dict_from_doc
 
-    def length(self):
-        """
-        This is the length of a sequence that is immutable by the strand
-        """
-        return self._length
-
-    def setLength(self, length):
-        self._length = length
-    # end def
-
-    def idx(self):
-        return self._index
-    # end def
-
-    def isSkip(self):
-        return self.length() < 0
-# end class
+def encode(document, helixOrderList, io):
+    obj = legacy_dict_from_doc(document, io.name, helixOrderList)
+    json_string = dumps(obj, separators=(',',':'))  # compact encoding
+    io.write(json_string)

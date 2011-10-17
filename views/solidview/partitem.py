@@ -155,6 +155,10 @@ class PartItem(QObject):
         #print "solidview.PartItem.updatePreXoverItemsSlot"
         pass
 
+    @pyqtSlot(list)
+    def reorderedSlot(self, orderedCoordList):
+        pass
+
     ### METHODS ###
     def cadnanoToMayaCoords(self, row, col):
         # XXX - [SB] This should go away and we will ask the model for
