@@ -72,6 +72,19 @@ class XoverNode3(QGraphicsRectItem):
         self.setBrush(_nobrush)
         self.setRect(_rect)
     # end def
+    
+    def updateForFloat(self, virtualHelixItem, strand3p, idx):
+        self._vhi = virtualHelixItem
+        self.setParentItem(virtualHelixItem)
+        self._idx = idx
+        self._isOnTop = virtualHelixItem.isStrandOnTop(strand3p)
+        self._strandType = strand3p.strandSet().strandType()
+        self.updatePositionAndAppearance()
+    # end def
+    
+    def setFixed(self, virtualHelixItem, xoverItem, strand3p, idx):
+
+    # end def
 
     def strandType(self):
         return self._strandType
@@ -255,13 +268,21 @@ class XoverItem(QGraphicsPathItem):
             self.update(self._strand5p)
     # end def
 
-    def update(self, strand5p):
+    def update(self, strand5p, idx=None):
+        """
+        Pass idx to this method in order to install a floating
+        Xover for the forced xover tool
+        """
         self._strand5p = strand5p
         strand3p = strand5p.connection3p()
         vhi5p = self._virtualHelixItem
         partItem = vhi5p.partItem()
+        
+        # This condition is for floating xovers
+        idx3Prime = idx if idx else strand5p.idx3Prime()
+        
         if self._node5 == None:
-            self._node5 = XoverNode5(vhi5p, self, strand5p, strand5p.idx3Prime())
+            self._node5 = XoverNode5(vhi5p, self, strand5p, idx3Prime)
         if strand3p != None:
             if self._node3 == None:
                 vhi3p = partItem.itemForVirtualHelix(strand3p.virtualHelix())
@@ -269,6 +290,15 @@ class XoverItem(QGraphicsPathItem):
 
             self._node5.setPartnerVirtualHelix(strand5p)
             self._updatePath(strand5p)
+        # end if
+    # end def
+    
+    def updateFloating(self, virtualHelixItem, strand3p, idx):
+        # floating Xover!
+        if self._node3 == None: 
+            self._node3 = XoverNode3(None, self, None, None)
+        # end if
+        self._node3.updateForFloat(virtualHelixItem, strand3p, idx)
     # end def
 
     def _updatePath(self, strand5p):
