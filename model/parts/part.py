@@ -106,7 +106,7 @@ class Part(QObject):
     partRemovedSignal = pyqtSignal(QObject)                # self
     partSequenceClearedSignal = pyqtSignal(QObject)        # self
     partVirtualHelixAddedSignal = pyqtSignal(QObject)      # virtualhelix
-    partVirtualHelixChangedSignal = pyqtSignal(QObject)    # coords (for a renumber)
+    partVirtualHelixChangedSignal = pyqtSignal(QObject)    # virtualhelix (for a renumber or a resize)
     # for updating the Slice View displayed helices
     partStrandChangedSignal = pyqtSignal(QObject)           # virtualHelix
 
@@ -754,5 +754,55 @@ class Part(QObject):
             strand5p.strandUpdateSignal.emit(strand5p)
             strand3p.strandUpdateSignal.emit(strand3p)
         # end def
+    # end class
+    
+    class ResizeDimensionsCommand(QUndoCommand):
+        """
+        set the maximum and mininum base index in the helical direction
+        
+        need to adjust all subelements in the event of a change in the 
+        minimum index
+        """
+        def __init__(self, part, minHelixDelta, maxHelixDelta):
+            super(Part.SetDimensionsCommand, self).__init__()
+            self._part = part
+            self._minDelta = minHelixDelta
+            self._maxDelta = maxHelixDelta
+        # end def
+        
+        def redo(self):
+            part = self._part
+            part._minBase += self._minDelta
+            part._maxBase += self._maxDelta
+            part.deltaMinDimension(self._minDelta)
+        # end def
+        
+        def undo(self):
+            part = self._part
+            part._minBase -= self._minDelta
+            part._maxBase -= self._maxDelta
+            self.deltaMinDimension(part, self._minDelta)
+        # end def
+        
+        def deltaMinDimension(self, part, minDimensionDelta):
+            """
+            Need to update:
+            strands
+            insertions
+            """
+            for vhDict in part._insertions.itervalues():
+                for insertion in vhDict:
+                    insertion.updateIdx(minDimensionDelta)
+                # end for
+            # end for
+            for vh in part._virtualHelixHash.itervalues():
+                for strand in vh.scaffoldStrand().generatorStrand():
+                    strand.updateIdxs(minDimensionDelta)
+                for strand in vh.stapleStrand().generatorStrand():
+                    strand.updateIdxs(minDimensionDelta)
+                part.partVirtualHelixChangedSignal.emit(vh)
+            # end for
+        # end def
+        
     # end class
 # end class
