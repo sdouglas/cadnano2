@@ -69,10 +69,14 @@ class StrandItem(QGraphicsLineItem):
         self._clickArea = cA = QGraphicsRectItem(_defaultRect, self)
         cA.mousePressEvent = self.mousePressEvent
         cA.setPen(_noPen)
+        self.setAcceptHoverEvents(True)
+        cA.setAcceptHoverEvents(True)
+        cA.hoverMoveEvent = self.hoverMoveEvent
         # xover comming from the 3p end
-        self._xover3pEnd = XoverItem(virtualHelixItem)
+        self._xover3pEnd = XoverItem(virtualHelixItem.partItem(), virtualHelixItem)
         # initial refresh
         self._updateAppearance(modelStrand)
+        
     # end def
 
     ### SIGNALS ###
@@ -399,6 +403,17 @@ class StrandItem(QGraphicsLineItem):
             idx = int(floor((event.pos().x()) / _baseWidth))
             getattr(self, toolMethodName)(idx)
 
+    def hoverMoveEvent(self, event):
+        """
+        Parses a mouseMoveEvent to extract strandSet and base index,
+        forwarding them to approproate tool method as necessary.
+        """
+        toolMethodName = str(self._activeTool()) + "HoverMove"
+        if hasattr(self, toolMethodName):
+            idx = int(floor((event.pos().x()) / _baseWidth))
+            getattr(self, toolMethodName)(idx)
+    # end def
+    
     def customMouseRelease(self, event):
         """
         Parses a mouseReleaseEvent to extract strandSet and base index,
@@ -414,6 +429,34 @@ class StrandItem(QGraphicsLineItem):
         """Break the strand is possible."""
         mStrand = self._modelStrand
         mStrand.split(idx)
+    # end def
+    
+    def pencilToolMousePress(self, idx):
+        """Break the strand is possible."""
+        mStrand = self._modelStrand
+        vhi = self._virtualHelixItem
+        partItem = vhi.partItem()
+        activeTool = self._activeTool()
+        
+        if activeTool.isFloatingXoverBegin():
+            activeTool.setFloatingXoverBegin(False)
+            tempXover = activeTool.floatingXover()
+            tempXover.setParentItem(partItem)
+            tempXover.updateBase(vhi, mStrand, idx)
+        else:
+            activeTool.setFloatingXoverBegin(True)
+            # install Xover
+    # end def
+    
+    def pencilToolHoverMove(self, idx):
+        """Pencil the strand is possible."""
+        mStrand = self._modelStrand
+        vhi = self._virtualHelixItem
+        activeTool = self._activeTool()
+        
+        if not activeTool.isFloatingXoverBegin():
+            tempXover = activeTool.floatingXover()
+            tempXover.updateFloatingFromStrandItem(vhi, mStrand, idx)
     # end def
 
     def eraseToolMousePress(self, idx):

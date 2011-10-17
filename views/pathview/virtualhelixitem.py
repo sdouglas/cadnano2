@@ -68,6 +68,7 @@ class VirtualHelixItem(QGraphicsPathItem):
         self._handle = VirtualHelixHandleItem(modelVirtualHelix, partItem)
         
         self._controller = VirtualHelixItemController(self, modelVirtualHelix)
+        self.setAcceptHoverEvents(True)
     # end def
 
     ### SIGNALS ###
@@ -275,6 +276,29 @@ class VirtualHelixItem(QGraphicsPathItem):
         the scene (in scene space)"""
         dx = self._partItem.part().stepSize() * _baseWidth
         return self.mapToScene(QRectF(0, 0, dx, 1)).boundingRect().width()
+        
+    def mouseMoveEvent(self, event):
+        """
+        Parses a mouseMoveEvent to extract strandSet and base index,
+        forwarding them to approproate tool method as necessary.
+        """
+        toolMethodName = str(self._activeTool()) + "MouseMove"
+        if hasattr(self, toolMethodName):
+            idx = int(floor((event.pos().x()) / _baseWidth))
+            getattr(self, toolMethodName)(idx)
+    # end def
+    
+    def hoverMoveEvent(self, event):
+        """
+        Parses a mouseMoveEvent to extract strandSet and base index,
+        forwarding them to approproate tool method as necessary.
+        """
+        activeTool = self._activeTool()
+        toolMethodName = str(activeTool) + "HoverMove"
+        if hasattr(self, toolMethodName):
+            strandType, idxX, idxY = activeTool.baseAtPoint(self, event.pos())
+            getattr(self, toolMethodName)(strandType, idxX, idxY)
+    # end def
 
     ### TOOL METHODS ###
     def selectToolMousePress(self, strandSet, idx):
@@ -293,4 +317,13 @@ class VirtualHelixItem(QGraphicsPathItem):
         """if startIdx != end, vhelix.createNewStrand(startIdx, endIdx)"""
         print "%s: %s[%s]" % (util.methodName(), strandSet, idx)
         pass
+    # end def
+    
+    def pencilToolHoverMove(self, strandType, idxX, idxY):
+        """Pencil the strand is possible."""
+        partItem = self.partItem()
+        activeTool = self._activeTool()
+        if not activeTool.isFloatingXoverBegin():
+            tempXover = activeTool.floatingXover()
+            tempXover.updateFloatingFromVHI(self, strandType, idxX, idxY)
     # end def

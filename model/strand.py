@@ -283,7 +283,7 @@ class Strand(QObject):
     
     def updateIdxs(self, delta):
         self._baseIdxLow += delta
-        self._baseIdxHigh) += delta
+        self._baseIdxHigh += delta
     # end def
 
     def lowIdx(self):

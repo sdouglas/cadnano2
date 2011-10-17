@@ -23,6 +23,8 @@
 # http://www.opensource.org/licenses/mit-license.php
 import sys
 from abstractpathtool import AbstractPathTool
+from views.pathview.strand.xoveritem import XoverItem
+
 import util
 util.qtWrapImport('QtCore', globals(), [])
 util.qtWrapImport('QtGui', globals(), [])
@@ -34,6 +36,26 @@ class PencilTool(AbstractPathTool):
     """
     def __init__(self, controller):
         super(PencilTool, self).__init__(controller)
+        self._tempXover = XoverItem(None, None)
+        self._isFloatingXoverBegin = True
 
     def __repr__(self):
         return "pencilTool"  # first letter should be lowercase
+        
+    def floatingXover(self):
+        return self._tempXover
+    # end def 
+
+    def isFloatingXoverBegin(self):
+        return self._isFloatingXoverBegin
+    # end def
+
+    def setFloatingXoverBegin(self, boolval):
+        self._isFloatingXoverBegin = boolval
+        if boolval:
+            print "hiding"
+            self._tempXover.hide()
+        else:
+            print "showing"
+            self._tempXover.show()
+    # end def

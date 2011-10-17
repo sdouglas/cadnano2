@@ -64,6 +64,7 @@ class PartItem(QGraphicsPathItem):
                                          boxtype=PathHelixHandleSelectionBox,\
                                          constraint='y',\
                                          parent=self)
+        self.setAcceptHoverEvents(True)
     # end def
 
     ### SIGNALS ###
@@ -313,4 +314,27 @@ class PartItem(QGraphicsPathItem):
         dy = vhs[0].pos().y() - vhs[1].pos().y()
         dummyRect = QRectF(0, 0, 1, dy)
         return self.mapToScene(dummyRect).boundingRect().height()
-
+    # end def
+    
+    ### TOOL METHODS ###
+    
+    def hoverMoveEvent(self, event):
+        """
+        Parses a mouseMoveEvent to extract strandSet and base index,
+        forwarding them to approproate tool method as necessary.
+        """
+        activeTool = self._activeTool()
+        toolMethodName = str(activeTool) + "HoverMove"
+        if hasattr(self, toolMethodName):
+            getattr(self, toolMethodName)(event.pos())
+    # end def
+    
+    def pencilToolHoverMove(self, pt):
+        """Pencil the strand is possible."""
+        partItem = self
+        activeTool = self._activeTool()
+        if not activeTool.isFloatingXoverBegin():
+            print "poooooooooooop"
+            tempXover = activeTool.floatingXover()
+            tempXover.updateFloatingFromPartItem(self, pt)
+    # end def
