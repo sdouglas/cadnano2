@@ -46,25 +46,21 @@ kPluginCmdName = "spRemovedMsg"
 messageId = 0
 messageIdSet = False
 
+
 def removeCallback(id):
     try:
-        OpenMaya.MMessage.removeCallback( id )
+        OpenMaya.MMessage.removeCallback(id)
     except:
-        sys.stderr.write( "Failed to remove callback\n" )
-        raise
+        sys.stderr.write("Failed to remove callback\n")
 
-def dagParentRemovedCallback( child, parent, clientData ):
-    #print "dagParentRemovedCallback..."
-    #print "\tchild %s" % child.fullPathName()
-    #print "\tparent %s" % parent.fullPathName()
-    #print "\tclient data %s" % clientData
-    
+
+def dagParentRemovedCallback(child, parent, clientData):
     mom = Mom()
     children = child.fullPathName().split("|")
     for c in children:
         if c.startswith(mom.helixMeshName):
-            if mom.mayaToCn.has_key(c):
-                strand = mom.mayaToCn[ c ]
+            if c in mom.mayaToCn:
+                strand = mom.mayaToCn[c]
                 if strand:
                     #print "Strand %s : %s needs removal" % (c, strand)
                     strand.strandSet().removeStrand(strand)
@@ -74,61 +70,65 @@ def dagParentRemovedCallback( child, parent, clientData ):
                 pass
                 #print "dagParentRemovedCallback: %s already deleted" % c
         elif c.startswith(mom.decoratorMeshName):
-            if mom.decoratorToVirtualHelixItem.has_key(c):
+            if c in mom.decoratorToVirtualHelixItem:
                 pass
                 #decoratorObject = mom.decoratorToVirtualHelixItem[ c ]
                 #virtualHelixItem = decoratorObject[0]
                 #virtualHelixItem.updateDecorators()
-                
+
 
 def createParentAddedCallback(stringData):
     # global declares module level variables that will be assigned
     global messageIdSet
     try:
-        id = OpenMaya.MDagMessage.addParentRemovedCallback( dagParentRemovedCallback, stringData )
+        id = OpenMaya.MDagMessage.addParentRemovedCallback( \
+                                    dagParentRemovedCallback, stringData)
     except:
-        sys.stderr.write( "Failed to install dag parent removed callback\n" )
+        sys.stderr.write("Failed to install dag parent removed callback\n")
         messageIdSet = False
     else:
         messageIdSet = True
     return id
 
+
 # command
 class scriptedCommand(OpenMayaMPx.MPxCommand):
     def __init__(self):
         OpenMayaMPx.MPxCommand.__init__(self)
-    def doIt(self,argList):
+
+    def doIt(self, argList):
         global messageId
-        if ( messageIdSet ):
+        if (messageIdSet):
             print "Message callaback already installed"
         else:
             print "Installing parent removed callback message"
-            messageId = createParentAddedCallback( "_noData_" )
+            messageId = createParentAddedCallback("_noData_")
+
 
 # Creator
 def cmdCreator():
-    return OpenMayaMPx.asMPxPtr( scriptedCommand() )
-    
+    return OpenMayaMPx.asMPxPtr(scriptedCommand())
+
+
 # Initialize the script plug-in
 def initializePlugin(mobject):
     mplugin = OpenMayaMPx.MFnPlugin(mobject)
     try:
-        mplugin.registerCommand( kPluginCmdName, cmdCreator )
+        mplugin.registerCommand(kPluginCmdName, cmdCreator)
     except:
-        sys.stderr.write( "Failed to register command: %s\n" % name )
+        sys.stderr.write("Failed to register command: %s\n" % name)
         raise
+
 
 # Uninitialize the script plug-in
 def uninitializePlugin(mobject):
     # Remove the callback
-    if ( messageIdSet ):
-        removeCallback( messageId )
+    if (messageIdSet):
+        removeCallback(messageId)
     # Remove the plug-in command
     mplugin = OpenMayaMPx.MFnPlugin(mobject)
     try:
-        mplugin.deregisterCommand( kPluginCmdName )
+        mplugin.deregisterCommand(kPluginCmdName)
     except:
-        sys.stderr.write( "Failed to unregister command: %s\n" % kPluginCmdName )
+        sys.stderr.write("Failed to unregister command: %s\n" % kPluginCmdName)
         raise
-
-    

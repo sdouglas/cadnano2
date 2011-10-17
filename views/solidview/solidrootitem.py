@@ -34,9 +34,10 @@ solidrootitem.py
 Created by Simon Breslav on 2011-10-05.
 """
 
+
 class SolidRootItem(QObject):
     """
-    SolidRootItem is the root item in the SolidView. 
+    SolidRootItem is the root item in the SolidView.
     """
     def __init__(self, parent, document):
         super(SolidRootItem, self).__init__(parent)
@@ -50,7 +51,7 @@ class SolidRootItem(QObject):
         """
         Receives notification from the model that a part has been added.
         """
-        print "SolidRootItem.partAddedSlot!"
+        #print "SolidRootItem.partAddedSlot!"
         self._modelPart = modelPart
         partItem = PartItem(modelPart, self)
         self._partItems.append(partItem)
@@ -65,8 +66,7 @@ class SolidRootItem(QObject):
 
     def removePartItem(self, partItem):
         self._partItems.remove(partItem)
-    
+
     def setModifyState(self, val):
         for p in self._partItems:
             p.setModifyState(val)
-    # end def 

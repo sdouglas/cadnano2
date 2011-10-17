@@ -57,6 +57,9 @@ class VirtualHelix(QObject):
         self._number = idnum
     # end def
 
+    def __repr__(self):
+        return "<%s(%d)>" % (self.__class__.__name__, self._number)
+
     ### SIGNALS ###
     virtualHelixRemovedSignal = pyqtSignal(QObject) # self
     virtualHelixNumberChangedSignal = pyqtSignal(QObject, object) # self, num

@@ -22,7 +22,6 @@
 #
 # http://www.opensource.org/licenses/mit-license.php
 
-
 """
 partitem.py
 
@@ -71,7 +70,7 @@ class PartItem(QObject):
 
         if(not cmds.pluginInfo(hchPath, query=True, loaded=True)):
             cmds.loadPlugin(hchPath)
-            
+
         if(not cmds.pluginInfo(smiPath, query=True, loaded=True)):
             cmds.loadPlugin(smiPath)
 
@@ -98,7 +97,7 @@ class PartItem(QObject):
     def setModifyState(self, val):
         self.modifyState = val
         self.updateModifyState()
-    
+
     def updateModifyState(self):
         for sh in self.virtualHelixItems:
             sh.setModifyState(self.modifyState)
@@ -122,13 +121,13 @@ class PartItem(QObject):
     @pyqtSlot()
     def parentChangedSlot(self):
         """solidview.PartItem parentChangedSlot"""
-        print "solidview.PartItem.parentChangedSlot"
+        #print "solidview.PartItem.parentChangedSlot"
         pass
 
     @pyqtSlot()
     def removedSlot(self):
         """solidview.PartItem removedSlot"""
-        print "solidview.PartItem.removedSlot"
+        #print "solidview.PartItem.removedSlot"
         self._part = None
         self._controller.disconnectSignals()
         self._controller = None
@@ -136,24 +135,25 @@ class PartItem(QObject):
     @pyqtSlot()
     def destroyedSlot(self):
         """solidview.PartItem destroyedSlot"""
-        print "solidview.PartItem.destroyedSlot"
+        #print "solidview.PartItem.destroyedSlot"
         pass
 
     @pyqtSlot(int)
     def movedSlot(self, pos):
         """solidviw.PartItem partMovedSlot"""
-        print "solidview.PartItem.movedSlot"
+        #print "solidview.PartItem.movedSlot"
         pass
 
     @pyqtSlot(object)
     def virtualHelixAddedSlot(self, virtualHelix):
-        print "solidview.PartItem.virtualHelixAddedSlot"
+        #print "solidview.PartItem.virtualHelixAddedSlot"
         sh = self.createNewVirtualHelixItem(virtualHelix)
         sh.setModifyState(self.modifyState)
 
     @pyqtSlot(object)
     def updatePreXoverItemsSlot(self, virtualHelix):
-        print "solidview.PartItem.updatePreXoverItemsSlot"
+        #print "solidview.PartItem.updatePreXoverItemsSlot"
+        pass
 
     ### METHODS ###
     def cadnanoToMayaCoords(self, row, col):
@@ -185,21 +185,21 @@ class PartItem(QObject):
         for vhelixItem in self.virtualHelixItems:
             strandIDs = vhelixItem.StrandIDs()
             for id in strandIDs:
-                transformName ="%s%s" % (m.helixTransformName, id)
+                transformName = "%s%s" % (m.helixTransformName, id)
                 if cmds.objExists(transformName):
                     cmds.delete(transformName)
         self.clearInternalDataStructures()
 
     def createNewVirtualHelixItem(self, virtualHelix):
         coords = virtualHelix.coord()
-        print "solidview.PartItem.createNewVirtualHelixItem: %d %d" % (coords[0], coords[1])
+        #print "solidview.PartItem.createNewVirtualHelixItem: %d %d" % \
+        #                                                (coords[0], coords[1])
         # figure out Maya Coordinates
         x, y = self.cadnanoToMayaCoords(coords[0], coords[1])
-        print virtualHelix
+        #print virtualHelix
         newHelix = VirtualHelixItem(self, virtualHelix, x, y)
         self.virtualHelixItems.append(newHelix)
         return newHelix
 
     def removeVirtualHelix(self, vhelixItem):
         self.virtualHelixItems.remove(vhelixItem)
-

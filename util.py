@@ -253,3 +253,20 @@ def execCommandList(modelObject, commands, desc=None, useUndoStack=True):
         for c in commands:
             c.redo()
 # end def
+
+def beginSuperMacro(modelObject, desc=None):
+    """
+    SuperMacros can be used to nest multiple command lists.
+
+    Normally execCommandList macros all the commands in a list.
+    In some cases, multiple command lists need to be executed separately
+    because of dependency issues. (e.g. in part.autoStaple, strands
+    must be completely 1. created and 2. split before 3. xover installation.)
+    """
+    modelObject.undoStack().beginMacro(desc)
+# end def
+
+def endSuperMacro(modelObject):
+    """Ends a SuperMacro. Should be called after beginSuperMacro."""
+    modelObject.undoStack().endMacro()
+# end def

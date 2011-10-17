@@ -89,9 +89,6 @@ class StrandSet(QObject):
     def isDrawn5to3(self):
         return self._virtualHelix.isDrawn5to3(self)
 
-    def strandType(self):
-        return self._strandType
-
     def isStaple(self):
         return self._strandType == StrandType.Staple
 
@@ -159,6 +156,13 @@ class StrandSet(QObject):
     def partMaxBaseIdx(self):
         """Return the bounds of the StrandSet as defined in the part."""
         return self._virtualHelix.part().maxBaseIdx()
+
+    def strandCount(self):
+        return len(self._strandList)
+
+    def strandType(self):
+        return self._strandType
+
 
     ### PUBLIC METHODS FOR EDITING THE MODEL ###
     def createStrand(self, baseIdxLow, baseIdxHigh, useUndoStack=True):
@@ -667,7 +671,6 @@ class StrandSet(QObject):
             self._oligo = strand.oligo()
             self._newOligo5p = None
             self._newOligo3p = None
-            print "Rm init", strand, strand.connection5p(), strand.connection3p()
         # end def
 
         def redo(self):
@@ -734,9 +737,6 @@ class StrandSet(QObject):
             strandSet.strandsetStrandAddedSignal.emit(strand)
             # for updating the Slice View displayed helices
             strandSet.part().partStrandChangedSignal.emit(strandSet.virtualHelix())
-
-            print "Rm undo", strand, strand.connection5p(), strand.connection3p()
-
         # end def
     # end class
 
@@ -779,8 +779,6 @@ class StrandSet(QObject):
             # Merging any decorators
             newStrand.addDecorators(strandHigh.decorators())
             self._newStrand = newStrand
-            
-            self._strand5pXover = strandHigh if strandLow.isDrawn5to3() else strandLow
         # end def
 
         def redo(self):
@@ -797,7 +795,7 @@ class StrandSet(QObject):
             sS._removeFromStrandList(sH)
             # Add the newStrand to the sSet
             sS._addToStrandList(nS, idx)
-            
+
             # update connectivity of strands
             nScL = nS.connectionLow()
             if nScL:
@@ -807,13 +805,13 @@ class StrandSet(QObject):
                 else:
                     nScL.setConnectionLow(nS)
             nScH = nS.connectionHigh()
-            if nHcH:
+            if nScH:
                 if ( nS.isDrawn5to3() and nScH.isDrawn5to3() ) or \
                     ( not nS.isDrawn5to3() and not nScH.isDrawn5to3() ) :
                     nScH.setConnectionLow(nS)
                 else:
                     nScH.setConnectionHigh(nS)
-            
+
             # Traverse the strands via 3'conns to assign the new oligo
             for strand in olg.strand5p().generator3pStrand():
                 Strand.setOligo(strand, olg)  # emits strandHasNewOligoSignal

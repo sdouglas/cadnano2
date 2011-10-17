@@ -37,92 +37,74 @@ from controllers.mayacontrollers.mayaObjectManager import Mom
 
 contextCmdName = "spMayaCtxCmd"
 
-def selectionCallback( clientData ):
+
+def selectionCallback(clientData):
         #print "mayaSelcectionContex: selectionCallback called"
         selectionList = OpenMaya.MSelectionList()
-        OpenMaya.MGlobal.getActiveSelectionList( selectionList )
-        selectionIter = OpenMaya.MItSelectionList( selectionList,
-                                                   OpenMaya.MFn.kInvalid )
+        OpenMaya.MGlobal.getActiveSelectionList(selectionList)
+        selectionIter = OpenMaya.MItSelectionList(selectionList,
+                                                  OpenMaya.MFn.kInvalid)
         decoratorList = []
         m = Mom()
         while not selectionIter.isDone():
                 dependNode = OpenMaya.MObject()
                 dagNode = OpenMaya.MFnDagNode()
                 try:
-                        selectionIter.getDependNode( dependNode )
-                        if dependNode.isNull() or not dependNode.hasFn( OpenMaya.MFn.kDependencyNode ):
+                        selectionIter.getDependNode(dependNode)
+                        if dependNode.isNull() or not dependNode.hasFn( \
+                                                OpenMaya.MFn.kDependencyNode):
                             selectionIter.next()
                             continue
-                        dagNode = OpenMaya.MFnDagNode( dependNode )
+                        dagNode = OpenMaya.MFnDagNode(dependNode)
                 except:
                         selectionIter.next()
                         continue
-
-                
                 if dagNode.name().startswith(m.decoratorTransformName):
                     if dagNode.name() not in decoratorList:
                         decoratorList.append(dagNode.name())
-
-                #helixNode = OpenMaya.MObject();
-                #helixNode = getHelixNodeFromTransform( dependNode )
-                #if helixNode is None:
-                #    selectionIter.next()
-                #    continue
-                #else:
-                #    manipObject = OpenMaya.MObject()
-                #    manipulator = \
-                #        OpenMayaMPx.MPxManipContainer.newManipulator( nodeName, manipObject )
-                #    if manipulator is not None:
-                #        clientData.addManipulator( manipObject )
-                #        transformNodePath = OpenMaya.MDagPath()
-                #        # components = OpenMaya.MObject()
-                #        selectionIter.getDagPath( transformNodePath )
-                #        manipulator.connectToDependNode( helixNode )
-                #        # this should probably be done in a converter function
-                #        manipulator.matchNodePosition( transformNodePath, helixNode )
                 selectionIter.next()
         m.staplePreDecoratorSelected(decoratorList)
 
-class mayaSelctionContext( OpenMayaMPx.MPxSelectionContext ):
-    def __init__( self ):
-        #print "mayaSelctionContext: mayaSelctionContext init called"
-        OpenMayaMPx.MPxSelectionContext.__init__( self )
-    def toolOnSetup( self,event ):
-        #print "mayaSelctionContext: helixManipContext toolOnSetup called"
-        OpenMaya.MModelMessage.addCallback(  OpenMaya.MModelMessage.kActiveListModified, 
-                                             selectionCallback, self )
-class mayaSelctionCtxCmd( OpenMayaMPx.MPxContextCommand ):
-    def __init__( self ):
-        #print "mayaSelctionCtxCmd: helixManipCtxCMd init called"
-        OpenMayaMPx.MPxContextCommand.__init__( self )
 
-    def makeObj( self ):
-        #print "mayaSelctionCtxCmd makeObj called"
-        return OpenMayaMPx.asMPxPtr( mayaSelctionContext() )
+class mayaSelctionContext(OpenMayaMPx.MPxSelectionContext):
+    def __init__(self):
+        OpenMayaMPx.MPxSelectionContext.__init__(self)
+
+    def toolOnSetup(self, event):
+        OpenMaya.MModelMessage.addCallback( \
+                        OpenMaya.MModelMessage.kActiveListModified,
+                                            selectionCallback, self)
+
+
+class mayaSelctionCtxCmd(OpenMayaMPx.MPxContextCommand):
+    def __init__(self):
+        OpenMayaMPx.MPxContextCommand.__init__(self)
+
+    def makeObj(self):
+        return OpenMayaMPx.asMPxPtr(mayaSelctionContext())
 
 
 def contextCmdCreator():
-    #print "mayaSelctionContext: contextCmdCreator called"
-    return OpenMayaMPx.asMPxPtr( mayaSelctionCtxCmd() )
+    return OpenMayaMPx.asMPxPtr(mayaSelctionCtxCmd())
 
 
 # initialize the script plug-in
-def initializePlugin( mobject ):
+def initializePlugin(mobject):
     #print "mayaSelctionContext: initializePlugin for helixManip called"
-    mplugin = OpenMayaMPx.MFnPlugin( mobject )
-
+    mplugin = OpenMayaMPx.MFnPlugin(mobject)
     try:
-        mplugin.registerContextCommand( contextCmdName, contextCmdCreator )
+        mplugin.registerContextCommand(contextCmdName, contextCmdCreator)
     except:
-        print "mayaSelctionContext: Failed to register context command: %s" % contextCmdName
+        print "Failed to register context command: %s" % contextCmdName
         raise
 
+
 # uninitialize the script plug-in
-def uninitializePlugin( mobject ):
+def uninitializePlugin(mobject):
     #print "mayaSelctionContext uninitializePlugin for helixManip called"
-    mplugin = OpenMayaMPx.MFnPlugin( mobject )
+    mplugin = OpenMayaMPx.MFnPlugin(mobject)
     try:
-        mplugin.deregisterContextCommand( contextCmdName )
+        mplugin.deregisterContextCommand(contextCmdName)
     except:
-        print "mayaSelctionContext: Failed to deregister context command: %s" % contextCmdName
+        print "Failed to deregister context command: %s" % contextCmdName
         raise
