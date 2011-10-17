@@ -77,6 +77,13 @@ class StrandSet(QObject):
     ### ACCESSORS ###
     def part(self):
         return self._virtualHelix.part()
+    
+    def generatorStrand(self):
+        """
+        a generator that yields the strands in self._strandList
+        """
+        return iter(self._strandList)
+    # end def
 
     ### PUBLIC METHODS FOR QUERYING THE MODEL ###
     def isDrawn5to3(self):

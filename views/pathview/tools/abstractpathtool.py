@@ -24,6 +24,7 @@
 
 # from model.enum import StrandType
 from views import styles
+from model.enum import StrandType
 
 import util
 # import Qt stuff into the module namespace with PySide, PyQt4 independence
@@ -65,25 +66,25 @@ class AbstractPathTool(QGraphicsObject):
         return self._rect
 
     ######################### Positioning and Parenting ####################
-    def hoverEnterPathHelix(self, pathHelix, event):
-        self.updateLocation(pathHelix, pathHelix.mapToScene(QPointF(event.pos())))
+    def hoverEnterVirtualHelixItem(self, virtualHelixItem, event):
+        self.updateLocation(virtualHelixItem, virtualHelixItem.mapToScene(QPointF(event.pos())))
 
-    def hoverLeavePathHelix(self, pathHelix, event):
-        self.updateLocation(None, pathHelix.mapToScene(QPointF(event.pos())))
+    def hoverLeaveVirtualHelixItem(self, virtualHelixItem, event):
+        self.updateLocation(None, virtualHelixItem.mapToScene(QPointF(event.pos())))
 
-    def hoverMovePathHelix(self, pathHelix, event, flag=None):
-        self.updateLocation(pathHelix, pathHelix.mapToScene(QPointF(event.pos())))
+    def hoverMoveVirtualHelixItem(self, virtualHelixItem, event, flag=None):
+        self.updateLocation(virtualHelixItem, virtualHelixItem.mapToScene(QPointF(event.pos())))
 
-    def updateLocation(self, pathHelix, scenePos, *varargs):
+    def updateLocation(self, virtualHelixItem, scenePos, *varargs):
         """Takes care of caching the location so that a tool switch
         outside the context of an event will know where to
         position the new tool and snaps self's pos to the upper
         left hand corner of the base the user is mousing over"""
-        if pathHelix:
-            if self.parentObject() != pathHelix:
-                self.setParentItem(pathHelix)
-            self._lastLocation = (pathHelix, scenePos)
-            posItem = pathHelix.mapFromScene(scenePos)
+        if virtualHelixItem:
+            if self.parentObject() != virtualHelixItem:
+                self.setParentItem(virtualHelixItem)
+            self._lastLocation = (virtualHelixItem, scenePos)
+            posItem = virtualHelixItem.mapFromScene(scenePos)
             pos = self.helixPos(posItem)
             if pos != None:
                 if pos != self.pos():
@@ -100,7 +101,7 @@ class AbstractPathTool(QGraphicsObject):
                 self.setParentItem(_mother)
 
     def lastLocation(self):
-        """A tuple (PathHelix, QPoint) representing the last
+        """A tuple (virtualHelixItem, QPoint) representing the last
         known location of the mouse for purposes of positioning
         the graphic of a new tool on switching tools (the tool
         will have updateLocation(*oldTool.lastLocation()) called
@@ -126,22 +127,22 @@ class AbstractPathTool(QGraphicsObject):
         pass
 
     ####################### Coordinate Utilities ###########################
-    def baseAtPoint(self, pathHelix, pt):
+    def baseAtPoint(self, virtualHelixItem, pt):
         """Returns the (strandType, baseIdx) corresponding
-        to pt in pathHelix."""
+        to pt in virtualHelixItem."""
         x, strandIdx = self.helixIndex(pt)
-        vh = pathHelix.vhelix()
-        if vh.evenParity():
+        vh = virtualHelixItem.virtualHelix()
+        if vh.isEvenParity():
             strandType = (StrandType.Scaffold, StrandType.Staple)[util.clamp(strandIdx, 0, 1)]
         else:
             strandType = (StrandType.Staple, StrandType.Scaffold)[util.clamp(strandIdx, 0, 1)]
-        return (strandType, x)
+        return (strandType, x, strandIdx)
 
     def helixIndex(self, point):
         """
         Returns the (row, col) of the base which point
         lies within.
-        point is in PathHelix coordinates.
+        point is in virtualHelixItem coordinates.
         """
         x = int(int(point.x()) / _bw)
         y = int(int(point.y()) / _bw)
@@ -152,7 +153,7 @@ class AbstractPathTool(QGraphicsObject):
         """
         Snaps a point to the upper left corner of the base
         it is within.
-        point is in PathHelix coordinates
+        point is in virtualHelixItem coordinates
         """
         col = int(int(point.x()) / _bw)
         row = int(int(point.y()) / _bw)

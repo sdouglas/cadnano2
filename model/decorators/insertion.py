@@ -45,6 +45,10 @@ class Insertion(object):
         self._length = length
     # end def
 
+    def updateIdx(self, delta):
+        self._index += delta
+    # end def
+
     def idx(self):
         return self._index
     # end def
