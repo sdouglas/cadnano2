@@ -511,11 +511,11 @@ class Strand(QObject):
 
     def addInsertion(self, idx, length, useUndoStack=True):
         """
-        length should be 
-        1 or more for an insertion 
-        -1 for a skip
+        Adds an insertion or skip at idx.
+        length should be
+            >0 for an insertion
+            -1 for a skip
         """
-        print "addInsertion", idx, length
         idxLow, idxHigh = self.idxs()
         if idxLow <= idx <= idxHigh:
             if not self.hasInsertionAt(idx):

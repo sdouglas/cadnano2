@@ -52,14 +52,15 @@ DELETION = "deletion"
 
 def doc_from_legacy_dict(document, obj):
     """
-    Takes a loaded legacy dictionary, returns a loaded Document
+    Parses a dictionary created from reading a json file and uses it
+    to populate the given document with model data.
     """
     numBases = len(obj['vstrands'][0]['scaf'])
     dialog = QDialog()
     dialogLT = Ui_LatticeType()
     dialogLT.setupUi(dialog)
 
-    # determine lattice type
+    # DETERMINE LATTICE TYPE
     if numBases % 21 == 0 and numBases % 32 == 0:
         if dialog.exec_() == 1:
             latticeType = LatticeType.Square
@@ -75,7 +76,7 @@ def doc_from_legacy_dict(document, obj):
         else:
             latticeType = LatticeType.Honeycomb
 
-    # create part according to lattice type
+    # CREATE PART ACCORDING TO LATTICE TYPE
     if latticeType == LatticeType.Honeycomb:
         steps = numBases/21
         part = HoneycombPart(document=document, maxRow=30, maxCol=32, maxSteps=steps)
@@ -99,7 +100,7 @@ def doc_from_legacy_dict(document, obj):
         raise TypeError("Lattice type not recognized")
     document._addPart(part, useUndoStack=False)
 
-    # populate virtual helices
+    # POPULATE VIRTUAL HELICES
     vhNumToCoord = {}
     for helix in obj['vstrands']:
         vhNum = helix['num']
@@ -109,27 +110,26 @@ def doc_from_legacy_dict(document, obj):
         vhNumToCoord[vhNum] = (row, col)
         part.createVirtualHelix(row, col, useUndoStack=False)
 
-    # install strands and collect xover locations
-    helixNo, numHelixes = -1, len(obj['vstrands'])-1
+    # INSTALL STRANDS AND COLLECT XOVER LOCATIONS
+    numHelixes = len(obj['vstrands'])-1
     scaf_seg = defaultdict(list)
     scaf_xo = defaultdict(list)
     stap_seg = defaultdict(list)
     stap_xo = defaultdict(list)
     try:
         for helix in obj['vstrands']:
-            helixNo += 1
             vhNum = helix['num']
             row = helix['row']
             col = helix['col']
             scaf = helix['scaf']
             stap = helix['stap']
-            inserts = helix['loop']
+            insertions = helix['loop']
             skips = helix['skip']
             vh = part.virtualHelixAtCoord((row, col))
             scafStrandSet = vh.scaffoldStrandSet()
             stapStrandSet = vh.stapleStrandSet()
             assert(len(scaf)==len(stap) and len(stap)==part.maxBaseIdx()+1 and\
-                   len(scaf)==len(inserts) and len(inserts)==len(skips))
+                   len(scaf)==len(insertions) and len(insertions)==len(skips))
             # read scaffold segments and xovers
             for i in range(len(scaf)):
                 fiveVH, fiveIdx, threeVH, threeIdx = scaf[i]
@@ -171,15 +171,14 @@ def doc_from_legacy_dict(document, obj):
         dialogLT.buttonBox.setStandardButtons(QDialogButtonBox.Ok)
         dialog.exec_()
 
-    helixNo = -1
+    # INSTALL XOVERS
     for helix in obj['vstrands']:
-        helixNo += 1
         vhNum = helix['num']
         row = helix['row']
         col = helix['col']
         scaf = helix['scaf']
         stap = helix['stap']
-        inserts = helix['loop']
+        insertions = helix['loop']
         skips = helix['skip']
         fromVh = part.virtualHelixAtCoord((row, col))
         scafStrandSet = fromVh.scaffoldStrandSet()
@@ -199,26 +198,33 @@ def doc_from_legacy_dict(document, obj):
             strand3p = toVh.stapleStrandSet().getStrand(idx5p)
             part.createXover(strand5p, idx5p, strand3p, idx3p, useUndoStack=False)
 
-    # helixNo = -1
-    # for helix in obj['vstrands']:
-    #     helixNo += 1
-    #     # print "loop/col %i/%i (%i%%)"%(helixNo, numHelixes, helixNo*100/numHelixes)
-    #     vhNum = helix['num']
-    #     vh = part.getVirtualHelix(vhNum)
-    #     scaf = helix['scaf']
-    #     stap = helix['stap']
-    #     inserts = helix['loop']
-    #     skips = helix['skip']
-    #     # populate colors, inserts, and skips
-    #     for baseIdx, colorNumber in helix['stap_colors']:
-    #         color = QColor((colorNumber>>16)&0xFF, (colorNumber>>8)&0xFF, colorNumber&0xFF)
-    #         vh.applyColorAt(color, StrandType.Staple, baseIdx, useUndoStack=False)
-    #     for i in range(len(stap)):
-    #         sumOfInsertSkip = inserts[i] + skips[i]
-    #         if sumOfInsertSkip != 0:
-    #             vh.installInsert(StrandType.Scaffold, i, sumOfInsertSkip,\
-    #                            useUndoStack=False, speedy=True)
-    # part.updateAcyclicLengths()
+    # SET DEFAULT COLOR  #888888 because it is not cadnano1-generated file
+    for oligo in part.oligos():
+        oligo.applyColor("#888888", useUndoStack=False)
+
+    # COLORS, INSERTIONS, SKIPS
+    for helix in obj['vstrands']:
+        vhNum = helix['num']
+        row = helix['row']
+        col = helix['col']
+        scaf = helix['scaf']
+        stap = helix['stap']
+        insertions = helix['loop']
+        skips = helix['skip']
+        vh = part.virtualHelixAtCoord((row, col))
+        scafStrandSet = vh.scaffoldStrandSet()
+        stapStrandSet = vh.stapleStrandSet()
+        # populate colors
+        for baseIdx, colorNumber in helix['stap_colors']:
+            color = QColor((colorNumber>>16)&0xFF, (colorNumber>>8)&0xFF, colorNumber&0xFF)
+            strand = stapStrandSet.getStrand(baseIdx)
+            strand.oligo().applyColor(color, useUndoStack=False)
+        # install insertions and skips
+        for baseIdx in range(len(stap)):
+            sumOfInsertSkip = insertions[baseIdx] + skips[baseIdx]
+            if sumOfInsertSkip != 0:
+                strand = scafStrandSet.getStrand(baseIdx)
+                strand.addInsertion(baseIdx, sumOfInsertSkip, useUndoStack=False)
 
 def isSegmentStartOrEnd(strandType, vhNum, baseIdx, fiveVH, fiveIdx, threeVH, threeIdx):
     """Returns True if the base is a breakpoint or crossover."""

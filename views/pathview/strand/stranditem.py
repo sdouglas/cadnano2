@@ -133,7 +133,10 @@ class StrandItem(QGraphicsLineItem):
     # end def
 
     def oligoAppearanceChangedSlot(self, oligo):
-        self._updatePensAndBrushes(self._modelStrand)
+        strand = self._modelStrand
+        self._updatePensAndBrushes(strand)
+        if strand.connection3p():
+            self._xover3pEnd._updatePen(strand)
     # end def
 
     def oligoSequenceAddedSlot(self, oligo):
@@ -277,17 +280,17 @@ class StrandItem(QGraphicsLineItem):
             dualCap.show()
         else:
             dualCap.hide()
-            
+
         # 2. Xover drawing
         if strand.connection3p():
             self._xover3pEnd.update(strand)
             self._xover3pEnd.showIt()
         else:
             self._xover3pEnd.hideIt()
-            
+
         # 3. Refresh insertionItems if necessary drawing
         self.refreshInsertionItems(strand)
-        
+
         # 4. Line drawing
         hy = ly = lUpperLeftY + halfBaseWidth
         self.setLine(lx, ly, hx, hy)
@@ -338,29 +341,26 @@ class StrandItem(QGraphicsLineItem):
         seqTxt = strand.sequence()
         isDrawn3to5 = not self._isDrawn5to3
         textXCenteringOffset = styles.SEQUENCETEXTXCENTERINGOFFSET
-        
-        # seqTxt = "ACG"
-        
+
         if seqTxt == '':
             seqLbl.hide()
             return
         # end if
-        
+
         seqList = [x[1][0] for x in strand.getSequenceList()]
         print seqList
-        
+
         if isDrawn3to5:
             seqList = seqList[::-1]
         seqTxt = ''.join(seqList)
         # seqLbl.setPen(QPen( Qt.NoPen))    # leave the Pen as None for unless required
-
         seqLbl.setBrush(QBrush(Qt.black))
         seqLbl.setFont(styles.SEQUENCEFONT)
 
         # this will always draw from the 5 Prime end!
         seqX = 2*textXCenteringOffset + bw*strand.idx5Prime()
         seqY = -styles.SEQUENCETEXTYCENTERINGOFFSET
-        
+
         if isDrawn3to5:
             # offset it towards the bottom
             seqY += 3*bw

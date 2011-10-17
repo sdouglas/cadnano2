@@ -26,6 +26,7 @@ xoveritem.py
 Created by Nick on 2011-05-25.
 """
 from exceptions import AttributeError, NotImplementedError
+import time
 from views import styles
 
 import util, time
@@ -71,38 +72,38 @@ class XoverNode3(QGraphicsRectItem):
         self.setBrush(_nobrush)
         self.setRect(_rect)
     # end def
-        
+
     def strandType(self):
         return self._strandType
     # end def
-    
+
     def refreshXover(self):
         self._xoverItem.refreshXover()
     # end def
-    
+
     def setPartnerVirtualHelix(self,strand):
         if strand.connection5p():
             self._partnerVirtualHelix = strand.connection5p().virtualHelix()
         else:
             self._partnerVirtualHelix = None
     # end def
-    
+
     def idx(self):
         return self._idx
     # end def
-    
+
     def virtualHelixItem(self):
         return self._vhi
     # end def
-    
+
     def point(self):
         return self._vhi.upperLeftCornerOfBaseType(self._idx, self._strandType)
-    # end def    
-    
+    # end def
+
     def isOnTop(self):
         return self._isOnTop
     # end def
-    
+
     def isDrawn5to3(self):
         return self._isDrawn5to3
     # end def
@@ -185,7 +186,7 @@ class XoverNode5(XoverNode3):
     def __init__(self, virtualHelixItem, xoverItem, strand5p, idx):
         super(XoverNode5, self).__init__(virtualHelixItem, xoverItem, strand5p, idx)
     # end def
-    
+
     def setPartnerVirtualHelix(self, strand):
         if strand.connection3p():
             self._partnerVirtualHelix = strand.connection3p().virtualHelix()
@@ -200,7 +201,6 @@ class XoverNode5(XoverNode3):
         isLeft = False if self._isDrawn5to3 else True
         self.updateLabel(isLeft)
     # end def
-
 # end class
 
 class XoverItem(QGraphicsPathItem):
@@ -242,7 +242,7 @@ class XoverItem(QGraphicsPathItem):
             self._node3.hide()
             self._node5.hide()
     # end def
-    
+
     def showIt(self):
         self.show()
         if self._node3:
