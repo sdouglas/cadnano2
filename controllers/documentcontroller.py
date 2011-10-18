@@ -26,6 +26,7 @@ import os.path
 from cadnano import app
 from model.document import Document
 from model.io.decoder import decode
+from model.io.encoder import encode
 from views.documentwindow import DocumentWindow
 import util
 util.qtWrapImport('QtCore', globals(), ['QFileInfo', 'QRect', 'QString',
@@ -45,17 +46,17 @@ class DocumentController():
     Connects UI buttons to their corresponding actions in the model.
     """
     ### INIT METHODS ###
-    def __init__(self, fname=None):
+    def __init__(self):
         """docstring for __init__"""
         # initialize variables
         self._document = Document()
-        self._filename = fname
-        self.win = None
-        self._undoStack = None
-        self._hasNoAssociatedFile = None
-        self._sliceViewInstance = None
-        self._pathViewInstance = None
         self._activePart = None
+        self._filename = None
+        self._hasNoAssociatedFile = True
+        self._pathViewInstance = None
+        self._sliceViewInstance = None
+        self._undoStack = None
+        self.win = None
         # call other init methods
         self._initWindow()
         if app().isInMaya():
@@ -165,13 +166,14 @@ class DocumentController():
 
     def actionSaveSlot(self):
         """SaveAs if necessary, otherwise overwrite existing file."""
+        print "actionSaveSlot",self._hasNoAssociatedFile
         if self._hasNoAssociatedFile:
             self.saveFileDialog()
             return
         # if importedFromJson:
         #     self.saveFileDialog()
         #     return
-        self.writeDocumentToFile()
+        # self.writeDocumentToFile()
 
     def actionSaveAsSlot(self):
         """Open a save file dialog so user can choose a name."""
@@ -179,7 +181,6 @@ class DocumentController():
 
     def actionSVGSlot(self):
         """docstring for actionSVGSlot"""
-
         fname = os.path.basename(str(self.filename()))
         if fname == None:
             directory = "."
@@ -335,14 +336,34 @@ class DocumentController():
         self._hasNoAssociatedFile = fname == None
         self._activePart = None
         self.win.setWindowTitle(self.documentTitle() + '[*]')
-        # if doc == None:
-        #     doc = Document()
-        # self.setDocument(doc)
-        # if doc.parts():
-        #     part = doc.parts()[0]
-        #     self._activePart = part
-        #     part.partNeedsFittingToViewSignal.emit()
 
+    def saveFileDialog(self):
+        fname = self.filename()
+        if fname == None:
+            directory = "."
+        else:
+            directory = QFileInfo(fname).path()
+        if util.isWindows():  # required for native looking file window
+            fname = QFileDialog.getSaveFileName(
+                            self.win,
+                            "%s - Save As" % QApplication.applicationName(),
+                            directory,
+                            "%s (*.json)" % QApplication.applicationName())
+            self.writeDocumentToFile(fname)
+        else:  # access through non-blocking callback
+            fdialog = QFileDialog(
+                            self.win,
+                            "%s - Save As" % QApplication.applicationName(),
+                            directory,
+                            "%s (*.json)" % QApplication.applicationName())
+            fdialog.setAcceptMode(QFileDialog.AcceptSave)
+            fdialog.setWindowFlags(Qt.Sheet)
+            fdialog.setWindowModality(Qt.WindowModal)
+            self.filesavedialog = fdialog
+            self.filesavedialog.filesSelected.connect(
+                                                self.saveFileDialogCallback)
+            fdialog.open()
+    # end def
 
     ### SLOT CALLBACKS ###
     def actionNewSlotCallback(self):
@@ -393,8 +414,8 @@ class DocumentController():
             # manual garbage collection to prevent hang (in osx)
             del self.fileopendialog
 
-    def saveFileDialogCallback(self):
-        """docstring for saveFileDialogCallback"""
+    def saveFileDialogCallback(self, selected):
+        """If the user chose to save, write to that file."""
         if isinstance(selected, QStringList) or isinstance(selected, list):
             fname = selected[0]
         else:
@@ -402,8 +423,8 @@ class DocumentController():
         if fname.isEmpty() or os.path.isdir(fname):
             return False
         fname = str(fname)
-        if not fname.lower().endswith(".nno"):
-            fname += ".nno"
+        if not fname.lower().endswith(".json"):
+            fname += ".json"
         if self.filesavedialog != None:
             self.filesavedialog.filesSelected.disconnect(
                                                 self.saveFileDialogCallback)
@@ -498,7 +519,8 @@ class DocumentController():
             filename = self.filename()
         try:
             f = open(filename, 'w')
-            encode(self._document, f)
+            helixOrderList = self.win.pathroot.getSelectedPartOrderedVHList()
+            encode(self._document, helixOrderList, f)
             f.close()
         except IOError:
             flags = Qt.Dialog | Qt.MSWindowsFixedSizeDialogHint | Qt.Sheet
@@ -515,19 +537,3 @@ class DocumentController():
         self.setFilename(filename)
         return True
 
-    def saveFileDialogCallback(self, selected):
-        """If the user chose to save, write to that file."""
-        if isinstance(selected, QStringList) or isinstance(selected, list):
-            fname = selected[0]
-        else:
-            fname = selected
-        if fname.isEmpty() or os.path.isdir(fname):
-            return False
-        fname = str(fname)
-        if not fname.lower().endswith(".nno"):
-            fname += ".nno"
-        if self.filesavedialog != None:
-            self.filesavedialog.filesSelected.disconnect(
-                                                self.saveFileDialogCallback)
-            del self.filesavedialog  # prevents hang
-        self.writeDocumentToFile(fname)

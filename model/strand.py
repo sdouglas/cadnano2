@@ -295,11 +295,11 @@ class Strand(QObject):
     # end def
 
     def idx3Prime(self):
-        """docstring for idx3Prime"""
+        """Returns the absolute baseIdx of the 3' end of the strand."""
         return self.idx3Prime
 
     def idx5Prime(self):
-        """docstring for idx3Prime"""
+        """Returns the absolute baseIdx of the 5' end of the strand."""
         return self.idx5Prime
 
     def isDrawn5to3(self):
@@ -565,16 +565,6 @@ class Strand(QObject):
         insts = self.part().insertions()[coord]
         return idx in insts
     # end def
-
-    def hasConnection3p(self):
-        if self._strand3p != None:
-            return True
-        return False
-
-    def hasConnection5p(self):
-        if self._strand5p != None:
-            return True
-        return False
 
     def hasDecoratorAt(self, idx):
         return idx in self._decorators

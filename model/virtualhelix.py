@@ -88,11 +88,11 @@ class VirtualHelix(QObject):
         self._part = newPart
         self.setParent(newPart)
     # end def
-    
+
     def coord(self):
         return self._coord
     # end def
-    
+
     def translateCoords(self, deltaCoords):
         """
         for expanding a helix
@@ -185,3 +185,10 @@ class VirtualHelix(QObject):
         # the virtualhelix owns self._number and may modify it.
         self._number = idnum
     # end def
+
+    def getLegacyStrandSetArray(self, strandType):
+        """Called by legacyencoder."""
+        if strandType == StrandType.Scaffold:
+            return self._scafStrandSet.getLegacyArray()
+        else:
+            return self._stapStrandSet.getLegacyArray()

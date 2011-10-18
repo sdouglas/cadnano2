@@ -37,8 +37,8 @@ class PartItemController(object):
         mP.partRemovedSignal.connect(pI.removedSlot)
         mP.partDestroyedSignal.connect(pI.destroyedSlot)
         mP.partVirtualHelixAddedSignal.connect(pI.virtualHelixAddedSlot)
-        mP.partStrandChangedSignal.connect( \
-                                               pI.updatePreXoverItemsSlot)
+        mP.partStrandChangedSignal.connect(pI.updatePreXoverItemsSlot)
+        mP.partVirtualHelicesReorderedSignal.connect(pI.reorderedSlot)
     # end def
 
     def disconnectSignals(self):
@@ -49,9 +49,8 @@ class PartItemController(object):
         mP.partRemovedSignal.disconnect(pI.removedSlot)
         mP.partDestroyedSignal.disconnect(pI.destroyedSlot)
         mP.partVirtualHelixAddedSignal.disconnect(pI.virtualHelixAddedSlot)
-
-        mP.partStrandChangedSignal.disconnect( \
-                                               pI.updatePreXoverItemsSlot)
+        mP.partStrandChangedSignal.disconnect(pI.updatePreXoverItemsSlot)
+        mP.partVirtualHelicesReorderedSignal.disconnect(pI.reorderedSlot)
 
     # end def
 # end class

@@ -101,14 +101,21 @@ def doc_from_legacy_dict(document, obj):
     document._addPart(part, useUndoStack=False)
 
     # POPULATE VIRTUAL HELICES
+    orderedCoordList = []
     vhNumToCoord = {}
     for helix in obj['vstrands']:
         vhNum = helix['num']
         row = helix['row']
         col = helix['col']
         scaf= helix['scaf']
-        vhNumToCoord[vhNum] = (row, col)
+        coord = (row, col)
+        vhNumToCoord[vhNum] = coord
+        orderedCoordList.append(coord)
+    # make sure we retain the original order
+    for vhNum in sorted(vhNumToCoord.iterkeys()):
+        row, col = vhNumToCoord[vhNum]
         part.createVirtualHelix(row, col, useUndoStack=False)
+    part.setImportedVHelixOrder(orderedCoordList)
 
     # INSTALL STRANDS AND COLLECT XOVER LOCATIONS
     numHelixes = len(obj['vstrands'])-1
