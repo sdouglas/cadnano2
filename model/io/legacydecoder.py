@@ -223,7 +223,7 @@ def doc_from_legacy_dict(document, obj):
         stapStrandSet = vh.stapleStrandSet()
         # populate colors
         for baseIdx, colorNumber in helix['stap_colors']:
-            color = QColor((colorNumber>>16)&0xFF, (colorNumber>>8)&0xFF, colorNumber&0xFF)
+            color = QColor((colorNumber>>16)&0xFF, (colorNumber>>8)&0xFF, colorNumber&0xFF).name()
             strand = stapStrandSet.getStrand(baseIdx)
             strand.oligo().applyColor(color, useUndoStack=False)
         # install insertions and skips

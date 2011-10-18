@@ -92,19 +92,23 @@ forcefill = QColor (0, 255, 255, 63)
 breakfill = QColor (204, 0, 0, 255)
 colorbox_fill = QColor(204, 0, 0)
 colorbox_stroke = QColor(102, 102, 102)
-cadnn1Colors = [QColor(204, 0, 0),\
-                QColor(247, 67, 8),\
-                QColor(247, 147, 30),\
-                QColor(170, 170, 0),\
-                QColor(87, 187, 0),\
-                QColor(0, 114, 0),\
-                QColor(3, 182, 162),\
-                QColor(23, 0, 222),\
-                QColor(115, 0, 222),\
-                QColor(184, 5, 108),\
-                QColor(51, 51, 51),\
-                QColor(136, 136, 136)]
-stapleColors = cadnn1Colors
+stapColors = [QColor(204, 0, 0),
+              QColor(247, 67, 8),
+              QColor(247, 147, 30),
+              QColor(170, 170, 0),
+              QColor(87, 187, 0),
+              QColor(0, 114, 0),
+              QColor(3, 182, 162),
+              QColor(23, 0, 222),
+              QColor(115, 0, 222),
+              QColor(184, 5, 108),
+              QColor(51, 51, 51),
+              QColor(136, 136, 136)]
+scafColors = [QColor(0, 102, 204),
+              QColor(64, 138, 212),
+              QColor(0, 38, 76),
+              QColor(23, 50, 76),
+              QColor(0, 76, 153)]
 # brightColors = [QColor() for i in range(10)]
 # for i in range(len(brightColors)):
 #     brightColors[i].setHsvF(i/12.0, 1.0, 1.0)

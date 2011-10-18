@@ -114,6 +114,9 @@ class EndpointItem(QGraphicsPathItem):
         else:  # high or dual, doesn't matter
             return self._strandItem.idxs()[1]
 
+    def window(self):
+        return self._strandItem.window()
+
     ### PUBLIC METHODS FOR DRAWING / LAYOUT ###
     def updatePosIfNecessary(self, idx):
         """Update position if necessary and return True if updated."""
@@ -243,6 +246,9 @@ class EndpointItem(QGraphicsPathItem):
     def paintToolMousePress(self, modifiers):
         """Add an insert to the strand if possible."""
         mStrand = self._strandItem._modelStrand
-        color = self._strandItem.window().pathColorPanel.colorName()
+        if mStrand.isStaple():
+            color = self.window().pathColorPanel.stapColorName()
+        else:
+            color = self.window().pathColorPanel.scafColorName()
         mStrand.oligo().applyColor(color)
 

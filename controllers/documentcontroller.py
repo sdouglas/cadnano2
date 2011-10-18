@@ -388,7 +388,7 @@ class DocumentController():
         if not fname.lower().endswith(".csv"):
             fname += ".csv"
         if self.saveStaplesDialog != None:
-            self.saveStaplesDialog.filesSelected.disconnect(self.exportFile)
+            self.saveStaplesDialog.filesSelected.disconnect(self.exportStaplesCallback)
             # manual garbage collection to prevent hang (in osx)
             del self.saveStaplesDialog
         # write the file

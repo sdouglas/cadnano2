@@ -672,7 +672,8 @@ class StrandSet(QObject):
             self._strandSet = strandSet
             self._sSetIdx = strandSetIdx
             self._strand = Strand(strandSet, baseIdxLow, baseIdxHigh)
-            color = None if strandSet.isScaffold() else random.choice(styles.stapleColors).name()
+            colorList = styles.stapColors if strandSet.isStaple() else styles.scafColors
+            color = random.choice(colorList).name()
             self._newOligo = Oligo(None, color)  # redo will set part
         # end def
 
@@ -758,7 +759,8 @@ class StrandSet(QObject):
                 else:
                     # apply 2nd oligo copy to all 3' downstream strands
                     olg3p = self._newOligo3p = oligo.shallowCopy()
-                    color = random.choice(styles.stapleColors).name()
+                    colorList = styles.stapColors if strandSet.isStaple() else styles.scafColors
+                    color = random.choice(colorList).name()
                     olg3p.setColor(color)
                     olg3p.setStrand5p(strand3p)
                     for s3p in strand3p.generator3pStrand():
@@ -957,16 +959,17 @@ class StrandSet(QObject):
             self._strandHigh = strandHigh = strand.shallowCopy()
             self._lOligo = lOligo = oligo.shallowCopy()
             self._hOligo = hOligo = oligo.shallowCopy()
+            colorList = styles.stapColors if sSet.isStaple() else styles.scafColors
             # Determine oligo retention based on strand priority
             if strand.isDrawn5to3():  # strandLow has priority
                 iNewLow = baseIdx
                 colorLow = oligo.color()
-                colorHigh = random.choice(styles.stapleColors).name()
+                colorHigh = random.choice(colorList).name()
                 olg5p, olg3p = lOligo, hOligo
                 std5p, std3p = strandLow, strandHigh
             else:  # strandHigh has priority
                 iNewLow = baseIdx - 1
-                colorLow = random.choice(styles.stapleColors).name()
+                colorLow = random.choice(colorList).name()
                 colorHigh = oligo.color()
                 olg5p, olg3p = hOligo, lOligo
                 std5p, std3p = strandHigh, strandLow
@@ -974,7 +977,7 @@ class StrandSet(QObject):
             # there is only ever one xover a strand is in charge of
             self._strand3p = std3p
             self._strand5p = std5p
-            
+
             # Update strand connectivity
             strandLow.setConnectionHigh(None)
             strandHigh.setConnectionLow(None)

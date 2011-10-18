@@ -87,7 +87,7 @@ class Part(QObject):
         self._highestUsedOdd = -1  # Used iff the recycle bin is empty and highestUsedOdd+2 is not in the reserve bin
         self._highestUsedEven = -2  # same
         self._importedVHelixOrder = None
-        
+
         self._activeBaseIndex = self._step
         self._activeVirtualHelix = None
         self._insertions = defaultdict(dict)  # dictionary of insertions per virtualhelix
@@ -110,14 +110,11 @@ class Part(QObject):
     partVirtualHelixAddedSignal = pyqtSignal(QObject)      # virtualhelix
     partVirtualHelixChangedSignal = pyqtSignal(QObject)    # coords (for a renumber)
     partVirtualHelicesReorderedSignal = pyqtSignal(list)   # list of coords
-    partVirtualHelixChangedSignal = pyqtSignal(QObject)    # virtualhelix (for a renumber or a resize)
+    # for a renumber or a resize
+    partVirtualHelixChangedSignal = pyqtSignal(QObject)    # virtualhelix
     # for updating the Slice View displayed helices
-    partStrandChangedSignal = pyqtSignal(QObject)           # virtualHelix
+    partStrandChangedSignal = pyqtSignal(QObject)          # virtualHelix
 
-    # # Part, VirtualHelixFrom, StrandType, index, VirtualHelixTo, StrandType, index
-    # partXoverAddedSignal = pyqtSignal(QObject, QObject, int, int, QObject, int, int)
-    # # Part, VirtualHelixFrom, StrandType, index, VirtualHelixTo, StrandType, index
-    # partXoverRemovedSignal = pyqtSignal(QObject, QObject, int, int, QObject, int, int)
     ### SLOTS ###
 
     ### ACCESSORS ###
@@ -162,11 +159,15 @@ class Part(QObject):
 
     def getStapleSequences(self):
         """getStapleSequences"""
-        pass
+        s = "Start,End,Sequence,Length,Color\n"
+        for oligo in self._oligos:
+            if oligo.strand5p().strandSet().isStaple():
+                s = s + oligo.sequenceExport()
+        return s
 
     def getVirtualHelices(self):
         """yield an iterator to the virtualHelix references in the part"""
-        return  self._virtualHelixHash.itervalues()
+        return self._virtualHelixHash.itervalues()
     # end def
 
     def insertions(self):
@@ -886,17 +887,17 @@ class Part(QObject):
             ss3 = strand3p.strandSet()
             vh3p = ss3.virtualHelix()
             st3p = ss3.strandType()
-            
+
             strand5p.strandXover5pChangedSignal.emit(strand5p, strand3p)
             strand5p.strandUpdateSignal.emit(strand5p)
             strand3p.strandUpdateSignal.emit(strand3p)
         # end def
     # end class
-    
+
     class ResizeDimensionsCommand(QUndoCommand):
         """
         set the maximum and mininum base index in the helical direction
-        
+
         need to adjust all subelements in the event of a change in the 
         minimum index
         """
@@ -906,21 +907,21 @@ class Part(QObject):
             self._minDelta = minHelixDelta
             self._maxDelta = maxHelixDelta
         # end def
-        
+
         def redo(self):
             part = self._part
             part._minBase += self._minDelta
             part._maxBase += self._maxDelta
             part.deltaMinDimension(self._minDelta)
         # end def
-        
+
         def undo(self):
             part = self._part
             part._minBase -= self._minDelta
             part._maxBase -= self._maxDelta
             self.deltaMinDimension(part, self._minDelta)
         # end def
-        
+
         def deltaMinDimension(self, part, minDimensionDelta):
             """
             Need to update:
@@ -940,6 +941,5 @@ class Part(QObject):
                 part.partVirtualHelixChangedSignal.emit(vh)
             # end for
         # end def
-        
     # end class
 # end class

@@ -109,10 +109,24 @@ class Oligo(QObject):
 
     def sequence(self):
         if self.strand5p().sequence():
-            return ''.join( [Strand.sequence(strand) \
-                        for strand in self.strand5p().generator3pStrand()] )
+            return ''.join([Strand.sequence(strand) \
+                        for strand in self.strand5p().generator3pStrand()])
         else:
             return None
+    # end def
+
+    def sequenceExport(self):
+        vhNum5p = self.strand5p().virtualHelix().number()
+        idx5p = self.strand5p().idx5Prime()
+        seq = ''
+        for strand in self.strand5p().generator3pStrand():
+            seq = seq + Strand.sequence(strand, forExport=True)
+            if strand.connection3p() == None:  # last strand in the oligo
+                vhNum3p = strand.virtualHelix().number()
+                idx3p = strand.idx3Prime()
+        output = "%d[%d],%d[%d],%s,%s,%s\n" % \
+                (vhNum5p, idx5p, vhNum3p, idx3p, seq, len(seq), self._color)
+        return output
     # end def
 
     def shouldHighlight(self):

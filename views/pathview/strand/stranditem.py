@@ -321,13 +321,16 @@ class StrandItem(QGraphicsLineItem):
 
     def _updatePensAndBrushes(self, strand):
         lowIdx, highIdx = strand.lowIdx(), strand.highIdx()
-        if strand.strandSet().isScaffold():
-            pen = QPen(styles.scafstroke, styles.PATH_STRAND_STROKE_WIDTH)
-            brush = QBrush(styles.handlefill)
-        else:
-            colr = QColor(self._modelStrand.oligo().color())
-            pen = QPen(colr, styles.PATH_STRAND_STROKE_WIDTH)
-            brush = QBrush(colr)
+        # if strand.strandSet().isScaffold():
+        #     pen = QPen(styles.scafstroke, styles.PATH_STRAND_STROKE_WIDTH)
+        #     brush = QBrush(styles.handlefill)
+        # else:
+        #     colr = QColor(self._modelStrand.oligo().color())
+        #     pen = QPen(colr, styles.PATH_STRAND_STROKE_WIDTH)
+        #     brush = QBrush(colr)
+        colr = QColor(self._modelStrand.oligo().color())
+        pen = QPen(colr, styles.PATH_STRAND_STROKE_WIDTH)
+        brush = QBrush(colr)
         pen.setCapStyle(Qt.FlatCap)
         self.setPen(pen)
         self._lowCap.setBrush(brush)
@@ -352,7 +355,6 @@ class StrandItem(QGraphicsLineItem):
         # end if
 
         seqList = [x[1][0] for x in strand.getSequenceList()]
-        print seqList
 
         if isDrawn3to5:
             seqList = seqList[::-1]
@@ -472,7 +474,10 @@ class StrandItem(QGraphicsLineItem):
     def paintToolMousePress(self, idx):
         """Add an insert to the strand if possible."""
         mStrand = self._modelStrand
-        color = self.window().pathColorPanel.colorName()
+        if mStrand.isStaple():
+            color = self.window().pathColorPanel.stapColorName()
+        else:
+            color = self.window().pathColorPanel.scafColorName()
         mStrand.oligo().applyColor(color)
     # end def
 

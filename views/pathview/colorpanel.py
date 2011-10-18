@@ -29,7 +29,8 @@ util.qtWrapImport('QtGui', globals(),  ['QBrush', 'QColorDialog', 'QGraphicsItem
 
 
 class ColorPanel(QGraphicsItem):
-    _colors = styles.stapleColors
+    _scafColors = styles.scafColors
+    _stapColors = styles.stapColors
     _pen = Qt.NoPen
 
     def __init__(self, parent=None):
@@ -38,34 +39,51 @@ class ColorPanel(QGraphicsItem):
         self.setFlag(QGraphicsItem.ItemIgnoresTransformations)
         self.colordialog = QColorDialog()
         self.colordialog.setOption(QColorDialog.DontUseNativeDialog)
-        self._colorIndex = -1  # init on -1, painttool will cycle to 0
-        self._color = self._colors[self._colorIndex]
-        self._brush = QBrush(self._color)
+        self._scafColorIndex = -1  # init on -1, painttool will cycle to 0
+        self._stapColorIndex = -1  # init on -1, painttool will cycle to 0
+        self._scafColor = self._scafColors[self._scafColorIndex]
+        self._stapColor = self._stapColors[self._stapColorIndex]
+        self._scafBrush = QBrush(self._scafColor)
+        self._stapBrush = QBrush(self._stapColor)
         self.hide()
 
     def boundingRect(self):
         return self.rect
 
     def paint(self, painter, option, widget=None):
-        painter.setBrush(self._brush)
         painter.setPen(self._pen)
-        painter.drawRect(self.boundingRect())
+        painter.setBrush(self._scafBrush)
+        painter.drawRect(0, 0, 20, 10)
+        painter.setBrush(self._stapBrush)
+        painter.drawRect(0, 10, 20, 10)
 
     def nextColor(self):
-        self._colorIndex += 1
-        if self._colorIndex == len(self._colors):
-            self._colorIndex = 0
-        self._color = self._colors[self._colorIndex]
-        self._brush.setColor(self._color)
+        self._scafColorIndex += 1
+        self._stapColorIndex += 1
+        if self._scafColorIndex == len(self._scafColors):
+            self._scafColorIndex = 0
+        if self._stapColorIndex == len(self._stapColors):
+            self._stapColorIndex = 0
+        self._scafColor = self._scafColors[self._scafColorIndex]
+        self._stapColor = self._stapColors[self._stapColorIndex]
+        self._scafBrush.setColor(self._scafColor)
+        self._stapBrush.setColor(self._stapColor)
         self.update()
 
     def color(self):
-        return self._color
+        return self._stapColor
 
-    def colorName(self):
-        return self._color.name()
+    def scafColorName(self):
+        return self._scafColor.name()
+
+    def stapColorName(self):
+        return self._stapColor.name()
 
     def mousePressEvent(self, event):
-        self._color = self.colordialog.getColor(self._color)
-        self._brush = QBrush(self._color)
+        if event.pos().y() < 10:
+            self._scafColor = self.colordialog.getColor(self._scafColor)
+            self._scafBrush = QBrush(self._scafColor)
+        else:
+            self._stapColor = self.colordialog.getColor(self._stapColor)
+            self._stapBrush = QBrush(self._stapColor)
         self.update()
