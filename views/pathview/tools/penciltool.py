@@ -78,11 +78,35 @@ _toHelixNumFont = styles.XOVER_LABEL_FONT
 # and that only numbers will be used for labels
 _fm = QFontMetrics(_toHelixNumFont)
 _enabbrush = QBrush(Qt.SolidPattern)  # Also for the helix number label
-_nobrush = QBrush(Qt.NoBrush)
+_noBrush = QBrush(Qt.NoBrush)
+_noPen = QPen(Qt.NoPen)
 # _rect = QRectF(0, 0, baseWidth, baseWidth)
 _xScale = styles.PATH_XOVER_LINE_SCALE_X  # control point x constant
 _yScale = styles.PATH_XOVER_LINE_SCALE_Y  # control point y constant
 _rect = QRectF(0, 0, _baseWidth, _baseWidth)
+_blankRect = QRectF(0, 0, 2*_baseWidth, _baseWidth)
+
+ppL5 = QPainterPath()  # Left 5' PainterPath
+ppR5 = QPainterPath()  # Right 5' PainterPath
+ppL3 = QPainterPath()  # Left 3' PainterPath
+ppR3 = QPainterPath()  # Right 3' PainterPath
+
+# set up ppL5 (left 5' blue square)
+ppL5.addRect(0.25*_baseWidth, 0.125*_baseWidth,0.75*_baseWidth, 0.75*_baseWidth)
+# set up ppR5 (right 5' blue square)
+ppR5.addRect(0, 0.125*_baseWidth, 0.75*_baseWidth, 0.75*_baseWidth)
+# set up ppL3 (left 3' blue triangle)
+l3poly = QPolygonF()
+l3poly.append(QPointF(_baseWidth, 0))
+l3poly.append(QPointF(0.25*_baseWidth, 0.5*_baseWidth))
+l3poly.append(QPointF(_baseWidth, _baseWidth))
+ppL3.addPolygon(l3poly)
+# set up ppR3 (right 3' blue triangle)
+r3poly = QPolygonF()
+r3poly.append(QPointF(0, 0))
+r3poly.append(QPointF(0.75*_baseWidth, 0.5*_baseWidth))
+r3poly.append(QPointF(0, _baseWidth))
+ppR3.addPolygon(r3poly)
 
 class ForcedXoverNode3(QGraphicsRectItem):
     """
@@ -97,14 +121,23 @@ class ForcedXoverNode3(QGraphicsRectItem):
         self._isOnTop = virtualHelixItem.isStrandOnTop(strand3p)
         self._isDrawn5to3 = strand3p.strandSet().isDrawn5to3()
         self._strandType = strand3p.strandSet().strandType()
-
+        
         self._partnerVirtualHelix = virtualHelixItem
 
-        self.setPen(QPen(Qt.NoPen))
+
+        self._blankThing = QGraphicsRectItem(_blankRect, self)
+        self._blankThing.setBrush(QBrush(Qt.white))
+        # self._blankThing.setPen(_noPen)
+        self._pathThing = QGraphicsPathItem(self)
+        self.configurePath()
+        
+        self.setPen(_noPen)
         self._label = None
-        self.setPen(QPen(Qt.NoPen))
-        self.setBrush(_nobrush)
+        self.setPen(_noPen)
+        self.setBrush(_noBrush)
         self.setRect(_rect)
+        
+        self.setZValue(styles.ZPATHTOOL-.1)
     # end def
 
     def updateForFloatFromVHI(self, virtualHelixItem, strandType, idxX, idxY):
@@ -116,7 +149,7 @@ class ForcedXoverNode3(QGraphicsRectItem):
         self._strandType = strandType
         self._idx = idxX
         self._isOnTop = self._isDrawn5to3 = True if idxY == 0 else False
-        self.updatePositionAndAppearance()
+        self.updatePositionAndAppearance(fromStrand=False)
     # end def
 
     def updateForFloatFromStrand(self, virtualHelixItem, strand3p, idx):
@@ -129,11 +162,29 @@ class ForcedXoverNode3(QGraphicsRectItem):
         self._isOnTop = virtualHelixItem.isStrandOnTop(strand3p)
         self._isDrawn5to3 = strand3p.strandSet().isDrawn5to3()
         self._strandType = strand3p.strandSet().strandType()
-        self.updatePositionAndAppearance()
+        idxL, idxH = strand3p.idxs()
+        if abs(idxL - idx) > 1 and abs(idxH - idx) > 0:
+            self.updatePositionAndAppearance()
+        else:
+            self.updatePositionAndAppearance(fromStrand=False)
     # end def
 
     def strandType(self):
         return self._strandType
+    # end def
+
+    def configurePath(self):
+        self._pathThing.setBrush(QBrush(styles.redstroke))
+        path = ppR3 if self._isDrawn5to3 else ppL3
+        offset = -_baseWidth if self._isDrawn5to3 else _baseWidth
+        self._pathThing.setPath(path)
+        self._pathThing.setPos(offset, 0)
+        
+        offset = -_baseWidth if self._isDrawn5to3 else 0
+        self._blankThing.setPos(offset, 0)
+        
+        self._blankThing.show()
+        self._pathThing.show()
     # end def
 
     def refreshXover(self):
@@ -169,16 +220,25 @@ class ForcedXoverNode3(QGraphicsRectItem):
         return self._isDrawn5to3
     # end def
 
-    def updatePositionAndAppearance(self):
+    def updatePositionAndAppearance(self, fromStrand=True):
         """
         Sets position by asking the VirtualHelixItem
         Sets appearance by choosing among pre-defined painterpaths (from
         normalstrandgraphicsitem) depending on drawing direction.
         """
         self.setPos(*self.point())
-        # We can only expose a 5' end. But on which side?
-        isLeft = True if self._isDrawn5to3 else False
-        self.updateLabel(isLeft)
+        xoi = self._xoverItem
+        isStrandTypeMatch = xoi.strandType() == self._strandType
+        isVHItemMatch = self._vhi  == xoi._node5._vhi
+        indexDiff = abs(xoi._node5._idx - self._idx)
+        if fromStrand and isStrandTypeMatch and \
+            (isVHItemMatch and indexDiff > 2):
+            self.configurePath()
+            # We can only expose a 5' end. But on which side?
+            isLeft = True if self._isDrawn5to3 else False
+            self.updateLabel(isLeft)
+        else:
+            self.hideItems()
     # end def
 
     def updateConnectivity(self):
@@ -193,6 +253,10 @@ class ForcedXoverNode3(QGraphicsRectItem):
         scene = self.scene()
         scene.removeItem(self._label)
         self._label = None
+        scene.removeItem(self._pathThing)
+        self._pathThing = None
+        scene.removeItem(self._blankThing)
+        self._blankThing = None
         scene.removeItem(self)
     # end def
 
@@ -233,9 +297,13 @@ class ForcedXoverNode3(QGraphicsRectItem):
         # end if
     # end def
 
-    def hideLabel(self):
+    def hideItems(self):
         if self._label:
             self._label.hide()
+        if self._blankThing:
+            self._pathThing.hide()
+        if self._blankThing:
+            self._blankThing.hide()
     # end def
 
 # end class
@@ -254,10 +322,25 @@ class ForcedXoverNode5(ForcedXoverNode3):
     def __init__(self, virtualHelixItem, xoverItem, strand5p, idx):
         super(ForcedXoverNode5, self).__init__(virtualHelixItem, xoverItem, strand5p, idx)
     # end def
+    
+    def configurePath(self):
+        self._pathThing.setBrush(QBrush(styles.redstroke))
+        path = ppL5 if self._isDrawn5to3 else ppR5
+        offset = _baseWidth if self._isDrawn5to3 else -_baseWidth
+        self._pathThing.setPath(path)
+        self._pathThing.setPos(offset, 0)
+        
+        offset =  0 if self._isDrawn5to3 else -_baseWidth
+        self._blankThing.setPos(offset, 0)
+        
+        self._blankThing.show()
+        self._pathThing.show()
+    # end def
 
-    def updatePositionAndAppearance(self):
+    def updatePositionAndAppearance(self, fromStrand=True):
         """Same as XoverItem3, but exposes 3' end"""
         self.setPos(*self.point())
+        self.configurePath()
         # # We can only expose a 3' end. But on which side?
         isLeft = False if self._isDrawn5to3 else True
         self.updateLabel(isLeft)
@@ -281,10 +364,11 @@ class ForcedXoverItem(QGraphicsPathItem):
         super(ForcedXoverItem, self).__init__(partItem)
         self._tool = tool
         self._virtualHelixItem = virtualHelixItem
-        self._strand5p = None
+        self._strandType = None
         self._node5 = None
         self._node3 = None
         self.setFlag(QGraphicsItem.ItemIsFocusable) # for keyPressEvents
+        self.setZValue(styles.ZPATHTOOL)
         self.hide()
     # end def
 
@@ -297,6 +381,10 @@ class ForcedXoverItem(QGraphicsPathItem):
             scene.removeItem(self._node3)
             scene.removeItem(self._node5)
         scene.removeItem(self)
+    # end def
+    
+    def strandType(self):
+        return self._strandType
     # end def
 
     def hideIt(self):
@@ -319,18 +407,18 @@ class ForcedXoverItem(QGraphicsPathItem):
         """
         Must intercept invalid input events.  Make changes here
         """
-        self._tool.setFloatingXoverBegin(True)
-    # end def
-
-    def refreshXover(self):
-        if self._strand5p:
-            self.update(self._strand5p)
+        a = event.key()
+        if a in [Qt.Key_Control, Qt.Key_Left, Qt.Key_Right, Qt.Key_Up, Qt.Key_Down]:
+            QGraphicsPathItem.keyPressEvent(self, event)
+        else:    
+            self._tool.setFloatingXoverBegin(True)
     # end def
 
     def updateBase(self, virtualHelixItem, strand5p, idx):
         # floating Xover!
         self._virtualHelixItem = virtualHelixItem
         self.setParentItem(virtualHelixItem.partItem())
+        self._strandType = strand5p.strandSet().strandType()
         if self._node5 == None:
             self._node5 = ForcedXoverNode5(virtualHelixItem, self, strand5p, idx)
             self._node3 = ForcedXoverNode3(virtualHelixItem, self, strand5p, idx)
@@ -355,7 +443,7 @@ class ForcedXoverItem(QGraphicsPathItem):
     # end def
 
     def updateFloatingFromPartItem(self, partItem, pt):
-        self._node3.hideLabel()
+        self._node3.hideItems()
         self.updateFloatPath(pt)
     # end def
 
@@ -383,25 +471,32 @@ class ForcedXoverItem(QGraphicsPathItem):
         fiveIsTop = node5.isOnTop()
         fiveIs5to3 = node5.isDrawn5to3()
 
-        vhi3 = node3.virtualHelixItem()
-
-        if point:
-            pt3 = point
-        else: 
-            pt3 = vhi3.mapToItem(partItem, *node3.point())
-
-        threeIsTop = True
-        threeIs5to3 = True
-        sameStrand = False
-        sameParity = False
-
         # Enter/exit are relative to the direction that the path travels
         # overall.
         fiveEnterPt = pt5 + QPointF(0 if fiveIs5to3 else 1, .5)*bw
         fiveCenterPt = pt5 + QPointF(.5, .5)*bw
         fiveExitPt = pt5 + QPointF(.5, 0 if fiveIsTop else 1)*bw
 
-        threeEnterPt = threeCenterPt = threeEnterPt = pt3
+        vhi3 = node3.virtualHelixItem()
+
+        if point:
+            pt3 = point
+            threeIsTop = True
+            threeIs5to3 = True
+            sameStrand = False
+            sameParity = False
+            threeEnterPt = threeCenterPt = threeExitPt = pt3
+        else: 
+            pt3 = vhi3.mapToItem(partItem, *node3.point())
+            threeIsTop = node3.isOnTop()
+            threeIs5to3 = node3.isDrawn5to3()
+            sameStrand = (node5.strandType() == node3.strandType()) and vhi3 == vhi5
+            sameParity = fiveIs5to3 == threeIs5to3
+
+            threeEnterPt = pt3 + QPointF(.5, 0 if threeIsTop else 1)*bw
+            threeCenterPt = pt3 + QPointF(.5, .5)*bw
+            threeExitPt = pt3 + QPointF(1 if threeIs5to3 else 0, .5)*bw
+        
 
         c1 = QPointF()
         # case 1: same strand
@@ -429,10 +524,12 @@ class ForcedXoverItem(QGraphicsPathItem):
 
         # Construct painter path
         painterpath = QPainterPath()
-        painterpath.moveTo(fiveCenterPt)
+        painterpath.moveTo(fiveEnterPt)
+        painterpath.lineTo(fiveCenterPt)
         painterpath.lineTo(fiveExitPt)
         painterpath.quadTo(c1, threeEnterPt)
         painterpath.lineTo(threeCenterPt)
+        painterpath.lineTo(threeExitPt)
 
         self.setPath(painterpath)
         self._updateFloatPen()
