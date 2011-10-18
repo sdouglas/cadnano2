@@ -159,7 +159,7 @@ class Part(QObject):
         self._activeVirtualHelix = virtualHelix
         self.partStrandChangedSignal.emit(virtualHelix)
     # end def
-    
+
     def dimensions(self):
         """Returns a tuple of the max X and maxY coordinates of the lattice."""
         return self.latticeCoordToPositionXY(self._maxRow, self._maxCol)
