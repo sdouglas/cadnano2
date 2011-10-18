@@ -36,7 +36,7 @@ class PencilTool(AbstractPathTool):
     """
     def __init__(self, controller):
         super(PencilTool, self).__init__(controller)
-        self._tempXover = ForcedXoverItem(None, None)
+        self._tempXover = ForcedXoverItem(self, None, None)
         self._isFloatingXoverBegin = True
 
     def __repr__(self):
@@ -273,16 +273,18 @@ class ForcedXoverItem(QGraphicsPathItem):
     XoverItem should be a child of a PartItem.
     """
 
-    def __init__(self, partItem, virtualHelixItem):
+    def __init__(self, tool, partItem, virtualHelixItem):
         """
         strandItem is a the model representation of the 5prime most strand
         of a Xover
         """
         super(ForcedXoverItem, self).__init__(partItem)
+        self._tool = tool
         self._virtualHelixItem = virtualHelixItem
         self._strand5p = None
         self._node5 = None
         self._node3 = None
+        self.setFlag(QGraphicsItem.ItemIsFocusable) # for keyPressEvents
         self.hide()
     # end def
 
@@ -299,6 +301,7 @@ class ForcedXoverItem(QGraphicsPathItem):
 
     def hideIt(self):
         self.hide()
+        self.clearFocus()
         if self._node3:
             self._node3.hide()
             self._node5.hide()
@@ -306,9 +309,17 @@ class ForcedXoverItem(QGraphicsPathItem):
 
     def showIt(self):
         self.show()
+        self.setFocus()
         if self._node3:
             self._node3.show()
             self._node5.show()
+    # end def
+    
+    def keyPressEvent(self, event):
+        """
+        Must intercept invalid input events.  Make changes here
+        """
+        self._tool.setFloatingXoverBegin(True)
     # end def
 
     def refreshXover(self):
@@ -319,10 +330,13 @@ class ForcedXoverItem(QGraphicsPathItem):
     def updateBase(self, virtualHelixItem, strand5p, idx):
         # floating Xover!
         self._virtualHelixItem = virtualHelixItem
+        self.setParentItem(virtualHelixItem.partItem())
         if self._node5 == None:
             self._node5 = ForcedXoverNode5(virtualHelixItem, self, strand5p, idx)
             self._node3 = ForcedXoverNode3(virtualHelixItem, self, strand5p, idx)
         self._node5.updateForFloatFromStrand(virtualHelixItem, strand5p, idx)
+        self._node3.updateForFloatFromStrand(virtualHelixItem, strand5p, idx)
+        self.updateFloatPath()
     # end def
 
     def updateFloatingFromVHI(self, virtualHelixItem, strandType, idxX, idxY):
