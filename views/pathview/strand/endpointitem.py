@@ -91,7 +91,7 @@ class EndpointItem(QGraphicsPathItem):
         self._lowDragBound = None
         self._highDragBound = None
         self._initCapSpecificState()
-        self.setPen(QPen(Qt.NoPen))
+        self.setPen(_noPen)
         # for easier mouseclick
         self._clickArea = cA = QGraphicsRectItem(_defaultRect, self)
         cA.mousePressEvent = self.mousePressEvent
