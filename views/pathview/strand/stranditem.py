@@ -439,10 +439,9 @@ class StrandItem(QGraphicsLineItem):
         activeTool = self._activeTool()
         
         if activeTool.isFloatingXoverBegin():
-            activeTool.setFloatingXoverBegin(False)
             tempXover = activeTool.floatingXover()
-            tempXover.setParentItem(partItem)
             tempXover.updateBase(vhi, mStrand, idx)
+            activeTool.setFloatingXoverBegin(False)
         else:
             activeTool.setFloatingXoverBegin(True)
             # install Xover
