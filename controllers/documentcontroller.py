@@ -248,7 +248,7 @@ class DocumentController():
         """
         Triggered by clicking Export Staples button. Opens a file dialog to
         determine where the staples should be saved. The callback is
-        exportCSVCallback which collects the staple sequences and exports
+        exportStaplesCallback which collects the staple sequences and exports
         the file.
         """
         fname = self.filename()
@@ -262,7 +262,7 @@ class DocumentController():
                             "%s - Export As" % QApplication.applicationName(),
                             directory,
                             "(*.csv)")
-            self.saveCSVdialog = None
+            self.saveStaplesDialog = None
             self.exportFile(fname)
         else:  # access through non-blocking callback
             fdialog = QFileDialog(
@@ -273,9 +273,8 @@ class DocumentController():
             fdialog.setAcceptMode(QFileDialog.AcceptSave)
             fdialog.setWindowFlags(Qt.Sheet)
             fdialog.setWindowModality(Qt.WindowModal)
-            # fdialog.exec_()  # or .show(), or .open()
-            self.saveCSVdialog = fdialog
-            self.saveCSVdialog.filesSelected.connect(self.exportCSVCallback)
+            self.saveStaplesDialog = fdialog
+            self.saveStaplesDialog.filesSelected.connect(self.exportStaplesCallback)
             fdialog.open()
     # end def
 
@@ -376,6 +375,28 @@ class DocumentController():
             self.filesavedialog.finished.disconnect(self.actionNewSlotCallback)
             del self.filesavedialog  # prevents hang (?)
         self.newDocument()
+
+    def exportStaplesCallback(self, selected):
+        """Export all staple sequences to selected CSV file."""
+        if isinstance(selected, QStringList) or isinstance(selected, list):
+            fname = selected[0]
+        else:
+            fname = selected
+        if fname.isEmpty() or os.path.isdir(fname):
+            return False
+        fname = str(fname)
+        if not fname.lower().endswith(".csv"):
+            fname += ".csv"
+        if self.saveStaplesDialog != None:
+            self.saveStaplesDialog.filesSelected.disconnect(self.exportFile)
+            # manual garbage collection to prevent hang (in osx)
+            del self.saveStaplesDialog
+        # write the file
+        output = self.activePart().getStapleSequences()
+        f = open(fname, 'w')
+        f.write(output)
+        f.close()
+    # end def
 
     def newClickedCallback(self):
         """

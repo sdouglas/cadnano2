@@ -155,14 +155,23 @@ class Part(QObject):
          return self._activeVirtualHelix
      # end def
 
-    def setActiveVirtualHelix(self, virtualHelix):
-        self._activeVirtualHelix = virtualHelix
-        self.partStrandChangedSignal.emit(virtualHelix)
-    # end def
-    
     def dimensions(self):
         """Returns a tuple of the max X and maxY coordinates of the lattice."""
         return self.latticeCoordToPositionXY(self._maxRow, self._maxCol)
+    # end def
+
+    def getStapleSequences(self):
+        """getStapleSequences"""
+        pass
+
+    def getVirtualHelices(self):
+        """yield an iterator to the virtualHelix references in the part"""
+        return  self._virtualHelixHash.itervalues()
+    # end def
+
+    def insertions(self):
+        """Return dictionary of insertions."""
+        return self._insertions
     # end def
 
     def isEvenParity(self, row, column):
@@ -172,15 +181,6 @@ class Part(QObject):
 
     def hasVirtualHelixAtCoord(self, coord):
         return coord in self._virtualHelixHash
-    # end def
-
-    def radius(self):
-        return self._radius
-    # end def
-
-    def getVirtualHelices(self):
-        """yield an iterator to the virtualHelix references in the part"""
-        return  self._virtualHelixHash.itervalues()
     # end def
 
     def maxBaseIdx(self):
@@ -193,6 +193,10 @@ class Part(QObject):
 
     def numberOfVirtualHelices(self):
         return len(self._virtualHelixHash)
+    # end def
+
+    def radius(self):
+        return self._radius
     # end def
 
     def virtualHelixAtCoord(self, coord):
@@ -296,46 +300,6 @@ class Part(QObject):
                     self.createXover(strand, idx, nStrand, idx)
         # do all the commands
         util.endSuperMacro(self)
-
-    def _splitBeforeAutoXovers(self, vh5p, vh3p, idx, useUndoStack=True):
-        # prexoveritem needs to store left or right, and determine
-        # locally whether it is from or to
-        # pass that info in here in and then do the breaks
-        ss5p = strand5p.strandSet()
-        ss3p = strand3p.strandSet()
-        cmds = []
-
-        # is the 5' end ready for xover installation?
-        if strand3p.idx5Prime() == idx5p:  # yes, idx already matches
-            xoStrand3 = strand3p
-        else:  # no, let's try to split
-            offset3p = -1 if ss3p.isDrawn5to3() else 1
-            if ss3p.strandCanBeSplit(strand3p, idx3p+offset3p):
-                found, overlap, ssIdx = ss3p._findIndexOfRangeFor(strand3p)
-                if found:
-                    c = ss3p.SplitCommand(strand3p, idx3p+offset3p, ssIdx)
-                    cmds.append(c)
-                    xoStrand3 = c._strandHigh if ss3p.isDrawn5to3() else c._strandLow
-            else:  # can't split... abort
-                return
-
-        # is the 3' end ready for xover installation?
-        if strand5p.idx3Prime() == idx5p:  # yes, idx already matches
-            xoStrand5 = strand5p
-        else:
-            if ss5p.strandCanBeSplit(strand5p, idx5p):
-                found, overlap, ssIdx = ss5p._findIndexOfRangeFor(strand5p)
-                if found:
-                    d = ss5p.SplitCommand(strand5p, idx5p, ssIdx)
-                    cmds.append(d)
-                    xoStrand5 = d._strandLow if ss5p.isDrawn5to3() else d._strandHigh
-            else:  # can't split... abort
-                return
-        c = Part.CreateXoverCommand(self, xoStrand5, idx5p, xoStrand3, idx3p)
-        cmds.append(c)
-        util.execCommandList(self, cmds, desc="Create Xover", \
-                                                useUndoStack=useUndoStack)
-    # end def
 
     def createVirtualHelix(self, row, col, useUndoStack=True):
         c = Part.CreateVirtualHelixCommand(self, row, col)
@@ -462,13 +426,18 @@ class Part(QObject):
                                                     useUndoStack=useUndoStack)
     # end def
 
-    def insertions(self):
-        """return dictionary of insertions."""
-        return self._insertions
-    # end def
-
     def renumber(self):
         print "%s: renumber() called." % self
+    # end def
+
+    def setActiveBaseIndex(self, idx):
+        self._activeBaseIndex = idx
+        self.partActiveSliceIndexSignal.emit(self, idx)
+    # end def
+
+    def setActiveVirtualHelix(self, virtualHelix):
+        self._activeVirtualHelix = virtualHelix
+        self.partStrandChangedSignal.emit(virtualHelix)
     # end def
 
     def selectPreDecorator(self, selectionList):
@@ -483,11 +452,6 @@ class Part(QObject):
             (row, col, baseIdx) = (sel[0], sel[1], sel[2])
             print "PreDecorator was selected at (%d, %d)[%d]" % (row, col, baseIdx)
             # partPreDecoratorSelectedSignal.emit(row, col, baseIdx)
-
-    def setActiveBaseIndex(self, idx):
-        self._activeBaseIndex = idx
-        self.partActiveSliceIndexSignal.emit(self, idx)
-    # end def
 
     ### PRIVATE SUPPORT METHODS ###
     def _addVirtualHelix(self, virtualHelix):
@@ -558,6 +522,46 @@ class Part(QObject):
             heappush(self.evenRecycleBin,n)
         else:
             heappush(self.oddRecycleBin,n)
+    # end def
+
+    def _splitBeforeAutoXovers(self, vh5p, vh3p, idx, useUndoStack=True):
+        # prexoveritem needs to store left or right, and determine
+        # locally whether it is from or to
+        # pass that info in here in and then do the breaks
+        ss5p = strand5p.strandSet()
+        ss3p = strand3p.strandSet()
+        cmds = []
+
+        # is the 5' end ready for xover installation?
+        if strand3p.idx5Prime() == idx5p:  # yes, idx already matches
+            xoStrand3 = strand3p
+        else:  # no, let's try to split
+            offset3p = -1 if ss3p.isDrawn5to3() else 1
+            if ss3p.strandCanBeSplit(strand3p, idx3p+offset3p):
+                found, overlap, ssIdx = ss3p._findIndexOfRangeFor(strand3p)
+                if found:
+                    c = ss3p.SplitCommand(strand3p, idx3p+offset3p, ssIdx)
+                    cmds.append(c)
+                    xoStrand3 = c._strandHigh if ss3p.isDrawn5to3() else c._strandLow
+            else:  # can't split... abort
+                return
+
+        # is the 3' end ready for xover installation?
+        if strand5p.idx3Prime() == idx5p:  # yes, idx already matches
+            xoStrand5 = strand5p
+        else:
+            if ss5p.strandCanBeSplit(strand5p, idx5p):
+                found, overlap, ssIdx = ss5p._findIndexOfRangeFor(strand5p)
+                if found:
+                    d = ss5p.SplitCommand(strand5p, idx5p, ssIdx)
+                    cmds.append(d)
+                    xoStrand5 = d._strandLow if ss5p.isDrawn5to3() else d._strandHigh
+            else:  # can't split... abort
+                return
+        c = Part.CreateXoverCommand(self, xoStrand5, idx5p, xoStrand3, idx3p)
+        cmds.append(c)
+        util.execCommandList(self, cmds, desc="Create Xover", \
+                                                useUndoStack=useUndoStack)
     # end def
 
     ### PUBLIC SUPPORT METHODS ###
