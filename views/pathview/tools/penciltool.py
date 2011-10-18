@@ -53,10 +53,8 @@ class PencilTool(AbstractPathTool):
     def setFloatingXoverBegin(self, boolval):
         self._isFloatingXoverBegin = boolval
         if boolval:
-            print "hiding"
             self._tempXover.hideIt()
         else:
-            print "showing"
             self._tempXover.showIt()
     # end def
 # end class
@@ -100,7 +98,7 @@ class ForcedXoverNode3(QGraphicsRectItem):
         self._isDrawn5to3 = strand3p.strandSet().isDrawn5to3()
         self._strandType = strand3p.strandSet().strandType()
 
-        self.setPartnerVirtualHelix(strand3p)
+        self._partnerVirtualHelix = virtualHelixItem
 
         self.setPen(QPen(Qt.NoPen))
         self._label = None
@@ -118,7 +116,7 @@ class ForcedXoverNode3(QGraphicsRectItem):
         self._strandType = strandType
         self._idx = idxX
         self._isOnTop = self._isDrawn5to3 = True if idxY == 0 else False
-        self.setPos(*self.point())
+        self.updatePositionAndAppearance()
     # end def
 
     def updateForFloatFromStrand(self, virtualHelixItem, strand3p, idx):
@@ -131,7 +129,7 @@ class ForcedXoverNode3(QGraphicsRectItem):
         self._isOnTop = virtualHelixItem.isStrandOnTop(strand3p)
         self._isDrawn5to3 = strand3p.strandSet().isDrawn5to3()
         self._strandType = strand3p.strandSet().strandType()
-        self.setPos(*self.point())
+        self.updatePositionAndAppearance()
     # end def
 
     def strandType(self):
@@ -142,11 +140,8 @@ class ForcedXoverNode3(QGraphicsRectItem):
         self._xoverItem.refreshXover()
     # end def
 
-    def setPartnerVirtualHelix(self,strand):
-        if strand.connection5p():
-            self._partnerVirtualHelix = strand.connection5p().virtualHelix()
-        else:
-            self._partnerVirtualHelix = None
+    def setPartnerVirtualHelix(self, virtualHelixItem):
+        self._partnerVirtualHelix = virtualHelixItem
     # end def
 
     def idx(self):
@@ -232,8 +227,15 @@ class ForcedXoverNode3(QGraphicsRectItem):
                 lbl.setFont(_toHelixNumFont)
                 self._label = lbl
             # end if
+            # print "setting label"
             lbl.setText( str(self._partnerVirtualHelix.number()) )
+            lbl.show()
         # end if
+    # end def
+
+    def hideLabel(self):
+        if self._label:
+            self._label.hide()
     # end def
 
 # end class
@@ -251,13 +253,6 @@ class ForcedXoverNode5(ForcedXoverNode3):
     """
     def __init__(self, virtualHelixItem, xoverItem, strand5p, idx):
         super(ForcedXoverNode5, self).__init__(virtualHelixItem, xoverItem, strand5p, idx)
-    # end def
-
-    def setPartnerVirtualHelix(self, strand):
-        if strand.connection3p():
-            self._partnerVirtualHelix = strand.connection3p().virtualHelix()
-        else:
-            self._partnerVirtualHelix = None
     # end def
 
     def updatePositionAndAppearance(self):
@@ -332,6 +327,9 @@ class ForcedXoverItem(QGraphicsPathItem):
 
     def updateFloatingFromVHI(self, virtualHelixItem, strandType, idxX, idxY):
         # floating Xover!
+        self._node5.setPartnerVirtualHelix(virtualHelixItem)
+        self._node5.updatePositionAndAppearance()
+        self._node3.setPartnerVirtualHelix(self._virtualHelixItem)
         self._node3.updateForFloatFromVHI(virtualHelixItem, strandType, idxX, idxY)
         self.updateFloatPath()
     # end def
@@ -343,6 +341,7 @@ class ForcedXoverItem(QGraphicsPathItem):
     # end def
 
     def updateFloatingFromPartItem(self, partItem, pt):
+        self._node3.hideLabel()
         self.updateFloatPath(pt)
     # end def
 
