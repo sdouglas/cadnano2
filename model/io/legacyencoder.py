@@ -22,7 +22,7 @@
 #
 # http://www.opensource.org/licenses/mit-license.php
 
-# from os.path import splitext
+from os.path import basename
 from model.enum import StrandType
 
 def legacy_dict_from_doc(document, fname, helixOrderList):
@@ -61,6 +61,6 @@ def legacy_dict_from_doc(document, fname, helixOrderList):
                   "stapLoop":[],
                   "stap_colors":stapColors}
         vhList.append(vhDict)
-    # fileName, fileExtension = splitext(fname)
-    obj = {"name":fname , "vstrands":vhList}
+    bname = basename(fname)
+    obj = {"name":bname , "vstrands":vhList}
     return obj
