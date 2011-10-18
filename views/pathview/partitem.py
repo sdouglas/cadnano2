@@ -40,11 +40,11 @@ from activesliceitem import ActiveSliceItem
 
 import util
 # import Qt stuff into the module namespace with PySide, PyQt4 independence
-util.qtWrapImport('QtCore', globals(), ['pyqtSignal', 'QObject', 'QRectF'])
+util.qtWrapImport('QtCore', globals(), ['pyqtSignal', 'QObject', 'QRectF', 'Qt'])
 util.qtWrapImport('QtGui', globals(), ['QUndoCommand', 'QUndoStack',
-                                       'QGraphicsPathItem'])
+                                       'QGraphicsPathItem', 'QGraphicsRectItem', 'QPen', 'QBrush'])
 
-class PartItem(QGraphicsPathItem):
+class PartItem(QGraphicsRectItem):
     def __init__(self, modelPart, activeTool, parent):
         """parent should always be pathrootitem"""
         super(PartItem, self).__init__(parent)
@@ -113,6 +113,7 @@ class PartItem(QGraphicsPathItem):
         self._virtualHelixHash[vh.coord()] = vhi
         self._virtualHelixItemList.append(vhi)
         self._setVirtualHelixItemList(self._virtualHelixItemList)
+        self.updateBoundingRect()
     # end def
 
     def updatePreXoverItemsSlot(self, virtualHelix):
@@ -137,11 +138,18 @@ class PartItem(QGraphicsPathItem):
         return self._modelPart
     # end def
 
+    def updateBoundingRect(self):
+        self.setPen(QPen(Qt.NoPen))
+        # self.setBrush(QBrush(Qt.cyan))
+        self.setRect(self.childrenBoundingRect())
+    # end def
+
     def removeVirtualHelixItem(self, virtualHelixItem):
         vh = virtualHelixItem.virtualHelix()
         self._virtualHelixItemList.remove(virtualHelixItem)
         del self._virtualHelixHash[vh.coord()]
         self._setVirtualHelixItemList(self._virtualHelixItemList)
+        self.updateBoundingRect()
     # end
 
     def itemForVirtualHelix(self, virtualHelix):
@@ -334,7 +342,6 @@ class PartItem(QGraphicsPathItem):
         partItem = self
         activeTool = self._activeTool()
         if not activeTool.isFloatingXoverBegin():
-            print "poooooooooooop"
             tempXover = activeTool.floatingXover()
             tempXover.updateFloatingFromPartItem(self, pt)
     # end def

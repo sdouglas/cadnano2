@@ -73,31 +73,6 @@ class XoverNode3(QGraphicsRectItem):
         self.setRect(_rect)
     # end def
     
-    def updateForFloatFromVHI(self, virtualHelixItem, strandType, idxX, idxY):
-        """
-        
-        """
-        self._vhi = virtualHelixItem
-        self.setParentItem(virtualHelixItem)
-        self._strandType = strandType
-        self._idx = idxX
-        self._isOnTop = self._isDrawn5to3 = True if idxY == 0 else False
-        self.setPos(*self.point())
-    # end def
-    
-    def updateForFloatFromStrand(self, virtualHelixItem, strand3p, idx):
-        """
-        
-        """
-        self._vhi = virtualHelixItem
-        self.setParentItem(virtualHelixItem)
-        self._idx = idx
-        self._isOnTop = virtualHelixItem.isStrandOnTop(strand3p)
-        self._isDrawn5to3 = strand3p.strandSet().isDrawn5to3()
-        self._strandType = strand3p.strandSet().strandType()
-        self.setPos(*self.point())
-    # end def
-    
     def strandType(self):
         return self._strandType
     # end def
@@ -309,111 +284,6 @@ class XoverItem(QGraphicsPathItem):
             self._updatePath(strand5p)
         # end if
     # end def
-    
-    def updateBase(self, virtualHelixItem, strand5p, idx):
-        # floating Xover!
-        self._virtualHelixItem = virtualHelixItem
-        if self._node5 == None:
-            self._node5 = XoverNode5(virtualHelixItem, self, strand5p, idx)
-            self._node3 = XoverNode3(virtualHelixItem, self, strand5p, idx)
-        self._node5.updateForFloatFromStrand(virtualHelixItem, strand5p, idx)
-    # end def
-    
-    def updateFloatingFromVHI(self, virtualHelixItem, strandType, idxX, idxY):
-        # floating Xover!
-        self._node3.updateForFloatFromVHI(virtualHelixItem, strandType, idxX, idxY)
-        self.updateFloatPath()
-    # end def
-    
-    def updateFloatingFromStrandItem(self, virtualHelixItem, strand3p, idx):
-        # floating Xover!
-        self._node3.updateForFloatFromStrand(virtualHelixItem, strand3p, idx)
-        self.updateFloatPath()
-    # end def
-    
-    def updateFloatingFromPartItem(self, pt):
-        self.updateFloatPath(pt)
-    # end def
-    
-    def updateFloatPath(self, point=None):
-        """
-        Draws a quad curve from the edge of the fromBase
-        to the top or bottom of the toBase (q5), and
-        finally to the center of the toBase (toBaseEndpoint).
-
-        If floatPos!=None, this is a floatingXover and floatPos is the
-        destination point (where the mouse is) while toHelix, toIndex
-        are potentially None and represent the base at floatPos.
-
-        """
-        # print "updating xover curve", self.parentObject()
-        node3 = self._node3
-        node5 = self._node5
-
-        bw = _baseWidth
-
-        vhi5 = self._virtualHelixItem
-        partItem = vhi5.partItem()
-        pt5 = vhi5.mapToItem(partItem, *node5.floatPoint())
-
-        fiveIsTop = node5.isOnTop()
-        fiveIs5to3 = node5.isDrawn5to3()
-
-        vhi3 = node3.virtualHelixItem()
-        
-        if point:
-            pt3 = point
-        else: 
-            pt3 = vhi3.mapToItem(partItem, *node3.point())
-
-        threeIsTop = True
-        threeIs5to3 = True
-        isFloating = True
-        sameStrand = False
-        sameParity = False
-
-        # Enter/exit are relative to the direction that the path travels
-        # overall.
-        fiveEnterPt = pt5 + QPointF(0 if fiveIs5to3 else 1, .5)*bw
-        fiveCenterPt = pt5 + QPointF(.5, .5)*bw
-        fiveExitPt = pt5 + QPointF(.5, 0 if fiveIsTop else 1)*bw
-
-        threeEnterPt = threeCenterPt = threeEnterPt = pt3
-
-        c1 = QPointF()
-        # case 1: same strand
-        if sameStrand:
-            dx = abs(threeEnterPt.x() - fiveExitPt.x())
-            c1.setX(0.5 * (fiveExitPt.x() + threeEnterPt.x()))
-            if fiveIsTop:
-                c1.setY(fiveExitPt.y() - _yScale * dx)
-            else:
-                c1.setY(fiveExitPt.y() + _yScale * dx)
-            # case 2: same parity
-        elif sameParity:
-             dy = abs(threeEnterPt.y() - fiveExitPt.y())
-             c1.setX(fiveExitPt.x() + _xScale * dy)
-             c1.setY(0.5 * (fiveExitPt.y() + threeEnterPt.y()))
-        # case 3: different parity
-        else:
-            if fiveIsTop and fiveIs5to3:
-                c1.setX(fiveExitPt.x() - _xScale *\
-                        abs(threeEnterPt.y() - fiveExitPt.y()))
-            else:
-                c1.setX(fiveExitPt.x() + _xScale *\
-                        abs(threeEnterPt.y() - fiveExitPt.y()))
-            c1.setY(0.5 * (fiveExitPt.y() + threeEnterPt.y()))
-
-        # Construct painter path
-        painterpath = QPainterPath()
-        painterpath.moveTo(fiveCenterPt)
-        painterpath.lineTo(fiveExitPt)
-        painterpath.quadTo(c1, threeEnterPt)
-        painterpath.lineTo(threeCenterPt)
-
-        self.setPath(painterpath)
-        self._updateFloatPen()
-    # end def
 
     def _updatePath(self, strand5p):
         """
@@ -444,7 +314,6 @@ class XoverItem(QGraphicsPathItem):
 
         threeIsTop = node3.isOnTop()
         threeIs5to3 = node3.isDrawn5to3()
-        isFloating = False
         sameStrand = (node5.strandType() == node3.strandType()) and vhi3 == vhi5
         sameParity = fiveIs5to3 == threeIs5to3
 
@@ -519,12 +388,5 @@ class XoverItem(QGraphicsPathItem):
         pen.setCapStyle(Qt.FlatCap)
         self.setPen(pen)
     # end def
-    
-    def _updateFloatPen(self):
-        color = styles.redstroke
-        penWidth = styles.PATH_STRAND_STROKE_WIDTH
-        pen = QPen(color, penWidth)
-        pen.setCapStyle(Qt.FlatCap)
-        self.setPen(pen)
-    # end def
+
 # end class XoverItem
