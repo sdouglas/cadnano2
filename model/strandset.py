@@ -235,9 +235,11 @@ class StrandSet(QObject):
         if abs(strandA.lowIdx() - strandB.highIdx()) == 1 or \
             abs(strandB.lowIdx() - strandA.highIdx()) == 1:
             if strandA.lowIdx() < strandB.lowIdx():
-                return strandA, strandB
+                if strandA.connectionHigh() and strandB.connectionLow():
+                    return strandA, strandB
             else:
-                return strandB, strandA
+                if strandB.connectionHigh() and strandA.connectionLow():
+                    return strandB, strandA
         else:
             return None
     # end def

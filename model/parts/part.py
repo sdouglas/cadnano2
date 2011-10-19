@@ -162,10 +162,7 @@ class Part(QObject):
         s = "Start,End,Sequence,Length,Color\n"
         for oligo in self._oligos:
             if oligo.strand5p().strandSet().isStaple():
-                print oligo
-                r = oligo.sequenceExport()
-                print r,
-                s = s + r # oligo.sequenceExport()
+                s = s + oligo.sequenceExport()
         return s
 
     def getVirtualHelices(self):
