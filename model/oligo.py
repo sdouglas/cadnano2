@@ -53,6 +53,12 @@ class Oligo(QObject):
         self._color = color if color else "#0066cc"
     # end def
 
+    def __repr__(self):
+        clsName = self.__class__.__name__
+        vhNum = self._strand5p.strandSet().virtualHelix().number()
+        idx = self._strand5p.idx5Prime()
+        return "<%s %s>(%d[%d])" % (clsName, str(id(self))[-4:], vhNum, idx)
+
     def shallowCopy(self):
         olg = Oligo(self._part)
         olg._strand5p = self._strand5p
@@ -102,6 +108,9 @@ class Oligo(QObject):
     ### PUBLIC METHODS FOR QUERYING THE MODEL ###
     def isLoop(self):
         return self._isLoop
+
+    def isStaple(self):
+        return self._strand5p.isStaple()
 
     def length(self):
         return self._length

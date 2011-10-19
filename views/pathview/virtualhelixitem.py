@@ -276,18 +276,7 @@ class VirtualHelixItem(QGraphicsPathItem):
         the scene (in scene space)"""
         dx = self._partItem.part().stepSize() * _baseWidth
         return self.mapToScene(QRectF(0, 0, dx, 1)).boundingRect().width()
-        
-    def mouseMoveEvent(self, event):
-        """
-        Parses a mouseMoveEvent to extract strandSet and base index,
-        forwarding them to approproate tool method as necessary.
-        """
-        toolMethodName = str(self._activeTool()) + "MouseMove"
-        if hasattr(self, toolMethodName):
-            idx = int(floor((event.pos().x()) / _baseWidth))
-            getattr(self, toolMethodName)(idx)
-    # end def
-    
+
     def hoverMoveEvent(self, event):
         """
         Parses a mouseMoveEvent to extract strandSet and base index,

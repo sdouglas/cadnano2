@@ -243,7 +243,8 @@ def execCommandList(modelObject, commands, desc=None, useUndoStack=True):
     methods are called directly.
     """
     if useUndoStack:
-        print "<QUndoStack %d> %s" % (id(modelObject.undoStack()), desc)
+        undoStackId = str(id(modelObject.undoStack()))[-4:]
+        print "<QUndoStack %s> %s" % (undoStackId, desc)
         modelObject.undoStack().beginMacro(desc)
         for c in commands:
             modelObject.undoStack().push(c)

@@ -75,7 +75,10 @@ class ActiveSliceItem(QGraphicsRectItem):
         self.setPos(activeBaseIndex*_baseWidth, 0)
         self.setBrush(_brush)
         self.setPen(_pen)
-        # self._label.show()
+
+        # reuse select tool methods for other tools
+        self.addSeqToolMousePress = self.selectToolMousePress
+        self.addSeqToolMouseMove = self.selectToolMouseMove
     # end def
 
     ### SLOTS ###

@@ -29,9 +29,10 @@ from model.parts.honeycombpart import HoneycombPart
 from model.parts.squarepart import SquarePart
 from model.virtualhelix import VirtualHelix
 from ui.dialogs.ui_latticetype import Ui_LatticeType
+from views import styles
 import util
 # import Qt stuff into the module namespace with PySide, PyQt4 independence
-util.qtWrapImport('QtGui', globals(),  ['qApp', 'QColor', 'QDialog', 'QDialogButtonBox'])
+util.qtWrapImport('QtGui', globals(),  ['QColor', 'QDialog', 'QDialogButtonBox'])
 
 NODETAG = "node"
 NAME = "name"
@@ -50,9 +51,9 @@ STAPLE = "staple"
 INSERTION = "insertion"
 DELETION = "deletion"
 
-def doc_from_legacy_dict(document, obj):
+def import_legacy_dict(document, obj):
     """
-    Parses a dictionary created from reading a json file and uses it
+    Parses a dictionary (obj) created from reading a json file and uses it
     to populate the given document with model data.
     """
     numBases = len(obj['vstrands'][0]['scaf'])
@@ -205,9 +206,13 @@ def doc_from_legacy_dict(document, obj):
             strand3p = toVh.stapleStrandSet().getStrand(idx5p)
             part.createXover(strand5p, idx5p, strand3p, idx3p, useUndoStack=False)
 
-    # SET DEFAULT COLOR  #888888 because it is not cadnano1-generated file
+    # SET DEFAULT COLOR
     for oligo in part.oligos():
-        oligo.applyColor("#888888", useUndoStack=False)
+        if oligo.isStaple():
+            defaultColor = styles.DEFAULT_STAP_COLOR
+        else:
+            defaultColor = styles.DEFAULT_SCAF_COLOR
+        oligo.applyColor(defaultColor, useUndoStack=False)
 
     # COLORS, INSERTIONS, SKIPS
     for helix in obj['vstrands']:

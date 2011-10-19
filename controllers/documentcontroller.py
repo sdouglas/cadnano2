@@ -166,14 +166,10 @@ class DocumentController():
 
     def actionSaveSlot(self):
         """SaveAs if necessary, otherwise overwrite existing file."""
-        print "actionSaveSlot",self._hasNoAssociatedFile
         if self._hasNoAssociatedFile:
             self.saveFileDialog()
             return
-        # if importedFromJson:
-        #     self.saveFileDialog()
-        #     return
-        # self.writeDocumentToFile()
+        self.writeDocumentToFile()
 
     def actionSaveAsSlot(self):
         """Open a save file dialog so user can choose a name."""
@@ -393,9 +389,9 @@ class DocumentController():
             del self.saveStaplesDialog
         # write the file
         output = self.activePart().getStapleSequences()
-        f = open(fname, 'w')
-        f.write(output)
-        f.close()
+        # f = open(fname, 'w')
+        # f.write(output)
+        # f.close()
     # end def
 
     def newClickedCallback(self):

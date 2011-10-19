@@ -95,7 +95,7 @@ class Part(QObject):
 
     def __repr__(self):
         clsName = self.__class__.__name__
-        return "<%s (%d)>" % (clsName, id(self))
+        return "<%s %s>" % (clsName, str(id(self))[-4:])
 
     ### SIGNALS ###
     partActiveSliceIndexSignal = pyqtSignal(QObject, int)  # self, index
@@ -162,7 +162,10 @@ class Part(QObject):
         s = "Start,End,Sequence,Length,Color\n"
         for oligo in self._oligos:
             if oligo.strand5p().strandSet().isStaple():
-                s = s + oligo.sequenceExport()
+                print oligo
+                r = oligo.sequenceExport()
+                print r,
+                s = s + r # oligo.sequenceExport()
         return s
 
     def getVirtualHelices(self):
