@@ -393,6 +393,38 @@ class Strand(QObject):
         else:
             return False
     # end def
+    
+    def canInstallXoverAt(self, idx, fromStrand, fromIdx):
+        """
+        Assumes idx is:
+        self.lowIdx() <= idx <= self.highIdx() 
+        """
+        
+        if self.hasXoverAt(idx):
+            return False
+        sS = self.strandSet()
+        isSameStrand = fromStrand == self
+        isStrandTypeMatch = fromStrand.strandSet().strandType() == sS.strandType() if fromStrand else True
+        if not isStrandTypeMatch:
+            return False
+        isDrawn5to3 = sS.isDrawn5to3()
+        indexDiffH = self.highIdx() - idx
+        indexDiffL = idx - self.lowIdx()
+        index3Lim = self.idx3Prime() - 1 if isDrawn5to3 else self.idx3Prime()+1
+        if isSameStrand:
+            indexDiffStrands = fromIdx - idx
+            if idx == self.idx5Prime() or idx == index3Lim:
+                return True
+            elif indexDiffStrands > -3 and indexDiffStrands < 3:
+                return False
+        # end if for same Strand
+        if idx == self.idx5Prime() or idx == index3Lim:
+            return True
+        elif indexDiffH > 2 and indexDiffL > 1:
+            return True
+        else:
+            return False
+    #end def
 
     def insertionLengthBetweenIdxs(self, idxL, idxH):
         """

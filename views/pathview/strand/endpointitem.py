@@ -83,7 +83,7 @@ _noPen = QPen(Qt.NoPen)
 class EndpointItem(QGraphicsPathItem):
     def __init__(self, strandItem, captype, isDrawn5to3):
         """The parent should be a StrandItem."""
-        super(EndpointItem, self).__init__(strandItem)
+        super(EndpointItem, self).__init__(strandItem.virtualHelixItem())
         self._strandItem = strandItem
         self._activeTool = strandItem.activeTool()
         self._capType = captype
@@ -94,6 +94,8 @@ class EndpointItem(QGraphicsPathItem):
         self.setPen(_noPen)
         # for easier mouseclick
         self._clickArea = cA = QGraphicsRectItem(_defaultRect, self)
+        self._clickArea.setAcceptHoverEvents(True)
+        cA.hoverMoveEvent = self._strandItem.hoverMoveEvent
         cA.mousePressEvent = self.mousePressEvent
         cA.mouseMoveEvent = self.mouseMoveEvent
         cA.setPen(_noPen)
