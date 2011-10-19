@@ -141,7 +141,14 @@ class Oligo(QObject):
     # end def
 
     def shouldHighlight(self):
-        return True if self.length() > 40 else False
+        # print self, self.length(), util.trace(4)
+        if self._strand5p.isScaffold():
+            return False
+        if self.length() < 18:
+            return True
+        if self.length() > 50:
+            return True
+        return False
     # end def
 
     ### PUBLIC METHODS FOR EDITING THE MODEL ###
@@ -173,12 +180,12 @@ class Oligo(QObject):
         self.deleteLater()
     # end def
 
-    def decrementStrandLength(self, strand):
-        self.setLength(self._length-strand.length())
+    def decrementLength(self, delta):
+        self.setLength(self._length-delta)
     # end def
 
-    def incrementStrandLength(self, strand):
-        self.setLength(self._length+strand.length())
+    def incrementLength(self, delta):
+        self.setLength(self._length+delta)
     # end def
 
     def removeFromPart(self):

@@ -389,9 +389,9 @@ class DocumentController():
             del self.saveStaplesDialog
         # write the file
         output = self.activePart().getStapleSequences()
-        # f = open(fname, 'w')
-        # f.write(output)
-        # f.close()
+        f = open(fname, 'w')
+        f.write(output)
+        f.close()
     # end def
 
     def newClickedCallback(self):

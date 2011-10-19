@@ -841,15 +841,19 @@ class Part(QObject):
             strand5pIdx = self._strand5pIdx
             strand3p = self._strand3p
             strand3pIdx = self._strand3pIdx
-            
+            olg5p = strand5p.oligo()
+            oldOlg3p = self._oldOligo3p
+
+            # 1. update preserved oligo length
+            olg5p.incrementLength(oldOlg3p.length())
+
             # 2. Remove the old oligo and apply the 5' oligo to the 3' strand
-            self._oldOligo3p.removeFromPart()
-            olg = strand5p.oligo()
-            if olg == strand3p.oligo():
-                olg.setLoop(True)
+            oldOlg3p.removeFromPart()
+            if olg5p == strand3p.oligo():
+                olg5p.setLoop(True)
             else:
                 for strand in strand3p.generator3pStrand():
-                    Strand.setOligo(strand, olg)  # emits strandHasNewOligoSignal
+                    Strand.setOligo(strand, olg5p)  # emits strandHasNewOligoSignal
 
             # 3. install the Xover
             strand5p.setConnection3p(strand3p)
@@ -873,19 +877,23 @@ class Part(QObject):
             strand5pIdx = self._strand5pIdx
             strand3p = self._strand3p
             strand3pIdx = self._strand3pIdx
-            olg = self._oldOligo3p
+            oldOlg3p = self._oldOligo3p
+            olg5p = strand5p.oligo()
 
-            # 2. uninstall the Xover
+            # 1. uninstall the Xover
             strand5p.setConnection3p(None)
             strand3p.setConnection5p(None)
 
+            # 2. restore the modified oligo length
+            olg5p.decrementLength(oldOlg3p.length())
+
             # 3. apply the old oligo to strand3p
-            olg.addToPart(part)
-            if olg.isLoop():
-                olg.setLoop(False)
+            oldOlg3p.addToPart(part)
+            if oldOlg3p.isLoop():
+                oldOlg3p.setLoop(False)
             else:
                 for strand in strand3p.generator3pStrand():
-                    Strand.setOligo(strand, olg)  # emits strandHasNewOligoSignal
+                    Strand.setOligo(strand, oldOlg3p)  # emits strandHasNewOligoSignal
 
             ss5 = strand5p.strandSet()
             vh5p = ss5.virtualHelix()
