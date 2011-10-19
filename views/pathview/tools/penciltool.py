@@ -57,6 +57,15 @@ class PencilTool(AbstractPathTool):
         else:
             self._tempXover.showIt()
     # end def
+    
+    def attemptToCreateXover(self, virtualHelixItem, strand3p, idx):
+        xoi = self._tempXover
+        n5 = xoi._node5 
+        idx5 = n5._idx
+        strand5p = n5._strand
+        part = virtualHelixItem.part()
+        part.createXover(strand5p, idx5, strand3p, idx)
+    # end def
 # end class
 
 from exceptions import AttributeError, NotImplementedError
@@ -149,7 +158,7 @@ class ForcedXoverNode3(QGraphicsRectItem):
         self._strandType = strandType
         self._idx = idxX
         self._isOnTop = self._isDrawn5to3 = True if idxY == 0 else False
-        self.updatePositionAndAppearance(fromStrand=False)
+        self.updatePositionAndAppearance(isFromStrand=False)
     # end def
 
     def updateForFloatFromStrand(self, virtualHelixItem, strand3p, idx):
@@ -157,16 +166,17 @@ class ForcedXoverNode3(QGraphicsRectItem):
 
         """
         self._vhi = virtualHelixItem
+        self._strand = strand3p
         self.setParentItem(virtualHelixItem)
         self._idx = idx
         self._isOnTop = virtualHelixItem.isStrandOnTop(strand3p)
         self._isDrawn5to3 = strand3p.strandSet().isDrawn5to3()
         self._strandType = strand3p.strandSet().strandType()
-        idxL, idxH = strand3p.idxs()
-        if abs(idxL - idx) > 1 and abs(idxH - idx) > 0:
-            self.updatePositionAndAppearance()
-        else:
-            self.updatePositionAndAppearance(fromStrand=False)
+        # idxL, idxH = strand3p.idxs()
+
+        self.updatePositionAndAppearance()
+        # else:
+        #     self.updatePositionAndAppearance(isFromStrand=False)
     # end def
 
     def strandType(self):
@@ -220,23 +230,23 @@ class ForcedXoverNode3(QGraphicsRectItem):
         return self._isDrawn5to3
     # end def
 
-    def updatePositionAndAppearance(self, fromStrand=True):
+    def updatePositionAndAppearance(self, isFromStrand=True):
         """
         Sets position by asking the VirtualHelixItem
         Sets appearance by choosing among pre-defined painterpaths (from
         normalstrandgraphicsitem) depending on drawing direction.
         """
         self.setPos(*self.point())
-        xoi = self._xoverItem
-        isStrandTypeMatch = xoi.strandType() == self._strandType
-        isVHItemMatch = self._vhi  == xoi._node5._vhi
-        indexDiff = abs(xoi._node5._idx - self._idx)
-        if fromStrand and isStrandTypeMatch and \
-            (isVHItemMatch and indexDiff > 2):
-            self.configurePath()
-            # We can only expose a 5' end. But on which side?
-            isLeft = True if self._isDrawn5to3 else False
-            self.updateLabel(isLeft)
+        n5 = self._xoverItem._node5
+        if isFromStrand:
+            fromStrand, fromIdx = (n5._strand, n5._idx) if n5 != self else (None, None)
+            if self._strand.canInstallXoverAt(self._idx, fromStrand, fromIdx):
+                self.configurePath()
+                # We can only expose a 5' end. But on which side?
+                isLeft = True if self._isDrawn5to3 else False
+                self.updateLabel(isLeft)
+            else:
+                self.hideItems()
         else:
             self.hideItems()
     # end def
@@ -267,30 +277,30 @@ class ForcedXoverNode3(QGraphicsRectItem):
         """
         lbl = self._label
         if self._idx != None:
+            bw = _baseWidth
+            num = self._partnerVirtualHelix.number()
+            tBR = _fm.tightBoundingRect(str(num))
+            halfLabelH = tBR.height()/2.0
+            halfLabelW = tBR.width()/2.0
+            # determine x and y positions
+            labelX = bw/2.0 - halfLabelW
+            if self._isOnTop:
+                labelY = -0.25*halfLabelH - 0.5 - 0.5*bw
+            else:
+                labelY = 2*halfLabelH + 0.5 + 0.5*bw
+            # adjust x for left vs right
+            labelXoffset = 0.25*bw if isLeft else -0.25*bw
+            labelX += labelXoffset
+            # adjust x for numeral 1
+            if num == 1: labelX -= halfLabelW/2.0
+            # create text item
             if lbl == None:
-                bw = _baseWidth
-                num = self._partnerVirtualHelix.number()
-                tBR = _fm.tightBoundingRect(str(num))
-                halfLabelH = tBR.height()/2.0
-                halfLabelW = tBR.width()/2.0
-                # determine x and y positions
-                labelX = bw/2.0 - halfLabelW
-                if self._isOnTop:
-                    labelY = -0.25*halfLabelH - 0.5 - 0.5*bw
-                else:
-                    labelY = 2*halfLabelH + 0.5 + 0.5*bw
-                # adjust x for left vs right
-                labelXoffset = 0.25*bw if isLeft else -0.25*bw
-                labelX += labelXoffset
-                # adjust x for numeral 1
-                if num == 1: labelX -= halfLabelW/2.0
-                # create text item
                 lbl = QGraphicsSimpleTextItem(str(num), self)
-                lbl.setPos(labelX, labelY)
-                lbl.setBrush(_enabbrush)
-                lbl.setFont(_toHelixNumFont)
-                self._label = lbl
-            # end if
+            lbl.setPos(labelX, labelY)
+            lbl.setBrush(_enabbrush)
+            lbl.setFont(_toHelixNumFont)
+            self._label = lbl
+
             # print "setting label"
             lbl.setText( str(self._partnerVirtualHelix.number()) )
             lbl.show()
@@ -337,7 +347,7 @@ class ForcedXoverNode5(ForcedXoverNode3):
         self._pathThing.show()
     # end def
 
-    def updatePositionAndAppearance(self, fromStrand=True):
+    def updatePositionAndAppearance(self, isFromStrand=True):
         """Same as XoverItem3, but exposes 3' end"""
         self.setPos(*self.point())
         self.configurePath()

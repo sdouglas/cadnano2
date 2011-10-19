@@ -65,6 +65,7 @@ class StrandItem(QGraphicsLineItem):
         # label
         self._seqLabel = QGraphicsSimpleTextItem(self)
         self._updateSequenceText()
+        
         # create a larger click area rect to capture mouse events
         self._clickArea = cA = QGraphicsRectItem(_defaultRect, self)
         cA.mousePressEvent = self.mousePressEvent
@@ -72,6 +73,7 @@ class StrandItem(QGraphicsLineItem):
         self.setAcceptHoverEvents(True)
         cA.setAcceptHoverEvents(True)
         cA.hoverMoveEvent = self.hoverMoveEvent
+        
         # xover comming from the 3p end
         self._xover3pEnd = XoverItem(virtualHelixItem.partItem(), virtualHelixItem)
         # initial refresh
@@ -107,9 +109,10 @@ class StrandItem(QGraphicsLineItem):
         self._controller.disconnectSignals()
         self._controller = None
         scene = self.scene()
-        # scene.removeItem(self._clickArea)
-        # scene.removeItem(self._highCap)
-        # scene.removeItem(self._lowCap)
+        scene.removeItem(self._clickArea)
+        scene.removeItem(self._highCap)
+        scene.removeItem(self._lowCap)
+        scene.removeItem(self._seqLabel) 
         self._xover3pEnd.remove()
         self._xover3pEnd = None
         for insertionItem in self._insertionItems.itervalues():
@@ -117,6 +120,7 @@ class StrandItem(QGraphicsLineItem):
         self._clickArea = None
         self._highCap = None
         self._lowCap = None
+        self._seqLabel = None
         scene.removeItem(self)
     # end def
 
@@ -444,6 +448,7 @@ class StrandItem(QGraphicsLineItem):
         else:
             activeTool.setFloatingXoverBegin(True)
             # install Xover
+            activeTool.attemptToCreateXover(vhi, mStrand, idx)
     # end def
     
     def pencilToolHoverMove(self, idx):
