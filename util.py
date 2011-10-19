@@ -244,7 +244,7 @@ def execCommandList(modelObject, commands, desc=None, useUndoStack=True):
     """
     if useUndoStack:
         undoStackId = str(id(modelObject.undoStack()))[-4:]
-        print "<QUndoStack %s> %s" % (undoStackId, desc)
+        # print "<QUndoStack %s> %s" % (undoStackId, desc)
         modelObject.undoStack().beginMacro(desc)
         for c in commands:
             modelObject.undoStack().push(c)

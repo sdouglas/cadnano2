@@ -36,10 +36,10 @@ from PyQt4.QtCore import Qt, QPoint
 from controllers.documentcontroller import DocumentController
 from data.dnasequences import sequences
 from model.enum import StrandType
+from model.io.decoder import decode
 from model.virtualhelix import VirtualHelix
-from model.decoder import decode
-import tests.cadnanoguitestcase
 from tests.cadnanoguitestcase import CadnanoGuiTestCase
+import tests.cadnanoguitestcase  # for main()
 
 
 class FunctionalTests(CadnanoGuiTestCase):
@@ -71,132 +71,116 @@ class FunctionalTests(CadnanoGuiTestCase):
         """docstring for testFunctional1"""
         pass
 
-    # def getTestSequences(self, designname, sequencesToApply):
-    #     """
-    #     Called by a sequence-verification functional test to read in a file
-    #     (designname), apply scaffold sequence(s) to that design, and return
-    #     the set of staple sequences."""
-    #     # set up the document
-    #     inputfile = "tests/functionaltestinputs/%s" % designname
-    #     document = decode(file(inputfile).read())
-    #     self.documentController = DocumentController(document, inputfile)
-    #     self.setWidget(self.documentController.win, False, None)
-    #     # apply one or more sequences to the design
-    #     for sequenceName, startVHelixNum, startIndex in sequencesToApply:
-    #         sequence = sequences.get(sequenceName, None)
-    #         vh = self.app.v[startVHelixNum]
-    #         vh.applySequenceAt(StrandType.Scaffold, startIndex, sequence)
-    #     part = self.documentController.activePart()
-    #     generatedSequences = part.getStapleSequences()
-    #     return set(generatedSequences.splitlines())
+    def getTestSequences(self, designname, sequencesToApply):
+        """
+        Called by a sequence-verification functional test to read in a file
+        (designname), apply scaffold sequence(s) to that design, and return
+        the set of staple sequences."""
+        # set up the document
+        inputfile = "tests/functionaltestinputs/%s" % designname
+        document = self.documentController.document()
+        with file(inputfile) as f:
+            decode(document, f.read())
+        self.setWidget(self.documentController.win, False, None)
+        part = document.selectedPart()
+        # apply one or more sequences to the design
+        for sequenceName, startVhNum, startIdx in sequencesToApply:
+            sequence = sequences.get(sequenceName, None)
+            for vh in part.getVirtualHelices():
+                if vh.number() == startVhNum:
+                    strand = vh.scaffoldStrandSet().getStrand(startIdx)
+                    strand.oligo().applySequence(sequence)
+        generatedSequences = part.getStapleSequences()
+        return set(generatedSequences.splitlines())
 
-    # def getRefSequences(self, designname):
-    #     """docstring for getRefSequences"""
-    #     staplefile = "tests/functionaltestinputs/%s" % designname
-    #     with open(staplefile, 'rU') as f:
-    #         readSequences = f.read()
-    #     return set(readSequences.splitlines())
+    def getRefSequences(self, designname):
+        """docstring for getRefSequences"""
+        staplefile = "tests/functionaltestinputs/%s" % designname
+        with open(staplefile, 'rU') as f:
+            readSequences = f.read()
+        return set(readSequences.splitlines())
 
     ####################### Staple Comparison Tests ########################
-    # def testStapleOutput_simple42(self):
-    #      """M13mp18 sequence applied a 42-base duplex (nno source)"""
-    #      designname = "simple42.nno"
-    #      refname = "simple42.csv"
-    #      sequences = [("M13mp18", 0, 0)]  # list of (sequencename, vhnum, index)
-    #      testSet = self.getTestSequences(designname, sequences)
-    #      refSet = self.getRefSequences(refname)
-    #      self.assertEqual(testSet, refSet)
-    # 
-    # def testStapleOutput_simple42legacy(self):
-    #     """p7308 applied to 42-base duplex (json source)"""
-    #     designname = "simple42legacy.json"
-    #     refname = "simple42legacy.csv"
-    #     sequences = [("p7308", 0, 0)]
-    #     testSet = self.getTestSequences(designname, sequences)
-    #     refSet = self.getRefSequences(refname)
-    #     self.assertEqual(testSet, refSet)
-    # 
-    # def testStapleOutput_insert_size_1(self):
-    #     """Test sequence output with a single insert of size 1"""
-    #     designname = "loop_size_1.json"
-    #     refname = "loop_size_1.csv"
-    #     sequences = [("M13mp18", 0, 14)]
-    #     testSet = self.getTestSequences(designname, sequences)
-    #     refSet = self.getRefSequences(refname)
-    #     self.assertEqual(testSet, refSet)
-    # 
-    # def testStapleOutput_skip(self):
-    #     """Simple design with a single skip"""
-    #     designname = "skip.json"
-    #     refname = "skip.csv"
-    #     sequences = [("M13mp18", 0, 14)]
-    #     testSet = self.getTestSequences(designname, sequences)
-    #     refSet = self.getRefSequences(refname)
-    #     self.assertEqual(testSet, refSet)
-    # 
-    # def testStapleOutput_inserts_and_skips(self):
-    #     """Insert and skip stress test"""
-    #     designname = "loops_and_skips.json"
-    #     refname = "loops_and_skips.csv"
-    #     sequences = [("M13mp18", 0, 0)]
-    #     testSet = self.getTestSequences(designname, sequences)
-    #     refSet = self.getRefSequences(refname)
-    #     self.assertEqual(testSet, refSet)
-    # 
-    # def testStapleOutput_Nature09_monolith(self):
-    #     """Staples match reference set for Nature09 monolith"""
-    #     designname = "Nature09_monolith.json"
-    #     refname = "Nature09_monolith.csv"
-    #     sequences = [("p7560", 4, 73)]
-    #     testSet = self.getTestSequences(designname, sequences)
-    #     refSet = self.getRefSequences(refname)
-    #     self.assertEqual(testSet, refSet)
-    # 
-    # def testStapleOutput_Nature09_squarenut(self):
-    #     """Staples match reference set for Nature09 squarenut"""
-    #     designname = "Nature09_squarenut.json"
-    #     refname = "Nature09_squarenut.csv"
-    #     sequences = [("p7560", 15, 100)]
-    #     testSet = self.getTestSequences(designname, sequences)
-    #     refSet = self.getRefSequences(refname)
-    #     self.assertEqual(testSet, refSet)
-    # 
-    # def testStapleOutput_Science09_prot120_98_v3(self):
-    #     """Staples match reference set for Science09 protractor 120 v3"""
-    #     designname = "Science09_prot120_98_v3.json"
-    #     refname = "Science09_prot120_98_v3.csv"
-    #     sequences = [("p7704", 0, 105)]
-    #     testSet = self.getTestSequences(designname, sequences)
-    #     refSet = self.getRefSequences(refname)
-    #     self.assertEqual(testSet, refSet)
-    # 
-    # def testStapleOutput_Science09_beachball_v1(self):
-    #     """Staples match reference set for Science09 beachball (nno source)"""
-    #     designname = "Science09_beachball_v1.nno"
-    #     refname = "Science09_beachball_v1.csv"
-    #     sequences = [("p7308", 10, 221)]
-    #     testSet = self.getTestSequences(designname, sequences)
-    #     refSet = self.getRefSequences(refname)
-    #     self.assertEqual(testSet, refSet)
-    # 
-    # def testStapleOutput_Science09_beachball_v1_json(self):
-    #     """Staples match reference set for Science09 beachball (json source)"""
-    #     designname = "Science09_beachball_v1.json"
-    #     refname = "Science09_beachball_v1.csv"
-    #     sequences = [("p7308", 10, 221)]
-    #     testSet = self.getTestSequences(designname, sequences)
-    #     refSet = self.getRefSequences(refname)
-    #     self.assertEqual(testSet, refSet)
-    # 
-    # def testStapleOutput_Gap_Vs_Skip(self):
-    #     """Staple gap output as '?'; staple skip output as ''"""
-    #     designname = "gap_vs_skip.nno"
-    #     refname = "gap_vs_skip.csv"
-    #     sequences = [("M13mp18", 0, 11), ("M13mp18", 2, 11)]
-    #     testSet = self.getTestSequences(designname, sequences)
-    #     refSet = self.getRefSequences(refname)
-    #     self.assertEqual(testSet, refSet)
+    def testStapleOutput_simple42legacy(self):
+        """p7308 applied to 42-base duplex (json source)"""
+        designname = "simple42legacy.json"
+        refname = "simple42legacy.csv"
+        sequences = [("p7308", 0, 0)]
+        testSet = self.getTestSequences(designname, sequences)
+        refSet = self.getRefSequences(refname)
+        self.assertEqual(testSet, refSet)
 
+    def testStapleOutput_insert_size_1(self):
+        """Test sequence output with a single insert of size 1"""
+        designname = "loop_size_1.json"
+        refname = "loop_size_1.csv"
+        sequences = [("M13mp18", 0, 14)]
+        testSet = self.getTestSequences(designname, sequences)
+        refSet = self.getRefSequences(refname)
+        self.assertEqual(testSet, refSet)
+
+    def testStapleOutput_skip(self):
+        """Simple design with a single skip"""
+        designname = "skip.json"
+        refname = "skip.csv"
+        sequences = [("M13mp18", 0, 14)]
+        testSet = self.getTestSequences(designname, sequences)
+        refSet = self.getRefSequences(refname)
+        self.assertEqual(testSet, refSet)
+
+    def testStapleOutput_inserts_and_skips(self):
+        """Insert and skip stress test"""
+        designname = "loops_and_skips.json"
+        refname = "loops_and_skips.csv"
+        sequences = [("M13mp18", 0, 0)]
+        testSet = self.getTestSequences(designname, sequences)
+        refSet = self.getRefSequences(refname)
+        self.assertEqual(testSet, refSet)
+
+    def testStapleOutput_Nature09_monolith(self):
+        """Staples match reference set for Nature09 monolith"""
+        designname = "Nature09_monolith.json"
+        refname = "Nature09_monolith.csv"
+        sequences = [("p7560", 4, 73)]
+        testSet = self.getTestSequences(designname, sequences)
+        refSet = self.getRefSequences(refname)
+        self.assertEqual(testSet, refSet)
+
+    def testStapleOutput_Nature09_squarenut(self):
+         """Staples match reference set for Nature09 squarenut"""
+         designname = "Nature09_squarenut.json"
+         refname = "Nature09_squarenut.csv"
+         sequences = [("p7560", 15, 100)]
+         testSet = self.getTestSequences(designname, sequences)
+         refSet = self.getRefSequences(refname)
+         self.assertEqual(testSet, refSet)
+
+     def testStapleOutput_Science09_prot120_98_v3(self):
+         """Staples match reference set for Science09 protractor 120 v3"""
+         designname = "Science09_prot120_98_v3.json"
+         refname = "Science09_prot120_98_v3.csv"
+         sequences = [("p7704", 0, 105)]
+         testSet = self.getTestSequences(designname, sequences)
+         refSet = self.getRefSequences(refname)
+         self.assertEqual(testSet, refSet)
+
+     def testStapleOutput_Science09_beachball_v1_json(self):
+         """Staples match reference set for Science09 beachball (json source)"""
+         designname = "Science09_beachball_v1.json"
+         refname = "Science09_beachball_v1.csv"
+         sequences = [("p7308", 10, 221)]
+         testSet = self.getTestSequences(designname, sequences)
+         refSet = self.getRefSequences(refname)
+         self.assertEqual(testSet, refSet)
+
+    def testStapleOutput_Gap_Vs_Skip(self):
+        """Staple gap output as '?'; staple skip output as ''"""
+        designname = "gap_vs_skip.json"
+        refname = "gap_vs_skip.csv"
+        sequences = [("M13mp18", 0, 11), ("M13mp18", 2, 11)]
+        testSet = self.getTestSequences(designname, sequences)
+        refSet = self.getRefSequences(refname)
+        self.assertEqual(testSet, refSet)
 
     ####################### Standard Functional Tests ########################
     # def testActiveSliceHandleAltShiftClick(self):

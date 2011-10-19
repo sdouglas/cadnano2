@@ -389,9 +389,8 @@ class DocumentController():
             del self.saveStaplesDialog
         # write the file
         output = self.activePart().getStapleSequences()
-        f = open(fname, 'w')
-        f.write(output)
-        f.close()
+        with open(fname, 'w') as f:
+            f.write(output)
     # end def
 
     def newClickedCallback(self):
@@ -423,7 +422,6 @@ class DocumentController():
         fname = str(fname)
         self.newDocument(fname=fname)
         decode(self._document, file(fname).read())
-        # doc.finalizeImport()  # updates staple highlighting
         if hasattr(self, "filesavedialog"): # user did save
             if self.fileopendialog != None:
                 self.fileopendialog.filesSelected.disconnect(\
@@ -535,10 +533,9 @@ class DocumentController():
             assert(not self._hasNoAssociatedFile)
             filename = self.filename()
         try:
-            f = open(filename, 'w')
-            helixOrderList = self.win.pathroot.getSelectedPartOrderedVHList()
-            encode(self._document, helixOrderList, f)
-            f.close()
+            with open(filename, 'w') as f:
+                helixOrderList = self.win.pathroot.getSelectedPartOrderedVHList()
+                encode(self._document, helixOrderList, f)
         except IOError:
             flags = Qt.Dialog | Qt.MSWindowsFixedSizeDialogHint | Qt.Sheet
             errorbox = QMessageBox(QMessageBox.Critical,

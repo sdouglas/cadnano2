@@ -24,8 +24,9 @@
 
 from PyQt4.QtCore import *
 from PyQt4.QtGui import *
-import tests.guitestcase
 from cadnano import app as getAppInstance
+from controllers.documentcontroller import DocumentController
+import tests.guitestcase
 
 main = tests.guitestcase.main
 
@@ -47,8 +48,7 @@ class CadnanoGuiTestCase(tests.guitestcase.GUITestCase):
             self.app.initGui()
             self.documentController = list(self.app.documentControllers)[0]
         else:  # subsequent tests can just open a new document
-            document = self.app.newDocument()
-            self.documentController = document.controller()
+            self.documentController = DocumentController()
         self.mainWindow = self.documentController.win
 
         # Include this or the automatic build will hang
