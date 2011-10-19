@@ -187,6 +187,29 @@ class EndpointItem(QGraphicsPathItem):
             del self._moveIdx
 
     ### TOOL METHODS ###
+    def addSeqToolMousePress(self, modifiers):
+        """
+        Checks that a scaffold was clicked, and then calls apply sequence
+        to the clicked strand via its oligo.
+        """
+        mStrand = self._strandItem._modelStrand
+        if mStrand.isScaffold():
+            self._activeTool().applySequence(mStrand.oligo())
+
+    def eraseToolMousePress(self, idx):
+        mStrand = self._modelStrand
+        mStrand.strandSet().removeStrand(mStrand)
+    # end def
+
+    def paintToolMousePress(self, modifiers):
+        """Add an insert to the strand if possible."""
+        mStrand = self._strandItem._modelStrand
+        if mStrand.isStaple():
+            color = self.window().pathColorPanel.stapColorName()
+        else:
+            color = self.window().pathColorPanel.scafColorName()
+        mStrand.oligo().applyColor(color)
+
     def selectToolMousePress(self, modifiers):
         """
         Set the allowed drag bounds for use by selectToolMouseMove.
@@ -233,22 +256,3 @@ class EndpointItem(QGraphicsPathItem):
         elif modifiers & Qt.ShiftModifier:
             mStrand.merge(self.idx())
     # end def
-
-    def addSeqToolMousePress(self, modifiers):
-        """
-        Checks that a scaffold was clicked, and then calls apply sequence
-        to the clicked strand via its oligo.
-        """
-        mStrand = self._strandItem._modelStrand
-        if mStrand.isScaffold():
-            self._activeTool().applySequence(mStrand.oligo())
-
-    def paintToolMousePress(self, modifiers):
-        """Add an insert to the strand if possible."""
-        mStrand = self._strandItem._modelStrand
-        if mStrand.isStaple():
-            color = self.window().pathColorPanel.stapColorName()
-        else:
-            color = self.window().pathColorPanel.scafColorName()
-        mStrand.oligo().applyColor(color)
-

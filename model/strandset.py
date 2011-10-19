@@ -1014,17 +1014,17 @@ class StrandSet(QObject):
             sLcL = sL.connectionLow()
             if sLcL:
                 if ( oS.isDrawn5to3() and sLcL.isDrawn5to3() ) or \
-                    ( not oS.isDrawn5to3() and not sLcL.isDrawn5to3() ) :
+                    ( not oS.isDrawn5to3() and not sLcL.isDrawn5to3() ):
                     sLcL.setConnectionHigh(sL)
                 else:
                     sLcL.setConnectionLow(sL)
             sHcH = sH.connectionHigh()
             if sHcH:
                 if ( oS.isDrawn5to3() and sHcH.isDrawn5to3() ) or \
-                    ( not oS.isDrawn5to3() and not sHcH.isDrawn5to3() ) :
+                    ( not oS.isDrawn5to3() and not sHcH.isDrawn5to3() ):
                     sHcH.setConnectionLow(sH)
                 else:
-                   sHcH.setConnectionHigh(sH) 
+                   sHcH.setConnectionHigh(sH)
 
             # Traverse the strands via 3'conns to assign the new oligos
             for strand in lOlg.strand5p().generator3pStrand():
@@ -1034,10 +1034,10 @@ class StrandSet(QObject):
                 Strand.setOligo(strand, hOlg)  # emits strandHasNewOligoSignal
 
             # Add new oligo and remove old oligos from the part
-            part = olg.removeFromPart()
+            olg.removeFromPart()
             lOlg.addToPart(sL.part())
             hOlg.addToPart(sH.part())
-            
+
             # Emit Signals related to destruction and addition
             oS.strandRemovedSignal.emit(oS)  # out with the old...
             sS.strandsetStrandAddedSignal.emit(sH)  # ...in with the new
@@ -1058,7 +1058,7 @@ class StrandSet(QObject):
             sS._removeFromStrandList(sH)
             # Add the old strand to the sSet
             sS._addToStrandList(oS, idx)
-            
+
             # update connectivity of strands
             oScL = oS.connectionLow()
             if oScL:
@@ -1074,7 +1074,7 @@ class StrandSet(QObject):
                     oScH.setConnectionLow(oS)
                 else:
                     oScH.setConnectionHigh(oS)
-            
+
             # Traverse the strands via 3'conns to assign the old oligo
             for strand in olg.strand5p().generator3pStrand():
                 Strand.setOligo(strand, olg)
@@ -1082,12 +1082,11 @@ class StrandSet(QObject):
             olg.addToPart(sS.part())
             lOlg.removeFromPart()
             hOlg.removeFromPart()
-            
+
             # Emit Signals related to destruction and addition
             sL.strandRemovedSignal.emit(sL)  # out with the new...
             sH.strandRemovedSignal.emit(sH)  # out with the new...
             sS.strandsetStrandAddedSignal.emit(oS)  # ...in with the old
-            
         # end def
     # end class
 

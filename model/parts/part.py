@@ -841,8 +841,10 @@ class Part(QObject):
             strand5pIdx = self._strand5pIdx
             strand3p = self._strand3p
             strand3pIdx = self._strand3pIdx
+            
+            # 2. Remove the old oligo and apply the 5' oligo to the 3' strand
+            self._oldOligo3p.removeFromPart()
             olg = strand5p.oligo()
-            # 2. apply the 3 prime strand oligo to the 5 prime strand
             if olg == strand3p.oligo():
                 olg.setLoop(True)
             else:
@@ -878,6 +880,7 @@ class Part(QObject):
             strand3p.setConnection5p(None)
 
             # 3. apply the old oligo to strand3p
+            olg.addToPart(part)
             if olg.isLoop():
                 olg.setLoop(False)
             else:

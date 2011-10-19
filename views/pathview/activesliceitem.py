@@ -79,6 +79,16 @@ class ActiveSliceItem(QGraphicsRectItem):
         # reuse select tool methods for other tools
         self.addSeqToolMousePress = self.selectToolMousePress
         self.addSeqToolMouseMove = self.selectToolMouseMove
+        self.breakToolMousePress = self.selectToolMousePress
+        self.breakToolMouseMove = self.selectToolMouseMove
+        self.insertionToolMousePress = self.selectToolMousePress
+        self.insertionToolMouseMove = self.selectToolMouseMove
+        self.paintToolMousePress = self.selectToolMousePress
+        self.paintToolMouseMove = self.selectToolMouseMove
+        self.pencilToolMousePress = self.selectToolMousePress
+        self.pencilToolMouseMove = self.selectToolMouseMove
+        self.skipToolMousePress = self.selectToolMousePress
+        self.skipToolMouseMove = self.selectToolMouseMove
     # end def
 
     ### SLOTS ###

@@ -55,9 +55,11 @@ class Oligo(QObject):
 
     def __repr__(self):
         clsName = self.__class__.__name__
+        olgId = str(id(self))[-4:]
+        strandType = "Stap" if self.isStaple() else "Scaf"
         vhNum = self._strand5p.strandSet().virtualHelix().number()
         idx = self._strand5p.idx5Prime()
-        return "<%s %s>(%d[%d])" % (clsName, str(id(self))[-4:], vhNum, idx)
+        return "<%s %s>(%s %d[%d])" % (clsName, olgId, strandType, vhNum, idx)
 
     def shallowCopy(self):
         olg = Oligo(self._part)
