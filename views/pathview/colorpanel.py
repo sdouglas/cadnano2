@@ -58,15 +58,15 @@ class ColorPanel(QGraphicsItem):
         painter.drawRect(0, 10, 20, 10)
 
     def nextColor(self):
-        self._scafColorIndex += 1
+        # self._scafColorIndex += 1
+        # if self._scafColorIndex == len(self._scafColors):
+        #     self._scafColorIndex = 0
+        # self._scafColor = self._scafColors[self._scafColorIndex]
+        # self._scafBrush.setColor(self._scafColor)
         self._stapColorIndex += 1
-        if self._scafColorIndex == len(self._scafColors):
-            self._scafColorIndex = 0
         if self._stapColorIndex == len(self._stapColors):
             self._stapColorIndex = 0
-        self._scafColor = self._scafColors[self._scafColorIndex]
         self._stapColor = self._stapColors[self._stapColorIndex]
-        self._scafBrush.setColor(self._scafColor)
         self._stapBrush.setColor(self._stapColor)
         self.update()
 
@@ -79,11 +79,25 @@ class ColorPanel(QGraphicsItem):
     def stapColorName(self):
         return self._stapColor.name()
 
+    def changeScafColor(self):
+        self.update()
+
+    def changeStapColor(self):
+        self._stapColor = self.colordialog.currentColor()
+        self._stapBrush = QBrush(self._stapColor)
+        self.update()
+
     def mousePressEvent(self, event):
         if event.pos().y() < 10:
-            self._scafColor = self.colordialog.getColor(self._scafColor)
-            self._scafBrush = QBrush(self._scafColor)
+            newColor = self.colordialog.getColor(self._scafColor)
+            if newColor.name() != self._scafColor.name():
+                self._scafColor = newColor
+                self._scafBrush = QBrush(newColor)
+                self.update()
         else:
-            self._stapColor = self.colordialog.getColor(self._stapColor)
-            self._stapBrush = QBrush(self._stapColor)
-        self.update()
+            newColor = self.colordialog.getColor(self._stapColor)
+            if newColor.name() != self._stapColor.name():
+                self._stapColor = newColor
+                self._stapBrush = QBrush(newColor)
+                self.update()
+

@@ -72,7 +72,7 @@ class XoverNode3(QGraphicsRectItem):
         self.setBrush(_nobrush)
         self.setRect(_rect)
     # end def
-    
+
     def strandType(self):
         return self._strandType
     # end def

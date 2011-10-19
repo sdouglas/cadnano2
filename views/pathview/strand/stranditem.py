@@ -324,17 +324,14 @@ class StrandItem(QGraphicsLineItem):
     # end def
 
     def _updatePensAndBrushes(self, strand):
-        lowIdx, highIdx = strand.lowIdx(), strand.highIdx()
-        # if strand.strandSet().isScaffold():
-        #     pen = QPen(styles.scafstroke, styles.PATH_STRAND_STROKE_WIDTH)
-        #     brush = QBrush(styles.handlefill)
-        # else:
-        #     colr = QColor(self._modelStrand.oligo().color())
-        #     pen = QPen(colr, styles.PATH_STRAND_STROKE_WIDTH)
-        #     brush = QBrush(colr)
-        colr = QColor(self._modelStrand.oligo().color())
-        pen = QPen(colr, styles.PATH_STRAND_STROKE_WIDTH)
-        brush = QBrush(colr)
+        oligo = self._modelStrand.oligo()
+        color = QColor(oligo.color())
+        penWidth = styles.PATH_STRAND_STROKE_WIDTH
+        if oligo.shouldHighlight():
+            color.setAlpha(128)
+            penWidth = styles.PATH_STRAND_HIGHLIGHT_STROKE_WIDTH
+        pen = QPen(color, penWidth)
+        brush = QBrush(color)
         pen.setCapStyle(Qt.FlatCap)
         self.setPen(pen)
         self._lowCap.setBrush(brush)

@@ -235,9 +235,11 @@ class StrandSet(QObject):
         if abs(strandA.lowIdx() - strandB.highIdx()) == 1 or \
             abs(strandB.lowIdx() - strandA.highIdx()) == 1:
             if strandA.lowIdx() < strandB.lowIdx():
-                return strandA, strandB
+                if strandA.connectionHigh() and strandB.connectionLow():
+                    return strandA, strandB
             else:
-                return strandB, strandA
+                if strandB.connectionHigh() and strandA.connectionLow():
+                    return strandB, strandA
         else:
             return None
     # end def
@@ -675,6 +677,7 @@ class StrandSet(QObject):
             colorList = styles.stapColors if strandSet.isStaple() else styles.scafColors
             color = random.choice(colorList).name()
             self._newOligo = Oligo(None, color)  # redo will set part
+            self._newOligo.setLength(self._strand.length())
         # end def
 
         def redo(self):
@@ -685,7 +688,6 @@ class StrandSet(QObject):
             # Set up the new oligo
             oligo = self._newOligo
             oligo.setStrand5p(strand)
-            oligo.incrementStrandLength(strand)
             oligo.addToPart(strandSet.part())
             strand.setOligo(oligo)
             # Emit a signal to notify on completion
@@ -701,16 +703,11 @@ class StrandSet(QObject):
             strandSet._strandList.pop(self._sSetIdx)
             # Get rid of the new oligo
             oligo = self._newOligo
-            
             oligo.setStrand5p(None)
-            oligo.decrementStrandLength(strand)
             oligo.removeFromPart()
-            
             # Emit a signal to notify on completion
             strand.strandRemovedSignal.emit(strand)
-            
             strand.setOligo(None)
-
             # for updating the Slice View displayed helices
             strandSet.part().partStrandChangedSignal.emit(strandSet.virtualHelix())
         # end def
@@ -877,6 +874,7 @@ class StrandSet(QObject):
             for strand in olg.strand5p().generator3pStrand():
                 Strand.setOligo(strand, olg)  # emits strandHasNewOligoSignal
             # Add new oligo and remove old oligos
+            olg.setLength(lOlg.length() + hOlg.length())
             olg.addToPart(sS.part())
             lOlg.removeFromPart()
             hOlg.removeFromPart()
@@ -901,7 +899,7 @@ class StrandSet(QObject):
             # Add old strands to the sSet (reusing idx, so order matters)
             sS._addToStrandList(sH, idx)
             sS._addToStrandList(sL, idx)
-            
+
             # update connectivity of strands
             sLcL = sL.connectionLow()
             if sLcL:
@@ -917,17 +915,18 @@ class StrandSet(QObject):
                     sHcH.setConnectionLow(sH)
                 else:
                     sHcH.setConnectionHigh(sH)
-            
+
             # Traverse the strands via 3'conns to assign the old oligo
             for strand in lOlg.strand5p().generator3pStrand():
                 Strand.setOligo(strand, lOlg)  # emits strandHasNewOligoSignal
             for strand in hOlg.strand5p().generator3pStrand():
                 Strand.setOligo(strand, hOlg)  # emits strandHasNewOligoSignal
+
             # Remove new oligo and add old oligos
             olg.removeFromPart()
             lOlg.addToPart(sL.part())
             hOlg.addToPart(sH.part())
-            
+
             # Emit Signals related to destruction and addition
             nS.strandRemovedSignal.emit(nS)  # out with the new...
             sS.strandsetStrandAddedSignal.emit(sH)  # ...in with the old
