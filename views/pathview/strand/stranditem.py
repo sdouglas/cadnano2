@@ -485,3 +485,30 @@ class StrandItem(QGraphicsLineItem):
         mStrand.oligo().applyColor(color)
     # end def
 
+    def pencilToolHoverMove(self, idx):
+        """Pencil the strand is possible."""
+        mStrand = self._modelStrand
+        vhi = self._virtualHelixItem
+        activeTool = self._activeTool()
+
+        if not activeTool.isFloatingXoverBegin():
+            tempXover = activeTool.floatingXover()
+            tempXover.updateFloatingFromStrandItem(vhi, mStrand, idx)
+    # end def
+
+    def pencilToolMousePress(self, idx):
+        """Break the strand is possible."""
+        mStrand = self._modelStrand
+        vhi = self._virtualHelixItem
+        partItem = vhi.partItem()
+        activeTool = self._activeTool()
+
+        if activeTool.isFloatingXoverBegin():
+            tempXover = activeTool.floatingXover()
+            tempXover.updateBase(vhi, mStrand, idx)
+            activeTool.setFloatingXoverBegin(False)
+        else:
+            activeTool.setFloatingXoverBegin(True)
+            # install Xover
+            activeTool.attemptToCreateXover(vhi, mStrand, idx)
+    # end def
