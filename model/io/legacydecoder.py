@@ -192,18 +192,18 @@ def import_legacy_dict(document, obj):
         scafStrandSet = fromVh.scaffoldStrandSet()
         stapStrandSet = fromVh.stapleStrandSet()
         # install scaffold xovers
-        for (idx3p, toVhNum, idx5p) in scaf_xo[vhNum]:
+        for (idx5p, toVhNum, idx3p) in scaf_xo[vhNum]:
             # idx3p is 3' end of strand5p, idx5p is 5' end of strand3p
-            strand5p = scafStrandSet.getStrand(idx3p)
+            strand5p = scafStrandSet.getStrand(idx5p)
             toVh = part.virtualHelixAtCoord(vhNumToCoord[toVhNum])
-            strand3p = toVh.scaffoldStrandSet().getStrand(idx5p)
+            strand3p = toVh.scaffoldStrandSet().getStrand(idx3p)
             part.createXover(strand5p, idx5p, strand3p, idx3p, useUndoStack=False)
         # install staple xovers
-        for (idx3p, toVhNum, idx5p) in stap_xo[vhNum]:
+        for (idx5p, toVhNum, idx3p) in stap_xo[vhNum]:
             # idx3p is 3' end of strand5p, idx5p is 5' end of strand3p
-            strand5p = stapStrandSet.getStrand(idx3p)
+            strand5p = stapStrandSet.getStrand(idx5p)
             toVh = part.virtualHelixAtCoord(vhNumToCoord[toVhNum])
-            strand3p = toVh.stapleStrandSet().getStrand(idx5p)
+            strand3p = toVh.stapleStrandSet().getStrand(idx3p)
             part.createXover(strand5p, idx5p, strand3p, idx3p, useUndoStack=False)
 
     # SET DEFAULT COLOR
