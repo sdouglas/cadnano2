@@ -442,6 +442,8 @@ class StrandItem(QGraphicsLineItem):
         activeTool = self._activeTool()
         
         if activeTool.isFloatingXoverBegin():
+            if idx == mStrand.idx5Prime():
+                return
             tempXover = activeTool.floatingXover()
             tempXover.updateBase(vhi, mStrand, idx)
             activeTool.setFloatingXoverBegin(False)

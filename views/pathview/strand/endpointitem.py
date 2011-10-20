@@ -84,6 +84,7 @@ class EndpointItem(QGraphicsPathItem):
     def __init__(self, strandItem, captype, isDrawn5to3):
         """The parent should be a StrandItem."""
         super(EndpointItem, self).__init__(strandItem.virtualHelixItem())
+        # super(EndpointItem, self).__init__(strandItem)
         self._strandItem = strandItem
         self._activeTool = strandItem.activeTool()
         self._capType = captype
@@ -95,7 +96,7 @@ class EndpointItem(QGraphicsPathItem):
         # for easier mouseclick
         self._clickArea = cA = QGraphicsRectItem(_defaultRect, self)
         self._clickArea.setAcceptHoverEvents(True)
-        cA.hoverMoveEvent = self._strandItem.hoverMoveEvent
+        cA.hoverMoveEvent = self.hoverMoveEvent
         cA.mousePressEvent = self.mousePressEvent
         cA.mouseMoveEvent = self.mouseMoveEvent
         cA.setPen(_noPen)
@@ -138,6 +139,7 @@ class EndpointItem(QGraphicsPathItem):
         elif cT == 'dual':
             path = pp53 if self._isDrawn5to3 else pp35
         self.setPath(path)
+    # end def
 
     def _getNewIdxsForResize(self, baseIdx):
         """Returns a tuple containing idxs to be passed to the """
@@ -157,10 +159,22 @@ class EndpointItem(QGraphicsPathItem):
         """
         self.scene().views()[0].addToPressList(self)
         self._moveIdx = self.idx()
-        toolMethodName = str(self._activeTool()) + "MousePress"
+        activeToolStr = str(self._activeTool())
+        if activeToolStr == 'pencilTool':
+            return self._strandItem.pencilToolMousePress(self.idx())
+        toolMethodName = activeToolStr + "MousePress"
         if hasattr(self, toolMethodName):  # if the tool method exists
             modifiers = event.modifiers()
             getattr(self, toolMethodName)(modifiers)  # call tool method
+            
+    def hoverMoveEvent(self, event):
+        """
+        Parses a mousePressEvent, calling the approproate tool method as
+        necessary. Stores _moveIdx for future comparison.
+        """
+        activeToolStr = str(self._activeTool())
+        if activeToolStr == 'pencilTool':
+            return self._strandItem.pencilToolHoverMove(self.idx())
 
     def mouseMoveEvent(self, event):
         """

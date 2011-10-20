@@ -317,7 +317,7 @@ class Part(QObject):
         cmds = []
 
         # is the 5' end ready for xover installation?
-        if strand3p.idx5Prime() == idx5p:  # yes, idx already matches
+        if strand3p.idx5Prime() == idx3p:  # yes, idx already matches
             xoStrand3 = strand3p
         else:  # no, let's try to split
             offset3p = -1 if ss3p.isDrawn5to3() else 1
