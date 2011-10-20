@@ -155,23 +155,23 @@ class FunctionalTests(CadnanoGuiTestCase):
          refSet = self.getRefSequences(refname)
          self.assertEqual(testSet, refSet)
 
-     def testStapleOutput_Science09_prot120_98_v3(self):
-         """Staples match reference set for Science09 protractor 120 v3"""
-         designname = "Science09_prot120_98_v3.json"
-         refname = "Science09_prot120_98_v3.csv"
-         sequences = [("p7704", 0, 105)]
-         testSet = self.getTestSequences(designname, sequences)
-         refSet = self.getRefSequences(refname)
-         self.assertEqual(testSet, refSet)
+    def testStapleOutput_Science09_prot120_98_v3(self):
+        """Staples match reference set for Science09 protractor 120 v3"""
+        designname = "Science09_prot120_98_v3.json"
+        refname = "Science09_prot120_98_v3.csv"
+        sequences = [("p7704", 0, 105)]
+        testSet = self.getTestSequences(designname, sequences)
+        refSet = self.getRefSequences(refname)
+        self.assertEqual(testSet, refSet)
 
-     def testStapleOutput_Science09_beachball_v1_json(self):
-         """Staples match reference set for Science09 beachball (json source)"""
-         designname = "Science09_beachball_v1.json"
-         refname = "Science09_beachball_v1.csv"
-         sequences = [("p7308", 10, 221)]
-         testSet = self.getTestSequences(designname, sequences)
-         refSet = self.getRefSequences(refname)
-         self.assertEqual(testSet, refSet)
+    def testStapleOutput_Science09_beachball_v1_json(self):
+        """Staples match reference set for Science09 beachball (json source)"""
+        designname = "Science09_beachball_v1.json"
+        refname = "Science09_beachball_v1.csv"
+        sequences = [("p7308", 10, 221)]
+        testSet = self.getTestSequences(designname, sequences)
+        refSet = self.getRefSequences(refname)
+        self.assertEqual(testSet, refSet)
 
     def testStapleOutput_Gap_Vs_Skip(self):
         """Staple gap output as '?'; staple skip output as ''"""

@@ -212,6 +212,34 @@ class EndpointItem(QGraphicsPathItem):
             color = self.window().pathColorPanel.scafColorName()
         mStrand.oligo().applyColor(color)
 
+    def pencilToolHoverMove(self, idx):
+        """Pencil the strand is possible."""
+        mStrand = self._strandItem._modelStrand
+        vhi = self._strandItem._virtualHelixItem
+        activeTool = self._activeTool()
+
+        if not activeTool.isFloatingXoverBegin():
+            tempXover = activeTool.floatingXover()
+            tempXover.updateFloatingFromStrandItem(vhi, mStrand, idx)
+    # end def
+
+    def pencilToolMousePress(self, idx):
+        """Break the strand is possible."""
+        mStrand = self._strandItem._modelStrand
+        vhi = self._strandItem._virtualHelixItem
+        partItem = vhi.partItem()
+        activeTool = self._activeTool()
+
+        if activeTool.isFloatingXoverBegin():
+            tempXover = activeTool.floatingXover()
+            tempXover.updateBase(vhi, mStrand, idx)
+            activeTool.setFloatingXoverBegin(False)
+        else:
+            activeTool.setFloatingXoverBegin(True)
+            # install Xover
+            activeTool.attemptToCreateXover(vhi, mStrand, idx)
+    # end def
+
     def selectToolMousePress(self, modifiers):
         """
         Set the allowed drag bounds for use by selectToolMouseMove.

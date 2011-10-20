@@ -41,10 +41,10 @@ class PencilTool(AbstractPathTool):
 
     def __repr__(self):
         return "pencilTool"  # first letter should be lowercase
-        
+
     def floatingXover(self):
         return self._tempXover
-    # end def 
+    # end def
 
     def isFloatingXoverBegin(self):
         return self._isFloatingXoverBegin
@@ -57,7 +57,7 @@ class PencilTool(AbstractPathTool):
         else:
             self._tempXover.showIt()
     # end def
-    
+
     def attemptToCreateXover(self, virtualHelixItem, strand3p, idx):
         xoi = self._tempXover
         n5 = xoi._node5 
@@ -506,7 +506,6 @@ class ForcedXoverItem(QGraphicsPathItem):
             threeEnterPt = pt3 + QPointF(.5, 0 if threeIsTop else 1)*bw
             threeCenterPt = pt3 + QPointF(.5, .5)*bw
             threeExitPt = pt3 + QPointF(1 if threeIs5to3 else 0, .5)*bw
-        
 
         c1 = QPointF()
         # case 1: same strand
