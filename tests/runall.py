@@ -14,19 +14,20 @@ import glob
 import os
 import unittest
 from xmlrunner import XMLTestRunner
-from unittests import UnitTests
-from modeltests import ModelTests
+# from unittests import UnitTests
+# from modeltests import ModelTests
 from functionaltests import FunctionalTests
-from recordedtests.template import RecordedTests
+# from recordedtests.template import RecordedTests
 
 def main(useXMLRunner=True):
     # load hard-coded tests
-    unitsuite = unittest.makeSuite(UnitTests)
-    modelsuite = unittest.makeSuite(ModelTests)
+    # unitsuite = unittest.makeSuite(UnitTests)
+    # modelsuite = unittest.makeSuite(ModelTests)
     funsuite = unittest.makeSuite(FunctionalTests)
 
     # combine and run tests
-    alltests = unittest.TestSuite([unitsuite, modelsuite, funsuite])
+    # alltests = unittest.TestSuite([unitsuite, modelsuite, funsuite])
+    alltests = unittest.TestSuite([funsuite])
     if useXMLRunner:
         stream = file("testresults.xml", "w")
         runner = XMLTestRunner(stream)
