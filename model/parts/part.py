@@ -316,32 +316,64 @@ class Part(QObject):
         ss3p = strand3p.strandSet()
         cmds = []
 
-        # is the 5' end ready for xover installation?
-        if strand3p.idx5Prime() == idx3p:  # yes, idx already matches
-            xoStrand3 = strand3p
-        else:  # no, let's try to split
-            offset3p = -1 if ss3p.isDrawn5to3() else 1
-            if ss3p.strandCanBeSplit(strand3p, idx3p+offset3p):
-                found, overlap, ssIdx = ss3p._findIndexOfRangeFor(strand3p)
-                if found:
-                    c = ss3p.SplitCommand(strand3p, idx3p+offset3p, ssIdx)
+        if strand5p == strand3p:
+            c = None
+            found, overlap, ssIdx3p = ss3p._findIndexOfRangeFor(strand3p)
+            if strand3p.idx5Prime() == idx3p:  # yes, idx already matches
+                xoStrand3 = strand3p
+            else:
+                offset3p = -1 if ss3p.isDrawn5to3() else 1
+                if ss3p.strandCanBeSplit(strand3p, idx3p+offset3p):
+                    c = ss3p.SplitCommand(strand3p, idx3p+offset3p, ssIdx3p)
                     cmds.append(c)
                     xoStrand3 = c._strandHigh if ss3p.isDrawn5to3() else c._strandLow
-            else:  # can't split... abort
-                return
-
-        # is the 3' end ready for xover installation?
-        if strand5p.idx3Prime() == idx5p:  # yes, idx already matches
-            xoStrand5 = strand5p
-        else:
-            if ss5p.strandCanBeSplit(strand5p, idx5p):
-                found, overlap, ssIdx = ss5p._findIndexOfRangeFor(strand5p)
-                if found:
-                    d = ss5p.SplitCommand(strand5p, idx5p, ssIdx)
+                else: 
+                    return
+                # end if
+            if xoStrand3.idx3Prime() == idx5p:
+                xoStrand5 = xoStrand3
+            else:
+                ssIdx5p = ssIdx3p
+                # if the strand was split for the strand3p, then we need to adjust the strandset index
+                if c:
+                    # the insertion index into the set is increases
+                    ssIdx5p = ssIdx3p + 1 if ss3p.isDrawn5to3() else ssIdx3p 
+                if ss5p.strandCanBeSplit(xoStrand3, idx5p):
+                    d = ss5p.SplitCommand(xoStrand3, idx5p, ssIdx5p)
                     cmds.append(d)
                     xoStrand5 = d._strandLow if ss5p.isDrawn5to3() else d._strandHigh
-            else:  # can't split... abort
-                return
+                    xoStrand3 = xoStrand5
+                else:
+                    return
+        # end if
+        else: #  Do the following if it is in fact a different strand
+            # is the 5' end ready for xover installation?
+            if strand3p.idx5Prime() == idx3p:  # yes, idx already matches
+                xoStrand3 = strand3p
+            else:  # no, let's try to split
+                offset3p = -1 if ss3p.isDrawn5to3() else 1
+                if ss3p.strandCanBeSplit(strand3p, idx3p+offset3p):
+                    found, overlap, ssIdx = ss3p._findIndexOfRangeFor(strand3p)
+                    if found:
+                        c = ss3p.SplitCommand(strand3p, idx3p+offset3p, ssIdx)
+                        cmds.append(c)
+                        xoStrand3 = c._strandHigh if ss3p.isDrawn5to3() else c._strandLow
+                else:  # can't split... abort
+                    return
+
+            # is the 3' end ready for xover installation?
+            if strand5p.idx3Prime() == idx5p:  # yes, idx already matches
+                xoStrand5 = strand5p
+            else:
+                if ss5p.strandCanBeSplit(strand5p, idx5p):
+                    found, overlap, ssIdx = ss5p._findIndexOfRangeFor(strand5p)
+                    if found:
+                        d = ss5p.SplitCommand(strand5p, idx5p, ssIdx)
+                        cmds.append(d)
+                        xoStrand5 = d._strandLow if ss5p.isDrawn5to3() else d._strandHigh
+                else:  # can't split... abort
+                    return
+        # end else
         c = Part.CreateXoverCommand(self, xoStrand5, idx5p, xoStrand3, idx3p)
         cmds.append(c)
         util.execCommandList(self, cmds, desc="Create Xover", \
