@@ -66,14 +66,6 @@ class PathRootItem(QGraphicsRectItem):
         self._partItems.append(partItem)
         win.pathToolManager.setActivePart(partItem)
 
-    # def partPreDecoratorSelectedSlot(self, row, col, baseIdx):
-    #     """docstring for partPreDecoratorSelectedSlot"""
-    #     # determine where rootitem (self) is currently centered
-    #     # compute deltaX from baseIdx and baseWidth
-    #     # compute deltaY from virtualhelix position
-    #     # self.translate(deltaX, deltaY)
-    #     pass
-
     def selectedPartChangedSlot(self, modelPart):
         """Given a newly selected modelPart, update the scene to indicate
         that modelPart is selected and the previously selected part is
