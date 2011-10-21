@@ -88,7 +88,6 @@ class CustomQGraphicsView(QGraphicsView):
         self.setRubberBandSelectionMode(Qt.IntersectsItemShape)
         self.setStyleSheet("QGraphicsView { background-color: rgb(96.5%, 96.5%, 96.5%); }")
         # Pan and dolly defaults
-        self._transformEnable = False
         self._dollyZoomEnable = False
         self._noDrag = QGraphicsView.RubberBandDrag
         self._yesDrag = QGraphicsView.ScrollHandDrag
@@ -170,8 +169,8 @@ class CustomQGraphicsView(QGraphicsView):
 
     def keyPressEvent(self, event):
         """docstring for keyPressEvent"""
+        print "custom.keyPressEvent"
         if event.key() == self._key_mod:
-            self._transformEnable = True
             QGraphicsView.keyPressEvent(self, event)
         elif event.key() == Qt.Key_Left:
             self.sceneRootItem.translate(self.keyPanDeltaX(), 0)
@@ -187,9 +186,9 @@ class CustomQGraphicsView(QGraphicsView):
     # end def
 
     def keyReleaseEvent(self, event):
+        print "custom.keyReleaseEvent"
         """docstring for keyReleaseEvent"""
         if event.key() == self._key_mod:
-            self._transformEnable = False
             self._dollyZoomEnable = False
             self.panDisable()
         # end if
@@ -213,8 +212,7 @@ class CustomQGraphicsView(QGraphicsView):
         ScrollHandDrag due to the fact that events are intercepted
         breaks this feature.
         """
-        if self._transformEnable == True:
-            
+        if event.modifiers() != Qt.NoModifier:
             # self._skipEvent = False if self._skipEvent == True else True
             
             if self.dragMode() == self._yesDrag:
@@ -236,7 +234,7 @@ class CustomQGraphicsView(QGraphicsView):
 
     def mousePressEvent(self, event):
         """docstring for mousePressEvent"""
-        if self._transformEnable == True and qApp.keyboardModifiers():
+        if event.modifiers() != Qt.NoModifier:
             which_buttons = event.buttons()
             if which_buttons in [self._button_pan, self._button_pan_alt]:
                 self.panEnable()
@@ -256,7 +254,7 @@ class CustomQGraphicsView(QGraphicsView):
 
     def mouseReleaseEvent(self, event):
         """If panning, stop. If handles were pressed, release them."""
-        if self._transformEnable == True:
+        if event.modifiers() != Qt.NoModifier:
             # QMouseEvent.button() returns the button that triggered the event
             which_button = event.button()
             if which_button in [self._button_pan, self._button_pan_alt]:
@@ -331,10 +329,12 @@ class CustomQGraphicsView(QGraphicsView):
                 self._last_scale_factor = scale_factor
                 # zoom in if mouse y position is getting bigger
                 if yf - self._y0 > 0:
-                    self.scaleUp()
+                    #self.scaleUp()
+                    self.safeScale(yf - self._y0)
                 # end else
                 else:  # else id smaller zoom out
-                    self.scaleDown()
+                    #self.scaleDown()
+                    self.safeScale(yf - self._y0)
                 # end else
         # end if
     # end def
