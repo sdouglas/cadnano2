@@ -103,7 +103,7 @@ class Mom:
         key2 = "%s%s" % (self.helixNodeName, id)
         if key1 in self.mayaToCn:
             del self.mayaToCn[key1]
-        if key2 in elf.mayaToCn:
+        if key2 in self.mayaToCn:
             del self.mayaToCn[key2]
         self.deleteStrandMayaID(strand)
 

@@ -132,6 +132,9 @@ class StrandItem(QObject):
 
     @pyqtSlot(object)
     def oligoAppearanceChangedSlot(self, oligo):
+        mom = Mom()
+        id = mom.strandMayaID(self._modelStrand)
+        self.updateColor(id, oligo.color())
         #print "solidview.StrandItem.oligoAppeareanceChangedSlot"
         pass
 
