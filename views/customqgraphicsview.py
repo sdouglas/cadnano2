@@ -138,6 +138,7 @@ class CustomQGraphicsView(QGraphicsView):
 
     def focusOutEvent(self, event):
         self._hasFocus = False
+        self._transformEnable = False
 
     def setScaleFitFactor(self, value):
         """docstring for setScaleFitFactor"""
