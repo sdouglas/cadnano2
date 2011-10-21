@@ -213,8 +213,14 @@ class EndpointItem(QGraphicsPathItem):
             self._activeTool().applySequence(mStrand.oligo())
 
     def eraseToolMousePress(self, idx):
-        mStrand = self._modelStrand
+        mStrand = self._strandItem._modelStrand
         mStrand.strandSet().removeStrand(mStrand)
+    # end def
+
+    def insertionToolMousePress(self, idx):
+        """Add an insert to the strand if possible."""
+        mStrand = self._strandItem._modelStrand
+        mStrand.addInsertion(idx, 1)
     # end def
 
     def paintToolMousePress(self, modifiers):
@@ -300,3 +306,10 @@ class EndpointItem(QGraphicsPathItem):
         elif modifiers & Qt.ShiftModifier:
             mStrand.merge(self.idx())
     # end def
+
+    def skipToolMousePress(self, idx):
+        """Add an insert to the strand if possible."""
+        mStrand = self._modelStrand
+        mStrand.addInsertion(idx, -1)
+    # end def
+
