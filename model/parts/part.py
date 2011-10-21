@@ -317,7 +317,8 @@ class Part(QObject):
         ss5p = strand5p.strandSet()
         ss3p = strand3p.strandSet()
         cmds = []
-
+        if ss5p.strandType() != ss3p.strandType():
+            return
         if strand5p == strand3p:
             c = None
             found, overlap, ssIdx3p = ss3p._findIndexOfRangeFor(strand3p)
