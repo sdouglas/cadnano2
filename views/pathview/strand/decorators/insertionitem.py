@@ -173,6 +173,8 @@ class InsertionItem(QGraphicsPathItem):
 
     def focusOut(self):
         lbl = self._label
+        if lbl == None:
+            return
         cursor = lbl.textCursor()
         cursor.clearSelection()
         lbl.setTextCursor(cursor)
@@ -181,6 +183,8 @@ class InsertionItem(QGraphicsPathItem):
 
     def remove(self):
         scene = self.scene()
+        self._label.setTextInteractionFlags(Qt.NoTextInteraction)
+        self._label.clearFocus()
         scene.removeItem(self._label)
         self._label = None
         scene.removeItem(self._seqItem)
@@ -222,6 +226,8 @@ class InsertionItem(QGraphicsPathItem):
         or losing focus
         """
         lbl = self._label
+        if lbl == None:
+            return
         test = unicode(lbl.toPlainText())
         try:
             insertionSize = int(test)
@@ -310,6 +316,8 @@ class InsertionItem(QGraphicsPathItem):
 
     def resetPosition(self):
         lbl = self._label
+        if lbl == None:
+            return
         txtOffset = lbl.boundingRect().width()/2
         insertion = self._insertion
         if self._isOnTop:

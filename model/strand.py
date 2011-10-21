@@ -701,20 +701,27 @@ class Strand(QObject):
             self._idx = idx
             self._length = length
             self._insertion = Insertion(idx, length)
+            self._compStrand = strand.strandSet().complimentStrandSet().getStrand(idx)
         # end def
 
         def redo(self):
             strand = self._strand
+            cStrand = self._compStrand
             inst = self._insertion
             self._insertions[self._idx] = inst
             strand.strandInsertionAddedSignal.emit(strand, inst)
+            if cStrand:
+                cStrand.strandInsertionAddedSignal.emit(cStrand, inst)
         # end def
 
         def undo(self):
             strand = self._strand
+            cStrand = self._compStrand
             idx = self._idx
             del self._insertions[idx]
             strand.strandInsertionRemovedSignal.emit(strand, idx)
+            if cStrand:
+                cStrand.strandInsertionRemovedSignal.emit(cStrand, inst)
         # end def
     # end class
 
@@ -726,22 +733,29 @@ class Strand(QObject):
             coord = strand.virtualHelix().coord()
             self._insertions = strand.part().insertions()[coord]
             self._insertion = self._insertions[idx]
+            self._compStrand = strand.strandSet().complimentStrandSet().getStrand(idx)
         # end def
 
         def redo(self):
             strand = self._strand
+            cStrand = self._compStrand
             coord = strand.virtualHelix().coord()
             idx = self._idx
             del self._insertions[idx]
             strand.strandInsertionRemovedSignal.emit(strand, idx)
+            if cStrand:
+                cStrand.strandInsertionRemovedSignal.emit(cStrand, idx)
         # end def
 
         def undo(self):
             strand = self._strand
+            cStrand = self._compStrand
             coord = strand.virtualHelix().coord()
             inst = self._insertion
             self._insertions[self._idx] = inst
             strand.strandInsertionAddedSignal.emit(strand, inst)
+            if cStrand:
+                cStrand.strandInsertionAddedSignal.emit(cStrand, inst)
         # end def
     # end class
 
