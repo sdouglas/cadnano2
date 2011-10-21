@@ -137,6 +137,8 @@ class CustomQGraphicsView(QGraphicsView):
         self._hasFocus = True
 
     def focusOutEvent(self, event):
+        self._transformEnable = False
+        self._dollyZoomEnable = False
         self._hasFocus = False
 
     def setScaleFitFactor(self, value):
