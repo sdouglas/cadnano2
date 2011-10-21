@@ -29,11 +29,13 @@ from exceptions import KeyError
 from heapq import heapify, heappush, heappop
 from itertools import product, izip
 from collections import defaultdict
+import random
 
 from model.enum import StrandType
 from model.virtualhelix import VirtualHelix
 from model.strand import Strand
 from model.strandset import StrandSet
+from views import styles
 
 import util
 
@@ -378,6 +380,15 @@ class Part(QObject):
         cmds.append(c)
         util.execCommandList(self, cmds, desc="Create Xover", \
                                                 useUndoStack=useUndoStack)
+    # end def
+    
+    def removeXover(self, strand5p, strand3p, useUndoStack=True):
+        cmds = []
+        if strand5p.connection3p() == strand3p:
+            c = Part.RemoveXoverCommand(self, strand5p, strand3p)
+            cmds.append(c)
+            util.execCommandList(self, cmds, desc="Remove Xover", \
+                                                    useUndoStack=useUndoStack)
     # end def
 
     def destroy(self):
@@ -923,6 +934,105 @@ class Part(QObject):
             else:
                 for strand in strand3p.generator3pStrand():
                     Strand.setOligo(strand, oldOlg3p)  # emits strandHasNewOligoSignal
+
+            ss5 = strand5p.strandSet()
+            vh5p = ss5.virtualHelix()
+            st5p = ss5.strandType()
+            ss3 = strand3p.strandSet()
+            vh3p = ss3.virtualHelix()
+            st3p = ss3.strandType()
+
+            strand5p.strandXover5pChangedSignal.emit(strand5p, strand3p)
+            strand5p.strandUpdateSignal.emit(strand5p)
+            strand3p.strandUpdateSignal.emit(strand3p)
+        # end def
+    # end class
+
+    class RemoveXoverCommand(QUndoCommand):
+        """
+        Removes a Xover from the 3' end of strand5p to the 5' end of strand3p
+        this needs to
+        1. preserve the old oligo of strand3p
+        2. install the crossover
+        3. update the oligo length
+        4. apply the new strand3p oligo to the strand3p
+        """
+        def __init__(self, part, strand5p, strand3p):
+            super(Part.RemoveXoverCommand, self).__init__()
+            self._part = part
+            self._strand5p = strand5p
+            self._strand5pIdx = strand5p.idx3Prime()
+            self._strand3p = strand3p
+            self._strand3pIdx = strand3p.idx5Prime()
+            nO3p = self._newOligo3p = strand3p.oligo().shallowCopy()
+            colorList = styles.stapColors if strand5p.strandSet().isStaple() else styles.scafColors
+            nO3p.setColor(random.choice(colorList).name())
+            nO3p.setLength(0)
+            for strand in strand3p.generator3pStrand():
+                nO3p.incrementLength(strand.length())
+            # end def
+            nO3p.setStrand5p(strand3p)
+        # end def
+
+        def redo(self):
+            part = self._part
+            strand5p = self._strand5p
+            strand5pIdx = self._strand5pIdx
+            strand3p = self._strand3p
+            strand3pIdx = self._strand3pIdx
+            newOlg3p = self._newOligo3p
+            olg5p = self._strand5p.oligo()
+
+            # 1. uninstall the Xover
+            strand5p.setConnection3p(None)
+            strand3p.setConnection5p(None)
+
+            # 2. restore the modified oligo length
+            olg5p.decrementLength(newOlg3p.length())
+
+            # 3. apply the old oligo to strand3p
+            newOlg3p.addToPart(part)
+            if newOlg3p.isLoop():
+                newOlg3p.setLoop(False)
+            else:
+                for strand in strand3p.generator3pStrand():
+                    Strand.setOligo(strand, newOlg3p)  # emits strandHasNewOligoSignal
+
+            ss5 = strand5p.strandSet()
+            vh5p = ss5.virtualHelix()
+            st5p = ss5.strandType()
+            ss3 = strand3p.strandSet()
+            vh3p = ss3.virtualHelix()
+            st3p = ss3.strandType()
+
+            strand5p.strandXover5pChangedSignal.emit(strand5p, strand3p)
+            strand5p.strandUpdateSignal.emit(strand5p)
+            strand3p.strandUpdateSignal.emit(strand3p)
+        # end def
+        
+        def undo(self):
+            part = self._part
+            strand5p = self._strand5p
+            strand5pIdx = self._strand5pIdx
+            strand3p = self._strand3p
+            strand3pIdx = self._strand3pIdx
+            olg5p = strand5p.oligo()
+            newOlg3p = self._newOligo3p
+
+            # 1. update preserved oligo length
+            olg5p.incrementLength(newOlg3p.length())
+
+            # 2. Remove the old oligo and apply the 5' oligo to the 3' strand
+            newOlg3p.removeFromPart()
+            if olg5p == strand3p.oligo():
+                olg5p.setLoop(True)
+            else:
+                for strand in strand3p.generator3pStrand():
+                    Strand.setOligo(strand, olg5p)  # emits strandHasNewOligoSignal
+
+            # 3. install the Xover
+            strand5p.setConnection3p(strand3p)
+            strand3p.setConnection5p(strand5p)
 
             ss5 = strand5p.strandSet()
             vh5p = ss5.virtualHelix()

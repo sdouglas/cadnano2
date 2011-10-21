@@ -72,6 +72,10 @@ class XoverNode3(QGraphicsRectItem):
         self.setBrush(_nobrush)
         self.setRect(_rect)
     # end def
+    
+    def mousePressEvent(self, event):
+        self._xoverItem.attemptToRemoveXover()
+    # end def 
 
     def strandType(self):
         return self._strandType
@@ -239,6 +243,12 @@ class XoverItem(QGraphicsPathItem):
             scene.removeItem(self._node3)
             scene.removeItem(self._node5)
         scene.removeItem(self)
+    # end def
+    
+    def attemptToRemoveXover(self):
+        strand5p = self._strand5p
+        strand3p = strand5p.connection3p()
+        self._virtualHelixItem.part().removeXover(strand5p, strand3p)
     # end def
 
     def hideIt(self):
