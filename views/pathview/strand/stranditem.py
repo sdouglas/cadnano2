@@ -52,16 +52,19 @@ class StrandItem(QGraphicsLineItem):
         self._modelStrand = modelStrand
         self._virtualHelixItem = virtualHelixItem
         self._activeTool = virtualHelixItem.activeTool()
+
         self._controller = StrandItemController(self, modelStrand)
+        isDrawn5to3 = modelStrand.strandSet().isDrawn5to3()
+
         self._insertionItems = {}
         # caps
-        isDrawn5to3 = modelStrand.strandSet().isDrawn5to3()
         self._lowCap = EndpointItem(self, 'low', isDrawn5to3)
         self._highCap = EndpointItem(self, 'high', isDrawn5to3)
         self._dualCap = EndpointItem(self, 'dual', isDrawn5to3)
+        
         # orientation
         self._isDrawn5to3 = isDrawn5to3
-        self._isOnTop = virtualHelixItem.isStrandOnTop(modelStrand)
+        # self._isOnTop = virtualHelixItem.isStrandOnTop(modelStrand)
         # label
         self._seqLabel = QGraphicsSimpleTextItem(self)
         self._updateSequenceText()
@@ -213,6 +216,19 @@ class StrandItem(QGraphicsLineItem):
 
     def virtualHelixItem(self):
         return self._virtualHelixItem
+    
+    def resetStrandItem(self, virtualHelixItem, isDrawn5to3):
+        self.setParentItem(virtualHelixItem)
+        self._virtualHelixItem = virtualHelixItem
+        self.resetEndPointItems(isDrawn5to3)
+    # end def
+    
+    def resetEndPointItems(self, isDrawn5to3):
+        self._isDrawn5to3 = isDrawn5to3
+        self._lowCap.resetEndPoint(isDrawn5to3)
+        self._highCap.resetEndPoint(isDrawn5to3)
+        self._dualCap.resetEndPoint(isDrawn5to3)
+    # end def
 
     def window(self):
         return self._virtualHelixItem.window()

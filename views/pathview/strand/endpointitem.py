@@ -88,10 +88,9 @@ class EndpointItem(QGraphicsPathItem):
         self._strandItem = strandItem
         self._activeTool = strandItem.activeTool()
         self._capType = captype
-        self._isDrawn5to3 = isDrawn5to3
         self._lowDragBound = None
         self._highDragBound = None
-        self._initCapSpecificState()
+        self._initCapSpecificState(isDrawn5to3)
         self.setPen(_noPen)
         # for easier mouseclick
         self._clickArea = cA = QGraphicsRectItem(_defaultRect, self)
@@ -116,6 +115,13 @@ class EndpointItem(QGraphicsPathItem):
             return self._strandItem.idxs()[0]
         else:  # high or dual, doesn't matter
             return self._strandItem.idxs()[1]
+    # end def
+    
+    def disableEvents(self):
+        self._clickArea.setAcceptHoverEvents(False)
+        self.mouseMoveEvent = QGraphicsPathItem.mouseMoveEvent
+        self.mousePressEvent = QGraphicsPathItem.mousePressEvent
+    # end def
 
     def window(self):
         return self._strandItem.window()
@@ -129,15 +135,22 @@ class EndpointItem(QGraphicsPathItem):
             return True
         return False
 
+    def resetEndPoint(self, isDrawn5to3):
+        self.setParentItem(self._strandItem.virtualHelixItem())
+        self._initCapSpecificState(isDrawn5to3)
+        upperLeftY = 0 if isDrawn5to3 else _baseWidth
+        self.setY(upperLeftY)
+    # end def
+
     ### PRIVATE SUPPORT METHODS ###
-    def _initCapSpecificState(self):
+    def _initCapSpecificState(self, isDrawn5to3):
         cT = self._capType
         if cT == 'low':
-            path = ppL5 if self._isDrawn5to3 else ppL3
+            path = ppL5 if isDrawn5to3 else ppL3
         elif cT == 'high':
-            path = ppR3 if self._isDrawn5to3 else ppR5
+            path = ppR3 if isDrawn5to3 else ppR5
         elif cT == 'dual':
-            path = pp53 if self._isDrawn5to3 else pp35
+            path = pp53 if isDrawn5to3 else pp35
         self.setPath(path)
     # end def
 

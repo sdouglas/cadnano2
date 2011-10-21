@@ -222,10 +222,12 @@ class VirtualHelixItem(QGraphicsPathItem):
         Parses a mousePressEvent to extract strandSet and base index,
         forwarding them to approproate tool method as necessary.
         """
+        self.scene().views()[0].addToPressList(self)
         self.part().setActiveVirtualHelix(self.virtualHelix())
         toolMethodName = str(self._activeTool()) + "MousePress"
         if hasattr(self, toolMethodName):
             strandSet, idx = self.baseAtPoint(event.pos())
+            self._lastStrandSet, self._lastIdx = strandSet, idx
             getattr(self, toolMethodName)(strandSet, idx)
 
     def mouseMoveEvent(self, event):
@@ -236,17 +238,19 @@ class VirtualHelixItem(QGraphicsPathItem):
         toolMethodName = str(self._activeTool()) + "MouseMove"
         if hasattr(self, toolMethodName):
             strandSet, idx = self.baseAtPoint(event.pos())
+            self._lastStrandSet, self._lastIdx = strandSet, idx
             getattr(self, toolMethodName)(strandSet, idx)
 
-    def mouseReleaseEvent(self, event):
+    def customMouseRelease(self, event):
         """
         Parses a mouseReleaseEvent to extract strandSet and base index,
         forwarding them to approproate tool method as necessary.
         """
         toolMethodName = str(self._activeTool()) + "MouseRelease"
         if hasattr(self, toolMethodName):
-            strandSet, idx = self.baseAtPoint(event.pos())
-            getattr(self, toolMethodName)(strandSet, idx)
+            getattr(self, toolMethodName)(self._lastStrandSet, self._lastIdx)
+    # end def
+    
 
     ### COORDINATE UTILITIES ###
     def baseAtPoint(self, pos):
@@ -262,7 +266,7 @@ class VirtualHelixItem(QGraphicsPathItem):
         baseIdx = int(floor(x / _baseWidth))
         minBase, maxBase = 0, mVH.part().maxBaseIdx()
         if baseIdx < minBase or baseIdx >= maxBase:
-            baseIdx = util.clamp(baseIdx, minBase, maxBase-1)
+            baseIdx = util.clamp(baseIdx, minBase, maxBase)
         if y < 0:
             y = 0  # HACK: zero out y due to erroneous click
         strandIdx = floor(y * 1. / _baseWidth)
@@ -306,6 +310,34 @@ class VirtualHelixItem(QGraphicsPathItem):
         """if startIdx != end, vhelix.createNewStrand(startIdx, endIdx)"""
         print "%s: %s[%s]" % (util.methodName(), strandSet, idx)
         pass
+    # end def
+    
+    def pencilToolMousePress(self, strandSet, idx):
+        """strand.getDragBounds"""
+        print "%s: %s[%s]" % (util.methodName(), strandSet, idx)
+        activeTool = self._activeTool()
+        if not activeTool.isDrawingStrand():
+            # tempStrandItem = activeTool.strandItem()
+            activeTool.initStrandItemFromVHI(self, strandSet, idx)
+            activeTool.setIsDrawingStrand(True)
+    # end def
+    
+    def pencilToolMouseMove(self, strandSet, idx):
+        """strand.getDragBounds"""
+        print "%s: %s[%s]" % (util.methodName(), strandSet, idx)
+        activeTool = self._activeTool()
+        if activeTool.isDrawingStrand():
+            activeTool.updateStrandItemFromVHI(self, strandSet, idx)
+    # end def
+    
+    def pencilToolMouseRelease(self, strandSet, idx):
+        """strand.getDragBounds"""
+        print "%s: %s[%s]" % (util.methodName(), strandSet, idx)
+        activeTool = self._activeTool()
+        if activeTool.isDrawingStrand():
+            activeTool.setIsDrawingStrand(False)
+            # createStrand
+            activeTool.attemptToCreateStrand(self, strandSet, idx)
     # end def
     
     def pencilToolHoverMove(self, strandType, idxX, idxY):

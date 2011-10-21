@@ -37,10 +37,67 @@ class PencilTool(AbstractPathTool):
     def __init__(self, controller):
         super(PencilTool, self).__init__(controller)
         self._tempXover = ForcedXoverItem(self, None, None)
+        self._tempStrandItem = ForcedStrandItem(self, None)
+        self._tempStrandItem.hide()
+        self._moveIdx = None
         self._isFloatingXoverBegin = True
+        self._isDrawingStrand = False
 
     def __repr__(self):
         return "pencilTool"  # first letter should be lowercase
+        
+    def strandItem(self):
+        return self._tempStrandItem
+    # end def
+    
+    def isDrawingStrand(self):
+        return self._isDrawingStrand
+    # end def
+    
+    def setIsDrawingStrand(self, boolval):
+        self._isDrawingStrand = boolval
+        if boolval == False:
+            self._tempStrandItem.hideIt()
+    # end def
+    
+    def initStrandItemFromVHI(self, virtualHelixItem, strandSet, idx):
+        sI = self._tempStrandItem
+        self._startIdx = idx
+        self._startStrandSet = strandSet
+        sI.resetStrandItem(virtualHelixItem, strandSet.isDrawn5to3())
+        self._lowDragBound, self._highDragBound =  strandSet.getBoundsOfEmptyRegionContaining(idx)
+    # end def
+    
+    def updateStrandItemFromVHI(self, virtualHelixItem, strandSet, idx):
+        sI = self._tempStrandItem
+        sIdx = self._startIdx
+        if abs(sIdx-idx) > 1 and self.isWithinBounds(idx):
+            idxs = (idx, sIdx) if self.isDragLow(idx) else (sIdx, idx)
+            sI.strandResizedSlot(idxs)
+            sI.showIt()
+        # end def
+    # end def
+    
+    def isDragLow(self, idx):
+        sIdx = self._startIdx
+        if sIdx-idx > 0:
+            return True
+        else:
+            return False
+    # end def
+    
+    def isWithinBounds(self, idx):
+        return self._lowDragBound <= idx <= self._highDragBound
+    # end def
+    
+    def attemptToCreateStrand(self, virtualHelixItem, strandSet, idx):
+        self._tempStrandItem.hideIt()
+        sIdx = self._startIdx
+        if abs(sIdx-idx) > 1:
+            idx = util.clamp(idx, self._lowDragBound, self._highDragBound)
+            idxs = (idx, sIdx) if self.isDragLow(idx) else (sIdx, idx)
+            self._startStrandSet.createStrand(*idxs)
+    # end def
 
     def floatingXover(self):
         return self._tempXover
@@ -66,29 +123,187 @@ class PencilTool(AbstractPathTool):
         part = virtualHelixItem.part()
         part.createXover(strand5p, idx5, strand3p, idx)
     # end def
+    
+    def attemptToCreateXover(self, virtualHelixItem, strand3p, idx):
+        xoi = self._tempXover
+        n5 = xoi._node5 
+        idx5 = n5._idx
+        strand5p = n5._strand
+        part = virtualHelixItem.part()
+        part.createXover(strand5p, idx5, strand3p, idx)
+    # end def
 # end class
 
 from exceptions import AttributeError, NotImplementedError
-import time
+from math import floor
+from views.pathview.strand.endpointitem import EndpointItem
 from views import styles
 
-import util, time
+import util
+# import Qt stuff into the module namespace with PySide, PyQt4 independence
+util.qtWrapImport('QtCore', globals(), ['Qt', 'QRectF'])
+util.qtWrapImport('QtGui', globals(), ['QGraphicsLineItem', 'QGraphicsPathItem',
+                                       'QPen', 'QColor', 'QBrush', \
+                                       'QGraphicsRectItem'])
+                                       
+import time
 
 # import Qt stuff into the module namespace with PySide, PyQt4 independence
-util.qtWrapImport('QtCore', globals(), ['QPointF', 'QRectF', 'Qt', 'QEvent'])
-util.qtWrapImport('QtGui', globals(), ['QBrush', 'QFont', 'QGraphicsItem',\
-                                'QGraphicsSimpleTextItem', 'QPen',\
-                                'QPolygonF', 'QPainterPath', 'QGraphicsRectItem', \
-                                'QColor', 'QFontMetrics', 'QGraphicsPathItem'])
+util.qtWrapImport('QtCore', globals(), ['QPointF', 'QEvent'])
+util.qtWrapImport('QtGui', globals(), ['QFont', 'QGraphicsItem',\
+                               'QGraphicsSimpleTextItem', \
+                               'QPolygonF', 'QPainterPath', 'QGraphicsRectItem', \
+                               'QFontMetrics', 'QGraphicsPathItem'])
 
 _baseWidth = styles.PATH_BASE_WIDTH
+_pencilcolor = styles.redstroke
+_defaultRect = QRectF(0,0, _baseWidth, _baseWidth)
+_noPen = QPen(Qt.NoPen)
+
+class ForcedStrandItem(QGraphicsLineItem):
+    def __init__(self, tool, virtualHelixItem):
+        """The parent should be a VirtualHelixItem."""
+        super(ForcedStrandItem, self).__init__(virtualHelixItem)
+        self._virtualHelixItem = virtualHelixItem
+        self._tool = tool
+
+        isDrawn5to3 = True
+
+        # caps
+        self._lowCap = EndpointItem(self, 'low', isDrawn5to3)
+        self._highCap = EndpointItem(self, 'high', isDrawn5to3)
+        self._lowCap.disableEvents()
+        self._highCap.disableEvents()
+        
+        # orientation
+        self._isDrawn5to3 = isDrawn5to3
+        
+        # create a larger click area rect to capture mouse events
+        self._clickArea = cA = QGraphicsRectItem(_defaultRect, self)
+        cA.mousePressEvent = self.mousePressEvent
+        cA.setPen(_noPen)
+
+        self._updatePensAndBrushes()
+        self.hideIt()
+    # end def
+
+    ### SIGNALS ###
+
+    ### SLOTS ###
+    def strandResizedSlot(self, idxs):
+        """docstring for strandResizedSlot"""
+        lowMoved = self._lowCap.updatePosIfNecessary(idxs[0])
+        highMoved = self._highCap.updatePosIfNecessary(idxs[1])
+        if lowMoved:
+            self.updateLine(self._lowCap)
+        if highMoved:
+            self.updateLine(self._highCap)
+    # end def
+
+    def strandRemovedSlot(self):
+        scene = self.scene()
+        scene.removeItem(self._clickArea)
+        scene.removeItem(self._highCap)
+        scene.removeItem(self._lowCap)
+        
+        self._clickArea = None
+        self._highCap = None
+        self._lowCap = None
+
+        scene.removeItem(self)
+    # end def
+
+    ### ACCESSORS ###
+
+    def virtualHelixItem(self):
+        return self._virtualHelixItem
+        
+    def activeTool(self):
+        return self._tool
+    # end def
+    
+    def hideIt(self):
+        self.hide()
+        self._lowCap.hide()
+        self._highCap.hide()
+    # end def
+    
+    def showIt(self):
+        self.show()
+        self._lowCap.show()
+        self._highCap.show()
+    # end def
+    
+    def resetStrandItem(self, virtualHelixItem, isDrawn5to3):
+        self.setParentItem(virtualHelixItem)
+        self._virtualHelixItem = virtualHelixItem
+        self.resetEndPointItems(isDrawn5to3)
+    # end def
+    
+    def resetEndPointItems(self, isDrawn5to3):
+        bw = _baseWidth
+        self._isDrawn5to3 = isDrawn5to3
+        self._lowCap.resetEndPoint(isDrawn5to3)
+        self._highCap.resetEndPoint(isDrawn5to3)
+        line = self.line()
+        p1 = line.p1()
+        p2 = line.p2()
+        if isDrawn5to3:
+            p1.setY(bw/2)
+            p2.setY(bw/2)
+        else:
+            p1.setY(3*bw/2)
+            p2.setY(3*bw/2)
+        line.setP1(p1)
+        line.setP2(p2)
+        self.setLine(line)
+    # end def
+
+    ### PUBLIC METHODS FOR DRAWING / LAYOUT ###
+    def updateLine(self, movedCap):
+        # setup
+        bw = _baseWidth
+        cA = self._clickArea
+        line = self.line()
+        # set new line coords
+        if movedCap == self._lowCap:
+            p1 = line.p1()
+            newX = self._lowCap.pos().x() + bw
+            p1.setX(newX)
+            line.setP1(p1)
+            temp = cA.rect()
+            temp.setLeft(newX)
+            cA.setRect(temp)
+        else:
+            p2 = line.p2()
+            newX = self._highCap.pos().x()
+            p2.setX(newX)
+            line.setP2(p2)
+            temp = cA.rect()
+            temp.setRight(newX)
+            cA.setRect(temp)
+        self.setLine(line)
+    # end def
+
+    def _updatePensAndBrushes(self):
+        color = QColor(_pencilcolor)
+        penWidth = styles.PATH_STRAND_STROKE_WIDTH
+        pen = QPen(color, penWidth)
+        brush = QBrush(color)
+        pen.setCapStyle(Qt.FlatCap)
+        self.setPen(pen)
+        self._lowCap.setBrush(brush)
+        self._highCap.setBrush(brush)
+    # end def
+# end class
+
 _toHelixNumFont = styles.XOVER_LABEL_FONT
 # precalculate the height of a number font.  Assumes a fixed font
 # and that only numbers will be used for labels
 _fm = QFontMetrics(_toHelixNumFont)
 _enabbrush = QBrush(Qt.SolidPattern)  # Also for the helix number label
 _noBrush = QBrush(Qt.NoBrush)
-_noPen = QPen(Qt.NoPen)
+
 # _rect = QRectF(0, 0, baseWidth, baseWidth)
 _xScale = styles.PATH_XOVER_LINE_SCALE_X  # control point x constant
 _yScale = styles.PATH_XOVER_LINE_SCALE_Y  # control point y constant
@@ -544,22 +759,21 @@ class ForcedXoverItem(QGraphicsPathItem):
         self._updateFloatPen()
     # end def
 
-    def _updatePen(self, strand5p):
-        oligo = strand5p.oligo()
-        color = QColor(oligo.color())
-        penWidth = styles.PATH_STRAND_STROKE_WIDTH
-        if oligo.shouldHighlight():
-            penWidth = styles.PATH_STRAND_HIGHLIGHT_STROKE_WIDTH
-            color.setAlpha(128)
-        pen = QPen(color, penWidth)
-        pen.setCapStyle(Qt.FlatCap)
-        self.setPen(pen)
-    # end def
+    # def _updatePen(self, strand5p):
+    #     oligo = strand5p.oligo()
+    #     color = QColor(oligo.color())
+    #     penWidth = styles.PATH_STRAND_STROKE_WIDTH
+    #     if oligo.shouldHighlight():
+    #         penWidth = styles.PATH_STRAND_HIGHLIGHT_STROKE_WIDTH
+    #         color.setAlpha(128)
+    #     pen = QPen(color, penWidth)
+    #     pen.setCapStyle(Qt.FlatCap)
+    #     self.setPen(pen)
+    # # end def
 
     def _updateFloatPen(self):
-        color = styles.redstroke
         penWidth = styles.PATH_STRAND_STROKE_WIDTH
-        pen = QPen(color, penWidth)
+        pen = QPen(_pencilcolor, penWidth)
         pen.setCapStyle(Qt.FlatCap)
         self.setPen(pen)
     # end def
