@@ -69,6 +69,7 @@ class DocumentWindow(QMainWindow, ui_mainwindow.Ui_MainWindow):
         assert self.sliceroot.scene() == self.slicescene
         self.sliceGraphicsView.setScene(self.slicescene)
         self.sliceGraphicsView.sceneRootItem = self.sliceroot
+        self.sliceGraphicsView.setName("SliceView")
         self.sliceToolManager = SliceToolManager(self)
         # Path setup
         self.pathscene = QGraphicsScene(parent=self.pathGraphicsView)
@@ -82,6 +83,7 @@ class DocumentWindow(QMainWindow, ui_mainwindow.Ui_MainWindow):
         self.pathGraphicsView.setScene(self.pathscene)
         self.pathGraphicsView.sceneRootItem = self.pathroot
         self.pathGraphicsView.setScaleFitFactor(0.9)
+        self.pathGraphicsView.setName("PathView")
         self.pathColorPanel = ColorPanel()
         self.pathGraphicsView.toolbar = self.pathColorPanel  # HACK for customqgraphicsview
         self.pathscene.addItem(self.pathColorPanel)

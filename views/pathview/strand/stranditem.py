@@ -528,3 +528,10 @@ class StrandItem(QGraphicsLineItem):
             # install Xover
             activeTool.attemptToCreateXover(vhi, mStrand, idx)
     # end def
+
+    def skipToolMousePress(self, idx):
+        """Add an insert to the strand if possible."""
+        mStrand = self._modelStrand
+        mStrand.addInsertion(idx, -1)
+    # end def
+
