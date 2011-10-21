@@ -247,10 +247,7 @@ class Strand(QObject):
             tempSelf = array('c', self._sequence if self._isDrawn5to3 else self._sequence[::-1])
 
         # generate the index into the compliment string
-        if sLowIdx < lowIdx:
-            a = self.insertionLengthBetweenIdxs(sLowIdx, lowIdx-1)
-        else:
-            a = 0
+        a = self.insertionLengthBetweenIdxs(sLowIdx, lowIdx-1)
         b = self.insertionLengthBetweenIdxs(lowIdx, highIdx)
         c = strand.insertionLengthBetweenIdxs(cLowIdx, lowIdx-1)
         start = lowIdx - cLowIdx + c
