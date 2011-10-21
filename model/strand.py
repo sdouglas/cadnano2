@@ -773,20 +773,27 @@ class Strand(QObject):
             self._idx = idx
             self._newLength = newLength
             self._oldLength = self._insertions[idx].length()
+            self._compStrand = strand.strandSet().complimentStrandSet().getStrand(idx)
         # end def
 
         def redo(self):
             strand = self._strand
+            cStrand = self._compStrand
             inst = self._insertions[self._idx]
             inst.setLength(self._newLength)
             strand.strandInsertionChangedSignal.emit(strand, inst)
+            if cStrand:
+                cStrand.strandInsertionChangedSignal.emit(cStrand, inst)
         # end def
 
         def undo(self):
             strand = self._strand
+            cStrand = self._compStrand
             inst = self._insertions[self._idx]
             inst.setLength(self._oldLength)
             strand.strandInsertionChangedSignal.emit(strand, inst)
+            if cStrand:
+                cStrand.strandInsertionChangedSignal.emit(cStrand, inst)
         # end def
     # end class
 # end class
