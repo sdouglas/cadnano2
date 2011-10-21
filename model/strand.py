@@ -252,7 +252,7 @@ class Strand(QObject):
         else:
             a = 0
         b = self.insertionLengthBetweenIdxs(lowIdx, highIdx)
-        c = strand.insertionLengthBetweenIdxs(cLowIdx, lowIdx)
+        c = strand.insertionLengthBetweenIdxs(cLowIdx, lowIdx-1)
         start = lowIdx - cLowIdx + c
         end = start + b + highIdx-lowIdx +1
         tempSelf[lowIdx-sLowIdx+a:highIdx-sLowIdx+1 + a+ b] = temp[start:end]
