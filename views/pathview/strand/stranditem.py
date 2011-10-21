@@ -280,18 +280,18 @@ class StrandItem(QGraphicsLineItem):
         dualCap = self._dualCap
 
         # 1. Cap visibilty
-        if strand.connectionLow() != None:  # hide low cap if Low-connected
-            lx = lUpperLeftX + halfBaseWidth
+        if strand.connectionLow() != None:  # has low xover
+            lx = lUpperLeftX + halfBaseWidth  # draw from middle of base
             lowCap.hide()
-        else:  # otherwise show left cap
-            lx = lUpperLeftX + halfBaseWidth
+        else:  # has low cap
+            lx = lUpperLeftX + bw  # draw from right edge of base
             lowCap.setPos(lUpperLeftX, lUpperLeftY)
             lowCap.show()
-        if strand.connectionHigh() != None:  # hide high cap if High-connected
-            hx = hUpperLeftX + halfBaseWidth
+        if strand.connectionHigh() != None:  # has high xover
+            hx = hUpperLeftX + halfBaseWidth  # draw to middle of base
             highCap.hide()
-        else:  # otherwise show it
-            hx = hUpperLeftX + halfBaseWidth
+        else:  # has high cap
+            hx = hUpperLeftX  # draw to edge of base
             highCap.setPos(hUpperLeftX, hUpperLeftY)
             highCap.show()
         # special case: single-base strand with no L or H connections,
