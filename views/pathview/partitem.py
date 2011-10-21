@@ -108,6 +108,14 @@ class PartItem(QGraphicsRectItem):
         pass
     # end def
 
+    def partPreDecoratorSelectedSlot(self, row, col, baseIdx):
+        """docstring for partPreDecoratorSelectedSlot"""
+        # determine where rootitem (self) is currently centered
+        # compute deltaX from baseIdx and baseWidth
+        # compute deltaY from virtualhelix position
+        # self.translate(deltaX, deltaY)
+        pass
+
     def virtualHelixAddedSlot(self, modelVirtualHelix):
         """
         When a virtual helix is added to the model, this slot handles

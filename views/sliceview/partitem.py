@@ -121,17 +121,13 @@ class PartItem(QGraphicsItem):
     def reorderedSlot(self, orderedCoordList):
         pass
 
-    # def xoverAddedSlot(self, part, virtualHelix3p, strandType3p, idx3p, \
-    #                                 virtualHelix5p, strandType5p, idx5p):
-    #     """docstring for xoverAddedSlot"""
-    #     print "PartItem.xoverAddedSlot"
-    #     pass
-    # 
-    # def xoverRemovedSlot(self, part, virtualHelix3p, strandType3p, idx3p, \
-    #                                 virtualHelix5p, strandType5p, idx5p):
-    #     """docstring for xoverRemovedSlot"""
-    #     print "PartItem.xoverRemovedSlot"
-    #     pass
+    def partPreDecoratorSelectedSlot(self, row, col, baseIdx):
+        """docstring for partPreDecoratorSelectedSlot"""
+        # determine where rootitem (self) is currently centered
+        # compute deltaX from baseIdx and baseWidth
+        # compute deltaY from virtualhelix position
+        # self.translate(deltaX, deltaY)
+        pass
 
     def virtualHelixAddedSlot(self, virtualHelix):
         vh = virtualHelix
@@ -141,7 +137,7 @@ class PartItem(QGraphicsItem):
         vhi = VirtualHelixItem(vh, emptyHelixItem)
         self._virtualHelixHash[coords] = vhi
     # end def
-    
+
     def updatePreXoverItemsSlot(self, virtualHelix):
         pass
     # end def

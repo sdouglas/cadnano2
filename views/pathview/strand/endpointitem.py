@@ -315,7 +315,6 @@ class EndpointItem(QGraphicsPathItem):
             else:
                 newIdxs = self._getNewIdxsForResize(self._highDragBound)
             mStrand.resize(newIdxs)
-
         elif modifiers & Qt.ShiftModifier:
             mStrand.merge(self.idx())
     # end def

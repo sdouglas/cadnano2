@@ -144,6 +144,10 @@ class PartItem(QObject):
         #print "solidview.PartItem.movedSlot"
         pass
 
+    @pyqtSlot(int, int, int)
+    def partPreDecoratorSelectedSlot(self, row, col, baseIdx):
+        pass
+
     @pyqtSlot(object)
     def virtualHelixAddedSlot(self, virtualHelix):
         #print "solidview.PartItem.virtualHelixAddedSlot"
