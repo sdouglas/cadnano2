@@ -181,7 +181,12 @@ class ForcedStrandItem(QGraphicsLineItem):
         # create a larger click area rect to capture mouse events
         self._clickArea = cA = QGraphicsRectItem(_defaultRect, self)
         cA.mousePressEvent = self.mousePressEvent
-        cA.setPen(_noPen)
+        cA.setBrush(QBrush(Qt.white))
+        self.setZValue(styles.ZPATHTOOL)
+        cA.setZValue(styles.ZPATHTOOL-2)
+        self._lowCap.setZValue(styles.ZPATHTOOL+1)
+        self._highCap.setZValue(styles.ZPATHTOOL+1)
+        cA.setFlag(QGraphicsItem.ItemStacksBehindParent)
 
         self._updatePensAndBrushes()
         self.hideIt()
@@ -226,12 +231,14 @@ class ForcedStrandItem(QGraphicsLineItem):
         self.hide()
         self._lowCap.hide()
         self._highCap.hide()
+        self._clickArea.hide()
     # end def
     
     def showIt(self):
-        self.show()
         self._lowCap.show()
         self._highCap.show()
+        self._clickArea.show()
+        self.show()
     # end def
     
     def resetStrandItem(self, virtualHelixItem, isDrawn5to3):
@@ -251,9 +258,11 @@ class ForcedStrandItem(QGraphicsLineItem):
         if isDrawn5to3:
             p1.setY(bw/2)
             p2.setY(bw/2)
+            self._clickArea.setY(0)
         else:
             p1.setY(3*bw/2)
             p2.setY(3*bw/2)
+            self._clickArea.setY(bw)
         line.setP1(p1)
         line.setP2(p2)
         self.setLine(line)
@@ -272,7 +281,7 @@ class ForcedStrandItem(QGraphicsLineItem):
             p1.setX(newX)
             line.setP1(p1)
             temp = cA.rect()
-            temp.setLeft(newX)
+            temp.setLeft(newX-bw)
             cA.setRect(temp)
         else:
             p2 = line.p2()
@@ -280,7 +289,7 @@ class ForcedStrandItem(QGraphicsLineItem):
             p2.setX(newX)
             line.setP2(p2)
             temp = cA.rect()
-            temp.setRight(newX)
+            temp.setRight(newX+bw)
             cA.setRect(temp)
         self.setLine(line)
     # end def
