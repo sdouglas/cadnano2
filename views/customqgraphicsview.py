@@ -140,6 +140,7 @@ class CustomQGraphicsView(QGraphicsView):
         self._transformEnable = False
         self._dollyZoomEnable = False
         self._hasFocus = False
+        self._transformEnable = False
 
     def setScaleFitFactor(self, value):
         """docstring for setScaleFitFactor"""
