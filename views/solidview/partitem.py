@@ -125,9 +125,9 @@ class PartItem(QObject):
         pass
 
     @pyqtSlot()
-    def removedSlot(self):
-        """solidview.PartItem removedSlot"""
-        #print "solidview.PartItem.removedSlot"
+    def partRemovedSlot(self):
+        """solidview.PartItem partRemovedSlot"""
+        #print "solidview.PartItem.partRemovedSlot"
         self._part = None
         self._controller.disconnectSignals()
         self._controller = None
@@ -138,19 +138,13 @@ class PartItem(QObject):
         #print "solidview.PartItem.destroyedSlot"
         pass
 
-    @pyqtSlot(int)
-    def movedSlot(self, pos):
-        """solidviw.PartItem partMovedSlot"""
-        #print "solidview.PartItem.movedSlot"
-        pass
-
     @pyqtSlot(int, int, int)
     def partPreDecoratorSelectedSlot(self, row, col, baseIdx):
         pass
 
     @pyqtSlot(object)
-    def virtualHelixAddedSlot(self, virtualHelix):
-        #print "solidview.PartItem.virtualHelixAddedSlot"
+    def partVirtualHelixAddedSlot(self, virtualHelix):
+        #print "solidview.PartItem.partVirtualHelixAddedSlot"
         sh = self.createNewVirtualHelixItem(virtualHelix)
         sh.setModifyState(self.modifyState)
 

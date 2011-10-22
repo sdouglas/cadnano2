@@ -141,9 +141,9 @@ class ActiveSliceItem(QGraphicsRectItem):
         self.controller = None
     # end def
 
-    def resetBounds(self, maxBase):
+    def resetBounds(self):
         """Call after resizing virtualhelix canvas."""
-        self._highDragBound = self.part().numBases() - 1
+        self._highDragBound = self.part().maxBaseIdx()
     # end def
 
     ### PRIVATE SUPPORT METHODS ###

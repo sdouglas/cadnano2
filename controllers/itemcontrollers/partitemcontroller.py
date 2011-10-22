@@ -34,10 +34,11 @@ class PartItemController(object):
         pI = self._partItem
 
         mP.partParentChangedSignal.connect(pI.parentChangedSlot)
-        mP.partRemovedSignal.connect(pI.removedSlot)
+        mP.partRemovedSignal.connect(pI.partRemovedSlot)
         mP.partDestroyedSignal.connect(pI.destroyedSlot)
         mP.partPreDecoratorSelectedSignal.connect(pI.partPreDecoratorSelectedSlot)
-        mP.partVirtualHelixAddedSignal.connect(pI.virtualHelixAddedSlot)
+        mP.partVirtualHelixAddedSignal.connect(pI.partVirtualHelixAddedSlot)
+        mP.partVirtualHelixChangedSignal.connect(pI.partVirtualHelixChangedSlot)
         mP.partStrandChangedSignal.connect(pI.updatePreXoverItemsSlot)
         mP.partVirtualHelicesReorderedSignal.connect(pI.reorderedSlot)
     # end def
@@ -47,10 +48,10 @@ class PartItemController(object):
         pI = self._partItem
 
         mP.partParentChangedSignal.disconnect(pI.parentChangedSlot)
-        mP.partRemovedSignal.disconnect(pI.removedSlot)
+        mP.partRemovedSignal.disconnect(pI.partRemovedSlot)
         mP.partDestroyedSignal.disconnect(pI.destroyedSlot)
         mP.partPreDecoratorSelectedSignal.disconnect(pI.partPreDecoratorSelectedSlot)
-        mP.partVirtualHelixAddedSignal.disconnect(pI.virtualHelixAddedSlot)
+        mP.partVirtualHelixAddedSignal.disconnect(pI.partVirtualHelixAddedSlot)
         mP.partStrandChangedSignal.disconnect(pI.updatePreXoverItemsSlot)
         mP.partVirtualHelicesReorderedSignal.disconnect(pI.reorderedSlot)
 

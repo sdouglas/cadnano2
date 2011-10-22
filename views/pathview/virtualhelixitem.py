@@ -120,8 +120,29 @@ class VirtualHelixItem(QGraphicsPathItem):
         return self._modelVirtualHelix.coord()
     # end def
 
+    def handle(self):
+        return self._handle
+    # end def
+
+    def part(self):
+        return self._partItem.part()
+    # end def
+
+    def partItem(self):
+        return self._partItem
+    # end def
+
+    def number(self):
+        return self._modelVirtualHelix.number()
+    # end def
+
+    def virtualHelix(self):
+        return self._modelVirtualHelix
+    # end def
+
     def window(self):
         return self._partItem.window()
+    # end def
 
     ### DRAWING METHODS ###
     def isStrandOnTop(self, strand):
@@ -157,7 +178,7 @@ class VirtualHelixItem(QGraphicsPathItem):
         """
         bw = _baseWidth
         part = self.part()
-        
+
         if self._minorGridPainterPath:
             return self._minorGridPainterPath
         path = QPainterPath()
@@ -195,25 +216,14 @@ class VirtualHelixItem(QGraphicsPathItem):
             path.lineTo(x, 2 * bw - .5)
         self._majorGridPainterPath = path
         return path
-
-    def handle(self):
-        return self._handle
     # end def
 
-    def number(self):
-        return self._modelVirtualHelix.number()
-    # end def
-
-    def part(self):
-        return self._partItem.part()
-    # end def
-
-    def partItem(self):
-        return self._partItem
-    # end def
-
-    def virtualHelix(self):
-        return self._modelVirtualHelix
+    def resize(self):
+        """Called by part on resize."""
+        print "resize", self
+        self._minorGridPainterPath = None
+        self._minorGridPainterPath = self.minorGridPainterPath()
+        self.setPath(self._minorGridPainterPath)
     # end def
 
     ### EVENT HANDLERS ###
@@ -229,6 +239,7 @@ class VirtualHelixItem(QGraphicsPathItem):
             strandSet, idx = self.baseAtPoint(event.pos())
             self._lastStrandSet, self._lastIdx = strandSet, idx
             getattr(self, toolMethodName)(strandSet, idx)
+    # end def
 
     def mouseMoveEvent(self, event):
         """
@@ -240,6 +251,7 @@ class VirtualHelixItem(QGraphicsPathItem):
             strandSet, idx = self.baseAtPoint(event.pos())
             self._lastStrandSet, self._lastIdx = strandSet, idx
             getattr(self, toolMethodName)(strandSet, idx)
+    # end def
 
     def customMouseRelease(self, event):
         """
@@ -250,7 +262,6 @@ class VirtualHelixItem(QGraphicsPathItem):
         if hasattr(self, toolMethodName):
             getattr(self, toolMethodName)(self._lastStrandSet, self._lastIdx)
     # end def
-    
 
     ### COORDINATE UTILITIES ###
     def baseAtPoint(self, pos):
@@ -274,12 +285,14 @@ class VirtualHelixItem(QGraphicsPathItem):
             strandIdx = int(util.clamp(strandIdx, 0, 1))
         strandSet = mVH.getStrandSetByIdx(strandIdx)
         return (strandSet, baseIdx)
+    # end def
 
     def keyPanDeltaX(self):
         """How far a single press of the left or right arrow key should move
         the scene (in scene space)"""
         dx = self._partItem.part().stepSize() * _baseWidth
         return self.mapToScene(QRectF(0, 0, dx, 1)).boundingRect().width()
+    # end def
 
     def hoverMoveEvent(self, event):
         """
@@ -311,17 +324,16 @@ class VirtualHelixItem(QGraphicsPathItem):
         print "%s: %s[%s]" % (util.methodName(), strandSet, idx)
         pass
     # end def
-    
+
     def pencilToolMousePress(self, strandSet, idx):
         """strand.getDragBounds"""
         print "%s: %s[%s]" % (util.methodName(), strandSet, idx)
         activeTool = self._activeTool()
         if not activeTool.isDrawingStrand():
-            # tempStrandItem = activeTool.strandItem()
             activeTool.initStrandItemFromVHI(self, strandSet, idx)
             activeTool.setIsDrawingStrand(True)
     # end def
-    
+
     def pencilToolMouseMove(self, strandSet, idx):
         """strand.getDragBounds"""
         print "%s: %s[%s]" % (util.methodName(), strandSet, idx)
@@ -329,17 +341,16 @@ class VirtualHelixItem(QGraphicsPathItem):
         if activeTool.isDrawingStrand():
             activeTool.updateStrandItemFromVHI(self, strandSet, idx)
     # end def
-    
+
     def pencilToolMouseRelease(self, strandSet, idx):
         """strand.getDragBounds"""
         print "%s: %s[%s]" % (util.methodName(), strandSet, idx)
         activeTool = self._activeTool()
         if activeTool.isDrawingStrand():
             activeTool.setIsDrawingStrand(False)
-            # createStrand
             activeTool.attemptToCreateStrand(self, strandSet, idx)
     # end def
-    
+
     def pencilToolHoverMove(self, strandType, idxX, idxY):
         """Pencil the strand is possible."""
         partItem = self.partItem()
