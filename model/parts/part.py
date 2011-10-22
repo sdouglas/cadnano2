@@ -317,6 +317,9 @@ class Part(QObject):
         cmds = []
         if ss5p.strandType() != ss3p.strandType():
             return
+        if ss5p.isScaffold():
+            cmds.append(strand5p.oligo().applySequenceCMD(None))
+            cmds.append(strand3p.oligo().applySequenceCMD(None))
         if strand5p == strand3p:
             c = None
             found, overlap, ssIdx3p = ss3p._findIndexOfRangeFor(strand3p)
@@ -980,7 +983,7 @@ class Part(QObject):
             nO3p.setColor(random.choice(colorList).name())
             nO3p.setLength(0)
             for strand in strand3p.generator3pStrand():
-                nO3p.incrementLength(strand.length())
+                nO3p.incrementLength(strand.totalLength())
             # end def
             nO3p.setStrand5p(strand3p)
         # end def

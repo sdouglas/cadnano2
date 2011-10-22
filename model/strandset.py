@@ -197,12 +197,15 @@ class StrandSet(QObject):
             return -1
 
     def removeStrand(self, strand, strandSetIdx=None, useUndoStack=True):
+        cmds = []
         if not strandSetIdx:
             isInSet, overlap, strandSetIdx = self._findIndexOfRangeFor(strand)
             if not isInSet:
                 raise IndexError
-        c = StrandSet.RemoveStrandCommand(self, strand, strandSetIdx)
-        util.execCommandList(self, [c], desc="Remove strand", useUndoStack=useUndoStack)
+        if self.isScaffold():
+            cmds.append(strand.oligo().applySequenceCMD(None))
+        cmds.append(StrandSet.RemoveStrandCommand(self, strand, strandSetIdx))
+        util.execCommandList(self, cmds, desc="Remove strand", useUndoStack=useUndoStack)
         return strandSetIdx
 
     def mergeStrands(self, priorityStrand, otherStrand, useUndoStack=True):
@@ -677,7 +680,7 @@ class StrandSet(QObject):
             colorList = styles.stapColors if strandSet.isStaple() else styles.scafColors
             color = random.choice(colorList).name()
             self._newOligo = Oligo(None, color)  # redo will set part
-            self._newOligo.setLength(self._strand.length())
+            self._newOligo.setLength(self._strand.totalLength())
         # end def
 
         def redo(self):
@@ -725,44 +728,57 @@ class StrandSet(QObject):
             self._sSetIdx = strandSetIdx
             self._oldStrand5p = strand.connection5p()
             self._oldStrand3p = strand.connection3p()
-            self._oligo = strand.oligo()
-            self._newOligo5p = None
-            self._newOligo3p = None
+            self._oligo = olg = strand.oligo()
+            self._newOligo5p = olg.shallowCopy()
+            self._newOligo3p = olg3p = olg.shallowCopy()
+            olg3p.setStrand5p(self._oldStrand3p)
+            colorList = styles.stapColors if strandSet.isStaple() else styles.scafColors
+            color = random.choice(colorList).name()
+            olg3p.setColor(color)
+            olg3p.refreshLength()
+            if olg.isLoop():
+                self._newOligo5p.setLoop(False)
+                olg3p.setLoop(False)
         # end def
 
         def redo(self):
             # Remove the strand
             strand = self._strand
             strandSet = self._strandSet
-            strandSet._strandList.pop(self._sSetIdx)
+            strandSet._removeFromStrandList(strand)
+            # strandSet._strandList.pop(self._sSetIdx)
             strand5p = self._oldStrand5p
             strand3p = self._oldStrand3p
             oligo = self._oligo
-
-            # Clear connections and update oligos
+            olg5p = self._newOligo5p
+            olg3p = self._newOligo3p
+            
+            oligo.incrementLength(-strand.totalLength())
+            oligo.removeFromPart()
+            
             if strand5p != None:
                 strand5p.setConnection3p(None)
-                strand5p.strandXover5pChangedSignal.emit(strand5p, strand)
-                strand5p.strandUpdateSignal.emit(strand5p)
-                olg5p = self._newOligo5p = oligo.shallowCopy()
-                for s5p in oligo.strand5p().generator3pStrand():
-                    Strand.setOligo(s5p, olg5p)
             if strand3p != None:
                 strand3p.setConnection5p(None)
-                strand3p.strandUpdateSignal.emit(strand3p)
-                if oligo.isLoop():
-                    # don't need 2nd copy, just go back and update 1st copy
-                    self._newOligo5p.setLoop(False)
-                else:
+                
+            # Clear connections and update oligos
+            if strand5p != None:
+                for s5p in oligo.strand5p().generator3pStrand():
+                    Strand.setOligo(s5p, olg5p)
+                olg5p.refreshLength()
+                olg5p.addToPart(strandSet.part())
+                strand5p.strandXover5pChangedSignal.emit(strand5p, strand)
+                strand5p.strandUpdateSignal.emit(strand5p)
+            # end if
+            if strand3p != None:
+                if not olg3p.isLoop():
                     # apply 2nd oligo copy to all 3' downstream strands
-                    olg3p = self._newOligo3p = oligo.shallowCopy()
-                    colorList = styles.stapColors if strandSet.isStaple() else styles.scafColors
-                    color = random.choice(colorList).name()
-                    olg3p.setColor(color)
-                    olg3p.setStrand5p(strand3p)
                     for s3p in strand3p.generator3pStrand():
                         Strand.setOligo(s3p, olg3p)
-
+                    olg3p.addToPart(strandSet.part())
+                # strand.strandXover5pChangedSignal.emit(strand, strand3p)
+                strand3p.strandUpdateSignal.emit(strand3p)
+            # end if
             # Emit a signal to notify on completion
             strand.strandRemovedSignal.emit(strand)
             # for updating the Slice View displayed helices
@@ -773,28 +789,46 @@ class StrandSet(QObject):
             # Restore the strand
             strand = self._strand
             strandSet = self._strandSet
-            strandSet._strandList.insert(self._sSetIdx, strand)
+            # Add the newStrand to the sSet
+            strandSet._addToStrandList(strand, self._sSetIdx)
+            # strandSet._strandList.insert(self._sSetIdx, strand)
             strand5p = self._oldStrand5p
             strand3p = self._oldStrand3p
             oligo = self._oligo
-
+            olg5p = self._newOligo5p
+            olg3p = self._newOligo3p
+            
             # Restore connections to this strand
             if strand5p != None:
                 strand5p.setConnection3p(strand)
-                strand5p.strandUpdateSignal.emit(strand5p)
-
+                
             if strand3p != None:
                 strand3p.setConnection5p(strand)
-                strand3p.strandUpdateSignal.emit(strand3p)
-
+                
+            oligo.decrementLength(-strand.totalLength())
             # Restore the oligo
             oligo.addToPart(strandSet.part())
+            olg5p.removeFromPart()
+            olg3p.removeFromPart()
             for s5p in oligo.strand5p().generator3pStrand():
                 Strand.setOligo(s5p, oligo)
+            # end for
+            
             # Emit a signal to notify on completion
             strandSet.strandsetStrandAddedSignal.emit(strand)
             # for updating the Slice View displayed helices
             strandSet.part().partStrandChangedSignal.emit(strandSet.virtualHelix())
+            
+            # Restore connections to this strand
+            if strand5p != None:
+                strand5p.strandXover5pChangedSignal.emit(strand5p, strand)
+                strand5p.strandUpdateSignal.emit(strand5p)
+                strand.strandUpdateSignal.emit(strand)
+                
+            if strand3p != None:
+                # strand.strandXover5pChangedSignal.emit(strand, strand3p)
+                strand3p.strandUpdateSignal.emit(strand3p)
+                strand.strandUpdateSignal.emit(strand)
         # end def
     # end class
 

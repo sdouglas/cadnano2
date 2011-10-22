@@ -483,19 +483,25 @@ class Strand(QObject):
             >0 for an insertion
             -1 for a skip
         """
+        cmds = []
+        if self.strandSet().isScaffold():
+            cmds.append(self.oligo().applySequenceCMD(None))
         idxLow, idxHigh = self.idxs()
         if idxLow <= idx <= idxHigh:
             if not self.hasInsertionAt(idx):
                 # make sure length is -1 if a skip
                 if length < 0:
                     length = -1
-                c = Strand.AddInsertionCommand(self, idx, length)
-                util.execCommandList(self, [c], desc="Add Insertion", useUndoStack=useUndoStack)
+                cmds.append(Strand.AddInsertionCommand(self, idx, length))
+                util.execCommandList(self, cmds, desc="Add Insertion", useUndoStack=useUndoStack)
             # end if
         # end if
     # end def
 
     def changeInsertion(self, idx, length, useUndoStack=True):
+        cmds = []
+        if self.strandSet().isScaffold():
+            cmds.append(self.oligo().applySequenceCMD(None))
         idxLow, idxHigh = self.idxs()
         if idxLow <= idx <= idxHigh:
             if self.hasInsertionAt(idx):
@@ -505,8 +511,8 @@ class Strand(QObject):
                     # make sure length is -1 if a skip
                     if length < 0:
                         length = -1
-                    c = Strand.ChangeInsertionCommand(self, idx, length)
-                    util.execCommandList(self, [c], desc="Change Insertion", useUndoStack=useUndoStack)
+                    cmds.append(Strand.ChangeInsertionCommand(self, idx, length))
+                    util.execCommandList(self, cmds, desc="Change Insertion", useUndoStack=useUndoStack)
             # end if
         # end if
     # end def
@@ -543,8 +549,11 @@ class Strand(QObject):
     # end def
 
     def resize(self, newIdxs, useUndoStack=True):
-        c = Strand.ResizeCommand(self, newIdxs)
-        util.execCommandList(self, [c], desc="Resize strand", useUndoStack=useUndoStack)
+        cmds = []
+        if self.strandSet().isScaffold():
+            cmds.append(self.oligo().applySequenceCMD(None))
+        cmds.append(Strand.ResizeCommand(self, newIdxs))
+        util.execCommandList(self, cmds, desc="Resize strand", useUndoStack=useUndoStack)
     # end def
 
     def setConnection3p(self, strand):
@@ -660,8 +669,10 @@ class Strand(QObject):
         def __init__(self, strand, newIdxs):
             super(Strand.ResizeCommand, self).__init__()
             self.strand = strand
-            self.oldIndices = strand.idxs()
+            self.oldIndices = oI = strand.idxs()
             self.newIdxs = newIdxs
+            # an increase in length leads to positive delta
+            self.delta = (newIdxs[1]-newIdxs[0])-(oI[1]-oI[0])
         # end def
 
         def redo(self):
@@ -669,7 +680,8 @@ class Strand(QObject):
             nI = self.newIdxs
             strandSet = self.strand.strandSet()
             part = strandSet.part()
-
+            
+            std.oligo().incrementLength(self.delta)
             std.setIdxs(nI)
             std.strandResizedSignal.emit(std, nI)
             # for updating the Slice View displayed helices
@@ -682,6 +694,7 @@ class Strand(QObject):
             strandSet = self.strand.strandSet()
             part = strandSet.part()
 
+            std.oligo().decrementLength(self.delta)
             std.setIdxs(oI)
             std.strandResizedSignal.emit(std, oI)
             # for updating the Slice View displayed helices
@@ -706,19 +719,25 @@ class Strand(QObject):
             cStrand = self._compStrand
             inst = self._insertion
             self._insertions[self._idx] = inst
+            strand.oligo().incrementLength(inst.length())
             strand.strandInsertionAddedSignal.emit(strand, inst)
             if cStrand:
+                cStrand.oligo().incrementLength(inst.length())
                 cStrand.strandInsertionAddedSignal.emit(cStrand, inst)
         # end def
 
         def undo(self):
             strand = self._strand
             cStrand = self._compStrand
+            inst = self._insertion
+            strand.oligo().decrementLength(inst.length())
+            if cStrand:
+                cStrand.oligo().decrementLength(inst.length())
             idx = self._idx
             del self._insertions[idx]
             strand.strandInsertionRemovedSignal.emit(strand, idx)
             if cStrand:
-                cStrand.strandInsertionRemovedSignal.emit(cStrand, inst)
+                cStrand.strandInsertionRemovedSignal.emit(cStrand, idx)
         # end def
     # end class
 
@@ -736,7 +755,10 @@ class Strand(QObject):
         def redo(self):
             strand = self._strand
             cStrand = self._compStrand
-            coord = strand.virtualHelix().coord()
+            inst = self._insertion
+            strand.oligo().decrementLength(inst.length())
+            if cStrand:
+                cStrand.oligo().decrementLength(inst.length())
             idx = self._idx
             del self._insertions[idx]
             strand.strandInsertionRemovedSignal.emit(strand, idx)
@@ -749,9 +771,11 @@ class Strand(QObject):
             cStrand = self._compStrand
             coord = strand.virtualHelix().coord()
             inst = self._insertion
+            strand.oligo().incrementLength(inst.length())
             self._insertions[self._idx] = inst
             strand.strandInsertionAddedSignal.emit(strand, inst)
             if cStrand:
+                cStrand.oligo().incrementLength(inst.length())
                 cStrand.strandInsertionAddedSignal.emit(cStrand, inst)
         # end def
     # end class
@@ -778,8 +802,10 @@ class Strand(QObject):
             cStrand = self._compStrand
             inst = self._insertions[self._idx]
             inst.setLength(self._newLength)
+            strand.oligo().incrementLength(self._newLength-self._oldLength)
             strand.strandInsertionChangedSignal.emit(strand, inst)
             if cStrand:
+                cStrand.oligo().incrementLength(self._newLength-self._oldLength)
                 cStrand.strandInsertionChangedSignal.emit(cStrand, inst)
         # end def
 
@@ -788,8 +814,10 @@ class Strand(QObject):
             cStrand = self._compStrand
             inst = self._insertions[self._idx]
             inst.setLength(self._oldLength)
+            strand.oligo().decrementLength(self._newLength-self._oldLength)
             strand.strandInsertionChangedSignal.emit(strand, inst)
             if cStrand:
+                cStrand.oligo().decrementLength(self._newLength-self._oldLength)
                 cStrand.strandInsertionChangedSignal.emit(cStrand, inst)
         # end def
     # end class

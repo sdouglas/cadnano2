@@ -119,7 +119,10 @@ class Oligo(QObject):
     # end def
 
     def sequence(self):
-        if self.strand5p().sequence():
+        temp = self.strand5p()
+        if not temp:
+            return None
+        if temp.sequence():
             return ''.join([Strand.sequence(strand) \
                         for strand in self.strand5p().generator3pStrand()])
         else:
@@ -163,6 +166,10 @@ class Oligo(QObject):
         c = Oligo.ApplySequenceCommand(self, sequence)
         util.execCommandList(self, [c], desc="Apply Sequence", useUndoStack=useUndoStack)
     # end def
+    
+    def applySequenceCMD(self, sequence, useUndoStack=True):
+        return Oligo.ApplySequenceCommand(self, sequence)
+    # end def
 
     def setLoop(self, bool):
         self._isLoop = bool
@@ -186,6 +193,16 @@ class Oligo(QObject):
 
     def incrementLength(self, delta):
         self.setLength(self._length+delta)
+    # end def
+    
+    def refreshLength(self):
+        temp = self.strand5p()
+        if not temp:
+            return
+        length = 0
+        for strand in temp.generator3pStrand():
+            length += strand.totalLength()
+        self.setLength(length)
     # end def
 
     def removeFromPart(self):
@@ -303,21 +320,19 @@ class Oligo(QObject):
 
         def redo(self):
             olg = self._oligo
-            nS = self._newSequence
+            nS = ''.join(self._newSequence) if self._newSequence else None
             oligoList = [olg]
-
             for strand in olg.strand5p().generator3pStrand():
                 usedSeq, nS = strand.setSequence(nS)
 
                 # get the compliment ahead of time
-                usedSeq = util.comp(usedSeq)
+                usedSeq = util.comp(usedSeq) if usedSeq else None
                 compSS = strand.strandSet().complimentStrandSet()
                 for compStrand in compSS._findOverlappingRanges(strand):
                     subUsedSeq = compStrand.setComplimentSequence(usedSeq, strand)
                     oligoList.append(compStrand.oligo())
                 # end for
             # for
-
             # olg.oligoSequenceAddedSignal.emit(olg)
             for oligo in oligoList:
                 oligo.oligoSequenceAddedSignal.emit(oligo)
@@ -325,7 +340,8 @@ class Oligo(QObject):
 
         def undo(self):
             olg = self._oligo
-            oS = self._oldSequence
+            oS = ''.join(self._oldSequence) if self._oldSequence else None
+            
             oligoList = [olg]
             
             for strand in olg.strand5p().generator3pStrand():
