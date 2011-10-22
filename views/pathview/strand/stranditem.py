@@ -396,8 +396,10 @@ class StrandItem(QGraphicsLineItem):
             # seqTxt = seqTxt[::-1]
         # end if
         seqLbl.setPos(seqX,seqY)
+
         seqLbl.setText(seqTxt)
         seqLbl.show()
+
     # end def
 
     ### EVENT HANDLERS ###

@@ -543,8 +543,11 @@ class Strand(QObject):
     # end def
 
     def resize(self, newIdxs, useUndoStack=True):
-        c = Strand.ResizeCommand(self, newIdxs)
-        util.execCommandList(self, [c], desc="Resize strand", useUndoStack=useUndoStack)
+        cmds = []
+        if self.strandSet().isScaffold():
+            cmds.append(self.oligo().applySequenceCMD(None))
+        cmds.append(Strand.ResizeCommand(self, newIdxs))
+        util.execCommandList(self, cmds, desc="Resize strand", useUndoStack=useUndoStack)
     # end def
 
     def setConnection3p(self, strand):
@@ -660,8 +663,10 @@ class Strand(QObject):
         def __init__(self, strand, newIdxs):
             super(Strand.ResizeCommand, self).__init__()
             self.strand = strand
-            self.oldIndices = strand.idxs()
+            self.oldIndices = oI = strand.idxs()
             self.newIdxs = newIdxs
+            # an increase in length leads to positive delta
+            self.delta = (newIdxs[1]-newIdxs[0])-(oI[1]-oI[0])
         # end def
 
         def redo(self):
@@ -669,7 +674,8 @@ class Strand(QObject):
             nI = self.newIdxs
             strandSet = self.strand.strandSet()
             part = strandSet.part()
-
+            
+            std.oligo().incrementLength(self.delta)
             std.setIdxs(nI)
             std.strandResizedSignal.emit(std, nI)
             # for updating the Slice View displayed helices
@@ -682,6 +688,7 @@ class Strand(QObject):
             strandSet = self.strand.strandSet()
             part = strandSet.part()
 
+            std.oligo().decrementLength(self.delta)
             std.setIdxs(oI)
             std.strandResizedSignal.emit(std, oI)
             # for updating the Slice View displayed helices
