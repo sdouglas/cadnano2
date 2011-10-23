@@ -60,8 +60,8 @@ class Part(QObject):
     Part(), with a mutable parent and position field.
     """
 
-    _step = 21  # this is the period of the part lattice
-    _radius = 1.125 # in nanometer
+    _step = 21  # this is the period (in bases) of the part lattice
+    _radius = 1.125  # nanometers
 
     def __init__(self, *args, **kwargs):
         """
@@ -76,23 +76,23 @@ class Part(QObject):
         super(Part, self).__init__(parent=self._document)
         # Data structure
         self._partInstances = []    # This is a list of ObjectInstances
+        self._insertions = defaultdict(dict)  # dictionary of insertions per virtualhelix
         self._oligos = {}
         self._virtualHelixHash = {}
         # Dimensions
-        self._maxRow = 50
+        self._maxRow = 50  # subclass overrides based on prefs
         self._maxCol = 50
         self._minBase = 0
-        self._maxBase = 2*self._step-1
+        self._maxBase = 2 * self._step - 1
         # ID assignment
         self.oddRecycleBin, self.evenRecycleBin = [], []
         self.reserveBin = set()
-        self._highestUsedOdd = -1  # Used iff the recycle bin is empty and highestUsedOdd+2 is not in the reserve bin
+        self._highestUsedOdd = -1  # Used in _reserveHelixIDNumber
         self._highestUsedEven = -2  # same
         self._importedVHelixOrder = None
-
+        # Runtime state
         self._activeBaseIndex = self._step
         self._activeVirtualHelix = None
-        self._insertions = defaultdict(dict)  # dictionary of insertions per virtualhelix
     # end def
 
     def __repr__(self):
@@ -103,17 +103,17 @@ class Part(QObject):
     partActiveSliceIndexSignal = pyqtSignal(QObject, int)  # self, index
     partActiveSliceResizeSignal = pyqtSignal(QObject)      # self
     partDestroyedSignal = pyqtSignal(QObject)              # self
+    partDimensionsChangedSignal = pyqtSignal(QObject)      # self
     partInstanceAddedSignal = pyqtSignal(QObject)          # self
-    partNeedsFittingToViewSignal = pyqtSignal()
     partParentChangedSignal = pyqtSignal(QObject)          # self
-    partPreDecoratorSelectedSignal = pyqtSignal(int, int, int)  # row, col, baseIdx
+    partPreDecoratorSelectedSignal = pyqtSignal(int, int, int)  # row,col,idx
     partRemovedSignal = pyqtSignal(QObject)                # self
     partSequenceClearedSignal = pyqtSignal(QObject)        # self
-    partVirtualHelixAddedSignal = pyqtSignal(QObject)      # virtualhelix
-    partVirtualHelixChangedSignal = pyqtSignal(tuple)    # coords (for a renumber/resize)
-    partVirtualHelicesReorderedSignal = pyqtSignal(list)   # list of coords
-    # for updating the Slice View displayed helices
     partStrandChangedSignal = pyqtSignal(QObject)          # virtualHelix
+    partVirtualHelixAddedSignal = pyqtSignal(QObject)      # virtualhelix
+    partVirtualHelixRenumberedSignal = pyqtSignal(tuple)   # coord
+    partVirtualHelixResizedSignal = pyqtSignal(tuple)      # coord
+    partVirtualHelicesReorderedSignal = pyqtSignal(list)   # list of coords
 
     ### SLOTS ###
 
@@ -168,6 +168,20 @@ class Part(QObject):
     def getVirtualHelices(self):
         """yield an iterator to the virtualHelix references in the part"""
         return self._virtualHelixHash.itervalues()
+    # end def
+
+    def indexOfRightmostNonemptyBase(self):
+        """
+        During reduction of the number of bases in a part, the first click
+        removes empty bases from the right hand side of the part (red
+        left-facing arrow). This method returns the new numBases that will
+        effect that reduction.
+        """
+        ret = self._step-1
+        for vh in self.getVirtualHelices():
+            ret = max(ret, vh.indexOfRightmostNonemptyBase())
+        print "part indexOfRightmostNonemptyBase", ret
+        return ret
     # end def
 
     def insertions(self):
@@ -477,12 +491,13 @@ class Part(QObject):
     # end def
 
     def resizeLattice(self):
-        """docstring for resizeVirtualHelices"""
+        """docstring for resizeLattice"""
         pass
     # end def
 
     def resizeVirtualHelices(self, minDelta, maxDelta, useUndoStack=True):
         """docstring for resizeVirtualHelices"""
+        print "resizeVirtualHelices", minDelta, maxDelta
         c = Part.ResizePartCommand(self, minDelta, maxDelta)
         util.execCommandList(self, [c], desc="Resize part", \
                                                     useUndoStack=useUndoStack)
@@ -563,6 +578,8 @@ class Part(QObject):
                 if len(self.oddRecycleBin):
                     return heappop(self.oddRecycleBin)
                 else:
+                    # use self._highestUsedOdd iff the recycle bin is empty
+                    # and highestUsedOdd+2 is not in the reserve bin
                     while self._highestUsedOdd + 2 in self.reserveBin:
                         self._highestUsedOdd += 2
                     self._highestUsedOdd += 2
@@ -627,7 +644,7 @@ class Part(QObject):
         part = self.newPart()
         part._virtualHelices = dict(self._virtualHelices)
         part._oligos = dict(self._oligos)
-        part._maxBaseIdx = self._maxBaseIdx
+        part._maxBase = self._maxBase
         part._partInstances = list(self._partInstances)
         return part
     # end def
@@ -1073,6 +1090,7 @@ class Part(QObject):
             self._part = part
             self._minDelta = minHelixDelta
             self._maxDelta = maxHelixDelta
+            self._oldActiveIdx = part.activeBaseIndex()
         # end def
 
         def redo(self):
@@ -1082,8 +1100,10 @@ class Part(QObject):
             if self._minDelta != 0:
                 self.deltaMinDimension(part, self._minDelta)
             for vh in part._virtualHelixHash.itervalues():
-                print vh
-                part.partVirtualHelixChangedSignal.emit(vh.coord())
+                part.partVirtualHelixResizedSignal.emit(vh.coord())
+            if self._oldActiveIdx > part._maxBase:
+                part.setActiveBaseIndex(part._maxBase)
+            part.partDimensionsChangedSignal.emit(part)
         # end def
 
         def undo(self):
@@ -1093,7 +1113,10 @@ class Part(QObject):
             if self._minDelta != 0:
                 self.deltaMinDimension(part, self._minDelta)
             for vh in part._virtualHelixHash.itervalues():
-                part.partVirtualHelixChangedSignal.emit(vh.coord())
+                part.partVirtualHelixResizedSignal.emit(vh.coord())
+            if self._oldActiveIdx != part.activeBaseIndex():
+                part.setActiveBaseIndex(self._oldActiveIdx)
+            part.partDimensionsChangedSignal.emit(part)
         # end def
 
         def deltaMinDimension(self, part, minDimensionDelta):

@@ -45,10 +45,9 @@ class StrandSet(QObject):
     for creation, destruction, resizing, splitting, and merging strands.
 
     Views may also query StrandSet for information that is useful in
-    determining that edits can be made, such as the bounds of empty
-    space in which a strand can be created or resized.
+    determining if edits can be made, such as the bounds of empty space in
+    which a strand can be created or resized.
     """
-
     def __init__(self, strandType, virtualHelix):
         super(StrandSet, self).__init__(virtualHelix)
         self._virtualHelix = virtualHelix
@@ -56,10 +55,12 @@ class StrandSet(QObject):
         self._undoStack = None
         self._lastStrandSetIndex = None
         self._strandType = strandType
+    # end def
 
     def __iter__(self):
         """Iterate over each strand in the strands list."""
         return self._strandList.__iter__()
+    # end def
 
     def __repr__(self):
         if self._strandType == 0:
@@ -68,6 +69,7 @@ class StrandSet(QObject):
             type = 'stap'
         num = self._virtualHelix.number()
         return "<%s_StrandSet(%d)>" % (type, num)
+    # end def
 
     ### SIGNALS ###
     strandsetStrandAddedSignal = pyqtSignal(QObject)
@@ -77,23 +79,25 @@ class StrandSet(QObject):
     ### ACCESSORS ###
     def part(self):
         return self._virtualHelix.part()
-    
+    # end def
+
     def generatorStrand(self):
-        """
-        a generator that yields the strands in self._strandList
-        """
+        """Return a generator that yields the strands in self._strandList."""
         return iter(self._strandList)
     # end def
 
     ### PUBLIC METHODS FOR QUERYING THE MODEL ###
     def isDrawn5to3(self):
         return self._virtualHelix.isDrawn5to3(self)
+    # end def
 
     def isStaple(self):
         return self._strandType == StrandType.Staple
+    # end def
 
     def isScaffold(self):
         return self._strandType == StrandType.Scaffold
+    # end def
 
     def getNeighbors(self, strand):
         isInSet, overlap, strandSetIdx = self._findIndexOfRangeFor(strand)
@@ -112,8 +116,10 @@ class StrandSet(QObject):
             raise IndexError
     # end def
 
-    def complimentStrandSet(self):
+    def complementStrandSet(self):
         """
+        Returns the complementary strandset. Used for insertions and
+        sequence application.
         """
         vh = self.virtualHelix()
         if self.isStaple():
@@ -152,16 +158,27 @@ class StrandSet(QObject):
                 return (None, None)  # baseIdx was not empty
         self._lastStrandSetIndex = (low + high) / 2  # set cache
         return (lowIdx, highIdx)
+    # end def
+
+    def indexOfRightmostNonemptyBase(self):
+        """Returns the high baseIdx of the last strand, or 0."""
+        if len(self._strandList) > 0:
+            return self._strandList[-1].highIdx()
+        else:
+            return 0
 
     def partMaxBaseIdx(self):
         """Return the bounds of the StrandSet as defined in the part."""
         return self._virtualHelix.part().maxBaseIdx()
+    # end def
 
     def strandCount(self):
         return len(self._strandList)
+    # end def
 
     def strandType(self):
         return self._strandType
+    # end def
 
     ### PUBLIC METHODS FOR EDITING THE MODEL ###
     def createStrand(self, baseIdxLow, baseIdxHigh, useUndoStack=True):
@@ -195,6 +212,7 @@ class StrandSet(QObject):
             return strandSetIdx
         else:
             return -1
+    # end def
 
     def removeStrand(self, strand, strandSetIdx=None, useUndoStack=True):
         cmds = []
@@ -207,6 +225,7 @@ class StrandSet(QObject):
         cmds.append(StrandSet.RemoveStrandCommand(self, strand, strandSetIdx))
         util.execCommandList(self, cmds, desc="Remove strand", useUndoStack=useUndoStack)
         return strandSetIdx
+    # end def
 
     def mergeStrands(self, priorityStrand, otherStrand, useUndoStack=True):
         """

@@ -711,7 +711,7 @@ class Strand(QObject):
             self._idx = idx
             self._length = length
             self._insertion = Insertion(idx, length)
-            self._compStrand = strand.strandSet().complimentStrandSet().getStrand(idx)
+            self._compStrand = strand.strandSet().complementStrandSet().getStrand(idx)
         # end def
 
         def redo(self):
@@ -749,7 +749,7 @@ class Strand(QObject):
             coord = strand.virtualHelix().coord()
             self._insertions = strand.part().insertions()[coord]
             self._insertion = self._insertions[idx]
-            self._compStrand = strand.strandSet().complimentStrandSet().getStrand(idx)
+            self._compStrand = strand.strandSet().complementStrandSet().getStrand(idx)
         # end def
 
         def redo(self):
@@ -794,7 +794,7 @@ class Strand(QObject):
             self._idx = idx
             self._newLength = newLength
             self._oldLength = self._insertions[idx].length()
-            self._compStrand = strand.strandSet().complimentStrandSet().getStrand(idx)
+            self._compStrand = strand.strandSet().complementStrandSet().getStrand(idx)
         # end def
 
         def redo(self):

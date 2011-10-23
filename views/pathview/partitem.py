@@ -26,6 +26,7 @@
 # http://www.opensource.org/licenses/mit-license.php
 
 from collections import defaultdict
+from math import ceil
 from activesliceitem import ActiveSliceItem
 from controllers.itemcontrollers.partitemcontroller import PartItemController
 from pathselection import SelectionItemGroup
@@ -40,17 +41,10 @@ import util
 
 # import Qt stuff into the module namespace with PySide, PyQt4 independence
 util.qtWrapImport('QtCore', globals(), ['pyqtSlot', 'QRectF', 'Qt'])
-util.qtWrapImport('QtGui', globals(), [
-                                        'QBrush',
-                                        'QGraphicsPathItem',
-                                        'QGraphicsRectItem',
-                                        'QInputDialog',
-                                        'QPen',
-                                        'QUndoCommand',
-                                        'QUndoStack'
-                                        ])
+util.qtWrapImport('QtGui', globals(), ['QBrush', 'QGraphicsPathItem',
+                                       'QGraphicsRectItem', 'QInputDialog',
+                                        'QPen'])
 
-_baseWidth = styles.PATH_BASE_WIDTH
 
 class PartItem(QGraphicsRectItem):
     def __init__(self, modelPart, activeTool, parent):
@@ -87,13 +81,33 @@ class PartItem(QGraphicsRectItem):
         self._removeBasesButton = SVGButton(":/pathtools/remove-bases", self)
         self._removeBasesButton.clicked.connect(self._removeBasesClicked)
         self._removeBasesButton.hide()
+    # end def
+
+    def paint(self, painter, option, widget=None):
+        painter.setPen(QPen(styles.redstroke))
+        painter.drawRect(self._vHRect)
+    # end def
+
     ### SIGNALS ###
 
     ### SLOTS ###
-    def parentChangedSlot(self):
+    def partParentChangedSlot(self):
         """docstring for partParentChangedSlot"""
         # print "PartItem.partParentChangedSlot"
         pass
+    # end def
+
+    def partDimensionsChangedSlot(self, part):
+        print "partDimensionsChangedSlot"
+        if len(self._virtualHelixItemList) > 0:
+            vhi = self._virtualHelixItemList[0]
+            vhiRect = vhi.boundingRect()
+            vhiHRect = vhi.handle().boundingRect()
+            self._vHRect.setLeft(vhiHRect.left())
+            self._vHRect.setRight(vhiRect.right())
+        self.scene().views()[0].zoomToFit()
+        self._activeSliceItem.resetBounds()
+        self._updateBoundingRect()
     # end def
 
     def partRemovedSlot(self):
@@ -109,17 +123,7 @@ class PartItem(QGraphicsRectItem):
         self._controller = None
     # end def
 
-    def reorderedSlot(self, orderedCoordList):
-        """docstring for reorderedSlot"""
-        newList = self._virtualHelixItemList
-        decorated = [(orderedCoordList.index(vhi.coord()), vhi)\
-                        for vhi in self._virtualHelixItemList]
-        decorated.sort()
-        newList = [vhi for idx, vhi in decorated]
-        self._setVirtualHelixItemList(newList)
-    # end def
-
-    def destroyedSlot(self):
+    def partDestroyedSlot(self):
         """docstring for partDestroyedSlot"""
         # print "PartItem.partDestroyedSlot"
         pass
@@ -132,27 +136,7 @@ class PartItem(QGraphicsRectItem):
         # compute deltaY from virtualhelix position
         # self.translate(deltaX, deltaY)
         pass
-
-    def paint(self, painter, option, widget=None):
-        painter.setPen(QPen(styles.redstroke))
-        painter.drawRect(self._vHRect)
-
-    def partVirtualHelixChangedSlot(self, coord):
-        """
-        Handles renumbering and resizing of a virtual helix.
-        (Should we split this into separate signals/slots?)
-        """
-        print "partVirtualHelixChangedSlot", coord
-        vh = self._virtualHelixHash[coord]
-        vh.resize()
-        # check for new number
-        # notify VirtualHelixHandleItem to update its label
-        # notify VirtualHelix to update its xovers
-        # if the VirtualHelix is active, refresh prexovers
-
-        # check for new size
-        # notify VirtualHelix to redraw according to new size
-
+    # end def
 
     def partVirtualHelixAddedSlot(self, modelVirtualHelix):
         """
@@ -167,6 +151,32 @@ class PartItem(QGraphicsRectItem):
         self._virtualHelixItemList.append(vhi)
         self._setVirtualHelixItemList(self._virtualHelixItemList)
         self._updateBoundingRect()
+    # end def
+
+    def partVirtualHelixRenumberedSlot(self, coord):
+        """Notifies the virtualhelix at coord to change its number"""
+        vh = self._virtualHelixHash[coord]
+        # check for new number
+        # notify VirtualHelixHandleItem to update its label
+        # notify VirtualHelix to update its xovers
+        # if the VirtualHelix is active, refresh prexovers
+        pass
+    # end def
+
+    def partVirtualHelixResizedSlot(self, coord):
+        """Notifies the virtualhelix at coord to resize."""
+        vh = self._virtualHelixHash[coord]
+        vh.resize()
+    # end def
+
+    def partVirtualHelicesReorderedSlot(self, orderedCoordList):
+        """docstring for partVirtualHelicesReorderedSlot"""
+        newList = self._virtualHelixItemList
+        decorated = [(orderedCoordList.index(vhi.coord()), vhi)\
+                        for vhi in self._virtualHelixItemList]
+        decorated.sort()
+        newList = [vhi for idx, vhi in decorated]
+        self._setVirtualHelixItemList(newList)
     # end def
 
     def updatePreXoverItemsSlot(self, virtualHelix):
@@ -197,10 +207,12 @@ class PartItem(QGraphicsRectItem):
         del self._virtualHelixHash[vh.coord()]
         self._setVirtualHelixItemList(self._virtualHelixItemList)
         self._updateBoundingRect()
-    # end
+
+    # end def
 
     def itemForVirtualHelix(self, virtualHelix):
         return self._virtualHelixHash[virtualHelix.coord()]
+    # end def
 
     def virtualHelixBoundingRect(self):
         return self._vHRect
@@ -215,7 +227,6 @@ class PartItem(QGraphicsRectItem):
     # end def
 
     ### PRIVATE METHODS ###
-
     def _addBasesClicked(self):
         part = self._modelPart
         step = part.stepSize()
@@ -239,32 +250,16 @@ class PartItem(QGraphicsRectItem):
         del self._addBasesDialog
         maxDelta = int(n) / part.stepSize() * part.stepSize()
         part.resizeVirtualHelices(0, maxDelta)
-
-        if len(self._virtualHelixItemList) > 0:
-            vhi = self._virtualHelixItemList[0]
-            vhiRect = vhi.boundingRect()
-            vhiHRect = vhi.handle().boundingRect()
-            self._vHRect.setLeft(vhiHRect.left())
-            self._vHRect.setRight(vhiRect.right())
-            self.scene().views()[0].zoomToFit()
-            self._activeSliceItem.resetBounds()
-            self._updateBoundingRect()
     # end def
 
     def _removeBasesClicked(self):
-        pass
-        # part = self._modelPart
-        # # First try to shrink to fit used bases
-        # newNumBases = part.indexOfRightmostNonemptyBase() + 1
-        # newNumBases = int(ceil(float(newNumBases)/part.step))*part.step
-        # newNumBases = util.clamp(newNumBases, part.step, 10000)
-        # 
-        # dim = list(part.dimensions())
-        # # If that didn't do anything, reduce the length
-        # # of the vhelix by one step.
-        # if dim[2] == newNumBases and dim[2] > part.step:
-        #     newNumBases = newNumBases - part.step
-        # part.setDimensions((dim[0], dim[1], newNumBases))
+        part = self._modelPart
+        idx = part.indexOfRightmostNonemptyBase()
+        idx = int(ceil(float(idx)/part.stepSize()))*part.stepSize()
+        idx = util.clamp(idx, part.stepSize(), 10000)
+        delta = idx - part.maxBaseIdx()
+        if delta < 0:
+            part.resizeVirtualHelices(0, delta)
     # end def
 
     def _setVirtualHelixItemList(self, newList, zoomToFit=True):
@@ -310,19 +305,30 @@ class PartItem(QGraphicsRectItem):
     # end def
 
     def _updateBoundingRect(self):
+        """
+        Updates the bounding rect to the size of the childrenBoundingRect,
+        and refreshes the addBases and removeBases buttons accordingly.
+
+        Called by partVirtualHelixAddedSlot, partDimensionsChangedSlot, or
+        removeVirtualHelixItem.
+        """
         self.setPen(QPen(Qt.NoPen))
         self.setRect(self.childrenBoundingRect())
-        # move the buttons if necessary
+        # move and show or hide the buttons if necessary
         addButton = self._addBasesButton
         rmButton = self._removeBasesButton
-        addRect = addButton.boundingRect()
-        rmRect = rmButton.boundingRect()
-        x = self.rect().right()
-        y = -styles.PATH_HELIX_PADDING
-        addButton.setPos(x, y)
-        rmButton.setPos(x-rmRect.width(), y)
-        addButton.show()
-        rmButton.show()
+        if len(self._virtualHelixItemList) > 0:
+            addRect = addButton.boundingRect()
+            rmRect = rmButton.boundingRect()
+            x = self._vHRect.right()
+            y = -styles.PATH_HELIX_PADDING
+            addButton.setPos(x, y)
+            rmButton.setPos(x-rmRect.width(), y)
+            addButton.show()
+            rmButton.show()
+        else:
+            addButton.hide()
+            rmButton.hide()
     # end def
 
     ### PUBLIC METHODS ###
@@ -332,16 +338,11 @@ class PartItem(QGraphicsRectItem):
         for vhi in self._virtualHelixItemList:
             ret.append(vhi.coord())
         return ret
+    # end def
 
     def numberOfVirtualHelices(self):
         return len(self._virtualHelixItemList)
     # end def
-
-    def updateXoverItems(self, virtualHelixItem):
-        for item in virtualHelixItem.childItems():
-            if isinstance(item, XoverNode3):
-                item.refreshXover()
-     # end def
 
     def reorderHelices(self, first, last, indexDelta):
         """
@@ -427,12 +428,19 @@ class PartItem(QGraphicsRectItem):
         self.setPreXoverItemsVisible(self.activeVirtualHelixItem())
     # end def
 
+    def updateXoverItems(self, virtualHelixItem):
+        for item in virtualHelixItem.childItems():
+            if isinstance(item, XoverNode3):
+                item.refreshXover()
+     # end def
+
     ### COORDINATE METHODS ###
     def keyPanDeltaX(self):
         """How far a single press of the left or right arrow key should move
         the scene (in scene space)"""
         vhs = self._virtualHelixItemList
         return vhs[0].keyPanDeltaX() if vhs else 5
+    # end def
 
     def keyPanDeltaY(self):
         """How far an an arrow key should move the scene (in scene space)
@@ -444,9 +452,8 @@ class PartItem(QGraphicsRectItem):
         dummyRect = QRectF(0, 0, 1, dy)
         return self.mapToScene(dummyRect).boundingRect().height()
     # end def
-    
+
     ### TOOL METHODS ###
-    
     def hoverMoveEvent(self, event):
         """
         Parses a mouseMoveEvent to extract strandSet and base index,
@@ -457,7 +464,7 @@ class PartItem(QGraphicsRectItem):
         if hasattr(self, toolMethodName):
             getattr(self, toolMethodName)(event.pos())
     # end def
-    
+
     def pencilToolHoverMove(self, pt):
         """Pencil the strand is possible."""
         partItem = self

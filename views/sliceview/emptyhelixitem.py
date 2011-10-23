@@ -187,10 +187,6 @@ class EmptyHelixItem(QGraphicsEllipseItem):
                 self.dragSessionAction(ci)
     # end def
 
-    # def mouseReleaseEvent(self, event):
-    #     self.part().partNeedsFittingToViewSignal.emit()
-    # # end def 
-
     def decideAction(self, modifiers):
         """ On mouse press, an action (add scaffold at the active slice, add
         segment at the active slice, or create virtualhelix if missing) is
