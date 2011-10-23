@@ -83,10 +83,10 @@ class PartItem(QGraphicsRectItem):
         self._removeBasesButton.hide()
     # end def
 
-    def paint(self, painter, option, widget=None):
-        painter.setPen(QPen(styles.redstroke))
-        painter.drawRect(self._vHRect)
-    # end def
+    # def paint(self, painter, option, widget=None):
+    #     painter.setPen(QPen(styles.redstroke))
+    #     painter.drawRect(self._vHRect)
+    # # end def
 
     ### SIGNALS ###
 
