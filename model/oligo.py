@@ -145,6 +145,8 @@ class Oligo(QObject):
 
     def shouldHighlight(self):
         # print self, self.length(), util.trace(4)
+        if not self._strand5p:
+            return False
         if self._strand5p.isScaffold():
             return False
         if self.length() < 18:
@@ -222,7 +224,10 @@ class Oligo(QObject):
     # end def
 
     def setLength(self, length):
+        before = self.shouldHighlight()
         self._length = length
+        if before != self.shouldHighlight():
+            self.oligoAppearanceChangedSignal.emit(self)
     # end def
 
     def strandMergeUpdate(self, oldStrandLow, oldStrandHigh):
