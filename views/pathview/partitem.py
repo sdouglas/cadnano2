@@ -33,38 +33,60 @@ from pathselection import PathHelixHandleSelectionBox
 from pathselection import BreakpointHandleSelectionBox
 from prexoveritem import PreXoverItem
 from strand.xoveritem import XoverNode3
+from ui.mainwindow.svgbutton import SVGButton
 from views import styles
 from virtualhelixitem import VirtualHelixItem
 import util
 
 # import Qt stuff into the module namespace with PySide, PyQt4 independence
-util.qtWrapImport('QtCore', globals(), ['pyqtSignal', 'QObject', 'QRectF', 'Qt'])
-util.qtWrapImport('QtGui', globals(), ['QUndoCommand', 'QUndoStack',
-                                       'QGraphicsPathItem', 'QGraphicsRectItem', 'QPen', 'QBrush'])
+util.qtWrapImport('QtCore', globals(), ['pyqtSlot', 'QRectF', 'Qt'])
+util.qtWrapImport('QtGui', globals(), [
+                                        'QBrush',
+                                        'QGraphicsPathItem',
+                                        'QGraphicsRectItem',
+                                        'QInputDialog',
+                                        'QPen',
+                                        'QUndoCommand',
+                                        'QUndoStack'
+                                        ])
+
+_baseWidth = styles.PATH_BASE_WIDTH
 
 class PartItem(QGraphicsRectItem):
     def __init__(self, modelPart, activeTool, parent):
         """parent should always be pathrootitem"""
         super(PartItem, self).__init__(parent)
-        self._modelPart = modelPart
+        self._modelPart = mP = modelPart
         self._activeTool = activeTool
-        self._activeSliceItem = ActiveSliceItem(self, modelPart.activeBaseIndex())
+        self._activeSliceItem = ActiveSliceItem(self, mP.activeBaseIndex())
         self._activeVirtualHelixItem = None
-        self._controller = PartItemController(self, modelPart)
+        self._controller = PartItemController(self, mP)
+        self._preXoverItems = []  # crossover-related
         self._virtualHelixHash = {}
         self._virtualHelixItemList = []
         self._vHRect = QRectF()
-        # crossover-related
-        self._preXoverItems = []
-        # selection-related
-        self._selectionLock = None
-        self._vhiHSelectionGroup = SelectionItemGroup(\
-                                         boxtype=PathHelixHandleSelectionBox,\
-                                         constraint='y',\
-                                         parent=self)
+        self._initSelections()
+        self._initResizeButtons()
         self.setAcceptHoverEvents(True)
     # end def
 
+    def _initSelections(self):
+        """Initialize anything related to multiple selection."""
+        self._selectionLock = None
+        bType = PathHelixHandleSelectionBox
+        self._vhiHSelectionGroup = SelectionItemGroup(boxtype=bType,\
+                                                      constraint='y',\
+                                                      parent=self)
+    # end def
+
+    def _initResizeButtons(self):
+        """Instantiate the buttons used to change the canvas size."""
+        self._addBasesButton = SVGButton(":/pathtools/add-bases", self)
+        self._addBasesButton.clicked.connect(self._addBasesClicked)
+        self._addBasesButton.hide()
+        self._removeBasesButton = SVGButton(":/pathtools/remove-bases", self)
+        self._removeBasesButton.clicked.connect(self._removeBasesClicked)
+        self._removeBasesButton.hide()
     ### SIGNALS ###
 
     ### SLOTS ###
@@ -74,7 +96,7 @@ class PartItem(QGraphicsRectItem):
         pass
     # end def
 
-    def removedSlot(self):
+    def partRemovedSlot(self):
         """docstring for partDestroyedSlot"""
         self._activeSliceItem.removed()
         self.parentItem().removePartItem(self)
@@ -95,16 +117,11 @@ class PartItem(QGraphicsRectItem):
         decorated.sort()
         newList = [vhi for idx, vhi in decorated]
         self._setVirtualHelixItemList(newList)
+    # end def
 
     def destroyedSlot(self):
         """docstring for partDestroyedSlot"""
         # print "PartItem.partDestroyedSlot"
-        pass
-    # end def
-
-    def movedSlot(self, pos):
-        """docstring for partMovedSlot"""
-        # print "PartItem.partMovedSlot"
         pass
     # end def
 
@@ -116,19 +133,40 @@ class PartItem(QGraphicsRectItem):
         # self.translate(deltaX, deltaY)
         pass
 
-    def virtualHelixAddedSlot(self, modelVirtualHelix):
+    def paint(self, painter, option, widget=None):
+        painter.setPen(QPen(styles.redstroke))
+        painter.drawRect(self._vHRect)
+
+    def partVirtualHelixChangedSlot(self, coord):
+        """
+        Handles renumbering and resizing of a virtual helix.
+        (Should we split this into separate signals/slots?)
+        """
+        print "partVirtualHelixChangedSlot", coord
+        vh = self._virtualHelixHash[coord]
+        vh.resize()
+        # check for new number
+        # notify VirtualHelixHandleItem to update its label
+        # notify VirtualHelix to update its xovers
+        # if the VirtualHelix is active, refresh prexovers
+
+        # check for new size
+        # notify VirtualHelix to redraw according to new size
+
+
+    def partVirtualHelixAddedSlot(self, modelVirtualHelix):
         """
         When a virtual helix is added to the model, this slot handles
         the instantiation of a virtualhelix item.
         """
-        # print "PartItem.virtualHelixAddedSlot"
+        # print "PartItem.partVirtualHelixAddedSlot"
         vh = modelVirtualHelix
         vhi = VirtualHelixItem(self, modelVirtualHelix, self._activeTool)
         vhi.setPos
         self._virtualHelixHash[vh.coord()] = vhi
         self._virtualHelixItemList.append(vhi)
         self._setVirtualHelixItemList(self._virtualHelixItemList)
-        self.updateBoundingRect()
+        self._updateBoundingRect()
     # end def
 
     def updatePreXoverItemsSlot(self, virtualHelix):
@@ -153,18 +191,12 @@ class PartItem(QGraphicsRectItem):
         return self._modelPart
     # end def
 
-    def updateBoundingRect(self):
-        self.setPen(QPen(Qt.NoPen))
-        # self.setBrush(QBrush(Qt.cyan))
-        self.setRect(self.childrenBoundingRect())
-    # end def
-
     def removeVirtualHelixItem(self, virtualHelixItem):
         vh = virtualHelixItem.virtualHelix()
         self._virtualHelixItemList.remove(virtualHelixItem)
         del self._virtualHelixHash[vh.coord()]
         self._setVirtualHelixItemList(self._virtualHelixItemList)
-        self.updateBoundingRect()
+        self._updateBoundingRect()
     # end
 
     def itemForVirtualHelix(self, virtualHelix):
@@ -183,6 +215,58 @@ class PartItem(QGraphicsRectItem):
     # end def
 
     ### PRIVATE METHODS ###
+
+    def _addBasesClicked(self):
+        part = self._modelPart
+        step = part.stepSize()
+        self._addBasesDialog = dlg = QInputDialog(self.window())
+        dlg.setInputMode(QInputDialog.IntInput)
+        dlg.setIntMinimum(0)
+        dlg.setIntValue(step)
+        dlg.setIntMaximum(100000)
+        dlg.setIntStep(step)
+        dlg.setLabelText(( "Number of bases to add to the existing"\
+                         + " %i bases\n(must be a multiple of %i)")\
+                         % (part.maxBaseIdx(), step))
+        dlg.intValueSelected.connect(self._addBasesCallback)
+        dlg.open()
+    # end def
+
+    @pyqtSlot(int)
+    def _addBasesCallback(self, n):
+        part = self._modelPart
+        self._addBasesDialog.intValueSelected.disconnect(self._addBasesCallback)
+        del self._addBasesDialog
+        maxDelta = int(n) / part.stepSize() * part.stepSize()
+        part.resizeVirtualHelices(0, maxDelta)
+
+        if len(self._virtualHelixItemList) > 0:
+            vhi = self._virtualHelixItemList[0]
+            vhiRect = vhi.boundingRect()
+            vhiHRect = vhi.handle().boundingRect()
+            self._vHRect.setLeft(vhiHRect.left())
+            self._vHRect.setRight(vhiRect.right())
+            self.scene().views()[0].zoomToFit()
+            self._activeSliceItem.resetBounds()
+            self._updateBoundingRect()
+    # end def
+
+    def _removeBasesClicked(self):
+        pass
+        # part = self._modelPart
+        # # First try to shrink to fit used bases
+        # newNumBases = part.indexOfRightmostNonemptyBase() + 1
+        # newNumBases = int(ceil(float(newNumBases)/part.step))*part.step
+        # newNumBases = util.clamp(newNumBases, part.step, 10000)
+        # 
+        # dim = list(part.dimensions())
+        # # If that didn't do anything, reduce the length
+        # # of the vhelix by one step.
+        # if dim[2] == newNumBases and dim[2] > part.step:
+        #     newNumBases = newNumBases - part.step
+        # part.setDimensions((dim[0], dim[1], newNumBases))
+    # end def
+
     def _setVirtualHelixItemList(self, newList, zoomToFit=True):
         """
         Give me a list of VirtualHelixItems and I'll parent them to myself if
@@ -223,6 +307,22 @@ class PartItem(QGraphicsRectItem):
         self._virtualHelixItemList = newList
         if zoomToFit:
             self.scene().views()[0].zoomToFit()
+    # end def
+
+    def _updateBoundingRect(self):
+        self.setPen(QPen(Qt.NoPen))
+        self.setRect(self.childrenBoundingRect())
+        # move the buttons if necessary
+        addButton = self._addBasesButton
+        rmButton = self._removeBasesButton
+        addRect = addButton.boundingRect()
+        rmRect = rmButton.boundingRect()
+        x = self.rect().right()
+        y = -styles.PATH_HELIX_PADDING
+        addButton.setPos(x, y)
+        rmButton.setPos(x-rmRect.width(), y)
+        addButton.show()
+        rmButton.show()
     # end def
 
     ### PUBLIC METHODS ###
@@ -278,7 +378,7 @@ class PartItem(QGraphicsRectItem):
             self._activeVirtualHelixItem = newActiveVHI
             self._modelPart.setActiveVirtualHelix(newActiveVHI.virtualHelix())
     # end def
-    
+
     def selectionLock(self):
         return self._selectionLock
     # end def

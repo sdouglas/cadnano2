@@ -92,8 +92,8 @@ class PartItem(QGraphicsItem):
         print "PartItem.parentChangedSlot"
         pass
 
-    def removedSlot(self):
-        """docstring for removedSlot"""
+    def partRemovedSlot(self):
+        """docstring for partRemovedSlot"""
         self._activeSliceItem.removed()
         self.parentItem().removePartItem(self)
         scene = self.scene()
@@ -113,13 +113,9 @@ class PartItem(QGraphicsItem):
         pass
     # end def
 
-    def movedSlot(self, pos):
-        """docstring for partMovedSlot"""
-        print "PartItem.partMovedSlot"
-        pass
-
     def reorderedSlot(self, orderedCoordList):
         pass
+    # end def
 
     def partPreDecoratorSelectedSlot(self, row, col, baseIdx):
         """docstring for partPreDecoratorSelectedSlot"""
@@ -128,14 +124,19 @@ class PartItem(QGraphicsItem):
         # compute deltaY from virtualhelix position
         # self.translate(deltaX, deltaY)
         pass
+    # end def
 
-    def virtualHelixAddedSlot(self, virtualHelix):
+    def partVirtualHelixAddedSlot(self, virtualHelix):
         vh = virtualHelix
         coords = vh.coord()
         emptyHelixItem = self._emptyhelixhash[coords]
         # TODO test to see if self._virtualHelixHash is necessary
         vhi = VirtualHelixItem(vh, emptyHelixItem)
         self._virtualHelixHash[coords] = vhi
+    # end def
+
+    def partVirtualHelixChangedSlot(self, coord):
+        pass
     # end def
 
     def updatePreXoverItemsSlot(self, virtualHelix):
@@ -145,9 +146,11 @@ class PartItem(QGraphicsItem):
     ############################ Private Methods ############################
     def _upperLeftCornerForCoords(self, row, col):
         pass  # subclass
+    # end def
 
     def _updateGeometry(self):
         self._rect = QRectF(0, 0, *self.part().dimensions())
+    # end def
 
     def _spawnEmptyHelixItemAt(self, row, column):
         helix = EmptyHelixItem(row, column, self)
@@ -188,9 +191,11 @@ class PartItem(QGraphicsItem):
     def mousePressEvent(self, event):
         # self.createOrAddBasesToVirtualHelix()
         QGraphicsItem.mousePressEvent(self, event)
+    # end def
 
     def boundingRect(self):
         return self._rect
+    # end def
 
     def scaleFactor(self):
         return self._scaleFactor
@@ -198,23 +203,28 @@ class PartItem(QGraphicsItem):
     
     def paint(self, painter, option, widget=None):
         pass
+    # end def
 
     def zoomToFit(self):
         thescene = self.scene()
         theview = thescene.views()[0]
         theview.zoomToFit()
+    # end def
 
     def part(self):
         return self._part
+    # end def
 
     def setPart(self, newPart):
         self._part = newPart
+    # end def
 
     def getVirtualHelixItemByCoord(self, row, column):
         if (row, column) in self._emptyhelixhash:
             return self._virtualHelixHash[(row, column)]
         else:
             return None
+    # end def
 
     def selectionWillChange(self, newSel):
         if self.part() == None:
@@ -223,9 +233,11 @@ class PartItem(QGraphicsItem):
             return
         for sh in self._emptyhelixhash.itervalues():
             sh.setSelected(sh.virtualHelix() in newSel)
+    # end def
 
     def vhAtCoordsChanged(self, row, col):
         self._emptyhelixhash[(row, col)].update()
+    # end def
 
     class Deselector(QGraphicsItem):
         """The deselector lives behind all the slices and observes mouse press
