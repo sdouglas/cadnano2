@@ -336,17 +336,44 @@ class Part(QObject):
             cmds.append(strand5p.oligo().applySequenceCMD(None))
             cmds.append(strand3p.oligo().applySequenceCMD(None))
         if strand5p == strand3p:
+            """
+            This is a complicated case basically we need a truth table.
+            1 strand becomes 1, 2 or 3 strands depending on where the xover is
+            to.  1 and 2 strands happen when the xover is to 1 or more existing
+            endpoints.  Since SplitCommand depends on a StrandSet index, we need
+            to adjust this strandset index depending which direction the crossover is 
+            going in.
+            
+            Below describes the 3 strand process
+            1) Lookup the strands strandset index (ssIdx)
+            1) Split attempted on the 3 prime strand, AKA 5prime endpoint of
+            one of the new strands.  We have now created 2 strands, and the ssIdx
+            is either the same as the first lookup, or one more than it depending 
+            on which way the the strand is drawn (isDrawn5to3).  If a split occured
+            the 5prime strand is definitely part of the 3prime strand created in this step
+            2) Split is attempted on the resulting 2 strands.  There is 
+            now 3 strands, and the final 3 prime strand may be one of the two new strands
+            created in this step. Check it.
+            3) Create the Xover
+            """
             c = None
+            # lookup the initial strandset index
             found, overlap, ssIdx3p = ss3p._findIndexOfRangeFor(strand3p)
             if strand3p.idx5Prime() == idx3p:  # yes, idx already matches
-                xoStrand3 = strand3p
+                temp5 = xoStrand3 = strand3p
             else:
                 offset3p = -1 if ss3p.isDrawn5to3() else 1
                 if ss3p.strandCanBeSplit(strand3p, idx3p+offset3p):
                     c = ss3p.SplitCommand(strand3p, idx3p+offset3p, ssIdx3p)
                     cmds.append(c)
                     xoStrand3 = c._strandHigh if ss3p.isDrawn5to3() else c._strandLow
-                    temp5 = xoStrand3 if idx5p > idx3p else c._strandLow
+                    # adjust the target 5prime strand, always necessary if a split happens here
+                    if idx5p > idx3p and ss3p.isDrawn5to3():
+                        temp5 = xoStrand3 
+                    elif idx5p < idx3p and not ss3p.isDrawn5to3():
+                        temp5 = xoStrand3
+                    else:
+                        temp5 = c._strandLow if ss3p.isDrawn5to3() else c._strandHigh
                 else:
                     print "Failed xover on try 2"
                     return
@@ -358,15 +385,19 @@ class Part(QObject):
                 # if the strand was split for the strand3p, then we need to adjust the strandset index
                 if c:
                     # the insertion index into the set is increases
-                    if idx5p > idx3p:
-                        ssIdx5p = ssIdx3p + 1 if ss3p.isDrawn5to3() else ssIdx3p
+                    if ss3p.isDrawn5to3():
+                        ssIdx5p = ssIdx3p + 1 if idx5p > idx3p else ssIdx3p
                     else:
-                        ssIdx5p =  ssIdx3p if ss3p.isDrawn5to3() else ssIdx3p + 1
+                        ssIdx5p =  ssIdx3p + 1 if idx5p > idx3p else ssIdx3p
                 if ss5p.strandCanBeSplit(temp5, idx5p):
                     d = ss5p.SplitCommand(temp5, idx5p, ssIdx5p)
                     cmds.append(d)
                     xoStrand5 = d._strandLow if ss5p.isDrawn5to3() else d._strandHigh
-                    xoStrand3 = xoStrand5 if idx5p > idx3p else xoStrand3
+                    # adjust the target 3prime strand, IF necessary
+                    if idx5p > idx3p and ss3p.isDrawn5to3():
+                        xoStrand3 = xoStrand5
+                    elif idx5p < idx3p and not ss3p.isDrawn5to3():
+                        xoStrand3 = xoStrand5
                 else:
                     print "Failed xover on try three", xoStrand3.lowIdx(), xoStrand3.highIdx(), idx5p
                     return

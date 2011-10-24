@@ -308,6 +308,8 @@ class InsertionItem(QGraphicsPathItem):
                 if not isOnTop:
                     rotatedPath.translate(0, -syles.SEQUENCEFONTH - styles.INSERTWIDTH)
                 seqPath.addPath(rotatedPath)
+            # end for
+            seqItem.setPath(seqPath)
         # end if
     # end def
 
