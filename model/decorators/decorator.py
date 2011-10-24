@@ -52,7 +52,7 @@ class Decorator(object):
         This is the length of a sequence that is immutable by the strand
         """
         return length(self._privateSequence)
-        
+
     def decoratorType(self):
         return self._dtype
 # end class

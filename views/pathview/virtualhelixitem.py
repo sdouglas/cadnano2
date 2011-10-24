@@ -66,7 +66,7 @@ class VirtualHelixItem(QGraphicsPathItem):
         self._majorGridPainterPath = self.majorGridPainterPath()
         self.setPath(self._minorGridPainterPath)
         self._handle = VirtualHelixHandleItem(modelVirtualHelix, partItem)
-        
+
         self._controller = VirtualHelixItemController(self, modelVirtualHelix)
         self.setAcceptHoverEvents(True)
     # end def
@@ -204,7 +204,7 @@ class VirtualHelixItem(QGraphicsPathItem):
         """
         bw = _baseWidth
         part = self.part()
-        
+
         if self._majorGridPainterPath:
             return self._majorGridPainterPath
         path = QPainterPath()

@@ -123,7 +123,7 @@ class SkipPath(object):
     """
     This is just the shape of the Insert item
     """
-    
+
     _skipPath = QPainterPath()
     _xGen(_skipPath, _defaultRect.bottomLeft(), _defaultRect.topRight(), \
                         _defaultRect.topLeft(), _defaultRect.bottomRight())
@@ -174,7 +174,7 @@ class InsertionItem(QGraphicsPathItem):
         label.mousePressEvent = self.labelMousePressEvent
         label.mouseDoubleClickEvent = self.mouseDoubleClickEvent
         label.setTextWidth(-1)
-        
+
         self._label = label
         self._seqItem = QGraphicsPathItem(parent=self)
         self._seqText = None
@@ -274,7 +274,7 @@ class InsertionItem(QGraphicsPathItem):
         isOnTop = self._isOnTop
         index = self._insertion.idx()
         baseText = self._seqText
-        
+
         # draw sequence on the insert
         if baseText:  # only draw sequences if they exist i.e. not None!
             lenBT = len(baseText)

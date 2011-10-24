@@ -709,7 +709,7 @@ class Part(QObject):
         """
         returns the list of neighboring virtualHelices based on parity of an
         input virtualHelix
-        
+
         If a potential neighbor doesn't exist, None is returned in it's place
         """
         neighbors = []
@@ -763,10 +763,10 @@ class Part(QObject):
         # create a list of crossover points for each neighbor of the form
         # [(_scafL[i], _scafH[i], _stapL[i], _stapH[i]), ...]
         lutsNeighbor = list(izip(part._scafL, part._scafH, part._stapL, part._stapH))
-        
+
         sTs = (StrandType.Scaffold, StrandType.Staple)
         numBases = part.maxBaseIdx()
-        
+
         # create a range for the helical length dimension of the Part, 
         # incrementing by the lattice step size.
         baseRange = range(0, numBases, part._step)
@@ -1047,7 +1047,7 @@ class Part(QObject):
             strand5p.strandUpdateSignal.emit(strand5p)
             strand3p.strandUpdateSignal.emit(strand3p)
         # end def
-        
+
         def undo(self):
             part = self._part
             strand5p = self._strand5p

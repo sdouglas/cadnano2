@@ -46,7 +46,7 @@ class Modifier(object):
         This is the length of a sequence that is immutable by the strand
         """
         return self._highIdx - self._lowIdx + 1
-        
+
     def modifierType(self):
         return self._mtype
 # end class

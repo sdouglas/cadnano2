@@ -51,10 +51,10 @@ class SelectionItemGroup(QGraphicsItemGroup):
         self.setFlag(QGraphicsItem.ItemIsSelectable)
         self.setFlag(QGraphicsItem.ItemIsFocusable) # for keyPressEvents
         self.setFlag(QGraphicsItem.ItemHasNoContents)
-        
+
         self._pen = QPen(styles.bluestroke, styles.PATH_SELECTBOX_STROKE_WIDTH)
         self._partItem = parent
-        
+
         self.selectionbox = boxtype(self)
         self._drawMe = False
         self._dragEnable = False
@@ -63,7 +63,7 @@ class SelectionItemGroup(QGraphicsItemGroup):
         self._r = 0  # latest position for moving
 
         self._lastKid = 0
-        
+
         # this keeps track of mousePressEvents within the class
         # to aid in intellignetly removing items from the group 
         self._addedToPressList = False
@@ -101,7 +101,7 @@ class SelectionItemGroup(QGraphicsItemGroup):
         # painter.drawRect(self.boundingRect())
         pass
     # end def
-    
+
     def keyPressEvent(self, event):
         """
         Must intercept invalid input events.  Make changes here
@@ -118,7 +118,7 @@ class SelectionItemGroup(QGraphicsItemGroup):
         else:
             return QGraphicsItemGroup.keyPressEvent(self, event)
     # end def
-        
+
     def mousePressEvent(self, event):
         if event.button() != Qt.LeftButton:
             QGraphicsItemGroup.mousePressEvent(self, event)
@@ -180,7 +180,7 @@ class SelectionItemGroup(QGraphicsItemGroup):
         # print "press release"
         self._addedToPressList = False
     # end def
-    
+
     def clearSelection(self, value):
         if value == False:
             self.selectionbox.hide()
@@ -281,7 +281,7 @@ class PathHelixHandleSelectionBox(QGraphicsPathItem):
         # the childrenBoundingRect is necessary to get this to work
         rect = self.mapRectFromItem(iG,iG.childrenBoundingRect() )
         radius = self._radius
-        
+
         path = QPainterPath()
         path.addRoundedRect(rect, radius, radius)
         path.moveTo(rect.right(),\
@@ -297,7 +297,7 @@ class PathHelixHandleSelectionBox(QGraphicsPathItem):
         delta = (rEnd - rStart)  # r delta
         midHeight = (self.boundingRect().height()) / 2 - margin
         helixHeight = self._helixHeight
-        
+
         if abs(delta) < midHeight:  # move is too short for reordering
             return
         if delta > 0:  # moved down, delta is positive

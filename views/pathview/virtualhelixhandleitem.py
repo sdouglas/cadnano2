@@ -41,15 +41,15 @@ util.qtWrapImport('QtGui', globals(), ['QBrush', 'QFont', 'QGraphicsItem',\
 class VirtualHelixHandleItem(QGraphicsEllipseItem):
     """docstring for VirtualHelixHandleItem"""
     _radius = styles.VIRTUALHELIXHANDLEITEM_RADIUS
-    
+
     # update the following lines if you want different stroke widths 
     # for hilighting.  Qt doesn't allow internal strokes.
     _rect = QRectF(0, 0, 2*_radius + styles.VIRTUALHELIXHANDLEITEM_STROKE_WIDTH,\
             2*_radius + styles.VIRTUALHELIXHANDLEITEM_STROKE_WIDTH)
     # rect = QRectF(0, 0, 2*radius, 2*radius)
-    
+
     hiliteWidth = 2
-    
+
     defBrush = QBrush(styles.grayfill)
     defPen = QPen(styles.graystroke, styles.VIRTUALHELIXHANDLEITEM_STROKE_WIDTH)
     hovBrush = QBrush(styles.bluefill)
@@ -61,26 +61,26 @@ class VirtualHelixHandleItem(QGraphicsEllipseItem):
     def __init__(self, virtualHelix, partItem):
         super(VirtualHelixHandleItem, self).__init__(partItem)
         self._virtualHelix = virtualHelix
-        
+
         self._partItem = partItem
 
         self._beingHoveredOver = False
         self.setAcceptsHoverEvents(True)
-        
-        
+
+
         # handle the label specific stuff
         self._label = self.createLabel()
         self.setNumber()
-        
+
         self.setFlag(QGraphicsItem.ItemIsSelectable)
         self.setFlag(QGraphicsItem.ItemSendsScenePositionChanges)
-        
+
         self.penAndBrushSet(False)
-        
+
         self.setZValue(styles.ZPATHHELIX)
         self.setRect(self._rect)
     # end def
-    
+
     def penAndBrushSet(self, value):
         if self.number() >= 0:
             if value == True:
@@ -94,7 +94,7 @@ class VirtualHelixHandleItem(QGraphicsEllipseItem):
             self.setPen(self.defPen)
         self.update(self.boundingRect())
     # end def
-    
+
     def paint(self, painter, option, widget):
         painter.setPen(self.pen())
         painter.setBrush(self.brush())
@@ -107,7 +107,7 @@ class VirtualHelixHandleItem(QGraphicsEllipseItem):
         if (r,c) == self.vhelix.coord():
             self.setNumber()
     # end def
-    
+
     def createLabel(self):
         label = QGraphicsSimpleTextItem("%d" % self._virtualHelix.number())
         label.setFont(self._font)
@@ -115,14 +115,14 @@ class VirtualHelixHandleItem(QGraphicsEllipseItem):
         label.setParentItem(self)
         return label
     # end def
-    
+
     def setNumber(self):
         """docstring for setNumber"""
         vh = self._virtualHelix
         num = vh.number()
         label = self._label
         radius = self._radius
-        
+
         label.setText("%d" % num)
         y_val = radius / 3
         if num < 10:
@@ -178,7 +178,7 @@ class VirtualHelixHandleItem(QGraphicsEllipseItem):
         else:
             QGraphicsItem.mousePressEvent(self, event)
     # end def
-    
+
     def mouseMoveEvent(self, event):
         """
         All mouseMoveEvents are passed to the group if it's in a group
@@ -189,12 +189,12 @@ class VirtualHelixHandleItem(QGraphicsEllipseItem):
         else:
             QGraphicsItem.mouseMoveEvent(self, event)
     # end def
-    
+
     def restoreParent(self, pos=None):
         """
         Required to restore parenting and positioning in the phg
         """
-        
+
         # map the position
         partItem = self._partItem
         if pos == None:
@@ -215,11 +215,11 @@ class VirtualHelixHandleItem(QGraphicsEllipseItem):
         # for selection changes test against QGraphicsItem.ItemSelectedChange
         # intercept the change instead of the has changed to enable features.
         partItem = self._partItem
-        
+
         if change == QGraphicsItem.ItemSelectedHasChanged and self.scene():
             selectionGroup = partItem.vhiHandleSelectionGroup()
             lock = selectionGroup.partItem().selectionLock()
-            
+
             # only add if the selectionGroup is not locked out
             if value == True and (lock == None or lock == selectionGroup):
                 if self.group() != selectionGroup:
@@ -238,10 +238,10 @@ class VirtualHelixHandleItem(QGraphicsEllipseItem):
         # end if
         elif change == QGraphicsItem.ItemSelectedChange and self.scene():
             selectionGroup = partItem.vhiHandleSelectionGroup()
-            
+
             temp = selectionGroup.partItem()
             lock = temp.selectionLock() if temp else None
-            
+
             if value == True and (lock == None or lock == selectionGroup):
                 self.penAndBrushSet(True)
                 return True

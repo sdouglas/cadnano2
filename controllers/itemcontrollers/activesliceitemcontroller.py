@@ -46,5 +46,4 @@ class ActiveSliceItemController(object):
         mP.partActiveSliceIndexSignal.disconnect(aSI.updateIndexSlot)
         mP.partStrandChangedSignal.disconnect(aSI.strandChangedSlot)
     # end def
-    
 # end class

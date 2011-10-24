@@ -39,7 +39,7 @@ class Assembly(QObject):
     """
     An Assembly is a collection of components, comprised recursively of
     various levels of individual parts and sub-assembly modules.
-    
+
     The purpose of an Assembly object in CADnano is to arrange Parts into
     larger groups (which may be connected or constrained in specific ways)
     to facilitate the modeling of more complex designs than a single part.
@@ -49,7 +49,7 @@ class Assembly(QObject):
         super(Assembly, self).__init__(document)
         self._document = document
         self._objInstanceList = []   # This is a list of member parts
-        
+
         # This is a list of ObjectInstances of this
         # particular assembly ONLY
         # an Assembly can not have an ObjectIntanceList that contains itself
@@ -72,11 +72,11 @@ class Assembly(QObject):
         self.setParent(None)
         self.deleteLater()
     # end def
-    
+
     def document(self):
         return self._document
     # end def
-    
+
     def objects(self):
         for obj in self._objInstanceList:
             yield obj
@@ -86,13 +86,13 @@ class Assembly(QObject):
         for inst in self._assemblyInstances:
             yield inst
     # end def
-    
+
     def deepCopy(self):
         """
         Deep copy the assembly by cloning the 
-        
+
         This leaves alone assemblyInstances, and only
-        
+
         To finish the job this deepCopy Assembly should be incorporated into
         a new ObjectInstance and therefore an assemblyInstance
         """
@@ -100,7 +100,7 @@ class Assembly(QObject):
         asm = Assembly(doc)
         newObjInstList = asm._objInstanceList
         objInstances = self.objects()
-        
+
         # create a dictionary mapping objects (keys) to lists of 
         # ObjectInstances ([value1, value2])
         # this uniquifies the creation of new Assemblies
@@ -110,7 +110,7 @@ class Assembly(QObject):
             obj = f1(x)
             objectDict[obj].append(x)
         # end 
-        
+
         # copy the all the objects
         f2 = methodcaller('deepCopy')
         for key, value in objectDict:
@@ -125,11 +125,11 @@ class Assembly(QObject):
         # end for
         return asm
     # end def
-    
+
     def addInstance(self, assemblyInstance):
         self._assemblyInstances.extend(assemblyInstance)
     # end def
-        
-    
+
+
     ### COMMANDS ###
     

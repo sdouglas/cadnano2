@@ -36,14 +36,16 @@ from decorators.insertionitem import InsertionItem
 import util
 # import Qt stuff into the module namespace with PySide, PyQt4 independence
 util.qtWrapImport('QtCore', globals(), ['pyqtSignal', 'QObject', 'Qt', 'QRectF'])
-util.qtWrapImport('QtGui', globals(), ['QGraphicsLineItem', 'QGraphicsPathItem',
-                                       'QPen', 'QColor', 'QBrush', 'QFont', \
-                                       'QFontMetricsF', 'QGraphicsSimpleTextItem', \
-                                       'QGraphicsRectItem'])
+util.qtWrapImport('QtGui', globals(), ['QBrush', 'QColor', 'QFont',
+                                       'QFontMetricsF', 'QGraphicsLineItem',
+                                       'QGraphicsPathItem',
+                                       'QGraphicsSimpleTextItem',
+                                       'QGraphicsRectItem', 'QPen'])
 
 _baseWidth = styles.PATH_BASE_WIDTH
 _defaultRect = QRectF(0,0, _baseWidth, _baseWidth)
 _noPen = QPen(Qt.NoPen)
+
 
 class StrandItem(QGraphicsLineItem):
     def __init__(self, modelStrand, virtualHelixItem):
@@ -167,7 +169,8 @@ class StrandItem(QGraphicsLineItem):
     # end def
 
     def strandInsertionAddedSlot(self, strand, insertion):
-        self.insertionItems()[insertion.idx()] = InsertionItem(self._virtualHelixItem, strand, insertion)
+        self.insertionItems()[insertion.idx()] = \
+                    InsertionItem(self._virtualHelixItem, strand, insertion)
     # end def
     def strandInsertionChangedSlot(self, strand, insertion):
         self.insertionItems()[insertion.idx()].updateItem()
@@ -213,9 +216,33 @@ class StrandItem(QGraphicsLineItem):
 
     def idxs(self):
         return self._modelStrand.idxs()
+    # end def
 
     def virtualHelixItem(self):
         return self._virtualHelixItem
+    # end def
+
+    def virtualHelixItem(self):
+        return self._virtualHelixItem
+
+    def window(self):
+        return self._virtualHelixItem.window()
+
+    ### PUBLIC METHODS FOR DRAWING / LAYOUT ###
+    def refreshInsertionItems(self, strand):
+        iItems = self.insertionItems()
+        iModel = strand.insertionsOnStrand()
+        # remove all in items
+        for index, iItem in iItems.items():
+            iItem.remove()
+            del iItems[index]
+        # end for
+        # add in the ones supposed to be there
+        for insertion in iModel:
+            iItems[insertion.idx()] = \
+                    InsertionItem(self._virtualHelixItem, strand, insertion)
+        # end for
+    # end def
 
     def resetStrandItem(self, virtualHelixItem, isDrawn5to3):
         self.setParentItem(virtualHelixItem)
@@ -230,13 +257,6 @@ class StrandItem(QGraphicsLineItem):
         self._dualCap.resetEndPoint(isDrawn5to3)
     # end def
 
-    def virtualHelixItem(self):
-        return self._virtualHelixItem
-
-    def window(self):
-        return self._virtualHelixItem.window()
-
-    ### PUBLIC METHODS FOR DRAWING / LAYOUT ###
     def updateLine(self, movedCap):
         # setup
         bw = _baseWidth
@@ -260,6 +280,7 @@ class StrandItem(QGraphicsLineItem):
             temp.setRight(newX)
             cA.setRect(temp)
         self.setLine(line)
+    # end def
 
     ### PRIVATE SUPPORT METHODS ###
     def _updateAppearance(self, strand):
@@ -321,25 +342,9 @@ class StrandItem(QGraphicsLineItem):
         # 4. Line drawing
         hy = ly = lUpperLeftY + halfBaseWidth
         self.setLine(lx, ly, hx, hy)
-        self._clickArea.setRect(QRectF(lUpperLeftX+bw, lUpperLeftY, bw*(highIdx-lowIdx-1), bw))
+        rectf = QRectF(lUpperLeftX+bw, lUpperLeftY, bw*(highIdx-lowIdx-1), bw)
+        self._clickArea.setRect(rectf)
         self._updatePensAndBrushes(strand)
-    # end def
-
-    def refreshInsertionItems(self, strand):
-        """
-        could just refresh all of them (remove all, add all)
-        """
-        iItems = self.insertionItems()
-        iModel = strand.insertionsOnStrand()
-        # remove all in items
-        for index, iItem in iItems.items():
-            iItem.remove()
-            del iItems[index]
-        # end for
-        # add in the ones supposed to be there
-        for insertion in iModel:
-            iItems[insertion.idx()] = InsertionItem(self._virtualHelixItem, strand, insertion)
-        # end for
     # end def
 
     def _updatePensAndBrushes(self, strand):
@@ -382,7 +387,7 @@ class StrandItem(QGraphicsLineItem):
             print seqTxt
             if seqTxt != '':
                 iItems[idx].setSequence(seqTxt)
-        
+
         if isDrawn3to5:
             seqList = seqList[::-1]
         seqTxt = ''.join(seqList)
@@ -422,6 +427,7 @@ class StrandItem(QGraphicsLineItem):
         if hasattr(self, toolMethodName):
             idx = int(floor((event.pos().x()) / _baseWidth))
             getattr(self, toolMethodName)(idx)
+    # end def
 
     def mouseMoveEvent(self, event):
         """
@@ -432,6 +438,7 @@ class StrandItem(QGraphicsLineItem):
         if hasattr(self, toolMethodName):
             idx = int(floor((event.pos().x()) / _baseWidth))
             getattr(self, toolMethodName)(idx)
+    # end def
 
     def hoverMoveEvent(self, event):
         """
@@ -443,7 +450,7 @@ class StrandItem(QGraphicsLineItem):
             idx = int(floor((event.pos().x()) / _baseWidth))
             getattr(self, toolMethodName)(idx)
     # end def
-    
+
     def customMouseRelease(self, event):
         """
         Parses a mouseReleaseEvent to extract strandSet and base index,
@@ -453,6 +460,7 @@ class StrandItem(QGraphicsLineItem):
         if hasattr(self, toolMethodName):
             idx = int(floor((event.pos().x()) / _baseWidth))
             getattr(self, toolMethodName)(idx)
+    # end def
 
     ### TOOL METHODS ###
     def breakToolMousePress(self, idx):
@@ -467,7 +475,6 @@ class StrandItem(QGraphicsLineItem):
         vhi = self._virtualHelixItem
         partItem = vhi.partItem()
         activeTool = self._activeTool()
-        
         if activeTool.isFloatingXoverBegin():
             if idx == mStrand.idx5Prime():
                 return
@@ -479,13 +486,13 @@ class StrandItem(QGraphicsLineItem):
             # install Xover
             activeTool.attemptToCreateXover(vhi, mStrand, idx)
     # end def
-    
+
     def pencilToolHoverMove(self, idx):
         """Pencil the strand is possible."""
         mStrand = self._modelStrand
         vhi = self._virtualHelixItem
         activeTool = self._activeTool()
-        
+
         if not activeTool.isFloatingXoverBegin():
             tempXover = activeTool.floatingXover()
             tempXover.updateFloatingFromStrandItem(vhi, mStrand, idx)

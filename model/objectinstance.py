@@ -58,7 +58,7 @@ class ObjectInstance(QObject):
     def reference(self):
         return self._object
     # end def
-    
+
     def parent(self):
         return self._parent
 
@@ -70,7 +70,7 @@ class ObjectInstance(QObject):
         oi._position = list(self._position)
         return oi
     # end def
-    
+
     def deepCopy(self, referenceObject, parent):
         oi = ObjectInstance(referenceObject, parent)
         oi._position = list(self._position)

@@ -69,7 +69,7 @@ class AbstractStrandItemController(object):
         sI = self._strandItem
         mO = self._modelStrand.oligo()
         self._modelOligo = mO
-        
+
         mO.oligoAppearanceChangedSignal.connect(sI.oligoAppearanceChangedSlot)
     # end def
 

@@ -31,7 +31,7 @@ CustomQGraphicsView.py
    :platform: Unix, Windows, Mac OS X
    :synopsis: A Custom QGraphicsView module to allow focus input events
    like mouse clicks and panning and zooming
-   
+
 .. moduleauthor::  Nick Conway on 2011-01-17.
 Copyright (c) 2010 . All rights reserved.
 
@@ -238,9 +238,9 @@ class CustomQGraphicsView(QGraphicsView):
         breaks this feature.
         """
         if self._transformEnable == True:
-            
+
             # self._skipEvent = False if self._skipEvent == True else True
-            
+
             if self.dragMode() == self._yesDrag:
                 # Add stuff to handle the pan event
                 xf = event.posF().x()

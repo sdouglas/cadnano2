@@ -178,7 +178,7 @@ else: # linux
     thefont = "DejaVu Sans"
     thefontsize = 9
     XOVER_LABEL_FONT = QFont(thefont, thefontsize, QFont.Bold)
-     
+ 
 SLICE_NUM_FONT = QFont(thefont, 10, QFont.Bold)
 VIRTUALHELIXHANDLEITEM_FONT = QFont(thefont, 3*thefontsize, QFont.Bold)
 XOVER_LABEL_COLOR = QColor(0,0,0) 

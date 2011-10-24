@@ -390,7 +390,7 @@ class Strand(QObject):
         else:
             return False
     # end def
-    
+
     def canInstallXoverAt(self, idx, fromStrand, fromIdx):
         """
         Assumes idx is:

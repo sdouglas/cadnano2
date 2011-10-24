@@ -74,20 +74,20 @@ class VirtualHelixItem(QGraphicsEllipseItem):
         # self.setFlag(QGraphicsItem.ItemIsSelectable)
         self.setZValue(self._ZVALUE)
         self.lastMousePressAddedBases = False
-        
+
         self.setBrush(self._outOfSliceBrush)
         self.setPen(self._outOfSlicePen)
         self.setRect(self._rect)
-        
+
         # handle the label specific stuff
         self._label = self.createLabel()
         self.setNumber()
-        
+
         self._controller = VirtualHelixItemController(self, modelVirtualHelix)
-        
+
         self.show()
     # end def
-    
+
     ### SIGNALS ###
 
     ### SLOTS ###
@@ -98,7 +98,7 @@ class VirtualHelixItem(QGraphicsEllipseItem):
         """
         self.setNumber()
     # end def
-    
+
     def virtualHelixRemovedSlot(self, virtualHelix):
         self._controller.disconnectSignals()
         self._controller = None
@@ -107,13 +107,13 @@ class VirtualHelixItem(QGraphicsEllipseItem):
         self._emptyHelixItem = None
         self.scene().removeItem(self)
     # end def
-    
+
     def strandAddedSlot(self, strand):
         pass
     # end def
-    
+
     ###
-    
+
     def createLabel(self):
         label = QGraphicsSimpleTextItem("%d" % self._virtualHelix.number())
         label.setFont(self._font)
@@ -121,14 +121,14 @@ class VirtualHelixItem(QGraphicsEllipseItem):
         label.setParentItem(self)
         return label
     # end def
-    
+
     def setNumber(self):
         """docstring for setNumber"""
         vh = self._virtualHelix
         num = vh.number()
         label = self._label
         radius = self._radius
-        
+
         label.setText("%d" % num)
         y_val = radius / 3
         if num < 10:
@@ -142,12 +142,12 @@ class VirtualHelixItem(QGraphicsEllipseItem):
         posy = bRect.height()/2
         label.setPos(radius-posx, radius-posy)
     # end def
-    
+
     def destroyLabel(self):
         label = self._label
         label.scene().removeItem(label)
     # end def
-    
+
     def part(self):
         return self._emptyHelixItem.part()
 
@@ -179,7 +179,7 @@ class VirtualHelixItem(QGraphicsEllipseItem):
     #         self.focusRing.scene().removeItem(self.focusRing)
     #         self.focusRing = None
     # # end def
-    
+
     # def selectAllBehavior(self):
     #     # If the selection is configured to always select
     #     # everything, we don't draw a focus ring around everything,

@@ -72,7 +72,7 @@ class XoverNode3(QGraphicsRectItem):
         self.setBrush(_nobrush)
         self.setRect(_rect)
     # end def
-    
+
     def mousePressEvent(self, event):
         self._xoverItem.attemptToRemoveXover()
     # end def 
@@ -103,7 +103,7 @@ class XoverNode3(QGraphicsRectItem):
     def point(self):
         return self._vhi.upperLeftCornerOfBaseType(self._idx, self._strandType)
     # end def
-    
+
     def floatPoint(self):
         pt = self.pos()
         return pt.x(), pt.y()
@@ -244,7 +244,7 @@ class XoverItem(QGraphicsPathItem):
             scene.removeItem(self._node5)
         scene.removeItem(self)
     # end def
-    
+
     def attemptToRemoveXover(self):
         strand5p = self._strand5p
         strand3p = strand5p.connection3p()
@@ -279,10 +279,10 @@ class XoverItem(QGraphicsPathItem):
         strand3p = strand5p.connection3p()
         vhi5p = self._virtualHelixItem
         partItem = vhi5p.partItem()
-        
+
         # This condition is for floating xovers
         idx3Prime = idx if idx else strand5p.idx3Prime()
-        
+
         if self._node5 == None:
             self._node5 = XoverNode5(vhi5p, self, strand5p, idx3Prime)
         if strand3p != None:
@@ -311,14 +311,14 @@ class XoverItem(QGraphicsPathItem):
         node5 = self._node5
 
         bw = _baseWidth
-        
+
         vhi5 = self._virtualHelixItem
         partItem = vhi5.partItem()
         pt5 = vhi5.mapToItem(partItem, *node5.point())
-                            
+
         fiveIsTop = node5.isOnTop()
         fiveIs5to3 = node5.isDrawn5to3()
-        
+
         vhi3 = node3.virtualHelixItem()
         pt3 = vhi3.mapToItem(partItem, *node3.point())
 
@@ -380,7 +380,7 @@ class XoverItem(QGraphicsPathItem):
         else:
             painterpath.quadTo(c1, threeEnterPt)
             painterpath.lineTo(threeCenterPt)
-            
+
         node3.updatePositionAndAppearance()
         node5.updatePositionAndAppearance()
         self.setPath(painterpath)
