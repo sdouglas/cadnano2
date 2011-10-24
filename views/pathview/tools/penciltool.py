@@ -553,7 +553,7 @@ class ForcedXoverNode5(ForcedXoverNode3):
         self._pathThing.setPath(path)
         self._pathThing.setPos(offset, 0)
 
-        offset =  0 if self._isDrawn5to3 else -_baseWidth
+        offset = 0 if self._isDrawn5to3 else -_baseWidth
         self._blankThing.setPos(offset, 0)
 
         self._blankThing.show()
