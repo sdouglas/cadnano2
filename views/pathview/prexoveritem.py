@@ -122,7 +122,7 @@ class PreXoverItem(QGraphicsPathItem):
         cA.setPen(QPen(Qt.NoPen))
 
         self.updateStyle()
-        self.updateLabel()
+        self._updateLabel()
         self.setPainterPath()
     # end def
 
@@ -168,7 +168,7 @@ class PreXoverItem(QGraphicsPathItem):
         self.setPen(pen)
     # end def
 
-    def updateLabel(self):
+    def _updateLabel(self):
         lbl = self._label
         lbl.setBrush(self._labelBrush)
         lbl.setFont(_toHelixNumFont)

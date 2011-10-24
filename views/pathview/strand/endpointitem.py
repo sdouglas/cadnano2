@@ -116,7 +116,7 @@ class EndpointItem(QGraphicsPathItem):
         else:  # high or dual, doesn't matter
             return self._strandItem.idxs()[1]
     # end def
-    
+
     def disableEvents(self):
         self._clickArea.setAcceptHoverEvents(False)
         self.mouseMoveEvent = QGraphicsPathItem.mouseMoveEvent

@@ -458,7 +458,7 @@ class ForcedXoverNode3(QGraphicsRectItem):
                 self.configurePath()
                 # We can only expose a 5' end. But on which side?
                 isLeft = True if self._isDrawn5to3 else False
-                self.updateLabel(isLeft)
+                self._updateLabel(isLeft)
             else:
                 self.hideItems()
         else:
@@ -467,7 +467,7 @@ class ForcedXoverNode3(QGraphicsRectItem):
 
     def updateConnectivity(self):
         isLeft = True if self._isDrawn5to3 else False
-        self.updateLabel(isLeft)
+        self._updateLabel(isLeft)
     # end def
 
     def remove(self):
@@ -484,7 +484,7 @@ class ForcedXoverNode3(QGraphicsRectItem):
         scene.removeItem(self)
     # end def
 
-    def updateLabel(self, isLeft):
+    def _updateLabel(self, isLeft):
         """
         Called by updatePositionAndAppearance during init, or later by
         updateConnectivity. Updates drawing and position of the label.
@@ -566,7 +566,7 @@ class ForcedXoverNode5(ForcedXoverNode3):
         self.configurePath()
         # # We can only expose a 3' end. But on which side?
         isLeft = False if self._isDrawn5to3 else True
-        self.updateLabel(isLeft)
+        self._updateLabel(isLeft)
     # end def
 # end class
 
