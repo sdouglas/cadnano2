@@ -87,9 +87,12 @@ class PartItem(QGraphicsItem):
     ### SIGNALS ###
 
     ### SLOTS ###
-    def parentChangedSlot(self):
-        """docstring for parentChangedSlot"""
-        print "PartItem.parentChangedSlot"
+    def partDimensionsChangedSlot(self, part):
+        pass
+
+    def partParentChangedSlot(self):
+        """docstring for partParentChangedSlot"""
+        print "PartItem.partParentChangedSlot"
         pass
 
     def partRemovedSlot(self):
@@ -107,13 +110,13 @@ class PartItem(QGraphicsItem):
         self._controller = None
     # end def
 
-    def destroyedSlot(self):
-        """docstring for destroyedSlot"""
-        print "PartItem.destroyedSlot"
+    def partDestroyedSlot(self):
+        """docstring for partDestroyedSlot"""
+        print "PartItem.partDestroyedSlot"
         pass
     # end def
 
-    def reorderedSlot(self, orderedCoordList):
+    def partVirtualHelicesReorderedSlot(self, orderedCoordList):
         pass
     # end def
 
@@ -135,7 +138,11 @@ class PartItem(QGraphicsItem):
         self._virtualHelixHash[coords] = vhi
     # end def
 
-    def partVirtualHelixChangedSlot(self, coord):
+    def partVirtualHelixRenumberedSlot(self, coord):
+        pass
+    # end def
+
+    def partVirtualHelixResizedSlot(self, coord):
         pass
     # end def
 

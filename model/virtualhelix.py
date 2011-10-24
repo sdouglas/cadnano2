@@ -33,6 +33,7 @@ from enum import StrandType
 util.qtWrapImport('QtCore', globals(), ['pyqtSignal', 'QObject', 'Qt'])
 util.qtWrapImport('QtGui', globals(), ['QUndoStack'])
 
+
 class VirtualHelix(QObject):
     """
     VirtualHelix is a container class for two StrandSet objects (one scaffold
@@ -61,65 +62,46 @@ class VirtualHelix(QObject):
         return "<%s(%d)>" % (self.__class__.__name__, self._number)
 
     ### SIGNALS ###
-    virtualHelixRemovedSignal = pyqtSignal(QObject) # self
-    virtualHelixNumberChangedSignal = pyqtSignal(QObject, object) # self, num
+    virtualHelixRemovedSignal = pyqtSignal(QObject)  # self
+    virtualHelixNumberChangedSignal = pyqtSignal(QObject, object)  # self, num
 
     ### SLOTS ###
 
-    ### Methods ###
-    def undoStack(self):
-        return self._part.undoStack()
+    ### ACCESSORS ###
+    def coord(self):
+        return self._coord
     # end def
 
-    def destroy(self):
-        # QObject also emits a destroyed() Signal
-        self.setParent(None)
-        self.deleteLater()
+    def number(self):
+        return self._number
     # end def
 
     def part(self):
         return self._part
     # end def
 
-    def number(self):
-        return self._number
+    def setNumber(self, number):
+        self._number = number
+    # end def
 
     def setPart(self, newPart):
         self._part = newPart
         self.setParent(newPart)
     # end def
 
-    def coord(self):
-        return self._coord
+    def scaffoldStrandSet(self):
+        return self._scafStrandSet
     # end def
 
-    def translateCoords(self, deltaCoords):
-        """
-        for expanding a helix
-        """
-        deltaRow, deltaCol = deltaCoords
-        row, col = self._coord
-        self._coord = row + deltaRow, col + deltaCol
+    def stapleStrandSet(self):
+        return self._stapStrandSet
     # end def
 
-    def setNumber(self, number):
-        self._number = number
+    def undoStack(self):
+        return self._part.undoStack()
     # end def
 
-    def isEvenParity(self):
-        return self._part.isEvenParity(*self._coord)
-    # end def
-
-    def isDrawn5to3(self, strandSet):
-        isScaf = strandSet == self._scafStrandSet
-        isEven = self.isEvenParity()
-        return isEven == isScaf
-    # end def
-
-    def hasStrandAtIdx(self, idx):
-        return self._scafStrandSet.hasStrandAt(idx, idx)
-    # end def
-
+    ### METHODS FOR QUERYING THE MODEL ###
     def getStrandSetByIdx(self, idx):
         """
         This is a path-view-specific accessor
@@ -145,19 +127,30 @@ class VirtualHelix(QObject):
             return self._stapStrandSet
     # end def
 
-    def scaffoldStrandSet(self):
-        return self._scafStrandSet
-    # end def
-
-    def stapleStrandSet(self):
-        return self._stapStrandSet
-    # end def
-
     def getStrandSets(self):
-        """
-        return a tuple of the scaffold and staple StrandSets
-        """
+        """Return a tuple of the scaffold and staple StrandSets."""
         return self._scafStrandSet, self._stapStrandSet
+    # end def
+
+    def hasStrandAtIdx(self, idx):
+        return self._scafStrandSet.hasStrandAt(idx, idx)
+    # end def
+
+    def indexOfRightmostNonemptyBase(self):
+        """Returns the rightmost nonempty base in either scaf of stap."""
+        return max(self._scafStrandSet.indexOfRightmostNonemptyBase(),\
+                   self._stapStrandSet.indexOfRightmostNonemptyBase())
+    # end def
+
+    def isDrawn5to3(self, strandSet):
+        isScaf = strandSet == self._scafStrandSet
+        isEven = self.isEvenParity()
+        return isEven == isScaf
+    # end def
+
+    def isEvenParity(self):
+        return self._part.isEvenParity(*self._coord)
+    # end def
 
     def strandSetBounds(self, indexHelix, indexType):
         """
@@ -166,10 +159,14 @@ class VirtualHelix(QObject):
         return self.strandSet(indexHelix, indexType).bounds()
     # end def
 
-    def shallowCopy(self):
-        pass
+    ### METHODS FOR EDITING THE MODEL ###
+    def destroy(self):
+        # QObject also emits a destroyed() Signal
+        self.setParent(None)
+        self.deleteLater()
     # end def
 
+    ### PUBLIC SUPPORT METHODS ###
     def deepCopy(self, part):
         """
         This only copies as deep as the VirtualHelix
@@ -192,3 +189,16 @@ class VirtualHelix(QObject):
             return self._scafStrandSet.getLegacyArray()
         else:
             return self._stapStrandSet.getLegacyArray()
+
+    def shallowCopy(self):
+        pass
+    # end def
+
+    # def translateCoords(self, deltaCoords):
+    #     """
+    #     for expanding a helix
+    #     """
+    #     deltaRow, deltaCol = deltaCoords
+    #     row, col = self._coord
+    #     self._coord = row + deltaRow, col + deltaCol
+    # # end def

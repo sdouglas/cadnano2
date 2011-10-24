@@ -97,32 +97,48 @@ class PartItem(QObject):
     def setModifyState(self, val):
         self.modifyState = val
         self.updateModifyState()
+    # end def
 
     def updateModifyState(self):
         for sh in self.virtualHelixItems:
             sh.setModifyState(self.modifyState)
             sh.updateDecorators()
+    # end def
 
     def isInModifyState(self):
         return self.modifyState
+    # end def
 
     def type(self):
         return self._type
+    # end def
 
     def part(self):
-        # part
         return self._part
+    # end def
 
     def setPart(self, p):
         self._part = p
+    # end def
 
     ### SLOTS ###
+    @pyqtSlot()
+    def partDestroyedSlot(self):
+        """solidview.PartItem partDestroyedSlot"""
+        pass
+    # end def
+
+    @pyqtSlot(QObject)
+    def partDimensionsChangedSlot(self, part):
+        pass
+    # end def
 
     @pyqtSlot()
-    def parentChangedSlot(self):
-        """solidview.PartItem parentChangedSlot"""
-        #print "solidview.PartItem.parentChangedSlot"
+    def partParentChangedSlot(self):
+        """solidview.PartItem partParentChangedSlot"""
+        #print "solidview.PartItem.partParentChangedSlot"
         pass
+    # end def
 
     @pyqtSlot()
     def partRemovedSlot(self):
@@ -131,31 +147,40 @@ class PartItem(QObject):
         self._part = None
         self._controller.disconnectSignals()
         self._controller = None
-
-    @pyqtSlot()
-    def destroyedSlot(self):
-        """solidview.PartItem destroyedSlot"""
-        #print "solidview.PartItem.destroyedSlot"
-        pass
+    # end def
 
     @pyqtSlot(int, int, int)
     def partPreDecoratorSelectedSlot(self, row, col, baseIdx):
         pass
+    # end def
 
     @pyqtSlot(object)
     def partVirtualHelixAddedSlot(self, virtualHelix):
         #print "solidview.PartItem.partVirtualHelixAddedSlot"
         sh = self.createNewVirtualHelixItem(virtualHelix)
         sh.setModifyState(self.modifyState)
+    # end def
+
+    @pyqtSlot(tuple)
+    def partVirtualHelixRenumberedSlot(self, coord):
+        pass
+    # end def
+
+    @pyqtSlot(tuple)
+    def partVirtualHelixResizedSlot(self, coord):
+        pass
+    # end def
+
+    @pyqtSlot(list)
+    def partVirtualHelicesReorderedSlot(self, orderedCoordList):
+        pass
+    # end def
 
     @pyqtSlot(object)
     def updatePreXoverItemsSlot(self, virtualHelix):
         #print "solidview.PartItem.updatePreXoverItemsSlot"
         pass
-
-    @pyqtSlot(list)
-    def reorderedSlot(self, orderedCoordList):
-        pass
+    # end def
 
     ### METHODS ###
     def cadnanoToMayaCoords(self, row, col):
@@ -175,11 +200,13 @@ class PartItem(QObject):
             x = self.mayaOrigin[0] + (col * 2.0 * self.helixRadius)
             y = self.mayaOrigin[1] - (row * 2.0 * self.helixRadius)
         return (x, y)
+    # end def
 
     def clearInternalDataStructures(self):
         self.virtualHelixItems = []
         self.idStrandMapping.clear()
         self.strandCount = 0
+    # end def
 
     def deleteAllNodes(self):
         m = Mom()
@@ -191,6 +218,7 @@ class PartItem(QObject):
                 if cmds.objExists(transformName):
                     cmds.delete(transformName)
         self.clearInternalDataStructures()
+    # end def
 
     def createNewVirtualHelixItem(self, virtualHelix):
         coords = virtualHelix.coord()
@@ -202,6 +230,9 @@ class PartItem(QObject):
         newHelix = VirtualHelixItem(self, virtualHelix, x, y)
         self.virtualHelixItems.append(newHelix)
         return newHelix
+    # end def
 
     def removeVirtualHelix(self, vhelixItem):
         self.virtualHelixItems.remove(vhelixItem)
+    # end def
+# end class

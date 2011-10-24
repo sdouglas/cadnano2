@@ -116,7 +116,7 @@ class EndpointItem(QGraphicsPathItem):
         else:  # high or dual, doesn't matter
             return self._strandItem.idxs()[1]
     # end def
-    
+
     def disableEvents(self):
         self._clickArea.setAcceptHoverEvents(False)
         self.mouseMoveEvent = QGraphicsPathItem.mouseMoveEvent
@@ -171,6 +171,7 @@ class EndpointItem(QGraphicsPathItem):
         necessary. Stores _moveIdx for future comparison.
         """
         self.scene().views()[0].addToPressList(self)
+        self._strandItem.virtualHelixItem().setActive()
         self._moveIdx = self.idx()
         activeToolStr = str(self._activeTool())
         if activeToolStr == 'pencilTool':
@@ -179,7 +180,7 @@ class EndpointItem(QGraphicsPathItem):
         if hasattr(self, toolMethodName):  # if the tool method exists
             modifiers = event.modifiers()
             getattr(self, toolMethodName)(modifiers)  # call tool method
-            
+
     def hoverMoveEvent(self, event):
         """
         Parses a mousePressEvent, calling the approproate tool method as
@@ -225,7 +226,15 @@ class EndpointItem(QGraphicsPathItem):
         if mStrand.isScaffold():
             self._activeTool().applySequence(mStrand.oligo())
 
+    def breakToolMouseRelease(self, modifiers, x):
+        """Shift-click to merge without switching back to select tool."""
+        mStrand = self._strandItem._modelStrand
+        if modifiers & Qt.ShiftModifier:
+            mStrand.merge(self.idx())
+    # end def
+
     def eraseToolMousePress(self, idx):
+        """Erase the strand."""
         mStrand = self._strandItem._modelStrand
         mStrand.strandSet().removeStrand(mStrand)
     # end def
@@ -244,6 +253,7 @@ class EndpointItem(QGraphicsPathItem):
         else:
             color = self.window().pathColorPanel.scafColorName()
         mStrand.oligo().applyColor(color)
+    # end def
 
     def pencilToolHoverMove(self, idx):
         """Pencil the strand is possible."""
