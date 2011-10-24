@@ -303,7 +303,7 @@ class Strand(QObject):
         return the list of sequences strings comprising the sequence and the
         inserts as a tuple with the index of the insertion
         [(idx, (strandItemString, insertionItemString), ...]
-        
+
         This takes advantage of the fact the python iterates a dictionary
         by keys in order so if keys are indices, the insertions will iterate out
         from low index to high index 
@@ -328,7 +328,7 @@ class Strand(QObject):
             # end if
             lengthSoFar += iLength
             seqItem = seq[offsetLast:offset] # the stranditem seq
-            
+
             # Because skips literally skip displaying a character at a base
             # position, this needs to be accounted for seperately
             if iLength < 0:
@@ -396,7 +396,7 @@ class Strand(QObject):
         Assumes idx is:
         self.lowIdx() <= idx <= self.highIdx() 
         """
-        
+
         if self.hasXoverAt(idx):
             return False
         sS = self.strandSet()
@@ -463,12 +463,11 @@ class Strand(QObject):
         """
         tL = 0
         insertions = self.insertionsOnStrand()
-        
+
         for insertion in insertions:
             tL += insertion.length()
         return tL + self.length()
     # end def
-
 
     ### PUBLIC METHODS FOR EDITING THE MODEL ###
     def addDecorators(self, additionalDecorators):
@@ -523,7 +522,7 @@ class Strand(QObject):
     # end def
 
     def merge(self, idx):
-        """Check for neighbor."""
+        """Check for neighbor, then merge if possible."""
         lowNeighbor, highNeighbor = self._strandSet.getNeighbors(self)
         # determine where to check for neighboring endpoint
         if idx == self._baseIdxLow:
@@ -680,7 +679,7 @@ class Strand(QObject):
             nI = self.newIdxs
             strandSet = self.strand.strandSet()
             part = strandSet.part()
-            
+
             std.oligo().incrementLength(self.delta)
             std.setIdxs(nI)
             std.strandResizedSignal.emit(std, nI)
