@@ -279,10 +279,13 @@ class Oligo(QObject):
         # if you split it can't be a loop
         self._isLoop = False
         if oldMergedStrand.oligo().isLoop():
-            # don't change the _strand5p cause it was all the same oligo
+            print "A"
+            self._strand5p = newStrand3p
             return
         else:
+            print "B"
             if oldMergedStrand.connection5p() == None:
+                print "C"
                 self._strand5p = newStrand5p
             else:
                 self._strand5p = oldMergedStrand.oligo()._strand5p

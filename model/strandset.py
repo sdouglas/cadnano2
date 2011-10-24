@@ -1009,8 +1009,11 @@ class StrandSet(QObject):
             # Create copies
             self._strandLow = strandLow = strand.shallowCopy()
             self._strandHigh = strandHigh = strand.shallowCopy()
-            self._lOligo = lOligo = oligo.shallowCopy()
-            self._hOligo = hOligo = oligo.shallowCopy()
+            if oligo.isLoop():
+                self._lOligo = self._hOligo = lOligo = hOligo = oligo.shallowCopy()
+            else:
+                self._lOligo = lOligo = oligo.shallowCopy()
+                self._hOligo = hOligo = oligo.shallowCopy()
             colorList = styles.stapColors if sSet.isStaple() else styles.scafColors
             # Determine oligo retention based on strand priority
             if strand.isDrawn5to3():  # strandLow has priority
@@ -1038,9 +1041,10 @@ class StrandSet(QObject):
             strandLow.setIdxs((strand.lowIdx(), iNewLow))
             strandHigh.setIdxs((iNewLow + 1, strand.highIdx()))
 
-            # Update the oligo color
-            lOligo.setColor(colorLow)
-            hOligo.setColor(colorHigh)
+            # Update the oligo color if necessary
+            if not oligo.isLoop():
+                lOligo.setColor(colorLow)
+                hOligo.setColor(colorHigh)
             # Update the oligo for things like its 5prime end and isLoop
             olg5p.strandSplitUpdate(std5p, std3p, olg3p, strand)
         # end def
@@ -1054,6 +1058,7 @@ class StrandSet(QObject):
             olg = self._oldOligo
             lOlg = self._lOligo
             hOlg = self._hOligo
+            wasNotLoop = lOlg != hOlg
 
             # Remove old Strand from the sSet
             sS._removeFromStrandList(oS)
@@ -1069,6 +1074,7 @@ class StrandSet(QObject):
                     ( not oS.isDrawn5to3() and not sLcL.isDrawn5to3() ):
                     sLcL.setConnectionHigh(sL)
                 else:
+                    pass
                     sLcL.setConnectionLow(sL)
             sHcH = sH.connectionHigh()
             if sHcH:
@@ -1079,16 +1085,21 @@ class StrandSet(QObject):
                    sHcH.setConnectionHigh(sH)
 
             # Traverse the strands via 3'conns to assign the new oligos
+            print "apply oligos 1"
             for strand in lOlg.strand5p().generator3pStrand():
+                print strand, lOlg
                 Strand.setOligo(strand, lOlg)  # emits strandHasNewOligoSignal
-
-            for strand in hOlg.strand5p().generator3pStrand():
-                Strand.setOligo(strand, hOlg)  # emits strandHasNewOligoSignal
+            if wasNotLoop:  # do the second oligo which is different
+                print "apply oligos 2"
+                for strand in hOlg.strand5p().generator3pStrand():
+                    print strand, hOlg
+                    Strand.setOligo(strand, hOlg)  # emits strandHasNewOligoSignal
 
             # Add new oligo and remove old oligos from the part
             olg.removeFromPart()
             lOlg.addToPart(sL.part())
-            hOlg.addToPart(sH.part())
+            if wasNotLoop:
+                hOlg.addToPart(sH.part())
 
             # Emit Signals related to destruction and addition
             oS.strandRemovedSignal.emit(oS)  # out with the old...
@@ -1105,6 +1116,8 @@ class StrandSet(QObject):
             olg = self._oldOligo
             lOlg = self._lOligo
             hOlg = self._hOligo
+            wasNotLoop = lOlg != hOlg
+
             # Remove new strands from the sSet (reusing idx, so order matters)
             sS._removeFromStrandList(sL)
             sS._removeFromStrandList(sH)
@@ -1133,7 +1146,8 @@ class StrandSet(QObject):
             # Add old oligo and remove new oligos from the part
             olg.addToPart(sS.part())
             lOlg.removeFromPart()
-            hOlg.removeFromPart()
+            if wasNotLoop:
+                hOlg.removeFromPart()
 
             # Emit Signals related to destruction and addition
             sL.strandRemovedSignal.emit(sL)  # out with the new...
