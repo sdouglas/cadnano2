@@ -45,7 +45,7 @@ util.qtWrapImport('QtGui', globals(), ['QBrush', 'QFont', 'QGraphicsItem',\
 
 class EmptyHelixItem(QGraphicsEllipseItem):
     """docstring for HelixItem"""
-    
+
     # set up default, hover, and active drawing styles
     _defaultBrush = QBrush(styles.grayfill)
     _defaultPen = QPen(styles.graystroke, styles.SLICE_HELIX_STROKE_WIDTH)
@@ -74,15 +74,15 @@ class EmptyHelixItem(QGraphicsEllipseItem):
         self.hide()
         self._isHovered = False
         self.setAcceptsHoverEvents(True)
-        
+
         self.setNotHovered()
-        
+
         x, y = partItem.part().latticeCoordToPositionXY(row, column, partItem.scaleFactor())
         self.setPos(x, y)
         self._coord = (row, column)
         self.show()
     # end def
-    
+
     def virtualHelix(self):
         """
         virtualHelixItem should be the HelixItems only child if it exists
@@ -94,7 +94,7 @@ class EmptyHelixItem(QGraphicsEllipseItem):
         else:
             return None
     # end def
-    
+
     def virtualHelixItem(self):
         """
         virtualHelixItem should be the HelixItems only child if it exists
@@ -106,21 +106,21 @@ class EmptyHelixItem(QGraphicsEllipseItem):
         else:
             return None
     # end def
-    
+
     def part(self):
         return self._partItem.part()
     # end def
-    
+
     def translateVH(self, delta):
         """
         used to update a child virtual helix position on a hover event
         delta is a tuple of x and y values to translate
-        
+
         positive delta happens when hover happens
         negative delta when something unhovers
         """
         temp = self.virtualHelixItem()
-        
+
         # xor the check to translate, 
         # convert to a QRectF adjustment if necessary
         check = (delta > 0) ^ self._isHovered
@@ -128,7 +128,7 @@ class EmptyHelixItem(QGraphicsEllipseItem):
             pass
             # temp.translate(*delta)
     # end def
-    
+
     def setHovered(self):
         # self.setFlag(QGraphicsItem.ItemHasNoContents, False)  
         self.setBrush(self._hoverBrush)
@@ -139,7 +139,7 @@ class EmptyHelixItem(QGraphicsEllipseItem):
         self.setZValue(self._ZHovered)
         self.setRect(self._rectHovered)
     # end def
-    
+
     def hoverEnterEvent(self, event):
         """
         hoverEnterEvent changes the HelixItem brush and pen from default
@@ -147,7 +147,7 @@ class EmptyHelixItem(QGraphicsEllipseItem):
         """
         self.setHovered()
     # end def
-    
+
     def setNotHovered(self):
         """
         """
@@ -168,7 +168,7 @@ class EmptyHelixItem(QGraphicsEllipseItem):
         """
         self.setNotHovered()
     # end def
-    
+
     def mousePressEvent(self, event):
         action = self.decideAction(event.modifiers())
         action(self)
@@ -195,10 +195,10 @@ class EmptyHelixItem(QGraphicsEllipseItem):
         callable function."""
         vh = self.virtualHelix()
         part = self.part()
-        
+
         if vh == None: 
             return EmptyHelixItem.addVHIfMissing
-            
+
         idx = part.activeBaseIndex()
         scafSSet, stapSSet = vh.getStrandSets()
         if modifiers & Qt.ShiftModifier:
@@ -213,7 +213,7 @@ class EmptyHelixItem(QGraphicsEllipseItem):
 
     def nop(self):
         pass
-    
+
     def addScafAtActiveSliceIfMissing(self):
         vh = self.virtualHelix()
         part = self.part()
@@ -253,10 +253,10 @@ class EmptyHelixItem(QGraphicsEllipseItem):
         uS.endMacro()
     # end def
 
-    # if GL:    
+    # if GL:
     #     def paint(self, painter, option, widget):
     #         painter.beginNativePainting()
-    #   
+    # 
     #         radius = self._radius
     # 
     #         # GL.glPushAttrib(GL.GL_ALL_ATTRIB_BITS)
@@ -277,7 +277,7 @@ class EmptyHelixItem(QGraphicsEllipseItem):
     #         # GL.glEnable(GL.GL_BLEND)
     #         # GL.glBlendFunc(GL.GL_SRC_ALPHA, GL.GL_ONE_MINUS_SRC_ALPHA)
     #         # GL.glEnable(GL.GL_LINE_SMOOTH)
-    #         
+    # 
     #         # GL.glBegin(GL.GL_LINE_LOOP)
     #         # for angle in [x*PI*0.01 for x in range(200)]:
     #         #     GL.glVertex2f(X + math.sin(angle) * radius, Y + math.cos(angle) * radius)
@@ -288,5 +288,5 @@ class EmptyHelixItem(QGraphicsEllipseItem):
     #         painter.endNativePainting()
     #     # end def
     # # end if
-    
+
     

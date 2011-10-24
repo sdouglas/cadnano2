@@ -44,12 +44,12 @@ def qtWrapImport(name, globaldict, fromlist):
     """
     special function that allows for the import of PySide or PyQt modules
     as available
-    
+
     name is the name of the Qt top level class such as QtCore, or QtGui
-    
+
     globaldict is a the module level global namespace dictionary returned from
     calling the globals() method
-    
+
     fromlist is a list of subclasses such as [QFont, QColor], or [QRectF]
     """
     pyWrapper = None
@@ -81,7 +81,7 @@ def qtWrapImport(name, globaldict, fromlist):
         name = ''
     else:
         name = '.' + name
-    
+
     # Try to fetch imported modules from the overrideDict first
     _temp = importOverrideDict.get(pyWrapper + name, None)
     if _temp == None:
@@ -157,14 +157,14 @@ def defineEventForwardingMethodsForClass(classObj, forwardedEventSuffix, eventNa
         eventMethodName = evName + 'Event'
         defaultMethodName = evName + 'Default'
         forwardDisablingPropertyName = delegateMethodName + 'Unused'
-        
+
         def makeTemplateMethod(eventMethodName, delegateMethodName):
             def templateMethod(self, event):
                 # see if the event also exists
                 defaultMethod = getattr(classObj,defaultMethodName,None)
                 if defaultMethod != None:
                     defaultMethod(self,event)
-                    
+
                 activeTool = self.activeTool()
                 if activeTool and not getattr(activeTool, forwardDisablingPropertyName, False):
                     delegateMethod = getattr(activeTool, delegateMethodName, None)

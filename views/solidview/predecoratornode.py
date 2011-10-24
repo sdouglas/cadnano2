@@ -64,72 +64,72 @@ class PreDecoratorNode( OpenMayaMPx.MPxNode):
     radiusAttr = OpenMaya.MObject()
     pointArray = OpenMaya.MObject()
     vtx = []
-       
+
     def __init__( self):
         OpenMayaMPx.MPxNode.__init__( self)
 
     def compute( self, plug, data):
         radiusData = data.inputValue( PreDecoratorNode.radiusAttr )
         radius = radiusData.asDouble()
-        
+
         # make the meshDataObj for the plug
         fnMeshData = OpenMaya.MFnMeshData()
         outMeshDataObj = fnMeshData.create()
-        
+
         # create the mesh and assign to the data
         self.createMesh( radius, outMeshDataObj )
         handle = data.outputValue( PreDecoratorNode.outputMesh )
         handle.setMObject( outMeshDataObj )
         handle.setClean()
-                
+
         data.setClean( plug )
-        
+
     def createMesh( self, radius, outputMeshDataObj ):
         self.vtx = []
         self.createPoints( radius )
         num_verts = 12
         num_faces  = 20
         edges_per_face = 3
-        
+
         pointArray = OpenMaya.MFloatPointArray()
         for i in range( 0, num_verts ):
             pointArray.append( self.vtx[i] ) # can we skip this copy?
-        
+
         nFaceConnects = num_faces * edges_per_face;
         nEdges = nFaceConnects / 2
-        
+
         faceCounts = OpenMaya.MIntArray()
         for i in range( 0, num_faces ):
             faceCounts.append( edges_per_face )
-            
+
         faceConnects = OpenMaya.MIntArray()
         for i in range( 0, num_faces*edges_per_face ):
             faceConnects.append( gons[i] - 1 )
-        
+
         outputMesh = OpenMaya.MFnMesh()
         newTransform = outputMesh.create( num_verts, num_faces, pointArray, \
                                           faceCounts, faceConnects, \
                                           outputMeshDataObj )
         outputMesh.updateSurface()
-        
+
     def FILL(  self, x, y, z ):
         self.vtx.append( OpenMaya.MFloatPoint(  x, y, z ) )
-        
+
     def createPoints( self, radius ):
         a = math.sqrt(  (  1.0 - math.sqrt(  .2 ) ) / 2.0 ) * radius
         b = math.sqrt(  (  1.0 + math.sqrt(  .2 ) ) / 2.0 ) * radius
         z = 0.0
 
-        self.FILL(  b,  a, z )
-        self.FILL(  b, -a, z )
-        self.FILL( -b, -a, z )
-        self.FILL( -b,  a, z )
-        
+        self.FILL(  b,  a,  z )
+        self.FILL(  b, -a,  z )
+        self.FILL( -b, -a,  z )
+        self.FILL( -b,  a,  z )
+
         self.FILL(  0, -b, -a )
         self.FILL(  0, -b,  a )
         self.FILL(  0,  b,  a )
         self.FILL(  0,  b, -a )
-        
+
         self.FILL( -a,  0, -b )
         self.FILL(  a,  0, -b )
         self.FILL(  a,  0,  b )
@@ -153,7 +153,7 @@ def nodeInitialize( ):
 
     nAttr.setStorable( True )
     nAttr.setWritable( True )
-    
+
     PreDecoratorNode.addAttribute( PreDecoratorNode.outputMesh )
     PreDecoratorNode.addAttribute( PreDecoratorNode.radiusAttr )
 
@@ -161,8 +161,8 @@ def nodeInitialize( ):
     PreDecoratorNode.attributeAffects(
         PreDecoratorNode.radiusAttr,
         PreDecoratorNode.outputMesh)
-   
-    
+
+
 def initializePlugin( obj ):
     plugin = OpenMayaMPx.MFnPlugin( obj)
 

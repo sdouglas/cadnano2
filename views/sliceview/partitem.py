@@ -43,7 +43,7 @@ class PartItem(QGraphicsItem):
     spawning and positioning them according to the part dimensions.
     """
     _radius = styles.SLICE_HELIX_RADIUS
-    
+
     def __init__(self, modelPart, parent=None):
         """
         modelPart is the modelPart it mirrors
@@ -54,10 +54,10 @@ class PartItem(QGraphicsItem):
         self._part = modelPart
         self._scaleFactor = self._radius/modelPart.radius()
         self.setZValue(100)
-        
+
         # make sure paint doesn't get called
         self.setFlag(QGraphicsItem.ItemHasNoContents)
-        
+
         # The deselector grabs mouse events that missed a slice
         # and clears the selection when it gets one
         self.deselector = PartItem.Deselector(self)
@@ -69,7 +69,7 @@ class PartItem(QGraphicsItem):
         # where x is the cartesian product
         self._emptyhelixhash = {}
         self._virtualHelixHash = {}
-        
+
         self._nrows, self._ncols = 0, 0
         self._rect = QRectF(0, 0, 0, 0)
         # initialize the PartItem with an empty set of old coords
@@ -79,7 +79,7 @@ class PartItem(QGraphicsItem):
         # If None, all slices will be redrawn and the cache will be filled.
         # Connect destructor. This is for removing a part from scenes.
         self.probe = self.IntersectionProbe(self)
-        
+
         self._controller = PartItemController(self, modelPart)
         self._activeSliceItem = ActiveSliceItem(self, modelPart.activeBaseIndex())
     # end def
@@ -207,7 +207,7 @@ class PartItem(QGraphicsItem):
     def scaleFactor(self):
         return self._scaleFactor
     # end def
-    
+
     def paint(self, painter, option, widget=None):
         pass
     # end def

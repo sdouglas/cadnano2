@@ -771,15 +771,15 @@ class StrandSet(QObject):
             oligo = self._oligo
             olg5p = self._newOligo5p
             olg3p = self._newOligo3p
-            
+
             oligo.incrementLength(-strand.totalLength())
             oligo.removeFromPart()
-            
+
             if strand5p != None:
                 strand5p.setConnection3p(None)
             if strand3p != None:
                 strand3p.setConnection5p(None)
-                
+
             # Clear connections and update oligos
             if strand5p != None:
                 for s5p in oligo.strand5p().generator3pStrand():
@@ -816,14 +816,14 @@ class StrandSet(QObject):
             oligo = self._oligo
             olg5p = self._newOligo5p
             olg3p = self._newOligo3p
-            
+
             # Restore connections to this strand
             if strand5p != None:
                 strand5p.setConnection3p(strand)
-                
+
             if strand3p != None:
                 strand3p.setConnection5p(strand)
-                
+
             oligo.decrementLength(-strand.totalLength())
             # Restore the oligo
             oligo.addToPart(strandSet.part())
@@ -832,18 +832,18 @@ class StrandSet(QObject):
             for s5p in oligo.strand5p().generator3pStrand():
                 Strand.setOligo(s5p, oligo)
             # end for
-            
+
             # Emit a signal to notify on completion
             strandSet.strandsetStrandAddedSignal.emit(strand)
             # for updating the Slice View displayed helices
             strandSet.part().partStrandChangedSignal.emit(strandSet.virtualHelix())
-            
+
             # Restore connections to this strand
             if strand5p != None:
                 strand5p.strandXover5pChangedSignal.emit(strand5p, strand)
                 strand5p.strandUpdateSignal.emit(strand5p)
                 strand.strandUpdateSignal.emit(strand)
-                
+
             if strand3p != None:
                 # strand.strandXover5pChangedSignal.emit(strand, strand3p)
                 strand3p.strandUpdateSignal.emit(strand3p)

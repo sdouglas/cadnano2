@@ -168,7 +168,7 @@ class Oligo(QObject):
         c = Oligo.ApplySequenceCommand(self, sequence)
         util.execCommandList(self, [c], desc="Apply Sequence", useUndoStack=useUndoStack)
     # end def
-    
+
     def applySequenceCMD(self, sequence, useUndoStack=True):
         return Oligo.ApplySequenceCommand(self, sequence)
     # end def
@@ -196,7 +196,7 @@ class Oligo(QObject):
     def incrementLength(self, delta):
         self.setLength(self._length+delta)
     # end def
-    
+
     def refreshLength(self):
         temp = self.strand5p()
         if not temp:
@@ -346,12 +346,12 @@ class Oligo(QObject):
         def undo(self):
             olg = self._oligo
             oS = ''.join(self._oldSequence) if self._oldSequence else None
-            
+
             oligoList = [olg]
-            
+
             for strand in olg.strand5p().generator3pStrand():
                 usedSeq, oS = strand.setSequence(oS)
-                
+
                 # get the compliment ahead of time
                 usedSeq = util.comp(usedSeq) if usedSeq else None
                 compSS = strand.strandSet().complementStrandSet()
@@ -365,6 +365,6 @@ class Oligo(QObject):
             for oligo in oligoList:
                 oligo.oligoSequenceAddedSignal.emit(oligo)
         # end def
-        
+
     # end class
     

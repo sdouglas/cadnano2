@@ -393,7 +393,7 @@ class PartItem(QGraphicsRectItem):
         self._preXoverItems list references prexovers parented to other
         PathHelices such that only the activeHelix maintains the list of
         visible prexovers
-        
+
         A possible more efficient solution is to maintain the list _preXoverItems
         in pathhelixgroup, in fact this method should live in pathhelixgroup
         """
