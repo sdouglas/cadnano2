@@ -167,6 +167,7 @@ class InsertionItem(QGraphicsPathItem):
         label.setTextWidth(-1)
         self._label = label
         self._seqItem = QGraphicsPathItem(parent=self)
+        self._seqText = None
         self.updateItem()
         self.show()
     # end def
@@ -245,6 +246,7 @@ class InsertionItem(QGraphicsPathItem):
     def updateItem(self):
         self.updatePath()
         self.updateLabel()
+        self._updateSequenceText()
         self.resetPosition()
     # end def
 
@@ -267,14 +269,18 @@ class InsertionItem(QGraphicsPathItem):
             self.setPen(_skipPath.getPen())
     # end def
 
+    def setSequence(self, sequence):
+        self._seqText = sequence
+        self._updateSequenceText()
+    # end def
+
     def _updateSequenceText(self):
         seqItem = self._seqItem
-        strand = self._strand
         isOnTop = self._isOnTop
         index = self._insertion.idx()
-
+        baseText = self._seqText
+        
         # draw sequence on the insert
-        baseText = strand.sequenceForInsertAt(index)
         if baseText:  # only draw sequences if they exist i.e. not None!
             lenBT = len(baseText)
             if isOnTop:
@@ -294,10 +300,10 @@ class InsertionItem(QGraphicsPathItem):
                 tangAng = seqPath.angleAtPercent(frac)
                 # painter.save()
 
-                normalPath = QPainterPath()
-                normalPath.setFont(styles.SEQUENCEFONT)
-                normalPath.translate(pt)
-                normalPath.addText(0, 0, baseText[i if isOnTop else -i-1])
+                tempPath = QPainterPath()
+                # normalPath.setFont()
+                tempPath.translate(pt)
+                tempPath.addText(0, 0, styles.SEQUENCEFONT, baseText[i if isOnTop else -i-1])
                 mat = QMatrix()
                 mat.rotate(-tangAng + angleOffset)
                 rotatedPath = mat.map(tempPath)

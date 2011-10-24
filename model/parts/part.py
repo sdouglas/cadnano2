@@ -316,6 +316,7 @@ class Part(QObject):
         ss3p = strand3p.strandSet()
         cmds = []
         if ss5p.strandType() != ss3p.strandType():
+            print "Failed xover on try 1"
             return
         if ss5p.isScaffold():
             cmds.append(strand5p.oligo().applySequenceCMD(None))
@@ -331,23 +332,29 @@ class Part(QObject):
                     c = ss3p.SplitCommand(strand3p, idx3p+offset3p, ssIdx3p)
                     cmds.append(c)
                     xoStrand3 = c._strandHigh if ss3p.isDrawn5to3() else c._strandLow
-                else: 
+                    temp5 = xoStrand3 if idx5p > idx3p else c._strandLow
+                else:
+                    print "Failed xover on try 2"
                     return
                 # end if
             if xoStrand3.idx3Prime() == idx5p:
-                xoStrand5 = xoStrand3
+                xoStrand5 = temp5
             else:
                 ssIdx5p = ssIdx3p
                 # if the strand was split for the strand3p, then we need to adjust the strandset index
                 if c:
                     # the insertion index into the set is increases
-                    ssIdx5p = ssIdx3p + 1 if ss3p.isDrawn5to3() else ssIdx3p 
-                if ss5p.strandCanBeSplit(xoStrand3, idx5p):
-                    d = ss5p.SplitCommand(xoStrand3, idx5p, ssIdx5p)
+                    if idx5p > idx3p:
+                        ssIdx5p = ssIdx3p + 1 if ss3p.isDrawn5to3() else ssIdx3p
+                    else:
+                        ssIdx5p =  ssIdx3p if ss3p.isDrawn5to3() else ssIdx3p + 1
+                if ss5p.strandCanBeSplit(temp5, idx5p):
+                    d = ss5p.SplitCommand(temp5, idx5p, ssIdx5p)
                     cmds.append(d)
                     xoStrand5 = d._strandLow if ss5p.isDrawn5to3() else d._strandHigh
-                    xoStrand3 = xoStrand5
+                    xoStrand3 = xoStrand5 if idx5p > idx3p else xoStrand3
                 else:
+                    print "Failed xover on try three", xoStrand3.lowIdx(), xoStrand3.highIdx(), idx5p
                     return
         # end if
         else: #  Do the following if it is in fact a different strand

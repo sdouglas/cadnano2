@@ -121,15 +121,7 @@ class PencilTool(AbstractPathTool):
         idx5 = n5._idx
         strand5p = n5._strand
         part = virtualHelixItem.part()
-        part.createXover(strand5p, idx5, strand3p, idx)
-    # end def
-    
-    def attemptToCreateXover(self, virtualHelixItem, strand3p, idx):
-        xoi = self._tempXover
-        n5 = xoi._node5 
-        idx5 = n5._idx
-        strand5p = n5._strand
-        part = virtualHelixItem.part()
+        print idx5, idx
         part.createXover(strand5p, idx5, strand3p, idx)
     # end def
 # end class

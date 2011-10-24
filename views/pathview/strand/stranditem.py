@@ -371,8 +371,15 @@ class StrandItem(QGraphicsLineItem):
             return
         # end if
 
-        seqList = [x[1][0] for x in strand.getSequenceList()]
-
+        strandSeqList = strand.getSequenceList()
+        seqList = [x[1][0] for x in strandSeqList]
+        insertSeqList = [(x[0], x[1][1]) for x in strandSeqList]
+        iItems = self.insertionItems()
+        for idx, seqTxt in insertSeqList:
+            print seqTxt
+            if seqTxt != '':
+                iItems[idx].setSequence(seqTxt)
+        
         if isDrawn3to5:
             seqList = seqList[::-1]
         seqTxt = ''.join(seqList)
@@ -522,9 +529,13 @@ class StrandItem(QGraphicsLineItem):
         activeTool = self._activeTool()
 
         if activeTool.isFloatingXoverBegin():
-            tempXover = activeTool.floatingXover()
-            tempXover.updateBase(vhi, mStrand, idx)
-            activeTool.setFloatingXoverBegin(False)
+            # block xovers starting at a 5 prime end
+            if mStrand.idx5Prime() == idx:
+                return
+            else:
+                tempXover = activeTool.floatingXover()
+                tempXover.updateBase(vhi, mStrand, idx)
+                activeTool.setFloatingXoverBegin(False)
         else:
             activeTool.setFloatingXoverBegin(True)
             # install Xover
