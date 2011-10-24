@@ -61,14 +61,14 @@ class StrandItem(QGraphicsLineItem):
         self._lowCap = EndpointItem(self, 'low', isDrawn5to3)
         self._highCap = EndpointItem(self, 'high', isDrawn5to3)
         self._dualCap = EndpointItem(self, 'dual', isDrawn5to3)
-        
+
         # orientation
         self._isDrawn5to3 = isDrawn5to3
         # self._isOnTop = virtualHelixItem.isStrandOnTop(modelStrand)
         # label
         self._seqLabel = QGraphicsSimpleTextItem(self)
         self._updateSequenceText()
-        
+
         # create a larger click area rect to capture mouse events
         self._clickArea = cA = QGraphicsRectItem(_defaultRect, self)
         cA.mousePressEvent = self.mousePressEvent
@@ -76,12 +76,11 @@ class StrandItem(QGraphicsLineItem):
         self.setAcceptHoverEvents(True)
         cA.setAcceptHoverEvents(True)
         cA.hoverMoveEvent = self.hoverMoveEvent
-        
+
         # xover comming from the 3p end
         self._xover3pEnd = XoverItem(virtualHelixItem.partItem(), virtualHelixItem)
         # initial refresh
         self._updateAppearance(modelStrand)
-        
     # end def
 
     ### SIGNALS ###
@@ -97,10 +96,11 @@ class StrandItem(QGraphicsLineItem):
             self.updateLine(self._highCap)
         self.refreshInsertionItems(strand)
     # end def
-    
+
     def sequenceAddedSlot(self, oligo):
         """docstring for sequenceAddedSlot"""
         pass
+    # end def
 
     def sequenceClearedSlot(self, oligo):
         """docstring for sequenceClearedSlot"""
@@ -216,19 +216,22 @@ class StrandItem(QGraphicsLineItem):
 
     def virtualHelixItem(self):
         return self._virtualHelixItem
-    
+
     def resetStrandItem(self, virtualHelixItem, isDrawn5to3):
         self.setParentItem(virtualHelixItem)
         self._virtualHelixItem = virtualHelixItem
         self.resetEndPointItems(isDrawn5to3)
     # end def
-    
+
     def resetEndPointItems(self, isDrawn5to3):
         self._isDrawn5to3 = isDrawn5to3
         self._lowCap.resetEndPoint(isDrawn5to3)
         self._highCap.resetEndPoint(isDrawn5to3)
         self._dualCap.resetEndPoint(isDrawn5to3)
     # end def
+
+    def virtualHelixItem(self):
+        return self._virtualHelixItem
 
     def window(self):
         return self._virtualHelixItem.window()
@@ -321,7 +324,7 @@ class StrandItem(QGraphicsLineItem):
         self._clickArea.setRect(QRectF(lUpperLeftX+bw, lUpperLeftY, bw*(highIdx-lowIdx-1), bw))
         self._updatePensAndBrushes(strand)
     # end def
-    
+
     def refreshInsertionItems(self, strand):
         """
         could just refresh all of them (remove all, add all)
@@ -396,10 +399,8 @@ class StrandItem(QGraphicsLineItem):
             # seqTxt = seqTxt[::-1]
         # end if
         seqLbl.setPos(seqX,seqY)
-
         seqLbl.setText(seqTxt)
         seqLbl.show()
-
     # end def
 
     ### EVENT HANDLERS ###
@@ -409,6 +410,7 @@ class StrandItem(QGraphicsLineItem):
         forwarding them to approproate tool method as necessary.
         """
         self.scene().views()[0].addToPressList(self)
+        self._virtualHelixItem.setActive()
         toolMethodName = str(self._activeTool()) + "MousePress"
         if hasattr(self, toolMethodName):
             idx = int(floor((event.pos().x()) / _baseWidth))
@@ -451,7 +453,7 @@ class StrandItem(QGraphicsLineItem):
         mStrand = self._modelStrand
         mStrand.split(idx)
     # end def
-    
+
     def pencilToolMousePress(self, idx):
         """Break the strand is possible."""
         mStrand = self._modelStrand

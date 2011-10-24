@@ -226,6 +226,11 @@ class VirtualHelixItem(QGraphicsPathItem):
         self.setPath(self._minorGridPainterPath)
     # end def
 
+    ### PUBLIC SUPPORT METHODS ###
+    def setActive(self):
+        """Makes active the virtual helix associated with this item."""
+        self.part().setActiveVirtualHelix(self._modelVirtualHelix)
+
     ### EVENT HANDLERS ###
     def mousePressEvent(self, event):
         """
@@ -233,7 +238,7 @@ class VirtualHelixItem(QGraphicsPathItem):
         forwarding them to approproate tool method as necessary.
         """
         self.scene().views()[0].addToPressList(self)
-        self.part().setActiveVirtualHelix(self.virtualHelix())
+        self.setActive()
         toolMethodName = str(self._activeTool()) + "MousePress"
         if hasattr(self, toolMethodName):
             strandSet, idx = self.baseAtPoint(event.pos())
