@@ -947,10 +947,10 @@ class Part(QObject):
             olg5p.incrementLength(oldOlg3p.length())
 
             # 2. Remove the old oligo and apply the 5' oligo to the 3' strand
-            oldOlg3p.removeFromPart()
             if olg5p == strand3p.oligo():
                 olg5p.setLoop(True)
             else:
+                oldOlg3p.removeFromPart()
                 for strand in strand3p.generator3pStrand():
                     Strand.setOligo(strand, olg5p)  # emits strandHasNewOligoSignal
 
@@ -987,10 +987,10 @@ class Part(QObject):
             olg5p.decrementLength(oldOlg3p.length())
 
             # 3. apply the old oligo to strand3p
-            oldOlg3p.addToPart(part)
             if oldOlg3p.isLoop():
                 oldOlg3p.setLoop(False)
             else:
+                oldOlg3p.addToPart(part)
                 for strand in strand3p.generator3pStrand():
                     Strand.setOligo(strand, oldOlg3p)  # emits strandHasNewOligoSignal
 
@@ -1050,10 +1050,10 @@ class Part(QObject):
             olg5p.decrementLength(newOlg3p.length())
 
             # 3. apply the old oligo to strand3p
-            newOlg3p.addToPart(part)
             if newOlg3p.isLoop():
                 newOlg3p.setLoop(False)
             else:
+                newOlg3p.addToPart(part)
                 for strand in strand3p.generator3pStrand():
                     Strand.setOligo(strand, newOlg3p)  # emits strandHasNewOligoSignal
 
@@ -1082,10 +1082,10 @@ class Part(QObject):
             olg5p.incrementLength(newOlg3p.length())
 
             # 2. Remove the old oligo and apply the 5' oligo to the 3' strand
-            newOlg3p.removeFromPart()
             if olg5p == strand3p.oligo():
                 olg5p.setLoop(True)
             else:
+                newOlg3p.removeFromPart()
                 for strand in strand3p.generator3pStrand():
                     Strand.setOligo(strand, olg5p)  # emits strandHasNewOligoSignal
 
