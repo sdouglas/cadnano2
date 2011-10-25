@@ -25,7 +25,11 @@
 from views import styles
 import util
 util.qtWrapImport('QtCore', globals(), ['QRectF', 'Qt'])
-util.qtWrapImport('QtGui', globals(),  ['QBrush', 'QColorDialog', 'QGraphicsItem'])
+util.qtWrapImport('QtGui', globals(),  ['QBrush', 'QColorDialog', 'QFont',
+                                        'QGraphicsItem',
+                                        'QGraphicsSimpleTextItem'])
+
+_font = QFont(styles.thefont, 12, QFont.Bold)
 
 
 class ColorPanel(QGraphicsItem):
@@ -35,7 +39,7 @@ class ColorPanel(QGraphicsItem):
 
     def __init__(self, parent=None):
         super(ColorPanel, self).__init__(parent)
-        self.rect = QRectF(0, 0, 20, 20)
+        self.rect = QRectF(0, 0, 30, 30)
         self.setFlag(QGraphicsItem.ItemIgnoresTransformations)
         self.colordialog = QColorDialog()
         self.colordialog.setOption(QColorDialog.DontUseNativeDialog)
@@ -45,7 +49,15 @@ class ColorPanel(QGraphicsItem):
         self._stapColor = self._stapColors[self._stapColorIndex]
         self._scafBrush = QBrush(self._scafColor)
         self._stapBrush = QBrush(self._stapColor)
+        self._initLabel()
         self.hide()
+
+    def _initLabel(self):
+        self._label = label = QGraphicsSimpleTextItem("scaf\nstap", parent=self)
+        label.setPos(32, 0)
+        label.setFont(_font)
+        # label.setBrush(_labelbrush)
+        # label.hide()
 
     def boundingRect(self):
         return self.rect
@@ -53,16 +65,11 @@ class ColorPanel(QGraphicsItem):
     def paint(self, painter, option, widget=None):
         painter.setPen(self._pen)
         painter.setBrush(self._scafBrush)
-        painter.drawRect(0, 0, 20, 10)
+        painter.drawRect(0, 0, 30, 15)
         painter.setBrush(self._stapBrush)
-        painter.drawRect(0, 10, 20, 10)
+        painter.drawRect(0, 15, 30, 15)
 
     def nextColor(self):
-        # self._scafColorIndex += 1
-        # if self._scafColorIndex == len(self._scafColors):
-        #     self._scafColorIndex = 0
-        # self._scafColor = self._scafColors[self._scafColorIndex]
-        # self._scafBrush.setColor(self._scafColor)
         self._stapColorIndex += 1
         if self._stapColorIndex == len(self._stapColors):
             self._stapColorIndex = 0

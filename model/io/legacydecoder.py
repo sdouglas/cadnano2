@@ -77,6 +77,12 @@ def import_legacy_dict(document, obj):
         else:
             latticeType = LatticeType.Honeycomb
 
+    # DETERMINE MAX ROW / COL
+    maxRowJson = maxColJson = 0
+    for helix in obj['vstrands']:
+        maxRowJson = max(maxRowJson, int(helix['row']))
+        maxRowJson = max(maxColJson, int(helix['col']))
+
     # CREATE PART ACCORDING TO LATTICE TYPE
     if latticeType == LatticeType.Honeycomb:
         steps = numBases/21
@@ -90,13 +96,15 @@ def import_legacy_dict(document, obj):
         if isSQ100:
             dialogLT.label.setText("Is this a SQ100 file?")
             if dialog.exec_() == 1:
-                numRows, numCols = 100, 1
+                nRows, nCols = 100, 1
             else:
-                numRows, numCols = 30, 30
+                nRows, nCols = 50, 50
         else:
-            numRows, numCols = 30, 30
+            nRows, nCols = 50, 50
         steps = numBases/32
-        part = SquarePart(document=document, maxRow=30, maxCol=30, maxSteps=steps)
+        nRows = max(nRows, maxRowJson)
+        nCols = max(nCols, maxColJson)
+        part = SquarePart(document=document, maxRow=nRows, maxCol=nCols, maxSteps=steps)
     else:
         raise TypeError("Lattice type not recognized")
     document._addPart(part, useUndoStack=False)

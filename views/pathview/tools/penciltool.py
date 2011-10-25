@@ -377,11 +377,7 @@ class ForcedXoverNode3(QGraphicsRectItem):
         self._isOnTop = virtualHelixItem.isStrandOnTop(strand3p)
         self._isDrawn5to3 = strand3p.strandSet().isDrawn5to3()
         self._strandType = strand3p.strandSet().strandType()
-        # idxL, idxH = strand3p.idxs()
-
         self.updatePositionAndAppearance()
-        # else:
-        #     self.updatePositionAndAppearance(isFromStrand=False)
     # end def
 
     def strandType(self):
