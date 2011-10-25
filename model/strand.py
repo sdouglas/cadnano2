@@ -184,21 +184,16 @@ class Strand(QObject):
     # end def
 
     def getPreDecoratorIdxList(self):
-        """
-        Return positions where predecorators should be displayed. This is
-        just a very simple check for the presence of xovers on the strand.
-
-        Will refine later by checking for lattice neighbors in 3D.
-        """
-        ret = range(self._baseIdxLow, self._baseIdxHigh+1)
-        if self.connectionLow() != None:
-            ret.remove(self._baseIdxLow)
-            if self._baseIdxLow+1 in ret:
-                ret.remove(self._baseIdxLow+1)
-        if self.connectionHigh() != None:
-            ret.remove(self._baseIdxHigh)
-            if self._baseIdxHigh-1 in ret:
-                ret.remove(self._baseIdxHigh-1)
+        """Return positions where predecorators should be displayed."""
+        part = self._strandSet.part()
+        validIdxs = sorted([idx[0] for idx in part._stapL + part._stapH])
+        lo, hi = self._baseIdxLow, self._baseIdxHigh
+        start = lo if self.connectionLow() == None else lo+1
+        end = hi if self.connectionHigh() == None else hi-1
+        ret = []
+        for i in range(start, end+1):
+            if i % part.stepSize() in validIdxs:
+                ret.append(i)
         return ret
     # end def
 

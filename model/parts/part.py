@@ -735,35 +735,6 @@ class Part(QObject):
         return part
     # end def
 
-    def getVirtualHelixNeighbors(self, virtualHelix):
-        """
-        returns the list of neighboring virtualHelices based on parity of an
-        input virtualHelix
-
-        If a potential neighbor doesn't exist, None is returned in it's place
-        """
-        neighbors = []
-        vh = virtualHelix
-        if vh == None:
-            return neighbors
-
-        # assign the method to a a local variable
-        getVH = self.virtualHelixAtCoord
-        # get the vh's row and column r,c
-        (r,c) = vh.coord()
-
-        if self.isEvenParity(r, c):
-            neighbors.append(getVH((r,c+1)))  # p0 neighbor (p0 is a direction)
-            neighbors.append(getVH((r-1,c)))  # p1 neighbor
-            neighbors.append(getVH((r,c-1)))  # p2 neighbor
-        else:
-            neighbors.append(getVH((r,c-1)))  # p0 neighbor (p0 is a direction)
-            neighbors.append(getVH((r+1,c)))  # p1 neighbor
-            neighbors.append(getVH((r,c+1)))  # p2 neighbor
-        return neighbors  # Note: the order and presence of Nones is important
-        # If you need the indices of available directions use range(0,len(neighbors))
-    # end def
-
     def areVirtualHelicesNeighbors(self, virtualHelixA, virtualHelixB):
         """
         returns True or False
