@@ -876,11 +876,15 @@ class StrandSet(QObject):
             self._sSet = sSet = pS.strandSet()
             # Store oligos
             self._newOligo = pS.oligo().shallowCopy()
-            self._sLowOligo = strandLow.oligo()
-            self._sHighOligo = strandHigh.oligo()
-            # Update the oligo for things like its 5prime end and isLoop
-            self._newOligo.strandMergeUpdate(strandLow, strandHigh)
+            self._sLowOligo = sLO = strandLow.oligo()
+            self._sHighOligo = sHO = strandHigh.oligo()
+
             self._sSetIdx = lowStrandSetIdx
+            
+            # update the new oligo length if it's not a loop
+            if sLO != sHO:
+                self._newOligo.setLength(sLO.length()+sHO.length())
+            
             # Create the newStrand by copying the priority strand to
             # preserve its properties
             newIdxs = strandLow.lowIdx(), strandHigh.highIdx()
@@ -890,6 +894,9 @@ class StrandSet(QObject):
             # Merging any decorators
             newStrand.addDecorators(strandHigh.decorators())
             self._newStrand = newStrand
+            
+            # Update the oligo for things like its 5prime end and isLoop
+            self._newOligo.strandMergeUpdate(strandLow, strandHigh, newStrand)
         # end def
 
         def redo(self):
@@ -927,7 +934,6 @@ class StrandSet(QObject):
             for strand in olg.strand5p().generator3pStrand():
                 Strand.setOligo(strand, olg)  # emits strandHasNewOligoSignal
             # Add new oligo and remove old oligos
-            olg.setLength(lOlg.length() + hOlg.length())
             olg.addToPart(sS.part())
             lOlg.removeFromPart()
             hOlg.removeFromPart()
@@ -1036,7 +1042,7 @@ class StrandSet(QObject):
             # Update strand connectivity
             strandLow.setConnectionHigh(None)
             strandHigh.setConnectionLow(None)
-
+            
             # Resize strands and update decorators
             strandLow.setIdxs((strand.lowIdx(), iNewLow))
             strandHigh.setIdxs((iNewLow + 1, strand.highIdx()))
@@ -1047,6 +1053,15 @@ class StrandSet(QObject):
                 hOligo.setColor(colorHigh)
             # Update the oligo for things like its 5prime end and isLoop
             olg5p.strandSplitUpdate(std5p, std3p, olg3p, strand)
+            
+            # settle the oligo length
+            length = 0
+            for strand in std3p.generator3pStrand():
+                length += strand.totalLength()
+            # end for
+            if not oligo.isLoop():
+                olg5p.setLength(olg5p.length()-length)
+            olg3p.setLength(length)
         # end def
 
         def redo(self):

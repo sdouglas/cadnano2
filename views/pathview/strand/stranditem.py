@@ -376,6 +376,8 @@ class StrandItem(QGraphicsLineItem):
 
         if seqTxt == '':
             seqLbl.hide()
+            for iItem in self.insertionItems().itervalues():
+                iItem.hideSequence()
             return
         # end if
 

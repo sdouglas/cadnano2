@@ -267,6 +267,11 @@ class InsertionItem(QGraphicsPathItem):
     def setSequence(self, sequence):
         self._seqText = sequence
         self._updateSequenceText()
+        self._seqItem.show()
+    # end def
+    
+    def hideSequence(self):
+        self._seqItem.hide()
     # end def
 
     def _updateSequenceText(self):
@@ -274,7 +279,10 @@ class InsertionItem(QGraphicsPathItem):
         isOnTop = self._isOnTop
         index = self._insertion.idx()
         baseText = self._seqText
-
+        font = styles.SEQUENCEFONT
+        seqFontH = styles.SEQUENCEFONTH
+        insertW = styles.INSERTWIDTH
+        seqFontCharW = styles.SEQUENCEFONTCHARWIDTH
         # draw sequence on the insert
         if baseText:  # only draw sequences if they exist i.e. not None!
             lenBT = len(baseText)
@@ -284,29 +292,34 @@ class InsertionItem(QGraphicsPathItem):
                 angleOffset = 180
             if lenBT > 20:
                 baseText = baseText[:17] + '...'
-            fractionArclenPerChar = (1.-2*_fractionInsertToPad)/(lenBT+1)
-            seqItem.setPen(QPen(Qt.black))
-            seqItem.setBrush(QBrush(Qt.NoBrush))
-
+                lenBT = len(baseText)
+            fractionArclenPerChar = (1.0-2.0*_fractionInsertToPad)/(lenBT+1)
+            seqItem.setPen(QPen(Qt.NoPen))
+            seqItem.setBrush(QBrush(Qt.black))
+            
             seqPath = QPainterPath()
+            loopPath = self.path()
             for i in range(lenBT):
                 frac = _fractionInsertToPad + (i+1)*fractionArclenPerChar
-                pt = seqPath.pointAtPercent(frac)
-                tangAng = seqPath.angleAtPercent(frac)
-                # painter.save()
+                pt = loopPath.pointAtPercent(frac)
+                tangAng = loopPath.angleAtPercent(frac)
 
                 tempPath = QPainterPath()
-                # normalPath.setFont()
-                tempPath.translate(pt)
-                tempPath.addText(0, 0, styles.SEQUENCEFONT, baseText[i if isOnTop else -i-1])
+                # 1. draw the text
+                tempPath.addText(0,0, font, baseText[i if isOnTop else -i-1])
+                # 2. center it at the zero point different for top and bottom
+                # strands
+                if not isOnTop:
+                    tempPath.translate(0, -seqFontH - insertW)
+                    
+                tempPath.translate(QPointF(-seqFontCharW/2.,
+                                          -2 if isOnTop else seqFontH))
                 mat = QMatrix()
+                # 3. rotate it
                 mat.rotate(-tangAng + angleOffset)
                 rotatedPath = mat.map(tempPath)
-
-                rotatedPath.translate(QPointF(-styles.SEQUENCEFONTCHARWIDTH/2.,
-                                          -2 if isOnTop else styles.SEQUENCEFONTH))
-                if not isOnTop:
-                    rotatedPath.translate(0, -syles.SEQUENCEFONTH - styles.INSERTWIDTH)
+                # 4. translate the rotate object to it's position on the part
+                rotatedPath.translate(pt)
                 seqPath.addPath(rotatedPath)
             # end for
             seqItem.setPath(seqPath)

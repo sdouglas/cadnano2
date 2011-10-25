@@ -327,16 +327,15 @@ class Part(QObject):
         # pass that info in here in and then do the breaks
         ss5p = strand5p.strandSet()
         ss3p = strand3p.strandSet()
-        cmds = []
-        util.execCommandList(self, cmds, desc="Create Xover", \
-                                                useUndoStack=useUndoStack)
         if useUndoStack:
             self.undoStack().beginMacro("Create Xover")
         if ss5p.strandType() != ss3p.strandType():
             return
         if ss5p.isScaffold():
-            cmds.append(strand5p.oligo().applySequenceCMD(None))
-            cmds.append(strand3p.oligo().applySequenceCMD(None))
+            # cmds.append(strand5p.oligo().applySequenceCMD(None))
+            # cmds.append(strand3p.oligo().applySequenceCMD(None))
+            strand5p.oligo().applySequence(None)
+            strand3p.oligo().applySequence(None)
         if strand5p == strand3p:
             """
             This is a complicated case basically we need a truth table.
@@ -945,7 +944,6 @@ class Part(QObject):
 
             # 1. update preserved oligo length
             olg5p.incrementLength(oldOlg3p.length())
-
             # 2. Remove the old oligo and apply the 5' oligo to the 3' strand
             if olg5p == strand3p.oligo():
                 olg5p.setLoop(True)
@@ -985,7 +983,6 @@ class Part(QObject):
 
             # 2. restore the modified oligo length
             olg5p.decrementLength(oldOlg3p.length())
-
             # 3. apply the old oligo to strand3p
             if oldOlg3p.isLoop():
                 oldOlg3p.setLoop(False)
@@ -1048,7 +1045,6 @@ class Part(QObject):
 
             # 2. restore the modified oligo length
             olg5p.decrementLength(newOlg3p.length())
-
             # 3. apply the old oligo to strand3p
             if newOlg3p.isLoop():
                 newOlg3p.setLoop(False)
@@ -1080,7 +1076,6 @@ class Part(QObject):
 
             # 1. update preserved oligo length
             olg5p.incrementLength(newOlg3p.length())
-
             # 2. Remove the old oligo and apply the 5' oligo to the 3' strand
             if olg5p == strand3p.oligo():
                 olg5p.setLoop(True)
