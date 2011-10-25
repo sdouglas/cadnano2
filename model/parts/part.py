@@ -329,6 +329,10 @@ class Part(QObject):
         ss5p = strand5p.strandSet()
         ss3p = strand3p.strandSet()
         cmds = []
+        util.execCommandList(self, cmds, desc="Create Xover", \
+                                                useUndoStack=useUndoStack)
+        if useUndoStack:
+            self.undoStack().beginMacro("Create Xover")
         if ss5p.strandType() != ss3p.strandType():
             print "Failed xover on try 1"
             return
@@ -365,7 +369,7 @@ class Part(QObject):
                 offset3p = -1 if ss3p.isDrawn5to3() else 1
                 if ss3p.strandCanBeSplit(strand3p, idx3p+offset3p):
                     c = ss3p.SplitCommand(strand3p, idx3p+offset3p, ssIdx3p)
-                    cmds.append(c)
+                    # cmds.append(c)
                     xoStrand3 = c._strandHigh if ss3p.isDrawn5to3() else c._strandLow
                     # adjust the target 5prime strand, always necessary if a split happens here
                     if idx5p > idx3p and ss3p.isDrawn5to3():
@@ -374,6 +378,10 @@ class Part(QObject):
                         temp5 = xoStrand3
                     else:
                         temp5 = c._strandLow if ss3p.isDrawn5to3() else c._strandHigh
+                    if useUndoStack:
+                        self.undoStack().push(c)
+                    else:
+                        c.redo()
                 else:
                     print "Failed xover on try 2"
                     return
@@ -391,8 +399,12 @@ class Part(QObject):
                         ssIdx5p =  ssIdx3p + 1 if idx5p > idx3p else ssIdx3p
                 if ss5p.strandCanBeSplit(temp5, idx5p):
                     d = ss5p.SplitCommand(temp5, idx5p, ssIdx5p)
-                    cmds.append(d)
+                    # cmds.append(d)
                     xoStrand5 = d._strandLow if ss5p.isDrawn5to3() else d._strandHigh
+                    if useUndoStack:
+                        self.undoStack().push(d)
+                    else:
+                        d.redo()
                     # adjust the target 3prime strand, IF necessary
                     if idx5p > idx3p and ss3p.isDrawn5to3():
                         xoStrand3 = xoStrand5
@@ -412,8 +424,12 @@ class Part(QObject):
                     found, overlap, ssIdx = ss3p._findIndexOfRangeFor(strand3p)
                     if found:
                         c = ss3p.SplitCommand(strand3p, idx3p+offset3p, ssIdx)
-                        cmds.append(c)
+                        # cmds.append(c)
                         xoStrand3 = c._strandHigh if ss3p.isDrawn5to3() else c._strandLow
+                        if useUndoStack:
+                            self.undoStack().push(c)
+                        else:
+                            c.redo()
                 else:  # can't split... abort
                     return
 
@@ -425,15 +441,24 @@ class Part(QObject):
                     found, overlap, ssIdx = ss5p._findIndexOfRangeFor(strand5p)
                     if found:
                         d = ss5p.SplitCommand(strand5p, idx5p, ssIdx)
-                        cmds.append(d)
+                        # cmds.append(d)
                         xoStrand5 = d._strandLow if ss5p.isDrawn5to3() else d._strandHigh
+                        if useUndoStack:
+                            self.undoStack().push(d)
+                        else:
+                            d.redo()
                 else:  # can't split... abort
                     return
         # end else
-        c = Part.CreateXoverCommand(self, xoStrand5, idx5p, xoStrand3, idx3p)
-        cmds.append(c)
-        util.execCommandList(self, cmds, desc="Create Xover", \
-                                                useUndoStack=useUndoStack)
+        e = Part.CreateXoverCommand(self, xoStrand5, idx5p, xoStrand3, idx3p)
+        # cmds.append(c)
+        # util.execCommandList(self, cmds, desc="Create Xover", \
+        #                                         useUndoStack=useUndoStack)
+        if useUndoStack:
+            self.undoStack().push(e)
+            self.undoStack().endMacro()
+        else:
+            e.redo()
     # end def
 
     def removeXover(self, strand5p, strand3p, useUndoStack=True):
@@ -942,6 +967,7 @@ class Part(QObject):
             self._strand3p = strand3p
             self._strand3pIdx = strand3pIdx
             self._oldOligo3p = strand3p.oligo()
+            print "The xover init", strand5p, strand3p
         # end def
 
         def redo(self):
@@ -967,6 +993,8 @@ class Part(QObject):
             # 3. install the Xover
             strand5p.setConnection3p(strand3p)
             strand3p.setConnection5p(strand5p)
+            print "xoverA", strand5p, strand3p.connection5p()
+            print "xoverB", strand3p, strand5p.connection3p()
 
             ss5 = strand5p.strandSet()
             vh5p = ss5.virtualHelix()
