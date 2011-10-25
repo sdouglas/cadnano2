@@ -1,4 +1,7 @@
 #!/bin/bash
+# This script gets run for every Maya.env file found by the postflight script
+# The absolute path of the Maya.env file this script is responsible for
+# patching is in $1.
 if grep CADNANO "$1" 1>/dev/null; then
 echo "Skipping patch for $1 since it appears to already be patched."
 else

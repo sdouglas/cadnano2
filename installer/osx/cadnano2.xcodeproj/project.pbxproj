@@ -11,6 +11,7 @@
 		8D11072D0486CEB800E47090 /* main.mm in Sources */ = {isa = PBXBuildFile; fileRef = 29B97316FDCFA39411CA2CEA /* main.mm */; settings = {ATTRIBUTES = (); }; };
 		8D11072F0486CEB800E47090 /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1058C7A1FEA54F0111CA2CBB /* Cocoa.framework */; };
 		FCBAF41D13C39DCC00F22DFB /* document_legacy_icon.icns in Resources */ = {isa = PBXBuildFile; fileRef = FCBAF41C13C39DCC00F22DFB /* document_legacy_icon.icns */; };
+		FCCB5F261456E16600C45AF8 /* PyQtMacMaya.zip in Resources */ = {isa = PBXBuildFile; fileRef = FCCB5F251456E16600C45AF8 /* PyQtMacMaya.zip */; };
 		FCF3D8EC13C397CC000FC057 /* application_icon.icns in Resources */ = {isa = PBXBuildFile; fileRef = FCF3D8EA13C397CC000FC057 /* application_icon.icns */; };
 		FCF3D8ED13C397CC000FC057 /* document_icon.icns in Resources */ = {isa = PBXBuildFile; fileRef = FCF3D8EB13C397CC000FC057 /* document_icon.icns */; };
 		FCFD5E6613BF8BB000F0DAC9 /* Python.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = FCFD5E6513BF8BB000F0DAC9 /* Python.framework */; };
@@ -27,6 +28,7 @@
 		8D1107310486CEB800E47090 /* cadnano2-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "cadnano2-Info.plist"; sourceTree = "<group>"; };
 		8D1107320486CEB800E47090 /* cadnano2.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = cadnano2.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		FCBAF41C13C39DCC00F22DFB /* document_legacy_icon.icns */ = {isa = PBXFileReference; lastKnownFileType = image.icns; path = document_legacy_icon.icns; sourceTree = "<group>"; };
+		FCCB5F251456E16600C45AF8 /* PyQtMacMaya.zip */ = {isa = PBXFileReference; lastKnownFileType = archive.zip; path = PyQtMacMaya.zip; sourceTree = "<group>"; };
 		FCF3D8EA13C397CC000FC057 /* application_icon.icns */ = {isa = PBXFileReference; lastKnownFileType = image.icns; path = application_icon.icns; sourceTree = "<group>"; };
 		FCF3D8EB13C397CC000FC057 /* document_icon.icns */ = {isa = PBXFileReference; lastKnownFileType = image.icns; path = document_icon.icns; sourceTree = "<group>"; };
 		FCFD5E6513BF8BB000F0DAC9 /* Python.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Python.framework; path = /System/Library/Frameworks/Python.framework; sourceTree = "<absolute>"; };
@@ -103,6 +105,7 @@
 		29B97317FDCFA39411CA2CEA /* Resources */ = {
 			isa = PBXGroup;
 			children = (
+				FCCB5F251456E16600C45AF8 /* PyQtMacMaya.zip */,
 				FCBAF41C13C39DCC00F22DFB /* document_legacy_icon.icns */,
 				FCF3D8EA13C397CC000FC057 /* application_icon.icns */,
 				FCF3D8EB13C397CC000FC057 /* document_icon.icns */,
@@ -176,6 +179,7 @@
 				FCF3D8EC13C397CC000FC057 /* application_icon.icns in Resources */,
 				FCF3D8ED13C397CC000FC057 /* document_icon.icns in Resources */,
 				FCBAF41D13C39DCC00F22DFB /* document_legacy_icon.icns in Resources */,
+				FCCB5F261456E16600C45AF8 /* PyQtMacMaya.zip in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
