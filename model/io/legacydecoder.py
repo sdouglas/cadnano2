@@ -77,7 +77,7 @@ def import_legacy_dict(document, obj):
         else:
             latticeType = LatticeType.Honeycomb
 
-    # DETERMINE MAX ROW / COL
+    # DETERMINE MAX ROW,COL
     maxRowJson = maxColJson = 0
     for helix in obj['vstrands']:
         maxRowJson = max(maxRowJson, int(helix['row']))
@@ -86,7 +86,9 @@ def import_legacy_dict(document, obj):
     # CREATE PART ACCORDING TO LATTICE TYPE
     if latticeType == LatticeType.Honeycomb:
         steps = numBases/21
-        part = HoneycombPart(document=document, maxRow=30, maxCol=32, maxSteps=steps)
+        nRows = max(30, maxRowJson)
+        nCols = max(32, maxColJson)
+        part = HoneycombPart(document=document, maxRow=nRows, maxCol=nCols, maxSteps=steps)
     elif latticeType == LatticeType.Square:
         isSQ100 = True  # check for custom SQ100 format
         for helix in obj['vstrands']:
@@ -98,9 +100,9 @@ def import_legacy_dict(document, obj):
             if dialog.exec_() == 1:
                 nRows, nCols = 100, 1
             else:
-                nRows, nCols = 50, 50
+                nRows, nCols = 40, 30
         else:
-            nRows, nCols = 50, 50
+            nRows, nCols = 40, 30
         steps = numBases/32
         nRows = max(nRows, maxRowJson)
         nCols = max(nCols, maxColJson)

@@ -48,27 +48,26 @@ if "-p" not in sys.argv:
         supportsPythonObjCBridge = False
         import objc
         supportsPythonObjCBridge = True
-    except:
-        pass
+    except Exception, e:
+        print e
     if supportsPythonObjCBridge:
         from osx.CNApplicationDelegate import sharedDelegate as appDelegate
     # else:
     #     from applicationdelegate import ApplicationDelegate
-        
 
 
 app = getAppInstance()
 app.initGui()
 if __name__ == '__main__':
     if "-p" in sys.argv:
-        print "Collecting profile data into CADnanoProfileOut.tmp"
+        print "Collecting profile data into CADnano.profile"
         import cProfile
-        cProfile.run('app.exec_()', 'CADnanoProfileOut.tmp')
+        cProfile.run('app.exec_()', 'CADnano.profile')
         print "Done collecting profile data. Use -P to print it out."
         exit()
     elif "-P" in sys.argv:
         from pstats import Stats
-        s = Stats('CADnanoProfileOut.tmp')
+        s = Stats('CADnano.profile')
         print "Internal Time Top 10:"
         s.sort_stats('cumulative').print_stats(10)
         print ""

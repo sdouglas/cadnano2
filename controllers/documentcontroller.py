@@ -276,7 +276,7 @@ class DocumentController():
 
     def actionPrefsSlot(self):
         """docstring for actionPrefsSlot"""
-        app().prefsClicked
+        app().prefsClicked()
 
     def actionAutostapleSlot(self):
         """docstring for actionAutostapleSlot"""
