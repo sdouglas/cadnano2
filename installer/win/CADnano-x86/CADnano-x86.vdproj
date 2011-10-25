@@ -33,6 +33,12 @@
         }
         "Entry"
         {
+        "MsmKey" = "8:_D3472111604B4E3BBABD910AA2B186A5"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
         "MsmKey" = "8:_DFA594AA30D1440CA851CA8C2A5C5CF0"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
@@ -257,6 +263,18 @@
                     }
                 }
             }
+            "{994432C3-9487-495D-8656-3E829A8DBDDE}:_D6E43118FEC84BA3981C8357DCC5D048"
+            {
+            "DefaultLocation" = "8:[PYTHONPATH]"
+            "Name" = "8:Python 2.7 Folder"
+            "AlwaysCreate" = "11:FALSE"
+            "Condition" = "8:PYTHONPATH<>\"\""
+            "Transitive" = "11:FALSE"
+            "Property" = "8:PYTHONFOLDER"
+                "Folders"
+                {
+                }
+            }
         }
         "LaunchCondition"
         {
@@ -297,7 +315,7 @@
         "Name" = "8:Microsoft Visual Studio"
         "ProductName" = "8:CADnano2"
         "ProductCode" = "8:{D2D5156A-2E79-48F3-8B36-508ABBF8F284}"
-        "PackageCode" = "8:{AA354FBF-399A-4D49-8FA2-13525106DFBC}"
+        "PackageCode" = "8:{9D8C3E36-307E-4182-ACAE-D1CD5DE3025F}"
         "UpgradeCode" = "8:{1DD60FBB-A9DC-4BCF-80D7-63553B60403C}"
         "AspNetVersion" = "8:4.0.30319.0"
         "RestartWWWService" = "11:FALSE"
@@ -959,7 +977,7 @@
                         "_C18CE5D8ACB8419B853675DDF66C045A.6451A689D8334537A87633E87C1B7707"
                         {
                         "Name" = "8:_C18CE5D8ACB8419B853675DDF66C045A.6451A689D8334537A87633E87C1B7707"
-                        "DisplayName" = "8:Autodesk Maya Folder (x86)"
+                        "DisplayName" = "8:Module Retargetable Folder"
                         "Description" = "8:"
                         "Type" = "3:32769"
                         "ContextData" = "8:_RetargetableFolder"
@@ -1025,6 +1043,60 @@
                 "LanguageId" = "3:1033"
                 "Exclude" = "11:FALSE"
                 "Folder" = "8:_AB1CFB233EBC4A0A92A6897606695AD2"
+                "Feature" = "8:"
+                "IsolateTo" = "8:"
+                }
+            }
+            "{5259A561-127C-4D43-A0A1-72F10C7B3BF8}:_D3472111604B4E3BBABD910AA2B186A5"
+            {
+            "SourcePath" = "8:..\\PyQt-x86 (Standard)\\Release\\PyQt-x86 (Standard).msm"
+            "TargetName" = "8:"
+            "Tag" = "8:"
+            "Folder" = "8:_D6E43118FEC84BA3981C8357DCC5D048"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            "ProjectOutputGroupRegister" = "3:1"
+            "OutputConfiguration" = "8:"
+            "OutputGroupCanonicalName" = "8:Built"
+            "OutputProjectGuid" = "8:{9CFD3E0E-940B-41D7-AB0F-C7C08347781D}"
+            "ShowKeyOutput" = "11:TRUE"
+                "ExcludeFilters"
+                {
+                }
+                "KeyOutputModule"
+                {
+                "UseDynamicProperties" = "11:TRUE"
+                "IsDependency" = "11:FALSE"
+                "SourcePath" = "8:..\\PyQt-x86 (Standard)\\Release\\PyQt-x86 (Standard).msm"
+                    "Properties"
+                    {
+                        "_0730A569BC354B61A8E81AAA6D96BF40.F83999D5848E442D95DD0289E6F6B6CE"
+                        {
+                        "Name" = "8:_0730A569BC354B61A8E81AAA6D96BF40.F83999D5848E442D95DD0289E6F6B6CE"
+                        "DisplayName" = "8:Module Retargetable Folder"
+                        "Description" = "8:"
+                        "Type" = "3:32769"
+                        "ContextData" = "8:_RetargetableFolder"
+                        "Attributes" = "3:6"
+                        "Setting" = "3:2"
+                        "Value" = "8:_D6E43118FEC84BA3981C8357DCC5D048"
+                        "UsePlugInResources" = "11:FALSE"
+                        }
+                    }
+                "LanguageId" = "3:1033"
+                "Exclude" = "11:FALSE"
+                "Folder" = "8:_D6E43118FEC84BA3981C8357DCC5D048"
                 "Feature" = "8:"
                 "IsolateTo" = "8:"
                 }
