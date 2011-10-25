@@ -340,7 +340,7 @@ class Oligo(QObject):
                 usedSeq = util.comp(usedSeq) if usedSeq else None
                 compSS = strand.strandSet().complementStrandSet()
                 for compStrand in compSS._findOverlappingRanges(strand):
-                    subUsedSeq = compStrand.setComplimentSequence(usedSeq, strand)
+                    subUsedSeq = compStrand.setComplementSequence(usedSeq, strand)
                     oligoList.append(compStrand.oligo())
                 # end for
             # for
@@ -362,7 +362,7 @@ class Oligo(QObject):
                 usedSeq = util.comp(usedSeq) if usedSeq else None
                 compSS = strand.strandSet().complementStrandSet()
                 for compStrand in compSS._findOverlappingRanges(strand):
-                    subUsedSeq = compStrand.setComplimentSequence(usedSeq, strand)
+                    subUsedSeq = compStrand.setComplementSequence(usedSeq, strand)
                     oligoList.append(compStrand.oligo())
                 # end for
             # for

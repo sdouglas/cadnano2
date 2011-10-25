@@ -207,7 +207,7 @@ class Strand(QObject):
     #     return ret
     # # end def
 
-    def setComplimentSequence(self, sequenceString, strand):
+    def setComplementSequence(self, sequenceString, strand):
         """
         This version takes anothers strand and only sets the indices that
         align with the given complimentary strand
