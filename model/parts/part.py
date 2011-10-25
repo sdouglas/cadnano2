@@ -945,7 +945,6 @@ class Part(QObject):
 
             # 1. update preserved oligo length
             olg5p.incrementLength(oldOlg3p.length())
-
             # 2. Remove the old oligo and apply the 5' oligo to the 3' strand
             if olg5p == strand3p.oligo():
                 olg5p.setLoop(True)
@@ -985,7 +984,6 @@ class Part(QObject):
 
             # 2. restore the modified oligo length
             olg5p.decrementLength(oldOlg3p.length())
-
             # 3. apply the old oligo to strand3p
             if oldOlg3p.isLoop():
                 oldOlg3p.setLoop(False)
@@ -1048,7 +1046,6 @@ class Part(QObject):
 
             # 2. restore the modified oligo length
             olg5p.decrementLength(newOlg3p.length())
-
             # 3. apply the old oligo to strand3p
             if newOlg3p.isLoop():
                 newOlg3p.setLoop(False)
@@ -1080,7 +1077,6 @@ class Part(QObject):
 
             # 1. update preserved oligo length
             olg5p.incrementLength(newOlg3p.length())
-
             # 2. Remove the old oligo and apply the 5' oligo to the 3' strand
             if olg5p == strand3p.oligo():
                 olg5p.setLoop(True)
