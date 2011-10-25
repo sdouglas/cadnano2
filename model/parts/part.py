@@ -327,13 +327,11 @@ class Part(QObject):
         # pass that info in here in and then do the breaks
         ss5p = strand5p.strandSet()
         ss3p = strand3p.strandSet()
-        if useUndoStack:
-            self.undoStack().beginMacro("Create Xover")
         if ss5p.strandType() != ss3p.strandType():
             return
-        if ss5p.isScaffold():
-            # cmds.append(strand5p.oligo().applySequenceCMD(None))
-            # cmds.append(strand3p.oligo().applySequenceCMD(None))
+        if useUndoStack:
+            self.undoStack().beginMacro("Create Xover")
+        if ss5p.isScaffold() and useUndoStack:  # ignore on import
             strand5p.oligo().applySequence(None)
             strand3p.oligo().applySequence(None)
         if strand5p == strand3p:
@@ -380,6 +378,8 @@ class Part(QObject):
                     else:
                         c.redo()
                 else:
+                    if useUndoStack:
+                        self.undoStack().endMacro()
                     return
                 # end if
             if xoStrand3.idx3Prime() == idx5p:
@@ -407,6 +407,8 @@ class Part(QObject):
                     elif idx5p < idx3p and not ss3p.isDrawn5to3():
                         xoStrand3 = xoStrand5
                 else:
+                    if useUndoStack:
+                        self.undoStack().endMacro()
                     return
         # end if
         else: #  Do the following if it is in fact a different strand
@@ -426,6 +428,8 @@ class Part(QObject):
                         else:
                             c.redo()
                 else:  # can't split... abort
+                    if useUndoStack:
+                        self.undoStack().endMacro()
                     return
 
             # is the 3' end ready for xover installation?
@@ -443,6 +447,8 @@ class Part(QObject):
                         else:
                             d.redo()
                 else:  # can't split... abort
+                    if useUndoStack:
+                        self.undoStack().endMacro()
                     return
         # end else
         e = Part.CreateXoverCommand(self, xoStrand5, idx5p, xoStrand3, idx3p)

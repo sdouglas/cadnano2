@@ -470,6 +470,15 @@ class StrandItem(QGraphicsLineItem):
         mStrand.split(idx)
     # end def
 
+    def breakToolHoverMove(self, idx):
+        """Pencil the strand is possible."""
+        mStrand = self._modelStrand
+        vhi = self._virtualHelixItem
+        breakTool = self._activeTool()
+        breakTool.updateHoverRect(vhi, mStrand, idx, show=True)
+    # end def
+
+
     def pencilToolMousePress(self, idx):
         """Break the strand is possible."""
         mStrand = self._modelStrand
@@ -493,7 +502,6 @@ class StrandItem(QGraphicsLineItem):
         mStrand = self._modelStrand
         vhi = self._virtualHelixItem
         activeTool = self._activeTool()
-
         if not activeTool.isFloatingXoverBegin():
             tempXover = activeTool.floatingXover()
             tempXover.updateFloatingFromStrandItem(vhi, mStrand, idx)

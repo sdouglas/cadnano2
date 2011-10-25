@@ -207,7 +207,7 @@ class Strand(QObject):
     #     return ret
     # # end def
 
-    def setComplimentSequence(self, sequenceString, strand):
+    def setComplementSequence(self, sequenceString, strand):
         """
         This version takes anothers strand and only sets the indices that
         align with the given complimentary strand
@@ -488,7 +488,7 @@ class Strand(QObject):
             -1 for a skip
         """
         cmds = []
-        if self.strandSet().isScaffold():
+        if self.strandSet().isScaffold() and useUndoStack:
             cmds.append(self.oligo().applySequenceCMD(None))
         idxLow, idxHigh = self.idxs()
         if idxLow <= idx <= idxHigh:
