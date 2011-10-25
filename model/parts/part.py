@@ -62,7 +62,10 @@ class Part(QObject):
 
     _step = 21  # this is the period (in bases) of the part lattice
     _radius = 1.125  # nanometers
-
+    _turnsPerStep = 2
+    _helicalPitch = _step/_turnsPerStep
+    _twistPerBase = 360/_helicalPitch # degrees
+    
     def __init__(self, *args, **kwargs):
         """
         Sets the parent document, sets bounds for part dimensions, and sets up
@@ -211,6 +214,14 @@ class Part(QObject):
 
     def radius(self):
         return self._radius
+    # end def
+
+    def helicalPitch(self):
+        return self._helicalPitch
+    # end def
+    
+    def twistPerBase(self):
+        return self._twistPerBase
     # end def
 
     def virtualHelixAtCoord(self, coord):

@@ -200,16 +200,15 @@ class StrandItem(QObject):
                          "%s.inMesh" % meshName)
         # XXX - [SB] This should go away and we will ask the model for
         # the right numbers...
-        if self._virtualHelixItem.partItem().type() == LatticeType.Honeycomb:
-            cmds.setAttr("%s.rotation" % cylinderName, 34.286)
+        vhi = self._virtualHelixItem
+        part = vhi.partItem().part()
+        cSType = part.crossSectionType()
+        cmds.setAttr("%s.rotation" % cylinderName, part.twistPerBase())
+        cmds.setAttr("%s.parity" % cylinderName, vhi.isEvenParity())
+        if cSType == LatticeType.Honeycomb:
             cmds.setAttr("%s.rotationOffset" % cylinderName, 240)
-            cmds.setAttr("%s.parity" % cylinderName,
-                         self._virtualHelixItem.isEvenParity())
-        elif self._virtualHelixItem.partItem().type() == LatticeType.Square:
-            cmds.setAttr("%s.rotation" % cylinderName, 33.75)
+        elif cSType == LatticeType.Square:
             cmds.setAttr("%s.rotationOffset" % cylinderName, 30)
-            cmds.setAttr("%s.parity" % cylinderName,
-                         self._virtualHelixItem.isEvenParity())
         else:
             raise NotImplementedError
         cmds.setAttr("%s.strandType" % cylinderName, strandType)

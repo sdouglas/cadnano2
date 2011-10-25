@@ -41,6 +41,10 @@ root3 = 1.732051
 
 class HoneycombPart(Part):
     _step = 21  # 32 in square
+    _turnsPerStep = 2.0
+    _helicalPitch = _step/_turnsPerStep
+    _twistPerBase = 360/_helicalPitch # degrees
+    
     _activeBaseIndex = _step
     _subStepSize = _step / 3
     # Used in VirtualHelix::potentialCrossoverList

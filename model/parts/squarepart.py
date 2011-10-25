@@ -36,6 +36,10 @@ class Crossovers:
 class SquarePart(Part):
     _step = 32  # 21 in honeycomb
     _subStepSize = _step / 4
+    _turnsPerStep = 3.0
+    _helicalPitch = _step/_turnsPerStep
+    _twistPerBase = 360/_helicalPitch # degrees
+    
     # Used in VirtualHelix::potentialCrossoverList
     _scafL = Crossovers.squareScafLow
     _scafH = Crossovers.squareScafHigh
