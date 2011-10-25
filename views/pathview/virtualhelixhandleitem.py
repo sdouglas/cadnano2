@@ -36,62 +36,47 @@ util.qtWrapImport('QtGui', globals(), ['QBrush', 'QFont', 'QGraphicsItem',\
                                        'QUndoCommand', 'QGraphicsEllipseItem',\
                                        'QTransform', 'QStyle'])
 
-#from .src.graphicsellipseitem import GraphicsEllipseItem
+_radius = styles.VIRTUALHELIXHANDLEITEM_RADIUS
+_rect = QRectF(0, 0, 2*_radius + styles.VIRTUALHELIXHANDLEITEM_STROKE_WIDTH,\
+        2*_radius + styles.VIRTUALHELIXHANDLEITEM_STROKE_WIDTH)
+_defBrush = QBrush(styles.grayfill)
+_defPen = QPen(styles.graystroke, styles.VIRTUALHELIXHANDLEITEM_STROKE_WIDTH)
+_hovBrush = QBrush(styles.bluefill)
+_hovPen = QPen(styles.bluestroke, styles.VIRTUALHELIXHANDLEITEM_STROKE_WIDTH)
+_useBrush = QBrush(styles.orangefill)
+_usePen = QPen(styles.orangestroke, styles.VIRTUALHELIXHANDLEITEM_STROKE_WIDTH)
+_font = styles.VIRTUALHELIXHANDLEITEM_FONT
+
 
 class VirtualHelixHandleItem(QGraphicsEllipseItem):
     """docstring for VirtualHelixHandleItem"""
-    _radius = styles.VIRTUALHELIXHANDLEITEM_RADIUS
-
-    # update the following lines if you want different stroke widths 
-    # for hilighting.  Qt doesn't allow internal strokes.
-    _rect = QRectF(0, 0, 2*_radius + styles.VIRTUALHELIXHANDLEITEM_STROKE_WIDTH,\
-            2*_radius + styles.VIRTUALHELIXHANDLEITEM_STROKE_WIDTH)
-    # rect = QRectF(0, 0, 2*radius, 2*radius)
-
-    hiliteWidth = 2
-
-    defBrush = QBrush(styles.grayfill)
-    defPen = QPen(styles.graystroke, styles.VIRTUALHELIXHANDLEITEM_STROKE_WIDTH)
-    hovBrush = QBrush(styles.bluefill)
-    hovPen = QPen(styles.bluestroke, styles.VIRTUALHELIXHANDLEITEM_STROKE_WIDTH)
-    useBrush = QBrush(styles.orangefill)
-    usePen = QPen(styles.orangestroke, styles.VIRTUALHELIXHANDLEITEM_STROKE_WIDTH)
-    _font = styles.VIRTUALHELIXHANDLEITEM_FONT
-
     def __init__(self, virtualHelix, partItem):
         super(VirtualHelixHandleItem, self).__init__(partItem)
         self._virtualHelix = virtualHelix
-
         self._partItem = partItem
-
         self._beingHoveredOver = False
         self.setAcceptsHoverEvents(True)
-
-
         # handle the label specific stuff
         self._label = self.createLabel()
         self.setNumber()
-
         self.setFlag(QGraphicsItem.ItemIsSelectable)
         self.setFlag(QGraphicsItem.ItemSendsScenePositionChanges)
-
         self.penAndBrushSet(False)
-
         self.setZValue(styles.ZPATHHELIX)
-        self.setRect(self._rect)
+        self.setRect(_rect)
     # end def
 
     def penAndBrushSet(self, value):
         if self.number() >= 0:
             if value == True:
-                self.setBrush(self.hovBrush)
-                self.setPen(self.hovPen)
+                self.setBrush(_hovBrush)
+                self.setPen(_hovPen)
             else:
-                self.setBrush(self.useBrush)
-                self.setPen(self.usePen)
+                self.setBrush(_useBrush)
+                self.setPen(_usePen)
         else:
-            self.setBrush(self.defBrush)
-            self.setPen(self.defPen)
+            self.setBrush(_defBrush)
+            self.setPen(_defPen)
         self.update(self.boundingRect())
     # end def
 
@@ -110,7 +95,7 @@ class VirtualHelixHandleItem(QGraphicsEllipseItem):
 
     def createLabel(self):
         label = QGraphicsSimpleTextItem("%d" % self._virtualHelix.number())
-        label.setFont(self._font)
+        label.setFont(_font)
         label.setZValue(styles.ZPATHHELIX)
         label.setParentItem(self)
         return label
@@ -121,7 +106,7 @@ class VirtualHelixHandleItem(QGraphicsEllipseItem):
         vh = self._virtualHelix
         num = vh.number()
         label = self._label
-        radius = self._radius
+        radius = _radius
 
         label.setText("%d" % num)
         y_val = radius / 3
@@ -149,12 +134,12 @@ class VirtualHelixHandleItem(QGraphicsEllipseItem):
         if not self.isSelected():
             if self.number() >= 0:
                 if self.isSelected():
-                    self.setBrush(self.hovBrush)
+                    self.setBrush(_hovBrush)
                 else:
-                    self.setBrush(self.useBrush)
+                    self.setBrush(_useBrush)
             else:
-                self.setBrush(self.defBrush)
-            self.setPen(self.hovPen)
+                self.setBrush(_defBrush)
+            self.setPen(_hovPen)
             self.update(self.boundingRect())
     # end def
 

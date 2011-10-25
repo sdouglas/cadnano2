@@ -554,15 +554,14 @@ class Part(QObject):
     def selectPreDecorator(self, selectionList):
         """
         Handles view notifications that a predecorator has been selected.
-        Will be used to emit a signal preDecoratorSelectedSignal
         """
-        if(len(selectionList) == 0):
-            print "all PreDecorators were unselected"
-            #partPreDecoratorUnSelectedSignal.emit()
-        for sel in selectionList:
-            (row, col, baseIdx) = (sel[0], sel[1], sel[2])
-            print "PreDecorator was selected at (%d, %d)[%d]" % (row, col, baseIdx)
-            # partPreDecoratorSelectedSignal.emit(row, col, baseIdx)
+        if (len(selectionList) == 0):
+            return
+            # print "all PreDecorators were unselected"
+            # partPreDecoratorUnSelectedSignal.emit()
+        sel = selectionList[0]
+        (row, col, baseIdx) = (sel[0], sel[1], sel[2])
+        self.partPreDecoratorSelectedSignal.emit(row, col, baseIdx)
 
     ### PRIVATE SUPPORT METHODS ###
     def _addVirtualHelix(self, virtualHelix):

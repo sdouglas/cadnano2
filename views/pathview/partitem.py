@@ -40,10 +40,14 @@ from virtualhelixitem import VirtualHelixItem
 import util
 
 # import Qt stuff into the module namespace with PySide, PyQt4 independence
-util.qtWrapImport('QtCore', globals(), ['pyqtSlot', 'QRectF', 'Qt'])
+util.qtWrapImport('QtCore', globals(), ['pyqtSlot', 'QPointF', 'QRectF', 'Qt'])
 util.qtWrapImport('QtGui', globals(), ['QBrush', 'QGraphicsPathItem',
                                        'QGraphicsRectItem', 'QInputDialog',
                                         'QPen'])
+
+_baseWidth = _bw = styles.PATH_BASE_WIDTH
+_defaultRect = QRectF(0, 0, _baseWidth, _baseWidth)
+_modPen = QPen(styles.bluestroke)
 
 
 class PartItem(QGraphicsRectItem):
@@ -59,18 +63,18 @@ class PartItem(QGraphicsRectItem):
         self._virtualHelixHash = {}
         self._virtualHelixItemList = []
         self._vHRect = QRectF()
+        self.setAcceptHoverEvents(True)
+        self._initModifierRect()
         self._initSelections()
         self._initResizeButtons()
-        self.setAcceptHoverEvents(True)
     # end def
 
-    def _initSelections(self):
-        """Initialize anything related to multiple selection."""
-        self._selectionLock = None
-        bType = PathHelixHandleSelectionBox
-        self._vhiHSelectionGroup = SelectionItemGroup(boxtype=bType,\
-                                                      constraint='y',\
-                                                      parent=self)
+    def _initModifierRect(self):
+        """docstring for _initModifierRect"""
+        self._canShowModRect = False
+        self._modRect = mR = QGraphicsRectItem(_defaultRect, self)
+        mR.setPen(_modPen)
+        mR.hide()
     # end def
 
     def _initResizeButtons(self):
@@ -83,10 +87,14 @@ class PartItem(QGraphicsRectItem):
         self._removeBasesButton.hide()
     # end def
 
-    # def paint(self, painter, option, widget=None):
-    #     painter.setPen(QPen(styles.redstroke))
-    #     painter.drawRect(self._vHRect)
-    # # end def
+    def _initSelections(self):
+        """Initialize anything related to multiple selection."""
+        self._selectionLock = None
+        bType = PathHelixHandleSelectionBox
+        self._vhiHSelectionGroup = SelectionItemGroup(boxtype=bType,\
+                                                      constraint='y',\
+                                                      parent=self)
+    # end def
 
     ### SIGNALS ###
 
@@ -131,11 +139,16 @@ class PartItem(QGraphicsRectItem):
 
     def partPreDecoratorSelectedSlot(self, row, col, baseIdx):
         """docstring for partPreDecoratorSelectedSlot"""
-        # determine where rootitem (self) is currently centered
-        # compute deltaX from baseIdx and baseWidth
-        # compute deltaY from virtualhelix position
-        # self.translate(deltaX, deltaY)
-        pass
+        part = self._modelPart
+        vh = part.virtualHelixAtCoord((row,col))
+        vhi = self.itemForVirtualHelix(vh)
+        yOffset = _bw if vh.isEvenParity() else 0
+        p = QPointF(baseIdx*_bw, vhi.y() + yOffset)
+        self.window().pathGraphicsView.centerOn(p)
+        self.window().pathGraphicsView.zoomIn()
+        self._modRect.setPos(p)
+        if self._canShowModRect and not self._modRect.isVisible():
+            self._modRect.show()
     # end def
 
     def partVirtualHelixAddedSlot(self, modelVirtualHelix):
@@ -146,7 +159,6 @@ class PartItem(QGraphicsRectItem):
         # print "PartItem.partVirtualHelixAddedSlot"
         vh = modelVirtualHelix
         vhi = VirtualHelixItem(self, modelVirtualHelix, self._activeTool)
-        vhi.setPos
         self._virtualHelixHash[vh.coord()] = vhi
         self._virtualHelixItemList.append(vhi)
         self._setVirtualHelixItemList(self._virtualHelixItemList)
@@ -332,6 +344,12 @@ class PartItem(QGraphicsRectItem):
     # end def
 
     ### PUBLIC METHODS ###
+    def setModifyState(self, bool):
+        """Hides the modRect when modify state disabled."""
+        self._canShowModRect = bool
+        if bool == False:
+            self._modRect.hide()
+
     def getOrderedVirtualHelixList(self):
         """Used for encoding."""
         ret = []

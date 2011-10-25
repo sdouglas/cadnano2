@@ -26,49 +26,42 @@
 # http://www.opensource.org/licenses/mit-license.php
 
 from math import floor
+from controllers.itemcontrollers.virtualhelixitemcontroller import VirtualHelixItemController
+from model.enum import StrandType
+from strand.stranditem import StrandItem
 from views import styles
 from virtualhelixhandleitem import VirtualHelixHandleItem
-from controllers.itemcontrollers.virtualhelixitemcontroller import VirtualHelixItemController
-from .strand.stranditem import StrandItem
-
-from model.enum import StrandType
-
 import util
 # import Qt stuff into the module namespace with PySide, PyQt4 independence
 util.qtWrapImport('QtCore', globals(), ['pyqtSignal', 'QObject', 'Qt', 'QRectF'])
-util.qtWrapImport('QtGui', globals(), ['QBrush', 'QGraphicsItem',\
-                                       'QGraphicsPathItem','QPen',\
-                                       'QPainterPath'])
-
+util.qtWrapImport('QtGui', globals(), ['QBrush', 'QGraphicsItem',
+                                       'QGraphicsPathItem',
+                                       'QPainterPath', 'QPen'])
 _baseWidth = styles.PATH_BASE_WIDTH
+_gridPen = QPen(styles.minorgridstroke, styles.MINOR_GRID_STROKE_WIDTH)
+_gridPen.setCosmetic(True)
 
 
 class VirtualHelixItem(QGraphicsPathItem):
     """VirtualHelixItem for PathView"""
-    minorGridPen = QPen(styles.minorgridstroke, styles.MINOR_GRID_STROKE_WIDTH)
-    majorGridPen = QPen(styles.majorgridstroke, styles.MAJOR_GRID_STROKE_WIDTH)
-    minorGridPen.setCosmetic(True)
-    majorGridPen.setCosmetic(True)
 
     def __init__(self, partItem, modelVirtualHelix, activeTool):
         super(VirtualHelixItem, self).__init__(partItem)
         self._partItem = partItem
         self._modelVirtualHelix = modelVirtualHelix
         self._activeTool = activeTool
-        self.setAcceptHoverEvents(True)  # for pathtools
+        self._controller = VirtualHelixItemController(self, modelVirtualHelix)
+        self._handle = VirtualHelixHandleItem(modelVirtualHelix, partItem)
+        self._gridPainterPath = None  # needed for getGridPainterPath()
+        self._gridPainterPath = self.getGridPainterPath()
+        self._lastStrandSet = None
+        self._lastIdx = None
         self.setFlag(QGraphicsItem.ItemUsesExtendedStyleOption)
         self.setCacheMode(QGraphicsItem.DeviceCoordinateCache)
         self.setBrush(QBrush(Qt.NoBrush))
-        self.setPen(self.minorGridPen)
-        self._minorGridPainterPath = None
-        self._majorGridPainterPath = None
-        self._minorGridPainterPath = self.minorGridPainterPath()
-        self._majorGridPainterPath = self.majorGridPainterPath()
-        self.setPath(self._minorGridPainterPath)
-        self._handle = VirtualHelixHandleItem(modelVirtualHelix, partItem)
-
-        self._controller = VirtualHelixItemController(self, modelVirtualHelix)
-        self.setAcceptHoverEvents(True)
+        self.setPen(_gridPen)
+        self.setPath(self._gridPainterPath)
+        self.setAcceptHoverEvents(True)  # for pathtools
     # end def
 
     ### SIGNALS ###
@@ -105,8 +98,7 @@ class VirtualHelixItem(QGraphicsPathItem):
         self._partItem = None
         self._modelVirtualHelix = None
         self._activeTool = None
-        self._minorGridPainterPath = None
-        self._majorGridPainterPath = None
+        self._gridPainterPath = None
         self._handle = None
         self._controller.disconnectSignals()
         self._controller = None
@@ -170,7 +162,7 @@ class VirtualHelixItem(QGraphicsPathItem):
         return x, y
     # end def
 
-    def minorGridPainterPath(self):
+    def getGridPainterPath(self):
         """
         Returns a QPainterPath object for the minor grid lines.
         The path also includes a border outline and a midline for
@@ -179,8 +171,8 @@ class VirtualHelixItem(QGraphicsPathItem):
         bw = _baseWidth
         part = self.part()
 
-        if self._minorGridPainterPath:
-            return self._minorGridPainterPath
+        if self._gridPainterPath:
+            return self._gridPainterPath
         path = QPainterPath()
         canvasSize = part.maxBaseIdx()+1
         # border
@@ -193,43 +185,23 @@ class VirtualHelixItem(QGraphicsPathItem):
         # staple-scaffold divider
         path.moveTo(0, bw)
         path.lineTo(bw * canvasSize, bw)
-        self._minorGridPainterPath = path
-        return path
-
-    def majorGridPainterPath(self):
-        """
-        Returns a QPainterPath object for the major grid lines.
-        This is separated from the minor grid lines so different
-        pens can be used for each.
-        """
-        bw = _baseWidth
-        part = self.part()
-
-        if self._majorGridPainterPath:
-            return self._majorGridPainterPath
-        path = QPainterPath()
-        canvasSize = part.maxBaseIdx()
-        # major tick marks
-        for i in range(0, canvasSize + 1, part.subStepSize()):
-            x = round(bw * i) + .5
-            path.moveTo(x, .5)
-            path.lineTo(x, 2 * bw - .5)
-        self._majorGridPainterPath = path
+        self._gridPainterPath = path
         return path
     # end def
 
     def resize(self):
         """Called by part on resize."""
         print "resize", self
-        self._minorGridPainterPath = None
-        self._minorGridPainterPath = self.minorGridPainterPath()
-        self.setPath(self._minorGridPainterPath)
+        self._gridPainterPath = None
+        self._gridPainterPath = self.getGridPainterPath()
+        self.setPath(self._gridPainterPath)
     # end def
 
     ### PUBLIC SUPPORT METHODS ###
     def setActive(self):
         """Makes active the virtual helix associated with this item."""
         self.part().setActiveVirtualHelix(self._modelVirtualHelix)
+    # end def
 
     ### EVENT HANDLERS ###
     def mousePressEvent(self, event):

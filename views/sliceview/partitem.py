@@ -37,11 +37,6 @@ util.qtWrapImport('QtGui', globals(), [ 'QGraphicsItem', 'QBrush', \
                                         'QPainterPath', 'QPen'])
 
 class PartItem(QGraphicsItem):
-    """
-    PartItem for the Path View sis an abstract class to be inherited by
-    Part Item is the parent of all SliceHelix items, and is responsible for 
-    spawning and positioning them according to the part dimensions.
-    """
     _radius = styles.SLICE_HELIX_RADIUS
 
     def __init__(self, modelPart, parent=None):

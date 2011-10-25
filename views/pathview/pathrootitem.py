@@ -102,3 +102,8 @@ class PathRootItem(QGraphicsRectItem):
         self._document = document
         self._controller = ViewRootController(self, document)
     # end def
+
+    def setModifyState(self, bool):
+        """docstring for setModifyState"""
+        for partItem in self._partItems:
+            partItem.setModifyState(bool)

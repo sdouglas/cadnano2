@@ -324,6 +324,7 @@ class CustomQGraphicsView(QGraphicsView):
     def wheelZoom(self, event):
         """docstring for wheelZoom"""
         self.safeScale(event.delta())
+    # end def
 
     def safeScale(self, delta):
         currentScaleLevel = self.transform().m11()
@@ -336,6 +337,13 @@ class CustomQGraphicsView(QGraphicsView):
                               self._scale_limit_max)
         scaleChange = newScaleLevel / currentScaleLevel
         self.scale(scaleChange, scaleChange)
+    # end def
+
+    def zoomIn(self):
+        currentScaleLevel = self.transform().m11()
+        scaleChange = self._scale_limit_max / currentScaleLevel * 2
+        self.scale(scaleChange, scaleChange)
+    # end def
 
     def dollyZoom(self, event):
         """docstring for dollyZoom"""

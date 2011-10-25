@@ -285,7 +285,9 @@ class DocumentController():
     def actionModifySlot(self):
         """docstring for actionModifySlot"""
         if app().isInMaya():
-            self.win.solidroot.setModifyState(self.win.actionModify.isChecked())
+            isChecked = self.win.actionModify.isChecked()
+            self.win.pathroot.setModifyState(isChecked)
+            self.win.solidroot.setModifyState(isChecked)
 
     def actionAddHoneycombPartSlot(self):
         """docstring for actionAddHoneycombPartSlot"""
