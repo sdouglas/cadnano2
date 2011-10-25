@@ -556,6 +556,7 @@ class Strand(QObject):
         cmds = []
         if self.strandSet().isScaffold():
             cmds.append(self.oligo().applySequenceCMD(None))
+        cmds += self.getRemoveInsertionCommands(newIdxs)
         cmds.append(Strand.ResizeCommand(self, newIdxs))
         util.execCommandList(self, cmds, desc="Resize strand", useUndoStack=useUndoStack)
     # end def
@@ -593,26 +594,54 @@ class Strand(QObject):
     # end def
 
     ### PUBLIC SUPPORT METHODS ###
-    def getRemoveInsertionCommandsAfterSplit(self):
+    def getRemoveInsertionCommands(self, newIdxs):
         """
-        Called by StrandSet's SplitCommand after copying the strand to be
-        split. Either copy could have extra decorators that the copy should
-        not retain.
+        Removes Insertions, Decorators, and Modifiers that have fallen out of 
+        range of newIdxs.  
+        
+        For insertions, it finds the ones that have neither Staple nor Scaffold
+        strands at the insertion idx as a result of the change of this 
+        strand to newIdxs
 
-        Removes Insertions, Decorators, and Modifiers
-
-        Problably want to wrap with a macro
         """
-        coord = self.virtualHelix().coord()
-        insts = self.part().insertions()[coord]
         decs = self._decorators
         mods = self._modifiers
-        idxMin, idxMax = self.idxs()
+        cIdxL, cIdxH = self.idxs()
+        nIdxL, nIdxH = newIdxs
         commands = []
-        for key in insts:
-            if key > idxMax or key < idxMin:
-                commands.append(Strand.RemoveInsertionCommand(self, key))
-            #end if
+        compSS = self.strandSet().complementStrandSet()
+        
+        lowOut, highOut = False, False
+        insertions = []
+        if cIdxL < nIdxL < cIdxH:
+            idxL, idxH = cIdxL, nIdxL-1
+            insertions += self.insertionsOnStrand(idxL, idxH)
+        else:
+            lowOut = True
+        if cIdxL < nIdxH < cIdxH:
+            idxL, idxH = nIdxH+1, cIdxH
+            insertions += self.insertionsOnStrand(idxL, idxH)
+        else:
+            highOut = True
+        # this only called if both the above aren't true
+        if lowOut and highOut:
+            idxL, idxH = cIdxL, cIdxH
+            insertions += self.insertionsOnStrand(idxL, idxH)
+            # we stretched in this direction
+        
+        overlappingStrandList = compSS.getOverlappingStrands(cIdxL, cIdxH)
+
+        for insertion in insertions:
+            idx = insertion.idx()
+            removeMe = True
+            for strand in overlappingStrandList:
+                overLapIdxL, overLapIdxH = strand.idxs()
+                if overLapIdxL <= idx <= overLapIdxH:
+                    removeMe = False
+                #end if
+            # end for
+            if removeMe:
+                commands.append(Strand.RemoveInsertionCommand(self, idx))   
             else:
                 pass
                 # print "keeping %s insertion at %d" % (self, key)
