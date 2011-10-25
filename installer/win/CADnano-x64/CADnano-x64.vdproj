@@ -315,7 +315,7 @@
         "Name" = "8:Microsoft Visual Studio"
         "ProductName" = "8:CADnano2"
         "ProductCode" = "8:{F4094BD1-3CAB-4C1F-8458-48423A6BBDBD}"
-        "PackageCode" = "8:{B38F02FD-7BA1-4369-B2CD-DD2CB9B73482}"
+        "PackageCode" = "8:{5BE0EF3F-07BB-4CCC-9F75-9819897E7561}"
         "UpgradeCode" = "8:{83FFBD67-55A4-4F5E-AE78-11641B1B9B25}"
         "AspNetVersion" = "8:4.0.30319.0"
         "RestartWWWService" = "11:FALSE"
@@ -338,7 +338,7 @@
         "UseSystemSearchPath" = "11:TRUE"
         "TargetPlatform" = "3:1"
         "PreBuildEvent" = "8:"
-        "PostBuildEvent" = "8:\"$(ProjectDir)..\\msi64v2.js\" \"$(BuiltOuputPath)\"\r\n\"$(ProjectDir)..\\CustomAction_NoImpersonate.js\" \"$(BuiltOuputPath)\"\r\n"
+        "PostBuildEvent" = "8:\"$(ProjectDir)..\\msi64v2.js\" \"$(BuiltOuputPath)\""
         "RunPostBuildEvent" = "3:0"
         }
         "Registry"
@@ -841,7 +841,7 @@
                             "ContextData" = "8:"
                             "Attributes" = "3:0"
                             "Setting" = "3:2"
-                            "Value" = "8:[PYTHONFOLDER] ||| [MAYAFOLDER] The installer will guide you through the steps required to install [ProductName] on your computer."
+                            "Value" = "8:The installer will guide you through the steps required to install [ProductName] on your computer."
                             "DefaultValue" = "8:#1203"
                             "UsePlugInResources" = "11:TRUE"
                             }
@@ -998,7 +998,7 @@
             "SourcePath" = "8:..\\PyQt-x64\\Release\\PyQt-x64.msm"
             "TargetName" = "8:"
             "Tag" = "8:"
-            "Folder" = "8:_2175223356364958B945750C7B8A9D21"
+            "Folder" = "8:_6E231C9ED8804DAD90343D24CB1C28E9"
             "Condition" = "8:"
             "Transitive" = "11:FALSE"
             "Vital" = "11:TRUE"
@@ -1042,7 +1042,7 @@
                     }
                 "LanguageId" = "3:1033"
                 "Exclude" = "11:FALSE"
-                "Folder" = "8:_2175223356364958B945750C7B8A9D21"
+                "Folder" = "8:_6E231C9ED8804DAD90343D24CB1C28E9"
                 "Feature" = "8:"
                 "IsolateTo" = "8:"
                 }
