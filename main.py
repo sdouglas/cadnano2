@@ -52,6 +52,9 @@ if "-p" not in sys.argv:
         pass
     if supportsPythonObjCBridge:
         from osx.CNApplicationDelegate import sharedDelegate as appDelegate
+    # else:
+    #     from applicationdelegate import ApplicationDelegate
+        
 
 
 app = getAppInstance()

@@ -327,16 +327,15 @@ class Part(QObject):
         # pass that info in here in and then do the breaks
         ss5p = strand5p.strandSet()
         ss3p = strand3p.strandSet()
-        cmds = []
-        util.execCommandList(self, cmds, desc="Create Xover", \
-                                                useUndoStack=useUndoStack)
         if useUndoStack:
             self.undoStack().beginMacro("Create Xover")
         if ss5p.strandType() != ss3p.strandType():
             return
         if ss5p.isScaffold():
-            cmds.append(strand5p.oligo().applySequenceCMD(None))
-            cmds.append(strand3p.oligo().applySequenceCMD(None))
+            # cmds.append(strand5p.oligo().applySequenceCMD(None))
+            # cmds.append(strand3p.oligo().applySequenceCMD(None))
+            strand5p.oligo().applySequence(None)
+            strand3p.oligo().applySequence(None)
         if strand5p == strand3p:
             """
             This is a complicated case basically we need a truth table.
