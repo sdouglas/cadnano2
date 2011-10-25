@@ -180,7 +180,6 @@ class Part(QObject):
         ret = self._step-1
         for vh in self.getVirtualHelices():
             ret = max(ret, vh.indexOfRightmostNonemptyBase())
-        print "part indexOfRightmostNonemptyBase", ret
         return ret
     # end def
 
@@ -334,7 +333,6 @@ class Part(QObject):
         if useUndoStack:
             self.undoStack().beginMacro("Create Xover")
         if ss5p.strandType() != ss3p.strandType():
-            print "Failed xover on try 1"
             return
         if ss5p.isScaffold():
             cmds.append(strand5p.oligo().applySequenceCMD(None))
@@ -383,7 +381,6 @@ class Part(QObject):
                     else:
                         c.redo()
                 else:
-                    print "Failed xover on try 2"
                     return
                 # end if
             if xoStrand3.idx3Prime() == idx5p:
@@ -411,7 +408,6 @@ class Part(QObject):
                     elif idx5p < idx3p and not ss3p.isDrawn5to3():
                         xoStrand3 = xoStrand5
                 else:
-                    print "Failed xover on try three", xoStrand3.lowIdx(), xoStrand3.highIdx(), idx5p
                     return
         # end if
         else: #  Do the following if it is in fact a different strand
@@ -560,7 +556,6 @@ class Part(QObject):
 
     def resizeVirtualHelices(self, minDelta, maxDelta, useUndoStack=True):
         """docstring for resizeVirtualHelices"""
-        print "resizeVirtualHelices", minDelta, maxDelta
         c = Part.ResizePartCommand(self, minDelta, maxDelta)
         util.execCommandList(self, [c], desc="Resize part", \
                                                     useUndoStack=useUndoStack)
@@ -937,7 +932,6 @@ class Part(QObject):
             self._strand3p = strand3p
             self._strand3pIdx = strand3pIdx
             self._oldOligo3p = strand3p.oligo()
-            print "The xover init", strand5p, strand3p
         # end def
 
         def redo(self):
@@ -963,8 +957,6 @@ class Part(QObject):
             # 3. install the Xover
             strand5p.setConnection3p(strand3p)
             strand3p.setConnection5p(strand5p)
-            print "xoverA", strand5p, strand3p.connection5p()
-            print "xoverB", strand3p, strand5p.connection3p()
 
             ss5 = strand5p.strandSet()
             vh5p = ss5.virtualHelix()

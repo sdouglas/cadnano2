@@ -184,18 +184,28 @@ class Strand(QObject):
     # end def
 
     def getPreDecoratorIdxList(self):
-        """Return positions where predecorators should be displayed."""
-        part = self._strandSet.part()
-        validIdxs = sorted([idx[0] for idx in part._stapL + part._stapH])
-        lo, hi = self._baseIdxLow, self._baseIdxHigh
-        start = lo if self.connectionLow() == None else lo+1
-        end = hi if self.connectionHigh() == None else hi-1
-        ret = []
-        for i in range(start, end+1):
-            if i % part.stepSize() in validIdxs:
-                ret.append(i)
-        return ret
+        """
+        Return positions where predecorators should be displayed. This is
+        just a very simple check for the presence of xovers on the strand.
+
+        Will refine later by checking for lattice neighbors in 3D.
+        """
+        return range(self._baseIdxLow, self._baseIdxHigh+1)
     # end def
+
+    # def getPreDecoratorIdxList(self):
+    #     """Return positions where predecorators should be displayed."""
+    #     part = self._strandSet.part()
+    #     validIdxs = sorted([idx[0] for idx in part._stapL + part._stapH])
+    #     lo, hi = self._baseIdxLow, self._baseIdxHigh
+    #     start = lo if self.connectionLow() == None else lo+1
+    #     end = hi if self.connectionHigh() == None else hi-1
+    #     ret = []
+    #     for i in range(start, end+1):
+    #         if i % part.stepSize() in validIdxs:
+    #             ret.append(i)
+    #     return ret
+    # # end def
 
     def setComplimentSequence(self, sequenceString, strand):
         """
@@ -601,11 +611,11 @@ class Strand(QObject):
         commands = []
         for key in insts:
             if key > idxMax or key < idxMin:
-                print "removing %s insertion at %d" % (self, key)
                 commands.append(Strand.RemoveInsertionCommand(self, key))
             #end if
             else:
-                print "keeping %s insertion at %d" % (self, key)
+                pass
+                # print "keeping %s insertion at %d" % (self, key)
         # end for
 
         ### ADD CODE HERE TO HANDLE DECORATORS AND MODIFIERS

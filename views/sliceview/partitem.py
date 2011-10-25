@@ -87,7 +87,7 @@ class PartItem(QGraphicsItem):
 
     def partParentChangedSlot(self):
         """docstring for partParentChangedSlot"""
-        print "PartItem.partParentChangedSlot"
+        # print "PartItem.partParentChangedSlot"
         pass
 
     def partRemovedSlot(self):
@@ -107,7 +107,7 @@ class PartItem(QGraphicsItem):
 
     def partDestroyedSlot(self):
         """docstring for partDestroyedSlot"""
-        print "PartItem.partDestroyedSlot"
+        # print "PartItem.partDestroyedSlot"
         pass
     # end def
 

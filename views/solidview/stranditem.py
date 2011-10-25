@@ -202,12 +202,12 @@ class StrandItem(QObject):
         # the right numbers...
         if self._virtualHelixItem.partItem().type() == LatticeType.Honeycomb:
             cmds.setAttr("%s.rotation" % cylinderName, 34.286)
-            cmds.setAttr("%s.rotationOffset" % cylinderName, 30)
+            cmds.setAttr("%s.rotationOffset" % cylinderName, 240)
             cmds.setAttr("%s.parity" % cylinderName,
                          self._virtualHelixItem.isEvenParity())
         elif self._virtualHelixItem.partItem().type() == LatticeType.Square:
             cmds.setAttr("%s.rotation" % cylinderName, 33.75)
-            cmds.setAttr("%s.rotationOffset" % cylinderName, 240)
+            cmds.setAttr("%s.rotationOffset" % cylinderName, 30)
             cmds.setAttr("%s.parity" % cylinderName,
                          self._virtualHelixItem.isEvenParity())
         else:

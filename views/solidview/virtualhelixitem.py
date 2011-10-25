@@ -266,7 +266,7 @@ class VirtualHelixItem(QObject):
             cmds.connectAttr("%s.outColor" % shaderName,
                              "%sSG.surfaceShader" % shaderName)
             cmds.setAttr("%s.color" % shaderName,
-                         0.85, 0.2, 0.2,
+                         0.0, 0.0, 0.0,
                          type="double3")
             cmds.sets(meshName, forceElement="%sSG" % shaderName)
         else:

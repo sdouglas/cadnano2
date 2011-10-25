@@ -1036,13 +1036,11 @@ class StrandSet(QObject):
             # Update strand connectivity
             strandLow.setConnectionHigh(None)
             strandHigh.setConnectionLow(None)
-            
+
             # Resize strands and update decorators
             strandLow.setIdxs((strand.lowIdx(), iNewLow))
             strandHigh.setIdxs((iNewLow + 1, strand.highIdx()))
 
-            print "Craze", strandLow, strandHigh, strandLow.connectionLow()
-            
             # Update the oligo color if necessary
             if not oligo.isLoop():
                 lOligo.setColor(colorLow)
@@ -1077,7 +1075,6 @@ class StrandSet(QObject):
                     sLcL.setConnectionHigh(sL)
                 else:
                     sLcL.setConnectionLow(sL)
-                    print sLcL, sL
             sHcH = sH.connectionHigh()
             if sHcH:
                 if ( oS.isDrawn5to3() and sHcH.isDrawn5to3() ) or \
@@ -1085,17 +1082,12 @@ class StrandSet(QObject):
                     sHcH.setConnectionLow(sH)
                 else:
                    sHcH.setConnectionHigh(sH)
-            print "are they the same?", sLcL, sHcH, oS
 
             # Traverse the strands via 3'conns to assign the new oligos
-            print "apply oligos 1"
             for strand in lOlg.strand5p().generator3pStrand():
-                print strand, lOlg
                 Strand.setOligo(strand, lOlg)  # emits strandHasNewOligoSignal
             if wasNotLoop:  # do the second oligo which is different
-                print "apply oligos 2"
                 for strand in hOlg.strand5p().generator3pStrand():
-                    print strand, hOlg
                     Strand.setOligo(strand, hOlg)  # emits strandHasNewOligoSignal
 
             # Add new oligo and remove old oligos from the part

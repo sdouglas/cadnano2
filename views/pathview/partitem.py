@@ -106,7 +106,7 @@ class PartItem(QGraphicsRectItem):
     # end def
 
     def partDimensionsChangedSlot(self, part):
-        print "partDimensionsChangedSlot"
+        # print "partDimensionsChangedSlot"
         if len(self._virtualHelixItemList) > 0:
             vhi = self._virtualHelixItemList[0]
             vhiRect = vhi.boundingRect()
@@ -147,7 +147,7 @@ class PartItem(QGraphicsRectItem):
         self.window().pathGraphicsView.centerOn(p)
         self.window().pathGraphicsView.zoomIn()
         self._modRect.setPos(p)
-        if self._canShowModRect and not self._modRect.isVisible():
+        if self._canShowModRect:
             self._modRect.show()
     # end def
 

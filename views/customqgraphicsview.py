@@ -341,7 +341,7 @@ class CustomQGraphicsView(QGraphicsView):
 
     def zoomIn(self):
         currentScaleLevel = self.transform().m11()
-        scaleChange = self._scale_limit_max / currentScaleLevel * 2
+        scaleChange = (self._scale_limit_max/2) / currentScaleLevel
         self.scale(scaleChange, scaleChange)
     # end def
 

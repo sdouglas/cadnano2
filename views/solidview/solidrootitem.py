@@ -58,7 +58,8 @@ class SolidRootItem(QObject):
 
     def selectedPartChangedSlot(self, modelPart):
         """Given a newly selected modelPart"""
-        print "SolidRootItem.selectedPartChangedSlot"
+        # print "SolidRootItem.selectedPartChangedSlot"
+        pass
 
     ### METHODS ###
     def partItems(self):
