@@ -62,11 +62,17 @@ class SliceRootItem(QGraphicsRectItem):
     def selectedPartChangedSlot(self):
         """docstring for selectedPartChangedSlot"""
         pass
+    # end def
 
     ### ACCESSORS ###
     def sliceToolManager(self):
         """docstring for sliceToolManager"""
         return self._window.sliceToolManager
+    # end def
+
+    def window(self):
+        return self._window
+    # end def
 
     ### METHODS ###
     def removePartItem(self, partItem):
@@ -79,4 +85,10 @@ class SliceRootItem(QGraphicsRectItem):
         self._controller = ViewRootController(self, document)
         if len(self._instanceItems) > 0:
             raise ImportError
+    # end def
 
+    def setModifyState(self, bool):
+        """docstring for setModifyState"""
+        for partItem in self._instanceItems:
+            partItem.setModifyState(bool)
+    # end def

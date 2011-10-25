@@ -43,7 +43,7 @@ import util
 util.qtWrapImport('QtCore', globals(), ['pyqtSlot', 'QPointF', 'QRectF', 'Qt'])
 util.qtWrapImport('QtGui', globals(), ['QBrush', 'QGraphicsPathItem',
                                        'QGraphicsRectItem', 'QInputDialog',
-                                        'QPen'])
+                                       'QPen'])
 
 _baseWidth = _bw = styles.PATH_BASE_WIDTH
 _defaultRect = QRectF(0, 0, _baseWidth, _baseWidth)
@@ -144,8 +144,10 @@ class PartItem(QGraphicsRectItem):
         vhi = self.itemForVirtualHelix(vh)
         yOffset = _bw if vh.isEvenParity() else 0
         p = QPointF(baseIdx*_bw, vhi.y() + yOffset)
-        self.window().pathGraphicsView.centerOn(p)
-        self.window().pathGraphicsView.zoomIn()
+        view = self.window().pathGraphicsView
+        view.sceneRootItem.resetTransform()
+        view.centerOn(p)
+        view.zoomIn()
         self._modRect.setPos(p)
         if self._canShowModRect:
             self._modRect.show()

@@ -53,9 +53,9 @@ class EmptyHelixItem(QGraphicsEllipseItem):
     _hoverPen = QPen(styles.bluestroke, styles.SLICE_HELIX_HILIGHT_WIDTH)
     _radius = styles.SLICE_HELIX_RADIUS
     temp = styles.SLICE_HELIX_STROKE_WIDTH
-    _rectDefault = QRectF(0, 0, 2 * _radius, 2 * _radius)
+    _defaultRect = QRectF(0, 0, 2 * _radius, 2 * _radius)
     temp = (styles.SLICE_HELIX_HILIGHT_WIDTH - temp)/2
-    _rectHovered = _rectDefault.adjusted(-temp, -temp, temp, temp)
+    _hoverRect = _defaultRect.adjusted(-temp, -temp, temp, temp)
     _ZDefault = styles.ZSLICEHELIX 
     _ZHovered = _ZDefault+1 
     temp /= 2
@@ -137,7 +137,7 @@ class EmptyHelixItem(QGraphicsEllipseItem):
         # self.translateVH(self._adjustmentPlus)
         self._isHovered = True
         self.setZValue(self._ZHovered)
-        self.setRect(self._rectHovered)
+        self.setRect(self._hoverRect)
     # end def
 
     def hoverEnterEvent(self, event):
@@ -158,7 +158,7 @@ class EmptyHelixItem(QGraphicsEllipseItem):
         # self.translateVH(self._adjustmentMinus)
         self._isHovered = False
         self.setZValue(self._ZDefault)
-        self.setRect(self._rectDefault)
+        self.setRect(self._defaultRect)
     # end def
 
     def hoverLeaveEvent(self, event):

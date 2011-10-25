@@ -212,6 +212,12 @@ class VirtualHelixItem(QGraphicsPathItem):
         self.scene().views()[0].addToPressList(self)
         self.setActive()
         toolMethodName = str(self._activeTool()) + "MousePress"
+
+        ### uncomment for debugging modifier selection
+        # strandSet, idx = self.baseAtPoint(event.pos())
+        # row, col = strandSet.virtualHelix().coord()
+        # self._partItem.part().selectPreDecorator([(row,col,idx)])
+
         if hasattr(self, toolMethodName):
             strandSet, idx = self.baseAtPoint(event.pos())
             self._lastStrandSet, self._lastIdx = strandSet, idx

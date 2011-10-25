@@ -47,6 +47,7 @@ class PathRootItem(QGraphicsRectItem):
         self._controller = ViewRootController(self, document)
         self._modelPart = None
         self._partItems = []
+    # end def
 
     ### SIGNALS ###
 
@@ -65,6 +66,7 @@ class PathRootItem(QGraphicsRectItem):
                             parent=self)
         self._partItems.append(partItem)
         win.pathToolManager.setActivePart(partItem)
+    # end def
 
     def selectedPartChangedSlot(self, modelPart):
         """Given a newly selected modelPart, update the scene to indicate
@@ -73,6 +75,7 @@ class PathRootItem(QGraphicsRectItem):
         pass
         # if partItem in self._partItems:
         #     self._window.setActivePart(partItem)
+    # end def
 
     ### ACCESSORS ###
     def sliceToolManager(self):
@@ -81,9 +84,11 @@ class PathRootItem(QGraphicsRectItem):
         to item slots.
         """
         return self._window.sliceToolManager
+    # end def
 
     def window(self):
         return self._window
+    # end def
 
     ### PUBLIC METHODS ###
     def getSelectedPartOrderedVHList(self):
@@ -92,6 +97,7 @@ class PathRootItem(QGraphicsRectItem):
         for partItem in self._partItems:
             if partItem._modelPart == selectedPart:
                 return partItem.getOrderedVirtualHelixList()
+    # end def
 
     def removePartItem(self, partItem):
         self._partItems.remove(partItem)
@@ -107,3 +113,4 @@ class PathRootItem(QGraphicsRectItem):
         """docstring for setModifyState"""
         for partItem in self._partItems:
             partItem.setModifyState(bool)
+    # end def

@@ -33,50 +33,65 @@ import util
 # import Qt stuff into the module namespace with PySide, PyQt4 independence
 util.qtWrapImport('QtCore', globals(), ['QRectF', 'QPointF', 'QEvent', 'Qt', \
                                         'pyqtSignal', 'pyqtSlot', 'QObject'])
-util.qtWrapImport('QtGui', globals(), [ 'QGraphicsItem', 'QBrush', \
-                                        'QPainterPath', 'QPen'])
+util.qtWrapImport('QtGui', globals(), ['QBrush', 'QGraphicsItem', 
+                                       'QGraphicsEllipseItem',
+                                       'QPainterPath', 'QPen'])
+
+_radius = styles.SLICE_HELIX_RADIUS
+_defaultRect = QRectF(0, 0, 2 * _radius, 2 * _radius)
+highlightWidth = styles.SLICE_HELIX_MOD_HILIGHT_WIDTH
+delta = (highlightWidth - styles.SLICE_HELIX_STROKE_WIDTH)/2.
+_hoverRect = _defaultRect.adjusted(-delta, -delta, delta, delta)
+_modPen = QPen(styles.bluestroke, highlightWidth)
 
 class PartItem(QGraphicsItem):
     _radius = styles.SLICE_HELIX_RADIUS
 
     def __init__(self, modelPart, parent=None):
         """
-        modelPart is the modelPart it mirrors
-        parent should be  either a SliceRootItem, or an AssemblyItem
+        Parent should be either a SliceRootItem, or an AssemblyItem.
+
+        Invariant: keys in _emptyhelixhash = range(_nrows) x range(_ncols)
+        where x is the cartesian product.
+        
+        Order matters for deselector, probe, and setlattice
         """
         super(PartItem, self).__init__(parent)
-        # data related
         self._part = modelPart
+        self._controller = PartItemController(self, modelPart)
+        self._activeSliceItem = ActiveSliceItem(self, modelPart.activeBaseIndex())
         self._scaleFactor = self._radius/modelPart.radius()
-        self.setZValue(100)
-
-        # make sure paint doesn't get called
-        self.setFlag(QGraphicsItem.ItemHasNoContents)
-
-        # The deselector grabs mouse events that missed a slice
-        # and clears the selection when it gets one
-        self.deselector = PartItem.Deselector(self)
-        self.deselector.setParentItem(self)
-        self.deselector.setFlag(QGraphicsItem.ItemStacksBehindParent)
-        self.deselector.setZValue(-1)
-
-        # Invariant: keys in _emptyhelixhash = range(_nrows) x range(_ncols)
-        # where x is the cartesian product
         self._emptyhelixhash = {}
         self._virtualHelixHash = {}
-
         self._nrows, self._ncols = 0, 0
         self._rect = QRectF(0, 0, 0, 0)
-        # initialize the PartItem with an empty set of old coords
-        self._setLattice([], modelPart.generatorFullLattice())
-
+        self._initDeselector()
         # Cache of VHs that were active as of last call to activeSliceChanged
         # If None, all slices will be redrawn and the cache will be filled.
         # Connect destructor. This is for removing a part from scenes.
         self.probe = self.IntersectionProbe(self)
+        # initialize the PartItem with an empty set of old coords
+        self._setLattice([], modelPart.generatorFullLattice())
+        self.setFlag(QGraphicsItem.ItemHasNoContents)  # never call paint
+        self.setZValue(100)
+        self._initModifierCircle()
+    # end def
 
-        self._controller = PartItemController(self, modelPart)
-        self._activeSliceItem = ActiveSliceItem(self, modelPart.activeBaseIndex())
+    def _initDeselector(self):
+        """
+        The deselector grabs mouse events that missed a slice and clears the
+        selection when it gets one.
+        """
+        self.deselector = ds = PartItem.Deselector(self)
+        ds.setParentItem(self)
+        ds.setFlag(QGraphicsItem.ItemStacksBehindParent)
+        ds.setZValue(-1)
+
+    def _initModifierCircle(self):
+        self._canShowModCirc = False
+        self._modCirc = mC = QGraphicsEllipseItem(_hoverRect, self)
+        mC.setPen(_modPen)
+        mC.hide()
     # end def
 
     ### SIGNALS ###
@@ -107,7 +122,6 @@ class PartItem(QGraphicsItem):
 
     def partDestroyedSlot(self):
         """docstring for partDestroyedSlot"""
-        # print "PartItem.partDestroyedSlot"
         pass
     # end def
 
@@ -117,11 +131,16 @@ class PartItem(QGraphicsItem):
 
     def partPreDecoratorSelectedSlot(self, row, col, baseIdx):
         """docstring for partPreDecoratorSelectedSlot"""
-        # determine where rootitem (self) is currently centered
-        # compute deltaX from baseIdx and baseWidth
-        # compute deltaY from virtualhelix position
-        # self.translate(deltaX, deltaY)
-        pass
+        vhi = self.getVirtualHelixItemByCoord(row, col)
+        view = self.window().sliceGraphicsView
+        view.sceneRootItem.resetTransform()
+        view.centerOn(vhi)
+        view.zoomIn()
+        mC = self._modCirc
+        x,y = self._part.latticeCoordToPositionXY(row, col, self.scaleFactor())
+        mC.setPos(x,y)
+        if self._canShowModCirc:
+            mC.show()
     # end def
 
     def partVirtualHelixAddedSlot(self, virtualHelix):
@@ -145,7 +164,28 @@ class PartItem(QGraphicsItem):
         pass
     # end def
 
-    ############################ Private Methods ############################
+    ### ACCESSORS ###
+    def boundingRect(self):
+        return self._rect
+    # end def
+
+    def part(self):
+        return self._part
+    # end def
+
+    def scaleFactor(self):
+        return self._scaleFactor
+    # end def
+
+    def setPart(self, newPart):
+        self._part = newPart
+    # end def
+
+    def window(self):
+        return self.parentItem().window()
+    # end def
+
+    ### PRIVATE SUPPORT METHODS ###
     def _upperLeftCornerForCoords(self, row, col):
         pass  # subclass
     # end def
@@ -189,43 +229,16 @@ class PartItem(QGraphicsItem):
         self.zoomToFit()
     # end def
 
-    ############################# Public Methods #############################
-    def mousePressEvent(self, event):
-        # self.createOrAddBasesToVirtualHelix()
-        QGraphicsItem.mousePressEvent(self, event)
-    # end def
-
-    def boundingRect(self):
-        return self._rect
-    # end def
-
-    def scaleFactor(self):
-        return self._scaleFactor
-    # end def
-
-    def paint(self, painter, option, widget=None):
-        pass
-    # end def
-
-    def zoomToFit(self):
-        thescene = self.scene()
-        theview = thescene.views()[0]
-        theview.zoomToFit()
-    # end def
-
-    def part(self):
-        return self._part
-    # end def
-
-    def setPart(self, newPart):
-        self._part = newPart
-    # end def
-
+    ### PUBLIC SUPPORT METHODS ###
     def getVirtualHelixItemByCoord(self, row, column):
         if (row, column) in self._emptyhelixhash:
             return self._virtualHelixHash[(row, column)]
         else:
             return None
+    # end def
+
+    def paint(self, painter, option, widget=None):
+        pass
     # end def
 
     def selectionWillChange(self, newSel):
@@ -237,9 +250,28 @@ class PartItem(QGraphicsItem):
             sh.setSelected(sh.virtualHelix() in newSel)
     # end def
 
+    def setModifyState(self, bool):
+        """Hides the modRect when modify state disabled."""
+        self._canShowModCirc = bool
+        if bool == False:
+            self._modCirc.hide()
+
     def vhAtCoordsChanged(self, row, col):
         self._emptyhelixhash[(row, col)].update()
     # end def
+
+    def zoomToFit(self):
+        thescene = self.scene()
+        theview = thescene.views()[0]
+        theview.zoomToFit()
+    # end def
+
+    ### EVENT HANDLERS ###
+    def mousePressEvent(self, event):
+        # self.createOrAddBasesToVirtualHelix()
+        QGraphicsItem.mousePressEvent(self, event)
+    # end def
+
 
     class Deselector(QGraphicsItem):
         """The deselector lives behind all the slices and observes mouse press

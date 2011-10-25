@@ -283,10 +283,18 @@ class DocumentController():
         self.activePart().autoStaple()
 
     def actionModifySlot(self):
-        """docstring for actionModifySlot"""
+        """
+        Notifies that part root items that parts should respond to modifier
+        selection signals. 
+        """
+        # uncomment for debugging
+        # isChecked = self.win.actionModify.isChecked()
+        # self.win.pathroot.setModifyState(isChecked)
+        # self.win.sliceroot.setModifyState(isChecked)
         if app().isInMaya():
             isChecked = self.win.actionModify.isChecked()
             self.win.pathroot.setModifyState(isChecked)
+            self.win.sliceroot.setModifyState(isChecked)
             self.win.solidroot.setModifyState(isChecked)
 
     def actionAddHoneycombPartSlot(self):

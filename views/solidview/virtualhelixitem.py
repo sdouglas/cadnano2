@@ -179,7 +179,7 @@ class VirtualHelixItem(QObject):
             rise = cmds.getAttr("%s.rise" % cylinderName)
             startBase = cmds.getAttr("%s.startBase" % cylinderName)
             startPos = cmds.getAttr("%s.startPos" % cylinderName)
-            base0Pos = startPos[0][1] + startBase * rise
+            base0Pos = startPos[0][1] + (startBase * rise)
             ourPos = base0Pos - (base * rise)
             zComp = ourPos
 
@@ -214,31 +214,27 @@ class VirtualHelixItem(QObject):
         self.stapleIndicatorCount = 0
 
     def createDecorators(self, strand):
-        #print "createStapleModIndicator"
         m = Mom()
-        strandid = m.strandMayaID(strand)
-        # XXX [SB] will use self._vhelix.getPreStapleModIndexList()
+        strandId = m.strandMayaID(strand)
         totalNumBases = self._vhelix.part().maxBaseIdx()
-        stapleBases = strand.getPreDecoratorIdxList()
-        #for b in range(totalNumBases):
-        #    stapleBases.append(b)
+        preDecoratorIdxList = strand.getPreDecoratorIdxList()
 
-        for stapleBase in stapleBases:
+        for baseIdx in preDecoratorIdxList:
             # XXX [SB+AT] NOT THREAD SAFE
             while cmds.objExists("%s%s_%s" % (m.decoratorNodeName,
-                                              strandid,
+                                              strandId,
                                               self.stapleIndicatorCount)):
                 self.stapleIndicatorCount += 1
-            stapleId = "%s_%s" % (strandid, self.stapleIndicatorCount)
-            coords = self.cadnanoVBaseToMayaCoords(stapleBase, strand)
+            stapleId = "%s_%s" % (strandId, self.stapleIndicatorCount)
+            coords = self.cadnanoVBaseToMayaCoords(baseIdx, strand)
             stapleModNodeInfo = self.createDecoratorNodes(coords, stapleId)
             self.stapleModIndicatorIDs.append(stapleId)
             m = Mom()
             m.decoratorToVirtualHelixItem[stapleModNodeInfo[2]] = (self,
-                                                                   stapleBase,
+                                                                   baseIdx,
                                                                    strand)
             m.decoratorToVirtualHelixItem[stapleModNodeInfo[1]] = (self,
-                                                                   stapleBase,
+                                                                   baseIdx,
                                                                    strand)
 
     def createDecoratorNodes(self, coords, id):
