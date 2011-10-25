@@ -488,7 +488,7 @@ class Strand(QObject):
             -1 for a skip
         """
         cmds = []
-        if self.strandSet().isScaffold():
+        if self.strandSet().isScaffold() and useUndoStack:
             cmds.append(self.oligo().applySequenceCMD(None))
         idxLow, idxHigh = self.idxs()
         if idxLow <= idx <= idxHigh:
