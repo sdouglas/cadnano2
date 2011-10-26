@@ -1,18 +1,18 @@
-#!/bin/bash -x
+#!/bin/bash
 
 SUPPORTED_MAYA_VERSIONS="2012"
 
-# # Create a directory and symlink to spCadNano.py so we don't have to include
-# # the whole cadnano directory
-# CADNANO_DIR=/Applications/cadnano2.app/Contents/Resources/cadnano2
-# PLUGIN_DIR=${CADNANO_DIR}/plugins
-# if [[ ! -d "${PLUGIN_DIR}" ]] ; then
-#     mkdir ${PLUGIN_DIR}
-#     ln -s ${CADNANO_DIR}/spCadNano.py ${PLUGIN_DIR}/spCadNano.py
-# fi
-# 
-# # Prepare to copy PyQt into mayapy framework
-# unzip /Applications/cadnano2.app/Contents/Resources/PyQtMacMaya.zip -d /tmp
+# Create a directory and symlink to spCadNano.py so we don't have to include
+# the whole cadnano directory
+CADNANO_DIR=/Applications/cadnano2.app/Contents/Resources/cadnano2
+PLUGIN_DIR=${CADNANO_DIR}/plugins
+if [[ ! -d "${PLUGIN_DIR}" ]] ; then
+    mkdir ${PLUGIN_DIR}
+    ln -s ${CADNANO_DIR}/spCadNano.py ${PLUGIN_DIR}/spCadNano.py
+fi
+
+# Prepare to copy PyQt into mayapy framework
+unzip /Applications/cadnano2.app/Contents/Resources/PyQtMacMaya.zip -d /tmp
 
 # Copy PyQt for Maya for each supported version (should just be 2012 for now)
 for VERSION in ${SUPPORTED_MAYA_VERSIONS}
@@ -26,9 +26,9 @@ do
     ./patch_pluginPrefs ${MAYA_PLUGIN_PREFS_FILE}
 
     MAYAPY_DIR=/Applications/Autodesk/maya${VERSION}/Maya.app/Contents/Frameworks/Python.framework/Versions/2.6
-    # if [[ -d "${MAYAPY_DIR}" ]] ; then
-    #     # echo "${MAYAPY_DIR} exists"
-    #     cp -R /tmp/PyQtMacMaya/* $MAYAPY_DIR
-    #     # ln -s /Library/Python/2.6/site-packages/sip $MAYAPY_DIR/lib/python2.6/site-packages/sip
-    # fi
+    if [[ -d "${MAYAPY_DIR}" ]] ; then
+        # echo "${MAYAPY_DIR} exists"
+        cp -R /tmp/PyQtMacMaya/* $MAYAPY_DIR
+        # ln -s /Library/Python/2.6/site-packages/sip $MAYAPY_DIR/lib/python2.6/site-packages/sip
+    fi
 done
