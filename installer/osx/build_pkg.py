@@ -125,8 +125,6 @@ repackage_riverbank('sip', 'sip-(\d+).(\d+).*', 'sip-(\d+).(\d+).*', 'http://www
 repackage_riverbank('PyQt', 'PyQt-mac-gpl-(\d+).(\d+).(\d+).*', 'PyQt-mac-gpl-(\d+).(\d+).(\d+).*', 'http://www.riverbankcomputing.co.uk/software/pyqt/download')
 
 
-
-
 # cadnano2.app
 print "Building cadnano2.app..."
 print "\txcodebuild -configuration Release 2>&1 >$BUILDROOT/xcodebuild.log"
