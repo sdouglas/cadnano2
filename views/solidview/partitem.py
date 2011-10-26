@@ -133,17 +133,15 @@ class PartItem(QObject):
         pass
     # end def
 
-    @pyqtSlot()
-    def partParentChangedSlot(self):
+    def partParentChangedSlot(self, part):
         """solidview.PartItem partParentChangedSlot"""
         #print "solidview.PartItem.partParentChangedSlot"
         pass
     # end def
 
-    @pyqtSlot()
-    def partRemovedSlot(self):
+    def partRemovedSlot(self, part):
         """solidview.PartItem partRemovedSlot"""
-        #print "solidview.PartItem.partRemovedSlot"
+        # print "solidview.PartItem.partRemovedSlot"
         self._part = None
         self._controller.disconnectSignals()
         self._controller = None
