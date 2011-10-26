@@ -14,7 +14,7 @@ def mkdir(dirpath):
         try:
             shutil.rmtree(dirpath)
         except OSError as e:
-            print "Colud not clear out the old %s: "%dirpath, str(e)
+            print "Could not clear out the old %s: "%dirpath, str(e)
             exit(1)
     os.makedirs(dirpath)
 mkdir(install_root)
@@ -118,13 +118,11 @@ def repackage_riverbank(pkgname, tarball_re_str, folder_re_str, download_url):
 
 
 # SIP
-repackage_riverbank('sip', 'sip-(\d+).(\d+).(\d+).*', 'sip-(\d+).(\d+).(\d+).*', 'http://www.riverbankcomputing.co.uk/software/sip/download')
-
-
+# repackage_riverbank('sip', 'sip-(\d+).(\d+).*', 'sip-(\d+).(\d+).*', 'http://www.riverbankcomputing.co.uk/software/sip/download')
 
 
 # PyQt
-repackage_riverbank('PyQt', 'PyQt-mac-gpl-(\d+).(\d+).(\d+).*', 'PyQt-mac-gpl-(\d+).(\d+).(\d+).*', 'http://www.riverbankcomputing.co.uk/software/pyqt/download')
+# repackage_riverbank('PyQt', 'PyQt-mac-gpl-(\d+).(\d+).(\d+).*', 'PyQt-mac-gpl-(\d+).(\d+).(\d+).*', 'http://www.riverbankcomputing.co.uk/software/pyqt/download')
 
 
 
