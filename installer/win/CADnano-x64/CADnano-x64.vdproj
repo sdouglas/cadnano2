@@ -282,7 +282,7 @@
             {
             "Name" = "8:Python or Maya"
             "Condition" = "8:PYTHONPATH_X64 <> \"\" OR MAYAPATH_X64 <> \"\""
-            "Message" = "8:Both Python 2.7 and Maya not found. Please install before continuing."
+            "Message" = "8:Both Python 2.7 and Autodesk Maya not found. Please install either Python 2.7 to use CADnano standalone, or Autodesk Maya to use CADnano as a plug-in."
             "InstallUrl" = "8:"
             }
         }
@@ -315,7 +315,7 @@
         "Name" = "8:Microsoft Visual Studio"
         "ProductName" = "8:CADnano2"
         "ProductCode" = "8:{F4094BD1-3CAB-4C1F-8458-48423A6BBDBD}"
-        "PackageCode" = "8:{5BE0EF3F-07BB-4CCC-9F75-9819897E7561}"
+        "PackageCode" = "8:{947ABD5E-35F5-42B5-8BA6-B2E3C00B046A}"
         "UpgradeCode" = "8:{83FFBD67-55A4-4F5E-AE78-11641B1B9B25}"
         "AspNetVersion" = "8:4.0.30319.0"
         "RestartWWWService" = "11:FALSE"
