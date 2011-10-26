@@ -73,9 +73,24 @@ class XoverNode3(QGraphicsRectItem):
         self.setRect(_rect)
     # end def
 
+
+    ### EVENT HANDLERS ###
     def mousePressEvent(self, event):
-        self._xoverItem.attemptToRemoveXover()
-    # end def 
+        """
+        Parses a mousePressEvent to extract strandSet and base index,
+        forwarding them to approproate tool method as necessary.
+        """
+        self.scene().views()[0].addToPressList(self)
+        self._vhi.setActive()
+        xoi = self._xoverItem
+        toolMethodName = str(xoi.activeTool()) + "MousePress"
+        if hasattr(xoi, toolMethodName):
+            getattr(xoi, toolMethodName)()
+    # end def
+
+    def customMouseRelease(self, event):
+        pass
+    # end def
 
     def strandType(self):
         return self._strandType
@@ -221,12 +236,13 @@ class XoverItem(QGraphicsPathItem):
     XoverItem should be a child of a PartItem.
     """
 
-    def __init__(self, partItem, virtualHelixItem):
+    def __init__(self, strandItem, virtualHelixItem):
         """
         strandItem is a the model representation of the 5prime most strand
         of a Xover
         """
-        super(XoverItem, self).__init__(partItem)
+        super(XoverItem, self).__init__(virtualHelixItem.partItem())
+        self._strandItem = strandItem
         self._virtualHelixItem = virtualHelixItem
         self._strand5p = None
         self._node5 = None
@@ -236,7 +252,11 @@ class XoverItem(QGraphicsPathItem):
 
     ### SLOTS ###
 
-    ### METHODS ###
+    ### ACCESSORS ###
+    def activeTool(self):
+        return self._strandItem._activeTool()
+    # end def
+
     def remove(self):
         scene = self.scene()
         if self._node3:
@@ -245,12 +265,7 @@ class XoverItem(QGraphicsPathItem):
         scene.removeItem(self)
     # end def
 
-    def attemptToRemoveXover(self):
-        strand5p = self._strand5p
-        strand3p = strand5p.connection3p()
-        self._virtualHelixItem.part().removeXover(strand5p, strand3p)
-    # end def
-
+    ### PUBLIC SUPPORT METHODS ###
     def hideIt(self):
         self.hide()
         if self._node3:
@@ -295,6 +310,7 @@ class XoverItem(QGraphicsPathItem):
         # end if
     # end def
 
+    ### PRIVATE SUPPORT METHODS ###
     def _updatePath(self, strand5p):
         """
         Draws a quad curve from the edge of the fromBase
@@ -397,6 +413,24 @@ class XoverItem(QGraphicsPathItem):
         pen = QPen(color, penWidth)
         pen.setCapStyle(Qt.FlatCap)
         self.setPen(pen)
+    # end def
+
+    ### EVENT HANDERS ###
+    def eraseToolMousePress(self):
+        """Erase the strand."""
+        self._strandItem.eraseToolMousePress(None)
+    # end def
+
+    def paintToolMousePress(self):
+        """Paint the strand."""
+        self._strandItem.paintToolMousePress(None)
+    # end def
+
+    def selectToolMousePress(self):
+        """Remove the xover."""
+        strand5p = self._strand5p
+        strand3p = strand5p.connection3p()
+        self._virtualHelixItem.part().removeXover(strand5p, strand3p)
     # end def
 
 # end class XoverItem

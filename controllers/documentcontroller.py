@@ -533,7 +533,7 @@ class DocumentController():
             ret = savebox.exec_()
             del savebox  # manual garbage collection to prevent hang (in osx)
             if ret == QMessageBox.Save:
-                return self.saveAsClicked()
+                return self.actionSaveAsSlot()
             elif ret == QMessageBox.Cancel:
                 return False
         return True

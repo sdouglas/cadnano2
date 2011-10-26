@@ -80,7 +80,7 @@ class StrandItem(QGraphicsLineItem):
         cA.hoverMoveEvent = self.hoverMoveEvent
 
         # xover comming from the 3p end
-        self._xover3pEnd = XoverItem(virtualHelixItem.partItem(), virtualHelixItem)
+        self._xover3pEnd = XoverItem(self, virtualHelixItem)
         # initial refresh
         self._updateAppearance(modelStrand)
     # end def
