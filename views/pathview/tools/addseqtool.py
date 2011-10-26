@@ -106,6 +106,13 @@ class AddSeqTool(AbstractPathTool):
         self.highlighter = DNAHighlighter(self.seqBox)
         # finally, pre-click the M13mp18 radio button
         self.buttons[0].click()
+        buttons = self.buttons
+
+        self.dialog.setFocusProxy(uiDlg.groupBox)
+        self.dialog.setFocusPolicy(Qt.TabFocus)
+        uiDlg.groupBox.setFocusPolicy(Qt.TabFocus)
+        for i in range(len(buttons)-1):
+            uiDlg.groupBox.setTabOrder(buttons[i], buttons[i+1])
 
     def tabWidgetChangedSlot(self, index):
         applyEnabled = False
@@ -155,6 +162,7 @@ class AddSeqTool(AbstractPathTool):
             self.applyButton.setEnabled(False)
 
     def applySequence(self, oligo):
+        self.dialog.setFocus()
         if self.dialog.exec_():  # apply the sequence if accept was clicked
             if self.useCustomSequence:
                 self.validatedSequenceToApply = str(self.seqBox.toPlainText().toUpper())
