@@ -185,6 +185,17 @@ class Strand(QObject):
         return temp, sequenceString[length:]
     # end def
 
+    def reapplySequence(self):
+	"""
+	"""
+	compSS = self.strandSet().complementStrandSet()
+        for compStrand in compSS._findOverlappingRanges(self):
+	    compSeq = compStrand.sequence()
+	    usedSeq = util.comp(compSeq) if compSeq else None
+	    usedSeq = self.setComplementSequence(usedSeq, compStrand, refreshSeq=True)
+        # end for
+    # end def
+
     def getPreDecoratorIdxList(self):
         """
         Return positions where predecorators should be displayed. This is
@@ -209,7 +220,7 @@ class Strand(QObject):
     #     return ret
     # # end def
 
-    def setComplementSequence(self, sequenceString, strand):
+    def setComplementSequence(self, sequenceString, strand, refreshSeq=False):
         """
         This version takes anothers strand and only sets the indices that
         align with the given complimentary strand
@@ -240,7 +251,7 @@ class Strand(QObject):
 
         totalLength = self.totalLength()
 
-        # see if we are applyng 
+        # see if we are applying 
         if sequenceString == None:
             # clear out string for in case of not total overlap
             useSeq = ''.join([' ' for x in range(totalLength)])
@@ -248,7 +259,7 @@ class Strand(QObject):
             useSeq = sequenceString[::-1] if self._isDrawn5to3 else sequenceString
 
         temp = array('c', useSeq)
-        if self._sequence == None:
+        if self._sequence == None or refreshSeq:
             tempSelf = array('c', ''.join([' ' for x in range(totalLength)]) )
         else:
             tempSelf = array('c', self._sequence if self._isDrawn5to3 else self._sequence[::-1])
@@ -718,6 +729,8 @@ class Strand(QObject):
 
             std.oligo().incrementLength(self.delta)
             std.setIdxs(nI)
+	    if strandSet.isStaple():
+		std.reapplySequence()
             std.strandResizedSignal.emit(std, nI)
             # for updating the Slice View displayed helices
             part.partStrandChangedSignal.emit(strandSet.virtualHelix())
@@ -730,7 +743,9 @@ class Strand(QObject):
             part = strandSet.part()
 
             std.oligo().decrementLength(self.delta)
-            std.setIdxs(oI)
+            std.setIdxs(oI) 
+	    if strandSet.isStaple():
+		std.reapplySequence()
             std.strandResizedSignal.emit(std, oI)
             # for updating the Slice View displayed helices
             part.partStrandChangedSignal.emit(strandSet.virtualHelix())

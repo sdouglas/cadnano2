@@ -97,6 +97,7 @@ class StrandItem(QGraphicsLineItem):
         if highMoved:
             self.updateLine(self._highCap)
         self.refreshInsertionItems(strand)
+	self._updateSequenceText()
     # end def
 
     def sequenceAddedSlot(self, oligo):

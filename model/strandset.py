@@ -722,7 +722,9 @@ class StrandSet(QObject):
             oligo.setStrand5p(strand)
             oligo.addToPart(strandSet.part())
             strand.setOligo(oligo)
-            # Emit a signal to notify on completion
+	    if strandSet.isStaple():
+		strand.reapplySequence()
+	    # Emit a signal to notify on completion
             strandSet.strandsetStrandAddedSignal.emit(strand)
             # for updating the Slice View displayed helices
             strandSet.part().partStrandChangedSignal.emit(strandSet.virtualHelix())
@@ -904,7 +906,8 @@ class StrandSet(QObject):
             # Merging any decorators
             newStrand.addDecorators(strandHigh.decorators())
             self._newStrand = newStrand
-            
+	    if sSet.isStaple():
+		newStrand.reapplySequence()
             # Update the oligo for things like its 5prime end and isLoop
             self._newOligo.strandMergeUpdate(strandLow, strandHigh, newStrand)
         # end def
@@ -1056,7 +1059,7 @@ class StrandSet(QObject):
             # Resize strands and update decorators
             strandLow.setIdxs((strand.lowIdx(), iNewLow))
             strandHigh.setIdxs((iNewLow + 1, strand.highIdx()))
-
+	    
             # Update the oligo color if necessary
             if not oligo.isLoop():
                 lOligo.setColor(colorLow)
@@ -1072,6 +1075,10 @@ class StrandSet(QObject):
             if not oligo.isLoop():
                 olg5p.setLength(olg5p.length()-length)
             olg3p.setLength(length)
+
+	    if sSet.isStaple():
+		strandLow.reapplySequence()
+		strandHigh.reapplySequence()
         # end def
 
         def redo(self):
