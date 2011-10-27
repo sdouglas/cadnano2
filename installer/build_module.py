@@ -47,3 +47,22 @@ def process_dir(self, dirname, files):
         # Kill recursion
         del files[:]
 path.walk(path.pardir, process_dir, None)
+
+def includeFileInDistribution(fname):
+    """ fname is a path relative to the root directory of the git repository """
+    oldloc = path.join(path.pardir, fname)
+    newloc = path.join(path.curdir, 'cadnano2', fname)
+    base = path.dirname(newloc)
+    # Make sure the directory structure exists
+    print "\tmkdir -p %s"%base
+    try:
+        os.makedirs(base)
+    except OSError:
+        pass
+    # Copy the file itself
+    print "\tcp %s %s"%(oldloc, newloc)
+    shutil.copy(oldloc, newloc)
+
+
+print "Exceptions (files that get copied but don't have the .py extension):"
+includeFileInDistribution('ui/mainwindow/images/cadnano2-app-icon_shelf.png')
