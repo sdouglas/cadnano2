@@ -152,7 +152,6 @@ class PartItem(QObject):
         pass
     # end def
 
-    @pyqtSlot(object)
     def partVirtualHelixAddedSlot(self, virtualHelix):
         #print "solidview.PartItem.partVirtualHelixAddedSlot"
         sh = self.createNewVirtualHelixItem(virtualHelix)
@@ -174,32 +173,12 @@ class PartItem(QObject):
         pass
     # end def
 
-    @pyqtSlot(object)
     def updatePreXoverItemsSlot(self, virtualHelix):
         #print "solidview.PartItem.updatePreXoverItemsSlot"
         pass
     # end def
 
     ### METHODS ###
-    # def cadnanoToMayaCoords(self, row, col):
-    #     # XXX - [SB] This should go away and we will ask the model for
-    #     # the position
-    #     if self._type == LatticeType.Honeycomb:
-    #         #print "LatticeType.Honeycomb"
-    #         x = self.mayaOrigin[0] + (col * math.sqrt(3) * self.helixRadius)
-    #         if ((row % 2) ^ (col % 2)):  # odd parity
-    #             y = self.mayaOrigin[1] - (row * self.helixRadius * 3.0 +
-    #                                       self.helixRadius)
-    #         else:
-    #             y = self.mayaOrigin[1] - (row * self.helixRadius * 3.0)
-    #     # end if
-    #     elif self._type == LatticeType.Square:
-    #         #print "LatticeType.Square"
-    #         x = self.mayaOrigin[0] + (col * 2.0 * self.helixRadius)
-    #         y = self.mayaOrigin[1] - (row * 2.0 * self.helixRadius)
-    #     return (x, y)
-    # # end def
-    
     def cadnanoToMayaCoords(self, row, col):
         """
         """

@@ -177,8 +177,10 @@ class Strand(QObject):
             self._sequence = None
             return None, None
         length = self.totalLength()
+        if len(sequenceString) < length:
+            bonus = length-len(sequenceString)
+            sequenceString += ''.join([' ' for x in range(bonus)])
         temp = sequenceString[0:length]
-        # self._sequence = temp if self._isDrawn5to3 else temp[::-1]
         self._sequence = temp
         return temp, sequenceString[length:]
     # end def
