@@ -471,11 +471,11 @@ class StrandItem(QGraphicsLineItem):
     # end def
 
     def breakToolHoverMove(self, idx):
-        """Pencil the strand is possible."""
-        mStrand = self._modelStrand
-        vhi = self._virtualHelixItem
-        breakTool = self._activeTool()
-        breakTool.updateHoverRect(vhi, mStrand, idx, show=True)
+        pass
+        # mStrand = self._modelStrand
+        # vhi = self._virtualHelixItem
+        # breakTool = self._activeTool()
+        # breakTool.updateHoverRect(vhi, mStrand, idx, show=True)
     # end def
 
 
