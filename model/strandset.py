@@ -1059,22 +1059,22 @@ class StrandSet(QObject):
             # Resize strands and update decorators
             strandLow.setIdxs((strand.lowIdx(), iNewLow))
             strandHigh.setIdxs((iNewLow + 1, strand.highIdx()))
-	    
-            # Update the oligo color if necessary
-            if not oligo.isLoop():
-                lOligo.setColor(colorLow)
-                hOligo.setColor(colorHigh)
+	                
             # Update the oligo for things like its 5prime end and isLoop
             olg5p.strandSplitUpdate(std5p, std3p, olg3p, strand)
-            
-            # settle the oligo length
-            length = 0
-            for strand in std3p.generator3pStrand():
-                length += strand.totalLength()
-            # end for
+ 
             if not oligo.isLoop():
-                olg5p.setLength(olg5p.length()-length)
-            olg3p.setLength(length)
+		# Update the oligo color if necessary
+		lOligo.setColor(colorLow)
+                hOligo.setColor(colorHigh)
+		# settle the oligo length 
+		length = 0
+		for strand in std3p.generator3pStrand():
+		    length += strand.totalLength()
+		# end for
+		olg5p.setLength(olg5p.length()-length)
+		olg3p.setLength(length)
+	    # end if
 
 	    if sSet.isStaple():
 		strandLow.reapplySequence()
@@ -1091,6 +1091,7 @@ class StrandSet(QObject):
             lOlg = self._lOligo
             hOlg = self._hOligo
             wasNotLoop = lOlg != hOlg
+	    print "wasNotloop", wasNotLoop
 
             # Remove old Strand from the sSet
             sS._removeFromStrandList(oS)
