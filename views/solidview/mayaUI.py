@@ -35,7 +35,7 @@ mainMenuBarVisible = None
 gridVisible = None
 
 modelEditors = []
-
+backgroundColors = []
 """
 Hideable Stuff:
     UIElements
@@ -57,6 +57,14 @@ def restoreUI():
 
 def setViewportQuality():
     global modelEditors
+    global backgroundColors
+    backgroundColors.append(cmds.displayRGBColor('background',q=True))
+    backgroundColors.append(cmds.displayRGBColor('backgroundTop',q=True))
+    backgroundColors.append(cmds.displayRGBColor('backgroundBottom',q=True))
+    cmds.displayRGBColor('background', 1, 1, 1)
+    cmds.displayRGBColor('backgroundTop', 0.762112, 0.87892, 1)
+    cmds.displayRGBColor('backgroundBottom', 1, 1, 1)
+
     for i in cmds.lsUI(panels=True):
         if cmds.modelEditor(i, query=True, exists=True):
             sts = cmds.modelEditor(i, query=True, stateString=True)
@@ -67,6 +75,12 @@ def setViewportQuality():
 
 def restoreViewportQuality():
     global modelEditors
+    global backgroundColors
+    bc = backgroundColors
+    cmds.displayRGBColor('background', bc[0][0], bc[0][1], bc[0][2])
+    cmds.displayRGBColor('backgroundTop', bc[1][0], bc[1][1], bc[1][2])
+    cmds.displayRGBColor('backgroundBottom', bc[2][0], bc[2][1], bc[2][2])
+
     for e in modelEditors:
         mel.eval(e)
 
