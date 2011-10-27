@@ -335,7 +335,6 @@ class Oligo(QObject):
             oligoList = [olg]
             for strand in olg.strand5p().generator3pStrand():
                 usedSeq, nS = strand.setSequence(nS)
-
                 # get the compliment ahead of time
                 usedSeq = util.comp(usedSeq) if usedSeq else None
                 compSS = strand.strandSet().complementStrandSet()
@@ -343,8 +342,9 @@ class Oligo(QObject):
                     subUsedSeq = compStrand.setComplementSequence(usedSeq, strand)
                     oligoList.append(compStrand.oligo())
                 # end for
-            # for
-            # olg.oligoSequenceAddedSignal.emit(olg)
+                if nS == None:
+                    break
+            # end for
             for oligo in oligoList:
                 oligo.oligoSequenceAddedSignal.emit(oligo)
         # end def
