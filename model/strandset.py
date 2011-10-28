@@ -222,10 +222,16 @@ class StrandSet(QObject):
                 raise IndexError
         if self.isScaffold():
             cmds.append(strand.oligo().applySequenceCMD(None))
+        cmds += strand.clearDecoratorCommands()
         cmds.append(StrandSet.RemoveStrandCommand(self, strand, strandSetIdx))
         util.execCommandList(self, cmds, desc="Remove strand", useUndoStack=useUndoStack)
         return strandSetIdx
     # end def
+    
+    def removeAllStrands(self, useUndoStack=True):
+        for strand in self._strandList:
+            self.removeStrand(strand, 0, useUndoStack)
+        # end def
 
     def mergeStrands(self, priorityStrand, otherStrand, useUndoStack=True):
         """
@@ -294,6 +300,19 @@ class StrandSet(QObject):
     def destroy(self):
         self.setParent(None)
         self.deleteLater()  # QObject will emit a destroyed() Signal
+    # end def
+    
+    def remove(self, useUndoStack=True):
+        """
+        Removes a VirtualHelix from the model. Accepts a reference to the 
+        VirtualHelix, or a (row,col) lattice coordinate to perform a lookup.
+        """
+        if useUndoStack:
+            self.undoStack().beginMacro("Delete StrandSet")
+        self.removeAllStrands(useUndoStack)
+        if useUndoStack:
+            self.undoStack().endMacro()
+    # end def
 
     ### PUBLIC SUPPORT METHODS ###
     def undoStack(self):
@@ -722,9 +741,10 @@ class StrandSet(QObject):
             oligo.setStrand5p(strand)
             oligo.addToPart(strandSet.part())
             strand.setOligo(oligo)
-	    if strandSet.isStaple():
-		strand.reapplySequence()
-	    # Emit a signal to notify on completion
+            
+            if strandSet.isStaple():
+                strand.reapplySequence()
+            # Emit a signal to notify on completion
             strandSet.strandsetStrandAddedSignal.emit(strand)
             # for updating the Slice View displayed helices
             strandSet.part().partStrandChangedSignal.emit(strandSet.virtualHelix())
@@ -906,8 +926,8 @@ class StrandSet(QObject):
             # Merging any decorators
             newStrand.addDecorators(strandHigh.decorators())
             self._newStrand = newStrand
-	    if sSet.isStaple():
-		newStrand.reapplySequence()
+            if sSet.isStaple():
+                newStrand.reapplySequence()
             # Update the oligo for things like its 5prime end and isLoop
             self._newOligo.strandMergeUpdate(strandLow, strandHigh, newStrand)
         # end def
@@ -1059,26 +1079,26 @@ class StrandSet(QObject):
             # Resize strands and update decorators
             strandLow.setIdxs((strand.lowIdx(), iNewLow))
             strandHigh.setIdxs((iNewLow + 1, strand.highIdx()))
-	                
+                            
             # Update the oligo for things like its 5prime end and isLoop
             olg5p.strandSplitUpdate(std5p, std3p, olg3p, strand)
  
             if not oligo.isLoop():
-		# Update the oligo color if necessary
-		lOligo.setColor(colorLow)
+                # Update the oligo color if necessary
+                lOligo.setColor(colorLow)
                 hOligo.setColor(colorHigh)
-		# settle the oligo length 
-		length = 0
-		for strand in std3p.generator3pStrand():
-		    length += strand.totalLength()
-		# end for
-		olg5p.setLength(olg5p.length()-length)
-		olg3p.setLength(length)
-	    # end if
+                # settle the oligo length 
+                length = 0
+                for strand in std3p.generator3pStrand():
+                    length += strand.totalLength()
+                # end for
+                olg5p.setLength(olg5p.length()-length)
+                olg3p.setLength(length)
+            # end if
 
-	    if sSet.isStaple():
-		strandLow.reapplySequence()
-		strandHigh.reapplySequence()
+            if sSet.isStaple():
+                strandLow.reapplySequence()
+                strandHigh.reapplySequence()
         # end def
 
         def redo(self):
@@ -1091,7 +1111,7 @@ class StrandSet(QObject):
             lOlg = self._lOligo
             hOlg = self._hOligo
             wasNotLoop = lOlg != hOlg
-	    print "wasNotloop", wasNotLoop
+            print "wasNotloop", wasNotLoop
 
             # Remove old Strand from the sSet
             sS._removeFromStrandList(oS)

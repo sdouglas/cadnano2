@@ -135,6 +135,9 @@ class ActiveSliceItem(QGraphicsRectItem):
 
     ### PUBLIC METHODS FOR DRAWING / LAYOUT ###
     def removed(self):
+        scene = self.scene()
+        scene.removeItem(self._label)
+        scene.removeItem(self)
         self._partItem = None
         self._label = None
         self._controller.disconnectSignals()

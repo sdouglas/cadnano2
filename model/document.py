@@ -47,8 +47,8 @@ class Document(QObject):
         self._selectedPart = None
 
     ### SIGNALS ###
-    documentPartAddedSignal = pyqtSignal(object)  # part
-    documentSelectedPartChangedSignal = pyqtSignal(object)  # part
+    documentPartAddedSignal = pyqtSignal(QObject)  # part
+    documentSelectedPartChangedSignal = pyqtSignal(QObject)  # part
 
     ### SLOTS ###
 
@@ -96,10 +96,12 @@ class Document(QObject):
 
     def removeAllParts(self):
         """Used to reset the document. Not undoable."""
-        while len(self._parts) > 0:
-            part = self._parts.pop()
-            part.setDocument(None)
-            part.partRemovedSignal.emit(part)
+        for part in self._parts:
+            part.remove(useUndoStack=False)
+    # end def
+    
+    def removePart(self, part):
+        self._parts.remove(part)
 
     def setSelectedPart(self, newPart):
         if self._selectedPart == newPart:

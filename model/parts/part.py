@@ -236,6 +236,26 @@ class Part(QObject):
     # end def
 
     ### PUBLIC METHODS FOR EDITING THE MODEL ###
+    def removeVirtualHelices(self, useUndoStack=True):
+        vhs = [vh for vh in self._virtualHelixHash.itervalues()]
+        for vh in vhs:
+            vh.remove(useUndoStack)
+        # end for
+    # end def 
+    
+    def remove(self, useUndoStack=True):
+        if useUndoStack:
+            self.undoStack().beginMacro("Delete Part")
+        self.removeVirtualHelices(useUndoStack)
+        c = Part.RemovePartCommand(self)
+        if useUndoStack:
+            self.undoStack().push(c)
+            self.undoStack().endMacro()
+        else:
+            c.redo()
+    # end def
+    
+    
     def addOligo(self, oligo):
         self._oligos[oligo] = True
     # end def
@@ -540,27 +560,6 @@ class Part(QObject):
         del self._oligos[oligo]
     # end def
 
-    def removeVirtualHelix(self, virtualHelix=None, coord=None, useUndoStack=True):
-        """
-        Removes a VirtualHelix from the model. Accepts a reference to the 
-        VirtualHelix, or a (row,col) lattice coordinate to perform a lookup.
-        """
-        if virtualHelix and self.hasVirtualHelixAtCoord(virtualHelix.coord()):
-            coord = virtualHelix.coord()
-        elif not virtualHelix and coord:
-            if self.hasVirtualHelixAtCoord(coord):
-                virtualHelix = self.virtualHelixAtCoord(coord)
-            else:
-                e = "virtualhelix not found by coord lookup"
-                raise KeyError(e)
-        else:
-            e = "Cannot remove virtualhelix: No ref or coord provided."
-            raise KeyError(e)
-        c = Part.RemoveVirtualHelixCommand(self, virtualHelix)
-        util.execCommandList(self, [c], desc="Remove VirtualHelix", \
-                                                    useUndoStack=useUndoStack)
-    # end def
-
     def renumber(self):
         print "%s: renumber() called." % self
     # end def
@@ -856,7 +855,7 @@ class Part(QObject):
 
     ### COMMANDS ###
     class CreateVirtualHelixCommand(QUndoCommand):
-        """Inserts strandToAdd into strandList at index idx."""
+        """"""
         def __init__(self, part, row, col):
             super(Part.CreateVirtualHelixCommand, self).__init__()
             self._part = part
@@ -890,44 +889,6 @@ class Part(QObject):
             vh.setPart(None)
             vh.setNumber(None)
             vh.virtualHelixRemovedSignal.emit(vh)
-            part.partActiveSliceResizeSignal.emit(part)
-        # end def
-    # end class
-
-    class RemoveVirtualHelixCommand(QUndoCommand):
-        """Inserts strandToAdd into strandList at index idx."""
-        def __init__(self, part, virtualHelix):
-            super(Part.RemoveVirtualHelixCommand, self).__init__()
-            self._part = part
-            self._vhelix = virtualHelix
-            self._idNum = virtualHelix.number()
-            # is the number even or odd?  Assumes a valid idNum, row,col combo
-            self._parityEven = (self._idNum % 2) == 0
-        # end def
-
-        def redo(self):
-            vh = self._vhelix
-            part = self._part
-            idNum = self._idNum
-            part._removeVirtualHelix(vh)
-            part._recycleHelixIDNumber(idNum)
-            # clear out part references
-            vh.setPart(None)
-            vh.setNumber(None)
-            vh.virtualhelixRemovedSignal.emit(vh)
-            part.partActiveSliceResizeSignal.emit(part)
-        # end def
-
-        def undo(self):
-            vh = self._vhelix
-            part = self._part
-            idNum = self._idNum
-            vh.setPart(part)
-            part._addVirtualHelix(vh)
-            vh.setNumber(idNum)
-            if not vh.number():
-                part._reserveHelixIDNumber(self._parityEven, requestedIDnum=idNum)
-            part.partVirtualHelixAddedSignal.emit(vh)
             part.partActiveSliceResizeSignal.emit(part)
         # end def
     # end class
@@ -1176,6 +1137,34 @@ class Part(QObject):
                 for strand in vh.stapleStrand().generatorStrand():
                     strand.updateIdxs(minDimensionDelta)
             # end for
+        # end def
+    # end class
+    
+    class RemovePartCommand(QUndoCommand):
+        """
+        RemovePartCommand deletes a part.
+        """
+        def __init__(self, part):
+            super(Part.RemovePartCommand, self).__init__()
+            self._part = part
+            self._doc = part.document()
+        # end def
+
+        def redo(self):
+            # Remove the strand
+            part = self._part
+            doc = self._doc
+            part.setDocument(None)
+            doc.removePart(part)
+            part.partRemovedSignal.emit(part)
+        # end def
+
+        def undo(self):
+            part = self._part
+            doc = self._doc
+            part.setDocument(doc)
+            doc._addPart(part)
+            doc.documentPartAddedSignal.emit(part)
         # end def
     # end class
 # end class

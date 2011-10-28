@@ -55,7 +55,7 @@ Created by Simon Breslav on 2011-08-29.
 """
 
 
-class VirtualHelixItem(QObject):
+class VirtualHelixItem(object):
     """
     VirtualHelixItem is the 3D visualization of VirtualHelix, it contains
     strandItems
@@ -63,9 +63,8 @@ class VirtualHelixItem(QObject):
     baseWidth = styles.PATH_BASE_WIDTH
 
     def __init__(self, partItem, modelVirtualHelix, x, y):
-        super(VirtualHelixItem, self).__init__()
         self._partItem = partItem
-        self._vhelix = modelVirtualHelix
+        self._modelVirtualHelix = modelVirtualHelix
         self._x = x
         self._y = y
         coords = modelVirtualHelix.coord()
@@ -73,38 +72,42 @@ class VirtualHelixItem(QObject):
         self._col = coords[1]
         self.strandIDs = []
         self._modState = False
-
+        self._strandItems = {}
         self.stapleIndicatorCount = 0
         self.stapleModIndicatorIDs = []
 
         self._controller = VirtualHelixItemController(self, modelVirtualHelix)
+    # end def
 
     def partItem(self):
         return self._partItem
 
-    def vhelix(self):
-        return self._vhelix
-
-    def setVHelix(self, newVH):
-        self._vhelix = newVH
+    def virtualHelix(self):
+        return self._modelVirtualHelix
 
     def number(self):
-        return self._vhelix.number()
+        return self._modelVirtualHelix.number()
 
     def row(self):
-        return self._row
+        return self.coord()[0]
 
     def col(self):
-        return self._col
-
+        return self.coord()[1]
+        
     def x(self):
         return self._x
-
+    # end def
+    
     def y(self):
         return self._y
+    # end def
+        
+    def coord(self):
+        return self._modelVirtualHelix.coord()
+    # end def
 
     def isEvenParity(self):
-        return self._vhelix.isEvenParity()
+        return self._modelVirtualHelix.isEvenParity()
 
     def StrandIDs(self):
         return self.strandIDs
@@ -113,7 +116,6 @@ class VirtualHelixItem(QObject):
         self._modState = val
 
     ### SLOTS ###
-    @pyqtSlot(object)
     def strandAddedSlot(self, strand):
         """
         Instantiates a StrandItem upon notification that the model has a
@@ -122,14 +124,13 @@ class VirtualHelixItem(QObject):
         its parent (which is *this* VirtualHelixItem, i.e. 'self').
         """
         #print "solidview.VirtualHelixItem.strandAddedSlot"
-        #strand.didMove.connect(self.onStrandDidMove)
-        #strand.willBeRemoved.connect(self.onStrandWillBeRemoved)
         m = Mom()
-        id = m.strandMayaID(strand)
-        self.strandIDs.append(id)
-        StrandItem(id, strand, self)
+        mID = m.strandMayaID(strand)
+        self.strandIDs.append(mID)
+        sI = StrandItem(mID, strand, self)
+        self._strandItems[sI] = True
         self.updateDecorators()
-        #print "solidview.VirtualHelixItem.strandAddedSlot done %s" % id
+        #print "solidview.VirtualHelixItem.strandAddedSlot done %s" % mID
     # end def
 
     @pyqtSlot(object)
@@ -152,7 +153,7 @@ class VirtualHelixItem(QObject):
     @pyqtSlot(object)
     def virtualHelixRemovedSlot(self, virtualHelix):
         #print "solidview.VirtualHelixItem.virtualHelixRemovedSlot"
-        self._partItem.removeVirtualHelix(self)
+        self._partItem.removeVirtualHelixItem(self)
         self._partItem = None
         self._modelVirtualHelix = None
         self._controller.disconnectSignals()
@@ -164,8 +165,8 @@ class VirtualHelixItem(QObject):
         self.clearDecorators()
         if self._modState:
             m = Mom()
-            for id in self.strandIDs:
-                mayaNodeInfo = "%s%s" % (m.helixMeshName, id)
+            for mID in self.strandIDs:
+                mayaNodeInfo = "%s%s" % (m.helixMeshName, mID)
                 #print "mayaNodeInfo: %s" % mayaNodeInfo
                 strand = m.mayaToCn[mayaNodeInfo]
                 if(strand.strandSet().isStaple()):
@@ -173,8 +174,8 @@ class VirtualHelixItem(QObject):
 
     def cadnanoVBaseToMayaCoords(self, base, strand):
         m = Mom()
-        id = m.strandMayaID(strand)
-        cylinderName = "%s%s" % (m.helixNodeName, id)
+        mID = m.strandMayaID(strand)
+        cylinderName = "%s%s" % (m.helixNodeName, mID)
         if cmds.objExists(cylinderName):
             rise = cmds.getAttr("%s.rise" % cylinderName)
             startBase = cmds.getAttr("%s.startBase" % cylinderName)
@@ -203,11 +204,11 @@ class VirtualHelixItem(QObject):
 
     def clearDecorators(self):
         m = Mom()
-        for id in self.stapleModIndicatorIDs:
-            transformName = "%s%s" % (m.decoratorTransformName, id)
+        for mID in self.stapleModIndicatorIDs:
+            transformName = "%s%s" % (m.decoratorTransformName, mID)
             #print "delete %s" % transformName
             m = Mom()
-            m.removeDecoratorMapping(id)
+            m.removeDecoratorMapping(mID)
             if cmds.objExists(transformName):
                 cmds.delete(transformName)
         self.stapleModIndicatorIDs = []
@@ -216,7 +217,7 @@ class VirtualHelixItem(QObject):
     def createDecorators(self, strand):
         m = Mom()
         strandId = m.strandMayaID(strand)
-        totalNumBases = self._vhelix.part().maxBaseIdx()
+        totalNumBases = self._modelVirtualHelix.part().maxBaseIdx()
         preDecoratorIdxList = strand.getPreDecoratorIdxList()
 
         for baseIdx in preDecoratorIdxList:
@@ -237,11 +238,11 @@ class VirtualHelixItem(QObject):
                                                                    baseIdx,
                                                                    strand)
 
-    def createDecoratorNodes(self, coords, id):
+    def createDecoratorNodes(self, coords, mID):
         m = Mom()
-        stapleModIndicatorName = "%s%s" % (m.decoratorNodeName, id)
-        transformName = "%s%s" % (m.decoratorTransformName, id)
-        meshName = "%s%s" % (m.decoratorMeshName, id)
+        stapleModIndicatorName = "%s%s" % (m.decoratorNodeName, mID)
+        transformName = "%s%s" % (m.decoratorTransformName, mID)
+        meshName = "%s%s" % (m.decoratorMeshName, mID)
         shaderName = "%s" % m.decoratorShaderName
 
         cmds.createNode("transform", name=transformName)
@@ -269,3 +270,8 @@ class VirtualHelixItem(QObject):
             #shader exist connect
             cmds.sets(meshName, forceElement="%sSG" % shaderName)
         return (stapleModIndicatorName, transformName, meshName, shaderName)
+    # end def
+    
+    def removeStrandItem(self, strandItem):
+        del self._strandItems[strandItem]
+    # end def

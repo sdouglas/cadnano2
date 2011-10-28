@@ -186,13 +186,13 @@ class Strand(QObject):
     # end def
 
     def reapplySequence(self):
-	"""
-	"""
-	compSS = self.strandSet().complementStrandSet()
+        """
+        """
+        compSS = self.strandSet().complementStrandSet()
         for compStrand in compSS._findOverlappingRanges(self):
-	    compSeq = compStrand.sequence()
-	    usedSeq = util.comp(compSeq) if compSeq else None
-	    usedSeq = self.setComplementSequence(usedSeq, compStrand, refreshSeq=True)
+            compSeq = compStrand.sequence()
+            usedSeq = util.comp(compSeq) if compSeq else None
+            usedSeq = self.setComplementSequence(usedSeq, compStrand, refreshSeq=True)
         # end for
     # end def
 
@@ -621,9 +621,7 @@ class Strand(QObject):
         mods = self._modifiers
         cIdxL, cIdxH = self.idxs()
         nIdxL, nIdxH = newIdxs
-        commands = []
-        compSS = self.strandSet().complementStrandSet()
-        
+
         lowOut, highOut = False, False
         insertions = []
         if cIdxL < nIdxL < cIdxH:
@@ -641,9 +639,18 @@ class Strand(QObject):
             idxL, idxH = cIdxL, cIdxH
             insertions += self.insertionsOnStrand(idxL, idxH)
             # we stretched in this direction
-        
-        overlappingStrandList = compSS.getOverlappingStrands(cIdxL, cIdxH)
 
+        return self.clearInsertionsCommands(insertions, cIdxL, cIdxH)
+    # end def
+    
+    def clearInsertionsCommands(self, insertions, idxL, idxH):
+        """
+        clear out insertions in this range
+        """
+        commands = []
+        compSS = self.strandSet().complementStrandSet()
+        
+        overlappingStrandList = compSS.getOverlappingStrands(idxL, idxH)
         for insertion in insertions:
             idx = insertion.idx()
             removeMe = True
@@ -662,6 +669,11 @@ class Strand(QObject):
 
         ### ADD CODE HERE TO HANDLE DECORATORS AND MODIFIERS
         return commands
+    # end def
+    
+    def clearDecoratorCommands(self):
+        insertions = self.insertionsOnStrand()
+        return self.clearInsertionsCommands(insertions, *self.idxs())
     # end def
 
     def hasDecoratorAt(self, idx):

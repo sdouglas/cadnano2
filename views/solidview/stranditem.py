@@ -38,99 +38,89 @@ util.qtWrapImport('QtCore', globals(), ['pyqtSignal', 'pyqtSlot', \
 util.qtWrapImport('QtGui', globals(), ['QColor'])
 
 """
-solidrootitem.py
+stranditem.py
 Created by Simon Breslav on 2011-10-05.
 """
 
 
-class StrandItem(QObject):
+class StrandItem(object):
     """
     StrandItem is the strand item in the SolidView.
     """
-    def __init__(self, id, modelStrand, virtualHelixItem):
+    def __init__(self, mID, modelStrand, virtualHelixItem):
         """The parent should be a VirtualHelixItem."""
-        super(StrandItem, self).__init__(virtualHelixItem)
         self._modelStrand = modelStrand
         self._virtualHelixItem = virtualHelixItem
-        self._controller = StrandItemController(self, modelStrand)
         mayaNodeInfo = ()
         if(modelStrand.strandSet().isScaffold()):
             mayaNodeInfo = self.createMayaHelixNodes(virtualHelixItem.x(),
                                                      virtualHelixItem.y(),
                                       modelStrand.oligo().color(),
                                       StrandType.Scaffold,
-                                      id)
+                                      mID)
         else:
             mayaNodeInfo = self.createMayaHelixNodes(virtualHelixItem.x(),
                                                      virtualHelixItem.y(),
                                       modelStrand.oligo().color(),
                                       StrandType.Staple,
-                                      id)
+                                      mID)
         #self.onStrandDidMove(strand)
         m = Mom()
         m.cnToMaya[modelStrand] = mayaNodeInfo
         m.mayaToCn[mayaNodeInfo[2]] = modelStrand
         m.mayaToCn[mayaNodeInfo[0]] = modelStrand
         self.updateSize()
+        self._controller = StrandItemController(self, modelStrand)
     # end def
 
     ### SLOTS ###
-    @pyqtSlot()
-    def strandResizedSlot(self):
+    def strandResizedSlot(self, strand, indices):
         """strandResizedSlot"""
-        #print "solid.StrandItem.strandResizedSlot", self._modelStrand.idxs()
+        print "solid.StrandItem.strandResizedSlot", self._modelStrand.idxs()
         self.updateSize()
         self._virtualHelixItem.updateDecorators()
 
-    @pyqtSlot()
-    def strandUpdateSlot(self):
+    def strandUpdateSlot(self, strand):
         """strandUpdateSlot"""
         #print "solidview.StrandItem.strandUpdateSlot"
 
-    @pyqtSlot(object)
     def sequenceAddedSlot(self, oligo):
         """sequenceAddedSlot"""
         #print "solidview.StrandItem.sequenceAddedSlot"
 
-    @pyqtSlot(object)
     def sequenceClearedSlot(self, oligo):
         """sequenceClearedSlot"""
         #print "solidview.StrandItem.sequenceClearedSlot"
-
-    @pyqtSlot(object)
+    
     def strandRemovedSlot(self, strand):
         mom = Mom()
-        id = mom.strandMayaID(strand)
-        mom.removeIDMapping(id, strand)
-        #print "solidview.StrandItem.strandRemovedSlot %s" % id
-        transformName = "%s%s" % (mom.helixTransformName, id)
+        mID = mom.strandMayaID(strand)
+        mom.removeIDMapping(mID, strand)
+        #print "solidview.StrandItem.strandRemovedSlot %s" % mID
+        transformName = "%s%s" % (mom.helixTransformName, mID)
         if cmds.objExists(transformName):
             cmds.delete(transformName)
-        if id in self._virtualHelixItem.StrandIDs():
-            self._virtualHelixItem.StrandIDs().remove(id)
+        if mID in self._virtualHelixItem.StrandIDs():
+            self._virtualHelixItem.StrandIDs().remove(mID)
         self._virtualHelixItem.updateDecorators()
-        #print strand
+        self._virtualHelixItem.removeStrandItem(self)
         self._modelStrand = None
         self._controller.disconnectSignals()
         self._controller = None
-        #print "solidview.StrandItem.strandRemovedSlot done"
+    # end def
 
-    @pyqtSlot(object)
     def strandDestroyedSlot(self, strand):
         #print "solidview.StrandItem.strandDestroyedSlot"
         pass
 
-    @pyqtSlot(object)
     def strandXover5pChangedSlot(self, strand):
         #print "solidview.StrandItem.strandXover5pChangedSlot"
         pass
 
-    @pyqtSlot(object)
     def strandXover5pRemovedSlot(self, strand):
         #print "solidview.StrandItem.strandXover5pRemovedSlot"
         pass
 
-    @pyqtSlot(object)
     def oligoAppearanceChangedSlot(self, oligo):
         mom = Mom()
         id = mom.strandMayaID(self._modelStrand)
@@ -138,17 +128,14 @@ class StrandItem(QObject):
         #print "solidview.StrandItem.oligoAppeareanceChangedSlot"
         pass
 
-    @pyqtSlot(object)
     def oligoSequenceAddedSlot(self, oligo):
         #print "solidview.StrandItem.oligoSequenceAddedSlot"
         pass
 
-    @pyqtSlot(object)
     def oligoSequenceClearedSlot(self, oligo):
         #print "solidview.StrandItem.oligoSequenceClearedSlot"
         pass
 
-    @pyqtSlot(object)
     def strandHasNewOligoSlot(self, strand):
         #print "solidview.StrandItem.strandHasNewOligoSlot"
         mom = Mom()
@@ -184,12 +171,12 @@ class StrandItem(QObject):
         pass
 
     ### METHODS ###
-    def createMayaHelixNodes(self, x, y, colorname, strandType, id):
+    def createMayaHelixNodes(self, x, y, colorname, strandType, mID):
         m = Mom()
-        cylinderName = "%s%s" % (m.helixNodeName, id)
-        transformName = "%s%s" % (m.helixTransformName, id)
-        meshName = "%s%s" % (m.helixMeshName, id)
-        shaderName = "%s%s" % (m.helixShaderName, id)
+        cylinderName = "%s%s" % (m.helixNodeName, mID)
+        transformName = "%s%s" % (m.helixTransformName, mID)
+        meshName = "%s%s" % (m.helixMeshName, mID)
+        shaderName = "%s%s" % (m.helixShaderName, mID)
         cmds.createNode("transform", name=transformName)
         cmds.setAttr("%s.rotateX" % transformName, 90)
         cmds.setAttr("%s.translateX" % transformName, x)
@@ -212,12 +199,12 @@ class StrandItem(QObject):
         else:
             raise NotImplementedError
         cmds.setAttr("%s.strandType" % cylinderName, strandType)
-        self.updateColor(id, colorname)
+        self.updateColor(mID, colorname)
         return (cylinderName, transformName, meshName)
 
-    def updateColor(self, id, colorname):
+    def updateColor(self, mID, colorname):
         m = Mom()
-        meshName = "%s%s" % (m.helixMeshName, id)
+        meshName = "%s%s" % (m.helixMeshName, mID)
         color = QColor(colorname)
         colorval = "%d_%d_%d" % (color.red(), color.green(), color.blue())
         shaderName = "%s%d_%d_%d" % (m.helixShaderName, color.red(),
@@ -239,10 +226,10 @@ class StrandItem(QObject):
 
     def updateSize(self):
         mom = Mom()
-        id = mom.strandMayaID(self._modelStrand)
-        cylinderName = "%s%s" % (mom.helixNodeName, id)
+        mID = mom.strandMayaID(self._modelStrand)
+        cylinderName = "%s%s" % (mom.helixNodeName, mID)
         endpoints = self._modelStrand.idxs()
-        totalNumBases = self._virtualHelixItem.vhelix().part().maxBaseIdx()
+        totalNumBases = self._virtualHelixItem.virtualHelix().part().maxBaseIdx()
         cmds.setAttr("%s.startBase" % cylinderName,
                              endpoints[0])
 

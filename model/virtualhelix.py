@@ -31,7 +31,7 @@ from enum import StrandType
 
 # import Qt stuff into the module namespace with PySide, PyQt4 independence
 util.qtWrapImport('QtCore', globals(), ['pyqtSignal', 'QObject', 'Qt'])
-util.qtWrapImport('QtGui', globals(), ['QUndoStack'])
+util.qtWrapImport('QtGui', globals(), ['QUndoStack', 'QUndoCommand'])
 
 
 class VirtualHelix(QObject):
@@ -165,6 +165,23 @@ class VirtualHelix(QObject):
         self.setParent(None)
         self.deleteLater()
     # end def
+    
+    def remove(self, useUndoStack=True):
+        """
+        Removes a VirtualHelix from the model. Accepts a reference to the 
+        VirtualHelix, or a (row,col) lattice coordinate to perform a lookup.
+        """
+        if useUndoStack:
+            self.undoStack().beginMacro("Delete VirtualHelix")
+        self._scafStrandSet.remove(useUndoStack)
+        self._stapStrandSet.remove(useUndoStack)
+        c = VirtualHelix.RemoveVirtualHelixCommand(self.part(), self)
+        if useUndoStack:
+            self.undoStack().push(c)
+            self.undoStack().endMacro()
+        else:
+            c.redo()
+    # end def
 
     ### PUBLIC SUPPORT METHODS ###
     def deepCopy(self, part):
@@ -202,3 +219,41 @@ class VirtualHelix(QObject):
     #     row, col = self._coord
     #     self._coord = row + deltaRow, col + deltaCol
     # # end def
+
+    class RemoveVirtualHelixCommand(QUndoCommand):
+        """Inserts strandToAdd into strandList at index idx."""
+        def __init__(self, part, virtualHelix):
+            super(VirtualHelix.RemoveVirtualHelixCommand, self).__init__()
+            self._part = part
+            self._vhelix = virtualHelix
+            self._idNum = virtualHelix.number()
+            # is the number even or odd?  Assumes a valid idNum, row,col combo
+            self._parityEven = (self._idNum % 2) == 0
+        # end def
+
+        def redo(self):
+            vh = self._vhelix
+            part = self._part
+            idNum = self._idNum
+            part._removeVirtualHelix(vh)
+            part._recycleHelixIDNumber(idNum)
+            # clear out part references
+            vh.virtualHelixRemovedSignal.emit(vh)
+            part.partActiveSliceResizeSignal.emit(part)
+            # vh.setPart(None)
+            # vh.setNumber(None)
+        # end def
+
+        def undo(self):
+            vh = self._vhelix
+            part = self._part
+            idNum = self._idNum
+            # vh.setPart(part)
+            part._addVirtualHelix(vh)
+            # vh.setNumber(idNum)
+            if not vh.number():
+                part._reserveHelixIDNumber(self._parityEven, requestedIDnum=idNum)
+            part.partVirtualHelixAddedSignal.emit(vh)
+            part.partActiveSliceResizeSignal.emit(part)
+        # end def
+    # end class

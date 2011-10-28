@@ -260,8 +260,10 @@ class XoverItem(QGraphicsPathItem):
     def remove(self):
         scene = self.scene()
         if self._node3:
-            scene.removeItem(self._node3)
-            scene.removeItem(self._node5)
+            s2 = self._node3.scene()
+            if s2:
+                s2.removeItem(self._node3)
+                s2.removeItem(self._node5)
         scene.removeItem(self)
     # end def
 

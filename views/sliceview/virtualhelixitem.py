@@ -105,6 +105,8 @@ class VirtualHelixItem(QGraphicsEllipseItem):
         self._emptyHelixItem.setNotHovered()
         self._virtualHelix = None
         self._emptyHelixItem = None
+        self.scene().removeItem(self._label)
+        self._label = None
         self.scene().removeItem(self)
     # end def
 
@@ -143,11 +145,6 @@ class VirtualHelixItem(QGraphicsEllipseItem):
         label.setPos(radius-posx, radius-posy)
     # end def
 
-    def destroyLabel(self):
-        label = self._label
-        label.scene().removeItem(label)
-    # end def
-
     def part(self):
         return self._emptyHelixItem.part()
 
@@ -166,29 +163,6 @@ class VirtualHelixItem(QGraphicsEllipseItem):
             self.setPen(self._outOfSlicePen)
             self.setBrush(self._outOfSliceBrush)
     # end def
-
-    # def isSelected(self):
-    #     return self.focusRing != None
-    # 
-    # def setSelected(self, select):
-    #     if select and not self.focusRing:
-    #         self.focusRing = SliceHelix.FocusRingPainter(self.parentItem())
-    #         self.focusRing.setPos(self.pos())
-    #         self.focusRing.setZValue(styles.ZFOCUSRING)
-    #     if not select and self.focusRing:
-    #         self.focusRing.scene().removeItem(self.focusRing)
-    #         self.focusRing = None
-    # # end def
-
-    # def selectAllBehavior(self):
-    #     # If the selection is configured to always select
-    #     # everything, we don't draw a focus ring around everything,
-    #     # instead we only draw a focus ring around the hovered obj.
-    #     if self.part() == None:
-    #         return False
-    #     else:
-    #         return self.part().selectAllBehavior()
-    # # end def
 
     ############################ User Interaction ############################
     def sceneEvent(self, event):

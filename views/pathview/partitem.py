@@ -106,7 +106,6 @@ class PartItem(QGraphicsRectItem):
     # end def
 
     def partDimensionsChangedSlot(self, part):
-        # print "partDimensionsChangedSlot"
         if len(self._virtualHelixItemList) > 0:
             vhi = self._virtualHelixItemList[0]
             vhiRect = vhi.boundingRect()

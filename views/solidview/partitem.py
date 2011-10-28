@@ -54,14 +54,16 @@ from virtualhelixitem import VirtualHelixItem
 util.qtWrapImport('QtCore', globals(), ['pyqtSignal', 'pyqtSlot', 'QObject'])
 
 
-class PartItem(QObject):
+class PartItem(object):
     """
     Maya Based View: PartItem stores VirtualHelixItems for a given DNA Part
+    For now parent should be a rootItem but in the future it could be
+    an AssemblyItem
     """
     def __init__(self, modelPart, parent=None):
         """
         """
-        super(PartItem, self).__init__()
+        self._parentItem = parent
         pluginPath = os.path.join(os.environ['CADNANO_PATH'],
                                   "views",
                                   "solidview")
@@ -87,12 +89,17 @@ class PartItem(QObject):
         # top left cornder of maya 3d scene X Y Z
         self.mayaOrigin = (-15 * 2.25, 16 * 2.25, 0.0)
         self.helixRadius = 1.125  # diamiter is 2.25nm
-        self.virtualHelixItems = []
+        self._virtualHelixItems = {}
 
         self._part = modelPart
         self._controller = PartItemController(self, modelPart)
 
         self.modifyState = False
+    # end def
+    
+    def parentItem(self):
+        return self._parentItem
+    # end def
 
     def setModifyState(self, val):
         self.modifyState = val
@@ -122,13 +129,11 @@ class PartItem(QObject):
     # end def
 
     ### SLOTS ###
-    @pyqtSlot()
-    def partDestroyedSlot(self):
+    def partDestroyedSlot(self, part):
         """solidview.PartItem partDestroyedSlot"""
         pass
     # end def
 
-    @pyqtSlot(QObject)
     def partDimensionsChangedSlot(self, part):
         pass
     # end def
@@ -142,12 +147,14 @@ class PartItem(QObject):
     def partRemovedSlot(self, part):
         """solidview.PartItem partRemovedSlot"""
         # print "solidview.PartItem.partRemovedSlot"
+        self._virtualHelixItems = None
+        self._parentItem.removePartItem(self)
+        self._parentItem = None
         self._part = None
         self._controller.disconnectSignals()
         self._controller = None
     # end def
 
-    @pyqtSlot(int, int, int)
     def partPreDecoratorSelectedSlot(self, row, col, baseIdx):
         pass
     # end def
@@ -187,7 +194,7 @@ class PartItem(QObject):
     # end def
 
     def clearInternalDataStructures(self):
-        self.virtualHelixItems = []
+        self._virtualHelixItems = {}
         self.idStrandMapping.clear()
         self.strandCount = 0
     # end def
@@ -197,8 +204,8 @@ class PartItem(QObject):
         # Delete Helicies in this group
         for vhelixItem in self.virtualHelixItems:
             strandIDs = vhelixItem.StrandIDs()
-            for id in strandIDs:
-                transformName = "%s%s" % (m.helixTransformName, id)
+            for mID in strandIDs:
+                transformName = "%s%s" % (m.helixTransformName, mID)
                 if cmds.objExists(transformName):
                     cmds.delete(transformName)
         self.clearInternalDataStructures()
@@ -212,11 +219,11 @@ class PartItem(QObject):
         x, y = self.cadnanoToMayaCoords(coords[0], coords[1])
         #print virtualHelix
         newHelix = VirtualHelixItem(self, virtualHelix, x, y)
-        self.virtualHelixItems.append(newHelix)
+        self._virtualHelixItems[newHelix] = True
         return newHelix
     # end def
 
-    def removeVirtualHelix(self, vhelixItem):
-        self.virtualHelixItems.remove(vhelixItem)
+    def removeVirtualHelixItem(self, vhelixItem):
+        del self._virtualHelixItems[vhelixItem]
     # end def
 # end class

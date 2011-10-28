@@ -35,16 +35,15 @@ Created by Simon Breslav on 2011-10-05.
 """
 
 
-class SolidRootItem(QObject):
+class SolidRootItem(object):
     """
     SolidRootItem is the root item in the SolidView.
     """
     def __init__(self, parent, document):
-        super(SolidRootItem, self).__init__(parent)
         self._document = document
         self._controller = ViewRootController(self, document)
         self._modelPart = None
-        self._partItems = []
+        self._partItems = {}
 
     ### SLOTS ###
     def partAddedSlot(self, modelPart):
@@ -54,7 +53,7 @@ class SolidRootItem(QObject):
         #print "SolidRootItem.partAddedSlot!"
         self._modelPart = modelPart
         partItem = PartItem(modelPart, self)
-        self._partItems.append(partItem)
+        self._partItems[partItem] = True
 
     def selectedPartChangedSlot(self, modelPart):
         """Given a newly selected modelPart"""
@@ -66,7 +65,7 @@ class SolidRootItem(QObject):
         return self._partItems
 
     def removePartItem(self, partItem):
-        self._partItems.remove(partItem)
+        del self._partItems[partItem]
 
     def setModifyState(self, val):
         for p in self._partItems:

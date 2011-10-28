@@ -109,12 +109,23 @@ class PartItem(QGraphicsItem):
         """docstring for partRemovedSlot"""
         self._activeSliceItem.removed()
         self.parentItem().removePartItem(self)
+        
         scene = self.scene()
+        
+        self._virtualHelixHash = None
+        
+        for item in self._emptyhelixhash.items():
+            key, val = item
+            scene.removeItem(val)
+            del self._emptyhelixhash[key]
+        self._emptyhelixhash = None
+
         scene.removeItem(self)
+        
         self._part = None
         self.probe = None
-        self._emptyhelixhash = None
-        self._virtualHelixHash = None
+        self._modCirc = None
+        
         self.deselector = None
         self._controller.disconnectSignals()
         self._controller = None

@@ -145,16 +145,20 @@ class CADnano(QObject):
                                                     "Maya", Qt.CaseInsensitive)
 
     def deleteAllMayaNodes(self):
-        if not self.isInMaya():
-            return
-        import maya.cmds as cmds
-        nodes = cmds.ls("DNAShapeTransform*", "DNAStrandShader*")
-        for n in nodes:
-            print n
-            cmds.delete(n)
-        for doc in self.documentControllers:
-            if hasattr(doc, 'solidHelixGrp'):
-                doc.solidHelixGrp.clearInternalDataStructures()
+        pass
+        # if not self.isInMaya():
+        #     return
+        # import maya.cmds as cmds
+        # import maya.mel as mel
+        # nodes = cmds.ls("DNAShapeTransform*", "DNAStrandShader*")
+        # for n in nodes:
+        #     print n
+        #     # mel.eval("delete " + n)
+        #     cmds.delete(n)
+        # # cmds.delete( all=True, c=True )
+        # for doc in self.documentControllers:
+        #     if hasattr(doc, 'solidHelixGrp'):
+        #         doc.solidHelixGrp.clearInternalDataStructures()
 
     def exec_(self):
         if hasattr(self, 'qApp'):

@@ -85,6 +85,13 @@ class VirtualHelixHandleItem(QGraphicsEllipseItem):
         painter.setBrush(self.brush())
         painter.drawEllipse(self.rect())
     # end def
+    
+    def remove(self):
+        scene = self.scene()
+        scene.removeItem(self._label)
+        scene.removeItem(self)
+        self._label = None
+    # end def
 
     def someVHChangedItsNumber(self, r, c):
         # If it was our VH, we need to update the number we

@@ -97,7 +97,7 @@ class StrandItem(QGraphicsLineItem):
         if highMoved:
             self.updateLine(self._highCap)
         self.refreshInsertionItems(strand)
-	self._updateSequenceText()
+        self._updateSequenceText()
     # end def
 
     def sequenceAddedSlot(self, oligo):
@@ -122,7 +122,8 @@ class StrandItem(QGraphicsLineItem):
         self._xover3pEnd.remove()
         self._xover3pEnd = None
         for insertionItem in self._insertionItems.itervalues():
-            insertionItem.remove()
+            insertionItem.remove()  
+        self._insertionItems = {}
         self._clickArea = None
         self._highCap = None
         self._lowCap = None

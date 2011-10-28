@@ -31,21 +31,20 @@ lookups
 from cadnano import app
 import maya.cmds as cmds
 import util
-util.qtWrapImport('QtCore', globals(), ['QObject', 'pyqtSignal'])
 
+class Mom(object):
+    _instance = None
+    strandCount = 0
+    selectionCountCache = 0
+    
+    def __new__(cls, *args, **kwargs):
+        if not cls._instance:
+            cls._instance = super(Mom, cls).__new__(cls, *args, **kwargs)
+        return cls._instance
+        
+    def myId(self):
+        return id(self)
 
-class Mom:
-    class __impl(QObject):
-        """ Implementation of the singleton interface """
-        #preDecoratorSelectedSignal = pyqtSignal(object)
-        strandCount = 0
-        selectionCountCache = 0
-
-        def myId(self):
-            return id(self)
-
-    # storage for the instance reference
-    __instance = None
     # uses DNACylinderShape as as the key, stores strand objects
     mayaToCn = {}
     # uses strand objects as the key, stores a list of maya nodes
@@ -70,13 +69,13 @@ class Mom:
         selectionList = []
         for name in listNames:
             if name in self.decoratorToVirtualHelixItem:
-                (virualHelixItem, baseIdx, strand) = \
+                (virtualHelixItem, baseIdx, strand) = \
                                         self.decoratorToVirtualHelixItem[name]
-                selectionList.append((virualHelixItem.row(),
-                                                virualHelixItem.col(),
+                selectionList.append((virtualHelixItem.row(),
+                                                virtualHelixItem.col(),
                                                 baseIdx))
         if len(selectionList) == 0 and \
-           self.__instance.selectionCountCache == 0:
+           self.selectionCountCache == 0:
             # a dumb cache check to prevent deselection to be brotcaseted too
             # many times, but could couse problems
             return
@@ -88,7 +87,7 @@ class Mom:
                 for partItem in doc.win.solidroot.partItems():
                     partModel = partItem.part()
                     partModel.selectPreDecorator(selectionList)
-        self.__instance.selectionCountCache = len(selectionList)
+        self.selectionCountCache = len(selectionList)
 
     def removeDecoratorMapping(self, id):
         key1 = "%s%s" % (self.decoratorMeshName, id)
@@ -111,30 +110,20 @@ class Mom:
         if(strand in self.idStrandMapping):
             return self.idStrandMapping[strand]
         else:
-            self.__instance.strandCount += 1
+            self.strandCount += 1
             # XXX [SB+AT] NOT THREAD SAFE
             while cmds.objExists("%s%s" %
                                  (self.helixTransformName,
-                                  self.__instance.strandCount)):
-                self.__instance.strandCount += 1
+                                  self.strandCount)):
+                self.strandCount += 1
             val = "%d" % self.strandCount
             self.idStrandMapping[strand] = val
+            # print self.idStrandMapping
             return val
+    # end def
 
     def deleteStrandMayaID(self, strand):
         if strand in self.cnToMaya:
             del self.cnToMaya[strand]
         if strand in self.idStrandMapping:
             del self.idStrandMapping[strand]
-
-    def __init__(self):
-        if Mom.__instance is None:
-            Mom.__instance = Mom.__impl()
-            #super(Mom, self).__init__()
-        self.__dict__['_Mom__instance'] = Mom.__instance
-
-    def __getattr__(self, attr):
-        return getattr(self.__instance, attr)
-
-    def __setattr__(self, attr, value):
-        return setattr(self.__instance, attr, value)
