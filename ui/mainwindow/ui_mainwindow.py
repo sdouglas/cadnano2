@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'mainwindow/mainwindow.ui'
 #
-# Created: Fri Oct 28 13:05:46 2011
+# Created: Fri Oct 28 15:27:06 2011
 #      by: PyQt4 UI code generator 4.8.6
 #
 # WARNING! All changes made in this file will be lost!
@@ -108,7 +108,6 @@ class Ui_MainWindow(object):
         self.topToolBar.setSizePolicy(sizePolicy)
         self.topToolBar.setBaseSize(QtCore.QSize(0, 0))
         self.topToolBar.setWindowTitle(QtGui.QApplication.translate("MainWindow", "Main Toolbar", None, QtGui.QApplication.UnicodeUTF8))
-        self.topToolBar.setToolTip(QtGui.QApplication.translate("MainWindow", "(F)rame path view", None, QtGui.QApplication.UnicodeUTF8))
         self.topToolBar.setToolButtonStyle(QtCore.Qt.ToolButtonTextUnderIcon)
         self.topToolBar.setObjectName(_fromUtf8("topToolBar"))
         MainWindow.addToolBar(QtCore.Qt.TopToolBarArea, self.topToolBar)
