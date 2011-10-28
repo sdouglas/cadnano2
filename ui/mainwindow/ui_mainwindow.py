@@ -2,8 +2,8 @@
 
 # Form implementation generated from reading ui file 'mainwindow/mainwindow.ui'
 #
-# Created: Tue Oct 11 22:50:15 2011
-#      by: PyQt4 UI code generator 4.8.5
+# Created: Fri Oct 28 13:05:46 2011
+#      by: PyQt4 UI code generator 4.8.6
 #
 # WARNING! All changes made in this file will be lost!
 
@@ -333,11 +333,6 @@ class Ui_MainWindow(object):
         self.actionPreferences.setText(QtGui.QApplication.translate("MainWindow", "Preferences", None, QtGui.QApplication.UnicodeUTF8))
         self.actionPreferences.setShortcut(QtGui.QApplication.translate("MainWindow", "Ctrl+,", None, QtGui.QApplication.UnicodeUTF8))
         self.actionPreferences.setObjectName(_fromUtf8("actionPreferences"))
-        self.actionFrame = QtGui.QAction(MainWindow)
-        self.actionFrame.setText(QtGui.QApplication.translate("MainWindow", "Frame", None, QtGui.QApplication.UnicodeUTF8))
-        self.actionFrame.setToolTip(QtGui.QApplication.translate("MainWindow", "(F)rame path view", None, QtGui.QApplication.UnicodeUTF8))
-        self.actionFrame.setShortcut(QtGui.QApplication.translate("MainWindow", "F", None, QtGui.QApplication.UnicodeUTF8))
-        self.actionFrame.setObjectName(_fromUtf8("actionFrame"))
         self.actionModify = QtGui.QAction(MainWindow)
         self.actionModify.setCheckable(True)
         icon20 = QtGui.QIcon()
@@ -357,7 +352,6 @@ class Ui_MainWindow(object):
         self.menuFile.addSeparator()
         self.menuFile.addAction(self.actionPrint)
         self.menuCADnano.addAction(self.actionPreferences)
-        self.menuView.addAction(self.actionFrame)
         self.menubar.addAction(self.menuCADnano.menuAction())
         self.menubar.addAction(self.menuFile.menuAction())
         self.menubar.addAction(self.menuEdit.menuAction())

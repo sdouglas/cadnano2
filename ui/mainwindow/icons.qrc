@@ -1,8 +1,8 @@
 <RCC>
   <qresource prefix="filetools">
     <file alias="svg">images/data-svg.png</file>
-    <file alias="csv">images/export-staples.svg</file>
     <file alias="new">images/data-new_32.png</file>
+    <file alias="csv">images/export-staples.png</file>
     <file alias="open">images/data-open_32.png</file>
     <file alias="save">images/data-save_32.png</file>
   </qresource>
@@ -19,9 +19,9 @@
     <file alias="go-first">images/slice-go-first.png</file>
   </qresource>
   <qresource prefix="pathtools">
-    <file alias="addseq">images/path-addseq.svg</file>
+    <file alias="modify">images/path-modify.png</file>
     <file alias="add-bases">images/add-bases.svg</file>
-    <file alias="modify">images/path-modify.svg</file>
+    <file alias="addseq">images/path-addseq.png</file>
     <file alias="remove-bases">images/remove-bases.svg</file>
     <file alias="insert">images/path-insert_48x48.png</file>
     <file alias="frame">images/path-frame.png</file>
