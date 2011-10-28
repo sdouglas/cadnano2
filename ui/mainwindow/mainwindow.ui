@@ -229,9 +229,6 @@
    <property name="windowTitle">
     <string>Main Toolbar</string>
    </property>
-   <property name="toolTip">
-    <string>(F)rame path view</string>
-   </property>
    <property name="toolButtonStyle">
     <enum>Qt::ToolButtonTextUnderIcon</enum>
    </property>
