@@ -207,7 +207,6 @@
     <property name="title">
      <string>View</string>
     </property>
-    <addaction name="actionFrame"/>
    </widget>
    <addaction name="menuCADnano"/>
    <addaction name="menuFile"/>
@@ -229,9 +228,6 @@
    </property>
    <property name="windowTitle">
     <string>Main Toolbar</string>
-   </property>
-   <property name="toolTip">
-    <string>(F)rame path view</string>
    </property>
    <property name="toolButtonStyle">
     <enum>Qt::ToolButtonTextUnderIcon</enum>
@@ -693,17 +689,6 @@
    </property>
    <property name="shortcut">
     <string>Ctrl+,</string>
-   </property>
-  </action>
-  <action name="actionFrame">
-   <property name="text">
-    <string>Frame</string>
-   </property>
-   <property name="toolTip">
-    <string>(F)rame path view</string>
-   </property>
-   <property name="shortcut">
-    <string>F</string>
    </property>
   </action>
   <action name="actionModify">
