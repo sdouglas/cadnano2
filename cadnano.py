@@ -150,6 +150,7 @@ class CADnano(QObject):
         import maya.cmds as cmds
         nodes = cmds.ls("DNAShapeTransform*", "DNAStrandShader*")
         for n in nodes:
+            print n
             cmds.delete(n)
         for doc in self.documentControllers:
             if hasattr(doc, 'solidHelixGrp'):

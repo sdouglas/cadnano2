@@ -57,6 +57,8 @@ class DocumentController():
         self._sliceViewInstance = None
         self._undoStack = None
         self.win = None
+        self.fileopendialog = None
+        self.filesavedialog = None
         # call other init methods
         self._initWindow()
         if app().isInMaya():
@@ -131,13 +133,11 @@ class DocumentController():
         if len(self._document.parts()) == 0:
             print "No existing parts, so no new document"
             return  # no parts
-
         if self.maybeSave() == False:
             return  # user canceled in maybe save
         else:  # user did not cancel
-            if hasattr(self, "filesavedialog"): # user did save
-                if self.filesavedialog != None:
-                    self.filesavedialog.finished.connect(self.newClickedCallback)
+            if self.filesavedialog != None:
+                self.filesavedialog.finished.connect(self.newClickedCallback)
             else:  # user did not save
                 self.newClickedCallback()  # finalize new
 
@@ -214,6 +214,7 @@ class DocumentController():
         if self.svgsavedialog != None:
             self.svgsavedialog.filesSelected.disconnect(self.saveSVGDialogCallback)
             del self.svgsavedialog  # prevents hang
+            self.svgsavedialog = None
 
         generator = QSvgGenerator()
         generator.setFileName(fname)
@@ -377,9 +378,10 @@ class DocumentController():
         maybeSave. Removes the dialog if necessary, but it was probably
         already removed by saveFileDialogCallback.
         """
-        if hasattr(self, "filesavedialog"): # user did save
+        if self.filesavedialog != None:
             self.filesavedialog.finished.disconnect(self.actionNewSlotCallback)
             del self.filesavedialog  # prevents hang (?)
+            self.filesavedialog = None
         self.newDocument()
 
     def exportStaplesCallback(self, selected):
@@ -397,6 +399,7 @@ class DocumentController():
             self.saveStaplesDialog.filesSelected.disconnect(self.exportStaplesCallback)
             # manual garbage collection to prevent hang (in osx)
             del self.saveStaplesDialog
+            self.saveStaplesDialog = None
         # write the file
         output = self.activePart().getStapleSequences()
         with open(fname, 'w') as f:
@@ -409,9 +412,11 @@ class DocumentController():
         maybeSave. Removes the dialog if necessary, but it was probably
         already removed by saveFileDialogCallback.
         """
-        if hasattr(self, "filesavedialog"): # user did save
+
+        if self.filesavedialog != None:
             self.filesavedialog.finished.disconnect(self.newClickedCallback)
             del self.filesavedialog  # prevents hang (?)
+            self.filesavedialog = None
         self.newDocument()
 
     def openAfterMaybeSaveCallback(self, selected):
@@ -438,6 +443,7 @@ class DocumentController():
                                               self.openAfterMaybeSaveCallback)
             # manual garbage collection to prevent hang (in osx)
             del self.fileopendialog
+            self.fileopendialog = None
 
     def saveFileDialogCallback(self, selected):
         """If the user chose to save, write to that file."""
@@ -454,6 +460,7 @@ class DocumentController():
             self.filesavedialog.filesSelected.disconnect(
                                                 self.saveFileDialogCallback)
             del self.filesavedialog  # prevents hang
+            self.filesavedialog = None
         self.writeDocumentToFile(fname)
 
     ### EVENT HANDLERS ###
@@ -464,6 +471,7 @@ class DocumentController():
             if app().isInMaya():
                 self.windock.setVisible(False)
                 del self.windock
+                self.windock = None
             app().documentControllers.remove(self)
         else:
             event.ignore()
