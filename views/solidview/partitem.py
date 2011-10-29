@@ -107,7 +107,7 @@ class PartItem(object):
     # end def
 
     def updateModifyState(self):
-        for sh in self.virtualHelixItems:
+        for sh in self._virtualHelixItems:
             sh.setModifyState(self.modifyState)
             sh.updateDecorators()
     # end def
@@ -193,16 +193,18 @@ class PartItem(object):
         return x + self.mayaOrigin[0], self.mayaOrigin[1] - y
     # end def
 
+    # XXXX I think this is unused
     def clearInternalDataStructures(self):
         self._virtualHelixItems = {}
         self.idStrandMapping.clear()
         self.strandCount = 0
     # end def
-
+    
+    #  XXXX I think this is unused
     def deleteAllNodes(self):
         m = Mom()
         # Delete Helicies in this group
-        for vhelixItem in self.virtualHelixItems:
+        for vhelixItem in self._virtualHelixItems:
             strandIDs = vhelixItem.StrandIDs()
             for mID in strandIDs:
                 transformName = "%s%s" % (m.helixTransformName, mID)
