@@ -216,7 +216,7 @@ class StrandSet(QObject):
 
     def removeStrand(self, strand, strandSetIdx=None, useUndoStack=True):
         cmds = []
-        if not strandSetIdx:
+        if strandSetIdx == None:
             isInSet, overlap, strandSetIdx = self._findIndexOfRangeFor(strand)
             if not isInSet:
                 raise IndexError
@@ -229,7 +229,10 @@ class StrandSet(QObject):
     # end def
     
     def removeAllStrands(self, useUndoStack=True):
-        for strand in self._strandList:
+        # copy the list because we are going to shrink it and that's 
+        # a no no with iterators
+        temp = [x for x in self._strandList]
+        for strand in temp:
             self.removeStrand(strand, 0, useUndoStack)
         # end def
 
@@ -796,8 +799,8 @@ class StrandSet(QObject):
             # Remove the strand
             strand = self._strand
             strandSet = self._strandSet
-            strandSet._removeFromStrandList(strand)
-            # strandSet._strandList.pop(self._sSetIdx)
+            # strandSet._removeFromStrandList(strand)
+            strandSet._strandList.pop(self._sSetIdx)
             strand5p = self._oldStrand5p
             strand3p = self._oldStrand3p
             oligo = self._oligo

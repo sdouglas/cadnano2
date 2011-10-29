@@ -98,12 +98,21 @@ class StrandItem(object):
         mom.removeIDMapping(mID, strand)
         #print "solidview.StrandItem.strandRemovedSlot %s" % mID
         transformName = "%s%s" % (mom.helixTransformName, mID)
+        cylinderName = "%s%s" % (mom.helixNodeName, mID)
+        meshName = "%s%s" % (mom.helixMeshName, mID)
         if cmds.objExists(transformName):
             cmds.delete(transformName)
+        if cmds.objExists(cylinderName):
+            cmds.delete(cylinderName)
+        if cmds.objExists(meshName):
+            cmds.delete(meshName)
         if mID in self._virtualHelixItem.StrandIDs():
             self._virtualHelixItem.StrandIDs().remove(mID)
         self._virtualHelixItem.updateDecorators()
         self._virtualHelixItem.removeStrandItem(self)
+        self._virtualHelixItem = None
+
+                                                  
         self._modelStrand = None
         self._controller.disconnectSignals()
         self._controller = None
@@ -140,8 +149,8 @@ class StrandItem(object):
         #print "solidview.StrandItem.strandHasNewOligoSlot"
         mom = Mom()
         self._controller.reconnectOligoSignals()
-        id = mom.strandMayaID(strand)
-        self.updateColor(id, strand.oligo().color())
+        mID = mom.strandMayaID(strand)
+        self.updateColor(mID, strand.oligo().color())
 
     def strandInsertionAddedSlot(self, strand, insertion):
         pass
@@ -176,7 +185,7 @@ class StrandItem(object):
         cylinderName = "%s%s" % (m.helixNodeName, mID)
         transformName = "%s%s" % (m.helixTransformName, mID)
         meshName = "%s%s" % (m.helixMeshName, mID)
-        shaderName = "%s%s" % (m.helixShaderName, mID)
+        # shaderName = "%s%s" % (m.helixShaderName, mID)
         cmds.createNode("transform", name=transformName)
         cmds.setAttr("%s.rotateX" % transformName, 90)
         cmds.setAttr("%s.translateX" % transformName, x)
