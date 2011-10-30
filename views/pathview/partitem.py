@@ -104,6 +104,16 @@ class PartItem(QGraphicsRectItem):
         # print "PartItem.partParentChangedSlot"
         pass
     # end def
+    
+    def partHideSlot(self, part):
+        print "hiding part"
+        self.hide()
+    # end def
+
+    def partActiveVirtualHelixChangedSlot(self, part, virtualHelix):
+        if virtualHelix == part.activeVirtualHelix():
+            self.updatePreXoverItems()
+    #end def
 
     def partDimensionsChangedSlot(self, part):
         if len(self._virtualHelixItemList) > 0:

@@ -122,12 +122,14 @@ class StrandItem(QGraphicsLineItem):
         self._xover3pEnd.remove()
         self._xover3pEnd = None
         for insertionItem in self._insertionItems.itervalues():
-            insertionItem.remove()  
-        self._insertionItems = {}
+            insertionItem.remove()
+        self._insertionItems = None
         self._clickArea = None
         self._highCap = None
         self._lowCap = None
         self._seqLabel = None
+        self._modelStrand = None
+        self._virtualHelixItem = None
         scene.removeItem(self)
     # end def
 
@@ -135,10 +137,11 @@ class StrandItem(QGraphicsLineItem):
         pass
     # end def
 
-    def strandXover5pChangedSlot(self, strand5p, strand3p):
-        partItem = self._virtualHelixItem.partItem()
-        partItem.updatePreXoverItems()
-    #  end def
+    # def strandXover5pChangedSlot(self, strand5p, strand3p):
+    #     pass
+    #     # partItem = self._virtualHelixItem.partItem()
+    #     # partItem.updatePreXoverItems()
+    # #  end def
 
     def strandUpdateSlot(self, strand):
         """

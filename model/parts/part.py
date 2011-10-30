@@ -117,7 +117,8 @@ class Part(QObject):
     partVirtualHelixRenumberedSignal = pyqtSignal(tuple)   # coord
     partVirtualHelixResizedSignal = pyqtSignal(tuple)      # coord
     partVirtualHelicesReorderedSignal = pyqtSignal(list)   # list of coords
-
+    partHideSignal = pyqtSignal(QObject)
+    partActiveVirtualHelixChangedSignal = pyqtSignal(QObject, QObject)
     ### SLOTS ###
 
     ### ACCESSORS ###
@@ -170,7 +171,8 @@ class Part(QObject):
 
     def getVirtualHelices(self):
         """yield an iterator to the virtualHelix references in the part"""
-        return self._virtualHelixHash.itervalues()
+        # return self._virtualHelixHash.itervalues()
+        return self._virtualHelixHash.values()
     # end def
 
     def indexOfRightmostNonemptyBase(self):
@@ -244,6 +246,8 @@ class Part(QObject):
     # end def 
     
     def remove(self, useUndoStack=True):
+        self.partHideSignal.emit(self)
+        self._activeVirtualHelix = None
         if useUndoStack:
             self.undoStack().beginMacro("Delete Part")
         self.removeVirtualHelices(useUndoStack)
@@ -941,7 +945,8 @@ class Part(QObject):
             vh3p = ss3.virtualHelix()
             st3p = ss3.strandType()
 
-            strand5p.strandXover5pChangedSignal.emit(strand5p, strand3p)
+            part.partActiveVirtualHelixChangedSignal.emit(part, vh5p)
+            # strand5p.strandXover5pChangedSignal.emit(strand5p, strand3p)
             strand5p.strandUpdateSignal.emit(strand5p)
             strand3p.strandUpdateSignal.emit(strand3p)
         # end def
@@ -976,7 +981,8 @@ class Part(QObject):
             vh3p = ss3.virtualHelix()
             st3p = ss3.strandType()
 
-            strand5p.strandXover5pChangedSignal.emit(strand5p, strand3p)
+            part.partActiveVirtualHelixChangedSignal.emit(part, vh5p)
+            # strand5p.strandXover5pChangedSignal.emit(strand5p, strand3p)
             strand5p.strandUpdateSignal.emit(strand5p)
             strand3p.strandUpdateSignal.emit(strand3p)
         # end def
@@ -1038,7 +1044,8 @@ class Part(QObject):
             vh3p = ss3.virtualHelix()
             st3p = ss3.strandType()
 
-            strand5p.strandXover5pChangedSignal.emit(strand5p, strand3p)
+            part.partActiveVirtualHelixChangedSignal.emit(part, vh5p)
+            # strand5p.strandXover5pChangedSignal.emit(strand5p, strand3p)
             strand5p.strandUpdateSignal.emit(strand5p)
             strand3p.strandUpdateSignal.emit(strand3p)
         # end def
@@ -1073,7 +1080,8 @@ class Part(QObject):
             vh3p = ss3.virtualHelix()
             st3p = ss3.strandType()
 
-            strand5p.strandXover5pChangedSignal.emit(strand5p, strand3p)
+            part.partActiveVirtualHelixChangedSignal.emit(part, vh5p)
+            # strand5p.strandXover5pChangedSignal.emit(strand5p, strand3p)
             strand5p.strandUpdateSignal.emit(strand5p)
             strand3p.strandUpdateSignal.emit(strand3p)
         # end def

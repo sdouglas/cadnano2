@@ -122,9 +122,9 @@ class StrandItem(object):
         #print "solidview.StrandItem.strandDestroyedSlot"
         pass
 
-    def strandXover5pChangedSlot(self, strand):
-        #print "solidview.StrandItem.strandXover5pChangedSlot"
-        pass
+    # def strandXover5pChangedSlot(self, strand):
+    #     #print "solidview.StrandItem.strandXover5pChangedSlot"
+    #     pass
 
     def strandXover5pRemovedSlot(self, strand):
         #print "solidview.StrandItem.strandXover5pRemovedSlot"

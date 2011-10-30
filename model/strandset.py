@@ -214,16 +214,21 @@ class StrandSet(QObject):
             return -1
     # end def
 
-    def removeStrand(self, strand, strandSetIdx=None, useUndoStack=True):
+    def removeStrand(self, strand, strandSetIdx=None, useUndoStack=True, solo=True):
+        """
+        solo is an argument to enable limiting signals emiting from
+        the command in the case the command is instantiated part of a larger 
+        command
+        """
         cmds = []
         if strandSetIdx == None:
             isInSet, overlap, strandSetIdx = self._findIndexOfRangeFor(strand)
             if not isInSet:
                 raise IndexError
-        if self.isScaffold():
+        if self.isScaffold() and strand.sequence() != None:
             cmds.append(strand.oligo().applySequenceCMD(None))
         cmds += strand.clearDecoratorCommands()
-        cmds.append(StrandSet.RemoveStrandCommand(self, strand, strandSetIdx))
+        cmds.append(StrandSet.RemoveStrandCommand(self, strand, strandSetIdx, solo))
         util.execCommandList(self, cmds, desc="Remove strand", useUndoStack=useUndoStack)
         return strandSetIdx
     # end def
@@ -233,7 +238,7 @@ class StrandSet(QObject):
         # a no no with iterators
         temp = [x for x in self._strandList]
         for strand in temp:
-            self.removeStrand(strand, 0, useUndoStack)
+            self.removeStrand(strand, 0, useUndoStack, solo=False)
         # end def
 
     def mergeStrands(self, priorityStrand, otherStrand, useUndoStack=True):
@@ -775,7 +780,7 @@ class StrandSet(QObject):
         RemoveStrandCommand deletes a strand. It should only be called on
         strands with no connections to other strands.
         """
-        def __init__(self, strandSet, strand, strandSetIdx):
+        def __init__(self, strandSet, strand, strandSetIdx, solo=True):
             super(StrandSet.RemoveStrandCommand, self).__init__()
             self._strandSet = strandSet
             self._strand = strand
@@ -785,6 +790,7 @@ class StrandSet(QObject):
             self._oligo = olg = strand.oligo()
             self._newOligo5p = olg.shallowCopy()
             self._newOligo3p = olg3p = olg.shallowCopy()
+            self._solo = solo
             olg3p.setStrand5p(self._oldStrand3p)
             colorList = styles.stapColors if strandSet.isStaple() else styles.scafColors
             color = random.choice(colorList).name()
@@ -806,7 +812,7 @@ class StrandSet(QObject):
             oligo = self._oligo
             olg5p = self._newOligo5p
             olg3p = self._newOligo3p
-
+            
             oligo.incrementLength(-strand.totalLength())
             oligo.removeFromPart()
 
@@ -821,7 +827,11 @@ class StrandSet(QObject):
                     Strand.setOligo(s5p, olg5p)
                 olg5p.refreshLength()
                 olg5p.addToPart(strandSet.part())
-                strand5p.strandXover5pChangedSignal.emit(strand5p, strand)
+                if self._solo:
+                    part = strandSet.part()
+                    vh = strandSet.virtualHelix()
+                    part.partActiveVirtualHelixChangedSignal(part, vh)
+                    #strand5p.strandXover5pChangedSignal.emit(strand5p, strand)
                 strand5p.strandUpdateSignal.emit(strand5p)
             # end if
             if strand3p != None:
@@ -830,7 +840,11 @@ class StrandSet(QObject):
                     for s3p in strand3p.generator3pStrand():
                         Strand.setOligo(s3p, olg3p)
                     olg3p.addToPart(strandSet.part())
-                # strand.strandXover5pChangedSignal.emit(strand, strand3p)
+                if self._solo:
+                    part = strandSet.part()
+                    vh = strandSet.virtualHelix()
+                    part.partActiveVirtualHelixChangedSignal(part, vh)
+                    # strand.strandXover5pChangedSignal.emit(strand, strand3p)
                 strand3p.strandUpdateSignal.emit(strand3p)
             # end if
             # Emit a signal to notify on completion
@@ -875,12 +889,20 @@ class StrandSet(QObject):
 
             # Restore connections to this strand
             if strand5p != None:
-                strand5p.strandXover5pChangedSignal.emit(strand5p, strand)
+                if self._solo:
+                    part = strandSet.part()
+                    vh = strandSet.virtualHelix()
+                    part.partActiveVirtualHelixChangedSignal(part, vh)
+                    # strand5p.strandXover5pChangedSignal.emit(strand5p, strand)
                 strand5p.strandUpdateSignal.emit(strand5p)
                 strand.strandUpdateSignal.emit(strand)
 
             if strand3p != None:
-                # strand.strandXover5pChangedSignal.emit(strand, strand3p)
+                if self._solo:
+                    part = strandSet.part()
+                    vh = strandSet.virtualHelix()
+                    part.partActiveVirtualHelixChangedSignal(part, vh)
+                    # strand.strandXover5pChangedSignal.emit(strand, strand3p)
                 strand3p.strandUpdateSignal.emit(strand3p)
                 strand.strandUpdateSignal.emit(strand)
         # end def

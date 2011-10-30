@@ -33,6 +33,10 @@ class PartItemController(object):
         mP = self._modelPart
         pI = self._partItem
 
+        if hasattr(pI, "partHideSlot"):
+            mP.partHideSignal.connect(pI.partHideSlot)
+        if hasattr(pI, "partActiveVirtualHelixChangedSlot"):
+            mP.partActiveVirtualHelixChangedSignal.connect(pI.partActiveVirtualHelixChangedSlot)
         mP.partDestroyedSignal.connect(pI.partDestroyedSlot)
         mP.partDimensionsChangedSignal.connect(pI.partDimensionsChangedSlot)
         mP.partParentChangedSignal.connect(pI.partParentChangedSlot)
@@ -48,7 +52,11 @@ class PartItemController(object):
     def disconnectSignals(self):
         mP = self._modelPart
         pI = self._partItem
-
+        
+        if hasattr(pI, "partHideSlot"):
+            mP.partHideSignal.disconnect(pI.partHideSlot)
+        if hasattr(pI, "partActiveVirtualHelixChangedSlot"):
+            mP.partActiveVirtualHelixChangedSignal.disconnect(pI.partActiveVirtualHelixChangedSlot)
         mP.partDestroyedSignal.disconnect(pI.partDestroyedSlot)
         mP.partDimensionsChangedSignal.disconnect(pI.partDimensionsChangedSlot)
         mP.partParentChangedSignal.disconnect(pI.partParentChangedSlot)

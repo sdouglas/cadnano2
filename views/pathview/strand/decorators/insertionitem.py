@@ -206,6 +206,8 @@ class InsertionItem(QGraphicsPathItem):
         scene.removeItem(self._seqItem)
         self._seqItem = None
         scene.removeItem(self)
+        self._insertion = None
+        self._strand = None
     # end def
 
     def updateItem(self):
