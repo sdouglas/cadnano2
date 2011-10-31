@@ -245,21 +245,64 @@ class Part(QObject):
         # end for
     # end def 
     
+    # def remove(self, useUndoStack=True):
+    #     """
+    #     This method uses the slow method of removing each element one at a time
+    #     while maintaining state while the command is executed
+    #     """
+    #     self.partHideSignal.emit(self)
+    #     self._activeVirtualHelix = None
+    #     if useUndoStack:
+    #         self.undoStack().beginMacro("Delete Part")
+    #     self.removeVirtualHelices(useUndoStack)
+    #     c = Part.RemovePartCommand(self)
+    #     if useUndoStack:
+    #         self.undoStack().push(c)
+    #         self.undoStack().endMacro()
+    #     else:
+    #         c.redo()
+    # # end def
+    
     def remove(self, useUndoStack=True):
+        """
+        This method assumes all strands are and all VirtualHelices are
+        going away, so it does not maintain a valid model state while
+        the command is being executed.
+        Everything just gets pushed onto the undostack more or less as is.
+        Except that strandSets are actually cleared then restored, but this
+        is neglible performance wise.  Also, decorators/insertions are assumed 
+        to be parented to strands in the view so their removal Signal is 
+        not emitted.  This causes problems with undo and redo down the road 
+        but works as of now.
+        """
         self.partHideSignal.emit(self)
         self._activeVirtualHelix = None
         if useUndoStack:
             self.undoStack().beginMacro("Delete Part")
-        self.removeVirtualHelices(useUndoStack)
-        c = Part.RemovePartCommand(self)
+        # remove strands and oligos
+        c = Part.RemoveAllStrandsCommand(self)
         if useUndoStack:
             self.undoStack().push(c)
-            self.undoStack().endMacro()
         else:
             c.redo()
+        # remove VHs
+        vhs = self._virtualHelixHash.values()
+        for vh in vhs:
+            d = VirtualHelix.RemoveVirtualHelixCommand(self, vh)
+            if useUndoStack:
+                self.undoStack().push(d)
+            else:
+                d.redo()
+        # end for
+        # remove the part
+        e = Part.RemovePartCommand(self)
+        if useUndoStack:
+            self.undoStack().push(e)
+            self.undoStack().endMacro()
+        else:
+            e.redo()
     # end def
-    
-    
+
     def addOligo(self, oligo):
         self._oligos[oligo] = True
     # end def
@@ -487,9 +530,6 @@ class Part(QObject):
                     return
         # end else
         e = Part.CreateXoverCommand(self, xoStrand5, idx5p, xoStrand3, idx3p)
-        # cmds.append(c)
-        # util.execCommandList(self, cmds, desc="Create Xover", \
-        #                                         useUndoStack=useUndoStack)
         if useUndoStack:
             self.undoStack().push(e)
             self.undoStack().endMacro()
@@ -1175,4 +1215,61 @@ class Part(QObject):
             doc.documentPartAddedSignal.emit(part)
         # end def
     # end class
+    
+    class RemoveAllStrandsCommand(QUndoCommand):
+        """
+        1. Remove all strands
+        2.  Remove all Oligos
+        """
+        def __init__(self, part):
+            super(Part.RemoveAllStrandsCommand, self).__init__()
+            self._part = part
+            self._vhs = vhs = part.getVirtualHelices()
+            self._strandSets = []
+            for vh in self._vhs:
+                x = vh.getStrandSets() 
+                self._strandSets.append(x[0])
+                self._strandSets.append(x[1])
+            self._strandSetListCopies = [[y for y in x._strandList] for x in self._strandSets]
+            self._oligos = part.oligos().keys()
+        # end def
+                
+        def redo(self):
+            part = self._part
+            # Remove the strand
+            for sSet in self._strandSets:
+                sList = sSet._strandList
+                for strand in sList:
+                    strand.strandRemovedSignal.emit(strand)
+                # end for
+                sSet._strandList = []
+            #end for
+            for vh in self._vhs:
+                # for updating the Slice View displayed helices
+                part.partStrandChangedSignal.emit(vh)
+            # end for
+            for olg in self._oligos:
+                part.removeOligo(olg)
+        # end def
+
+        def undo(self):
+            part = self._part
+            # Remove the strand
+            sListCopyIterator = iter(self._strandSetListCopies)
+            for sSet in self._strandSets:
+                sList = sListCopyIterator.next()
+                for strand in sList:
+                    sSet.strandsetStrandAddedSignal.emit(strand)
+                # end for
+                sSet._strandList = sList
+            #end for
+            for vh in self._vhs:
+                # for updating the Slice View displayed helices
+                part.partStrandChangedSignal.emit(vh)
+            # end for
+            for olg in self._oligos:
+                part.addOligo(olg)
+        # end def
+    # end class
+    
 # end class

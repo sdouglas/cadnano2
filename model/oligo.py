@@ -371,6 +371,40 @@ class Oligo(QObject):
             for oligo in oligoList:
                 oligo.oligoSequenceAddedSignal.emit(oligo)
         # end def
-
     # end class
+    class ApplyColorCommand(QUndoCommand):
+        def __init__(self, oligo, color):
+            super(Oligo.ApplyColorCommand, self).__init__()
+            self._oligo = oligo
+            self._newColor = color
+            self._oldColor = oligo.color()
+        # end def
+
+        def redo(self):
+            olg = self._oligo
+            olg.setColor(self._newColor)
+            olg.oligoAppearanceChangedSignal.emit(olg)
+        # end def
+
+        def undo(self):
+            olg = self._oligo
+            olg.setColor(self._oldColor)
+            olg.oligoAppearanceChangedSignal.emit(olg)
+        # end def
+    # end class
+
+    class RemoveOligoCommand(QUndoCommand):
+        def __init__(self, oligo, sequence):
+            super(Oligo.RemoveOligoCommand, self).__init__()
+        # end def
+
+        def redo(self):
+            pass
+        # end def
+
+        def undo(self):
+            pass
+        # end def
+    # end class
+# end class
     
