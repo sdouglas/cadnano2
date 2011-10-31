@@ -251,9 +251,15 @@ class VirtualHelixItem(object):
         cmds.setAttr("%s.translateY" % transformName, coords[1])
         cmds.setAttr("%s.translateZ" % transformName, coords[2])
         cmds.createNode("mesh", name=meshName, parent=transformName)
-        cmds.createNode("spPreDecoratorNode", name=stapleModIndicatorName)
+        #cmds.createNode("spPreDecoratorNode", name=stapleModIndicatorName)
+        cmds.createNode("polySphere", name=stapleModIndicatorName)
         cmds.setAttr("%s.radius" % stapleModIndicatorName, .25)
-        cmds.connectAttr("%s.outputMesh" % stapleModIndicatorName,
+        cmds.setAttr("%s.subdivisionsAxis" % stapleModIndicatorName, 10)
+        cmds.setAttr("%s.subdivisionsHeight" % stapleModIndicatorName, 10)
+        
+        #cmds.connectAttr("%s.outputMesh" % stapleModIndicatorName,
+        #                 "%s.inMesh" % meshName)
+        cmds.connectAttr("%s.output" % stapleModIndicatorName,
                          "%s.inMesh" % meshName)
 
         if not cmds.objExists(shaderName):
