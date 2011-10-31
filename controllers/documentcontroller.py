@@ -89,7 +89,7 @@ class DocumentController():
         import sip
         ptr = OpenMayaUI.MQtUtil.mainWindow()
         mayaWin = sip.wrapinstance(long(ptr), QMainWindow)
-        self.windock = QDockWidget("CADnano")
+        self.windock = QDockWidget("cadnano")
         self.windock.setFeatures(QDockWidget.DockWidgetMovable
                                  | QDockWidget.DockWidgetFloatable)
         self.windock.setAllowedAreas(Qt.LeftDockWidgetArea
@@ -504,7 +504,7 @@ class DocumentController():
             fname = QFileDialog.getOpenFileName(
                         None,
                         "Open Document", "/",
-                        "CADnano1 / CADnano2 Files (*.nno *.json *.cadnano)")
+                        "cadnano1 / cadnano2 Files (*.nno *.json *.cadnano)")
             self.filesavedialog = None
             self.openAfterMaybeSaveCallback(fname)
         else:  # access through non-blocking callback
@@ -512,7 +512,7 @@ class DocumentController():
                         self.win,
                         "Open Document",
                         "/",
-                        "CADnano1 / CADnano2 Files (*.nno *.json *.cadnano)")
+                        "cadnano1 / cadnano2 Files (*.nno *.json *.cadnano)")
             fdialog.setAcceptMode(QFileDialog.AcceptOpen)
             fdialog.setWindowFlags(Qt.Sheet)
             fdialog.setWindowModality(Qt.WindowModal)
@@ -557,7 +557,7 @@ class DocumentController():
         except IOError:
             flags = Qt.Dialog | Qt.MSWindowsFixedSizeDialogHint | Qt.Sheet
             errorbox = QMessageBox(QMessageBox.Critical,
-                                   "CADnano",
+                                   "cadnano",
                                    "Could not write to '%s'." % filename,
                                    QMessageBox.Ok,
                                    self.win,

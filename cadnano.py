@@ -89,7 +89,7 @@ qtWrapImport('QtGui', globals(),  ['qApp', 'QApplication', 'QIcon',
 qtWrapImport('QtCore', globals(), ['QObject', 'QCoreApplication'])
 
 
-class CADnano(QObject):
+class Cadnano(QObject):
     sharedApp = None  # This class is a singleton.
     usesPySide = usesPySide     # This is bad that this can work
     dontAskAndJustDiscardUnsavedChanges = False
@@ -102,9 +102,9 @@ class CADnano(QObject):
             self.qApp = QApplication(argv)
             assert(QCoreApplication.instance() != None)
             self.qApp.setOrganizationDomain("cadnano.org")
-        super(CADnano, self).__init__()
-        assert(not CADnano.sharedApp)
-        CADnano.sharedApp = self
+        super(Cadnano, self).__init__()
+        assert(not Cadnano.sharedApp)
+        Cadnano.sharedApp = self
         self.guiInitialized = False
 
     def initGui(self):
@@ -123,9 +123,9 @@ class CADnano(QObject):
         self.phg = None
         self.d = self.newDocument(isFirstNewDoc=True)
         if "-i" in argv:
-            print "Welcome to CADnano's debug mode!"
+            print "Welcome to cadnano's debug mode!"
             print "Some handy locals:"
-            print "\ta\tCADnano.app() (the shared CADnano application object)"
+            print "\ta\tcadnano.app() (the shared cadnano application object)"
             print "\td()\tthe last created Document"
             print ("\tv\tmaps the numbers of recently created " +
                   "VirtualHelixes to the VHs themselves")
@@ -192,10 +192,10 @@ def ignoreEnv():
     return environ.get('CADNANO_IGNORE_ENV_VARS_EXCEPT_FOR_ME', False)
 
 def app(appArgs=None):
-    if not CADnano.sharedApp:
-        CADnano.sharedApp = CADnano()
+    if not Cadnano.sharedApp:
+        Cadnano.sharedApp = Cadnano()
     if environ.get('CADNANO_DISCARD_UNSAVED', False) and not ignoreEnv():
-        CADnano.sharedApp.dontAskAndJustDiscardUnsavedChanges = True
+        Cadnano.sharedApp.dontAskAndJustDiscardUnsavedChanges = True
     if environ.get('CADNANO_DEFAULT_DOCUMENT', False) and not ignoreEnv():
-        CADnano.sharedApp.shouldPerformBoilerplateStartupScript = True
-    return CADnano.sharedApp
+        Cadnano.sharedApp.shouldPerformBoilerplateStartupScript = True
+    return Cadnano.sharedApp

@@ -188,7 +188,7 @@ def modifyMayaUI():
     myForm = cmds.formLayout(parent=myWindow)
     global gCadNanoToolbar
     gCadNanoToolbar = cmds.toolBar(
-                                "CADnanoBox",
+                                "cadnanoBox",
                                 area='top',
                                 allowedArea='top',
                                 content=myWindow)
@@ -196,8 +196,8 @@ def modifyMayaUI():
     global gIconPath
     closeCadNanoCmd = 'import maya.cmds;maya.cmds.closeCadNano()'
     myButton = cmds.iconTextButton(
-                               label='Quit CADnano',
-                               annotation='Quit CADnano interface',
+                               label='Quit cadnano',
+                               annotation='Quit cadnano interface',
                                image1=gIconPath,
                                parent=myForm,
                                command=closeCadNanoCmd)
@@ -238,8 +238,8 @@ def addUIButton():
     if cmds.formLayout(mayaMainToolbar, ex=True):
         cmds.setParent(mayaMainToolbar)
         gCadNanoButton = cmds.iconTextButton(
-                         label='CADnano',
-                         annotation='Launch CADnano interface',
+                         label='cadnano',
+                         annotation='Launch cadnano interface',
                          image1=gIconPath,
                          parent=mayaMainToolbar,
                          command='import maya.cmds; maya.cmds.openCadNano()')

@@ -60,14 +60,14 @@ app = getAppInstance()
 app.initGui()
 if __name__ == '__main__':
     if "-p" in sys.argv:
-        print "Collecting profile data into CADnano.profile"
+        print "Collecting profile data into cadnano.profile"
         import cProfile
-        cProfile.run('app.exec_()', 'CADnano.profile')
+        cProfile.run('app.exec_()', 'cadnano.profile')
         print "Done collecting profile data. Use -P to print it out."
         exit()
     elif "-P" in sys.argv:
         from pstats import Stats
-        s = Stats('CADnano.profile')
+        s = Stats('cadnano.profile')
         print "Internal Time Top 10:"
         s.sort_stats('cumulative').print_stats(10)
         print ""

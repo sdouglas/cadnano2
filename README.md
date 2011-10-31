@@ -22,10 +22,10 @@ THE SOFTWARE.
 
 http://www.opensource.org/licenses/mit-license.php
 
-# CADnano DNA Origami Software
+# cadnano DNA Origami Software
 
 ## Overview
-[CADnano](http://cadnano.org/) is software for design of 
+[cadnano](http://cadnano.org/) is software for design of 
 [DNA origami](http://en.wikipedia.org/wiki/DNA_origami) nanostructures. 
 It was written with the goal of providing a simple and user-friendly interface 
 to facilitate a process that can be complex and error-prone.
