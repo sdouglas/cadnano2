@@ -837,7 +837,19 @@
         }
         "Entry"
         {
+        "MsmKey" = "8:_9FD61E8721254EEFB4BD7C1C6C201B20"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
         "MsmKey" = "8:_A2FAFBF21B9A465E9BC546D5E1132143"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_A3C8F1208F9E43228E2BC17F88F3C88E"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
         }
@@ -4062,12 +4074,52 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_9FD61E8721254EEFB4BD7C1C6C201B20"
+            {
+            "SourcePath" = "8:..\\..\\..\\ui\\mainwindow\\images\\export-staples.png"
+            "TargetName" = "8:export-staples.png"
+            "Tag" = "8:"
+            "Folder" = "8:_3F6351B6561948C1879CF096521DD2DB"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_A2FAFBF21B9A465E9BC546D5E1132143"
             {
             "SourcePath" = "8:..\\..\\..\\README.md"
             "TargetName" = "8:README.md"
             "Tag" = "8:"
             "Folder" = "8:_0969E8665EC94BB2A1FB615DC65E5093"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_A3C8F1208F9E43228E2BC17F88F3C88E"
+            {
+            "SourcePath" = "8:..\\..\\..\\ui\\mainwindow\\images\\path-modify.png"
+            "TargetName" = "8:path-modify.png"
+            "Tag" = "8:"
+            "Folder" = "8:_3F6351B6561948C1879CF096521DD2DB"
             "Condition" = "8:"
             "Transitive" = "11:FALSE"
             "Vital" = "11:TRUE"
