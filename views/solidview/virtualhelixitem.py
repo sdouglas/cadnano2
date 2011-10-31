@@ -254,8 +254,8 @@ class VirtualHelixItem(object):
         #cmds.createNode("spPreDecoratorNode", name=stapleModIndicatorName)
         cmds.createNode("polySphere", name=stapleModIndicatorName)
         cmds.setAttr("%s.radius" % stapleModIndicatorName, .25)
-        cmds.setAttr("%s.subdivisionsAxis" % stapleModIndicatorName, 10)
-        cmds.setAttr("%s.subdivisionsHeight" % stapleModIndicatorName, 10)
+        cmds.setAttr("%s.subdivisionsAxis" % stapleModIndicatorName, 4)
+        cmds.setAttr("%s.subdivisionsHeight" % stapleModIndicatorName, 4)
         
         #cmds.connectAttr("%s.outputMesh" % stapleModIndicatorName,
         #                 "%s.inMesh" % meshName)

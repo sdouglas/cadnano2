@@ -39,11 +39,12 @@ class SolidRootItem(object):
     """
     SolidRootItem is the root item in the SolidView.
     """
-    def __init__(self, parent, document):
+    def __init__(self, parent, document, modState):
         self._document = document
         self._controller = ViewRootController(self, document)
         self._modelPart = None
         self._partItems = {}
+        self._modifyState = modState
 
     ### SLOTS ###
     def partAddedSlot(self, modelPart):
@@ -54,6 +55,7 @@ class SolidRootItem(object):
         self._modelPart = modelPart
         partItem = PartItem(modelPart, self)
         self._partItems[partItem] = True
+        self.setModifyState(self._modifyState)
 
     def selectedPartChangedSlot(self, modelPart):
         """Given a newly selected modelPart"""
@@ -68,5 +70,6 @@ class SolidRootItem(object):
         del self._partItems[partItem]
 
     def setModifyState(self, val):
+        self._modifyState = val
         for p in self._partItems:
             p.setModifyState(val)

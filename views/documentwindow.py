@@ -99,7 +99,9 @@ class DocumentWindow(QMainWindow, ui_mainwindow.Ui_MainWindow):
             from solidview.solidrootitem import SolidRootItem
             self.splitter.setOrientation(Qt.Vertical)
             self.setUnifiedTitleAndToolBarOnMac(False)
-            self.solidroot = SolidRootItem(parent=None, document=doc)
+            modState = self.actionModify.isChecked()
+            self.solidroot = SolidRootItem(parent=None, document=doc,
+                                           modState=modState)
 
         # Edit menu setup
         self.actionUndo = docCtrlr.undoStack().createUndoAction(self)
