@@ -106,7 +106,6 @@ class PartItem(QGraphicsRectItem):
     # end def
     
     def partHideSlot(self, part):
-        print "hiding part"
         self.hide()
     # end def
 

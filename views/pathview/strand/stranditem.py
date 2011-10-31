@@ -309,20 +309,20 @@ class StrandItem(QGraphicsLineItem):
         dualCap = self._dualCap
 
         # 1. Cap visibilty
+        lx = lUpperLeftX + bw  # draw from right edge of base
+        lowCap.setPos(lUpperLeftX, lUpperLeftY)
         if strand.connectionLow() != None:  # has low xover
-            lx = lUpperLeftX + halfBaseWidth  # draw from middle of base
             lowCap.hide()
         else:  # has low cap
-            lx = lUpperLeftX + bw  # draw from right edge of base
-            lowCap.setPos(lUpperLeftX, lUpperLeftY)
             lowCap.show()
+
+        hx = hUpperLeftX  # draw to edge of base
+        highCap.setPos(hUpperLeftX, hUpperLeftY)
         if strand.connectionHigh() != None:  # has high xover
-            hx = hUpperLeftX + halfBaseWidth  # draw to middle of base
             highCap.hide()
         else:  # has high cap
-            hx = hUpperLeftX  # draw to edge of base
-            highCap.setPos(hUpperLeftX, hUpperLeftY)
             highCap.show()
+
         # special case: single-base strand with no L or H connections,
         # (unconnected caps were made visible in previous block of code)
         if strand.length() == 1 and \
@@ -570,4 +570,13 @@ class StrandItem(QGraphicsLineItem):
         mStrand = self._modelStrand
         mStrand.addInsertion(idx, -1)
     # end def
-
+    
+    def addSeqToolMousePress(self, idx):
+        """
+        Checks that a scaffold was clicked, and then calls apply sequence
+        to the clicked strand via its oligo.
+        """
+        mStrand = self._modelStrand
+        if mStrand.isScaffold():
+            self._activeTool().applySequence(mStrand.oligo())
+    # end def

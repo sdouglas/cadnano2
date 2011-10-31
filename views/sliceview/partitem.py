@@ -99,6 +99,11 @@ class PartItem(QGraphicsItem):
     ### SLOTS ###
     def partDimensionsChangedSlot(self, part):
         pass
+    # end def
+    
+    def partHideSlot(self, part):
+        self.hide()
+    # end def
 
     def partParentChangedSlot(self):
         """docstring for partParentChangedSlot"""

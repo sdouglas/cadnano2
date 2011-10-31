@@ -334,8 +334,6 @@ class DocumentController():
     ### PRIVATE SUPPORT METHODS ###
     def newDocument(self, doc=None, fname=None):
         """Creates a new Document, reusing the DocumentController."""
-        if app().isInMaya():
-            app().deleteAllMayaNodes()
         self._document.removeAllParts()  # clear out old parts
         self._document.undoStack().clear()  # reset undostack
         self._filename = fname if fname else "untitled.nno"

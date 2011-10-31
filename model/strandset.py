@@ -1136,7 +1136,6 @@ class StrandSet(QObject):
             lOlg = self._lOligo
             hOlg = self._hOligo
             wasNotLoop = lOlg != hOlg
-            print "wasNotloop", wasNotLoop
 
             # Remove old Strand from the sSet
             sS._removeFromStrandList(oS)

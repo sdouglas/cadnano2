@@ -118,9 +118,9 @@ class Cadnano(QObject):
         self.undoGroup = QUndoGroup()
         self.documentControllers = set()  # Open documents
         self.activeDocument = None
-        self.v = {}  # Newly created VirtualHelix register here by idnum.
-        self.ph = {}
-        self.phg = None
+        self.vh = {}  # Newly created VirtualHelix register here by idnum.
+        self.vhi = {}
+        self.partItem = None
         self.d = self.newDocument(isFirstNewDoc=True)
         if "-i" in argv:
             print "Welcome to cadnano's debug mode!"
@@ -129,36 +129,20 @@ class Cadnano(QObject):
             print "\td()\tthe last created Document"
             print ("\tv\tmaps the numbers of recently created " +
                   "VirtualHelixes to the VHs themselves")
-            print "\tph\tmaps virtual helix numbers to pathhelix"
-            print "\tphg()\tthe last initialized PartItem"
+            print "\tph\tmaps virtual helix numbers to virtualHelixItem"
+            print "\tpartItem()\tthe last initialized PartItem"
             print "\tpySide()\ttrue iff the app is using PySide"
             print "\tquit()\tquit (for when the menu fails)"
             interact('', local={'a': self,
                                 'd': lambda: self.d,
-                                'v': self.v,
-                                'ph': self.ph,
-                                'phg': lambda: self.phg,
+                                'vh': self.vh,
+                                'vhi': self.vhi,
+                                'pi': lambda: self.partItem,
                                 'pySide': self.usesPySide})
 
     def isInMaya(self):
         return QCoreApplication.instance().applicationName().contains(
                                                     "Maya", Qt.CaseInsensitive)
-
-    def deleteAllMayaNodes(self):
-        pass
-        # if not self.isInMaya():
-        #     return
-        # import maya.cmds as cmds
-        # import maya.mel as mel
-        # nodes = cmds.ls("DNAShapeTransform*", "DNAStrandShader*")
-        # for n in nodes:
-        #     if cmds.objExists(n):
-        #         cmds.delete(n)
-        # # cmds.delete( all=True, c=True )
-        # for doc in self.documentControllers:
-        #     if hasattr(doc, 'solidHelixGrp'):
-        #         doc.solidHelixGrp.clearInternalDataStructures()
-
     def exec_(self):
         if hasattr(self, 'qApp'):
             self.qApp.exec_()

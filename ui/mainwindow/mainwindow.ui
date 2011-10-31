@@ -14,7 +14,7 @@
    <enum>Qt::NoContextMenu</enum>
   </property>
   <property name="windowTitle">
-   <string>CADnano</string>
+   <string>cadnano</string>
   </property>
   <property name="statusTip">
    <string/>
@@ -192,9 +192,9 @@
     <addaction name="separator"/>
     <addaction name="actionPrint"/>
    </widget>
-   <widget class="QMenu" name="menuCADnano">
+   <widget class="QMenu" name="menuCadnano">
     <property name="title">
-     <string>CADnano</string>
+     <string>cadnano</string>
     </property>
     <addaction name="actionPreferences"/>
    </widget>
@@ -208,7 +208,7 @@
      <string>View</string>
     </property>
    </widget>
-   <addaction name="menuCADnano"/>
+   <addaction name="menuCadnano"/>
    <addaction name="menuFile"/>
    <addaction name="menuEdit"/>
    <addaction name="menuView"/>
