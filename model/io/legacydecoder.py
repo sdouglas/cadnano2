@@ -236,17 +236,18 @@ def import_legacy_dict(document, obj):
         vh = part.virtualHelixAtCoord((row, col))
         scafStrandSet = vh.scaffoldStrandSet()
         stapStrandSet = vh.stapleStrandSet()
-        # populate colors
-        for baseIdx, colorNumber in helix['stap_colors']:
-            color = QColor((colorNumber>>16)&0xFF, (colorNumber>>8)&0xFF, colorNumber&0xFF).name()
-            strand = stapStrandSet.getStrand(baseIdx)
-            strand.oligo().applyColor(color, useUndoStack=False)
         # install insertions and skips
         for baseIdx in range(len(stap)):
             sumOfInsertSkip = insertions[baseIdx] + skips[baseIdx]
             if sumOfInsertSkip != 0:
                 strand = scafStrandSet.getStrand(baseIdx)
                 strand.addInsertion(baseIdx, sumOfInsertSkip, useUndoStack=False)
+        # end for
+        # populate colors
+        for baseIdx, colorNumber in helix['stap_colors']:
+            color = QColor((colorNumber>>16)&0xFF, (colorNumber>>8)&0xFF, colorNumber&0xFF).name()
+            strand = stapStrandSet.getStrand(baseIdx)
+            strand.oligo().applyColor(color, useUndoStack=False)
 
 def isSegmentStartOrEnd(strandType, vhNum, baseIdx, fiveVH, fiveIdx, threeVH, threeIdx):
     """Returns True if the base is a breakpoint or crossover."""

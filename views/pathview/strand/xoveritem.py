@@ -327,8 +327,6 @@ class XoverItem(QGraphicsPathItem):
         # print "updating xover curve", self.parentObject()
         node3 = self._node3
         node5 = self._node5
-        node3.updatePositionAndAppearance()
-        node5.updatePositionAndAppearance()
 
         bw = _baseWidth
 
@@ -391,11 +389,12 @@ class XoverItem(QGraphicsPathItem):
         # The xover5's non-crossing-over end (3') has a connection
         painterpath.quadTo(c1, threeEnterPt)
         painterpath.lineTo(threeCenterPt)
-        if node3.isVisible():
-            painterpath.lineTo(threeExitPt)
+        painterpath.lineTo(threeExitPt)
 
         self.setPath(painterpath)
         self._updatePen(strand5p)
+        node3.updatePositionAndAppearance()
+        node5.updatePositionAndAppearance()
     # end def
 
     def _updatePen(self, strand5p):

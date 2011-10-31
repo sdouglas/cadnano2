@@ -155,6 +155,8 @@ class StrandItem(QGraphicsLineItem):
         self._updatePensAndBrushes(strand)
         if strand.connection3p():
             self._xover3pEnd._updatePen(strand)
+        for insertion in self.insertionItems().itervalues():
+            insertion.updateItem()
     # end def
 
     def oligoSequenceAddedSlot(self, oligo):

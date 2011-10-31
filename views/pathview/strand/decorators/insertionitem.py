@@ -258,12 +258,12 @@ class InsertionItem(QGraphicsPathItem):
             self.show()
         isOnTop = self._isOnTop
         if self._insertion.length() > 0:
-            self.setPath(_insertPath.getInsert(isOnTop))
             self.setPen(QPen(QColor(strand.oligo().color()), styles.INSERTWIDTH))
             self.setBrush(QBrush(Qt.NoBrush))
+            self.setPath(_insertPath.getInsert(isOnTop))
         else:  # insertionSize < 0 (a skip)
-            self.setPath(_skipPath.getSkip())
             self.setPen(_skipPath.getPen())
+            self.setPath(_skipPath.getSkip())
     # end def
 
     def setSequence(self, sequence):
