@@ -66,6 +66,7 @@ class PathRootItem(QGraphicsRectItem):
                             parent=self)
         self._partItems.append(partItem)
         win.pathToolManager.setActivePart(partItem)
+        self.setModifyState(win.actionModify.isChecked())
     # end def
 
     def selectedPartChangedSlot(self, modelPart):

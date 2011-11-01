@@ -57,6 +57,7 @@ class SliceRootItem(QGraphicsRectItem):
         self._modelPart = modelPart
         partItem = PartItem(modelPart, parent=self)
         self._instanceItems[partItem] = partItem
+        self.setModifyState(self._window.actionModify.isChecked())
     # end def
 
     def selectedPartChangedSlot(self):
