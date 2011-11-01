@@ -82,7 +82,6 @@ class DocumentController():
                                 not app().activeDocument.win.close()):
             return
         del app().activeDocument
-        app().deleteAllMayaNodes()
         app().activeDocument = self
 
         import maya.OpenMayaUI as OpenMayaUI

@@ -110,8 +110,6 @@ def initializePlugin(mobject):
 # Uninitialize the script plug-in
 def uninitializePlugin(mobject):
     global gCadNanoApp
-    if gCadNanoApp:
-        gCadNanoApp.deleteAllMayaNodes()
     closeCN()
     removeUIButton()
 
