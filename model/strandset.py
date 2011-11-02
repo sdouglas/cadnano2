@@ -830,7 +830,7 @@ class StrandSet(QObject):
                 if self._solo:
                     part = strandSet.part()
                     vh = strandSet.virtualHelix()
-                    part.partActiveVirtualHelixChangedSignal(part, vh)
+                    part.partActiveVirtualHelixChangedSignal.emit(part, vh)
                     #strand5p.strandXover5pChangedSignal.emit(strand5p, strand)
                 strand5p.strandUpdateSignal.emit(strand5p)
             # end if
@@ -843,7 +843,7 @@ class StrandSet(QObject):
                 if self._solo:
                     part = strandSet.part()
                     vh = strandSet.virtualHelix()
-                    part.partActiveVirtualHelixChangedSignal(part, vh)
+                    part.partActiveVirtualHelixChangedSignal.emit(part, vh)
                     # strand.strandXover5pChangedSignal.emit(strand, strand3p)
                 strand3p.strandUpdateSignal.emit(strand3p)
             # end if
@@ -892,7 +892,7 @@ class StrandSet(QObject):
                 if self._solo:
                     part = strandSet.part()
                     vh = strandSet.virtualHelix()
-                    part.partActiveVirtualHelixChangedSignal(part, vh)
+                    part.partActiveVirtualHelixChangedSignal.emit(part, vh)
                     # strand5p.strandXover5pChangedSignal.emit(strand5p, strand)
                 strand5p.strandUpdateSignal.emit(strand5p)
                 strand.strandUpdateSignal.emit(strand)
@@ -901,7 +901,7 @@ class StrandSet(QObject):
                 if self._solo:
                     part = strandSet.part()
                     vh = strandSet.virtualHelix()
-                    part.partActiveVirtualHelixChangedSignal(part, vh)
+                    part.partActiveVirtualHelixChangedSignal.emit(part, vh)
                     # strand.strandXover5pChangedSignal.emit(strand, strand3p)
                 strand3p.strandUpdateSignal.emit(strand3p)
                 strand.strandUpdateSignal.emit(strand)
