@@ -227,39 +227,43 @@ class ActiveSliceItem(QGraphicsRectItem):
                 for strand in vh.scaffoldStrandSet():
                     idx5p = strand.idx5Prime()
                     idx3p = strand.idx3Prime()
-                    lo, hi = strand.getResizeBounds(idx3p)
-                    if strand.isDrawn5to3():
-                        strand.resize((idx5p, hi))
-                    else:
-                        strand.resize((lo, idx5p))
+                    if not strand.hasXoverAt(idx3p):
+                        lo, hi = strand.getResizeBounds(idx3p)
+                        if strand.isDrawn5to3():
+                            strand.resize((idx5p, hi))
+                        else:
+                            strand.resize((lo, idx5p))
                 # resize 5' second
                 for strand in vh.scaffoldStrandSet():
                     idx5p = strand.idx5Prime()
                     idx3p = strand.idx3Prime()
-                    lo, hi = strand.getResizeBounds(idx5p)
-                    if strand.isDrawn5to3():
-                        strand.resize((lo, idx3p))
-                    else:
-                        strand.resize((idx3p, hi))
+                    if not strand.hasXoverAt(idx5p):
+                        lo, hi = strand.getResizeBounds(idx5p)
+                        if strand.isDrawn5to3():
+                            strand.resize((lo, idx3p))
+                        else:
+                            strand.resize((idx3p, hi))
                 # STAPLE
                 # resize 3' first
                 for strand in vh.stapleStrandSet():
                     idx5p = strand.idx5Prime()
                     idx3p = strand.idx3Prime()
-                    lo, hi = strand.getResizeBounds(idx3p)
-                    if strand.isDrawn5to3():
-                        strand.resize((idx5p, hi))
-                    else:
-                        strand.resize((lo, idx5p))
+                    if not strand.hasXoverAt(idx3p):
+                        lo, hi = strand.getResizeBounds(idx3p)
+                        if strand.isDrawn5to3():
+                            strand.resize((idx5p, hi))
+                        else:
+                            strand.resize((lo, idx5p))
                 # resize 5' second
                 for strand in vh.stapleStrandSet():
                     idx5p = strand.idx5Prime()
                     idx3p = strand.idx3Prime()
-                    lo, hi = strand.getResizeBounds(idx5p)
-                    if strand.isDrawn5to3():
-                        strand.resize((lo, idx3p))
-                    else:
-                        strand.resize((idx3p, hi))
+                    if not strand.hasXoverAt(idx3p):
+                        lo, hi = strand.getResizeBounds(idx5p)
+                        if strand.isDrawn5to3():
+                            strand.resize((lo, idx3p))
+                        else:
+                            strand.resize((idx3p, hi))
 
             self.part().undoStack().endMacro()
     # end def
