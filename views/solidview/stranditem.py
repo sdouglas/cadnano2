@@ -207,7 +207,7 @@ class StrandItem(object):
         if cSType == LatticeType.Honeycomb:
             cmds.setAttr("%s.rotationOffset" % cylinderName, 240)
         elif cSType == LatticeType.Square:
-            cmds.setAttr("%s.rotationOffset" % cylinderName, 30)
+            cmds.setAttr("%s.rotationOffset" % cylinderName, 115)
         else:
             raise NotImplementedError
         cmds.setAttr("%s.strandType" % cylinderName, strandType)

@@ -80,8 +80,10 @@ def import_legacy_dict(document, obj):
     # DETERMINE MAX ROW,COL
     maxRowJson = maxColJson = 0
     for helix in obj['vstrands']:
-        maxRowJson = max(maxRowJson, int(helix['row']))
-        maxRowJson = max(maxColJson, int(helix['col']))
+        maxRowJson = max(maxRowJson, int(helix['row'])+1)
+        maxColJson = max(maxColJson, int(helix['col'])+1)
+
+    print maxRowJson, maxColJson
 
     # CREATE PART ACCORDING TO LATTICE TYPE
     if latticeType == LatticeType.Honeycomb:
