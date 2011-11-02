@@ -135,7 +135,12 @@ class PartItem(object):
     # end def
 
     def partDimensionsChangedSlot(self, part):
-        pass
+        mom = Mom()
+        for vh in self._virtualHelixItems:
+            for mID in vh.StrandIDs():
+                cylinderName = "%s%s" % (mom.helixNodeName, mID)
+                totalNumBases = self._part.maxBaseIdx()
+                cmds.setAttr("%s.totalBases" % cylinderName, int(totalNumBases))
     # end def
 
     def partParentChangedSlot(self, part):

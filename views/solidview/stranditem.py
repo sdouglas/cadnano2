@@ -83,13 +83,16 @@ class StrandItem(object):
     def strandUpdateSlot(self, strand):
         """strandUpdateSlot"""
         #print "solidview.StrandItem.strandUpdateSlot"
+        pass
 
     def sequenceAddedSlot(self, oligo):
         """sequenceAddedSlot"""
+        pass
         #print "solidview.StrandItem.sequenceAddedSlot"
 
     def sequenceClearedSlot(self, oligo):
         """sequenceClearedSlot"""
+        pass
         #print "solidview.StrandItem.sequenceClearedSlot"
     
     def strandRemovedSlot(self, strand):
