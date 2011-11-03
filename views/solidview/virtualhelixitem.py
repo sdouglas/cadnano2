@@ -189,7 +189,13 @@ class VirtualHelixItem(object):
             parity = cmds.getAttr("%s.parity" % cylinderName)
             strandType = cmds.getAttr("%s.strandType" % cylinderName)
             rotationOffset = cmds.getAttr("%s.rotationOffset" % cylinderName)
+            decoratorRotOffset = cmds.getAttr("%s.decoratorRotOffset"
+                                              % cylinderName)
+            # not clear why decoratorRotOffset is not in radians but
+            # rotationOffset is
+            decoratorRotOffset = decoratorRotOffset *  math.pi / 180
             starting_rotation = (math.pi * (not parity)) + rotationOffset + \
+                                decoratorRotOffset + \
                                 (math.pi * strandType)
             fullrotation = -rotation * base * math.pi / 180
             #print fullrotation
