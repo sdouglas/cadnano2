@@ -83,13 +83,16 @@ class StrandItem(object):
     def strandUpdateSlot(self, strand):
         """strandUpdateSlot"""
         #print "solidview.StrandItem.strandUpdateSlot"
+        pass
 
     def sequenceAddedSlot(self, oligo):
         """sequenceAddedSlot"""
+        pass
         #print "solidview.StrandItem.sequenceAddedSlot"
 
     def sequenceClearedSlot(self, oligo):
         """sequenceClearedSlot"""
+        pass
         #print "solidview.StrandItem.sequenceClearedSlot"
     
     def strandRemovedSlot(self, strand):
@@ -203,8 +206,10 @@ class StrandItem(object):
         cmds.setAttr("%s.parity" % cylinderName, vhi.isEvenParity())
         if cSType == LatticeType.Honeycomb:
             cmds.setAttr("%s.rotationOffset" % cylinderName, 240)
+            cmds.setAttr("%s.decoratorRotOffset" % cylinderName, -20)
         elif cSType == LatticeType.Square:
-            cmds.setAttr("%s.rotationOffset" % cylinderName, 30)
+            cmds.setAttr("%s.rotationOffset" % cylinderName, 115)
+            cmds.setAttr("%s.decoratorRotOffset" % cylinderName, 90)
         else:
             raise NotImplementedError
         cmds.setAttr("%s.strandType" % cylinderName, strandType)

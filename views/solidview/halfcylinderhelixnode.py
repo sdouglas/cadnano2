@@ -47,6 +47,7 @@ class HalfCylinderHelixNode(OpenMayaMPx.MPxNode):
     end3DPosAttr = OpenMaya.MObject()
     parityAttr = OpenMaya.MObject()
     rotationOffsetAttr = OpenMaya.MObject()
+    decRotOffsetAttr = OpenMaya.MObject()
     radiusAttr = OpenMaya.MObject()
     strandTypeAttr = OpenMaya.MObject()
     rotationAttr = OpenMaya.MObject()
@@ -360,7 +361,15 @@ def nodeInitialize():
                                     'rotoff',
                                     OpenMaya.MFnUnitAttribute.kAngle,
                                     math.pi / 6)
-    unitFn.setMin(0.0)
+    unitFn.setMin(-2 * math.pi)
+    unitFn.setMax(2 * math.pi)
+    unitFn.setStorable(True)
+    
+    HalfCylinderHelixNode.decRotOffsetAttr = unitFn.create('decoratorRotOffset',
+                                    'decrotoff',
+                                    OpenMaya.MFnUnitAttribute.kAngle,
+                                    math.pi / 9)
+    unitFn.setMin(-2 * math.pi)
     unitFn.setMax(2 * math.pi)
     unitFn.setStorable(True)
 
@@ -372,6 +381,7 @@ def nodeInitialize():
     HalfCylinderHelixNode.addAttribute(HalfCylinderHelixNode.totalBasesAttr)
     HalfCylinderHelixNode.addAttribute(HalfCylinderHelixNode.rotationAttr)
     HalfCylinderHelixNode.addAttribute(HalfCylinderHelixNode.rotationOffsetAttr)
+    HalfCylinderHelixNode.addAttribute(HalfCylinderHelixNode.decRotOffsetAttr)
     HalfCylinderHelixNode.addAttribute(HalfCylinderHelixNode.riseAttr)
     HalfCylinderHelixNode.addAttribute(HalfCylinderHelixNode.edgesPerBaseAttr)
     HalfCylinderHelixNode.addAttribute(HalfCylinderHelixNode.start3DPosAttr)
