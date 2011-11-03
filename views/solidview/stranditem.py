@@ -206,7 +206,7 @@ class StrandItem(object):
         cmds.setAttr("%s.parity" % cylinderName, vhi.isEvenParity())
         if cSType == LatticeType.Honeycomb:
             cmds.setAttr("%s.rotationOffset" % cylinderName, 250)
-            cmds.setAttr("%s.decoratorRotOffset" % cylinderName, 110)
+            cmds.setAttr("%s.decoratorRotOffset" % cylinderName, 90)
         elif cSType == LatticeType.Square:
             cmds.setAttr("%s.rotationOffset" % cylinderName, 125)
             cmds.setAttr("%s.decoratorRotOffset" % cylinderName, 200)
