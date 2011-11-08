@@ -261,7 +261,7 @@ class DocumentController():
                             directory,
                             "(*.csv)")
             self.saveStaplesDialog = None
-            self.exportFile(fname)
+            self.exportStaplesCallback(fname)
         else:  # access through non-blocking callback
             fdialog = QFileDialog(
                             self.win,
