@@ -43,7 +43,7 @@
      <number>0</number>
     </property>
     <property name="horizontalSpacing">
-     <number>-1</number>
+     <number>6</number>
     </property>
     <item row="0" column="0">
      <widget class="QSplitter" name="splitter">
@@ -169,7 +169,7 @@
      <x>0</x>
      <y>0</y>
      <width>1075</width>
-     <height>22</height>
+     <height>21</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuFile">
@@ -197,6 +197,7 @@
      <string>cadnano</string>
     </property>
     <addaction name="actionPreferences"/>
+    <addaction name="separator"/>
    </widget>
    <widget class="QMenu" name="menuEdit">
     <property name="title">
@@ -208,10 +209,18 @@
      <string>View</string>
     </property>
    </widget>
+   <widget class="QMenu" name="menuAbout">
+    <property name="title">
+     <string>About</string>
+    </property>
+    <addaction name="actionCadnanoWebsite"/>
+    <addaction name="actionFeedback"/>
+   </widget>
    <addaction name="menuCadnano"/>
    <addaction name="menuFile"/>
    <addaction name="menuEdit"/>
    <addaction name="menuView"/>
+   <addaction name="menuAbout"/>
   </widget>
   <widget class="QToolBar" name="topToolBar">
    <property name="sizePolicy">
@@ -704,6 +713,16 @@
    </property>
    <property name="toolTip">
     <string>Modify mode</string>
+   </property>
+  </action>
+  <action name="actionCadnanoWebsite">
+   <property name="text">
+    <string>cadnano Website</string>
+   </property>
+  </action>
+  <action name="actionFeedback">
+   <property name="text">
+    <string>Feedback</string>
    </property>
   </action>
  </widget>
