@@ -22,6 +22,11 @@
 #
 # http://www.opensource.org/licenses/mit-license.php
 
+"""
+solidrootitem.py
+Created by Simon Breslav on 2011-10-05.
+"""
+
 from controllers.viewrootcontroller import ViewRootController
 from partitem import PartItem
 
@@ -29,15 +34,11 @@ import util
 util.qtWrapImport('QtCore', globals(), ['pyqtSignal', 'QObject'])
 util.qtWrapImport('QtGui', globals(), ['QGraphicsRectItem'])
 
-"""
-solidrootitem.py
-Created by Simon Breslav on 2011-10-05.
-"""
-
 
 class SolidRootItem(object):
     """
-    SolidRootItem is the root item in the SolidView.
+    SolidRootItem is the root item in the SolidView, it does not have a
+    visual representation in the 3D view
     """
     def __init__(self, parent, document, modState):
         self._document = document
@@ -64,12 +65,15 @@ class SolidRootItem(object):
 
     ### METHODS ###
     def partItems(self):
+        """Return a list of partItems associated with this RootItem"""
         return self._partItems
 
     def removePartItem(self, partItem):
+        """Remove a given partItem"""
         del self._partItems[partItem]
 
     def setModifyState(self, val):
+        """Notifies all the associated partItems of the Modify State Change"""
         self._modifyState = val
         for p in self._partItems:
             p.setModifyState(val)
