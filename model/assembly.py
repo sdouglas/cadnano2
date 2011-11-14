@@ -58,8 +58,9 @@ class Assembly(QObject):
     # end def
 
     ### SIGNALS ###
-    assemblyInstanceAddedSignal = pyqtSignal(QObject)  # new oligo
-    assemblyDestroyedSignal = pyqtSignal(QObject)  # self
+    assemblyPartAddedSignal = pyqtSignal(QObject)
+    assemblyInstanceAddedSignal = pyqtSignal(QObject)  # new instance of assembly
+    assemblyRemovedSignal = pyqtSignal(QObject)  # self
 
     ### SLOTS ###
 

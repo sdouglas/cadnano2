@@ -41,7 +41,7 @@ class AssemblyItem(QGraphicsPathItem):
         """docstring for partParentChangedSlot"""
         pass
 
-    def assemblyDestroyedSlot(self):
+    def assemblyRemovedSlot(self):
         """Used to destroy self."""
         pass
 

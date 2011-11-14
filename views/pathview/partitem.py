@@ -127,7 +127,7 @@ class PartItem(QGraphicsRectItem):
     # end def
 
     def partRemovedSlot(self):
-        """docstring for partDestroyedSlot"""
+        """docstring for partRemovedSlot"""
         self._activeSliceItem.removed()
         self.parentItem().removePartItem(self)
         scene = self.scene()
@@ -137,12 +137,6 @@ class PartItem(QGraphicsRectItem):
         self._virtualHelixItemList = None
         self._controller.disconnectSignals()
         self._controller = None
-    # end def
-
-    def partDestroyedSlot(self):
-        """docstring for partDestroyedSlot"""
-        # print "PartItem.partDestroyedSlot"
-        pass
     # end def
 
     def partPreDecoratorSelectedSlot(self, row, col, baseIdx):

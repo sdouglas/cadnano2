@@ -133,16 +133,6 @@ class StrandItem(QGraphicsLineItem):
         scene.removeItem(self)
     # end def
 
-    def strandDestroyedSlot(self, strand):
-        pass
-    # end def
-
-    # def strandXover5pChangedSlot(self, strand5p, strand3p):
-    #     pass
-    #     # partItem = self._virtualHelixItem.partItem()
-    #     # partItem.updatePreXoverItems()
-    # #  end def
-
     def strandUpdateSlot(self, strand):
         """
         Slot for just updating connectivity and color, and endpoint showing

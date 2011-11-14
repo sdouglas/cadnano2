@@ -112,7 +112,6 @@ class Strand(QObject):
 
     ### SIGNALS ###
     strandHasNewOligoSignal = pyqtSignal(QObject)
-    strandDestroyedSignal = pyqtSignal(QObject)
     strandRemovedSignal = pyqtSignal(QObject)
     strandResizedSignal = pyqtSignal(QObject, tuple)
     strandXover5pChangedSignal = pyqtSignal(QObject, QObject) # strand3p, strand5p

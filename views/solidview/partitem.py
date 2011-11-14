@@ -129,10 +129,6 @@ class PartItem(object):
     # end def
 
     ### SLOTS ###
-    def partDestroyedSlot(self, part):
-        """solidview.PartItem partDestroyedSlot"""
-        pass
-    # end def
 
     def partDimensionsChangedSlot(self, part):
         mom = Mom()

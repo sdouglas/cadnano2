@@ -121,18 +121,6 @@ class StrandItem(object):
         self._controller = None
     # end def
 
-    def strandDestroyedSlot(self, strand):
-        #print "solidview.StrandItem.strandDestroyedSlot"
-        pass
-
-    # def strandXover5pChangedSlot(self, strand):
-    #     #print "solidview.StrandItem.strandXover5pChangedSlot"
-    #     pass
-
-    def strandXover5pRemovedSlot(self, strand):
-        #print "solidview.StrandItem.strandXover5pRemovedSlot"
-        pass
-
     def oligoAppearanceChangedSlot(self, oligo):
         mom = Mom()
         id = mom.strandMayaID(self._modelStrand)
