@@ -22,6 +22,11 @@
 #
 # http://www.opensource.org/licenses/mit-license.php
 
+"""
+virtualhelixitem.py
+Created by Simon Breslav on 2011-08-29.
+"""
+
 from string import *
 import math
 import random
@@ -49,20 +54,20 @@ from .stranditem import StrandItem
 util.qtWrapImport('QtCore', globals(), ['pyqtSignal', 'pyqtSlot', 'QObject'])
 util.qtWrapImport('QtGui', globals(), ['QColor'])
 
-"""
-virtualhelixitem.py
-Created by Simon Breslav on 2011-08-29.
-"""
-
 
 class VirtualHelixItem(object):
     """
-    VirtualHelixItem is the 3D visualization of VirtualHelix, it contains
-    strandItems
+    VirtualHelixItem is the container for StrandItems for is the Maya 3D View,
+    it does not get visualized in any way right now.
     """
     baseWidth = styles.PATH_BASE_WIDTH
 
     def __init__(self, partItem, modelVirtualHelix, x, y):
+        """
+        Initialize member variables.
+        Setup VirtualHelixItemController, that takes care of all the
+        slots and signals between VirtualHelix model and this VirtualHelixItem.
+        """
         self._partItem = partItem
         self._modelVirtualHelix = modelVirtualHelix
         self._x = x
@@ -80,39 +85,54 @@ class VirtualHelixItem(object):
     # end def
 
     def partItem(self):
+        """PartItem Accessor - parent Item"""
         return self._partItem
 
     def virtualHelix(self):
+        """VirtualHelix Model Accessor"""
         return self._modelVirtualHelix
 
     def number(self):
+        """VirtualHelix Model Index Number Accessor"""
         return self._modelVirtualHelix.number()
 
     def row(self):
+        """Row Accessor"""
         return self.coord()[0]
 
     def col(self):
+        """Col Accessor"""
         return self.coord()[1]
         
     def x(self):
+        """Actual x position in the the Maya 3D View"""
         return self._x
     # end def
     
     def y(self):
+        """Actual y position in the the Maya 3D View"""
         return self._y
     # end def
         
     def coord(self):
+        """Returns a tuple (row, column) of the VitualHelix model"""
         return self._modelVirtualHelix.coord()
     # end def
 
     def isEvenParity(self):
+        """Returns parity of the VitualHelix model"""
         return self._modelVirtualHelix.isEvenParity()
 
     def StrandIDs(self):
+        """
+        Returns a list of Strand IDs within this VH, the IDs are suffixes
+        of Maya Nodes, and are used to for Maya<->Cadnano communication
+        in mayaObjectManager
+        """
         return self.strandIDs
 
     def setModifyState(self, val):
+        """Update Modify state for this VirtualHelixItem"""
         self._modState = val
 
     ### SLOTS ###
@@ -135,23 +155,20 @@ class VirtualHelixItem(object):
 
     @pyqtSlot(object)
     def decoratorAddedSlot(self, decorator):
-        """
-        Instantiates a DecoratorItem upon notification that the model has a
-        new Decorator.  The Decorator is responsible for creating its own
-        controller for communication with the model, and for adding itself to
-        its parent (which is *this* VirtualHelixItem, i.e. 'self').
-        """
-        #print "solidview.VirtualHelixItem.decoratorAddedSlot"
+        """decoratorAddedSlot - empty"""
         pass
 
     @pyqtSlot(object)
     def virtualHelixNumberChangedSlot(self, virtualHelix):
-        print "solidview.VirtualHelixItem.virtualHelixNumberChangedSlot"
+        """virtualHelixNumberChangedSlot - empty"""
         pass
     # end def
 
     @pyqtSlot(object)
     def virtualHelixRemovedSlot(self, virtualHelix):
+        """
+        Clears out private variables and disconnects signals
+        """
         #print "solidview.VirtualHelixItem.virtualHelixRemovedSlot"
         self._partItem.removeVirtualHelixItem(self)
         self._partItem = None
@@ -161,7 +178,10 @@ class VirtualHelixItem(object):
     # end def
 
     def updateDecorators(self):
-        #print "solidview.VirtualHelixItem.upadateStapleModIndicators"
+        """
+        Clears out Pre-Decorators, and re-populates them if they should be
+        visible
+        """
         self.clearDecorators()
         if self._modState:
             m = Mom()
@@ -173,6 +193,9 @@ class VirtualHelixItem(object):
                     self.createDecorators(strand)
 
     def cadnanoVBaseToMayaCoords(self, base, strand):
+        """
+        Given a Strand and a Base, returns a 3D location of that base
+        """
         m = Mom()
         mID = m.strandMayaID(strand)
         cylinderName = "%s%s" % (m.helixNodeName, mID)
@@ -198,7 +221,7 @@ class VirtualHelixItem(object):
                                 decoratorRotOffset + \
                                 (math.pi * strandType)
             fullrotation = -rotation * base * math.pi / 180
-            #print fullrotation
+            #print full rotation
             xComp = self._x + radius * \
                     math.cos(starting_rotation + fullrotation)
             yComp = self._y + radius * \
@@ -209,6 +232,7 @@ class VirtualHelixItem(object):
             raise IndexError
 
     def clearDecorators(self):
+        """Remove all the Pre-Decortators"""
         m = Mom()
         for mID in self.stapleModIndicatorIDs:
             transformName = "%s%s" % (m.decoratorTransformName, mID)
@@ -221,6 +245,7 @@ class VirtualHelixItem(object):
         self.stapleIndicatorCount = 0
 
     def createDecorators(self, strand):
+        """Create a set of new Pre-Decortators for a given strand"""
         m = Mom()
         strandId = m.strandMayaID(strand)
         totalNumBases = self._modelVirtualHelix.part().maxBaseIdx()
@@ -245,6 +270,7 @@ class VirtualHelixItem(object):
                                                                    strand)
 
     def createDecoratorNodes(self, coords, mID):
+        """Create a actual Maya Nodes for a new Pre-Decortators"""
         m = Mom()
         stapleModIndicatorName = "%s%s" % (m.decoratorNodeName, mID)
         transformName = "%s%s" % (m.decoratorTransformName, mID)
@@ -285,5 +311,6 @@ class VirtualHelixItem(object):
     # end def
     
     def removeStrandItem(self, strandItem):
+        """Remove a StrandItem from the local list of StrandItems"""
         del self._strandItems[strandItem]
     # end def
