@@ -56,7 +56,7 @@ class SelectionItemGroup(QGraphicsItemGroup):
         self._partItem = parent
 
         self.selectionbox = boxtype(self)
-        self._drawMe = False
+        
         self._dragEnable = False
         self._dragged = False
         self._r0 = 0  # save original mousedown
@@ -225,7 +225,7 @@ class SelectionItemGroup(QGraphicsItemGroup):
         restore it's original parent
         """
         tPos = child.pos()
-        self.removeFromGroup(child)
+        # self.removeFromGroup(child)
         try:
             child.restoreParent(tPos)
         except:
@@ -240,7 +240,7 @@ class SelectionItemGroup(QGraphicsItemGroup):
                 # call this first before removing from the group to 
                 # prevent unecessary change events
                 tPos = item.pos()
-                self.removeFromGroup(item)
+                # self.removeFromGroup(item)
                 try:
                     item.restoreParent(tPos)
                 except:
@@ -312,30 +312,41 @@ class PathHelixHandleSelectionBox(QGraphicsPathItem):
     # end def
 # end class
 
-class BreakpointHandleSelectionBox(QGraphicsItem):
-    def __init__(self, itemGroup, parent=None):
-        super(BreakpointHandleSelectionBox, self).__init__(parent)
-        self.itemGroup = itemGroup
+class BreakpointHandleSelectionBox(QGraphicsPathItem):
+    _penWidth = styles.SLICE_HELIX_HILIGHT_WIDTH
+    _boxPen = QPen(styles.bluestroke, _penWidth)
+    
+    def __init__(self, itemGroup):
+        super(BreakpointHandleSelectionBox, self).__init__(itemGroup.partItem())
+        self._itemGroup = itemGroup
         self._rect = itemGroup.boundingRect()
         self._partItem = itemGroup.partItem()
         self.setParentItem(itemGroup.partItem())
-        self._drawMe = False
-        self._pen = QPen(styles.bluestroke, styles.PATH_SELECTBOX_STROKE_WIDTH)
+        self.hide()
+        self.setPen(self._boxPen)
+        self.setZValue(styles.ZPATHHELIX+2)
     # end def
-
-    def paint(self, painter, option, widget=None):
-        if self._drawMe == True:
-            painter.setPen(self._pen)
-            painter.drawRect(self.boundingRect())
-    # end def
-
-    def boundingRect(self):
-        return self._rect
-    # end def
-
-    def setRect(self, rect):
+    
+    def refreshPath(self):
         self.prepareGeometryChange()
-        self._rect = rect
+        self.setPath(self.painterPath())
+    # end def
+    
+    def painterPath(self):
+        iG = self._itemGroup
+        # the childrenBoundingRect is necessary to get this to work
+        rect = self.mapRectFromItem(iG,iG.childrenBoundingRect() )
+
+        path = QPainterPath()
+        path.addRect(rect)
+        # path.addRoundedRect(rect, radius, radius)
+        # path.moveTo(rect.right(),\
+        #                  rect.center().y())
+        # path.lineTo(rect.right() + radius / 2,\
+        #                  rect.center().y())
+        return path
+    # end def
+
 
     def processSelectedItems(self, rStart, rEnd):
         """docstring for processSelectedItems"""

@@ -94,6 +94,10 @@ class PartItem(QGraphicsRectItem):
         self._vhiHSelectionGroup = SelectionItemGroup(boxtype=bType,\
                                                       constraint='y',\
                                                       parent=self)
+        bType = BreakpointHandleSelectionBox
+        self._strandItemSelectionGroup = SelectionItemGroup(boxtype=bType,\
+                                                      constraint='x',\
+                                                      parent=self)
     # end def
 
     ### SIGNALS ###
@@ -236,6 +240,10 @@ class PartItem(QGraphicsRectItem):
 
     def vhiHandleSelectionGroup(self):
         return self._vhiHSelectionGroup
+    # end def
+    
+    def strandItemSelectionGroup(self):
+        return self._strandItemSelectionGroup
     # end def
 
     def window(self):

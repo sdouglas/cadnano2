@@ -25,7 +25,7 @@ import sys
 from exceptions import AttributeError, NotImplementedError
 from math import floor
 from abstractpathtool import AbstractPathTool
-from views.pathview.strand.endpointitem import EndpointItem
+#from views.pathview.strand.endpointitem import EndpointItem
 from views import styles
 
 import util
@@ -155,7 +155,7 @@ class ForcedStrandItem(QGraphicsLineItem):
         self._highCap = EndpointItem(self, 'high', isDrawn5to3)
         self._lowCap.disableEvents()
         self._highCap.disableEvents()
-
+        
         # orientation
         self._isDrawn5to3 = isDrawn5to3
 
@@ -763,3 +763,185 @@ class ForcedXoverItem(QGraphicsPathItem):
         self.setPen(pen)
     # end def
 # end class XoverItem
+
+util.qtWrapImport('QtGui', globals(), ['QPolygonF'])
+
+ppL5 = QPainterPath()  # Left 5' PainterPath
+ppR5 = QPainterPath()  # Right 5' PainterPath
+ppL3 = QPainterPath()  # Left 3' PainterPath
+ppR3 = QPainterPath()  # Right 3' PainterPath
+pp53 = QPainterPath()  # Left 5', Right 3' PainterPath
+pp35 = QPainterPath()  # Left 5', Right 3' PainterPath
+# set up ppL5 (left 5' blue square)
+ppL5.addRect(0.25*_baseWidth, 0.125*_baseWidth,0.75*_baseWidth, 0.75*_baseWidth)
+# set up ppR5 (right 5' blue square)
+ppR5.addRect(0, 0.125*_baseWidth, 0.75*_baseWidth, 0.75*_baseWidth)
+# set up ppL3 (left 3' blue triangle)
+l3poly = QPolygonF()
+l3poly.append(QPointF(_baseWidth, 0))
+l3poly.append(QPointF(0.25*_baseWidth, 0.5*_baseWidth))
+l3poly.append(QPointF(_baseWidth, _baseWidth))
+ppL3.addPolygon(l3poly)
+# set up ppR3 (right 3' blue triangle)
+r3poly = QPolygonF()
+r3poly.append(QPointF(0, 0))
+r3poly.append(QPointF(0.75*_baseWidth, 0.5*_baseWidth))
+r3poly.append(QPointF(0, _baseWidth))
+ppR3.addPolygon(r3poly)
+
+# single base left 5'->3'
+pp53.addRect(0, 0.125*_baseWidth, 0.5*_baseWidth, 0.75*_baseWidth)
+poly53 = QPolygonF()
+poly53.append(QPointF(0.5*_baseWidth, 0))
+poly53.append(QPointF(_baseWidth, 0.5*_baseWidth))
+poly53.append(QPointF(0.5*_baseWidth, _baseWidth))
+pp53.addPolygon(poly53)
+# single base left 3'<-5'
+pp35.addRect(0.50*_baseWidth, 0.125*_baseWidth, 0.5*_baseWidth, 0.75*_baseWidth)
+poly35 = QPolygonF()
+poly35.append(QPointF(0.5*_baseWidth, 0))
+poly35.append(QPointF(0, 0.5*_baseWidth))
+poly35.append(QPointF(0.5*_baseWidth, _baseWidth))
+pp35.addPolygon(poly35)
+
+class EndpointItem(QGraphicsPathItem):
+    def __init__(self, strandItem, captype, isDrawn5to3):
+        """The parent should be a StrandItem."""
+        super(EndpointItem, self).__init__(strandItem.virtualHelixItem())
+
+        self._strandItem = strandItem
+        self._activeTool = strandItem.activeTool()
+        self._capType = captype
+        self._lowDragBound = None
+        self._highDragBound = None
+        self._initCapSpecificState(isDrawn5to3)
+        self.setPen(_noPen)
+        # for easier mouseclick
+        self._clickArea = cA = QGraphicsRectItem(_defaultRect, self)
+        self._clickArea.setAcceptHoverEvents(True)
+        cA.hoverMoveEvent = self.hoverMoveEvent
+        cA.mousePressEvent = self.mousePressEvent
+        cA.mouseMoveEvent = self.mouseMoveEvent
+        cA.setPen(_noPen)
+        
+    # end def
+
+    def __repr__(self):
+        return "%s" % self.__class__.__name__
+
+    ### SIGNALS ###
+
+    ### SLOTS ###
+
+    ### ACCESSORS ###
+    def idx(self):
+        """Look up baseIdx, as determined by strandItem idxs and cap type."""
+        if self._capType == 'low':
+            return self._strandItem.idxs()[0]
+        else:  # high or dual, doesn't matter
+            return self._strandItem.idxs()[1]
+    # end def
+    
+    def partItem(self):
+        return self._strandItem.partItem()
+    # end def
+
+    def disableEvents(self):
+        self._clickArea.setAcceptHoverEvents(False)
+        self.mouseMoveEvent = QGraphicsPathItem.mouseMoveEvent
+        self.mousePressEvent = QGraphicsPathItem.mousePressEvent
+    # end def
+
+    def window(self):
+        return self._strandItem.window()
+
+    ### PUBLIC METHODS FOR DRAWING / LAYOUT ###
+    def updatePosIfNecessary(self, idx):
+        """Update position if necessary and return True if updated."""
+        x = int(idx*_baseWidth)
+        if x != self.x():
+            self.setPos(x, self.y())
+            return True
+        return False
+
+    def resetEndPoint(self, isDrawn5to3):
+        self.setParentItem(self._strandItem.virtualHelixItem())
+        self._initCapSpecificState(isDrawn5to3)
+        upperLeftY = 0 if isDrawn5to3 else _baseWidth
+        self.setY(upperLeftY)
+    # end def
+
+    ### PRIVATE SUPPORT METHODS ###
+    def _initCapSpecificState(self, isDrawn5to3):
+        cT = self._capType
+        if cT == 'low':
+            path = ppL5 if isDrawn5to3 else ppL3
+        elif cT == 'high':
+            path = ppR3 if isDrawn5to3 else ppR5
+        elif cT == 'dual':
+            path = pp53 if isDrawn5to3 else pp35
+        self.setPath(path)
+    # end def
+
+    def _getNewIdxsForResize(self, baseIdx):
+        """Returns a tuple containing idxs to be passed to the """
+        cT = self._capType
+        if cT == 'low':
+            return (baseIdx, self._strandItem.idxs()[1])
+        elif cT == 'high':
+            return (self._strandItem.idxs()[0], baseIdx)
+        elif cT == 'dual':
+            raise NotImplementedError
+
+    ### EVENT HANDLERS ###
+    def mousePressEvent(self, event):
+        """
+        Parses a mousePressEvent, calling the approproate tool method as
+        necessary. Stores _moveIdx for future comparison.
+        """
+        self.scene().views()[0].addToPressList(self)
+        self._strandItem.virtualHelixItem().setActive()
+        self._moveIdx = self.idx()
+        activeToolStr = str(self._activeTool())
+        if activeToolStr == 'pencilTool':
+            return self._strandItem.pencilToolMousePress(self.idx())
+        toolMethodName = activeToolStr + "MousePress"
+        if hasattr(self, toolMethodName):  # if the tool method exists
+            modifiers = event.modifiers()
+            getattr(self, toolMethodName)(modifiers)  # call tool method
+
+    def hoverMoveEvent(self, event):
+        """
+        Parses a mousePressEvent, calling the approproate tool method as
+        necessary. Stores _moveIdx for future comparison.
+        """
+        activeToolStr = str(self._activeTool())
+        if activeToolStr == 'pencilTool':
+            return self._strandItem.pencilToolHoverMove(self.idx())
+
+    def mouseMoveEvent(self, event):
+        """
+        Parses a mouseMoveEvent, calling the approproate tool method as
+        necessary. Updates _moveIdx if it changed.
+        """
+        toolMethodName = str(self._activeTool()) + "MouseMove"
+        if hasattr(self, toolMethodName):  # if the tool method exists
+            idx = int(floor((self.x()+event.pos().x()) / _baseWidth))
+            if idx != self._moveIdx:  # did we actually move?
+                modifiers = event.modifiers()
+                self._moveIdx = idx
+                getattr(self, toolMethodName)(modifiers, idx)  # call tool method
+
+    def customMouseRelease(self, event):
+        """
+        Parses a mouseReleaseEvent, calling the approproate tool method as
+        necessary. Deletes _moveIdx if necessary.
+        """
+        toolMethodName = str(self._activeTool()) + "MouseRelease"
+        if hasattr(self, toolMethodName):  # if the tool method exists
+            modifiers = event.modifiers()
+            x = event.pos().x()
+            getattr(self, toolMethodName)(modifiers, x)  # call tool method
+        if hasattr(self, '_moveIdx'):
+            del self._moveIdx
+# end class

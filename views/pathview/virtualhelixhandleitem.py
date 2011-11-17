@@ -184,7 +184,7 @@ class VirtualHelixHandleItem(QGraphicsEllipseItem):
 
     def restoreParent(self, pos=None):
         """
-        Required to restore parenting and positioning in the phg
+        Required to restore parenting and positioning in the partItem
         """
 
         # map the position
