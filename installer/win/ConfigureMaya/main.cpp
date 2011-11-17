@@ -272,11 +272,16 @@ int main(int argc, char* argv[])
 	}
 	ILFree(pidl);
 
+	cout << "Updating Environment." << endl;
+
 	//Declare environment variable change, since the installer doesn't do this for us
-	SendMessageTimeout( HWND_BROADCAST, WM_SETTINGCHANGE, NULL, (LPARAM)"Environment", NULL, NULL, NULL);
+	LRESULT r = SendMessageTimeout(HWND_BROADCAST, WM_SETTINGCHANGE, 0, (LPARAM) "Environment", SMTO_ABORTIFHUNG, 5000, 0);
+	if(r == 0){
+		MessageBox( NULL, "Updating Environment failed, please restart Windows after installation completes.", NULL, NULL);
+	}
 
 	if( res ){
-		MessageBox( NULL, "CadNano plugin for Autodesk Maya configurations succeeded.", NULL, NULL);
+		//MessageBox( NULL, "CadNano plugin for Autodesk Maya configurations succeeded.", NULL, NULL);
 		return 0;
 	}else{
 		MessageBox( NULL, "CadNano plugin for Autodesk Maya configurations failed.", NULL, NULL);
