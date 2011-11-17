@@ -66,6 +66,7 @@ bool WriteFile( string FileName, string s, bool append = false )
 	if (pFile != NULL) {
 		fputs (s.c_str(), pFile);
 		fclose (pFile);
+		cout << "success!" << endl;
 		return true;
 	}
 
@@ -98,6 +99,7 @@ vector<string> ReadFile( string FileName )
 			}
 		}
 		myfile.close();
+		cout << "success!" << endl;
 	}else{
 		cerr << "Failed to read " << FileName << endl;
 	}
@@ -110,6 +112,7 @@ bool CreateDirectories( string FilePath )
 	cout << "Attempting to create file path " << FilePath << endl;
 	int ret = SHCreateDirectoryEx(NULL, FilePath.c_str(), NULL);
 	if(ret == ERROR_SUCCESS || ret == ERROR_ALREADY_EXISTS || ret == ERROR_FILE_EXISTS){
+		cout << "success!" << endl;
 		return true;
 	}else{
 		cerr << FilePath << " creation failed with error code " << ret << endl;
@@ -217,6 +220,7 @@ int main(int argc, char* argv[])
 {
 	if( argc != 5 ){
 		cerr << "Incorrect number of arguments" << endl;
+		cerr << "usage: configuremaya /INSTALL <maya_path> <cadnano dir> <(x64|x86)>" << endl;
 		MessageBox(NULL, "Incorrect number of arguments", NULL, NULL);
 		return -1;
 	}
@@ -225,11 +229,12 @@ int main(int argc, char* argv[])
 	string mayaPath(argv[2]);
 	string cadnanoPath(argv[3]);
 	string platform(argv[4]);
-	/*
-	for(int i = 0; i < 5; i++){
-		cout << "argv[" << i << "] = " << argv[i] << endl;
-	}
-	*/
+
+	cout << "Configure Mode: " << appMode << endl;
+	cout << "Maya Path: " << mayaPath << endl;
+	cout << "CadNano2 Path: " << cadnanoPath << endl;
+	cout << "Platform: " << platform << endl;
+
 	bool res = true;
 
 	//Maya Settings by default are stored in
@@ -251,7 +256,7 @@ int main(int argc, char* argv[])
 			mayaSettingsPath += "\\";
 		}
 
-		cerr << "Settings folder found at: " << mayaSettingsPath << endl;
+		cout << "Settings folder at: " << mayaSettingsPath << endl;
 
 		if( appMode == "/Install" ) {
 			res &= CreateDirectories( mayaSettingsPath );
@@ -262,18 +267,24 @@ int main(int argc, char* argv[])
 			res &= modifyMayaPluginPrefs(mayaSettingsPath, false);
 		}
 	}else{
-		cerr << "Documents folder could not be retrieved." << endl;
+		cerr << "My Documents folder could not be retrieved." << endl;
 		res = false;
 	}
 	ILFree(pidl);
 
+	cout << "Updating Environment." << endl;
+
 	//Declare environment variable change, since the installer doesn't do this for us
-	SendMessageTimeout( HWND_BROADCAST, WM_SETTINGCHANGE, NULL, (LPARAM)"Environment", NULL, NULL, NULL);
+	LRESULT r = SendMessageTimeout(HWND_BROADCAST, WM_SETTINGCHANGE, 0, (LPARAM) "Environment", SMTO_ABORTIFHUNG, 5000, 0);
+	if(r == 0){
+		MessageBox( NULL, "Updating Environment failed, please restart Windows after installation completes.", NULL, NULL);
+	}
 
 	if( res ){
+		//MessageBox( NULL, "CadNano plugin for Autodesk Maya configurations succeeded.", NULL, NULL);
 		return 0;
 	}else{
-		MessageBox( NULL, "CadNano plugin for Autodesk Maya configurations failed", NULL, NULL);
+		MessageBox( NULL, "CadNano plugin for Autodesk Maya configurations failed.", NULL, NULL);
 		return -1;
 	}
 }
