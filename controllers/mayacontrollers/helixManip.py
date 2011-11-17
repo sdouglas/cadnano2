@@ -61,10 +61,11 @@ class helixManip( OpenMayaMPx.MPxManipContainer ):
     frontDir = OpenMaya.MVector()
     backDir = OpenMaya.MVector()
     helixName = ""
-    amResizing = False
+    #amResizing = False
     ffpIdx = 0  # front index in converter plug array
     epIdx = 0   # back index in converter plug array
     #fFreePointManip = OpenMaya.MDagPath()
+    newStrandSize = (0,0)
 
     def __init__( self ):
         OpenMayaMPx.MPxManipContainer.__init__( self )
@@ -175,10 +176,13 @@ class helixManip( OpenMayaMPx.MPxManipContainer ):
     
     def doRelease(self):
         #print "RELEASED"
+        self.newStrandSize = (0,0)
         return OpenMaya.kUnknownParameter
 
     def doDrag(self):
         #print "DRAGGING"
+        if (self.newStrandSize != (0,0)):
+            self.getStrand().resize( self.newStrandSize )
         return OpenMaya.kUnknownParameter
         
     def plugToManipConversion( self, manipIndex ):
@@ -264,11 +268,12 @@ class helixManip( OpenMayaMPx.MPxManipContainer ):
         return manipData
 
     def manipToPlugConversion( self, plugIndex ):
+        #print "manipToPlugConversion", plugIndex
         try:
             if( plugIndex == self.ffpIdx ): # front float plug
                 numData = OpenMaya.MFnNumericData()
                 numDataObj = numData.create( OpenMaya.MFnNumericData.k3Double )
-
+                
                 sp = OpenMaya.MPoint()
                 cp = OpenMaya.MPoint()
 
@@ -287,6 +292,7 @@ class helixManip( OpenMayaMPx.MPxManipContainer ):
                 distance = self.computeDistanceFront( self.sp, self.cp )
                 
                 newIndex = self.getHelixDelta( distance )
+                self.dragDeltaFront = newIndex
                 self.resizeCNHelixFront( newIndex )
                 
                 #( remainder, intInc ) = self.checkHelixDelta( distance )
@@ -295,7 +301,8 @@ class helixManip( OpenMayaMPx.MPxManipContainer ):
                 ## reset the distance to remainder, adjust start points
                 ## accordingly
  
-                numData.setData3Double( cp.x, cp.y, cp.z )
+ 
+                numData.setData3Double( cp.x, cp.y, cp.z ) # This doesn't do anything
                 returnData = OpenMayaUI.MManipData( numDataObj )
             
             elif( plugIndex == self.epIdx ):
@@ -322,7 +329,7 @@ class helixManip( OpenMayaMPx.MPxManipContainer ):
                 newIndex = self.getHelixDelta( distance )
                 self.resizeCNHelixBack( newIndex )
                 
-                numData.setData3Double( ecp.x, ecp.y, ecp.z )
+                #numData.setData3Double( ecp.x, ecp.y, ecp.z ) # This doesn't do anything
                 returnData = OpenMayaUI.MManipData( numDataObj )
         except:
             sys.stderr.write( "ERROR: helixManip.manipToPlugConversion\n" )
@@ -483,8 +490,8 @@ class helixManip( OpenMayaMPx.MPxManipContainer ):
 
     def resizeCNHelixFront( self, delta ):
         try:
-            if( self.amResizing ):
-               return
+            #if( self.amResizing ):
+               #return
 
             strand = self.getStrand()
             lowIdx, highIdx = strand.idxs()
@@ -492,9 +499,10 @@ class helixManip( OpenMayaMPx.MPxManipContainer ):
             newLow = min( newLow, highIdx - 1 )
             newLow = max( newLow, strand.part().minBaseIdx())
             if( newLow != lowIdx ):
-                self.amResizing = True
-                strand.resize( (newLow, highIdx ) )
-                self.amResizing = False
+                #self.amResizing = True
+                #strand.resize( (newLow, highIdx ) )
+                self.newStrandSize = (newLow, highIdx )
+                #self.amResizing = False
             # to make smaller
             # strand.clearStrand( startIdx, endIdx )
         except:
@@ -502,8 +510,8 @@ class helixManip( OpenMayaMPx.MPxManipContainer ):
 
     def resizeCNHelixBack( self, delta ):
         try:
-            if( self.amResizing ):
-               return
+            #if( self.amResizing ):
+               #return
 
             strand = self.getStrand()
             lowIdx, highIdx = strand.idxs()
@@ -511,9 +519,10 @@ class helixManip( OpenMayaMPx.MPxManipContainer ):
             newHigh = min( newHigh, strand.part().maxBaseIdx() )
             newHigh = max( newHigh, lowIdx + 1 )
             if( newHigh != highIdx ):
-                self.amResizing = True
-                strand.resize( (lowIdx, newHigh ) )
-                self.amResizing = False
+                #self.amResizing = True
+                #strand.resize( (lowIdx, newHigh ) )
+                self.newStrandSize = (lowIdx, newHigh)
+                #self.amResizing = False
             # to make smaller
             # strand.clearStrand( startIdx, endIdx )
         except:
