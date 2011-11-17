@@ -2,9 +2,6 @@
 
 SUPPORTED_MAYA_VERSIONS="2012"
 
-# Prepare to copy PyQt into mayapy framework
-unzip /Applications/cadnano2.app/Contents/Resources/PyQtMacMaya.zip -d /tmp
-
 # Copy PyQt for Maya for each supported version (should just be 2012 for now)
 for VERSION in ${SUPPORTED_MAYA_VERSIONS}
 do
@@ -15,7 +12,6 @@ MAYA_ENV_FILE="${HOME}/Library/Preferences/Autodesk/maya/${VERSION}-x64/Maya.env
 
 if grep CADNANO "${MAYA_ENV_FILE}" 1>/dev/null; then
 echo "Skipping patch for ${MAYA_ENV_FILE} since it appears to already be patched."
-exit
 else
 # It has not, so append to the file
 echo "Patching ${MAYA_ENV_FILE}"
@@ -53,7 +49,18 @@ fi
 MAYAPY_DIR=/Applications/Autodesk/maya${VERSION}/Maya.app/Contents/Frameworks/Python.framework/Versions/2.6
 if [[ -d "${MAYAPY_DIR}" ]] ; then
     # echo "${MAYAPY_DIR} exists"
-    cp -R /tmp/PyQtMacMaya/* $MAYAPY_DIR
-    # ln -s /Library/Python/2.6/site-packages/sip $MAYAPY_DIR/lib/python2.6/site-packages/sip
+    MAYA_SITEPKGS="$MAYAPY_DIR/lib/python2.6/site-packages"
+    if [[ -d $MAYA_SITEPKGS/PyQt4 ]]; then
+        echo "Removing existing PyQt4 for maya at ${MAYA_SITEPKGS}/PyQt4"
+	rm -rf "${MAYA_SITEPKGS}/PyQt4"
+    fi
+    echo "Installing PyQt4 for maya at ${MAYA_SITEPKGS}/PyQt4"
+    tar -C /tmp -xf /Applications/cadnano2.app/Contents/Resources/PyQtMacMaya.tar.gz
+    cp -fR /tmp/PyQtMacMaya ${MAYA_SITEPKGS}/PyQt4 
+    rm -rf /tmp/PyQtMacMaya
+
+    SIP_DEST=$MAYAPY_DIR/lib/python2.6/site-packages/sip
+    echo "Installing sip for maya at $SIP_DEST"
+    ln -s /Library/Python/2.6/site-packages/sip $SIP_DEST
 fi
 done

@@ -30,24 +30,24 @@
 """
 removedMsgCmd.py
 Created by Simon Breslav on 2011/09/06
-A command that adds a callback function when a node is deleted
+A command that adds a callback function when Maya Nodes are deleted
 """
 
 import sys
 import maya.OpenMaya as OpenMaya
 import maya.OpenMayaMPx as OpenMayaMPx
-
 from controllers.mayacontrollers.mayaObjectManager import Mom
 
-#from controllers.erasetooloperation import EraseToolOperation
-
 kPluginCmdName = "spRemovedMsg"
-
 messageId = 0
 messageIdSet = False
 
 
 def removeCallback(id):
+    """
+    Function to remove the callback function from Maya, given the ID of the
+    function, the id is created in createParentRemovedCallback function
+    """
     try:
         OpenMaya.MMessage.removeCallback(id)
     except:
@@ -55,6 +55,10 @@ def removeCallback(id):
 
 
 def dagParentRemovedCallback(child, parent, clientData):
+    """
+    Callback function that removes the strands from the model if the
+    3D strand is delete in 3D view.
+    """
     mom = Mom()
     children = child.fullPathName().split("|")
     for c in children:
@@ -77,7 +81,10 @@ def dagParentRemovedCallback(child, parent, clientData):
                 #virtualHelixItem.updateDecorators()
 
 
-def createParentAddedCallback(stringData):
+def createParentRemovedCallback(stringData):
+    """
+    Function that creates the actual callback function and returns its ID
+    """
     # global declares module level variables that will be assigned
     global messageIdSet
     try:
@@ -93,25 +100,31 @@ def createParentAddedCallback(stringData):
 
 # command
 class scriptedCommand(OpenMayaMPx.MPxCommand):
+    """
+    Maya Command that adds a callback function when something is removed
+    """
     def __init__(self):
+        """Initialize the commands"""
         OpenMayaMPx.MPxCommand.__init__(self)
 
     def doIt(self, argList):
+        """Execute the command"""
         global messageId
         if (messageIdSet):
-            print "Message callaback already installed"
+            print "Message callback already installed"
         else:
             print "Installing parent removed callback message"
-            messageId = createParentAddedCallback("_noData_")
+            messageId = createParentRemovedCallback("_noData_")
 
 
 # Creator
 def cmdCreator():
+    """Wrapper function that created the command"""
     return OpenMayaMPx.asMPxPtr(scriptedCommand())
-
 
 # Initialize the script plug-in
 def initializePlugin(mobject):
+    """Register the command with Maya""" 
     mplugin = OpenMayaMPx.MFnPlugin(mobject)
     try:
         mplugin.registerCommand(kPluginCmdName, cmdCreator)
@@ -122,6 +135,7 @@ def initializePlugin(mobject):
 
 # Uninitialize the script plug-in
 def uninitializePlugin(mobject):
+    """Remove the command and the callback""" 
     # Remove the callback
     if (messageIdSet):
         removeCallback(messageId)

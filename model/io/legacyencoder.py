@@ -61,6 +61,6 @@ def legacy_dict_from_doc(document, fname, helixOrderList):
                   "stapLoop":[],
                   "stap_colors":stapColors}
         vhList.append(vhDict)
-    bname = basename(fname)
+    bname = basename(str(fname))
     obj = {"name":bname , "vstrands":vhList}
     return obj

@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
 
-# Form implementation generated from reading ui file 'mainwindow/mainwindow.ui'
+# Form implementation generated from reading ui file '\\VBOXSVR\cadnano2\ui\mainwindow\mainwindow.ui'
 #
-# Created: Fri Oct 28 15:27:06 2011
+# Created: Tue Nov 08 11:01:48 2011
 #      by: PyQt4 UI code generator 4.8.6
 #
 # WARNING! All changes made in this file will be lost!
@@ -30,6 +30,7 @@ class Ui_MainWindow(object):
         self.centralwidget.setObjectName(_fromUtf8("centralwidget"))
         self.gridLayout = QtGui.QGridLayout(self.centralwidget)
         self.gridLayout.setMargin(0)
+        self.gridLayout.setHorizontalSpacing(6)
         self.gridLayout.setObjectName(_fromUtf8("gridLayout"))
         self.splitter = QtGui.QSplitter(self.centralwidget)
         sizePolicy = QtGui.QSizePolicy(QtGui.QSizePolicy.Preferred, QtGui.QSizePolicy.Preferred)
@@ -82,7 +83,7 @@ class Ui_MainWindow(object):
         self.gridLayout.addWidget(self.splitter, 0, 0, 1, 1)
         MainWindow.setCentralWidget(self.centralwidget)
         self.menubar = QtGui.QMenuBar(MainWindow)
-        self.menubar.setGeometry(QtCore.QRect(0, 0, 1075, 22))
+        self.menubar.setGeometry(QtCore.QRect(0, 0, 1075, 21))
         self.menubar.setObjectName(_fromUtf8("menubar"))
         self.menuFile = QtGui.QMenu(self.menubar)
         self.menuFile.setTitle(QtGui.QApplication.translate("MainWindow", "File", None, QtGui.QApplication.UnicodeUTF8))
@@ -99,6 +100,9 @@ class Ui_MainWindow(object):
         self.menuView = QtGui.QMenu(self.menubar)
         self.menuView.setTitle(QtGui.QApplication.translate("MainWindow", "View", None, QtGui.QApplication.UnicodeUTF8))
         self.menuView.setObjectName(_fromUtf8("menuView"))
+        self.menuAbout = QtGui.QMenu(self.menubar)
+        self.menuAbout.setTitle(QtGui.QApplication.translate("MainWindow", "About", None, QtGui.QApplication.UnicodeUTF8))
+        self.menuAbout.setObjectName(_fromUtf8("menuAbout"))
         MainWindow.setMenuBar(self.menubar)
         self.topToolBar = QtGui.QToolBar(MainWindow)
         sizePolicy = QtGui.QSizePolicy(QtGui.QSizePolicy.Minimum, QtGui.QSizePolicy.Fixed)
@@ -340,6 +344,12 @@ class Ui_MainWindow(object):
         self.actionModify.setText(QtGui.QApplication.translate("MainWindow", "Modify", None, QtGui.QApplication.UnicodeUTF8))
         self.actionModify.setToolTip(QtGui.QApplication.translate("MainWindow", "Modify mode", None, QtGui.QApplication.UnicodeUTF8))
         self.actionModify.setObjectName(_fromUtf8("actionModify"))
+        self.actionCadnanoWebsite = QtGui.QAction(MainWindow)
+        self.actionCadnanoWebsite.setText(QtGui.QApplication.translate("MainWindow", "cadnano Website", None, QtGui.QApplication.UnicodeUTF8))
+        self.actionCadnanoWebsite.setObjectName(_fromUtf8("actionCadnanoWebsite"))
+        self.actionFeedback = QtGui.QAction(MainWindow)
+        self.actionFeedback.setText(QtGui.QApplication.translate("MainWindow", "Feedback", None, QtGui.QApplication.UnicodeUTF8))
+        self.actionFeedback.setObjectName(_fromUtf8("actionFeedback"))
         self.menuOpen_recent_files.addSeparator()
         self.menuFile.addAction(self.actionNew)
         self.menuFile.addAction(self.actionOpen)
@@ -351,10 +361,14 @@ class Ui_MainWindow(object):
         self.menuFile.addSeparator()
         self.menuFile.addAction(self.actionPrint)
         self.menuCadnano.addAction(self.actionPreferences)
+        self.menuCadnano.addSeparator()
+        self.menuAbout.addAction(self.actionCadnanoWebsite)
+        self.menuAbout.addAction(self.actionFeedback)
         self.menubar.addAction(self.menuCadnano.menuAction())
         self.menubar.addAction(self.menuFile.menuAction())
         self.menubar.addAction(self.menuEdit.menuAction())
         self.menubar.addAction(self.menuView.menuAction())
+        self.menubar.addAction(self.menuAbout.menuAction())
         self.topToolBar.addAction(self.actionNew)
         self.topToolBar.addAction(self.actionOpen)
         self.topToolBar.addAction(self.actionSave)

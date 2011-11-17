@@ -25,7 +25,7 @@
 """
 mayaSelectionContex.py
 Created by Simon Breslav on 2011-09-27
-Maya Selection Context, genarates callbacks when things are selected
+Maya Selection Context, generates callbacks when things are selected
 in Maya 3D view
 """
 
@@ -39,38 +39,47 @@ contextCmdName = "spMayaCtxCmd"
 
 
 def selectionCallback(clientData):
-        #print "mayaSelcectionContex: selectionCallback called"
-        selectionList = OpenMaya.MSelectionList()
-        OpenMaya.MGlobal.getActiveSelectionList(selectionList)
-        selectionIter = OpenMaya.MItSelectionList(selectionList,
-                                                  OpenMaya.MFn.kInvalid)
-        decoratorList = []
-        m = Mom()
-        while not selectionIter.isDone():
-                dependNode = OpenMaya.MObject()
-                dagNode = OpenMaya.MFnDagNode()
-                try:
-                        selectionIter.getDependNode(dependNode)
-                        if dependNode.isNull() or not dependNode.hasFn( \
-                                                OpenMaya.MFn.kDependencyNode):
-                            selectionIter.next()
-                            continue
-                        dagNode = OpenMaya.MFnDagNode(dependNode)
-                except:
+    """
+    Callback function that is called when something is selected in Maya.
+    Currently only used for Pre-Decorators.
+    """
+    #print "mayaSelcectionContex: selectionCallback called"
+    selectionList = OpenMaya.MSelectionList()
+    OpenMaya.MGlobal.getActiveSelectionList(selectionList)
+    selectionIter = OpenMaya.MItSelectionList(selectionList,
+                                              OpenMaya.MFn.kInvalid)
+    decoratorList = []
+    m = Mom()
+    while not selectionIter.isDone():
+            dependNode = OpenMaya.MObject()
+            dagNode = OpenMaya.MFnDagNode()
+            try:
+                    selectionIter.getDependNode(dependNode)
+                    if dependNode.isNull() or not dependNode.hasFn( \
+                                            OpenMaya.MFn.kDependencyNode):
                         selectionIter.next()
                         continue
-                if dagNode.name().startswith(m.decoratorTransformName):
-                    if dagNode.name() not in decoratorList:
-                        decoratorList.append(dagNode.name())
-                selectionIter.next()
-        m.staplePreDecoratorSelected(decoratorList)
+                    dagNode = OpenMaya.MFnDagNode(dependNode)
+            except:
+                    selectionIter.next()
+                    continue
+            if dagNode.name().startswith(m.decoratorTransformName):
+                if dagNode.name() not in decoratorList:
+                    decoratorList.append(dagNode.name())
+            selectionIter.next()
+    m.staplePreDecoratorSelected(decoratorList)
 
 
 class mayaSelctionContext(OpenMayaMPx.MPxSelectionContext):
+    """
+    Maya Command that adds a callback function when something is selected
+    """
     def __init__(self):
+        """Initialize the commands"""
         OpenMayaMPx.MPxSelectionContext.__init__(self)
 
     def toolOnSetup(self, event):
+        """Add the callback"""
         OpenMaya.MModelMessage.addCallback( \
                         OpenMaya.MModelMessage.kActiveListModified,
                                             selectionCallback, self)
@@ -85,12 +94,13 @@ class mayaSelctionCtxCmd(OpenMayaMPx.MPxContextCommand):
 
 
 def contextCmdCreator():
+    """Wrapper function that created the command"""
     return OpenMayaMPx.asMPxPtr(mayaSelctionCtxCmd())
 
 
 # initialize the script plug-in
 def initializePlugin(mobject):
-    #print "mayaSelctionContext: initializePlugin for helixManip called"
+    """Register the context command with Maya""" 
     mplugin = OpenMayaMPx.MFnPlugin(mobject)
     try:
         mplugin.registerContextCommand(contextCmdName, contextCmdCreator)
@@ -101,7 +111,7 @@ def initializePlugin(mobject):
 
 # uninitialize the script plug-in
 def uninitializePlugin(mobject):
-    #print "mayaSelctionContext uninitializePlugin for helixManip called"
+    """Remove the context command""" 
     mplugin = OpenMayaMPx.MFnPlugin(mobject)
     try:
         mplugin.deregisterContextCommand(contextCmdName)

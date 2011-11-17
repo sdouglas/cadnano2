@@ -24,11 +24,7 @@
 
 """
 partitem.py
-
-Created by Nick Conway on 2011-02-04.
-Re-Created by Simon Breslav on 2011-07-21
-
-For use controlling 3D solid models generated in Maya
+Created by Simon Breslav on 2011-07-21
 """
 
 from string import *
@@ -56,12 +52,16 @@ util.qtWrapImport('QtCore', globals(), ['pyqtSignal', 'pyqtSlot', 'QObject'])
 
 class PartItem(object):
     """
-    Maya Based View: PartItem stores VirtualHelixItems for a given DNA Part
-    For now parent should be a rootItem but in the future it could be
-    an AssemblyItem
+    PartItem stores VirtualHelixItems for a given DNA Part model
     """
     def __init__(self, modelPart, parent=None):
         """
+        Loads in all the Maya plugins (Nodes) needed for visualizing
+        the model (XXX [SB] -this code should probably go somewhere else).
+        Initiates some private variables that are constant across all
+        strands (XXX [SB] -this code should also probably go somewhere else).
+        Sets up PartItemController that is used to setup all the
+        slots and signals between strand model and this PartItem.
         """
         self._parentItem = parent
         pluginPath = os.path.join(os.environ['CADNANO_PATH'],
@@ -98,39 +98,51 @@ class PartItem(object):
     # end def
     
     def parentItem(self):
+        """Return parent item, which is SolidRootItem in this case"""
         return self._parentItem
     # end def
 
     def setModifyState(self, val):
+        """Change Modify state for all the strands in this PartItem"""
         self.modifyState = val
         self.updateModifyState()
     # end def
 
     def updateModifyState(self):
+        """Update Modify state for all the strands in this PartItem"""
         for sh in self._virtualHelixItems:
             sh.setModifyState(self.modifyState)
             sh.updateDecorators()
     # end def
 
     def isInModifyState(self):
+        """Accessor for Modify State"""
         return self.modifyState
     # end def
 
     def type(self):
+        """Accessor for Cross Section Type, (Honeycomb vs. Square)"""
         return self._type
     # end def
 
     def part(self):
+        """Accessor for the part model"""
         return self._part
     # end def
 
     def setPart(self, p):
+        """set part model"""
         self._part = p
     # end def
 
     ### SLOTS ###
-
     def partDimensionsChangedSlot(self, part):
+        """
+        Receives notification from the model when a dimentions of the part
+        changes. Needs to change an attribute of every Maya Helix Nodes, so
+        that they are all are aligned corectly with new strands that are
+        created.
+        """
         mom = Mom()
         for vh in self._virtualHelixItems:
             for mID in vh.StrandIDs():
@@ -140,13 +152,12 @@ class PartItem(object):
     # end def
 
     def partParentChangedSlot(self, part):
-        """solidview.PartItem partParentChangedSlot"""
-        #print "solidview.PartItem.partParentChangedSlot"
+        """partParentChangedSlot - empty"""
         pass
     # end def
 
     def partRemovedSlot(self, part):
-        """solidview.PartItem partRemovedSlot"""
+        """clears out private variables and disconnects signals"""
         # print "solidview.PartItem.partRemovedSlot"
         self._virtualHelixItems = None
         self._parentItem.removePartItem(self)
@@ -157,64 +168,48 @@ class PartItem(object):
     # end def
 
     def partPreDecoratorSelectedSlot(self, row, col, baseIdx):
+        """partPreDecoratorSelectedSlot - empty"""
         pass
     # end def
 
     def partVirtualHelixAddedSlot(self, virtualHelix):
-        #print "solidview.PartItem.partVirtualHelixAddedSlot"
+        """Receives notification when new VitualHelix is added"""
         sh = self.createNewVirtualHelixItem(virtualHelix)
         sh.setModifyState(self.modifyState)
     # end def
 
     @pyqtSlot(tuple)
     def partVirtualHelixRenumberedSlot(self, coord):
+        """partVirtualHelixRenumberedSlot - empty"""
         pass
     # end def
 
     @pyqtSlot(tuple)
     def partVirtualHelixResizedSlot(self, coord):
+        """partVirtualHelixResizedSlot - empty"""
         pass
     # end def
 
     @pyqtSlot(list)
     def partVirtualHelicesReorderedSlot(self, orderedCoordList):
+        """partVirtualHelicesReorderedSlot - empty"""
         pass
     # end def
 
     def updatePreXoverItemsSlot(self, virtualHelix):
-        #print "solidview.PartItem.updatePreXoverItemsSlot"
+        """updatePreXoverItemsSlot - empty"""
         pass
     # end def
 
     ### METHODS ###
     def cadnanoToMayaCoords(self, row, col):
-        """
-        """
+        """Converts cadnano row and col to Maya coordinates"""
         x, y = self.part().latticeCoordToPositionXY(row, col)
         return x + self.mayaOrigin[0], self.mayaOrigin[1] - y
     # end def
 
-    # XXXX I think this is unused
-    def clearInternalDataStructures(self):
-        self._virtualHelixItems = {}
-        self.idStrandMapping.clear()
-        self.strandCount = 0
-    # end def
-    
-    #  XXXX I think this is unused
-    def deleteAllNodes(self):
-        m = Mom()
-        # Delete Helicies in this group
-        for vhelixItem in self._virtualHelixItems:
-            strandIDs = vhelixItem.StrandIDs()
-            for mID in strandIDs:
-                transformName = "%s%s" % (m.helixTransformName, mID)
-                if cmds.objExists(transformName):
-                    cmds.delete(transformName)
-        self.clearInternalDataStructures()
-    # end def
-
     def createNewVirtualHelixItem(self, virtualHelix):
+        """Create a new Virtual Helix """
         coords = virtualHelix.coord()
         #print "solidview.PartItem.createNewVirtualHelixItem: %d %d" % \
         #                                                (coords[0], coords[1])
@@ -227,6 +222,7 @@ class PartItem(object):
     # end def
 
     def removeVirtualHelixItem(self, vhelixItem):
+        """Remove a new Virtual Helix """
         del self._virtualHelixItems[vhelixItem]
     # end def
 # end class

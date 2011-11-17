@@ -25,14 +25,16 @@
 """
 mayaObjectManager.py
 Created by Alex Tessier on 2011-08
-A singleton manager for tracking maya to cn and reverse
-lookups
 """
 from cadnano import app
 import maya.cmds as cmds
 import util
 
 class Mom(object):
+    """
+    A singleton manager for tracking maya to cadnano and reverse lookups of
+    strand and pre-decorators
+    """
     _instance = None
     strandCount = 0
     selectionCountCache = 0
@@ -50,7 +52,7 @@ class Mom(object):
     # uses strand objects as the key, stores a list of maya nodes
     cnToMaya = {}
     # uses stapleModIndicatorMesh% objects as the key,
-    # stores a objec with (virualHelixItem object, baseNumber, strand object)
+    # stores a object with (virualHelixItem object, baseNumber, strand object)
     decoratorToVirtualHelixItem = {}
     # uses strand object as the key, stores stand id
     idStrandMapping = {}
@@ -66,6 +68,11 @@ class Mom(object):
     decoratorShaderName = "stapleModeIndicatorShader"
 
     def staplePreDecoratorSelected(self, listNames):
+        """
+        Callback function that is called from mayaSelectionContext when a
+        PreDecorator geometry is called, notifies the Part Model of this
+        event. XXX - [SB] In the future we should clean up this interaction.
+        """
         selectionList = []
         for name in listNames:
             if name in self.decoratorToVirtualHelixItem:
@@ -76,8 +83,8 @@ class Mom(object):
                                                 baseIdx))
         if len(selectionList) == 0 and \
            self.selectionCountCache == 0:
-            # a dumb cache check to prevent deselection to be brotcaseted too
-            # many times, but could couse problems
+            # a dumb cache check to prevent deselection to be broadcasted too
+            # many times, but could cause problems
             return
 
         # XXX - [SB] we want to only send the signal to "active part" but
@@ -90,6 +97,7 @@ class Mom(object):
         self.selectionCountCache = len(selectionList)
 
     def removeDecoratorMapping(self, id):
+        """Remove all mappings related to Pre-Decorators"""
         key1 = "%s%s" % (self.decoratorMeshName, id)
         key2 = "%s%s" % (self.decoratorTransformName, id)
         if key1 in self.decoratorToVirtualHelixItem:
@@ -98,6 +106,7 @@ class Mom(object):
             del self.decoratorToVirtualHelixItem[key2]
 
     def removeIDMapping(self, id, strand):
+        """Remove all mappings related to Strands"""
         key1 = "%s%s" % (self.helixMeshName, id)
         key2 = "%s%s" % (self.helixNodeName, id)
         if key1 in self.mayaToCn:
@@ -107,6 +116,10 @@ class Mom(object):
         self.deleteStrandMayaID(strand)
 
     def strandMayaID(self, strand):
+        """
+        Get a Maya ID for a given strand, if one does not exits, it
+        will create a new one.
+        """
         if(strand in self.idStrandMapping):
             return self.idStrandMapping[strand]
         else:
@@ -123,6 +136,10 @@ class Mom(object):
     # end def
 
     def deleteStrandMayaID(self, strand):
+        """
+        Removes just the Cadnano -> Maya mapping.
+        It is called from removeIDMapping function
+        """
         if strand in self.cnToMaya:
             del self.cnToMaya[strand]
         if strand in self.idStrandMapping:

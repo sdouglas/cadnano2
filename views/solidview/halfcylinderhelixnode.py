@@ -27,6 +27,7 @@ HalfCylinderHelixNode.py
 Created by Simon Breslav on 2011-08-04
 A Maya Node for creating Half-Cylinder Helix Shape
 """
+
 import sys
 import maya.OpenMaya as OpenMaya
 import maya.OpenMayaMPx as OpenMayaMPx
@@ -37,6 +38,8 @@ id = OpenMaya.MTypeId(0x00117701)
 
 
 class HalfCylinderHelixNode(OpenMayaMPx.MPxNode):
+    """A Maya Node for creating Half-Cylinder Helix 3D Shape"""
+
     outputMesh = OpenMaya.MObject()
     startBaseAttr = OpenMaya.MObject()
     endBaseAttr = OpenMaya.MObject()
@@ -47,6 +50,7 @@ class HalfCylinderHelixNode(OpenMayaMPx.MPxNode):
     end3DPosAttr = OpenMaya.MObject()
     parityAttr = OpenMaya.MObject()
     rotationOffsetAttr = OpenMaya.MObject()
+    decRotOffsetAttr = OpenMaya.MObject()
     radiusAttr = OpenMaya.MObject()
     strandTypeAttr = OpenMaya.MObject()
     rotationAttr = OpenMaya.MObject()
@@ -54,11 +58,18 @@ class HalfCylinderHelixNode(OpenMayaMPx.MPxNode):
     edgesPerBaseAttr = OpenMaya.MObject()
 
     def __init__(self):
+        """Initiate the Node and private variable"""
         OpenMayaMPx.MPxNode.__init__(self)
         self.start3DPos = OpenMaya.MFloatPoint()
         self.end3DPos = OpenMaya.MFloatPoint()
 
     def compute(self, plug, data):
+        """
+        Main compute method that is called each time the shape needs
+        to be recomputed, such as change of some attributes, these recompute
+        dependencies are created by HalfCylinderHelixNode.attributeAffects
+        calls in nodeInitialize() function
+        """
         try:
             fnMeshData = OpenMaya.MFnMeshData()
             outMeshDataObj = fnMeshData.create()
@@ -114,7 +125,15 @@ class HalfCylinderHelixNode(OpenMayaMPx.MPxNode):
     def createMesh(self, startVal, endVal, totalNumBases, radius,
                    rotationAttr, rotationOffset, riseAttr, edgesPerBase,
                    parity, strandType, outData):
-        # XXX [SB] start and end are inverted right now...
+        """
+        This is the core function of the class that created the MFnMesh of
+        the Half-Cylinder Helical Shape. The process can be though of as
+        if we are creating a regular cylinder, so first create the starting
+        endcap, then create the middle part, and last the closing endcap.
+        When creating the middle part, we add additional rotation to the
+        verts to create the overall helical shape.
+        """
+        # XXX [SB] are start and end are inverted right now?
         middleBase = totalNumBases / 2
         end = (middleBase - startVal)
         start = (endVal - middleBase)
@@ -140,7 +159,7 @@ class HalfCylinderHelixNode(OpenMayaMPx.MPxNode):
                             (math.pi * (not parity)) + rotationOffset + \
                             (math.pi * strandType)
 
-        # Create Endpice verts
+        # Create Endpoint verts
         vtx.append(OpenMaya.MFloatPoint(0.0, start_pos + gap, 0.0))
         self.end3DPos = OpenMaya.MFloatPoint(0.0, start_pos + gap, 0.0)
         #print start_pos + gap
@@ -258,10 +277,16 @@ class HalfCylinderHelixNode(OpenMayaMPx.MPxNode):
 
 
 def nodeCreator():
+    """Creates the Maya Node"""
     return OpenMayaMPx.asMPxPtr(HalfCylinderHelixNode())
 
 
 def nodeInitialize():
+    """
+    This initialize function adds all the attributes and creates relationships
+    between them, so that as you change attributes related attributes are
+    recomputed through the compute function of the node
+    """
     #unitAttr = OpenMaya.MFnUnitAttribute()
     typedAttr = OpenMaya.MFnTypedAttribute()
     HalfCylinderHelixNode.outputMesh = typedAttr.create("outputMesh",
@@ -360,7 +385,15 @@ def nodeInitialize():
                                     'rotoff',
                                     OpenMaya.MFnUnitAttribute.kAngle,
                                     math.pi / 6)
-    unitFn.setMin(0.0)
+    unitFn.setMin(-2 * math.pi)
+    unitFn.setMax(2 * math.pi)
+    unitFn.setStorable(True)
+    
+    HalfCylinderHelixNode.decRotOffsetAttr = unitFn.create('decoratorRotOffset',
+                                    'decrotoff',
+                                    OpenMaya.MFnUnitAttribute.kAngle,
+                                    math.pi / 9)
+    unitFn.setMin(-2 * math.pi)
     unitFn.setMax(2 * math.pi)
     unitFn.setStorable(True)
 
@@ -372,6 +405,7 @@ def nodeInitialize():
     HalfCylinderHelixNode.addAttribute(HalfCylinderHelixNode.totalBasesAttr)
     HalfCylinderHelixNode.addAttribute(HalfCylinderHelixNode.rotationAttr)
     HalfCylinderHelixNode.addAttribute(HalfCylinderHelixNode.rotationOffsetAttr)
+    HalfCylinderHelixNode.addAttribute(HalfCylinderHelixNode.decRotOffsetAttr)
     HalfCylinderHelixNode.addAttribute(HalfCylinderHelixNode.riseAttr)
     HalfCylinderHelixNode.addAttribute(HalfCylinderHelixNode.edgesPerBaseAttr)
     HalfCylinderHelixNode.addAttribute(HalfCylinderHelixNode.start3DPosAttr)
@@ -464,6 +498,7 @@ def nodeInitialize():
 
 
 def initializePlugin(obj):
+    """Initialize the Plugin""" 
     plugin = OpenMayaMPx.MFnPlugin(obj)
     try:
         plugin.registerNode(nodeName, id, nodeCreator, nodeInitialize)
@@ -473,6 +508,7 @@ def initializePlugin(obj):
 
 
 def uninitializePlugin(obj):
+    """Uninitialize the Plugin""" 
     plugin = OpenMayaMPx.MFnPlugin(obj)
     try:
         plugin.deregisterNode(id)

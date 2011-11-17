@@ -116,6 +116,8 @@ class DocumentController():
         self.win.actionNewSquarePart.triggered.connect(\
             self.actionAddSquarePartSlot)
         self.win.closeEvent = self.windowCloseEventHandler
+        self.win.actionCadnanoWebsite.triggered.connect(self.actionCadnanoWebsiteSlot)
+        self.win.actionFeedback.triggered.connect(self.actionFeedbackSlot)
 
     ### SLOTS ###
     def undoStackCleanChangedSlot(self):
@@ -259,7 +261,7 @@ class DocumentController():
                             directory,
                             "(*.csv)")
             self.saveStaplesDialog = None
-            self.exportFile(fname)
+            self.exportStaplesCallback(fname)
         else:  # access through non-blocking callback
             fdialog = QFileDialog(
                             self.win,
@@ -566,3 +568,10 @@ class DocumentController():
         self.setFilename(filename)
         return True
 
+    def actionCadnanoWebsiteSlot(self):
+        import webbrowser
+        webbrowser.open("http://cadnano.org/")
+
+    def actionFeedbackSlot(self):
+        import webbrowser
+        webbrowser.open("http://cadnano.org/feedback")

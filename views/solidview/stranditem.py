@@ -22,6 +22,11 @@
 #
 # http://www.opensource.org/licenses/mit-license.php
 
+"""
+stranditem.py
+Created by Simon Breslav on 2011-10-05.
+"""
+
 from controllers.mayacontrollers.mayaObjectManager import Mom
 from controllers.itemcontrollers.strand.stranditemcontroller \
                                                 import StrandItemController
@@ -37,18 +42,24 @@ util.qtWrapImport('QtCore', globals(), ['pyqtSignal', 'pyqtSlot', \
                                         'QObject', 'Qt'])
 util.qtWrapImport('QtGui', globals(), ['QColor'])
 
-"""
-stranditem.py
-Created by Simon Breslav on 2011-10-05.
-"""
-
 
 class StrandItem(object):
     """
-    StrandItem is the strand item in the SolidView.
+    StrandItem is the visual representation of the strand in the 3D SolidView.
+    For this visual representation, StrandItem creates HalfCylinderHelixNode
+    Node inside of Maya, so while the StrandItem itself does not get drawn in
+    any way, it is the object that communicates with Maya Nodes associated
+    with a given strand.
     """
     def __init__(self, mID, modelStrand, virtualHelixItem):
-        """The parent should be a VirtualHelixItem."""
+        """
+        The parent should be a VirtualHelixItem.
+        Initialize function creates the Maya Node for the strand, and setups
+        the lookup tables inside of mayaObjectManager (Mom) so that the Maya
+        Node can be globally found given a strand, and the other way around.
+        Also, sets up StrandItemController that is used to setup all the
+        slots and signals between strand model and this strandItem.
+        """
         self._modelStrand = modelStrand
         self._virtualHelixItem = virtualHelixItem
         mayaNodeInfo = ()
@@ -75,27 +86,31 @@ class StrandItem(object):
 
     ### SLOTS ###
     def strandResizedSlot(self, strand, indices):
-        """strandResizedSlot"""
+        """Receives notification from the model when a strand is resized"""
         print "solid.StrandItem.strandResizedSlot", self._modelStrand.idxs()
         self.updateSize()
         self._virtualHelixItem.updateDecorators()
 
     def strandUpdateSlot(self, strand):
-        """strandUpdateSlot"""
-        #print "solidview.StrandItem.strandUpdateSlot"
+        """strandUpdateSlot - empty"""
         pass
 
     def sequenceAddedSlot(self, oligo):
-        """sequenceAddedSlot"""
+        """sequenceAddedSlot - empty"""
         pass
-        #print "solidview.StrandItem.sequenceAddedSlot"
 
     def sequenceClearedSlot(self, oligo):
-        """sequenceClearedSlot"""
+        """sequenceClearedSlot - empty"""
         pass
-        #print "solidview.StrandItem.sequenceClearedSlot"
-    
+
     def strandRemovedSlot(self, strand):
+        """
+        Receives notification from the model when a strand is removed.
+        Deletes the strand related mapping in mayaObjectManager, deletes all
+        the Maya nodes, deletes all the decorators(live in the
+        virtualHelixItem right now), deletes itself from the virtualHelixItem,
+        and disconnects itself from the controller.
+        """
         mom = Mom()
         mID = mom.strandMayaID(strand)
         mom.removeIDMapping(mID, strand)
@@ -114,64 +129,92 @@ class StrandItem(object):
         self._virtualHelixItem.updateDecorators()
         self._virtualHelixItem.removeStrandItem(self)
         self._virtualHelixItem = None
-
-                                                  
         self._modelStrand = None
         self._controller.disconnectSignals()
         self._controller = None
     # end def
 
     def oligoAppearanceChangedSlot(self, oligo):
+        """
+        Receives notification from the model when a oligo changes appearance.
+        Updates the color of the strandItem associated with this strand
+        """
         mom = Mom()
         id = mom.strandMayaID(self._modelStrand)
         self.updateColor(id, oligo.color())
-        #print "solidview.StrandItem.oligoAppeareanceChangedSlot"
         pass
 
     def oligoSequenceAddedSlot(self, oligo):
-        #print "solidview.StrandItem.oligoSequenceAddedSlot"
+        """oligoSequenceAddedSlot - empty"""
         pass
 
     def oligoSequenceClearedSlot(self, oligo):
-        #print "solidview.StrandItem.oligoSequenceClearedSlot"
+        """oligoSequenceClearedSlot - empty"""
         pass
 
     def strandHasNewOligoSlot(self, strand):
-        #print "solidview.StrandItem.strandHasNewOligoSlot"
+        """
+        Receives notification from the model when there is a new oligo.
+        Updates the color of the strandItem associated with this strand
+        """
         mom = Mom()
         self._controller.reconnectOligoSignals()
         mID = mom.strandMayaID(strand)
         self.updateColor(mID, strand.oligo().color())
 
     def strandInsertionAddedSlot(self, strand, insertion):
+        """strandInsertionAddedSlot - empty"""
         pass
 
     def strandInsertionChangedSlot(self, strand, insertion):
+        """strandInsertionChangedSlot - empty"""
         pass
 
     def strandInsertionRemovedSlot(self, strand, index):
+        """strandInsertionRemovedSlot - empty"""
         pass
 
     def strandDecoratorAddedSlot(self, strand, decorator):
+        """strandDecoratorAddedSlot - empty"""
         pass
 
     def strandDecoratorChangedSlot(self, strand, decorator):
+        """strandDecoratorChangedSlot - empty"""
         pass
 
     def strandDecoratorRemovedSlot(self, strand, index):
+        """strandDecoratorRemovedSlot - empty"""
         pass
 
     def strandModifierAddedSlot(self, strand, modifier):
+        """strandModifierAddedSlot - empty"""
         pass
 
     def strandModifierChangedSlot(self, strand, modifier):
+        """strandModifierChangedSlot - empty"""
         pass
 
     def strandModifierRemovedSlot(self, strand, index):
+        """strandModifierRemovedSlot - empty"""
         pass
 
     ### METHODS ###
     def createMayaHelixNodes(self, x, y, colorname, strandType, mID):
+        """
+        Create all the Maya nodes, set the initial attributes and connections.
+        There are 3 Maya nodes associated with each Strand: Transform Node,
+        Shape Node (spHalfCylinderHelixNode), and a Mesh Node (a generic Maya
+        Node that is used for rendering) The Mesh Node is the child of the
+        Transform Node, and spHalfCylinderHelixNode node inputs the shape data
+        into the Mesh Node, using cmds.connectAttr command
+         ________________
+        | Transform Node |
+         ----------------
+                |
+         ________________  .inMesh          .outputMesh _____________________
+        |   Mesh Node    |<---------------------------| HalfCylinderHelixNode |
+         ----------------                              -----------------------
+        """
         m = Mom()
         cylinderName = "%s%s" % (m.helixNodeName, mID)
         transformName = "%s%s" % (m.helixTransformName, mID)
@@ -193,9 +236,11 @@ class StrandItem(object):
         cmds.setAttr("%s.rotation" % cylinderName, part.twistPerBase())
         cmds.setAttr("%s.parity" % cylinderName, vhi.isEvenParity())
         if cSType == LatticeType.Honeycomb:
-            cmds.setAttr("%s.rotationOffset" % cylinderName, 240)
+            cmds.setAttr("%s.rotationOffset" % cylinderName, 250)
+            cmds.setAttr("%s.decoratorRotOffset" % cylinderName, 90)
         elif cSType == LatticeType.Square:
-            cmds.setAttr("%s.rotationOffset" % cylinderName, 115)
+            cmds.setAttr("%s.rotationOffset" % cylinderName, 125)
+            cmds.setAttr("%s.decoratorRotOffset" % cylinderName, 200)
         else:
             raise NotImplementedError
         cmds.setAttr("%s.strandType" % cylinderName, strandType)
@@ -203,6 +248,12 @@ class StrandItem(object):
         return (cylinderName, transformName, meshName)
 
     def updateColor(self, mID, colorname):
+        """
+        Update the color of the Maya's Mesh Node associated with a this
+        StrandItem, this is done by creating a shadingNode for each color or
+        connecting the Mesh Mode to an existing shadingNode if one exists
+        for a given color.
+        """
         m = Mom()
         meshName = "%s%s" % (m.helixMeshName, mID)
         color = QColor(colorname)
@@ -225,11 +276,15 @@ class StrandItem(object):
             cmds.sets(meshName, forceElement="%sSG" % shaderName)
 
     def updateSize(self):
+        """
+        Update Maya's Half Cylinder Node attributes related to the size
+        """
         mom = Mom()
         mID = mom.strandMayaID(self._modelStrand)
         cylinderName = "%s%s" % (mom.helixNodeName, mID)
         endpoints = self._modelStrand.idxs()
-        totalNumBases = self._virtualHelixItem.virtualHelix().part().maxBaseIdx()
+        totalNumBases = \
+                self._virtualHelixItem.virtualHelix().part().maxBaseIdx()
         cmds.setAttr("%s.startBase" % cylinderName,
                              endpoints[0])
 
