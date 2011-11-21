@@ -66,6 +66,8 @@ class helixManip( OpenMayaMPx.MPxManipContainer ):
     epIdx = 0   # back index in converter plug array
     #fFreePointManip = OpenMaya.MDagPath()
     newStrandSize = (0,0)
+    manipHandleOffset = 1
+    hardManipHandle = True
 
     def __init__( self ):
         OpenMayaMPx.MPxManipContainer.__init__( self )
@@ -188,7 +190,10 @@ class helixManip( OpenMayaMPx.MPxManipContainer ):
                 distance = self.computeDistance( self.sp, self.cp, self.frontDir )
                 finalPoint = OpenMaya.MVector()
                 finalPoint = OpenMaya.MVector( self.sp * m )
-                finalPoint += self.frontDir * distance
+                if( self.hardManipHandle ):
+                    finalPoint += self.frontDir * self.manipHandleOffset
+                else:
+                    finalPoint += self.frontDir * min(max(0, distance), self.manipHandleOffset)
                                 
                 #self.checkHelixDelta( distance )
                 
@@ -208,6 +213,27 @@ class helixManip( OpenMayaMPx.MPxManipContainer ):
                 numData.setData3Double( finalPoint.x, finalPoint.y, finalPoint.z )
                 manipData = OpenMayaUI.MManipData( numDataObj )
 
+            elif( manipIndex == backManip.currentPointIndex() ):
+                distance = self.computeDistance( self.ep, self.ecp, self.backDir )
+                
+                finalPoint = OpenMaya.MVector()
+                finalPoint = OpenMaya.MVector( self.ep * m )
+                if( self.hardManipHandle ):
+                    finalPoint += self.backDir * self.manipHandleOffset
+                else:
+                    finalPoint += self.backDir * min(max(0, distance), self.manipHandleOffset)
+
+                #endPos  = nodeFn.findPlug( "endPos" )
+                #endPoint = self.getFloat3PlugValue( endPos )
+                #ws = endPoint * m
+                #
+                numData = OpenMaya.MFnNumericData()
+                
+                numDataObj = numData.create( OpenMaya.MFnNumericData.k3Double )
+
+                numData.setData3Double( finalPoint.x, finalPoint.y, finalPoint.z )
+                manipData = OpenMayaUI.MManipData( numDataObj )
+
             elif( manipIndex == frontManip.startPointIndex() ):
                 startPos  = nodeFn.findPlug( "startPos" )
                 startPoint = self.getFloat3PlugValue( startPos )
@@ -218,23 +244,6 @@ class helixManip( OpenMayaMPx.MPxManipContainer ):
                 numDataObj = numData.create( OpenMaya.MFnNumericData.k3Float )
                 numData.setData3Float( ws.x, ws.y, ws.z )
                 #print "frontManip start to (%f, %f, %f)" % ( ws.x, ws.y, ws.z )
-                manipData = OpenMayaUI.MManipData( numDataObj )
-
-            elif( manipIndex == backManip.currentPointIndex() ):
-                distance = self.computeDistance( self.ep, self.ecp, self.backDir )
-                
-                finalPoint = OpenMaya.MVector()
-                finalPoint = OpenMaya.MVector( self.ep * m )
-                finalPoint += self.backDir * distance
-
-                #endPos  = nodeFn.findPlug( "endPos" )
-                #endPoint = self.getFloat3PlugValue( endPos )
-                #ws = endPoint * m
-                #
-                numData = OpenMaya.MFnNumericData()
-                
-                numDataObj = numData.create( OpenMaya.MFnNumericData.k3Double )
-                numData.setData3Double( finalPoint.x, finalPoint.y, finalPoint.z )
                 manipData = OpenMayaUI.MManipData( numDataObj )
                 
             elif( manipIndex == backManip.startPointIndex() ):
@@ -255,7 +264,7 @@ class helixManip( OpenMayaMPx.MPxManipContainer ):
         return manipData
 
     def manipToPlugConversion( self, plugIndex ):
-        #print "manipToPlugConversion", plugIndex
+        # print "manipToPlugConversion", plugIndex
         try:
             if( plugIndex == self.ffpIdx ): # front float plug
                 numData = OpenMaya.MFnNumericData()
@@ -276,7 +285,7 @@ class helixManip( OpenMayaMPx.MPxManipContainer ):
                 self.cp = cp * m
                 
                 # distance is...
-                distance = self.computeDistance( self.sp, self.cp, self.frontDir )
+                distance = self.computeDistance( self.sp, self.cp, self.frontDir ) - self.manipHandleOffset
                 
                 newIndex = self.getHelixDelta( distance )
                 self.dragDeltaFront = newIndex
@@ -288,8 +297,7 @@ class helixManip( OpenMayaMPx.MPxManipContainer ):
                 ## reset the distance to remainder, adjust start points
                 ## accordingly
  
- 
-                numData.setData3Double( cp.x, cp.y, cp.z ) # This doesn't do anything
+                numData.setData3Double( cp.x, cp.y, cp.z )
                 returnData = OpenMayaUI.MManipData( numDataObj )
             
             elif( plugIndex == self.epIdx ):
@@ -311,12 +319,12 @@ class helixManip( OpenMayaMPx.MPxManipContainer ):
                 self.ecp = ecp * m
 
                 # distance is...
-                distance = self.computeDistance( self.ep, self.ecp, self.backDir )
+                distance = self.computeDistance( self.ep, self.ecp, self.backDir ) - self.manipHandleOffset
                 
                 newIndex = self.getHelixDelta( distance )
                 self.resizeCNHelixBack( newIndex )
                 
-                #numData.setData3Double( ecp.x, ecp.y, ecp.z ) # This doesn't do anything
+                numData.setData3Double( ecp.x, ecp.y, ecp.z )
                 returnData = OpenMayaUI.MManipData( numDataObj )
         except:
             sys.stderr.write( "ERROR: helixManip.manipToPlugConversion\n" )
@@ -423,16 +431,16 @@ class helixManip( OpenMayaMPx.MPxManipContainer ):
         vecMinusZ = OpenMaya.MVector( 0.0, -1.5, 0.0 )
     
         scalingFactor = 1.0
-
+        
         freePointManipFront.setStartPoint( startPos )
-        freePointManipFront.setDrawStart( True )
+        freePointManipFront.setDrawStart( False )
         freePointManipFront.setScalingFactor( scalingFactor )
         freePointManipFront.setDirection( vecZ )
         freePointManipFront.rotateBy( q )
         freePointManipFront.setTranslation( trans, OpenMaya.MSpace.kWorld )
         
         freePointManipBack.setStartPoint( endPos )
-        freePointManipBack.setDrawStart( True )
+        freePointManipBack.setDrawStart( False )
         freePointManipBack.setScalingFactor( scalingFactor )
         freePointManipBack.setDirection( vecMinusZ + vecMinusZ )
         freePointManipBack.rotateBy( q )
