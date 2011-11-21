@@ -109,9 +109,9 @@ class helixManip( OpenMayaMPx.MPxManipContainer ):
             
             # hookup the converter functions
             self.addPlugToManipConversion( frontManip.startPointIndex() )
-            self.addPlugToManipConversion( frontManip.currentPointIndex() ) # not neccessary, but prevents dragging point from jittering
+            self.addPlugToManipConversion( frontManip.currentPointIndex() )
             self.addPlugToManipConversion( backManip.startPointIndex() )
-            self.addPlugToManipConversion( backManip.currentPointIndex() ) # not neccessary, but prevents dragging point from jittering
+            self.addPlugToManipConversion( backManip.currentPointIndex() )
 
             self.ffpIdx = self.addManipToPlugConversion( frontPlug )
             self.epIdx = self.addManipToPlugConversion( backPlug )
@@ -142,30 +142,14 @@ class helixManip( OpenMayaMPx.MPxManipContainer ):
         dagNodeFn = OpenMaya.MFnDagNode( node )
         dagNodeFn.getPath( self.fNodePath )
     
-    def computeDistanceFront( self, sp, cp ):
+    def computeDistance( self, sp, cp, dirv ):
         # sp - start point, cp - current point
         u = OpenMaya.MVector( sp )
         v = OpenMaya.MVector( cp )
         w = u - v
         m = self.getTransformMtxFromNode( self.helixTransform )
         wm = w*m
-        if( dotproduct(wm.normal(), self.frontDir.normal()) > 0 ):
-            dir = -1
-        else:
-            dir = 1
-        distance = w.length() * dir
-        #print "start point is (%f, %f, %f)" % ( sp.x, sp.y, sp.z )
-        #print "current point is (%f, %f, %f)" % ( cp.x, cp.y, cp.z )
-        return distance
-    
-    def computeDistanceBack( self, sp, cp ):
-        # sp - start point, cp - current point
-        u = OpenMaya.MVector( sp )
-        v = OpenMaya.MVector( cp )
-        w = u - v
-        m = self.getTransformMtxFromNode( self.helixTransform )
-        wm = w*m
-        if( dotproduct(wm.normal(), self.backDir.normal()) > 0 ):
+        if( dotproduct(wm.normal(), dirv.normal()) > 0 ):
             dir = -1
         else:
             dir = 1
@@ -176,13 +160,16 @@ class helixManip( OpenMayaMPx.MPxManipContainer ):
     
     def doRelease(self):
         #print "RELEASED"
-        self.newStrandSize = (0,0)
+        if (self.newStrandSize != (0,0)):
+            self.getStrand().resize( self.newStrandSize )
+            self.newStrandSize = (0,0)
         return OpenMaya.kUnknownParameter
 
     def doDrag(self):
         #print "DRAGGING"
         if (self.newStrandSize != (0,0)):
             self.getStrand().resize( self.newStrandSize )
+            self.newStrandSize = (0,0)
         return OpenMaya.kUnknownParameter
         
     def plugToManipConversion( self, manipIndex ):
@@ -198,7 +185,7 @@ class helixManip( OpenMayaMPx.MPxManipContainer ):
             nodeFn = OpenMaya.MFnDependencyNode( self.myNode )
 
             if( manipIndex == frontManip.currentPointIndex() ):
-                distance = self.computeDistanceFront( self.sp, self.cp )
+                distance = self.computeDistance( self.sp, self.cp, self.frontDir )
                 finalPoint = OpenMaya.MVector()
                 finalPoint = OpenMaya.MVector( self.sp * m )
                 finalPoint += self.frontDir * distance
@@ -234,7 +221,7 @@ class helixManip( OpenMayaMPx.MPxManipContainer ):
                 manipData = OpenMayaUI.MManipData( numDataObj )
 
             elif( manipIndex == backManip.currentPointIndex() ):
-                distance = self.computeDistanceBack( self.ep, self.ecp )
+                distance = self.computeDistance( self.ep, self.ecp, self.backDir )
                 
                 finalPoint = OpenMaya.MVector()
                 finalPoint = OpenMaya.MVector( self.ep * m )
@@ -289,7 +276,7 @@ class helixManip( OpenMayaMPx.MPxManipContainer ):
                 self.cp = cp * m
                 
                 # distance is...
-                distance = self.computeDistanceFront( self.sp, self.cp )
+                distance = self.computeDistance( self.sp, self.cp, self.frontDir )
                 
                 newIndex = self.getHelixDelta( distance )
                 self.dragDeltaFront = newIndex
@@ -324,7 +311,7 @@ class helixManip( OpenMayaMPx.MPxManipContainer ):
                 self.ecp = ecp * m
 
                 # distance is...
-                distance = self.computeDistanceBack( self.ep, self.ecp )
+                distance = self.computeDistance( self.ep, self.ecp, self.backDir )
                 
                 newIndex = self.getHelixDelta( distance )
                 self.resizeCNHelixBack( newIndex )
