@@ -89,7 +89,6 @@ class PartItem(QGraphicsRectItem):
 
     def _initSelections(self):
         """Initialize anything related to multiple selection."""
-        self._selectionLock = None
         bType = PathHelixHandleSelectionBox
         self._vhiHSelectionGroup = SelectionItemGroup(boxtype=bType,\
                                                       constraint='y',\
@@ -411,11 +410,11 @@ class PartItem(QGraphicsRectItem):
     # end def
 
     def selectionLock(self):
-        return self._selectionLock
+        return self.scene().views()[0].selectionLock()
     # end def
 
     def setSelectionLock(self, locker):
-        self._selectionLock = locker
+        self.scene().views()[0].setSelectionLock(locker)
     # end def
 
     def setPreXoverItemsVisible(self, virtualHelixItem):

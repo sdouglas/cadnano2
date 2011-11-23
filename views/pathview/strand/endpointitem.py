@@ -103,7 +103,7 @@ class EndpointItem(QGraphicsPathItem):
         cA.mouseMoveEvent = self.mouseMoveEvent
         cA.setPen(_noPen)
         
-        #self.setFlag(QGraphicsItem.ItemIsSelectable)
+        self.setFlag(QGraphicsItem.ItemIsSelectable)
         # self.setFlag(QGraphicsItem.ItemSendsScenePositionChanges)
     # end def
 
@@ -180,6 +180,7 @@ class EndpointItem(QGraphicsPathItem):
         Parses a mousePressEvent, calling the approproate tool method as
         necessary. Stores _moveIdx for future comparison.
         """
+        print "boo"
         self.scene().views()[0].addToPressList(self)
         self._strandItem.virtualHelixItem().setActive()
         self._moveIdx = self.idx()
@@ -352,21 +353,17 @@ class EndpointItem(QGraphicsPathItem):
 
         # map the position
         vhItem = self._strandItem.virtualHelixItem()
-        parentItem = self.parentItem()
-        if parentItem:
-            if pos == None:
-                tempP = vhItem.mapFromItem(self.parentItem(), self.pos())
-            else:
-                tempP = vhItem.mapToItem(self.parentItem(), pos)
+        if pos == None:
+            pos = self.scenePos()
         self.setParentItem(vhItem)            
+        tempP = vhItem.mapFromScene(pos)
+        self.setPos(tempP)
         self.penAndBrushSet(False)
-        if parentItem:
-            self.setPos(tempP)
         
         assert(self.parentItem() == vhItem)
         # print "restore", self.parentItem(), self.group()
         assert(self.group() == None)
-        
+
         self.setSelected(False)
     # end def
     
@@ -381,43 +378,33 @@ class EndpointItem(QGraphicsPathItem):
         self.update(self.boundingRect())
     # end def
 
-    # def itemChange(self, change, value):
-    #     # for selection changes test against QGraphicsItem.ItemSelectedChange
-    #     # intercept the change instead of the has changed to enable features.
-    #     partItem = self.partItem()
-    #     if change == QGraphicsItem.ItemSelectedHasChanged and self.scene():
-    #         selectionGroup = partItem.strandItemSelectionGroup()
-    #         lock = selectionGroup.partItem().selectionLock()
-    # 
-    #         # only add if the selectionGroup is not locked out
-    #         if value == True and (lock == None or lock == selectionGroup):
-    #             if self.group() != selectionGroup:
-    #                 #print "preadd", self.parentItem(), self.group()
-    #                 selectionGroup.addToGroup(self)
-    #                 # print "postadd", self.parentItem(), self.group()
-    #                 selectionGroup.partItem().setSelectionLock(selectionGroup)
-    #                 self.penAndBrushSet(True)
-    #                 return
-    #         # end if
-    #         else:
-    #             # print "deselect", self.parentItem(), self.group()
-    #             self.penAndBrushSet(False)
-    #             return
-    #         # end else
-    #     # end if
-    #     elif change == QGraphicsItem.ItemSelectedChange and self.scene():
-    #         selectionGroup = partItem.strandItemSelectionGroup()
-    #         temp = selectionGroup.partItem()
-    #         lock = temp.selectionLock() if temp else None
-    # 
-    #         if value == True and (lock == None or lock == selectionGroup):
-    #             self.penAndBrushSet(True)
-    #             return True
-    #         # end if
-    #         else:
-    #             self.penAndBrushSet(False)
-    #             return False
-    #         # end else
-    #     # end elif
-    #     return QGraphicsItem.itemChange(self, change, value)
-    # # end def
+    def itemChange(self, change, value):
+        # for selection changes test against QGraphicsItem.ItemSelectedChange
+        # intercept the change instead of the has changed to enable features.
+        partItem = self.partItem()
+        if change == QGraphicsItem.ItemSelectedHasChanged and self.scene():
+            selectionGroup = partItem.strandItemSelectionGroup()
+            lock = selectionGroup.partItem().selectionLock()
+    
+            # only add if the selectionGroup is not locked out
+            if value == True and (lock == None or lock == selectionGroup):
+                if self.group() != selectionGroup:
+                    # print "preadd", self.parentItem(), self.group(), self.pos().y()
+                    # selectionGroup.addToGroup(self)
+                    selectionGroup.pendToAdd(self)
+                    # print "postadd", self.parentItem(), self.group(), self.pos().y()
+                    selectionGroup.partItem().setSelectionLock(selectionGroup)
+                    self.penAndBrushSet(True)
+                    return
+            # end if
+            elif value == True:
+                self.setSelected(False)
+            else:
+                # print "deselect", self.parentItem(), self.group(), self.pos()
+                selectionGroup.pendToRemove(self)
+                self.penAndBrushSet(False)
+                return
+            # end else
+        # end if
+        return QGraphicsPathItem.itemChange(self, change, value)
+    # end def

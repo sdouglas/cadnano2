@@ -190,15 +190,14 @@ class VirtualHelixHandleItem(QGraphicsEllipseItem):
         # map the position
         partItem = self._partItem
         if pos == None:
-            tempP = partItem.mapFromItem(self.parentItem(), self.pos())
-        else:
-            tempP = partItem.mapToItem(self.parentItem(), pos)
+            pos = self.scenePos()
         self.setParentItem(partItem)
         self.penAndBrushSet(False)
 
         assert(self.parentItem() == partItem)
         # print "restore", self.number(), self.parentItem(), self.group()
         assert(self.group() == None)
+        tempP = partItem.mapFromScene(pos)
         self.setPos(tempP)
         self.setSelected(False)
     # end def
@@ -216,33 +215,22 @@ class VirtualHelixHandleItem(QGraphicsEllipseItem):
             if value == True and (lock == None or lock == selectionGroup):
                 if self.group() != selectionGroup:
                     # print "preadd", self.number(), self.parentItem(), self.group()
-                    selectionGroup.addToGroup(self)
+                    # selectionGroup.addToGroup(self)
+                    selectionGroup.pendToAdd(self)
                     # print "postadd", self.number(), self.parentItem(), self.group()
                     selectionGroup.partItem().setSelectionLock(selectionGroup)
                     self.penAndBrushSet(True)
                     return
             # end if
+            elif value == True:
+                self.setSelected(False)
             else:
                 # print "deselect", self.number(), self.parentItem(), self.group()
+                selectionGroup.pendToRemove(self)
                 self.penAndBrushSet(False)
                 return
             # end else
         # end if
-        elif change == QGraphicsItem.ItemSelectedChange and self.scene():
-            selectionGroup = partItem.vhiHandleSelectionGroup()
-
-            temp = selectionGroup.partItem()
-            lock = temp.selectionLock() if temp else None
-
-            if value == True and (lock == None or lock == selectionGroup):
-                self.penAndBrushSet(True)
-                return True
-            # end if
-            else:
-                self.penAndBrushSet(False)
-                return False
-            # end else
-        # end elif
         return QGraphicsEllipseItem.itemChange(self, change, value)
     # end def
 # end class
