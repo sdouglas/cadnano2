@@ -38,6 +38,7 @@ from ui.mainwindow.svgbutton import SVGButton
 from views import styles
 from virtualhelixitem import VirtualHelixItem
 import util
+from cadnano import app
 
 # import Qt stuff into the module namespace with PySide, PyQt4 independence
 util.qtWrapImport('QtCore', globals(), ['pyqtSlot', 'QPointF', 'QRectF', 'Qt'])
@@ -273,6 +274,9 @@ class PartItem(QGraphicsRectItem):
         del self._addBasesDialog
         maxDelta = int(n) / part.stepSize() * part.stepSize()
         part.resizeVirtualHelices(0, maxDelta)
+        if app().isInMaya():
+            import maya.cmds as cmds
+            cmds.select(clear=True)
     # end def
 
     def _removeBasesClicked(self):
@@ -283,6 +287,9 @@ class PartItem(QGraphicsRectItem):
         delta = idx - part.maxBaseIdx()
         if delta < 0:
             part.resizeVirtualHelices(0, delta)
+            if app().isInMaya():
+                import maya.cmds as cmds
+                cmds.select(clear=True)
     # end def
 
     def _setVirtualHelixItemList(self, newList, zoomToFit=True):

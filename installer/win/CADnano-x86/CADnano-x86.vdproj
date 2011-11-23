@@ -314,15 +314,15 @@
         {
         "Name" = "8:Microsoft Visual Studio"
         "ProductName" = "8:CADnano2"
-        "ProductCode" = "8:{91F5C397-1D0A-4835-9C6F-713F027CE506}"
-        "PackageCode" = "8:{A193B35D-5CA9-4086-B6B9-5FB061C16CFD}"
+        "ProductCode" = "8:{2D4F00B4-1652-42B2-9402-13818517D1B4}"
+        "PackageCode" = "8:{9096FD7A-4B52-4112-A2C3-9EC1EAE6BEED}"
         "UpgradeCode" = "8:{1DD60FBB-A9DC-4BCF-80D7-63553B60403C}"
         "AspNetVersion" = "8:4.0.30319.0"
         "RestartWWWService" = "11:FALSE"
         "RemovePreviousVersions" = "11:TRUE"
         "DetectNewerInstalledVersion" = "11:TRUE"
         "InstallAllUsers" = "11:TRUE"
-        "ProductVersion" = "8:2.0.6"
+        "ProductVersion" = "8:2.0.7"
         "Manufacturer" = "8:CADnano Team"
         "ARPHELPTELEPHONE" = "8:"
         "ARPHELPLINK" = "8:"
@@ -1049,7 +1049,7 @@
             }
             "{5259A561-127C-4D43-A0A1-72F10C7B3BF8}:_D3472111604B4E3BBABD910AA2B186A5"
             {
-            "SourcePath" = "8:..\\PyQt-x86 (Standard)\\Release\\PyQt-x86 (Standard).msm"
+            "SourcePath" = "8:..\\PyQt-x86 (Standard)\\Debug\\PyQt-x86 (Standard).msm"
             "TargetName" = "8:"
             "Tag" = "8:"
             "Folder" = "8:_D6E43118FEC84BA3981C8357DCC5D048"

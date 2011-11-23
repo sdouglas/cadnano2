@@ -30,6 +30,7 @@ from cadnano import app
 import maya.cmds as cmds
 import util
 
+
 class Mom(object):
     """
     A singleton manager for tracking maya to cadnano and reverse lookups of
@@ -38,12 +39,12 @@ class Mom(object):
     _instance = None
     strandCount = 0
     selectionCountCache = 0
-    
+
     def __new__(cls, *args, **kwargs):
         if not cls._instance:
             cls._instance = super(Mom, cls).__new__(cls, *args, **kwargs)
         return cls._instance
-        
+
     def myId(self):
         return id(self)
 

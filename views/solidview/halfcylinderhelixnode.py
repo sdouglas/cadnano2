@@ -388,8 +388,9 @@ def nodeInitialize():
     unitFn.setMin(-2 * math.pi)
     unitFn.setMax(2 * math.pi)
     unitFn.setStorable(True)
-    
-    HalfCylinderHelixNode.decRotOffsetAttr = unitFn.create('decoratorRotOffset',
+
+    HalfCylinderHelixNode.decRotOffsetAttr = unitFn.create(
+                                    'decoratorRotOffset',
                                     'decrotoff',
                                     OpenMaya.MFnUnitAttribute.kAngle,
                                     math.pi / 9)
@@ -498,7 +499,7 @@ def nodeInitialize():
 
 
 def initializePlugin(obj):
-    """Initialize the Plugin""" 
+    """Initialize the Plugin"""
     plugin = OpenMayaMPx.MFnPlugin(obj)
     try:
         plugin.registerNode(nodeName, id, nodeCreator, nodeInitialize)
@@ -508,7 +509,7 @@ def initializePlugin(obj):
 
 
 def uninitializePlugin(obj):
-    """Uninitialize the Plugin""" 
+    """Uninitialize the Plugin"""
     plugin = OpenMayaMPx.MFnPlugin(obj)
     try:
         plugin.deregisterNode(id)

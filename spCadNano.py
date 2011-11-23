@@ -84,7 +84,7 @@ class closeCadNano(OpenMayaMPx.MPxCommand):
 
 def onExitingMaya(clientData):
     closeCN()
-    mel.eval( "savePrefs;" )
+    mel.eval("savePrefs;")
 
 
 def onHideEvent():
