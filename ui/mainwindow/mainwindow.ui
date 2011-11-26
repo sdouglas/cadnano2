@@ -39,11 +39,11 @@
     <bool>false</bool>
    </property>
    <layout class="QGridLayout" name="gridLayout">
-    <property name="margin">
-     <number>0</number>
-    </property>
     <property name="horizontalSpacing">
      <number>6</number>
+    </property>
+    <property name="margin">
+     <number>0</number>
     </property>
     <item row="0" column="0">
      <widget class="QSplitter" name="splitter">
@@ -169,7 +169,7 @@
      <x>0</x>
      <y>0</y>
      <width>1075</width>
-     <height>21</height>
+     <height>22</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuFile">
@@ -258,6 +258,10 @@
    <addaction name="separator"/>
    <addaction name="actionAutoStaple"/>
    <addaction name="actionModify"/>
+   <addaction name="separator"/>
+   <addaction name="actionFilterPart"/>
+   <addaction name="actionFilterEndpoint"/>
+   <addaction name="actionFilterXover"/>
   </widget>
   <widget class="QToolBar" name="rightToolBar">
    <property name="sizePolicy">
@@ -723,6 +727,51 @@
   <action name="actionFeedback">
    <property name="text">
     <string>Feedback</string>
+   </property>
+  </action>
+  <action name="actionFilterPart">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="icon">
+    <iconset resource="icons.qrc">
+     <normaloff>:/parttools/filter-part</normaloff>:/parttools/filter-part</iconset>
+   </property>
+   <property name="text">
+    <string>Parts</string>
+   </property>
+   <property name="toolTip">
+    <string>Part-selection mode</string>
+   </property>
+  </action>
+  <action name="actionFilterEndpoint">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="icon">
+    <iconset resource="icons.qrc">
+     <normaloff>:/parttools/filter-endpoint</normaloff>:/parttools/filter-endpoint</iconset>
+   </property>
+   <property name="text">
+    <string>Ends</string>
+   </property>
+   <property name="toolTip">
+    <string>Endpoint-selection mode</string>
+   </property>
+  </action>
+  <action name="actionFilterXover">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="icon">
+    <iconset resource="icons.qrc">
+     <normaloff>:/parttools/filter-xover</normaloff>:/parttools/filter-xover</iconset>
+   </property>
+   <property name="text">
+    <string>Xovers</string>
+   </property>
+   <property name="toolTip">
+    <string>Xover-selection mode</string>
    </property>
   </action>
  </widget>

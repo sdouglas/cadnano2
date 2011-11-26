@@ -34,10 +34,10 @@ class AssemblyItemController():
         aI = self._assemblyItem
         mA.assemblyPartAddedSignal.connect(aI.partAddedSlot)
         mA.assemblyMovedSignal.connect(aI.assemblyMovedSlot)
-        mA.assemblyDestroyedSignal.connect(aI.assemblyDestroyedSlot)
+        mA.assemblyRemovedSignal.connect(aI.assemblyRemovedSlot)
 
     def disconnectSignals(self):
         mA = self._modelAssembly
         mA.assemblyPartAddedSignal.disconnect(aI.partAddedSlot)
         mA.assemblyMovedSignal.disconnect(aI.assemblyMovedSlot)
-        mA.assemblyDestroyedSignal.disconnect(aI.assemblyDestroyedSlot)
+        mA.assemblyRemovedSignal.disconnect(aI.assemblyRemovedSlot)

@@ -134,14 +134,6 @@ class StrandItem(object):
         self._controller = None
     # end def
 
-    def strandDestroyedSlot(self, strand):
-        """strandDestroyedSlot - empty"""
-        pass
-
-    def strandXover5pRemovedSlot(self, strand):
-        """strandXover5pRemovedSlot - empty"""
-        pass
-
     def oligoAppearanceChangedSlot(self, oligo):
         """
         Receives notification from the model when a oligo changes appearance.

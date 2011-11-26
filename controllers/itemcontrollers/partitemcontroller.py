@@ -37,7 +37,7 @@ class PartItemController(object):
             mP.partHideSignal.connect(pI.partHideSlot)
         if hasattr(pI, "partActiveVirtualHelixChangedSlot"):
             mP.partActiveVirtualHelixChangedSignal.connect(pI.partActiveVirtualHelixChangedSlot)
-        mP.partDestroyedSignal.connect(pI.partDestroyedSlot)
+
         mP.partDimensionsChangedSignal.connect(pI.partDimensionsChangedSlot)
         mP.partParentChangedSignal.connect(pI.partParentChangedSlot)
         mP.partPreDecoratorSelectedSignal.connect(pI.partPreDecoratorSelectedSlot)
@@ -57,7 +57,7 @@ class PartItemController(object):
             mP.partHideSignal.disconnect(pI.partHideSlot)
         if hasattr(pI, "partActiveVirtualHelixChangedSlot"):
             mP.partActiveVirtualHelixChangedSignal.disconnect(pI.partActiveVirtualHelixChangedSlot)
-        mP.partDestroyedSignal.disconnect(pI.partDestroyedSlot)
+
         mP.partDimensionsChangedSignal.disconnect(pI.partDimensionsChangedSlot)
         mP.partParentChangedSignal.disconnect(pI.partParentChangedSlot)
         mP.partPreDecoratorSelectedSignal.disconnect(pI.partPreDecoratorSelectedSlot)

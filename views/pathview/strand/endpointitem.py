@@ -28,13 +28,16 @@
 from exceptions import NotImplementedError
 from math import floor
 from views import styles
+
+import views.pathview.pathselection as pathselection
+
 import util
 # import Qt stuff into the module namespace with PySide, PyQt4 independence
 util.qtWrapImport('QtCore', globals(), ['pyqtSignal', 'QObject', 'QPointF',
                                         'QRectF', 'Qt'])
-util.qtWrapImport('QtGui', globals(), ['QGraphicsPathItem', 'QPen', \
+util.qtWrapImport('QtGui', globals(), ['QGraphicsPathItem', 'QPen', 'QGraphicsItem', \
                                         'QPainterPath', 'QPolygonF', \
-                                        'QGraphicsRectItem'])
+                                        'QGraphicsRectItem', 'QBrush', 'QColor'])
 
 _baseWidth = styles.PATH_BASE_WIDTH
 
@@ -84,7 +87,7 @@ class EndpointItem(QGraphicsPathItem):
     def __init__(self, strandItem, captype, isDrawn5to3):
         """The parent should be a StrandItem."""
         super(EndpointItem, self).__init__(strandItem.virtualHelixItem())
-        # super(EndpointItem, self).__init__(strandItem)
+
         self._strandItem = strandItem
         self._activeTool = strandItem.activeTool()
         self._capType = captype
@@ -99,6 +102,9 @@ class EndpointItem(QGraphicsPathItem):
         cA.mousePressEvent = self.mousePressEvent
         cA.mouseMoveEvent = self.mouseMoveEvent
         cA.setPen(_noPen)
+        
+        self.setFlag(QGraphicsItem.ItemIsSelectable)
+        # self.setFlag(QGraphicsItem.ItemSendsScenePositionChanges)
     # end def
 
     def __repr__(self):
@@ -115,6 +121,10 @@ class EndpointItem(QGraphicsPathItem):
             return self._strandItem.idxs()[0]
         else:  # high or dual, doesn't matter
             return self._strandItem.idxs()[1]
+    # end def
+    
+    def partItem(self):
+        return self._strandItem.partItem()
     # end def
 
     def disableEvents(self):
@@ -170,6 +180,7 @@ class EndpointItem(QGraphicsPathItem):
         Parses a mousePressEvent, calling the approproate tool method as
         necessary. Stores _moveIdx for future comparison.
         """
+        print "boo"
         self.scene().views()[0].addToPressList(self)
         self._strandItem.virtualHelixItem().setActive()
         self._moveIdx = self.idx()
@@ -335,3 +346,65 @@ class EndpointItem(QGraphicsPathItem):
         mStrand.addInsertion(idx, -1)
     # end def
 
+    def restoreParent(self, pos=None):
+        """
+        Required to restore parenting and positioning in the partItem
+        """
+
+        # map the position
+        vhItem = self._strandItem.virtualHelixItem()
+        if pos == None:
+            pos = self.scenePos()
+        self.setParentItem(vhItem)            
+        tempP = vhItem.mapFromScene(pos)
+        self.setPos(tempP)
+        self.penAndBrushSet(False)
+        
+        assert(self.parentItem() == vhItem)
+        # print "restore", self.parentItem(), self.group()
+        assert(self.group() == None)
+
+        self.setSelected(False)
+    # end def
+    
+    def penAndBrushSet(self, value):
+        if value == True:
+            brush = QBrush(QColor("#cccccc"))
+        else:
+            oligo = self._strandItem.strand().oligo()
+            color = QColor(oligo.color())
+            brush = QBrush(color)
+        self.setBrush(brush)
+        self.update(self.boundingRect())
+    # end def
+
+    def itemChange(self, change, value):
+        # for selection changes test against QGraphicsItem.ItemSelectedChange
+        # intercept the change instead of the has changed to enable features.
+        partItem = self.partItem()
+        if change == QGraphicsItem.ItemSelectedHasChanged and self.scene():
+            selectionGroup = partItem.strandItemSelectionGroup()
+            lock = selectionGroup.partItem().selectionLock()
+    
+            # only add if the selectionGroup is not locked out
+            if value == True and (lock == None or lock == selectionGroup):
+                if self.group() != selectionGroup:
+                    # print "preadd", self.parentItem(), self.group(), self.pos().y()
+                    # selectionGroup.addToGroup(self)
+                    selectionGroup.pendToAdd(self)
+                    # print "postadd", self.parentItem(), self.group(), self.pos().y()
+                    selectionGroup.partItem().setSelectionLock(selectionGroup)
+                    self.penAndBrushSet(True)
+                    return
+            # end if
+            elif value == True:
+                self.setSelected(False)
+            else:
+                # print "deselect", self.parentItem(), self.group(), self.pos()
+                selectionGroup.pendToRemove(self)
+                self.penAndBrushSet(False)
+                return
+            # end else
+        # end if
+        return QGraphicsPathItem.itemChange(self, change, value)
+    # end def

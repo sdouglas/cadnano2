@@ -39,7 +39,7 @@ class ObjectInstance(QObject):
     # end def
 
     ### SIGNALS ###
-    objinstanceDestroyedSignal = pyqtSignal(QObject)  # self
+    objinstanceRemovedSignal = pyqtSignal(QObject)  # self
     objinstanceMovedSignal = pyqtSignal(QObject)  # self
     objinstanceParentChangedSignal = pyqtSignal(QObject)  # new parent
 
@@ -49,7 +49,7 @@ class ObjectInstance(QObject):
     def undoStack(self):
         return self._document.undoStack()
 
-    def destroy(self):
+    def remove(self):
         # QObject also emits a destroyed() Signal
         self.setParent(None)
         self.deleteLater()

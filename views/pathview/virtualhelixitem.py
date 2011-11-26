@@ -62,6 +62,7 @@ class VirtualHelixItem(QGraphicsPathItem):
         self.setPen(_gridPen)
         self.setPath(self._gridPainterPath)
         self.setAcceptHoverEvents(True)  # for pathtools
+        self.setZValue(styles.ZPATHHELIX)
     # end def
 
     ### SIGNALS ###
@@ -209,6 +210,7 @@ class VirtualHelixItem(QGraphicsPathItem):
         Parses a mousePressEvent to extract strandSet and base index,
         forwarding them to approproate tool method as necessary.
         """
+        print "vhi mp"
         self.scene().views()[0].addToPressList(self)
         self.setActive()
         toolMethodName = str(self._activeTool()) + "MousePress"

@@ -105,13 +105,11 @@ class Part(QObject):
     ### SIGNALS ###
     partActiveSliceIndexSignal = pyqtSignal(QObject, int)  # self, index
     partActiveSliceResizeSignal = pyqtSignal(QObject)      # self
-    partDestroyedSignal = pyqtSignal(QObject)              # self
     partDimensionsChangedSignal = pyqtSignal(QObject)      # self
     partInstanceAddedSignal = pyqtSignal(QObject)          # self
     partParentChangedSignal = pyqtSignal(QObject)          # self
     partPreDecoratorSelectedSignal = pyqtSignal(int, int, int)  # row,col,idx
     partRemovedSignal = pyqtSignal(QObject)                # self
-    partSequenceClearedSignal = pyqtSignal(QObject)        # self
     partStrandChangedSignal = pyqtSignal(QObject)          # virtualHelix
     partVirtualHelixAddedSignal = pyqtSignal(QObject)      # virtualhelix
     partVirtualHelixRenumberedSignal = pyqtSignal(tuple)   # coord

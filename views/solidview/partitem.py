@@ -136,11 +136,6 @@ class PartItem(object):
     # end def
 
     ### SLOTS ###
-    def partDestroyedSlot(self, part):
-        """partDestroyedSlot - empty"""
-        pass
-    # end def
-
     def partDimensionsChangedSlot(self, part):
         """
         Receives notification from the model when a dimentions of the part
