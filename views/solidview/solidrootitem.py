@@ -58,10 +58,11 @@ class SolidRootItem(object):
         self._partItems[partItem] = True
         self.setModifyState(self._modifyState)
 
-    def selectedPartChangedSlot(self, modelPart):
-        """Given a newly selected modelPart"""
-        # print "SolidRootItem.selectedPartChangedSlot"
+    def selectedChangedSlot(self, itemDict):
+        """docstring for selectedChangedSlot"""
         pass
+    # end def
+
 
     ### METHODS ###
     def partItems(self):

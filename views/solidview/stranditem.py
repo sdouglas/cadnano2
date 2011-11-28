@@ -197,6 +197,10 @@ class StrandItem(object):
     def strandModifierRemovedSlot(self, strand, index):
         """strandModifierRemovedSlot - empty"""
         pass
+        
+    def selectedChangedSlot(self, strand, indices):
+        pass
+    # end def
 
     ### METHODS ###
     def createMayaHelixNodes(self, x, y, colorname, strandType, mID):

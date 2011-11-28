@@ -201,6 +201,10 @@ class StrandItem(QGraphicsLineItem):
     def strandModifierRemovedSlot(self, strand, index):
         pass
     # end def
+    
+    def selectedChangedSlot(self, strand, indices):
+        self.selectXoverIfRequired(self.partItem().document())
+    # end def
 
     ### ACCESSORS ###
     def activeTool(self):
@@ -606,39 +610,37 @@ class StrandItem(QGraphicsLineItem):
     # end def
     
     def penAndBrushSet(self, value):
-        pen = self.pen()
         if value == True:
             color = QColor("#cccccc")
         else:
             oligo = self._modelStrand.oligo()
             color = QColor(oligo.color())
+        pen = self.pen()
         pen.setColor(color)
         self.setPen(pen)
-        self.update(self.boundingRect())
     # end def
 
     def itemChange(self, change, value):
         # for selection changes test against QGraphicsItem.ItemSelectedChange
         # intercept the change instead of the has changed to enable features.
-        partItem = self.partItem()
         if change == QGraphicsItem.ItemSelectedChange and self.scene():
+            partItem = self.partItem()
             selectionGroup = partItem.strandItemSelectionGroup()
-            lock = selectionGroup.partItem().selectionLock()
+            lock = selectionGroup.selectionLock()
             # only add if the selectionGroup is not locked out
             if value == True and (lock == None or lock == selectionGroup):
                 if self.group() != selectionGroup:
-                    #print "preadd", self.parentItem(), self.group()
-                    # selectionGroup.addToGroup(self)
+                    # print "preadd", self.parentItem(), self.group()
                     selectionGroup.pendToAdd(self)
                     # print "postadd", self.parentItem(), self.group()
-                    selectionGroup.partItem().setSelectionLock(selectionGroup)
+                    selectionGroup.setSelectionLock(selectionGroup)
                     self.penAndBrushSet(True)
                     selectionGroup.pendToAdd(self._lowCap)
                     selectionGroup.pendToAdd(self._highCap)
                     return True
             # end if
             elif value == True:
-                self.setSelected(False)
+                return False
             else:
                 # print "deselect", self.parentItem(), self.group()
                 selectionGroup.pendToRemove(self)
@@ -649,4 +651,28 @@ class StrandItem(QGraphicsLineItem):
             # end else
         # end if
         return QGraphicsItem.itemChange(self, change, value)
+    # end def
+    
+    def selectXoverIfRequired(self, document):
+        con3p = self._modelStrand.connection3p()
+        selectionGroup = self.partItem().strandItemSelectionGroup()
+        # check this strands xover
+        if con3p:
+            if document.isModelSelected(con3p):
+                selectionGroup.setForceSelect()
+                self._xover3pEnd.modelSelect(document)
+                selectionGroup.addToGroup(self._xover3pEnd)
+                selectionGroup.setNormalSelect()
+            # end if
+        # end if
+    # end def
+    
+    def modelDeselect(self, document):
+        self.restoreParent()
+        self._lowCap.modelDeselect(document)
+        self._highCap.modelDeselect(document)
+    # end def
+    
+    def modelSelect(self, document):
+        self.setSelected(True)
     # end def

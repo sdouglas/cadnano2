@@ -180,7 +180,6 @@ class ActiveSliceItem(QGraphicsRectItem):
             event.ignore()
             QGraphicsItem.mousePressEvent(self, event)
             return
-
         self.scene().views()[0].addToPressList(self)
         self._moveIdx = int(floor((self.x()+event.pos().x()) / _baseWidth))
         toolMethodName = str(self._activeTool()) + "MousePress"

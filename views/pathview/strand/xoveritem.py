@@ -248,6 +248,8 @@ class XoverItem(QGraphicsPathItem):
         self._node5 = None
         self._node3 = None
         self.hide()
+        
+        self.setFlag(QGraphicsItem.ItemIsSelectable)
     # end def
 
     ### SLOTS ###
@@ -427,4 +429,120 @@ class XoverItem(QGraphicsPathItem):
         self._virtualHelixItem.part().removeXover(strand5p, strand3p)
     # end def
 
+    def restoreParent(self, pos=None):
+        """
+        Required to restore parenting and positioning in the partItem
+        """
+
+        # map the position
+        partItem = self._virtualHelixItem.partItem()
+        if pos == None:
+            pos = self.scenePos()
+        self.setParentItem(partItem)            
+        tempP = partItem.mapFromScene(pos)
+        self.setPos(tempP)
+        self.penAndBrushSet(False)
+        
+        assert(self.parentItem() == partItem)
+        # print "restore", self.parentItem(), self.group()
+        assert(self.group() == None)
+
+        self.setSelected(False)
+    # end def
+    
+    def penAndBrushSet(self, value):
+        if value == True:
+            color = QColor("#cccccc")
+        else:
+            oligo = self._strandItem.strand().oligo()
+            color = QColor(oligo.color())
+        pen = self.pen()
+        pen.setColor(color)
+        self.setPen(pen)
+    # end def
+
+    def itemChange(self, change, value):
+        # for selection changes test against QGraphicsItem.ItemSelectedChange
+        # intercept the change instead of the has changed to enable features.
+        if change == QGraphicsItem.ItemSelectedChange and self.scene():
+            partItem = self._virtualHelixItem.partItem()
+            selectionGroup = partItem.strandItemSelectionGroup()
+            lock = selectionGroup.selectionLock()
+    
+            # only add if the selectionGroup is not locked out
+            if value == True and (lock == None or lock == selectionGroup):
+                if self.group() != selectionGroup:
+                    # print "preadd", self.parentItem(), self.group(), self.pos().y()
+                    if selectionGroup.isNormalSelect():
+                        selectionGroup.pendToAdd(self)
+                        # print "postadd", self.parentItem(), self.group(), self.pos().y()
+                        selectionGroup.setSelectionLock(selectionGroup)
+                    self.penAndBrushSet(True)
+                    return True
+            # end if
+            elif value == True:
+                return False
+            else:
+                # print "deselect", self.parentItem(), self.group(), self.pos()
+                # Check if the strand is being added to the selection group still
+                selectionGroup.pendToRemove(self)
+                self.penAndBrushSet(False)
+                return False
+            # end else
+        # end if
+        return QGraphicsPathItem.itemChange(self, change, value)
+    # end def
+    
+    def modelDeselect(self, document):
+        strand5p = self._strand5p
+        strand3p = strand5p.connection3p()
+        selectDict = document.selectionDict()
+        
+        test5p = strand5p in selectDict
+        lowVal5p, highVal5p = selectDict[strand5p] if test5p else False, False
+        if strand5p.isDrawn5to3():
+            highVal5p = False
+        else:
+            lowVal5p = False
+        test3p = strand3p in selectDict
+        lowVal3p, highVal3p = selectDict[strand3p] if test3p else False, False
+        if strand3p.isDrawn5to3():
+            lowVal3p = False
+        else:
+            highVal3p = False
+
+        if not lowVal5p and not highVal5p and test5p:
+            document.removeFromSelection(strand5p)
+        else:
+            document.addToSelection(strand5p, (lowVal5p, highVal5p))
+        if not lowVal3p and not highVal3p and test3p:
+            document.removeFromSelection(strand3p)
+        else:
+            document.addToSelection(strand3p, (lowVal3p, highVal3p))
+        self.restoreParent()
+    # end def
+    
+    def modelSelect(self, document):
+        strand5p = self._strand5p
+        strand3p = strand5p.connection3p()
+        selectDict = document.selectionDict()
+        
+        test5p = strand5p in selectDict
+        lowVal5p, highVal5p = selectDict[strand5p] if test5p else False, False
+        if strand5p.isDrawn5to3():
+            highVal5p = True
+        else:
+            lowVal5p = True
+        test3p = strand3p in selectDict
+        lowVal3p, highVal3p = selectDict[strand3p] if test3p else False, False
+        if strand3p.isDrawn5to3():
+            lowVal3p = True
+        else:
+            highVal3p = True
+        
+        self.setSelected(True)
+        document.addToSelection(strand5p, (lowVal5p, highVal5p))
+        document.addToSelection(strand3p, (lowVal3p, highVal3p))
+    # end def
+    
 # end class XoverItem
