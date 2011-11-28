@@ -180,7 +180,6 @@ class EndpointItem(QGraphicsPathItem):
         Parses a mousePressEvent, calling the approproate tool method as
         necessary. Stores _moveIdx for future comparison.
         """
-        print "boo"
         self.scene().views()[0].addToPressList(self)
         self._strandItem.virtualHelixItem().setActive()
         self._moveIdx = self.idx()
@@ -377,12 +376,12 @@ class EndpointItem(QGraphicsPathItem):
         self.setBrush(brush)
         self.update(self.boundingRect())
     # end def
-
+    
     def itemChange(self, change, value):
         # for selection changes test against QGraphicsItem.ItemSelectedChange
         # intercept the change instead of the has changed to enable features.
         partItem = self.partItem()
-        if change == QGraphicsItem.ItemSelectedHasChanged and self.scene():
+        if change == QGraphicsItem.ItemSelectedChange and self.scene():
             selectionGroup = partItem.strandItemSelectionGroup()
             lock = selectionGroup.partItem().selectionLock()
     
@@ -395,7 +394,7 @@ class EndpointItem(QGraphicsPathItem):
                     # print "postadd", self.parentItem(), self.group(), self.pos().y()
                     selectionGroup.partItem().setSelectionLock(selectionGroup)
                     self.penAndBrushSet(True)
-                    return
+                    return True
             # end if
             elif value == True:
                 self.setSelected(False)
@@ -403,7 +402,7 @@ class EndpointItem(QGraphicsPathItem):
                 # print "deselect", self.parentItem(), self.group(), self.pos()
                 selectionGroup.pendToRemove(self)
                 self.penAndBrushSet(False)
-                return
+                return False
             # end else
         # end if
         return QGraphicsPathItem.itemChange(self, change, value)

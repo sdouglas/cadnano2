@@ -207,7 +207,7 @@ class VirtualHelixHandleItem(QGraphicsEllipseItem):
         # intercept the change instead of the has changed to enable features.
         partItem = self._partItem
 
-        if change == QGraphicsItem.ItemSelectedHasChanged and self.scene():
+        if change == QGraphicsItem.ItemSelectedChange and self.scene():
             selectionGroup = partItem.vhiHandleSelectionGroup()
             lock = selectionGroup.partItem().selectionLock()
 
@@ -220,7 +220,7 @@ class VirtualHelixHandleItem(QGraphicsEllipseItem):
                     # print "postadd", self.number(), self.parentItem(), self.group()
                     selectionGroup.partItem().setSelectionLock(selectionGroup)
                     self.penAndBrushSet(True)
-                    return
+                    return True
             # end if
             elif value == True:
                 self.setSelected(False)
@@ -228,7 +228,7 @@ class VirtualHelixHandleItem(QGraphicsEllipseItem):
                 # print "deselect", self.number(), self.parentItem(), self.group()
                 selectionGroup.pendToRemove(self)
                 self.penAndBrushSet(False)
-                return
+                return False
             # end else
         # end if
         return QGraphicsEllipseItem.itemChange(self, change, value)

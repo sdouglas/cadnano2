@@ -621,7 +621,7 @@ class StrandItem(QGraphicsLineItem):
         # for selection changes test against QGraphicsItem.ItemSelectedChange
         # intercept the change instead of the has changed to enable features.
         partItem = self.partItem()
-        if change == QGraphicsItem.ItemSelectedHasChanged and self.scene():
+        if change == QGraphicsItem.ItemSelectedChange and self.scene():
             selectionGroup = partItem.strandItemSelectionGroup()
             lock = selectionGroup.partItem().selectionLock()
             # only add if the selectionGroup is not locked out
@@ -635,7 +635,7 @@ class StrandItem(QGraphicsLineItem):
                     self.penAndBrushSet(True)
                     selectionGroup.pendToAdd(self._lowCap)
                     selectionGroup.pendToAdd(self._highCap)
-                    return
+                    return True
             # end if
             elif value == True:
                 self.setSelected(False)
@@ -645,7 +645,7 @@ class StrandItem(QGraphicsLineItem):
                 self.penAndBrushSet(False)
                 selectionGroup.pendToRemove(self._lowCap)
                 selectionGroup.pendToRemove(self._highCap)
-                return
+                return False
             # end else
         # end if
         return QGraphicsItem.itemChange(self, change, value)
