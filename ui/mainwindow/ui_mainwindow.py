@@ -1,9 +1,9 @@
 # -*- coding: utf-8 -*-
 
-# Form implementation generated from reading ui file '\\VBOXSVR\cadnano2\ui\mainwindow\mainwindow.ui'
+# Form implementation generated from reading ui file 'mainwindow/mainwindow.ui'
 #
-# Created: Tue Nov 08 11:01:48 2011
-#      by: PyQt4 UI code generator 4.8.6
+# Created: Fri Nov 25 16:31:33 2011
+#      by: PyQt4 UI code generator 4.8.5
 #
 # WARNING! All changes made in this file will be lost!
 
@@ -83,7 +83,7 @@ class Ui_MainWindow(object):
         self.gridLayout.addWidget(self.splitter, 0, 0, 1, 1)
         MainWindow.setCentralWidget(self.centralwidget)
         self.menubar = QtGui.QMenuBar(MainWindow)
-        self.menubar.setGeometry(QtCore.QRect(0, 0, 1075, 21))
+        self.menubar.setGeometry(QtCore.QRect(0, 0, 1075, 22))
         self.menubar.setObjectName(_fromUtf8("menubar"))
         self.menuFile = QtGui.QMenu(self.menubar)
         self.menuFile.setTitle(QtGui.QApplication.translate("MainWindow", "File", None, QtGui.QApplication.UnicodeUTF8))
@@ -350,6 +350,30 @@ class Ui_MainWindow(object):
         self.actionFeedback = QtGui.QAction(MainWindow)
         self.actionFeedback.setText(QtGui.QApplication.translate("MainWindow", "Feedback", None, QtGui.QApplication.UnicodeUTF8))
         self.actionFeedback.setObjectName(_fromUtf8("actionFeedback"))
+        self.actionFilterPart = QtGui.QAction(MainWindow)
+        self.actionFilterPart.setCheckable(True)
+        icon21 = QtGui.QIcon()
+        icon21.addPixmap(QtGui.QPixmap(_fromUtf8(":/parttools/filter-part")), QtGui.QIcon.Normal, QtGui.QIcon.Off)
+        self.actionFilterPart.setIcon(icon21)
+        self.actionFilterPart.setText(QtGui.QApplication.translate("MainWindow", "Parts", None, QtGui.QApplication.UnicodeUTF8))
+        self.actionFilterPart.setToolTip(QtGui.QApplication.translate("MainWindow", "Part-selection mode", None, QtGui.QApplication.UnicodeUTF8))
+        self.actionFilterPart.setObjectName(_fromUtf8("actionFilterPart"))
+        self.actionFilterEndpoint = QtGui.QAction(MainWindow)
+        self.actionFilterEndpoint.setCheckable(True)
+        icon22 = QtGui.QIcon()
+        icon22.addPixmap(QtGui.QPixmap(_fromUtf8(":/parttools/filter-endpoint")), QtGui.QIcon.Normal, QtGui.QIcon.Off)
+        self.actionFilterEndpoint.setIcon(icon22)
+        self.actionFilterEndpoint.setText(QtGui.QApplication.translate("MainWindow", "Ends", None, QtGui.QApplication.UnicodeUTF8))
+        self.actionFilterEndpoint.setToolTip(QtGui.QApplication.translate("MainWindow", "Endpoint-selection mode", None, QtGui.QApplication.UnicodeUTF8))
+        self.actionFilterEndpoint.setObjectName(_fromUtf8("actionFilterEndpoint"))
+        self.actionFilterXover = QtGui.QAction(MainWindow)
+        self.actionFilterXover.setCheckable(True)
+        icon23 = QtGui.QIcon()
+        icon23.addPixmap(QtGui.QPixmap(_fromUtf8(":/parttools/filter-xover")), QtGui.QIcon.Normal, QtGui.QIcon.Off)
+        self.actionFilterXover.setIcon(icon23)
+        self.actionFilterXover.setText(QtGui.QApplication.translate("MainWindow", "Xovers", None, QtGui.QApplication.UnicodeUTF8))
+        self.actionFilterXover.setToolTip(QtGui.QApplication.translate("MainWindow", "Xover-selection mode", None, QtGui.QApplication.UnicodeUTF8))
+        self.actionFilterXover.setObjectName(_fromUtf8("actionFilterXover"))
         self.menuOpen_recent_files.addSeparator()
         self.menuFile.addAction(self.actionNew)
         self.menuFile.addAction(self.actionOpen)
@@ -380,6 +404,10 @@ class Ui_MainWindow(object):
         self.topToolBar.addSeparator()
         self.topToolBar.addAction(self.actionAutoStaple)
         self.topToolBar.addAction(self.actionModify)
+        self.topToolBar.addSeparator()
+        self.topToolBar.addAction(self.actionFilterPart)
+        self.topToolBar.addAction(self.actionFilterEndpoint)
+        self.topToolBar.addAction(self.actionFilterXover)
         self.rightToolBar.addAction(self.actionPathSelect)
         self.rightToolBar.addAction(self.actionPathPencil)
         self.rightToolBar.addAction(self.actionPathBreak)
