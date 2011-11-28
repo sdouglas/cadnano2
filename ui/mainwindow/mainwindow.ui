@@ -259,7 +259,7 @@
    <addaction name="actionAutoStaple"/>
    <addaction name="actionModify"/>
    <addaction name="separator"/>
-   <addaction name="actionFilterPart"/>
+   <addaction name="actionFiltersLabel"/>
    <addaction name="actionFilterEndpoint"/>
    <addaction name="actionFilterXover"/>
   </widget>
@@ -748,6 +748,9 @@
    <property name="checkable">
     <bool>true</bool>
    </property>
+   <property name="checked">
+    <bool>true</bool>
+   </property>
    <property name="icon">
     <iconset resource="icons.qrc">
      <normaloff>:/parttools/filter-endpoint</normaloff>:/parttools/filter-endpoint</iconset>
@@ -763,6 +766,9 @@
    <property name="checkable">
     <bool>true</bool>
    </property>
+   <property name="checked">
+    <bool>true</bool>
+   </property>
    <property name="icon">
     <iconset resource="icons.qrc">
      <normaloff>:/parttools/filter-xover</normaloff>:/parttools/filter-xover</iconset>
@@ -772,6 +778,14 @@
    </property>
    <property name="toolTip">
     <string>Xover-selection mode</string>
+   </property>
+  </action>
+  <action name="actionFiltersLabel">
+   <property name="text">
+    <string>Selectable:</string>
+   </property>
+   <property name="toolTip">
+    <string>Selection Filters</string>
    </property>
   </action>
  </widget>

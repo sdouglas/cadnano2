@@ -30,7 +30,7 @@ util.qtWrapImport('QtGui', globals(), [])
 
 class PaintTool(AbstractPathTool):
     """
-    docstring for PaintTool
+    Handles visibility and color cycling for the paint tool.
     """
     def __init__(self, controller):
         super(PaintTool, self).__init__(controller)
@@ -44,6 +44,7 @@ class PaintTool(AbstractPathTool):
             self._window.pathColorPanel.show()
         else:
             self._window.pathColorPanel.hide()
+            self._window.pathColorPanel.prevColor()
 
     def widgetClicked(self):
         """Cycle through colors on 'p' keypress"""
