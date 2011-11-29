@@ -52,21 +52,16 @@ END_HERE_DOC
 fi
 
 # Copy PyQt for Maya
-MAYAPY_DIR=/Applications/Autodesk/maya${VERSION}/Maya.app/Contents/Frameworks/Python.framework/Versions/2.6
+MAYAPY_DIR=/Applications/Autodesk/maya${VERSION}/Maya.app/Contents/Frameworks/Python.framework/Versions
 if [[ -d "${MAYAPY_DIR}" ]] ; then
     # echo "${MAYAPY_DIR} exists"
-    MAYA_SITEPKGS="$MAYAPY_DIR/lib/python2.6/site-packages"
+    MAYA_SITEPKGS="$MAYAPY_DIR/2.6/lib/python2.6/site-packages"
     if [[ -d $MAYA_SITEPKGS/PyQt4 ]]; then
         echo "Removing existing PyQt4 for maya at ${MAYA_SITEPKGS}/PyQt4"
         rm -rf "${MAYA_SITEPKGS}/PyQt4"
     fi
-    echo "Installing PyQt4 for maya at ${MAYA_SITEPKGS}/PyQt4"
-    tar -C /tmp -xf /Applications/cadnano2.app/Contents/Resources/PyQtMacMaya.tar.gz
-    cp -fR /tmp/PyQtMacMaya ${MAYA_SITEPKGS}/PyQt4 
-    rm -rf /tmp/PyQtMacMaya
 
-    SIP_DEST=$MAYAPY_DIR/lib/python2.6/site-packages/sip
-    echo "Installing sip for maya at $SIP_DEST"
-    ln -Fs /Library/Python/2.6/site-packages/sip $SIP_DEST
+    echo "Installing PyQt4 for maya at ${MAYA_SITEPKGS}/PyQt4"
+    sudo tar -C ${MAYAPY_DIR} -xf /Applications/cadnano2.app/Contents/Resources/PyQtMacMaya.tar.gz
 fi
 done

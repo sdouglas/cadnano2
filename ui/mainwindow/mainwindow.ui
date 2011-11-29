@@ -238,6 +238,12 @@
    <property name="windowTitle">
     <string>Main Toolbar</string>
    </property>
+   <property name="iconSize">
+    <size>
+     <width>24</width>
+     <height>24</height>
+    </size>
+   </property>
    <property name="toolButtonStyle">
     <enum>Qt::ToolButtonTextUnderIcon</enum>
    </property>
@@ -260,7 +266,9 @@
    <addaction name="actionModify"/>
    <addaction name="separator"/>
    <addaction name="actionFiltersLabel"/>
+   <addaction name="actionFilterHandle"/>
    <addaction name="actionFilterEndpoint"/>
+   <addaction name="actionFilterStrand"/>
    <addaction name="actionFilterXover"/>
   </widget>
   <widget class="QToolBar" name="rightToolBar">
@@ -636,18 +644,6 @@
     <string>Renumber Slice helices according to helix ordering in Path panel.</string>
    </property>
   </action>
-  <action name="actionDeleteLast">
-   <property name="icon">
-    <iconset resource="icons.qrc">
-     <normaloff>:/slicetools/del-last</normaloff>:/slicetools/del-last</iconset>
-   </property>
-   <property name="text">
-    <string>Delete</string>
-   </property>
-   <property name="toolTip">
-    <string>Remove the highest-numbered helix if it does not connect to any other helices.</string>
-   </property>
-  </action>
   <action name="actionPathPaint">
    <property name="checkable">
     <bool>true</bool>
@@ -749,14 +745,14 @@
     <bool>true</bool>
    </property>
    <property name="checked">
-    <bool>true</bool>
+    <bool>false</bool>
    </property>
    <property name="icon">
     <iconset resource="icons.qrc">
      <normaloff>:/parttools/filter-endpoint</normaloff>:/parttools/filter-endpoint</iconset>
    </property>
    <property name="text">
-    <string>Ends</string>
+    <string> </string>
    </property>
    <property name="toolTip">
     <string>Endpoint-selection mode</string>
@@ -766,15 +762,12 @@
    <property name="checkable">
     <bool>true</bool>
    </property>
-   <property name="checked">
-    <bool>true</bool>
-   </property>
    <property name="icon">
     <iconset resource="icons.qrc">
      <normaloff>:/parttools/filter-xover</normaloff>:/parttools/filter-xover</iconset>
    </property>
    <property name="text">
-    <string>Xovers</string>
+    <string> </string>
    </property>
    <property name="toolTip">
     <string>Xover-selection mode</string>
@@ -786,6 +779,36 @@
    </property>
    <property name="toolTip">
     <string>Selection Filters</string>
+   </property>
+  </action>
+  <action name="actionFilterStrand">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="icon">
+    <iconset resource="icons.qrc">
+     <normaloff>:/parttools/filter-strand</normaloff>:/parttools/filter-strand</iconset>
+   </property>
+   <property name="text">
+    <string> </string>
+   </property>
+   <property name="toolTip">
+    <string>Strand-selection mode</string>
+   </property>
+  </action>
+  <action name="actionFilterHandle">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="icon">
+    <iconset resource="icons.qrc">
+     <normaloff>:/parttools/filter-handle</normaloff>:/parttools/filter-handle</iconset>
+   </property>
+   <property name="text">
+    <string> </string>
+   </property>
+   <property name="toolTip">
+    <string>Helix-handle-selection mode</string>
    </property>
   </action>
  </widget>

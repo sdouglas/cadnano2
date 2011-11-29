@@ -118,12 +118,46 @@ class DocumentController():
         self.win.closeEvent = self.windowCloseEventHandler
         self.win.actionCadnanoWebsite.triggered.connect(self.actionCadnanoWebsiteSlot)
         self.win.actionFeedback.triggered.connect(self.actionFeedbackSlot)
+        self.win.actionFilterHandle.triggered.connect(self.actionFilterHandleSlot)
+        self.win.actionFilterEndpoint.triggered.connect(self.actionFilterEndpointSlot)
+        self.win.actionFilterStrand.triggered.connect(self.actionFilterStrandSlot)
+        self.win.actionFilterXover.triggered.connect(self.actionFilterXoverSlot)
 
     ### SLOTS ###
     def undoStackCleanChangedSlot(self):
         """The title changes to include [*] on modification."""
         self.win.setWindowModified(not self.undoStack().isClean())
         self.win.setWindowTitle(self.documentTitle())
+
+    def actionFilterHandleSlot(self):
+        """Disables all other selection filters when active."""
+        fE = self.win.actionFilterEndpoint
+        fS = self.win.actionFilterStrand
+        fX = self.win.actionFilterXover
+        if fE.isChecked():
+            fE.setChecked(False)
+        if fS.isChecked():
+            fS.setChecked(False)
+        if fX.isChecked():
+            fX.setChecked(False)
+
+    def actionFilterEndpointSlot(self):
+        """Disables handle filters when active."""
+        fH = self.win.actionFilterHandle
+        if fH.isChecked():
+            fH.setChecked(False)
+
+    def actionFilterStrandSlot(self):
+        """Disables handle filters when active."""
+        fH = self.win.actionFilterHandle
+        if fH.isChecked():
+            fH.setChecked(False)
+
+    def actionFilterXoverSlot(self):
+        """Disables handle filters when active."""
+        fH = self.win.actionFilterHandle
+        if fH.isChecked():
+            fH.setChecked(False)
 
     def actionNewSlot(self):
         """
