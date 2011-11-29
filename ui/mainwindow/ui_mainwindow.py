@@ -2,8 +2,8 @@
 
 # Form implementation generated from reading ui file 'mainwindow/mainwindow.ui'
 #
-# Created: Fri Nov 25 16:31:33 2011
-#      by: PyQt4 UI code generator 4.8.5
+# Created: Mon Nov 28 10:25:35 2011
+#      by: PyQt4 UI code generator 4.8.6
 #
 # WARNING! All changes made in this file will be lost!
 
@@ -360,6 +360,7 @@ class Ui_MainWindow(object):
         self.actionFilterPart.setObjectName(_fromUtf8("actionFilterPart"))
         self.actionFilterEndpoint = QtGui.QAction(MainWindow)
         self.actionFilterEndpoint.setCheckable(True)
+        self.actionFilterEndpoint.setChecked(True)
         icon22 = QtGui.QIcon()
         icon22.addPixmap(QtGui.QPixmap(_fromUtf8(":/parttools/filter-endpoint")), QtGui.QIcon.Normal, QtGui.QIcon.Off)
         self.actionFilterEndpoint.setIcon(icon22)
@@ -368,12 +369,17 @@ class Ui_MainWindow(object):
         self.actionFilterEndpoint.setObjectName(_fromUtf8("actionFilterEndpoint"))
         self.actionFilterXover = QtGui.QAction(MainWindow)
         self.actionFilterXover.setCheckable(True)
+        self.actionFilterXover.setChecked(True)
         icon23 = QtGui.QIcon()
         icon23.addPixmap(QtGui.QPixmap(_fromUtf8(":/parttools/filter-xover")), QtGui.QIcon.Normal, QtGui.QIcon.Off)
         self.actionFilterXover.setIcon(icon23)
         self.actionFilterXover.setText(QtGui.QApplication.translate("MainWindow", "Xovers", None, QtGui.QApplication.UnicodeUTF8))
         self.actionFilterXover.setToolTip(QtGui.QApplication.translate("MainWindow", "Xover-selection mode", None, QtGui.QApplication.UnicodeUTF8))
         self.actionFilterXover.setObjectName(_fromUtf8("actionFilterXover"))
+        self.actionFiltersLabel = QtGui.QAction(MainWindow)
+        self.actionFiltersLabel.setText(QtGui.QApplication.translate("MainWindow", "Selectable:", None, QtGui.QApplication.UnicodeUTF8))
+        self.actionFiltersLabel.setToolTip(QtGui.QApplication.translate("MainWindow", "Selection Filters", None, QtGui.QApplication.UnicodeUTF8))
+        self.actionFiltersLabel.setObjectName(_fromUtf8("actionFiltersLabel"))
         self.menuOpen_recent_files.addSeparator()
         self.menuFile.addAction(self.actionNew)
         self.menuFile.addAction(self.actionOpen)
@@ -405,7 +411,7 @@ class Ui_MainWindow(object):
         self.topToolBar.addAction(self.actionAutoStaple)
         self.topToolBar.addAction(self.actionModify)
         self.topToolBar.addSeparator()
-        self.topToolBar.addAction(self.actionFilterPart)
+        self.topToolBar.addAction(self.actionFiltersLabel)
         self.topToolBar.addAction(self.actionFilterEndpoint)
         self.topToolBar.addAction(self.actionFilterXover)
         self.rightToolBar.addAction(self.actionPathSelect)

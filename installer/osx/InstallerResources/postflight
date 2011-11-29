@@ -25,9 +25,15 @@ fi
 
 # Update or add MAYA_PLUG_IN_PATH
 if grep MAYA_PLUG_IN_PATH "${MAYA_ENV_FILE}" 1>/dev/null; then
-echo "MAYA_PLUG_IN_PATH already in file. Updating."
-sed -i '' -e 's/MAYA_PLUG_IN_PATH[^ ]*$/&:\/Applications\/cadnano2.app\/Contents\/Resources\/cadnano2/' "${MAYA_ENV_FILE}"
+echo "MAYA_PLUG_IN_PATH already in Maya.env..."
+    if ! grep MAYA_PLUG_IN_PATH "${MAYA_ENV_FILE}" | grep cadnano2 1>/dev/null; then
+        echo "cadnano not in MAYA_PLUG_IN_PATH. updating."
+        sed -i '' -e 's/MAYA_PLUG_IN_PATH[^ ]*$/&:\/Applications\/cadnano2.app\/Contents\/Resources\/cadnano2/' "${MAYA_ENV_FILE}"
+    else
+        echo "cadnano already in MAYA_PLUG_IN_PATH path. Skipping update."
+    fi
 else
+echo "MAYA_PLUG_IN_PATH not found in Maya.env. Updating."
 cat >> "${MAYA_ENV_FILE}" <<EOF
 MAYA_PLUG_IN_PATH=/Applications/cadnano2.app/Contents/Resources/cadnano2
 EOF
@@ -52,7 +58,7 @@ if [[ -d "${MAYAPY_DIR}" ]] ; then
     MAYA_SITEPKGS="$MAYAPY_DIR/lib/python2.6/site-packages"
     if [[ -d $MAYA_SITEPKGS/PyQt4 ]]; then
         echo "Removing existing PyQt4 for maya at ${MAYA_SITEPKGS}/PyQt4"
-	rm -rf "${MAYA_SITEPKGS}/PyQt4"
+        rm -rf "${MAYA_SITEPKGS}/PyQt4"
     fi
     echo "Installing PyQt4 for maya at ${MAYA_SITEPKGS}/PyQt4"
     tar -C /tmp -xf /Applications/cadnano2.app/Contents/Resources/PyQtMacMaya.tar.gz
@@ -61,6 +67,6 @@ if [[ -d "${MAYAPY_DIR}" ]] ; then
 
     SIP_DEST=$MAYAPY_DIR/lib/python2.6/site-packages/sip
     echo "Installing sip for maya at $SIP_DEST"
-    ln -s /Library/Python/2.6/site-packages/sip $SIP_DEST
+    ln -Fs /Library/Python/2.6/site-packages/sip $SIP_DEST
 fi
 done
