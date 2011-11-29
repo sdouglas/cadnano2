@@ -66,3 +66,4 @@ def includeFileInDistribution(fname):
 
 print "Exceptions (files that get copied but don't have the .py extension):"
 includeFileInDistribution('ui/mainwindow/images/cadnano2-app-icon_shelf.png')
+includeFileInDistribution('ui/dialogs/images/cadnano2-about.png')
