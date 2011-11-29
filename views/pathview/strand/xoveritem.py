@@ -235,7 +235,8 @@ class XoverItem(QGraphicsPathItem):
 
     XoverItem should be a child of a PartItem.
     """
-
+    _filterName = "xover"
+    
     def __init__(self, strandItem, virtualHelixItem):
         """
         strandItem is a the model representation of the 5prime most strand
@@ -451,7 +452,7 @@ class XoverItem(QGraphicsPathItem):
     
     def penAndBrushSet(self, value):
         if value == True:
-            color = QColor("#cccccc")
+            color = QColor("#ff3333")
         else:
             oligo = self._strandItem.strand().oligo()
             color = QColor(oligo.color())
@@ -464,24 +465,26 @@ class XoverItem(QGraphicsPathItem):
         # for selection changes test against QGraphicsItem.ItemSelectedChange
         # intercept the change instead of the has changed to enable features.
         if change == QGraphicsItem.ItemSelectedChange and self.scene():
-            partItem = self._virtualHelixItem.partItem()
-            selectionGroup = partItem.strandItemSelectionGroup()
-            lock = selectionGroup.selectionLock()
+            sI = self._strandItem
+            viewroot = sI.viewroot()
+            currentFilterDict = viewroot.selectionFilterDict()
+            selectionGroup = viewroot.strandItemSelectionGroup()
+            
             # only add if the selectionGroup is not locked out
-            if value == True and (lock == None or lock == selectionGroup):
-                if self.group() != selectionGroup:
-                    # print "preadd", self.parentItem(), self.group(), self.pos().y()
+            if value == True and (self._filterName in currentFilterDict or not selectionGroup.isNormalSelect()):
+                if self.group() != selectionGroup and sI.strandFilter() in currentFilterDict:
                     if selectionGroup.isNormalSelect():
                         selectionGroup.pendToAdd(self)
-                        # print "postadd", self.parentItem(), self.group(), self.pos().y()
                         selectionGroup.setSelectionLock(selectionGroup)
                     self.penAndBrushSet(True)
                     return True
+                else:
+                    return False
             # end if
             elif value == True:
                 return False
             else:
-                # print "deselect", self.parentItem(), self.group(), self.pos()
+                # Deselect
                 # Check if the strand is being added to the selection group still
                 selectionGroup.pendToRemove(self)
                 self.penAndBrushSet(False)
@@ -496,13 +499,13 @@ class XoverItem(QGraphicsPathItem):
         strand3p = strand5p.connection3p()
         selectDict = document.selectionDict()
         test5p = strand5p in selectDict
-        lowVal5p, highVal5p = selectDict[strand5p] if test5p else False, False
+        lowVal5p, highVal5p = selectDict[strand5p] if test5p else (False, False)
         if strand5p.isDrawn5to3():
             highVal5p = False
         else:
             lowVal5p = False
         test3p = strand3p in selectDict
-        lowVal3p, highVal3p = selectDict[strand3p] if test3p else False, False
+        lowVal3p, highVal3p = selectDict[strand3p] if test3p else (False, False)
         if strand3p.isDrawn5to3():
             lowVal3p = False
         else:
@@ -510,11 +513,11 @@ class XoverItem(QGraphicsPathItem):
         
         if not lowVal5p and not highVal5p and test5p:
             document.removeFromSelection(strand5p)
-        else:
+        elif test5p:
             document.addToSelection(strand5p, (lowVal5p, highVal5p))
         if not lowVal3p and not highVal3p and test3p:
             document.removeFromSelection(strand3p)
-        else:
+        elif test3p:
             document.addToSelection(strand3p, (lowVal3p, highVal3p))
         self.restoreParent()
     # end def
@@ -538,11 +541,13 @@ class XoverItem(QGraphicsPathItem):
             highVal3p = True
         
         self.setSelected(True)
-        # partItem = self._virtualHelixItem.partItem()
-        # selectionGroup = partItem.strandItemSelectionGroup()
-        # if selectionGroup.isNormalSelect():
         document.addToSelection(strand5p, (lowVal5p, highVal5p))
         document.addToSelection(strand3p, (lowVal3p, highVal3p))
     # end def
     
+    def paint(self, painter, option, widget):
+        painter.setPen(self.pen())
+        painter.setBrush(self.brush())
+        painter.drawPath(self.path())
+    # end def
 # end class XoverItem

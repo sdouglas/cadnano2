@@ -29,9 +29,6 @@ from collections import defaultdict
 from math import ceil
 from activesliceitem import ActiveSliceItem
 from controllers.itemcontrollers.partitemcontroller import PartItemController
-from pathselection import SelectionItemGroup
-from pathselection import PathHelixHandleSelectionBox
-from pathselection import BreakpointHandleSelectionBox
 from prexoveritem import PreXoverItem
 from strand.xoveritem import XoverNode3
 from ui.mainwindow.svgbutton import SVGButton
@@ -52,10 +49,11 @@ _modPen = QPen(styles.bluestroke)
 
 
 class PartItem(QGraphicsRectItem):
-    def __init__(self, modelPart, activeTool, parent):
+    def __init__(self, modelPart, viewroot, activeTool, parent):
         """parent should always be pathrootitem"""
         super(PartItem, self).__init__(parent)
         self._modelPart = mP = modelPart
+        self._viewroot = viewroot
         self._activeTool = activeTool
         self._activeSliceItem = ActiveSliceItem(self, mP.activeBaseIndex())
         self._activeVirtualHelixItem = None
@@ -66,7 +64,6 @@ class PartItem(QGraphicsRectItem):
         self._vHRect = QRectF()
         self.setAcceptHoverEvents(True)
         self._initModifierRect()
-        self._initSelections()
         self._initResizeButtons()
     # end def
 
@@ -86,18 +83,6 @@ class PartItem(QGraphicsRectItem):
         self._removeBasesButton = SVGButton(":/pathtools/remove-bases", self)
         self._removeBasesButton.clicked.connect(self._removeBasesClicked)
         self._removeBasesButton.hide()
-    # end def
-
-    def _initSelections(self):
-        """Initialize anything related to multiple selection."""
-        bType = PathHelixHandleSelectionBox
-        self._vhiHSelectionGroup = SelectionItemGroup(boxtype=bType,\
-                                                      constraint='y',\
-                                                      parent=self)
-        bType = BreakpointHandleSelectionBox
-        self._strandItemSelectionGroup = SelectionItemGroup(boxtype=bType,\
-                                                      constraint='x',\
-                                                      parent=self)
     # end def
 
     ### SIGNALS ###
@@ -166,7 +151,7 @@ class PartItem(QGraphicsRectItem):
         """
         # print "PartItem.partVirtualHelixAddedSlot"
         vh = modelVirtualHelix
-        vhi = VirtualHelixItem(self, modelVirtualHelix, self._activeTool)
+        vhi = VirtualHelixItem(self, modelVirtualHelix, self._viewroot, self._activeTool)
         self._virtualHelixHash[vh.coord()] = vhi
         self._virtualHelixItemList.append(vhi)
         self._setVirtualHelixItemList(self._virtualHelixItemList)
@@ -243,14 +228,6 @@ class PartItem(QGraphicsRectItem):
         return self._vHRect
     # end def
 
-    def vhiHandleSelectionGroup(self):
-        return self._vhiHSelectionGroup
-    # end def
-    
-    def strandItemSelectionGroup(self):
-        return self._strandItemSelectionGroup
-    # end def
-
     def window(self):
         return self.parentItem().window()
     # end def
@@ -320,7 +297,7 @@ class PartItem(QGraphicsRectItem):
 
             # get the VirtualHelixHandleItem
             vhiH = vhi.handle()
-            if vhiH.parentItem() != self._vhiHSelectionGroup:
+            if vhiH.parentItem() != self._viewroot._vhiHSelectionGroup:
                 vhiH.setParentItem(self)
 
             if not vhiHRect:
@@ -419,14 +396,6 @@ class PartItem(QGraphicsRectItem):
         if newActiveVHI != self._activeVirtualHelixItem:
             self._activeVirtualHelixItem = newActiveVHI
             self._modelPart.setActiveVirtualHelix(newActiveVHI.virtualHelix())
-    # end def
-
-    def selectionLock(self):
-        return self.scene().views()[0].selectionLock()
-    # end def
-
-    def setSelectionLock(self, locker):
-        self.scene().views()[0].setSelectionLock(locker)
     # end def
 
     def setPreXoverItemsVisible(self, virtualHelixItem):

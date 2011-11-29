@@ -109,6 +109,9 @@ class Strand(QObject):
             if node == self:
                 originalCount += 1
     # end def
+    
+    def strandFilter(self):
+        return self._strandSet.strandFilter()
 
     ### SIGNALS ###
     strandHasNewOligoSignal = pyqtSignal(QObject)

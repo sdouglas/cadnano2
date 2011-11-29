@@ -141,6 +141,7 @@ class DocumentController():
         dialogAbout.setupUi(dialog)
         dialog.exec_()
 
+    filterList = ["strand", "endpoint", "xover", "virtualHelix"]
     def actionFilterHandleSlot(self):
         """Disables all other selection filters when active."""
         fH = self.win.actionFilterHandle
@@ -154,6 +155,7 @@ class DocumentController():
             fS.setChecked(False)
         if fX.isChecked():
             fX.setChecked(False)
+        self._document.documentSelectionFilterChangedSignal.emit(["virtualHelix"])
 
     def actionFilterEndpointSlot(self):
         """
@@ -168,6 +170,8 @@ class DocumentController():
             fH.setChecked(False)
         if not fS.isChecked() and not fX.isChecked():
             fE.setChecked(True)
+        self.strandFilterUpdate()
+    # end def
 
     def actionFilterStrandSlot(self):
         """
@@ -182,6 +186,8 @@ class DocumentController():
             fH.setChecked(False)
         if not fE.isChecked() and not fX.isChecked():
             fS.setChecked(True)
+        self.strandFilterUpdate()
+    # end def
 
     def actionFilterXoverSlot(self):
         """
@@ -196,6 +202,8 @@ class DocumentController():
             fH.setChecked(False)
         if not fE.isChecked() and not fS.isChecked():
             fX.setChecked(True)
+        self.strandFilterUpdate()
+    # end def
 
     def actionFilterScafSlot(self):
         """Remains checked if no other strand-type filter is active."""
@@ -203,6 +211,7 @@ class DocumentController():
         fSt = self.win.actionFilterStap
         if not fSc.isChecked() and not fSt.isChecked():
             fSc.setChecked(True)
+        self.strandFilterUpdate()
 
     def actionFilterStapSlot(self):
         """Remains checked if no other strand-type filter is active."""
@@ -210,6 +219,24 @@ class DocumentController():
         fSt = self.win.actionFilterStap
         if not fSc.isChecked() and not fSt.isChecked():
             fSt.setChecked(True)
+        self.strandFilterUpdate()
+    # end def
+    
+    def strandFilterUpdate(self):
+        win = self.win
+        filterList = []
+        if win.actionFilterEndpoint.isChecked():
+            filterList.append("endpoint")
+        if win.actionFilterStrand.isChecked():
+            filterList.append("strand")
+        if win.actionFilterXover.isChecked():
+            filterList.append("xover")
+        if win.actionFilterScaf.isChecked():
+            filterList.append("scaffold")
+        if win.actionFilterStap.isChecked():
+            filterList.append("staple")
+        self._document.documentSelectionFilterChangedSignal.emit(filterList)
+    # end def
 
     def actionNewSlot(self):
         """
