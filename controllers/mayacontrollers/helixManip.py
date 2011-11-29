@@ -72,7 +72,7 @@ class helixManip( OpenMayaMPx.MPxManipContainer ):
         self.fNodePath = OpenMaya.MDagPath()
 
     def createChildren( self ):
-        print "helixManip: createChildren being called..."
+        #print "helixManip: createChildren being called..."
         # startPoint should correspond to the end of the helix
         # read the attribute to get the offset from the starting position
         self.fDistanceFrontManip = self.addDistanceManip( "distanceManip", "distance" )
@@ -92,7 +92,7 @@ class helixManip( OpenMayaMPx.MPxManipContainer ):
         distanceManipFn.setDirection( self.backDir )
 
     def connectToDependNode( self, node ):
-        print "connectToDependNode called"
+        #print "connectToDependNode called"
         nodeFn = OpenMaya.MFnDependencyNode( node )
         self.myNode = node
         self.helixName = nodeFn.name()
@@ -137,7 +137,7 @@ class helixManip( OpenMayaMPx.MPxManipContainer ):
     def setupTransform( self, node, path ):
         self.helixTransform = node # store the transform node
         nodeFn = OpenMaya.MFnDependencyNode( node )
-        print nodeFn.name()
+        #print nodeFn.name()
         
         dagNodeFn = OpenMaya.MFnDagNode( node )
         dagNodeFn.getPath( self.fNodePath )
@@ -416,7 +416,7 @@ class helixManip( OpenMayaMPx.MPxManipContainer ):
         startPos = self.getFloat3PlugValue( startPlug )
         endPos = self.getFloat3PlugValue( endPlug )
 
-        print "matchNodePosition matching position..." ## to (%f, %f, %f)" % ( startPos[0], startpos[1], startpos[2[]])
+        #print "matchNodePosition matching position..." ## to (%f, %f, %f)" % ( startPos[0], startpos[1], startpos[2[]])
         freePointManipFront = OpenMayaUI.MFnDistanceManip( self.fDistanceFrontManip  )
         freePointManipBack = OpenMayaUI.MFnDistanceManip( self.fDistanceBackManip )
         vecZ = OpenMaya.MVector( 0.0, 1.5, 0.0 )

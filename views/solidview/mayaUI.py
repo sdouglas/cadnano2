@@ -70,7 +70,7 @@ def setViewportQuality():
             sts = cmds.modelEditor(i, query=True, stateString=True)
             sts = sts.replace("$editorName", i)
             modelEditors.append(sts)
-            cmds.modelEditor(i, edit=True, displayAppearance="smoothShaded")
+            cmds.modelEditor(i, edit=True, displayAppearance="smoothShaded", lineWidth=3)
                                  #, rendererName="hwRender_OpenGL_Renderer")
 
 def restoreViewportQuality():

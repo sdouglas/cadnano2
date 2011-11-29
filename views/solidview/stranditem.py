@@ -87,7 +87,7 @@ class StrandItem(object):
     ### SLOTS ###
     def strandResizedSlot(self, strand, indices):
         """Receives notification from the model when a strand is resized"""
-        print "solid.StrandItem.strandResizedSlot", self._modelStrand.idxs()
+        #print "solid.StrandItem.strandResizedSlot", self._modelStrand.idxs()
         self.updateSize()
         self._virtualHelixItem.updateDecorators()
 
@@ -253,6 +253,11 @@ class StrandItem(object):
             raise NotImplementedError
         cmds.setAttr("%s.strandType" % cylinderName, strandType)
         self.updateColor(mID, colorname)
+        
+        cmds.select(transformName)
+        cmds.polySoftEdge( a=89.99 )
+        cmds.setAttr("%s.displayEdges" % meshName, 2);
+        cmds.select( clear=True )
         return (cylinderName, transformName, meshName)
 
     def updateColor(self, mID, colorname):

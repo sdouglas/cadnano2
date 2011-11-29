@@ -58,14 +58,14 @@ class Mom(object):
     idStrandMapping = {}
 
     # MayaNames
-    helixTransformName = "DNAShapeTransform"
-    helixNodeName = "HalfCylinderHelixNode"
-    helixMeshName = "DNACylinderShape"
-    helixShaderName = "DNAStrandShader"
-    decoratorTransformName = "stapleDecoratorTransform"
-    decoratorNodeName = "spStapleModIndicator"
-    decoratorMeshName = "stapleModIndicatorMesh"
-    decoratorShaderName = "stapleModeIndicatorShader"
+    helixTransformName = "DNAShapeTransform_"
+    helixNodeName = "HalfCylinderHelixNode_"
+    helixMeshName = "DNACylinderShape_"
+    helixShaderName = "DNAStrandShader_"
+    decoratorTransformName = "stapleDecoratorTransform_"
+    decoratorNodeName = "spStapleModIndicator_"
+    decoratorMeshName = "stapleModIndicatorMesh_"
+    decoratorShaderName = "stapleModeIndicatorShader_"
 
     def staplePreDecoratorSelected(self, listNames):
         """
