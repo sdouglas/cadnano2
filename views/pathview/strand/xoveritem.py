@@ -465,13 +465,14 @@ class XoverItem(QGraphicsPathItem):
         # for selection changes test against QGraphicsItem.ItemSelectedChange
         # intercept the change instead of the has changed to enable features.
         if change == QGraphicsItem.ItemSelectedChange and self.scene():
-            viewroot = self._strandItem.viewroot()
+            sI = self._strandItem
+            viewroot = sI.viewroot()
             currentFilterDict = viewroot.selectionFilterDict()
             selectionGroup = viewroot.strandItemSelectionGroup()
             
             # only add if the selectionGroup is not locked out
             if value == True and self._filterName in currentFilterDict:
-                if self.group() != selectionGroup:
+                if self.group() != selectionGroup and sI.strandFilter() in currentFilterDict:
                     if selectionGroup.isNormalSelect():
                         selectionGroup.pendToAdd(self)
                         selectionGroup.setSelectionLock(selectionGroup)

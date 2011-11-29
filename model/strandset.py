@@ -330,6 +330,9 @@ class StrandSet(QObject):
 
     def virtualHelix(self):
         return self._virtualHelix
+        
+    def strandFilter(self):
+        return "scaffold" if self._strandType == StrandType.Scaffold else "staple"
 
     def hasStrandAt(self, idxLow, idxHigh):
         """

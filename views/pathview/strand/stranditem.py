@@ -63,6 +63,8 @@ class StrandItem(QGraphicsLineItem):
         self._controller = StrandItemController(self, modelStrand)
         isDrawn5to3 = modelStrand.strandSet().isDrawn5to3()
 
+        self._strandFilter = modelStrand.strandFilter()
+
         self._insertionItems = {}
         # caps
         self._lowCap = EndpointItem(self, 'low', isDrawn5to3)
@@ -224,6 +226,10 @@ class StrandItem(QGraphicsLineItem):
 
     def strand(self):
         return self._modelStrand
+    # end def
+    
+    def strandFilter(self):
+        return self._strandFilter
     # end def
 
     def idxs(self):
@@ -635,7 +641,7 @@ class StrandItem(QGraphicsLineItem):
             
             # only add if the selectionGroup is not locked out
             if value == True and self._filterName in currentFilterDict:
-                if self.group() != selectionGroup:
+                if self.group() != selectionGroup and self._strandFilter in currentFilterDict:
                     selectionGroup.pendToAdd(self)
                     selectionGroup.setSelectionLock(selectionGroup)
                     self.penAndBrushSet(True)

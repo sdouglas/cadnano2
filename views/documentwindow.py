@@ -92,7 +92,7 @@ class DocumentWindow(QMainWindow, ui_mainwindow.Ui_MainWindow):
         self.pathToolManager.sliceToolManager = self.sliceToolManager
         
         # set the selection filter default
-        doc.documentSelectionFilterChangedSignal.emit(["endpoint"])
+        doc.documentSelectionFilterChangedSignal.emit(["endpoint", "scaffold"])
 
         if GL:
             self.slicescene.drawBackground = self.drawBackground
