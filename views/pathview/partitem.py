@@ -220,6 +220,11 @@ class PartItem(QGraphicsRectItem):
         """Return a reference to the model's part object"""
         return self._modelPart
     # end def
+    
+    def document(self):
+        """Return a reference to the model's document object"""
+        return self._modelPart.document()
+    # end def
 
     def removeVirtualHelixItem(self, virtualHelixItem):
         vh = virtualHelixItem.virtualHelix()

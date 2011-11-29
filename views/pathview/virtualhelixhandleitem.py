@@ -205,32 +205,41 @@ class VirtualHelixHandleItem(QGraphicsEllipseItem):
     def itemChange(self, change, value):
         # for selection changes test against QGraphicsItem.ItemSelectedChange
         # intercept the change instead of the has changed to enable features.
-        partItem = self._partItem
 
-        if change == QGraphicsItem.ItemSelectedHasChanged and self.scene():
+        if change == QGraphicsItem.ItemSelectedChange and self.scene():
+            partItem = self._partItem
             selectionGroup = partItem.vhiHandleSelectionGroup()
-            lock = selectionGroup.partItem().selectionLock()
+            lock = selectionGroup.selectionLock()
 
             # only add if the selectionGroup is not locked out
             if value == True and (lock == None or lock == selectionGroup):
                 if self.group() != selectionGroup:
                     # print "preadd", self.number(), self.parentItem(), self.group()
-                    # selectionGroup.addToGroup(self)
                     selectionGroup.pendToAdd(self)
                     # print "postadd", self.number(), self.parentItem(), self.group()
-                    selectionGroup.partItem().setSelectionLock(selectionGroup)
+                    selectionGroup.setSelectionLock(selectionGroup)
                     self.penAndBrushSet(True)
-                    return
+                    return True
             # end if
             elif value == True:
-                self.setSelected(False)
+                return False
             else:
                 # print "deselect", self.number(), self.parentItem(), self.group()
                 selectionGroup.pendToRemove(self)
                 self.penAndBrushSet(False)
-                return
+                return False
             # end else
         # end if
         return QGraphicsEllipseItem.itemChange(self, change, value)
+    # end def
+    
+    def modelDeselect(self, document):
+        pass
+        self.restoreParent()
+    # end def
+    
+    def modelSelect(self, document):
+        pass
+        self.setSelected(True)
     # end def
 # end class

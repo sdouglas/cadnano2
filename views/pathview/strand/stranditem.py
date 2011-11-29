@@ -201,6 +201,10 @@ class StrandItem(QGraphicsLineItem):
     def strandModifierRemovedSlot(self, strand, index):
         pass
     # end def
+    
+    def selectedChangedSlot(self, strand, indices):
+        self.selectXoverIfRequired(self.partItem().document())
+    # end def
 
     ### ACCESSORS ###
     def activeTool(self):
@@ -601,52 +605,79 @@ class StrandItem(QGraphicsLineItem):
         assert(self.parentItem() == vhItem)
         # print "restore", self.parentItem(), self.group()
         assert(self.group() == None)
-
         self.setSelected(False)
     # end def
     
     def penAndBrushSet(self, value):
-        pen = self.pen()
         if value == True:
             color = QColor("#ff3333")
         else:
             oligo = self._modelStrand.oligo()
             color = QColor(oligo.color())
+        pen = self.pen()
         pen.setColor(color)
         self.setPen(pen)
-        self.update(self.boundingRect())
     # end def
 
     def itemChange(self, change, value):
         # for selection changes test against QGraphicsItem.ItemSelectedChange
         # intercept the change instead of the has changed to enable features.
-        partItem = self.partItem()
-        if change == QGraphicsItem.ItemSelectedHasChanged and self.scene():
+        if change == QGraphicsItem.ItemSelectedChange and self.scene():
+            partItem = self.partItem()
             selectionGroup = partItem.strandItemSelectionGroup()
-            lock = selectionGroup.partItem().selectionLock()
+            lock = selectionGroup.selectionLock()
             # only add if the selectionGroup is not locked out
             if value == True and (lock == None or lock == selectionGroup):
                 if self.group() != selectionGroup:
-                    #print "preadd", self.parentItem(), self.group()
-                    # selectionGroup.addToGroup(self)
+                    # print "preadd", self.parentItem(), self.group()
                     selectionGroup.pendToAdd(self)
                     # print "postadd", self.parentItem(), self.group()
-                    selectionGroup.partItem().setSelectionLock(selectionGroup)
+                    selectionGroup.setSelectionLock(selectionGroup)
                     self.penAndBrushSet(True)
                     selectionGroup.pendToAdd(self._lowCap)
                     selectionGroup.pendToAdd(self._highCap)
-                    return
+                    return True
             # end if
             elif value == True:
-                self.setSelected(False)
+                return False
             else:
                 # print "deselect", self.parentItem(), self.group()
                 selectionGroup.pendToRemove(self)
                 self.penAndBrushSet(False)
                 selectionGroup.pendToRemove(self._lowCap)
                 selectionGroup.pendToRemove(self._highCap)
-                return
+                return False
             # end else
         # end if
         return QGraphicsItem.itemChange(self, change, value)
+    # end def
+    
+    def selectXoverIfRequired(self, document):
+        strand5p = self._modelStrand
+        con3p = strand5p.connection3p()
+        selectionGroup = self.partItem().strandItemSelectionGroup()
+        # check this strands xover
+        if con3p:
+            if document.isModelSelected(con3p) and document.isModelSelected(strand5p):
+                val3p, val5p = document.getSelectedValues((con3p, strand5p))
+                test3p = val3p[0] if con3p.isDrawn5to3() else val3p[1]
+                test5p = val5p[1] if strand5p.isDrawn5to3() else val5p[0]
+                if test3p and test5p:
+                    selectionGroup.setNormalSelect(False)
+                    self._xover3pEnd.modelSelect(document)
+                    selectionGroup.addToGroup(self._xover3pEnd)
+                    selectionGroup.setNormalSelect(True)
+                # end if
+            # end if
+        # end if
+    # end def
+    
+    def modelDeselect(self, document):
+        self.restoreParent()
+        self._lowCap.modelDeselect(document)
+        self._highCap.modelDeselect(document)
+    # end def
+    
+    def modelSelect(self, document):
+        self.setSelected(True)
     # end def

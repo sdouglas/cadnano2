@@ -33,10 +33,10 @@ class ViewRootController():
         mD = self._modelDocument
         vR = self._viewRoot
         mD.documentPartAddedSignal.connect(vR.partAddedSlot)
-        mD.documentSelectedPartChangedSignal.connect(vR.selectedPartChangedSlot)
+        mD.documentSelectedChangedSignal.connect(vR.selectedChangedSlot)
 
     def disconnectSignals(self):
         mD = self._modelDocument
         vR = self._viewRoot
         mD.documentPartAddedSignal.disconnect(vR.partAddedSlot)
-        mD.documentSelectedPartChangedSignal.disconnect(vR.selectedPartChangedSlot)
+        mD.documentSelectedChangedSignal.disconnect(vR.selectedChangedSlot)

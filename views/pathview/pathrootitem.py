@@ -69,13 +69,12 @@ class PathRootItem(QGraphicsRectItem):
         self.setModifyState(win.actionModify.isChecked())
     # end def
 
-    def selectedPartChangedSlot(self, modelPart):
+    def selectedChangedSlot(self, itemDict):
         """Given a newly selected modelPart, update the scene to indicate
         that modelPart is selected and the previously selected part is
         deselected."""
-        pass
-        # if partItem in self._partItems:
-        #     self._window.setActivePart(partItem)
+        for item, value in itemDict:
+            item.selectionProcess(value)
     # end def
 
     ### ACCESSORS ###

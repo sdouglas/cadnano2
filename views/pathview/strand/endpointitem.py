@@ -180,7 +180,6 @@ class EndpointItem(QGraphicsPathItem):
         Parses a mousePressEvent, calling the approproate tool method as
         necessary. Stores _moveIdx for future comparison.
         """
-        print "boo"
         self.scene().views()[0].addToPressList(self)
         self._strandItem.virtualHelixItem().setActive()
         self._moveIdx = self.idx()
@@ -369,42 +368,74 @@ class EndpointItem(QGraphicsPathItem):
     
     def penAndBrushSet(self, value):
         if value == True:
-            brush = QBrush(QColor("#ff3333"))
+            color = QColor("#ff3333")
         else:
             oligo = self._strandItem.strand().oligo()
             color = QColor(oligo.color())
-            brush = QBrush(color)
+        brush = self.brush()
+        brush.setColor(color)
         self.setBrush(brush)
-        self.update(self.boundingRect())
     # end def
 
     def itemChange(self, change, value):
         # for selection changes test against QGraphicsItem.ItemSelectedChange
         # intercept the change instead of the has changed to enable features.
-        partItem = self.partItem()
-        if change == QGraphicsItem.ItemSelectedHasChanged and self.scene():
+        if change == QGraphicsItem.ItemSelectedChange and self.scene():
+            partItem = self.partItem()
             selectionGroup = partItem.strandItemSelectionGroup()
-            lock = selectionGroup.partItem().selectionLock()
+            lock = selectionGroup.selectionLock()
     
             # only add if the selectionGroup is not locked out
             if value == True and (lock == None or lock == selectionGroup):
                 if self.group() != selectionGroup:
                     # print "preadd", self.parentItem(), self.group(), self.pos().y()
-                    # selectionGroup.addToGroup(self)
                     selectionGroup.pendToAdd(self)
                     # print "postadd", self.parentItem(), self.group(), self.pos().y()
-                    selectionGroup.partItem().setSelectionLock(selectionGroup)
+                    selectionGroup.setSelectionLock(selectionGroup)
                     self.penAndBrushSet(True)
-                    return
+                    return True
             # end if
             elif value == True:
-                self.setSelected(False)
+                return False
             else:
                 # print "deselect", self.parentItem(), self.group(), self.pos()
-                selectionGroup.pendToRemove(self)
-                self.penAndBrushSet(False)
-                return
+                # Check if the strand is being added to the selection group still
+                if not selectionGroup.isPending(self._strandItem):
+                    selectionGroup.pendToRemove(self)
+                    self.penAndBrushSet(False)
+                    return False
+                else:   # don't deselect it, because the strand is selected still
+                    return True
             # end else
         # end if
         return QGraphicsPathItem.itemChange(self, change, value)
+    # end def
+    
+    def modelDeselect(self, document):
+        strand = self._strandItem.strand()
+        selectDict = document.selectionDict()
+        test = strand in selectDict
+        lowVal, highVal = selectDict[strand] if test else False, False
+        if self._capType == 'low':
+            outValue = (False, highVal)
+        else:
+            outValue = (lowVal, False)
+        if not outValue[0] and not outValue[1] and test:
+            document.removeFromSelection(strand)
+        else:
+            document.addToSelection(strand, outValue)
+        self.restoreParent()
+    # end def
+    
+    def modelSelect(self, document):
+        strand = self._strandItem.strand()
+        selectDict = document.selectionDict()
+        test = strand in selectDict
+        lowVal, highVal = selectDict[strand] if test else False, False
+        if self._capType == 'low':
+            outValue = (True, highVal)
+        else:
+            outValue = (lowVal, True)
+        self.setSelected(True)
+        document.addToSelection(strand, outValue)
     # end def

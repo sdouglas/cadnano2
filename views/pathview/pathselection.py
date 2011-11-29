@@ -45,7 +45,6 @@ class SelectionItemGroup(QGraphicsItemGroup):
     """
     def __init__(self, boxtype, constraint='y', parent=None):
         super(SelectionItemGroup, self).__init__(parent)
-        self.setParentItem(parent)
         self.setFiltersChildEvents(True)
         self.setHandlesChildEvents(True)
         self.setFlag(QGraphicsItem.ItemIsSelectable)
@@ -53,7 +52,6 @@ class SelectionItemGroup(QGraphicsItemGroup):
         self.setFlag(QGraphicsItem.ItemHasNoContents)
 
         self._pen = QPen(styles.bluestroke, styles.PATH_SELECTBOX_STROKE_WIDTH)
-        self._partItem = parent
 
         self.selectionbox = boxtype(self)
         
@@ -78,6 +76,8 @@ class SelectionItemGroup(QGraphicsItemGroup):
             self.translateR = self.translateX
         
         self._justAdded = False
+        self._normalSelect = True
+        
         self.setZValue(styles.ZPATHHELIX+2)
     # end def
     
@@ -85,25 +85,37 @@ class SelectionItemGroup(QGraphicsItemGroup):
         self._pendingToAddDict[item] = True
     # end def
     
+    def isPending(self, item):
+        return item in self._pendingToAddDict
+    # end def
+    
     def pendToRemove(self, item):
         if item in self._pendingToAddDict:
             del self._pendingToAddDict[item]
     # end def
     
+    def setNormalSelect(self, boolVal):
+        self._normalSelect = boolVal
+    # end def
+    
+    def isNormalSelect(self):
+        return self._normalSelect
+    # end def
+    
     def processPendingToAddList(self):
+        doc = self.parentItem().document()
         if len(self._pendingToAddDict) == 0:
             self._justAdded = False
             self.clearSelection(False)
         else:
             for item in self._pendingToAddDict:
-                item.setSelected(True)
+                item.modelSelect(doc)
                 self.addToGroup(item)
             self._justAdded = True
-            self._pendingToAddDict = {}
-    # end def
 
-    def partItem(self):
-        return self._partItem
+        self._pendingToAddDict = {}
+        doc.updateSelection()
+    # end def
 
     def getY(self, pos):
         return pos.y()
@@ -127,6 +139,14 @@ class SelectionItemGroup(QGraphicsItemGroup):
         painter.setPen(QPen(styles.redstroke))
         painter.drawRect(self.boundingRect())
         pass
+    # end def
+    
+    def selectionLock(self):
+        return self.parentItem().selectionLock()
+    # end def
+    
+    def setSelectionLock(self, selectionGroup):
+        self.parentItem().setSelectionLock(selectionGroup)
     # end def
 
     # def keyPressEvent(self, event):
@@ -213,7 +233,7 @@ class SelectionItemGroup(QGraphicsItemGroup):
             self.selectionbox.hide()
             self.selectionbox.resetTransform()
             self.removeSelectedItems()
-            self.partItem().setSelectionLock(None)
+            self.parentItem().setSelectionLock(None)
             self.clearFocus() # this is to disable delete keyPressEvents
         # end if
         else:
@@ -223,26 +243,18 @@ class SelectionItemGroup(QGraphicsItemGroup):
 
     def itemChange(self, change, value):
         """docstring for itemChange"""
-        if change == QGraphicsItem.ItemSelectedHasChanged:
+        if change == QGraphicsItem.ItemSelectedHasChanged:# and self.isNormalSelect():
             if value == False:
                 if self._justAdded == False:
                      self.clearSelection(False)
                 self._justAdded = False
                 return
         elif change == QGraphicsItem.ItemChildAddedChange:
-            if self._addedToPressList == False:
+            if self._addedToPressList == False:# and self.isNormalSelect():
                 # self._lastKid += 1
                 self._addedToPressList = True
                 self.scene().views()[0].addToPressList(self)
             return
-        # elif change == QGraphicsItem.ItemChildRemovedChange:
-        #     self._lastKid -= 1
-        #     print self._lastKid, "lastkid removed"
-        #     # if self._lastKid < 1:
-        #     #      self.clearSelection(False)
-        #     # # print [item.number() for item in self.childItems()]
-        #     # return
-        #     return
         return QGraphicsItemGroup.itemChange(self, change, value)
     # end def
 
@@ -253,21 +265,21 @@ class SelectionItemGroup(QGraphicsItemGroup):
         """
         tPos = child.scenePos()
         self.removeFromGroup(child)
-        # print child, "removing one child"
-        child.restoreParent(tPos)
+        child.modelDeselect(doc)
     # end def
 
 
     def removeSelectedItems(self):
         """docstring for removeSelectedItems"""
+        doc = self.parentItem().document()
         for item in self.childItems():
-            if not item.isSelected():
-                # call this first before removing from the group to 
-                # prevent unecessary change events
-                tPos = item.scenePos()
-                # print item, "removing"
-                self.removeFromGroup(item)
-                item.restoreParent(tPos)
+            self.removeFromGroup(item)
+            item.modelDeselect(doc)
+            # if not item.isSelected():
+            #     # call this first before removing from the group to 
+            #     # prevent unecessary change events
+            #     self.removeFromGroup(item)
+            #     item.modelDeselect(doc)
             # end if
         # end for
     # end def
@@ -284,11 +296,13 @@ class PathHelixHandleSelectionBox(QGraphicsPathItem):
     _boxPen = QPen(styles.bluestroke, _penWidth)
 
     def __init__(self, itemGroup):
-        super(PathHelixHandleSelectionBox, self).__init__(itemGroup.partItem())
+        """
+        The itemGroup.parentItem() is expected to be a partItem
+        """
+        super(PathHelixHandleSelectionBox, self).__init__(itemGroup.parentItem())
         self._itemGroup = itemGroup
         self._rect = itemGroup.boundingRect()
-        self._partItem = itemGroup.partItem()
-        self.setParentItem(itemGroup.partItem())
+        self._partItem = itemGroup.parentItem()
         self.hide()
         self.setPen(self._boxPen)
         self.setZValue(styles.ZPATHHELIX+2)
@@ -340,11 +354,13 @@ class BreakpointHandleSelectionBox(QGraphicsPathItem):
     _boxPen = QPen(styles.bluestroke, _penWidth)
     
     def __init__(self, itemGroup):
-        super(BreakpointHandleSelectionBox, self).__init__(itemGroup.partItem())
+        """
+        The itemGroup.parentItem() is expected to be a partItem
+        """
+        super(BreakpointHandleSelectionBox, self).__init__(itemGroup.parentItem())
         self._itemGroup = itemGroup
         self._rect = itemGroup.boundingRect()
-        self._partItem = itemGroup.partItem()
-        self.setParentItem(itemGroup.partItem())
+        self._partItem = itemGroup.parentItem()
         self.hide()
         self.setPen(self._boxPen)
         self.setZValue(styles.ZPATHHELIX+2)

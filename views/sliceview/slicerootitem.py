@@ -60,8 +60,8 @@ class SliceRootItem(QGraphicsRectItem):
         self.setModifyState(self._window.actionModify.isChecked())
     # end def
 
-    def selectedPartChangedSlot(self):
-        """docstring for selectedPartChangedSlot"""
+    def selectedChangedSlot(self, itemDict):
+        """docstring for selectedChangedSlot"""
         pass
     # end def
 
