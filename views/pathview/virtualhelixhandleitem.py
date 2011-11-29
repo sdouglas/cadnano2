@@ -88,7 +88,7 @@ class VirtualHelixHandleItem(QGraphicsEllipseItem):
         painter.setBrush(self.brush())
         painter.drawEllipse(self.rect())
     # end def
-    
+
     def remove(self):
         scene = self.scene()
         scene.removeItem(self._label)

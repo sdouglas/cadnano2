@@ -420,14 +420,14 @@ class EndpointItem(QGraphicsPathItem):
         strand = self._strandItem.strand()
         selectDict = document.selectionDict()
         test = strand in selectDict
-        lowVal, highVal = selectDict[strand] if test else False, False
+        lowVal, highVal = selectDict[strand] if test else (False, False)
         if self._capType == 'low':
             outValue = (False, highVal)
         else:
             outValue = (lowVal, False)
         if not outValue[0] and not outValue[1] and test:
             document.removeFromSelection(strand)
-        else:
+        elif outValue[0] or outValue[1]:
             document.addToSelection(strand, outValue)
         self.restoreParent()
     # end def
@@ -436,11 +436,17 @@ class EndpointItem(QGraphicsPathItem):
         strand = self._strandItem.strand()
         selectDict = document.selectionDict()
         test = strand in selectDict
-        lowVal, highVal = selectDict[strand] if test else False, False
+        lowVal, highVal = selectDict[strand] if test else (False, False)
         if self._capType == 'low':
             outValue = (True, highVal)
         else:
             outValue = (lowVal, True)
         self.setSelected(True)
         document.addToSelection(strand, outValue)
+    # end def
+    
+    def paint(self, painter, option, widget):
+        painter.setPen(self.pen())
+        painter.setBrush(self.brush())
+        painter.drawPath(self.path())
     # end def

@@ -208,7 +208,7 @@ class StrandItem(QGraphicsLineItem):
     # end def
     
     def selectedChangedSlot(self, strand, indices):
-        self.selectXoverIfRequired(self.partItem().document())
+        self.selectXoverIfRequired(self.partItem().document(), indices)
     # end def
 
     ### ACCESSORS ###
@@ -666,7 +666,7 @@ class StrandItem(QGraphicsLineItem):
         return QGraphicsItem.itemChange(self, change, value)
     # end def
 
-    def selectXoverIfRequired(self, document):
+    def selectXoverIfRequired(self, document, indices):
         strand5p = self._modelStrand
         con3p = strand5p.connection3p()
         selectionGroup = self._viewroot.strandItemSelectionGroup()
@@ -674,13 +674,16 @@ class StrandItem(QGraphicsLineItem):
         if con3p:
             if document.isModelSelected(con3p) and document.isModelSelected(strand5p):
                 val3p, val5p = document.getSelectedValues((con3p, strand5p))
+                assert(val5p == indices)
+                # print "xover idx", indices
                 test3p = val3p[0] if con3p.isDrawn5to3() else val3p[1]
                 test5p = val5p[1] if strand5p.isDrawn5to3() else val5p[0]
                 if test3p and test5p:
-                    selectionGroup.setNormalSelect(False)
-                    self._xover3pEnd.modelSelect(document)
-                    selectionGroup.addToGroup(self._xover3pEnd)
-                    selectionGroup.setNormalSelect(True)
+                    if not self._xover3pEnd.isSelected():
+                        selectionGroup.setNormalSelect(False)
+                        self._xover3pEnd.modelSelect(document)
+                        selectionGroup.addToGroup(self._xover3pEnd)
+                        selectionGroup.setNormalSelect(True)
                 # end if
             # end if
         # end if
@@ -694,4 +697,9 @@ class StrandItem(QGraphicsLineItem):
 
     def modelSelect(self, document):
         self.setSelected(True)
+    # end def
+    
+    def paint(self, painter, option, widget):
+        painter.setPen(self.pen())
+        painter.drawLine(self.line())
     # end def

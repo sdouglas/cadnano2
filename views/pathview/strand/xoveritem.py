@@ -452,7 +452,7 @@ class XoverItem(QGraphicsPathItem):
     
     def penAndBrushSet(self, value):
         if value == True:
-            color = QColor("#cccccc")
+            color = QColor("#ff3333")
         else:
             oligo = self._strandItem.strand().oligo()
             color = QColor(oligo.color())
@@ -471,7 +471,7 @@ class XoverItem(QGraphicsPathItem):
             selectionGroup = viewroot.strandItemSelectionGroup()
             
             # only add if the selectionGroup is not locked out
-            if value == True and self._filterName in currentFilterDict:
+            if value == True and (self._filterName in currentFilterDict or not selectionGroup.isNormalSelect()):
                 if self.group() != selectionGroup and sI.strandFilter() in currentFilterDict:
                     if selectionGroup.isNormalSelect():
                         selectionGroup.pendToAdd(self)
@@ -499,13 +499,13 @@ class XoverItem(QGraphicsPathItem):
         strand3p = strand5p.connection3p()
         selectDict = document.selectionDict()
         test5p = strand5p in selectDict
-        lowVal5p, highVal5p = selectDict[strand5p] if test5p else False, False
+        lowVal5p, highVal5p = selectDict[strand5p] if test5p else (False, False)
         if strand5p.isDrawn5to3():
             highVal5p = False
         else:
             lowVal5p = False
         test3p = strand3p in selectDict
-        lowVal3p, highVal3p = selectDict[strand3p] if test3p else False, False
+        lowVal3p, highVal3p = selectDict[strand3p] if test3p else (False, False)
         if strand3p.isDrawn5to3():
             lowVal3p = False
         else:
@@ -513,11 +513,11 @@ class XoverItem(QGraphicsPathItem):
         
         if not lowVal5p and not highVal5p and test5p:
             document.removeFromSelection(strand5p)
-        else:
+        elif test5p:
             document.addToSelection(strand5p, (lowVal5p, highVal5p))
         if not lowVal3p and not highVal3p and test3p:
             document.removeFromSelection(strand3p)
-        else:
+        elif test3p:
             document.addToSelection(strand3p, (lowVal3p, highVal3p))
         self.restoreParent()
     # end def
@@ -545,4 +545,9 @@ class XoverItem(QGraphicsPathItem):
         document.addToSelection(strand3p, (lowVal3p, highVal3p))
     # end def
     
+    def paint(self, painter, option, widget):
+        painter.setPen(self.pen())
+        painter.setBrush(self.brush())
+        painter.drawPath(self.path())
+    # end def
 # end class XoverItem

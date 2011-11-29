@@ -80,8 +80,8 @@ class Document(QObject):
 
     ### PUBLIC METHODS FOR QUERYING THE MODEL ###
     def addToSelection(self, obj, value):
-       self._selectionDict[obj] = value
-       self._selectedChangedDict[obj] = value
+        self._selectionDict[obj] = value
+        self._selectedChangedDict[obj] = value
     # end def
     
     def removeFromSelection(self, obj):
