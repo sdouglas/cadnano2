@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'mainwindow/mainwindow.ui'
 #
-# Created: Tue Nov 29 13:20:05 2011
+# Created: Tue Nov 29 14:40:32 2011
 #      by: PyQt4 UI code generator 4.8.6
 #
 # WARNING! All changes made in this file will be lost!
@@ -354,7 +354,7 @@ class Ui_MainWindow(object):
         self.actionFilterPart.setObjectName(_fromUtf8("actionFilterPart"))
         self.actionFilterEndpoint = QtGui.QAction(MainWindow)
         self.actionFilterEndpoint.setCheckable(True)
-        self.actionFilterEndpoint.setChecked(False)
+        self.actionFilterEndpoint.setChecked(True)
         icon21 = QtGui.QIcon()
         icon21.addPixmap(QtGui.QPixmap(_fromUtf8(":/parttools/filter-endpoint")), QtGui.QIcon.Normal, QtGui.QIcon.Off)
         self.actionFilterEndpoint.setIcon(icon21)
@@ -389,6 +389,17 @@ class Ui_MainWindow(object):
         self.actionFilterHandle.setText(QtGui.QApplication.translate("MainWindow", " ", None, QtGui.QApplication.UnicodeUTF8))
         self.actionFilterHandle.setToolTip(QtGui.QApplication.translate("MainWindow", "Helix-handle-selection mode", None, QtGui.QApplication.UnicodeUTF8))
         self.actionFilterHandle.setObjectName(_fromUtf8("actionFilterHandle"))
+        self.actionFilterScaf = QtGui.QAction(MainWindow)
+        self.actionFilterScaf.setCheckable(True)
+        self.actionFilterScaf.setChecked(True)
+        self.actionFilterScaf.setText(QtGui.QApplication.translate("MainWindow", "Scaffold", None, QtGui.QApplication.UnicodeUTF8))
+        self.actionFilterScaf.setToolTip(QtGui.QApplication.translate("MainWindow", "Scaffold-selection mode", None, QtGui.QApplication.UnicodeUTF8))
+        self.actionFilterScaf.setObjectName(_fromUtf8("actionFilterScaf"))
+        self.actionFilterStap = QtGui.QAction(MainWindow)
+        self.actionFilterStap.setCheckable(True)
+        self.actionFilterStap.setText(QtGui.QApplication.translate("MainWindow", "Staple", None, QtGui.QApplication.UnicodeUTF8))
+        self.actionFilterStap.setToolTip(QtGui.QApplication.translate("MainWindow", "Staple-selection mode", None, QtGui.QApplication.UnicodeUTF8))
+        self.actionFilterStap.setObjectName(_fromUtf8("actionFilterStap"))
         self.menuOpen_recent_files.addSeparator()
         self.menuFile.addAction(self.actionNew)
         self.menuFile.addAction(self.actionOpen)
@@ -425,6 +436,8 @@ class Ui_MainWindow(object):
         self.topToolBar.addAction(self.actionFilterEndpoint)
         self.topToolBar.addAction(self.actionFilterStrand)
         self.topToolBar.addAction(self.actionFilterXover)
+        self.topToolBar.addAction(self.actionFilterScaf)
+        self.topToolBar.addAction(self.actionFilterStap)
         self.rightToolBar.addAction(self.actionPathSelect)
         self.rightToolBar.addAction(self.actionPathPencil)
         self.rightToolBar.addAction(self.actionPathBreak)

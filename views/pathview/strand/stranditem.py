@@ -608,7 +608,7 @@ class StrandItem(QGraphicsLineItem):
     def penAndBrushSet(self, value):
         pen = self.pen()
         if value == True:
-            color = QColor("#cccccc")
+            color = QColor("#ff3333")
         else:
             oligo = self._modelStrand.oligo()
             color = QColor(oligo.color())

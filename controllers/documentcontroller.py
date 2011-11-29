@@ -122,6 +122,8 @@ class DocumentController():
         self.win.actionFilterEndpoint.triggered.connect(self.actionFilterEndpointSlot)
         self.win.actionFilterStrand.triggered.connect(self.actionFilterStrandSlot)
         self.win.actionFilterXover.triggered.connect(self.actionFilterXoverSlot)
+        self.win.actionFilterScaf.triggered.connect(self.actionFilterScafSlot)
+        self.win.actionFilterStap.triggered.connect(self.actionFilterStapSlot)
 
     ### SLOTS ###
     def undoStackCleanChangedSlot(self):
@@ -131,9 +133,11 @@ class DocumentController():
 
     def actionFilterHandleSlot(self):
         """Disables all other selection filters when active."""
+        fH = self.win.actionFilterHandle
         fE = self.win.actionFilterEndpoint
         fS = self.win.actionFilterStrand
         fX = self.win.actionFilterXover
+        fH.setChecked(True)
         if fE.isChecked():
             fE.setChecked(False)
         if fS.isChecked():
@@ -142,22 +146,60 @@ class DocumentController():
             fX.setChecked(False)
 
     def actionFilterEndpointSlot(self):
-        """Disables handle filters when active."""
+        """
+        Disables handle filters when activated.
+        Remains checked if no other item-type filter is active.
+        """
         fH = self.win.actionFilterHandle
+        fE = self.win.actionFilterEndpoint
+        fS = self.win.actionFilterStrand
+        fX = self.win.actionFilterXover
         if fH.isChecked():
             fH.setChecked(False)
+        if not fS.isChecked() and not fX.isChecked():
+            fE.setChecked(True)
 
     def actionFilterStrandSlot(self):
-        """Disables handle filters when active."""
+        """
+        Disables handle filters when activated.
+        Remains checked if no other item-type filter is active.
+        """
         fH = self.win.actionFilterHandle
+        fE = self.win.actionFilterEndpoint
+        fS = self.win.actionFilterStrand
+        fX = self.win.actionFilterXover
         if fH.isChecked():
             fH.setChecked(False)
+        if not fE.isChecked() and not fX.isChecked():
+            fS.setChecked(True)
 
     def actionFilterXoverSlot(self):
-        """Disables handle filters when active."""
+        """
+        Disables handle filters when activated.
+        Remains checked if no other item-type filter is active.
+        """
         fH = self.win.actionFilterHandle
+        fE = self.win.actionFilterEndpoint
+        fS = self.win.actionFilterStrand
+        fX = self.win.actionFilterXover
         if fH.isChecked():
             fH.setChecked(False)
+        if not fE.isChecked() and not fS.isChecked():
+            fX.setChecked(True)
+
+    def actionFilterScafSlot(self):
+        """Remains checked if no other strand-type filter is active."""
+        fSc = self.win.actionFilterScaf
+        fSt = self.win.actionFilterStap
+        if not fSc.isChecked() and not fSt.isChecked():
+            fSc.setChecked(True)
+
+    def actionFilterStapSlot(self):
+        """Remains checked if no other strand-type filter is active."""
+        fSc = self.win.actionFilterScaf
+        fSt = self.win.actionFilterStap
+        if not fSc.isChecked() and not fSt.isChecked():
+            fSt.setChecked(True)
 
     def actionNewSlot(self):
         """

@@ -270,6 +270,8 @@
    <addaction name="actionFilterEndpoint"/>
    <addaction name="actionFilterStrand"/>
    <addaction name="actionFilterXover"/>
+   <addaction name="actionFilterScaf"/>
+   <addaction name="actionFilterStap"/>
   </widget>
   <widget class="QToolBar" name="rightToolBar">
    <property name="sizePolicy">
@@ -745,7 +747,7 @@
     <bool>true</bool>
    </property>
    <property name="checked">
-    <bool>false</bool>
+    <bool>true</bool>
    </property>
    <property name="icon">
     <iconset resource="icons.qrc">
@@ -809,6 +811,31 @@
    </property>
    <property name="toolTip">
     <string>Helix-handle-selection mode</string>
+   </property>
+  </action>
+  <action name="actionFilterScaf">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="checked">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Scaffold</string>
+   </property>
+   <property name="toolTip">
+    <string>Scaffold-selection mode</string>
+   </property>
+  </action>
+  <action name="actionFilterStap">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Staple</string>
+   </property>
+   <property name="toolTip">
+    <string>Staple-selection mode</string>
    </property>
   </action>
  </widget>
