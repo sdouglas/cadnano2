@@ -337,7 +337,7 @@ class StrandItem(QGraphicsLineItem):
         # (unconnected caps were made visible in previous block of code)
         if strand.length() == 1 and \
                   (lowCap.isVisible() and highCap.isVisible()):
-            lowCap.hide()  # hide 
+            lowCap.hide()
             highCap.hide()
             dualCap.setPos(lUpperLeftX, lUpperLeftY)
             dualCap.show()
@@ -599,25 +599,24 @@ class StrandItem(QGraphicsLineItem):
         """
         Required to restore parenting and positioning in the partItem
         """
-
         # map the position
         vhItem = self.virtualHelixItem()
         if pos == None:
             pos = self.scenePos()
-        self.setParentItem(vhItem)            
+        self.setParentItem(vhItem)
         tempP = vhItem.mapFromScene(pos)
         self.setPos(tempP)
         self.penAndBrushSet(False)
-        
+
         assert(self.parentItem() == vhItem)
         # print "restore", self.parentItem(), self.group()
         assert(self.group() == None)
         self.setSelected(False)
     # end def
-    
+
     def penAndBrushSet(self, value):
         if value == True:
-            color = QColor("#cccccc")
+            color = QColor("#ff3333")
         else:
             oligo = self._modelStrand.oligo()
             color = QColor(oligo.color())
@@ -660,7 +659,7 @@ class StrandItem(QGraphicsLineItem):
         # end if
         return QGraphicsItem.itemChange(self, change, value)
     # end def
-    
+
     def selectXoverIfRequired(self, document):
         strand5p = self._modelStrand
         con3p = strand5p.connection3p()
@@ -680,13 +679,13 @@ class StrandItem(QGraphicsLineItem):
             # end if
         # end if
     # end def
-    
+
     def modelDeselect(self, document):
         self.restoreParent()
         self._lowCap.modelDeselect(document)
         self._highCap.modelDeselect(document)
     # end def
-    
+
     def modelSelect(self, document):
         self.setSelected(True)
     # end def

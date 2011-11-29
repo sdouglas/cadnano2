@@ -371,7 +371,7 @@ class EndpointItem(QGraphicsPathItem):
     
     def penAndBrushSet(self, value):
         if value == True:
-            color = QColor("#cccccc")
+            color = QColor("#ff3333")
         else:
             oligo = self._strandItem.strand().oligo()
             color = QColor(oligo.color())
