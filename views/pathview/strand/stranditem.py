@@ -50,11 +50,14 @@ _noPen = QPen(Qt.NoPen)
 
 
 class StrandItem(QGraphicsLineItem):
-    def __init__(self, modelStrand, virtualHelixItem):
+    _filterName = "strand"
+    
+    def __init__(self, modelStrand, virtualHelixItem, viewroot):
         """The parent should be a VirtualHelixItem."""
         super(StrandItem, self).__init__(virtualHelixItem)
         self._modelStrand = modelStrand
         self._virtualHelixItem = virtualHelixItem
+        self._viewroot = viewroot
         self._activeTool = virtualHelixItem.activeTool()
 
         self._controller = StrandItemController(self, modelStrand)
@@ -209,6 +212,10 @@ class StrandItem(QGraphicsLineItem):
     ### ACCESSORS ###
     def activeTool(self):
         return self._activeTool
+    # end def
+    
+    def viewroot(self):
+        return self._viewroot
     # end def
 
     def insertionItems(self):
@@ -487,7 +494,7 @@ class StrandItem(QGraphicsLineItem):
     # end def
 
     def selectToolMousePress(self, idx):
-        self.partItem().setSelectionLock(None)
+        self._viewroot.setSelectionLock(None)
         self.setSelected(True)
     # end def
 
@@ -623,25 +630,27 @@ class StrandItem(QGraphicsLineItem):
         # for selection changes test against QGraphicsItem.ItemSelectedChange
         # intercept the change instead of the has changed to enable features.
         if change == QGraphicsItem.ItemSelectedChange and self.scene():
-            partItem = self.partItem()
-            selectionGroup = partItem.strandItemSelectionGroup()
-            lock = selectionGroup.selectionLock()
+            viewroot = self._viewroot
+            currentFilterDict = viewroot.selectionFilterDict()
+            selectionGroup = viewroot.strandItemSelectionGroup()
+            
             # only add if the selectionGroup is not locked out
-            if value == True and (lock == None or lock == selectionGroup):
+            if value == True and self._filterName in currentFilterDict:
                 if self.group() != selectionGroup:
-                    # print "preadd", self.parentItem(), self.group()
                     selectionGroup.pendToAdd(self)
-                    # print "postadd", self.parentItem(), self.group()
                     selectionGroup.setSelectionLock(selectionGroup)
                     self.penAndBrushSet(True)
                     selectionGroup.pendToAdd(self._lowCap)
                     selectionGroup.pendToAdd(self._highCap)
                     return True
+                else:
+                    return False
             # end if
             elif value == True:
+                # Don't select
                 return False
             else:
-                # print "deselect", self.parentItem(), self.group()
+                # Deselect
                 selectionGroup.pendToRemove(self)
                 self.penAndBrushSet(False)
                 selectionGroup.pendToRemove(self._lowCap)
@@ -655,7 +664,7 @@ class StrandItem(QGraphicsLineItem):
     def selectXoverIfRequired(self, document):
         strand5p = self._modelStrand
         con3p = strand5p.connection3p()
-        selectionGroup = self.partItem().strandItemSelectionGroup()
+        selectionGroup = self._viewroot.strandItemSelectionGroup()
         # check this strands xover
         if con3p:
             if document.isModelSelected(con3p) and document.isModelSelected(strand5p):

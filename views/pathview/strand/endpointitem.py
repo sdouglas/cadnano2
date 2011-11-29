@@ -84,6 +84,9 @@ _noPen = QPen(Qt.NoPen)
 
 
 class EndpointItem(QGraphicsPathItem):
+    
+    _filterName = "endpoint"
+    
     def __init__(self, strandItem, captype, isDrawn5to3):
         """The parent should be a StrandItem."""
         super(EndpointItem, self).__init__(strandItem.virtualHelixItem())
@@ -381,24 +384,25 @@ class EndpointItem(QGraphicsPathItem):
         # for selection changes test against QGraphicsItem.ItemSelectedChange
         # intercept the change instead of the has changed to enable features.
         if change == QGraphicsItem.ItemSelectedChange and self.scene():
-            partItem = self.partItem()
-            selectionGroup = partItem.strandItemSelectionGroup()
-            lock = selectionGroup.selectionLock()
+            viewroot = self._strandItem.viewroot()
+            currentFilterDict = viewroot.selectionFilterDict()
+            selectionGroup = viewroot.strandItemSelectionGroup()
     
             # only add if the selectionGroup is not locked out
-            if value == True and (lock == None or lock == selectionGroup):
+            if value == True and self._filterName in currentFilterDict:
                 if self.group() != selectionGroup:
-                    # print "preadd", self.parentItem(), self.group(), self.pos().y()
                     selectionGroup.pendToAdd(self)
-                    # print "postadd", self.parentItem(), self.group(), self.pos().y()
                     selectionGroup.setSelectionLock(selectionGroup)
                     self.penAndBrushSet(True)
                     return True
+                else:
+                    return False
             # end if
             elif value == True:
+                # don't select
                 return False
             else:
-                # print "deselect", self.parentItem(), self.group(), self.pos()
+                # Deselect
                 # Check if the strand is being added to the selection group still
                 if not selectionGroup.isPending(self._strandItem):
                     selectionGroup.pendToRemove(self)

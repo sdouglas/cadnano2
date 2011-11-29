@@ -235,7 +235,8 @@ class XoverItem(QGraphicsPathItem):
 
     XoverItem should be a child of a PartItem.
     """
-
+    _filterName = "xover"
+    
     def __init__(self, strandItem, virtualHelixItem):
         """
         strandItem is a the model representation of the 5prime most strand
@@ -464,24 +465,25 @@ class XoverItem(QGraphicsPathItem):
         # for selection changes test against QGraphicsItem.ItemSelectedChange
         # intercept the change instead of the has changed to enable features.
         if change == QGraphicsItem.ItemSelectedChange and self.scene():
-            partItem = self._virtualHelixItem.partItem()
-            selectionGroup = partItem.strandItemSelectionGroup()
-            lock = selectionGroup.selectionLock()
+            viewroot = self._strandItem.viewroot()
+            currentFilterDict = viewroot.selectionFilterDict()
+            selectionGroup = viewroot.strandItemSelectionGroup()
+            
             # only add if the selectionGroup is not locked out
-            if value == True and (lock == None or lock == selectionGroup):
+            if value == True and self._filterName in currentFilterDict:
                 if self.group() != selectionGroup:
-                    # print "preadd", self.parentItem(), self.group(), self.pos().y()
                     if selectionGroup.isNormalSelect():
                         selectionGroup.pendToAdd(self)
-                        # print "postadd", self.parentItem(), self.group(), self.pos().y()
                         selectionGroup.setSelectionLock(selectionGroup)
                     self.penAndBrushSet(True)
                     return True
+                else:
+                    return False
             # end if
             elif value == True:
                 return False
             else:
-                # print "deselect", self.parentItem(), self.group(), self.pos()
+                # Deselect
                 # Check if the strand is being added to the selection group still
                 selectionGroup.pendToRemove(self)
                 self.penAndBrushSet(False)
@@ -538,9 +540,6 @@ class XoverItem(QGraphicsPathItem):
             highVal3p = True
         
         self.setSelected(True)
-        # partItem = self._virtualHelixItem.partItem()
-        # selectionGroup = partItem.strandItemSelectionGroup()
-        # if selectionGroup.isNormalSelect():
         document.addToSelection(strand5p, (lowVal5p, highVal5p))
         document.addToSelection(strand3p, (lowVal3p, highVal3p))
     # end def

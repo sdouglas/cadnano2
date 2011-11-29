@@ -25,6 +25,9 @@
 from exceptions import ImportError
 from controllers.viewrootcontroller import ViewRootController
 from partitem import PartItem
+from pathselection import SelectionItemGroup
+from pathselection import PathHelixHandleSelectionBox
+from pathselection import BreakpointHandleSelectionBox
 import util
 util.qtWrapImport('QtCore', globals(), ['pyqtSignal', 'QObject'])
 util.qtWrapImport('QtGui', globals(), ['QGraphicsRectItem'])
@@ -47,6 +50,9 @@ class PathRootItem(QGraphicsRectItem):
         self._controller = ViewRootController(self, document)
         self._modelPart = None
         self._partItems = []
+        self._selectionFilterDict = {}
+        self._selectionFilterDict = {'strand':True, 'xover':True, 'endpoint':True}
+        self._initSelections()
     # end def
 
     ### SIGNALS ###
@@ -62,6 +68,7 @@ class PathRootItem(QGraphicsRectItem):
         self._modelPart = modelPart
         win = self._window
         partItem = PartItem(modelPart,\
+                            viewroot=self, \
                             activeTool=win.pathToolManager.activeTool,\
                             parent=self)
         self._partItems.append(partItem)
@@ -76,6 +83,14 @@ class PathRootItem(QGraphicsRectItem):
         for item, value in itemDict:
             item.selectionProcess(value)
     # end def
+    
+    def selectionFilterChangedSlot(self, filterNameList):
+        self._vhiHSelectionGroup.clearSelection(False)
+        self._strandItemSelectionGroup.clearSelection(False)
+        self.clearSelectionFilterDict()
+        for filterName in filterNameList:
+            self.addToSelectionFilterDict(filterName)
+    # end def
 
     ### ACCESSORS ###
     def sliceToolManager(self):
@@ -88,6 +103,22 @@ class PathRootItem(QGraphicsRectItem):
 
     def window(self):
         return self._window
+    # end def
+    
+    def document(self):
+        return self._document
+    # end def
+    
+    def _initSelections(self):
+        """Initialize anything related to multiple selection."""
+        bType = PathHelixHandleSelectionBox
+        self._vhiHSelectionGroup = SelectionItemGroup(boxtype=bType,\
+                                                      constraint='y',\
+                                                      parent=self)
+        bType = BreakpointHandleSelectionBox
+        self._strandItemSelectionGroup = SelectionItemGroup(boxtype=bType,\
+                                                      constraint='x',\
+                                                      parent=self)
     # end def
 
     ### PUBLIC METHODS ###
@@ -113,4 +144,36 @@ class PathRootItem(QGraphicsRectItem):
         """docstring for setModifyState"""
         for partItem in self._partItems:
             partItem.setModifyState(bool)
+    # end def
+    
+    def selectionFilterDict(self):
+        return self._selectionFilterDict
+    # end def
+    
+    def addToSelectionFilterDict(self, filterName):
+        self._selectionFilterDict[filterName] = True
+    # end def
+    
+    def removeFromSelectionFilterDict(self, filterName):
+        del self._selectionFilterDict[filterName]
+    # end def
+    
+    def clearSelectionFilterDict(self):
+        self._selectionFilterDict = {}
+    # end def
+
+    def vhiHandleSelectionGroup(self):
+        return self._vhiHSelectionGroup
+    # end def
+    
+    def strandItemSelectionGroup(self):
+        return self._strandItemSelectionGroup
+    # end def
+    
+    def selectionLock(self):
+        return self.scene().views()[0].selectionLock()
+    # end def
+
+    def setSelectionLock(self, locker):
+        self.scene().views()[0].setSelectionLock(locker)
     # end def

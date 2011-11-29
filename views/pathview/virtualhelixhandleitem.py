@@ -50,10 +50,13 @@ _font = styles.VIRTUALHELIXHANDLEITEM_FONT
 
 class VirtualHelixHandleItem(QGraphicsEllipseItem):
     """docstring for VirtualHelixHandleItem"""
-    def __init__(self, virtualHelix, partItem):
+    _filterName = "virtualhelix"
+    
+    def __init__(self, virtualHelix, partItem, viewroot):
         super(VirtualHelixHandleItem, self).__init__(partItem)
         self._virtualHelix = virtualHelix
         self._partItem = partItem
+        self._viewroot = viewroot
         self._beingHoveredOver = False
         self.setAcceptsHoverEvents(True)
         # handle the label specific stuff
@@ -207,9 +210,9 @@ class VirtualHelixHandleItem(QGraphicsEllipseItem):
         # intercept the change instead of the has changed to enable features.
 
         if change == QGraphicsItem.ItemSelectedChange and self.scene():
-            partItem = self._partItem
-            selectionGroup = partItem.vhiHandleSelectionGroup()
-            lock = selectionGroup.selectionLock()
+            viewroot = self._strandItem.viewroot()
+            currentFilterDict = viewroot.selectionFilterDict()
+            selectionGroup = viewroot.vhiHandleSelectionGroup()
 
             # only add if the selectionGroup is not locked out
             if value == True and (lock == None or lock == selectionGroup):
