@@ -136,11 +136,6 @@ class PartItem(QGraphicsItem):
         self._controller = None
     # end def
 
-    def partDestroyedSlot(self):
-        """docstring for partDestroyedSlot"""
-        pass
-    # end def
-
     def partVirtualHelicesReorderedSlot(self, orderedCoordList):
         pass
     # end def

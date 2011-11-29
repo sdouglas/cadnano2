@@ -77,6 +77,9 @@ class ColorPanel(QGraphicsItem):
         self._stapBrush.setColor(self._stapColor)
         self.update()
 
+    def prevColor(self):
+        self._stapColorIndex -= 1
+
     def color(self):
         return self._stapColor
 

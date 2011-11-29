@@ -33,13 +33,15 @@ from views import styles
 from xoveritem import XoverItem
 from decorators.insertionitem import InsertionItem
 
+import views.pathview.pathselection as pathselection
+
 import util
 # import Qt stuff into the module namespace with PySide, PyQt4 independence
 util.qtWrapImport('QtCore', globals(), ['pyqtSignal', 'QObject', 'Qt', 'QRectF'])
-util.qtWrapImport('QtGui', globals(), ['QBrush', 'QColor', 'QFont',
-                                       'QFontMetricsF', 'QGraphicsLineItem',
-                                       'QGraphicsPathItem',
-                                       'QGraphicsSimpleTextItem',
+util.qtWrapImport('QtGui', globals(), ['QBrush', 'QColor', 'QFont', \
+                                       'QFontMetricsF', 'QGraphicsLineItem', \
+                                       'QGraphicsPathItem', 'QGraphicsItem', \
+                                       'QGraphicsSimpleTextItem', \
                                        'QGraphicsRectItem', 'QPen'])
 
 _baseWidth = styles.PATH_BASE_WIDTH
@@ -83,6 +85,8 @@ class StrandItem(QGraphicsLineItem):
         self._xover3pEnd = XoverItem(self, virtualHelixItem)
         # initial refresh
         self._updateAppearance(modelStrand)
+        
+        self.setFlag(QGraphicsItem.ItemIsSelectable)
     # end def
 
     ### SIGNALS ###
@@ -132,16 +136,6 @@ class StrandItem(QGraphicsLineItem):
         self._virtualHelixItem = None
         scene.removeItem(self)
     # end def
-
-    def strandDestroyedSlot(self, strand):
-        pass
-    # end def
-
-    # def strandXover5pChangedSlot(self, strand5p, strand3p):
-    #     pass
-    #     # partItem = self._virtualHelixItem.partItem()
-    #     # partItem.updatePreXoverItems()
-    # #  end def
 
     def strandUpdateSlot(self, strand):
         """
@@ -207,6 +201,10 @@ class StrandItem(QGraphicsLineItem):
     def strandModifierRemovedSlot(self, strand, index):
         pass
     # end def
+    
+    def selectedChangedSlot(self, strand, indices):
+        self.selectXoverIfRequired(self.partItem().document())
+    # end def
 
     ### ACCESSORS ###
     def activeTool(self):
@@ -228,9 +226,10 @@ class StrandItem(QGraphicsLineItem):
     def virtualHelixItem(self):
         return self._virtualHelixItem
     # end def
-
-    def virtualHelixItem(self):
-        return self._virtualHelixItem
+    
+    def partItem(self):
+        return self._virtualHelixItem.partItem()
+    # end def
 
     def window(self):
         return self._virtualHelixItem.window()
@@ -316,14 +315,16 @@ class StrandItem(QGraphicsLineItem):
         if strand.connectionLow() != None:  # has low xover
             lowCap.hide()
         else:  # has low cap
-            lowCap.show()
+            if not lowCap.isVisible():
+                lowCap.show()
 
         hx = hUpperLeftX  # draw to edge of base
         highCap.setPos(hUpperLeftX, hUpperLeftY)
         if strand.connectionHigh() != None:  # has high xover
             highCap.hide()
         else:  # has high cap
-            highCap.show()
+            if not highCap.isVisible():
+                highCap.show()
 
         # special case: single-base strand with no L or H connections,
         # (unconnected caps were made visible in previous block of code)
@@ -485,6 +486,10 @@ class StrandItem(QGraphicsLineItem):
         # breakTool.updateHoverRect(vhi, mStrand, idx, show=True)
     # end def
 
+    def selectToolMousePress(self, idx):
+        self.partItem().setSelectionLock(None)
+        self.setSelected(True)
+    # end def
 
     def pencilToolMousePress(self, idx):
         """Break the strand is possible."""
@@ -581,4 +586,98 @@ class StrandItem(QGraphicsLineItem):
         mStrand = self._modelStrand
         if mStrand.isScaffold():
             self._activeTool().applySequence(mStrand.oligo())
+    # end def
+    
+    def restoreParent(self, pos=None):
+        """
+        Required to restore parenting and positioning in the partItem
+        """
+
+        # map the position
+        vhItem = self.virtualHelixItem()
+        if pos == None:
+            pos = self.scenePos()
+        self.setParentItem(vhItem)            
+        tempP = vhItem.mapFromScene(pos)
+        self.setPos(tempP)
+        self.penAndBrushSet(False)
+        
+        assert(self.parentItem() == vhItem)
+        # print "restore", self.parentItem(), self.group()
+        assert(self.group() == None)
+        self.setSelected(False)
+    # end def
+    
+    def penAndBrushSet(self, value):
+        if value == True:
+            color = QColor("#cccccc")
+        else:
+            oligo = self._modelStrand.oligo()
+            color = QColor(oligo.color())
+        pen = self.pen()
+        pen.setColor(color)
+        self.setPen(pen)
+    # end def
+
+    def itemChange(self, change, value):
+        # for selection changes test against QGraphicsItem.ItemSelectedChange
+        # intercept the change instead of the has changed to enable features.
+        if change == QGraphicsItem.ItemSelectedChange and self.scene():
+            partItem = self.partItem()
+            selectionGroup = partItem.strandItemSelectionGroup()
+            lock = selectionGroup.selectionLock()
+            # only add if the selectionGroup is not locked out
+            if value == True and (lock == None or lock == selectionGroup):
+                if self.group() != selectionGroup:
+                    # print "preadd", self.parentItem(), self.group()
+                    selectionGroup.pendToAdd(self)
+                    # print "postadd", self.parentItem(), self.group()
+                    selectionGroup.setSelectionLock(selectionGroup)
+                    self.penAndBrushSet(True)
+                    selectionGroup.pendToAdd(self._lowCap)
+                    selectionGroup.pendToAdd(self._highCap)
+                    return True
+            # end if
+            elif value == True:
+                return False
+            else:
+                # print "deselect", self.parentItem(), self.group()
+                selectionGroup.pendToRemove(self)
+                self.penAndBrushSet(False)
+                selectionGroup.pendToRemove(self._lowCap)
+                selectionGroup.pendToRemove(self._highCap)
+                return False
+            # end else
+        # end if
+        return QGraphicsItem.itemChange(self, change, value)
+    # end def
+    
+    def selectXoverIfRequired(self, document):
+        strand5p = self._modelStrand
+        con3p = strand5p.connection3p()
+        selectionGroup = self.partItem().strandItemSelectionGroup()
+        # check this strands xover
+        if con3p:
+            if document.isModelSelected(con3p) and document.isModelSelected(strand5p):
+                val3p, val5p = document.getSelectedValues((con3p, strand5p))
+                test3p = val3p[0] if con3p.isDrawn5to3() else val3p[1]
+                test5p = val5p[1] if strand5p.isDrawn5to3() else val5p[0]
+                if test3p and test5p:
+                    selectionGroup.setNormalSelect(False)
+                    self._xover3pEnd.modelSelect(document)
+                    selectionGroup.addToGroup(self._xover3pEnd)
+                    selectionGroup.setNormalSelect(True)
+                # end if
+            # end if
+        # end if
+    # end def
+    
+    def modelDeselect(self, document):
+        self.restoreParent()
+        self._lowCap.modelDeselect(document)
+        self._highCap.modelDeselect(document)
+    # end def
+    
+    def modelSelect(self, document):
+        self.setSelected(True)
     # end def

@@ -331,11 +331,6 @@ class StrandSet(QObject):
     def virtualHelix(self):
         return self._virtualHelix
 
-    def strandToBeDestroyed(self, strand):
-        """when is this method called?"""
-        strandList = self.strandList
-        del strandList[strand.idx]
-
     def hasStrandAt(self, idxLow, idxHigh):
         """
         """

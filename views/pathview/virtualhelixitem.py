@@ -62,6 +62,7 @@ class VirtualHelixItem(QGraphicsPathItem):
         self.setPen(_gridPen)
         self.setPath(self._gridPainterPath)
         self.setAcceptHoverEvents(True)  # for pathtools
+        self.setZValue(styles.ZPATHHELIX)
     # end def
 
     ### SIGNALS ###

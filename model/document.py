@@ -44,12 +44,20 @@ class Document(QObject):
         self._parts = []
         self._assemblies = []
         self._controller = None
-        self._selectedPart = None
+        
+        # the dictionary maintains what is selected
+        self._selectionDict = {}
+        # the added list is what was recently selected or deselected
+        self._selectedChangedDict = {}
 
     ### SIGNALS ###
     documentPartAddedSignal = pyqtSignal(QObject)  # part
-    documentSelectedPartChangedSignal = pyqtSignal(QObject)  # part
-
+    
+    # dict of tuples of objects using the reference as the key, and the value is
+    # a tuple with meta data
+    # in the case of strands the metadata would be which endpoints of selected
+    # e.g. { objectRef: (value0, value1),  ...}
+    documentSelectedChangedSignal = pyqtSignal(dict)   # dict of tuples of items and data 
     ### SLOTS ###
 
     ### ACCESSORS ###
@@ -70,8 +78,50 @@ class Document(QObject):
         return self._assemblies
 
     ### PUBLIC METHODS FOR QUERYING THE MODEL ###
-    def selectedPart(self):
-        return self._selectedPart
+    def addToSelection(self, obj, value):
+       self._selectionDict[obj] = value
+       self._selectedChangedDict[obj] = value
+    # end def
+    
+    def removeFromSelection(self, obj):
+        if obj in self._selectionDict:
+            del self._selectionDict[obj]
+            self._selectedChangedDict[obj] = (False, False)
+    # end def
+    
+    def selectionDict(self):
+        return self._selectionDict
+    # end def
+    
+    def isModelSelected(self, obj):
+        return obj in self._selectionDict
+    # end def
+    
+    def getSelectedValues(self, args):
+        """
+        args is a tuple of objects to look up
+        they are prevetted to be in the dictionary 
+        """
+        valueList = []
+        for obj in args:
+            valueList.append(self._selectionDict[obj])
+        # end for
+        return valueList
+            
+    def updateSelection(self):
+        """
+        do it this way in the future when we have a better signaling architecture between views
+        """
+        # self.documentSelectedChangedSignal.emit(self._selectedChangedDict)
+        """
+        For now, individual objects need to emit signals
+        """
+        print "updating selection"
+        for obj, value in self._selectedChangedDict.iteritems():
+            obj.selectedChangedSignal.emit(obj, value)
+        # end for
+        self._selectedChangedDict = {}
+    # end def
 
     ### PUBLIC METHODS FOR EDITING THE MODEL ###
     def addHoneycombPart(self):
@@ -99,15 +149,9 @@ class Document(QObject):
         for part in self._parts:
             part.remove(useUndoStack=False)
     # end def
-    
+
     def removePart(self, part):
         self._parts.remove(part)
-
-    def setSelectedPart(self, newPart):
-        if self._selectedPart == newPart:
-            return
-        self._selectedPart = newPart
-        self.documentSelectedPartChangedSignal.emit(newPart)
 
     ### PUBLIC SUPPORT METHODS ###
     def setController(self, controller):
@@ -138,7 +182,6 @@ class Document(QObject):
             if len(self._doc._parts) == 0:
                 self._doc._parts.append(self._part)
                 self._part.setDocument(self._doc)
-                self._doc.setSelectedPart(self._part)
                 self._doc.documentPartAddedSignal.emit(self._part)
 
         def undo(self):

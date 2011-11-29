@@ -90,10 +90,13 @@ class PartItem(QGraphicsRectItem):
 
     def _initSelections(self):
         """Initialize anything related to multiple selection."""
-        self._selectionLock = None
         bType = PathHelixHandleSelectionBox
         self._vhiHSelectionGroup = SelectionItemGroup(boxtype=bType,\
                                                       constraint='y',\
+                                                      parent=self)
+        bType = BreakpointHandleSelectionBox
+        self._strandItemSelectionGroup = SelectionItemGroup(boxtype=bType,\
+                                                      constraint='x',\
                                                       parent=self)
     # end def
 
@@ -128,7 +131,7 @@ class PartItem(QGraphicsRectItem):
     # end def
 
     def partRemovedSlot(self):
-        """docstring for partDestroyedSlot"""
+        """docstring for partRemovedSlot"""
         self._activeSliceItem.removed()
         self.parentItem().removePartItem(self)
         scene = self.scene()
@@ -138,12 +141,6 @@ class PartItem(QGraphicsRectItem):
         self._virtualHelixItemList = None
         self._controller.disconnectSignals()
         self._controller = None
-    # end def
-
-    def partDestroyedSlot(self):
-        """docstring for partDestroyedSlot"""
-        # print "PartItem.partDestroyedSlot"
-        pass
     # end def
 
     def partPreDecoratorSelectedSlot(self, row, col, baseIdx):
@@ -223,6 +220,11 @@ class PartItem(QGraphicsRectItem):
         """Return a reference to the model's part object"""
         return self._modelPart
     # end def
+    
+    def document(self):
+        """Return a reference to the model's document object"""
+        return self._modelPart.document()
+    # end def
 
     def removeVirtualHelixItem(self, virtualHelixItem):
         vh = virtualHelixItem.virtualHelix()
@@ -243,6 +245,10 @@ class PartItem(QGraphicsRectItem):
 
     def vhiHandleSelectionGroup(self):
         return self._vhiHSelectionGroup
+    # end def
+    
+    def strandItemSelectionGroup(self):
+        return self._strandItemSelectionGroup
     # end def
 
     def window(self):
@@ -416,11 +422,11 @@ class PartItem(QGraphicsRectItem):
     # end def
 
     def selectionLock(self):
-        return self._selectionLock
+        return self.scene().views()[0].selectionLock()
     # end def
 
     def setSelectionLock(self, locker):
-        self._selectionLock = locker
+        self.scene().views()[0].setSelectionLock(locker)
     # end def
 
     def setPreXoverItemsVisible(self, virtualHelixItem):

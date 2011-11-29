@@ -131,7 +131,7 @@ def contextCmdCreator():
 
 # initialize the script plug-in
 def initializePlugin(mobject):
-    """Register the context command with Maya""" 
+    """Register the context command with Maya"""
     mplugin = OpenMayaMPx.MFnPlugin(mobject)
     try:
         mplugin.registerContextCommand(contextCmdName, contextCmdCreator)
@@ -142,7 +142,7 @@ def initializePlugin(mobject):
 
 # uninitialize the script plug-in
 def uninitializePlugin(mobject):
-    """Remove the context command""" 
+    """Remove the context command"""
     mplugin = OpenMayaMPx.MFnPlugin(mobject)
     try:
         mplugin.deregisterContextCommand(contextCmdName)

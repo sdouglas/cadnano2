@@ -117,6 +117,8 @@ class CustomQGraphicsView(QGraphicsView):
         self._pressList = []  # bookkeeping to handle passing mouseevents
         self.toolbar = None  # custom hack for the paint tool palette
         self._name = None
+        
+        self._selectionLock = None  # a selection group to limit types of items selected
 
         if GL:
             self.setViewport(QGLWidget(QGLFormat(QGL.SampleBuffers)))
@@ -141,11 +143,21 @@ class CustomQGraphicsView(QGraphicsView):
         self._dollyZoomEnable = False
         self._hasFocus = False
         self._transformEnable = False
-
+    # end def
+    
+    def setSelectionLock(self, selectionLock):
+        self._selectionLock = selectionLock
+    # end def
+    
+    def selectionLock(self):
+        return self._selectionLock
+    # end def
+    
     def setScaleFitFactor(self, value):
         """docstring for setScaleFitFactor"""
         self._scaleFitFactor = value
-
+    # end def
+    
     def setKeyPan(self, button):
         """Set the class pan button remotely"""
         self._button_pan = button
@@ -301,7 +313,11 @@ class CustomQGraphicsView(QGraphicsView):
                 #end for
                 self._pressList = []
             # end if
+            if self._selectionLock:
+                self._selectionLock.processPendingToAddList()
+                # self._selectionLock = None
             QGraphicsView.mouseReleaseEvent(self, event)
+
     #end def
 
     def _panEnable(self):

@@ -134,14 +134,6 @@ class StrandItem(object):
         self._controller = None
     # end def
 
-    def strandDestroyedSlot(self, strand):
-        """strandDestroyedSlot - empty"""
-        pass
-
-    def strandXover5pRemovedSlot(self, strand):
-        """strandXover5pRemovedSlot - empty"""
-        pass
-
     def oligoAppearanceChangedSlot(self, oligo):
         """
         Receives notification from the model when a oligo changes appearance.
@@ -205,6 +197,10 @@ class StrandItem(object):
     def strandModifierRemovedSlot(self, strand, index):
         """strandModifierRemovedSlot - empty"""
         pass
+        
+    def selectedChangedSlot(self, strand, indices):
+        pass
+    # end def
 
     ### METHODS ###
     def createMayaHelixNodes(self, x, y, colorname, strandType, mID):

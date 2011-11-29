@@ -96,7 +96,7 @@ class PartItem(object):
 
         self.modifyState = False
     # end def
-    
+
     def parentItem(self):
         """Return parent item, which is SolidRootItem in this case"""
         return self._parentItem
@@ -136,11 +136,6 @@ class PartItem(object):
     # end def
 
     ### SLOTS ###
-    def partDestroyedSlot(self, part):
-        """partDestroyedSlot - empty"""
-        pass
-    # end def
-
     def partDimensionsChangedSlot(self, part):
         """
         Receives notification from the model when a dimentions of the part
@@ -153,7 +148,8 @@ class PartItem(object):
             for mID in vh.StrandIDs():
                 cylinderName = "%s%s" % (mom.helixNodeName, mID)
                 totalNumBases = self._part.maxBaseIdx()
-                cmds.setAttr("%s.totalBases" % cylinderName, int(totalNumBases))
+                cmds.setAttr("%s.totalBases" % cylinderName,
+                                                int(totalNumBases))
     # end def
 
     def partParentChangedSlot(self, part):
