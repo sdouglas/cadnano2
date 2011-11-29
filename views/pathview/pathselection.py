@@ -94,12 +94,8 @@ class SelectionItemGroup(QGraphicsItemGroup):
             del self._pendingToAddDict[item]
     # end def
     
-    def setNormalSelect(self):
-        self._normalSelect = True
-    # end def
-    
-    def setForceSelect(self):
-        self._normalSelect = False
+    def setNormalSelect(self, boolVal):
+        self._normalSelect = boolVal
     # end def
     
     def isNormalSelect(self):
@@ -247,14 +243,14 @@ class SelectionItemGroup(QGraphicsItemGroup):
 
     def itemChange(self, change, value):
         """docstring for itemChange"""
-        if change == QGraphicsItem.ItemSelectedHasChanged and self.isNormalSelect():
+        if change == QGraphicsItem.ItemSelectedHasChanged:# and self.isNormalSelect():
             if value == False:
                 if self._justAdded == False:
                      self.clearSelection(False)
                 self._justAdded = False
                 return
         elif change == QGraphicsItem.ItemChildAddedChange:
-            if self._addedToPressList == False and self.isNormalSelect():
+            if self._addedToPressList == False:# and self.isNormalSelect():
                 # self._lastKid += 1
                 self._addedToPressList = True
                 self.scene().views()[0].addToPressList(self)
@@ -277,11 +273,13 @@ class SelectionItemGroup(QGraphicsItemGroup):
         """docstring for removeSelectedItems"""
         doc = self.parentItem().document()
         for item in self.childItems():
-            if not item.isSelected():
-                # call this first before removing from the group to 
-                # prevent unecessary change events
-                self.removeFromGroup(item)
-                item.modelDeselect(doc)
+            self.removeFromGroup(item)
+            item.modelDeselect(doc)
+            # if not item.isSelected():
+            #     # call this first before removing from the group to 
+            #     # prevent unecessary change events
+            #     self.removeFromGroup(item)
+            #     item.modelDeselect(doc)
             # end if
         # end for
     # end def

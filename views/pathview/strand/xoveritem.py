@@ -446,7 +446,6 @@ class XoverItem(QGraphicsPathItem):
         assert(self.parentItem() == partItem)
         # print "restore", self.parentItem(), self.group()
         assert(self.group() == None)
-
         self.setSelected(False)
     # end def
     
@@ -468,7 +467,6 @@ class XoverItem(QGraphicsPathItem):
             partItem = self._virtualHelixItem.partItem()
             selectionGroup = partItem.strandItemSelectionGroup()
             lock = selectionGroup.selectionLock()
-    
             # only add if the selectionGroup is not locked out
             if value == True and (lock == None or lock == selectionGroup):
                 if self.group() != selectionGroup:
@@ -497,7 +495,6 @@ class XoverItem(QGraphicsPathItem):
         strand5p = self._strand5p
         strand3p = strand5p.connection3p()
         selectDict = document.selectionDict()
-        
         test5p = strand5p in selectDict
         lowVal5p, highVal5p = selectDict[strand5p] if test5p else False, False
         if strand5p.isDrawn5to3():
@@ -510,7 +507,7 @@ class XoverItem(QGraphicsPathItem):
             lowVal3p = False
         else:
             highVal3p = False
-
+        
         if not lowVal5p and not highVal5p and test5p:
             document.removeFromSelection(strand5p)
         else:
@@ -541,6 +538,9 @@ class XoverItem(QGraphicsPathItem):
             highVal3p = True
         
         self.setSelected(True)
+        # partItem = self._virtualHelixItem.partItem()
+        # selectionGroup = partItem.strandItemSelectionGroup()
+        # if selectionGroup.isNormalSelect():
         document.addToSelection(strand5p, (lowVal5p, highVal5p))
         document.addToSelection(strand3p, (lowVal3p, highVal3p))
     # end def

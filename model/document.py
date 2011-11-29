@@ -97,6 +97,17 @@ class Document(QObject):
         return obj in self._selectionDict
     # end def
     
+    def getSelectedValues(self, args):
+        """
+        args is a tuple of objects to look up
+        they are prevetted to be in the dictionary 
+        """
+        valueList = []
+        for obj in args:
+            valueList.append(self._selectionDict[obj])
+        # end for
+        return valueList
+            
     def updateSelection(self):
         """
         do it this way in the future when we have a better signaling architecture between views
@@ -105,6 +116,7 @@ class Document(QObject):
         """
         For now, individual objects need to emit signals
         """
+        print "updating selection"
         for obj, value in self._selectedChangedDict.iteritems():
             obj.selectedChangedSignal.emit(obj, value)
         # end for

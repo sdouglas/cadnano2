@@ -605,7 +605,6 @@ class StrandItem(QGraphicsLineItem):
         assert(self.parentItem() == vhItem)
         # print "restore", self.parentItem(), self.group()
         assert(self.group() == None)
-
         self.setSelected(False)
     # end def
     
@@ -654,15 +653,21 @@ class StrandItem(QGraphicsLineItem):
     # end def
     
     def selectXoverIfRequired(self, document):
-        con3p = self._modelStrand.connection3p()
+        strand5p = self._modelStrand
+        con3p = strand5p.connection3p()
         selectionGroup = self.partItem().strandItemSelectionGroup()
         # check this strands xover
         if con3p:
-            if document.isModelSelected(con3p):
-                selectionGroup.setForceSelect()
-                self._xover3pEnd.modelSelect(document)
-                selectionGroup.addToGroup(self._xover3pEnd)
-                selectionGroup.setNormalSelect()
+            if document.isModelSelected(con3p) and document.isModelSelected(strand5p):
+                val3p, val5p = document.getSelectedValues((con3p, strand5p))
+                test3p = val3p[0] if con3p.isDrawn5to3() else val3p[1]
+                test5p = val5p[1] if strand5p.isDrawn5to3() else val5p[0]
+                if test3p and test5p:
+                    selectionGroup.setNormalSelect(False)
+                    self._xover3pEnd.modelSelect(document)
+                    selectionGroup.addToGroup(self._xover3pEnd)
+                    selectionGroup.setNormalSelect(True)
+                # end if
             # end if
         # end if
     # end def
