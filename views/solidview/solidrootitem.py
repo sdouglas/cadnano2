@@ -62,6 +62,10 @@ class SolidRootItem(object):
         """docstring for selectedChangedSlot"""
         pass
     # end def
+    
+    def selectionFilterChangedSlot(self, filterNameList):
+        pass
+    # end def
 
 
     ### METHODS ###

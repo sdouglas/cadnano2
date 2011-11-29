@@ -58,6 +58,7 @@ class Document(QObject):
     # in the case of strands the metadata would be which endpoints of selected
     # e.g. { objectRef: (value0, value1),  ...}
     documentSelectedChangedSignal = pyqtSignal(dict)   # dict of tuples of items and data 
+    documentSelectionFilterChangedSignal = pyqtSignal(list)
     ### SLOTS ###
 
     ### ACCESSORS ###
@@ -116,7 +117,6 @@ class Document(QObject):
         """
         For now, individual objects need to emit signals
         """
-        print "updating selection"
         for obj, value in self._selectedChangedDict.iteritems():
             obj.selectedChangedSignal.emit(obj, value)
         # end for

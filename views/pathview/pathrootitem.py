@@ -51,7 +51,6 @@ class PathRootItem(QGraphicsRectItem):
         self._modelPart = None
         self._partItems = []
         self._selectionFilterDict = {}
-        self._selectionFilterDict = {'strand':True, 'xover':True, 'endpoint':True}
         self._initSelections()
     # end def
 

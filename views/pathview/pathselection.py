@@ -302,7 +302,6 @@ class PathHelixHandleSelectionBox(QGraphicsPathItem):
         super(PathHelixHandleSelectionBox, self).__init__(itemGroup.parentItem())
         self._itemGroup = itemGroup
         self._rect = itemGroup.boundingRect()
-        self._partItem = itemGroup.parentItem()
         self.hide()
         self.setPen(self._boxPen)
         self.setZValue(styles.ZPATHHELIX+2)
@@ -343,9 +342,10 @@ class PathHelixHandleSelectionBox(QGraphicsPathItem):
             indexDelta = int((delta + midHeight) / helixHeight)
         # sort on y to determine the extremes of the selection group
         items = sorted(self._itemGroup.childItems(), key=lambda vhhi: vhhi.y())
-        self._partItem.reorderHelices(items[0].number(),\
-                                   items[-1].number(),\
-                                   indexDelta)
+        partItem = items[0].partItem()
+        partItem.reorderHelices(items[0].number(),\
+                                items[-1].number(),\
+                                indexDelta)
     # end def
 # end class
 
@@ -360,7 +360,6 @@ class BreakpointHandleSelectionBox(QGraphicsPathItem):
         super(BreakpointHandleSelectionBox, self).__init__(itemGroup.parentItem())
         self._itemGroup = itemGroup
         self._rect = itemGroup.boundingRect()
-        self._partItem = itemGroup.parentItem()
         self.hide()
         self.setPen(self._boxPen)
         self.setZValue(styles.ZPATHHELIX+2)

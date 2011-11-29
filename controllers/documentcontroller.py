@@ -131,6 +131,7 @@ class DocumentController():
         self.win.setWindowModified(not self.undoStack().isClean())
         self.win.setWindowTitle(self.documentTitle())
 
+    filterList = ["strand", "endpoint", "xover", "virtualHelix"]
     def actionFilterHandleSlot(self):
         """Disables all other selection filters when active."""
         fH = self.win.actionFilterHandle
@@ -144,6 +145,7 @@ class DocumentController():
             fS.setChecked(False)
         if fX.isChecked():
             fX.setChecked(False)
+        self._document.documentSelectionFilterChangedSignal.emit(["virtualHelix"])
 
     def actionFilterEndpointSlot(self):
         """
@@ -158,6 +160,15 @@ class DocumentController():
             fH.setChecked(False)
         if not fS.isChecked() and not fX.isChecked():
             fE.setChecked(True)
+        
+        filterList = []
+        if fE.isChecked():
+            filterList.append("endpoint")
+        if fS.isChecked():
+            filterList.append("strand")
+        if fX.isChecked():
+            filterList.append("xover")
+        self._document.documentSelectionFilterChangedSignal.emit(filterList)
 
     def actionFilterStrandSlot(self):
         """
@@ -173,6 +184,16 @@ class DocumentController():
         if not fE.isChecked() and not fX.isChecked():
             fS.setChecked(True)
 
+        filterList = []
+        if fE.isChecked():
+            filterList.append("endpoint")
+        if fS.isChecked():
+            filterList.append("strand")
+        if fX.isChecked():
+            filterList.append("xover")
+        self._document.documentSelectionFilterChangedSignal.emit(filterList)
+    # end def
+
     def actionFilterXoverSlot(self):
         """
         Disables handle filters when activated.
@@ -186,6 +207,16 @@ class DocumentController():
             fH.setChecked(False)
         if not fE.isChecked() and not fS.isChecked():
             fX.setChecked(True)
+            
+        filterList = []
+        if fE.isChecked():
+            filterList.append("endpoint")
+        if fS.isChecked():
+            filterList.append("strand")
+        if fX.isChecked():
+            filterList.append("xover")
+        self._document.documentSelectionFilterChangedSignal.emit(filterList)
+    # end def
 
     def actionFilterScafSlot(self):
         """Remains checked if no other strand-type filter is active."""
