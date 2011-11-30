@@ -45,6 +45,7 @@ class SelectionItemGroup(QGraphicsItemGroup):
     """
     def __init__(self, boxtype, constraint='y', parent=None):
         super(SelectionItemGroup, self).__init__(parent)
+        self._viewroot = parent
         self.setFiltersChildEvents(True)
         self.setHandlesChildEvents(True)
         self.setFlag(QGraphicsItem.ItemIsSelectable)
@@ -57,6 +58,8 @@ class SelectionItemGroup(QGraphicsItemGroup):
         
         self._dragEnable = False
         self._dragged = False
+        self._baseClick = 0 #  special tri-state counter to enable deselection on click away 
+        
         self._r0 = 0  # save original mousedown
         self._r = 0  # latest position for moving
 
@@ -75,7 +78,6 @@ class SelectionItemGroup(QGraphicsItemGroup):
             self.getR = self.getX
             self.translateR = self.translateX
         
-        self._justAdded = False
         self._normalSelect = True
         
         self.setZValue(styles.ZPATHHELIX+2)
@@ -103,10 +105,10 @@ class SelectionItemGroup(QGraphicsItemGroup):
     # end def
     
     def processPendingToAddList(self):
-        doc = self.parentItem().document()
+        doc = self._viewroot.document()
         if len(self._pendingToAddDict) == 0:
-            self._justAdded = False
-            self.clearSelection(False)
+            pass
+            # self._justAdded = False
         else:
             for item in self._pendingToAddDict:
                 item.modelSelect(doc)
@@ -142,11 +144,11 @@ class SelectionItemGroup(QGraphicsItemGroup):
     # end def
     
     def selectionLock(self):
-        return self.parentItem().selectionLock()
+        return self._viewroot.selectionLock()
     # end def
     
     def setSelectionLock(self, selectionGroup):
-        self.parentItem().setSelectionLock(selectionGroup)
+        self._viewroot.setSelectionLock(selectionGroup)
     # end def
 
     # def keyPressEvent(self, event):
@@ -167,6 +169,7 @@ class SelectionItemGroup(QGraphicsItemGroup):
     # # end def
 
     def mousePressEvent(self, event):
+        self._baseClick = 2
         if event.button() != Qt.LeftButton:
             QGraphicsItemGroup.mousePressEvent(self, event)
         else:
@@ -221,11 +224,17 @@ class SelectionItemGroup(QGraphicsItemGroup):
             # print "process the box"
             self.selectionbox.processSelectedItems(self._r0, self._r)
         # end if
-        # print [item.number() for item in self.childItems()]
         self._r0 = 0  # reset
         self._r = 0  # reset
         # print "press release"
         self._addedToPressList = False
+        if self._baseClick == 0:
+            self._addedToPressList = True
+            self._baseClick = 1
+            self.scene().views()[0].addToPressList(self)
+        elif self._baseClick == 1:
+            self._baseClick = 0
+            self.clearSelection(False)
     # end def
 
     def clearSelection(self, value):
@@ -233,7 +242,7 @@ class SelectionItemGroup(QGraphicsItemGroup):
             self.selectionbox.hide()
             self.selectionbox.resetTransform()
             self.removeSelectedItems()
-            self.parentItem().setSelectionLock(None)
+            self._viewroot.setSelectionLock(None)
             self.clearFocus() # this is to disable delete keyPressEvents
         # end if
         else:
@@ -243,15 +252,15 @@ class SelectionItemGroup(QGraphicsItemGroup):
 
     def itemChange(self, change, value):
         """docstring for itemChange"""
-        if change == QGraphicsItem.ItemSelectedHasChanged:# and self.isNormalSelect():
+        if change == QGraphicsItem.ItemSelectedHasChanged:
             if value == False:
-                if self._justAdded == False:
-                     self.clearSelection(False)
-                self._justAdded = False
+                self.clearSelection(False)
                 return
         elif change == QGraphicsItem.ItemChildAddedChange:
-            if self._addedToPressList == False:# and self.isNormalSelect():
+            if self._addedToPressList == False:
                 # self._lastKid += 1
+                self._baseClick = 0
+                self.setParentItem(self.selectionbox.boxParent())
                 self._addedToPressList = True
                 self.scene().views()[0].addToPressList(self)
             return
@@ -263,6 +272,7 @@ class SelectionItemGroup(QGraphicsItemGroup):
         remove only the child and ask it to 
         restore it's original parent
         """
+        doc = self._viewroot.document()
         tPos = child.scenePos()
         self.removeFromGroup(child)
         child.modelDeselect(doc)
@@ -271,7 +281,7 @@ class SelectionItemGroup(QGraphicsItemGroup):
 
     def removeSelectedItems(self):
         """docstring for removeSelectedItems"""
-        doc = self.parentItem().document()
+        doc = self._viewroot.document()
         for item in self.childItems():
             self.removeFromGroup(item)
             item.modelDeselect(doc)
@@ -347,6 +357,13 @@ class PathHelixHandleSelectionBox(QGraphicsPathItem):
                                 items[-1].number(),\
                                 indexDelta)
     # end def
+    
+    def boxParent(self):
+        temp = self._itemGroup.childItems()[0].partItem()
+        self.setParentItem(temp)
+        return temp
+    # end def
+    
 # end class
 
 class BreakpointHandleSelectionBox(QGraphicsPathItem):
@@ -389,4 +406,10 @@ class BreakpointHandleSelectionBox(QGraphicsPathItem):
     def processSelectedItems(self, rStart, rEnd):
         """docstring for processSelectedItems"""
         pass
+        
+    def boxParent(self):
+        temp = self._itemGroup.childItems()[0].partItem()
+        self.setParentItem(temp)
+        return temp
+    # end def
 # end class
