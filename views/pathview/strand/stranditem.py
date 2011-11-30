@@ -208,7 +208,7 @@ class StrandItem(QGraphicsLineItem):
     # end def
     
     def selectedChangedSlot(self, strand, indices):
-        self.selectXoverIfRequired(self.partItem().document(), indices)
+        self.selectIfRequired(self.partItem().document(), indices)
     # end def
 
     ### ACCESSORS ###
@@ -640,7 +640,7 @@ class StrandItem(QGraphicsLineItem):
             selectionGroup = viewroot.strandItemSelectionGroup()
             
             # only add if the selectionGroup is not locked out
-            if value == True and self._filterName in currentFilterDict:
+            if value == True and (self._filterName in currentFilterDict or not selectionGroup.isNormalSelect()):
                 if self.group() != selectionGroup and self._strandFilter in currentFilterDict:
                     selectionGroup.pendToAdd(self)
                     selectionGroup.setSelectionLock(selectionGroup)
@@ -666,18 +666,22 @@ class StrandItem(QGraphicsLineItem):
         return QGraphicsItem.itemChange(self, change, value)
     # end def
 
-    def selectXoverIfRequired(self, document, indices):
+    def selectIfRequired(self, document, indices):
+        """
+        Select self or xover item as necessary
+        """
         strand5p = self._modelStrand
         con3p = strand5p.connection3p()
         selectionGroup = self._viewroot.strandItemSelectionGroup()
-        # check this strands xover
+        # check this strand's xover
         if con3p:
+            # perhaps change this to a direct call, but here are seeds of an 
+            # indirect way of doing selection checks    
             if document.isModelSelected(con3p) and document.isModelSelected(strand5p):
-                val3p, val5p = document.getSelectedValues((con3p, strand5p))
-                assert(val5p == indices)
+                val3p = document.getSelectedValue(con3p)
                 # print "xover idx", indices
                 test3p = val3p[0] if con3p.isDrawn5to3() else val3p[1]
-                test5p = val5p[1] if strand5p.isDrawn5to3() else val5p[0]
+                test5p = indices[1] if strand5p.isDrawn5to3() else indices[0]
                 if test3p and test5p:
                     if not self._xover3pEnd.isSelected():
                         selectionGroup.setNormalSelect(False)
@@ -687,6 +691,12 @@ class StrandItem(QGraphicsLineItem):
                 # end if
             # end if
         # end if
+        if indices[0] == True and indices[1] == True:
+            if not self.isSelected():
+                selectionGroup.setNormalSelect(False)
+                self.modelSelect(document)
+                selectionGroup.addToGroup(self)
+                selectionGroup.setNormalSelect(True)
     # end def
 
     def modelDeselect(self, document):

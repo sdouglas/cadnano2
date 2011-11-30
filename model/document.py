@@ -98,16 +98,12 @@ class Document(QObject):
         return obj in self._selectionDict
     # end def
     
-    def getSelectedValues(self, args):
+    def getSelectedValue(self, obj):
         """
-        args is a tuple of objects to look up
-        they are prevetted to be in the dictionary 
+        obj is an objects to look up
+        it is prevetted to be in the dictionary 
         """
-        valueList = []
-        for obj in args:
-            valueList.append(self._selectionDict[obj])
-        # end for
-        return valueList
+        return self._selectionDict[obj]
             
     def updateSelection(self):
         """
