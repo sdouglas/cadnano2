@@ -71,6 +71,7 @@ class EmptyHelixItem(QGraphicsEllipseItem):
         """
         super(EmptyHelixItem, self).__init__(parent=partItem)
         self._partItem = partItem
+        self._lastvh = None  # for decideAction
         self.hide()
         self._isHovered = False
         self.setAcceptsHoverEvents(True)
@@ -196,7 +197,7 @@ class EmptyHelixItem(QGraphicsEllipseItem):
         vh = self.virtualHelix()
         part = self.part()
 
-        if vh == None: 
+        if vh == None:
             return EmptyHelixItem.addVHIfMissing
 
         idx = part.activeBaseIndex()
@@ -206,6 +207,7 @@ class EmptyHelixItem(QGraphicsEllipseItem):
                 return EmptyHelixItem.addStapAtActiveSliceIfMissing
             else:
                 return EmptyHelixItem.nop
+
         if not scafSSet.hasStrandAt(idx-1, idx+1):
             return EmptyHelixItem.addScafAtActiveSliceIfMissing
         return EmptyHelixItem.nop

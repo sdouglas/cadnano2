@@ -368,8 +368,8 @@ class PathHelixHandleSelectionBox(QGraphicsPathItem):
 
 class BreakpointHandleSelectionBox(QGraphicsPathItem):
     _penWidth = styles.SLICE_HELIX_HILIGHT_WIDTH
-    _boxPen = QPen(styles.bluestroke, _penWidth)
-    
+    _boxPen = QPen(styles.selected_color, _penWidth)
+
     def __init__(self, itemGroup):
         """
         The itemGroup.parentItem() is expected to be a partItem
@@ -381,12 +381,12 @@ class BreakpointHandleSelectionBox(QGraphicsPathItem):
         self.setPen(self._boxPen)
         self.setZValue(styles.ZPATHHELIX+2)
     # end def
-    
+
     def refreshPath(self):
         self.prepareGeometryChange()
         self.setPath(self.painterPath())
     # end def
-    
+
     def painterPath(self):
         iG = self._itemGroup
         # the childrenBoundingRect is necessary to get this to work
@@ -401,7 +401,6 @@ class BreakpointHandleSelectionBox(QGraphicsPathItem):
         #                  rect.center().y())
         return path
     # end def
-
 
     def processSelectedItems(self, rStart, rEnd):
         """docstring for processSelectedItems"""
