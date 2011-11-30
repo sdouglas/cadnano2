@@ -116,6 +116,7 @@ class DocumentController():
         self.win.actionNewSquarePart.triggered.connect(\
             self.actionAddSquarePartSlot)
         self.win.closeEvent = self.windowCloseEventHandler
+        self.win.actionAbout.triggered.connect(self.actionAboutSlot)
         self.win.actionCadnanoWebsite.triggered.connect(self.actionCadnanoWebsiteSlot)
         self.win.actionFeedback.triggered.connect(self.actionFeedbackSlot)
         self.win.actionFilterHandle.triggered.connect(self.actionFilterHandleSlot)
@@ -130,6 +131,15 @@ class DocumentController():
         """The title changes to include [*] on modification."""
         self.win.setWindowModified(not self.undoStack().isClean())
         self.win.setWindowTitle(self.documentTitle())
+
+    def actionAboutSlot(self):
+        """Displays the about cadnano dialog."""
+        from ui.dialogs.ui_about import Ui_About
+        dialog = QDialog()
+        dialogAbout = Ui_About()  # reusing this dialog, should rename
+        dialog.setStyleSheet("QDialog { background-image: url(ui/dialogs/images/cadnano2-about.png); background-repeat: none; }")
+        dialogAbout.setupUi(dialog)
+        dialog.exec_()
 
     filterList = ["strand", "endpoint", "xover", "virtualHelix"]
     def actionFilterHandleSlot(self):
