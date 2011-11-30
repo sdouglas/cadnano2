@@ -75,7 +75,7 @@ class helixManip(OpenMayaMPx.MPxManipContainer):
         self.fNodePath = OpenMaya.MDagPath()
 
     def createChildren(self):
-        print "helixManip: createChildren being called..."
+        #print "helixManip: createChildren being called..."
         # startPoint should correspond to the end of the helix
         # read the attribute to get the offset from the starting position
         self.fDistanceFrontManip = self.addDistanceManip("distanceManip", "distance")
@@ -140,7 +140,7 @@ class helixManip(OpenMayaMPx.MPxManipContainer):
     def setupTransform(self, node, path):
         self.helixTransform = node  # store the transform node
         nodeFn = OpenMaya.MFnDependencyNode(node)
-        print nodeFn.name()
+        #print nodeFn.name()
 
         dagNodeFn = OpenMaya.MFnDagNode(node)
         dagNodeFn.getPath(self.fNodePath)
@@ -404,28 +404,25 @@ class helixManip(OpenMayaMPx.MPxManipContainer):
 
         return OpenMaya.MPoint(OpenMaya.MScriptUtil.getFloat(xPtr),
                                 OpenMaya.MScriptUtil.getFloat(yPtr),
-                                OpenMaya.MScriptUtil.getFloat(zPtr))
+                                OpenMaya.MScriptUtil.getFloat(zPtr) )
+        
 
-    def matchNodePosition(self, transformNode, helixNode):
-        trans = self.getTranslation(transformNode)
-        q = self.getRotation(transformNode)
+    def matchNodePosition( self, transformNode, helixNode ):
+        trans = self.getTranslation( transformNode )
+        q = self.getRotation( transformNode )
+        
+        helixNodeFn = OpenMaya.MFnDependencyNode( helixNode )
+        startPlug = helixNodeFn.findPlug( "startPos")
+        endPlug = helixNodeFn.findPlug( "endPos" )
+        
+        startPos = self.getFloat3PlugValue( startPlug )
+        endPos = self.getFloat3PlugValue( endPlug )
 
-        helixNodeFn = OpenMaya.MFnDependencyNode(helixNode)
-        startPlug = helixNodeFn.findPlug("startPos")
-        endPlug = helixNodeFn.findPlug("endPos")
-
-        startPos = self.getFloat3PlugValue(startPlug)
-        endPos = self.getFloat3PlugValue(endPlug)
-
-        print "matchNodePosition matching position..." \
-            # to (%f, %f, %f)" % (startPos[0], startpos[1], startpos[2[]])
-        freePointManipFront = OpenMayaUI.MFnDistanceManip(
-                                                    self.fDistanceFrontManip)
-        freePointManipBack = OpenMayaUI.MFnDistanceManip(
-                                                    self.fDistanceBackManip)
-        vecZ = OpenMaya.MVector(0.0, 1.5, 0.0)
-        vecMinusZ = OpenMaya.MVector(0.0, -1.5, 0.0)
-
+        #print "matchNodePosition matching position..." ## to (%f, %f, %f)" % ( startPos[0], startpos[1], startpos[2[]])
+        freePointManipFront = OpenMayaUI.MFnDistanceManip( self.fDistanceFrontManip  )
+        freePointManipBack = OpenMayaUI.MFnDistanceManip( self.fDistanceBackManip )
+        vecZ = OpenMaya.MVector( 0.0, 1.5, 0.0 )
+        vecMinusZ = OpenMaya.MVector( 0.0, -1.5, 0.0 )
         scalingFactor = 1.0
 
         freePointManipFront.setStartPoint(startPos)

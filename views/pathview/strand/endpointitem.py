@@ -84,6 +84,9 @@ _noPen = QPen(Qt.NoPen)
 
 
 class EndpointItem(QGraphicsPathItem):
+    
+    _filterName = "endpoint"
+    
     def __init__(self, strandItem, captype, isDrawn5to3):
         """The parent should be a StrandItem."""
         super(EndpointItem, self).__init__(strandItem.virtualHelixItem())
@@ -368,7 +371,7 @@ class EndpointItem(QGraphicsPathItem):
     
     def penAndBrushSet(self, value):
         if value == True:
-            color = QColor("#cccccc")
+            color = QColor("#ff3333")
         else:
             oligo = self._strandItem.strand().oligo()
             color = QColor(oligo.color())
@@ -381,24 +384,26 @@ class EndpointItem(QGraphicsPathItem):
         # for selection changes test against QGraphicsItem.ItemSelectedChange
         # intercept the change instead of the has changed to enable features.
         if change == QGraphicsItem.ItemSelectedChange and self.scene():
-            partItem = self.partItem()
-            selectionGroup = partItem.strandItemSelectionGroup()
-            lock = selectionGroup.selectionLock()
+            sI = self._strandItem
+            viewroot = sI.viewroot()
+            currentFilterDict = viewroot.selectionFilterDict()
+            selectionGroup = viewroot.strandItemSelectionGroup()
     
             # only add if the selectionGroup is not locked out
-            if value == True and (lock == None or lock == selectionGroup):
-                if self.group() != selectionGroup:
-                    # print "preadd", self.parentItem(), self.group(), self.pos().y()
+            if value == True and self._filterName in currentFilterDict:
+                if self.group() != selectionGroup and sI.strandFilter() in currentFilterDict:
                     selectionGroup.pendToAdd(self)
-                    # print "postadd", self.parentItem(), self.group(), self.pos().y()
                     selectionGroup.setSelectionLock(selectionGroup)
                     self.penAndBrushSet(True)
                     return True
+                else:
+                    return False
             # end if
             elif value == True:
+                # don't select
                 return False
             else:
-                # print "deselect", self.parentItem(), self.group(), self.pos()
+                # Deselect
                 # Check if the strand is being added to the selection group still
                 if not selectionGroup.isPending(self._strandItem):
                     selectionGroup.pendToRemove(self)
@@ -415,14 +420,14 @@ class EndpointItem(QGraphicsPathItem):
         strand = self._strandItem.strand()
         selectDict = document.selectionDict()
         test = strand in selectDict
-        lowVal, highVal = selectDict[strand] if test else False, False
+        lowVal, highVal = selectDict[strand] if test else (False, False)
         if self._capType == 'low':
             outValue = (False, highVal)
         else:
             outValue = (lowVal, False)
         if not outValue[0] and not outValue[1] and test:
             document.removeFromSelection(strand)
-        else:
+        elif outValue[0] or outValue[1]:
             document.addToSelection(strand, outValue)
         self.restoreParent()
     # end def
@@ -431,11 +436,17 @@ class EndpointItem(QGraphicsPathItem):
         strand = self._strandItem.strand()
         selectDict = document.selectionDict()
         test = strand in selectDict
-        lowVal, highVal = selectDict[strand] if test else False, False
+        lowVal, highVal = selectDict[strand] if test else (False, False)
         if self._capType == 'low':
             outValue = (True, highVal)
         else:
             outValue = (lowVal, True)
         self.setSelected(True)
         document.addToSelection(strand, outValue)
+    # end def
+    
+    def paint(self, painter, option, widget):
+        painter.setPen(self.pen())
+        painter.setBrush(self.brush())
+        painter.drawPath(self.path())
     # end def

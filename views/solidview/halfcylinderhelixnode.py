@@ -212,6 +212,11 @@ class HalfCylinderHelixNode(OpenMayaMPx.MPxNode):
         #print "numFaceConnects %d" % numFaceConnects
         offset = 1
         count = 0
+
+        # Front End Piece Faces
+        # in a fan fashion, we build a list of faces, each face is 3 verts,
+        # with 0 being the verst vet, so we get faces such as (0, 1, 2),
+        # the next face would be (0, 2, 3), and next (0, 3, 4), etc.
         for i in range(0, numFacesEnds):
             faceConnects.set(0, count)
             count += 1
@@ -221,6 +226,8 @@ class HalfCylinderHelixNode(OpenMayaMPx.MPxNode):
             faceConnects.set(offset, count)
             count += 1
 
+        # Middle Piece Faces
+        # 
         for k in range(0, numMiddleSections + 1):
             for i in range(0, numVerticesEnds):
                 if i < numVerticesEnds - 1:
@@ -242,6 +249,7 @@ class HalfCylinderHelixNode(OpenMayaMPx.MPxNode):
                 faceConnects.set(v3, count)
                 count += 1
 
+        # Back End Piece Faces, like the front one, we do it in a fan order
         offset = numVerticesTotal - numVerticesEnds + 1
         for i in range(numFacesTotal - numFacesEnds, numFacesTotal):
             #print numVerticesTotal-numVerticesEnds
@@ -258,6 +266,8 @@ class HalfCylinderHelixNode(OpenMayaMPx.MPxNode):
         faceCounts = OpenMaya.MIntArray()
         faceCounts.setLength(numFacesTotal)
         count = 0
+        # Set Face Counds, the faces on the ends are made from 3 verts
+        # and faces in the middle are made from 4
         for i in range(0, numFacesEnds):
             #print count
             faceCounts.set(3, count)

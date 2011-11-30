@@ -64,6 +64,10 @@ class SliceRootItem(QGraphicsRectItem):
         """docstring for selectedChangedSlot"""
         pass
     # end def
+    
+    def selectionFilterChangedSlot(self, filterNameList):
+        pass
+    # end def
 
     ### ACCESSORS ###
     def sliceToolManager(self):

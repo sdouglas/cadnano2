@@ -7,6 +7,10 @@
     <file alias="save">images/data-save_32.png</file>
   </qresource>
   <qresource prefix="parttools">
+    <file alias="filter-scaf">images/part-filter-scaf.png</file>
+    <file alias="filter-stap">images/part-filter-stap.png</file>
+    <file alias="filter-strand">images/part-filter-strand.png</file>
+    <file alias="filter-handle">images/part-filter-handle.png</file>
     <file alias="filter-part">images/part-filter-part.png</file>
     <file alias="filter-xover">images/part-filter-xover.png</file>
     <file alias="filter-endpoint">images/part-filter-endpoint.png</file>

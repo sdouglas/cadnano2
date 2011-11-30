@@ -45,13 +45,14 @@ _gridPen.setCosmetic(True)
 class VirtualHelixItem(QGraphicsPathItem):
     """VirtualHelixItem for PathView"""
 
-    def __init__(self, partItem, modelVirtualHelix, activeTool):
+    def __init__(self, partItem, modelVirtualHelix, viewroot, activeTool):
         super(VirtualHelixItem, self).__init__(partItem)
         self._partItem = partItem
         self._modelVirtualHelix = modelVirtualHelix
+        self._viewroot = viewroot
         self._activeTool = activeTool
         self._controller = VirtualHelixItemController(self, modelVirtualHelix)
-        self._handle = VirtualHelixHandleItem(modelVirtualHelix, partItem)
+        self._handle = VirtualHelixHandleItem(modelVirtualHelix, partItem, viewroot)
         self._gridPainterPath = None  # needed for getGridPainterPath()
         self._gridPainterPath = self.getGridPainterPath()
         self._lastStrandSet = None
@@ -75,7 +76,7 @@ class VirtualHelixItem(QGraphicsPathItem):
         controller for communication with the model, and for adding itself to
         its parent (which is *this* VirtualHelixItem, i.e. 'self').
         """
-        StrandItem(strand, self)
+        StrandItem(strand, self, self._viewroot)
     # end def
 
     def decoratorAddedSlot(self, decorator):

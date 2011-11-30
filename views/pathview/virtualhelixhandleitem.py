@@ -50,10 +50,13 @@ _font = styles.VIRTUALHELIXHANDLEITEM_FONT
 
 class VirtualHelixHandleItem(QGraphicsEllipseItem):
     """docstring for VirtualHelixHandleItem"""
-    def __init__(self, virtualHelix, partItem):
+    _filterName = "virtualHelix"
+    
+    def __init__(self, virtualHelix, partItem, viewroot):
         super(VirtualHelixHandleItem, self).__init__(partItem)
         self._virtualHelix = virtualHelix
         self._partItem = partItem
+        self._viewroot = viewroot
         self._beingHoveredOver = False
         self.setAcceptsHoverEvents(True)
         # handle the label specific stuff
@@ -85,7 +88,7 @@ class VirtualHelixHandleItem(QGraphicsEllipseItem):
         painter.setBrush(self.brush())
         painter.drawEllipse(self.rect())
     # end def
-    
+
     def remove(self):
         scene = self.scene()
         scene.removeItem(self._label)
@@ -132,6 +135,10 @@ class VirtualHelixHandleItem(QGraphicsEllipseItem):
     def number(self):
         """docstring for number"""
         return self._virtualHelix.number()
+        
+    def partItem(self):
+        return self._partItem
+    # end def
 
     def hoverEnterEvent(self, event):
         """
@@ -207,24 +214,25 @@ class VirtualHelixHandleItem(QGraphicsEllipseItem):
         # intercept the change instead of the has changed to enable features.
 
         if change == QGraphicsItem.ItemSelectedChange and self.scene():
-            partItem = self._partItem
-            selectionGroup = partItem.vhiHandleSelectionGroup()
-            lock = selectionGroup.selectionLock()
+            viewroot = self._viewroot
+            currentFilterDict = viewroot.selectionFilterDict()
+            selectionGroup = viewroot.vhiHandleSelectionGroup()
 
             # only add if the selectionGroup is not locked out
-            if value == True and (lock == None or lock == selectionGroup):
+            if value == True and self._filterName in currentFilterDict:
                 if self.group() != selectionGroup:
-                    # print "preadd", self.number(), self.parentItem(), self.group()
                     selectionGroup.pendToAdd(self)
-                    # print "postadd", self.number(), self.parentItem(), self.group()
                     selectionGroup.setSelectionLock(selectionGroup)
                     self.penAndBrushSet(True)
                     return True
+                else:
+                    return False
             # end if
             elif value == True:
+                # don't select
                 return False
             else:
-                # print "deselect", self.number(), self.parentItem(), self.group()
+                # Deselect
                 selectionGroup.pendToRemove(self)
                 self.penAndBrushSet(False)
                 return False

@@ -163,65 +163,6 @@
     </item>
    </layout>
   </widget>
-  <widget class="QMenuBar" name="menubar">
-   <property name="geometry">
-    <rect>
-     <x>0</x>
-     <y>0</y>
-     <width>1075</width>
-     <height>22</height>
-    </rect>
-   </property>
-   <widget class="QMenu" name="menuFile">
-    <property name="title">
-     <string>File</string>
-    </property>
-    <widget class="QMenu" name="menuOpen_recent_files">
-     <property name="title">
-      <string>Open recent files</string>
-     </property>
-     <addaction name="separator"/>
-    </widget>
-    <addaction name="actionNew"/>
-    <addaction name="actionOpen"/>
-    <addaction name="menuOpen_recent_files"/>
-    <addaction name="separator"/>
-    <addaction name="actionClose"/>
-    <addaction name="actionSave"/>
-    <addaction name="actionSave_As"/>
-    <addaction name="separator"/>
-    <addaction name="actionPrint"/>
-   </widget>
-   <widget class="QMenu" name="menuCadnano">
-    <property name="title">
-     <string>cadnano</string>
-    </property>
-    <addaction name="actionPreferences"/>
-    <addaction name="separator"/>
-   </widget>
-   <widget class="QMenu" name="menuEdit">
-    <property name="title">
-     <string>Edit</string>
-    </property>
-   </widget>
-   <widget class="QMenu" name="menuView">
-    <property name="title">
-     <string>View</string>
-    </property>
-   </widget>
-   <widget class="QMenu" name="menuAbout">
-    <property name="title">
-     <string>About</string>
-    </property>
-    <addaction name="actionCadnanoWebsite"/>
-    <addaction name="actionFeedback"/>
-   </widget>
-   <addaction name="menuCadnano"/>
-   <addaction name="menuFile"/>
-   <addaction name="menuEdit"/>
-   <addaction name="menuView"/>
-   <addaction name="menuAbout"/>
-  </widget>
   <widget class="QToolBar" name="topToolBar">
    <property name="sizePolicy">
     <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
@@ -237,6 +178,12 @@
    </property>
    <property name="windowTitle">
     <string>Main Toolbar</string>
+   </property>
+   <property name="iconSize">
+    <size>
+     <width>24</width>
+     <height>24</height>
+    </size>
    </property>
    <property name="toolButtonStyle">
     <enum>Qt::ToolButtonTextUnderIcon</enum>
@@ -260,8 +207,12 @@
    <addaction name="actionModify"/>
    <addaction name="separator"/>
    <addaction name="actionFiltersLabel"/>
+   <addaction name="actionFilterScaf"/>
+   <addaction name="actionFilterStap"/>
+   <addaction name="actionFilterHandle"/>
    <addaction name="actionFilterEndpoint"/>
    <addaction name="actionFilterXover"/>
+   <addaction name="actionFilterStrand"/>
   </widget>
   <widget class="QToolBar" name="rightToolBar">
    <property name="sizePolicy">
@@ -334,6 +285,51 @@
    <addaction name="actionSliceFirst"/>
    <addaction name="actionSliceLast"/>
    <addaction name="actionRenumber"/>
+  </widget>
+  <widget class="QMenuBar" name="menubar">
+   <property name="geometry">
+    <rect>
+     <x>0</x>
+     <y>0</y>
+     <width>1075</width>
+     <height>22</height>
+    </rect>
+   </property>
+   <widget class="QMenu" name="menuFile">
+    <property name="title">
+     <string>File</string>
+    </property>
+    <widget class="QMenu" name="menuOpen_recent_files">
+     <property name="title">
+      <string>Open recent files</string>
+     </property>
+     <addaction name="separator"/>
+    </widget>
+    <addaction name="actionAbout"/>
+    <addaction name="actionPreferences"/>
+    <addaction name="actionNew"/>
+    <addaction name="actionOpen"/>
+    <addaction name="menuOpen_recent_files"/>
+    <addaction name="separator"/>
+    <addaction name="actionClose"/>
+    <addaction name="actionSave"/>
+    <addaction name="actionSave_As"/>
+    <addaction name="separator"/>
+    <addaction name="actionPrint"/>
+   </widget>
+   <widget class="QMenu" name="menuEdit">
+    <property name="title">
+     <string>Edit</string>
+    </property>
+   </widget>
+   <widget class="QMenu" name="menuView">
+    <property name="title">
+     <string>View</string>
+    </property>
+   </widget>
+   <addaction name="menuFile"/>
+   <addaction name="menuEdit"/>
+   <addaction name="menuView"/>
   </widget>
   <action name="actionNew">
    <property name="icon">
@@ -636,18 +632,6 @@
     <string>Renumber Slice helices according to helix ordering in Path panel.</string>
    </property>
   </action>
-  <action name="actionDeleteLast">
-   <property name="icon">
-    <iconset resource="icons.qrc">
-     <normaloff>:/slicetools/del-last</normaloff>:/slicetools/del-last</iconset>
-   </property>
-   <property name="text">
-    <string>Delete</string>
-   </property>
-   <property name="toolTip">
-    <string>Remove the highest-numbered helix if it does not connect to any other helices.</string>
-   </property>
-  </action>
   <action name="actionPathPaint">
    <property name="checkable">
     <bool>true</bool>
@@ -756,7 +740,7 @@
      <normaloff>:/parttools/filter-endpoint</normaloff>:/parttools/filter-endpoint</iconset>
    </property>
    <property name="text">
-    <string>Ends</string>
+    <string/>
    </property>
    <property name="toolTip">
     <string>Endpoint-selection mode</string>
@@ -767,14 +751,14 @@
     <bool>true</bool>
    </property>
    <property name="checked">
-    <bool>true</bool>
+    <bool>false</bool>
    </property>
    <property name="icon">
     <iconset resource="icons.qrc">
      <normaloff>:/parttools/filter-xover</normaloff>:/parttools/filter-xover</iconset>
    </property>
    <property name="text">
-    <string>Xovers</string>
+    <string/>
    </property>
    <property name="toolTip">
     <string>Xover-selection mode</string>
@@ -786,6 +770,77 @@
    </property>
    <property name="toolTip">
     <string>Selection Filters</string>
+   </property>
+  </action>
+  <action name="actionFilterStrand">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="icon">
+    <iconset resource="icons.qrc">
+     <normaloff>:/parttools/filter-strand</normaloff>:/parttools/filter-strand</iconset>
+   </property>
+   <property name="text">
+    <string/>
+   </property>
+   <property name="toolTip">
+    <string>Strand-selection mode</string>
+   </property>
+  </action>
+  <action name="actionFilterHandle">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="checked">
+    <bool>false</bool>
+   </property>
+   <property name="icon">
+    <iconset resource="icons.qrc">
+     <normaloff>:/parttools/filter-handle</normaloff>:/parttools/filter-handle</iconset>
+   </property>
+   <property name="text">
+    <string/>
+   </property>
+   <property name="toolTip">
+    <string>Helix-handle-selection mode</string>
+   </property>
+  </action>
+  <action name="actionFilterScaf">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="checked">
+    <bool>true</bool>
+   </property>
+   <property name="icon">
+    <iconset resource="icons.qrc">
+     <normaloff>:/parttools/filter-scaf</normaloff>:/parttools/filter-scaf</iconset>
+   </property>
+   <property name="text">
+    <string> </string>
+   </property>
+   <property name="toolTip">
+    <string>Scaffold-selection mode</string>
+   </property>
+  </action>
+  <action name="actionFilterStap">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="icon">
+    <iconset resource="icons.qrc">
+     <normaloff>:/parttools/filter-stap</normaloff>:/parttools/filter-stap</iconset>
+   </property>
+   <property name="text">
+    <string> </string>
+   </property>
+   <property name="toolTip">
+    <string>Staple-selection mode</string>
+   </property>
+  </action>
+  <action name="actionAbout">
+   <property name="text">
+    <string>About cadnano</string>
    </property>
   </action>
  </widget>

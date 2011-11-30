@@ -116,14 +116,127 @@ class DocumentController():
         self.win.actionNewSquarePart.triggered.connect(\
             self.actionAddSquarePartSlot)
         self.win.closeEvent = self.windowCloseEventHandler
+        self.win.actionAbout.triggered.connect(self.actionAboutSlot)
         self.win.actionCadnanoWebsite.triggered.connect(self.actionCadnanoWebsiteSlot)
         self.win.actionFeedback.triggered.connect(self.actionFeedbackSlot)
+        self.win.actionFilterHandle.triggered.connect(self.actionFilterHandleSlot)
+        self.win.actionFilterEndpoint.triggered.connect(self.actionFilterEndpointSlot)
+        self.win.actionFilterStrand.triggered.connect(self.actionFilterStrandSlot)
+        self.win.actionFilterXover.triggered.connect(self.actionFilterXoverSlot)
+        self.win.actionFilterScaf.triggered.connect(self.actionFilterScafSlot)
+        self.win.actionFilterStap.triggered.connect(self.actionFilterStapSlot)
 
     ### SLOTS ###
     def undoStackCleanChangedSlot(self):
         """The title changes to include [*] on modification."""
         self.win.setWindowModified(not self.undoStack().isClean())
         self.win.setWindowTitle(self.documentTitle())
+
+    def actionAboutSlot(self):
+        """Displays the about cadnano dialog."""
+        from ui.dialogs.ui_about import Ui_About
+        dialog = QDialog()
+        dialogAbout = Ui_About()  # reusing this dialog, should rename
+        dialog.setStyleSheet("QDialog { background-image: url(ui/dialogs/images/cadnano2-about.png); background-repeat: none; }")
+        dialogAbout.setupUi(dialog)
+        dialog.exec_()
+
+    filterList = ["strand", "endpoint", "xover", "virtualHelix"]
+    def actionFilterHandleSlot(self):
+        """Disables all other selection filters when active."""
+        fH = self.win.actionFilterHandle
+        fE = self.win.actionFilterEndpoint
+        fS = self.win.actionFilterStrand
+        fX = self.win.actionFilterXover
+        fH.setChecked(True)
+        if fE.isChecked():
+            fE.setChecked(False)
+        if fS.isChecked():
+            fS.setChecked(False)
+        if fX.isChecked():
+            fX.setChecked(False)
+        self._document.documentSelectionFilterChangedSignal.emit(["virtualHelix"])
+
+    def actionFilterEndpointSlot(self):
+        """
+        Disables handle filters when activated.
+        Remains checked if no other item-type filter is active.
+        """
+        fH = self.win.actionFilterHandle
+        fE = self.win.actionFilterEndpoint
+        fS = self.win.actionFilterStrand
+        fX = self.win.actionFilterXover
+        if fH.isChecked():
+            fH.setChecked(False)
+        if not fS.isChecked() and not fX.isChecked():
+            fE.setChecked(True)
+        self.strandFilterUpdate()
+    # end def
+
+    def actionFilterStrandSlot(self):
+        """
+        Disables handle filters when activated.
+        Remains checked if no other item-type filter is active.
+        """
+        fH = self.win.actionFilterHandle
+        fE = self.win.actionFilterEndpoint
+        fS = self.win.actionFilterStrand
+        fX = self.win.actionFilterXover
+        if fH.isChecked():
+            fH.setChecked(False)
+        if not fE.isChecked() and not fX.isChecked():
+            fS.setChecked(True)
+        self.strandFilterUpdate()
+    # end def
+
+    def actionFilterXoverSlot(self):
+        """
+        Disables handle filters when activated.
+        Remains checked if no other item-type filter is active.
+        """
+        fH = self.win.actionFilterHandle
+        fE = self.win.actionFilterEndpoint
+        fS = self.win.actionFilterStrand
+        fX = self.win.actionFilterXover
+        if fH.isChecked():
+            fH.setChecked(False)
+        if not fE.isChecked() and not fS.isChecked():
+            fX.setChecked(True)
+        self.strandFilterUpdate()
+    # end def
+
+    def actionFilterScafSlot(self):
+        """Remains checked if no other strand-type filter is active."""
+        fSc = self.win.actionFilterScaf
+        fSt = self.win.actionFilterStap
+        if not fSc.isChecked() and not fSt.isChecked():
+            fSc.setChecked(True)
+        self.strandFilterUpdate()
+
+    def actionFilterStapSlot(self):
+        """Remains checked if no other strand-type filter is active."""
+        fSc = self.win.actionFilterScaf
+        fSt = self.win.actionFilterStap
+        if not fSc.isChecked() and not fSt.isChecked():
+            fSt.setChecked(True)
+        self.strandFilterUpdate()
+    # end def
+    
+    def strandFilterUpdate(self):
+        win = self.win
+        filterList = []
+        if win.actionFilterEndpoint.isChecked():
+            filterList.append("endpoint")
+        if win.actionFilterStrand.isChecked():
+            filterList.append("strand")
+        if win.actionFilterXover.isChecked():
+            filterList.append("xover")
+        if win.actionFilterScaf.isChecked():
+            filterList.append("scaffold")
+        if win.actionFilterStap.isChecked():
+            filterList.append("staple")
+        self._document.documentSelectionFilterChangedSignal.emit(filterList)
+    # end def
 
     def actionNewSlot(self):
         """

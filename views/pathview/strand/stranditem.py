@@ -50,15 +50,20 @@ _noPen = QPen(Qt.NoPen)
 
 
 class StrandItem(QGraphicsLineItem):
-    def __init__(self, modelStrand, virtualHelixItem):
+    _filterName = "strand"
+    
+    def __init__(self, modelStrand, virtualHelixItem, viewroot):
         """The parent should be a VirtualHelixItem."""
         super(StrandItem, self).__init__(virtualHelixItem)
         self._modelStrand = modelStrand
         self._virtualHelixItem = virtualHelixItem
+        self._viewroot = viewroot
         self._activeTool = virtualHelixItem.activeTool()
 
         self._controller = StrandItemController(self, modelStrand)
         isDrawn5to3 = modelStrand.strandSet().isDrawn5to3()
+
+        self._strandFilter = modelStrand.strandFilter()
 
         self._insertionItems = {}
         # caps
@@ -203,12 +208,16 @@ class StrandItem(QGraphicsLineItem):
     # end def
     
     def selectedChangedSlot(self, strand, indices):
-        self.selectXoverIfRequired(self.partItem().document())
+        self.selectIfRequired(self.partItem().document(), indices)
     # end def
 
     ### ACCESSORS ###
     def activeTool(self):
         return self._activeTool
+    # end def
+    
+    def viewroot(self):
+        return self._viewroot
     # end def
 
     def insertionItems(self):
@@ -217,6 +226,10 @@ class StrandItem(QGraphicsLineItem):
 
     def strand(self):
         return self._modelStrand
+    # end def
+    
+    def strandFilter(self):
+        return self._strandFilter
     # end def
 
     def idxs(self):
@@ -330,7 +343,7 @@ class StrandItem(QGraphicsLineItem):
         # (unconnected caps were made visible in previous block of code)
         if strand.length() == 1 and \
                   (lowCap.isVisible() and highCap.isVisible()):
-            lowCap.hide()  # hide 
+            lowCap.hide()
             highCap.hide()
             dualCap.setPos(lUpperLeftX, lUpperLeftY)
             dualCap.show()
@@ -487,7 +500,7 @@ class StrandItem(QGraphicsLineItem):
     # end def
 
     def selectToolMousePress(self, idx):
-        self.partItem().setSelectionLock(None)
+        self._viewroot.setSelectionLock(None)
         self.setSelected(True)
     # end def
 
@@ -592,25 +605,24 @@ class StrandItem(QGraphicsLineItem):
         """
         Required to restore parenting and positioning in the partItem
         """
-
         # map the position
         vhItem = self.virtualHelixItem()
         if pos == None:
             pos = self.scenePos()
-        self.setParentItem(vhItem)            
+        self.setParentItem(vhItem)
         tempP = vhItem.mapFromScene(pos)
         self.setPos(tempP)
         self.penAndBrushSet(False)
-        
+
         assert(self.parentItem() == vhItem)
         # print "restore", self.parentItem(), self.group()
         assert(self.group() == None)
         self.setSelected(False)
     # end def
-    
+
     def penAndBrushSet(self, value):
         if value == True:
-            color = QColor("#cccccc")
+            color = QColor("#ff3333")
         else:
             oligo = self._modelStrand.oligo()
             color = QColor(oligo.color())
@@ -623,25 +635,27 @@ class StrandItem(QGraphicsLineItem):
         # for selection changes test against QGraphicsItem.ItemSelectedChange
         # intercept the change instead of the has changed to enable features.
         if change == QGraphicsItem.ItemSelectedChange and self.scene():
-            partItem = self.partItem()
-            selectionGroup = partItem.strandItemSelectionGroup()
-            lock = selectionGroup.selectionLock()
+            viewroot = self._viewroot
+            currentFilterDict = viewroot.selectionFilterDict()
+            selectionGroup = viewroot.strandItemSelectionGroup()
+            
             # only add if the selectionGroup is not locked out
-            if value == True and (lock == None or lock == selectionGroup):
-                if self.group() != selectionGroup:
-                    # print "preadd", self.parentItem(), self.group()
+            if value == True and (self._filterName in currentFilterDict or not selectionGroup.isNormalSelect()):
+                if self.group() != selectionGroup and self._strandFilter in currentFilterDict:
                     selectionGroup.pendToAdd(self)
-                    # print "postadd", self.parentItem(), self.group()
                     selectionGroup.setSelectionLock(selectionGroup)
                     self.penAndBrushSet(True)
                     selectionGroup.pendToAdd(self._lowCap)
                     selectionGroup.pendToAdd(self._highCap)
                     return True
+                else:
+                    return False
             # end if
             elif value == True:
+                # Don't select
                 return False
             else:
-                # print "deselect", self.parentItem(), self.group()
+                # Deselect
                 selectionGroup.pendToRemove(self)
                 self.penAndBrushSet(False)
                 selectionGroup.pendToRemove(self._lowCap)
@@ -651,33 +665,51 @@ class StrandItem(QGraphicsLineItem):
         # end if
         return QGraphicsItem.itemChange(self, change, value)
     # end def
-    
-    def selectXoverIfRequired(self, document):
+
+    def selectIfRequired(self, document, indices):
+        """
+        Select self or xover item as necessary
+        """
         strand5p = self._modelStrand
         con3p = strand5p.connection3p()
-        selectionGroup = self.partItem().strandItemSelectionGroup()
-        # check this strands xover
+        selectionGroup = self._viewroot.strandItemSelectionGroup()
+        # check this strand's xover
         if con3p:
+            # perhaps change this to a direct call, but here are seeds of an 
+            # indirect way of doing selection checks    
             if document.isModelSelected(con3p) and document.isModelSelected(strand5p):
-                val3p, val5p = document.getSelectedValues((con3p, strand5p))
+                val3p = document.getSelectedValue(con3p)
+                # print "xover idx", indices
                 test3p = val3p[0] if con3p.isDrawn5to3() else val3p[1]
-                test5p = val5p[1] if strand5p.isDrawn5to3() else val5p[0]
+                test5p = indices[1] if strand5p.isDrawn5to3() else indices[0]
                 if test3p and test5p:
-                    selectionGroup.setNormalSelect(False)
-                    self._xover3pEnd.modelSelect(document)
-                    selectionGroup.addToGroup(self._xover3pEnd)
-                    selectionGroup.setNormalSelect(True)
+                    if not self._xover3pEnd.isSelected():
+                        selectionGroup.setNormalSelect(False)
+                        self._xover3pEnd.modelSelect(document)
+                        selectionGroup.addToGroup(self._xover3pEnd)
+                        selectionGroup.setNormalSelect(True)
                 # end if
             # end if
         # end if
+        if indices[0] == True and indices[1] == True:
+            if not self.isSelected():
+                selectionGroup.setNormalSelect(False)
+                self.modelSelect(document)
+                selectionGroup.addToGroup(self)
+                selectionGroup.setNormalSelect(True)
     # end def
-    
+
     def modelDeselect(self, document):
         self.restoreParent()
         self._lowCap.modelDeselect(document)
         self._highCap.modelDeselect(document)
     # end def
-    
+
     def modelSelect(self, document):
         self.setSelected(True)
+    # end def
+    
+    def paint(self, painter, option, widget):
+        painter.setPen(self.pen())
+        painter.drawLine(self.line())
     # end def

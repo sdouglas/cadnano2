@@ -315,7 +315,6 @@ class CustomQGraphicsView(QGraphicsView):
             # end if
             if self._selectionLock:
                 self._selectionLock.processPendingToAddList()
-                # self._selectionLock = None
             QGraphicsView.mouseReleaseEvent(self, event)
 
     #end def
