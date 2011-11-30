@@ -71,12 +71,17 @@ def selectionCallback(clientData):
                                     OpenMaya.MFn.kDependencyNode):
                 selectionIter.next()
                 continue
+            dagNode = OpenMaya.MFnDagNode(dependNode)
+        except:
+            selectionIter.next()
+            continue
         if dagNode.name().startswith(m.decoratorTransformName):
             if dagNode.name() not in decoratorList:
                 decoratorList.append(dagNode.name())
         elif dagNode.name().startswith(m.helixTransformName):
             Unused, HNumber = dagNode.name().split("_")
             helixNode = getHelixNodeFromName("%s%s" % (m.helixNodeName, HNumber))
+            print "HELIXNODE", helixNode
             #helixNode = getHelixNodeFromTransform( dependNode )
             if helixNode:
                 manipObject = OpenMaya.MObject()
