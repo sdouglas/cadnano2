@@ -27,6 +27,8 @@
 
 from parts.honeycombpart import HoneycombPart
 from parts.squarepart import SquarePart
+from strand import Strand
+from operator import itemgetter
 import util
 util.qtWrapImport('QtCore', globals(), ['pyqtSignal', 'QObject'])
 util.qtWrapImport('QtGui', globals(), ['QUndoCommand', 'QUndoStack'])
@@ -144,6 +146,87 @@ class Document(QObject):
         return self._selectionDict[strand.strandSet()][strand]
     # end def
             
+    def sortedSelectedStrands(self, strandSet):
+        # outList = self._selectionDict[strandSet].keys()
+        # outList.sort(key=Strand.lowIdx)
+        outList = self._selectionDict[strandSet].items()
+        getLowIdx = lambda x: Strand.lowIdx(itemgetter(0)(x))
+        outList.sort(key=getLowIdx)
+        return outList
+    # end def
+    
+    def determineStrandSetBounds(self, selectedStrandList, strandSet):
+        minLowDelta = strandSet.partMaxBaseIdx()
+        minHighDelta = strandSet.partMaxBaseIdx()  # init the return values
+        sSDict = self._selectionDict[strandSet]
+        # get the StrandSet index of the first item in the list
+        sSIdx = strandSet._findIndexOfRangeFor(selectedStrandList[0][0])
+        sSList = strandSet._strandList
+        lenSSList = len(sSList)
+        maxSSIdx = lenSSList-1
+        i = 0
+        for strand, value in selectedStrandList:
+            while strand != sSList[sSIdx]:
+                # incase there are gaps due to double xovers
+                ssIdx += 1
+            # end while
+            idxL, idxH = strand.idxs()
+            if value[0]:    # the end is selected
+                if sSIdx > 0:
+                    lowNeighbor = sSList[sSIdx-1]
+                    if lowNeighbor in sSDict:
+                        valueN = sSDict[lowNeighbor]
+                        # we only care if the low neighbor is not selected
+                        temp = minLowDelta  if valueN[1] else idxL - lowNeighbor.idxHigh()
+                    # end if
+                    else: # not selected
+                        temp = idxL - lowNeighbor.idxHigh()
+                    # end else
+                else:
+                    temp = idxL - 0
+                # end else
+                if temp < minLowDelta:
+                    minLowDelta = temp
+                # end if
+            # end if
+            if value[1]:
+                if sSIdx < maxSSIdx:
+                    highNeighbor = sSList[sSIdx+1]
+                    if highNeighbor in sSDict:
+                        valueN = sSDict[highNeighbor]
+                        # we only care if the low neighbor is not selected
+                        temp = minHighDelta if valueN[1] else highNeighbor.idxLow() - idxH
+                    # end if
+                    else: # not selected
+                        temp = highNeighbor.idxLow() - idxH
+                    # end else
+                else:
+                    temp = strandSet.partMaxBaseIdx() - idxH
+                # end else
+                if temp < minHighDelta:
+                    minHighDelta = temp
+                # end if
+            # end if
+            # increment counter
+            sSIdx += 1
+        # end for
+        return (minLowDelta, minHighDelta)
+    # end def
+    
+    def getSelectionBounds(self):
+        minLowDelta = -1
+        minHighDelta = -1
+        for strandSet in self._selectionDict.iterkeys():
+            selectedList = self.sortedSelectedStrands(strandSet)
+            tempLow, tempHigh = self.determineStrandSetBounds(selectedList, strandSet)
+            if tempLow < minLowDelta or minLowDelta < 0:
+                minLowDelta = temp
+            if tempHigh < minHighDelta or minHighDelta < 0:
+                minHighDelta = temp
+        # end for
+        return (minLowDelta, minHighDelta)
+    # end def
+    
     def updateSelection(self):
         """
         do it this way in the future when we have a better signaling architecture between views
@@ -156,6 +239,8 @@ class Document(QObject):
             obj.selectedChangedSignal.emit(obj, value)
         # end for
         self._selectedChangedDict = {}
+        for sS in self._selectionDict:
+            print self.sortedSelectedStrands(sS)
     # end def
 
     ### PUBLIC METHODS FOR EDITING THE MODEL ###

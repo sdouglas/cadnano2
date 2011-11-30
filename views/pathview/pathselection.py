@@ -296,9 +296,9 @@ class SelectionItemGroup(QGraphicsItemGroup):
 # end class
 
 
-class PathHelixHandleSelectionBox(QGraphicsPathItem):
+class VirtualHelixHandleSelectionBox(QGraphicsPathItem):
     """
-    docstring for PathHelixHandleSelectionBox
+    docstring for VirtualHelixHandleSelectionBox
     """
     _helixHeight = styles.PATH_HELIX_HEIGHT + styles.PATH_HELIX_PADDING
     _radius = styles.VIRTUALHELIXHANDLEITEM_RADIUS
@@ -309,7 +309,7 @@ class PathHelixHandleSelectionBox(QGraphicsPathItem):
         """
         The itemGroup.parentItem() is expected to be a partItem
         """
-        super(PathHelixHandleSelectionBox, self).__init__(itemGroup.parentItem())
+        super(VirtualHelixHandleSelectionBox, self).__init__(itemGroup.parentItem())
         self._itemGroup = itemGroup
         self._rect = itemGroup.boundingRect()
         self.hide()
