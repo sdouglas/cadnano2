@@ -26,7 +26,7 @@ from exceptions import ImportError
 from controllers.viewrootcontroller import ViewRootController
 from partitem import PartItem
 from pathselection import SelectionItemGroup
-from pathselection import PathHelixHandleSelectionBox
+from pathselection import VirtualHelixHandleSelectionBox
 from pathselection import BreakpointHandleSelectionBox
 import util
 util.qtWrapImport('QtCore', globals(), ['pyqtSignal', 'QObject'])
@@ -110,7 +110,7 @@ class PathRootItem(QGraphicsRectItem):
     
     def _initSelections(self):
         """Initialize anything related to multiple selection."""
-        bType = PathHelixHandleSelectionBox
+        bType = VirtualHelixHandleSelectionBox
         self._vhiHSelectionGroup = SelectionItemGroup(boxtype=bType,\
                                                       constraint='y',\
                                                       parent=self)
