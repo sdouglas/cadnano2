@@ -57,6 +57,19 @@ class Mom(object):
     decoratorToVirtualHelixItem = {}
     # uses strand object as the key, stores stand id
     idStrandMapping = {}
+    
+    
+    # Selection boxes
+    selectionBoxes = []
+    updatingSelectionBoxes = False
+    selectionBoxShader = "SelectionBoxShader"
+    
+    selectionBoxShader = cmds.shadingNode('lambert', asShader=True, name=selectionBoxShader)
+    cmds.sets(n="%sSG" % selectionBoxShader, r=True, nss=True, em=True)
+    cmds.connectAttr("%s.outColor" % selectionBoxShader, "%sSG.surfaceShader" % selectionBoxShader)
+    #cmds.setAttr("%s.color" % selectionBoxShader, 0, 0, 1, type="double3")
+    cmds.setAttr("%s.transparency" % selectionBoxShader, 0.75, 0.75, 0.75, type="double3")
+    cmds.setAttr("%s.incandescence" % selectionBoxShader, 0.5, 0.5, 0.5, type="double3")
 
     # MayaNames
     helixTransformName = "DNAShapeTransform_"
@@ -145,3 +158,26 @@ class Mom(object):
             del self.cnToMaya[strand]
         if strand in self.idStrandMapping:
             del self.idStrandMapping[strand]
+
+    def updateSelectionBoxes(self):
+        return
+        print "MOM.UPDATESELECTIONBOXES"
+        if not self.updatingSelectionBoxes:
+            self.updatingSelectionBoxes = True
+            
+            for b in self.selectionBoxes:
+                cmds.delete(b)
+                self.selectionBoxes.remove(b)
+            selectedItems = cmds.ls( self.helixTransformName + "*", selection=True)
+            if selectedItems:
+                print "selected items", selectedItems
+                bbox = cmds.exactWorldBoundingBox(selectedItems)
+                br = cmds.polyCube( width=bbox[3]-bbox[0], height=bbox[4]-bbox[1], depth=bbox[5]-bbox[2], constructionHistory=False, createUVs=0, object=True)
+                cmds.sets(br, forceElement="%sSG" % self.selectionBoxShader)
+                for boxpart in br:
+                    self.selectionBoxes.append(boxpart)
+                cmds.move((bbox[0] + bbox[3])/2, (bbox[1]+bbox[4])/2, (bbox[2]+bbox[5])/2)
+                cmds.toggle(br, state=True, template=True)
+                cmds.select(selectedItems)
+                print "reselecting...", selectedItems
+            self.updatingSelectionBoxes = False

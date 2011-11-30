@@ -90,6 +90,8 @@ class StrandItem(object):
         #print "solid.StrandItem.strandResizedSlot", self._modelStrand.idxs()
         self.updateSize()
         self._virtualHelixItem.updateDecorators()
+        m = Mom()
+        m.updateSelectionBoxes()
 
     def strandUpdateSlot(self, strand):
         """strandUpdateSlot - empty"""

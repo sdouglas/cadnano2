@@ -258,7 +258,7 @@ class helixManip(OpenMayaMPx.MPxManipContainer):
         return manipData
 
     def manipToPlugConversion(self, plugIndex):
-        # print "manipToPlugConversion", plugIndex
+        print "manipToPlugConversion", plugIndex
         try:
             if(plugIndex == self.ffpIdx):  # front float plug
                 numData = OpenMaya.MFnNumericData()

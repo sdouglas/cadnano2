@@ -51,7 +51,6 @@ def getHelixNodeFromName( helixNode ):
 def selectionCallback(clientData):
     """
     Callback function that is called when the selection changes in Maya.
-    Currently only used for Pre-Decorators.
     """
     clientData.deleteManipulators()
     #print "mayaSelcectionContex: selectionCallback called"
@@ -59,45 +58,49 @@ def selectionCallback(clientData):
     OpenMaya.MGlobal.getActiveSelectionList(selectionList)
     selectionIter = OpenMaya.MItSelectionList(selectionList)
     decoratorList = []
+
     m = Mom()
+    m.updateSelectionBoxes()
+    
     while not selectionIter.isDone():
-            dependNode = OpenMaya.MObject()
-            dagNode = OpenMaya.MFnDagNode()
-            try:
-                    selectionIter.getDependNode(dependNode)
-                    if dependNode.isNull() or not dependNode.hasFn( \
-                                            OpenMaya.MFn.kDependencyNode):
-                        selectionIter.next()
-                        continue
-                    dagNode = OpenMaya.MFnDagNode(dependNode)
-            except:
-                    selectionIter.next()
-                    continue
-            if dagNode.name().startswith(m.decoratorTransformName):
-                if dagNode.name() not in decoratorList:
-                    decoratorList.append(dagNode.name())
-            elif dagNode.name().startswith(m.helixTransformName):
-                Unused, HNumber = dagNode.name().split("_")
-                helixNode = getHelixNodeFromName("%s%s" % (m.helixNodeName, HNumber))
-                #helixNode = getHelixNodeFromTransform( dependNode )
-                if helixNode:
-                    manipObject = OpenMaya.MObject()
-                    manipulator = \
-                            OpenMayaMPx.MPxManipContainer.newManipulator( "spHelixManip", manipObject )
-                    if manipulator is not None:
-                        clientData.addManipulator( manipObject )
-                        transformNodePath = OpenMaya.MDagPath()
-                        selectionIter.getDagPath( transformNodePath )
-                        distanceManipFn = OpenMayaUI.MFnDistanceManip( manipulator.fDistanceFrontManip )
-                        startPointIndex = distanceManipFn.startPointIndex()
-                        # OpenMayaMPx.MPxManipContainer.addPlugToManipConversion( manipulator, startPointIndex )
-                        manipulator.setupTransform( dependNode, transformNodePath ) # attempt to set up the manip xform to match the helix node xform                                                
-                        
-                        # workaround for when a strand is added, and somehow triggers this event, even though it's not selected
-                        if( helixNode ):
-                            manipulator.connectToDependNode( helixNode )
-                    #print "selectionCallback ", dagNode.name(), helixNode
+        dependNode = OpenMaya.MObject()
+        dagNode = OpenMaya.MFnDagNode()
+        try:
+            selectionIter.getDependNode(dependNode)
+            if dependNode.isNull() or not dependNode.hasFn( \
+                                    OpenMaya.MFn.kDependencyNode):
+                selectionIter.next()
+                continue
+            dagNode = OpenMaya.MFnDagNode(dependNode)
+        except:
             selectionIter.next()
+            continue
+        if dagNode.name().startswith(m.decoratorTransformName):
+            if dagNode.name() not in decoratorList:
+                decoratorList.append(dagNode.name())
+        elif dagNode.name().startswith(m.helixTransformName):
+            Unused, HNumber = dagNode.name().split("_")
+            helixNode = getHelixNodeFromName("%s%s" % (m.helixNodeName, HNumber))
+            #print "HELIXNODE", helixNode
+            #helixNode = getHelixNodeFromTransform( dependNode )
+            if helixNode:
+                manipObject = OpenMaya.MObject()
+                manipulator = \
+                        OpenMayaMPx.MPxManipContainer.newManipulator( "spHelixManip", manipObject )
+                if manipulator is not None:
+                    clientData.addManipulator( manipObject )
+                    transformNodePath = OpenMaya.MDagPath()
+                    selectionIter.getDagPath( transformNodePath )
+                    distanceManipFn = OpenMayaUI.MFnDistanceManip( manipulator.fDistanceFrontManip )
+                    startPointIndex = distanceManipFn.startPointIndex()
+                    # OpenMayaMPx.MPxManipContainer.addPlugToManipConversion( manipulator, startPointIndex )
+                    manipulator.setupTransform( dependNode, transformNodePath ) # attempt to set up the manip xform to match the helix node xform                                                
+                    
+                    # workaround for when a strand is added, and somehow triggers this event, even though it's not selected
+                    if( helixNode ):
+                        manipulator.connectToDependNode( helixNode )
+                #print "selectionCallback ", dagNode.name(), helixNode
+        selectionIter.next()
     m.staplePreDecoratorSelected(decoratorList)
 
 
