@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'mainwindow/mainwindow.ui'
 #
-# Created: Tue Nov 29 19:03:57 2011
+# Created: Tue Nov 29 19:11:52 2011
 #      by: PyQt4 UI code generator 4.8.6
 #
 # WARNING! All changes made in this file will be lost!
@@ -357,6 +357,7 @@ class Ui_MainWindow(object):
         self.actionFilterEndpoint.setObjectName(_fromUtf8("actionFilterEndpoint"))
         self.actionFilterXover = QtGui.QAction(MainWindow)
         self.actionFilterXover.setCheckable(True)
+        self.actionFilterXover.setChecked(False)
         icon22 = QtGui.QIcon()
         icon22.addPixmap(QtGui.QPixmap(_fromUtf8(":/parttools/filter-xover")), QtGui.QIcon.Normal, QtGui.QIcon.Off)
         self.actionFilterXover.setIcon(icon22)
@@ -377,6 +378,7 @@ class Ui_MainWindow(object):
         self.actionFilterStrand.setObjectName(_fromUtf8("actionFilterStrand"))
         self.actionFilterHandle = QtGui.QAction(MainWindow)
         self.actionFilterHandle.setCheckable(True)
+        self.actionFilterHandle.setChecked(False)
         icon24 = QtGui.QIcon()
         icon24.addPixmap(QtGui.QPixmap(_fromUtf8(":/parttools/filter-handle")), QtGui.QIcon.Normal, QtGui.QIcon.Off)
         self.actionFilterHandle.setIcon(icon24)
@@ -420,8 +422,8 @@ class Ui_MainWindow(object):
         self.topToolBar.addAction(self.actionFilterStap)
         self.topToolBar.addAction(self.actionFilterHandle)
         self.topToolBar.addAction(self.actionFilterEndpoint)
-        self.topToolBar.addAction(self.actionFilterStrand)
         self.topToolBar.addAction(self.actionFilterXover)
+        self.topToolBar.addAction(self.actionFilterStrand)
         self.rightToolBar.addAction(self.actionPathSelect)
         self.rightToolBar.addAction(self.actionPathPencil)
         self.rightToolBar.addAction(self.actionPathBreak)

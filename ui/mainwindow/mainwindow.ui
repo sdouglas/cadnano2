@@ -211,8 +211,8 @@
    <addaction name="actionFilterStap"/>
    <addaction name="actionFilterHandle"/>
    <addaction name="actionFilterEndpoint"/>
-   <addaction name="actionFilterStrand"/>
    <addaction name="actionFilterXover"/>
+   <addaction name="actionFilterStrand"/>
   </widget>
   <widget class="QToolBar" name="rightToolBar">
    <property name="sizePolicy">
@@ -750,6 +750,9 @@
    <property name="checkable">
     <bool>true</bool>
    </property>
+   <property name="checked">
+    <bool>false</bool>
+   </property>
    <property name="icon">
     <iconset resource="icons.qrc">
      <normaloff>:/parttools/filter-xover</normaloff>:/parttools/filter-xover</iconset>
@@ -787,6 +790,9 @@
   <action name="actionFilterHandle">
    <property name="checkable">
     <bool>true</bool>
+   </property>
+   <property name="checked">
+    <bool>false</bool>
    </property>
    <property name="icon">
     <iconset resource="icons.qrc">
