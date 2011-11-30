@@ -357,7 +357,7 @@ class EndpointItem(QGraphicsPathItem):
         vhItem = self._strandItem.virtualHelixItem()
         if pos == None:
             pos = self.scenePos()
-        self.setParentItem(vhItem)            
+        self.setParentItem(vhItem)
         tempP = vhItem.mapFromScene(pos)
         self.setPos(tempP)
         self.penAndBrushSet(False)

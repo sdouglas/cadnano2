@@ -130,7 +130,7 @@ def overlap(x,y, a,b):
         y >= a and b >= x
     """
     c = clamp(x, a, b)
-    d = clamp(y, a, b) 
+    d = clamp(y, a, b)
     return c, d
 # end def
 
@@ -203,6 +203,8 @@ def markwhite(seqStr):
 def nowhite(seqStr):
     """Gets rid of whitespace in a string."""
     return ''.join([c for c in seqStr if c in string.letters])
+
+nearest=lambda a,l:min(l,key=lambda x:abs(x-a))
 
 def isWindows():
     if platform.system() == 'Windows':

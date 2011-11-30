@@ -189,7 +189,10 @@ class StrandSet(QObject):
         canInsert, strandSetIdx = self.getIndexToInsert(baseIdxLow, baseIdxHigh)
         if canInsert:
             c = StrandSet.CreateStrandCommand(self, baseIdxLow, baseIdxHigh, strandSetIdx)
-            util.execCommandList(self, [c], desc="Create strand", useUndoStack=useUndoStack)
+            row, col = self._virtualHelix.coord()
+            # d = "(%d,%d).%d+[%d,%d]" % (row, col, self._strandType, baseIdxLow, baseIdxHigh)
+            d = "(%d,%d).%d^%d" % (row, col, self._strandType, strandSetIdx)
+            util.execCommandList(self, [c], desc=d, useUndoStack=useUndoStack)
             return strandSetIdx
         else:
             return -1

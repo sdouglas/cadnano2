@@ -25,14 +25,18 @@
 helixitem.py
 Created by Nick on 2011-09-28.
 """
+
+import math
+import re
+import util
+from model.enum import StrandType
 from views import styles
 
 try:
     from OpenGL import GL
 except:
     GL = False
-import math
-import util
+
 # import Qt stuff into the module namespace with PySide, PyQt4 independence
 util.qtWrapImport('QtCore', globals(), ['QPointF', 'QRectF', 'Qt'])
 util.qtWrapImport('QtGui', globals(), ['QBrush', 'QFont', 'QGraphicsItem',\
@@ -42,6 +46,9 @@ util.qtWrapImport('QtGui', globals(), ['QBrush', 'QFont', 'QGraphicsItem',\
                                        'QTransform', 'QStyle'])
 
 #from .src.graphicsellipseitem import GraphicsEllipseItem
+
+# _strand_re = re.compile("\((\d+),(\d+)\)\.0\+\[(\d+),(\d+)\]")
+_strand_re = re.compile("\((\d+),(\d+)\)\.0\^(\d+)")
 
 class EmptyHelixItem(QGraphicsEllipseItem):
     """docstring for HelixItem"""
@@ -188,6 +195,72 @@ class EmptyHelixItem(QGraphicsEllipseItem):
                 self.dragSessionAction(ci)
     # end def
 
+    def mouseReleaseEvent(self, event):
+        """docstring for mouseReleaseEvent"""
+        part = self.part()
+        uS = part.undoStack()
+        strands = []
+        for i in range(uS.index()-1, 0, -1):
+            m = _strand_re.match(uS.text(i))
+            if m:
+                # row, col, lowIdx, highIdx = map(int, m.groups())
+                # print i, "\t(%d,%d).[%d,%d]" % (row, col, lowIdx, highIdx)
+                strands.insert(0, map(int, m.groups()))
+            else:
+                break
+
+        util.beginSuperMacro(part, "Auto-connect")
+        for i in range(1, len(strands)):
+            row1, col1, sSidx1 = strands[i-1]  # previous strand
+            row2, col2, sSidx2 = strands[i]  # current strand
+            vh1 = part.virtualHelixAtCoord((row1, col1))
+            vh2 = part.virtualHelixAtCoord((row2, col2))
+            strand1 = vh1.scaffoldStrandSet()._strandList[sSidx1]
+            strand2 = vh2.scaffoldStrandSet()._strandList[sSidx2]
+            # determine if the pair of strands are neighbors
+            neighbors = part.getVirtualHelixNeighbors(vh1)
+            if vh2 in neighbors:
+                p2 = neighbors.index(vh2)
+                if vh2.number() % 2 == 1:
+                    # resize and install external xovers
+                    idx = part.activeBaseIndex()
+                    try:
+                        # resize to the nearest prexover on either side of idx
+                        newLo = util.nearest(idx, part.expandScafH(p2, idx))
+                        newHi = util.nearest(idx, part.expandScafL(p2, idx))
+                        strand1.resize((newLo, newHi))
+                        strand2.resize((newLo, newHi))
+                        # install xovers
+                        part.createXover(strand1, newHi, strand2, newHi)
+                        part.createXover(strand2, newLo, strand1, newLo)
+                    except ValueError:
+                        pass  # nearest not found in the expanded list
+
+                    # go back an install the internal xovers
+                    if i > 2:
+                        row0, col0, sSidx0 = strands[i-2]  # two strands back
+                        vh0 = part.virtualHelixAtCoord((row0, col0))
+                        strand0 = vh0.scaffoldStrandSet()._strandList[sSidx0]
+                        if vh0 in neighbors:
+                            p0 = neighbors.index(vh0)
+                            l0, h0 = strand0.idxs()
+                            l1, h1 = strand1.idxs()
+                            oLow, oHigh = util.overlap(l0, h0, l1, h1)
+                            try:
+                                lX = filter(lambda x:x>oLow and x<oHigh, part.expandScafL(p0))[0]
+                                hX = filter(lambda x:x>oLow and x<oHigh, part.expandScafH(p0))[0]
+                                # install high xover first
+                                part.createXover(strand0, hX, strand1, hX)
+                                # install low xover after getting new strands
+                                # following the breaks caused by the high xover
+                                strand3 = vh0.scaffoldStrandSet()._strandList[sSidx0]
+                                strand4 = vh1.scaffoldStrandSet()._strandList[sSidx1]
+                                part.createXover(strand4, lX, strand3, lX)
+                            except IndexError:
+                                pass  # filter was unhappy
+        util.endSuperMacro(part)
+        return
+
     def decideAction(self, modifiers):
         """ On mouse press, an action (add scaffold at the active slice, add
         segment at the active slice, or create virtualhelix if missing) is
@@ -219,7 +292,7 @@ class EmptyHelixItem(QGraphicsEllipseItem):
     def addScafAtActiveSliceIfMissing(self):
         vh = self.virtualHelix()
         part = self.part()
-        if vh == None: 
+        if vh == None:
             return
 
         idx = part.activeBaseIndex()

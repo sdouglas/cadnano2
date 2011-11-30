@@ -438,16 +438,15 @@ class XoverItem(QGraphicsPathItem):
         """
         Required to restore parenting and positioning in the partItem
         """
-
         # map the position
         partItem = self._virtualHelixItem.partItem()
         if pos == None:
             pos = self.scenePos()
-        self.setParentItem(partItem)            
+        self.setParentItem(partItem)
         tempP = partItem.mapFromScene(pos)
         self.setPos(tempP)
         self.penAndBrushSet(False)
-        
+
         assert(self.parentItem() == partItem)
         # print "restore", self.parentItem(), self.group()
         assert(self.group() == None)
