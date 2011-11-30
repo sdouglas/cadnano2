@@ -677,8 +677,8 @@ class StrandItem(QGraphicsLineItem):
         if con3p:
             # perhaps change this to a direct call, but here are seeds of an 
             # indirect way of doing selection checks    
-            if document.isModelSelected(con3p) and document.isModelSelected(strand5p):
-                val3p = document.getSelectedValue(con3p)
+            if document.isModelStrandSelected(con3p) and document.isModelStrandSelected(strand5p):
+                val3p = document.getSelectedStrandValue(con3p)
                 # print "xover idx", indices
                 test3p = val3p[0] if con3p.isDrawn5to3() else val3p[1]
                 test5p = indices[1] if strand5p.isDrawn5to3() else indices[0]

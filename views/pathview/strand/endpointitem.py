@@ -418,31 +418,29 @@ class EndpointItem(QGraphicsPathItem):
     
     def modelDeselect(self, document):
         strand = self._strandItem.strand()
-        selectDict = document.selectionDict()
-        test = strand in selectDict
-        lowVal, highVal = selectDict[strand] if test else (False, False)
+        test = document.isModelStrandSelected(strand)
+        lowVal, highVal = document.getSelectedStrandValue(strand) if test else (False, False)
         if self._capType == 'low':
             outValue = (False, highVal)
         else:
             outValue = (lowVal, False)
         if not outValue[0] and not outValue[1] and test:
-            document.removeFromSelection(strand)
+            document.removeStrandFromSelection(strand)
         elif outValue[0] or outValue[1]:
-            document.addToSelection(strand, outValue)
+            document.addStrandToSelection(strand, outValue)
         self.restoreParent()
     # end def
     
     def modelSelect(self, document):
         strand = self._strandItem.strand()
-        selectDict = document.selectionDict()
-        test = strand in selectDict
-        lowVal, highVal = selectDict[strand] if test else (False, False)
+        test = document.isModelStrandSelected(strand)
+        lowVal, highVal = document.getSelectedStrandValue(strand) if test else (False, False)
         if self._capType == 'low':
             outValue = (True, highVal)
         else:
             outValue = (lowVal, True)
         self.setSelected(True)
-        document.addToSelection(strand, outValue)
+        document.addStrandToSelection(strand, outValue)
     # end def
     
     def paint(self, painter, option, widget):
