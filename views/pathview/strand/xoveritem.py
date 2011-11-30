@@ -495,54 +495,54 @@ class XoverItem(QGraphicsPathItem):
     # end def
     
     def modelDeselect(self, document):
+        
         strand5p = self._strand5p
         strand3p = strand5p.connection3p()
-        selectDict = document.selectionDict()
-        test5p = strand5p in selectDict
-        lowVal5p, highVal5p = selectDict[strand5p] if test5p else (False, False)
+
+        test5p = document.isModelStrandSelected(strand5p)
+        lowVal5p, highVal5p = document.getSelectedStrandValue(strand5p) if test5p else (False, False)
         if strand5p.isDrawn5to3():
             highVal5p = False
         else:
             lowVal5p = False
-        test3p = strand3p in selectDict
-        lowVal3p, highVal3p = selectDict[strand3p] if test3p else (False, False)
+        test3p = document.isModelStrandSelected(strand3p)
+        lowVal3p, highVal3p = document.getSelectedStrandValue(strand3p) if test3p else (False, False)
         if strand3p.isDrawn5to3():
             lowVal3p = False
         else:
             highVal3p = False
         
         if not lowVal5p and not highVal5p and test5p:
-            document.removeFromSelection(strand5p)
+            document.removeStrandFromSelection(strand5p)
         elif test5p:
-            document.addToSelection(strand5p, (lowVal5p, highVal5p))
+            document.addStrandToSelection(strand5p, (lowVal5p, highVal5p))
         if not lowVal3p and not highVal3p and test3p:
-            document.removeFromSelection(strand3p)
+            document.removeStrandFromSelection(strand3p)
         elif test3p:
-            document.addToSelection(strand3p, (lowVal3p, highVal3p))
+            document.addStrandToSelection(strand3p, (lowVal3p, highVal3p))
         self.restoreParent()
     # end def
     
     def modelSelect(self, document):
         strand5p = self._strand5p
         strand3p = strand5p.connection3p()
-        selectDict = document.selectionDict()
         
-        test5p = strand5p in selectDict
-        lowVal5p, highVal5p = selectDict[strand5p] if test5p else False, False
+        test5p = document.isModelStrandSelected(strand5p)
+        lowVal5p, highVal5p = document.getSelectedStrandValue(strand5p) if test5p else (False, False)
         if strand5p.isDrawn5to3():
             highVal5p = True
         else:
             lowVal5p = True
-        test3p = strand3p in selectDict
-        lowVal3p, highVal3p = selectDict[strand3p] if test3p else False, False
+        test3p = document.isModelStrandSelected(strand3p)
+        lowVal3p, highVal3p = document.getSelectedStrandValue(strand3p) if test3p else (False, False)
         if strand3p.isDrawn5to3():
             lowVal3p = True
         else:
             highVal3p = True
         
         self.setSelected(True)
-        document.addToSelection(strand5p, (lowVal5p, highVal5p))
-        document.addToSelection(strand3p, (lowVal3p, highVal3p))
+        document.addStrandToSelection(strand5p, (lowVal5p, highVal5p))
+        document.addStrandToSelection(strand3p, (lowVal3p, highVal3p))
     # end def
     
     def paint(self, painter, option, widget):

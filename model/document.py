@@ -90,6 +90,26 @@ class Document(QObject):
             self._selectedChangedDict[obj] = (False, False)
     # end def
     
+    def addStrandToSelection(self, strand, value):
+        sS = strand.strandSet()
+        if sS in self._selectionDict:
+            self._selectionDict[sS][strand] = value
+        else:
+            self._selectionDict[sS] = { strand : value }
+        self._selectedChangedDict[strand] = value
+    # end def
+    
+    def removeStrandFromSelection(self, strand):
+        sS = strand.strandSet()
+        if sS in self._selectionDict:
+            temp = self._selectionDict[sS]
+            if strand in temp:
+                del temp[strand]
+                if len(temp) == 0:
+                    del self._selectionDict[sS]
+            self._selectedChangedDict[strand] = (False, False)
+    # end def
+    
     def selectionDict(self):
         return self._selectionDict
     # end def
@@ -98,12 +118,31 @@ class Document(QObject):
         return obj in self._selectionDict
     # end def
     
+    def isModelStrandSelected(self, strand):
+        sS = strand.strandSet()
+        if sS in self._selectionDict:
+            if strand in self._selectionDict[sS]:
+                return True
+            else:
+                return False
+        else:
+            return False
+    # end def
+    
     def getSelectedValue(self, obj):
         """
         obj is an objects to look up
         it is prevetted to be in the dictionary 
         """
         return self._selectionDict[obj]
+        
+    def getSelectedStrandValue(self, strand):
+        """
+        strand is an objects to look up
+        it is prevetted to be in the dictionary 
+        """
+        return self._selectionDict[strand.strandSet()][strand]
+    # end def
             
     def updateSelection(self):
         """
