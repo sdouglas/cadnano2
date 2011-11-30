@@ -260,6 +260,10 @@ class XoverItem(QGraphicsPathItem):
         return self._strandItem._activeTool()
     # end def
 
+    def partItem(self):
+        return self._virtualHelixItem.partItem()
+    # end def
+
     def remove(self):
         scene = self.scene()
         if self._node3:
@@ -449,10 +453,10 @@ class XoverItem(QGraphicsPathItem):
         assert(self.group() == None)
         self.setSelected(False)
     # end def
-    
+
     def penAndBrushSet(self, value):
         if value == True:
-            color = QColor("#ff3333")
+            color = styles.selected_color
         else:
             oligo = self._strandItem.strand().oligo()
             color = QColor(oligo.color())
