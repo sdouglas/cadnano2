@@ -207,12 +207,12 @@
    <addaction name="actionModify"/>
    <addaction name="separator"/>
    <addaction name="actionFiltersLabel"/>
+   <addaction name="actionFilterScaf"/>
+   <addaction name="actionFilterStap"/>
    <addaction name="actionFilterHandle"/>
    <addaction name="actionFilterEndpoint"/>
    <addaction name="actionFilterStrand"/>
    <addaction name="actionFilterXover"/>
-   <addaction name="actionFilterScaf"/>
-   <addaction name="actionFilterStap"/>
   </widget>
   <widget class="QToolBar" name="rightToolBar">
    <property name="sizePolicy">
@@ -305,6 +305,8 @@
      </property>
      <addaction name="separator"/>
     </widget>
+    <addaction name="actionAbout"/>
+    <addaction name="actionPreferences"/>
     <addaction name="actionNew"/>
     <addaction name="actionOpen"/>
     <addaction name="menuOpen_recent_files"/>
@@ -314,14 +316,6 @@
     <addaction name="actionSave_As"/>
     <addaction name="separator"/>
     <addaction name="actionPrint"/>
-   </widget>
-   <widget class="QMenu" name="menuCadnano">
-    <property name="title">
-     <string>cadnano</string>
-    </property>
-    <addaction name="actionAbout"/>
-    <addaction name="actionPreferences"/>
-    <addaction name="separator"/>
    </widget>
    <widget class="QMenu" name="menuEdit">
     <property name="title">
@@ -333,7 +327,6 @@
      <string>View</string>
     </property>
    </widget>
-   <addaction name="menuCadnano"/>
    <addaction name="menuFile"/>
    <addaction name="menuEdit"/>
    <addaction name="menuView"/>
@@ -813,8 +806,12 @@
    <property name="checked">
     <bool>true</bool>
    </property>
+   <property name="icon">
+    <iconset resource="icons.qrc">
+     <normaloff>:/parttools/filter-scaf</normaloff>:/parttools/filter-scaf</iconset>
+   </property>
    <property name="text">
-    <string>Scaffold</string>
+    <string> </string>
    </property>
    <property name="toolTip">
     <string>Scaffold-selection mode</string>
@@ -824,8 +821,12 @@
    <property name="checkable">
     <bool>true</bool>
    </property>
+   <property name="icon">
+    <iconset resource="icons.qrc">
+     <normaloff>:/parttools/filter-stap</normaloff>:/parttools/filter-stap</iconset>
+   </property>
    <property name="text">
-    <string>Staple</string>
+    <string> </string>
    </property>
    <property name="toolTip">
     <string>Staple-selection mode</string>
