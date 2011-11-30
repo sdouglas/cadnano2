@@ -160,7 +160,7 @@ class Document(QObject):
         minHighDelta = strandSet.partMaxBaseIdx()  # init the return values
         sSDict = self._selectionDict[strandSet]
         # get the StrandSet index of the first item in the list
-        sSIdx = strandSet._findIndexOfRangeFor(selectedStrandList[0][0])
+        sSIdx = strandSet._findIndexOfRangeFor(selectedStrandList[0][0])[2]
         sSList = strandSet._strandList
         lenSSList = len(sSList)
         maxSSIdx = lenSSList-1
@@ -177,10 +177,10 @@ class Document(QObject):
                     if lowNeighbor in sSDict:
                         valueN = sSDict[lowNeighbor]
                         # we only care if the low neighbor is not selected
-                        temp = minLowDelta  if valueN[1] else idxL - lowNeighbor.idxHigh()
+                        temp = minLowDelta  if valueN[1] else idxL - lowNeighbor.highIdx() - 1
                     # end if
                     else: # not selected
-                        temp = idxL - lowNeighbor.idxHigh()
+                        temp = idxL - lowNeighbor.highIdx() - 1
                     # end else
                 else:
                     temp = idxL - 0
@@ -188,6 +188,11 @@ class Document(QObject):
                 if temp < minLowDelta:
                     minLowDelta = temp
                 # end if
+                # check the other end of the strand
+                if not value[1]:
+                    temp = idxH - idxL -1
+                    if temp < minHighDelta:
+                        minHighDelta = temp
             # end if
             if value[1]:
                 if sSIdx < maxSSIdx:
@@ -195,10 +200,10 @@ class Document(QObject):
                     if highNeighbor in sSDict:
                         valueN = sSDict[highNeighbor]
                         # we only care if the low neighbor is not selected
-                        temp = minHighDelta if valueN[1] else highNeighbor.idxLow() - idxH
+                        temp = minHighDelta if valueN[1] else highNeighbor.lowIdx() - idxH -1
                     # end if
                     else: # not selected
-                        temp = highNeighbor.idxLow() - idxH
+                        temp = highNeighbor.lowIdx() - idxH - 1
                     # end else
                 else:
                     temp = strandSet.partMaxBaseIdx() - idxH
@@ -206,6 +211,11 @@ class Document(QObject):
                 if temp < minHighDelta:
                     minHighDelta = temp
                 # end if
+                # check the other end of the strand
+                if not value[0]:
+                    temp = idxH - idxL - 1
+                    if temp < minLowDelta:
+                        minLowDelta = temp
             # end if
             # increment counter
             sSIdx += 1
@@ -220,9 +230,9 @@ class Document(QObject):
             selectedList = self.sortedSelectedStrands(strandSet)
             tempLow, tempHigh = self.determineStrandSetBounds(selectedList, strandSet)
             if tempLow < minLowDelta or minLowDelta < 0:
-                minLowDelta = temp
+                minLowDelta = tempLow
             if tempHigh < minHighDelta or minHighDelta < 0:
-                minHighDelta = temp
+                minHighDelta = tempHigh
         # end for
         return (minLowDelta, minHighDelta)
     # end def
@@ -239,8 +249,8 @@ class Document(QObject):
             obj.selectedChangedSignal.emit(obj, value)
         # end for
         self._selectedChangedDict = {}
-        for sS in self._selectionDict:
-            print self.sortedSelectedStrands(sS)
+        # for sS in self._selectionDict:
+        #     print self.sortedSelectedStrands(sS)
     # end def
 
     ### PUBLIC METHODS FOR EDITING THE MODEL ###
