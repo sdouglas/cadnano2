@@ -150,6 +150,7 @@ class PartItem(object):
                 totalNumBases = self._part.maxBaseIdx()
                 cmds.setAttr("%s.totalBases" % cylinderName,
                                                 int(totalNumBases))
+            vh.updateDecorators()
     # end def
 
     def partParentChangedSlot(self, part):

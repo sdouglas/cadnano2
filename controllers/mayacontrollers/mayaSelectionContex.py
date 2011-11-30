@@ -53,7 +53,7 @@ def selectionCallback(clientData):
     Callback function that is called when the selection changes in Maya.
     """
     clientData.deleteManipulators()
-    print "mayaSelcectionContex: selectionCallback called"
+    #print "mayaSelcectionContex: selectionCallback called"
     selectionList = OpenMaya.MSelectionList()
     OpenMaya.MGlobal.getActiveSelectionList(selectionList)
     selectionIter = OpenMaya.MItSelectionList(selectionList)
@@ -81,7 +81,7 @@ def selectionCallback(clientData):
         elif dagNode.name().startswith(m.helixTransformName):
             Unused, HNumber = dagNode.name().split("_")
             helixNode = getHelixNodeFromName("%s%s" % (m.helixNodeName, HNumber))
-            print "HELIXNODE", helixNode
+            #print "HELIXNODE", helixNode
             #helixNode = getHelixNodeFromTransform( dependNode )
             if helixNode:
                 manipObject = OpenMaya.MObject()
