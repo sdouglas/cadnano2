@@ -200,7 +200,7 @@ class Document(QObject):
                     if highNeighbor in sSDict:
                         valueN = sSDict[highNeighbor]
                         # we only care if the low neighbor is not selected
-                        temp = minHighDelta if valueN[1] else highNeighbor.lowIdx() - idxH -1
+                        temp = minHighDelta if valueN[0] else highNeighbor.lowIdx() - idxH -1
                     # end if
                     else: # not selected
                         temp = highNeighbor.lowIdx() - idxH - 1

@@ -434,7 +434,6 @@ class EndpointHandleSelectionBox(QGraphicsPathItem):
     def refreshPath(self):
         tempLow, tempHigh = self._itemGroup._viewroot.document().getSelectionBounds()
         self._bounds = (tempLow, tempHigh)
-        print "my bounds are", self._bounds
         self.prepareGeometryChange()
         self.setPath(self.painterPath())
         self._pos0 = self.pos()
@@ -459,7 +458,6 @@ class EndpointHandleSelectionBox(QGraphicsPathItem):
         """docstring for processSelectedItems"""
         self._itemGroup.reParent(True)
         delta = self.delta(rEnd, rStart)
-        print "moved", delta
         self._itemGroup._viewroot.document().resizeSelection(delta)
         self._itemGroup.reParent(False)
     # end def
