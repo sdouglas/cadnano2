@@ -273,6 +273,7 @@ class SelectionItemGroup(QGraphicsItemGroup):
         """docstring for removeSelectedItems"""
         doc = self._viewroot.document()
         for item in self.childItems():
+            print "ep scenepos y", item.scenePos().y()
             self.removeFromGroup(item)
             item.modelDeselect(doc)
             # if not item.isSelected():
@@ -465,7 +466,7 @@ class EndpointHandleSelectionBox(QGraphicsPathItem):
         
     def boxParent(self):
         temp = self._itemGroup.childItems()[0].partItem()
-        # self.setParentItem(temp)
+        self.setParentItem(temp)
         return temp
     # end def
     

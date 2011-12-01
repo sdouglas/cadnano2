@@ -113,6 +113,10 @@ class VirtualHelixItem(QGraphicsPathItem):
     def coord(self):
         return self._modelVirtualHelix.coord()
     # end def
+    
+    def viewroot(self):
+        return self._viewroot
+    # end def
 
     def handle(self):
         return self._handle
