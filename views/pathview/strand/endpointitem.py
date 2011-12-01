@@ -366,7 +366,7 @@ class EndpointItem(QGraphicsPathItem):
         tempP = vhItem.mapFromScene(pos)
         self.setPos(tempP)
     # end def
-    
+
     def penAndBrushSet(self, value):
         if value == True:
             color = styles.selected_color
@@ -405,6 +405,7 @@ class EndpointItem(QGraphicsPathItem):
                 # Check if the strand is being added to the selection group still
                 if not selectionGroup.isPending(self._strandItem):
                     selectionGroup.pendToRemove(self)
+                    self.tempReparent()
                     self.penAndBrushSet(False)
                     return False
                 else:   # don't deselect it, because the strand is selected still

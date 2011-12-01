@@ -176,3 +176,7 @@ class PathRootItem(QGraphicsRectItem):
     def setSelectionLock(self, locker):
         self.scene().views()[0].setSelectionLock(locker)
     # end def
+    
+    def clearStrandSelections(self):
+        self._strandItemSelectionGroup.clearSelection(False)
+    # end def
