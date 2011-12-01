@@ -203,8 +203,6 @@ class EmptyHelixItem(QGraphicsEllipseItem):
         for i in range(uS.index()-1, 0, -1):
             m = _strand_re.match(uS.text(i))
             if m:
-                # row, col, lowIdx, highIdx = map(int, m.groups())
-                # print i, "\t(%d,%d).[%d,%d]" % (row, col, lowIdx, highIdx)
                 strands.insert(0, map(int, m.groups()))
             else:
                 break
