@@ -58,9 +58,12 @@ class Mom(object):
     # uses strand object as the key, stores stand id
     idStrandMapping = {}
     
-    
     # Selection boxes
-    selectionBoxes = []
+    selectionBox = cmds.polyCube( constructionHistory=False, createUVs=0, object=True)[0]
+    cmds.hide(selectionBox)
+    cmds.setAttr(selectionBox + ".overrideEnabled", True)
+    cmds.setAttr(selectionBox + ".overrideDisplayType", 2)
+    #cmds.toggle(selectionBox, state=True, template=True)
     updatingSelectionBoxes = False
     selectionBoxShader = "SelectionBoxShader"
     
@@ -68,7 +71,7 @@ class Mom(object):
     cmds.sets(n="%sSG" % selectionBoxShader, r=True, nss=True, em=True)
     cmds.connectAttr("%s.outColor" % selectionBoxShader, "%sSG.surfaceShader" % selectionBoxShader)
     #cmds.setAttr("%s.color" % selectionBoxShader, 0, 0, 1, type="double3")
-    cmds.setAttr("%s.transparency" % selectionBoxShader, 0.75, 0.75, 0.75, type="double3")
+    cmds.setAttr("%s.transparency" % selectionBoxShader, 0.65, 0.65, 0.65, type="double3")
     cmds.setAttr("%s.incandescence" % selectionBoxShader, 0.5, 0.5, 0.5, type="double3")
 
     # MayaNames
@@ -81,6 +84,12 @@ class Mom(object):
     decoratorMeshName = "stapleModIndicatorMesh_"
     decoratorShaderName = "stapleModeIndicatorShader_"
 
+    def manipulator():
+        return helixManipulator;
+        
+    def manipulatorObject():
+        return manipulatorObject;
+    
     def staplePreDecoratorSelected(self, listNames):
         """
         Callback function that is called from mayaSelectionContext when a
@@ -160,24 +169,13 @@ class Mom(object):
             del self.idStrandMapping[strand]
 
     def updateSelectionBoxes(self):
-        return
-        print "MOM.UPDATESELECTIONBOXES"
-        if not self.updatingSelectionBoxes:
-            self.updatingSelectionBoxes = True
-            
-            for b in self.selectionBoxes:
-                cmds.delete(b)
-                self.selectionBoxes.remove(b)
-            selectedItems = cmds.ls( self.helixTransformName + "*", selection=True)
-            if selectedItems:
-                print "selected items", selectedItems
-                bbox = cmds.exactWorldBoundingBox(selectedItems)
-                br = cmds.polyCube( width=bbox[3]-bbox[0], height=bbox[4]-bbox[1], depth=bbox[5]-bbox[2], constructionHistory=False, createUVs=0, object=True)
-                cmds.sets(br, forceElement="%sSG" % self.selectionBoxShader)
-                for boxpart in br:
-                    self.selectionBoxes.append(boxpart)
-                cmds.move((bbox[0] + bbox[3])/2, (bbox[1]+bbox[4])/2, (bbox[2]+bbox[5])/2)
-                cmds.toggle(br, state=True, template=True)
-                cmds.select(selectedItems)
-                print "reselecting...", selectedItems
-            self.updatingSelectionBoxes = False
+        selectedItems = cmds.ls( self.helixTransformName + "*", selection=True)
+        if selectedItems:
+            bbox = cmds.exactWorldBoundingBox(selectedItems)
+            #cmds.polyCube( self.selectionBox, edit=True, width=bbox[3]-bbox[0], height=bbox[4]-bbox[1], depth=bbox[5]-bbox[2], constructionHistory=False, createUVs=0, object=True)
+            cmds.setAttr( self.selectionBox + ".scale", bbox[3]-bbox[0], bbox[4]-bbox[1], bbox[5]-bbox[2], type="double3" )
+            cmds.sets(self.selectionBox, forceElement="%sSG" % self.selectionBoxShader)
+            cmds.setAttr( self.selectionBox + ".translate", (bbox[0] + bbox[3])/2, (bbox[1]+bbox[4])/2, (bbox[2]+bbox[5])/2, type="double3")
+            cmds.showHidden( self.selectionBox )
+        else:
+            cmds.hide( self.selectionBox )
