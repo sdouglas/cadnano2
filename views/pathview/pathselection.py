@@ -449,7 +449,10 @@ class EndpointHandleSelectionBox(QGraphicsPathItem):
 
     def processSelectedItems(self, rStart, rEnd):
         """docstring for processSelectedItems"""
-        pass
+        delta = self.delta(rEnd, rStart)
+        print "moved", delta
+        self._itemGroup._viewroot.document().resizeSelection(delta)
+    # end def
         
     def boxParent(self):
         temp = self._itemGroup.childItems()[0].partItem()

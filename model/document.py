@@ -233,8 +233,27 @@ class Document(QObject):
                 minLowDelta = tempLow
             if tempHigh < minHighDelta or minHighDelta < 0:
                 minHighDelta = tempHigh
-        # end for
+        # end for Mark train bus to metro
         return (minLowDelta, minHighDelta)
+    # end def
+    
+    # def operateOnStrandSelection(self, method, arg, both=False):
+    # 
+    # # end def
+    
+    def resizeSelection(self, delta, useUndoStack=True):
+        if useUndoStack:
+            self.undoStack().beginMacro("Resize Selection")
+        for strandSetDict in self._selectionDict.itervalues():
+            for strand, value in strandSetDict.iteritems():
+                idxL, idxH = strand.idxs()
+                idxL = idxL+delta if value[0] else idxL
+                idxH = idxH+delta if value[1] else idxH
+                Strand.resize(strand, (idxL,idxH), useUndoStack)
+            # end for
+        # end for
+        if useUndoStack:
+            self.undoStack().endMacro()
     # end def
     
     def updateSelection(self):
