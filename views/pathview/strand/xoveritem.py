@@ -240,7 +240,7 @@ class XoverItem(QGraphicsPathItem):
     XoverItem should be a child of a PartItem.
     """
     _filterName = "xover"
-    
+
     def __init__(self, strandItem, virtualHelixItem):
         """
         strandItem is a the model representation of the 5prime most strand
@@ -253,7 +253,8 @@ class XoverItem(QGraphicsPathItem):
         self._node5 = None
         self._node3 = None
         self.hide()
-        
+
+        self.setZValue(styles.ZXOVERITEM)
         self.setFlag(QGraphicsItem.ItemIsSelectable)
     # end def
 
@@ -357,7 +358,6 @@ class XoverItem(QGraphicsPathItem):
         sameStrand = (node5.strandType() == node3.strandType()) and vhi3 == vhi5
         sameParity = fiveIs5to3 == threeIs5to3
 
-
         # Enter/exit are relative to the direction that the path travels
         # overall.
         fiveEnterPt = pt5 + QPointF(0 if fiveIs5to3 else 1, .5)*bw
@@ -448,7 +448,7 @@ class XoverItem(QGraphicsPathItem):
         self.penAndBrushSet(False)
         self.setSelected(False)
     # end def
-    
+
     def tempReparent(self, pos=None):
         partItem = self._virtualHelixItem.partItem()
         if pos == None:
@@ -501,9 +501,8 @@ class XoverItem(QGraphicsPathItem):
         # end if
         return QGraphicsPathItem.itemChange(self, change, value)
     # end def
-    
+
     def modelDeselect(self, document):
-        
         strand5p = self._strand5p
         strand3p = strand5p.connection3p()
 
@@ -519,7 +518,7 @@ class XoverItem(QGraphicsPathItem):
             lowVal3p = False
         else:
             highVal3p = False
-        
+
         if not lowVal5p and not highVal5p and test5p:
             document.removeStrandFromSelection(strand5p)
         elif test5p:
@@ -530,11 +529,11 @@ class XoverItem(QGraphicsPathItem):
             document.addStrandToSelection(strand3p, (lowVal3p, highVal3p))
         self.restoreParent()
     # end def
-    
+
     def modelSelect(self, document):
         strand5p = self._strand5p
         strand3p = strand5p.connection3p()
-        
+
         test5p = document.isModelStrandSelected(strand5p)
         lowVal5p, highVal5p = document.getSelectedStrandValue(strand5p) if test5p else (False, False)
         if strand5p.isDrawn5to3():
@@ -547,12 +546,12 @@ class XoverItem(QGraphicsPathItem):
             lowVal3p = True
         else:
             highVal3p = True
-        
+
         self.setSelected(True)
         document.addStrandToSelection(strand5p, (lowVal5p, highVal5p))
         document.addStrandToSelection(strand3p, (lowVal3p, highVal3p))
     # end def
-    
+
     def paint(self, painter, option, widget):
         painter.setPen(self.pen())
         painter.setBrush(self.brush())

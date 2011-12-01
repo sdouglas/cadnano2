@@ -90,7 +90,8 @@ class StrandItem(QGraphicsLineItem):
         self._xover3pEnd = XoverItem(self, virtualHelixItem)
         # initial refresh
         self._updateAppearance(modelStrand)
-        
+
+        self.setZValue(styles.ZSTRANDITEM)
         self.setFlag(QGraphicsItem.ItemIsSelectable)
     # end def
 

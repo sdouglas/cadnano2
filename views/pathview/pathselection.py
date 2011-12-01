@@ -80,7 +80,7 @@ class SelectionItemGroup(QGraphicsItemGroup):
             self.translateR = self.selectionbox.translateX
 
         self._normalSelect = True
-        self.setZValue(styles.ZPATHHELIX+2)
+        self.setZValue(styles.ZPATHSELECTION)
     # end def
 
     def pendToAdd(self, item):
@@ -266,7 +266,6 @@ class SelectionItemGroup(QGraphicsItemGroup):
         """docstring for removeSelectedItems"""
         doc = self._viewroot.document()
         for item in self.childItems():
-            print "ep scenepos y", item.scenePos().y()
             self.removeFromGroup(item)
             item.modelDeselect(doc)
             # if not item.isSelected():
@@ -309,7 +308,7 @@ class VirtualHelixHandleSelectionBox(QGraphicsPathItem):
         self._rect = itemGroup.boundingRect()
         self.hide()
         self.setPen(self._boxPen)
-        self.setZValue(styles.ZPATHHELIX+2)
+        self.setZValue(styles.ZPATHSELECTION)
         self._bounds = None
         self._pos0 = QPointF()
     # end def
@@ -398,7 +397,7 @@ class EndpointHandleSelectionBox(QGraphicsPathItem):
         self._rect = itemGroup.boundingRect()
         self.hide()
         self.setPen(self._boxPen)
-        self.setZValue(styles.ZPATHHELIX+2)
+        self.setZValue(styles.ZPATHSELECTION)
         self._bounds = (0,0)
         self._pos0 = QPointF()
     # end def
