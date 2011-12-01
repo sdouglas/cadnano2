@@ -579,7 +579,7 @@ class Part(QObject):
             maxIdx = self._maxBase
         steps = (self._maxBase / self._step) + 1
         ret = [i*self._step+j for i in range(steps) for j in self._scafH[neighborType]]
-        return filter(lambda x:x<maxIdx, ret)
+        return filter(lambda x:x<=maxIdx, ret)
 
     def expandScafL(self, neighborType, minIdx=0):
         """
@@ -588,7 +588,7 @@ class Part(QObject):
         """
         steps = (self._maxBase / self._step) + 1
         ret = [i*self._step+j for i in range(steps) for j in self._scafL[neighborType]]
-        return filter(lambda x:x>minIdx, ret)
+        return filter(lambda x:x>=minIdx, ret)
 
     def latticeCoordToPositionXY(self, row, col, scaleFactor=1.0):
         """
