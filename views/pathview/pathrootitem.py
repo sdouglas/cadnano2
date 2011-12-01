@@ -27,7 +27,7 @@ from controllers.viewrootcontroller import ViewRootController
 from partitem import PartItem
 from pathselection import SelectionItemGroup
 from pathselection import VirtualHelixHandleSelectionBox
-from pathselection import BreakpointHandleSelectionBox
+from pathselection import EndpointHandleSelectionBox
 import util
 util.qtWrapImport('QtCore', globals(), ['pyqtSignal', 'QObject'])
 util.qtWrapImport('QtGui', globals(), ['QGraphicsRectItem'])
@@ -114,7 +114,7 @@ class PathRootItem(QGraphicsRectItem):
         self._vhiHSelectionGroup = SelectionItemGroup(boxtype=bType,\
                                                       constraint='y',\
                                                       parent=self)
-        bType = BreakpointHandleSelectionBox
+        bType = EndpointHandleSelectionBox
         self._strandItemSelectionGroup = SelectionItemGroup(boxtype=bType,\
                                                       constraint='x',\
                                                       parent=self)

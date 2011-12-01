@@ -197,13 +197,13 @@ class SelectionItemGroup(QGraphicsItemGroup):
                 if not bounds:
                     self.translateR(delta)
                 else:
-                    if (delta > 0 and delta <= bounds[1]) or \
-                        (delta < 0 and abs(delta) <= bounds[0]):
-                        # self.translateR(rf, self._r0)
-                        self.translateR(delta)
-                    else:
-                        print "boundatron!"
-                # end if
+                    # clamp to the bounds
+                    if delta > 0 and delta > bounds[1]:
+                        delta = bounds[1]
+                    elif delta < 0 and abs(delta) > bounds[0]:
+                        delta = -bounds[0]
+                    self.translateR(delta)
+                # end else
             # end else
             self._r = rf
         # end if
@@ -390,7 +390,7 @@ class VirtualHelixHandleSelectionBox(QGraphicsPathItem):
     
 # end class
 
-class BreakpointHandleSelectionBox(QGraphicsPathItem):
+class EndpointHandleSelectionBox(QGraphicsPathItem):
     _penWidth = styles.SLICE_HELIX_HILIGHT_WIDTH
     _boxPen = QPen(styles.selected_color, _penWidth)
     _baseWidth = styles.PATH_BASE_WIDTH
@@ -399,7 +399,7 @@ class BreakpointHandleSelectionBox(QGraphicsPathItem):
         """
         The itemGroup.parentItem() is expected to be a partItem
         """
-        super(BreakpointHandleSelectionBox, self).__init__(itemGroup.parentItem())
+        super(EndpointHandleSelectionBox, self).__init__(itemGroup.parentItem())
         self._itemGroup = itemGroup
         self._rect = itemGroup.boundingRect()
         self.hide()
@@ -414,8 +414,6 @@ class BreakpointHandleSelectionBox(QGraphicsPathItem):
     # end def
     
     def translateX(self, delta):
-        # self.translate(self._baseWidth*(floor((xf-x0)/self._baseWidth)), 0)
-        # self.setX(self._baseWidth*(floor((xf-x0)/self._baseWidth)))
         self.setX(self._baseWidth*delta)
     # end def
     
@@ -455,7 +453,7 @@ class BreakpointHandleSelectionBox(QGraphicsPathItem):
         
     def boxParent(self):
         temp = self._itemGroup.childItems()[0].partItem()
-        self.setParentItem(temp)
+        # self.setParentItem(temp)
         return temp
     # end def
     
