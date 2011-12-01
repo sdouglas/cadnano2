@@ -283,6 +283,17 @@ class SelectionItemGroup(QGraphicsItemGroup):
             # end if
         # end for
     # end def
+    
+    def reParent(self, boolval):
+        if boolval:
+            self._tempList = [item for item in self.childItems()]
+            for item in self._tempList:
+                item.tempReparent()
+            # end for
+        else:
+            for item in self._tempList:
+                self.addToGroup(item)
+            # end for
 # end class
 
 
@@ -416,7 +427,7 @@ class EndpointHandleSelectionBox(QGraphicsPathItem):
         if delta > 0 and delta > boundH:
             delta = boundH
         elif delta < 0 and abs(delta) > boundL:
-            delta = -boundsL
+            delta = -boundL
         return delta
 
     def refreshPath(self):
@@ -445,9 +456,11 @@ class EndpointHandleSelectionBox(QGraphicsPathItem):
 
     def processSelectedItems(self, rStart, rEnd):
         """docstring for processSelectedItems"""
+        # self._itemGroup.reParent(True)
         delta = self.delta(rEnd, rStart)
         print "moved", delta
         self._itemGroup._viewroot.document().resizeSelection(delta)
+        # self._itemGroup.reParent(False)
     # end def
         
     def boxParent(self):
