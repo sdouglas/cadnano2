@@ -277,14 +277,14 @@ class VirtualHelixItem(object):
         meshName = "%s%s" % (m.decoratorMeshName, mID)
         shaderName = "%s" % m.decoratorShaderName
 
-        cmds.createNode("transform", name=transformName)
+        cmds.createNode("transform", name=transformName, skipSelect=True)
         cmds.setAttr("%s.rotateX" % transformName, 90)
         cmds.setAttr("%s.translateX" % transformName, coords[0])
         cmds.setAttr("%s.translateY" % transformName, coords[1])
         cmds.setAttr("%s.translateZ" % transformName, coords[2])
-        cmds.createNode("mesh", name=meshName, parent=transformName)
+        cmds.createNode("mesh", name=meshName, parent=transformName, skipSelect=True)
         #cmds.createNode("spPreDecoratorNode", name=stapleModIndicatorName)
-        cmds.createNode("polySphere", name=stapleModIndicatorName)
+        cmds.createNode("polySphere", name=stapleModIndicatorName, skipSelect=True)
         cmds.setAttr("%s.radius" % stapleModIndicatorName, .25)
         cmds.setAttr("%s.subdivisionsAxis" % stapleModIndicatorName, 4)
         cmds.setAttr("%s.subdivisionsHeight" % stapleModIndicatorName, 4)
