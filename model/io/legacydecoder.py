@@ -83,8 +83,6 @@ def import_legacy_dict(document, obj):
         maxRowJson = max(maxRowJson, int(helix['row'])+1)
         maxColJson = max(maxColJson, int(helix['col'])+1)
 
-    print maxRowJson, maxColJson
-
     # CREATE PART ACCORDING TO LATTICE TYPE
     if latticeType == LatticeType.Honeycomb:
         steps = numBases/21
