@@ -337,7 +337,6 @@ class XoverItem(QGraphicsPathItem):
         are potentially None and represent the base at floatPos.
 
         """
-        print "updating xover curve", self.parentItem()
         node3 = self._node3
         node5 = self._node5
 

@@ -46,7 +46,8 @@ class Document(QObject):
         self._parts = []
         self._assemblies = []
         self._controller = None
-        
+        self._selectedPart = None
+
         # the dictionary maintains what is selected
         self._selectionDict = {}
         # the added list is what was recently selected or deselected
@@ -81,17 +82,20 @@ class Document(QObject):
         return self._assemblies
 
     ### PUBLIC METHODS FOR QUERYING THE MODEL ###
+    def selectedPart(self):
+        return self._selectedPart
+
     def addToSelection(self, obj, value):
         self._selectionDict[obj] = value
         self._selectedChangedDict[obj] = value
     # end def
-    
+
     def removeFromSelection(self, obj):
         if obj in self._selectionDict:
             del self._selectionDict[obj]
             self._selectedChangedDict[obj] = (False, False)
     # end def
-    
+
     def addStrandToSelection(self, strand, value):
         sS = strand.strandSet()
         if sS in self._selectionDict:
@@ -100,7 +104,7 @@ class Document(QObject):
             self._selectionDict[sS] = { strand : value }
         self._selectedChangedDict[strand] = value
     # end def
-    
+
     def removeStrandFromSelection(self, strand):
         sS = strand.strandSet()
         if sS in self._selectionDict:
@@ -111,15 +115,15 @@ class Document(QObject):
                     del self._selectionDict[sS]
             self._selectedChangedDict[strand] = (False, False)
     # end def
-    
+
     def selectionDict(self):
         return self._selectionDict
     # end def
-    
+
     def isModelSelected(self, obj):
         return obj in self._selectionDict
     # end def
-    
+
     def isModelStrandSelected(self, strand):
         sS = strand.strandSet()
         if sS in self._selectionDict:
@@ -130,14 +134,14 @@ class Document(QObject):
         else:
             return False
     # end def
-    
+
     def getSelectedValue(self, obj):
         """
         obj is an objects to look up
         it is prevetted to be in the dictionary 
         """
         return self._selectionDict[obj]
-        
+
     def getSelectedStrandValue(self, strand):
         """
         strand is an objects to look up
@@ -145,7 +149,7 @@ class Document(QObject):
         """
         return self._selectionDict[strand.strandSet()][strand]
     # end def
-            
+
     def sortedSelectedStrands(self, strandSet):
         # outList = self._selectionDict[strandSet].keys()
         # outList.sort(key=Strand.lowIdx)
@@ -154,7 +158,7 @@ class Document(QObject):
         outList.sort(key=getLowIdx)
         return outList
     # end def
-    
+
     def determineStrandSetBounds(self, selectedStrandList, strandSet):
         minLowDelta = strandSet.partMaxBaseIdx()
         minHighDelta = strandSet.partMaxBaseIdx()  # init the return values
@@ -222,7 +226,7 @@ class Document(QObject):
         # end for
         return (minLowDelta, minHighDelta)
     # end def
-    
+
     def getSelectionBounds(self):
         minLowDelta = -1
         minHighDelta = -1
@@ -236,11 +240,11 @@ class Document(QObject):
         # end for Mark train bus to metro
         return (minLowDelta, minHighDelta)
     # end def
-    
+
     # def operateOnStrandSelection(self, method, arg, both=False):
-    # 
+    #     pass
     # # end def
-    
+
     def resizeSelection(self, delta, useUndoStack=True):
         if useUndoStack:
             self.undoStack().beginMacro("Resize Selection")
@@ -255,7 +259,7 @@ class Document(QObject):
         if useUndoStack:
             self.undoStack().endMacro()
     # end def
-    
+
     def updateSelection(self):
         """
         do it this way in the future when we have a better signaling architecture between views
@@ -306,6 +310,13 @@ class Document(QObject):
     def setController(self, controller):
         """Called by DocumentController setDocument method."""
         self._controller = controller
+    # end def
+
+    def setSelectedPart(self, newPart):
+        if self._selectedPart == newPart:
+            return
+        self._selectedPart = newPart
+    # end def
 
     ### PRIVATE SUPPORT METHODS ###
     def _addPart(self, part, useUndoStack=True):
@@ -313,6 +324,7 @@ class Document(QObject):
         c = self.AddPartCommand(self, part)
         util.execCommandList(self, [c], desc="Add part", useUndoStack=useUndoStack)
         return c.part()
+    # end def
 
     ### COMMANDS ###
     class AddPartCommand(QUndoCommand):
@@ -323,17 +335,24 @@ class Document(QObject):
             QUndoCommand.__init__(self)
             self._doc = document
             self._part = part
+        # end def
 
         def part(self):
             return self._part
+        # end def
 
         def redo(self):
             if len(self._doc._parts) == 0:
                 self._doc._parts.append(self._part)
                 self._part.setDocument(self._doc)
+                self._doc.setSelectedPart(self._part)
                 self._doc.documentPartAddedSignal.emit(self._part)
+        # end def
 
         def undo(self):
             self._part.setDocument(None)
             self._doc._parts.remove(self._part)
             self._part.partRemovedSignal.emit(self._part)
+        # end def
+    # end class
+# end class

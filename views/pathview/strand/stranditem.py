@@ -353,7 +353,6 @@ class StrandItem(QGraphicsLineItem):
 
         # 2. Xover drawing
         if strand.connection3p():
-            print "updating xover"
             self._xover3pEnd.update(strand)
             self._xover3pEnd.showIt()
         else:
