@@ -352,21 +352,19 @@ class EndpointItem(QGraphicsPathItem):
         """
         Required to restore parenting and positioning in the partItem
         """
-
         # map the position
+        self.tempReparent(pos)
+        self.penAndBrushSet(False)
+        self.setSelected(False)
+    # end def
+    
+    def tempReparent(self, pos=None):
         vhItem = self._strandItem.virtualHelixItem()
         if pos == None:
             pos = self.scenePos()
         self.setParentItem(vhItem)
         tempP = vhItem.mapFromScene(pos)
         self.setPos(tempP)
-        self.penAndBrushSet(False)
-        
-        assert(self.parentItem() == vhItem)
-        # print "restore", self.parentItem(), self.group()
-        assert(self.group() == None)
-
-        self.setSelected(False)
     # end def
     
     def penAndBrushSet(self, value):

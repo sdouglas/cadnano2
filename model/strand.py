@@ -745,11 +745,14 @@ class Strand(QObject):
 
             std.oligo().incrementLength(self.delta)
             std.setIdxs(nI)
-	    if strandSet.isStaple():
-		std.reapplySequence()
+            if strandSet.isStaple():
+                std.reapplySequence()
             std.strandResizedSignal.emit(std, nI)
             # for updating the Slice View displayed helices
             part.partStrandChangedSignal.emit(strandSet.virtualHelix())
+            std5p = std.connection5p()
+            if std5p:
+                std5p.strandResizedSignal.emit(std5p, std5p.idxs())
         # end def
 
         def undo(self):
@@ -760,11 +763,14 @@ class Strand(QObject):
 
             std.oligo().decrementLength(self.delta)
             std.setIdxs(oI) 
-	    if strandSet.isStaple():
-		std.reapplySequence()
+            if strandSet.isStaple():
+                std.reapplySequence()
             std.strandResizedSignal.emit(std, oI)
             # for updating the Slice View displayed helices
             part.partStrandChangedSignal.emit(strandSet.virtualHelix())
+            std5p = std.connection5p()
+            if std5p:
+                std5p.strandResizedSignal.emit(std5p, std5p.idxs())
         # end def
     # end class
 

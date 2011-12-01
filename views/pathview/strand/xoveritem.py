@@ -110,6 +110,10 @@ class XoverNode3(QGraphicsRectItem):
     def idx(self):
         return self._idx
     # end def
+    
+    def setIdx(self, idx):
+         self._idx = idx
+     # end def
 
     def virtualHelixItem(self):
         return self._vhi
@@ -313,7 +317,9 @@ class XoverItem(QGraphicsPathItem):
             if self._node3 == None:
                 vhi3p = partItem.itemForVirtualHelix(strand3p.virtualHelix())
                 self._node3 = XoverNode3(vhi3p, self, strand3p, strand3p.idx5Prime())
-
+            else:
+                self._node5.setIdx(idx3Prime)
+                self._node3.setIdx(strand3p.idx5Prime())
             self._node5.setPartnerVirtualHelix(strand5p)
             self._updatePath(strand5p)
         # end if
@@ -331,7 +337,7 @@ class XoverItem(QGraphicsPathItem):
         are potentially None and represent the base at floatPos.
 
         """
-        # print "updating xover curve", self.parentObject()
+        print "updating xover curve", self.parentItem()
         node3 = self._node3
         node5 = self._node5
 
@@ -439,18 +445,18 @@ class XoverItem(QGraphicsPathItem):
         Required to restore parenting and positioning in the partItem
         """
         # map the position
+        self.tempReparent(pos)
+        self.penAndBrushSet(False)
+        self.setSelected(False)
+    # end def
+    
+    def tempReparent(self, pos=None):
         partItem = self._virtualHelixItem.partItem()
         if pos == None:
             pos = self.scenePos()
         self.setParentItem(partItem)
         tempP = partItem.mapFromScene(pos)
         self.setPos(tempP)
-        self.penAndBrushSet(False)
-
-        assert(self.parentItem() == partItem)
-        # print "restore", self.parentItem(), self.group()
-        assert(self.group() == None)
-        self.setSelected(False)
     # end def
 
     def penAndBrushSet(self, value):
