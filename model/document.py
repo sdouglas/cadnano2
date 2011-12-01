@@ -27,6 +27,8 @@
 
 from parts.honeycombpart import HoneycombPart
 from parts.squarepart import SquarePart
+from strand import Strand
+from operator import itemgetter
 import util
 util.qtWrapImport('QtCore', globals(), ['pyqtSignal', 'QObject'])
 util.qtWrapImport('QtGui', globals(), ['QUndoCommand', 'QUndoStack'])
@@ -90,6 +92,26 @@ class Document(QObject):
             self._selectedChangedDict[obj] = (False, False)
     # end def
     
+    def addStrandToSelection(self, strand, value):
+        sS = strand.strandSet()
+        if sS in self._selectionDict:
+            self._selectionDict[sS][strand] = value
+        else:
+            self._selectionDict[sS] = { strand : value }
+        self._selectedChangedDict[strand] = value
+    # end def
+    
+    def removeStrandFromSelection(self, strand):
+        sS = strand.strandSet()
+        if sS in self._selectionDict:
+            temp = self._selectionDict[sS]
+            if strand in temp:
+                del temp[strand]
+                if len(temp) == 0:
+                    del self._selectionDict[sS]
+            self._selectedChangedDict[strand] = (False, False)
+    # end def
+    
     def selectionDict(self):
         return self._selectionDict
     # end def
@@ -98,13 +120,142 @@ class Document(QObject):
         return obj in self._selectionDict
     # end def
     
+    def isModelStrandSelected(self, strand):
+        sS = strand.strandSet()
+        if sS in self._selectionDict:
+            if strand in self._selectionDict[sS]:
+                return True
+            else:
+                return False
+        else:
+            return False
+    # end def
+    
     def getSelectedValue(self, obj):
         """
         obj is an objects to look up
         it is prevetted to be in the dictionary 
         """
         return self._selectionDict[obj]
+        
+    def getSelectedStrandValue(self, strand):
+        """
+        strand is an objects to look up
+        it is prevetted to be in the dictionary 
+        """
+        return self._selectionDict[strand.strandSet()][strand]
+    # end def
             
+    def sortedSelectedStrands(self, strandSet):
+        # outList = self._selectionDict[strandSet].keys()
+        # outList.sort(key=Strand.lowIdx)
+        outList = self._selectionDict[strandSet].items()
+        getLowIdx = lambda x: Strand.lowIdx(itemgetter(0)(x))
+        outList.sort(key=getLowIdx)
+        return outList
+    # end def
+    
+    def determineStrandSetBounds(self, selectedStrandList, strandSet):
+        minLowDelta = strandSet.partMaxBaseIdx()
+        minHighDelta = strandSet.partMaxBaseIdx()  # init the return values
+        sSDict = self._selectionDict[strandSet]
+        # get the StrandSet index of the first item in the list
+        sSIdx = strandSet._findIndexOfRangeFor(selectedStrandList[0][0])[2]
+        sSList = strandSet._strandList
+        lenSSList = len(sSList)
+        maxSSIdx = lenSSList-1
+        i = 0
+        for strand, value in selectedStrandList:
+            while strand != sSList[sSIdx]:
+                # incase there are gaps due to double xovers
+                ssIdx += 1
+            # end while
+            idxL, idxH = strand.idxs()
+            if value[0]:    # the end is selected
+                if sSIdx > 0:
+                    lowNeighbor = sSList[sSIdx-1]
+                    if lowNeighbor in sSDict:
+                        valueN = sSDict[lowNeighbor]
+                        # we only care if the low neighbor is not selected
+                        temp = minLowDelta  if valueN[1] else idxL - lowNeighbor.highIdx() - 1
+                    # end if
+                    else: # not selected
+                        temp = idxL - lowNeighbor.highIdx() - 1
+                    # end else
+                else:
+                    temp = idxL - 0
+                # end else
+                if temp < minLowDelta:
+                    minLowDelta = temp
+                # end if
+                # check the other end of the strand
+                if not value[1]:
+                    temp = idxH - idxL -1
+                    if temp < minHighDelta:
+                        minHighDelta = temp
+            # end if
+            if value[1]:
+                if sSIdx < maxSSIdx:
+                    highNeighbor = sSList[sSIdx+1]
+                    if highNeighbor in sSDict:
+                        valueN = sSDict[highNeighbor]
+                        # we only care if the low neighbor is not selected
+                        temp = minHighDelta if valueN[1] else highNeighbor.lowIdx() - idxH -1
+                    # end if
+                    else: # not selected
+                        temp = highNeighbor.lowIdx() - idxH - 1
+                    # end else
+                else:
+                    temp = strandSet.partMaxBaseIdx() - idxH
+                # end else
+                if temp < minHighDelta:
+                    minHighDelta = temp
+                # end if
+                # check the other end of the strand
+                if not value[0]:
+                    temp = idxH - idxL - 1
+                    if temp < minLowDelta:
+                        minLowDelta = temp
+            # end if
+            # increment counter
+            sSIdx += 1
+        # end for
+        return (minLowDelta, minHighDelta)
+    # end def
+    
+    def getSelectionBounds(self):
+        minLowDelta = -1
+        minHighDelta = -1
+        for strandSet in self._selectionDict.iterkeys():
+            selectedList = self.sortedSelectedStrands(strandSet)
+            tempLow, tempHigh = self.determineStrandSetBounds(selectedList, strandSet)
+            if tempLow < minLowDelta or minLowDelta < 0:
+                minLowDelta = tempLow
+            if tempHigh < minHighDelta or minHighDelta < 0:
+                minHighDelta = tempHigh
+        # end for Mark train bus to metro
+        return (minLowDelta, minHighDelta)
+    # end def
+    
+    # def operateOnStrandSelection(self, method, arg, both=False):
+    # 
+    # # end def
+    
+    def resizeSelection(self, delta, useUndoStack=True):
+        if useUndoStack:
+            self.undoStack().beginMacro("Resize Selection")
+        for strandSetDict in self._selectionDict.itervalues():
+            for strand, value in strandSetDict.iteritems():
+                idxL, idxH = strand.idxs()
+                idxL = idxL+delta if value[0] else idxL
+                idxH = idxH+delta if value[1] else idxH
+                Strand.resize(strand, (idxL,idxH), useUndoStack)
+            # end for
+        # end for
+        if useUndoStack:
+            self.undoStack().endMacro()
+    # end def
+    
     def updateSelection(self):
         """
         do it this way in the future when we have a better signaling architecture between views
@@ -117,6 +268,8 @@ class Document(QObject):
             obj.selectedChangedSignal.emit(obj, value)
         # end for
         self._selectedChangedDict = {}
+        # for sS in self._selectionDict:
+        #     print self.sortedSelectedStrands(sS)
     # end def
 
     ### PUBLIC METHODS FOR EDITING THE MODEL ###

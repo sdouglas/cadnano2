@@ -110,6 +110,10 @@ class XoverNode3(QGraphicsRectItem):
     def idx(self):
         return self._idx
     # end def
+    
+    def setIdx(self, idx):
+         self._idx = idx
+     # end def
 
     def virtualHelixItem(self):
         return self._vhi
@@ -260,6 +264,10 @@ class XoverItem(QGraphicsPathItem):
         return self._strandItem._activeTool()
     # end def
 
+    def partItem(self):
+        return self._virtualHelixItem.partItem()
+    # end def
+
     def remove(self):
         scene = self.scene()
         if self._node3:
@@ -309,7 +317,9 @@ class XoverItem(QGraphicsPathItem):
             if self._node3 == None:
                 vhi3p = partItem.itemForVirtualHelix(strand3p.virtualHelix())
                 self._node3 = XoverNode3(vhi3p, self, strand3p, strand3p.idx5Prime())
-
+            else:
+                self._node5.setIdx(idx3Prime)
+                self._node3.setIdx(strand3p.idx5Prime())
             self._node5.setPartnerVirtualHelix(strand5p)
             self._updatePath(strand5p)
         # end if
@@ -327,7 +337,7 @@ class XoverItem(QGraphicsPathItem):
         are potentially None and represent the base at floatPos.
 
         """
-        # print "updating xover curve", self.parentObject()
+        print "updating xover curve", self.parentItem()
         node3 = self._node3
         node5 = self._node5
 
@@ -434,25 +444,24 @@ class XoverItem(QGraphicsPathItem):
         """
         Required to restore parenting and positioning in the partItem
         """
-
         # map the position
-        partItem = self._virtualHelixItem.partItem()
-        if pos == None:
-            pos = self.scenePos()
-        self.setParentItem(partItem)            
-        tempP = partItem.mapFromScene(pos)
-        self.setPos(tempP)
+        self.tempReparent(pos)
         self.penAndBrushSet(False)
-        
-        assert(self.parentItem() == partItem)
-        # print "restore", self.parentItem(), self.group()
-        assert(self.group() == None)
         self.setSelected(False)
     # end def
     
+    def tempReparent(self, pos=None):
+        partItem = self._virtualHelixItem.partItem()
+        if pos == None:
+            pos = self.scenePos()
+        self.setParentItem(partItem)
+        tempP = partItem.mapFromScene(pos)
+        self.setPos(tempP)
+    # end def
+
     def penAndBrushSet(self, value):
         if value == True:
-            color = QColor("#ff3333")
+            color = styles.selected_color
         else:
             oligo = self._strandItem.strand().oligo()
             color = QColor(oligo.color())
@@ -495,54 +504,54 @@ class XoverItem(QGraphicsPathItem):
     # end def
     
     def modelDeselect(self, document):
+        
         strand5p = self._strand5p
         strand3p = strand5p.connection3p()
-        selectDict = document.selectionDict()
-        test5p = strand5p in selectDict
-        lowVal5p, highVal5p = selectDict[strand5p] if test5p else (False, False)
+
+        test5p = document.isModelStrandSelected(strand5p)
+        lowVal5p, highVal5p = document.getSelectedStrandValue(strand5p) if test5p else (False, False)
         if strand5p.isDrawn5to3():
             highVal5p = False
         else:
             lowVal5p = False
-        test3p = strand3p in selectDict
-        lowVal3p, highVal3p = selectDict[strand3p] if test3p else (False, False)
+        test3p = document.isModelStrandSelected(strand3p)
+        lowVal3p, highVal3p = document.getSelectedStrandValue(strand3p) if test3p else (False, False)
         if strand3p.isDrawn5to3():
             lowVal3p = False
         else:
             highVal3p = False
         
         if not lowVal5p and not highVal5p and test5p:
-            document.removeFromSelection(strand5p)
+            document.removeStrandFromSelection(strand5p)
         elif test5p:
-            document.addToSelection(strand5p, (lowVal5p, highVal5p))
+            document.addStrandToSelection(strand5p, (lowVal5p, highVal5p))
         if not lowVal3p and not highVal3p and test3p:
-            document.removeFromSelection(strand3p)
+            document.removeStrandFromSelection(strand3p)
         elif test3p:
-            document.addToSelection(strand3p, (lowVal3p, highVal3p))
+            document.addStrandToSelection(strand3p, (lowVal3p, highVal3p))
         self.restoreParent()
     # end def
     
     def modelSelect(self, document):
         strand5p = self._strand5p
         strand3p = strand5p.connection3p()
-        selectDict = document.selectionDict()
         
-        test5p = strand5p in selectDict
-        lowVal5p, highVal5p = selectDict[strand5p] if test5p else False, False
+        test5p = document.isModelStrandSelected(strand5p)
+        lowVal5p, highVal5p = document.getSelectedStrandValue(strand5p) if test5p else (False, False)
         if strand5p.isDrawn5to3():
             highVal5p = True
         else:
             lowVal5p = True
-        test3p = strand3p in selectDict
-        lowVal3p, highVal3p = selectDict[strand3p] if test3p else False, False
+        test3p = document.isModelStrandSelected(strand3p)
+        lowVal3p, highVal3p = document.getSelectedStrandValue(strand3p) if test3p else (False, False)
         if strand3p.isDrawn5to3():
             lowVal3p = True
         else:
             highVal3p = True
         
         self.setSelected(True)
-        document.addToSelection(strand5p, (lowVal5p, highVal5p))
-        document.addToSelection(strand3p, (lowVal3p, highVal3p))
+        document.addStrandToSelection(strand5p, (lowVal5p, highVal5p))
+        document.addStrandToSelection(strand3p, (lowVal3p, highVal3p))
     # end def
     
     def paint(self, painter, option, widget):

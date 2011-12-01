@@ -570,6 +570,26 @@ class Part(QObject):
             yield x, y, row, col
     # end def
 
+    def expandScafH(self, neighborType, maxIdx=None):
+        """
+        Returns all prexover positions for neighborType that are below
+        maxIdx. Used in emptyhelixitem.py.
+        """
+        if maxIdx == None:
+            maxIdx = self._maxBase
+        steps = (self._maxBase / self._step) + 1
+        ret = [i*self._step+j for i in range(steps) for j in self._scafH[neighborType]]
+        return filter(lambda x:x<maxIdx, ret)
+
+    def expandScafL(self, neighborType, minIdx=0):
+        """
+        Returns all prexover positions for neighborType that are above
+        minIdx. Used in emptyhelixitem.py.
+        """
+        steps = (self._maxBase / self._step) + 1
+        ret = [i*self._step+j for i in range(steps) for j in self._scafL[neighborType]]
+        return filter(lambda x:x>minIdx, ret)
+
     def latticeCoordToPositionXY(self, row, col, scaleFactor=1.0):
         """
         Returns a tuple of the (x,y) position for a given lattice row and
