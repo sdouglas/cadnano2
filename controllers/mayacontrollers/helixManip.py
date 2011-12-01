@@ -95,7 +95,7 @@ class helixManip(OpenMayaMPx.MPxManipContainer):
         distanceManipFn.setDirection(self.backDir)
 
     def connectToDependNode(self, node):
-        print "connectToDependNode called"
+        #print "connectToDependNode called"
         nodeFn = OpenMaya.MFnDependencyNode(node)
         self.myNode = node
         self.helixName = nodeFn.name()

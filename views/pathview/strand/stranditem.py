@@ -99,12 +99,13 @@ class StrandItem(QGraphicsLineItem):
     ### SLOTS ###
     def strandResizedSlot(self, strand, indices):
         """docstring for strandResizedSlot"""
-        lowMoved = self._lowCap.updatePosIfNecessary(self.idxs()[0])
-        highMoved = self._highCap.updatePosIfNecessary(self.idxs()[1])
-        if lowMoved:
-            self.updateLine(self._lowCap)
-        if highMoved:
-            self.updateLine(self._highCap)
+        # lowMoved = self._lowCap.updatePosIfNecessary(self.idxs()[0])
+        # highMoved = self._highCap.updatePosIfNecessary(self.idxs()[1])
+        # if lowMoved:
+        #     self.updateLine(self._lowCap)
+        # if highMoved:
+        #     self.updateLine(self._highCap)
+        self._updateAppearance(strand)
         self.refreshInsertionItems(strand)
         self._updateSequenceText()
     # end def
@@ -352,6 +353,7 @@ class StrandItem(QGraphicsLineItem):
 
         # 2. Xover drawing
         if strand.connection3p():
+            print "updating xover"
             self._xover3pEnd.update(strand)
             self._xover3pEnd.showIt()
         else:
@@ -606,18 +608,18 @@ class StrandItem(QGraphicsLineItem):
         Required to restore parenting and positioning in the partItem
         """
         # map the position
+        self.tempReparent(pos)
+        self.penAndBrushSet(False)
+        self.setSelected(False)
+    # end def
+    
+    def tempReparent(self, pos=None):
         vhItem = self.virtualHelixItem()
         if pos == None:
             pos = self.scenePos()
         self.setParentItem(vhItem)
         tempP = vhItem.mapFromScene(pos)
         self.setPos(tempP)
-        self.penAndBrushSet(False)
-
-        assert(self.parentItem() == vhItem)
-        # print "restore", self.parentItem(), self.group()
-        assert(self.group() == None)
-        self.setSelected(False)
     # end def
 
     def penAndBrushSet(self, value):
@@ -677,8 +679,8 @@ class StrandItem(QGraphicsLineItem):
         if con3p:
             # perhaps change this to a direct call, but here are seeds of an 
             # indirect way of doing selection checks    
-            if document.isModelSelected(con3p) and document.isModelSelected(strand5p):
-                val3p = document.getSelectedValue(con3p)
+            if document.isModelStrandSelected(con3p) and document.isModelStrandSelected(strand5p):
+                val3p = document.getSelectedStrandValue(con3p)
                 # print "xover idx", indices
                 test3p = val3p[0] if con3p.isDrawn5to3() else val3p[1]
                 test5p = indices[1] if strand5p.isDrawn5to3() else indices[0]

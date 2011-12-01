@@ -352,26 +352,24 @@ class EndpointItem(QGraphicsPathItem):
         """
         Required to restore parenting and positioning in the partItem
         """
-
         # map the position
+        self.tempReparent(pos)
+        self.penAndBrushSet(False)
+        self.setSelected(False)
+    # end def
+    
+    def tempReparent(self, pos=None):
         vhItem = self._strandItem.virtualHelixItem()
         if pos == None:
             pos = self.scenePos()
-        self.setParentItem(vhItem)            
+        self.setParentItem(vhItem)
         tempP = vhItem.mapFromScene(pos)
         self.setPos(tempP)
-        self.penAndBrushSet(False)
-        
-        assert(self.parentItem() == vhItem)
-        # print "restore", self.parentItem(), self.group()
-        assert(self.group() == None)
-
-        self.setSelected(False)
     # end def
     
     def penAndBrushSet(self, value):
         if value == True:
-            color = QColor("#ff3333")
+            color = styles.selected_color
         else:
             oligo = self._strandItem.strand().oligo()
             color = QColor(oligo.color())
@@ -418,31 +416,29 @@ class EndpointItem(QGraphicsPathItem):
     
     def modelDeselect(self, document):
         strand = self._strandItem.strand()
-        selectDict = document.selectionDict()
-        test = strand in selectDict
-        lowVal, highVal = selectDict[strand] if test else (False, False)
+        test = document.isModelStrandSelected(strand)
+        lowVal, highVal = document.getSelectedStrandValue(strand) if test else (False, False)
         if self._capType == 'low':
             outValue = (False, highVal)
         else:
             outValue = (lowVal, False)
         if not outValue[0] and not outValue[1] and test:
-            document.removeFromSelection(strand)
+            document.removeStrandFromSelection(strand)
         elif outValue[0] or outValue[1]:
-            document.addToSelection(strand, outValue)
+            document.addStrandToSelection(strand, outValue)
         self.restoreParent()
     # end def
     
     def modelSelect(self, document):
         strand = self._strandItem.strand()
-        selectDict = document.selectionDict()
-        test = strand in selectDict
-        lowVal, highVal = selectDict[strand] if test else (False, False)
+        test = document.isModelStrandSelected(strand)
+        lowVal, highVal = document.getSelectedStrandValue(strand) if test else (False, False)
         if self._capType == 'low':
             outValue = (True, highVal)
         else:
             outValue = (lowVal, True)
         self.setSelected(True)
-        document.addToSelection(strand, outValue)
+        document.addStrandToSelection(strand, outValue)
     # end def
     
     def paint(self, painter, option, widget):
