@@ -192,18 +192,8 @@ class SelectionItemGroup(QGraphicsItemGroup):
                 self._r0 = rf
             # end if
             else:
-                bounds = self.selectionbox.bounds()
                 delta = self.selectionbox.delta(rf, self._r0)
-                if not bounds:
-                    self.translateR(delta)
-                else:
-                    # clamp to the bounds
-                    if delta > 0 and delta > bounds[1]:
-                        delta = bounds[1]
-                    elif delta < 0 and abs(delta) > bounds[0]:
-                        delta = -bounds[0]
-                    self.translateR(delta)
-                # end else
+                self.translateR(delta)
             # end else
             self._r = rf
         # end if
@@ -421,7 +411,13 @@ class EndpointHandleSelectionBox(QGraphicsPathItem):
         self.setPos(self._pos0)
         
     def delta(self, xf, x0):
-        return int(floor((xf-x0) / self._baseWidth))
+        boundL, boundH = self._bounds
+        delta = int(floor((xf-x0) / self._baseWidth))
+        if delta > 0 and delta > boundH:
+            delta = boundH
+        elif delta < 0 and abs(delta) > boundL:
+            delta = -boundsL
+        return delta
 
     def refreshPath(self):
         tempLow, tempHigh = self._itemGroup._viewroot.document().getSelectionBounds()
