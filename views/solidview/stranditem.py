@@ -201,15 +201,17 @@ class StrandItem(object):
         pass
         
     def selectedChangedSlot(self, strand, indices):
-        print "solidview.stranditem.selectedChangedSlot", strand, indices
+        #print "solidview.stranditem.selectedChangedSlot", strand, indices
         mom = Mom()
         mID = mom.strandMayaID(strand)
+        mom.ignoreExternalSelectionSiganl = True
         transformName = "%s%s" % (mom.helixTransformName, mID)
         if cmds.objExists(transformName):
             if(indices[0] or indices[1]):
                 cmds.select(transformName, add=True)
             else:
                 cmds.select(transformName, deselect=True)
+        mom.ignoreExternalSelectionSiganl = False
     # end def
 
     ### METHODS ###
@@ -234,12 +236,12 @@ class StrandItem(object):
         transformName = "%s%s" % (m.helixTransformName, mID)
         meshName = "%s%s" % (m.helixMeshName, mID)
         # shaderName = "%s%s" % (m.helixShaderName, mID)
-        cmds.createNode("transform", name=transformName)
+        cmds.createNode("transform", name=transformName, skipSelect=True)
         cmds.setAttr("%s.rotateX" % transformName, 90)
         cmds.setAttr("%s.translateX" % transformName, x)
         cmds.setAttr("%s.translateY" % transformName, y)
-        cmds.createNode("mesh", name=meshName, parent=transformName)
-        cmds.createNode("spHalfCylinderHelixNode", name=cylinderName)
+        cmds.createNode("mesh", name=meshName, parent=transformName, skipSelect=True)
+        cmds.createNode("spHalfCylinderHelixNode", name=cylinderName, skipSelect=True)
         cmds.connectAttr("%s.outputMesh" % cylinderName,
                          "%s.inMesh" % meshName)
         # XXX - [SB] This should go away and we will ask the model for
