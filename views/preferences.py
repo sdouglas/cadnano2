@@ -41,7 +41,8 @@ class Preferences():
         self.uiPrefs.squareRowsSpinBox.valueChanged.connect(self.setSquareRows)
         self.uiPrefs.squareColsSpinBox.valueChanged.connect(self.setSquareCols)
         self.uiPrefs.squareStepsSpinBox.valueChanged.connect(self.setSquareSteps)
-        self.uiPrefs.defaulttoolComboBox.currentIndexChanged.connect(self.setStartupTool)
+        self.uiPrefs.autoScafComboBox.currentIndexChanged.connect(self.setAutoScaf)
+        self.uiPrefs.defaultToolComboBox.currentIndexChanged.connect(self.setStartupTool)
         self.uiPrefs.zoomSpeedSlider.valueChanged.connect(self.setZoomSpeed)
         # self.uiPrefs.helixAddCheckBox.toggled.connect(self.setZoomToFitOnHelixAddition)
         self.uiPrefs.buttonBox.clicked.connect(self.handleButtonClick)
@@ -66,6 +67,7 @@ class Preferences():
         self.squareRows = self.qs.value("squareRows", styles.SQUARE_PART_MAXROWS).toInt()[0]
         self.squareCols = self.qs.value("squareCols", styles.SQUARE_PART_MAXCOLS).toInt()[0]
         self.squareSteps = self.qs.value("squareSteps", styles.SQUARE_PART_MAXSTEPS).toInt()[0]
+        self.autoScafIndex = self.qs.value("autoScaf", styles.PREF_AUTOSCAF_INDEX).toInt()[0]
         self.startupToolIndex = self.qs.value("startupTool", styles.PREF_STARTUP_TOOL_INDEX).toInt()[0]
         self.zoomSpeed = self.qs.value("zoomSpeed", styles.PREF_ZOOM_SPEED).toInt()[0]
         self.zoomOnHelixAdd = self.qs.value("zoomOnHelixAdd", styles.PREF_ZOOM_AFTER_HELIX_ADD).toBool()
@@ -76,7 +78,8 @@ class Preferences():
         self.uiPrefs.squareRowsSpinBox.setProperty("value", self.squareRows)
         self.uiPrefs.squareColsSpinBox.setProperty("value", self.squareCols)
         self.uiPrefs.squareStepsSpinBox.setProperty("value", self.squareSteps)
-        self.uiPrefs.defaulttoolComboBox.setCurrentIndex(self.startupToolIndex)
+        self.uiPrefs.autoScafComboBox.setCurrentIndex(self.autoScafIndex)
+        self.uiPrefs.defaultToolComboBox.setCurrentIndex(self.startupToolIndex)
         self.uiPrefs.zoomSpeedSlider.setProperty("value", self.zoomSpeed)
         # self.uiPrefs.helixAddCheckBox.setChecked(self.zoomOnHelixAdd)
 
@@ -87,7 +90,8 @@ class Preferences():
         self.uiPrefs.squareRowsSpinBox.setProperty("value", styles.SQUARE_PART_MAXROWS)
         self.uiPrefs.squareColsSpinBox.setProperty("value", styles.SQUARE_PART_MAXCOLS)
         self.uiPrefs.squareStepsSpinBox.setProperty("value", styles.SQUARE_PART_MAXSTEPS)
-        self.uiPrefs.defaulttoolComboBox.setCurrentIndex(styles.PREF_STARTUP_TOOL_INDEX)
+        self.uiPrefs.autoScafComboBox.setCurrentIndex(styles.PREF_AUTOSCAF_INDEX)
+        self.uiPrefs.defaultToolComboBox.setCurrentIndex(styles.PREF_STARTUP_TOOL_INDEX)
         self.uiPrefs.zoomSpeedSlider.setProperty("value", styles.PREF_ZOOM_SPEED)
         # self.uiPrefs.helixAddCheckBox.setChecked(styles.PREF_ZOOM_AFTER_HELIX_ADD)
 
@@ -127,6 +131,12 @@ class Preferences():
         self.qs.setValue("squareSteps", self.squareSteps)
         self.qs.endGroup()
 
+    def setAutoScaf(self, index):
+        self.autoScafIndex = index
+        self.qs.beginGroup("Preferences")
+        self.qs.setValue("autoScaf", self.autoScafIndex)
+        self.qs.endGroup()
+
     def setStartupTool(self, index):
         self.startupToolIndex = index
         self.qs.beginGroup("Preferences")
@@ -144,6 +154,9 @@ class Preferences():
     #     self.qs.beginGroup("Preferences")
     #     self.qs.setValue("zoomOnHelixAdd", self.zoomOnHelixAdd)
     #     self.qs.endGroup()
+
+    def getAutoScafType(self):
+        return ['Mid-seam', 'Raster'][self.autoScafIndex]
 
     def getStartupToolName(self):
         return ['Select', 'Pencil', 'Paint', 'AddSeq'][self.startupToolIndex]
