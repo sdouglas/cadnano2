@@ -46,6 +46,8 @@ class SolidRootItem(object):
         self._modelPart = None
         self._partItems = {}
         self._modifyState = modState
+        self._selectionFilterDict = {}
+        self.oldSelectionStrandList = []
 
     ### SLOTS ###
     def partAddedSlot(self, modelPart):
@@ -64,11 +66,26 @@ class SolidRootItem(object):
     # end def
     
     def selectionFilterChangedSlot(self, filterNameList):
-        pass
+        self.clearSelectionFilterDict()
+        for filterName in filterNameList:
+            self.addToSelectionFilterDict(filterName)
     # end def
 
 
     ### METHODS ###
+    
+    def selectedChanged(self, strandList):
+        """is called from Mom when selection cheged in 3D"""
+        for strand in self.oldSelectionStrandList:
+            # XXX does not work
+            self._document.removeStrandFromSelection(strand)
+        for strand in strandList:
+            self._document.addStrandToSelection(strand, (True, True))
+
+        self._document.updateSelection()
+        self.oldSelectionStrandList = strandList
+        pass
+    
     def partItems(self):
         """Return a list of partItems associated with this RootItem"""
         return self._partItems
@@ -82,3 +99,17 @@ class SolidRootItem(object):
         self._modifyState = val
         for p in self._partItems:
             p.setModifyState(val)
+    
+    def clearSelectionFilterDict(self):
+        self._selectionFilterDict = {}
+    
+    def selectionFilterDict(self):
+        return self._selectionFilterDict
+    # end def
+    
+    def addToSelectionFilterDict(self, filterName):
+        self._selectionFilterDict[filterName] = True
+    # end def
+    
+    def removeFromSelectionFilterDict(self, filterName):
+        del self._selectionFilterDict[filterName]

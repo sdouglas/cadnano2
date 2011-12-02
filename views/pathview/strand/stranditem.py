@@ -423,11 +423,11 @@ class StrandItem(QGraphicsLineItem):
 
         # this will always draw from the 5 Prime end!
         seqX = 2*textXCenteringOffset + bw*strand.idx5Prime()
-        seqY = -styles.SEQUENCETEXTYCENTERINGOFFSET
+        seqY = styles.SEQUENCETEXTYCENTERINGOFFSET
 
         if isDrawn3to5:
             # offset it towards the bottom
-            seqY += 3*bw
+            seqY += bw * .8
             # offset X by the reverse centering offset and the string length
             seqX += textXCenteringOffset
             # rotate the characters upside down this does not affect positioning

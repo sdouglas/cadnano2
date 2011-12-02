@@ -28,9 +28,10 @@ Created by Nick on 2011-09-28.
 
 import math
 import re
-import util
+from cadnano import app
 from model.enum import StrandType
 from views import styles
+import util
 
 try:
     from OpenGL import GL
@@ -160,7 +161,7 @@ class EmptyHelixItem(QGraphicsEllipseItem):
         """
         """
         # drawMe = False if self.virtualHelixItem() else True
-        # self.setFlag(QGraphicsItem.ItemHasNoContents, drawMe)  
+        # self.setFlag(QGraphicsItem.ItemHasNoContents, drawMe)
         self.setBrush(self._defaultBrush)
         self.setPen(self._defaultPen)
         # self.translateVH(self._adjustmentMinus)
@@ -195,19 +196,10 @@ class EmptyHelixItem(QGraphicsEllipseItem):
                 self.dragSessionAction(ci)
     # end def
 
-    def mouseReleaseEvent(self, event):
-        """docstring for mouseReleaseEvent"""
+    def autoScafMidSeam(self, strands):
+        """docstring for autoScafMidSeam"""
         part = self.part()
-        uS = part.undoStack()
-        strands = []
-        for i in range(uS.index()-1, 0, -1):
-            m = _strand_re.match(uS.text(i))
-            if m:
-                strands.insert(0, map(int, m.groups()))
-            else:
-                break
-
-        util.beginSuperMacro(part, "Auto-connect")
+        idx = part.activeBaseIndex()
         for i in range(1, len(strands)):
             row1, col1, sSidx1 = strands[i-1]  # previous strand
             row2, col2, sSidx2 = strands[i]  # current strand
@@ -221,7 +213,6 @@ class EmptyHelixItem(QGraphicsEllipseItem):
                 p2 = neighbors.index(vh2)
                 if vh2.number() % 2 == 1:
                     # resize and install external xovers
-                    idx = part.activeBaseIndex()
                     try:
                         # resize to the nearest prexover on either side of idx
                         newLo = util.nearest(idx, part.expandScafH(p2, idx))
@@ -256,8 +247,73 @@ class EmptyHelixItem(QGraphicsEllipseItem):
                                 part.createXover(strand4, lX, strand3, lX)
                             except IndexError:
                                 pass  # filter was unhappy
+
+
+    def autoScafRaster(self, strands):
+        """docstring for autoScafRaster"""
+        part = self.part()
+        idx = part.activeBaseIndex()
+        for i in range(1, len(strands)):
+            row1, col1, sSidx1 = strands[i-1]  # previous strand
+            row2, col2, sSidx2 = strands[i]  # current strand
+            vh1 = part.virtualHelixAtCoord((row1, col1))
+            vh2 = part.virtualHelixAtCoord((row2, col2))
+            strand1 = vh1.scaffoldStrandSet()._strandList[sSidx1]
+            strand2 = vh2.scaffoldStrandSet()._strandList[sSidx2]
+            # determine if the pair of strands are neighbors
+            neighbors = part.getVirtualHelixNeighbors(vh1)
+            if vh2 in neighbors:
+                p2 = neighbors.index(vh2)
+                if vh2.number() % 2 == 1:
+                    # resize and install external xovers
+                    try:
+                        # resize to the nearest prexover on either side of idx
+                        newLo = util.nearest(idx, part.expandScafH(p2, idx-3))
+                        newHi = util.nearest(idx, part.expandScafL(p2, idx+10))
+                        if vh1.number() == 0:
+                            strand1.resize((newLo, newHi))
+                        else:
+                            strand1.resize((strand1.lowIdx(), newHi))
+                        if vh2.number() == len(strands)-1:
+                            strand2.resize((newLo, newHi))
+                        else:
+                            strand2.resize((strand2.lowIdx(), newHi))
+                        # install xovers
+                        part.createXover(strand1, newHi, strand2, newHi)
+                    except ValueError:
+                        pass  # nearest not found in the expanded list
+                else:
+                    # resize and install external xovers
+                    idx = part.activeBaseIndex()
+                    try:
+                        # resize to the nearest prexover on either side of idx
+                        newLo = util.nearest(idx, part.expandScafH(p2, idx-10))
+                        strand1.resize((newLo, strand1.highIdx()))
+                        strand2.resize((newLo, strand2.highIdx()))
+                        # install xovers
+                        part.createXover(strand1, newLo, strand2, newLo)
+                    except ValueError:
+                        pass  # nearest not found in the expanded list
+
+    def mouseReleaseEvent(self, event):
+        """docstring for mouseReleaseEvent"""
+        part = self.part()
+        uS = part.undoStack()
+        strands = []
+        for i in range(uS.index()-1, 0, -1):
+            m = _strand_re.match(uS.text(i))
+            if m:
+                strands.insert(0, map(int, m.groups()))
+            else:
+                break
+
+        autoScafType = app().prefs.getAutoScafType()
+        util.beginSuperMacro(part, "Auto-connect")
+        if autoScafType == "Mid-seam":
+            self.autoScafMidSeam(strands)
+        elif autoScafType == "Raster":
+            self.autoScafRaster(strands)
         util.endSuperMacro(part)
-        return
 
     def decideAction(self, modifiers):
         """ On mouse press, an action (add scaffold at the active slice, add
