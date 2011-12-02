@@ -201,7 +201,15 @@ class StrandItem(object):
         pass
         
     def selectedChangedSlot(self, strand, indices):
-        pass
+        print "solidview.stranditem.selectedChangedSlot", strand, indices
+        mom = Mom()
+        mID = mom.strandMayaID(strand)
+        transformName = "%s%s" % (mom.helixTransformName, mID)
+        if cmds.objExists(transformName):
+            if(indices[0] or indices[1]):
+                cmds.select(transformName, add=True)
+            else:
+                cmds.select(transformName, deselect=True)
     # end def
 
     ### METHODS ###
