@@ -298,9 +298,15 @@ class EndpointItem(QGraphicsPathItem):
         """
         Set the allowed drag bounds for use by selectToolMouseMove.
         """
+        print "mouse press"
         # print "%s.%s [%d]" % (self, util.methodName(), self.idx())
         self._lowDragBound, self._highDragBound = \
                     self._strandItem._modelStrand.getResizeBounds(self.idx())
+        sI = self._strandItem
+        viewroot = sI.viewroot()
+        selectionGroup = viewroot.strandItemSelectionGroup()
+        selectionGroup.setInstantAdd(True)
+        self.setSelected(True)
     # end def
 
     def selectToolMouseMove(self, modifiers, idx):
@@ -393,6 +399,7 @@ class EndpointItem(QGraphicsPathItem):
                     self.penAndBrushSet(True)
                     return True
                 else:
+                    selectionGroup.setInstantAdd(False)
                     return False
             # end if
             elif value == True:

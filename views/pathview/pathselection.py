@@ -80,6 +80,8 @@ class SelectionItemGroup(QGraphicsItemGroup):
             self.translateR = self.selectionbox.translateX
 
         self._normalSelect = True
+        self._instantAdd = False
+        
         self.setZValue(styles.ZPATHSELECTION)
     # end def
 
@@ -118,6 +120,14 @@ class SelectionItemGroup(QGraphicsItemGroup):
         self._pendingToAddDict = {}
         doc.updateSelection()
     # end def
+    
+    def setInstantAdd(self, boolval):
+        if boolval:
+            self._baseClick = 0
+            self._instantAdd = 1
+        else:
+            self._instantAdd = 0
+    # end def
 
     def paint(self, painter, option, widget=None):
         # painter.setBrush(QBrush(QColor(255,128,255,128)))
@@ -152,6 +162,7 @@ class SelectionItemGroup(QGraphicsItemGroup):
     # # end def
 
     def mousePressEvent(self, event):
+        # print "select mp"
         self._baseClick = 2
         if event.button() != Qt.LeftButton:
             QGraphicsItemGroup.mousePressEvent(self, event)
@@ -210,20 +221,25 @@ class SelectionItemGroup(QGraphicsItemGroup):
         # end if
         self._r0 = 0  # reset
         self._r = 0  # reset
+        # print "mouse release", self._baseClick
         self._addedToPressList = False
         if self._baseClick == 0:
             self._addedToPressList = True
             self._baseClick = 1
             self.scene().views()[0].addToPressList(self)
-        elif self._baseClick == 1:
+        elif self._baseClick == 1 and self._instantAdd != 1:
             self._baseClick = 0
+            # print "clear due to click"
+            self._instantAdd = 2
             self.clearSelection(False)
+        else:
+            self._instantAdd = 2
+            self._baseClick = 0
     # end def
 
     def clearSelection(self, value):
         if value == False:
             self.selectionbox.hide()
-            # self.selectionbox.resetTransform()
             self.selectionbox.resetPosition()
             self.removeSelectedItems()
             self._viewroot.setSelectionLock(None)
@@ -236,13 +252,25 @@ class SelectionItemGroup(QGraphicsItemGroup):
 
     def itemChange(self, change, value):
         """docstring for itemChange"""
-        if change == QGraphicsItem.ItemSelectedHasChanged:
-            if value == False:
+        # if change == QGraphicsItem.ItemSelectedHasChanged:
+        if change == QGraphicsItem.ItemSelectedChange:
+            if value == False and self._instantAdd == 0:
+                # print "clear due to deselect"
                 self.clearSelection(False)
-                return
+                return False
+            else:
+                # print "clear instant add"
+                if self._addedToPressList == False:
+                    self._baseClick = 0
+                    self._instantAdd = 0
+                    self._addedToPressList = True
+                    self.scene().views()[0].addToPressList(self)
+                # self._baseClick = 0
+                return True
         elif change == QGraphicsItem.ItemChildAddedChange:
             if self._addedToPressList == False:
                 # self._lastKid += 1
+                # print "kid added"
                 self._baseClick = 0
                 self.setParentItem(self.selectionbox.boxParent())
                 self._addedToPressList = True
