@@ -31,6 +31,7 @@ import maya.cmds as cmds
 import util
 import maya.OpenMaya as OpenMaya
 
+
 class Mom(object):
     """
     A singleton manager for tracking maya to cadnano and reverse lookups of
@@ -59,22 +60,29 @@ class Mom(object):
     idStrandMapping = {}
     # Selection
     ignoreExternalSelectionSiganl = False
-    
+
     # Selection boxes
-    selectionBox = cmds.polyCube( constructionHistory=False, createUVs=0, object=True)[0]
+    selectionBox = cmds.polyCube(
+                        constructionHistory=False,
+                        createUVs=0,
+                        object=True
+                        )[0]
     cmds.hide(selectionBox)
     cmds.setAttr(selectionBox + ".overrideEnabled", True)
-    cmds.setAttr(selectionBox + ".overrideDisplayType", 2)
-    #cmds.toggle(selectionBox, state=True, template=True)
+    cmds.setAttr(selectionBox + ".overrideDisplayType", 2)  # reference
     updatingSelectionBoxes = False
     selectionBoxShader = "SelectionBoxShader"
-    
-    selectionBoxShader = cmds.shadingNode('lambert', asShader=True, name=selectionBoxShader)
+
+    selectionBoxShader = cmds.shadingNode('lambert',
+                                        asShader=True,
+                                        name=selectionBoxShader)
     cmds.sets(n="%sSG" % selectionBoxShader, r=True, nss=True, em=True)
-    cmds.connectAttr("%s.outColor" % selectionBoxShader, "%sSG.surfaceShader" % selectionBoxShader)
-    #cmds.setAttr("%s.color" % selectionBoxShader, 0, 0, 1, type="double3")
-    cmds.setAttr("%s.transparency" % selectionBoxShader, 0.65, 0.65, 0.65, type="double3")
-    cmds.setAttr("%s.incandescence" % selectionBoxShader, 0.5, 0.5, 0.5, type="double3")
+    cmds.connectAttr("%s.outColor" % selectionBoxShader,
+                    "%sSG.surfaceShader" % selectionBoxShader)
+    cmds.setAttr("%s.transparency" % selectionBoxShader,
+                    0.65, 0.65, 0.65, type="double3")
+    cmds.setAttr("%s.incandescence" % selectionBoxShader,
+                    0.5, 0.5, 0.5, type="double3")
 
     # MayaNames
     helixTransformName = "DNAShapeTransform_"
@@ -86,19 +94,19 @@ class Mom(object):
     decoratorMeshName = "stapleModIndicatorMesh_"
     decoratorShaderName = "stapleModeIndicatorShader_"
 
-    def getNodeFromName( self, NodeName ):
+    def getNodeFromName(self, NodeName):
         #print "getNodeFromName ", NodeName
         selList = OpenMaya.MSelectionList()
         dependNode = 0
-        if(cmds.objExists( NodeName )):
+        if(cmds.objExists(NodeName)):
             selList.add(NodeName)
             dependNode = OpenMaya.MObject()
             selList.getDependNode(0, dependNode)
         return dependNode
-    
+
     def getSelectionBox(self):
-        return self.selectionBox;
-    
+        return self.selectionBox
+
     def strandsSelected(self, listNames):
         # XXX - [SB] we want to only send the signal to "active doc" but
         # not sure how to get that
@@ -126,8 +134,8 @@ class Mom(object):
         if(len(listNames) > 1):
             # If we have more than one PreDecorator Selected, deselect all but
             # the last one
-            cmds.select(listNames[0:len(listNames)-1], deselect=True)
-        
+            cmds.select(listNames[0:len(listNames) - 1], deselect=True)
+
         selectionList = []
 
         for name in listNames:
@@ -202,13 +210,24 @@ class Mom(object):
             del self.idStrandMapping[strand]
 
     def updateSelectionBoxes(self):
-        selectedItems = cmds.ls( self.helixTransformName + "*", selection=True)
+        selectedItems = cmds.ls(self.helixTransformName + "*", selection=True)
         if selectedItems:
             bbox = cmds.exactWorldBoundingBox(selectedItems)
-            #cmds.polyCube( self.selectionBox, edit=True, width=bbox[3]-bbox[0], height=bbox[4]-bbox[1], depth=bbox[5]-bbox[2], constructionHistory=False, createUVs=0, object=True)
-            cmds.setAttr( self.selectionBox + ".scale", bbox[3]-bbox[0], bbox[4]-bbox[1], bbox[5]-bbox[2], type="double3" )
-            cmds.sets(self.selectionBox, forceElement="%sSG" % self.selectionBoxShader)
-            cmds.setAttr( self.selectionBox + ".translate", (bbox[0] + bbox[3])/2, (bbox[1]+bbox[4])/2, (bbox[2]+bbox[5])/2, type="double3")
-            cmds.showHidden( self.selectionBox )
+            cmds.setAttr(
+                    self.selectionBox + ".scale",
+                    bbox[3] - bbox[0],
+                    bbox[4] - bbox[1],
+                    bbox[5] - bbox[2],
+                    type="double3")
+            cmds.sets(
+                    self.selectionBox,
+                    forceElement="%sSG" % self.selectionBoxShader)
+            cmds.setAttr(
+                    self.selectionBox + ".translate",
+                    (bbox[0] + bbox[3]) / 2,
+                    (bbox[1] + bbox[4]) / 2,
+                    (bbox[2] + bbox[5]) / 2,
+                    type="double3")
+            cmds.showHidden(self.selectionBox)
         else:
-            cmds.hide( self.selectionBox )
+            cmds.hide(self.selectionBox)
