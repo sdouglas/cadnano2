@@ -253,7 +253,7 @@ class XoverItem(QGraphicsPathItem):
         self._node5 = None
         self._node3 = None
         self.hide()
-        
+        self.setFlag(QGraphicsItem.ItemStacksBehindParent)
         self.setFlag(QGraphicsItem.ItemIsSelectable)
     # end def
 
@@ -342,15 +342,16 @@ class XoverItem(QGraphicsPathItem):
 
         bw = _baseWidth
 
+        parent = self.partItem()
+        
         vhi5 = self._virtualHelixItem
-        partItem = vhi5.partItem()
-        pt5 = vhi5.mapToItem(partItem, *node5.point())
-
+        pt5 = vhi5.mapToItem(parent, *node5.point())
+        
         fiveIsTop = node5.isOnTop()
         fiveIs5to3 = node5.isDrawn5to3()
 
         vhi3 = node3.virtualHelixItem()
-        pt3 = vhi3.mapToItem(partItem, *node3.point())
+        pt3 = vhi3.mapToItem(parent, *node3.point())
 
         threeIsTop = node3.isOnTop()
         threeIs5to3 = node3.isDrawn5to3()
@@ -422,6 +423,11 @@ class XoverItem(QGraphicsPathItem):
     # end def
 
     ### EVENT HANDERS ###
+    # def mousePressEvent(self, event):
+    #     print "XOI sucka", self.zValue()
+    #     return QGraphicsPathItem.mousePressEvent(self, event)
+    # # end def 
+    
     def eraseToolMousePress(self):
         """Erase the strand."""
         self._strandItem.eraseToolMousePress(None)
@@ -450,7 +456,7 @@ class XoverItem(QGraphicsPathItem):
     # end def
     
     def tempReparent(self, pos=None):
-        partItem = self._virtualHelixItem.partItem()
+        partItem = self.partItem()
         if pos == None:
             pos = self.scenePos()
         self.setParentItem(partItem)

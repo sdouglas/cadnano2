@@ -34,8 +34,8 @@ from virtualhelixhandleitem import VirtualHelixHandleItem
 import util
 # import Qt stuff into the module namespace with PySide, PyQt4 independence
 util.qtWrapImport('QtCore', globals(), ['pyqtSignal', 'QObject', 'Qt', 'QRectF'])
-util.qtWrapImport('QtGui', globals(), ['QBrush', 'QGraphicsItem',
-                                       'QGraphicsPathItem',
+util.qtWrapImport('QtGui', globals(), ['QBrush', 'QGraphicsItem', \
+                                       'QGraphicsPathItem',  'QGraphicsRectItem', \
                                        'QPainterPath', 'QPen'])
 _baseWidth = styles.PATH_BASE_WIDTH
 _gridPen = QPen(styles.minorgridstroke, styles.MINOR_GRID_STROKE_WIDTH)
@@ -46,7 +46,7 @@ class VirtualHelixItem(QGraphicsPathItem):
     """VirtualHelixItem for PathView"""
 
     def __init__(self, partItem, modelVirtualHelix, viewroot, activeTool):
-        super(VirtualHelixItem, self).__init__(partItem)
+        super(VirtualHelixItem, self).__init__(partItem.proxy())
         self._partItem = partItem
         self._modelVirtualHelix = modelVirtualHelix
         self._viewroot = viewroot
@@ -64,6 +64,7 @@ class VirtualHelixItem(QGraphicsPathItem):
         self.setPath(self._gridPainterPath)
         self.setAcceptHoverEvents(True)  # for pathtools
         self.setZValue(styles.ZPATHHELIX)
+        
     # end def
 
     ### SIGNALS ###

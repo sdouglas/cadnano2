@@ -266,7 +266,6 @@ class SelectionItemGroup(QGraphicsItemGroup):
         """docstring for removeSelectedItems"""
         doc = self._viewroot.document()
         for item in self.childItems():
-            print "ep scenepos y", item.scenePos().y()
             self.removeFromGroup(item)
             item.modelDeselect(doc)
             # if not item.isSelected():
