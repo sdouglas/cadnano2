@@ -116,7 +116,13 @@ class Mom(object):
         PreDecorator geometry is called, notifies the Part Model of this
         event. XXX - [SB] In the future we should clean up this interaction.
         """
+        if(len(listNames) > 1):
+            # If we have more than one PreDecorator Selected, deselect all but
+            # the last one
+            cmds.select(listNames[0:len(listNames)-1], deselect=True)
+        
         selectionList = []
+
         for name in listNames:
             if name in self.decoratorToVirtualHelixItem:
                 (virtualHelixItem, baseIdx, strand) = \
