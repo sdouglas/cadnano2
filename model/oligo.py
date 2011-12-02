@@ -144,7 +144,6 @@ class Oligo(QObject):
     # end def
 
     def shouldHighlight(self):
-        # print self, self.length(), util.trace(4)
         if not self._strand5p:
             return False
         if self._strand5p.isScaffold():
