@@ -57,6 +57,8 @@ class Mom(object):
     decoratorToVirtualHelixItem = {}
     # uses strand object as the key, stores stand id
     idStrandMapping = {}
+    # Selection
+    ignoreExternalSelectionSiganl = False
     
     # Selection boxes
     selectionBox = cmds.polyCube( constructionHistory=False, createUVs=0, object=True)[0]
@@ -90,13 +92,37 @@ class Mom(object):
     def manipulatorObject():
         return manipulatorObject;
     
+    def strandsSelected(self, listNames):
+        # XXX - [SB] we want to only send the signal to "active doc" but
+        # not sure how to get that
+        if self.ignoreExternalSelectionSiganl:
+            return
+
+        self.ignoreExternalSelectionSiganl = True
+        strandList = []
+        for nodeName in listNames:
+            if(nodeName in self.mayaToCn):
+                strandList.append(self.mayaToCn[nodeName])
+        for doc in app().documentControllers:
+            # XXX [SB] THIS IS A HACK, should not need to do this!!!
+            doc.win.pathroot.clearStrandSelections()
+
+            doc.win.solidroot.selectedChanged(strandList)
+        self.ignoreExternalSelectionSiganl = False
+
     def staplePreDecoratorSelected(self, listNames):
         """
         Callback function that is called from mayaSelectionContext when a
         PreDecorator geometry is called, notifies the Part Model of this
         event. XXX - [SB] In the future we should clean up this interaction.
         """
+        if(len(listNames) > 1):
+            # If we have more than one PreDecorator Selected, deselect all but
+            # the last one
+            cmds.select(listNames[0:len(listNames)-1], deselect=True)
+        
         selectionList = []
+
         for name in listNames:
             if name in self.decoratorToVirtualHelixItem:
                 (virtualHelixItem, baseIdx, strand) = \

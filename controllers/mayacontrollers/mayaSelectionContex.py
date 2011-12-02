@@ -58,7 +58,8 @@ def selectionCallback(clientData):
     OpenMaya.MGlobal.getActiveSelectionList(selectionList)
     selectionIter = OpenMaya.MItSelectionList(selectionList)
     decoratorList = []
-
+    helixList = []
+    
     m = Mom()
     m.updateSelectionBoxes()
     
@@ -80,10 +81,12 @@ def selectionCallback(clientData):
                 decoratorList.append(dagNode.name())
         elif dagNode.name().startswith(m.helixTransformName):
             Unused, HNumber = dagNode.name().split("_")
-            helixNode = getHelixNodeFromName("%s%s" % (m.helixNodeName, HNumber))
+            helixName = "%s%s" % (m.helixNodeName, HNumber)
+            helixNode = getHelixNodeFromName(helixName)
             #print "HELIXNODE", helixNode
             #helixNode = getHelixNodeFromTransform( dependNode )
             if helixNode:
+                helixList.append(helixName)
                 manipObject = OpenMaya.MObject()
                 manipulator = \
                         OpenMayaMPx.MPxManipContainer.newManipulator( "spHelixManip", manipObject )
@@ -102,6 +105,7 @@ def selectionCallback(clientData):
                 #print "selectionCallback ", dagNode.name(), helixNode
         selectionIter.next()
     m.staplePreDecoratorSelected(decoratorList)
+    m.strandsSelected(helixList)
 
 
 class mayaSelectionContext(OpenMayaMPx.MPxSelectionContext):
