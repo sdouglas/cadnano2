@@ -86,11 +86,14 @@ class StrandItem(QGraphicsLineItem):
         cA.setAcceptHoverEvents(True)
         cA.hoverMoveEvent = self.hoverMoveEvent
 
+        self.setZValue(styles.ZSTRANDITEM)
+
         # xover comming from the 3p end
         self._xover3pEnd = XoverItem(self, virtualHelixItem)
         # initial refresh
         self._updateAppearance(modelStrand)
-        
+
+        self.setZValue(styles.ZSTRANDITEM)
         self.setFlag(QGraphicsItem.ItemIsSelectable)
     # end def
 
@@ -99,13 +102,14 @@ class StrandItem(QGraphicsLineItem):
     ### SLOTS ###
     def strandResizedSlot(self, strand, indices):
         """docstring for strandResizedSlot"""
-        # lowMoved = self._lowCap.updatePosIfNecessary(self.idxs()[0])
-        # highMoved = self._highCap.updatePosIfNecessary(self.idxs()[1])
-        # if lowMoved:
-        #     self.updateLine(self._lowCap)
-        # if highMoved:
-        #     self.updateLine(self._highCap)
-        self._updateAppearance(strand)
+        lowMoved = self._lowCap.updatePosIfNecessary(self.idxs()[0])
+        highMoved = self._highCap.updatePosIfNecessary(self.idxs()[1])
+        if lowMoved:
+            self.updateLine(self._lowCap)
+        if highMoved:
+            self.updateLine(self._highCap)
+        if strand.connection3p():
+            self._xover3pEnd.update(strand)
         self.refreshInsertionItems(strand)
         self._updateSequenceText()
     # end def
@@ -318,7 +322,6 @@ class StrandItem(QGraphicsLineItem):
 
         lUpperLeftX, lUpperLeftY = vhi.upperLeftCornerOfBase(lowIdx, strand)
         hUpperLeftX, hUpperLeftY = vhi.upperLeftCornerOfBase(highIdx, strand)
-
         lowCap = self._lowCap
         highCap = self._highCap
         dualCap = self._dualCap
@@ -353,7 +356,6 @@ class StrandItem(QGraphicsLineItem):
 
         # 2. Xover drawing
         if strand.connection3p():
-            print "updating xover"
             self._xover3pEnd.update(strand)
             self._xover3pEnd.showIt()
         else:

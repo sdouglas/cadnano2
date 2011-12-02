@@ -56,11 +56,11 @@ class SelectionItemGroup(QGraphicsItemGroup):
         self._pen = QPen(styles.bluestroke, styles.PATH_SELECTBOX_STROKE_WIDTH)
 
         self.selectionbox = boxtype(self)
-        
+
         self._dragEnable = False
         self._dragged = False
         self._baseClick = 0 #  special tri-state counter to enable deselection on click away 
-        
+
         self._r0 = 0  # save original mousedown
         self._r = 0  # latest position for moving
 
@@ -78,33 +78,32 @@ class SelectionItemGroup(QGraphicsItemGroup):
         else:
             self.getR = self.selectionbox.getX
             self.translateR = self.selectionbox.translateX
-        
+
         self._normalSelect = True
-        
-        self.setZValue(styles.ZPATHHELIX+2)
+        self.setZValue(styles.ZPATHSELECTION)
     # end def
-    
+
     def pendToAdd(self, item):
         self._pendingToAddDict[item] = True
     # end def
-    
+
     def isPending(self, item):
         return item in self._pendingToAddDict
     # end def
-    
+
     def pendToRemove(self, item):
         if item in self._pendingToAddDict:
             del self._pendingToAddDict[item]
     # end def
-    
+
     def setNormalSelect(self, boolVal):
         self._normalSelect = boolVal
     # end def
-    
+
     def isNormalSelect(self):
         return self._normalSelect
     # end def
-    
+
     def processPendingToAddList(self):
         doc = self._viewroot.document()
         if len(self._pendingToAddDict) == 0:
@@ -126,11 +125,11 @@ class SelectionItemGroup(QGraphicsItemGroup):
         painter.drawRect(self.boundingRect())
         pass
     # end def
-    
+
     def selectionLock(self):
         return self._viewroot.selectionLock()
     # end def
-    
+
     def setSelectionLock(self, selectionGroup):
         self._viewroot.setSelectionLock(selectionGroup)
     # end def
@@ -158,19 +157,17 @@ class SelectionItemGroup(QGraphicsItemGroup):
             QGraphicsItemGroup.mousePressEvent(self, event)
         else:
             self._dragEnable = True
-            
+
             # required to get the itemChanged event to work 
             # correctly for this
             self.setSelected(True)
 
             # self.selectionbox.resetTransform()
             self.selectionbox.resetPosition()
-            
             self.selectionbox.refreshPath()
-            
+
             # self.selectionbox.resetTransform()
             self.selectionbox.resetPosition()
-            
             self.selectionbox.show()
 
             # for some reason we need to skip the first mouseMoveEvent
@@ -208,14 +205,11 @@ class SelectionItemGroup(QGraphicsItemGroup):
         self.selectionbox.resetTransform()
         self._dragEnable = False
         # now do stuff
-        # print "maybe process", self.isSelected()
         if not (self._r0 == 0 and self._r == 0):
-            # print "process the box"
             self.selectionbox.processSelectedItems(self._r0, self._r)
         # end if
         self._r0 = 0  # reset
         self._r = 0  # reset
-        # print "press release"
         self._addedToPressList = False
         if self._baseClick == 0:
             self._addedToPressList = True
@@ -268,7 +262,6 @@ class SelectionItemGroup(QGraphicsItemGroup):
         child.modelDeselect(doc)
     # end def
 
-
     def removeSelectedItems(self):
         """docstring for removeSelectedItems"""
         doc = self._viewroot.document()
@@ -283,7 +276,7 @@ class SelectionItemGroup(QGraphicsItemGroup):
             # end if
         # end for
     # end def
-    
+
     def reParent(self, boolval):
         if boolval:
             self._tempList = [item for item in self.childItems()]
@@ -315,19 +308,17 @@ class VirtualHelixHandleSelectionBox(QGraphicsPathItem):
         self._rect = itemGroup.boundingRect()
         self.hide()
         self.setPen(self._boxPen)
-        self.setZValue(styles.ZPATHHELIX+2)
+        self.setZValue(styles.ZPATHSELECTION)
         self._bounds = None
         self._pos0 = QPointF()
     # end def
-    
+
     def getY(self, pos):
         pos = self._itemGroup.mapToScene(QPointF(pos))
         return pos.y()
     # end def
-    
+
     def translateY(self, delta):
-         # print  yf, self._r, (yf - self._r)
-         # self.translate(0, (yf - y))
          self.setY(delta)
      # end def
 
@@ -372,23 +363,24 @@ class VirtualHelixHandleSelectionBox(QGraphicsPathItem):
                                 items[-1].number(),\
                                 indexDelta)
     # end def
-    
+
     def boxParent(self):
         temp = self._itemGroup.childItems()[0].partItem()
         self.setParentItem(temp)
         return temp
     # end def
-    
+
     def bounds(self):
         return self._bounds
     # end def
-    
+
     def delta(self, yf, y0):
         return yf-y0
-    
+    # end def
+
     def resetPosition(self):
         self.setPos(self._pos0)
-    
+    # end def
 # end class
 
 class EndpointHandleSelectionBox(QGraphicsPathItem):
@@ -405,22 +397,22 @@ class EndpointHandleSelectionBox(QGraphicsPathItem):
         self._rect = itemGroup.boundingRect()
         self.hide()
         self.setPen(self._boxPen)
-        self.setZValue(styles.ZPATHHELIX+2)
+        self.setZValue(styles.ZPATHSELECTION)
         self._bounds = (0,0)
         self._pos0 = QPointF()
     # end def
-    
+
     def getX(self, pos):
         return pos.x()
     # end def
-    
+
     def translateX(self, delta):
         self.setX(self._baseWidth*delta)
     # end def
-    
+
     def resetPosition(self):
         self.setPos(self._pos0)
-        
+
     def delta(self, xf, x0):
         boundL, boundH = self._bounds
         delta = int(floor((xf-x0) / self._baseWidth))
@@ -433,7 +425,6 @@ class EndpointHandleSelectionBox(QGraphicsPathItem):
     def refreshPath(self):
         tempLow, tempHigh = self._itemGroup._viewroot.document().getSelectionBounds()
         self._bounds = (tempLow, tempHigh)
-        print "my bounds are", self._bounds
         self.prepareGeometryChange()
         self.setPath(self.painterPath())
         self._pos0 = self.pos()
@@ -458,17 +449,16 @@ class EndpointHandleSelectionBox(QGraphicsPathItem):
         """docstring for processSelectedItems"""
         self._itemGroup.reParent(True)
         delta = self.delta(rEnd, rStart)
-        print "moved", delta
         self._itemGroup._viewroot.document().resizeSelection(delta)
         self._itemGroup.reParent(False)
     # end def
-        
+
     def boxParent(self):
         temp = self._itemGroup.childItems()[0].partItem()
-        # self.setParentItem(temp)
+        self.setParentItem(temp)
         return temp
     # end def
-    
+
     def bounds(self):
         return self._bounds
     # end def

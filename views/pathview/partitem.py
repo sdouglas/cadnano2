@@ -39,8 +39,8 @@ from cadnano import app
 
 # import Qt stuff into the module namespace with PySide, PyQt4 independence
 util.qtWrapImport('QtCore', globals(), ['pyqtSlot', 'QPointF', 'QRectF', 'Qt'])
-util.qtWrapImport('QtGui', globals(), ['QBrush', 'QGraphicsPathItem',
-                                       'QGraphicsRectItem', 'QInputDialog',
+util.qtWrapImport('QtGui', globals(), ['QBrush', 'QGraphicsPathItem', 'QGraphicsItem', \
+                                       'QGraphicsRectItem', 'QInputDialog', \
                                        'QPen'])
 
 _baseWidth = _bw = styles.PATH_BASE_WIDTH
@@ -65,6 +65,12 @@ class PartItem(QGraphicsRectItem):
         self.setAcceptHoverEvents(True)
         self._initModifierRect()
         self._initResizeButtons()
+        self._proxyParent = QGraphicsRectItem(self)
+        self._proxyParent.setFlag(QGraphicsItem.ItemHasNoContents)
+    # end def
+    
+    def proxy(self):
+        return self._proxyParent
     # end def
 
     def _initModifierRect(self):

@@ -73,7 +73,7 @@ class PartItem(QGraphicsItem):
         # initialize the PartItem with an empty set of old coords
         self._setLattice([], modelPart.generatorFullLattice())
         self.setFlag(QGraphicsItem.ItemHasNoContents)  # never call paint
-        self.setZValue(100)
+        self.setZValue(styles.ZPARTITEM)
         self._initModifierCircle()
     # end def
 
@@ -85,7 +85,7 @@ class PartItem(QGraphicsItem):
         self.deselector = ds = PartItem.Deselector(self)
         ds.setParentItem(self)
         ds.setFlag(QGraphicsItem.ItemStacksBehindParent)
-        ds.setZValue(-1)
+        ds.setZValue(styles.ZDESELECTOR)
 
     def _initModifierCircle(self):
         self._canShowModCirc = False

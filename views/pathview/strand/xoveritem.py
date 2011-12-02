@@ -240,7 +240,7 @@ class XoverItem(QGraphicsPathItem):
     XoverItem should be a child of a PartItem.
     """
     _filterName = "xover"
-    
+
     def __init__(self, strandItem, virtualHelixItem):
         """
         strandItem is a the model representation of the 5prime most strand
@@ -253,7 +253,7 @@ class XoverItem(QGraphicsPathItem):
         self._node5 = None
         self._node3 = None
         self.hide()
-        
+        self.setFlag(QGraphicsItem.ItemStacksBehindParent)
         self.setFlag(QGraphicsItem.ItemIsSelectable)
     # end def
 
@@ -337,27 +337,26 @@ class XoverItem(QGraphicsPathItem):
         are potentially None and represent the base at floatPos.
 
         """
-        print "updating xover curve", self.parentItem()
         node3 = self._node3
         node5 = self._node5
 
         bw = _baseWidth
 
+        parent = self.partItem()
+        
         vhi5 = self._virtualHelixItem
-        partItem = vhi5.partItem()
-        pt5 = vhi5.mapToItem(partItem, *node5.point())
-
+        pt5 = vhi5.mapToItem(parent, *node5.point())
+        
         fiveIsTop = node5.isOnTop()
         fiveIs5to3 = node5.isDrawn5to3()
 
         vhi3 = node3.virtualHelixItem()
-        pt3 = vhi3.mapToItem(partItem, *node3.point())
+        pt3 = vhi3.mapToItem(parent, *node3.point())
 
         threeIsTop = node3.isOnTop()
         threeIs5to3 = node3.isDrawn5to3()
         sameStrand = (node5.strandType() == node3.strandType()) and vhi3 == vhi5
         sameParity = fiveIs5to3 == threeIs5to3
-
 
         # Enter/exit are relative to the direction that the path travels
         # overall.
@@ -423,6 +422,11 @@ class XoverItem(QGraphicsPathItem):
     # end def
 
     ### EVENT HANDERS ###
+    # def mousePressEvent(self, event):
+    #     print "XOI sucka", self.zValue()
+    #     return QGraphicsPathItem.mousePressEvent(self, event)
+    # # end def 
+    
     def eraseToolMousePress(self):
         """Erase the strand."""
         self._strandItem.eraseToolMousePress(None)
@@ -449,9 +453,9 @@ class XoverItem(QGraphicsPathItem):
         self.penAndBrushSet(False)
         self.setSelected(False)
     # end def
-    
+
     def tempReparent(self, pos=None):
-        partItem = self._virtualHelixItem.partItem()
+        partItem = self.partItem()
         if pos == None:
             pos = self.scenePos()
         self.setParentItem(partItem)
@@ -502,9 +506,8 @@ class XoverItem(QGraphicsPathItem):
         # end if
         return QGraphicsPathItem.itemChange(self, change, value)
     # end def
-    
+
     def modelDeselect(self, document):
-        
         strand5p = self._strand5p
         strand3p = strand5p.connection3p()
 
@@ -520,7 +523,7 @@ class XoverItem(QGraphicsPathItem):
             lowVal3p = False
         else:
             highVal3p = False
-        
+
         if not lowVal5p and not highVal5p and test5p:
             document.removeStrandFromSelection(strand5p)
         elif test5p:
@@ -531,11 +534,11 @@ class XoverItem(QGraphicsPathItem):
             document.addStrandToSelection(strand3p, (lowVal3p, highVal3p))
         self.restoreParent()
     # end def
-    
+
     def modelSelect(self, document):
         strand5p = self._strand5p
         strand3p = strand5p.connection3p()
-        
+
         test5p = document.isModelStrandSelected(strand5p)
         lowVal5p, highVal5p = document.getSelectedStrandValue(strand5p) if test5p else (False, False)
         if strand5p.isDrawn5to3():
@@ -548,12 +551,12 @@ class XoverItem(QGraphicsPathItem):
             lowVal3p = True
         else:
             highVal3p = True
-        
+
         self.setSelected(True)
         document.addStrandToSelection(strand5p, (lowVal5p, highVal5p))
         document.addStrandToSelection(strand3p, (lowVal3p, highVal3p))
     # end def
-    
+
     def paint(self, painter, option, widget):
         painter.setPen(self.pen())
         painter.setBrush(self.brush())
