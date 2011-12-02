@@ -38,16 +38,6 @@ from controllers.mayacontrollers.mayaObjectManager import Mom
 
 contextCmdName = "spMayaCtxCmd"
 
-def getHelixNodeFromName( helixNode ):
-    #print "getHelixNodeFromName ", helixNode
-    selList = OpenMaya.MSelectionList()
-    dependNode = 0
-    if(cmds.objExists( helixNode )):
-        selList.add(helixNode)
-        dependNode = OpenMaya.MObject()
-        selList.getDependNode(0, dependNode)
-    return dependNode
-
 def selectionCallback(clientData):
     """
     Callback function that is called when the selection changes in Maya.
@@ -63,16 +53,19 @@ def selectionCallback(clientData):
     m = Mom()
     m.updateSelectionBoxes()
     
+    manipulator = None
+    manipObject = OpenMaya.MObject()
+    
     while not selectionIter.isDone():
-        dependNode = OpenMaya.MObject()
+        transformNode = OpenMaya.MObject()
         dagNode = OpenMaya.MFnDagNode()
         try:
-            selectionIter.getDependNode(dependNode)
-            if dependNode.isNull() or not dependNode.hasFn( \
+            selectionIter.getDependNode(transformNode)
+            if transformNode.isNull() or not transformNode.hasFn( \
                                     OpenMaya.MFn.kDependencyNode):
                 selectionIter.next()
                 continue
-            dagNode = OpenMaya.MFnDagNode(dependNode)
+            dagNode = OpenMaya.MFnDagNode(transformNode)
         except:
             selectionIter.next()
             continue
@@ -81,6 +74,7 @@ def selectionCallback(clientData):
                 decoratorList.append(dagNode.name())
         elif dagNode.name().startswith(m.helixTransformName):
             Unused, HNumber = dagNode.name().split("_")
+<<<<<<< Updated upstream
             helixName = "%s%s" % (m.helixNodeName, HNumber)
             helixNode = getHelixNodeFromName(helixName)
             #print "HELIXNODE", helixNode
@@ -102,6 +96,17 @@ def selectionCallback(clientData):
                     # workaround for when a strand is added, and somehow triggers this event, even though it's not selected
                     if( helixNode ):
                         manipulator.connectToDependNode( helixNode )
+=======
+            helixNode = m.getNodeFromName("%s%s" % (m.helixNodeName, HNumber))
+            if helixNode:
+                if manipulator is None:
+                    #Attempt to create manipulator if one does not already exist
+                    manipulator = \
+                            OpenMayaMPx.MPxManipContainer.newManipulator( "spHelixManip", manipObject )
+                    if manipulator is not None:
+                        clientData.addManipulator( manipObject )
+                manipulator.addHelix( HNumber )
+>>>>>>> Stashed changes
                 #print "selectionCallback ", dagNode.name(), helixNode
         selectionIter.next()
     m.staplePreDecoratorSelected(decoratorList)

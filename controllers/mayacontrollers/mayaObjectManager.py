@@ -29,7 +29,7 @@ Created by Alex Tessier on 2011-08
 from cadnano import app
 import maya.cmds as cmds
 import util
-
+import maya.OpenMaya as OpenMaya
 
 class Mom(object):
     """
@@ -86,11 +86,18 @@ class Mom(object):
     decoratorMeshName = "stapleModIndicatorMesh_"
     decoratorShaderName = "stapleModeIndicatorShader_"
 
-    def manipulator():
-        return helixManipulator;
-        
-    def manipulatorObject():
-        return manipulatorObject;
+    def getNodeFromName( self, NodeName ):
+        #print "getNodeFromName ", NodeName
+        selList = OpenMaya.MSelectionList()
+        dependNode = 0
+        if(cmds.objExists( NodeName )):
+            selList.add(NodeName)
+            dependNode = OpenMaya.MObject()
+            selList.getDependNode(0, dependNode)
+        return dependNode
+    
+    def getSelectionBox(self):
+        return self.selectionBox;
     
     def strandsSelected(self, listNames):
         # XXX - [SB] we want to only send the signal to "active doc" but

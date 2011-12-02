@@ -34,6 +34,7 @@ import sys
 import maya.OpenMaya as OpenMaya
 import maya.OpenMayaUI as OpenMayaUI
 import maya.OpenMayaMPx as OpenMayaMPx
+import maya.cmds as cmds
 
 # for controlling the nodes
 from model.enum import StrandType
@@ -44,37 +45,77 @@ helixManipId = OpenMaya.MTypeId(0x00117702)
 contextCmdName = "spHelixManipCtxCmd"
 nodeName = "spHelixManip"
 
-
-def dotproduct(a, b):
-    return a.x * b.x + a.y * b.y + a.z * b.z
-
-
+def project(a, b):
+    c = OpenMaya.MVector()
+    bn = b.normal()
+    c.x = a.x * bn.x
+    c.y = a.y * bn.y
+    c.z = a.z * bn.z
+    return c
+    
 class helixManip(OpenMayaMPx.MPxManipContainer):
-    fDistanceFrontManip = OpenMaya.MDagPath()
-    fDistanceBackManip = OpenMaya.MDagPath()
+
+    class helix():
+        id = None
+        ffpIdx = 0  # front index in converter plug array
+        epIdx = 0   # back index in converter plug array
+        helixName = ""
+        newStrandSize = (0, 0)
+        startBaseFloatAttr = OpenMaya.MObject()
+        endBaseFloatAttr = OpenMaya.MObject()
+        startBaseIntAttr = OpenMaya.MObject()
+        endBaseIntAttr = OpenMaya.MObject()
+        helixNode = OpenMaya.MObject()
+        helixTransform = OpenMaya.MObject()
+        sp = OpenMaya.MPoint()
+        cp = OpenMaya.MPoint()
+        
+        def __str__(self):
+            return self.helixName
+
+    # I might need n of these...
     startBaseFloatAttr = OpenMaya.MObject()
     endBaseFloatAttr = OpenMaya.MObject()
     startBaseIntAttr = OpenMaya.MObject()
     endBaseIntAttr = OpenMaya.MObject()
-    myNode = OpenMaya.MObject()
-    helixTransform = OpenMaya.MObject()
-    sp = OpenMaya.MPoint()
-    cp = OpenMaya.MPoint()
+    
+    # I will not need n of these...
     frontDir = OpenMaya.MVector()
     backDir = OpenMaya.MVector()
-    helixName = ""
-    #amResizing = False
-    ffpIdx = 0  # front index in converter plug array
-    epIdx = 0   # back index in converter plug array
-    #fFreePointManip = OpenMaya.MDagPath()
-    newStrandSize = (0, 0)
     manipHandleOffset = 1
-
+    fDistanceFrontManip = OpenMaya.MDagPath()
+    fDistanceBackManip = OpenMaya.MDagPath()
+    sp = OpenMaya.MPoint()
+    cp = OpenMaya.MPoint()
+    
+    activeHelix = None
+    helices = {}
+    
     def __init__(self):
         OpenMayaMPx.MPxManipContainer.__init__(self)
-        self.fNodePath = OpenMaya.MDagPath()
+    
+    def addHelix(self, HNumber):
+    
+        m = Mom()
+    
+        h = self.helix()
+        h.id = HNumber
+        h.helixTransform = m.getNodeFromName("%s%s" % (m.helixTransformName, HNumber))
+        h.helixNode = m.getNodeFromName("%s%s" % (m.helixNodeName, HNumber))
+    
+        nodeFn = OpenMaya.MFnDependencyNode(h.helixNode)
+        h.helixName = nodeFn.name()
 
+        self.helices[ HNumber ] = h
+        print self.helices
+        
+        if self.activeHelix is None:
+            self.activeHelix = self.helix()
+            self.activeHelix.helixTransform = h.helixTransform
+            self.connectToDependNode( h.helixNode )
+        
     def createChildren(self):
+        self.helices = {}
         #print "helixManip: createChildren being called..."
         # startPoint should correspond to the end of the helix
         # read the attribute to get the offset from the starting position
@@ -97,170 +138,159 @@ class helixManip(OpenMayaMPx.MPxManipContainer):
     def connectToDependNode(self, node):
         #print "connectToDependNode called"
         nodeFn = OpenMaya.MFnDependencyNode(node)
-        self.myNode = node
-        self.helixName = nodeFn.name()
+        self.activeHelix.helixNode = node
+        self.activeHelix.helixName = nodeFn.name()
 
-        try:
-            frontPlug = nodeFn.findPlug("startBaseFloat")
-            backPlug = nodeFn.findPlug("endBaseFloat")
+        #try:
+        frontPlug = nodeFn.findPlug("startBaseFloat")
+        backPlug = nodeFn.findPlug("endBaseFloat")
 
-            frontManip = OpenMayaUI.MFnDistanceManip(self.fDistanceFrontManip)
-            frontManip.connectToDistancePlug(frontPlug)
+        frontManip = OpenMayaUI.MFnDistanceManip(self.fDistanceFrontManip)
+        frontManip.connectToDistancePlug(frontPlug)
 
-            backManip = OpenMayaUI.MFnDistanceManip(self.fDistanceBackManip)
-            backManip.connectToDistancePlug(backPlug)
+        backManip = OpenMayaUI.MFnDistanceManip(self.fDistanceBackManip)
+        backManip.connectToDistancePlug(backPlug)
 
-            # hookup the converter functions
-            self.addPlugToManipConversion(frontManip.startPointIndex())
-            self.addPlugToManipConversion(frontManip.currentPointIndex())
-            self.addPlugToManipConversion(backManip.startPointIndex())
-            self.addPlugToManipConversion(backManip.currentPointIndex())
+        # hookup the converter functions
+        self.addPlugToManipConversion(frontManip.startPointIndex())
+        self.addPlugToManipConversion(frontManip.currentPointIndex())
+        self.addPlugToManipConversion(backManip.startPointIndex())
+        self.addPlugToManipConversion(backManip.currentPointIndex())
 
-            self.ffpIdx = self.addManipToPlugConversion(frontPlug)
-            self.epIdx = self.addManipToPlugConversion(backPlug)
+        self.activeHelix.ffpIdx = self.addManipToPlugConversion(frontPlug)
+        self.activeHelix.epIdx = self.addManipToPlugConversion(backPlug)
 
-            # initially, current points and start/end points match
-            startPos = nodeFn.findPlug("startPos")
-            startPoint = self.getFloat3PlugValue(startPos)
-            self.sp = startPoint
-            self.cp = startPoint
+        # initially, current points and start/end points match
+        startPos = nodeFn.findPlug("startPos")
+        startPoint = self.getFloat3PlugValue(startPos)
+        self.sp = startPoint
+        self.cp = startPoint
 
-            endPos = nodeFn.findPlug("endPos")
-            endPoint = self.getFloat3PlugValue(endPos)
-            self.ep = endPoint
-            self.ecp = endPoint
+        endPos = nodeFn.findPlug("endPos")
+        endPoint = self.getFloat3PlugValue(endPos)
+        self.ep = endPoint
+        self.ecp = endPoint
 
-            self.finishAddingManips()
-            OpenMayaMPx.MPxManipContainer.connectToDependNode(self, node)
-        except:
-            sys.stderr.write("helixManip: Error finding and connecting plugs\n")
-            sys.stderr.write(sys.exc_info()[0])
+        self.finishAddingManips()
+        OpenMayaMPx.MPxManipContainer.connectToDependNode(self, node)
+        #except:
+        #    sys.stderr.write("helixManip: Error finding and connecting plugs\n")
+        #    sys.stderr.write(sys.exc_info()[0])
             # raise
-
-    def setupTransform(self, node, path):
-        self.helixTransform = node  # store the transform node
-        nodeFn = OpenMaya.MFnDependencyNode(node)
-        #print nodeFn.name()
-
-        dagNodeFn = OpenMaya.MFnDagNode(node)
-        dagNodeFn.getPath(self.fNodePath)
 
     def computeDistance(self, sp, cp, dirv):
         # sp - start point, cp - current point
         u = OpenMaya.MVector(sp)
         v = OpenMaya.MVector(cp)
         w = u - v
-        m = self.getTransformMtxFromNode(self.helixTransform)
+        m = self.getTransformMtxFromNode(self.activeHelix.helixTransform)
         wm = w * m
-        if(dotproduct(wm.normal(), dirv.normal()) > 0):
+        if( wm.normal() * dirv.normal() > 0 ): # dotproduct
             dir = -1
         else:
             dir = 1
         distance = w.length() * dir
-        #print "start point is (%f, %f, %f)" % (sp.x, sp.y, sp.z)
-        #print "current point is (%f, %f, %f)" % (cp.x, cp.y, cp.z)
         return distance
 
     def doRelease(self):
         #print "RELEASED"
-        if (self.newStrandSize != (0, 0)):
-            self.getStrand().resize(self.newStrandSize)
-            self.newStrandSize = (0, 0)
+        if (self.activeHelix.newStrandSize != (0, 0)):
+            self.getStrand().resize(self.activeHelix.newStrandSize)
+            self.activeHelix.newStrandSize = (0, 0)
         return OpenMaya.kUnknownParameter
 
     def doDrag(self):
         #print "DRAGGING"
-        if (self.newStrandSize != (0, 0)):
-            self.getStrand().resize(self.newStrandSize)
-            self.newStrandSize = (0, 0)
+        if (self.activeHelix.newStrandSize != (0, 0)):
+            self.getStrand().resize(self.activeHelix.newStrandSize)
+            self.activeHelix.newStrandSize = (0, 0)
         return OpenMaya.kUnknownParameter
 
     def plugToManipConversion(self, manipIndex):
         # print "plugToManipCalled"
         manipData = OpenMayaUI.MManipData()
-        try:
-            frontManip = OpenMayaUI.MFnDistanceManip(self.fDistanceFrontManip)
-            backManip = OpenMayaUI.MFnDistanceManip(self.fDistanceBackManip)
+        #try:
+        frontManip = OpenMayaUI.MFnDistanceManip(self.fDistanceFrontManip)
+        backManip = OpenMayaUI.MFnDistanceManip(self.fDistanceBackManip)
 
-            # get the ws transform of the helix and transform the points
-            m = self.getTransformMtxFromNode(self.helixTransform)
+        # get the ws transform of the helix and transform the points
+        m = self.getTransformMtxFromNode(self.activeHelix.helixTransform)
 
-            nodeFn = OpenMaya.MFnDependencyNode(self.myNode)
+        boundBoxCenter = OpenMaya.MVector()
+        boundBoxScale = OpenMaya.MVector()
+        mom = Mom()
+        bbc = cmds.getAttr(mom.getSelectionBox() + ".translate")
+        boundBoxCenter.x = float(bbc[0][0])
+        boundBoxCenter.y = float(bbc[0][1])
+        boundBoxCenter.z = float(bbc[0][2])
+        bbs = cmds.getAttr(mom.getSelectionBox() + ".scale")
+        boundBoxScale.x = float(bbs[0][0])
+        boundBoxScale.y = float(bbs[0][1])
+        boundBoxScale.z = float(bbs[0][2])
+        
+        nodeFn = OpenMaya.MFnDependencyNode(self.activeHelix.helixNode)
 
-            if(manipIndex == frontManip.currentPointIndex()):
-                #distance = self.computeDistance(self.sp, self.cp, self.frontDir)
-                finalPoint = OpenMaya.MVector()
-                finalPoint = OpenMaya.MVector(self.sp * m)
-                finalPoint += self.frontDir * self.manipHandleOffset
+        if(manipIndex == frontManip.currentPointIndex()):
+            finalPoint = OpenMaya.MVector()
+            finalPoint = OpenMaya.MVector(self.sp * m)
+            finalPoint += self.frontDir * self.manipHandleOffset
 
-                #self.checkHelixDelta(distance)
+            ws = boundBoxCenter
+            nv = project( boundBoxScale / 2, self.frontDir )
+            ws += nv + self.frontDir * self.manipHandleOffset
+            finalPoint = ws
+            
+            numData = OpenMaya.MFnNumericData()
+            numDataObj = numData.create(OpenMaya.MFnNumericData.k3Double)
+            numData.setData3Double(finalPoint.x, finalPoint.y, finalPoint.z)
+            manipData = OpenMayaUI.MManipData(numDataObj)
 
-                #print "front manip final point is (%f, %f, %f)" % \
-                #    (finalPoint.x, finalPoint.y, finalPoint.z)
+        elif(manipIndex == backManip.currentPointIndex()):
+            finalPoint = OpenMaya.MVector()
+            finalPoint = OpenMaya.MVector(self.ep * m)
+            finalPoint += self.backDir * self.manipHandleOffset
 
-                # is this the new position?
-                #startPos  = nodeFn.findPlug("startPos")
-                #startPoint = self.getFloat3PlugValue(startPos)
-                #print "front p to m sp is (%f, %f, %f) vs final (%f, %f, %f)" \
-                #% (startPoint.x, startPoint.y, startPoint.z,
-                #   finalPoint.x, finalPoint.y, finalPoint.z)
+            ws = boundBoxCenter
+            nv = project( boundBoxScale / 2, self.backDir )
+            ws += nv + self.backDir * self.manipHandleOffset
+            finalPoint = ws
+            
+            numData = OpenMaya.MFnNumericData()
+            numDataObj = numData.create(OpenMaya.MFnNumericData.k3Double)
+            numData.setData3Double(finalPoint.x, finalPoint.y, finalPoint.z)
+            manipData = OpenMayaUI.MManipData(numDataObj)
 
-                numData = OpenMaya.MFnNumericData()
+        elif(manipIndex == frontManip.startPointIndex()):
 
-                numDataObj = numData.create(OpenMaya.MFnNumericData.k3Double)
-                numData.setData3Double(finalPoint.x, finalPoint.y, finalPoint.z)
-                manipData = OpenMayaUI.MManipData(numDataObj)
+            ws = boundBoxCenter
+            nv = project( boundBoxScale / 2, self.frontDir )
+            ws += nv
+           
+            numData = OpenMaya.MFnNumericData()
+            numDataObj = numData.create(OpenMaya.MFnNumericData.k3Float)
+            numData.setData3Float(ws.x, ws.y, ws.z)
+            manipData = OpenMayaUI.MManipData(numDataObj)
 
-            elif(manipIndex == backManip.currentPointIndex()):
-                #distance = self.computeDistance(self.ep, self.ecp, self.backDir)
-                finalPoint = OpenMaya.MVector()
-                finalPoint = OpenMaya.MVector(self.ep * m)
-                finalPoint += self.backDir * self.manipHandleOffset
+        elif(manipIndex == backManip.startPointIndex()):
 
-                #endPos  = nodeFn.findPlug("endPos")
-                #endPoint = self.getFloat3PlugValue(endPos)
-                #ws = endPoint * m
-                #
-                numData = OpenMaya.MFnNumericData()
-
-                numDataObj = numData.create(OpenMaya.MFnNumericData.k3Double)
-
-                numData.setData3Double(finalPoint.x, finalPoint.y, finalPoint.z)
-                manipData = OpenMayaUI.MManipData(numDataObj)
-
-            elif(manipIndex == frontManip.startPointIndex()):
-                startPos = nodeFn.findPlug("startPos")
-                startPoint = self.getFloat3PlugValue(startPos)
-                #startPoint = OpenMaya.MPoint(0., 0., 0.)
-                ws = startPoint * m
-
-                numData = OpenMaya.MFnNumericData()
-                numDataObj = numData.create(OpenMaya.MFnNumericData.k3Float)
-                numData.setData3Float(ws.x, ws.y, ws.z)
-                #print "frontManip start to (%f, %f, %f)" % (ws.x, ws.y, ws.z)
-                manipData = OpenMayaUI.MManipData(numDataObj)
-
-            elif(manipIndex == backManip.startPointIndex()):
-                endPos = nodeFn.findPlug("endPos")
-                endPoint = self.getFloat3PlugValue(endPos)
-                #endPoint = OpenMaya.MPoint(0., 0., 0.)
-                ws = endPoint * m
-
-                numData = OpenMaya.MFnNumericData()
-                numDataObj = numData.create(OpenMaya.MFnNumericData.k3Float)
-                numData.setData3Float(ws.x, ws.y, ws.z)
-                #print "back Manip start to (%f, %f, %f)" % (ws.x, ws.y, ws.z)
-                manipData = OpenMayaUI.MManipData(numDataObj)
-        except:
-            sys.stderr.write("ERROR: helixManip.plugToManipConversion\n")
-            raise
+            ws = boundBoxCenter
+            nv = project( boundBoxScale / 2, self.backDir )
+            ws += nv
+            
+            numData = OpenMaya.MFnNumericData()
+            numDataObj = numData.create(OpenMaya.MFnNumericData.k3Float)
+            numData.setData3Float(ws.x, ws.y, ws.z)
+            manipData = OpenMayaUI.MManipData(numDataObj)
+        #except:
+        #    sys.stderr.write("ERROR: helixManip.plugToManipConversion\n")
+        #    raise
 
         return manipData
 
     def manipToPlugConversion(self, plugIndex):
         #print "manipToPlugConversion", plugIndex
         try:
-            if(plugIndex == self.ffpIdx):  # front float plug
+            if(plugIndex == self.activeHelix.ffpIdx):  # front float plug
                 numData = OpenMaya.MFnNumericData()
                 numDataObj = numData.create(OpenMaya.MFnNumericData.k3Double)
 
@@ -272,7 +302,7 @@ class helixManip(OpenMayaMPx.MPxManipContainer):
                 self.getConverterManipValue(frontManip.startPointIndex(), sp)
                 self.getConverterManipValue(frontManip.currentPointIndex(), cp)
 
-                m2 = self.getTransformMtxFromNode(self.helixTransform)
+                m2 = self.getTransformMtxFromNode(self.activeHelix.helixTransform)
                 m = m2.inverse()
 
                 self.sp = sp * m
@@ -285,16 +315,10 @@ class helixManip(OpenMayaMPx.MPxManipContainer):
                 self.dragDeltaFront = newIndex
                 self.resizeCNHelixFront(newIndex)
 
-                #(remainder, intInc) = self.checkHelixDelta(distance)
-                #print "manipToPlug front manip r, inc are (%f, %f)" % (remainder, intInc)
-                ## tell the manip to move by intInc
-                ## reset the distance to remainder, adjust start points
-                ## accordingly
-
                 numData.setData3Double(cp.x, cp.y, cp.z)
                 returnData = OpenMayaUI.MManipData(numDataObj)
 
-            elif(plugIndex == self.epIdx):
+            elif(plugIndex == self.activeHelix.epIdx):
                 numData = OpenMaya.MFnNumericData()
                 numDataObj = numData.create(OpenMaya.MFnNumericData.k3Double)
 
@@ -306,7 +330,7 @@ class helixManip(OpenMayaMPx.MPxManipContainer):
                 self.getConverterManipValue(backManip.startPointIndex(), ep)
                 self.getConverterManipValue(backManip.currentPointIndex(), ecp)
 
-                m2 = self.getTransformMtxFromNode(self.helixTransform)
+                m2 = self.getTransformMtxFromNode(self.activeHelix.helixTransform)
                 m = m2.inverse()
 
                 self.ep = ep * m
@@ -348,19 +372,6 @@ class helixManip(OpenMayaMPx.MPxManipContainer):
             print trnsNode
 
         return mtx
-
-    #def nodeTranslation(self):
-            #dagFn = OpenMaya.MFnDagNode(self.fNodePath)
-            #path = OpenMaya.MDagPath()
-
-            #dagFn.getPath(path)
-
-            # pop from the shape to the transform
-            #path.pop()
-            #print "nodeTranslation is"
-            #print path
-            #transformFn = OpenMaya.MFnTransform(path)
-            #return transformFn.translation(OpenMaya.MSpace.kWorld)
 
     def getRotation(self, nodePath):
         dagFn = OpenMaya.MFnDagNode(nodePath)
@@ -441,20 +452,16 @@ class helixManip(OpenMayaMPx.MPxManipContainer):
 
     def getStrand(self):
         m = Mom()
-        return m.mayaToCn[self.helixName]
-
-    #def getSide(self):
-        #strand = self.getStrand()
-        #return 0
+        return m.mayaToCn[self.activeHelix.helixName]
 
     def getRise(self):
         try:
-            n = nodeFn = OpenMaya.MFnDependencyNode(self.myNode)
+            n = nodeFn = OpenMaya.MFnDependencyNode(self.activeHelix.helixNode)
             risePlug = n.findPlug("rise")
             rise = risePlug.asDouble()
             return rise
         except:
-            print "Failed to retrieve rise from node %s" % self.helixName
+            print "Failed to retrieve rise from node %s" % self.activeHelix.helixName
 
     def getHelixDelta(self, distance):
         try:
@@ -467,12 +474,6 @@ class helixManip(OpenMayaMPx.MPxManipContainer):
             return delta
         except:
             print "getFrontHelixDelta failed!"
-
-    #def checkHelixDelta(self, distance):
-        #rise = self.getRise()
-        #increment = int(distance / rise)
-        #remainder = distance % rise
-        #return (remainder, increment)
 
     def resizeCNHelixFront(self, delta):
         try:
@@ -487,7 +488,7 @@ class helixManip(OpenMayaMPx.MPxManipContainer):
             if(newLow != lowIdx):
                 #self.amResizing = True
                 #strand.resize((newLow, highIdx))
-                self.newStrandSize = (newLow, highIdx)
+                self.activeHelix.newStrandSize = (newLow, highIdx)
                 #self.amResizing = False
             # to make smaller
             # strand.clearStrand(startIdx, endIdx)
@@ -507,84 +508,12 @@ class helixManip(OpenMayaMPx.MPxManipContainer):
             if(newHigh != highIdx):
                 #self.amResizing = True
                 #strand.resize((lowIdx, newHigh))
-                self.newStrandSize = (lowIdx, newHigh)
+                self.activeHelix.newStrandSize = (lowIdx, newHigh)
                 #self.amResizing = False
             # to make smaller
             # strand.clearStrand(startIdx, endIdx)
         except:
             print "resizeCNHelixBack failed!"
-
-
-def getHelixNodeFromTransform(transformNode):
-    funcSig = "helixManip:getHelixNodeFromTransform "
-    # given a transform node, find the helix node attached to it
-    try:
-        print funcSig + "calling getHelixNodeFromTransform with node"
-        print transformNode
-        print funcSig + "node type is %s" % transformNode.apiTypeStr()
-        if transformNode.apiType() != OpenMaya.MFn.kTransform:
-            print funcSig + "incorrect node type passed in, need transform!"
-            raise
-
-        # walk the dag on the transform, find the mesh and then the helixNode
-        dagNode = OpenMaya.MFnDagNode()
-        dagComponentObjects = OpenMaya.MObject()
-        dagNode = OpenMaya.MFnDagNode(transformNode)
-        if dagNode.childCount() == 0:
-            print funcSig + "Incorrect number of dag children from transform"
-            raise
-
-        child = OpenMaya.MObject()
-        child = dagNode.child(0)
-
-        if child.apiType() != OpenMaya.MFn.kMesh:
-            print funcSig + "Unexpected child of transform, expected kMesh"
-            raise
-
-        helixMesh = OpenMaya.MFnMesh(child)
-        inMeshPlug = OpenMaya.MPlug()
-        try:
-            inMeshPlug = helixMesh.findPlug("inMesh")
-        except:
-            print funcSig + "Can't find inMesh plug on Mesh. \
-                                            Not a helixNode mesh?"
-            raise
-
-        connectors = OpenMaya.MPlugArray()
-        inMeshPlug.connectedTo(connectors, True, False)
-
-        plug = OpenMaya.MPlug()
-        if connectors.length() != 1:
-            print funcSig + "Incorrect number of connectors \
-                                    from Mesh to HelixNode, not a helixMesh?"
-            raise
-
-        helixNode = OpenMaya.MObject()
-        for i in range(connectors.length()):
-            plug = connectors[i]
-            helixNode = plug.node()
-            print funcSig + "found helix node plug, APItype string %s" \
-                                                    % helixNode.apiTypeStr()
-
-        if helixNode.apiType() == OpenMaya.MFn.kInvalid:
-            print funcSig + "failed to find connecting node!"
-            helixNode = None
-            raise
-
-        try:
-            nodeFn = OpenMaya.MFnDependencyNode(helixNode)
-            spPlug = nodeFn.findPlug("startBaseFloat")
-        except:
-            print "NOT A HELIX NODE!"
-            helixNode = None
-            raise
-
-        return helixNode
-
-    except:
-        print "helixManip:getHelixNodeFromTransform failed! \
-                        unable to get the helix node from transform!"
-        return None
 
 
 def helixManipCreator():
