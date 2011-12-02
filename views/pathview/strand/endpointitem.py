@@ -105,8 +105,6 @@ class EndpointItem(QGraphicsPathItem):
         cA.mousePressEvent = self.mousePressEvent
         cA.mouseMoveEvent = self.mouseMoveEvent
         cA.setPen(_noPen)
-        
-        # self.setZValue(styles.ZENDPOINTITEM)
         self.setFlag(QGraphicsItem.ItemIsSelectable)
     # end def
 
