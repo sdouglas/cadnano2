@@ -168,6 +168,9 @@ class Strand(QObject):
         return self._strandSet
     # end def
 
+    def strandType(self):
+        return self._strandSet.strandType()
+
     def virtualHelix(self):
         return self._strandSet.virtualHelix()
     # end def

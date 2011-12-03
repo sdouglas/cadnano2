@@ -570,25 +570,35 @@ class Part(QObject):
             yield x, y, row, col
     # end def
 
-    def expandScafH(self, neighborType, maxIdx=None):
+    def getPreXoversHigh(self, strandType, neighborType, maxIdx=None):
         """
         Returns all prexover positions for neighborType that are below
         maxIdx. Used in emptyhelixitem.py.
         """
+        if strandType == StrandType.Scaffold:
+            preXO = self._scafH
+        else:
+            preXO = self._stapH
+
         if maxIdx == None:
             maxIdx = self._maxBase
         steps = (self._maxBase / self._step) + 1
-        ret = [i*self._step+j for i in range(steps) for j in self._scafH[neighborType]]
-        return filter(lambda x:x<maxIdx, ret)
+        ret = [i*self._step+j for i in range(steps) for j in preXO[neighborType]]
+        return filter(lambda x:x<=maxIdx, ret)
 
-    def expandScafL(self, neighborType, minIdx=0):
+    def getPreXoversLow(self, strandType, neighborType, minIdx=0):
         """
         Returns all prexover positions for neighborType that are above
         minIdx. Used in emptyhelixitem.py.
         """
+        if strandType == StrandType.Scaffold:
+            preXO = self._scafL
+        else:
+            preXO = self._stapL
+
         steps = (self._maxBase / self._step) + 1
-        ret = [i*self._step+j for i in range(steps) for j in self._scafL[neighborType]]
-        return filter(lambda x:x>minIdx, ret)
+        ret = [i*self._step+j for i in range(steps) for j in preXO[neighborType]]
+        return filter(lambda x:x>=minIdx, ret)
 
     def latticeCoordToPositionXY(self, row, col, scaleFactor=1.0):
         """
@@ -659,6 +669,38 @@ class Part(QObject):
         sel = selectionList[0]
         (row, col, baseIdx) = (sel[0], sel[1], sel[2])
         self.partPreDecoratorSelectedSignal.emit(row, col, baseIdx)
+
+    def xoverSnapTo(self, strand, idx, delta):
+        """
+        Returns the nearest xover position to allow snap-to behavior in
+        resizing strands via dragging selected xovers.
+        
+        
+        """
+        strandType = strand.strandType()
+
+        # determine neighbor strand and bind the appropriate prexover method
+        lo, hi = strand.idxs()
+        if idx == lo:
+            connectedStrand = strand.connectionLow()
+            preXovers = self.getPreXoversLow
+        else:
+            connectedStrand = strand.connectionHigh()
+            preXovers = self.getPreXoversHigh
+        connectedVh = connectedStrand.virtualHelix()
+
+        # determine neighbor position, if any
+        neighbors = self.getVirtualHelixNeighbors(strand.virtualHelix())
+        if connectedVh in neighbors:
+            neighborIdx = neighbors.index(connectedVh)
+            try:
+                newIdx = util.nearest(idx+delta, preXovers(strandType, neighborIdx))
+                return newIdx
+            except ValueError:
+                return None  # nearest not found in the expanded list
+        else:  # no neighbor (forced xover?)... don't snap, just return
+            return idx+delta
+
 
     ### PRIVATE SUPPORT METHODS ###
     def _addVirtualHelix(self, virtualHelix):
