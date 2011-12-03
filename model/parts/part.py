@@ -570,35 +570,29 @@ class Part(QObject):
             yield x, y, row, col
     # end def
 
-    def getPreXoversHigh(self, strandType, neighborType, maxIdx=None):
+    def getPreXoversHigh(self, strandType, neighborType, minIdx=0, maxIdx=None):
         """
         Returns all prexover positions for neighborType that are below
         maxIdx. Used in emptyhelixitem.py.
         """
-        if strandType == StrandType.Scaffold:
-            preXO = self._scafH
-        else:
-            preXO = self._stapH
-
+        preXO = self._scafH if strandType == StrandType.Scaffold else self._stapH
         if maxIdx == None:
-            maxIdx = self._maxBase
+            maxIdx = self._maxBase 
         steps = (self._maxBase / self._step) + 1
         ret = [i*self._step+j for i in range(steps) for j in preXO[neighborType]]
-        return filter(lambda x:x<=maxIdx, ret)
+        return filter(lambda x:x>=minIdx and x<=maxIdx, ret)
 
-    def getPreXoversLow(self, strandType, neighborType, minIdx=0):
+    def getPreXoversLow(self, strandType, neighborType, minIdx=0, maxIdx=None):
         """
         Returns all prexover positions for neighborType that are above
         minIdx. Used in emptyhelixitem.py.
         """
-        if strandType == StrandType.Scaffold:
-            preXO = self._scafL
-        else:
-            preXO = self._stapL
-
+        preXO = self._scafL if strandType == StrandType.Scaffold else self._stapL
+        if maxIdx == None:
+            maxIdx = self._maxBase 
         steps = (self._maxBase / self._step) + 1
         ret = [i*self._step+j for i in range(steps) for j in preXO[neighborType]]
-        return filter(lambda x:x>=minIdx, ret)
+        return filter(lambda x:x>=minIdx and x<=maxIdx, ret)
 
     def latticeCoordToPositionXY(self, row, col, scaleFactor=1.0):
         """
@@ -676,6 +670,10 @@ class Part(QObject):
         resizing strands via dragging selected xovers.
         """
         strandType = strand.strandType()
+        if delta > 0:
+            minIdx, maxIdx = idx-delta, idx+delta
+        else:
+            minIdx, maxIdx = idx+delta, idx-delta
 
         # determine neighbor strand and bind the appropriate prexover method
         lo, hi = strand.idxs()
@@ -692,7 +690,7 @@ class Part(QObject):
         if connectedVh in neighbors:
             neighborIdx = neighbors.index(connectedVh)
             try:
-                newIdx = util.nearest(idx+delta, preXovers(strandType, neighborIdx))
+                newIdx = util.nearest(idx+delta, preXovers(strandType, neighborIdx, minIdx=minIdx, maxIdx=maxIdx))
                 return newIdx
             except ValueError:
                 return None  # nearest not found in the expanded list

@@ -199,6 +199,7 @@ class EmptyHelixItem(QGraphicsEllipseItem):
     def autoScafMidSeam(self, strands):
         """docstring for autoScafMidSeam"""
         part = self.part()
+        strandType = StrandType.Scaffold
         idx = part.activeBaseIndex()
         for i in range(1, len(strands)):
             row1, col1, sSidx1 = strands[i-1]  # previous strand
@@ -215,8 +216,8 @@ class EmptyHelixItem(QGraphicsEllipseItem):
                     # resize and install external xovers
                     try:
                         # resize to the nearest prexover on either side of idx
-                        newLo = util.nearest(idx, part.getPreXoversHigh(StrandType.Scaffold, p2, idx))
-                        newHi = util.nearest(idx, part.getPreXoversLow(StrandType.Scaffold, p2, idx))
+                        newLo = util.nearest(idx, part.getPreXoversHigh(strandType, p2, maxIdx=idx))
+                        newHi = util.nearest(idx, part.getPreXoversLow(strandType, p2, minIdx=idx))
                         strand1.resize((newLo, newHi))
                         strand2.resize((newLo, newHi))
                         # install xovers
@@ -236,8 +237,8 @@ class EmptyHelixItem(QGraphicsEllipseItem):
                             l1, h1 = strand1.idxs()
                             oLow, oHigh = util.overlap(l0, h0, l1, h1)
                             try:
-                                lX = filter(lambda x:x>oLow and x<oHigh, part.getPreXoversLow(StrandType.Scaffold, p0))[0]
-                                hX = filter(lambda x:x>oLow and x<oHigh, part.getPreXoversHigh(StrandType.Scaffold, p0))[0]
+                                lX = filter(lambda x:x>oLow and x<oHigh, part.getPreXoversLow(strandType, p0))[0]
+                                hX = filter(lambda x:x>oLow and x<oHigh, part.getPreXoversHigh(strandType, p0))[0]
                                 # install high xover first
                                 part.createXover(strand0, hX, strand1, hX)
                                 # install low xover after getting new strands
@@ -268,8 +269,8 @@ class EmptyHelixItem(QGraphicsEllipseItem):
                     # resize and install external xovers
                     try:
                         # resize to the nearest prexover on either side of idx
-                        newLo = util.nearest(idx, part.getPreXoversHigh(StrandType.Scaffold, p2, idx-3))
-                        newHi = util.nearest(idx, part.getPreXoversLow(StrandType.Scaffold, p2, idx+10))
+                        newLo = util.nearest(idx, part.getPreXoversHigh(StrandType.Scaffold, p2, maxIdx=idx-3))
+                        newHi = util.nearest(idx, part.getPreXoversLow(StrandType.Scaffold, p2, minIdx=idx+10))
                         if vh1.number() == 0:
                             strand1.resize((newLo, newHi))
                         else:
@@ -287,7 +288,7 @@ class EmptyHelixItem(QGraphicsEllipseItem):
                     idx = part.activeBaseIndex()
                     try:
                         # resize to the nearest prexover on either side of idx
-                        newLo = util.nearest(idx, part.getPreXoversHigh(StrandType.Scaffold, p2, idx-10))
+                        newLo = util.nearest(idx, part.getPreXoversHigh(StrandType.Scaffold, p2, maxIdx=idx-10))
                         strand1.resize((newLo, strand1.highIdx()))
                         strand2.resize((newLo, strand2.highIdx()))
                         # install xovers
