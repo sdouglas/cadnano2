@@ -251,8 +251,14 @@ class Document(QObject):
         for strandSetDict in self._selectionDict.itervalues():
             for strand, value in strandSetDict.iteritems():
                 idxL, idxH = strand.idxs()
-                idxL = idxL+delta if value[0] else idxL
-                idxH = idxH+delta if value[1] else idxH
+                # idxL = idxL+delta if value[0] else idxL
+                # idxH = idxH+delta if value[1] else idxH
+                if value[0]:
+                    part = strand.virtualHelix().part()
+                    newIdx = part.xoverSnapTo()
+                    
+                else:
+                    idxL
                 Strand.resize(strand, (idxL,idxH), useUndoStack)
             # end for
         # end for

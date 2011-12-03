@@ -316,9 +316,9 @@ class EndpointItem(QGraphicsPathItem):
         parent strandItem to redraw its horizontal line.
         """
         idx = util.clamp(idx, self._lowDragBound, self._highDragBound)
-        x = int(idx * _baseWidth)
-        self.setPos(x, self.y())
-        self._strandItem.updateLine(self)
+        # x = int(idx * _baseWidth)
+        # self.setPos(x, self.y())
+        # self._strandItem.updateLine(self)
     # end def
 
     def selectToolMouseRelease(self, modifiers, x):
@@ -332,9 +332,9 @@ class EndpointItem(QGraphicsPathItem):
         """
         mStrand = self._strandItem._modelStrand
         baseIdx = int(floor(self.x() / _baseWidth))
-        if baseIdx != self.idx():
-            newIdxs = self._getNewIdxsForResize(baseIdx)
-            mStrand.resize(newIdxs)
+        # if baseIdx != self.idx():
+        #     newIdxs = self._getNewIdxsForResize(baseIdx)
+        #     mStrand.resize(newIdxs)
 
         if modifiers & Qt.AltModifier:
             if self._capType == 'low':
@@ -343,6 +343,8 @@ class EndpointItem(QGraphicsPathItem):
                 newIdxs = self._getNewIdxsForResize(self._highDragBound)
             mStrand.resize(newIdxs)
         elif modifiers & Qt.ShiftModifier:
+            self.setSelected(False)
+            self.restoreParent()
             mStrand.merge(self.idx())
     # end def
 
