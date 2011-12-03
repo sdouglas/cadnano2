@@ -674,8 +674,6 @@ class Part(QObject):
         """
         Returns the nearest xover position to allow snap-to behavior in
         resizing strands via dragging selected xovers.
-        
-        
         """
         strandType = strand.strandType()
 
@@ -683,10 +681,10 @@ class Part(QObject):
         lo, hi = strand.idxs()
         if idx == lo:
             connectedStrand = strand.connectionLow()
-            preXovers = self.getPreXoversLow
+            preXovers = self.getPreXoversHigh
         else:
             connectedStrand = strand.connectionHigh()
-            preXovers = self.getPreXoversHigh
+            preXovers = self.getPreXoversLow
         connectedVh = connectedStrand.virtualHelix()
 
         # determine neighbor position, if any
