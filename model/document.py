@@ -254,11 +254,23 @@ class Document(QObject):
                 # idxL = idxL+delta if value[0] else idxL
                 # idxH = idxH+delta if value[1] else idxH
                 if value[0]:
-                    part = strand.virtualHelix().part()
-                    newIdx = part.xoverSnapTo()
-                    
+                    # check for Xovers
+                    if strand.connectionLow():
+                        part = strand.virtualHelix().part()
+                        idxL = part.xoverSnapTo(strand, idxL, delta)
+                    else:
+                        idxL = idxL+delta
                 else:
                     idxL
+                if value[1]:
+                    # check for Xovers
+                    if strand.connectionHigh():
+                        part = strand.virtualHelix().part()
+                        idxH = part.xoverSnapTo(strand, idxH, delta)
+                    else:
+                        idxH = idxH+delta
+                else:
+                    idxH
                 Strand.resize(strand, (idxL,idxH), useUndoStack)
             # end for
         # end for
