@@ -52,7 +52,7 @@ def selectionCallback(clientData):
     helixList = []
 
     m = Mom()
-    m.updateSelectionBoxes()
+    # m.updateSelectionBoxes()
 
     manipulator = None
     manipObject = OpenMaya.MObject()
@@ -90,7 +90,7 @@ def selectionCallback(clientData):
                 #print "selectionCallback ", dagNode.name(), helixNode
         selectionIter.next()
     m.staplePreDecoratorSelected(decoratorList)
-    m.strandsSelected(helixList)
+    # m.strandsSelected(helixList)
 
 
 class mayaSelectionContext(OpenMayaMPx.MPxSelectionContext):
