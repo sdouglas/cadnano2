@@ -504,8 +504,10 @@ class StrandItem(QGraphicsLineItem):
     # end def
 
     def selectToolMousePress(self, idx):
-        self._viewroot.setSelectionLock(None)
+        selectionGroup = self.viewroot().strandItemSelectionGroup()
+        selectionGroup.setInstantAdd(True)
         self.setSelected(True)
+        self._viewroot.setSelectionLock(None)
     # end def
 
     def pencilToolMousePress(self, idx):
@@ -653,6 +655,7 @@ class StrandItem(QGraphicsLineItem):
                     selectionGroup.pendToAdd(self._highCap)
                     return True
                 else:
+                    selectionGroup.setInstantAdd(False)
                     return False
             # end if
             elif value == True:

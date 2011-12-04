@@ -457,10 +457,12 @@ class EndpointHandleSelectionBox(QGraphicsPathItem):
     # end def
 
     def painterPath(self):
+        bw = self._baseWidth
         iG = self._itemGroup
         # the childrenBoundingRect is necessary to get this to work
         rect = self.mapRectFromItem(iG,iG.childrenBoundingRect() )
-
+        if rect.width() < bw:
+            rect.adjust(-bw/4, 0, bw/2, 0)
         path = QPainterPath()
         path.addRect(rect)
         # path.addRoundedRect(rect, radius, radius)

@@ -255,6 +255,7 @@ class XoverItem(QGraphicsPathItem):
         self.hide()
         self.setFlag(QGraphicsItem.ItemStacksBehindParent)
         self.setFlag(QGraphicsItem.ItemIsSelectable)
+        self._updatePen(strandItem.strand())
     # end def
 
     ### SLOTS ###
@@ -404,7 +405,7 @@ class XoverItem(QGraphicsPathItem):
         painterpath.lineTo(threeExitPt)
 
         self.setPath(painterpath)
-        self._updatePen(strand5p)
+        # self._updatePen(strand5p)
         node3.updatePositionAndAppearance()
         node5.updatePositionAndAppearance()
     # end def
@@ -422,10 +423,20 @@ class XoverItem(QGraphicsPathItem):
     # end def
 
     ### EVENT HANDERS ###
-    # def mousePressEvent(self, event):
-    #     print "XOI sucka", self.zValue()
-    #     return QGraphicsPathItem.mousePressEvent(self, event)
-    # # end def 
+    def mousePressEvent(self, event):
+        """
+        Special case for xovers and select tool, for now
+        """
+        if self.activeTool() == "selectTool":
+            # print "XOI sucka"
+            sI = self._strandItem
+            viewroot = sI.viewroot()
+            selectionGroup = viewroot.strandItemSelectionGroup()
+            selectionGroup.setInstantAdd(True)
+            self.setSelected(True)
+        else:
+            return QGraphicsPathItem.mousePressEvent(self, event)
+    # end def 
     
     def eraseToolMousePress(self):
         """Erase the strand."""
@@ -492,6 +503,7 @@ class XoverItem(QGraphicsPathItem):
                     self.penAndBrushSet(True)
                     return True
                 else:
+                    selectionGroup.setInstantAdd(False)
                     return False
             # end if
             elif value == True:
