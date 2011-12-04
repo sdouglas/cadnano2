@@ -172,7 +172,7 @@ class Document(QObject):
         for strand, value in selectedStrandList:
             while strand != sSList[sSIdx]:
                 # incase there are gaps due to double xovers
-                ssIdx += 1
+                sSIdx += 1
             # end while
             idxL, idxH = strand.idxs()
             if value[0]:    # the end is selected
