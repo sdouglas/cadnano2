@@ -412,7 +412,7 @@ class XoverItem(QGraphicsPathItem):
     
     def _updateColor(self, strand):
         oligo = strand.oligo()
-        color = self.pen().color if self.isSelected() else QColor(oligo.color())
+        color = self.pen().color() if self.isSelected() else QColor(oligo.color())
         self._updateHighlight(strand, color)
     # end def
 
