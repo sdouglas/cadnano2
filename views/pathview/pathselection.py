@@ -272,7 +272,7 @@ class SelectionItemGroup(QGraphicsItemGroup):
             if self._addedToPressList == False:
                 # self._lastKid += 1
                 print "kid added"
-                self._baseClick = 0
+                self._instantAdd = 1
                 self.setParentItem(self.selectionbox.boxParent())
                 self._addedToPressList = True
                 self.scene().views()[0].addToPressList(self)

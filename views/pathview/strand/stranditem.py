@@ -159,7 +159,7 @@ class StrandItem(QGraphicsLineItem):
         strand = self._modelStrand
         self._updateColor(strand)
         if strand.connection3p():
-            self._xover3pEnd._updatePen(strand)
+            self._xover3pEnd._updateColor(strand)
         for insertion in self.insertionItems().itervalues():
             insertion.updateItem()
     # end def
