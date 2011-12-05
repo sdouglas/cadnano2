@@ -91,6 +91,7 @@ class StrandItem(QGraphicsLineItem):
         # xover comming from the 3p end
         self._xover3pEnd = XoverItem(self, virtualHelixItem)
         # initial refresh
+        self._updateColor(modelStrand)
         self._updateAppearance(modelStrand)
 
         self.setZValue(styles.ZSTRANDITEM)
