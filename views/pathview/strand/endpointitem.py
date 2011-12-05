@@ -298,7 +298,7 @@ class EndpointItem(QGraphicsPathItem):
         """
         Set the allowed drag bounds for use by selectToolMouseMove.
         """
-        print "mouse press"
+        print "mouse press ep", self.parentItem()
         # print "%s.%s [%d]" % (self, util.methodName(), self.idx())
         self._lowDragBound, self._highDragBound = \
                     self._strandItem._modelStrand.getResizeBounds(self.idx())
@@ -401,6 +401,8 @@ class EndpointItem(QGraphicsPathItem):
             # only add if the selectionGroup is not locked out
             if value == True and self._filterName in currentFilterDict:
                 if self.group() != selectionGroup and sI.strandFilter() in currentFilterDict:
+                    print "ep gonna addd"
+                    selectionGroup.setInstantAdd(True)
                     selectionGroup.pendToAdd(self)
                     selectionGroup.setSelectionLock(selectionGroup)
                     self.penAndBrushSet(True)

@@ -114,7 +114,8 @@ class CustomQGraphicsView(QGraphicsView):
         # Event handling
         self._hasFocus = False
         # Misc
-        self._pressList = []  # bookkeeping to handle passing mouseevents
+        self._pressListIdx = 0
+        self._pressList = [[],[]]  # bookkeeping to handle passing mouseevents
         self.toolbar = None  # custom hack for the paint tool palette
         self._name = None
         
@@ -165,7 +166,7 @@ class CustomQGraphicsView(QGraphicsView):
 
     def addToPressList(self, item):
         """docstring for addToPressList"""
-        self._pressList.append(item)
+        self._pressList[self._pressListIdx].append(item)
     # end def
 
     def keyPanDeltaX(self):
@@ -305,13 +306,16 @@ class CustomQGraphicsView(QGraphicsView):
         else:
             if len(self._pressList):  # Notify any pressed items to release
                 event_pos = event.pos()
-                for item in self._pressList:
+                temp = self._pressList[self._pressListIdx]
+                oldIdx = self._pressListIdx
+                self._pressListIdx = (oldIdx+1) & 1
+                for item in temp:
                     #try:
                     item.customMouseRelease(event)
                     #except:
                     #    item.mouseReleaseEvent(event)
                 #end for
-                self._pressList = []
+                self._pressList[oldIdx] = []
             # end if
             if self._selectionLock:
                 self._selectionLock.processPendingToAddList()
