@@ -266,7 +266,7 @@ class SelectionItemGroup(QGraphicsItemGroup):
                 if self._addedToPressList == False:
                     self._addedToPressList = True
                     self.scene().views()[0].addToPressList(self)
-                self._instantAdd = 0
+                    self._instantAdd = 0
                 return True
         elif change == QGraphicsItem.ItemChildAddedChange:
             if self._addedToPressList == False:
