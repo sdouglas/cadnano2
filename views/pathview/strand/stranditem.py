@@ -156,7 +156,7 @@ class StrandItem(QGraphicsLineItem):
 
     def oligoAppearanceChangedSlot(self, oligo):
         strand = self._modelStrand
-        self._updatePensAndBrushes(strand)
+        self._updateColor(strand)
         if strand.connection3p():
             self._xover3pEnd._updatePen(strand)
         for insertion in self.insertionItems().itervalues():
@@ -174,7 +174,7 @@ class StrandItem(QGraphicsLineItem):
     def strandHasNewOligoSlot(self, strand):
         strand = self._modelStrand
         self._controller.reconnectOligoSignals()
-        self._updatePensAndBrushes(strand)
+        self._updateColor(strand)
         if strand.connection3p():
             self._xover3pEnd._updatePen(strand)
     # end def
@@ -369,12 +369,20 @@ class StrandItem(QGraphicsLineItem):
         self.setLine(lx, ly, hx, hy)
         rectf = QRectF(lUpperLeftX+bw, lUpperLeftY, bw*(highIdx-lowIdx-1), bw)
         self._clickArea.setRect(rectf)
-        self._updatePensAndBrushes(strand)
+        self._updateHighlight(self.pen().color())
     # end def
 
-    def _updatePensAndBrushes(self, strand):
+    def _updateColor(self, strand):
         oligo = self._modelStrand.oligo()
         color = QColor(oligo.color())
+        self._updateHighlight(color)
+    # end def
+    
+    def _updateHighlight(self, color):
+        """
+        
+        """
+        oligo = self._modelStrand.oligo()
         penWidth = styles.PATH_STRAND_STROKE_WIDTH
         if oligo.shouldHighlight():
             color.setAlpha(128)
@@ -383,9 +391,9 @@ class StrandItem(QGraphicsLineItem):
         brush = QBrush(color)
         pen.setCapStyle(Qt.FlatCap)
         self.setPen(pen)
-        self._lowCap.setBrush(brush)
-        self._highCap.setBrush(brush)
-        self._dualCap.setBrush(brush)
+        self._lowCap.updateHighlight(brush)
+        self._highCap.updateHighlight(brush)
+        self._dualCap.updateHighlight(brush)
     # end def
 
     def _updateSequenceText(self):

@@ -383,7 +383,12 @@ class EndpointItem(QGraphicsPathItem):
         brush.setColor(color)
         self.setBrush(brush)
     # end def
-
+    
+    def updateHighlight(self, brush):
+        if not self.isSelected():
+            self.setBrush(brush)
+    # end def
+    
     def itemChange(self, change, value):
         # for selection changes test against QGraphicsItem.ItemSelectedChange
         # intercept the change instead of the has changed to enable features.

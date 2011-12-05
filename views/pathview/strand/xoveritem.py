@@ -405,7 +405,7 @@ class XoverItem(QGraphicsPathItem):
         painterpath.lineTo(threeExitPt)
 
         self.setPath(painterpath)
-        # self._updatePen(strand5p)
+        self._updatePen(strand5p)
         node3.updatePositionAndAppearance()
         node5.updatePositionAndAppearance()
     # end def
