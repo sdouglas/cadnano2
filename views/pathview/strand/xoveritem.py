@@ -426,13 +426,18 @@ class XoverItem(QGraphicsPathItem):
         """
         Special case for xovers and select tool, for now
         """
-        if self.activeTool() == "selectTool":
-            # print "XOI sucka"
+        if str(self.activeTool()) == "selectTool":
             sI = self._strandItem
             viewroot = sI.viewroot()
-            selectionGroup = viewroot.strandItemSelectionGroup()
-            selectionGroup.setInstantAdd(True)
-            self.setSelected(True)
+            currentFilterDict = viewroot.selectionFilterDict()
+            if sI.strandFilter() in currentFilterDict and self._filterName in currentFilterDict:
+                selectionGroup = viewroot.strandItemSelectionGroup()
+                selectionGroup.setInstantAdd(True, True)
+                selectionGroup.setSelectionLock(selectionGroup)
+                self.penAndBrushSet(True)
+                selectionGroup.pendToAdd(self)
+                selectionGroup.processPendingToAddList()
+                selectionGroup.mousePressEvent(event)
         else:
             return QGraphicsPathItem.mousePressEvent(self, event)
     # end def 
@@ -497,10 +502,16 @@ class XoverItem(QGraphicsPathItem):
             
             # only add if the selectionGroup is not locked out
             if value == True and (self._filterName in currentFilterDict or not selectionGroup.isNormalSelect()):
-                if self.group() != selectionGroup and sI.strandFilter() in currentFilterDict:
+                # if self.group() != selectionGroup and sI.strandFilter() in currentFilterDict:
+                if sI.strandFilter() in currentFilterDict:
+                    print "What up", selectionGroup.isNormalSelect(), selectionGroup.isInstantAdd()
                     if selectionGroup.isNormalSelect():
-                        selectionGroup.pendToAdd(self)
-                        selectionGroup.setSelectionLock(selectionGroup)
+                        "pring bosss"
+                        if selectionGroup.isInstantAdd():
+                            print "yexxxxx"
+                        else:
+                            selectionGroup.pendToAdd(self)
+                            selectionGroup.setSelectionLock(selectionGroup)
                     self.penAndBrushSet(True)
                     return True
                 else:

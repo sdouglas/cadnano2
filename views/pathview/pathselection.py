@@ -34,7 +34,7 @@ from math import floor
 import util
 
 # import Qt stuff into the module namespace with PySide, PyQt4 independence
-util.qtWrapImport('QtCore', globals(), ['Qt', 'QPointF', 'QEvent'])
+util.qtWrapImport('QtCore', globals(), ['Qt', 'QPointF', 'QEvent', 'QRectF'])
 util.qtWrapImport('QtGui', globals(), [ 'QPen', 'QBrush', 'QColor', 'qApp',\
                                         'QGraphicsItem', \
                                         'QGraphicsItemGroup',\
@@ -52,7 +52,8 @@ class SelectionItemGroup(QGraphicsItemGroup):
         self.setFlag(QGraphicsItem.ItemIsSelectable)
         self.setFlag(QGraphicsItem.ItemIsFocusable) # for keyPressEvents
         self.setFlag(QGraphicsItem.ItemHasNoContents)
-
+        
+        self._rect = QRectF()
         self._pen = QPen(styles.bluestroke, styles.PATH_SELECTBOX_STROKE_WIDTH)
 
         self.selectionbox = boxtype(self)
@@ -63,7 +64,7 @@ class SelectionItemGroup(QGraphicsItemGroup):
 
         self._r0 = 0  # save original mousedown
         self._r = 0  # latest position for moving
-
+        
         # self._lastKid = 0
 
         # this keeps track of mousePressEvents within the class
@@ -84,6 +85,10 @@ class SelectionItemGroup(QGraphicsItemGroup):
         
         self.setZValue(styles.ZPATHSELECTION)
     # end def
+    
+    # def paint(self, painter, option, widget):
+    #     painter.drawRect(self.boundingRect())
+    # # end def
 
     def pendToAdd(self, item):
         self._pendingToAddDict[item] = True
@@ -119,20 +124,25 @@ class SelectionItemGroup(QGraphicsItemGroup):
         doc.updateSelection()
     # end def
     
-    def setInstantAdd(self, boolval):
+    def setInstantAdd(self, boolval, isClick=False):
         if boolval:
-            self._baseClick = 0
             self._instantAdd = 1
         else:
             self._instantAdd = 0
+        if isClick:
+            self._instantAdd = 3
     # end def
 
-    def paint(self, painter, option, widget=None):
-        # painter.setBrush(QBrush(QColor(255,128,255,128)))
-        painter.setPen(QPen(styles.redstroke))
-        painter.drawRect(self.boundingRect())
-        pass
+    def isInstantAdd(self):
+        return self._instantAdd == 3
     # end def
+
+    # def paint(self, painter, option, widget=None):
+    #     # painter.setBrush(QBrush(QColor(255,128,255,128)))
+    #     painter.setPen(QPen(styles.redstroke))
+    #     painter.drawRect(self.boundingRect())
+    #     pass
+    # # end def
 
     def selectionLock(self):
         return self._viewroot.selectionLock()
@@ -161,6 +171,7 @@ class SelectionItemGroup(QGraphicsItemGroup):
 
     def mousePressEvent(self, event):
         print "select mp"
+        # self.show()
         self._instantAdd = 1
         if event.button() != Qt.LeftButton:
             QGraphicsItemGroup.mousePressEvent(self, event)
@@ -247,6 +258,9 @@ class SelectionItemGroup(QGraphicsItemGroup):
             self.removeSelectedItems()
             self._viewroot.setSelectionLock(None)
             self.clearFocus() # this is to disable delete keyPressEvents
+            self.prepareGeometryChange()
+            self._rect.setWidth(0)
+            # self._rect = QRectF()
         # end if
         else:
             self.setFocus() # this is to get delete keyPressEvents
@@ -263,6 +277,7 @@ class SelectionItemGroup(QGraphicsItemGroup):
                 return False
             else:
                 print "clear instant add"
+                self._instantAdd = 2
                 if self._addedToPressList == False:
                     self._addedToPressList = True
                     self.scene().views()[0].addToPressList(self)
@@ -316,6 +331,16 @@ class SelectionItemGroup(QGraphicsItemGroup):
             for item in self._tempList:
                 self.addToGroup(item)
             # end for
+    # end def
+    
+    def setBoundingRect(self, rect):
+        self.prepareGeometryChange()
+        self._rect = rect
+    # end def
+    
+    def boundingRect(self):
+        return self._rect
+        
 # end class
 
 
@@ -463,11 +488,14 @@ class EndpointHandleSelectionBox(QGraphicsPathItem):
         bw = self._baseWidth
         iG = self._itemGroup
         # the childrenBoundingRect is necessary to get this to work
-        rect = self.mapRectFromItem(iG,iG.childrenBoundingRect() )
+        rectIG = iG.childrenBoundingRect()
+        rect = self.mapRectFromItem(iG,rectIG )
         if rect.width() < bw:
             rect.adjust(-bw/4, 0, bw/2, 0)
         path = QPainterPath()
         path.addRect(rect)
+        self._itemGroup.setBoundingRect(rectIG)
+        
         # path.addRoundedRect(rect, radius, radius)
         # path.moveTo(rect.right(),\
         #                  rect.center().y())

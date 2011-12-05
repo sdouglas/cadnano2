@@ -513,10 +513,17 @@ class StrandItem(QGraphicsLineItem):
     # end def
 
     def selectToolMousePress(self, idx):
-        selectionGroup = self.viewroot().strandItemSelectionGroup()
-        selectionGroup.setInstantAdd(True)
-        self.setSelected(True)
-        self._viewroot.setSelectionLock(None)
+        currentFilterDict = self._viewroot.selectionFilterDict()
+        if self.strandFilter() in currentFilterDict and self._filterName in currentFilterDict:
+            selectionGroup = self._viewroot.strandItemSelectionGroup()
+            selectionGroup.setInstantAdd(True, True)
+            selectionGroup.setSelectionLock(selectionGroup)
+            self.penAndBrushSet(True)
+            selectionGroup.pendToAdd(self)
+            selectionGroup.pendToAdd(self._lowCap)
+            selectionGroup.pendToAdd(self._highCap)
+            selectionGroup.processPendingToAddList()
+            selectionGroup.mousePressEvent(event)
     # end def
 
     def pencilToolMousePress(self, idx):
@@ -659,11 +666,14 @@ class StrandItem(QGraphicsLineItem):
             # only add if the selectionGroup is not locked out
             if value == True and (self._filterName in currentFilterDict or not selectionGroup.isNormalSelect()):
                 if self.group() != selectionGroup and self._strandFilter in currentFilterDict:
-                    selectionGroup.pendToAdd(self)
-                    selectionGroup.setSelectionLock(selectionGroup)
-                    self.penAndBrushSet(True)
-                    selectionGroup.pendToAdd(self._lowCap)
-                    selectionGroup.pendToAdd(self._highCap)
+                    if selectionGroup.isInstantAdd():
+                         print "yepppppp"
+                    else:
+                        selectionGroup.pendToAdd(self)
+                        selectionGroup.setSelectionLock(selectionGroup)
+                        self.penAndBrushSet(True)
+                        selectionGroup.pendToAdd(self._lowCap)
+                        selectionGroup.pendToAdd(self._highCap)
                     return True
                 else:
                     selectionGroup.setInstantAdd(False)

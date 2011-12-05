@@ -35,8 +35,8 @@ import util
 # import Qt stuff into the module namespace with PySide, PyQt4 independence
 util.qtWrapImport('QtCore', globals(), ['pyqtSignal', 'QObject', 'QPointF',
                                         'QRectF', 'Qt'])
-util.qtWrapImport('QtGui', globals(), ['QGraphicsPathItem', 'QPen', 'QGraphicsItem', \
-                                        'QPainterPath', 'QPolygonF', \
+util.qtWrapImport('QtGui', globals(), ['QGraphicsPathItem', 'QPen', 'QGraphicsItem',\
+                                        'QPainterPath', 'QPolygonF',\
                                         'QGraphicsRectItem', 'QBrush', 'QColor'])
 
 _baseWidth = styles.PATH_BASE_WIDTH
@@ -190,7 +190,7 @@ class EndpointItem(QGraphicsPathItem):
         toolMethodName = activeToolStr + "MousePress"
         if hasattr(self, toolMethodName):  # if the tool method exists
             modifiers = event.modifiers()
-            getattr(self, toolMethodName)(modifiers)  # call tool method
+            getattr(self, toolMethodName)(modifiers, event)  # call tool method
 
     def hoverMoveEvent(self, event):
         """
@@ -228,7 +228,7 @@ class EndpointItem(QGraphicsPathItem):
             del self._moveIdx
 
     ### TOOL METHODS ###
-    def addSeqToolMousePress(self, modifiers):
+    def addSeqToolMousePress(self, modifiers, event):
         """
         Checks that a scaffold was clicked, and then calls apply sequence
         to the clicked strand via its oligo.
@@ -244,13 +244,13 @@ class EndpointItem(QGraphicsPathItem):
             mStrand.merge(self.idx())
     # end def
 
-    def eraseToolMousePress(self, idx):
+    def eraseToolMousePress(self, idx, event):
         """Erase the strand."""
         mStrand = self._strandItem._modelStrand
         mStrand.strandSet().removeStrand(mStrand)
     # end def
 
-    def insertionToolMousePress(self, idx):
+    def insertionToolMousePress(self, idx, event):
         """Add an insert to the strand if possible."""
         mStrand = self._strandItem._modelStrand
         mStrand.addInsertion(idx, 1)
@@ -294,7 +294,22 @@ class EndpointItem(QGraphicsPathItem):
             activeTool.attemptToCreateXover(vhi, mStrand, idx)
     # end def
 
-    def selectToolMousePress(self, modifiers):
+    # def selectToolMousePress(self, modifiers, event):
+    #     """
+    #     Set the allowed drag bounds for use by selectToolMouseMove.
+    #     """
+    #     print "mouse press ep", self.parentItem()
+    #     # print "%s.%s [%d]" % (self, util.methodName(), self.idx())
+    #     self._lowDragBound, self._highDragBound = \
+    #                 self._strandItem._modelStrand.getResizeBounds(self.idx())
+    #     sI = self._strandItem
+    #     viewroot = sI.viewroot()
+    #     selectionGroup = viewroot.strandItemSelectionGroup()
+    #     selectionGroup.setInstantAdd(True)
+    #     self.setSelected(True)
+    # # end def
+    
+    def selectToolMousePress(self, modifiers, event):
         """
         Set the allowed drag bounds for use by selectToolMouseMove.
         """
@@ -304,9 +319,15 @@ class EndpointItem(QGraphicsPathItem):
                     self._strandItem._modelStrand.getResizeBounds(self.idx())
         sI = self._strandItem
         viewroot = sI.viewroot()
-        selectionGroup = viewroot.strandItemSelectionGroup()
-        selectionGroup.setInstantAdd(True)
-        self.setSelected(True)
+        currentFilterDict = viewroot.selectionFilterDict()
+        if sI.strandFilter() in currentFilterDict and self._filterName in currentFilterDict:
+            selectionGroup = viewroot.strandItemSelectionGroup()
+            selectionGroup.setInstantAdd(True, True)
+            selectionGroup.setSelectionLock(selectionGroup)
+            self.penAndBrushSet(True)
+            selectionGroup.pendToAdd(self)
+            selectionGroup.processPendingToAddList()
+            selectionGroup.mousePressEvent(event)
     # end def
 
     def selectToolMouseMove(self, modifiers, idx):
@@ -402,12 +423,16 @@ class EndpointItem(QGraphicsPathItem):
     
             # only add if the selectionGroup is not locked out
             if value == True and self._filterName in currentFilterDict:
-                if self.group() != selectionGroup and sI.strandFilter() in currentFilterDict:
+                # if self.group() != selectionGroup and sI.strandFilter() in currentFilterDict:
+                if sI.strandFilter() in currentFilterDict:
                     print "ep gonna addd"
-                    selectionGroup.setInstantAdd(True)
-                    selectionGroup.pendToAdd(self)
-                    selectionGroup.setSelectionLock(selectionGroup)
-                    self.penAndBrushSet(True)
+                    if selectionGroup.isInstantAdd():
+                        print "yepppppp"
+                    else: 
+                        selectionGroup.setInstantAdd(True)
+                        selectionGroup.pendToAdd(self)
+                        selectionGroup.setSelectionLock(selectionGroup)
+                        self.penAndBrushSet(True)
                     return True
                 else:
                     selectionGroup.setInstantAdd(False)
