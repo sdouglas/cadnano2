@@ -641,6 +641,8 @@ class StrandItem(QGraphicsLineItem):
         else:
             oligo = self._modelStrand.oligo()
             color = QColor(oligo.color())
+            if oligo.shouldHighlight():
+                color.setAlpha(128)
         pen = self.pen()
         pen.setColor(color)
         self.setPen(pen)

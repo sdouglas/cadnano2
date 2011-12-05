@@ -379,6 +379,8 @@ class EndpointItem(QGraphicsPathItem):
         else:
             oligo = self._strandItem.strand().oligo()
             color = QColor(oligo.color())
+            if oligo.shouldHighlight():
+                color.setAlpha(128)
         brush = self.brush()
         brush.setColor(color)
         self.setBrush(brush)

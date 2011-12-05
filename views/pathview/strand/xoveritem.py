@@ -255,7 +255,6 @@ class XoverItem(QGraphicsPathItem):
         self.hide()
         self.setFlag(QGraphicsItem.ItemStacksBehindParent)
         self.setFlag(QGraphicsItem.ItemIsSelectable)
-        self._updateColor(strandItem.strand())
     # end def
 
     ### SLOTS ###
@@ -405,7 +404,7 @@ class XoverItem(QGraphicsPathItem):
         painterpath.lineTo(threeExitPt)
 
         self.setPath(painterpath)
-        self._updateHighlight(strand5p, self.pen().color())
+        self._updateColor(strand5p)
         node3.updatePositionAndAppearance()
         node5.updatePositionAndAppearance()
     # end def
@@ -413,11 +412,6 @@ class XoverItem(QGraphicsPathItem):
     def _updateColor(self, strand):
         oligo = strand.oligo()
         color = self.pen().color() if self.isSelected() else QColor(oligo.color())
-        self._updateHighlight(strand, color)
-    # end def
-
-    def _updateHighlight(self, strand5p, color):
-        oligo = strand5p.oligo()
         penWidth = styles.PATH_STRAND_STROKE_WIDTH
         if oligo.shouldHighlight():
             penWidth = styles.PATH_STRAND_HIGHLIGHT_STROKE_WIDTH
@@ -485,6 +479,8 @@ class XoverItem(QGraphicsPathItem):
         else:
             oligo = self._strandItem.strand().oligo()
             color = QColor(oligo.color())
+            if oligo.shouldHighlight():
+                color.setAlpha(128)   
         pen = self.pen()
         pen.setColor(color)
         self.setPen(pen)
