@@ -52,7 +52,7 @@ def selectionCallback(clientData):
     helixList = []
 
     m = Mom()
-    # m.updateSelectionBoxes()
+    m.updateSelectionBoxes()
 
     manipulator = None
     manipObject = OpenMaya.MObject()
@@ -80,7 +80,6 @@ def selectionCallback(clientData):
             if helixNode:
                 helixList.append(helixName)
                 if manipulator is None:
-                    # create manipulator if one does not already exist
                     manipulator = \
                             OpenMayaMPx.MPxManipContainer.newManipulator(
                                                 "spHelixManip", manipObject)
@@ -90,6 +89,8 @@ def selectionCallback(clientData):
                 #print "selectionCallback ", dagNode.name(), helixNode
         selectionIter.next()
     m.staplePreDecoratorSelected(decoratorList)
+    if manipulator is not None:
+        manipulator.finishedAddingHelices()
     # m.strandsSelected(helixList)
 
 
