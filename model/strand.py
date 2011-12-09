@@ -35,6 +35,7 @@ from decorators.insertion import Insertion
 util.qtWrapImport('QtCore', globals(), ['pyqtSignal', 'QObject', 'Qt'])
 util.qtWrapImport('QtGui', globals(), ['QUndoStack', 'QUndoCommand'])
 
+
 class Strand(QObject):
     """
     A Strand is a continuous stretch of bases that are all in the same
@@ -49,7 +50,7 @@ class Strand(QObject):
 
     Strands can be linked to other strands by "connections". References to
     connected strands are named "_strand5p" and "_strand3p", which correspond
-    to the 5' and 3' phosphate linkages in the physical DNA strand, 
+    to the 5' and 3' phosphate linkages in the physical DNA strand,
     respectively. Since Strands can point 5'-to-3' in either the low-to-high
     or high-to-low directions, connection accessor methods (connectionLow and
     connectionHigh) are bound during the init for convenience.
@@ -90,7 +91,7 @@ class Strand(QObject):
 
     def __repr__(self):
         clsName = self.__class__.__name__
-        s = "%s.<%s(%s, %s)>"%(self._strandSet.__repr__(), clsName, self._baseIdxLow, self._baseIdxHigh)
+        s = "%s.<%s(%s, %s)>" % (self._strandSet.__repr__(), clsName, self._baseIdxLow, self._baseIdxHigh)
         return s
 
     def generator3pStrand(self):
@@ -109,7 +110,7 @@ class Strand(QObject):
             if node == self:
                 originalCount += 1
     # end def
-    
+
     def strandFilter(self):
         return self._strandSet.strandFilter()
 
@@ -117,9 +118,9 @@ class Strand(QObject):
     strandHasNewOligoSignal = pyqtSignal(QObject)
     strandRemovedSignal = pyqtSignal(QObject)
     strandResizedSignal = pyqtSignal(QObject, tuple)
-    strandXover5pChangedSignal = pyqtSignal(QObject, QObject) # strand3p, strand5p
-    strandXover5pRemovedSignal = pyqtSignal(QObject, QObject) # strand3p, strand5p
-    strandUpdateSignal = pyqtSignal(QObject) # strand
+    strandXover5pChangedSignal = pyqtSignal(QObject, QObject)  # strand3p, strand5p
+    strandXover5pRemovedSignal = pyqtSignal(QObject, QObject)  # strand3p, strand5p
+    strandUpdateSignal = pyqtSignal(QObject)  # strand
     strandInsertionAddedSignal = pyqtSignal(QObject, object)    # strand, insertion object
     strandInsertionChangedSignal = pyqtSignal(QObject, object)    # strand, insertion object
     strandInsertionRemovedSignal = pyqtSignal(QObject, int)     # strand, insertion index
@@ -133,8 +134,6 @@ class Strand(QObject):
     selectedChangedSignal = pyqtSignal(QObject, tuple)        # strand, value
 
     ### SLOTS ###
-
-
     ### ACCESSORS ###
     def undoStack(self):
         return self._strandSet.undoStack()
@@ -185,7 +184,7 @@ class Strand(QObject):
             return None, None
         length = self.totalLength()
         if len(sequenceString) < length:
-            bonus = length-len(sequenceString)
+            bonus = length - len(sequenceString)
             sequenceString += ''.join([' ' for x in range(bonus)])
         temp = sequenceString[0:length]
         self._sequence = temp
@@ -210,7 +209,7 @@ class Strand(QObject):
 
         Will refine later by checking for lattice neighbors in 3D.
         """
-        return range(self._baseIdxLow, self._baseIdxHigh+1)
+        return range(self._baseIdxLow, self._baseIdxHigh + 1)
     # end def
 
     # def getPreDecoratorIdxList(self):
@@ -258,7 +257,7 @@ class Strand(QObject):
 
         totalLength = self.totalLength()
 
-        # see if we are applying 
+        # see if we are applying
         if sequenceString == None:
             # clear out string for in case of not total overlap
             useSeq = ''.join([' ' for x in range(totalLength)])
@@ -267,17 +266,17 @@ class Strand(QObject):
 
         temp = array('c', useSeq)
         if self._sequence == None or refreshSeq:
-            tempSelf = array('c', ''.join([' ' for x in range(totalLength)]) )
+            tempSelf = array('c', ''.join([' ' for x in range(totalLength)]))
         else:
             tempSelf = array('c', self._sequence if self._isDrawn5to3 else self._sequence[::-1])
 
         # generate the index into the compliment string
-        a = self.insertionLengthBetweenIdxs(sLowIdx, lowIdx-1)
+        a = self.insertionLengthBetweenIdxs(sLowIdx, lowIdx - 1)
         b = self.insertionLengthBetweenIdxs(lowIdx, highIdx)
-        c = strand.insertionLengthBetweenIdxs(cLowIdx, lowIdx-1)
+        c = strand.insertionLengthBetweenIdxs(cLowIdx, lowIdx - 1)
         start = lowIdx - cLowIdx + c
-        end = start + b + highIdx-lowIdx +1
-        tempSelf[lowIdx-sLowIdx+a:highIdx-sLowIdx+1 + a+ b] = temp[start:end]
+        end = start + b + highIdx - lowIdx + 1
+        tempSelf[lowIdx - sLowIdx + a:highIdx - sLowIdx + 1 + a + b] = temp[start:end]
         self._sequence = tempSelf.tostring()
 
         # if we need to reverse it do it now
@@ -330,8 +329,8 @@ class Strand(QObject):
         [(idx, (strandItemString, insertionItemString), ...]
 
         This takes advantage of the fact the python iterates a dictionary
-        by keys in order so if keys are indices, the insertions will iterate out
-        from low index to high index 
+        by keys in order so if keys are indices, the insertions will iterate
+        out from low index to high index
         """
         seqList = []
         isDrawn5to3 = self._isDrawn5to3
@@ -352,7 +351,7 @@ class Strand(QObject):
                 offset -= 1
             # end if
             lengthSoFar += iLength
-            seqItem = seq[offsetLast:offset] # the stranditem seq
+            seqItem = seq[offsetLast:offset]  # the stranditem seq
 
             # Because skips literally skip displaying a character at a base
             # position, this needs to be accounted for seperately
@@ -361,16 +360,16 @@ class Strand(QObject):
                 offsetLast = offset
             else:
                 offsetLast = offset + iLength
-            seqInsertion = seq[offset:offsetLast] # the insertions sequence
+            seqInsertion = seq[offset:offsetLast]  # the insertions sequence
             seqList.append((index, (seqItem, seqInsertion)))
         # end for
         # append the last bit of the strand
-        seqList.append((lI+tL, (seq[offsetLast:tL],'')))
+        seqList.append((lI + tL, (seq[offsetLast:tL], '')))
         if not isDrawn5to3:
             # reverse it again so all sub sequences are from 5' to 3'
             for i in range(len(seqList)):
                 index, temp = seqList[i]
-                seqList[i] = (index, (temp[0][::-1], temp[1][::-1]) )
+                seqList[i] = (index, (temp[0][::-1], temp[1][::-1]))
         return seqList
     # end def
 
@@ -392,16 +391,16 @@ class Strand(QObject):
         neighbors = self._strandSet.getNeighbors(self)
         if idx == self._baseIdxLow:
             if neighbors[0]:
-                low = neighbors[0].highIdx()+1
+                low = neighbors[0].highIdx() + 1
             else:
                 low = self.part().minBaseIdx()
-            return low, self._baseIdxHigh-1
+            return low, self._baseIdxHigh - 1
         else:  # self._baseIdxHigh
             if neighbors[1]:
-                high = neighbors[1].lowIdx()-1
+                high = neighbors[1].lowIdx() - 1
             else:
                 high = self.part().maxBaseIdx()
-            return self._baseIdxLow+1, high
+            return self._baseIdxLow + 1, high
     # end def
 
     def hasXoverAt(self, idx):
@@ -419,7 +418,7 @@ class Strand(QObject):
     def canInstallXoverAt(self, idx, fromStrand, fromIdx):
         """
         Assumes idx is:
-        self.lowIdx() <= idx <= self.highIdx() 
+        self.lowIdx() <= idx <= self.highIdx()
         """
 
         if self.hasXoverAt(idx):
@@ -432,7 +431,7 @@ class Strand(QObject):
         isDrawn5to3 = sS.isDrawn5to3()
         indexDiffH = self.highIdx() - idx
         indexDiffL = idx - self.lowIdx()
-        index3Lim = self.idx3Prime() - 1 if isDrawn5to3 else self.idx3Prime()+1
+        index3Lim = self.idx3Prime() - 1 if isDrawn5to3 else self.idx3Prime() + 1
         if isSameStrand:
             indexDiffStrands = fromIdx - idx
             if idx == self.idx5Prime() or idx == index3Lim:
@@ -517,7 +516,9 @@ class Strand(QObject):
                 if length < 0:
                     length = -1
                 cmds.append(Strand.AddInsertionCommand(self, idx, length))
-                util.execCommandList(self, cmds, desc="Add Insertion", useUndoStack=useUndoStack)
+                util.execCommandList(
+                                    self, cmds, desc="Add Insertion",
+                                    useUndoStack=useUndoStack)
             # end if
         # end if
     # end def
@@ -535,8 +536,11 @@ class Strand(QObject):
                     # make sure length is -1 if a skip
                     if length < 0:
                         length = -1
-                    cmds.append(Strand.ChangeInsertionCommand(self, idx, length))
-                    util.execCommandList(self, cmds, desc="Change Insertion", useUndoStack=useUndoStack)
+                    cmds.append(
+                            Strand.ChangeInsertionCommand(self, idx, length))
+                    util.execCommandList(
+                                        self, cmds, desc="Change Insertion",
+                                        useUndoStack=useUndoStack)
             # end if
         # end if
     # end def
@@ -567,7 +571,9 @@ class Strand(QObject):
         if idxLow <= idx <= idxHigh:
             if self.hasInsertionAt(idx):
                 c = Strand.RemoveInsertionCommand(self, idx)
-                util.execCommandList(self, [c], desc="Remove Insertion", useUndoStack=useUndoStack)
+                util.execCommandList(
+                                    self, [c], desc="Remove Insertion",
+                                    useUndoStack=useUndoStack)
             # end if
         # end if
     # end def
@@ -578,7 +584,9 @@ class Strand(QObject):
             cmds.append(self.oligo().applySequenceCMD(None))
         cmds += self.getRemoveInsertionCommands(newIdxs)
         cmds.append(Strand.ResizeCommand(self, newIdxs))
-        util.execCommandList(self, cmds, desc="Resize strand", useUndoStack=useUndoStack)
+        util.execCommandList(
+                            self, cmds, desc="Resize strand",
+                            useUndoStack=useUndoStack)
     # end def
 
     def setConnection3p(self, strand):
@@ -616,11 +624,11 @@ class Strand(QObject):
     ### PUBLIC SUPPORT METHODS ###
     def getRemoveInsertionCommands(self, newIdxs):
         """
-        Removes Insertions, Decorators, and Modifiers that have fallen out of 
-        range of newIdxs.  
-        
+        Removes Insertions, Decorators, and Modifiers that have fallen out of
+        range of newIdxs.
+
         For insertions, it finds the ones that have neither Staple nor Scaffold
-        strands at the insertion idx as a result of the change of this 
+        strands at the insertion idx as a result of the change of this
         strand to newIdxs
 
         """
@@ -632,12 +640,12 @@ class Strand(QObject):
         lowOut, highOut = False, False
         insertions = []
         if cIdxL < nIdxL < cIdxH:
-            idxL, idxH = cIdxL, nIdxL-1
+            idxL, idxH = cIdxL, nIdxL - 1
             insertions += self.insertionsOnStrand(idxL, idxH)
         else:
             lowOut = True
         if cIdxL < nIdxH < cIdxH:
-            idxL, idxH = nIdxH+1, cIdxH
+            idxL, idxH = nIdxH + 1, cIdxH
             insertions += self.insertionsOnStrand(idxL, idxH)
         else:
             highOut = True
@@ -649,14 +657,14 @@ class Strand(QObject):
 
         return self.clearInsertionsCommands(insertions, cIdxL, cIdxH)
     # end def
-    
+
     def clearInsertionsCommands(self, insertions, idxL, idxH):
         """
         clear out insertions in this range
         """
         commands = []
         compSS = self.strandSet().complementStrandSet()
-        
+
         overlappingStrandList = compSS.getOverlappingStrands(idxL, idxH)
         for insertion in insertions:
             idx = insertion.idx()
@@ -668,7 +676,7 @@ class Strand(QObject):
                 #end if
             # end for
             if removeMe:
-                commands.append(Strand.RemoveInsertionCommand(self, idx))   
+                commands.append(Strand.RemoveInsertionCommand(self, idx))
             else:
                 pass
                 # print "keeping %s insertion at %d" % (self, key)
@@ -677,7 +685,7 @@ class Strand(QObject):
         ### ADD CODE HERE TO HANDLE DECORATORS AND MODIFIERS
         return commands
     # end def
-    
+
     def clearDecoratorCommands(self):
         insertions = self.insertionsOnStrand()
         return self.clearInsertionsCommands(insertions, *self.idxs())
@@ -709,7 +717,7 @@ class Strand(QObject):
         nS._strand3p = self._strand3p
         # required to shallow copy the dictionary
         nS._decorators = dict(self._decorators.items())
-        nS._sequence = None# self._sequence
+        nS._sequence = None  # self._sequence
         return nS
     # end def
 
@@ -737,7 +745,7 @@ class Strand(QObject):
             self.oldIndices = oI = strand.idxs()
             self.newIdxs = newIdxs
             # an increase in length leads to positive delta
-            self.delta = (newIdxs[1]-newIdxs[0])-(oI[1]-oI[0])
+            self.delta = (newIdxs[1] - newIdxs[0]) - (oI[1] - oI[0])
         # end def
 
         def redo(self):
@@ -765,7 +773,7 @@ class Strand(QObject):
             part = strandSet.part()
 
             std.oligo().decrementLength(self.delta)
-            std.setIdxs(oI) 
+            std.setIdxs(oI)
             if strandSet.isStaple():
                 std.reapplySequence()
             std.strandResizedSignal.emit(std, oI)
@@ -786,7 +794,8 @@ class Strand(QObject):
             self._idx = idx
             self._length = length
             self._insertion = Insertion(idx, length)
-            self._compStrand = strand.strandSet().complementStrandSet().getStrand(idx)
+            self._compStrand = \
+                        strand.strandSet().complementStrandSet().getStrand(idx)
         # end def
 
         def redo(self):
@@ -824,7 +833,8 @@ class Strand(QObject):
             coord = strand.virtualHelix().coord()
             self._insertions = strand.part().insertions()[coord]
             self._insertion = self._insertions[idx]
-            self._compStrand = strand.strandSet().complementStrandSet().getStrand(idx)
+            self._compStrand = \
+                        strand.strandSet().complementStrandSet().getStrand(idx)
         # end def
 
         def redo(self):
@@ -869,7 +879,8 @@ class Strand(QObject):
             self._idx = idx
             self._newLength = newLength
             self._oldLength = self._insertions[idx].length()
-            self._compStrand = strand.strandSet().complementStrandSet().getStrand(idx)
+            self._compStrand = \
+                        strand.strandSet().complementStrandSet().getStrand(idx)
         # end def
 
         def redo(self):
@@ -877,10 +888,11 @@ class Strand(QObject):
             cStrand = self._compStrand
             inst = self._insertions[self._idx]
             inst.setLength(self._newLength)
-            strand.oligo().incrementLength(self._newLength-self._oldLength)
+            strand.oligo().incrementLength(self._newLength - self._oldLength)
             strand.strandInsertionChangedSignal.emit(strand, inst)
             if cStrand:
-                cStrand.oligo().incrementLength(self._newLength-self._oldLength)
+                cStrand.oligo().incrementLength(
+                                            self._newLength - self._oldLength)
                 cStrand.strandInsertionChangedSignal.emit(cStrand, inst)
         # end def
 
@@ -889,10 +901,11 @@ class Strand(QObject):
             cStrand = self._compStrand
             inst = self._insertions[self._idx]
             inst.setLength(self._oldLength)
-            strand.oligo().decrementLength(self._newLength-self._oldLength)
+            strand.oligo().decrementLength(self._newLength - self._oldLength)
             strand.strandInsertionChangedSignal.emit(strand, inst)
             if cStrand:
-                cStrand.oligo().decrementLength(self._newLength-self._oldLength)
+                cStrand.oligo().decrementLength(
+                                            self._newLength - self._oldLength)
                 cStrand.strandInsertionChangedSignal.emit(cStrand, inst)
         # end def
     # end class
