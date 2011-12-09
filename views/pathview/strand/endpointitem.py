@@ -48,35 +48,35 @@ ppR3 = QPainterPath()  # Right 3' PainterPath
 pp53 = QPainterPath()  # Left 5', Right 3' PainterPath
 pp35 = QPainterPath()  # Left 5', Right 3' PainterPath
 # set up ppL5 (left 5' blue square)
-ppL5.addRect(0.25*_baseWidth, 0.125*_baseWidth,0.75*_baseWidth, 0.75*_baseWidth)
+ppL5.addRect(0.25 * _baseWidth, 0.125 * _baseWidth, 0.75 * _baseWidth, 0.75 * _baseWidth)
 # set up ppR5 (right 5' blue square)
-ppR5.addRect(0, 0.125*_baseWidth, 0.75*_baseWidth, 0.75*_baseWidth)
+ppR5.addRect(0, 0.125 * _baseWidth, 0.75 * _baseWidth, 0.75 * _baseWidth)
 # set up ppL3 (left 3' blue triangle)
 l3poly = QPolygonF()
 l3poly.append(QPointF(_baseWidth, 0))
-l3poly.append(QPointF(0.25*_baseWidth, 0.5*_baseWidth))
+l3poly.append(QPointF(0.25 * _baseWidth, 0.5 * _baseWidth))
 l3poly.append(QPointF(_baseWidth, _baseWidth))
 ppL3.addPolygon(l3poly)
 # set up ppR3 (right 3' blue triangle)
 r3poly = QPolygonF()
 r3poly.append(QPointF(0, 0))
-r3poly.append(QPointF(0.75*_baseWidth, 0.5*_baseWidth))
+r3poly.append(QPointF(0.75 * _baseWidth, 0.5 * _baseWidth))
 r3poly.append(QPointF(0, _baseWidth))
 ppR3.addPolygon(r3poly)
 
 # single base left 5'->3'
-pp53.addRect(0, 0.125*_baseWidth, 0.5*_baseWidth, 0.75*_baseWidth)
+pp53.addRect(0, 0.125 * _baseWidth, 0.5 * _baseWidth, 0.75 * _baseWidth)
 poly53 = QPolygonF()
-poly53.append(QPointF(0.5*_baseWidth, 0))
-poly53.append(QPointF(_baseWidth, 0.5*_baseWidth))
-poly53.append(QPointF(0.5*_baseWidth, _baseWidth))
+poly53.append(QPointF(0.5 * _baseWidth, 0))
+poly53.append(QPointF(_baseWidth, 0.5 * _baseWidth))
+poly53.append(QPointF(0.5 * _baseWidth, _baseWidth))
 pp53.addPolygon(poly53)
 # single base left 3'<-5'
-pp35.addRect(0.50*_baseWidth, 0.125*_baseWidth, 0.5*_baseWidth, 0.75*_baseWidth)
+pp35.addRect(0.50 * _baseWidth, 0.125 * _baseWidth, 0.5 * _baseWidth, 0.75 * _baseWidth)
 poly35 = QPolygonF()
-poly35.append(QPointF(0.5*_baseWidth, 0))
-poly35.append(QPointF(0, 0.5*_baseWidth))
-poly35.append(QPointF(0.5*_baseWidth, _baseWidth))
+poly35.append(QPointF(0.5 * _baseWidth, 0))
+poly35.append(QPointF(0, 0.5 * _baseWidth))
+poly35.append(QPointF(0.5 * _baseWidth, _baseWidth))
 pp35.addPolygon(poly35)
 
 _defaultRect = QRectF(0, 0, _baseWidth, _baseWidth)
@@ -84,9 +84,9 @@ _noPen = QPen(Qt.NoPen)
 
 
 class EndpointItem(QGraphicsPathItem):
-    
+
     _filterName = "endpoint"
-    
+
     def __init__(self, strandItem, captype, isDrawn5to3):
         """The parent should be a StrandItem."""
         super(EndpointItem, self).__init__(strandItem.virtualHelixItem())
@@ -123,7 +123,7 @@ class EndpointItem(QGraphicsPathItem):
         else:  # high or dual, doesn't matter
             return self._strandItem.idxs()[1]
     # end def
-    
+
     def partItem(self):
         return self._strandItem.partItem()
     # end def
@@ -140,7 +140,7 @@ class EndpointItem(QGraphicsPathItem):
     ### PUBLIC METHODS FOR DRAWING / LAYOUT ###
     def updatePosIfNecessary(self, idx):
         """Update position if necessary and return True if updated."""
-        x = int(idx*_baseWidth)
+        x = int(idx * _baseWidth)
         if x != self.x():
             self.setPos(x, self.y())
             return True
@@ -208,7 +208,7 @@ class EndpointItem(QGraphicsPathItem):
         """
         toolMethodName = str(self._activeTool()) + "MouseMove"
         if hasattr(self, toolMethodName):  # if the tool method exists
-            idx = int(floor((self.x()+event.pos().x()) / _baseWidth))
+            idx = int(floor((self.x() + event.pos().x()) / _baseWidth))
             if idx != self._moveIdx:  # did we actually move?
                 modifiers = event.modifiers()
                 self._moveIdx = idx
@@ -308,7 +308,7 @@ class EndpointItem(QGraphicsPathItem):
     #     selectionGroup.setInstantAdd(True)
     #     self.setSelected(True)
     # # end def
-    
+
     def selectToolMousePress(self, modifiers, event):
         """
         Set the allowed drag bounds for use by selectToolMouseMove.
@@ -384,7 +384,7 @@ class EndpointItem(QGraphicsPathItem):
         self.penAndBrushSet(False)
         self.setSelected(False)
     # end def
-    
+
     def tempReparent(self, pos=None):
         vhItem = self._strandItem.virtualHelixItem()
         if pos == None:
@@ -406,12 +406,12 @@ class EndpointItem(QGraphicsPathItem):
         brush.setColor(color)
         self.setBrush(brush)
     # end def
-    
+
     def updateHighlight(self, brush):
         if not self.isSelected():
             self.setBrush(brush)
     # end def
-    
+
     def itemChange(self, change, value):
         # for selection changes test against QGraphicsItem.ItemSelectedChange
         # intercept the change instead of the has changed to enable features.
@@ -420,7 +420,7 @@ class EndpointItem(QGraphicsPathItem):
             viewroot = sI.viewroot()
             currentFilterDict = viewroot.selectionFilterDict()
             selectionGroup = viewroot.strandItemSelectionGroup()
-    
+
             # only add if the selectionGroup is not locked out
             if value == True and self._filterName in currentFilterDict:
                 # if self.group() != selectionGroup and sI.strandFilter() in currentFilterDict:
@@ -428,7 +428,7 @@ class EndpointItem(QGraphicsPathItem):
                     print "ep gonna addd"
                     if selectionGroup.isInstantAdd():
                         print "yepppppp"
-                    else: 
+                    else:
                         selectionGroup.setInstantAdd(True)
                         selectionGroup.pendToAdd(self)
                         selectionGroup.setSelectionLock(selectionGroup)
@@ -455,7 +455,7 @@ class EndpointItem(QGraphicsPathItem):
         # end if
         return QGraphicsPathItem.itemChange(self, change, value)
     # end def
-    
+
     def modelDeselect(self, document):
         strand = self._strandItem.strand()
         test = document.isModelStrandSelected(strand)
@@ -470,7 +470,7 @@ class EndpointItem(QGraphicsPathItem):
             document.addStrandToSelection(strand, outValue)
         self.restoreParent()
     # end def
-    
+
     def modelSelect(self, document):
         strand = self._strandItem.strand()
         test = document.isModelStrandSelected(strand)
@@ -482,7 +482,7 @@ class EndpointItem(QGraphicsPathItem):
         self.setSelected(True)
         document.addStrandToSelection(strand, outValue)
     # end def
-    
+
     def paint(self, painter, option, widget):
         painter.setPen(self.pen())
         painter.setBrush(self.brush())
