@@ -63,8 +63,10 @@ class ActiveSliceItem(QGraphicsRectItem):
         newlyActiveVHs = set()
         activeBaseIdx = part.activeBaseIndex()
         for vhi in self._partItem._virtualHelixHash.itervalues():
-            isActiveNow = vhi.virtualHelix().hasStrandAtIdx(activeBaseIdx)
-            vhi.setActiveSliceView(isActiveNow)
+            vh = vhi.virtualHelix()
+            if vh:
+                isActiveNow = vh.hasStrandAtIdx(activeBaseIdx)
+                vhi.setActiveSliceView(isActiveNow)
     # end def
 
     def updateRectSlot(self, part):
