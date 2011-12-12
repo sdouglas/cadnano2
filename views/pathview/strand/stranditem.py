@@ -177,7 +177,7 @@ class StrandItem(QGraphicsLineItem):
         self._controller.reconnectOligoSignals()
         self._updateColor(strand)
         if strand.connection3p():
-            self._xover3pEnd._updatePen(strand)
+            self._xover3pEnd._updateColor(strand)
     # end def
 
     def strandInsertionAddedSlot(self, strand, insertion):

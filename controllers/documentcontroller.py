@@ -244,6 +244,8 @@ class DocumentController():
         2. If document is dirty, call maybeSave and continue if it succeeds.
         3. Create a new document and swap it into the existing ctrlr/window.
         """
+        # clear/reset the view!
+        
         if len(self._document.parts()) == 0:
             print "No existing parts, so no new document"
             return  # no parts
@@ -448,6 +450,7 @@ class DocumentController():
     ### PRIVATE SUPPORT METHODS ###
     def newDocument(self, doc=None, fname=None):
         """Creates a new Document, reusing the DocumentController."""
+        self._document.resetViews()
         self._document.removeAllParts()  # clear out old parts
         self._document.undoStack().clear()  # reset undostack
         self._filename = fname if fname else "untitled.nno"

@@ -124,6 +124,14 @@ class SelectionItemGroup(QGraphicsItemGroup):
         doc.updateSelection()
     # end def
     
+    def resetSelection(self):
+        self._pendingToAddDict = {}
+        self._addedToPressList = False
+        self.clearSelection(False)
+        self.selectionbox.setParentItem(self._viewroot)
+        self.setParentItem(self._viewroot)
+    # end def
+    
     def setInstantAdd(self, boolval, isClick=False):
         if boolval:
             self._instantAdd = 1

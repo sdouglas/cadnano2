@@ -70,7 +70,10 @@ class SolidRootItem(object):
         for filterName in filterNameList:
             self.addToSelectionFilterDict(filterName)
     # end def
-
+    
+    def resetRootItemSlot(self, doc):
+        pass
+    # end def
 
     ### METHODS ###
     
