@@ -91,7 +91,7 @@ def selectionCallback(clientData):
     m.staplePreDecoratorSelected(decoratorList)
     if manipulator is not None:
         manipulator.finishedAddingHelices()
-    # m.strandsSelected(helixList)
+    m.strandsSelected(helixList)
 
 
 class mayaSelectionContext(OpenMayaMPx.MPxSelectionContext):

@@ -62,6 +62,9 @@ class Document(QObject):
     # e.g. { objectRef: (value0, value1),  ...}
     documentSelectedChangedSignal = pyqtSignal(dict)   # dict of tuples of items and data 
     documentSelectionFilterChangedSignal = pyqtSignal(list)
+    
+    documentViewResetSignal = pyqtSignal(QObject)
+    
     ### SLOTS ###
 
     ### ACCESSORS ###
@@ -294,6 +297,17 @@ class Document(QObject):
         self._selectedChangedDict = {}
         # for sS in self._selectionDict:
         #     print self.sortedSelectedStrands(sS)
+    # end def
+
+    def resetViews(self):
+        # This is a fast way to clear selections and the views.
+        # We could manually deselect each item from the Dict, but we'll just 
+        # let them be garbage collect
+        # the dictionary maintains what is selected
+        self._selectionDict = {}
+        # the added list is what was recently selected or deselected
+        self._selectedChangedDict = {}
+        self.documentViewResetSignal.emit(self)
     # end def
 
     ### PUBLIC METHODS FOR EDITING THE MODEL ###

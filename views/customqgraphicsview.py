@@ -87,12 +87,12 @@ class CustomQGraphicsView(QGraphicsView):
         self.setTransformationAnchor(QGraphicsView.AnchorUnderMouse)
         self.setRubberBandSelectionMode(Qt.IntersectsItemShape)
         self.setStyleSheet("QGraphicsView { background-color: rgb(96.5%, 96.5%, 96.5%); }")
-        # Pan and dolly defaults
-        self._transformEnable = False
-        self._dollyZoomEnable = False
         self._noDrag = QGraphicsView.RubberBandDrag
         self._yesDrag = QGraphicsView.ScrollHandDrag
-        self.setDragMode(self._noDrag)
+        
+        # reset things that are state dependent
+        self.clearGraphicsView()
+        
         self._x0 = 0
         self._y0 = 0
         self._scale_size = 1.0
@@ -111,11 +111,7 @@ class CustomQGraphicsView(QGraphicsView):
         self._button_pan = Qt.LeftButton
         self._button_pan_alt = Qt.MidButton
         self._button_zoom = Qt.RightButton
-        # Event handling
-        self._hasFocus = False
-        # Misc
-        self._pressListIdx = 0
-        self._pressList = [[],[]]  # bookkeeping to handle passing mouseevents
+
         self.toolbar = None  # custom hack for the paint tool palette
         self._name = None
         
@@ -135,6 +131,18 @@ class CustomQGraphicsView(QGraphicsView):
 
     def setName(self, name):
         self._name = name
+    
+    def clearGraphicsView(self):
+        # Event handling
+        self._hasFocus = False
+        # Misc
+        self._pressListIdx = 0
+        self._pressList = [[],[]]  # bookkeeping to handle passing mouseevents
+        # Pan and dolly defaults
+        self._transformEnable = False
+        self._dollyZoomEnable = False
+        self.setDragMode(self._noDrag)
+    # end def
 
     def focusInEvent(self, event):
         self._hasFocus = True

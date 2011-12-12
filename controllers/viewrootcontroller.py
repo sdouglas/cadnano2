@@ -35,6 +35,7 @@ class ViewRootController():
         mD.documentPartAddedSignal.connect(vR.partAddedSlot)
         mD.documentSelectedChangedSignal.connect(vR.selectedChangedSlot)
         mD.documentSelectionFilterChangedSignal.connect(vR.selectionFilterChangedSlot)
+        mD.documentViewResetSignal.connect(vR.resetRootItemSlot)
         
     def disconnectSignals(self):
         mD = self._modelDocument
@@ -42,3 +43,4 @@ class ViewRootController():
         mD.documentPartAddedSignal.disconnect(vR.partAddedSlot)
         mD.documentSelectedChangedSignal.disconnect(vR.selectedChangedSlot)
         mD.documentSelectionFilterChangedSignal.disconnect(vR.selectionFilterChangedSlot)
+        mD.documentViewResetSignal.disconnect(vR.resetRootItemSlot)

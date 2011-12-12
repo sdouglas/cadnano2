@@ -108,8 +108,8 @@ class EndpointItem(QGraphicsPathItem):
         self.setFlag(QGraphicsItem.ItemIsSelectable)
     # end def
 
-    def __repr__(self):
-        return "%s" % self.__class__.__name__
+    # def __repr__(self):
+    #     return "%s" % self.__class__.__name__
 
     ### SIGNALS ###
 

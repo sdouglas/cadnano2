@@ -91,6 +91,12 @@ class PathRootItem(QGraphicsRectItem):
             self.addToSelectionFilterDict(filterName)
     # end def
 
+    def resetRootItemSlot(self, doc):
+        self._vhiHSelectionGroup.resetSelection()
+        self._strandItemSelectionGroup.resetSelection()
+        self.scene().views()[0].clearGraphicsView()
+    # end def
+
     ### ACCESSORS ###
     def sliceToolManager(self):
         """
@@ -103,11 +109,11 @@ class PathRootItem(QGraphicsRectItem):
     def window(self):
         return self._window
     # end def
-    
+
     def document(self):
         return self._document
     # end def
-    
+
     def _initSelections(self):
         """Initialize anything related to multiple selection."""
         bType = VirtualHelixHandleSelectionBox

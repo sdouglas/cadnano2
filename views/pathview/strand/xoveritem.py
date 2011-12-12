@@ -255,6 +255,14 @@ class XoverItem(QGraphicsPathItem):
         self.hide()
         self.setFlag(QGraphicsItem.ItemStacksBehindParent)
         self.setFlag(QGraphicsItem.ItemIsSelectable)
+        
+        # for easier mouseclick
+        self._clickArea = cA = QGraphicsRectItem(self)
+        # self._clickArea.setAcceptHoverEvents(True)
+        # cA.hoverMoveEvent = self.hoverMoveEvent
+        cA.mousePressEvent = self.mousePressEvent
+        cA.mouseMoveEvent = self.mouseMoveEvent
+        cA.setPen(QPen(Qt.NoPen))
     # end def
 
     ### SLOTS ###
@@ -403,6 +411,9 @@ class XoverItem(QGraphicsPathItem):
         painterpath.lineTo(threeCenterPt)
         painterpath.lineTo(threeExitPt)
 
+        tempR = painterpath.boundingRect()
+        # tempR.adjust(-bw/2, 0, bw, 0)
+        self._clickArea.setRect(tempR)
         self.setPath(painterpath)
         self._updateColor(strand5p)
         node3.updatePositionAndAppearance()
@@ -504,11 +515,9 @@ class XoverItem(QGraphicsPathItem):
             if value == True and (self._filterName in currentFilterDict or not selectionGroup.isNormalSelect()):
                 # if self.group() != selectionGroup and sI.strandFilter() in currentFilterDict:
                 if sI.strandFilter() in currentFilterDict:
-                    print "What up", selectionGroup.isNormalSelect(), selectionGroup.isInstantAdd()
                     if selectionGroup.isNormalSelect():
-                        "pring bosss"
                         if selectionGroup.isInstantAdd():
-                            print "yexxxxx"
+                            pass
                         else:
                             selectionGroup.pendToAdd(self)
                             selectionGroup.setSelectionLock(selectionGroup)

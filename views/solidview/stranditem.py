@@ -91,7 +91,7 @@ class StrandItem(object):
         self.updateSize()
         self._virtualHelixItem.updateDecorators()
         m = Mom()
-        # m.updateSelectionBoxes()
+        m.updateSelectionBoxes()
 
     def strandUpdateSlot(self, strand):
         """strandUpdateSlot - empty"""
@@ -203,6 +203,8 @@ class StrandItem(object):
     def selectedChangedSlot(self, strand, indices):
         #print "solidview.stranditem.selectedChangedSlot", strand, indices
         mom = Mom()
+        if mom.ignoreExternalSelectionSiganl:
+            return
         mID = mom.strandMayaID(strand)
         mom.ignoreExternalSelectionSiganl = True
         transformName = "%s%s" % (mom.helixTransformName, mID)
