@@ -502,7 +502,6 @@ class ForcedXoverNode3(QGraphicsRectItem):
             lbl.setFont(_toHelixNumFont)
             self._label = lbl
 
-            # print "setting label"
             lbl.setText( str(self._partnerVirtualHelix.number()) )
             lbl.show()
         # end if
@@ -668,7 +667,6 @@ class ForcedXoverItem(QGraphicsPathItem):
         are potentially None and represent the base at floatPos.
 
         """
-        # print "updating xover curve", self.parentObject()
         node3 = self._node3
         node5 = self._node5
 
@@ -900,7 +898,7 @@ class EndpointItem(QGraphicsPathItem):
         necessary. Stores _moveIdx for future comparison.
         """
         self.scene().views()[0].addToPressList(self)
-        self._strandItem.virtualHelixItem().setActive()
+        self._strandItem.virtualHelixItem().setActive(self.idx())
         self._moveIdx = self.idx()
         activeToolStr = str(self._activeTool())
         if activeToolStr == 'pencilTool':

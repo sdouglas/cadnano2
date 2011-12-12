@@ -64,7 +64,7 @@ class SolidRootItem(object):
         """docstring for selectedChangedSlot"""
         pass
     # end def
-    
+
     def selectionFilterChangedSlot(self, filterNameList):
         self.clearSelectionFilterDict()
         for filterName in filterNameList:
@@ -74,9 +74,8 @@ class SolidRootItem(object):
     def resetRootItemSlot(self, doc):
         pass
     # end def
-
     ### METHODS ###
-    
+
     def selectedChanged(self, strandList):
         """is called from Mom when selection cheged in 3D"""
         for strand in self.oldSelectionStrandList:
@@ -88,7 +87,7 @@ class SolidRootItem(object):
         self._document.updateSelection()
         self.oldSelectionStrandList = strandList
         pass
-    
+
     def partItems(self):
         """Return a list of partItems associated with this RootItem"""
         return self._partItems
@@ -102,17 +101,17 @@ class SolidRootItem(object):
         self._modifyState = val
         for p in self._partItems:
             p.setModifyState(val)
-    
+
     def clearSelectionFilterDict(self):
         self._selectionFilterDict = {}
-    
+
     def selectionFilterDict(self):
         return self._selectionFilterDict
     # end def
-    
+
     def addToSelectionFilterDict(self, filterName):
         self._selectionFilterDict[filterName] = True
     # end def
-    
+
     def removeFromSelectionFilterDict(self, filterName):
         del self._selectionFilterDict[filterName]

@@ -205,9 +205,9 @@ class VirtualHelixItem(QGraphicsPathItem):
     # end def
 
     ### PUBLIC SUPPORT METHODS ###
-    def setActive(self):
+    def setActive(self, idx):
         """Makes active the virtual helix associated with this item."""
-        self.part().setActiveVirtualHelix(self._modelVirtualHelix)
+        self.part().setActiveVirtualHelix(self._modelVirtualHelix, idx)
     # end def
 
     ### EVENT HANDLERS ###
@@ -217,7 +217,8 @@ class VirtualHelixItem(QGraphicsPathItem):
         forwarding them to approproate tool method as necessary.
         """
         self.scene().views()[0].addToPressList(self)
-        self.setActive()
+        strandSet, idx = self.baseAtPoint(event.pos())
+        self.setActive(idx)
         toolMethodName = str(self._activeTool()) + "MousePress"
 
         ### uncomment for debugging modifier selection
@@ -226,7 +227,6 @@ class VirtualHelixItem(QGraphicsPathItem):
         # self._partItem.part().selectPreDecorator([(row,col,idx)])
 
         if hasattr(self, toolMethodName):
-            strandSet, idx = self.baseAtPoint(event.pos())
             self._lastStrandSet, self._lastIdx = strandSet, idx
             getattr(self, toolMethodName)(strandSet, idx)
     # end def

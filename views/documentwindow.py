@@ -40,14 +40,12 @@ util.qtWrapImport('QtGui', globals(), ['QAction', 'QApplication',
                                        'QGraphicsView', 'QMainWindow',
                                        'QGraphicsItem', 'QGraphicsRectItem',
                                        'QWidget', 'QPaintEngine'])
-
 # for OpenGL mode
+GL = False
 try:
     from OpenGL import GL
 except:
     GL = False
-
-GL = False
 
 class DocumentWindow(QMainWindow, ui_mainwindow.Ui_MainWindow):
     """docstring for DocumentWindow"""

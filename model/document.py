@@ -55,7 +55,7 @@ class Document(QObject):
 
     ### SIGNALS ###
     documentPartAddedSignal = pyqtSignal(QObject)  # part
-    
+
     # dict of tuples of objects using the reference as the key, and the value is
     # a tuple with meta data
     # in the case of strands the metadata would be which endpoints of selected
@@ -104,7 +104,7 @@ class Document(QObject):
         if sS in self._selectionDict:
             self._selectionDict[sS][strand] = value
         else:
-            self._selectionDict[sS] = { strand : value }
+            self._selectionDict[sS] = {strand: value}
         self._selectedChangedDict[strand] = value
     # end def
 
@@ -141,14 +141,14 @@ class Document(QObject):
     def getSelectedValue(self, obj):
         """
         obj is an objects to look up
-        it is prevetted to be in the dictionary 
+        it is prevetted to be in the dictionary
         """
         return self._selectionDict[obj]
 
     def getSelectedStrandValue(self, strand):
         """
         strand is an objects to look up
-        it is prevetted to be in the dictionary 
+        it is prevetted to be in the dictionary
         """
         return self._selectionDict[strand.strandSet()][strand]
     # end def
@@ -170,7 +170,7 @@ class Document(QObject):
         sSIdx = strandSet._findIndexOfRangeFor(selectedStrandList[0][0])[2]
         sSList = strandSet._strandList
         lenSSList = len(sSList)
-        maxSSIdx = lenSSList-1
+        maxSSIdx = lenSSList - 1
         i = 0
         for strand, value in selectedStrandList:
             while strand != sSList[sSIdx]:
@@ -180,13 +180,13 @@ class Document(QObject):
             idxL, idxH = strand.idxs()
             if value[0]:    # the end is selected
                 if sSIdx > 0:
-                    lowNeighbor = sSList[sSIdx-1]
+                    lowNeighbor = sSList[sSIdx - 1]
                     if lowNeighbor in sSDict:
                         valueN = sSDict[lowNeighbor]
                         # we only care if the low neighbor is not selected
                         temp = minLowDelta  if valueN[1] else idxL - lowNeighbor.highIdx() - 1
                     # end if
-                    else: # not selected
+                    else:  # not selected
                         temp = idxL - lowNeighbor.highIdx() - 1
                     # end else
                 else:
@@ -197,19 +197,19 @@ class Document(QObject):
                 # end if
                 # check the other end of the strand
                 if not value[1]:
-                    temp = idxH - idxL -1
+                    temp = idxH - idxL - 1
                     if temp < minHighDelta:
                         minHighDelta = temp
             # end if
             if value[1]:
                 if sSIdx < maxSSIdx:
-                    highNeighbor = sSList[sSIdx+1]
+                    highNeighbor = sSList[sSIdx + 1]
                     if highNeighbor in sSDict:
                         valueN = sSDict[highNeighbor]
                         # we only care if the low neighbor is not selected
-                        temp = minHighDelta if valueN[0] else highNeighbor.lowIdx() - idxH -1
+                        temp = minHighDelta if valueN[0] else highNeighbor.lowIdx() - idxH - 1
                     # end if
-                    else: # not selected
+                    else:  # not selected
                         temp = highNeighbor.lowIdx() - idxH - 1
                     # end else
                 else:
@@ -235,7 +235,8 @@ class Document(QObject):
         minHighDelta = -1
         for strandSet in self._selectionDict.iterkeys():
             selectedList = self.sortedSelectedStrands(strandSet)
-            tempLow, tempHigh = self.determineStrandSetBounds(selectedList, strandSet)
+            tempLow, tempHigh = self.determineStrandSetBounds(
+                                                    selectedList, strandSet)
             if tempLow < minLowDelta or minLowDelta < 0:
                 minLowDelta = tempLow
             if tempHigh < minHighDelta or minHighDelta < 0:
@@ -262,7 +263,7 @@ class Document(QObject):
                         part = strand.virtualHelix().part()
                         idxL = part.xoverSnapTo(strand, idxL, delta)
                     else:
-                        idxL = idxL+delta
+                        idxL = idxL + delta
                 else:
                     idxL
                 if value[1]:
@@ -271,10 +272,10 @@ class Document(QObject):
                         part = strand.virtualHelix().part()
                         idxH = part.xoverSnapTo(strand, idxH, delta)
                     else:
-                        idxH = idxH+delta
+                        idxH = idxH + delta
                 else:
                     idxH
-                Strand.resize(strand, (idxL,idxH), useUndoStack)
+                Strand.resize(strand, (idxL, idxH), useUndoStack)
             # end for
         # end for
         if useUndoStack:
@@ -283,7 +284,8 @@ class Document(QObject):
 
     def updateSelection(self):
         """
-        do it this way in the future when we have a better signaling architecture between views
+        do it this way in the future when we have
+        a better signaling architecture between views
         """
         # self.documentSelectedChangedSignal.emit(self._selectedChangedDict)
         """
@@ -354,7 +356,8 @@ class Document(QObject):
     def _addPart(self, part, useUndoStack=True):
         """Add part to the document via AddPartCommand."""
         c = self.AddPartCommand(self, part)
-        util.execCommandList(self, [c], desc="Add part", useUndoStack=useUndoStack)
+        util.execCommandList(
+                        self, [c], desc="Add part", useUndoStack=useUndoStack)
         return c.part()
     # end def
 
