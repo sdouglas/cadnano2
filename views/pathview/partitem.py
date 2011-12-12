@@ -99,14 +99,13 @@ class PartItem(QGraphicsRectItem):
         # print "PartItem.partParentChangedSlot"
         pass
     # end def
-    
+
     def partHideSlot(self, part):
         self.hide()
     # end def
 
     def partActiveVirtualHelixChangedSlot(self, part, virtualHelix):
-        if virtualHelix == part.activeVirtualHelix():
-            self.updatePreXoverItems()
+        self.updatePreXoverItems()
     #end def
 
     def partDimensionsChangedSlot(self, part):
@@ -192,7 +191,7 @@ class PartItem(QGraphicsRectItem):
 
     def updatePreXoverItemsSlot(self, virtualHelix):
         part = self.part()
-        if part.areVirtualHelicesNeighbors(part.activeVirtualHelix(), virtualHelix):
+        if part.areSameOrNeighbors(part.activeVirtualHelix(), virtualHelix):
             vhi = self.itemForVirtualHelix(virtualHelix)
             self.setActiveVirtualHelixItem(vhi)
             self.setPreXoverItemsVisible(self.activeVirtualHelixItem())
@@ -401,7 +400,7 @@ class PartItem(QGraphicsRectItem):
     def setActiveVirtualHelixItem(self, newActiveVHI):
         if newActiveVHI != self._activeVirtualHelixItem:
             self._activeVirtualHelixItem = newActiveVHI
-            self._modelPart.setActiveVirtualHelix(newActiveVHI.virtualHelix())
+            # self._modelPart.setActiveVirtualHelix(newActiveVHI.virtualHelix())
     # end def
 
     def setPreXoverItemsVisible(self, virtualHelixItem):
@@ -409,9 +408,6 @@ class PartItem(QGraphicsRectItem):
         self._preXoverItems list references prexovers parented to other
         PathHelices such that only the activeHelix maintains the list of
         visible prexovers
-
-        A possible more efficient solution is to maintain the list _preXoverItems
-        in pathhelixgroup, in fact this method should live in pathhelixgroup
         """
         vhi = virtualHelixItem
         if vhi == None:
@@ -421,12 +417,13 @@ class PartItem(QGraphicsRectItem):
         vh = vhi.virtualHelix()
         partItem = self
         part = self.part()
+        idx = part.activeVirtualHelixIdx()
 
         # clear all PreXoverItems
         map(PreXoverItem.remove, self._preXoverItems)
         self._preXoverItems = []
 
-        potentialXovers = part.potentialCrossoverList(vh)
+        potentialXovers = part.potentialCrossoverList(vh, idx)
         for neighbor, index, strandType, isLowIdx in potentialXovers:
             # create one half
             neighborVHI = self.itemForVirtualHelix(neighbor)

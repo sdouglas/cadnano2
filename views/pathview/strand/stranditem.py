@@ -457,10 +457,10 @@ class StrandItem(QGraphicsLineItem):
         forwarding them to approproate tool method as necessary.
         """
         self.scene().views()[0].addToPressList(self)
-        self._virtualHelixItem.setActive()
+        idx = int(floor((event.pos().x()) / _baseWidth))
+        self._virtualHelixItem.setActive(idx)
         toolMethodName = str(self._activeTool()) + "MousePress"
         if hasattr(self, toolMethodName):
-            idx = int(floor((event.pos().x()) / _baseWidth))
             getattr(self, toolMethodName)(idx)
     # end def
 
