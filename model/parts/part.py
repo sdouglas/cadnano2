@@ -96,6 +96,8 @@ class Part(QObject):
         # Runtime state
         self._activeBaseIndex = self._step
         self._activeVirtualHelix = None
+        self._activeVirtualHelixIdx = None
+
     # end def
 
     def __repr__(self):
@@ -152,6 +154,10 @@ class Part(QObject):
 
     def activeVirtualHelix(self):
          return self._activeVirtualHelix
+     # end def
+
+    def activeVirtualHelixIdx(self):
+         return self._activeVirtualHelixIdx
      # end def
 
     def dimensions(self):
@@ -649,9 +655,9 @@ class Part(QObject):
         self.partActiveSliceIndexSignal.emit(self, idx)
     # end def
 
-    def setActiveVirtualHelix(self, virtualHelix, idx):
+    def setActiveVirtualHelix(self, virtualHelix, idx=None):
         self._activeVirtualHelix = virtualHelix
-        self._activeIdx = idx
+        self._activeVirtualHelixIdx = idx
         self.partStrandChangedSignal.emit(virtualHelix)
     # end def
 
@@ -873,7 +879,7 @@ class Part(QObject):
         return part
     # end def
 
-    def areVirtualHelicesNeighbors(self, virtualHelixA, virtualHelixB):
+    def areSameOrNeighbors(self, virtualHelixA, virtualHelixB):
         """
         returns True or False
         """
@@ -909,6 +915,10 @@ class Part(QObject):
         # create a range for the helical length dimension of the Part, 
         # incrementing by the lattice step size.
         baseRange = range(0, numBases, part._step)
+
+        if idx != None:
+            baseRange = filter(lambda x:x>=idx-3*part._step and \
+                                        x<=idx+2*part._step, baseRange)
 
         fromStrandSets = vh.getStrandSets()
         neighbors = self.getVirtualHelixNeighbors(vh)

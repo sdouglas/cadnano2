@@ -182,7 +182,7 @@ class EndpointItem(QGraphicsPathItem):
         necessary. Stores _moveIdx for future comparison.
         """
         self.scene().views()[0].addToPressList(self)
-        self._strandItem.virtualHelixItem().setActive()
+        self._strandItem.virtualHelixItem().setActive(self.idx())
         self._moveIdx = self.idx()
         activeToolStr = str(self._activeTool())
         if activeToolStr == 'pencilTool':

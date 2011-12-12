@@ -1067,7 +1067,7 @@ class StrandSet(QObject):
         original strand, resizes each and modifies their connections.
         On undo, the new copies are removed and the original is restored.
         """
-        def __init__(self, strand, baseIdx, strandSetIdx, updateSequence):
+        def __init__(self, strand, baseIdx, strandSetIdx, updateSequence=True):
             super(StrandSet.SplitCommand, self).__init__()
             # Store inputs
             self._oldStrand = strand
