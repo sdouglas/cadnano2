@@ -316,6 +316,8 @@ class Part(QObject):
         util.beginSuperMacro(self, desc="Auto-Staple")
 
         cmds = []
+        # clear scaffold sequence
+
         # clear existing staple strands
         for vh in self.getVirtualHelices():
             stapSS = vh.stapleStrandSet()
@@ -359,8 +361,8 @@ class Part(QObject):
                     # check for bases on both strands at [idx-1:idx+3]
                     if strand.lowIdx() < idx and strand.highIdx() > idx+1 and\
                        nStrand.lowIdx() < idx and nStrand.highIdx() > idx+1:
-                        stapSS.splitStrand(strand, idx)
-                        neighborSS.splitStrand(nStrand, idx+1)
+                        stapSS.splitStrand(strand, idx, updateSequence=False)
+                        neighborSS.splitStrand(nStrand, idx+1, updateSequence=False)
                 if not isLowIdx and not is5to3:
                     strand = stapSS.getStrand(idx)
                     neighborSS = neighborVh.stapleStrandSet()
@@ -370,8 +372,8 @@ class Part(QObject):
                     # check for bases on both strands at [idx-1:idx+3]
                     if strand.lowIdx() < idx-1 and strand.highIdx() > idx and\
                        nStrand.lowIdx() < idx-1 and nStrand.highIdx() > idx:
-                        stapSS.splitStrand(strand, idx)
-                        neighborSS.splitStrand(nStrand, idx-1)
+                        stapSS.splitStrand(strand, idx, updateSequence=False)
+                        neighborSS.splitStrand(nStrand, idx-1, updateSequence=False)
 
         # create crossovers wherever possible (from strand5p only)
         for vh in self.getVirtualHelices():
@@ -647,8 +649,9 @@ class Part(QObject):
         self.partActiveSliceIndexSignal.emit(self, idx)
     # end def
 
-    def setActiveVirtualHelix(self, virtualHelix):
+    def setActiveVirtualHelix(self, virtualHelix, idx):
         self._activeVirtualHelix = virtualHelix
+        self._activeIdx = idx
         self.partStrandChangedSignal.emit(virtualHelix)
     # end def
 
@@ -878,7 +881,7 @@ class Part(QObject):
             virtualHelixA == virtualHelixB
     # end def
 
-    def potentialCrossoverList(self, virtualHelix):
+    def potentialCrossoverList(self, virtualHelix, idx=None):
         """
         Returns a list of tuples
             (neighborVirtualHelix, index, strandType, isLowIdx)

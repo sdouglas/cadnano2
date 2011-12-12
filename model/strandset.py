@@ -283,12 +283,15 @@ class StrandSet(QObject):
             return None
     # end def
 
-    def splitStrand(self, strand, baseIdx, useUndoStack=True):
-        "Break strand into two strands"
+    def splitStrand(self, strand, baseIdx, updateSequence=True, useUndoStack=True):
+        """
+        Break strand into two strands. Reapply sequence by default (disabled
+        during autostaple).
+        """
         if self.strandCanBeSplit(strand, baseIdx):
             isInSet, overlap, strandSetIdx = self._findIndexOfRangeFor(strand)
             if isInSet:
-                c = StrandSet.SplitCommand(strand, baseIdx, strandSetIdx)
+                c = StrandSet.SplitCommand(strand, baseIdx, strandSetIdx, updateSequence)
                 util.execCommandList(self, [c], desc="Split", useUndoStack=useUndoStack)
     # end def
 
@@ -1064,7 +1067,7 @@ class StrandSet(QObject):
         original strand, resizes each and modifies their connections.
         On undo, the new copies are removed and the original is restored.
         """
-        def __init__(self, strand, baseIdx, strandSetIdx):
+        def __init__(self, strand, baseIdx, strandSetIdx, updateSequence):
             super(StrandSet.SplitCommand, self).__init__()
             # Store inputs
             self._oldStrand = strand
@@ -1101,11 +1104,11 @@ class StrandSet(QObject):
             # Update strand connectivity
             strandLow.setConnectionHigh(None)
             strandHigh.setConnectionLow(None)
-            
+
             # Resize strands and update decorators
             strandLow.setIdxs((strand.lowIdx(), iNewLow))
             strandHigh.setIdxs((iNewLow + 1, strand.highIdx()))
-                            
+
             # Update the oligo for things like its 5prime end and isLoop
             olg5p.strandSplitUpdate(std5p, std3p, olg3p, strand)
  
@@ -1122,7 +1125,7 @@ class StrandSet(QObject):
                 olg3p.setLength(length)
             # end if
 
-            if sSet.isStaple():
+            if updateSequence and sSet.isStaple():
                 strandLow.reapplySequence()
                 strandHigh.reapplySequence()
         # end def
