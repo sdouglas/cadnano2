@@ -219,20 +219,29 @@ class helixManip(OpenMayaMPx.MPxManipContainer):
             drawText = str(self.deltaFront)
             if self.deltaFront > 0:
                 drawText = "+" + drawText
+            if self.deltaFront > self.minDelta:
+                drawText = "<  " + drawText
+            if self.deltaFront < self.maxDelta:
+                drawText = drawText + "  >"
             u = self.sp * m
             v = u + self.frontDir * self.frontDistance
         elif am is self.fDistanceBackManip:
             drawText = str(self.deltaBack)
             if self.deltaBack > 0:
                 drawText = "+" + drawText
+            if self.deltaBack > self.minDelta:
+                drawText = "<  " + drawText
+            if self.deltaBack < self.maxDelta:
+                drawText = drawText + "  >"
+                
             u = self.ep * m
             v = u + self.backDir * self.backDistance
             
         w = OpenMaya.MPoint((u.x + v.x) / 2, (u.y + v.y) / 2, (u.z + v.z) / 2)
 
         view.beginGL()
-        view.setDrawColor(OpenMaya.MColor(1, 0, 0, 0.7))
-        view.drawText(drawText, w, OpenMayaUI.M3dView.kLeft)
+        view.setDrawColor(OpenMaya.MColor(0.9, 0, 0))
+        view.drawText(drawText, w, OpenMayaUI.M3dView.kCenter)
         view.endGL()
 
     def connectToDependNode(self, helix):
