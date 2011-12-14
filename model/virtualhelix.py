@@ -47,6 +47,7 @@ class VirtualHelix(QObject):
         super(VirtualHelix, self).__init__(part)
         self._coord = (row, col) # col, row
         self._part = part
+        self._doc = part.document()
         self._scafStrandSet = StrandSet(StrandType.Scaffold, self)
         self._stapStrandSet = StrandSet(StrandType.Staple, self)
         # If self._part exists, it owns self._number
@@ -79,7 +80,11 @@ class VirtualHelix(QObject):
     def part(self):
         return self._part
     # end def
-
+    
+    def document(self):
+        return self._doc
+    # end def
+    
     def setNumber(self, number):
         self._number = number
     # end def

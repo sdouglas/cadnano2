@@ -59,6 +59,8 @@ class Strand(QObject):
     def __init__(self, strandSet, baseIdxLow, baseIdxHigh, oligo=None):
         super(Strand, self).__init__(strandSet)
         self._strandSet = strandSet
+        self._doc = strandSet.document()
+        
         self._baseIdxLow = baseIdxLow  # base index of the strand's left boundary
         self._baseIdxHigh = baseIdxHigh  # base index of the right boundary
         self._oligo = oligo
@@ -150,6 +152,10 @@ class Strand(QObject):
 
     def part(self):
         return self._strandSet.part()
+    # end def
+    
+    def document(self):
+        return self._doc
     # end def
 
     def oligo(self):

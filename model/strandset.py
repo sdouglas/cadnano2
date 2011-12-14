@@ -51,6 +51,7 @@ class StrandSet(QObject):
     def __init__(self, strandType, virtualHelix):
         super(StrandSet, self).__init__(virtualHelix)
         self._virtualHelix = virtualHelix
+        self._doc = virtualHelix.document()
         self._strandList = []
         self._undoStack = None
         self._lastStrandSetIndex = None
@@ -79,6 +80,10 @@ class StrandSet(QObject):
     ### ACCESSORS ###
     def part(self):
         return self._virtualHelix.part()
+    # end def
+    
+    def document(self):
+        return self._doc
     # end def
 
     def generatorStrand(self):
@@ -483,6 +488,7 @@ class StrandSet(QObject):
 
     def _removeFromStrandList(self, strand):
         """Remove strand from _strandList."""
+        self._doc.removeFromSelection(strand) # make sure the strand is no longer selected
         self._strandList.remove(strand)
 
     def _couldStrandInsertAtLastIndex(self, strand):
@@ -810,6 +816,7 @@ class StrandSet(QObject):
             strand = self._strand
             strandSet = self._strandSet
             # strandSet._removeFromStrandList(strand)
+            strandSet._doc.removeStrandFromSelection(strand)
             strandSet._strandList.pop(self._sSetIdx)
             strand5p = self._oldStrand5p
             strand3p = self._oldStrand3p

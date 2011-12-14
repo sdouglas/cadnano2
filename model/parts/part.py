@@ -1032,6 +1032,11 @@ class Part(QObject):
             strand3pIdx = self._strand3pIdx
             olg5p = strand5p.oligo()
             oldOlg3p = self._oldOligo3p
+            
+            # 0. Deselect the involved strands
+            doc = strand5p.document()
+            doc.removeStrandFromSelection(strand5p)
+            doc.removeStrandFromSelection(strand3p)
 
             # 1. update preserved oligo length
             olg5p.incrementLength(oldOlg3p.length())
@@ -1068,7 +1073,12 @@ class Part(QObject):
             strand3pIdx = self._strand3pIdx
             oldOlg3p = self._oldOligo3p
             olg5p = strand5p.oligo()
-
+            
+            # 0. Deselect the involved strands
+            doc = strand5p.document()
+            doc.removeStrandFromSelection(strand5p)
+            doc.removeStrandFromSelection(strand3p)
+            
             # 1. uninstall the Xover
             strand5p.setConnection3p(None)
             strand3p.setConnection5p(None)
@@ -1132,6 +1142,11 @@ class Part(QObject):
             newOlg3p = self._newOligo3p
             olg5p = self._strand5p.oligo()
 
+            # 0. Deselect the involved strands
+            doc = strand5p.document()
+            doc.removeStrandFromSelection(strand5p)
+            doc.removeStrandFromSelection(strand3p)
+            
             # 1. uninstall the Xover
             strand5p.setConnection3p(None)
             strand3p.setConnection5p(None)
@@ -1168,6 +1183,11 @@ class Part(QObject):
             olg5p = strand5p.oligo()
             newOlg3p = self._newOligo3p
 
+            # 0. Deselect the involved strands
+            doc = strand5p.document()
+            doc.removeStrandFromSelection(strand5p)
+            doc.removeStrandFromSelection(strand3p)
+            
             # 1. update preserved oligo length
             olg5p.incrementLength(newOlg3p.length())
             # 2. Remove the old oligo and apply the 5' oligo to the 3' strand
