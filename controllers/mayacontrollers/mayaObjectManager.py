@@ -59,7 +59,7 @@ class Mom(object):
     # uses strand object as the key, stores stand id
     idStrandMapping = {}
     # Selection
-    ignoreExternalSelectionSiganl = False
+    ignoreExternalSelectionSignal = False
 
     # Selection boxes
     selectionBox = cmds.polyCube(
@@ -107,23 +107,21 @@ class Mom(object):
     def getSelectionBox(self):
         return self.selectionBox
 
-    def strandsSelected(self, listNames):
-        # XXX - [SB] we want to only send the signal to "active doc" but
-        # not sure how to get that
-        if self.ignoreExternalSelectionSiganl:
+    def strandsSelected(self, listNames, value=(True, True)):
+        if self.ignoreExternalSelectionSignal:
             return
 
-        self.ignoreExternalSelectionSiganl = True
+        self.ignoreExternalSelectionSignal = True
         strandList = []
         for nodeName in listNames:
             if(nodeName in self.mayaToCn):
                 strandList.append(self.mayaToCn[nodeName])
-        for doc in app().documentControllers:
-            # XXX [SB] THIS IS A HACK, should not need to do this!!!
-            doc.win.pathroot.clearStrandSelections()
+        doc = app().activeDocument
+        # XXX [SB] THIS IS A HACK, should not need to do this!!!
+        #doc.win.pathroot.clearStrandSelections()
 
-            doc.win.solidroot.selectedChanged(strandList)
-        self.ignoreExternalSelectionSiganl = False
+        doc.win.solidroot.selectedChanged(strandList, value)
+        self.ignoreExternalSelectionSignal = False
 
     def staplePreDecoratorSelected(self, listNames):
         """

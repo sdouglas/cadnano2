@@ -35,6 +35,7 @@ import maya.OpenMaya as OpenMaya
 import maya.OpenMayaUI as OpenMayaUI
 import maya.OpenMayaMPx as OpenMayaMPx
 import maya.cmds as cmds
+from cadnano import app
 
 # for controlling the nodes
 from model.enum import StrandType
@@ -78,7 +79,14 @@ class helixManip(OpenMayaMPx.MPxManipContainer):
     sp = OpenMaya.MPoint()
     cp = OpenMaya.MPoint()
 
+    deltaFront = 0
+    deltaBack = 0
+    # min/max range of delta (for different length strands)
+    maxDelta = 0
+    minDelta = 0
+
     helices = {}
+    helicesNames = []
     ffpIdxMap = {}
     epIdxMap = {}
 
@@ -98,8 +106,10 @@ class helixManip(OpenMayaMPx.MPxManipContainer):
         h.helixName = nodeFn.name()
         self.helices[h.id] = h
 
+        self.helicesNames.append(h.helixName)
+
         self.connectToDependNode(h)
-        
+
     def finishedAddingHelices(self):
         self.finishAddingManips()
         for (id, helix) in self.helices.iteritems():
@@ -108,6 +118,8 @@ class helixManip(OpenMayaMPx.MPxManipContainer):
 
     def createChildren(self):
         self.helices = {}
+        self.helicesNames = []
+
         #print "helixManip: createChildren being called..."
         # startPoint should correspond to the end of the helix
         # read the attribute to get the offset from the starting position
@@ -194,8 +206,45 @@ class helixManip(OpenMayaMPx.MPxManipContainer):
         distance = w.length() * dir
         return distance
 
+    def activeManip(self):
+    
+        try:
+            activeManip = OpenMaya.MObject()
+            self.isManipActive(OpenMaya.MFn.kDistanceManip, activeManip)
+
+            m = Mom()
+            if activeManip is self.fDistanceFrontManip.node():
+                return self.fDistanceFrontManip
+            elif activeManip is self.fDistanceBackManip.node():
+                return self.fDistanceBackManip
+        except:
+            sys.stderr.write("ERROR: helixManip.activeManip\n")
+            raise
+
+        return None
+        
+    def doPress(self):
+
+        print "PRESS"
+
+        self.minDelta = float('-inf')
+        self.maxDelta = float('inf')
+
+        am = OpenMaya.MObject()
+        am = self.activeManip()
+
+        m = Mom()
+        m.strandsSelected(
+                        self.helicesNames,
+                        (am is self.fDistanceFrontManip,
+                        am is self.fDistanceBackManip)
+                        )
+
+        return OpenMaya.kUnknownParameter
+
     def doRelease(self):
-        #print "RELEASED"
+        print "RELEASED"
+        """
         import time
         starttime = time.time()
         for (id, helix) in self.helices.iteritems():
@@ -203,11 +252,18 @@ class helixManip(OpenMayaMPx.MPxManipContainer):
                 self.getStrand(helix).resize(helix.newStrandSize)
                 helix.newStrandSize = (0, 0)
         # print (time.time() - starttime), "seconds"
-        return 0 #OpenMaya.kUnknownParameter
+        """
+
+        self.resizeModel()
+
+        m = Mom()
+        m.strandsSelected(self.helicesNames, (True, True))
+
+        return OpenMaya.kUnknownParameter
 
     def doDrag(self):
-        #print "DRAGGING"
-        
+        print "DRAGGING"
+        """
         import time
         starttime = time.time()
         for (id, helix) in self.helices.iteritems():
@@ -215,16 +271,42 @@ class helixManip(OpenMayaMPx.MPxManipContainer):
                 self.getStrand(helix).resize(helix.newStrandSize)
                 helix.newStrandSize = (0, 0)
         # print (time.time() - starttime), "seconds - DRAG"
+        """
+
+        self.resizeModel()
+        self.minDelta = float('-inf')
+        self.maxDelta = float('inf')
+
         return OpenMaya.kUnknownParameter
 
+    def resizeModel(self):
+        if(self.deltaFront != 0):
+            print self.minDelta, self.maxDelta
+            delta = self.deltaFront
+            #delta = max(delta, self.minDelta)
+            #delta = min(delta, self.maxDelta)
+            app().activeDocument.document().resizeSelection(delta)
+            self.deltaFront = 0
+
+        if(self.deltaBack != 0):
+            print self.minDelta, self.maxDelta
+            delta = self.deltaBack
+            #delta = max(delta, self.minDelta)
+            #delta = min(delta, self.maxDelta)
+            app().activeDocument.document().resizeSelection(delta)
+            self.deltaBack = 0
+        
     def plugToManipConversion(self, manipIndex):
-    
-        import time
-        starttime = time.time()
-    
-        # print "plugToManipCalled"
+
+        print "plugToManipCalled"
+        
         manipData = OpenMayaUI.MManipData()
         try:
+        
+            am = self.activeManip()
+            print am is self.fDistanceFrontManip
+            print am is self.fDistanceBackManip
+        
             frontManip = OpenMayaUI.MFnDistanceManip(self.fDistanceFrontManip)
             backManip = OpenMayaUI.MFnDistanceManip(self.fDistanceBackManip)
 
@@ -281,16 +363,17 @@ class helixManip(OpenMayaMPx.MPxManipContainer):
             sys.stderr.write("ERROR: helixManip.plugToManipConversion\n")
             raise
 
-        # print (time.time() - starttime), "seconds - plugtomanip"
         return manipData
 
     def manipToPlugConversion(self, plugIndex):
-        #print "manipToPlugConversion", plugIndex
-        
-        import time
-        starttime = time.time()
+        print "manipToPlugConversion", plugIndex
         
         try:
+        
+            am = self.activeManip()
+            print (am is self.fDistanceFrontManip)
+            print (am is self.fDistanceBackManip)
+        
             if plugIndex in self.ffpIdxMap:  # front float plug
                 helix = self.ffpIdxMap[plugIndex]
                 numData = OpenMaya.MFnNumericData()
@@ -315,7 +398,7 @@ class helixManip(OpenMayaMPx.MPxManipContainer):
                 distance = self.computeDistance(
                                         helix, self.sp, self.cp, self.frontDir
                                                 ) - self.manipHandleOffset
-                                                
+
                 newIndex = self.getHelixDelta(helix, distance)
                 self.dragDeltaFront = newIndex
                 self.resizeCNHelixFront(helix, newIndex)
@@ -356,9 +439,7 @@ class helixManip(OpenMayaMPx.MPxManipContainer):
         except:
             sys.stderr.write("ERROR: helixManip.manipToPlugConversion\n")
             raise
-            
-        # print (time.time() - starttime), "seconds - maniptoplug"
-            
+
         return returnData
 
     def getTransformFromNode(self, trnsNode):
@@ -490,7 +571,7 @@ class helixManip(OpenMayaMPx.MPxManipContainer):
             print "getFrontHelixDelta failed!"
 
     def resizeCNHelixFront(self, helix, delta):
-        #print "resizeCNHelixFront"
+        print "resizeCNHelixFront"
         try:
             strand = self.getStrand(helix)
             lowIdx, highIdx = strand.idxs()
@@ -499,11 +580,16 @@ class helixManip(OpenMayaMPx.MPxManipContainer):
             newLow = max(newLow, strand.part().minBaseIdx())
             if(newLow != lowIdx):
                 helix.newStrandSize = (newLow, highIdx)
+                self.deltaFront = newLow - lowIdx
+                self.minDelta = max(self.minDelta, strand.part().minBaseIdx() - newLow)
+                self.maxDelta = min(self.maxDelta, highIdx - 1 - newLow)
+                #print "MINMAX", self.minDelta, self.maxDelta
+                #print self.deltaFront, "HELOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOO"
         except:
             print "resizeCNHelixFront failed!"
 
     def resizeCNHelixBack(self, helix, delta):
-        #print "resizeCNHelixBack"
+        print "resizeCNHelixBack"
         try:
             strand = self.getStrand(helix)
             lowIdx, highIdx = strand.idxs()
@@ -512,6 +598,11 @@ class helixManip(OpenMayaMPx.MPxManipContainer):
             newHigh = max(newHigh, lowIdx + 1)
             if(newHigh != highIdx):
                 helix.newStrandSize = (lowIdx, newHigh)
+                self.deltaBack = newHigh - highIdx
+                self.minDelta = max(self.minDelta, lowIdx + 1 - newHigh)
+                self.maxDelta = min(self.maxDelta, strand.part().maxBaseIdx() - newHigh)
+                #print "MINMAX", self.minDelta, self.maxDelta
+                #print self.deltaBack, "HELOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOO2"
         except:
             print "resizeCNHelixBack failed!"
 
