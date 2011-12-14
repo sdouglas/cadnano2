@@ -425,9 +425,10 @@ class EndpointItem(QGraphicsPathItem):
             if value == True and self._filterName in currentFilterDict:
                 # if self.group() != selectionGroup and sI.strandFilter() in currentFilterDict:
                 if sI.strandFilter() in currentFilterDict:
-                    print "ep gonna addd"
+                    # print "ep gonna add"
                     if selectionGroup.isInstantAdd():
-                        print "yepppppp"
+                        # print "yepppppp"
+                        pass
                     else:
                         selectionGroup.setInstantAdd(True)
                         selectionGroup.pendToAdd(self)

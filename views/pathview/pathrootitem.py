@@ -82,7 +82,7 @@ class PathRootItem(QGraphicsRectItem):
         for item, value in itemDict:
             item.selectionProcess(value)
     # end def
-    
+
     def selectionFilterChangedSlot(self, filterNameList):
         self._vhiHSelectionGroup.clearSelection(False)
         self._strandItemSelectionGroup.clearSelection(False)
@@ -150,19 +150,19 @@ class PathRootItem(QGraphicsRectItem):
         for partItem in self._partItems:
             partItem.setModifyState(bool)
     # end def
-    
+
     def selectionFilterDict(self):
         return self._selectionFilterDict
     # end def
-    
+
     def addToSelectionFilterDict(self, filterName):
         self._selectionFilterDict[filterName] = True
     # end def
-    
+
     def removeFromSelectionFilterDict(self, filterName):
         del self._selectionFilterDict[filterName]
     # end def
-    
+
     def clearSelectionFilterDict(self):
         self._selectionFilterDict = {}
     # end def
@@ -170,11 +170,11 @@ class PathRootItem(QGraphicsRectItem):
     def vhiHandleSelectionGroup(self):
         return self._vhiHSelectionGroup
     # end def
-    
+
     def strandItemSelectionGroup(self):
         return self._strandItemSelectionGroup
     # end def
-    
+
     def selectionLock(self):
         return self.scene().views()[0].selectionLock()
     # end def
@@ -182,7 +182,8 @@ class PathRootItem(QGraphicsRectItem):
     def setSelectionLock(self, locker):
         self.scene().views()[0].setSelectionLock(locker)
     # end def
-    
+
     def clearStrandSelections(self):
         self._strandItemSelectionGroup.clearSelection(False)
     # end def
+# end class

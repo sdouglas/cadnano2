@@ -769,9 +769,10 @@ class StrandSet(QObject):
         # end def
 
         def undo(self):
-            # Remove the strand from StrandSet strandList
+            # Remove the strand from StrandSet strandList and selectionList
             strand = self._strand
             strandSet = self._strandSet
+            strandSet._doc.removeStrandFromSelection(strand)
             strandSet._strandList.pop(self._sSetIdx)
             # Get rid of the new oligo
             oligo = self._newOligo

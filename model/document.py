@@ -27,6 +27,7 @@
 
 from parts.honeycombpart import HoneycombPart
 from parts.squarepart import SquarePart
+from parts.part import Part
 from strand import Strand
 from operator import itemgetter
 import util
@@ -249,9 +250,26 @@ class Document(QObject):
     #     pass
     # # end def
 
+    def deleteSelection(self, useUndoStack=True):
+        """Delete xovers if present. Otherwise delete everything."""
+        if useUndoStack:
+            self.undoStack().beginMacro("Delete selection")
+
+        for strandSetDict in self._selectionDict.itervalues():
+            for strand, value in strandSetDict.iteritems():
+                part = strand.virtualHelix().part()
+                idxL, idxH = strand.idxs()
+                v = value[0] if idxL == strand.idx3Prime() else value[1]
+                if v:
+                    strand3p = strand.connection3p()
+                    if strand3p:
+                        Part.removeXover(part, strand, strand3p, useUndoStack)
+        if useUndoStack:
+            self.undoStack().endMacro()
+
     def resizeSelection(self, delta, useUndoStack=True):
         if useUndoStack:
-            self.undoStack().beginMacro("Resize Selection")
+            self.undoStack().beginMacro("Resize selection")
         for strandSetDict in self._selectionDict.itervalues():
             for strand, value in strandSetDict.iteritems():
                 idxL, idxH = strand.idxs()

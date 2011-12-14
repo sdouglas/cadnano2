@@ -158,23 +158,23 @@ class SelectionItemGroup(QGraphicsItemGroup):
         self._viewroot.setSelectionLock(selectionGroup)
     # end def
 
-    # def keyPressEvent(self, event):
-    #     """
-    #     Must intercept invalid input events.  Make changes here
-    #     """
-    #
-    #     a = event.key()
-    #     if a in [Qt.Key_Backspace, Qt.Key_Delete]:
-    #         thePart = self._partItem.part()
-    #         vhList = [thePart.getVirtualHelix(
-    #                                i.number()) for i in self.childItems()]
-    #         self.clearSelection(False)
-    #         thePart.removeVirtualHelicesAt(vhList)
-    #         # print "getting delete events "
-    #         return
-    #     else:
-    #         return QGraphicsItemGroup.keyPressEvent(self, event)
-    # # end def
+    def keyPressEvent(self, event):
+        """
+        Must intercept invalid input events.  Make changes here
+        """
+        a = event.key()
+        if a in [Qt.Key_Backspace, Qt.Key_Delete]:
+            # thePart = self._partItem.part()
+            # vhList = [thePart.getVirtualHelix(
+            #                        i.number()) for i in self.childItems()]
+            # self.clearSelection(False)
+            # thePart.removeVirtualHelicesAt(vhList)
+            print "deleting selected"
+            self._viewroot.document().deleteSelection()
+            return QGraphicsItemGroup.keyPressEvent(self, event)
+        else:
+            return QGraphicsItemGroup.keyPressEvent(self, event)
+    # end def
 
     def mousePressEvent(self, event):
         print "select mp"
@@ -228,6 +228,7 @@ class SelectionItemGroup(QGraphicsItemGroup):
 
     def customMouseRelease(self, event):
         """docstring for customMouseRelease"""
+        print "customMouseRelease", self._baseClick, self._instantAdd
         self.selectionbox.hide()
         self.selectionbox.resetTransform()
         self._dragEnable = False
@@ -237,7 +238,6 @@ class SelectionItemGroup(QGraphicsItemGroup):
         # end if
         self._r0 = 0  # reset
         self._r = 0  # reset
-        print "mouse release", self._baseClick, self._instantAdd
         self._addedToPressList = False
         # if self._baseClick == 0:
         #     self._addedToPressList = True
@@ -279,11 +279,11 @@ class SelectionItemGroup(QGraphicsItemGroup):
         # if change == QGraphicsItem.ItemSelectedHasChanged:
         if change == QGraphicsItem.ItemSelectedChange:
             if value == False and self._instantAdd == 0:
-                print "clear due to deselect"
+                # print "clear due to deselect"
                 self.clearSelection(False)
                 return False
             else:
-                print "clear instant add"
+                # print "clear instant add"
                 self._instantAdd = 2
                 if self._addedToPressList == False:
                     self._addedToPressList = True
@@ -292,9 +292,8 @@ class SelectionItemGroup(QGraphicsItemGroup):
                 return True
         elif change == QGraphicsItem.ItemChildAddedChange:
             if self._addedToPressList == False:
-                # self._lastKid += 1
-                print "kid added"
-                # self._instantAdd = 1
+                # print "kid added"
+                self.setFocus()  # this is to get delete keyPressEvents
                 self.setParentItem(self.selectionbox.boxParent())
                 self._addedToPressList = True
                 self.scene().views()[0].addToPressList(self)
