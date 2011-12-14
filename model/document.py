@@ -253,28 +253,31 @@ class Document(QObject):
         if useUndoStack:
             self.undoStack().beginMacro("Resize Selection")
         for strandSetDict in self._selectionDict.itervalues():
+            # 1. Presort list for xovers that will change the delta
             for strand, value in strandSetDict.iteritems():
                 idxL, idxH = strand.idxs()
-                # idxL = idxL+delta if value[0] else idxL
-                # idxH = idxH+delta if value[1] else idxH
+                tDelta = delta
                 if value[0]:
                     # check for Xovers
                     if strand.connectionLow():
                         part = strand.virtualHelix().part()
-                        idxL = part.xoverSnapTo(strand, idxL, delta)
-                    else:
-                        idxL = idxL + delta
-                else:
-                    idxL
+                        temp = part.xoverSnapTo(strand, idxL, delta)-idxL
+                        if abs(temp) < abs(tDelta):
+                            if tDelta != delta:
+                                tDelta = temp
                 if value[1]:
                     # check for Xovers
                     if strand.connectionHigh():
                         part = strand.virtualHelix().part()
-                        idxH = part.xoverSnapTo(strand, idxH, delta)
-                    else:
-                        idxH = idxH + delta
-                else:
-                    idxH
+                        temp = part.xoverSnapTo(strand, idxH, delta)-idxH
+                        if abs(temp) < abs(tDelta):
+                            tDelta = temp
+            # end for
+            # 2. Actually move
+            for strand, value in strandSetDict.iteritems():
+                idxL, idxH = strand.idxs()
+                idxL = idxL+tDelta if value[0] else idxL
+                idxH = idxH+tDelta if value[1] else idxH
                 Strand.resize(strand, (idxL, idxH), useUndoStack)
             # end for
         # end for

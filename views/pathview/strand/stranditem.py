@@ -332,7 +332,8 @@ class StrandItem(QGraphicsLineItem):
         lowCap.setPos(lUpperLeftX, lUpperLeftY)
         if strand.connectionLow() != None:  # has low xover
             # if we are hiding it, we might as well make sure it is reparented to the StrandItem
-            lowCap.tempReparent()
+            # lowCap.tempReparent()
+            lowCap.restoreParent()
             lowCap.hide()
         else:  # has low cap
             if not lowCap.isVisible():
@@ -342,7 +343,8 @@ class StrandItem(QGraphicsLineItem):
         highCap.setPos(hUpperLeftX, hUpperLeftY)
         if strand.connectionHigh() != None:  # has high xover
             # if we are hiding it, we might as well make sure it is reparented to the StrandItem
-            highCap.tempReparent()
+            # highCap.tempReparent()
+            highCap.restoreParent()
             highCap.hide()
         else:  # has high cap
             if not highCap.isVisible():
@@ -365,7 +367,8 @@ class StrandItem(QGraphicsLineItem):
             xo.update(strand)
             xo.showIt()
         else:
-            xo.tempReparent()
+            # xo.tempReparent()
+            xo.restoreParent()
             xo.hideIt()
 
         # 3. Refresh insertionItems if necessary drawing
