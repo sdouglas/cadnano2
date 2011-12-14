@@ -121,8 +121,7 @@ class SelectionItemGroup(QGraphicsItemGroup):
             self._pendingToAddDict = {}
             doc.updateSelection()
     # end def
-<<<<<<< Updated upstream
-    
+
     def resetSelection(self):
         self._pendingToAddDict = {}
         self._addedToPressList = False
@@ -131,9 +130,6 @@ class SelectionItemGroup(QGraphicsItemGroup):
         self.setParentItem(self._viewroot)
     # end def
     
-=======
-
->>>>>>> Stashed changes
     def setInstantAdd(self, boolval, isClick=False):
         if isClick:
             self._instantAdd = 3
