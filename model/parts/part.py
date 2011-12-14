@@ -1276,7 +1276,7 @@ class Part(QObject):
             # end for
         # end def
     # end class
-    
+
     class RemovePartCommand(QUndoCommand):
         """
         RemovePartCommand deletes a part.
@@ -1304,7 +1304,7 @@ class Part(QObject):
             doc.documentPartAddedSignal.emit(part)
         # end def
     # end class
-    
+
     class RemoveAllStrandsCommand(QUndoCommand):
         """
         1. Remove all strands

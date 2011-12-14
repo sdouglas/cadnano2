@@ -379,6 +379,19 @@ class Strand(QObject):
         return seqList
     # end def
 
+    def canResizeTo(self, newLow, newHigh):
+        """
+        Checks to see if a resize is allowed. Similar to getResizeBounds
+        but works for two bounds at once.
+        """
+        lowNeighbor, highNeighbor = self._strandSet.getNeighbors(self)
+        lowBound = lowNeighbor.highIdx() if lowNeighbor else self.part().minBaseIdx()
+        highBound = highNeighbor.lowIdx() if highNeighbor else self.part().maxBaseIdx()
+
+        if newLow > lowBound and newHigh < highBound:
+            return True
+        return False
+
     def getResizeBounds(self, idx):
         """
         Determines (inclusive) low and high drag boundaries resizing

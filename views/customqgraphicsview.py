@@ -45,13 +45,13 @@ util.qtWrapImport('QtCore', globals(), ['Qt'])
 util.qtWrapImport('QtGui', globals(),  ['QGraphicsView', 'qApp', 'QPen'])
 
 # for OpenGL mode
-GL = False
 try:
     from OpenGL import GL
     from PyQt4.QtOpenGL import QGLWidget, QGLFormat, QGL
 except:
     GL = False
 
+GL = False
 
 class CustomQGraphicsView(QGraphicsView):
     """

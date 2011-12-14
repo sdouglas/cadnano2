@@ -38,6 +38,8 @@ try:
 except:
     GL = False
 
+GL = False
+
 # import Qt stuff into the module namespace with PySide, PyQt4 independence
 util.qtWrapImport('QtCore', globals(), ['QPointF', 'QRectF', 'Qt'])
 util.qtWrapImport('QtGui', globals(), ['QBrush', 'QFont', 'QGraphicsItem',\
@@ -218,11 +220,14 @@ class EmptyHelixItem(QGraphicsEllipseItem):
                         # resize to the nearest prexover on either side of idx
                         newLo = util.nearest(idx, part.getPreXoversHigh(strandType, p2, maxIdx=idx))
                         newHi = util.nearest(idx, part.getPreXoversLow(strandType, p2, minIdx=idx))
-                        strand1.resize((newLo, newHi))
-                        strand2.resize((newLo, newHi))
-                        # install xovers
-                        part.createXover(strand1, newHi, strand2, newHi)
-                        part.createXover(strand2, newLo, strand1, newLo)
+                        if strand1.canResizeTo(newLo, newHi) and \
+                           strand2.canResizeTo(newLo, newHi):
+                            # do the resize
+                            strand1.resize((newLo, newHi))
+                            strand2.resize((newLo, newHi))
+                            # install xovers
+                            part.createXover(strand1, newHi, strand2, newHi)
+                            part.createXover(strand2, newLo, strand1, newLo)
                     except ValueError:
                         pass  # nearest not found in the expanded list
 
@@ -269,16 +274,21 @@ class EmptyHelixItem(QGraphicsEllipseItem):
                     # resize and install external xovers
                     try:
                         # resize to the nearest prexover on either side of idx
-                        newLo = util.nearest(idx, part.getPreXoversHigh(StrandType.Scaffold, p2, maxIdx=idx-3))
-                        newHi = util.nearest(idx, part.getPreXoversLow(StrandType.Scaffold, p2, minIdx=idx+10))
-                        if vh1.number() == 0:
-                            strand1.resize((newLo, newHi))
+                        newLo1 = newLo2 = util.nearest(idx, part.getPreXoversHigh(StrandType.Scaffold, p2, maxIdx=idx-3))
+                        newHi = util.nearest(idx, part.getPreXoversLow(StrandType.Scaffold, p2, minIdx=idx+5))
+
+                        if vh1.number() != 0:  # after the first helix
+                            newLo1 = strand1.lowIdx()  # leave alone the lowIdx
+
+                        if vh2.number() != len(strands)-1:  # before the last
+                            newLo2 = strand2.lowIdx()  # leave alone the lowIdx
+
+                        if strand1.canResizeTo(newLo1, newHi) and \
+                           strand2.canResizeTo(newLo2, newHi):
+                            strand1.resize((newLo1, newHi))
+                            strand2.resize((newLo2, newHi))
                         else:
-                            strand1.resize((strand1.lowIdx(), newHi))
-                        if vh2.number() == len(strands)-1:
-                            strand2.resize((newLo, newHi))
-                        else:
-                            strand2.resize((strand2.lowIdx(), newHi))
+                            raise ValueError
                         # install xovers
                         part.createXover(strand1, newHi, strand2, newHi)
                     except ValueError:
@@ -288,11 +298,16 @@ class EmptyHelixItem(QGraphicsEllipseItem):
                     idx = part.activeBaseIndex()
                     try:
                         # resize to the nearest prexover on either side of idx
-                        newLo = util.nearest(idx, part.getPreXoversHigh(StrandType.Scaffold, p2, maxIdx=idx-10))
-                        strand1.resize((newLo, strand1.highIdx()))
-                        strand2.resize((newLo, strand2.highIdx()))
-                        # install xovers
-                        part.createXover(strand1, newLo, strand2, newLo)
+                        newLo = util.nearest(idx, part.getPreXoversHigh(StrandType.Scaffold, p2, maxIdx=idx-5))
+
+                        if strand1.canResizeTo(newLo, strand1.highIdx()) and \
+                           strand2.canResizeTo(newLo, strand2.highIdx()):
+                            strand1.resize((newLo, strand1.highIdx()))
+                            strand2.resize((newLo, strand2.highIdx()))
+                            # install xovers
+                            part.createXover(strand1, newLo, strand2, newLo)
+                        else:
+                            raise ValueError
                     except ValueError:
                         pass  # nearest not found in the expanded list
 

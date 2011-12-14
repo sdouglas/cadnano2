@@ -412,7 +412,7 @@ class XoverItem(QGraphicsPathItem):
         painterpath.lineTo(threeExitPt)
 
         tempR = painterpath.boundingRect()
-        # tempR.adjust(-bw/2, 0, bw, 0)
+        tempR.adjust(-bw/2, 0, bw, 0)
         self._clickArea.setRect(tempR)
         self.setPath(painterpath)
         self._updateColor(strand5p)
