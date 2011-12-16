@@ -103,17 +103,17 @@ class VirtualHelixItem(object):
     def col(self):
         """Col Accessor"""
         return self.coord()[1]
-        
+
     def x(self):
         """Actual x position in the the Maya 3D View"""
         return self._x
     # end def
-    
+
     def y(self):
         """Actual y position in the the Maya 3D View"""
         return self._y
     # end def
-        
+
     def coord(self):
         """Returns a tuple (row, column) of the VitualHelix model"""
         return self._modelVirtualHelix.coord()
@@ -216,7 +216,7 @@ class VirtualHelixItem(object):
                                               % cylinderName)
             # not clear why decoratorRotOffset is not in radians but
             # rotationOffset is
-            decoratorRotOffset = decoratorRotOffset *  math.pi / 180
+            decoratorRotOffset = decoratorRotOffset * math.pi / 180
             starting_rotation = (math.pi * (not parity)) + rotationOffset + \
                                 decoratorRotOffset + \
                                 (math.pi * strandType)
@@ -282,13 +282,18 @@ class VirtualHelixItem(object):
         cmds.setAttr("%s.translateX" % transformName, coords[0])
         cmds.setAttr("%s.translateY" % transformName, coords[1])
         cmds.setAttr("%s.translateZ" % transformName, coords[2])
-        cmds.createNode("mesh", name=meshName, parent=transformName, skipSelect=True)
+        cmds.createNode("mesh",
+                        name=meshName,
+                        parent=transformName,
+                        skipSelect=True)
         #cmds.createNode("spPreDecoratorNode", name=stapleModIndicatorName)
-        cmds.createNode("polySphere", name=stapleModIndicatorName, skipSelect=True)
+        cmds.createNode("polySphere",
+                        name=stapleModIndicatorName,
+                        skipSelect=True)
         cmds.setAttr("%s.radius" % stapleModIndicatorName, .25)
         cmds.setAttr("%s.subdivisionsAxis" % stapleModIndicatorName, 4)
         cmds.setAttr("%s.subdivisionsHeight" % stapleModIndicatorName, 4)
-        
+
         #cmds.connectAttr("%s.outputMesh" % stapleModIndicatorName,
         #                 "%s.inMesh" % meshName)
         cmds.connectAttr("%s.output" % stapleModIndicatorName,
@@ -309,7 +314,7 @@ class VirtualHelixItem(object):
             cmds.sets(meshName, forceElement="%sSG" % shaderName)
         return (stapleModIndicatorName, transformName, meshName, shaderName)
     # end def
-    
+
     def removeStrandItem(self, strandItem):
         """Remove a StrandItem from the local list of StrandItems"""
         del self._strandItems[strandItem]
