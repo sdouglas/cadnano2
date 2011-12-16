@@ -70,19 +70,19 @@ class SolidRootItem(object):
         for filterName in filterNameList:
             self.addToSelectionFilterDict(filterName)
     # end def
-    
+
     def resetRootItemSlot(self, doc):
         pass
     # end def
     ### METHODS ###
 
-    def selectedChanged(self, strandList):
+    def selectedChanged(self, strandList, value):
         """is called from Mom when selection cheged in 3D"""
         for strand in self.oldSelectionStrandList:
             # XXX does not work
             self._document.removeStrandFromSelection(strand)
         for strand in strandList:
-            self._document.addStrandToSelection(strand, (True, True))
+            self._document.addStrandToSelection(strand, value)
 
         self._document.updateSelection()
         self.oldSelectionStrandList = strandList

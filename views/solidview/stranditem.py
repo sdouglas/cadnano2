@@ -199,21 +199,22 @@ class StrandItem(object):
     def strandModifierRemovedSlot(self, strand, index):
         """strandModifierRemovedSlot - empty"""
         pass
-        
+
     def selectedChangedSlot(self, strand, indices):
         #print "solidview.stranditem.selectedChangedSlot", strand, indices
+
         mom = Mom()
-        if mom.ignoreExternalSelectionSiganl:
+        if mom.ignoreExternalSelectionSignal:
             return
         mID = mom.strandMayaID(strand)
-        mom.ignoreExternalSelectionSiganl = True
+        mom.ignoreExternalSelectionSignal = True
         transformName = "%s%s" % (mom.helixTransformName, mID)
         if cmds.objExists(transformName):
             if(indices[0] or indices[1]):
                 cmds.select(transformName, add=True)
             else:
                 cmds.select(transformName, deselect=True)
-        mom.ignoreExternalSelectionSiganl = False
+        mom.ignoreExternalSelectionSignal = False
     # end def
 
     ### METHODS ###
@@ -242,8 +243,13 @@ class StrandItem(object):
         cmds.setAttr("%s.rotateX" % transformName, 90)
         cmds.setAttr("%s.translateX" % transformName, x)
         cmds.setAttr("%s.translateY" % transformName, y)
-        cmds.createNode("mesh", name=meshName, parent=transformName, skipSelect=True)
-        cmds.createNode("spHalfCylinderHelixNode", name=cylinderName, skipSelect=True)
+        cmds.createNode("mesh",
+                        name=meshName,
+                        parent=transformName,
+                        skipSelect=True)
+        cmds.createNode("spHalfCylinderHelixNode",
+                        name=cylinderName,
+                        skipSelect=True)
         cmds.connectAttr("%s.outputMesh" % cylinderName,
                          "%s.inMesh" % meshName)
         # XXX - [SB] This should go away and we will ask the model for
@@ -263,11 +269,11 @@ class StrandItem(object):
             raise NotImplementedError
         cmds.setAttr("%s.strandType" % cylinderName, strandType)
         self.updateColor(mID, colorname)
-        
+
         cmds.select(transformName)
-        cmds.polySoftEdge( a=89.99 )
-        cmds.setAttr("%s.displayEdges" % meshName, 2);
-        cmds.select( clear=True )
+        cmds.polySoftEdge(a=89.99)
+        cmds.setAttr("%s.displayEdges" % meshName, 2)
+        cmds.select(clear=True)
         return (cylinderName, transformName, meshName)
 
     def updateColor(self, mID, colorname):

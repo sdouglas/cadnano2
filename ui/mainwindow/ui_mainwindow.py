@@ -2,8 +2,8 @@
 
 # Form implementation generated from reading ui file 'mainwindow/mainwindow.ui'
 #
-# Created: Tue Nov 29 19:11:52 2011
-#      by: PyQt4 UI code generator 4.8.6
+# Created: Fri Dec 16 08:43:58 2011
+#      by: PyQt4 UI code generator 4.8.5
 #
 # WARNING! All changes made in this file will be lost!
 
@@ -365,6 +365,7 @@ class Ui_MainWindow(object):
         self.actionFilterXover.setToolTip(QtGui.QApplication.translate("MainWindow", "Xover-selection mode", None, QtGui.QApplication.UnicodeUTF8))
         self.actionFilterXover.setObjectName(_fromUtf8("actionFilterXover"))
         self.actionFiltersLabel = QtGui.QAction(MainWindow)
+        self.actionFiltersLabel.setEnabled(False)
         self.actionFiltersLabel.setText(QtGui.QApplication.translate("MainWindow", "Selectable:", None, QtGui.QApplication.UnicodeUTF8))
         self.actionFiltersLabel.setToolTip(QtGui.QApplication.translate("MainWindow", "Selection Filters", None, QtGui.QApplication.UnicodeUTF8))
         self.actionFiltersLabel.setObjectName(_fromUtf8("actionFiltersLabel"))
@@ -391,15 +392,16 @@ class Ui_MainWindow(object):
         icon25 = QtGui.QIcon()
         icon25.addPixmap(QtGui.QPixmap(_fromUtf8(":/parttools/filter-scaf")), QtGui.QIcon.Normal, QtGui.QIcon.Off)
         self.actionFilterScaf.setIcon(icon25)
-        self.actionFilterScaf.setText(QtGui.QApplication.translate("MainWindow", " ", None, QtGui.QApplication.UnicodeUTF8))
+        self.actionFilterScaf.setText(_fromUtf8(""))
         self.actionFilterScaf.setToolTip(QtGui.QApplication.translate("MainWindow", "Scaffold-selection mode", None, QtGui.QApplication.UnicodeUTF8))
         self.actionFilterScaf.setObjectName(_fromUtf8("actionFilterScaf"))
         self.actionFilterStap = QtGui.QAction(MainWindow)
         self.actionFilterStap.setCheckable(True)
+        self.actionFilterStap.setChecked(True)
         icon26 = QtGui.QIcon()
         icon26.addPixmap(QtGui.QPixmap(_fromUtf8(":/parttools/filter-stap")), QtGui.QIcon.Normal, QtGui.QIcon.Off)
         self.actionFilterStap.setIcon(icon26)
-        self.actionFilterStap.setText(QtGui.QApplication.translate("MainWindow", " ", None, QtGui.QApplication.UnicodeUTF8))
+        self.actionFilterStap.setText(_fromUtf8(""))
         self.actionFilterStap.setToolTip(QtGui.QApplication.translate("MainWindow", "Staple-selection mode", None, QtGui.QApplication.UnicodeUTF8))
         self.actionFilterStap.setObjectName(_fromUtf8("actionFilterStap"))
         self.actionAbout = QtGui.QAction(MainWindow)

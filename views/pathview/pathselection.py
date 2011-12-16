@@ -35,10 +35,11 @@ import util
 
 # import Qt stuff into the module namespace with PySide, PyQt4 independence
 util.qtWrapImport('QtCore', globals(), ['Qt', 'QPointF', 'QEvent', 'QRectF'])
-util.qtWrapImport('QtGui', globals(), [ 'QPen', 'QBrush', 'QColor', 'qApp',\
+util.qtWrapImport('QtGui', globals(), ['QPen', 'QBrush', 'QColor', 'qApp',\
                                         'QGraphicsItem', \
                                         'QGraphicsItemGroup',\
                                         'QGraphicsPathItem', 'QPainterPath'])
+
 
 class SelectionItemGroup(QGraphicsItemGroup):
     """
@@ -50,9 +51,9 @@ class SelectionItemGroup(QGraphicsItemGroup):
         self.setFiltersChildEvents(True)
         self.setHandlesChildEvents(True)
         self.setFlag(QGraphicsItem.ItemIsSelectable)
-        self.setFlag(QGraphicsItem.ItemIsFocusable) # for keyPressEvents
+        self.setFlag(QGraphicsItem.ItemIsFocusable)  # for keyPressEvents
         self.setFlag(QGraphicsItem.ItemHasNoContents)
-        
+
         self._rect = QRectF()
         self._pen = QPen(styles.bluestroke, styles.PATH_SELECTBOX_STROKE_WIDTH)
 
@@ -60,15 +61,15 @@ class SelectionItemGroup(QGraphicsItemGroup):
 
         self._dragEnable = False
         self._dragged = False
-        self._baseClick = 0 #  special tri-state counter to enable deselection on click away 
+        self._baseClick = 0  # tri-state counter to enable deselection on click away
 
         self._r0 = 0  # save original mousedown
         self._r = 0  # latest position for moving
-        
+
         # self._lastKid = 0
 
         # this keeps track of mousePressEvents within the class
-        # to aid in intellignetly removing items from the group 
+        # to aid in intellignetly removing items from the group
         self._addedToPressList = False
 
         self._pendingToAddDict = {}
@@ -82,10 +83,10 @@ class SelectionItemGroup(QGraphicsItemGroup):
 
         self._normalSelect = True
         self._instantAdd = False
-        
+
         self.setZValue(styles.ZPATHSELECTION)
     # end def
-    
+
     # def paint(self, painter, option, widget):
     #     painter.drawRect(self.boundingRect())
     # # end def
@@ -113,17 +114,14 @@ class SelectionItemGroup(QGraphicsItemGroup):
 
     def processPendingToAddList(self):
         doc = self._viewroot.document()
-        if len(self._pendingToAddDict) == 0:
-            pass
-        else:
+        if len(self._pendingToAddDict) > 0:
             for item in self._pendingToAddDict:
                 item.modelSelect(doc)
                 self.addToGroup(item)
-
-        self._pendingToAddDict = {}
-        doc.updateSelection()
+            self._pendingToAddDict = {}
+            doc.updateSelection()
     # end def
-    
+
     def resetSelection(self):
         self._pendingToAddDict = {}
         self._addedToPressList = False
@@ -133,12 +131,12 @@ class SelectionItemGroup(QGraphicsItemGroup):
     # end def
     
     def setInstantAdd(self, boolval, isClick=False):
-        if boolval:
+        if isClick:
+            self._instantAdd = 3
+        elif boolval:
             self._instantAdd = 1
         else:
             self._instantAdd = 0
-        if isClick:
-            self._instantAdd = 3
     # end def
 
     def isInstantAdd(self):
@@ -160,22 +158,23 @@ class SelectionItemGroup(QGraphicsItemGroup):
         self._viewroot.setSelectionLock(selectionGroup)
     # end def
 
-    # def keyPressEvent(self, event):
-    #     """
-    #     Must intercept invalid input events.  Make changes here
-    #     """
-    # 
-    #     a = event.key()
-    #     if a in [Qt.Key_Backspace, Qt.Key_Delete]:
-    #         thePart = self._partItem.part()
-    #         vhList = [thePart.getVirtualHelix(i.number()) for i in self.childItems()]
-    #         self.clearSelection(False)
-    #         thePart.removeVirtualHelicesAt(vhList)
-    #         # print "getting delete events "
-    #         return
-    #     else:
-    #         return QGraphicsItemGroup.keyPressEvent(self, event)
-    # # end def
+    def keyPressEvent(self, event):
+        """
+        Must intercept invalid input events.  Make changes here
+        """
+        a = event.key()
+        if a in [Qt.Key_Backspace, Qt.Key_Delete]:
+            # thePart = self._partItem.part()
+            # vhList = [thePart.getVirtualHelix(
+            #                        i.number()) for i in self.childItems()]
+            # self.clearSelection(False)
+            # thePart.removeVirtualHelicesAt(vhList)
+            print "deleting selected"
+            self._viewroot.document().deleteSelection()
+            return QGraphicsItemGroup.keyPressEvent(self, event)
+        else:
+            return QGraphicsItemGroup.keyPressEvent(self, event)
+    # end def
 
     def mousePressEvent(self, event):
         print "select mp"
@@ -186,7 +185,7 @@ class SelectionItemGroup(QGraphicsItemGroup):
         else:
             self._dragEnable = True
 
-            # required to get the itemChanged event to work 
+            # required to get the itemChanged event to work
             # correctly for this
             self.setSelected(True)
 
@@ -229,6 +228,7 @@ class SelectionItemGroup(QGraphicsItemGroup):
 
     def customMouseRelease(self, event):
         """docstring for customMouseRelease"""
+        print "customMouseRelease", self._baseClick, self._instantAdd
         self.selectionbox.hide()
         self.selectionbox.resetTransform()
         self._dragEnable = False
@@ -238,7 +238,6 @@ class SelectionItemGroup(QGraphicsItemGroup):
         # end if
         self._r0 = 0  # reset
         self._r = 0  # reset
-        print "mouse release", self._baseClick, self._instantAdd
         self._addedToPressList = False
         # if self._baseClick == 0:
         #     self._addedToPressList = True
@@ -265,13 +264,13 @@ class SelectionItemGroup(QGraphicsItemGroup):
             self.selectionbox.resetPosition()
             self.removeSelectedItems()
             self._viewroot.setSelectionLock(None)
-            self.clearFocus() # this is to disable delete keyPressEvents
+            self.clearFocus()  # this is to disable delete keyPressEvents
             self.prepareGeometryChange()
             self._rect.setWidth(0)
             # self._rect = QRectF()
         # end if
         else:
-            self.setFocus() # this is to get delete keyPressEvents
+            self.setFocus()  # this is to get delete keyPressEvents
         self.update(self.boundingRect())
     # end def
 
@@ -280,11 +279,11 @@ class SelectionItemGroup(QGraphicsItemGroup):
         # if change == QGraphicsItem.ItemSelectedHasChanged:
         if change == QGraphicsItem.ItemSelectedChange:
             if value == False and self._instantAdd == 0:
-                print "clear due to deselect"
+                # print "clear due to deselect"
                 self.clearSelection(False)
                 return False
             else:
-                print "clear instant add"
+                # print "clear instant add"
                 self._instantAdd = 2
                 if self._addedToPressList == False:
                     self._addedToPressList = True
@@ -293,9 +292,8 @@ class SelectionItemGroup(QGraphicsItemGroup):
                 return True
         elif change == QGraphicsItem.ItemChildAddedChange:
             if self._addedToPressList == False:
-                # self._lastKid += 1
-                print "kid added"
-                # self._instantAdd = 1
+                # print "kid added"
+                self.setFocus()  # this is to get delete keyPressEvents
                 self.setParentItem(self.selectionbox.boxParent())
                 self._addedToPressList = True
                 self.scene().views()[0].addToPressList(self)
@@ -305,7 +303,7 @@ class SelectionItemGroup(QGraphicsItemGroup):
 
     def removeChild(self, child):
         """
-        remove only the child and ask it to 
+        remove only the child and ask it to
         restore it's original parent
         """
         doc = self._viewroot.document()
@@ -321,7 +319,7 @@ class SelectionItemGroup(QGraphicsItemGroup):
             self.removeFromGroup(item)
             item.modelDeselect(doc)
             # if not item.isSelected():
-            #     # call this first before removing from the group to 
+            #     # call this first before removing from the group to
             #     # prevent unecessary change events
             #     self.removeFromGroup(item)
             #     item.modelDeselect(doc)
@@ -341,15 +339,15 @@ class SelectionItemGroup(QGraphicsItemGroup):
                 self.addToGroup(item)
             # end for
     # end def
-    
+
     def setBoundingRect(self, rect):
         self.prepareGeometryChange()
         self._rect = rect
     # end def
-    
+
     def boundingRect(self):
         return self._rect
-        
+
 # end class
 
 
@@ -366,7 +364,8 @@ class VirtualHelixHandleSelectionBox(QGraphicsPathItem):
         """
         The itemGroup.parentItem() is expected to be a partItem
         """
-        super(VirtualHelixHandleSelectionBox, self).__init__(itemGroup.parentItem())
+        super(VirtualHelixHandleSelectionBox, self).__init__(
+                                                        itemGroup.parentItem())
         self._itemGroup = itemGroup
         self._rect = itemGroup.boundingRect()
         self.hide()
@@ -382,7 +381,7 @@ class VirtualHelixHandleSelectionBox(QGraphicsPathItem):
     # end def
 
     def translateY(self, delta):
-         self.setY(delta)
+        self.setY(delta)
      # end def
 
     def refreshPath(self):
@@ -394,7 +393,7 @@ class VirtualHelixHandleSelectionBox(QGraphicsPathItem):
     def painterPath(self):
         iG = self._itemGroup
         # the childrenBoundingRect is necessary to get this to work
-        rect = self.mapRectFromItem(iG,iG.childrenBoundingRect() )
+        rect = self.mapRectFromItem(iG, iG.childrenBoundingRect())
         radius = self._radius
 
         path = QPainterPath()
@@ -438,13 +437,14 @@ class VirtualHelixHandleSelectionBox(QGraphicsPathItem):
     # end def
 
     def delta(self, yf, y0):
-        return yf-y0
+        return yf - y0
     # end def
 
     def resetPosition(self):
         self.setPos(self._pos0)
     # end def
 # end class
+
 
 class EndpointHandleSelectionBox(QGraphicsPathItem):
     _penWidth = styles.SLICE_HELIX_HILIGHT_WIDTH
@@ -455,13 +455,14 @@ class EndpointHandleSelectionBox(QGraphicsPathItem):
         """
         The itemGroup.parentItem() is expected to be a partItem
         """
-        super(EndpointHandleSelectionBox, self).__init__(itemGroup.parentItem())
+        super(EndpointHandleSelectionBox, self).__init__(
+                                                    itemGroup.parentItem())
         self._itemGroup = itemGroup
         self._rect = itemGroup.boundingRect()
         self.hide()
         self.setPen(self._boxPen)
         self.setZValue(styles.ZPATHSELECTION)
-        self._bounds = (0,0)
+        self._bounds = (0, 0)
         self._pos0 = QPointF()
     # end def
 
@@ -470,7 +471,7 @@ class EndpointHandleSelectionBox(QGraphicsPathItem):
     # end def
 
     def translateX(self, delta):
-        self.setX(self._baseWidth*delta)
+        self.setX(self._baseWidth * delta)
     # end def
 
     def resetPosition(self):
@@ -478,7 +479,7 @@ class EndpointHandleSelectionBox(QGraphicsPathItem):
 
     def delta(self, xf, x0):
         boundL, boundH = self._bounds
-        delta = int(floor((xf-x0) / self._baseWidth))
+        delta = int(floor((xf - x0) / self._baseWidth))
         if delta > 0 and delta > boundH:
             delta = boundH
         elif delta < 0 and abs(delta) > boundL:
@@ -486,7 +487,8 @@ class EndpointHandleSelectionBox(QGraphicsPathItem):
         return delta
 
     def refreshPath(self):
-        tempLow, tempHigh = self._itemGroup._viewroot.document().getSelectionBounds()
+        tempLow, tempHigh = \
+                    self._itemGroup._viewroot.document().getSelectionBounds()
         self._bounds = (tempLow, tempHigh)
         self.prepareGeometryChange()
         self.setPath(self.painterPath())
@@ -498,13 +500,13 @@ class EndpointHandleSelectionBox(QGraphicsPathItem):
         iG = self._itemGroup
         # the childrenBoundingRect is necessary to get this to work
         rectIG = iG.childrenBoundingRect()
-        rect = self.mapRectFromItem(iG,rectIG )
+        rect = self.mapRectFromItem(iG, rectIG)
         if rect.width() < bw:
-            rect.adjust(-bw/4, 0, bw/2, 0)
+            rect.adjust(-bw / 4, 0, bw / 2, 0)
         path = QPainterPath()
         path.addRect(rect)
         self._itemGroup.setBoundingRect(rectIG)
-        
+
         # path.addRoundedRect(rect, radius, radius)
         # path.moveTo(rect.right(),\
         #                  rect.center().y())
