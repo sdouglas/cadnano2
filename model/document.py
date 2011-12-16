@@ -252,18 +252,24 @@ class Document(QObject):
 
     def deleteSelection(self, useUndoStack=True):
         """Delete xovers if present. Otherwise delete everything."""
-        if useUndoStack:
-            self.undoStack().beginMacro("Delete selection")
-
-        for strandSetDict in self._selectionDict.itervalues():
-            for strand, value in strandSetDict.iteritems():
+        rmList = []
+        for strandSetDict in self._selectionDict.values():
+            for strand, value in strandSetDict.items():
                 part = strand.virtualHelix().part()
                 idxL, idxH = strand.idxs()
+
                 v = value[0] if idxL == strand.idx3Prime() else value[1]
                 if v:
                     strand3p = strand.connection3p()
                     if strand3p:
-                        Part.removeXover(part, strand, strand3p, useUndoStack)
+                        rmList.append((part, strand, strand3p, useUndoStack))
+
+        if useUndoStack:
+            self.undoStack().beginMacro("Delete selection")
+        for part, strand, strand3p, useUndo in rmList:
+            Part.removeXover(part, strand, strand3p, useUndo)
+            self.removeStrandFromSelection(strand)
+            self.removeStrandFromSelection(strand3p)
         if useUndoStack:
             self.undoStack().endMacro()
 

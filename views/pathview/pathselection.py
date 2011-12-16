@@ -162,15 +162,10 @@ class SelectionItemGroup(QGraphicsItemGroup):
         """
         Must intercept invalid input events.  Make changes here
         """
-        a = event.key()
-        if a in [Qt.Key_Backspace, Qt.Key_Delete]:
-            # thePart = self._partItem.part()
-            # vhList = [thePart.getVirtualHelix(
-            #                        i.number()) for i in self.childItems()]
-            # self.clearSelection(False)
-            # thePart.removeVirtualHelicesAt(vhList)
-            print "deleting selected"
+        key = event.key()
+        if key in [Qt.Key_Backspace, Qt.Key_Delete]:
             self._viewroot.document().deleteSelection()
+            self.clearSelection(False)
             return QGraphicsItemGroup.keyPressEvent(self, event)
         else:
             return QGraphicsItemGroup.keyPressEvent(self, event)
@@ -228,7 +223,6 @@ class SelectionItemGroup(QGraphicsItemGroup):
 
     def customMouseRelease(self, event):
         """docstring for customMouseRelease"""
-        print "customMouseRelease", self._baseClick, self._instantAdd
         self.selectionbox.hide()
         self.selectionbox.resetTransform()
         self._dragEnable = False
@@ -249,7 +243,7 @@ class SelectionItemGroup(QGraphicsItemGroup):
         #     self._instantAdd = 2
         #     self.clearSelection(False)
         if self._instantAdd != 1:
-            print "clear due to click"
+            print "clear due to click", self._instantAdd
             self._instantAdd = 0
             self.clearSelection(False)
         else:

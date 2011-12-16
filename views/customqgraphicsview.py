@@ -227,7 +227,6 @@ class CustomQGraphicsView(QGraphicsView):
         elif event.key() == Qt.Key_Down:
             self.sceneRootItem.translate(0, -self.keyPanDeltaY())
         else:
-            print "cqgv:", event.key()
             return QGraphicsView.keyPressEvent(self, event)
         # end else
     # end def
