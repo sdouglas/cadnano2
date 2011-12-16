@@ -1,18 +1,16 @@
-###############################################################################
-#
 # Copyright 2011 Autodesk, Inc.  All rights reserved.
 #
 # The MIT License
 #
-# Permission is hereby granted, free of charge, to any person obtaining a copy of
-# this software and associated documentation files (the "Software"), to deal in
-# the Software without restriction, including without limitation the rights to
-# use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
-# of the Software, and to permit persons to whom the Software is furnished to do
-# so, subject to the following conditions:
+# Permission is hereby granted, free of charge, to any person obtaining a copy
+# of this software and associated documentation files (the "Software"), to deal
+# in the Software without restriction, including without limitation the rights
+# to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+# copies of the Software, and to permit persons to whom the Software is
+# furnished to do so, subject to the following conditions:
 #
-# The above copyright notice and this permission notice shall be included in all
-# copies or substantial portions of the Software.
+# The above copyright notice and this permission notice shall be included in
+# all copies or substantial portions of the Software.
 #
 # THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
 # IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
@@ -22,7 +20,7 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 #
-###############################################################################
+# http://www.opensource.org/licenses/mit-license.php
 
 """
 helixManip.py
@@ -45,6 +43,7 @@ from controllers.mayacontrollers.mayaObjectManager import Mom
 helixManipId = OpenMaya.MTypeId(0x00117702)
 contextCmdName = "spHelixManipCtxCmd"
 nodeName = "spHelixManip"
+
 
 def project(a, b):
     c = OpenMaya.MVector()
@@ -79,7 +78,7 @@ class helixManip(OpenMayaMPx.MPxManipContainer):
     cp = OpenMaya.MPoint()
     ep = OpenMaya.MPoint()
     ecp = OpenMaya.MPoint()
-    
+
     isMouseDown = False
 
     deltaFront = 0
@@ -92,59 +91,59 @@ class helixManip(OpenMayaMPx.MPxManipContainer):
     helicesNames = []
     ffpIdxMap = {}
     epIdxMap = {}
-    
+
     frontDistance = 0
     backDistance = 0
-    
+
     firstHelix = 0
-    
+
     #static
     helixDragMarker = None
     dragMarkerName = "HelixManipDragMarker"
     transformName = dragMarkerName + "Transform"
     meshName = dragMarkerName + "Mesh"
-    shaderName = dragMarkerName + "Shader"
 
     def createHelixDragMarker(self):
-    
+
         if not helixManip.helixDragMarker == None:
             return helixManip.helixDragMarker
-    
+
         try:
-            cmds.createNode("transform", name=helixManip.transformName, skipSelect=True)
+            cmds.createNode(
+                        "transform",
+                        name=helixManip.transformName,
+                        skipSelect=True)
             cmds.setAttr("%s.rotateX" % helixManip.transformName, 90)
 
-            cmds.createNode("mesh", name=helixManip.meshName, parent=helixManip.transformName, skipSelect=True)
-            cmds.createNode("polyPlane", name=helixManip.dragMarkerName, skipSelect=True)
+            cmds.createNode(
+                        "mesh",
+                        name=helixManip.meshName,
+                        parent=helixManip.transformName,
+                        skipSelect=True)
+            cmds.createNode(
+                        "polyPlane",
+                        name=helixManip.dragMarkerName,
+                        skipSelect=True)
             #cmds.setAttr("%s.width" % dragMarkerName, 1)
             #cmds.setAttr("%s.height" % dragMarkerName, 1)
-            cmds.setAttr("%s.subdivisionsWidth" % helixManip.dragMarkerName, 1)
-            cmds.setAttr("%s.subdivisionsHeight" % helixManip.dragMarkerName, 1)
-            
+            cmds.setAttr(
+                    "%s.subdivisionsWidth" % helixManip.dragMarkerName, 1)
+            cmds.setAttr(
+                    "%s.subdivisionsHeight" % helixManip.dragMarkerName, 1)
+
             cmds.connectAttr("%s.output" % helixManip.dragMarkerName,
                              "%s.inMesh" % helixManip.meshName)
-            """
-            # Shader does not exist create one
-            cmds.shadingNode('lambert', asShader=True, name=helixManip.shaderName)
-            cmds.sets(n="%sSG" % helixManip.shaderName, r=True, nss=True, em=True)
-            cmds.connectAttr("%s.outColor" % helixManip.shaderName,
-                             "%sSG.surfaceShader" % helixManip.shaderName)
-            cmds.setAttr("%s.color" % helixManip.shaderName,
-                         0.0, 0.0, 0.0,
-                         type="double3")
-            cmds.sets(helixManip.meshName, forceElement="%sSG" % helixManip.shaderName)
-            """
-                
+
             helixManip.helixDragMarker = helixManip.transformName
-            
+
         except:
             sys.stderr.write(
                         "helixManip: Error createHelixDragMarker\n")
             sys.stderr.write(sys.exc_info()[0])
             raise
-        
+
         return helixManip.helixDragMarker
-        
+
     def moveHelixDragMarkerTo(self, translation):
         cmds.setAttr(
             helixManip.transformName + ".translate",
@@ -152,10 +151,10 @@ class helixManip(OpenMayaMPx.MPxManipContainer):
             translation[1],
             translation[2],
             type="double3")
-    
+
     def __init__(self):
         OpenMayaMPx.MPxManipContainer.__init__(self)
-        
+
     def addHelix(self, HNumber):
 
         m = Mom()
@@ -171,7 +170,7 @@ class helixManip(OpenMayaMPx.MPxManipContainer):
 
         self.helicesNames.append(h.helixName)
 
-        if( len(self.helices) == 1 ):
+        if(len(self.helices) == 1):
             self.firstHelix = h.id
             self.connectToDependNode(h)
 
@@ -179,7 +178,7 @@ class helixManip(OpenMayaMPx.MPxManipContainer):
         self.finishAddingManips()
         #for (id, helix) in self.helices.iteritems():
         OpenMayaMPx.MPxManipContainer.connectToDependNode(
-                                                        self, self.helices[self.firstHelix].helixNode)
+                                self, self.helices[self.firstHelix].helixNode)
 
     def createChildren(self):
         self.helices = {}
@@ -206,7 +205,7 @@ class helixManip(OpenMayaMPx.MPxManipContainer):
 
     def draw(self, view, path, style, status):
         OpenMayaMPx.MPxManipContainer.draw(self, view, path, style, status)
-        
+
         if not self.isMouseDown:
             return
 
@@ -214,7 +213,8 @@ class helixManip(OpenMayaMPx.MPxManipContainer):
         v = OpenMaya.MPoint()
         drawText = ""
         am = self.activeManip()
-        m = self.getTransformMtxFromNode(self.helices[self.firstHelix].helixTransform)
+        m = self.getTransformMtxFromNode(
+                                self.helices[self.firstHelix].helixTransform)
         if am is self.fDistanceFrontManip:
             drawText = str(self.deltaFront)
             if self.deltaFront > 0:
@@ -233,10 +233,10 @@ class helixManip(OpenMayaMPx.MPxManipContainer):
                 drawText = "<  " + drawText
             if self.deltaBack < self.maxDelta:
                 drawText = drawText + "  >"
-                
+
             u = self.ep * m
             v = u + self.backDir * self.backDistance
-            
+
         w = OpenMaya.MPoint((u.x + v.x) / 2, (u.y + v.y) / 2, (u.z + v.z) / 2)
 
         view.beginGL()
@@ -301,7 +301,7 @@ class helixManip(OpenMayaMPx.MPxManipContainer):
         return distance
 
     def activeManip(self):
-    
+
         try:
             activeManip = OpenMaya.MObject()
             self.isManipActive(OpenMaya.MFn.kDistanceManip, activeManip)
@@ -316,20 +316,20 @@ class helixManip(OpenMayaMPx.MPxManipContainer):
             raise
 
         return None
-    
+
     def calculateDeltaBounds(self):
         try:
-        
+
             self.minDelta = float('-inf')
             self.maxDelta = float('inf')
-        
+
             am = self.activeManip()
             for (id, helix) in self.helices.iteritems():
                 strand = self.getStrand(helix)
                 lowIdx, highIdx = strand.idxs()
                 maxIdx = strand.part().maxBaseIdx()
                 minIdx = strand.part().minBaseIdx()
-                
+
                 minVal = 0
                 maxVal = 0
                 if am is self.fDistanceFrontManip:
@@ -338,15 +338,15 @@ class helixManip(OpenMayaMPx.MPxManipContainer):
                 elif am is self.fDistanceBackManip:
                     minVal = lowIdx - highIdx + 1
                     maxVal = maxIdx - highIdx
-                    
+
                 self.minDelta = max(minVal, self.minDelta)
                 self.maxDelta = min(maxVal, self.maxDelta)
-                
+
             print "DELTABOUNDS:", self.minDelta, self.maxDelta
         except:
             print "calculateDeltaBounds failed!"
             raise
-    
+
     def doPress(self):
 
         # print "PRESS"
@@ -371,29 +371,29 @@ class helixManip(OpenMayaMPx.MPxManipContainer):
                 0,
                 bbox[4] - bbox[1],
                 type="double3")
-        
+
         z = 0
         if am is self.fDistanceFrontManip:
             z = bbox[5]
-        elif am is self.fDistanceBackManip:    
+        elif am is self.fDistanceBackManip:
             z = bbox[2]
-                
+
         self.moveHelixDragMarkerTo((
                                 (bbox[0] + bbox[3]) / 2,
                                 (bbox[1] + bbox[4]) / 2,
                                 z
                                 ))
         cmds.showHidden(helixManip.transformName)
-        
+
         self.calculateDeltaBounds()
-                        
+
         return OpenMaya.kUnknownParameter
 
     def doRelease(self):
         # print "RELEASED"
 
         self.isMouseDown = False
-        
+
         if(self.deltaFront != 0):
             app().activeDocument.document().resizeSelection(self.deltaFront)
 
@@ -404,10 +404,10 @@ class helixManip(OpenMayaMPx.MPxManipContainer):
         m.strandsSelected(self.helicesNames, (True, True))
 
         cmds.hide(helixManip.transformName)
-        
+
         self.frontDistance = 0
         self.backDistance = 0
-        
+
         return OpenMaya.kUnknownParameter
 
     def doDrag(self):
@@ -423,29 +423,30 @@ class helixManip(OpenMayaMPx.MPxManipContainer):
                                 (bbox[1] + bbox[4]) / 2,
                                 bbox[5] + self.frontDistance
                                 ))
-        elif am is self.fDistanceBackManip:    
+        elif am is self.fDistanceBackManip:
             self.moveHelixDragMarkerTo((
                                 (bbox[0] + bbox[3]) / 2,
                                 (bbox[1] + bbox[4]) / 2,
                                 bbox[2] - self.backDistance
                                 ))
-                                
+
         return OpenMaya.kUnknownParameter
-        
+
     def plugToManipConversion(self, manipIndex):
 
         #print "plugToManipCalled"
 
         manipData = OpenMayaUI.MManipData()
         try:
-        
+
             frontManip = OpenMayaUI.MFnDistanceManip(self.fDistanceFrontManip)
             backManip = OpenMayaUI.MFnDistanceManip(self.fDistanceBackManip)
 
             boundBoxCenter = OpenMaya.MVector()
             boundBoxScale = OpenMaya.MVector()
-            
-            selectedItems = cmds.ls(Mom().helixTransformName + "*", selection=True)
+
+            selectedItems = cmds.ls(
+                                Mom().helixTransformName + "*", selection=True)
             bbox = cmds.exactWorldBoundingBox(selectedItems)
             boundBoxCenter.x = float((bbox[0] + bbox[3]) / 2)
             boundBoxCenter.y = float((bbox[1] + bbox[4]) / 2)
@@ -457,7 +458,8 @@ class helixManip(OpenMayaMPx.MPxManipContainer):
             if(manipIndex == frontManip.currentPointIndex()):
 
                 ws = boundBoxCenter + project(boundBoxScale / 2, self.frontDir)
-                ws += self.frontDir * (self.manipHandleOffset + self.frontDistance)
+                ws += self.frontDir * \
+                                (self.manipHandleOffset + self.frontDistance)
 
                 numData = OpenMaya.MFnNumericData()
                 numDataObj = numData.create(OpenMaya.MFnNumericData.k3Double)
@@ -467,7 +469,8 @@ class helixManip(OpenMayaMPx.MPxManipContainer):
             elif(manipIndex == backManip.currentPointIndex()):
 
                 ws = boundBoxCenter + project(boundBoxScale / 2, self.backDir)
-                ws += self.backDir * (self.manipHandleOffset + self.backDistance)
+                ws += self.backDir * \
+                                (self.manipHandleOffset + self.backDistance)
 
                 numData = OpenMaya.MFnNumericData()
                 numDataObj = numData.create(OpenMaya.MFnNumericData.k3Double)
@@ -499,9 +502,9 @@ class helixManip(OpenMayaMPx.MPxManipContainer):
 
     def manipToPlugConversion(self, plugIndex):
         #print "manipToPlugConversion", plugIndex
-        
+
         try:
-        
+
             if plugIndex in self.ffpIdxMap:  # front float plug
                 helix = self.ffpIdxMap[plugIndex]
                 numData = OpenMaya.MFnNumericData()
@@ -528,7 +531,7 @@ class helixManip(OpenMayaMPx.MPxManipContainer):
                                                 ) - self.manipHandleOffset
 
                 self.frontDistance = distance
-                                                
+
                 delta = self.distanceToBase(helix, distance)
                 self.resizeCNHelixFront(helix, delta)
 
@@ -561,7 +564,7 @@ class helixManip(OpenMayaMPx.MPxManipContainer):
                                                 ) - self.manipHandleOffset
 
                 self.backDistance = distance
-                                                
+
                 delta = self.distanceToBase(helix, distance)
                 self.resizeCNHelixBack(helix, delta)
 
@@ -570,7 +573,7 @@ class helixManip(OpenMayaMPx.MPxManipContainer):
         except:
             sys.stderr.write("ERROR: helixManip.manipToPlugConversion\n")
             raise
-            
+
         return returnData
 
     def getTransformFromNode(self, trnsNode):
@@ -649,7 +652,7 @@ class helixManip(OpenMayaMPx.MPxManipContainer):
             return delta
         except:
             print "distanceToBase failed!"
-            
+
     def baseToDistance(self, helix, base):
         try:
             ## given a distance from the origin of the strand,
@@ -675,7 +678,7 @@ class helixManip(OpenMayaMPx.MPxManipContainer):
             self.deltaFront = newLow - lowIdx
             self.deltaFront = max(self.minDelta, self.deltaFront)
             self.deltaFront = min(self.maxDelta, self.deltaFront)
-            
+
             self.frontDistance = -self.baseToDistance(helix, self.deltaFront)
         except:
             print "resizeCNHelixFront failed!"
@@ -694,7 +697,7 @@ class helixManip(OpenMayaMPx.MPxManipContainer):
             self.deltaBack = newHigh - highIdx
             self.deltaBack = max(self.minDelta, self.deltaBack)
             self.deltaBack = min(self.maxDelta, self.deltaBack)
-            
+
             self.backDistance = self.baseToDistance(helix, self.deltaBack)
         except:
             print "resizeCNHelixBack failed!"
