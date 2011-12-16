@@ -38,8 +38,8 @@ util.qtWrapImport('QtGui', globals(), ['QBrush', 'QGraphicsItem', \
                                        'QGraphicsPathItem',  'QGraphicsRectItem', \
                                        'QPainterPath', 'QPen'])
 _baseWidth = styles.PATH_BASE_WIDTH
-_gridPen = QPen(styles.minorgridstroke, styles.MINOR_GRID_STROKE_WIDTH)
-_gridPen.setCosmetic(True)
+# _gridPen = QPen(styles.minorgridstroke, styles.MINOR_GRID_STROKE_WIDTH)
+# _gridPen.setCosmetic(True)
 
 
 class VirtualHelixItem(QGraphicsPathItem):
@@ -52,6 +52,7 @@ class VirtualHelixItem(QGraphicsPathItem):
         self._viewroot = viewroot
         self._activeTool = activeTool
         self._controller = VirtualHelixItemController(self, modelVirtualHelix)
+        
         self._handle = VirtualHelixHandleItem(modelVirtualHelix, partItem, viewroot)
         self._gridPainterPath = None  # needed for getGridPainterPath()
         self._gridPainterPath = self.getGridPainterPath()
@@ -60,16 +61,31 @@ class VirtualHelixItem(QGraphicsPathItem):
         self.setFlag(QGraphicsItem.ItemUsesExtendedStyleOption)
         self.setCacheMode(QGraphicsItem.DeviceCoordinateCache)
         self.setBrush(QBrush(Qt.NoBrush))
-        self.setPen(_gridPen)
+
+        view = viewroot.scene().views()[0]
+        view.levelOfDetailChangedSignal.connect(self.levelOfDetailChangedSlot)
+        shouldShowDetails = view.shouldShowDetails()
+
+        pen = QPen(styles.minorgridstroke, styles.MINOR_GRID_STROKE_WIDTH)
+        pen.setCosmetic(shouldShowDetails)
+        self.setPen(pen)
+        
         self.setPath(self._gridPainterPath)
         self.setAcceptHoverEvents(True)  # for pathtools
         self.setZValue(styles.ZPATHHELIX)
-        
     # end def
 
     ### SIGNALS ###
 
     ### SLOTS ###
+    
+    def levelOfDetailChangedSlot(self, boolval):
+        """Not connected to the model, only the QGraphicsView"""
+        pen = self.pen()
+        pen.setCosmetic(boolval)
+        self.setPen(pen)
+    # end def
+    
     def strandAddedSlot(self, strand):
         """
         Instantiates a StrandItem upon notification that the model has a

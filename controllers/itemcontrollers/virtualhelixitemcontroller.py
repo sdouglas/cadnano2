@@ -35,7 +35,7 @@ class VirtualHelixItemController():
 
         mvh.virtualHelixNumberChangedSignal.connect(vhItem.virtualHelixNumberChangedSlot)
         mvh.virtualHelixRemovedSignal.connect(vhItem.virtualHelixRemovedSlot)
-
+        
         for strandSet in mvh.getStrandSets():
             strandSet.strandsetStrandAddedSignal.connect(vhItem.strandAddedSlot)
             # strandSet.decoratorAddedSignal.connect(vhItem.decoratorAddedSlot)
