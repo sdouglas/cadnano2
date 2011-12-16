@@ -677,7 +677,7 @@ class StrandItem(QGraphicsLineItem):
             if value == True and (self._filterName in currentFilterDict or not selectionGroup.isNormalSelect()):
                 if self.group() != selectionGroup and self._strandFilter in currentFilterDict:
                     if selectionGroup.isInstantAdd():
-                         pass
+                        pass
                     else:
                         selectionGroup.pendToAdd(self)
                         selectionGroup.setSelectionLock(selectionGroup)
@@ -694,6 +694,7 @@ class StrandItem(QGraphicsLineItem):
                 return False
             else:
                 # Deselect
+                # print "Deselecting strand"
                 selectionGroup.pendToRemove(self)
                 self.penAndBrushSet(False)
                 selectionGroup.pendToRemove(self._lowCap)
@@ -732,6 +733,7 @@ class StrandItem(QGraphicsLineItem):
         if indices[0] == True and indices[1] == True:
             if not self.isSelected():
                 selectionGroup.setNormalSelect(False)
+                self.penAndBrushSet(True)
                 self.modelSelect(document)
                 selectionGroup.addToGroup(self)
                 selectionGroup.setNormalSelect(True)
