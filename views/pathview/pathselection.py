@@ -327,6 +327,7 @@ class SelectionItemGroup(QGraphicsItemGroup):
             #     item.modelDeselect(doc)
             # end if
         # end for
+        doc.updateSelection()
     # end def
 
     def reParent(self, boolval):

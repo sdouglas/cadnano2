@@ -93,9 +93,12 @@ class DocumentWindow(QMainWindow, ui_mainwindow.Ui_MainWindow):
         # set the selection filter default
         doc.documentSelectionFilterChangedSignal.emit(["endpoint", "scaffold"])
 
+        self.pathGraphicsView.setupGL()
+        self.sliceGraphicsView.setupGL()
         if GL:
-            self.slicescene.drawBackground = self.drawBackground
-            self.pathscene.drawBackground = self.drawBackground
+            pass
+            # self.slicescene.drawBackground = self.drawBackgroundGL
+            # self.pathscene.drawBackground = self.drawBackgroundGL
 
         if app().isInMaya():
             from solidview.solidrootitem import SolidRootItem
@@ -156,23 +159,31 @@ class DocumentWindow(QMainWindow, ui_mainwindow.Ui_MainWindow):
     # end def
 
     ### DRAWING RELATED ###
-    def drawBackground(self, painter, rect):
-        """
-        This method is for overloading the QGraphicsScene.
-        """
-        if painter.paintEngine().type() != QPaintEngine.OpenGL and \
-            painter.paintEngine().type() != QPaintEngine.OpenGL2:
-
-            qWarning("OpenGLScene: drawBackground needs a QGLWidget to be set as viewport on the graphics view");
-            return
-        # end if
-        painter.beginNativePainting()
-        GL.glDisable(GL.GL_DEPTH_TEST) # disable for 2D drawing
-        GL.glClearColor(1.0, 1.0, 1.0, 1.0)
-        GL.glClear(GL.GL_COLOR_BUFFER_BIT | GL.GL_DEPTH_BUFFER_BIT)
-
-        painter.endNativePainting()
-    # end def
+    # def drawBackgroundGL(self, painter, rect):
+    #     """
+    #     This method is for overloading the QGraphicsScene.
+    #     """
+    #     if painter.paintEngine().type() != QPaintEngine.OpenGL and \
+    #         painter.paintEngine().type() != QPaintEngine.OpenGL2:
+    # 
+    #         qWarning("OpenGLScene: drawBackground needs a QGLWidget to be set as viewport on the graphics view");
+    #         return
+    #     # end if
+    #     painter.beginNativePainting()
+    #     GL.glDisable(GL.GL_DEPTH_TEST) # disable for 2D drawing
+    #     GL.glClearColor(1.0, 1.0, 1.0, 1.0)
+    #     GL.glClear(GL.GL_COLOR_BUFFER_BIT | GL.GL_DEPTH_BUFFER_BIT)
+    # 
+    #     painter.endNativePainting()
+    # # end def
+    
+    # def drawBackgroundNonGL(self, painter, rect):
+    #     """
+    #     This method is for overloading the QGraphicsScene.
+    #     """
+    #     print self
+    #     return QGraphicsScene.drawBackground(self, painter, rect)
+    # # end def
 
     ### PRIVATE HELPER METHODS ###
     def _readSettings(self):

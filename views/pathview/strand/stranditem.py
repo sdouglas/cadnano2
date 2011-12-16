@@ -398,6 +398,7 @@ class StrandItem(QGraphicsLineItem):
             color.setAlpha(128)
             penWidth = styles.PATH_STRAND_HIGHLIGHT_STROKE_WIDTH
         pen = QPen(color, penWidth)
+        pen.setCosmetic(True)
         brush = QBrush(color)
         pen.setCapStyle(Qt.FlatCap)
         self.setPen(pen)
@@ -676,7 +677,7 @@ class StrandItem(QGraphicsLineItem):
             if value == True and (self._filterName in currentFilterDict or not selectionGroup.isNormalSelect()):
                 if self.group() != selectionGroup and self._strandFilter in currentFilterDict:
                     if selectionGroup.isInstantAdd():
-                         print "yepppppp"
+                         pass
                     else:
                         selectionGroup.pendToAdd(self)
                         selectionGroup.setSelectionLock(selectionGroup)

@@ -41,11 +41,12 @@ from views import styles
 
 import util
 # import Qt stuff into the module namespace with PySide, PyQt4 independence
-util.qtWrapImport('QtCore', globals(), ['Qt'])
-util.qtWrapImport('QtGui', globals(),  ['QGraphicsView', 'qApp', 'QPen'])
+util.qtWrapImport('QtCore', globals(), ['Qt', 'QTimer', 'pyqtSignal'])
+util.qtWrapImport('QtGui', globals(),  ['QGraphicsView', 'QGraphicsScene', 'qApp', 'QPen','QPaintEngine'])
 
 # for OpenGL mode
 try:
+    from PyQt4.QtGui import QWidget
     from OpenGL import GL
     from PyQt4.QtOpenGL import QGLWidget, QGLFormat, QGL
 except:
@@ -101,6 +102,7 @@ class CustomQGraphicsView(QGraphicsView):
         self._scaleUpRate = 0.01
         self._scaleDownRate = 0.01
         self._scaleFitFactor = 1  # sets initial zoom level
+        self._showDetails = True
         self._last_scale_factor = 0.0
         self.sceneRootItem = None  # the item to transform
         # Keyboard panning
@@ -123,6 +125,8 @@ class CustomQGraphicsView(QGraphicsView):
         else:
             self.setViewportUpdateMode(QGraphicsView.MinimalViewportUpdate)
     # end def
+    
+    levelOfDetailChangedSignal = pyqtSignal(bool)
 
     def __repr__(self):
         clsName = self.__class__.__name__
@@ -142,6 +146,75 @@ class CustomQGraphicsView(QGraphicsView):
         self._transformEnable = False
         self._dollyZoomEnable = False
         self.setDragMode(self._noDrag)
+    # end def
+    
+    def setGLView(self, boolval):
+        scene = self.scene()
+        if boolval and self.isGL == False:
+            self.isGL = True
+            # scene.drawBackground = self.drawBackgroundGL
+            # self.setViewport(QGLWidget(QGLFormat(QGL.SampleBuffers)))
+            # self.setViewportUpdateMode(QGraphicsView.FullViewportUpdate)
+        elif not boolval and self.isGL == True:
+            self.isGL = False
+            # scene.drawBackground = self.drawBackgroundNonGL
+            # self.setViewport(QWidget())
+            # self.setViewportUpdateMode(QGraphicsView.MinimalViewportUpdate)
+    # end def
+    
+    def setupGL(self):
+        scene = self.scene()
+        win = self.sceneRootItem.window()
+        self.isGL = True
+        self.isGLSwitchAllowed = True
+        self.qTimer = QTimer()
+        # self.drawBackgroundNonGL = scene.drawBackground
+        # scene.drawBackground = self.drawBackgroundGL
+        # self.setViewport(QGLWidget(QGLFormat(QGL.SampleBuffers)))
+        # self.setViewportUpdateMode(QGraphicsView.FullViewportUpdate)
+    # end def
+    
+    def resetGL(self):
+        scaleFactor = self.transform().m11()
+        # print "scaleFactor", scaleFactor
+        if scaleFactor < 0.8:# and self.isGLSwitchAllowed:
+            # self.isGLSwitchAllowed = False
+            self.setGLView(True)
+            self._showDetails = False
+            self.levelOfDetailChangedSignal.emit(False) # zoomed out
+            self.qTimer.singleShot(500, self.allowGLSwitch)
+        elif scaleFactor > 2.0:# and self.isGLSwitchAllowed:
+            # self.isGLSwitchAllowed = False
+            self.setGLView(False)
+            self._showDetails = True
+            self.levelOfDetailChangedSignal.emit(True) # zoomed in 
+            self.qTimer.singleShot(500, self.allowGLSwitch)
+    # end def
+    
+    def shouldShowDetails(self):
+        return self._showDetails
+    # end def
+    
+    def allowGLSwitch(self):
+        self.isGLSwitchAllowed = True
+    # end def
+    
+    def drawBackgroundGL(self, painter, rect):
+        """
+        This method is for overloading the QGraphicsScene.
+        """
+        if painter.paintEngine().type() != QPaintEngine.OpenGL and \
+            painter.paintEngine().type() != QPaintEngine.OpenGL2:
+
+            qWarning("OpenGLScene: drawBackground needs a QGLWidget to be set as viewport on the graphics view");
+            return
+        # end if
+        painter.beginNativePainting()
+        GL.glDisable(GL.GL_DEPTH_TEST) # disable for 2D drawing
+        GL.glClearColor(1.0, 1.0, 1.0, 1.0)
+        GL.glClear(GL.GL_COLOR_BUFFER_BIT | GL.GL_DEPTH_BUFFER_BIT)
+
+        painter.endNativePainting()
     # end def
 
     def focusInEvent(self, event):
@@ -345,13 +418,14 @@ class CustomQGraphicsView(QGraphicsView):
 
     def wheelEvent(self, event):
         """docstring for wheelEvent"""
-        self.wheelZoom(event)
+        self.safeScale(event.delta())
+        # self.wheelZoom(event)
     #end def
 
-    def wheelZoom(self, event):
-        """docstring for wheelZoom"""
-        self.safeScale(event.delta())
-    # end def
+    # def wheelZoom(self, event):
+    #     """docstring for wheelZoom"""
+    #     
+    # # end def
 
     def safeScale(self, delta):
         currentScaleLevel = self.transform().m11()
@@ -364,6 +438,8 @@ class CustomQGraphicsView(QGraphicsView):
                               self._scale_limit_max)
         scaleChange = newScaleLevel / currentScaleLevel
         self.scale(scaleChange, scaleChange)
+        
+        self.resetGL()
     # end def
 
     def zoomIn(self, fractionOfMax=0.5):
@@ -429,6 +505,8 @@ class CustomQGraphicsView(QGraphicsView):
         # this is good for selection
         self.scale(self._scaleFitFactor, self._scaleFitFactor)
         self._scale_size *= self._scaleFitFactor
+        
+        self.resetGL()
     # end def
 
     def paintEvent(self, event):
