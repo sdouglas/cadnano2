@@ -765,6 +765,9 @@
    </property>
   </action>
   <action name="actionFiltersLabel">
+   <property name="enabled">
+    <bool>false</bool>
+   </property>
    <property name="text">
     <string>Selectable:</string>
    </property>
@@ -817,7 +820,7 @@
      <normaloff>:/parttools/filter-scaf</normaloff>:/parttools/filter-scaf</iconset>
    </property>
    <property name="text">
-    <string> </string>
+    <string/>
    </property>
    <property name="toolTip">
     <string>Scaffold-selection mode</string>
@@ -827,12 +830,15 @@
    <property name="checkable">
     <bool>true</bool>
    </property>
+   <property name="checked">
+    <bool>true</bool>
+   </property>
    <property name="icon">
     <iconset resource="icons.qrc">
      <normaloff>:/parttools/filter-stap</normaloff>:/parttools/filter-stap</iconset>
    </property>
    <property name="text">
-    <string> </string>
+    <string/>
    </property>
    <property name="toolTip">
     <string>Staple-selection mode</string>
