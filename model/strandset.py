@@ -240,7 +240,7 @@ class StrandSet(QObject):
         util.execCommandList(self, cmds, desc="Remove strand", useUndoStack=useUndoStack)
         return strandSetIdx
     # end def
-    
+
     def removeAllStrands(self, useUndoStack=True):
         # copy the list because we are going to shrink it and that's 
         # a no no with iterators
