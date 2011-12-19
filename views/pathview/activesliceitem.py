@@ -163,11 +163,13 @@ class ActiveSliceItem(QGraphicsRectItem):
     ### EVENT HANDLERS ###
     def hoverEnterEvent(self, event):
         self.setCursor(Qt.OpenHandCursor)
+        self._partItem.updateStatusBar("%d" % self.part().activeBaseIndex())
         QGraphicsItem.hoverEnterEvent(self, event)
     # end def
 
     def hoverLeaveEvent(self, event):
         self.setCursor(Qt.ArrowCursor)
+        self._partItem.updateStatusBar("")
         QGraphicsItem.hoverLeaveEvent(self, event)
     # end def
 
@@ -278,4 +280,5 @@ class ActiveSliceItem(QGraphicsRectItem):
         self.setPos(x, self.y())
         self.updateIndexSlot(None, idx)
         self._setActiveBaseIndex(idx)
+        self._partItem.updateStatusBar("%d" % self.part().activeBaseIndex())
     # end def

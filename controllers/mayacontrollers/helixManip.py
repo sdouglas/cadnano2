@@ -170,6 +170,8 @@ class helixManip(OpenMayaMPx.MPxManipContainer):
 
         self.helicesNames.append(h.helixName)
 
+        # we only connect the first node, so that the update events trigger
+        # the delta value will be the same for all the helices
         if(len(self.helices) == 1):
             self.firstHelix = h.id
             self.connectToDependNode(h)
@@ -273,12 +275,12 @@ class helixManip(OpenMayaMPx.MPxManipContainer):
             startPos = nodeFn.findPlug("startPos")
             startPoint = self.getFloat3PlugValue(startPos)
             self.sp = startPoint
-            self.cp = startPoint
+            self.cp = startPoint + self.frontDir * self.manipHandleOffset
 
             endPos = nodeFn.findPlug("endPos")
             endPoint = self.getFloat3PlugValue(endPos)
             self.ep = endPoint
-            self.ecp = endPoint
+            self.ecp = endPoint + self.backDir * self.manipHandleOffset
 
         except:
             sys.stderr.write(
@@ -634,7 +636,7 @@ class helixManip(OpenMayaMPx.MPxManipContainer):
 
     def getRise(self, helix):
         try:
-            n = nodeFn = OpenMaya.MFnDependencyNode(helix.helixNode)
+            n = OpenMaya.MFnDependencyNode(helix.helixNode)
             risePlug = n.findPlug("rise")
             rise = risePlug.asDouble()
             return rise

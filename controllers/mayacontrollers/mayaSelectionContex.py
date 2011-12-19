@@ -52,7 +52,6 @@ def selectionCallback(clientData):
     helixList = []
 
     m = Mom()
-    m.updateSelectionBoxes()
 
     manipulator = None
     manipObject = OpenMaya.MObject()
@@ -92,6 +91,8 @@ def selectionCallback(clientData):
     if manipulator is not None:
         manipulator.finishedAddingHelices()
     m.strandsSelected(helixList)
+    
+    m.updateSelectionBoxes()
 
 
 class mayaSelectionContext(OpenMayaMPx.MPxSelectionContext):

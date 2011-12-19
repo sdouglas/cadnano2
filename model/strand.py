@@ -153,7 +153,7 @@ class Strand(QObject):
     def part(self):
         return self._strandSet.part()
     # end def
-    
+
     def document(self):
         return self._doc
     # end def

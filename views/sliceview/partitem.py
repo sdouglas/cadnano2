@@ -100,7 +100,7 @@ class PartItem(QGraphicsItem):
     def partDimensionsChangedSlot(self, part):
         pass
     # end def
-    
+
     def partHideSlot(self, part):
         self.hide()
     # end def
@@ -267,6 +267,10 @@ class PartItem(QGraphicsItem):
         if bool == False:
             self._modCirc.hide()
 
+    def updateStatusBar(self, statusString):
+        """Shows statusString in the MainWindow's status bar."""
+        self.window().statusBar().showMessage(statusString)
+
     def vhAtCoordsChanged(self, row, col):
         self._emptyhelixhash[(row, col)].update()
     # end def
@@ -297,6 +301,7 @@ class PartItem(QGraphicsItem):
             return self.parentHGI.boundingRect()
         def paint(self, painter, option, widget=None):
             pass
+
 
     class IntersectionProbe(QGraphicsItem):
         def boundingRect(self):

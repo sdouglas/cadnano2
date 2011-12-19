@@ -383,6 +383,7 @@ class VirtualHelixHandleSelectionBox(QGraphicsPathItem):
         partItem.reorderHelices(items[0].number(),\
                                 items[-1].number(),\
                                 indexDelta)
+        partItem.updateStatusBar("")
     # end def
 
     def boxParent(self):
@@ -430,6 +431,9 @@ class EndpointHandleSelectionBox(QGraphicsPathItem):
     # end def
 
     def translateX(self, delta):
+        pI = self._itemGroup.childItems()[0].partItem()
+        str = "+%d" % delta if delta >= 0 else "%d" % delta
+        pI.updateStatusBar(str)
         self.setX(self._baseWidth * delta)
     # end def
 
