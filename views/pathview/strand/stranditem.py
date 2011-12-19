@@ -471,7 +471,7 @@ class StrandItem(QGraphicsLineItem):
         self._virtualHelixItem.setActive(idx)
         toolMethodName = str(self._activeTool()) + "MousePress"
         if hasattr(self, toolMethodName):
-            getattr(self, toolMethodName)(idx)
+            getattr(self, toolMethodName)(event, idx)
     # end def
 
     def mouseMoveEvent(self, event):
@@ -514,7 +514,7 @@ class StrandItem(QGraphicsLineItem):
     # end def
 
     ### TOOL METHODS ###
-    def breakToolMousePress(self, idx):
+    def breakToolMousePress(self, event, idx):
         """Break the strand is possible."""
         mStrand = self._modelStrand
         mStrand.split(idx)
@@ -528,12 +528,15 @@ class StrandItem(QGraphicsLineItem):
         # breakTool.updateHoverRect(vhi, mStrand, idx, show=True)
     # end def
 
-    def selectToolMousePress(self, idx):
+    def selectToolMousePress(self, event, idx):
         currentFilterDict = self._viewroot.selectionFilterDict()
         if self.strandFilter() in currentFilterDict and self._filterName in currentFilterDict:
             selectionGroup = self._viewroot.strandItemSelectionGroup()
+            mod = Qt.MetaModifier
+            if not (event.modifiers() & mod):
+                 selectionGroup.clearSelection(False)
             selectionGroup.setSelectionLock(selectionGroup)
-            self.penAndBrushSet(True)
+            # self.setSelectedColor(True)
             selectionGroup.pendToAdd(self)
             selectionGroup.pendToAdd(self._lowCap)
             selectionGroup.pendToAdd(self._highCap)
@@ -541,7 +544,7 @@ class StrandItem(QGraphicsLineItem):
             return selectionGroup.mousePressEvent(event)
     # end def
 
-    def pencilToolMousePress(self, idx):
+    def pencilToolMousePress(self, event, idx):
         """Break the strand is possible."""
         mStrand = self._modelStrand
         vhi = self._virtualHelixItem
@@ -569,18 +572,18 @@ class StrandItem(QGraphicsLineItem):
             tempXover.updateFloatingFromStrandItem(vhi, mStrand, idx)
     # end def
 
-    def eraseToolMousePress(self, idx):
+    def eraseToolMousePress(self, event, idx):
         mStrand = self._modelStrand
         mStrand.strandSet().removeStrand(mStrand)
     # end def
 
-    def insertionToolMousePress(self, idx):
+    def insertionToolMousePress(self, event, idx):
         """Add an insert to the strand if possible."""
         mStrand = self._modelStrand
         mStrand.addInsertion(idx, 1)
     # end def
 
-    def paintToolMousePress(self, idx):
+    def paintToolMousePress(self, event, idx):
         """Add an insert to the strand if possible."""
         mStrand = self._modelStrand
         if mStrand.isStaple():
@@ -601,7 +604,7 @@ class StrandItem(QGraphicsLineItem):
             tempXover.updateFloatingFromStrandItem(vhi, mStrand, idx)
     # end def
 
-    def pencilToolMousePress(self, idx):
+    def pencilToolMousePress(self, event, idx):
         """Break the strand is possible."""
         mStrand = self._modelStrand
         vhi = self._virtualHelixItem
@@ -622,13 +625,13 @@ class StrandItem(QGraphicsLineItem):
             activeTool.attemptToCreateXover(vhi, mStrand, idx)
     # end def
 
-    def skipToolMousePress(self, idx):
+    def skipToolMousePress(self, event, idx):
         """Add an insert to the strand if possible."""
         mStrand = self._modelStrand
         mStrand.addInsertion(idx, -1)
     # end def
     
-    def addSeqToolMousePress(self, idx):
+    def addSeqToolMousePress(self, event, idx):
         """
         Checks that a scaffold was clicked, and then calls apply sequence
         to the clicked strand via its oligo.
@@ -643,8 +646,9 @@ class StrandItem(QGraphicsLineItem):
         Required to restore parenting and positioning in the partItem
         """
         # map the position
+        # print "restoring parent si"
         self.tempReparent(pos)
-        self.penAndBrushSet(False)
+        self.setSelectedColor(False)
         self.setSelected(False)
     # end def
     
@@ -657,7 +661,7 @@ class StrandItem(QGraphicsLineItem):
         self.setPos(tempP)
     # end def
 
-    def penAndBrushSet(self, value):
+    def setSelectedColor(self, value):
         if value == True:
             color = QColor("#ff3333")
         else:
@@ -680,12 +684,13 @@ class StrandItem(QGraphicsLineItem):
             
             # only add if the selectionGroup is not locked out
             if value == True and (self._filterName in currentFilterDict or not selectionGroup.isNormalSelect()):
-                if self.group() != selectionGroup and self._strandFilter in currentFilterDict:
-                    selectionGroup.pendToAdd(self)
-                    selectionGroup.setSelectionLock(selectionGroup)
-                    self.penAndBrushSet(True)
-                    selectionGroup.pendToAdd(self._lowCap)
-                    selectionGroup.pendToAdd(self._highCap)
+                if self._strandFilter in currentFilterDict:
+                    if self.group() != selectionGroup:
+                        selectionGroup.pendToAdd(self)
+                        selectionGroup.setSelectionLock(selectionGroup)
+                        self.setSelectedColor(True)
+                        selectionGroup.pendToAdd(self._lowCap)
+                        selectionGroup.pendToAdd(self._highCap)
                     return True
                 else:
                     return False
@@ -697,7 +702,7 @@ class StrandItem(QGraphicsLineItem):
                 # Deselect
                 # print "Deselecting strand"
                 selectionGroup.pendToRemove(self)
-                self.penAndBrushSet(False)
+                self.setSelectedColor(False)
                 selectionGroup.pendToRemove(self._lowCap)
                 selectionGroup.pendToRemove(self._highCap)
                 return False
@@ -734,7 +739,7 @@ class StrandItem(QGraphicsLineItem):
         if indices[0] == True and indices[1] == True:
             if not self.isSelected():
                 selectionGroup.setNormalSelect(False)
-                self.penAndBrushSet(True)
+                self.setSelectedColor(True)
                 self.modelSelect(document)
                 selectionGroup.addToGroup(self)
                 selectionGroup.setNormalSelect(True)
@@ -748,6 +753,7 @@ class StrandItem(QGraphicsLineItem):
 
     def modelSelect(self, document):
         self.setSelected(True)
+        self.setSelectedColor(True)
     # end def
     
     def paint(self, painter, option, widget):

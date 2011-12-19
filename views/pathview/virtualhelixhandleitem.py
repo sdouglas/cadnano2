@@ -64,12 +64,12 @@ class VirtualHelixHandleItem(QGraphicsEllipseItem):
         self.setNumber()
         self.setFlag(QGraphicsItem.ItemIsSelectable)
         self.setFlag(QGraphicsItem.ItemSendsScenePositionChanges)
-        self.penAndBrushSet(False)
+        self.setSelectedColor(False)
         self.setZValue(styles.ZPATHHELIX)
         self.setRect(_rect)
     # end def
 
-    def penAndBrushSet(self, value):
+    def setSelectedColor(self, value):
         if self.number() >= 0:
             if value == True:
                 self.setBrush(_hovBrush)
@@ -163,7 +163,7 @@ class VirtualHelixHandleItem(QGraphicsEllipseItem):
         to the default colors if necessary.
         """
         if not self.isSelected():
-            self.penAndBrushSet(False)
+            self.setSelectedColor(False)
             self.update(self.boundingRect())
     # end def
 
@@ -199,7 +199,7 @@ class VirtualHelixHandleItem(QGraphicsEllipseItem):
         if pos == None:
             pos = self.scenePos()
         self.setParentItem(partItem)
-        self.penAndBrushSet(False)
+        self.setSelectedColor(False)
 
         assert(self.parentItem() == partItem)
         # print "restore", self.number(), self.parentItem(), self.group()
@@ -223,7 +223,7 @@ class VirtualHelixHandleItem(QGraphicsEllipseItem):
                 if self.group() != selectionGroup:
                     selectionGroup.pendToAdd(self)
                     selectionGroup.setSelectionLock(selectionGroup)
-                    self.penAndBrushSet(True)
+                    self.setSelectedColor(True)
                     return True
                 else:
                     return False
@@ -234,7 +234,7 @@ class VirtualHelixHandleItem(QGraphicsEllipseItem):
             else:
                 # Deselect
                 selectionGroup.pendToRemove(self)
-                self.penAndBrushSet(False)
+                self.setSelectedColor(False)
                 return False
             # end else
         # end if
