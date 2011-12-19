@@ -322,8 +322,11 @@ class EndpointItem(QGraphicsPathItem):
         currentFilterDict = viewroot.selectionFilterDict()
         if sI.strandFilter() in currentFilterDict and self._filterName in currentFilterDict:
             selectionGroup = viewroot.strandItemSelectionGroup()
+            mod = Qt.MetaModifier
+            if not (modifiers & mod):
+                 selectionGroup.clearSelection(False)
             selectionGroup.setSelectionLock(selectionGroup)
-            self.penAndBrushSet(True)
+            self.setSelectedColor(True)
             selectionGroup.pendToAdd(self)
             selectionGroup.processPendingToAddList()
             return selectionGroup.mousePressEvent(event)
@@ -379,8 +382,9 @@ class EndpointItem(QGraphicsPathItem):
         Required to restore parenting and positioning in the partItem
         """
         # map the position
+        # print "restoring parent ep"
         self.tempReparent(pos)
-        self.penAndBrushSet(False)
+        self.setSelectedColor(False)
         self.setSelected(False)
     # end def
 
@@ -393,7 +397,7 @@ class EndpointItem(QGraphicsPathItem):
         self.setPos(tempP)
     # end def
 
-    def penAndBrushSet(self, value):
+    def setSelectedColor(self, value):
         if value == True:
             color = styles.selected_color
         else:
@@ -424,9 +428,10 @@ class EndpointItem(QGraphicsPathItem):
             if value == True and self._filterName in currentFilterDict:
                 # if self.group() != selectionGroup and sI.strandFilter() in currentFilterDict:
                 if sI.strandFilter() in currentFilterDict:
-                    selectionGroup.pendToAdd(self)
-                    selectionGroup.setSelectionLock(selectionGroup)
-                    self.penAndBrushSet(True)
+                    if self.group() != selectionGroup:
+                        selectionGroup.pendToAdd(self)
+                        selectionGroup.setSelectionLock(selectionGroup)
+                        self.setSelectedColor(True)
                     return True
                 else:
                     return False
@@ -440,7 +445,7 @@ class EndpointItem(QGraphicsPathItem):
                 if not selectionGroup.isPending(self._strandItem):
                     selectionGroup.pendToRemove(self)
                     self.tempReparent()
-                    self.penAndBrushSet(False)
+                    self.setSelectedColor(False)
                     return False
                 else:   # don't deselect it, because the strand is selected still
                     return True

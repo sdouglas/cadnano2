@@ -382,7 +382,7 @@ class CustomQGraphicsView(QGraphicsView):
             elif which_button == self._button_zoom:
                 self._dollyZoomEnable = False
             else:
-                QGraphicsView.mouseReleaseEvent(self, event)
+                return QGraphicsView.mouseReleaseEvent(self, event)
         # end if
         else:
             if len(self._pressList):  # Notify any pressed items to release
@@ -392,7 +392,7 @@ class CustomQGraphicsView(QGraphicsView):
                 self._pressListIdx = (oldIdx+1) & 1
                 for item in temp:
                     #try:
-                    print "item release", item
+                    # print "item release", item
                     item.customMouseRelease(event)
                     #except:
                     #    item.mouseReleaseEvent(event)
@@ -401,7 +401,7 @@ class CustomQGraphicsView(QGraphicsView):
             # end if
             if self._selectionLock:
                 self._selectionLock.processPendingToAddList()
-            QGraphicsView.mouseReleaseEvent(self, event)
+            return QGraphicsView.mouseReleaseEvent(self, event)
 
     #end def
 
