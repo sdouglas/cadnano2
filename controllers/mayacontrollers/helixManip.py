@@ -340,26 +340,24 @@ class helixManip(OpenMayaMPx.MPxManipContainer):
                 elif am is self.fDistanceBackManip:
                     minVal = lowIdx - highIdx + 1
                     maxVal = maxIdx - highIdx
-                    
+
                 self.minDelta = max(minVal, self.minDelta)
                 self.maxDelta = min(maxVal, self.maxDelta)
 
-                print "SUB_DELTABOUNDS:", self.minDelta, self.maxDelta
-                
                 for s in strand.strandSet():
                     if s is not strand:
                         low, high = s.idxs()
-                        print "indices", low, high
                         if low < lowIdx and high < lowIdx:
                             if am is self.fDistanceFrontManip:
-                                self.minDelta = max(high - lowIdx + 1, self.minDelta)
+                                self.minDelta = max(high - lowIdx + 1,
+                                                            self.minDelta)
                         elif low > highIdx and high > highIdx:
                             if am is self.fDistanceBackManip:
-                                self.maxDelta = min(low - highIdx - 1, self.maxDelta)
+                                self.maxDelta = min(low - highIdx - 1,
+                                                            self.maxDelta)
                         else:
                             raise
 
-            print "DELTABOUNDS:", self.minDelta, self.maxDelta
         except:
             print "calculateDeltaBounds failed!"
             raise
@@ -368,7 +366,7 @@ class helixManip(OpenMayaMPx.MPxManipContainer):
 
         am = self.activeManip()
         newDelta = delta
-        
+
         try:
             for (id, helix) in self.helices.iteritems():
                 strand = self.getStrand(helix)
@@ -390,7 +388,7 @@ class helixManip(OpenMayaMPx.MPxManipContainer):
             raise
 
         return newDelta
-            
+
     def doPress(self):
 
         # print "PRESS"
@@ -724,7 +722,7 @@ class helixManip(OpenMayaMPx.MPxManipContainer):
             self.deltaFront = min(self.maxDelta, self.deltaFront)
 
             self.deltaFront = self.snapToXover(self.deltaFront)
-            
+
             self.frontDistance = -self.baseToDistance(helix, self.deltaFront)
         except:
             print "resizeCNHelixFront failed!"
@@ -743,7 +741,7 @@ class helixManip(OpenMayaMPx.MPxManipContainer):
             self.deltaBack = newHigh - highIdx
             self.deltaBack = max(self.minDelta, self.deltaBack)
             self.deltaBack = min(self.maxDelta, self.deltaBack)
-            
+
             self.deltaBack = self.snapToXover(self.deltaBack)
 
             self.backDistance = self.baseToDistance(helix, self.deltaBack)
