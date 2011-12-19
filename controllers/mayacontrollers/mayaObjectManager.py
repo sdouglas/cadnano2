@@ -274,6 +274,10 @@ class Mom(object):
                 epBoundBox = None
                 for strandSetDict in selectionDict.itervalues():
                     for strand, value in strandSetDict.iteritems():
+                        # XXX The following line is a work around for broken
+                        # path selection in model, remove this when it has been fixed
+                        if not strand in self.cnToMaya:
+                            continue
                         helixNode = self.cnToMaya[strand]
                         boundBox = cmds.exactWorldBoundingBox(helixNode[1])
                         # might be better to get the rise this way...
@@ -298,19 +302,23 @@ class Mom(object):
                             epBoundBox[4] = max(epBoundBox[4], boundBox[4])
                             epBoundBox[5] = max(epBoundBox[5], boundBox[5])
             
-                cmds.showHidden(self.epSelectionBox)
-                cmds.setAttr(
-                        self.epSelectionBox + ".scale",
-                        epBoundBox[3] - epBoundBox[0],
-                        epBoundBox[4] - epBoundBox[1],
-                        epBoundBox[5] - epBoundBox[2],
-                        type="double3")
-                cmds.setAttr(
-                        self.epSelectionBox + ".translate",
-                        (epBoundBox[0] + epBoundBox[3]) / 2,
-                        (epBoundBox[1] + epBoundBox[4]) / 2,
-                        (epBoundBox[2] + epBoundBox[5]) / 2,
-                        type="double3")
+                # XXX The following line is a work around for broken
+                # path selection in model, remove this when it has been fixed
+                if not epBoundBox == None:
+            
+                    cmds.showHidden(self.epSelectionBox)
+                    cmds.setAttr(
+                            self.epSelectionBox + ".scale",
+                            epBoundBox[3] - epBoundBox[0],
+                            epBoundBox[4] - epBoundBox[1],
+                            epBoundBox[5] - epBoundBox[2],
+                            type="double3")
+                    cmds.setAttr(
+                            self.epSelectionBox + ".translate",
+                            (epBoundBox[0] + epBoundBox[3]) / 2,
+                            (epBoundBox[1] + epBoundBox[4]) / 2,
+                            (epBoundBox[2] + epBoundBox[5]) / 2,
+                            type="double3")
                 
             else:
                 cmds.hide(self.epSelectionBox)
