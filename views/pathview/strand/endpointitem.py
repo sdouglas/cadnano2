@@ -181,12 +181,13 @@ class EndpointItem(QGraphicsPathItem):
         Parses a mousePressEvent, calling the approproate tool method as
         necessary. Stores _moveIdx for future comparison.
         """
-        self.scene().views()[0].addToPressList(self)
         self._strandItem.virtualHelixItem().setActive(self.idx())
         self._moveIdx = self.idx()
         activeToolStr = str(self._activeTool())
         if activeToolStr == 'pencilTool':
             return self._strandItem.pencilToolMousePress(self.idx())
+        if activeToolStr != 'selectTool':
+            self.scene().views()[0].addToPressList(self)
         toolMethodName = activeToolStr + "MousePress"
         if hasattr(self, toolMethodName):  # if the tool method exists
             modifiers = event.modifiers()
@@ -321,12 +322,11 @@ class EndpointItem(QGraphicsPathItem):
         currentFilterDict = viewroot.selectionFilterDict()
         if sI.strandFilter() in currentFilterDict and self._filterName in currentFilterDict:
             selectionGroup = viewroot.strandItemSelectionGroup()
-            selectionGroup.setInstantAdd(True, True)
             selectionGroup.setSelectionLock(selectionGroup)
             self.penAndBrushSet(True)
             selectionGroup.pendToAdd(self)
             selectionGroup.processPendingToAddList()
-            selectionGroup.mousePressEvent(event)
+            return selectionGroup.mousePressEvent(event)
     # end def
 
     def selectToolMouseMove(self, modifiers, idx):
@@ -424,16 +424,11 @@ class EndpointItem(QGraphicsPathItem):
             if value == True and self._filterName in currentFilterDict:
                 # if self.group() != selectionGroup and sI.strandFilter() in currentFilterDict:
                 if sI.strandFilter() in currentFilterDict:
-                    if selectionGroup.isInstantAdd():
-                        pass
-                    else:
-                        selectionGroup.setInstantAdd(True)
-                        selectionGroup.pendToAdd(self)
-                        selectionGroup.setSelectionLock(selectionGroup)
-                        self.penAndBrushSet(True)
+                    selectionGroup.pendToAdd(self)
+                    selectionGroup.setSelectionLock(selectionGroup)
+                    self.penAndBrushSet(True)
                     return True
                 else:
-                    selectionGroup.setInstantAdd(False)
                     return False
             # end if
             elif value == True:

@@ -392,6 +392,7 @@ class CustomQGraphicsView(QGraphicsView):
                 self._pressListIdx = (oldIdx+1) & 1
                 for item in temp:
                     #try:
+                    print "item release", item
                     item.customMouseRelease(event)
                     #except:
                     #    item.mouseReleaseEvent(event)
