@@ -55,7 +55,6 @@ class StrandItem(QGraphicsLineItem):
     def __init__(self, modelStrand, virtualHelixItem, viewroot):
         """The parent should be a VirtualHelixItem."""
         super(StrandItem, self).__init__(virtualHelixItem)
-        print "StrandItem init", modelStrand
         self._modelStrand = modelStrand
         self._virtualHelixItem = virtualHelixItem
         self._viewroot = viewroot
@@ -486,14 +485,20 @@ class StrandItem(QGraphicsLineItem):
             getattr(self, toolMethodName)(idx)
     # end def
 
+    def hoverLeaveEvent(self, event):
+        self.partItem().updateStatusBar("")
+    # end def
+
     def hoverMoveEvent(self, event):
         """
         Parses a mouseMoveEvent to extract strandSet and base index,
         forwarding them to approproate tool method as necessary.
         """
+        vhiNum = self._virtualHelixItem.number()
+        idx = int(floor((event.pos().x()) / _baseWidth))
+        self.partItem().updateStatusBar("%d[%d]" % (vhiNum, idx))
         toolMethodName = str(self._activeTool()) + "HoverMove"
         if hasattr(self, toolMethodName):
-            idx = int(floor((event.pos().x()) / _baseWidth))
             getattr(self, toolMethodName)(idx)
     # end def
 

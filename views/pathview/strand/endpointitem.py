@@ -192,11 +192,19 @@ class EndpointItem(QGraphicsPathItem):
             modifiers = event.modifiers()
             getattr(self, toolMethodName)(modifiers, event)  # call tool method
 
+    def hoverLeaveEvent(self, event):
+        self.partItem().updateStatusBar("")
+    # end def
+
     def hoverMoveEvent(self, event):
         """
         Parses a mousePressEvent, calling the approproate tool method as
         necessary. Stores _moveIdx for future comparison.
         """
+        vhiNum = self._strandItem._virtualHelixItem.number()
+        loc = "%d[%d]" % (vhiNum, self.idx())
+        self.partItem().updateStatusBar(loc)
+
         activeToolStr = str(self._activeTool())
         if activeToolStr == 'pencilTool':
             return self._strandItem.pencilToolHoverMove(self.idx())

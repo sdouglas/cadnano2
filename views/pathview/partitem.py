@@ -210,7 +210,7 @@ class PartItem(QGraphicsRectItem):
         """Return a reference to the model's part object"""
         return self._modelPart
     # end def
-    
+
     def document(self):
         """Return a reference to the model's document object"""
         return self._modelPart.document()
@@ -446,6 +446,10 @@ class PartItem(QGraphicsRectItem):
             if isinstance(item, XoverNode3):
                 item.refreshXover()
      # end def
+
+    def updateStatusBar(self, statusString):
+        """Shows statusString in the MainWindow's status bar."""
+        self.window().statusBar().showMessage(statusString)
 
     ### COORDINATE METHODS ###
     def keyPanDeltaX(self):

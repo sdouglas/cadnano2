@@ -149,6 +149,8 @@ class EmptyHelixItem(QGraphicsEllipseItem):
         self._isHovered = True
         self.setZValue(self._ZHovered)
         self.setRect(self._hoverRect)
+
+        self._partItem.updateStatusBar("(%d, %d)" % self._coord)
     # end def
 
     def hoverEnterEvent(self, event):
@@ -170,6 +172,8 @@ class EmptyHelixItem(QGraphicsEllipseItem):
         self._isHovered = False
         self.setZValue(self._ZDefault)
         self.setRect(self._defaultRect)
+
+        self._partItem.updateStatusBar("")
     # end def
 
     def hoverLeaveEvent(self, event):
@@ -357,7 +361,7 @@ class EmptyHelixItem(QGraphicsEllipseItem):
     # end def
 
     def nop(self):
-        pass
+        self._partItem.updateStatusBar("(%d, %d)" % self._coord)
 
     def addScafAtActiveSliceIfMissing(self):
         vh = self.virtualHelix()
@@ -369,6 +373,8 @@ class EmptyHelixItem(QGraphicsEllipseItem):
         startIdx = max(0,idx-1)
         endIdx = min(idx+1, part.dimensions()[1]-1)
         vh.scaffoldStrandSet().createStrand(startIdx, endIdx)
+
+        self._partItem.updateStatusBar("(%d, %d)" % self._coord)
     # end def
 
     def addStapAtActiveSliceIfMissing(self):
@@ -382,6 +388,8 @@ class EmptyHelixItem(QGraphicsEllipseItem):
         startIdx = max(0,idx-1)
         endIdx = min(idx+1, part.dimensions()[1]-1)
         vh.stapleStrandSet().createStrand(startIdx, endIdx)
+
+        self._partItem.updateStatusBar("(%d, %d)" % self._coord)
     # end def
 
     def addVHIfMissing(self):
@@ -396,6 +404,8 @@ class EmptyHelixItem(QGraphicsEllipseItem):
         part.createVirtualHelix(*coord)
         # vh.scaffoldStrandSet().createStrand(startIdx, endIdx)
         uS.endMacro()
+
+        self._partItem.updateStatusBar("(%d, %d)" % self._coord)
     # end def
 
     # if GL:

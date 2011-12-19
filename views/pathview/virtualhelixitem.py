@@ -301,11 +301,19 @@ class VirtualHelixItem(QGraphicsPathItem):
         return self.mapToScene(QRectF(0, 0, dx, 1)).boundingRect().width()
     # end def
 
+    def hoverLeaveEvent(self, event):
+        self._partItem.updateStatusBar("")
+    # end def
+
     def hoverMoveEvent(self, event):
         """
         Parses a mouseMoveEvent to extract strandSet and base index,
         forwarding them to approproate tool method as necessary.
         """
+        baseIdx = int(floor(event.pos().x() / _baseWidth))
+        loc = "%d[%d]" % (self.number(), baseIdx)
+        self._partItem.updateStatusBar(loc)
+
         activeTool = self._activeTool()
         toolMethodName = str(activeTool) + "HoverMove"
         if hasattr(self, toolMethodName):

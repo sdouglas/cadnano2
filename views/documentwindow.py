@@ -89,7 +89,7 @@ class DocumentWindow(QMainWindow, ui_mainwindow.Ui_MainWindow):
         self.pathToolManager = PathToolManager(self)
         self.sliceToolManager.pathToolManager = self.pathToolManager
         self.pathToolManager.sliceToolManager = self.sliceToolManager
-        
+
         # set the selection filter default
         doc.documentSelectionFilterChangedSignal.emit(["endpoint", "scaffold", "staple"])
 
@@ -129,6 +129,7 @@ class DocumentWindow(QMainWindow, ui_mainwindow.Ui_MainWindow):
         self.menuEdit.insertAction(self.sep, self.actionRedo)
         self.menuEdit.insertAction(self.actionRedo, self.actionUndo)
         self.splitter.setSizes([400, 400])  # balance splitter size
+        self.statusBar().showMessage("")
 
     ### ACCESSORS ###
     def undoStack(self):
