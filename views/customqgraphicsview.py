@@ -177,13 +177,15 @@ class CustomQGraphicsView(QGraphicsView):
     def resetGL(self):
         scaleFactor = self.transform().m11()
         # print "scaleFactor", scaleFactor
-        if scaleFactor < 0.8:# and self.isGLSwitchAllowed:
+        self.sceneRootItem.window().statusBar().showMessage("%f" % scaleFactor)
+
+        if scaleFactor < .15:# and self.isGLSwitchAllowed:
             # self.isGLSwitchAllowed = False
             self.setGLView(True)
             self._showDetails = False
             self.levelOfDetailChangedSignal.emit(False) # zoomed out
             self.qTimer.singleShot(500, self.allowGLSwitch)
-        elif scaleFactor > 2.0:# and self.isGLSwitchAllowed:
+        elif scaleFactor > .2:# and self.isGLSwitchAllowed:
             # self.isGLSwitchAllowed = False
             self.setGLView(False)
             self._showDetails = True

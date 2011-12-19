@@ -191,20 +191,41 @@ class VirtualHelixItem(QGraphicsPathItem):
         The path also includes a border outline and a midline for
         dividing scaffold and staple bases.
         """
-        bw = _baseWidth
-        part = self.part()
-
         if self._gridPainterPath:
             return self._gridPainterPath
+
+        bw = _baseWidth
+        bw2 = 2 * bw
+        part = self.part()
         path = QPainterPath()
+        subStepSize = part.subStepSize()
         canvasSize = part.maxBaseIdx()+1
         # border
         path.addRect(0, 0, bw * canvasSize, 2 * bw)
         # minor tick marks
         for i in range(canvasSize):
             x = round(bw * i) + .5
-            path.moveTo(x, 0)
-            path.lineTo(x, 2 * bw)
+            if i % subStepSize == 0:
+                path.moveTo(x-.5, 0)
+                path.lineTo(x-.5, bw2)
+                path.lineTo(x-.25, bw2)
+                path.lineTo(x-.25, 0)
+                path.lineTo(x, 0)
+                path.lineTo(x, bw2)
+                path.lineTo(x+.25, bw2)
+                path.lineTo(x+.25, 0)
+                path.lineTo(x+.5, 0)
+                path.lineTo(x+.5, bw2)
+
+                # path.moveTo(x-.5, 0)
+                # path.lineTo(x-.5, 2 * bw)
+                # path.lineTo(x+.5, 2 * bw)
+                # path.lineTo(x+.5, 0)
+
+            else:
+                path.moveTo(x, 0)
+                path.lineTo(x, 2 * bw)
+
         # staple-scaffold divider
         path.moveTo(0, bw)
         path.lineTo(bw * canvasSize, bw)

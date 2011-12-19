@@ -56,12 +56,14 @@ l3poly = QPolygonF()
 l3poly.append(QPointF(_baseWidth, 0))
 l3poly.append(QPointF(0.25 * _baseWidth, 0.5 * _baseWidth))
 l3poly.append(QPointF(_baseWidth, _baseWidth))
+l3poly.append(QPointF(_baseWidth, 0))
 ppL3.addPolygon(l3poly)
 # set up ppR3 (right 3' blue triangle)
 r3poly = QPolygonF()
 r3poly.append(QPointF(0, 0))
 r3poly.append(QPointF(0.75 * _baseWidth, 0.5 * _baseWidth))
 r3poly.append(QPointF(0, _baseWidth))
+r3poly.append(QPointF(0, 0))
 ppR3.addPolygon(r3poly)
 
 # single base left 5'->3'
@@ -97,7 +99,7 @@ class EndpointItem(QGraphicsPathItem):
         self._lowDragBound = None
         self._highDragBound = None
         self._initCapSpecificState(isDrawn5to3)
-        self.setPen(_noPen)
+        self.setPen(QPen())
         # for easier mouseclick
         self._clickArea = cA = QGraphicsRectItem(_defaultRect, self)
         self._clickArea.setAcceptHoverEvents(True)

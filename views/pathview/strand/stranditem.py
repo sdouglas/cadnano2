@@ -398,7 +398,7 @@ class StrandItem(QGraphicsLineItem):
             color.setAlpha(128)
             penWidth = styles.PATH_STRAND_HIGHLIGHT_STROKE_WIDTH
         pen = QPen(color, penWidth)
-        pen.setCosmetic(True)
+        # pen.setCosmetic(True)
         brush = QBrush(color)
         pen.setCapStyle(Qt.FlatCap)
         self.setPen(pen)
