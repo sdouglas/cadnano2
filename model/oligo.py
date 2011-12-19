@@ -236,6 +236,8 @@ class Oligo(QObject):
         # check loop status
         if oldStrandLow.oligo() == oldStrandHigh.oligo():
             self._isLoop = True
+            self._strand5p = newStrand
+            return 
             # leave the _strand5p as is?
         # end if
 

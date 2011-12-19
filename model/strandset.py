@@ -1000,15 +1000,14 @@ class StrandSet(QObject):
                 else:
                     nScH.setConnectionHigh(nS)
 
-            if lOlg != hOlg:  # did not create a loop
-                # Traverse the strands via 3'conns to assign the new oligo
-                for strand in olg.strand5p().generator3pStrand():
-                    Strand.setOligo(strand, olg)  # emits strandHasNewOligoSignal
+            # Traverse the strands via 3'conns to assign the new oligo
+            for strand in olg.strand5p().generator3pStrand():
+                Strand.setOligo(strand, olg)  # emits strandHasNewOligoSignal
 
-                # Add new oligo and remove old oligos
-                olg.addToPart(sS.part())
-                lOlg.removeFromPart()
-                hOlg.removeFromPart()
+            # Add new oligo and remove old oligos
+            olg.addToPart(sS.part())
+            lOlg.removeFromPart()
+            hOlg.removeFromPart()
 
             # Emit Signals related to destruction and addition
             sL.strandRemovedSignal.emit(sL)  # out with the old...
@@ -1047,17 +1046,16 @@ class StrandSet(QObject):
                 else:
                     sHcH.setConnectionHigh(sH)
 
-            if lOlg != hOlg:  # not a loop
-                # Traverse the strands via 3'conns to assign the old oligo
-                for strand in lOlg.strand5p().generator3pStrand():
-                    Strand.setOligo(strand, lOlg)  # emits strandHasNewOligoSignal
-                for strand in hOlg.strand5p().generator3pStrand():
-                    Strand.setOligo(strand, hOlg)  # emits strandHasNewOligoSignal
+            # Traverse the strands via 3'conns to assign the old oligo
+            for strand in lOlg.strand5p().generator3pStrand():
+                Strand.setOligo(strand, lOlg)  # emits strandHasNewOligoSignal
+            for strand in hOlg.strand5p().generator3pStrand():
+                Strand.setOligo(strand, hOlg)  # emits strandHasNewOligoSignal
 
-                # Remove new oligo and add old oligos
-                olg.removeFromPart()
-                lOlg.addToPart(sL.part())
-                hOlg.addToPart(sH.part())
+            # Remove new oligo and add old oligos
+            olg.removeFromPart()
+            lOlg.addToPart(sL.part())
+            hOlg.addToPart(sH.part())
 
             # Emit Signals related to destruction and addition
             nS.strandRemovedSignal.emit(nS)  # out with the new...

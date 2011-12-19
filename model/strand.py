@@ -107,7 +107,7 @@ class Strand(QObject):
         f = attrgetter('_strand3p')
         while node and originalCount == 0:
             yield node
-            # equivalen to: node = node._strand3p
+            # equivalent to: node = node._strand3p
             node = f(node)
             if node == self:
                 originalCount += 1
