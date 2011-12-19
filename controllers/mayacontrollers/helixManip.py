@@ -340,15 +340,55 @@ class helixManip(OpenMayaMPx.MPxManipContainer):
                 elif am is self.fDistanceBackManip:
                     minVal = lowIdx - highIdx + 1
                     maxVal = maxIdx - highIdx
-
+                    
                 self.minDelta = max(minVal, self.minDelta)
                 self.maxDelta = min(maxVal, self.maxDelta)
+
+                print "DELTABOUNDS:", self.minDelta, self.maxDelta
+                """
+                for s in strand.strandSet():
+                    if s is not strand:
+                        low, high = s.idxs()
+                        if low < lowIdx and high < lowIdx:
+                            self.minDelta = max(high - lowIdx + 1, self.minDelta)
+                        elif low > highIdx and high > highIdx:
+                            self.maxDelta = min(low - highIdx - 1, self.maxDelta)
+                        else:
+                            raise
+                """
 
             print "DELTABOUNDS:", self.minDelta, self.maxDelta
         except:
             print "calculateDeltaBounds failed!"
             raise
 
+    def snapToXover(self, delta):
+
+        am = self.activeManip()
+        newDelta = delta
+        
+        try:
+            for (id, helix) in self.helices.iteritems():
+                strand = self.getStrand(helix)
+                idxL, idxH = strand.idxs()
+                # idxL = idxL+delta if value[0] else idxL
+                # idxH = idxH+delta if value[1] else idxH
+                if am is self.fDistanceFrontManip:
+                    # check for Xovers
+                    if strand.connectionLow():
+                        part = strand.virtualHelix().part()
+                        newDelta = part.xoverSnapTo(strand, idxL, delta) - idxL
+                elif am is self.fDistanceBackManip:
+                    # check for Xovers
+                    if strand.connectionHigh():
+                        part = strand.virtualHelix().part()
+                        newDelta = part.xoverSnapTo(strand, idxH, delta) - idxH
+        except:
+            sys.stderr.write("ERROR: helixManip.snapToXover\n")
+            raise
+
+        return newDelta
+            
     def doPress(self):
 
         # print "PRESS"
@@ -681,6 +721,8 @@ class helixManip(OpenMayaMPx.MPxManipContainer):
             self.deltaFront = max(self.minDelta, self.deltaFront)
             self.deltaFront = min(self.maxDelta, self.deltaFront)
 
+            self.deltaFront = self.snapToXover(self.deltaFront)
+            
             self.frontDistance = -self.baseToDistance(helix, self.deltaFront)
         except:
             print "resizeCNHelixFront failed!"
@@ -699,6 +741,8 @@ class helixManip(OpenMayaMPx.MPxManipContainer):
             self.deltaBack = newHigh - highIdx
             self.deltaBack = max(self.minDelta, self.deltaBack)
             self.deltaBack = min(self.maxDelta, self.deltaBack)
+            
+            self.deltaBack = self.snapToXover(self.deltaBack)
 
             self.backDistance = self.baseToDistance(helix, self.deltaBack)
         except:
