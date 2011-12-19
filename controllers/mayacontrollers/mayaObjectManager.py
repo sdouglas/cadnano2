@@ -70,19 +70,54 @@ class Mom(object):
     cmds.hide(selectionBox)
     cmds.setAttr(selectionBox + ".overrideEnabled", True)
     cmds.setAttr(selectionBox + ".overrideDisplayType", 2)  # reference
-    updatingSelectionBoxes = False
     selectionBoxShader = "SelectionBoxShader"
 
     selectionBoxShader = cmds.shadingNode('lambert',
                                         asShader=True,
                                         name=selectionBoxShader)
-    cmds.sets(n="%sSG" % selectionBoxShader, r=True, nss=True, em=True)
+    cmds.sets(name="%sSG" % selectionBoxShader,
+                renderable=True,
+                noSurfaceShader=True,
+                empty=True)
     cmds.connectAttr("%s.outColor" % selectionBoxShader,
                     "%sSG.surfaceShader" % selectionBoxShader)
     cmds.setAttr("%s.transparency" % selectionBoxShader,
                     0.65, 0.65, 0.65, type="double3")
     cmds.setAttr("%s.incandescence" % selectionBoxShader,
                     0.5, 0.5, 0.5, type="double3")
+    cmds.sets(
+            selectionBox,
+            forceElement="%sSG" % selectionBoxShader)
+
+    # Endpoint Selection boxes
+    epSelectionBox = cmds.polyCube(
+                        constructionHistory=False,
+                        createUVs=0,
+                        object=True
+                        )[0]
+    cmds.hide(epSelectionBox)
+    cmds.setAttr(epSelectionBox + ".overrideEnabled", True)
+    cmds.setAttr(epSelectionBox + ".overrideDisplayType", 2)  # reference
+    epSelectionBoxShader = "epSelectionBoxShader"
+
+    epSelectionBoxShader = cmds.shadingNode('lambert',
+                                        asShader=True,
+                                        name=epSelectionBoxShader)
+    cmds.sets(name="%sSG" % epSelectionBoxShader,
+            renderable=True,
+            noSurfaceShader=True,
+            empty=True)
+    cmds.connectAttr("%s.outColor" % epSelectionBoxShader,
+                    "%sSG.surfaceShader" % epSelectionBoxShader)
+    cmds.setAttr("%s.color" % epSelectionBoxShader,
+                    0.8, 0.2, 0.2, type="double3")
+    cmds.setAttr("%s.transparency" % epSelectionBoxShader,
+                    0.75, 0.75, 0.75, type="double3")
+    cmds.setAttr("%s.incandescence" % epSelectionBoxShader,
+                    0.5, 0.5, 0.5, type="double3")
+    cmds.sets(
+            epSelectionBox,
+            forceElement="%sSG" % epSelectionBoxShader)
 
     # MayaNames
     helixTransformName = "DNAShapeTransform_"
@@ -217,9 +252,6 @@ class Mom(object):
                     bbox[4] - bbox[1],
                     bbox[5] - bbox[2],
                     type="double3")
-            cmds.sets(
-                    self.selectionBox,
-                    forceElement="%sSG" % self.selectionBoxShader)
             cmds.setAttr(
                     self.selectionBox + ".translate",
                     (bbox[0] + bbox[3]) / 2,
@@ -227,5 +259,70 @@ class Mom(object):
                     (bbox[2] + bbox[5]) / 2,
                     type="double3")
             cmds.showHidden(self.selectionBox)
+
+            selectionDict = app().activeDocument.document().selectionDict()
+
+            frontEp = 0
+            backEp = 0
+
+            for strandSetDict in selectionDict.itervalues():
+                for strand, value in strandSetDict.iteritems():
+                    frontEp += int(value[0])
+                    backEp += int(value[1])
+
+            if (frontEp == 0) ^ (backEp == 0):
+                epBoundBox = None
+                for strandSetDict in selectionDict.itervalues():
+                    for strand, value in strandSetDict.iteritems():
+                        # XXX The following line is a work around for broken
+                        # path selection in model, remove this when it has been fixed
+                        if not strand in self.cnToMaya:
+                            continue
+                        helixNode = self.cnToMaya[strand]
+                        boundBox = cmds.exactWorldBoundingBox(helixNode[1])
+                        # might be better to get the rise this way...
+                        #n = OpenMaya.MFnDependencyNode(helixNode)
+                        #risePlug = n.findPlug("rise")
+                        #rise = risePlug.asDouble()
+                        # but this works too
+                        idxL, idxH = strand.idxs()
+                        rise = (boundBox[5] - boundBox[2]) / (idxH - idxL + 1)
+                        if frontEp == 0:
+                            boundBox[5] = boundBox[2] + rise
+                        elif backEp == 0:
+                            boundBox[2] = boundBox[5] - rise
+                        if epBoundBox == None:
+                            epBoundBox = boundBox
+                        else:
+                            # union the boxes
+                            epBoundBox[0] = min(epBoundBox[0], boundBox[0])
+                            epBoundBox[1] = min(epBoundBox[1], boundBox[1])
+                            epBoundBox[2] = min(epBoundBox[2], boundBox[2])
+                            epBoundBox[3] = max(epBoundBox[3], boundBox[3])
+                            epBoundBox[4] = max(epBoundBox[4], boundBox[4])
+                            epBoundBox[5] = max(epBoundBox[5], boundBox[5])
+            
+                # XXX The following line is a work around for broken
+                # path selection in model, remove this when it has been fixed
+                if not epBoundBox == None:
+            
+                    cmds.showHidden(self.epSelectionBox)
+                    cmds.setAttr(
+                            self.epSelectionBox + ".scale",
+                            epBoundBox[3] - epBoundBox[0],
+                            epBoundBox[4] - epBoundBox[1],
+                            epBoundBox[5] - epBoundBox[2],
+                            type="double3")
+                    cmds.setAttr(
+                            self.epSelectionBox + ".translate",
+                            (epBoundBox[0] + epBoundBox[3]) / 2,
+                            (epBoundBox[1] + epBoundBox[4]) / 2,
+                            (epBoundBox[2] + epBoundBox[5]) / 2,
+                            type="double3")
+                
+            else:
+                cmds.hide(self.epSelectionBox)
+                        
         else:
             cmds.hide(self.selectionBox)
+            cmds.hide(self.epSelectionBox)

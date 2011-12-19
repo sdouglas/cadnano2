@@ -132,20 +132,12 @@ class SelectionItemGroup(QGraphicsItemGroup):
         self.setParentItem(self._viewroot)
     # end def
     
-    def setInstantAdd(self, boolval, isClick=False):
-        if isClick:
-            self._instantAdd = 3
-            # print "instand add is 3"
-        elif boolval:
-            self._instantAdd = 1
-            # print "instand add is 1"
-        else:
-            self._instantAdd = 0
-            # print "instand add is 0 by default"
+    def selectionLock(self):
+        return self._viewroot.selectionLock()
     # end def
 
-    def isInstantAdd(self):
-        return self._instantAdd == 3
+    def setSelectionLock(self, selectionGroup):
+        self._viewroot.setSelectionLock(selectionGroup)
     # end def
 
     # def paint(self, painter, option, widget=None):
@@ -154,14 +146,6 @@ class SelectionItemGroup(QGraphicsItemGroup):
     #     painter.drawRect(self.boundingRect())
     #     pass
     # # end def
-
-    def selectionLock(self):
-        return self._viewroot.selectionLock()
-    # end def
-
-    def setSelectionLock(self, selectionGroup):
-        self._viewroot.setSelectionLock(selectionGroup)
-    # end def
 
     def keyPressEvent(self, event):
         """
@@ -177,12 +161,11 @@ class SelectionItemGroup(QGraphicsItemGroup):
     # end def
 
     def mousePressEvent(self, event):
-        print "select mp"
         # self.show()
         self._instantAdd = 1
         # print "instant add is 1 from MousePress"
         if event.button() != Qt.LeftButton:
-            QGraphicsItemGroup.mousePressEvent(self, event)
+            return QGraphicsItemGroup.mousePressEvent(self, event)
         else:
             self._dragEnable = True
 
@@ -204,6 +187,7 @@ class SelectionItemGroup(QGraphicsItemGroup):
             if self._addedToPressList == False:
                 self._addedToPressList = True
                 self.scene().views()[0].addToPressList(self)
+            return QGraphicsItemGroup.mousePressEvent(self, event)
     # end def
 
     def mouseMoveEvent(self, event):
@@ -248,15 +232,15 @@ class SelectionItemGroup(QGraphicsItemGroup):
         #     print "clear due to click"
         #     self._instantAdd = 2
         #     self.clearSelection(False)
-        if self._instantAdd != 1:
-            print "clear due to click", self._instantAdd
-            self._instantAdd = 0
-            self.clearSelection(False)
-        else:
-            self._instantAdd = 2
-            # print "instand add is 2"
-            self._addedToPressList = True
-            self.scene().views()[0].addToPressList(self)
+        # if self._instantAdd != 1:
+        #     print "clear due to click", self._instantAdd
+        #     self._instantAdd = 0
+        #     self.clearSelection(False)
+        # else:
+        #     self._instantAdd = 2
+        #     # print "instand add is 2"
+        #     self._addedToPressList = True
+        #     self.scene().views()[0].addToPressList(self)
     # end def
 
     def clearSelection(self, value):
@@ -279,17 +263,15 @@ class SelectionItemGroup(QGraphicsItemGroup):
         """docstring for itemChange"""
         # if change == QGraphicsItem.ItemSelectedHasChanged:
         if change == QGraphicsItem.ItemSelectedChange:
-            if value == False and self._instantAdd == 0:
-                # print "clear due to deselect"
+            if value == False:
+                print "clear due to deselect"
                 self.clearSelection(False)
                 return False
             else:
                 # print "clear instant add"
-                self._instantAdd = 2
                 if self._addedToPressList == False:
                     self._addedToPressList = True
                     self.scene().views()[0].addToPressList(self)
-                    self._instantAdd = 0
                     # print "instand add is 0"
                 return True
         elif change == QGraphicsItem.ItemChildAddedChange:

@@ -444,12 +444,11 @@ class XoverItem(QGraphicsPathItem):
             currentFilterDict = viewroot.selectionFilterDict()
             if sI.strandFilter() in currentFilterDict and self._filterName in currentFilterDict:
                 selectionGroup = viewroot.strandItemSelectionGroup()
-                selectionGroup.setInstantAdd(True, True)
                 selectionGroup.setSelectionLock(selectionGroup)
                 self.penAndBrushSet(True)
                 selectionGroup.pendToAdd(self)
                 selectionGroup.processPendingToAddList()
-                selectionGroup.mousePressEvent(event)
+                return selectionGroup.mousePressEvent(event)
         else:
             return QGraphicsPathItem.mousePressEvent(self, event)
     # end def 
@@ -517,15 +516,11 @@ class XoverItem(QGraphicsPathItem):
                 # if self.group() != selectionGroup and sI.strandFilter() in currentFilterDict:
                 if sI.strandFilter() in currentFilterDict:
                     if selectionGroup.isNormalSelect():
-                        if selectionGroup.isInstantAdd():
-                            pass
-                        else:
-                            selectionGroup.pendToAdd(self)
-                            selectionGroup.setSelectionLock(selectionGroup)
+                        selectionGroup.pendToAdd(self)
+                        selectionGroup.setSelectionLock(selectionGroup)
                     self.penAndBrushSet(True)
                     return True
                 else:
-                    selectionGroup.setInstantAdd(False)
                     return False
             # end if
             elif value == True:
