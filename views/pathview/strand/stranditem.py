@@ -105,6 +105,8 @@ class StrandItem(QGraphicsLineItem):
         """docstring for strandResizedSlot"""
         lowMoved = self._lowCap.updatePosIfNecessary(self.idxs()[0])
         highMoved = self._highCap.updatePosIfNecessary(self.idxs()[1])
+        group = self.group()
+        self.tempReparent()  
         if lowMoved:
             self.updateLine(self._lowCap)
         if highMoved:
@@ -113,6 +115,8 @@ class StrandItem(QGraphicsLineItem):
             self._xover3pEnd.update(strand)
         self.refreshInsertionItems(strand)
         self._updateSequenceText()
+        if group:
+            group.addToGroup(self)
     # end def
 
     def sequenceAddedSlot(self, oligo):
@@ -728,18 +732,19 @@ class StrandItem(QGraphicsLineItem):
                 test3p = val3p[0] if con3p.isDrawn5to3() else val3p[1]
                 test5p = indices[1] if strand5p.isDrawn5to3() else indices[0]
                 if test3p and test5p:
-                    if not self._xover3pEnd.isSelected():
+                    xoi = self._xover3pEnd
+                    if not xoi.isSelected() or not xoi.group():
                         selectionGroup.setNormalSelect(False)
-                        self._xover3pEnd.modelSelect(document)
-                        selectionGroup.addToGroup(self._xover3pEnd)
+                        xoi.modelSelect(document)
+                        selectionGroup.addToGroup(xoi)
                         selectionGroup.setNormalSelect(True)
                 # end if
             # end if
         # end if
+        # print "select if req", indices, self.isSelected(), self.group(), "normal select", selectionGroup.isNormalSelect()
         if indices[0] == True and indices[1] == True:
-            if not self.isSelected():
+            if not self.isSelected() or not self.group():
                 selectionGroup.setNormalSelect(False)
-                self.setSelectedColor(True)
                 self.modelSelect(document)
                 selectionGroup.addToGroup(self)
                 selectionGroup.setNormalSelect(True)

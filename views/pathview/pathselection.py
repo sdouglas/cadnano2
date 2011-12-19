@@ -130,6 +130,7 @@ class SelectionItemGroup(QGraphicsItemGroup):
         self._pendingToAddDict = {}
         self._addedToPressList = False
         self.clearSelection(False)
+        self.setSelectionLock(None)
         self.selectionbox.setParentItem(self._viewroot)
         self.setParentItem(self._viewroot)
     # end def
@@ -232,6 +233,7 @@ class SelectionItemGroup(QGraphicsItemGroup):
             self.selectionbox.resetPosition()
             self.removeSelectedItems()
             self._viewroot.setSelectionLock(None)
+            # self._viewroot.document().clearSelections()
             self.clearFocus()  # this is to disable delete keyPressEvents
             self.prepareGeometryChange()
             self._rect.setWidth(0)
@@ -244,7 +246,6 @@ class SelectionItemGroup(QGraphicsItemGroup):
 
     def itemChange(self, change, value):
         """docstring for itemChange"""
-        # if change == QGraphicsItem.ItemSelectedHasChanged:
         if change == QGraphicsItem.ItemSelectedChange:
             if value == False:
                 print "clear due to deselect"

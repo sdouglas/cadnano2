@@ -140,6 +140,7 @@ class CustomQGraphicsView(QGraphicsView):
         # Event handling
         self._hasFocus = False
         # Misc
+        self._selectionLock = None
         self._pressListIdx = 0
         self._pressList = [[],[]]  # bookkeeping to handle passing mouseevents
         # Pan and dolly defaults

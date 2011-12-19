@@ -98,8 +98,18 @@ class Document(QObject):
         if obj in self._selectionDict:
             del self._selectionDict[obj]
             self._selectedChangedDict[obj] = (False, False)
+            return True
+        else:
+            return False
     # end def
-
+    
+    def clearSelections(self):
+        """
+        Only clear the dictionary
+        """
+        self._selectionDict = {}
+    # end def
+    
     def addStrandToSelection(self, strand, value):
         sS = strand.strandSet()
         if sS in self._selectionDict:
@@ -117,7 +127,12 @@ class Document(QObject):
                 del temp[strand]
                 if len(temp) == 0:
                     del self._selectionDict[sS]
-            self._selectedChangedDict[strand] = (False, False)
+                self._selectedChangedDict[strand] = (False, False)
+                return True
+            else:
+                return False
+        else:
+            return False
     # end def
 
     def selectionDict(self):
