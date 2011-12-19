@@ -344,18 +344,20 @@ class helixManip(OpenMayaMPx.MPxManipContainer):
                 self.minDelta = max(minVal, self.minDelta)
                 self.maxDelta = min(maxVal, self.maxDelta)
 
-                print "DELTABOUNDS:", self.minDelta, self.maxDelta
-                """
+                print "SUB_DELTABOUNDS:", self.minDelta, self.maxDelta
+                
                 for s in strand.strandSet():
                     if s is not strand:
                         low, high = s.idxs()
+                        print "indices", low, high
                         if low < lowIdx and high < lowIdx:
-                            self.minDelta = max(high - lowIdx + 1, self.minDelta)
+                            if am is self.fDistanceFrontManip:
+                                self.minDelta = max(high - lowIdx + 1, self.minDelta)
                         elif low > highIdx and high > highIdx:
-                            self.maxDelta = min(low - highIdx - 1, self.maxDelta)
+                            if am is self.fDistanceBackManip:
+                                self.maxDelta = min(low - highIdx - 1, self.maxDelta)
                         else:
                             raise
-                """
 
             print "DELTABOUNDS:", self.minDelta, self.maxDelta
         except:
