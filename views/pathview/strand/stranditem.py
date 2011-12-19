@@ -55,6 +55,7 @@ class StrandItem(QGraphicsLineItem):
     def __init__(self, modelStrand, virtualHelixItem, viewroot):
         """The parent should be a VirtualHelixItem."""
         super(StrandItem, self).__init__(virtualHelixItem)
+        print "StrandItem init", modelStrand
         self._modelStrand = modelStrand
         self._virtualHelixItem = virtualHelixItem
         self._viewroot = viewroot
@@ -212,7 +213,7 @@ class StrandItem(QGraphicsLineItem):
     def strandModifierRemovedSlot(self, strand, index):
         pass
     # end def
-    
+
     def selectedChangedSlot(self, strand, indices):
         self.selectIfRequired(self.partItem().document(), indices)
     # end def
@@ -233,7 +234,7 @@ class StrandItem(QGraphicsLineItem):
     def strand(self):
         return self._modelStrand
     # end def
-    
+
     def strandFilter(self):
         return self._strandFilter
     # end def
@@ -245,7 +246,7 @@ class StrandItem(QGraphicsLineItem):
     def virtualHelixItem(self):
         return self._virtualHelixItem
     # end def
-    
+
     def partItem(self):
         return self._virtualHelixItem.partItem()
     # end def

@@ -251,27 +251,60 @@ class Document(QObject):
     # # end def
 
     def deleteSelection(self, useUndoStack=True):
-        """Delete xovers if present. Otherwise delete everything."""
+        """
+        Delete selected strands. First iterates through all selected strands
+        and extracts refs to xovers and strands. Next, calls removeXover
+        on xoverlist as part of its own macroed command for isoluation
+        purposes. Finally, calls removeStrand on all strands
+        """
         rmList = []
+        strandDict = {}
         for strandSetDict in self._selectionDict.values():
             for strand, value in strandSetDict.items():
                 part = strand.virtualHelix().part()
                 idxL, idxH = strand.idxs()
-
+                strandDict[strand] = True
                 v = value[0] if idxL == strand.idx3Prime() else value[1]
                 if v:
                     strand3p = strand.connection3p()
                     if strand3p:
                         rmList.append((part, strand, strand3p, useUndoStack))
 
+        # if useUndoStack:
+        #     self.undoStack().beginMacro("Delete xovers")
+        # for part, strand, strand3p, useUndo in rmList:
+        #     Part.removeXover(part, strand, strand3p, useUndo)
+        #     self.removeStrandFromSelection(strand)
+        #     self.removeStrandFromSelection(strand3p)
         if useUndoStack:
+            # self.undoStack().endMacro()
             self.undoStack().beginMacro("Delete selection")
-        for part, strand, strand3p, useUndo in rmList:
-            Part.removeXover(part, strand, strand3p, useUndo)
-            self.removeStrandFromSelection(strand)
-            self.removeStrandFromSelection(strand3p)
+        for strand in strandDict.keys():
+            print "rm", strand
+            strand.strandSet().removeStrand(strand)
         if useUndoStack:
             self.undoStack().endMacro()
+
+    def paintSelection(self, scafColor, stapColor, useUndoStack=True):
+        """Delete xovers if present. Otherwise delete everything."""
+        scafOligos = {}
+        stapOligos = {}
+        for strandSetDict in self._selectionDict.values():
+            for strand, value in strandSetDict.items():
+                if strand.isScaffold():
+                    scafOligos[strand.oligo()] = True
+                else:
+                    stapOligos[strand.oligo()] = True
+
+        if useUndoStack:
+            self.undoStack().beginMacro("Paint strands")
+        for olg in scafOligos.keys():
+            olg.applyColor(scafColor)
+        for olg in stapOligos.keys():
+            olg.applyColor(stapColor)
+        if useUndoStack:
+            self.undoStack().endMacro()
+
 
     def resizeSelection(self, delta, useUndoStack=True):
         if useUndoStack:
