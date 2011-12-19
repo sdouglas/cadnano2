@@ -181,17 +181,14 @@ class EndpointItem(QGraphicsPathItem):
         Parses a mousePressEvent, calling the approproate tool method as
         necessary. Stores _moveIdx for future comparison.
         """
+        self.scene().views()[0].addToPressList(self)
         self._strandItem.virtualHelixItem().setActive(self.idx())
         self._moveIdx = self.idx()
         activeToolStr = str(self._activeTool())
-        if activeToolStr == 'pencilTool':
-            return self._strandItem.pencilToolMousePress(self.idx())
-        if activeToolStr != 'selectTool':
-            self.scene().views()[0].addToPressList(self)
         toolMethodName = activeToolStr + "MousePress"
         if hasattr(self, toolMethodName):  # if the tool method exists
             modifiers = event.modifiers()
-            getattr(self, toolMethodName)(modifiers, event)  # call tool method
+            getattr(self, toolMethodName)(modifiers, event, self.idx())  # call tool method
 
     def hoverLeaveEvent(self, event):
         self.partItem().updateStatusBar("")
@@ -237,7 +234,7 @@ class EndpointItem(QGraphicsPathItem):
             del self._moveIdx
 
     ### TOOL METHODS ###
-    def addSeqToolMousePress(self, modifiers, event):
+    def addSeqToolMousePress(self, modifiers, event, idx):
         """
         Checks that a scaffold was clicked, and then calls apply sequence
         to the clicked strand via its oligo.
@@ -253,19 +250,19 @@ class EndpointItem(QGraphicsPathItem):
             mStrand.merge(self.idx())
     # end def
 
-    def eraseToolMousePress(self, idx, event):
+    def eraseToolMousePress(self, modifiers, event, idx):
         """Erase the strand."""
         mStrand = self._strandItem._modelStrand
         mStrand.strandSet().removeStrand(mStrand)
     # end def
 
-    def insertionToolMousePress(self, idx, event):
+    def insertionToolMousePress(self, modifiers, event, idx):
         """Add an insert to the strand if possible."""
         mStrand = self._strandItem._modelStrand
         mStrand.addInsertion(idx, 1)
     # end def
 
-    def paintToolMousePress(self, modifiers):
+    def paintToolMousePress(self, modifiers, event, idx):
         """Add an insert to the strand if possible."""
         mStrand = self._strandItem._modelStrand
         if mStrand.isStaple():
@@ -286,7 +283,7 @@ class EndpointItem(QGraphicsPathItem):
             tempXover.updateFloatingFromStrandItem(vhi, mStrand, idx)
     # end def
 
-    def pencilToolMousePress(self, idx):
+    def pencilToolMousePress(self, modifiers, event, idx):
         """Break the strand is possible."""
         mStrand = self._strandItem._modelStrand
         vhi = self._strandItem._virtualHelixItem
@@ -318,7 +315,7 @@ class EndpointItem(QGraphicsPathItem):
     #     self.setSelected(True)
     # # end def
 
-    def selectToolMousePress(self, modifiers, event):
+    def selectToolMousePress(self, modifiers, event, idx):
         """
         Set the allowed drag bounds for use by selectToolMouseMove.
         """
@@ -334,7 +331,7 @@ class EndpointItem(QGraphicsPathItem):
             if not (modifiers & mod):
                  selectionGroup.clearSelection(False)
             selectionGroup.setSelectionLock(selectionGroup)
-            self.setSelectedColor(True)
+            # self.setSelectedColor(True)
             selectionGroup.pendToAdd(self)
             selectionGroup.processPendingToAddList()
             return selectionGroup.mousePressEvent(event)
@@ -379,7 +376,7 @@ class EndpointItem(QGraphicsPathItem):
             mStrand.merge(self.idx())
     # end def
 
-    def skipToolMousePress(self, idx):
+    def skipToolMousePress(self, modifiers, event, idx):
         """Add an insert to the strand if possible."""
         mStrand = self._modelStrand
         mStrand.addInsertion(idx, -1)
@@ -486,6 +483,7 @@ class EndpointItem(QGraphicsPathItem):
         else:
             outValue = (lowVal, True)
         self.setSelected(True)
+        self.setSelectedColor(True)
         document.addStrandToSelection(strand, outValue)
     # end def
 

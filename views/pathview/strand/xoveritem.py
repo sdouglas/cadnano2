@@ -449,7 +449,7 @@ class XoverItem(QGraphicsPathItem):
                 if not (event.modifiers() & mod):
                      selectionGroup.clearSelection(False)
                 selectionGroup.setSelectionLock(selectionGroup)
-                self.setSelectedColor(True)
+                # self.setSelectedColor(True)
                 selectionGroup.pendToAdd(self)
                 selectionGroup.processPendingToAddList()
                 return selectionGroup.mousePressEvent(event)
@@ -586,6 +586,7 @@ class XoverItem(QGraphicsPathItem):
         else:
             highVal3p = True
         self.setSelected(True)
+        self.setSelectedColor(True)
         document.addStrandToSelection(strand5p, (lowVal5p, highVal5p))
         document.addStrandToSelection(strand3p, (lowVal3p, highVal3p))
     # end def
