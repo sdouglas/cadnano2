@@ -423,6 +423,7 @@ class XoverItem(QGraphicsPathItem):
     def _updateColor(self, strand):
         oligo = strand.oligo()
         color = self.pen().color() if self.isSelected() else QColor(oligo.color())
+        # print "update xover color", color.value(), self.isSelected(), self.group(), self.parentItem()
         penWidth = styles.PATH_STRAND_STROKE_WIDTH
         if oligo.shouldHighlight():
             penWidth = styles.PATH_STRAND_HIGHLIGHT_STROKE_WIDTH
@@ -444,8 +445,11 @@ class XoverItem(QGraphicsPathItem):
             currentFilterDict = viewroot.selectionFilterDict()
             if sI.strandFilter() in currentFilterDict and self._filterName in currentFilterDict:
                 selectionGroup = viewroot.strandItemSelectionGroup()
+                mod = Qt.MetaModifier
+                if not (event.modifiers() & mod):
+                     selectionGroup.clearSelection(False)
                 selectionGroup.setSelectionLock(selectionGroup)
-                self.penAndBrushSet(True)
+                self.setSelectedColor(True)
                 selectionGroup.pendToAdd(self)
                 selectionGroup.processPendingToAddList()
                 return selectionGroup.mousePressEvent(event)
@@ -476,7 +480,7 @@ class XoverItem(QGraphicsPathItem):
         """
         # map the position
         self.tempReparent(pos)
-        self.penAndBrushSet(False)
+        self.setSelectedColor(False)
         self.setSelected(False)
     # end def
 
@@ -489,7 +493,7 @@ class XoverItem(QGraphicsPathItem):
         self.setPos(tempP)
     # end def
 
-    def penAndBrushSet(self, value):
+    def setSelectedColor(self, value):
         if value == True:
             color = styles.selected_color
         else:
@@ -510,15 +514,13 @@ class XoverItem(QGraphicsPathItem):
             viewroot = sI.viewroot()
             currentFilterDict = viewroot.selectionFilterDict()
             selectionGroup = viewroot.strandItemSelectionGroup()
-            
             # only add if the selectionGroup is not locked out
             if value == True and (self._filterName in currentFilterDict or not selectionGroup.isNormalSelect()):
-                # if self.group() != selectionGroup and sI.strandFilter() in currentFilterDict:
                 if sI.strandFilter() in currentFilterDict:
-                    if selectionGroup.isNormalSelect():
+                    if self.group() != selectionGroup and selectionGroup.isNormalSelect():
                         selectionGroup.pendToAdd(self)
                         selectionGroup.setSelectionLock(selectionGroup)
-                    self.penAndBrushSet(True)
+                    self.setSelectedColor(True)
                     return True
                 else:
                     return False
@@ -528,9 +530,13 @@ class XoverItem(QGraphicsPathItem):
             else:
                 # Deselect
                 # Check if the strand is being added to the selection group still
-                selectionGroup.pendToRemove(self)
-                self.penAndBrushSet(False)
-                return False
+                if not selectionGroup.isPending(self._strandItem):
+                    selectionGroup.pendToRemove(self)
+                    self.tempReparent()
+                    self.setSelectedColor(False)
+                    return False
+                else:   # don't deselect it, because the strand is selected still
+                    return True
             # end else
         # end if
         return QGraphicsPathItem.itemChange(self, change, value)
@@ -539,7 +545,6 @@ class XoverItem(QGraphicsPathItem):
     def modelDeselect(self, document):
         strand5p = self._strand5p
         strand3p = strand5p.connection3p()
-
         test5p = document.isModelStrandSelected(strand5p)
         lowVal5p, highVal5p = document.getSelectedStrandValue(strand5p) if test5p else (False, False)
         if strand5p.isDrawn5to3():
@@ -580,7 +585,6 @@ class XoverItem(QGraphicsPathItem):
             lowVal3p = True
         else:
             highVal3p = True
-
         self.setSelected(True)
         document.addStrandToSelection(strand5p, (lowVal5p, highVal5p))
         document.addStrandToSelection(strand3p, (lowVal3p, highVal3p))
