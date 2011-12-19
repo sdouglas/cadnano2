@@ -140,11 +140,18 @@ class EndpointItem(QGraphicsPathItem):
     ### PUBLIC METHODS FOR DRAWING / LAYOUT ###
     def updatePosIfNecessary(self, idx):
         """Update position if necessary and return True if updated."""
+        group = self.group()
+        self.tempReparent()
         x = int(idx * _baseWidth)
         if x != self.x():
             self.setPos(x, self.y())
+            if group:
+                group.addToGroup(self)
             return True
-        return False
+        else:
+            if group:
+                group.addToGroup(self)
+            return False
 
     def resetEndPoint(self, isDrawn5to3):
         self.setParentItem(self._strandItem.virtualHelixItem())

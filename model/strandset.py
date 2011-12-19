@@ -488,7 +488,9 @@ class StrandSet(QObject):
 
     def _removeFromStrandList(self, strand):
         """Remove strand from _strandList."""
-        self._doc.removeFromSelection(strand) # make sure the strand is no longer selected
+        # make sure the strand is no longer selected
+        isDirty = self._doc.removeStrandFromSelection(strand)
+        # self._doc.setSelectionDirty(isDirty)
         self._strandList.remove(strand)
 
     def _couldStrandInsertAtLastIndex(self, strand):

@@ -345,6 +345,9 @@ class XoverItem(QGraphicsPathItem):
         are potentially None and represent the base at floatPos.
 
         """
+        group = self.group()
+        self.tempReparent()
+        
         node3 = self._node3
         node5 = self._node5
 
@@ -418,6 +421,9 @@ class XoverItem(QGraphicsPathItem):
         self._updateColor(strand5p)
         node3.updatePositionAndAppearance()
         node5.updatePositionAndAppearance()
+        
+        if group:
+            group.addToGroup(self)
     # end def
     
     def _updateColor(self, strand):
@@ -517,15 +523,19 @@ class XoverItem(QGraphicsPathItem):
             # only add if the selectionGroup is not locked out
             if value == True and (self._filterName in currentFilterDict or not selectionGroup.isNormalSelect()):
                 if sI.strandFilter() in currentFilterDict:
+                    # print "might add a xoi"
                     if self.group() != selectionGroup and selectionGroup.isNormalSelect():
+                        # print "adding an xoi"
                         selectionGroup.pendToAdd(self)
                         selectionGroup.setSelectionLock(selectionGroup)
                     self.setSelectedColor(True)
                     return True
                 else:
+                    # print "Doh"
                     return False
             # end if
             elif value == True:
+                # print "DOink"
                 return False
             else:
                 # Deselect
@@ -585,8 +595,8 @@ class XoverItem(QGraphicsPathItem):
             lowVal3p = True
         else:
             highVal3p = True
-        self.setSelected(True)
         self.setSelectedColor(True)
+        self.setSelected(True)
         document.addStrandToSelection(strand5p, (lowVal5p, highVal5p))
         document.addStrandToSelection(strand3p, (lowVal3p, highVal3p))
     # end def
