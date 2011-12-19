@@ -536,7 +536,7 @@ class StrandItem(QGraphicsLineItem):
             if not (event.modifiers() & mod):
                  selectionGroup.clearSelection(False)
             selectionGroup.setSelectionLock(selectionGroup)
-            self.setSelectedColor(True)
+            # self.setSelectedColor(True)
             selectionGroup.pendToAdd(self)
             selectionGroup.pendToAdd(self._lowCap)
             selectionGroup.pendToAdd(self._highCap)
@@ -753,6 +753,7 @@ class StrandItem(QGraphicsLineItem):
 
     def modelSelect(self, document):
         self.setSelected(True)
+        self.setSelectedColor(True)
     # end def
     
     def paint(self, painter, option, widget):
