@@ -74,6 +74,10 @@ class SolidRootItem(object):
     def resetRootItemSlot(self, doc):
         pass
     # end def
+    
+    def clearSelectionsSlot(self, doc):
+        pass
+    # end def
     ### METHODS ###
 
     def selectedChanged(self, strandList, value):

@@ -140,13 +140,17 @@ class CustomQGraphicsView(QGraphicsView):
         # Event handling
         self._hasFocus = False
         # Misc
-        self._selectionLock = None
-        self._pressListIdx = 0
-        self._pressList = [[],[]]  # bookkeeping to handle passing mouseevents
+        self.clearSelectionLockAndCallbacks()
         # Pan and dolly defaults
         self._transformEnable = False
         self._dollyZoomEnable = False
         self.setDragMode(self._noDrag)
+    # end def
+    
+    def clearSelectionLockAndCallbacks(self):
+        self._selectionLock = None
+        self._pressListIdx = 0
+        self._pressList = [[],[]]  # bookkeeping to handle passing mouseevents
     # end def
     
     def setGLView(self, boolval):

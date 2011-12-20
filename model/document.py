@@ -65,7 +65,7 @@ class Document(QObject):
     documentSelectionFilterChangedSignal = pyqtSignal(list)
 
     documentViewResetSignal = pyqtSignal(QObject)
-
+    documentClearSelectionsSignal = pyqtSignal(QObject)
     ### SLOTS ###
 
     ### ACCESSORS ###
@@ -294,6 +294,8 @@ class Document(QObject):
         #     Part.removeXover(part, strand, strand3p, useUndo)
         #     self.removeStrandFromSelection(strand)
         #     self.removeStrandFromSelection(strand3p)
+        self._selectionDict = {}
+        self.documentClearSelectionsSignal.emit(self)
         if useUndoStack:
             # self.undoStack().endMacro()
             self.undoStack().beginMacro("Delete selection")

@@ -33,7 +33,7 @@ class ViewRootController():
         mD = self._modelDocument
         vR = self._viewRoot
         mD.documentPartAddedSignal.connect(vR.partAddedSlot)
-        # mD.documentSelectedChangedSignal.connect(vR.selectedChangedSlot)
+        mD.documentClearSelectionsSignal.connect(vR.clearSelectionsSlot)
         mD.documentSelectionFilterChangedSignal.connect(vR.selectionFilterChangedSlot)
         mD.documentViewResetSignal.connect(vR.resetRootItemSlot)
         
@@ -41,6 +41,6 @@ class ViewRootController():
         mD = self._modelDocument
         vR = self._viewRoot
         mD.documentPartAddedSignal.disconnect(vR.partAddedSlot)
-        # mD.documentSelectedChangedSignal.disconnect(vR.selectedChangedSlot)
+        mD.documentClearSelectionsSignal.disconnect(vR.clearSelectionsSlot)
         mD.documentSelectionFilterChangedSignal.disconnect(vR.selectionFilterChangedSlot)
         mD.documentViewResetSignal.disconnect(vR.resetRootItemSlot)

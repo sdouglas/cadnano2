@@ -83,6 +83,12 @@ class PathRootItem(QGraphicsRectItem):
             item.selectionProcess(value)
     # end def
 
+    def clearSelectionsSlot(self, doc):
+        self._vhiHSelectionGroup.resetSelection()
+        self._strandItemSelectionGroup.resetSelection()
+        self.scene().views()[0].clearSelectionLockAndCallbacks()
+    # end def
+
     def selectionFilterChangedSlot(self, filterNameList):
         self._vhiHSelectionGroup.clearSelection(False)
         self._strandItemSelectionGroup.clearSelection(False)
