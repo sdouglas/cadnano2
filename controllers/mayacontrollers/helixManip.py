@@ -221,9 +221,10 @@ class helixManip(OpenMayaMPx.MPxManipContainer):
             drawText = str(self.deltaFront)
             if self.deltaFront > 0:
                 drawText = "+" + drawText
-            if self.deltaFront > self.minDelta:
+            c = self.canMove(self.deltaFront)
+            if c[0]:
                 drawText = "<  " + drawText
-            if self.deltaFront < self.maxDelta:
+            if c[1]:
                 drawText = drawText + "  >"
             u = self.sp * m
             v = u + self.frontDir * self.frontDistance
@@ -231,11 +232,11 @@ class helixManip(OpenMayaMPx.MPxManipContainer):
             drawText = str(self.deltaBack)
             if self.deltaBack > 0:
                 drawText = "+" + drawText
-            if self.deltaBack > self.minDelta:
+            c = self.canMove(self.deltaBack)
+            if c[0]:
                 drawText = "<  " + drawText
-            if self.deltaBack < self.maxDelta:
+            if c[1]:
                 drawText = drawText + "  >"
-
             u = self.ep * m
             v = u + self.backDir * self.backDistance
 
@@ -374,12 +375,10 @@ class helixManip(OpenMayaMPx.MPxManipContainer):
                 # idxL = idxL+delta if value[0] else idxL
                 # idxH = idxH+delta if value[1] else idxH
                 if am is self.fDistanceFrontManip:
-                    # check for Xovers
                     if strand.connectionLow():
                         part = strand.virtualHelix().part()
                         newDelta = part.xoverSnapTo(strand, idxL, delta) - idxL
                 elif am is self.fDistanceBackManip:
-                    # check for Xovers
                     if strand.connectionHigh():
                         part = strand.virtualHelix().part()
                         newDelta = part.xoverSnapTo(strand, idxH, delta) - idxH
@@ -388,6 +387,18 @@ class helixManip(OpenMayaMPx.MPxManipContainer):
             raise
 
         return newDelta
+
+    def canMove(self, delta):
+
+        dirLeft = False
+        dirRight = False
+
+        if self.snapToXover(delta) > self.snapToXover(self.minDelta):
+            dirLeft = True
+        if self.snapToXover(delta) < self.snapToXover(self.maxDelta):
+            dirRight = True
+
+        return (dirLeft, dirRight)
 
     def doPress(self):
 
