@@ -22,7 +22,7 @@
 #
 # http://www.opensource.org/licenses/mit-license.php
 
-import os.path
+import os
 from cadnano import app
 from model.document import Document
 from model.io.decoder import decode
@@ -52,6 +52,7 @@ class DocumentController():
         self._document = Document()
         self._activePart = None
         self._filename = None
+        self._fileOpenPath = None
         self._hasNoAssociatedFile = True
         self._pathViewInstance = None
         self._sliceViewInstance = None
@@ -550,6 +551,7 @@ class DocumentController():
         if not fname or os.path.isdir(fname):
             return False
         fname = str(fname)
+        self._fileOpenPath = os.path.dirname(fname)
         self.newDocument(fname=fname)
         decode(self._document, file(fname).read())
         if hasattr(self, "filesavedialog"): # user did save
@@ -615,10 +617,11 @@ class DocumentController():
         actionOpenSlot to spawn a QFileDialog and connect it to a callback
         method.
         """
-        if util.isWindows():  # required for native looking file window
+        path = self._fileOpenPath if self._fileOpenPath else os.environ["HOME"] 
+        if util.isWindows():  # required for native looking file window#"/",
             fname = QFileDialog.getOpenFileName(
                         None,
-                        "Open Document", "/",
+                        "Open Document", path,
                         "cadnano1 / cadnano2 Files (*.nno *.json *.cadnano)")
             self.filesavedialog = None
             self.openAfterMaybeSaveCallback(fname)
@@ -626,7 +629,7 @@ class DocumentController():
             fdialog = QFileDialog(
                         self.win,
                         "Open Document",
-                        "/",
+                        path,
                         "cadnano1 / cadnano2 Files (*.nno *.json *.cadnano)")
             fdialog.setAcceptMode(QFileDialog.AcceptOpen)
             fdialog.setWindowFlags(Qt.Sheet)
@@ -634,6 +637,7 @@ class DocumentController():
             self.fileopendialog = fdialog
             self.fileopendialog.filesSelected.connect(self.openAfterMaybeSaveCallback)
             fdialog.open()
+    # end def
 
     ### FILE OUTPUT ###
     def maybeSave(self):
