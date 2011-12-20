@@ -59,7 +59,6 @@ class helixManip(OpenMayaMPx.MPxManipContainer):
     class helix():
         id = None
         helixName = ""
-        #newStrandSize = (0, 0)
         helixNode = OpenMaya.MObject()
         helixTransform = OpenMaya.MObject()
 
@@ -221,9 +220,10 @@ class helixManip(OpenMayaMPx.MPxManipContainer):
             drawText = str(self.deltaFront)
             if self.deltaFront > 0:
                 drawText = "+" + drawText
-            if self.deltaFront > self.minDelta:
+            c = self.canMove(self.deltaFront)
+            if c[0]:
                 drawText = "<  " + drawText
-            if self.deltaFront < self.maxDelta:
+            if c[1]:
                 drawText = drawText + "  >"
             u = self.sp * m
             v = u + self.frontDir * self.frontDistance
@@ -231,11 +231,11 @@ class helixManip(OpenMayaMPx.MPxManipContainer):
             drawText = str(self.deltaBack)
             if self.deltaBack > 0:
                 drawText = "+" + drawText
-            if self.deltaBack > self.minDelta:
+            c = self.canMove(self.deltaBack)
+            if c[0]:
                 drawText = "<  " + drawText
-            if self.deltaBack < self.maxDelta:
+            if c[1]:
                 drawText = drawText + "  >"
-
             u = self.ep * m
             v = u + self.backDir * self.backDistance
 
@@ -329,34 +329,20 @@ class helixManip(OpenMayaMPx.MPxManipContainer):
             for (id, helix) in self.helices.iteritems():
                 strand = self.getStrand(helix)
                 lowIdx, highIdx = strand.idxs()
-                maxIdx = strand.part().maxBaseIdx()
-                minIdx = strand.part().minBaseIdx()
 
                 minVal = 0
                 maxVal = 0
                 if am is self.fDistanceFrontManip:
-                    minVal = minIdx - lowIdx
-                    maxVal = highIdx - lowIdx - 1
+                    lbound, ubound = strand.getResizeBounds(lowIdx)
+                    minVal = lbound - lowIdx
+                    maxVal = ubound - lowIdx
                 elif am is self.fDistanceBackManip:
-                    minVal = lowIdx - highIdx + 1
-                    maxVal = maxIdx - highIdx
-
+                    lbound, ubound = strand.getResizeBounds(highIdx)
+                    minVal = lbound - highIdx
+                    maxVal = ubound - highIdx
+                    
                 self.minDelta = max(minVal, self.minDelta)
                 self.maxDelta = min(maxVal, self.maxDelta)
-
-                for s in strand.strandSet():
-                    if s is not strand:
-                        low, high = s.idxs()
-                        if low < lowIdx and high < lowIdx:
-                            if am is self.fDistanceFrontManip:
-                                self.minDelta = max(high - lowIdx + 1,
-                                                            self.minDelta)
-                        elif low > highIdx and high > highIdx:
-                            if am is self.fDistanceBackManip:
-                                self.maxDelta = min(low - highIdx - 1,
-                                                            self.maxDelta)
-                        else:
-                            raise
 
         except:
             print "calculateDeltaBounds failed!"
@@ -373,21 +359,29 @@ class helixManip(OpenMayaMPx.MPxManipContainer):
                 idxL, idxH = strand.idxs()
                 # idxL = idxL+delta if value[0] else idxL
                 # idxH = idxH+delta if value[1] else idxH
-                if am is self.fDistanceFrontManip:
-                    # check for Xovers
-                    if strand.connectionLow():
-                        part = strand.virtualHelix().part()
-                        newDelta = part.xoverSnapTo(strand, idxL, delta) - idxL
-                elif am is self.fDistanceBackManip:
-                    # check for Xovers
-                    if strand.connectionHigh():
-                        part = strand.virtualHelix().part()
-                        newDelta = part.xoverSnapTo(strand, idxH, delta) - idxH
+                if am is self.fDistanceFrontManip and strand.connectionLow():
+                    part = strand.virtualHelix().part()
+                    newDelta = part.xoverSnapTo(strand, idxL, delta) - idxL
+                elif am is self.fDistanceBackManip and strand.connectionHigh():
+                    part = strand.virtualHelix().part()
+                    newDelta = part.xoverSnapTo(strand, idxH, delta) - idxH
         except:
             sys.stderr.write("ERROR: helixManip.snapToXover\n")
             raise
 
         return newDelta
+
+    def canMove(self, delta):
+
+        dirLeft = False
+        dirRight = False
+
+        if self.snapToXover(delta) > self.snapToXover(self.minDelta):
+            dirLeft = True
+        if self.snapToXover(delta) < self.snapToXover(self.maxDelta):
+            dirRight = True
+
+        return (dirLeft, dirRight)
 
     def doPress(self):
 
@@ -716,7 +710,6 @@ class helixManip(OpenMayaMPx.MPxManipContainer):
             newLow = min(newLow, highIdx - 1)
             newLow = max(newLow, strand.part().minBaseIdx())
 
-            #helix.newStrandSize = (newLow, highIdx)
             self.deltaFront = newLow - lowIdx
             self.deltaFront = max(self.minDelta, self.deltaFront)
             self.deltaFront = min(self.maxDelta, self.deltaFront)
@@ -737,7 +730,6 @@ class helixManip(OpenMayaMPx.MPxManipContainer):
             newHigh = min(newHigh, strand.part().maxBaseIdx())
             newHigh = max(newHigh, lowIdx + 1)
 
-            #helix.newStrandSize = (lowIdx, newHigh)
             self.deltaBack = newHigh - highIdx
             self.deltaBack = max(self.minDelta, self.deltaBack)
             self.deltaBack = min(self.maxDelta, self.deltaBack)

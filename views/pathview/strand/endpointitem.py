@@ -35,9 +35,10 @@ import util
 # import Qt stuff into the module namespace with PySide, PyQt4 independence
 util.qtWrapImport('QtCore', globals(), ['pyqtSignal', 'QObject', 'QPointF',
                                         'QRectF', 'Qt'])
-util.qtWrapImport('QtGui', globals(), ['QGraphicsPathItem', 'QPen', 'QGraphicsItem',\
-                                        'QPainterPath', 'QPolygonF',\
-                                        'QGraphicsRectItem', 'QBrush', 'QColor'])
+util.qtWrapImport('QtGui', globals(), ['QGraphicsPathItem', 'QPen', \
+                                        'QGraphicsItem', 'QPainterPath', \
+                                        'QPolygonF', 'QGraphicsRectItem', \
+                                        'QBrush', 'QColor'])
 
 _baseWidth = styles.PATH_BASE_WIDTH
 
@@ -48,7 +49,10 @@ ppR3 = QPainterPath()  # Right 3' PainterPath
 pp53 = QPainterPath()  # Left 5', Right 3' PainterPath
 pp35 = QPainterPath()  # Left 5', Right 3' PainterPath
 # set up ppL5 (left 5' blue square)
-ppL5.addRect(0.25 * _baseWidth, 0.125 * _baseWidth, 0.75 * _baseWidth, 0.75 * _baseWidth)
+ppL5.addRect(0.25 * _baseWidth,
+            0.125 * _baseWidth,
+            0.75 * _baseWidth,
+            0.75 * _baseWidth)
 # set up ppR5 (right 5' blue square)
 ppR5.addRect(0, 0.125 * _baseWidth, 0.75 * _baseWidth, 0.75 * _baseWidth)
 # set up ppL3 (left 3' blue triangle)
@@ -74,7 +78,10 @@ poly53.append(QPointF(_baseWidth, 0.5 * _baseWidth))
 poly53.append(QPointF(0.5 * _baseWidth, _baseWidth))
 pp53.addPolygon(poly53)
 # single base left 3'<-5'
-pp35.addRect(0.50 * _baseWidth, 0.125 * _baseWidth, 0.5 * _baseWidth, 0.75 * _baseWidth)
+pp35.addRect(0.50 * _baseWidth,
+            0.125 * _baseWidth,
+            0.5 * _baseWidth,
+            0.75 * _baseWidth)
 poly35 = QPolygonF()
 poly35.append(QPointF(0.5 * _baseWidth, 0))
 poly35.append(QPointF(0, 0.5 * _baseWidth))
@@ -197,7 +204,7 @@ class EndpointItem(QGraphicsPathItem):
         toolMethodName = activeToolStr + "MousePress"
         if hasattr(self, toolMethodName):  # if the tool method exists
             modifiers = event.modifiers()
-            getattr(self, toolMethodName)(modifiers, event, self.idx())  # call tool method
+            getattr(self, toolMethodName)(modifiers, event, self.idx())
 
     def hoverLeaveEvent(self, event):
         self.partItem().updateStatusBar("")
@@ -227,7 +234,7 @@ class EndpointItem(QGraphicsPathItem):
             if idx != self._moveIdx:  # did we actually move?
                 modifiers = event.modifiers()
                 self._moveIdx = idx
-                getattr(self, toolMethodName)(modifiers, idx)  # call tool method
+                getattr(self, toolMethodName)(modifiers, idx)
 
     def customMouseRelease(self, event):
         """
@@ -334,11 +341,12 @@ class EndpointItem(QGraphicsPathItem):
         sI = self._strandItem
         viewroot = sI.viewroot()
         currentFilterDict = viewroot.selectionFilterDict()
-        if sI.strandFilter() in currentFilterDict and self._filterName in currentFilterDict:
+        if sI.strandFilter() in currentFilterDict \
+                                    and self._filterName in currentFilterDict:
             selectionGroup = viewroot.strandItemSelectionGroup()
             mod = Qt.MetaModifier
             if not (modifiers & mod):
-                 selectionGroup.clearSelection(False)
+                selectionGroup.clearSelection(False)
             selectionGroup.setSelectionLock(selectionGroup)
             selectionGroup.pendToAdd(self)
             selectionGroup.processPendingToAddList()
@@ -439,7 +447,8 @@ class EndpointItem(QGraphicsPathItem):
 
             # only add if the selectionGroup is not locked out
             if value == True and self._filterName in currentFilterDict:
-                # if self.group() != selectionGroup and sI.strandFilter() in currentFilterDict:
+                # if self.group() != selectionGroup \
+                #                   and sI.strandFilter() in currentFilterDict:
                 if sI.strandFilter() in currentFilterDict:
                     if self.group() != selectionGroup:
                         selectionGroup.pendToAdd(self)
@@ -454,13 +463,13 @@ class EndpointItem(QGraphicsPathItem):
                 return False
             else:
                 # Deselect
-                # Check if the strand is being added to the selection group still
+                # Check if strand is being added to the selection group still
                 if not selectionGroup.isPending(self._strandItem):
                     selectionGroup.pendToRemove(self)
                     self.tempReparent()
                     self.setSelectedColor(False)
                     return False
-                else:   # don't deselect it, because the strand is selected still
+                else:   # don't deselect, because the strand is still selected
                     return True
             # end else
         # end if
@@ -470,7 +479,8 @@ class EndpointItem(QGraphicsPathItem):
     def modelDeselect(self, document):
         strand = self._strandItem.strand()
         test = document.isModelStrandSelected(strand)
-        lowVal, highVal = document.getSelectedStrandValue(strand) if test else (False, False)
+        lowVal, highVal = document.getSelectedStrandValue(strand) if test \
+                                                            else (False, False)
         if self._capType == 'low':
             outValue = (False, highVal)
         else:
@@ -485,7 +495,8 @@ class EndpointItem(QGraphicsPathItem):
     def modelSelect(self, document):
         strand = self._strandItem.strand()
         test = document.isModelStrandSelected(strand)
-        lowVal, highVal = document.getSelectedStrandValue(strand) if test else (False, False)
+        lowVal, highVal = document.getSelectedStrandValue(strand) if test \
+                                                            else (False, False)
         if self._capType == 'low':
             outValue = (True, highVal)
         else:

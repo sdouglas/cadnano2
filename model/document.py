@@ -57,15 +57,15 @@ class Document(QObject):
     ### SIGNALS ###
     documentPartAddedSignal = pyqtSignal(QObject)  # part
 
-    # dict of tuples of objects using the reference as the key, and the value is
-    # a tuple with meta data
+    # dict of tuples of objects using the reference as the key,
+    # and the value is a tuple with meta data
     # in the case of strands the metadata would be which endpoints of selected
     # e.g. { objectRef: (value0, value1),  ...}
-    documentSelectedChangedSignal = pyqtSignal(dict)   # dict of tuples of items and data 
+    documentSelectedChangedSignal = pyqtSignal(dict)  # tuples of items + data
     documentSelectionFilterChangedSignal = pyqtSignal(list)
-    
+
     documentViewResetSignal = pyqtSignal(QObject)
-    
+
     ### SLOTS ###
 
     ### ACCESSORS ###
@@ -102,14 +102,14 @@ class Document(QObject):
         else:
             return False
     # end def
-    
+
     def clearSelections(self):
         """
         Only clear the dictionary
         """
         self._selectionDict = {}
     # end def
-    
+
     def addStrandToSelection(self, strand, value):
         sS = strand.strandSet()
         if sS in self._selectionDict:
@@ -200,7 +200,8 @@ class Document(QObject):
                     if lowNeighbor in sSDict:
                         valueN = sSDict[lowNeighbor]
                         # we only care if the low neighbor is not selected
-                        temp = minLowDelta  if valueN[1] else idxL - lowNeighbor.highIdx() - 1
+                        temp = minLowDelta if valueN[1] \
+                                        else idxL - lowNeighbor.highIdx() - 1
                     # end if
                     else:  # not selected
                         temp = idxL - lowNeighbor.highIdx() - 1
@@ -223,7 +224,8 @@ class Document(QObject):
                     if highNeighbor in sSDict:
                         valueN = sSDict[highNeighbor]
                         # we only care if the low neighbor is not selected
-                        temp = minHighDelta if valueN[0] else highNeighbor.lowIdx() - idxH - 1
+                        temp = minHighDelta if valueN[0] \
+                                        else highNeighbor.lowIdx() - idxH - 1
                     # end if
                     else:  # not selected
                         temp = highNeighbor.lowIdx() - idxH - 1
@@ -323,7 +325,6 @@ class Document(QObject):
         if useUndoStack:
             self.undoStack().endMacro()
 
-
     def resizeSelection(self, delta, useUndoStack=True):
         if useUndoStack:
             self.undoStack().beginMacro("Resize Selection")
@@ -379,7 +380,7 @@ class Document(QObject):
 
     def resetViews(self):
         # This is a fast way to clear selections and the views.
-        # We could manually deselect each item from the Dict, but we'll just 
+        # We could manually deselect each item from the Dict, but we'll just
         # let them be garbage collect
         # the dictionary maintains what is selected
         self._selectionDict = {}

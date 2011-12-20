@@ -91,7 +91,7 @@ def selectionCallback(clientData):
     if manipulator is not None:
         manipulator.finishedAddingHelices()
     m.strandsSelected(helixList)
-    
+
     m.updateSelectionBoxes()
 
 

@@ -60,9 +60,9 @@ class Strand(QObject):
         super(Strand, self).__init__(strandSet)
         self._strandSet = strandSet
         self._doc = strandSet.document()
-        
-        self._baseIdxLow = baseIdxLow  # base index of the strand's left boundary
-        self._baseIdxHigh = baseIdxHigh  # base index of the right boundary
+
+        self._baseIdxLow = baseIdxLow  # base index of the strand's left bound
+        self._baseIdxHigh = baseIdxHigh  # base index of the right bound
         self._oligo = oligo
         self._strand5p = None  # 5' connection to another strand
         self._strand3p = None  # 3' connection to another strand
@@ -93,7 +93,10 @@ class Strand(QObject):
 
     def __repr__(self):
         clsName = self.__class__.__name__
-        s = "%s.<%s(%s, %s)>" % (self._strandSet.__repr__(), clsName, self._baseIdxLow, self._baseIdxHigh)
+        s = "%s.<%s(%s, %s)>" % (self._strandSet.__repr__(),
+                                clsName,
+                                self._baseIdxLow,
+                                self._baseIdxHigh)
         return s
 
     def generator3pStrand(self):
@@ -120,20 +123,34 @@ class Strand(QObject):
     strandHasNewOligoSignal = pyqtSignal(QObject)
     strandRemovedSignal = pyqtSignal(QObject)
     strandResizedSignal = pyqtSignal(QObject, tuple)
-    strandXover5pChangedSignal = pyqtSignal(QObject, QObject)  # strand3p, strand5p
-    strandXover5pRemovedSignal = pyqtSignal(QObject, QObject)  # strand3p, strand5p
-    strandUpdateSignal = pyqtSignal(QObject)  # strand
-    strandInsertionAddedSignal = pyqtSignal(QObject, object)    # strand, insertion object
-    strandInsertionChangedSignal = pyqtSignal(QObject, object)    # strand, insertion object
-    strandInsertionRemovedSignal = pyqtSignal(QObject, int)     # strand, insertion index
-    strandDecoratorAddedSignal = pyqtSignal(QObject, object)    # strand, decorator object
-    strandDecoratorChangedSignal = pyqtSignal(QObject, object)    # strand, decorator object
-    strandDecoratorRemovedSignal = pyqtSignal(QObject, int)     # strand, decorator object
-    strandModifierAddedSignal = pyqtSignal(QObject, object)     # strand, modifier object
-    strandModifierChangedSignal = pyqtSignal(QObject, object)     # strand, modifier object
-    strandModifierRemovedSignal = pyqtSignal(QObject, int)      # strand, modifier object
 
-    selectedChangedSignal = pyqtSignal(QObject, tuple)        # strand, value
+    # Parameters: (strand3p, strand5p)
+    strandXover5pChangedSignal = pyqtSignal(QObject, QObject)
+    strandXover5pRemovedSignal = pyqtSignal(QObject, QObject)
+
+    # Parameters: (strand)
+    strandUpdateSignal = pyqtSignal(QObject)
+
+    # Parameters: (strand, insertion object)
+    strandInsertionAddedSignal = pyqtSignal(QObject, object)
+    strandInsertionChangedSignal = pyqtSignal(QObject, object)
+    # Parameters: (strand, insertion index)
+    strandInsertionRemovedSignal = pyqtSignal(QObject, int)
+
+    # Parameters: (strand, decorator object)
+    strandDecoratorAddedSignal = pyqtSignal(QObject, object)
+    strandDecoratorChangedSignal = pyqtSignal(QObject, object)
+    # Parameters: (strand, decorator index)
+    strandDecoratorRemovedSignal = pyqtSignal(QObject, int)
+
+    # Parameters: (strand, modifier object)
+    strandModifierAddedSignal = pyqtSignal(QObject, object)
+    strandModifierChangedSignal = pyqtSignal(QObject, object)
+    # Parameters: (strand, modifier index)
+    strandModifierRemovedSignal = pyqtSignal(QObject, int)
+
+    # Parameters: (strand, value)
+    selectedChangedSignal = pyqtSignal(QObject, tuple)
 
     ### SLOTS ###
     ### ACCESSORS ###
@@ -204,7 +221,8 @@ class Strand(QObject):
         for compStrand in compSS._findOverlappingRanges(self):
             compSeq = compStrand.sequence()
             usedSeq = util.comp(compSeq) if compSeq else None
-            usedSeq = self.setComplementSequence(usedSeq, compStrand, refreshSeq=True)
+            usedSeq = self.setComplementSequence(
+                                        usedSeq, compStrand, refreshSeq=True)
         # end for
     # end def
 
@@ -240,8 +258,8 @@ class Strand(QObject):
         return the used portion of the sequenceString
 
         As it depends which direction this is going, and strings are stored in
-        memory left to right, we need to test for isDrawn5to3 to map the reverse
-        compliment appropriately, as we traverse overlapping strands.
+        memory left to right, we need to test for isDrawn5to3 to map the
+        reverse compliment appropriately, as we traverse overlapping strands.
 
         We reverse the sequence ahead of time if we are applying it 5' to 3',
         otherwise we reverse the sequence post parsing if it's 3' to 5'
@@ -268,13 +286,15 @@ class Strand(QObject):
             # clear out string for in case of not total overlap
             useSeq = ''.join([' ' for x in range(totalLength)])
         else:  # use the string as is
-            useSeq = sequenceString[::-1] if self._isDrawn5to3 else sequenceString
+            useSeq = sequenceString[::-1] if self._isDrawn5to3 \
+                                            else sequenceString
 
         temp = array('c', useSeq)
         if self._sequence == None or refreshSeq:
             tempSelf = array('c', ''.join([' ' for x in range(totalLength)]))
         else:
-            tempSelf = array('c', self._sequence if self._isDrawn5to3 else self._sequence[::-1])
+            tempSelf = array('c', self._sequence if self._isDrawn5to3 \
+                                                    else self._sequence[::-1])
 
         # generate the index into the compliment string
         a = self.insertionLengthBetweenIdxs(sLowIdx, lowIdx - 1)
@@ -282,7 +302,8 @@ class Strand(QObject):
         c = strand.insertionLengthBetweenIdxs(cLowIdx, lowIdx - 1)
         start = lowIdx - cLowIdx + c
         end = start + b + highIdx - lowIdx + 1
-        tempSelf[lowIdx - sLowIdx + a:highIdx - sLowIdx + 1 + a + b] = temp[start:end]
+        tempSelf[lowIdx - sLowIdx + a:highIdx - sLowIdx + 1 + a + b] = \
+                                                                temp[start:end]
         self._sequence = tempSelf.tostring()
 
         # if we need to reverse it do it now
@@ -385,8 +406,10 @@ class Strand(QObject):
         but works for two bounds at once.
         """
         lowNeighbor, highNeighbor = self._strandSet.getNeighbors(self)
-        lowBound = lowNeighbor.highIdx() if lowNeighbor else self.part().minBaseIdx()
-        highBound = highNeighbor.lowIdx() if highNeighbor else self.part().maxBaseIdx()
+        lowBound = lowNeighbor.highIdx() if lowNeighbor \
+                                            else self.part().minBaseIdx()
+        highBound = highNeighbor.lowIdx() if highNeighbor \
+                                            else self.part().maxBaseIdx()
 
         if newLow > lowBound and newHigh < highBound:
             return True
@@ -444,13 +467,16 @@ class Strand(QObject):
             return False
         sS = self.strandSet()
         isSameStrand = fromStrand == self
-        isStrandTypeMatch = fromStrand.strandSet().strandType() == sS.strandType() if fromStrand else True
+        isStrandTypeMatch = \
+                fromStrand.strandSet().strandType() == sS.strandType() \
+                                                if fromStrand else True
         if not isStrandTypeMatch:
             return False
         isDrawn5to3 = sS.isDrawn5to3()
         indexDiffH = self.highIdx() - idx
         indexDiffL = idx - self.lowIdx()
-        index3Lim = self.idx3Prime() - 1 if isDrawn5to3 else self.idx3Prime() + 1
+        index3Lim = self.idx3Prime() - 1 if isDrawn5to3 \
+                                            else self.idx3Prime() + 1
         if isSameStrand:
             indexDiffStrands = fromIdx - idx
             if idx == self.idx5Prime() or idx == index3Lim:

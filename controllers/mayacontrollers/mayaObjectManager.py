@@ -153,7 +153,7 @@ class Mom(object):
                 strandList.append(self.mayaToCn[nodeName])
         doc = app().activeDocument
         # XXX [SB] THIS IS A HACK, should not need to do this!!!
-        #doc.win.pathroot.clearStrandSelections()
+        doc.win.pathroot.clearStrandSelections()
 
         doc.win.solidroot.selectedChanged(strandList, value)
         self.ignoreExternalSelectionSignal = False
@@ -275,7 +275,7 @@ class Mom(object):
                 for strandSetDict in selectionDict.itervalues():
                     for strand, value in strandSetDict.iteritems():
                         # XXX The following line is a work around for broken
-                        # path selection in model, remove this when it has been fixed
+                        # path selection in model, remove when fixed
                         if not strand in self.cnToMaya:
                             continue
                         helixNode = self.cnToMaya[strand]
@@ -301,11 +301,11 @@ class Mom(object):
                             epBoundBox[3] = max(epBoundBox[3], boundBox[3])
                             epBoundBox[4] = max(epBoundBox[4], boundBox[4])
                             epBoundBox[5] = max(epBoundBox[5], boundBox[5])
-            
+
                 # XXX The following line is a work around for broken
-                # path selection in model, remove this when it has been fixed
+                # path selection in model, remove when fixed
                 if not epBoundBox == None:
-            
+
                     cmds.showHidden(self.epSelectionBox)
                     cmds.setAttr(
                             self.epSelectionBox + ".scale",
@@ -319,10 +319,10 @@ class Mom(object):
                             (epBoundBox[1] + epBoundBox[4]) / 2,
                             (epBoundBox[2] + epBoundBox[5]) / 2,
                             type="double3")
-                
+
             else:
                 cmds.hide(self.epSelectionBox)
-                        
+
         else:
             cmds.hide(self.selectionBox)
             cmds.hide(self.epSelectionBox)
