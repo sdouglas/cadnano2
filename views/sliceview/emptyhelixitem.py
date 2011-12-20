@@ -371,7 +371,7 @@ class EmptyHelixItem(QGraphicsEllipseItem):
 
         idx = part.activeBaseIndex()
         startIdx = max(0,idx-1)
-        endIdx = min(idx+1, part.dimensions()[1]-1)
+        endIdx = min(idx+1, part.maxBaseIdx())
         vh.scaffoldStrandSet().createStrand(startIdx, endIdx)
 
         self._partItem.updateStatusBar("(%d, %d)" % self._coord)
@@ -386,7 +386,7 @@ class EmptyHelixItem(QGraphicsEllipseItem):
 
         idx = part.activeBaseIndex()
         startIdx = max(0,idx-1)
-        endIdx = min(idx+1, part.dimensions()[1]-1)
+        endIdx = min(idx+1, part.maxBaseIdx())
         vh.stapleStrandSet().createStrand(startIdx, endIdx)
 
         self._partItem.updateStatusBar("(%d, %d)" % self._coord)
