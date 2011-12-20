@@ -114,14 +114,14 @@ class SelectionItemGroup(QGraphicsItemGroup):
 
     def processPendingToAddList(self):
         doc = self._viewroot.document()
+
         # print "instant add is 1 from process pending"
         if len(self._pendingToAddDict) > 0:
             for item in self._pendingToAddDict:
                 # print "just checking1", item, item.group(), item.parentItem()
                 self.addToGroup(item)
-                # print "just checking2", item, item.group(), item.parentItem()
                 item.modelSelect(doc)
-                # print "just checking3", item, item.group(), item.parentItem()
+            # end for
             self._pendingToAddDict = {}
             doc.updateSelection()
     # end def
@@ -432,9 +432,11 @@ class EndpointHandleSelectionBox(QGraphicsPathItem):
     # end def
 
     def translateX(self, delta):
-        pI = self._itemGroup.childItems()[0].partItem()
-        str = "+%d" % delta if delta >= 0 else "%d" % delta
-        pI.updateStatusBar(str)
+        children = self._itemGroup.childItems()
+        if children:
+            pI = children[0].partItem()
+            str = "+%d" % delta if delta >= 0 else "%d" % delta
+            pI.updateStatusBar(str)
         self.setX(self._baseWidth * delta)
     # end def
 

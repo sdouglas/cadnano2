@@ -540,7 +540,6 @@ class StrandItem(QGraphicsLineItem):
             if not (event.modifiers() & mod):
                  selectionGroup.clearSelection(False)
             selectionGroup.setSelectionLock(selectionGroup)
-            # self.setSelectedColor(True)
             selectionGroup.pendToAdd(self)
             selectionGroup.pendToAdd(self._lowCap)
             selectionGroup.pendToAdd(self._highCap)
@@ -687,14 +686,22 @@ class StrandItem(QGraphicsLineItem):
             selectionGroup = viewroot.strandItemSelectionGroup()
             
             # only add if the selectionGroup is not locked out
-            if value == True and (self._filterName in currentFilterDict or not selectionGroup.isNormalSelect()):
+            isNormalSelect = selectionGroup.isNormalSelect()
+            if value == True and (self._filterName in currentFilterDict or not isNormalSelect):
                 if self._strandFilter in currentFilterDict:
                     if self.group() != selectionGroup:
-                        selectionGroup.pendToAdd(self)
-                        selectionGroup.setSelectionLock(selectionGroup)
                         self.setSelectedColor(True)
-                        selectionGroup.pendToAdd(self._lowCap)
-                        selectionGroup.pendToAdd(self._highCap)
+                        # This should always be the case, but...
+                        if isNormalSelect:
+                            selectionGroup.pendToAdd(self)
+                            selectionGroup.setSelectionLock(selectionGroup)
+                            selectionGroup.pendToAdd(self._lowCap)
+                            selectionGroup.pendToAdd(self._highCap)
+                        # this else will capture the error.  Basically, the
+                        # strandItem should be member of the group before this
+                        # ever gets fired
+                        else:
+                            selectionGroup.addToGroup(self)
                     return True
                 else:
                     return False
@@ -735,8 +742,8 @@ class StrandItem(QGraphicsLineItem):
                     xoi = self._xover3pEnd
                     if not xoi.isSelected() or not xoi.group():
                         selectionGroup.setNormalSelect(False)
-                        xoi.modelSelect(document)
                         selectionGroup.addToGroup(xoi)
+                        xoi.modelSelect(document)
                         selectionGroup.setNormalSelect(True)
                 # end if
             # end if
@@ -745,8 +752,8 @@ class StrandItem(QGraphicsLineItem):
         if indices[0] == True and indices[1] == True:
             if not self.isSelected() or not self.group():
                 selectionGroup.setNormalSelect(False)
-                self.modelSelect(document)
                 selectionGroup.addToGroup(self)
+                self.modelSelect(document)
                 selectionGroup.setNormalSelect(True)
     # end def
 

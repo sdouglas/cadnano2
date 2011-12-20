@@ -278,12 +278,13 @@ class Document(QObject):
             for strand, value in strandSetDict.items():
                 part = strand.virtualHelix().part()
                 idxL, idxH = strand.idxs()
-                strandDict[strand] = True
-                v = value[0] if idxL == strand.idx3Prime() else value[1]
-                if v:
-                    strand3p = strand.connection3p()
-                    if strand3p:
-                        rmList.append((part, strand, strand3p, useUndoStack))
+                if value[0] or value[1]:
+                    strandDict[strand] = True
+                    v = value[0] if idxL == strand.idx3Prime() else value[1]
+                    if v:
+                        strand3p = strand.connection3p()
+                        if strand3p:
+                            rmList.append((part, strand, strand3p, useUndoStack))
 
         # if useUndoStack:
         #     self.undoStack().beginMacro("Delete xovers")
@@ -295,7 +296,9 @@ class Document(QObject):
             # self.undoStack().endMacro()
             self.undoStack().beginMacro("Delete selection")
         for strand in strandDict.keys():
-            print "rm", strand
+            # self.removeStrandFromSelection(strand)
+            # strand.selectedChangedSignal.emit(strand, (False, False))
+            # del self._selectedChangedDict[strand]
             strand.strandSet().removeStrand(strand)
         if useUndoStack:
             self.undoStack().endMacro()

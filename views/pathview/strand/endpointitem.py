@@ -340,7 +340,6 @@ class EndpointItem(QGraphicsPathItem):
             if not (modifiers & mod):
                  selectionGroup.clearSelection(False)
             selectionGroup.setSelectionLock(selectionGroup)
-            # self.setSelectedColor(True)
             selectionGroup.pendToAdd(self)
             selectionGroup.processPendingToAddList()
             return selectionGroup.mousePressEvent(event)
