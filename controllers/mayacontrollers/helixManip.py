@@ -337,7 +337,7 @@ class helixManip(OpenMayaMPx.MPxManipContainer):
                     minVal = lbound - lowIdx
                     maxVal = ubound - lowIdx
                 elif am is self.fDistanceBackManip:
-                    l, h = strand.getResizeBounds(highIdx)
+                    lbound, ubound = strand.getResizeBounds(highIdx)
                     minVal = lbound - highIdx
                     maxVal = ubound - highIdx
                     
