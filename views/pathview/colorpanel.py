@@ -42,7 +42,7 @@ class ColorPanel(QGraphicsItem):
         self.rect = QRectF(0, 0, 30, 30)
         self.setFlag(QGraphicsItem.ItemIgnoresTransformations)
         self.colordialog = QColorDialog()
-        self.colordialog.setOption(QColorDialog.DontUseNativeDialog)
+        # self.colordialog.setOption(QColorDialog.DontUseNativeDialog)
         self._scafColorIndex = -1  # init on -1, painttool will cycle to 0
         self._stapColorIndex = -1  # init on -1, painttool will cycle to 0
         self._scafColor = self._scafColors[self._scafColorIndex]
@@ -100,14 +100,18 @@ class ColorPanel(QGraphicsItem):
     def mousePressEvent(self, event):
         if event.pos().y() < 10:
             newColor = self.colordialog.getColor(self._scafColor)
-            if newColor.name() != self._scafColor.name():
+            if newColor.isValid() and newColor.name() != self._scafColor.name():
                 self._scafColor = newColor
                 self._scafBrush = QBrush(newColor)
+                if not newColor in self._scafColors:
+                    self._scafColors.insert(self._scafColorIndex, newColor)
                 self.update()
         else:
             newColor = self.colordialog.getColor(self._stapColor)
-            if newColor.name() != self._stapColor.name():
+            if newColor.isValid() and newColor.name() != self._stapColor.name():
                 self._stapColor = newColor
                 self._stapBrush = QBrush(newColor)
+                if not newColor in self._stapColors:
+                    self._stapColors.insert(self._stapColorIndex, newColor)
                 self.update()
 
