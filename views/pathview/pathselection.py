@@ -248,11 +248,9 @@ class SelectionItemGroup(QGraphicsItemGroup):
         """docstring for itemChange"""
         if change == QGraphicsItem.ItemSelectedChange:
             if value == False:
-                print "clear due to deselect"
                 self.clearSelection(False)
                 return False
             else:
-                print "Not false clear"
                 return True
         elif change == QGraphicsItem.ItemChildAddedChange:
             if self._addedToPressList == False:
