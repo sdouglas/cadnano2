@@ -29,7 +29,7 @@ from itertools import izip, repeat
 from strand import Strand
 from oligo import Oligo
 from enum import StrandType
-from views import styles 
+from views import styles
 
 import util
 # import cadnano2.util as util
@@ -81,7 +81,7 @@ class StrandSet(QObject):
     def part(self):
         return self._virtualHelix.part()
     # end def
-    
+
     def document(self):
         return self._doc
     # end def
@@ -190,12 +190,16 @@ class StrandSet(QObject):
         """
         Assumes a strand is being created at a valid set of indices.
         """
-        boundsLow, boundsHigh = self.getBoundsOfEmptyRegionContaining(baseIdxLow)
-        canInsert, strandSetIdx = self.getIndexToInsert(baseIdxLow, baseIdxHigh)
+        boundsLow, boundsHigh = \
+                            self.getBoundsOfEmptyRegionContaining(baseIdxLow)
+        canInsert, strandSetIdx = \
+                                self.getIndexToInsert(baseIdxLow, baseIdxHigh)
         if canInsert:
-            c = StrandSet.CreateStrandCommand(self, baseIdxLow, baseIdxHigh, strandSetIdx)
+            c = StrandSet.CreateStrandCommand(self,
+                                        baseIdxLow, baseIdxHigh, strandSetIdx)
             row, col = self._virtualHelix.coord()
-            # d = "(%d,%d).%d+[%d,%d]" % (row, col, self._strandType, baseIdxLow, baseIdxHigh)
+            # d = "(%d,%d).%d + [%d,%d]" % \
+            #             (row, col, self._strandType, baseIdxLow, baseIdxHigh)
             d = "(%d,%d).%d^%d" % (row, col, self._strandType, strandSetIdx)
             util.execCommandList(self, [c], desc=d, useUndoStack=useUndoStack)
             return strandSetIdx
@@ -225,7 +229,7 @@ class StrandSet(QObject):
     def removeStrand(self, strand, strandSetIdx=None, useUndoStack=True, solo=True):
         """
         solo is an argument to enable limiting signals emiting from
-        the command in the case the command is instantiated part of a larger 
+        the command in the case the command is instantiated part of a larger
         command
         """
         cmds = []
@@ -242,7 +246,7 @@ class StrandSet(QObject):
     # end def
 
     def removeAllStrands(self, useUndoStack=True):
-        # copy the list because we are going to shrink it and that's 
+        # copy the list because we are going to shrink it and that's
         # a no no with iterators
         temp = [x for x in self._strandList]
         for strand in temp:
@@ -261,7 +265,7 @@ class StrandSet(QObject):
             isInSet, overlap, lowStrandSetIdx = self._findIndexOfRangeFor(strandLow)
             if isInSet:
                 c = StrandSet.MergeCommand(strandLow, strandHigh, \
-                                                lowStrandSetIdx, priorityStrand)
+                                            lowStrandSetIdx, priorityStrand)
                 util.execCommandList(self, [c], desc="Merge", useUndoStack=useUndoStack)
     # end def
 
@@ -320,10 +324,10 @@ class StrandSet(QObject):
         self.setParent(None)
         self.deleteLater()  # QObject will emit a destroyed() Signal
     # end def
-    
+
     def remove(self, useUndoStack=True):
         """
-        Removes a VirtualHelix from the model. Accepts a reference to the 
+        Removes a VirtualHelix from the model. Accepts a reference to the
         VirtualHelix, or a (row,col) lattice coordinate to perform a lookup.
         """
         if useUndoStack:
@@ -341,7 +345,7 @@ class StrandSet(QObject):
 
     def virtualHelix(self):
         return self._virtualHelix
-        
+
     def strandFilter(self):
         return "scaffold" if self._strandType == StrandType.Scaffold else "staple"
 
@@ -356,7 +360,7 @@ class StrandSet(QObject):
         dummyStrand = None
         return len(strandList) > 0
     # end def
-    
+
     def getOverlappingStrands(self, idxLow, idxHigh):
         dummyStrand = Strand(self, idxLow, idxHigh)
         strandList = [s for s in self._findOverlappingRanges(dummyStrand)]
@@ -424,7 +428,7 @@ class StrandSet(QObject):
     def getLegacyArray(self):
         """docstring for getLegacyArray"""
         num = self._virtualHelix.number()
-        ret = [[-1,-1,-1,-1] for i in range(self.part().maxBaseIdx()+1)]
+        ret = [[-1, -1, -1, -1] for i in range(self.part().maxBaseIdx() + 1)]
         if self.isDrawn5to3():
             for strand in self._strandList:
                 lo, hi = strand.idxs()
@@ -435,16 +439,16 @@ class StrandSet(QObject):
                     ret[lo][0] = s5p.virtualHelix().number()
                     ret[lo][1] = s5p.idx3Prime()
                 ret[lo][2] = num
-                ret[lo][3] = lo+1
+                ret[lo][3] = lo + 1
                 # map the internal bases
-                for idx in range(lo+1, hi):
+                for idx in range(lo + 1, hi):
                     ret[idx][0] = num
-                    ret[idx][1] = idx-1
+                    ret[idx][1] = idx - 1
                     ret[idx][2] = num
-                    ret[idx][3] = idx+1
+                    ret[idx][3] = idx + 1
                 # map the last base (3' xover if necessary)
                 ret[hi][0] = num
-                ret[hi][1] = hi-1
+                ret[hi][1] = hi - 1
                 s3p = strand.connection3p()
                 if s3p != None:
                     ret[hi][2] = s3p.virtualHelix().number()
@@ -458,20 +462,20 @@ class StrandSet(QObject):
                 assert strand.idx3Prime() == lo and strand.idx5Prime() == hi
                 # map the first base (3' xover if necessary)
                 ret[lo][0] = num
-                ret[lo][1] = lo+1
+                ret[lo][1] = lo + 1
                 s3p = strand.connection3p()
                 if s3p != None:
                     ret[lo][2] = s3p.virtualHelix().number()
                     ret[lo][3] = s3p.idx5Prime()
                 # map the internal bases
-                for idx in range(lo+1, hi):
+                for idx in range(lo + 1, hi):
                     ret[idx][0] = num
-                    ret[idx][1] = idx+1
+                    ret[idx][1] = idx + 1
                     ret[idx][2] = num
-                    ret[idx][3] = idx-1
+                    ret[idx][3] = idx - 1
                 # map the last base (5' xover if necessary)
                 ret[hi][2] = num
-                ret[hi][3] = hi-1
+                ret[hi][3] = hi - 1
                 s5p = strand.connection5p()
                 if s5p != None:
                     ret[hi][0] = s5p.virtualHelix().number()
@@ -488,7 +492,7 @@ class StrandSet(QObject):
 
     def _removeFromStrandList(self, strand):
         """Remove strand from _strandList."""
-        self._doc.removeStrandFromSelection(strand) # make sure the strand is no longer selected
+        self._doc.removeStrandFromSelection(strand)  # make sure the strand is no longer selected
         self._strandList.remove(strand)
 
     def _couldStrandInsertAtLastIndex(self, strand):
@@ -499,7 +503,7 @@ class StrandSet(QObject):
         else:
             strandList = self._strandList
             sTestHigh = strandList[lastInd].lowIdx() if lastInd < len(strandList) else self.partMaxBaseIdx()
-            sTestLow = strandList[lastInd - 1].highIdx() if lastInd > 0 else -1
+            sTestLow = strandList[lastInd - 1].highIdx() if lastInd > 0 else - 1
             sLow, sHigh = strand.idxs()
             if sTestLow < sLow and sHigh < sTestHigh:
                 return True
@@ -651,7 +655,7 @@ class StrandSet(QObject):
         sLow, sHigh = strand.idxs()
         # perform binary search
         while low < high:
-            mid = (low+high)/2
+            mid = (low + high) / 2
             midStrand = strandList[mid]
             mLow, mHigh = midStrand.idxs()
             if midStrand == strand:
@@ -759,13 +763,14 @@ class StrandSet(QObject):
             oligo.setStrand5p(strand)
             oligo.addToPart(strandSet.part())
             strand.setOligo(oligo)
-            
+
             if strandSet.isStaple():
                 strand.reapplySequence()
             # Emit a signal to notify on completion
             strandSet.strandsetStrandAddedSignal.emit(strand)
             # for updating the Slice View displayed helices
-            strandSet.part().partStrandChangedSignal.emit(strandSet.virtualHelix())
+            strandSet.part().partStrandChangedSignal.emit(
+                                                    strandSet.virtualHelix())
         # end def
 
         def undo(self):
@@ -824,7 +829,7 @@ class StrandSet(QObject):
             oligo = self._oligo
             olg5p = self._newOligo5p
             olg3p = self._newOligo3p
-            
+
             oligo.incrementLength(-strand.totalLength())
             oligo.removeFromPart()
 
@@ -897,7 +902,8 @@ class StrandSet(QObject):
             # Emit a signal to notify on completion
             strandSet.strandsetStrandAddedSignal.emit(strand)
             # for updating the Slice View displayed helices
-            strandSet.part().partStrandChangedSignal.emit(strandSet.virtualHelix())
+            strandSet.part().partStrandChangedSignal.emit(
+                                                    strandSet.virtualHelix())
 
             # Restore connections to this strand
             if strand5p != None:
@@ -905,7 +911,8 @@ class StrandSet(QObject):
                     part = strandSet.part()
                     vh = strandSet.virtualHelix()
                     part.partActiveVirtualHelixChangedSignal.emit(part, vh)
-                    # strand5p.strandXover5pChangedSignal.emit(strand5p, strand)
+                    # strand5p.strandXover5pChangedSignal.emit(
+                    #                                        strand5p, strand)
                 strand5p.strandUpdateSignal.emit(strand5p)
                 strand.strandUpdateSignal.emit(strand)
 
@@ -949,11 +956,11 @@ class StrandSet(QObject):
             self._sHighOligo = sHO = strandHigh.oligo()
 
             self._sSetIdx = lowStrandSetIdx
-            
+
             # update the new oligo length if it's not a loop
             if sLO != sHO:
-                self._newOligo.setLength(sLO.length()+sHO.length())
-            
+                self._newOligo.setLength(sLO.length() + sHO.length())
+
             # Create the newStrand by copying the priority strand to
             # preserve its properties
             newIdxs = strandLow.lowIdx(), strandHigh.highIdx()
@@ -987,15 +994,15 @@ class StrandSet(QObject):
             # update connectivity of strands
             nScL = nS.connectionLow()
             if nScL:
-                if ( nS.isDrawn5to3() and nScL.isDrawn5to3() ) or \
-                    ( not nS.isDrawn5to3() and not nScL.isDrawn5to3() ) :
+                if (nS.isDrawn5to3() and nScL.isDrawn5to3()) or \
+                    (not nS.isDrawn5to3() and not nScL.isDrawn5to3()):
                     nScL.setConnectionHigh(nS)
                 else:
                     nScL.setConnectionLow(nS)
             nScH = nS.connectionHigh()
             if nScH:
-                if ( nS.isDrawn5to3() and nScH.isDrawn5to3() ) or \
-                    ( not nS.isDrawn5to3() and not nScH.isDrawn5to3() ) :
+                if (nS.isDrawn5to3() and nScH.isDrawn5to3()) or \
+                    (not nS.isDrawn5to3() and not nScH.isDrawn5to3()):
                     nScH.setConnectionLow(nS)
                 else:
                     nScH.setConnectionHigh(nS)
@@ -1033,15 +1040,15 @@ class StrandSet(QObject):
             # update connectivity of strands
             sLcL = sL.connectionLow()
             if sLcL:
-                if ( sL.isDrawn5to3() and sLcL.isDrawn5to3() ) or \
-                    ( not sL.isDrawn5to3() and not sLcL.isDrawn5to3() ) :
+                if (sL.isDrawn5to3() and sLcL.isDrawn5to3()) or \
+                    (not sL.isDrawn5to3() and not sLcL.isDrawn5to3()):
                     sLcL.setConnectionHigh(sL)
                 else:
                     sLcL.setConnectionLow(sL)
             sHcH = sH.connectionHigh()
             if sHcH:
-                if ( sH.isDrawn5to3() and sHcH.isDrawn5to3() ) or \
-                    ( not sH.isDrawn5to3() and not sHcH.isDrawn5to3() ) :
+                if (sH.isDrawn5to3() and sHcH.isDrawn5to3()) or \
+                    (not sH.isDrawn5to3() and not sHcH.isDrawn5to3()):
                     sHcH.setConnectionLow(sH)
                 else:
                     sHcH.setConnectionHigh(sH)
@@ -1091,7 +1098,8 @@ class StrandSet(QObject):
             else:
                 self._lOligo = lOligo = oligo.shallowCopy()
                 self._hOligo = hOligo = oligo.shallowCopy()
-            colorList = styles.stapColors if sSet.isStaple() else styles.scafColors
+            colorList = styles.stapColors if sSet.isStaple() \
+                                            else styles.scafColors
             # Determine oligo retention based on strand priority
             if strand.isDrawn5to3():  # strandLow has priority
                 iNewLow = baseIdx
@@ -1120,17 +1128,17 @@ class StrandSet(QObject):
 
             # Update the oligo for things like its 5prime end and isLoop
             olg5p.strandSplitUpdate(std5p, std3p, olg3p, strand)
- 
+
             if not oligo.isLoop():
                 # Update the oligo color if necessary
                 lOligo.setColor(colorLow)
                 hOligo.setColor(colorHigh)
-                # settle the oligo length 
+                # settle the oligo length
                 length = 0
                 for strand in std3p.generator3pStrand():
                     length += strand.totalLength()
                 # end for
-                olg5p.setLength(olg5p.length()-length)
+                olg5p.setLength(olg5p.length() - length)
                 olg3p.setLength(length)
             # end if
 
@@ -1160,25 +1168,26 @@ class StrandSet(QObject):
             # update connectivity of strands
             sLcL = sL.connectionLow()
             if sLcL:
-                if ( oS.isDrawn5to3() and sLcL.isDrawn5to3() ) or \
-                    ( not oS.isDrawn5to3() and not sLcL.isDrawn5to3() ):
+                if (oS.isDrawn5to3() and sLcL.isDrawn5to3()) or \
+                    (not oS.isDrawn5to3() and not sLcL.isDrawn5to3()):
                     sLcL.setConnectionHigh(sL)
                 else:
                     sLcL.setConnectionLow(sL)
             sHcH = sH.connectionHigh()
             if sHcH:
-                if ( oS.isDrawn5to3() and sHcH.isDrawn5to3() ) or \
-                    ( not oS.isDrawn5to3() and not sHcH.isDrawn5to3() ):
+                if (oS.isDrawn5to3() and sHcH.isDrawn5to3()) or \
+                    (not oS.isDrawn5to3() and not sHcH.isDrawn5to3()):
                     sHcH.setConnectionLow(sH)
                 else:
-                   sHcH.setConnectionHigh(sH)
+                    sHcH.setConnectionHigh(sH)
 
             # Traverse the strands via 3'conns to assign the new oligos
             for strand in lOlg.strand5p().generator3pStrand():
                 Strand.setOligo(strand, lOlg)  # emits strandHasNewOligoSignal
             if wasNotLoop:  # do the second oligo which is different
                 for strand in hOlg.strand5p().generator3pStrand():
-                    Strand.setOligo(strand, hOlg)  # emits strandHasNewOligoSignal
+                    # emits strandHasNewOligoSignal
+                    Strand.setOligo(strand, hOlg)
 
             # Add new oligo and remove old oligos from the part
             olg.removeFromPart()
@@ -1212,15 +1221,15 @@ class StrandSet(QObject):
             # update connectivity of strands
             oScL = oS.connectionLow()
             if oScL:
-                if ( oS.isDrawn5to3() and oScL.isDrawn5to3() ) or \
-                    ( not oS.isDrawn5to3() and not oScL.isDrawn5to3() ) :
+                if (oS.isDrawn5to3() and oScL.isDrawn5to3()) or \
+                    (not oS.isDrawn5to3() and not oScL.isDrawn5to3()):
                     oScL.setConnectionHigh(oS)
                 else:
                     oScL.setConnectionLow(oS)
             oScH = oS.connectionHigh()
             if oScH:
-                if ( oS.isDrawn5to3() and oScH.isDrawn5to3() ) or \
-                    ( not oS.isDrawn5to3() and not oScH.isDrawn5to3() ) :
+                if (oS.isDrawn5to3() and oScH.isDrawn5to3()) or \
+                    (not oS.isDrawn5to3() and not oScH.isDrawn5to3()):
                     oScH.setConnectionLow(oS)
                 else:
                     oScH.setConnectionHigh(oS)
@@ -1320,7 +1329,7 @@ class TestStrandSet():
         strand = Strand(ssTemp, 20, 25)
         found, overlap, idx = ssOne._findIndexOfRangeFor(strand)
         assert found == False and overlap == False and idx == 1
-        #   search [<Strand(10, 15)>] for <Strand( 3, 12)>
+        #   search [<Strand(10, 15)>] for <Strand(3, 12)>
         strand = Strand(ssTemp, 3, 12)
         found, overlap, idx = ssOne._findIndexOfRangeFor(strand)
         assert found == False and overlap == True and idx == None

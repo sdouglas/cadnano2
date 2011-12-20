@@ -134,7 +134,7 @@ class SelectionItemGroup(QGraphicsItemGroup):
         self.selectionbox.setParentItem(self._viewroot)
         self.setParentItem(self._viewroot)
     # end def
-    
+
     def selectionLock(self):
         return self._viewroot.selectionLock()
     # end def
