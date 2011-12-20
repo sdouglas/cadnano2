@@ -256,6 +256,11 @@ class PartItem(QGraphicsRectItem):
 
     @pyqtSlot(int)
     def _addBasesCallback(self, n):
+        """
+        Given a user-chosen number of bases to add, snap it to an index
+        where index modulo stepsize is 0 and calls resizeVirtualHelices to
+        adjust to that size.
+        """
         part = self._modelPart
         self._addBasesDialog.intValueSelected.disconnect(self._addBasesCallback)
         del self._addBasesDialog
@@ -267,11 +272,20 @@ class PartItem(QGraphicsRectItem):
     # end def
 
     def _removeBasesClicked(self):
+        """
+        Determines the minimum maxBase index where index modulo stepsize == 0
+        and is to the right of the rightmost nonempty base, and then resize
+        each calls the resizeVirtualHelices to adjust to that size.
+        """
         part = self._modelPart
+        stepSize = part.stepSize()
+        # first find out the right edge of the part
         idx = part.indexOfRightmostNonemptyBase()
-        idx = int(ceil(float(idx)/part.stepSize()))*part.stepSize()
+        # next snap to a multiple of stepsize
+        idx = int(ceil(float(idx+1)/stepSize))*stepSize
+        # finally, make sure we're a minimum of stepSize bases
         idx = util.clamp(idx, part.stepSize(), 10000)
-        delta = idx - part.maxBaseIdx()
+        delta = idx - (part.maxBaseIdx() + 1)
         if delta < 0:
             part.resizeVirtualHelices(0, delta)
             if app().isInMaya():
