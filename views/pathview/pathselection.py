@@ -224,6 +224,7 @@ class SelectionItemGroup(QGraphicsItemGroup):
         # end if
         self._r0 = 0  # reset
         self._r = 0  # reset
+        self.setFocus() # needed to get keyPresses post a move
         self._addedToPressList = False
     # end def
 
