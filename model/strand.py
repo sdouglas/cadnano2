@@ -695,7 +695,9 @@ class Strand(QObject):
         else:
             highOut = True
         # this only called if both the above aren't true
-        if lowOut and highOut:
+        # if lowOut and highOut:
+        # if we move the whole strand, just clear the insertions out
+        if nIdxL > cIdxH or nIdxH < cIdxL:
             idxL, idxH = cIdxL, cIdxH
             insertions += self.insertionsOnStrand(idxL, idxH)
             # we stretched in this direction
@@ -709,7 +711,8 @@ class Strand(QObject):
         """
         commands = []
         compSS = self.strandSet().complementStrandSet()
-
+        print "clearing insertion", idxL, idxH
+        
         overlappingStrandList = compSS.getOverlappingStrands(idxL, idxH)
         for insertion in insertions:
             idx = insertion.idx()
@@ -718,7 +721,7 @@ class Strand(QObject):
                 overLapIdxL, overLapIdxH = strand.idxs()
                 if overLapIdxL <= idx <= overLapIdxH:
                     removeMe = False
-                #end if
+                # end if
             # end for
             if removeMe:
                 commands.append(Strand.RemoveInsertionCommand(self, idx))

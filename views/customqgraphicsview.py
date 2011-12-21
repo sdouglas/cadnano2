@@ -441,49 +441,51 @@ class CustomQGraphicsView(QGraphicsView):
         self.safeScale(event.delta())
     # end def
     
-    _numScheduledScalings = 0
-    def wheelEvent(self, event):
-        numDegrees = event.delta() / 8
-        numSteps = numDegrees / 15 # see QWheelEvent documentation
-        
-        # mouse deltas are 15 degree multiples
-        self._numScheduledScalings += numSteps 
-        # if user moved the wheel in another direction, we reset previously scheduled scalings
-        if self._numScheduledScalings * numSteps < 0:
-            self._numScheduledScalings = numSteps
-                    
-        anim = QTimeLine(200, self)
-        anim.setUpdateInterval(10)
-
-        anim.valueChanged.connect(self.scalingTime)
-        anim.finished.connect(self.animFinished)
-        anim.start()
-    # end def
+    # _numScheduledScalings = 0
+    # def wheelEvent(self, event):
+    #     numDegrees = event.delta() / 8
+    #     numSteps = numDegrees / 15 # see QWheelEvent documentation
+    #     
+    #     # mouse deltas are 15 degree multiples
+    #     self._numScheduledScalings += numSteps 
+    #     # if user moved the wheel in another direction, we reset previously scheduled scalings
+    #     if self._numScheduledScalings * numSteps < 0:
+    #         self._numScheduledScalings = numSteps
+    #     
+    #     self.scalingTime(10)
+    #     
+    #     anim = QTimeLine(200, self)
+    #     anim.setUpdateInterval(10)
+    # 
+    #     anim.valueChanged.connect(self.scalingTime)
+    #     anim.finished.connect(self.animFinished)
+    #     anim.start()
+    # # end def
     
-    def animFinished(self):
-        if self._numScheduledScalings > 0:
-            self._numScheduledScalings -= 1
-        else:
-            self._numScheduledScalings += 1
-        self.sender().deleteLater()
-    # end def
-
-    def scalingTime(self, x):
-        currentScaleLevel = self.transform().m11()
-        
-        factor = 1.0 + self._numScheduledScalings / 100.0
-        
-        newScaleLevel = currentScaleLevel * factor
-        newScaleLevel = util.clamp(newScaleLevel,\
-                              self._scale_limit_min,\
-                              self._scale_limit_max)
-        
-        
-        scaleChange = newScaleLevel / currentScaleLevel
-        self.scale(scaleChange, scaleChange)
-        
-        self.resetGL()  
-    # end def
+    # def animFinished(self):
+    #     if self._numScheduledScalings > 0:
+    #         self._numScheduledScalings -= 1
+    #     else:
+    #         self._numScheduledScalings += 1
+    #     self.sender().deleteLater()
+    # # end def
+    # 
+    # def scalingTime(self, x):
+    #     currentScaleLevel = self.transform().m11()
+    #     
+    #     factor = 1.0 + self._numScheduledScalings / 100.0
+    #     
+    #     newScaleLevel = currentScaleLevel * factor
+    #     newScaleLevel = util.clamp(newScaleLevel,\
+    #                           self._scale_limit_min,\
+    #                           self._scale_limit_max)
+    #     
+    #     
+    #     scaleChange = newScaleLevel / currentScaleLevel
+    #     self.scale(scaleChange, scaleChange)
+    #     
+    #     self.resetGL()  
+    # # end def
 
     def safeScale(self, delta):
         currentScaleLevel = self.transform().m11()
