@@ -29,10 +29,9 @@ from model.io.decoder import decode
 from model.io.encoder import encode
 from views.documentwindow import DocumentWindow
 import util
-util.qtWrapImport('QtCore', globals(), ['QFileInfo', 'QRect', 'QString',
-                                        'QStringList', 'QSize', 'Qt'])
-util.qtWrapImport('QtGui', globals(), ['QDockWidget', 'QKeySequence',
-                                       'QFileDialog', 'QMessageBox'])
+util.qtWrapImport('QtCore', globals(), ['QDir', 'QFileInfo', 'QRect',
+                                        'QString', 'QStringList', 'QSettings',
+                                        'QSize', 'Qt'])
 util.qtWrapImport('QtGui', globals(), ['QApplication', 'QDialog', 
                                        'QDockWidget', 'QFileDialog',
                                        'QKeySequence', 'QGraphicsItem',
@@ -52,7 +51,7 @@ class DocumentController():
         self._document = Document()
         self._activePart = None
         self._filename = None
-        self._fileOpenPath = None
+        self._fileOpenPath = None  # will be set in _readSettings
         self._hasNoAssociatedFile = True
         self._pathViewInstance = None
         self._sliceViewInstance = None
@@ -60,6 +59,10 @@ class DocumentController():
         self.win = None
         self.fileopendialog = None
         self.filesavedialog = None
+
+        self.settings = QSettings()
+        self._readSettings()
+
         # call other init methods
         self._initWindow()
         if app().isInMaya():
@@ -248,7 +251,6 @@ class DocumentController():
         # clear/reset the view!
         
         if len(self._document.parts()) == 0:
-            print "No existing parts, so no new document"
             return  # no parts
         if self.maybeSave() == False:
             return  # user canceled in maybe save
@@ -487,6 +489,18 @@ class DocumentController():
             fdialog.open()
     # end def
 
+    def _readSettings(self):
+        self.settings.beginGroup("FileSystem")
+        self._fileOpenPath = self.settings.value("openpath", QDir(os.environ["HOME"])).toString()
+        self.settings.endGroup()
+
+    def _writeFileOpenPath(self, path):
+        """docstring for _writePath"""
+        self._fileOpenPath = path
+        self.settings.beginGroup("FileSystem")
+        self.settings.setValue("openpath", path)
+        self.settings.endGroup()
+
     ### SLOT CALLBACKS ###
     def actionNewSlotCallback(self):
         """
@@ -551,7 +565,7 @@ class DocumentController():
         if not fname or os.path.isdir(fname):
             return False
         fname = str(fname)
-        self._fileOpenPath = os.path.dirname(fname)
+        self._writeFileOpenPath(os.path.dirname(fname))
         self.newDocument(fname=fname)
         decode(self._document, file(fname).read())
         if hasattr(self, "filesavedialog"): # user did save
@@ -617,7 +631,7 @@ class DocumentController():
         actionOpenSlot to spawn a QFileDialog and connect it to a callback
         method.
         """
-        path = self._fileOpenPath if self._fileOpenPath else os.environ["HOME"] 
+        path = self._fileOpenPath
         if util.isWindows():  # required for native looking file window#"/",
             fname = QFileDialog.getOpenFileName(
                         None,
@@ -695,3 +709,4 @@ class DocumentController():
     def actionFeedbackSlot(self):
         import webbrowser
         webbrowser.open("http://cadnano.org/feedback")
+
