@@ -78,6 +78,7 @@ class DocumentWindow(QMainWindow, ui_mainwindow.Ui_MainWindow):
                                      document=doc)
         self.pathroot.setFlag(QGraphicsItem.ItemHasNoContents)
         self.pathscene.addItem(self.pathroot)
+        self.pathscene.setItemIndexMethod(QGraphicsScene.NoIndex)
         assert self.pathroot.scene() == self.pathscene
         self.pathGraphicsView.setScene(self.pathscene)
         self.pathGraphicsView.sceneRootItem = self.pathroot

@@ -52,7 +52,7 @@ try:
 except:
     GL = False
 
-GL = False
+# GL = False
 
 class CustomQGraphicsView(QGraphicsView):
     """
@@ -124,6 +124,7 @@ class CustomQGraphicsView(QGraphicsView):
             self.setViewportUpdateMode(QGraphicsView.FullViewportUpdate)
         else:
             self.setViewportUpdateMode(QGraphicsView.MinimalViewportUpdate)
+            # self.setViewportUpdateMode(QGraphicsView.SmartViewportUpdate)
     # end def
     
     levelOfDetailChangedSignal = pyqtSignal(bool)
@@ -173,10 +174,13 @@ class CustomQGraphicsView(QGraphicsView):
         self.isGL = True
         self.isGLSwitchAllowed = True
         self.qTimer = QTimer()
-        # self.drawBackgroundNonGL = scene.drawBackground
-        # scene.drawBackground = self.drawBackgroundGL
-        # self.setViewport(QGLWidget(QGLFormat(QGL.SampleBuffers)))
-        # self.setViewportUpdateMode(QGraphicsView.FullViewportUpdate)
+        self.drawBackgroundNonGL = scene.drawBackground
+        scene.drawBackground = self.drawBackgroundGL
+        format = QGLFormat(QGL.SampleBuffers)
+        format.setSamples(16)
+        print "# of samples", format.samples(), format.sampleBuffers()
+        self.setViewport(QGLWidget(format))
+        self.setViewportUpdateMode(QGraphicsView.FullViewportUpdate)
     # end def
     
     def resetGL(self):
