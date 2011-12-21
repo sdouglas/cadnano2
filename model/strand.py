@@ -711,7 +711,7 @@ class Strand(QObject):
         """
         commands = []
         compSS = self.strandSet().complementStrandSet()
-        
+
         overlappingStrandList = compSS.getOverlappingStrands(idxL, idxH)
         for insertion in insertions:
             idx = insertion.idx()

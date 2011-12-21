@@ -165,14 +165,14 @@
   </widget>
   <widget class="QToolBar" name="topToolBar">
    <property name="sizePolicy">
-    <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
+    <sizepolicy hsizetype="Ignored" vsizetype="Fixed">
      <horstretch>0</horstretch>
      <verstretch>0</verstretch>
     </sizepolicy>
    </property>
    <property name="baseSize">
     <size>
-     <width>0</width>
+     <width>550</width>
      <height>0</height>
     </size>
    </property>

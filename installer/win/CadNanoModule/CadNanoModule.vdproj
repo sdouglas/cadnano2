@@ -15,31 +15,19 @@
     {
         "Entry"
         {
-        "MsmKey" = "8:_0003B9DB1F97402B825ECEE678451765"
-        "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
         "MsmKey" = "8:_005F95CDBDC7439AB1FFAE8EF8779D96"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
         {
-        "MsmKey" = "8:_03D576832B6641FEACFF3C20D81CDC6F"
+        "MsmKey" = "8:_013C2F2CB92145658116FE844B5381BF"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
         {
         "MsmKey" = "8:_042FA1CA14A64BAD9E4CEA171FA08A2A"
-        "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
-        "MsmKey" = "8:_054D4BDD69A94F6B9C772927A7C0330E"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
         }
@@ -63,12 +51,6 @@
         }
         "Entry"
         {
-        "MsmKey" = "8:_0EBF1760D1284DD78F1ED3839E55B131"
-        "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
         "MsmKey" = "8:_0EF8CA22A2BE492CB4160A89A175D796"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
@@ -81,19 +63,13 @@
         }
         "Entry"
         {
-        "MsmKey" = "8:_0F8E2A9C41BB4628A00512AFF66680D8"
-        "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
         "MsmKey" = "8:_0FB3E47EAC6449BB8C4494C8C87841CB"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
         {
-        "MsmKey" = "8:_1351F0834A124A20AA0022B4271CE509"
+        "MsmKey" = "8:_10978C3667FB4CBE85A5969F703EB59E"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
         }
@@ -111,12 +87,6 @@
         }
         "Entry"
         {
-        "MsmKey" = "8:_16CB90AB90CE4D619F195C2221528A33"
-        "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
         "MsmKey" = "8:_16D76E9495DF4D6BAA728E5BB05383F0"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
@@ -124,6 +94,24 @@
         "Entry"
         {
         "MsmKey" = "8:_170732C912BB41A49CBBD305B1BA47B7"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_173BA36DFACC4A648EFEAB3C872E8065"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_17DEBE4B339F4A858B46FD248956E162"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_18587969C4214FF498F1A51D455EA5D7"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
         }
@@ -141,6 +129,12 @@
         }
         "Entry"
         {
+        "MsmKey" = "8:_188A1A5E777E400EBADDA7ED2FE7F648"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
         "MsmKey" = "8:_1B7C6AC0C55D47489502FA1C2946D7FF"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
@@ -148,18 +142,6 @@
         "Entry"
         {
         "MsmKey" = "8:_1B9DED4527684C0191B7BD075FB73875"
-        "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
-        "MsmKey" = "8:_1D4CAD787959419BBB38190CD6413296"
-        "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
-        "MsmKey" = "8:_1DE591869E0C493D8E87A39E9B503AA9"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
         }
@@ -177,7 +159,7 @@
         }
         "Entry"
         {
-        "MsmKey" = "8:_207BE9F72F0F4A46B748621A5BD82439"
+        "MsmKey" = "8:_20B4FD01E683425888F03D0E51D43C4A"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
         }
@@ -195,13 +177,19 @@
         }
         "Entry"
         {
-        "MsmKey" = "8:_278BCA7E30E04BA1B72078061520799A"
+        "MsmKey" = "8:_23EBE110D44F4AB1B323E6BFDFB7B7AF"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
         {
-        "MsmKey" = "8:_290AF995D708435C9A5C3F167E298DD4"
+        "MsmKey" = "8:_27483BBDE29248A09377EE910B0E4126"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_278BCA7E30E04BA1B72078061520799A"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
         }
@@ -214,6 +202,12 @@
         "Entry"
         {
         "MsmKey" = "8:_295FCEAE93C14880A0480DFECDF8EFA0"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_2A2F892623AA44C9B188E96C710BCDE4"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
         }
@@ -243,19 +237,13 @@
         }
         "Entry"
         {
-        "MsmKey" = "8:_2DDDE174CA004B9BB5C286133A4018D1"
-        "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
         "MsmKey" = "8:_301FB8C917B243FDB90E3A4BE5DD4FA4"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
         {
-        "MsmKey" = "8:_3374F2D3807E4CCEA7E2A5D62BACC5AB"
+        "MsmKey" = "8:_30B514C05B764AC2A958346927AE9DC0"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
         }
@@ -285,6 +273,12 @@
         }
         "Entry"
         {
+        "MsmKey" = "8:_36361955559A4A719062E902C74CB332"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
         "MsmKey" = "8:_37F1852C6EC144C29719F3346D23F9BD"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
@@ -309,7 +303,19 @@
         }
         "Entry"
         {
+        "MsmKey" = "8:_3AB9D228BC0D4D1EB52B0B9DF1BD3BD0"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
         "MsmKey" = "8:_3AC3F9435D9645DE9818A74D63C330D3"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_3AD7A5EE9902494AAF43A0F6A5AD591C"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
         }
@@ -321,13 +327,7 @@
         }
         "Entry"
         {
-        "MsmKey" = "8:_3C05F3EB63B54D7B8E0D544E8D126B36"
-        "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
-        "MsmKey" = "8:_3C7F01106B3841F7BBD1904F7754EDA4"
+        "MsmKey" = "8:_3DA1436F97024A60AD53419E52EAC0D2"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
         }
@@ -340,6 +340,12 @@
         "Entry"
         {
         "MsmKey" = "8:_3F79DE0F75764E7AA11F77EDFCD6FE93"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_40B66EC77C014C8A8B17151C87B8ED5D"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
         }
@@ -381,6 +387,12 @@
         }
         "Entry"
         {
+        "MsmKey" = "8:_479EA13D60AF441290F7A629CA6C7DAF"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
         "MsmKey" = "8:_48E4D8C0589E40A6ABB614AB01D013B1"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
@@ -405,7 +417,13 @@
         }
         "Entry"
         {
-        "MsmKey" = "8:_4B01118083CA4FF2BAEC99C334936491"
+        "MsmKey" = "8:_4D1C603954D54458924013B8FC041E45"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_4FC4A45BA68F4090AA40EA310EA94D42"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
         }
@@ -435,19 +453,7 @@
         }
         "Entry"
         {
-        "MsmKey" = "8:_5253BB377113405183072D0854878C63"
-        "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
         "MsmKey" = "8:_5472C19DC82246F098B443EAADB6114F"
-        "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
-        "MsmKey" = "8:_548710D6E9E74FB6BC38E6479832E4DF"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
         }
@@ -459,13 +465,25 @@
         }
         "Entry"
         {
-        "MsmKey" = "8:_578632ADBA7E4CD29B535A82928FD4FF"
+        "MsmKey" = "8:_5A1B35C0331441AB99C5F17BCFA76663"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
         {
-        "MsmKey" = "8:_5A1B35C0331441AB99C5F17BCFA76663"
+        "MsmKey" = "8:_5A3DD4E1DE6E462E944951A3A3B157DC"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_5B2196A3973B496A821EDE74A5E7C195"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_5BA5A91A33D3407781D920FB9F226288"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
         }
@@ -483,6 +501,12 @@
         }
         "Entry"
         {
+        "MsmKey" = "8:_5C7AEEBBE78C409EBE85640B50B91590"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
         "MsmKey" = "8:_5E428939796B46619515B366987F3792"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
@@ -490,6 +514,12 @@
         "Entry"
         {
         "MsmKey" = "8:_5ECBCEB23BF74AC896A2742F69A2CB14"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_60630540BB944F21ACACE686296EF541"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
         }
@@ -513,13 +543,7 @@
         }
         "Entry"
         {
-        "MsmKey" = "8:_6396BFF6D763480C829C0AFD543CDBA5"
-        "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
-        "MsmKey" = "8:_65FC0989F6134360A68289C3994EAE6B"
+        "MsmKey" = "8:_668C1F00F7C74E648CBD2EEA089B541E"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
         }
@@ -531,7 +555,25 @@
         }
         "Entry"
         {
+        "MsmKey" = "8:_679F2A782CA3455BAB34F96C9CC8C127"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
         "MsmKey" = "8:_67E7FC7E41AD49C2B42905CEE442E3B4"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_684B7C36D2F14609987D505B93C381FE"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_6900E63C240043A8A60F132F043EBDD6"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
         }
@@ -543,7 +585,13 @@
         }
         "Entry"
         {
-        "MsmKey" = "8:_69B7CFE2ABFE4712BF21DEB9C0568EA5"
+        "MsmKey" = "8:_6A50CA0A82E640F29F5866D1CA3C8EC2"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_6A645C3FF8A040C5B9D35A594B103DF3"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
         }
@@ -561,6 +609,12 @@
         }
         "Entry"
         {
+        "MsmKey" = "8:_6D49FDA60C1D4F86984D6B177E1E9C11"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
         "MsmKey" = "8:_6E2B841035E94C8CA95500B766D7689E"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
@@ -568,6 +622,12 @@
         "Entry"
         {
         "MsmKey" = "8:_6E3300060CF64467A09EEAB0EFE67BC5"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_6EC91F1DD249413BBD188642DB27AF9D"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
         }
@@ -591,7 +651,19 @@
         }
         "Entry"
         {
+        "MsmKey" = "8:_71B496C2737E4844B22D9445784F2190"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
         "MsmKey" = "8:_724AEF6DB7B843B596CA1944CAEC54F7"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_732F6E1CE6124DF69FFB13680215AB6E"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
         }
@@ -603,13 +675,13 @@
         }
         "Entry"
         {
-        "MsmKey" = "8:_753CA53587404DB5BB352155C8510AA7"
+        "MsmKey" = "8:_74AE5F7CCD5D4384995B322272587DFF"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
         {
-        "MsmKey" = "8:_770DB6CAC7544DC4A69D5DBEEC2AEB0F"
+        "MsmKey" = "8:_753CA53587404DB5BB352155C8510AA7"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
         }
@@ -627,13 +699,13 @@
         }
         "Entry"
         {
-        "MsmKey" = "8:_78F28955AA54435B8820AC234DC374E0"
+        "MsmKey" = "8:_791E2FCDC5144EA49D2E175BF830CCC5"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
         {
-        "MsmKey" = "8:_791E2FCDC5144EA49D2E175BF830CCC5"
+        "MsmKey" = "8:_79B55C38C41D4F6B803D76DA3376956C"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
         }
@@ -645,13 +717,19 @@
         }
         "Entry"
         {
-        "MsmKey" = "8:_7B990B47D4164C2FB85813C998449ED4"
+        "MsmKey" = "8:_7C470341F0C74F71963646C04C93F9A5"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
         {
         "MsmKey" = "8:_7DC9739C482E4674A2F2A9AA5A7626E0"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_7F7CC41411F242DE9505BBE86E13B182"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
         }
@@ -723,12 +801,6 @@
         }
         "Entry"
         {
-        "MsmKey" = "8:_883A849FA41E450FAE46AF40523A2E04"
-        "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
         "MsmKey" = "8:_8947AF72CDD448DC94F82FB0AE37B3AF"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
@@ -736,6 +808,12 @@
         "Entry"
         {
         "MsmKey" = "8:_8ABDB8883A984B9B8C6CBF465474A130"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_8BCFDCB725FD440A8BA4B6C8A15A42A8"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
         }
@@ -753,13 +831,19 @@
         }
         "Entry"
         {
-        "MsmKey" = "8:_8F53366160CF48E78E477CECFD550D17"
+        "MsmKey" = "8:_8D71684390814FE589F689F22D3232EA"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
         {
-        "MsmKey" = "8:_90211090DD56492AA4700E72522C82A7"
+        "MsmKey" = "8:_8D97D79EAA884752A016155791B22600"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_8F53366160CF48E78E477CECFD550D17"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
         }
@@ -783,6 +867,12 @@
         }
         "Entry"
         {
+        "MsmKey" = "8:_947A4F7180654572B884BD7E404D0093"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
         "MsmKey" = "8:_95442757132445CE91C6E7DD1039186F"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
@@ -795,19 +885,37 @@
         }
         "Entry"
         {
+        "MsmKey" = "8:_9740F3AE1CAC47B7A06D9C612F27D6E3"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
         "MsmKey" = "8:_982E9515F5264266A8C58FA1FFFE4445"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
         {
-        "MsmKey" = "8:_983CABCB16964ECBBAC30164F5ACE625"
+        "MsmKey" = "8:_98688867F0CC4A408FF7947AEB3973A2"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
         {
-        "MsmKey" = "8:_98688867F0CC4A408FF7947AEB3973A2"
+        "MsmKey" = "8:_98D4F900CF3948C6B3DB14366571B2EC"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_997B527B0BCB498C88162973DE6EA3E9"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_9B3DF379FF21498AAB9C99D55F6DFC84"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
         }
@@ -825,7 +933,7 @@
         }
         "Entry"
         {
-        "MsmKey" = "8:_9C3A79FE9AA54739855D78971950519D"
+        "MsmKey" = "8:_9EBA274939814F4EA86BB7DC4F7096D5"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
         }
@@ -837,19 +945,7 @@
         }
         "Entry"
         {
-        "MsmKey" = "8:_9FD61E8721254EEFB4BD7C1C6C201B20"
-        "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
         "MsmKey" = "8:_A2FAFBF21B9A465E9BC546D5E1132143"
-        "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
-        "MsmKey" = "8:_A3C8F1208F9E43228E2BC17F88F3C88E"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
         }
@@ -861,31 +957,13 @@
         }
         "Entry"
         {
-        "MsmKey" = "8:_A827DBF0978144CEB3C2AC1A4041A992"
-        "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
-        "MsmKey" = "8:_AEE498D2D5A54F75857806F180E8EE9D"
-        "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
-        "MsmKey" = "8:_B017D4E771C1465BAE22B0B292954942"
+        "MsmKey" = "8:_ACA18BB0AF124A61A80538658059F0D5"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
         {
         "MsmKey" = "8:_B243DF85F7BA44459786392A9AE30442"
-        "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
-        "MsmKey" = "8:_B2BD9E5D56F343ED8A48C644DABD51B4"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
         }
@@ -915,12 +993,6 @@
         }
         "Entry"
         {
-        "MsmKey" = "8:_B72EE33265924EA6937C572E298B5130"
-        "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
         "MsmKey" = "8:_BA433EFE8E3B4430A641CE66267BC1F1"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
@@ -945,7 +1017,19 @@
         }
         "Entry"
         {
+        "MsmKey" = "8:_BE03D34FB14C4ABF9784E3EED8B311C6"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
         "MsmKey" = "8:_C2A76AA27F41475D872F6A180D702E01"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_C3B07FD5A8924AF29AEF80A2BEAA538C"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
         }
@@ -975,19 +1059,25 @@
         }
         "Entry"
         {
-        "MsmKey" = "8:_C64EF58BEEC4483BAF29888915739399"
-        "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
         "MsmKey" = "8:_C671B0A457C7449BB35BAD570ABFB07F"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
         {
+        "MsmKey" = "8:_C68B4CD99D944CEC856B8135ED697B77"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
         "MsmKey" = "8:_C9D9993745FC43B6BE42FEEAACEE9401"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_CA6EBA9FA52D4127A9B032B611AFB560"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
         }
@@ -1000,6 +1090,12 @@
         "Entry"
         {
         "MsmKey" = "8:_CBFBB4AFB2BF444C865CD6387871137E"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_CC7FB4D425764A31850E7B21185B2D33"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
         }
@@ -1023,19 +1119,13 @@
         }
         "Entry"
         {
-        "MsmKey" = "8:_D2CABDD771694F508D4B8481FEF5681F"
+        "MsmKey" = "8:_D27A64626713437A8A5D126FB11698AD"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
         {
         "MsmKey" = "8:_D3D29E00FECD4BF1B1AB9A3242B0F514"
-        "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
-        "MsmKey" = "8:_D45F5C1ABBC64CBE85105C3BCCFD5870"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
         }
@@ -1071,6 +1161,12 @@
         }
         "Entry"
         {
+        "MsmKey" = "8:_D9DBA66CF150416DAA774075A3FE49DF"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
         "MsmKey" = "8:_DA4664B7BF3746B4B95B19B6DA95AE55"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
@@ -1101,12 +1197,6 @@
         }
         "Entry"
         {
-        "MsmKey" = "8:_DFB7C9C4E09B44CCAAB5A0947C54232D"
-        "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
         "MsmKey" = "8:_DFCCD807AF5740C1B87B54A4C4D4A928"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
@@ -1125,7 +1215,7 @@
         }
         "Entry"
         {
-        "MsmKey" = "8:_E1FA34BF3C744F0C81F13E906B941A1C"
+        "MsmKey" = "8:_E251D882953749C8AAEA29BF92D8582A"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
         }
@@ -1161,12 +1251,6 @@
         }
         "Entry"
         {
-        "MsmKey" = "8:_F1737EC33C6D4D91B1819FF70A1C3E25"
-        "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
         "MsmKey" = "8:_F179CE18A80C4F87B572A05EB84D949F"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
@@ -1185,12 +1269,6 @@
         }
         "Entry"
         {
-        "MsmKey" = "8:_F46D10EA078E403A95D2FB5317DDAB41"
-        "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
         "MsmKey" = "8:_F621101F07074304A7F22C1CBCD03784"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
@@ -1203,31 +1281,19 @@
         }
         "Entry"
         {
-        "MsmKey" = "8:_F77F3C5330DD478489906E9BDAE8B698"
-        "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
-        "MsmKey" = "8:_FA57BCB7EFF246B08F98417CBD9746E8"
-        "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
         "MsmKey" = "8:_FD6838C22AF44337895520CF10691B22"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
         {
-        "MsmKey" = "8:_FECB4DA74F3E428889884DB8D2A08C54"
+        "MsmKey" = "8:_FEC4D303259046C6A0040EB6501F318D"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
         {
-        "MsmKey" = "8:_FF0247CA8D4443B4B30A5B9CD7CE53F3"
+        "MsmKey" = "8:_FECB4DA74F3E428889884DB8D2A08C54"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
         }
@@ -1322,26 +1388,6 @@
         }
         "File"
         {
-            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_0003B9DB1F97402B825ECEE678451765"
-            {
-            "SourcePath" = "8:..\\..\\..\\ui\\mainwindow\\images\\slice-renumber.png"
-            "TargetName" = "8:slice-renumber.png"
-            "Tag" = "8:"
-            "Folder" = "8:_3F6351B6561948C1879CF096521DD2DB"
-            "Condition" = "8:"
-            "Transitive" = "11:FALSE"
-            "Vital" = "11:TRUE"
-            "ReadOnly" = "11:FALSE"
-            "Hidden" = "11:FALSE"
-            "System" = "11:FALSE"
-            "Permanent" = "11:FALSE"
-            "SharedLegacy" = "11:FALSE"
-            "PackageAs" = "3:1"
-            "Register" = "3:1"
-            "Exclude" = "11:FALSE"
-            "IsDependency" = "11:FALSE"
-            "IsolateTo" = "8:"
-            }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_005F95CDBDC7439AB1FFAE8EF8779D96"
             {
             "SourcePath" = "8:..\\..\\..\\views\\pathview\\tools\\selecttool.py"
@@ -1362,10 +1408,10 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
-            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_03D576832B6641FEACFF3C20D81CDC6F"
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_013C2F2CB92145658116FE844B5381BF"
             {
-            "SourcePath" = "8:..\\..\\..\\ui\\mainwindow\\images\\slice-go-last.png"
-            "TargetName" = "8:slice-go-last.png"
+            "SourcePath" = "8:..\\..\\..\\ui\\mainwindow\\images\\remove-bases.svg"
+            "TargetName" = "8:remove-bases.svg"
             "Tag" = "8:"
             "Folder" = "8:_3F6351B6561948C1879CF096521DD2DB"
             "Condition" = "8:"
@@ -1388,26 +1434,6 @@
             "TargetName" = "8:documentwindow.py"
             "Tag" = "8:"
             "Folder" = "8:_CE9FB3E9A59E4BBAA28FE59124175D3D"
-            "Condition" = "8:"
-            "Transitive" = "11:FALSE"
-            "Vital" = "11:TRUE"
-            "ReadOnly" = "11:FALSE"
-            "Hidden" = "11:FALSE"
-            "System" = "11:FALSE"
-            "Permanent" = "11:FALSE"
-            "SharedLegacy" = "11:FALSE"
-            "PackageAs" = "3:1"
-            "Register" = "3:1"
-            "Exclude" = "11:FALSE"
-            "IsDependency" = "11:FALSE"
-            "IsolateTo" = "8:"
-            }
-            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_054D4BDD69A94F6B9C772927A7C0330E"
-            {
-            "SourcePath" = "8:..\\..\\..\\ui\\mainwindow\\images\\path-loop_48.png"
-            "TargetName" = "8:path-loop_48.png"
-            "Tag" = "8:"
-            "Folder" = "8:_3F6351B6561948C1879CF096521DD2DB"
             "Condition" = "8:"
             "Transitive" = "11:FALSE"
             "Vital" = "11:TRUE"
@@ -1482,26 +1508,6 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
-            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_0EBF1760D1284DD78F1ED3839E55B131"
-            {
-            "SourcePath" = "8:..\\..\\..\\ui\\mainwindow\\images\\path-pen_48.png"
-            "TargetName" = "8:path-pen_48.png"
-            "Tag" = "8:"
-            "Folder" = "8:_3F6351B6561948C1879CF096521DD2DB"
-            "Condition" = "8:"
-            "Transitive" = "11:FALSE"
-            "Vital" = "11:TRUE"
-            "ReadOnly" = "11:FALSE"
-            "Hidden" = "11:FALSE"
-            "System" = "11:FALSE"
-            "Permanent" = "11:FALSE"
-            "SharedLegacy" = "11:FALSE"
-            "PackageAs" = "3:1"
-            "Register" = "3:1"
-            "Exclude" = "11:FALSE"
-            "IsDependency" = "11:FALSE"
-            "IsolateTo" = "8:"
-            }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_0EF8CA22A2BE492CB4160A89A175D796"
             {
             "SourcePath" = "8:..\\..\\..\\views\\sliceview\\tools\\__init__.py"
@@ -1542,26 +1548,6 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
-            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_0F8E2A9C41BB4628A00512AFF66680D8"
-            {
-            "SourcePath" = "8:..\\..\\..\\ui\\mainwindow\\images\\path-force-xover.png"
-            "TargetName" = "8:path-force-xover.png"
-            "Tag" = "8:"
-            "Folder" = "8:_3F6351B6561948C1879CF096521DD2DB"
-            "Condition" = "8:"
-            "Transitive" = "11:FALSE"
-            "Vital" = "11:TRUE"
-            "ReadOnly" = "11:FALSE"
-            "Hidden" = "11:FALSE"
-            "System" = "11:FALSE"
-            "Permanent" = "11:FALSE"
-            "SharedLegacy" = "11:FALSE"
-            "PackageAs" = "3:1"
-            "Register" = "3:1"
-            "Exclude" = "11:FALSE"
-            "IsDependency" = "11:FALSE"
-            "IsolateTo" = "8:"
-            }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_0FB3E47EAC6449BB8C4494C8C87841CB"
             {
             "SourcePath" = "8:..\\..\\..\\views\\solidview\\stranditem.py"
@@ -1582,10 +1568,10 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
-            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_1351F0834A124A20AA0022B4271CE509"
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_10978C3667FB4CBE85A5969F703EB59E"
             {
-            "SourcePath" = "8:..\\..\\..\\ui\\mainwindow\\images\\path-break_48.png"
-            "TargetName" = "8:path-break_48.png"
+            "SourcePath" = "8:..\\..\\..\\ui\\mainwindow\\images\\part-new-honeycomb.png"
+            "TargetName" = "8:part-new-honeycomb.png"
             "Tag" = "8:"
             "Folder" = "8:_3F6351B6561948C1879CF096521DD2DB"
             "Condition" = "8:"
@@ -1642,26 +1628,6 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
-            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_16CB90AB90CE4D619F195C2221528A33"
-            {
-            "SourcePath" = "8:..\\..\\..\\ui\\mainwindow\\images\\cadnano2-document-icon.png"
-            "TargetName" = "8:cadnano2-document-icon.png"
-            "Tag" = "8:"
-            "Folder" = "8:_3F6351B6561948C1879CF096521DD2DB"
-            "Condition" = "8:"
-            "Transitive" = "11:FALSE"
-            "Vital" = "11:TRUE"
-            "ReadOnly" = "11:FALSE"
-            "Hidden" = "11:FALSE"
-            "System" = "11:FALSE"
-            "Permanent" = "11:FALSE"
-            "SharedLegacy" = "11:FALSE"
-            "PackageAs" = "3:1"
-            "Register" = "3:1"
-            "Exclude" = "11:FALSE"
-            "IsDependency" = "11:FALSE"
-            "IsolateTo" = "8:"
-            }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_16D76E9495DF4D6BAA728E5BB05383F0"
             {
             "SourcePath" = "8:..\\..\\..\\model\\io\\decoder.py"
@@ -1688,6 +1654,66 @@
             "TargetName" = "8:Nature09_squarenut.json"
             "Tag" = "8:"
             "Folder" = "8:_CA7C7CB9B6F44FF9AFA832DB42ACDF74"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_173BA36DFACC4A648EFEAB3C872E8065"
+            {
+            "SourcePath" = "8:..\\..\\..\\ui\\mainwindow\\images\\part-filter-endpoint.png"
+            "TargetName" = "8:part-filter-endpoint.png"
+            "Tag" = "8:"
+            "Folder" = "8:_3F6351B6561948C1879CF096521DD2DB"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_17DEBE4B339F4A858B46FD248956E162"
+            {
+            "SourcePath" = "8:..\\..\\..\\ui\\mainwindow\\images\\path-frame.png"
+            "TargetName" = "8:path-frame.png"
+            "Tag" = "8:"
+            "Folder" = "8:_3F6351B6561948C1879CF096521DD2DB"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_18587969C4214FF498F1A51D455EA5D7"
+            {
+            "SourcePath" = "8:..\\..\\..\\ui\\mainwindow\\images\\part-filter-handle.png"
+            "TargetName" = "8:part-filter-handle.png"
+            "Tag" = "8:"
+            "Folder" = "8:_3F6351B6561948C1879CF096521DD2DB"
             "Condition" = "8:"
             "Transitive" = "11:FALSE"
             "Vital" = "11:TRUE"
@@ -1742,6 +1768,26 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_188A1A5E777E400EBADDA7ED2FE7F648"
+            {
+            "SourcePath" = "8:..\\..\\..\\ui\\mainwindow\\images\\cadnano2-app-icon.ico"
+            "TargetName" = "8:cadnano2-app-icon.ico"
+            "Tag" = "8:"
+            "Folder" = "8:_3F6351B6561948C1879CF096521DD2DB"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_1B7C6AC0C55D47489502FA1C2946D7FF"
             {
             "SourcePath" = "8:..\\..\\..\\views\\pathview\\virtualhelixitem.py"
@@ -1768,46 +1814,6 @@
             "TargetName" = "8:dnasequences.py"
             "Tag" = "8:"
             "Folder" = "8:_107B671F114344E5A2D4C11BF8B896A3"
-            "Condition" = "8:"
-            "Transitive" = "11:FALSE"
-            "Vital" = "11:TRUE"
-            "ReadOnly" = "11:FALSE"
-            "Hidden" = "11:FALSE"
-            "System" = "11:FALSE"
-            "Permanent" = "11:FALSE"
-            "SharedLegacy" = "11:FALSE"
-            "PackageAs" = "3:1"
-            "Register" = "3:1"
-            "Exclude" = "11:FALSE"
-            "IsDependency" = "11:FALSE"
-            "IsolateTo" = "8:"
-            }
-            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_1D4CAD787959419BBB38190CD6413296"
-            {
-            "SourcePath" = "8:..\\..\\..\\ui\\mainwindow\\images\\cadnano2-app-icon.ico"
-            "TargetName" = "8:cadnano2-app-icon.ico"
-            "Tag" = "8:"
-            "Folder" = "8:_3F6351B6561948C1879CF096521DD2DB"
-            "Condition" = "8:"
-            "Transitive" = "11:FALSE"
-            "Vital" = "11:TRUE"
-            "ReadOnly" = "11:FALSE"
-            "Hidden" = "11:FALSE"
-            "System" = "11:FALSE"
-            "Permanent" = "11:FALSE"
-            "SharedLegacy" = "11:FALSE"
-            "PackageAs" = "3:1"
-            "Register" = "3:1"
-            "Exclude" = "11:FALSE"
-            "IsDependency" = "11:FALSE"
-            "IsolateTo" = "8:"
-            }
-            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_1DE591869E0C493D8E87A39E9B503AA9"
-            {
-            "SourcePath" = "8:..\\..\\..\\ui\\mainwindow\\images\\path-staple.png"
-            "TargetName" = "8:path-staple.png"
-            "Tag" = "8:"
-            "Folder" = "8:_3F6351B6561948C1879CF096521DD2DB"
             "Condition" = "8:"
             "Transitive" = "11:FALSE"
             "Vital" = "11:TRUE"
@@ -1862,10 +1868,10 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
-            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_207BE9F72F0F4A46B748621A5BD82439"
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_20B4FD01E683425888F03D0E51D43C4A"
             {
-            "SourcePath" = "8:..\\..\\..\\ui\\mainwindow\\images\\cadnano2_installer-bkg.png"
-            "TargetName" = "8:cadnano2_installer-bkg.png"
+            "SourcePath" = "8:..\\..\\..\\ui\\mainwindow\\images\\export-staples.svg"
+            "TargetName" = "8:export-staples.svg"
             "Tag" = "8:"
             "Folder" = "8:_3F6351B6561948C1879CF096521DD2DB"
             "Condition" = "8:"
@@ -1922,12 +1928,12 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
-            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_278BCA7E30E04BA1B72078061520799A"
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_23EBE110D44F4AB1B323E6BFDFB7B7AF"
             {
-            "SourcePath" = "8:..\\..\\..\\views\\pathview\\strand\\stranditem.py"
-            "TargetName" = "8:stranditem.py"
+            "SourcePath" = "8:..\\..\\..\\ui\\mainwindow\\images\\path-modify.png"
+            "TargetName" = "8:path-modify.png"
             "Tag" = "8:"
-            "Folder" = "8:_E9DEA5F37ABA45E888312268BA17A132"
+            "Folder" = "8:_3F6351B6561948C1879CF096521DD2DB"
             "Condition" = "8:"
             "Transitive" = "11:FALSE"
             "Vital" = "11:TRUE"
@@ -1942,12 +1948,32 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
-            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_290AF995D708435C9A5C3F167E298DD4"
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_27483BBDE29248A09377EE910B0E4126"
             {
-            "SourcePath" = "8:..\\..\\..\\ui\\mainwindow\\images\\path-erase_48x48.png"
-            "TargetName" = "8:path-erase_48x48.png"
+            "SourcePath" = "8:..\\..\\..\\ui\\mainwindow\\images\\path-loop.png"
+            "TargetName" = "8:path-loop.png"
             "Tag" = "8:"
             "Folder" = "8:_3F6351B6561948C1879CF096521DD2DB"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_278BCA7E30E04BA1B72078061520799A"
+            {
+            "SourcePath" = "8:..\\..\\..\\views\\pathview\\strand\\stranditem.py"
+            "TargetName" = "8:stranditem.py"
+            "Tag" = "8:"
+            "Folder" = "8:_E9DEA5F37ABA45E888312268BA17A132"
             "Condition" = "8:"
             "Transitive" = "11:FALSE"
             "Vital" = "11:TRUE"
@@ -1988,6 +2014,26 @@
             "TargetName" = "8:abstractstranditem.py"
             "Tag" = "8:"
             "Folder" = "8:_E9DEA5F37ABA45E888312268BA17A132"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_2A2F892623AA44C9B188E96C710BCDE4"
+            {
+            "SourcePath" = "8:..\\..\\..\\ui\\mainwindow\\images\\path-addseq.png"
+            "TargetName" = "8:path-addseq.png"
+            "Tag" = "8:"
+            "Folder" = "8:_3F6351B6561948C1879CF096521DD2DB"
             "Condition" = "8:"
             "Transitive" = "11:FALSE"
             "Vital" = "11:TRUE"
@@ -2082,26 +2128,6 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
-            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_2DDDE174CA004B9BB5C286133A4018D1"
-            {
-            "SourcePath" = "8:..\\..\\..\\ui\\mainwindow\\images\\add-bases.svg"
-            "TargetName" = "8:add-bases.svg"
-            "Tag" = "8:"
-            "Folder" = "8:_3F6351B6561948C1879CF096521DD2DB"
-            "Condition" = "8:"
-            "Transitive" = "11:FALSE"
-            "Vital" = "11:TRUE"
-            "ReadOnly" = "11:FALSE"
-            "Hidden" = "11:FALSE"
-            "System" = "11:FALSE"
-            "Permanent" = "11:FALSE"
-            "SharedLegacy" = "11:FALSE"
-            "PackageAs" = "3:1"
-            "Register" = "3:1"
-            "Exclude" = "11:FALSE"
-            "IsDependency" = "11:FALSE"
-            "IsolateTo" = "8:"
-            }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_301FB8C917B243FDB90E3A4BE5DD4FA4"
             {
             "SourcePath" = "8:..\\..\\..\\views\\pathview\\tools\\breaktool.py"
@@ -2122,10 +2148,10 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
-            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_3374F2D3807E4CCEA7E2A5D62BACC5AB"
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_30B514C05B764AC2A958346927AE9DC0"
             {
-            "SourcePath" = "8:..\\..\\..\\ui\\mainwindow\\images\\data-svg.png"
-            "TargetName" = "8:data-svg.png"
+            "SourcePath" = "8:..\\..\\..\\ui\\mainwindow\\images\\data-save_32.png"
+            "TargetName" = "8:data-save_32.png"
             "Tag" = "8:"
             "Folder" = "8:_3F6351B6561948C1879CF096521DD2DB"
             "Condition" = "8:"
@@ -2222,6 +2248,26 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_36361955559A4A719062E902C74CB332"
+            {
+            "SourcePath" = "8:..\\..\\..\\ui\\mainwindow\\images\\cadnano2-app-icon_shelf.png"
+            "TargetName" = "8:cadnano2-app-icon_shelf.png"
+            "Tag" = "8:"
+            "Folder" = "8:_3F6351B6561948C1879CF096521DD2DB"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_37F1852C6EC144C29719F3346D23F9BD"
             {
             "SourcePath" = "8:..\\..\\..\\views\\solidview\\virtualhelixitem.py"
@@ -2302,12 +2348,52 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_3AB9D228BC0D4D1EB52B0B9DF1BD3BD0"
+            {
+            "SourcePath" = "8:..\\..\\..\\ui\\mainwindow\\images\\data-export-staples.png"
+            "TargetName" = "8:data-export-staples.png"
+            "Tag" = "8:"
+            "Folder" = "8:_3F6351B6561948C1879CF096521DD2DB"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_3AC3F9435D9645DE9818A74D63C330D3"
             {
             "SourcePath" = "8:..\\..\\..\\views\\sliceview\\emptyhelixitem.py"
             "TargetName" = "8:emptyhelixitem.py"
             "Tag" = "8:"
             "Folder" = "8:_332E3785EDA841D2877667B7ABBF6FB9"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_3AD7A5EE9902494AAF43A0F6A5AD591C"
+            {
+            "SourcePath" = "8:..\\..\\..\\ui\\mainwindow\\images\\part-filter-scaf.png"
+            "TargetName" = "8:part-filter-scaf.png"
+            "Tag" = "8:"
+            "Folder" = "8:_3F6351B6561948C1879CF096521DD2DB"
             "Condition" = "8:"
             "Transitive" = "11:FALSE"
             "Vital" = "11:TRUE"
@@ -2342,30 +2428,10 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
-            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_3C05F3EB63B54D7B8E0D544E8D126B36"
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_3DA1436F97024A60AD53419E52EAC0D2"
             {
-            "SourcePath" = "8:..\\..\\..\\ui\\mainwindow\\images\\cadnano2-app-icon_shelf.png"
-            "TargetName" = "8:cadnano2-app-icon_shelf.png"
-            "Tag" = "8:"
-            "Folder" = "8:_3F6351B6561948C1879CF096521DD2DB"
-            "Condition" = "8:"
-            "Transitive" = "11:FALSE"
-            "Vital" = "11:TRUE"
-            "ReadOnly" = "11:FALSE"
-            "Hidden" = "11:FALSE"
-            "System" = "11:FALSE"
-            "Permanent" = "11:FALSE"
-            "SharedLegacy" = "11:FALSE"
-            "PackageAs" = "3:1"
-            "Register" = "3:1"
-            "Exclude" = "11:FALSE"
-            "IsDependency" = "11:FALSE"
-            "IsolateTo" = "8:"
-            }
-            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_3C7F01106B3841F7BBD1904F7754EDA4"
-            {
-            "SourcePath" = "8:..\\..\\..\\ui\\mainwindow\\images\\data-new_32.png"
-            "TargetName" = "8:data-new_32.png"
+            "SourcePath" = "8:..\\..\\..\\ui\\mainwindow\\images\\slice-go-first.png"
+            "TargetName" = "8:slice-go-first.png"
             "Tag" = "8:"
             "Folder" = "8:_3F6351B6561948C1879CF096521DD2DB"
             "Condition" = "8:"
@@ -2408,6 +2474,26 @@
             "TargetName" = "8:Nature09_squarenut.csv"
             "Tag" = "8:"
             "Folder" = "8:_CA7C7CB9B6F44FF9AFA832DB42ACDF74"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_40B66EC77C014C8A8B17151C87B8ED5D"
+            {
+            "SourcePath" = "8:..\\..\\..\\ui\\mainwindow\\images\\cadnano2-icon_doc-legacy.png"
+            "TargetName" = "8:cadnano2-icon_doc-legacy.png"
+            "Tag" = "8:"
+            "Folder" = "8:_3F6351B6561948C1879CF096521DD2DB"
             "Condition" = "8:"
             "Transitive" = "11:FALSE"
             "Vital" = "11:TRUE"
@@ -2542,6 +2628,26 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_479EA13D60AF441290F7A629CA6C7DAF"
+            {
+            "SourcePath" = "8:..\\..\\..\\ui\\mainwindow\\images\\path-pen_48.png"
+            "TargetName" = "8:path-pen_48.png"
+            "Tag" = "8:"
+            "Folder" = "8:_3F6351B6561948C1879CF096521DD2DB"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_48E4D8C0589E40A6ABB614AB01D013B1"
             {
             "SourcePath" = "8:..\\..\\..\\views\\pathview\\tools\\insertiontool.py"
@@ -2622,12 +2728,32 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
-            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_4B01118083CA4FF2BAEC99C334936491"
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_4D1C603954D54458924013B8FC041E45"
             {
-            "SourcePath" = "8:..\\..\\..\\ui\\mainwindow\\images\\cadnano2-document-icon.ico"
-            "TargetName" = "8:cadnano2-document-icon.ico"
+            "SourcePath" = "8:..\\..\\..\\ui\\mainwindow\\images\\cadnano2-document-icon.png"
+            "TargetName" = "8:cadnano2-document-icon.png"
             "Tag" = "8:"
             "Folder" = "8:_3F6351B6561948C1879CF096521DD2DB"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_4FC4A45BA68F4090AA40EA310EA94D42"
+            {
+            "SourcePath" = "8:..\\..\\..\\ui\\dialogs\\images\\cadnano2-about.png"
+            "TargetName" = "8:cadnano2-about.png"
+            "Tag" = "8:"
+            "Folder" = "8:_AA4F142CAE1640E982BCD3BC185A0D99"
             "Condition" = "8:"
             "Transitive" = "11:FALSE"
             "Vital" = "11:TRUE"
@@ -2722,52 +2848,12 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
-            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_5253BB377113405183072D0854878C63"
-            {
-            "SourcePath" = "8:..\\..\\..\\ui\\mainwindow\\images\\path-skip.png"
-            "TargetName" = "8:path-skip.png"
-            "Tag" = "8:"
-            "Folder" = "8:_3F6351B6561948C1879CF096521DD2DB"
-            "Condition" = "8:"
-            "Transitive" = "11:FALSE"
-            "Vital" = "11:TRUE"
-            "ReadOnly" = "11:FALSE"
-            "Hidden" = "11:FALSE"
-            "System" = "11:FALSE"
-            "Permanent" = "11:FALSE"
-            "SharedLegacy" = "11:FALSE"
-            "PackageAs" = "3:1"
-            "Register" = "3:1"
-            "Exclude" = "11:FALSE"
-            "IsDependency" = "11:FALSE"
-            "IsolateTo" = "8:"
-            }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_5472C19DC82246F098B443EAADB6114F"
             {
             "SourcePath" = "8:..\\..\\..\\views\\__init__.py"
             "TargetName" = "8:__init__.py"
             "Tag" = "8:"
             "Folder" = "8:_CE9FB3E9A59E4BBAA28FE59124175D3D"
-            "Condition" = "8:"
-            "Transitive" = "11:FALSE"
-            "Vital" = "11:TRUE"
-            "ReadOnly" = "11:FALSE"
-            "Hidden" = "11:FALSE"
-            "System" = "11:FALSE"
-            "Permanent" = "11:FALSE"
-            "SharedLegacy" = "11:FALSE"
-            "PackageAs" = "3:1"
-            "Register" = "3:1"
-            "Exclude" = "11:FALSE"
-            "IsDependency" = "11:FALSE"
-            "IsolateTo" = "8:"
-            }
-            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_548710D6E9E74FB6BC38E6479832E4DF"
-            {
-            "SourcePath" = "8:..\\..\\..\\ui\\mainwindow\\images\\path-paint_48.png"
-            "TargetName" = "8:path-paint_48.png"
-            "Tag" = "8:"
-            "Folder" = "8:_3F6351B6561948C1879CF096521DD2DB"
             "Condition" = "8:"
             "Transitive" = "11:FALSE"
             "Vital" = "11:TRUE"
@@ -2802,10 +2888,30 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
-            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_578632ADBA7E4CD29B535A82928FD4FF"
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_5A1B35C0331441AB99C5F17BCFA76663"
             {
-            "SourcePath" = "8:..\\..\\..\\ui\\mainwindow\\images\\path-modify.svg"
-            "TargetName" = "8:path-modify.svg"
+            "SourcePath" = "8:..\\..\\..\\views\\pathview\\tools\\painttool.py"
+            "TargetName" = "8:painttool.py"
+            "Tag" = "8:"
+            "Folder" = "8:_527FE82D934C462DA91152C628B00986"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_5A3DD4E1DE6E462E944951A3A3B157DC"
+            {
+            "SourcePath" = "8:..\\..\\..\\ui\\mainwindow\\images\\path-sequence.png"
+            "TargetName" = "8:path-sequence.png"
             "Tag" = "8:"
             "Folder" = "8:_3F6351B6561948C1879CF096521DD2DB"
             "Condition" = "8:"
@@ -2822,12 +2928,32 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
-            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_5A1B35C0331441AB99C5F17BCFA76663"
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_5B2196A3973B496A821EDE74A5E7C195"
             {
-            "SourcePath" = "8:..\\..\\..\\views\\pathview\\tools\\painttool.py"
-            "TargetName" = "8:painttool.py"
+            "SourcePath" = "8:..\\..\\..\\ui\\mainwindow\\images\\path-move.png"
+            "TargetName" = "8:path-move.png"
             "Tag" = "8:"
-            "Folder" = "8:_527FE82D934C462DA91152C628B00986"
+            "Folder" = "8:_3F6351B6561948C1879CF096521DD2DB"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_5BA5A91A33D3407781D920FB9F226288"
+            {
+            "SourcePath" = "8:..\\..\\..\\ui\\mainwindow\\images\\path-addseq.svg"
+            "TargetName" = "8:path-addseq.svg"
+            "Tag" = "8:"
+            "Folder" = "8:_3F6351B6561948C1879CF096521DD2DB"
             "Condition" = "8:"
             "Transitive" = "11:FALSE"
             "Vital" = "11:TRUE"
@@ -2882,6 +3008,26 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_5C7AEEBBE78C409EBE85640B50B91590"
+            {
+            "SourcePath" = "8:..\\..\\..\\ui\\mainwindow\\images\\path-break_48.png"
+            "TargetName" = "8:path-break_48.png"
+            "Tag" = "8:"
+            "Folder" = "8:_3F6351B6561948C1879CF096521DD2DB"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_5E428939796B46619515B366987F3792"
             {
             "SourcePath" = "8:..\\..\\..\\views\\pathview\\tools\\erasetool.py"
@@ -2908,6 +3054,26 @@
             "TargetName" = "8:preferences.py"
             "Tag" = "8:"
             "Folder" = "8:_CE9FB3E9A59E4BBAA28FE59124175D3D"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_60630540BB944F21ACACE686296EF541"
+            {
+            "SourcePath" = "8:..\\..\\..\\controllers\\mayacontrollers\\helixManip.py"
+            "TargetName" = "8:helixManip.py"
+            "Tag" = "8:"
+            "Folder" = "8:_39EF0AD284BA4A34AF94DF7B3BAB1176"
             "Condition" = "8:"
             "Transitive" = "11:FALSE"
             "Vital" = "11:TRUE"
@@ -2982,30 +3148,10 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
-            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_6396BFF6D763480C829C0AFD543CDBA5"
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_668C1F00F7C74E648CBD2EEA089B541E"
             {
-            "SourcePath" = "8:..\\..\\..\\ui\\mainwindow\\images\\export-staples.svg"
-            "TargetName" = "8:export-staples.svg"
-            "Tag" = "8:"
-            "Folder" = "8:_3F6351B6561948C1879CF096521DD2DB"
-            "Condition" = "8:"
-            "Transitive" = "11:FALSE"
-            "Vital" = "11:TRUE"
-            "ReadOnly" = "11:FALSE"
-            "Hidden" = "11:FALSE"
-            "System" = "11:FALSE"
-            "Permanent" = "11:FALSE"
-            "SharedLegacy" = "11:FALSE"
-            "PackageAs" = "3:1"
-            "Register" = "3:1"
-            "Exclude" = "11:FALSE"
-            "IsDependency" = "11:FALSE"
-            "IsolateTo" = "8:"
-            }
-            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_65FC0989F6134360A68289C3994EAE6B"
-            {
-            "SourcePath" = "8:..\\..\\..\\ui\\mainwindow\\images\\path-frame.png"
-            "TargetName" = "8:path-frame.png"
+            "SourcePath" = "8:..\\..\\..\\ui\\mainwindow\\images\\cadnano2-document-icon.ico"
+            "TargetName" = "8:cadnano2-document-icon.ico"
             "Tag" = "8:"
             "Folder" = "8:_3F6351B6561948C1879CF096521DD2DB"
             "Condition" = "8:"
@@ -3042,12 +3188,72 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_679F2A782CA3455BAB34F96C9CC8C127"
+            {
+            "SourcePath" = "8:..\\..\\..\\ui\\mainwindow\\images\\path-skip_48x48.png"
+            "TargetName" = "8:path-skip_48x48.png"
+            "Tag" = "8:"
+            "Folder" = "8:_3F6351B6561948C1879CF096521DD2DB"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_67E7FC7E41AD49C2B42905CEE442E3B4"
             {
             "SourcePath" = "8:..\\..\\..\\main.py"
             "TargetName" = "8:main.py"
             "Tag" = "8:"
             "Folder" = "8:_0969E8665EC94BB2A1FB615DC65E5093"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_684B7C36D2F14609987D505B93C381FE"
+            {
+            "SourcePath" = "8:..\\..\\..\\ui\\mainwindow\\images\\slice-edit.png"
+            "TargetName" = "8:slice-edit.png"
+            "Tag" = "8:"
+            "Folder" = "8:_3F6351B6561948C1879CF096521DD2DB"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_6900E63C240043A8A60F132F043EBDD6"
+            {
+            "SourcePath" = "8:..\\..\\..\\ui\\mainwindow\\images\\part-filter-stap.png"
+            "TargetName" = "8:part-filter-stap.png"
+            "Tag" = "8:"
+            "Folder" = "8:_3F6351B6561948C1879CF096521DD2DB"
             "Condition" = "8:"
             "Transitive" = "11:FALSE"
             "Vital" = "11:TRUE"
@@ -3082,10 +3288,30 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
-            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_69B7CFE2ABFE4712BF21DEB9C0568EA5"
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_6A50CA0A82E640F29F5866D1CA3C8EC2"
             {
-            "SourcePath" = "8:..\\..\\..\\ui\\mainwindow\\images\\path-addseq.png"
-            "TargetName" = "8:path-addseq.png"
+            "SourcePath" = "8:..\\..\\..\\ui\\mainwindow\\images\\slice-delete-last.png"
+            "TargetName" = "8:slice-delete-last.png"
+            "Tag" = "8:"
+            "Folder" = "8:_3F6351B6561948C1879CF096521DD2DB"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_6A645C3FF8A040C5B9D35A594B103DF3"
+            {
+            "SourcePath" = "8:..\\..\\..\\ui\\mainwindow\\images\\cadnano2-app-icon.png"
+            "TargetName" = "8:cadnano2-app-icon.png"
             "Tag" = "8:"
             "Folder" = "8:_3F6351B6561948C1879CF096521DD2DB"
             "Condition" = "8:"
@@ -3142,6 +3368,26 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_6D49FDA60C1D4F86984D6B177E1E9C11"
+            {
+            "SourcePath" = "8:..\\..\\..\\ui\\mainwindow\\images\\cadnano2_installer-bkg.png"
+            "TargetName" = "8:cadnano2_installer-bkg.png"
+            "Tag" = "8:"
+            "Folder" = "8:_3F6351B6561948C1879CF096521DD2DB"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_6E2B841035E94C8CA95500B766D7689E"
             {
             "SourcePath" = "8:..\\..\\..\\ui\\dialogs\\ui_preferences.py"
@@ -3168,6 +3414,26 @@
             "TargetName" = "8:strand.py"
             "Tag" = "8:"
             "Folder" = "8:_17BF768FB21047B2995C448082AF4797"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_6EC91F1DD249413BBD188642DB27AF9D"
+            {
+            "SourcePath" = "8:..\\..\\..\\ui\\mainwindow\\images\\data-open_32.png"
+            "TargetName" = "8:data-open_32.png"
+            "Tag" = "8:"
+            "Folder" = "8:_3F6351B6561948C1879CF096521DD2DB"
             "Condition" = "8:"
             "Transitive" = "11:FALSE"
             "Vital" = "11:TRUE"
@@ -3242,12 +3508,52 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_71B496C2737E4844B22D9445784F2190"
+            {
+            "SourcePath" = "8:..\\..\\..\\ui\\mainwindow\\images\\export-staples.png"
+            "TargetName" = "8:export-staples.png"
+            "Tag" = "8:"
+            "Folder" = "8:_3F6351B6561948C1879CF096521DD2DB"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_724AEF6DB7B843B596CA1944CAEC54F7"
             {
             "SourcePath" = "8:..\\..\\..\\views\\pathview\\tools\\abstractpathtool.py"
             "TargetName" = "8:abstractpathtool.py"
             "Tag" = "8:"
             "Folder" = "8:_527FE82D934C462DA91152C628B00986"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_732F6E1CE6124DF69FFB13680215AB6E"
+            {
+            "SourcePath" = "8:..\\..\\..\\ui\\mainwindow\\images\\path-loop_48.png"
+            "TargetName" = "8:path-loop_48.png"
+            "Tag" = "8:"
+            "Folder" = "8:_3F6351B6561948C1879CF096521DD2DB"
             "Condition" = "8:"
             "Transitive" = "11:FALSE"
             "Vital" = "11:TRUE"
@@ -3282,12 +3588,12 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
-            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_753CA53587404DB5BB352155C8510AA7"
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_74AE5F7CCD5D4384995B322272587DFF"
             {
-            "SourcePath" = "8:..\\..\\..\\views\\pathview\\pathrootitem.py"
-            "TargetName" = "8:pathrootitem.py"
+            "SourcePath" = "8:..\\..\\..\\ui\\mainwindow\\images\\add-bases.svg"
+            "TargetName" = "8:add-bases.svg"
             "Tag" = "8:"
-            "Folder" = "8:_C2E5707206294645ADB8D661C40AD3FC"
+            "Folder" = "8:_3F6351B6561948C1879CF096521DD2DB"
             "Condition" = "8:"
             "Transitive" = "11:FALSE"
             "Vital" = "11:TRUE"
@@ -3302,12 +3608,12 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
-            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_770DB6CAC7544DC4A69D5DBEEC2AEB0F"
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_753CA53587404DB5BB352155C8510AA7"
             {
-            "SourcePath" = "8:..\\..\\..\\ui\\mainwindow\\images\\path-autostaple_32.png"
-            "TargetName" = "8:path-autostaple_32.png"
+            "SourcePath" = "8:..\\..\\..\\views\\pathview\\pathrootitem.py"
+            "TargetName" = "8:pathrootitem.py"
             "Tag" = "8:"
-            "Folder" = "8:_3F6351B6561948C1879CF096521DD2DB"
+            "Folder" = "8:_C2E5707206294645ADB8D661C40AD3FC"
             "Condition" = "8:"
             "Transitive" = "11:FALSE"
             "Vital" = "11:TRUE"
@@ -3362,12 +3668,12 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
-            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_78F28955AA54435B8820AC234DC374E0"
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_791E2FCDC5144EA49D2E175BF830CCC5"
             {
-            "SourcePath" = "8:..\\..\\..\\ui\\mainwindow\\images\\path-erase_32.png"
-            "TargetName" = "8:path-erase_32.png"
+            "SourcePath" = "8:..\\..\\..\\tests\\unittests.py"
+            "TargetName" = "8:unittests.py"
             "Tag" = "8:"
-            "Folder" = "8:_3F6351B6561948C1879CF096521DD2DB"
+            "Folder" = "8:_17044EDDBF4847588686BF6407FFCF2C"
             "Condition" = "8:"
             "Transitive" = "11:FALSE"
             "Vital" = "11:TRUE"
@@ -3382,12 +3688,12 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
-            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_791E2FCDC5144EA49D2E175BF830CCC5"
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_79B55C38C41D4F6B803D76DA3376956C"
             {
-            "SourcePath" = "8:..\\..\\..\\tests\\unittests.py"
-            "TargetName" = "8:unittests.py"
+            "SourcePath" = "8:..\\..\\..\\ui\\mainwindow\\images\\part-filter-xover.png"
+            "TargetName" = "8:part-filter-xover.png"
             "Tag" = "8:"
-            "Folder" = "8:_17044EDDBF4847588686BF6407FFCF2C"
+            "Folder" = "8:_3F6351B6561948C1879CF096521DD2DB"
             "Condition" = "8:"
             "Transitive" = "11:FALSE"
             "Vital" = "11:TRUE"
@@ -3422,10 +3728,10 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
-            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_7B990B47D4164C2FB85813C998449ED4"
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_7C470341F0C74F71963646C04C93F9A5"
             {
-            "SourcePath" = "8:..\\..\\..\\ui\\mainwindow\\images\\data-export-staples.png"
-            "TargetName" = "8:data-export-staples.png"
+            "SourcePath" = "8:..\\..\\..\\ui\\mainwindow\\images\\path-erase_32.png"
+            "TargetName" = "8:path-erase_32.png"
             "Tag" = "8:"
             "Folder" = "8:_3F6351B6561948C1879CF096521DD2DB"
             "Condition" = "8:"
@@ -3448,6 +3754,26 @@
             "TargetName" = "8:endpointitemcontroller.py"
             "Tag" = "8:"
             "Folder" = "8:_F936AF60A5F849BC9919FB699A1979E9"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_7F7CC41411F242DE9505BBE86E13B182"
+            {
+            "SourcePath" = "8:..\\..\\..\\ui\\mainwindow\\images\\path-skip.png"
+            "TargetName" = "8:path-skip.png"
+            "Tag" = "8:"
+            "Folder" = "8:_3F6351B6561948C1879CF096521DD2DB"
             "Condition" = "8:"
             "Transitive" = "11:FALSE"
             "Vital" = "11:TRUE"
@@ -3682,26 +4008,6 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
-            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_883A849FA41E450FAE46AF40523A2E04"
-            {
-            "SourcePath" = "8:..\\..\\..\\ui\\mainwindow\\images\\slice-go-first.png"
-            "TargetName" = "8:slice-go-first.png"
-            "Tag" = "8:"
-            "Folder" = "8:_3F6351B6561948C1879CF096521DD2DB"
-            "Condition" = "8:"
-            "Transitive" = "11:FALSE"
-            "Vital" = "11:TRUE"
-            "ReadOnly" = "11:FALSE"
-            "Hidden" = "11:FALSE"
-            "System" = "11:FALSE"
-            "Permanent" = "11:FALSE"
-            "SharedLegacy" = "11:FALSE"
-            "PackageAs" = "3:1"
-            "Register" = "3:1"
-            "Exclude" = "11:FALSE"
-            "IsDependency" = "11:FALSE"
-            "IsolateTo" = "8:"
-            }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_8947AF72CDD448DC94F82FB0AE37B3AF"
             {
             "SourcePath" = "8:..\\..\\..\\model\\parts\\honeycombpart.py"
@@ -3728,6 +4034,26 @@
             "TargetName" = "8:__init__.py"
             "Tag" = "8:"
             "Folder" = "8:_107B671F114344E5A2D4C11BF8B896A3"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_8BCFDCB725FD440A8BA4B6C8A15A42A8"
+            {
+            "SourcePath" = "8:..\\..\\..\\ui\\mainwindow\\images\\data-svg.png"
+            "TargetName" = "8:data-svg.png"
+            "Tag" = "8:"
+            "Folder" = "8:_3F6351B6561948C1879CF096521DD2DB"
             "Condition" = "8:"
             "Transitive" = "11:FALSE"
             "Vital" = "11:TRUE"
@@ -3782,12 +4108,12 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
-            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_8F53366160CF48E78E477CECFD550D17"
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_8D71684390814FE589F689F22D3232EA"
             {
-            "SourcePath" = "8:..\\..\\..\\util.py"
-            "TargetName" = "8:util.py"
+            "SourcePath" = "8:..\\..\\..\\ui\\mainwindow\\images\\path-edit_32.png"
+            "TargetName" = "8:path-edit_32.png"
             "Tag" = "8:"
-            "Folder" = "8:_0969E8665EC94BB2A1FB615DC65E5093"
+            "Folder" = "8:_3F6351B6561948C1879CF096521DD2DB"
             "Condition" = "8:"
             "Transitive" = "11:FALSE"
             "Vital" = "11:TRUE"
@@ -3802,12 +4128,32 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
-            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_90211090DD56492AA4700E72522C82A7"
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_8D97D79EAA884752A016155791B22600"
             {
-            "SourcePath" = "8:..\\..\\..\\ui\\mainwindow\\images\\part-new-honeycomb.png"
-            "TargetName" = "8:part-new-honeycomb.png"
+            "SourcePath" = "8:..\\..\\..\\ui\\dialogs\\ui_about.py"
+            "TargetName" = "8:ui_about.py"
             "Tag" = "8:"
-            "Folder" = "8:_3F6351B6561948C1879CF096521DD2DB"
+            "Folder" = "8:_3C711F3C6E4D48BEA308FDD9C532AA2B"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_8F53366160CF48E78E477CECFD550D17"
+            {
+            "SourcePath" = "8:..\\..\\..\\util.py"
+            "TargetName" = "8:util.py"
+            "Tag" = "8:"
+            "Folder" = "8:_0969E8665EC94BB2A1FB615DC65E5093"
             "Condition" = "8:"
             "Transitive" = "11:FALSE"
             "Vital" = "11:TRUE"
@@ -3882,6 +4228,26 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_947A4F7180654572B884BD7E404D0093"
+            {
+            "SourcePath" = "8:..\\..\\..\\ui\\mainwindow\\images\\path-insert.png"
+            "TargetName" = "8:path-insert.png"
+            "Tag" = "8:"
+            "Folder" = "8:_3F6351B6561948C1879CF096521DD2DB"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_95442757132445CE91C6E7DD1039186F"
             {
             "SourcePath" = "8:..\\..\\..\\osx\\__init__.py"
@@ -3922,6 +4288,26 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_9740F3AE1CAC47B7A06D9C612F27D6E3"
+            {
+            "SourcePath" = "8:..\\..\\..\\ui\\mainwindow\\images\\slice-renumber.png"
+            "TargetName" = "8:slice-renumber.png"
+            "Tag" = "8:"
+            "Folder" = "8:_3F6351B6561948C1879CF096521DD2DB"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_982E9515F5264266A8C58FA1FFFE4445"
             {
             "SourcePath" = "8:..\\..\\..\\views\\pathview\\__init__.py"
@@ -3942,10 +4328,30 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
-            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_983CABCB16964ECBBAC30164F5ACE625"
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_98688867F0CC4A408FF7947AEB3973A2"
             {
-            "SourcePath" = "8:..\\..\\..\\ui\\mainwindow\\images\\data-open_32.png"
-            "TargetName" = "8:data-open_32.png"
+            "SourcePath" = "8:..\\..\\..\\views\\pathview\\strand\\decorators\\skipitem.py"
+            "TargetName" = "8:skipitem.py"
+            "Tag" = "8:"
+            "Folder" = "8:_8DFE0EBD6B1149C088550F0275C15F83"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_98D4F900CF3948C6B3DB14366571B2EC"
+            {
+            "SourcePath" = "8:..\\..\\..\\ui\\mainwindow\\images\\path-erase_48x48.png"
+            "TargetName" = "8:path-erase_48x48.png"
             "Tag" = "8:"
             "Folder" = "8:_3F6351B6561948C1879CF096521DD2DB"
             "Condition" = "8:"
@@ -3962,12 +4368,32 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
-            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_98688867F0CC4A408FF7947AEB3973A2"
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_997B527B0BCB498C88162973DE6EA3E9"
             {
-            "SourcePath" = "8:..\\..\\..\\views\\pathview\\strand\\decorators\\skipitem.py"
-            "TargetName" = "8:skipitem.py"
+            "SourcePath" = "8:..\\..\\..\\ui\\mainwindow\\images\\path-modify.svg"
+            "TargetName" = "8:path-modify.svg"
             "Tag" = "8:"
-            "Folder" = "8:_8DFE0EBD6B1149C088550F0275C15F83"
+            "Folder" = "8:_3F6351B6561948C1879CF096521DD2DB"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_9B3DF379FF21498AAB9C99D55F6DFC84"
+            {
+            "SourcePath" = "8:..\\..\\..\\ui\\mainwindow\\images\\path-staple.png"
+            "TargetName" = "8:path-staple.png"
+            "Tag" = "8:"
+            "Folder" = "8:_3F6351B6561948C1879CF096521DD2DB"
             "Condition" = "8:"
             "Transitive" = "11:FALSE"
             "Vital" = "11:TRUE"
@@ -4022,10 +4448,10 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
-            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_9C3A79FE9AA54739855D78971950519D"
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_9EBA274939814F4EA86BB7DC4F7096D5"
             {
-            "SourcePath" = "8:..\\..\\..\\ui\\mainwindow\\images\\path-loop.png"
-            "TargetName" = "8:path-loop.png"
+            "SourcePath" = "8:..\\..\\..\\ui\\mainwindow\\images\\part-filter-strand.png"
+            "TargetName" = "8:part-filter-strand.png"
             "Tag" = "8:"
             "Folder" = "8:_3F6351B6561948C1879CF096521DD2DB"
             "Condition" = "8:"
@@ -4062,52 +4488,12 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
-            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_9FD61E8721254EEFB4BD7C1C6C201B20"
-            {
-            "SourcePath" = "8:..\\..\\..\\ui\\mainwindow\\images\\export-staples.png"
-            "TargetName" = "8:export-staples.png"
-            "Tag" = "8:"
-            "Folder" = "8:_3F6351B6561948C1879CF096521DD2DB"
-            "Condition" = "8:"
-            "Transitive" = "11:FALSE"
-            "Vital" = "11:TRUE"
-            "ReadOnly" = "11:FALSE"
-            "Hidden" = "11:FALSE"
-            "System" = "11:FALSE"
-            "Permanent" = "11:FALSE"
-            "SharedLegacy" = "11:FALSE"
-            "PackageAs" = "3:1"
-            "Register" = "3:1"
-            "Exclude" = "11:FALSE"
-            "IsDependency" = "11:FALSE"
-            "IsolateTo" = "8:"
-            }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_A2FAFBF21B9A465E9BC546D5E1132143"
             {
             "SourcePath" = "8:..\\..\\..\\README.md"
             "TargetName" = "8:README.md"
             "Tag" = "8:"
             "Folder" = "8:_0969E8665EC94BB2A1FB615DC65E5093"
-            "Condition" = "8:"
-            "Transitive" = "11:FALSE"
-            "Vital" = "11:TRUE"
-            "ReadOnly" = "11:FALSE"
-            "Hidden" = "11:FALSE"
-            "System" = "11:FALSE"
-            "Permanent" = "11:FALSE"
-            "SharedLegacy" = "11:FALSE"
-            "PackageAs" = "3:1"
-            "Register" = "3:1"
-            "Exclude" = "11:FALSE"
-            "IsDependency" = "11:FALSE"
-            "IsolateTo" = "8:"
-            }
-            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_A3C8F1208F9E43228E2BC17F88F3C88E"
-            {
-            "SourcePath" = "8:..\\..\\..\\ui\\mainwindow\\images\\path-modify.png"
-            "TargetName" = "8:path-modify.png"
-            "Tag" = "8:"
-            "Folder" = "8:_3F6351B6561948C1879CF096521DD2DB"
             "Condition" = "8:"
             "Transitive" = "11:FALSE"
             "Vital" = "11:TRUE"
@@ -4142,50 +4528,10 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
-            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_A827DBF0978144CEB3C2AC1A4041A992"
-            {
-            "SourcePath" = "8:..\\..\\..\\ui\\mainwindow\\images\\path-sequence.png"
-            "TargetName" = "8:path-sequence.png"
-            "Tag" = "8:"
-            "Folder" = "8:_3F6351B6561948C1879CF096521DD2DB"
-            "Condition" = "8:"
-            "Transitive" = "11:FALSE"
-            "Vital" = "11:TRUE"
-            "ReadOnly" = "11:FALSE"
-            "Hidden" = "11:FALSE"
-            "System" = "11:FALSE"
-            "Permanent" = "11:FALSE"
-            "SharedLegacy" = "11:FALSE"
-            "PackageAs" = "3:1"
-            "Register" = "3:1"
-            "Exclude" = "11:FALSE"
-            "IsDependency" = "11:FALSE"
-            "IsolateTo" = "8:"
-            }
-            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_AEE498D2D5A54F75857806F180E8EE9D"
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_ACA18BB0AF124A61A80538658059F0D5"
             {
             "SourcePath" = "8:..\\..\\..\\ui\\mainwindow\\images\\slice-move.png"
             "TargetName" = "8:slice-move.png"
-            "Tag" = "8:"
-            "Folder" = "8:_3F6351B6561948C1879CF096521DD2DB"
-            "Condition" = "8:"
-            "Transitive" = "11:FALSE"
-            "Vital" = "11:TRUE"
-            "ReadOnly" = "11:FALSE"
-            "Hidden" = "11:FALSE"
-            "System" = "11:FALSE"
-            "Permanent" = "11:FALSE"
-            "SharedLegacy" = "11:FALSE"
-            "PackageAs" = "3:1"
-            "Register" = "3:1"
-            "Exclude" = "11:FALSE"
-            "IsDependency" = "11:FALSE"
-            "IsolateTo" = "8:"
-            }
-            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_B017D4E771C1465BAE22B0B292954942"
-            {
-            "SourcePath" = "8:..\\..\\..\\ui\\mainwindow\\images\\path-move.png"
-            "TargetName" = "8:path-move.png"
             "Tag" = "8:"
             "Folder" = "8:_3F6351B6561948C1879CF096521DD2DB"
             "Condition" = "8:"
@@ -4208,26 +4554,6 @@
             "TargetName" = "8:virtualhelixhandleitem.py"
             "Tag" = "8:"
             "Folder" = "8:_C2E5707206294645ADB8D661C40AD3FC"
-            "Condition" = "8:"
-            "Transitive" = "11:FALSE"
-            "Vital" = "11:TRUE"
-            "ReadOnly" = "11:FALSE"
-            "Hidden" = "11:FALSE"
-            "System" = "11:FALSE"
-            "Permanent" = "11:FALSE"
-            "SharedLegacy" = "11:FALSE"
-            "PackageAs" = "3:1"
-            "Register" = "3:1"
-            "Exclude" = "11:FALSE"
-            "IsDependency" = "11:FALSE"
-            "IsolateTo" = "8:"
-            }
-            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_B2BD9E5D56F343ED8A48C644DABD51B4"
-            {
-            "SourcePath" = "8:..\\..\\..\\ui\\mainwindow\\images\\slice-delete-last.png"
-            "TargetName" = "8:slice-delete-last.png"
-            "Tag" = "8:"
-            "Folder" = "8:_3F6351B6561948C1879CF096521DD2DB"
             "Condition" = "8:"
             "Transitive" = "11:FALSE"
             "Vital" = "11:TRUE"
@@ -4322,26 +4648,6 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
-            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_B72EE33265924EA6937C572E298B5130"
-            {
-            "SourcePath" = "8:..\\..\\..\\ui\\mainwindow\\images\\path-addseq.svg"
-            "TargetName" = "8:path-addseq.svg"
-            "Tag" = "8:"
-            "Folder" = "8:_3F6351B6561948C1879CF096521DD2DB"
-            "Condition" = "8:"
-            "Transitive" = "11:FALSE"
-            "Vital" = "11:TRUE"
-            "ReadOnly" = "11:FALSE"
-            "Hidden" = "11:FALSE"
-            "System" = "11:FALSE"
-            "Permanent" = "11:FALSE"
-            "SharedLegacy" = "11:FALSE"
-            "PackageAs" = "3:1"
-            "Register" = "3:1"
-            "Exclude" = "11:FALSE"
-            "IsDependency" = "11:FALSE"
-            "IsolateTo" = "8:"
-            }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_BA433EFE8E3B4430A641CE66267BC1F1"
             {
             "SourcePath" = "8:..\\..\\..\\views\\solidview\\mayaHotKeys.py"
@@ -4422,12 +4728,52 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_BE03D34FB14C4ABF9784E3EED8B311C6"
+            {
+            "SourcePath" = "8:..\\..\\..\\ui\\mainwindow\\images\\slice-go-last.png"
+            "TargetName" = "8:slice-go-last.png"
+            "Tag" = "8:"
+            "Folder" = "8:_3F6351B6561948C1879CF096521DD2DB"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_C2A76AA27F41475D872F6A180D702E01"
             {
             "SourcePath" = "8:..\\..\\..\\views\\pathview\\prexoveritem.py"
             "TargetName" = "8:prexoveritem.py"
             "Tag" = "8:"
             "Folder" = "8:_C2E5707206294645ADB8D661C40AD3FC"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_C3B07FD5A8924AF29AEF80A2BEAA538C"
+            {
+            "SourcePath" = "8:..\\..\\..\\ui\\mainwindow\\images\\part-filter-part.png"
+            "TargetName" = "8:part-filter-part.png"
+            "Tag" = "8:"
+            "Folder" = "8:_3F6351B6561948C1879CF096521DD2DB"
             "Condition" = "8:"
             "Transitive" = "11:FALSE"
             "Vital" = "11:TRUE"
@@ -4522,26 +4868,6 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
-            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_C64EF58BEEC4483BAF29888915739399"
-            {
-            "SourcePath" = "8:..\\..\\..\\ui\\mainwindow\\images\\cadnano2-app-icon.png"
-            "TargetName" = "8:cadnano2-app-icon.png"
-            "Tag" = "8:"
-            "Folder" = "8:_3F6351B6561948C1879CF096521DD2DB"
-            "Condition" = "8:"
-            "Transitive" = "11:FALSE"
-            "Vital" = "11:TRUE"
-            "ReadOnly" = "11:FALSE"
-            "Hidden" = "11:FALSE"
-            "System" = "11:FALSE"
-            "Permanent" = "11:FALSE"
-            "SharedLegacy" = "11:FALSE"
-            "PackageAs" = "3:1"
-            "Register" = "3:1"
-            "Exclude" = "11:FALSE"
-            "IsDependency" = "11:FALSE"
-            "IsolateTo" = "8:"
-            }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_C671B0A457C7449BB35BAD570ABFB07F"
             {
             "SourcePath" = "8:..\\..\\..\\model\\parts\\__init__.py"
@@ -4562,12 +4888,52 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_C68B4CD99D944CEC856B8135ED697B77"
+            {
+            "SourcePath" = "8:..\\..\\..\\ui\\mainwindow\\images\\path-autostaple_32.png"
+            "TargetName" = "8:path-autostaple_32.png"
+            "Tag" = "8:"
+            "Folder" = "8:_3F6351B6561948C1879CF096521DD2DB"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_C9D9993745FC43B6BE42FEEAACEE9401"
             {
             "SourcePath" = "8:..\\..\\..\\ui\\dialogs\\preferences.ui"
             "TargetName" = "8:preferences.ui"
             "Tag" = "8:"
             "Folder" = "8:_3C711F3C6E4D48BEA308FDD9C532AA2B"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_CA6EBA9FA52D4127A9B032B611AFB560"
+            {
+            "SourcePath" = "8:..\\..\\..\\ui\\mainwindow\\images\\path-force-xover.png"
+            "TargetName" = "8:path-force-xover.png"
+            "Tag" = "8:"
+            "Folder" = "8:_3F6351B6561948C1879CF096521DD2DB"
             "Condition" = "8:"
             "Transitive" = "11:FALSE"
             "Vital" = "11:TRUE"
@@ -4608,6 +4974,26 @@
             "TargetName" = "8:icons.qrc"
             "Tag" = "8:"
             "Folder" = "8:_AE0886A676BA474A8EF231BB6C564657"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_CC7FB4D425764A31850E7B21185B2D33"
+            {
+            "SourcePath" = "8:..\\..\\..\\ui\\mainwindow\\images\\path-insert_48x48.png"
+            "TargetName" = "8:path-insert_48x48.png"
+            "Tag" = "8:"
+            "Folder" = "8:_3F6351B6561948C1879CF096521DD2DB"
             "Condition" = "8:"
             "Transitive" = "11:FALSE"
             "Vital" = "11:TRUE"
@@ -4682,10 +5068,10 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
-            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_D2CABDD771694F508D4B8481FEF5681F"
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_D27A64626713437A8A5D126FB11698AD"
             {
-            "SourcePath" = "8:..\\..\\..\\ui\\mainwindow\\images\\slice-edit.png"
-            "TargetName" = "8:slice-edit.png"
+            "SourcePath" = "8:..\\..\\..\\ui\\mainwindow\\images\\data-new_32.png"
+            "TargetName" = "8:data-new_32.png"
             "Tag" = "8:"
             "Folder" = "8:_3F6351B6561948C1879CF096521DD2DB"
             "Condition" = "8:"
@@ -4708,26 +5094,6 @@
             "TargetName" = "8:xoveritem.py"
             "Tag" = "8:"
             "Folder" = "8:_E9DEA5F37ABA45E888312268BA17A132"
-            "Condition" = "8:"
-            "Transitive" = "11:FALSE"
-            "Vital" = "11:TRUE"
-            "ReadOnly" = "11:FALSE"
-            "Hidden" = "11:FALSE"
-            "System" = "11:FALSE"
-            "Permanent" = "11:FALSE"
-            "SharedLegacy" = "11:FALSE"
-            "PackageAs" = "3:1"
-            "Register" = "3:1"
-            "Exclude" = "11:FALSE"
-            "IsDependency" = "11:FALSE"
-            "IsolateTo" = "8:"
-            }
-            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_D45F5C1ABBC64CBE85105C3BCCFD5870"
-            {
-            "SourcePath" = "8:..\\..\\..\\ui\\mainwindow\\images\\path-skip_48x48.png"
-            "TargetName" = "8:path-skip_48x48.png"
-            "Tag" = "8:"
-            "Folder" = "8:_3F6351B6561948C1879CF096521DD2DB"
             "Condition" = "8:"
             "Transitive" = "11:FALSE"
             "Vital" = "11:TRUE"
@@ -4842,6 +5208,26 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_D9DBA66CF150416DAA774075A3FE49DF"
+            {
+            "SourcePath" = "8:..\\..\\..\\ui\\mainwindow\\images\\path-paint_48.png"
+            "TargetName" = "8:path-paint_48.png"
+            "Tag" = "8:"
+            "Folder" = "8:_3F6351B6561948C1879CF096521DD2DB"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_DA4664B7BF3746B4B95B19B6DA95AE55"
             {
             "SourcePath" = "8:..\\..\\..\\views\\sliceview\\virtualhelixitem.py"
@@ -4942,26 +5328,6 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
-            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_DFB7C9C4E09B44CCAAB5A0947C54232D"
-            {
-            "SourcePath" = "8:..\\..\\..\\ui\\mainwindow\\images\\path-insert.png"
-            "TargetName" = "8:path-insert.png"
-            "Tag" = "8:"
-            "Folder" = "8:_3F6351B6561948C1879CF096521DD2DB"
-            "Condition" = "8:"
-            "Transitive" = "11:FALSE"
-            "Vital" = "11:TRUE"
-            "ReadOnly" = "11:FALSE"
-            "Hidden" = "11:FALSE"
-            "System" = "11:FALSE"
-            "Permanent" = "11:FALSE"
-            "SharedLegacy" = "11:FALSE"
-            "PackageAs" = "3:1"
-            "Register" = "3:1"
-            "Exclude" = "11:FALSE"
-            "IsDependency" = "11:FALSE"
-            "IsolateTo" = "8:"
-            }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_DFCCD807AF5740C1B87B54A4C4D4A928"
             {
             "SourcePath" = "8:..\\..\\..\\views\\pathview\\partitem.py"
@@ -5022,10 +5388,10 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
-            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_E1FA34BF3C744F0C81F13E906B941A1C"
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_E251D882953749C8AAEA29BF92D8582A"
             {
-            "SourcePath" = "8:..\\..\\..\\ui\\mainwindow\\images\\cadnano2-icon_doc-legacy.png"
-            "TargetName" = "8:cadnano2-icon_doc-legacy.png"
+            "SourcePath" = "8:..\\..\\..\\ui\\mainwindow\\images\\part-new-square.png"
+            "TargetName" = "8:part-new-square.png"
             "Tag" = "8:"
             "Folder" = "8:_3F6351B6561948C1879CF096521DD2DB"
             "Condition" = "8:"
@@ -5142,26 +5508,6 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
-            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_F1737EC33C6D4D91B1819FF70A1C3E25"
-            {
-            "SourcePath" = "8:..\\..\\..\\ui\\mainwindow\\images\\remove-bases.svg"
-            "TargetName" = "8:remove-bases.svg"
-            "Tag" = "8:"
-            "Folder" = "8:_3F6351B6561948C1879CF096521DD2DB"
-            "Condition" = "8:"
-            "Transitive" = "11:FALSE"
-            "Vital" = "11:TRUE"
-            "ReadOnly" = "11:FALSE"
-            "Hidden" = "11:FALSE"
-            "System" = "11:FALSE"
-            "Permanent" = "11:FALSE"
-            "SharedLegacy" = "11:FALSE"
-            "PackageAs" = "3:1"
-            "Register" = "3:1"
-            "Exclude" = "11:FALSE"
-            "IsDependency" = "11:FALSE"
-            "IsolateTo" = "8:"
-            }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_F179CE18A80C4F87B572A05EB84D949F"
             {
             "SourcePath" = "8:..\\..\\..\\views\\pathview\\strand\\__init__.py"
@@ -5222,26 +5568,6 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
-            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_F46D10EA078E403A95D2FB5317DDAB41"
-            {
-            "SourcePath" = "8:..\\..\\..\\ui\\mainwindow\\images\\data-save_32.png"
-            "TargetName" = "8:data-save_32.png"
-            "Tag" = "8:"
-            "Folder" = "8:_3F6351B6561948C1879CF096521DD2DB"
-            "Condition" = "8:"
-            "Transitive" = "11:FALSE"
-            "Vital" = "11:TRUE"
-            "ReadOnly" = "11:FALSE"
-            "Hidden" = "11:FALSE"
-            "System" = "11:FALSE"
-            "Permanent" = "11:FALSE"
-            "SharedLegacy" = "11:FALSE"
-            "PackageAs" = "3:1"
-            "Register" = "3:1"
-            "Exclude" = "11:FALSE"
-            "IsDependency" = "11:FALSE"
-            "IsolateTo" = "8:"
-            }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_F621101F07074304A7F22C1CBCD03784"
             {
             "SourcePath" = "8:..\\..\\..\\tests\\functionaltestinputs\\loops_and_skips.json"
@@ -5282,52 +5608,32 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
-            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_F77F3C5330DD478489906E9BDAE8B698"
-            {
-            "SourcePath" = "8:..\\..\\..\\ui\\mainwindow\\images\\part-new-square.png"
-            "TargetName" = "8:part-new-square.png"
-            "Tag" = "8:"
-            "Folder" = "8:_3F6351B6561948C1879CF096521DD2DB"
-            "Condition" = "8:"
-            "Transitive" = "11:FALSE"
-            "Vital" = "11:TRUE"
-            "ReadOnly" = "11:FALSE"
-            "Hidden" = "11:FALSE"
-            "System" = "11:FALSE"
-            "Permanent" = "11:FALSE"
-            "SharedLegacy" = "11:FALSE"
-            "PackageAs" = "3:1"
-            "Register" = "3:1"
-            "Exclude" = "11:FALSE"
-            "IsDependency" = "11:FALSE"
-            "IsolateTo" = "8:"
-            }
-            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_FA57BCB7EFF246B08F98417CBD9746E8"
-            {
-            "SourcePath" = "8:..\\..\\..\\ui\\mainwindow\\images\\path-edit_32.png"
-            "TargetName" = "8:path-edit_32.png"
-            "Tag" = "8:"
-            "Folder" = "8:_3F6351B6561948C1879CF096521DD2DB"
-            "Condition" = "8:"
-            "Transitive" = "11:FALSE"
-            "Vital" = "11:TRUE"
-            "ReadOnly" = "11:FALSE"
-            "Hidden" = "11:FALSE"
-            "System" = "11:FALSE"
-            "Permanent" = "11:FALSE"
-            "SharedLegacy" = "11:FALSE"
-            "PackageAs" = "3:1"
-            "Register" = "3:1"
-            "Exclude" = "11:FALSE"
-            "IsDependency" = "11:FALSE"
-            "IsolateTo" = "8:"
-            }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_FD6838C22AF44337895520CF10691B22"
             {
             "SourcePath" = "8:..\\..\\..\\model\\io\\__init__.py"
             "TargetName" = "8:__init__.py"
             "Tag" = "8:"
             "Folder" = "8:_CB954A8282AD4D4C9C74881ABC2D1362"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_FEC4D303259046C6A0040EB6501F318D"
+            {
+            "SourcePath" = "8:..\\..\\..\\ui\\dialogs\\about.ui"
+            "TargetName" = "8:about.ui"
+            "Tag" = "8:"
+            "Folder" = "8:_3C711F3C6E4D48BEA308FDD9C532AA2B"
             "Condition" = "8:"
             "Transitive" = "11:FALSE"
             "Vital" = "11:TRUE"
@@ -5362,26 +5668,6 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
-            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_FF0247CA8D4443B4B30A5B9CD7CE53F3"
-            {
-            "SourcePath" = "8:..\\..\\..\\ui\\mainwindow\\images\\path-insert_48x48.png"
-            "TargetName" = "8:path-insert_48x48.png"
-            "Tag" = "8:"
-            "Folder" = "8:_3F6351B6561948C1879CF096521DD2DB"
-            "Condition" = "8:"
-            "Transitive" = "11:FALSE"
-            "Vital" = "11:TRUE"
-            "ReadOnly" = "11:FALSE"
-            "Hidden" = "11:FALSE"
-            "System" = "11:FALSE"
-            "Permanent" = "11:FALSE"
-            "SharedLegacy" = "11:FALSE"
-            "PackageAs" = "3:1"
-            "Register" = "3:1"
-            "Exclude" = "11:FALSE"
-            "IsDependency" = "11:FALSE"
-            "IsolateTo" = "8:"
-            }
         }
         "FileType"
         {
@@ -5391,7 +5677,7 @@
             "Description" = "8:"
             "Extensions" = "8:.nno"
             "MIME" = "8:"
-            "Icon" = "8:_4B01118083CA4FF2BAEC99C334936491"
+            "Icon" = "8:_668C1F00F7C74E648CBD2EEA089B541E"
             "IconIndex" = "3:0"
                 "Command"
                 {
@@ -5414,7 +5700,7 @@
             "Description" = "8:"
             "Extensions" = "8:.cadnano"
             "MIME" = "8:"
-            "Icon" = "8:_4B01118083CA4FF2BAEC99C334936491"
+            "Icon" = "8:_668C1F00F7C74E648CBD2EEA089B541E"
             "IconIndex" = "3:0"
                 "Command"
                 {
@@ -5939,7 +6225,7 @@
             "Target" = "8:_416C6D7038BF4DF7A2FB242D220EB9E1"
             "Folder" = "8:_6E86D11B8D0A450F8F42F7B67B5AE2A7"
             "WorkingFolder" = "8:_0969E8665EC94BB2A1FB615DC65E5093"
-            "Icon" = "8:_1D4CAD787959419BBB38190CD6413296"
+            "Icon" = "8:_188A1A5E777E400EBADDA7ED2FE7F648"
             "Feature" = "8:"
             }
         }
