@@ -46,7 +46,7 @@ class Ui_About(object):
         self.appname.setObjectName(_fromUtf8("appname"))
         self.version = QtGui.QLabel(self.frame)
         self.version.setGeometry(QtCore.QRect(0, 40, 101, 16))
-        self.version.setText(QtGui.QApplication.translate("About", "version 2.0.8", None, QtGui.QApplication.UnicodeUTF8))
+        self.version.setText(QtGui.QApplication.translate("About", "version 2.1.0", None, QtGui.QApplication.UnicodeUTF8))
         self.version.setObjectName(_fromUtf8("version"))
         self.info = QtGui.QLabel(self.frame)
         self.info.setGeometry(QtCore.QRect(0, 90, 411, 161))
