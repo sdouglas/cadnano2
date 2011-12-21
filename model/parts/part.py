@@ -1149,6 +1149,8 @@ class Part(QObject):
                 nO3p.incrementLength(strand.totalLength())
             # end def
             nO3p.setStrand5p(strand3p)
+            
+            self._isLoop = strand3p.oligo().isLoop()
         # end def
 
         def redo(self):
@@ -1169,12 +1171,13 @@ class Part(QObject):
             strand5p.setConnection3p(None)
             strand3p.setConnection5p(None)
 
-            # 2. restore the modified oligo length
-            olg5p.decrementLength(newOlg3p.length())
-            # 3. apply the old oligo to strand3p
-            if newOlg3p.isLoop():
-                newOlg3p.setLoop(False)
+            if self._isLoop:
+                olg5p.setLoop(False)
+                olg5p.setStrand5p(strand3p)
             else:
+                # 2. restore the modified oligo length
+                olg5p.decrementLength(newOlg3p.length())
+                # 3. apply the old oligo to strand3p
                 newOlg3p.addToPart(part)
                 for strand in strand3p.generator3pStrand():
                     # emits strandHasNewOligoSignal
@@ -1207,16 +1210,18 @@ class Part(QObject):
             doc.removeStrandFromSelection(strand5p)
             doc.removeStrandFromSelection(strand3p)
 
-            # 1. update preserved oligo length
-            olg5p.incrementLength(newOlg3p.length())
-            # 2. Remove the old oligo and apply the 5' oligo to the 3' strand
-            if olg5p == strand3p.oligo():
+            if self._isLoop:
                 olg5p.setLoop(True)
+                # No need to restore whatever the old Oligo._strand5p was
             else:
+                # 1. update preserved oligo length
+                olg5p.incrementLength(newOlg3p.length())
+                # 2. Remove the old oligo and apply the 5' oligo to the 3' strand
                 newOlg3p.removeFromPart()
                 for strand in strand3p.generator3pStrand():
                     # emits strandHasNewOligoSignal
                     Strand.setOligo(strand, olg5p)
+            # end else
 
             # 3. install the Xover
             strand5p.setConnection3p(strand3p)

@@ -2,8 +2,8 @@
 
 # Form implementation generated from reading ui file 'mainwindow/mainwindow.ui'
 #
-# Created: Fri Dec 16 08:43:58 2011
-#      by: PyQt4 UI code generator 4.8.5
+# Created: Wed Dec 21 11:26:42 2011
+#      by: PyQt4 UI code generator 4.8.6
 #
 # WARNING! All changes made in this file will be lost!
 
@@ -83,12 +83,12 @@ class Ui_MainWindow(object):
         self.gridLayout.addWidget(self.splitter, 0, 0, 1, 1)
         MainWindow.setCentralWidget(self.centralwidget)
         self.topToolBar = QtGui.QToolBar(MainWindow)
-        sizePolicy = QtGui.QSizePolicy(QtGui.QSizePolicy.Minimum, QtGui.QSizePolicy.Fixed)
+        sizePolicy = QtGui.QSizePolicy(QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Fixed)
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
         sizePolicy.setHeightForWidth(self.topToolBar.sizePolicy().hasHeightForWidth())
         self.topToolBar.setSizePolicy(sizePolicy)
-        self.topToolBar.setBaseSize(QtCore.QSize(0, 0))
+        self.topToolBar.setBaseSize(QtCore.QSize(550, 0))
         self.topToolBar.setWindowTitle(QtGui.QApplication.translate("MainWindow", "Main Toolbar", None, QtGui.QApplication.UnicodeUTF8))
         self.topToolBar.setIconSize(QtCore.QSize(24, 24))
         self.topToolBar.setToolButtonStyle(QtCore.Qt.ToolButtonTextUnderIcon)

@@ -65,6 +65,7 @@ class DocumentWindow(QMainWindow, ui_mainwindow.Ui_MainWindow):
                                        document=doc)
         self.sliceroot.setFlag(QGraphicsItem.ItemHasNoContents)
         self.slicescene.addItem(self.sliceroot)
+        self.slicescene.setItemIndexMethod(QGraphicsScene.NoIndex)
         assert self.sliceroot.scene() == self.slicescene
         self.sliceGraphicsView.setScene(self.slicescene)
         self.sliceGraphicsView.sceneRootItem = self.sliceroot
