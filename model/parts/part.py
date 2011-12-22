@@ -1316,16 +1316,16 @@ class Part(QObject):
             # Remove the strand
             part = self._part
             doc = self._doc
-            part.setDocument(None)
             doc.removePart(part)
+            part.setDocument(None)
             part.partRemovedSignal.emit(part)
         # end def
 
         def undo(self):
             part = self._part
             doc = self._doc
-            part.setDocument(doc)
             doc._addPart(part)
+            part.setDocument(doc)
             doc.documentPartAddedSignal.emit(part)
         # end def
     # end class

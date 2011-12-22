@@ -152,6 +152,8 @@ class Mom(object):
             if(nodeName in self.mayaToCn):
                 strandList.append(self.mayaToCn[nodeName])
         doc = app().activeDocument
+        # # XXX [SB] THIS IS A HACK, should not need to do this!!!
+        # doc.win.pathroot.clearStrandSelections()
 
         doc.win.solidroot.selectedChanged(strandList, value)
         self.ignoreExternalSelectionSignal = False

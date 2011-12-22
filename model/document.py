@@ -414,12 +414,15 @@ class Document(QObject):
 
     def removeAllParts(self):
         """Used to reset the document. Not undoable."""
+        self.documentClearSelectionsSignal.emit(self)
         for part in self._parts:
             part.remove(useUndoStack=False)
     # end def
 
     def removePart(self, part):
+        self.documentClearSelectionsSignal.emit(self)
         self._parts.remove(part)
+        
 
     ### PUBLIC SUPPORT METHODS ###
     def setController(self, controller):
@@ -466,8 +469,8 @@ class Document(QObject):
         # end def
 
         def undo(self):
+            self._doc.removePart(self._part)
             self._part.setDocument(None)
-            self._doc._parts.remove(self._part)
             self._part.partRemovedSignal.emit(self._part)
         # end def
     # end class

@@ -81,10 +81,11 @@ class SolidRootItem(object):
     ### METHODS ###
 
     def selectedChanged(self, strandList, value):
-        """is called from Mom when selection cheged in 3D"""
+        """is called from Mom when selection changed in 3D"""
         for strand in self.oldSelectionStrandList:
             # XXX does not work
             self._document.removeStrandFromSelection(strand)
+        self._document.updateSelection()
         for strand in strandList:
             self._document.addStrandToSelection(strand, value)
 
