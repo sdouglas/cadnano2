@@ -333,7 +333,7 @@ class StrandItem(QGraphicsLineItem):
 
         # 1. Cap visibilty
         lx = lUpperLeftX + bw  # draw from right edge of base
-        lowCap.setPos(lUpperLeftX, lUpperLeftY)
+        lowCap.safeSetPos(lUpperLeftX, lUpperLeftY)
         if strand.connectionLow() != None:  # has low xover
             # if we are hiding it, we might as well make sure it is reparented to the StrandItem
             # lowCap.tempReparent()
@@ -344,7 +344,7 @@ class StrandItem(QGraphicsLineItem):
                 lowCap.show()
 
         hx = hUpperLeftX  # draw to edge of base
-        highCap.setPos(hUpperLeftX, hUpperLeftY)
+        highCap.safeSetPos(hUpperLeftX, hUpperLeftY)
         if strand.connectionHigh() != None:  # has high xover
             # if we are hiding it, we might as well make sure it is reparented to the StrandItem
             # highCap.tempReparent()
@@ -360,7 +360,7 @@ class StrandItem(QGraphicsLineItem):
                   (lowCap.isVisible() and highCap.isVisible()):
             lowCap.hide()
             highCap.hide()
-            dualCap.setPos(lUpperLeftX, lUpperLeftY)
+            dualCap.safeSetPos(lUpperLeftX, lUpperLeftY)
             dualCap.show()
         else:
             dualCap.hide()

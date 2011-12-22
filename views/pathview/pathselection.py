@@ -98,7 +98,11 @@ class SelectionItemGroup(QGraphicsItemGroup):
     def isPending(self, item):
         return item in self._pendingToAddDict
     # end def
-
+    
+    def document(self):
+        return self._viewroot.document()
+    # end def
+    
     def pendToRemove(self, item):
         if item in self._pendingToAddDict:
             del self._pendingToAddDict[item]
@@ -113,7 +117,7 @@ class SelectionItemGroup(QGraphicsItemGroup):
     # end def
 
     def processPendingToAddList(self):
-        doc = self._viewroot.document()
+        doc = self.document()
 
         # print "instant add is 1 from process pending"
         if len(self._pendingToAddDict) > 0:
@@ -156,7 +160,7 @@ class SelectionItemGroup(QGraphicsItemGroup):
         """
         key = event.key()
         if key in [Qt.Key_Backspace, Qt.Key_Delete]:
-            self._viewroot.document().deleteSelection()
+            self.document().deleteSelection()
             self.clearSelection(False)
             return QGraphicsItemGroup.keyPressEvent(self, event)
         else:
@@ -234,7 +238,7 @@ class SelectionItemGroup(QGraphicsItemGroup):
             self.selectionbox.resetPosition()
             self.removeSelectedItems()
             self._viewroot.setSelectionLock(None)
-            # self._viewroot.document().clearSelections()
+            # self.document().clearSelections()
             self.clearFocus()  # this is to disable delete keyPressEvents
             self.prepareGeometryChange()
             self._rect.setWidth(0)
@@ -269,7 +273,7 @@ class SelectionItemGroup(QGraphicsItemGroup):
         remove only the child and ask it to
         restore it's original parent
         """
-        doc = self._viewroot.document()
+        doc = self.document()
         tPos = child.scenePos()
         self.removeFromGroup(child)
         child.modelDeselect(doc)
@@ -277,26 +281,12 @@ class SelectionItemGroup(QGraphicsItemGroup):
 
     def removeSelectedItems(self):
         """docstring for removeSelectedItems"""
-        doc = self._viewroot.document()
+        doc = self.document()
         for item in self.childItems():
             self.removeFromGroup(item)
             item.modelDeselect(doc)
         # end for
         doc.updateSelection()
-    # end def
-
-    def reParent(self, boolval):
-        if boolval:
-            self._tempList = [item for item in self.childItems()]
-            for item in self._tempList:
-                item.tempReparent()
-                # need to make sure still selected
-                item.setSelected(True)
-            # end for
-        else:
-            for item in self._tempList:
-                self.addToGroup(item)
-            # end for
     # end def
 
     def setBoundingRect(self, rect):
@@ -482,10 +472,8 @@ class EndpointHandleSelectionBox(QGraphicsPathItem):
 
     def processSelectedItems(self, rStart, rEnd):
         """docstring for processSelectedItems"""
-        self._itemGroup.reParent(True)
         delta = self.delta(rEnd, rStart)
         self._itemGroup._viewroot.document().resizeSelection(delta)
-        self._itemGroup.reParent(False)
     # end def
 
     def boxParent(self):
