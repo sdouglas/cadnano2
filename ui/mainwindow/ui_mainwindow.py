@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'mainwindow/mainwindow.ui'
 #
-# Created: Wed Dec 21 11:26:42 2011
+# Created: Thu Dec 22 09:51:49 2011
 #      by: PyQt4 UI code generator 4.8.6
 #
 # WARNING! All changes made in this file will be lost!
@@ -83,7 +83,7 @@ class Ui_MainWindow(object):
         self.gridLayout.addWidget(self.splitter, 0, 0, 1, 1)
         MainWindow.setCentralWidget(self.centralwidget)
         self.topToolBar = QtGui.QToolBar(MainWindow)
-        sizePolicy = QtGui.QSizePolicy(QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Fixed)
+        sizePolicy = QtGui.QSizePolicy(QtGui.QSizePolicy.Ignored, QtGui.QSizePolicy.Fixed)
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
         sizePolicy.setHeightForWidth(self.topToolBar.sizePolicy().hasHeightForWidth())
@@ -125,15 +125,9 @@ class Ui_MainWindow(object):
         self.menuFile = QtGui.QMenu(self.menubar)
         self.menuFile.setTitle(QtGui.QApplication.translate("MainWindow", "File", None, QtGui.QApplication.UnicodeUTF8))
         self.menuFile.setObjectName(_fromUtf8("menuFile"))
-        self.menuOpen_recent_files = QtGui.QMenu(self.menuFile)
-        self.menuOpen_recent_files.setTitle(QtGui.QApplication.translate("MainWindow", "Open recent files", None, QtGui.QApplication.UnicodeUTF8))
-        self.menuOpen_recent_files.setObjectName(_fromUtf8("menuOpen_recent_files"))
         self.menuEdit = QtGui.QMenu(self.menubar)
         self.menuEdit.setTitle(QtGui.QApplication.translate("MainWindow", "Edit", None, QtGui.QApplication.UnicodeUTF8))
         self.menuEdit.setObjectName(_fromUtf8("menuEdit"))
-        self.menuView = QtGui.QMenu(self.menubar)
-        self.menuView.setTitle(QtGui.QApplication.translate("MainWindow", "View", None, QtGui.QApplication.UnicodeUTF8))
-        self.menuView.setObjectName(_fromUtf8("menuView"))
         MainWindow.setMenuBar(self.menubar)
         self.actionNew = QtGui.QAction(MainWindow)
         icon = QtGui.QIcon()
@@ -437,21 +431,16 @@ class Ui_MainWindow(object):
         self.leftToolBar.addAction(self.actionSliceFirst)
         self.leftToolBar.addAction(self.actionSliceLast)
         self.leftToolBar.addAction(self.actionRenumber)
-        self.menuOpen_recent_files.addSeparator()
         self.menuFile.addAction(self.actionAbout)
         self.menuFile.addAction(self.actionPreferences)
         self.menuFile.addAction(self.actionNew)
         self.menuFile.addAction(self.actionOpen)
-        self.menuFile.addAction(self.menuOpen_recent_files.menuAction())
         self.menuFile.addSeparator()
         self.menuFile.addAction(self.actionClose)
         self.menuFile.addAction(self.actionSave)
         self.menuFile.addAction(self.actionSave_As)
-        self.menuFile.addSeparator()
-        self.menuFile.addAction(self.actionPrint)
         self.menubar.addAction(self.menuFile.menuAction())
         self.menubar.addAction(self.menuEdit.menuAction())
-        self.menubar.addAction(self.menuView.menuAction())
 
         self.retranslateUi(MainWindow)
         QtCore.QObject.connect(self.actionClose, QtCore.SIGNAL(_fromUtf8("activated()")), MainWindow.close)
