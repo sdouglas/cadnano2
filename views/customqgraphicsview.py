@@ -117,8 +117,6 @@ class CustomQGraphicsView(QGraphicsView):
         self.toolbar = None  # custom hack for the paint tool palette
         self._name = None
         
-        self._selectionLock = None  # a selection group to limit types of items selected
-
         if GL:
             self.setViewport(QGLWidget(QGLFormat(QGL.SampleBuffers)))
             self.setViewportUpdateMode(QGraphicsView.FullViewportUpdate)
@@ -149,9 +147,10 @@ class CustomQGraphicsView(QGraphicsView):
     # end def
     
     def clearSelectionLockAndCallbacks(self):
-        self._selectionLock = None
-        self._pressListIdx = 0
-        self._pressList = [[],[]]  # bookkeeping to handle passing mouseevents
+        self._selectionLock = None # a selection group to limit types of items selected
+        # self._pressListIdx = 0
+        # self._pressList = [[],[]]  # bookkeeping to handle passing mouseevents
+        self._pressList = [] # bookkeeping to handle passing mouseReleaseEvents to QGraphicsItems that don't get them
     # end def
     
     def setGLView(self, boolval):
@@ -258,7 +257,8 @@ class CustomQGraphicsView(QGraphicsView):
 
     def addToPressList(self, item):
         """docstring for addToPressList"""
-        self._pressList[self._pressListIdx].append(item)
+        # self._pressList[self._pressListIdx].append(item)
+        self._pressList.append(item)
     # end def
 
     def keyPanDeltaX(self):
@@ -398,17 +398,14 @@ class CustomQGraphicsView(QGraphicsView):
         else:
             if len(self._pressList):  # Notify any pressed items to release
                 event_pos = event.pos()
-                temp = self._pressList[self._pressListIdx]
-                oldIdx = self._pressListIdx
-                self._pressListIdx = (oldIdx+1) & 1
-                for item in temp:
+                for item in self._pressList:
                     #try:
                     # print "item release", item
                     item.customMouseRelease(event)
                     #except:
                     #    item.mouseReleaseEvent(event)
                 #end for
-                self._pressList[oldIdx] = []
+                self._pressList = []
             # end if
             if self._selectionLock:
                 self._selectionLock.processPendingToAddList()
@@ -440,52 +437,6 @@ class CustomQGraphicsView(QGraphicsView):
     def wheelEvent(self, event):
         self.safeScale(event.delta())
     # end def
-    
-    # _numScheduledScalings = 0
-    # def wheelEvent(self, event):
-    #     numDegrees = event.delta() / 8
-    #     numSteps = numDegrees / 15 # see QWheelEvent documentation
-    #     
-    #     # mouse deltas are 15 degree multiples
-    #     self._numScheduledScalings += numSteps 
-    #     # if user moved the wheel in another direction, we reset previously scheduled scalings
-    #     if self._numScheduledScalings * numSteps < 0:
-    #         self._numScheduledScalings = numSteps
-    #     
-    #     self.scalingTime(10)
-    #     
-    #     anim = QTimeLine(200, self)
-    #     anim.setUpdateInterval(10)
-    # 
-    #     anim.valueChanged.connect(self.scalingTime)
-    #     anim.finished.connect(self.animFinished)
-    #     anim.start()
-    # # end def
-    
-    # def animFinished(self):
-    #     if self._numScheduledScalings > 0:
-    #         self._numScheduledScalings -= 1
-    #     else:
-    #         self._numScheduledScalings += 1
-    #     self.sender().deleteLater()
-    # # end def
-    # 
-    # def scalingTime(self, x):
-    #     currentScaleLevel = self.transform().m11()
-    #     
-    #     factor = 1.0 + self._numScheduledScalings / 100.0
-    #     
-    #     newScaleLevel = currentScaleLevel * factor
-    #     newScaleLevel = util.clamp(newScaleLevel,\
-    #                           self._scale_limit_min,\
-    #                           self._scale_limit_max)
-    #     
-    #     
-    #     scaleChange = newScaleLevel / currentScaleLevel
-    #     self.scale(scaleChange, scaleChange)
-    #     
-    #     self.resetGL()  
-    # # end def
 
     def safeScale(self, delta):
         currentScaleLevel = self.transform().m11()
