@@ -38,7 +38,7 @@ for qt_fmwk_path in qtdir_results:
     cp_to = install_root + qt_fmwk_path
     fmwk_name = re.match('.+Qt(\w+)\.framework', qt_fmwk_path).groups()[0]
     skip = fmwk_name not in qt_modules_to_copy
-    print "\t%scp %s $INSTROOT/%s"%("# " if skip else "", cp_from, qt_fmwk_path)
+    print "\t%scp %s $INSTROOT%s"%("# " if skip else "", cp_from, qt_fmwk_path)
     if skip: continue
     try:
         shutil.copytree(cp_from, cp_to, symlinks=True)
