@@ -169,7 +169,6 @@ class Cadnano(QObject):
         return dc.document()
 
     def prefsClicked(self):
-        print "prefsClicked"
         self.prefs.showDialog()
 
 def ignoreEnv():
