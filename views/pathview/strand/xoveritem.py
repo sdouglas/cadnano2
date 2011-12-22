@@ -475,6 +475,12 @@ class XoverItem(QGraphicsPathItem):
 
     def selectToolMousePress(self):
         """Remove the xover."""
+        # make sure the selection is clear
+        sI = self._strandItem
+        viewroot = sI.viewroot()
+        selectionGroup = viewroot.strandItemSelectionGroup()
+        selectionGroup.clearSelection(False)
+        
         strand5p = self._strand5p
         strand3p = strand5p.connection3p()
         self._virtualHelixItem.part().removeXover(strand5p, strand3p)
