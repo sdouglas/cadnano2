@@ -248,7 +248,6 @@
    <addaction name="actionPathSelect"/>
    <addaction name="actionPathPencil"/>
    <addaction name="actionPathBreak"/>
-   <addaction name="actionPathErase"/>
    <addaction name="actionPathInsertion"/>
    <addaction name="actionPathSkip"/>
    <addaction name="actionPathPaint"/>
@@ -523,9 +522,6 @@
    <property name="toolTip">
     <string>(E)rase Tool</string>
    </property>
-   <property name="shortcut">
-    <string>E</string>
-   </property>
   </action>
   <action name="actionAutoStaple">
    <property name="icon">
@@ -724,11 +720,11 @@
     <iconset resource="icons.qrc">
      <normaloff>:/parttools/filter-endpoint</normaloff>:/parttools/filter-endpoint</iconset>
    </property>
-   <property name="text">
-    <string/>
-   </property>
    <property name="toolTip">
-    <string>Endpoint-selection mode</string>
+    <string>(E)ndpoints</string>
+   </property>
+   <property name="shortcut">
+    <string>E</string>
    </property>
   </action>
   <action name="actionFilterXover">
@@ -743,10 +739,13 @@
      <normaloff>:/parttools/filter-xover</normaloff>:/parttools/filter-xover</iconset>
    </property>
    <property name="text">
-    <string/>
+    <string> </string>
    </property>
    <property name="toolTip">
-    <string>Xover-selection mode</string>
+    <string>(X)overs</string>
+   </property>
+   <property name="shortcut">
+    <string>X</string>
    </property>
   </action>
   <action name="actionFiltersLabel">
@@ -768,11 +767,11 @@
     <iconset resource="icons.qrc">
      <normaloff>:/parttools/filter-strand</normaloff>:/parttools/filter-strand</iconset>
    </property>
-   <property name="text">
-    <string/>
-   </property>
    <property name="toolTip">
-    <string>Strand-selection mode</string>
+    <string>stran(D)s</string>
+   </property>
+   <property name="shortcut">
+    <string>D</string>
    </property>
   </action>
   <action name="actionFilterHandle">
@@ -786,11 +785,11 @@
     <iconset resource="icons.qrc">
      <normaloff>:/parttools/filter-handle</normaloff>:/parttools/filter-handle</iconset>
    </property>
-   <property name="text">
-    <string/>
-   </property>
    <property name="toolTip">
-    <string>Helix-handle-selection mode</string>
+    <string>(H)andles</string>
+   </property>
+   <property name="shortcut">
+    <string>H</string>
    </property>
   </action>
   <action name="actionFilterScaf">
@@ -804,11 +803,11 @@
     <iconset resource="icons.qrc">
      <normaloff>:/parttools/filter-scaf</normaloff>:/parttools/filter-scaf</iconset>
    </property>
-   <property name="text">
-    <string/>
-   </property>
    <property name="toolTip">
-    <string>Scaffold-selection mode</string>
+    <string>s(C)affold</string>
+   </property>
+   <property name="shortcut">
+    <string>C</string>
    </property>
   </action>
   <action name="actionFilterStap">
@@ -822,11 +821,11 @@
     <iconset resource="icons.qrc">
      <normaloff>:/parttools/filter-stap</normaloff>:/parttools/filter-stap</iconset>
    </property>
-   <property name="text">
-    <string/>
-   </property>
    <property name="toolTip">
-    <string>Staple-selection mode</string>
+    <string>s(T)aple</string>
+   </property>
+   <property name="shortcut">
+    <string>T</string>
    </property>
   </action>
   <action name="actionAbout">
