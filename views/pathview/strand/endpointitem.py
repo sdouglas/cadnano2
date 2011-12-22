@@ -161,6 +161,17 @@ class EndpointItem(QGraphicsPathItem):
             if group:
                 group.addToGroup(self)
             return False
+    
+    def safeSetPos(self, x, y):
+        """
+        Required to ensure proper reparenting if selected
+        """
+        group = self.group()
+        self.tempReparent()
+        self.setPos(x,y)
+        if group:
+            group.addToGroup(self)
+    # end def
 
     def resetEndPoint(self, isDrawn5to3):
         self.setParentItem(self._strandItem.virtualHelixItem())
@@ -450,7 +461,7 @@ class EndpointItem(QGraphicsPathItem):
                 # if self.group() != selectionGroup \
                 #                   and sI.strandFilter() in currentFilterDict:
                 if sI.strandFilter() in currentFilterDict:
-                    if self.group() != selectionGroup:
+                    if self.group() != selectionGroup or not self.isSelected():
                         selectionGroup.pendToAdd(self)
                         selectionGroup.setSelectionLock(selectionGroup)
                         self.setSelectedColor(True)

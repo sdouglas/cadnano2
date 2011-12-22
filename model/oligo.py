@@ -333,6 +333,7 @@ class Oligo(QObject):
         def redo(self):
             olg = self._oligo
             nS = ''.join(self._newSequence) if self._newSequence else None
+            nS_original = self._newSequence
             oligoList = [olg]
             for strand in olg.strand5p().generator3pStrand():
                 usedSeq, nS = strand.setSequence(nS)
@@ -343,7 +344,8 @@ class Oligo(QObject):
                     subUsedSeq = compStrand.setComplementSequence(usedSeq, strand)
                     oligoList.append(compStrand.oligo())
                 # end for
-                if nS == None:
+                # as long as the new Applied Sequence is not None
+                if nS == None and nS_original:
                     break
             # end for
             for oligo in oligoList:
