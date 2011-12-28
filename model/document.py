@@ -272,38 +272,50 @@ class Document(QObject):
         Delete selected strands. First iterates through all selected strands
         and extracts refs to xovers and strands. Next, calls removeXover
         on xoverlist as part of its own macroed command for isoluation
-        purposes. Finally, calls removeStrand on all strands
+        purposes. Finally, calls removeStrand on all strands that were 
+        fully selected (low and high), or had at least one non-xover
+        endpoint selected.
         """
-        rmList = []
+        xoList = []
         strandDict = {}
         for strandSetDict in self._selectionDict.values():
             for strand, value in strandSetDict.items():
                 part = strand.virtualHelix().part()
                 idxL, idxH = strand.idxs()
                 if value[0] or value[1]:
-                    strandDict[strand] = True
-                    v = value[0] if idxL == strand.idx3Prime() else value[1]
-                    if v:
-                        strand3p = strand.connection3p()
-                        if strand3p:
-                            rmList.append((part, strand, strand3p, useUndoStack))
+                    # handle xover deletion
+                    sel3p = value[0] if idxL == strand.idx3Prime() else value[1]
+                    strand5p = strand.connection5p()
+                    strand3p = strand.connection3p()
+                    if sel3p:  # is idx3p selected?
+                        if strand3p:  # is there an xover
+                            xoList.append((part, strand, strand3p, useUndoStack))
+                        else:
+                            strandDict[strand] = True
 
-        # if useUndoStack:
-        #     self.undoStack().beginMacro("Delete xovers")
-        # for part, strand, strand3p, useUndo in rmList:
-        #     Part.removeXover(part, strand, strand3p, useUndo)
-        #     self.removeStrandFromSelection(strand)
-        #     self.removeStrandFromSelection(strand3p)
+                    strandDict[strand] = value[0] and value[1]
+                    if not strand5p and not strand3p:
+                        # no xovers, but one ep is selected -> delete strand
+                        strandDict[strand] = True
+
+        if useUndoStack and xoList:
+            self.undoStack().beginMacro("Delete xovers")
+        for part, strand, strand3p, useUndo in xoList:
+            Part.removeXover(part, strand, strand3p, useUndo)
+            self.removeStrandFromSelection(strand)
+            self.removeStrandFromSelection(strand3p)
         self._selectionDict = {}
         self.documentClearSelectionsSignal.emit(self)
         if useUndoStack:
-            # self.undoStack().endMacro()
-            self.undoStack().beginMacro("Delete selection")
-        for strand in strandDict.keys():
-            # self.removeStrandFromSelection(strand)
-            # strand.selectedChangedSignal.emit(strand, (False, False))
-            # del self._selectedChangedDict[strand]
-            strand.strandSet().removeStrand(strand)
+            if xoList: # end xover macro if it was started
+                self.undoStack().endMacro()
+            if True in strandDict.values():
+                self.undoStack().beginMacro("Delete selection")
+            else:
+                return  # nothing left to do
+        for strand, delete in strandDict.items():
+            if delete:
+                strand.strandSet().removeStrand(strand)
         if useUndoStack:
             self.undoStack().endMacro()
 
