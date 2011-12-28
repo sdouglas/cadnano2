@@ -341,37 +341,46 @@ class Document(QObject):
             self.undoStack().endMacro()
 
     def resizeSelection(self, delta, useUndoStack=True):
-        if useUndoStack:
-            self.undoStack().beginMacro("Resize Selection")
-        for strandSetDict in self._selectionDict.itervalues():
-            for strand, value in strandSetDict.iteritems():
-                idxL, idxH = strand.idxs()
-                # idxL = idxL+delta if value[0] else idxL
-                # idxH = idxH+delta if value[1] else idxH
-                if value[0]:
-                    # check for Xovers
-                    if strand.connectionLow():
-                        part = strand.virtualHelix().part()
-                        idxL = part.xoverSnapTo(strand, idxL, delta)
-                    else:
-                        idxL = idxL + delta
-                else:
-                    idxL
-                if value[1]:
-                    # check for Xovers
-                    if strand.connectionHigh():
-                        part = strand.virtualHelix().part()
-                        idxH = part.xoverSnapTo(strand, idxH, delta)
-                    else:
-                        idxH = idxH + delta
-                else:
-                    idxH
+        """
+        Moves the selected idxs by delta by first iterating over all strands
+        to calculate new idxs (method will return if snap-to behavior would
+        create illegal state), then applying a resize command to each strand.
+        """
+        resizeList = []
 
-                if idxL > idxH:
-                    print "bad"
-                Strand.resize(strand, (idxL, idxH), useUndoStack)
+        # calculate new idxs
+        for strandSetDict in self._selectionDict.itervalues():
+            for strand, selected in strandSetDict.iteritems():
+                idxL, idxH = strand.idxs()
+                if selected[0]:
+                    if strand.connectionLow():  # xover
+                        part = strand.virtualHelix().part()
+                        restrictIdx = idxL if restrict else None
+                        idxL = part.xoverSnapTo(strand, idxL, delta, restrictIdx)
+                    else:  # endpoint
+                        idxL = idxL + delta
+                if selected[1]:
+                    if strand.connectionHigh():  # xover
+                        part = strand.virtualHelix().part()
+                        restrictIdx = idxH if restrict else None
+                        idxH = part.xoverSnapTo(strand, idxH, delta, restrictIdx)
+                    else:  # endpoint
+                        idxH = idxH + delta
+
+                if idxL > idxH:  # don't create illegal state
+                    return
+
+                resizeList.append((strand, idxL, idxH))
             # end for
         # end for
+
+        # execute the resize commands
+        if useUndoStack:
+            self.undoStack().beginMacro("Resize Selection")
+
+        for strand, idxL, idxH in resizeList:
+            Strand.resize(strand, (idxL, idxH), useUndoStack)
+
         if useUndoStack:
             self.undoStack().endMacro()
     # end def
