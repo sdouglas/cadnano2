@@ -279,24 +279,25 @@ class Document(QObject):
         xoList = []
         strandDict = {}
         for strandSetDict in self._selectionDict.values():
-            for strand, value in strandSetDict.items():
+            for strand, selected in strandSetDict.items():
                 part = strand.virtualHelix().part()
                 idxL, idxH = strand.idxs()
-                if value[0] or value[1]:
-                    # handle xover deletion
-                    sel3p = value[0] if idxL == strand.idx3Prime() else value[1]
-                    strand5p = strand.connection5p()
-                    strand3p = strand.connection3p()
-                    if sel3p:  # is idx3p selected?
-                        if strand3p:  # is there an xover
-                            xoList.append((part, strand, strand3p, useUndoStack))
-                        else:
-                            strandDict[strand] = True
+                strand5p = strand.connection5p()
+                strand3p = strand.connection3p()
+                # both ends are selected
+                strandDict[strand] = selected[0] and selected[1]
 
-                    strandDict[strand] = value[0] and value[1]
-                    if not strand5p and not strand3p:
-                        # no xovers, but one ep is selected -> delete strand
+                # only look at 3' ends to handle xover deletion
+                sel3p = selected[0] if idxL == strand.idx3Prime() else selected[1]
+                if sel3p:  # is idx3p selected?
+                    if strand3p:  # is there an xover
+                        xoList.append((part, strand, strand3p, useUndoStack))
+                    else:  # idx3p is a selected endpoint
                         strandDict[strand] = True
+                else:
+                    if not strand5p:  # idx5p is a selected endpoint
+                        strandDict[strand] = True
+
 
         if useUndoStack and xoList:
             self.undoStack().beginMacro("Delete xovers")
