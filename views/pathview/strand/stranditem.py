@@ -730,6 +730,7 @@ class StrandItem(QGraphicsLineItem):
         con3p = strand5p.connection3p()
         selectionGroup = self._viewroot.strandItemSelectionGroup()
         # check this strand's xover
+        idxL, idxH = indices
         if con3p:
             # perhaps change this to a direct call, but here are seeds of an 
             # indirect way of doing selection checks    
@@ -737,7 +738,7 @@ class StrandItem(QGraphicsLineItem):
                 val3p = document.getSelectedStrandValue(con3p)
                 # print "xover idx", indices
                 test3p = val3p[0] if con3p.isDrawn5to3() else val3p[1]
-                test5p = indices[1] if strand5p.isDrawn5to3() else indices[0]
+                test5p = idxH if strand5p.isDrawn5to3() else idxL
                 if test3p and test5p:
                     xoi = self._xover3pEnd
                     if not xoi.isSelected() or not xoi.group():
@@ -748,13 +749,34 @@ class StrandItem(QGraphicsLineItem):
                 # end if
             # end if
         # end if
-        # print "select if req", indices, self.isSelected(), self.group(), "normal select", selectionGroup.isNormalSelect()
-        if indices[0] == True and indices[1] == True:
+        # Now check the endpoints
+        
+        lowCap = self._lowCap
+        if idxL == True:
+            if not lowCap.isSelected() or not lowCap.group():
+                selectionGroup.addToGroup(lowCap)
+                lowCap.modelSelect(document)
+        else:
+            if lowCap.isSelected() or lowCap.group():
+                lowCap.restoreParent()
+        highCap = self._highCap
+        if idxH == True:
+            if not highCap.isSelected() or not highCap.group():
+                selectionGroup.addToGroup(highCap)
+                highCap.modelSelect(document)
+        else:
+            if highCap.isSelected() or highCap.group():
+                highCap.restoreParent()
+        
+        # now check the strand itself
+        if idxL == True and idxH == True:
             if not self.isSelected() or not self.group():
                 selectionGroup.setNormalSelect(False)
                 selectionGroup.addToGroup(self)
                 self.modelSelect(document)
                 selectionGroup.setNormalSelect(True)
+        elif idxL == False and idxH == False:
+            self.modelDeselect(document)
     # end def
 
     def modelDeselect(self, document):
