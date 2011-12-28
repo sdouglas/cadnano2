@@ -222,8 +222,8 @@ class EmptyHelixItem(QGraphicsEllipseItem):
                     # resize and install external xovers
                     try:
                         # resize to the nearest prexover on either side of idx
-                        newLo = util.nearest(idx, part.getPreXoversHigh(strandType, p2, maxIdx=idx))
-                        newHi = util.nearest(idx, part.getPreXoversLow(strandType, p2, minIdx=idx))
+                        newLo = util.nearest(idx, part.getPreXoversHigh(strandType, p2, maxIdx=idx-10))
+                        newHi = util.nearest(idx, part.getPreXoversLow(strandType, p2, minIdx=idx+10))
                         if strand1.canResizeTo(newLo, newHi) and \
                            strand2.canResizeTo(newLo, newHi):
                             # do the resize
@@ -246,8 +246,10 @@ class EmptyHelixItem(QGraphicsEllipseItem):
                             l1, h1 = strand1.idxs()
                             oLow, oHigh = util.overlap(l0, h0, l1, h1)
                             try:
-                                lX = filter(lambda x:x>oLow and x<oHigh, part.getPreXoversLow(strandType, p0))[0]
-                                hX = filter(lambda x:x>oLow and x<oHigh, part.getPreXoversHigh(strandType, p0))[0]
+                                lList = filter(lambda x:x>oLow and x<oHigh, part.getPreXoversLow(strandType, p0))
+                                lX = lList[len(lList)/2]
+                                hList = filter(lambda x:x>oLow and x<oHigh, part.getPreXoversHigh(strandType, p0))
+                                hX = hList[len(hList)/2]
                                 # install high xover first
                                 part.createXover(strand0, hX, strand1, hX)
                                 # install low xover after getting new strands
@@ -278,8 +280,8 @@ class EmptyHelixItem(QGraphicsEllipseItem):
                     # resize and install external xovers
                     try:
                         # resize to the nearest prexover on either side of idx
-                        newLo1 = newLo2 = util.nearest(idx, part.getPreXoversHigh(StrandType.Scaffold, p2, maxIdx=idx-3))
-                        newHi = util.nearest(idx, part.getPreXoversLow(StrandType.Scaffold, p2, minIdx=idx+5))
+                        newLo1 = newLo2 = util.nearest(idx, part.getPreXoversHigh(StrandType.Scaffold, p2, maxIdx=idx-8))
+                        newHi = util.nearest(idx, part.getPreXoversLow(StrandType.Scaffold, p2, minIdx=idx+8))
 
                         if vh1.number() != 0:  # after the first helix
                             newLo1 = strand1.lowIdx()  # leave alone the lowIdx
@@ -302,7 +304,7 @@ class EmptyHelixItem(QGraphicsEllipseItem):
                     idx = part.activeBaseIndex()
                     try:
                         # resize to the nearest prexover on either side of idx
-                        newLo = util.nearest(idx, part.getPreXoversHigh(StrandType.Scaffold, p2, maxIdx=idx-5))
+                        newLo = util.nearest(idx, part.getPreXoversHigh(StrandType.Scaffold, p2, maxIdx=idx-8))
 
                         if strand1.canResizeTo(newLo, strand1.highIdx()) and \
                            strand2.canResizeTo(newLo, strand2.highIdx()):

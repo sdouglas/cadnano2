@@ -593,6 +593,7 @@ class DocumentController():
             del self.filesavedialog  # prevents hang
             self.filesavedialog = None
         self.writeDocumentToFile(fname)
+        self._writeFileOpenPath(os.path.dirname(fname))
 
     ### EVENT HANDLERS ###
     def windowCloseEventHandler(self, event):
