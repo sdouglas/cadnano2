@@ -33,6 +33,7 @@ from controllers.itemcontrollers.strand.stranditemcontroller \
 from model.enum import StrandType
 from model.enum import LatticeType
 
+from cadnano import app
 import maya.OpenMayaUI as mui
 import maya.OpenMaya as mo
 import maya.cmds as cmds
@@ -62,6 +63,7 @@ class StrandItem(object):
         """
         self._modelStrand = modelStrand
         self._virtualHelixItem = virtualHelixItem
+        self._viewroot = app().activeDocument.win.solidroot
         mayaNodeInfo = ()
         if(modelStrand.strandSet().isScaffold()):
             mayaNodeInfo = self.createMayaHelixNodes(virtualHelixItem.x(),
@@ -212,8 +214,12 @@ class StrandItem(object):
         if cmds.objExists(transformName):
             if(indices[0] or indices[1]):
                 cmds.select(transformName, add=True)
+                print "selecting a strand"
+                self._viewroot.addToSelectionDict(strand)
             else:
+                print "deselecting in the slot"
                 cmds.select(transformName, deselect=True)
+                self._viewroot.removeFromSelectionDict(strand)
         mom.ignoreExternalSelectionSignal = False
     # end def
 

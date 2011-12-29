@@ -48,6 +48,7 @@ class SolidRootItem(object):
         self._modifyState = modState
         self._selectionFilterDict = {}
         self.oldSelectionStrandList = []
+        self._selectedDict = {}
 
     ### SLOTS ###
     def partAddedSlot(self, modelPart):
@@ -80,18 +81,37 @@ class SolidRootItem(object):
     # end def
     ### METHODS ###
 
+    def document(self):
+        return self._document
+    # end def
+
     def selectedChanged(self, strandList, value):
         """is called from Mom when selection changed in 3D"""
-        for strand in self.oldSelectionStrandList:
+        print "selected changed 3D", strandList, self._selectedDict
+        
+        for strand in self._selectedDict.keys():
             # XXX does not work
-            self._document.removeStrandFromSelection(strand)
+            self.removeFromSelectionDict(strand)
+            temp = self._document.removeStrandFromSelection(strand)
+            print temp, "cupcake"
         self._document.updateSelection()
         for strand in strandList:
+            self.addToSelectionDict(strand)
             self._document.addStrandToSelection(strand, value)
 
         self._document.updateSelection()
-        self.oldSelectionStrandList = strandList
-        pass
+        # self.oldSelectionStrandList = strandList
+        # pass
+    # end def
+    
+    def addToSelectionDict(self, item):
+        self._selectedDict[item] = True
+    # end def
+    
+    def removeFromSelectionDict(self, item):
+        if item in self._selectedDict:
+            del self._selectedDict[item]
+    # end def
 
     def partItems(self):
         """Return a list of partItems associated with this RootItem"""

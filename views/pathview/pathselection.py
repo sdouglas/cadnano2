@@ -238,7 +238,6 @@ class SelectionItemGroup(QGraphicsItemGroup):
             self.selectionbox.resetPosition()
             self.removeSelectedItems()
             self._viewroot.setSelectionLock(None)
-            # self.document().clearSelections()
             self.clearFocus()  # this is to disable delete keyPressEvents
             self.prepareGeometryChange()
             self._rect.setWidth(0)
