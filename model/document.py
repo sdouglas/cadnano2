@@ -351,26 +351,29 @@ class Document(QObject):
         # calculate new idxs
         for strandSetDict in self._selectionDict.itervalues():
             for strand, selected in strandSetDict.iteritems():
+                part = strand.virtualHelix().part()
                 idxL, idxH = strand.idxs()
-                if selected[0]:
-                    if strand.connectionLow():  # xover
-                        part = strand.virtualHelix().part()
-                        restrictIdx = idxL if restrict else None
-                        idxL = part.xoverSnapTo(strand, idxL, delta, restrictIdx)
-                    else:  # endpoint
-                        idxL = idxL + delta
-                if selected[1]:
-                    if strand.connectionHigh():  # xover
-                        part = strand.virtualHelix().part()
-                        restrictIdx = idxH if restrict else None
-                        idxH = part.xoverSnapTo(strand, idxH, delta, restrictIdx)
-                    else:  # endpoint
-                        idxH = idxH + delta
+                newL, newH = strand.idxs()
+                deltaL = deltaH = delta
 
-                if idxL > idxH:  # don't create illegal state
+                # process xovers to get revised delta
+                if selected[0] and strand.connectionLow():
+                    newL = part.xoverSnapTo(strand, idxL, delta)
+                    deltaH = newL-idxL
+                if selected[1] and strand.connectionHigh():
+                    newH = part.xoverSnapTo(strand, idxH, delta)
+                    deltaL = newH-idxH
+
+                # process endpoints
+                if selected[0] and not strand.connectionLow():
+                    newL = idxL + deltaL
+                if selected[1] and not strand.connectionHigh():
+                    newH = idxH + deltaH
+
+                if newL > newH:  # check for illegal state
                     return
 
-                resizeList.append((strand, idxL, idxH))
+                resizeList.append((strand, newL, newH))
             # end for
         # end for
 
