@@ -139,6 +139,11 @@ class DocumentWindow(QMainWindow, ui_mainwindow.Ui_MainWindow):
 
     def selectedPart(self):
         return self.controller.document().selectedPart()
+        
+    def activateSelection(self, isActive):
+        self.pathGraphicsView.activateSelection(isActive)
+        self.sliceGraphicsView.activateSelection(isActive)
+    # end def
 
     ### EVENT HANDLERS ###
     def focusInEvent(self):

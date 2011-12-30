@@ -134,6 +134,18 @@ class CustomQGraphicsView(QGraphicsView):
 
     def setName(self, name):
         self._name = name
+        
+    def activateSelection(self, isActive):
+        if self._selectionLock:
+            self._selectionLock.clearSelection(False)
+        self.clearSelectionLockAndCallbacks()
+        if isActive:
+            self._noDrag = QGraphicsView.RubberBandDrag
+        else:
+            self._noDrag = QGraphicsView.NoDrag
+        if self.dragMode() != self._yesDrag:
+            self.setDragMode(self._noDrag)
+    # end def
     
     def clearGraphicsView(self):
         # Event handling
@@ -148,8 +160,6 @@ class CustomQGraphicsView(QGraphicsView):
     
     def clearSelectionLockAndCallbacks(self):
         self._selectionLock = None # a selection group to limit types of items selected
-        # self._pressListIdx = 0
-        # self._pressList = [[],[]]  # bookkeeping to handle passing mouseevents
         self._pressList = [] # bookkeeping to handle passing mouseReleaseEvents to QGraphicsItems that don't get them
     # end def
     

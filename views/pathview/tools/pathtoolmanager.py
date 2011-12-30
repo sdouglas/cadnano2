@@ -105,6 +105,10 @@ class PathToolManager(QObject):
             newActiveTool.updateLocation(*self.lastLocation())
         if self._activeTool:
             self._activeTool.setActive(False)
+        if str(newActiveTool) == "selectTool":
+            self.window.activateSelection(True)
+        else:
+            self.window.activateSelection(False)
         self._activeTool = newActiveTool
         self._activeTool.setActive(True)
         self.activeToolChangedSignal.emit(self._activeTool.actionName)
