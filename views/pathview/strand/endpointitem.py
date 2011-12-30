@@ -451,7 +451,8 @@ class EndpointItem(QGraphicsPathItem):
         # for selection changes test against QGraphicsItem.ItemSelectedChange
         # intercept the change instead of the has changed to enable features.
         if change == QGraphicsItem.ItemSelectedChange and self.scene():
-            if str(self._activeTool()) == "selectTool":
+            activeTool = self._activeTool()
+            if str(activeTool) == "selectTool":
                 sI = self._strandItem
                 viewroot = sI.viewroot()
                 currentFilterDict = viewroot.selectionFilterDict()
@@ -485,11 +486,13 @@ class EndpointItem(QGraphicsPathItem):
                         return True
                 # end else
             # end if
-            elif str(self._activeTool()) == "paintTool":
+            elif str(activeTool) == "paintTool":
                 sI = self._strandItem
                 viewroot = sI.viewroot()
                 currentFilterDict = viewroot.selectionFilterDict()
                 if sI.strandFilter() in currentFilterDict:
+                    if not activeTool.isMacrod():
+                        activeTool.setMacrod()
                     self.paintToolMousePress(None, None, None)
             # end elif
             return False
