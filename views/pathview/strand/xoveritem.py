@@ -418,12 +418,13 @@ class XoverItem(QGraphicsPathItem):
         tempR.adjust(-bw/2, 0, bw, 0)
         self._clickArea.setRect(tempR)
         self.setPath(painterpath)
-        self._updateColor(strand5p)
         node3.updatePositionAndAppearance()
         node5.updatePositionAndAppearance()
         
         if group:
             group.addToGroup(self)
+            
+        self._updateColor(strand5p)
     # end def
     
     def _updateColor(self, strand):
@@ -521,7 +522,7 @@ class XoverItem(QGraphicsPathItem):
     def itemChange(self, change, value):
         # for selection changes test against QGraphicsItem.ItemSelectedChange
         # intercept the change instead of the has changed to enable features.
-        if change == QGraphicsItem.ItemSelectedChange and self.scene():
+        if change == QGraphicsItem.ItemSelectedChange and self.scene() and str(self.activeTool()) == "selectTool":
             sI = self._strandItem
             viewroot = sI.viewroot()
             currentFilterDict = viewroot.selectionFilterDict()

@@ -470,10 +470,11 @@ class StrandItem(QGraphicsLineItem):
         Parses a mousePressEvent to extract strandSet and base index,
         forwarding them to approproate tool method as necessary.
         """
+        activeToolStr = str(self._activeTool())
         self.scene().views()[0].addToPressList(self)
         idx = int(floor((event.pos().x()) / _baseWidth))
         self._virtualHelixItem.setActive(idx)
-        toolMethodName = str(self._activeTool()) + "MousePress"
+        toolMethodName =  activeToolStr + "MousePress"
         if hasattr(self, toolMethodName):
             getattr(self, toolMethodName)(event, idx)
     # end def
@@ -680,7 +681,7 @@ class StrandItem(QGraphicsLineItem):
     def itemChange(self, change, value):
         # for selection changes test against QGraphicsItem.ItemSelectedChange
         # intercept the change instead of the has changed to enable features.
-        if change == QGraphicsItem.ItemSelectedChange and self.scene():
+        if change == QGraphicsItem.ItemSelectedChange and self.scene() and str(self._activeTool()) == "selectTool":
             viewroot = self._viewroot
             currentFilterDict = viewroot.selectionFilterDict()
             selectionGroup = viewroot.strandItemSelectionGroup()

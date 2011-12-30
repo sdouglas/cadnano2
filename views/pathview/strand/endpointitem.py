@@ -450,7 +450,7 @@ class EndpointItem(QGraphicsPathItem):
     def itemChange(self, change, value):
         # for selection changes test against QGraphicsItem.ItemSelectedChange
         # intercept the change instead of the has changed to enable features.
-        if change == QGraphicsItem.ItemSelectedChange and self.scene():
+        if change == QGraphicsItem.ItemSelectedChange and self.scene() and str(self._activeTool()) == "selectTool":
             sI = self._strandItem
             viewroot = sI.viewroot()
             currentFilterDict = viewroot.selectionFilterDict()
