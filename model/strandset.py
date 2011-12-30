@@ -498,10 +498,10 @@ class StrandSet(QObject):
     def _couldStrandInsertAtLastIndex(self, strand):
         """Verification of insertability based on cached last index."""
         lastInd = self._lastStrandSetIndex
-        if lastInd == None:
+        strandList = self._strandList
+        if lastInd == None or lastInd > (len(strandList) - 1):
             return False
         else:
-            strandList = self._strandList
             sTestHigh = strandList[lastInd].lowIdx() if lastInd < len(strandList) else self.partMaxBaseIdx()
             sTestLow = strandList[lastInd - 1].highIdx() if lastInd > 0 else - 1
             sLow, sHigh = strand.idxs()
