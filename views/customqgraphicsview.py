@@ -134,6 +134,14 @@ class CustomQGraphicsView(QGraphicsView):
 
     def setName(self, name):
         self._name = name
+    # end def
+    
+    def setViewportUpdateOn(self, isEnabled):
+        if isEnabled:
+            self.setViewportUpdateMode(QGraphicsView.MinimalViewportUpdate)
+        else:
+            self.setViewportUpdateMode(QGraphicsView.NoViewportUpdate)
+    # end def
         
     def activateSelection(self, isActive):
         if self._selectionLock:
