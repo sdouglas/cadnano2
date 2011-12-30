@@ -500,6 +500,7 @@ class StrandSet(QObject):
         lastInd = self._lastStrandSetIndex
         strandList = self._strandList
         if lastInd == None or lastInd > (len(strandList) - 1):
+            self._lastStrandSetIndex = None
             return False
         else:
             sTestHigh = strandList[lastInd].lowIdx() if lastInd < len(strandList) else self.partMaxBaseIdx()
