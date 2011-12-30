@@ -466,12 +466,12 @@ class XoverItem(QGraphicsPathItem):
     
     def eraseToolMousePress(self):
         """Erase the strand."""
-        self._strandItem.eraseToolMousePress(None)
+        self._strandItem.eraseToolMousePress(None, None)
     # end def
 
     def paintToolMousePress(self):
         """Paint the strand."""
-        self._strandItem.paintToolMousePress(None)
+        self._strandItem.paintToolMousePress(None, None)
     # end def
 
     def selectToolMousePress(self):
@@ -556,6 +556,9 @@ class XoverItem(QGraphicsPathItem):
                     return True
             # end else
         # end if
+        elif change == QGraphicsItem.ItemSelectedChange and self.scene() and str(self.activeTool()) == "paintTool":
+            self.paintToolMousePress()
+            return False
         return QGraphicsPathItem.itemChange(self, change, value)
     # end def
 

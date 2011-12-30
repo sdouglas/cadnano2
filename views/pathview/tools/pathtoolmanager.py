@@ -107,6 +107,8 @@ class PathToolManager(QObject):
             self._activeTool.setActive(False)
         if str(newActiveTool) == "selectTool":
             self.window.activateSelection(True)
+        elif str(newActiveTool) == "paintTool":
+            self.window.activateSelection(True)
         else:
             self.window.activateSelection(False)
         self._activeTool = newActiveTool

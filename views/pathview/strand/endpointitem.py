@@ -484,6 +484,9 @@ class EndpointItem(QGraphicsPathItem):
                     return True
             # end else
         # end if
+        elif change == QGraphicsItem.ItemSelectedChange and self.scene() and str(self._activeTool()) == "paintTool":
+            self.paintToolMousePress(None, None, None)
+            return False
         return QGraphicsPathItem.itemChange(self, change, value)
     # end def
 

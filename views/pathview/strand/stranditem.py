@@ -720,6 +720,10 @@ class StrandItem(QGraphicsLineItem):
                 return False
             # end else
         # end if
+        elif change == QGraphicsItem.ItemSelectedChange and self.scene() and str(self._activeTool()) == "paintTool":
+            self.paintToolMousePress(None, None)
+            return False
+        # end def
         return QGraphicsItem.itemChange(self, change, value)
     # end def
 
