@@ -450,43 +450,50 @@ class EndpointItem(QGraphicsPathItem):
     def itemChange(self, change, value):
         # for selection changes test against QGraphicsItem.ItemSelectedChange
         # intercept the change instead of the has changed to enable features.
-        if change == QGraphicsItem.ItemSelectedChange and self.scene() and str(self._activeTool()) == "selectTool":
-            sI = self._strandItem
-            viewroot = sI.viewroot()
-            currentFilterDict = viewroot.selectionFilterDict()
-            selectionGroup = viewroot.strandItemSelectionGroup()
+        if change == QGraphicsItem.ItemSelectedChange and self.scene():
+            if str(self._activeTool()) == "selectTool":
+                sI = self._strandItem
+                viewroot = sI.viewroot()
+                currentFilterDict = viewroot.selectionFilterDict()
+                selectionGroup = viewroot.strandItemSelectionGroup()
 
-            # only add if the selectionGroup is not locked out
-            if value == True and self._filterName in currentFilterDict:
-                # if self.group() != selectionGroup \
-                #                   and sI.strandFilter() in currentFilterDict:
-                if sI.strandFilter() in currentFilterDict:
-                    if self.group() != selectionGroup or not self.isSelected():
-                        selectionGroup.pendToAdd(self)
-                        selectionGroup.setSelectionLock(selectionGroup)
-                        self.setSelectedColor(True)
-                    return True
+                # only add if the selectionGroup is not locked out
+                if value == True and self._filterName in currentFilterDict:
+                    # if self.group() != selectionGroup \
+                    #                   and sI.strandFilter() in currentFilterDict:
+                    if sI.strandFilter() in currentFilterDict:
+                        if self.group() != selectionGroup or not self.isSelected():
+                            selectionGroup.pendToAdd(self)
+                            selectionGroup.setSelectionLock(selectionGroup)
+                            self.setSelectedColor(True)
+                        return True
+                    else:
+                        return False
+                # end if
+                elif value == True:
+                    # don't select
+                    return False
                 else:
-                    return False
+                    # Deselect
+                    # Check if strand is being added to the selection group still
+                    if not selectionGroup.isPending(self._strandItem):
+                        selectionGroup.pendToRemove(self)
+                        self.tempReparent()
+                        self.setSelectedColor(False)
+                        return False
+                    else:   # don't deselect, because the strand is still selected
+                        return True
+                # end else
             # end if
-            elif value == True:
-                # don't select
-                return False
-            else:
-                # Deselect
-                # Check if strand is being added to the selection group still
-                if not selectionGroup.isPending(self._strandItem):
-                    selectionGroup.pendToRemove(self)
-                    self.tempReparent()
-                    self.setSelectedColor(False)
-                    return False
-                else:   # don't deselect, because the strand is still selected
-                    return True
-            # end else
-        # end if
-        elif change == QGraphicsItem.ItemSelectedChange and self.scene() and str(self._activeTool()) == "paintTool":
-            self.paintToolMousePress(None, None, None)
+            elif str(self._activeTool()) == "paintTool":
+                sI = self._strandItem
+                viewroot = sI.viewroot()
+                currentFilterDict = viewroot.selectionFilterDict()
+                if sI.strandFilter() in currentFilterDict:
+                    self.paintToolMousePress(None, None, None)
+            # end elif
             return False
+        # end if
         return QGraphicsPathItem.itemChange(self, change, value)
     # end def
 

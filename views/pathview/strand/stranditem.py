@@ -681,49 +681,55 @@ class StrandItem(QGraphicsLineItem):
     def itemChange(self, change, value):
         # for selection changes test against QGraphicsItem.ItemSelectedChange
         # intercept the change instead of the has changed to enable features.
-        if change == QGraphicsItem.ItemSelectedChange and self.scene() and str(self._activeTool()) == "selectTool":
-            viewroot = self._viewroot
-            currentFilterDict = viewroot.selectionFilterDict()
-            selectionGroup = viewroot.strandItemSelectionGroup()
-            
-            # only add if the selectionGroup is not locked out
-            isNormalSelect = selectionGroup.isNormalSelect()
-            if value == True and (self._filterName in currentFilterDict or not isNormalSelect):
-                if self._strandFilter in currentFilterDict:
-                    if self.group() != selectionGroup:
-                        self.setSelectedColor(True)
-                        # This should always be the case, but...
-                        if isNormalSelect:
-                            selectionGroup.pendToAdd(self)
-                            selectionGroup.setSelectionLock(selectionGroup)
-                            selectionGroup.pendToAdd(self._lowCap)
-                            selectionGroup.pendToAdd(self._highCap)
-                        # this else will capture the error.  Basically, the
-                        # strandItem should be member of the group before this
-                        # ever gets fired
-                        else:
-                            selectionGroup.addToGroup(self)
-                    return True
-                else:
+        if change == QGraphicsItem.ItemSelectedChange and self.scene():
+            if str(self._activeTool()) == "selectTool":
+                viewroot = self._viewroot
+                currentFilterDict = viewroot.selectionFilterDict()
+                selectionGroup = viewroot.strandItemSelectionGroup()
+        
+                # only add if the selectionGroup is not locked out
+                isNormalSelect = selectionGroup.isNormalSelect()
+                if value == True and (self._filterName in currentFilterDict or not isNormalSelect):
+                    if self._strandFilter in currentFilterDict:
+                        if self.group() != selectionGroup:
+                            self.setSelectedColor(True)
+                            # This should always be the case, but...
+                            if isNormalSelect:
+                                selectionGroup.pendToAdd(self)
+                                selectionGroup.setSelectionLock(selectionGroup)
+                                selectionGroup.pendToAdd(self._lowCap)
+                                selectionGroup.pendToAdd(self._highCap)
+                            # this else will capture the error.  Basically, the
+                            # strandItem should be member of the group before this
+                            # ever gets fired
+                            else:
+                                selectionGroup.addToGroup(self)
+                        return True
+                    else:
+                        return False
+                # end if
+                elif value == True:
+                    # Don't select
                     return False
+                # end elif
+                else:
+                    # Deselect
+                    # print "Deselecting strand"
+                    selectionGroup.pendToRemove(self)
+                    self.setSelectedColor(False)
+                    selectionGroup.pendToRemove(self._lowCap)
+                    selectionGroup.pendToRemove(self._highCap)
+                    return False
+                # end else
             # end if
-            elif value == True:
-                # Don't select
-                return False
-            else:
-                # Deselect
-                # print "Deselecting strand"
-                selectionGroup.pendToRemove(self)
-                self.setSelectedColor(False)
-                selectionGroup.pendToRemove(self._lowCap)
-                selectionGroup.pendToRemove(self._highCap)
-                return False
-            # end else
-        # end if
-        elif change == QGraphicsItem.ItemSelectedChange and self.scene() and str(self._activeTool()) == "paintTool":
-            self.paintToolMousePress(None, None)
+            elif str(self._activeTool()) == "paintTool":
+                viewroot = self._viewroot
+                currentFilterDict = viewroot.selectionFilterDict()
+                if self._strandFilter in currentFilterDict:
+                    self.paintToolMousePress(None, None)
+            # end elif
             return False
-        # end def
+        # end if
         return QGraphicsItem.itemChange(self, change, value)
     # end def
 
