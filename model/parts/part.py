@@ -27,7 +27,7 @@
 
 from exceptions import KeyError
 from heapq import heapify, heappush, heappop
-from itertools import product, izip
+from itertools import product, izip, islice
 from collections import defaultdict
 import random
 
@@ -78,7 +78,6 @@ class Part(QObject):
         self._document = kwargs.get('document', None)
         super(Part, self).__init__(parent=self._document)
         # Data structure
-        self._partInstances = []  # list of ObjectInstances
         self._insertions = defaultdict(dict)  # dict of insertions per virtualhelix
         self._oligos = {}
         self._virtualHelixHash = {}
@@ -311,18 +310,107 @@ class Part(QObject):
         self._oligos[oligo] = True
     # end def
 
+    # def autoStaple(self):
+    #     """Autostaple does the following:
+    #     1. Clear existing staple strands by iterating over each strand
+    #     and calling RemoveStrandCommand on each. The next strand to remove
+    #     is always at index 0.
+    #     2. Create strands that span regions where scaffold is present.
+    #     3.
+    #     """
+    #     util.beginSuperMacro(self, desc="Auto-Staple")
+    # 
+    #     cmds = []
+    #     # clear scaffold sequence
+    # 
+    #     # clear existing staple strands
+    #     for vh in self.getVirtualHelices():
+    #         stapSS = vh.stapleStrandSet()
+    #         for strand in stapSS:
+    #             c = StrandSet.RemoveStrandCommand(stapSS, strand, 0)  # rm
+    #             cmds.append(c)
+    # 
+    #     # create strands that span all bases where scaffold is present
+    #     for vh in self.getVirtualHelices():
+    #         segments = []
+    #         scafSS = vh.scaffoldStrandSet()
+    #         for strand in scafSS:
+    #             lo, hi = strand.idxs()
+    #             if len(segments) == 0:
+    #                 segments.append([lo, hi])  # insert 1st strand
+    #             elif segments[-1][1] == lo - 1:
+    #                 segments[-1][1] = hi  # extend
+    #             else:
+    #                 segments.append([lo, hi])  # insert another strand
+    #         stapSS = vh.stapleStrandSet()
+    #         for i in range(len(segments)):
+    #             lo, hi = segments[i]
+    #             c = StrandSet.CreateStrandCommand(stapSS, lo, hi, i)
+    #             cmds.append(c)
+    #     util.execCommandList(self, cmds, desc="Create staples")
+    # 
+    #     # split strands before installing xovers
+    #     for vh in self.getVirtualHelices():
+    #         stapSS = vh.stapleStrandSet()
+    #         is5to3 = stapSS.isDrawn5to3()
+    #         potentialXovers = self.potentialCrossoverList(vh)
+    #         for neighborVh, idx, strandType, isLowIdx in potentialXovers:
+    #             if strandType != StrandType.Staple:
+    #                 continue
+    #             if isLowIdx and is5to3:
+    #                 strand = stapSS.getStrand(idx)
+    #                 neighborSS = neighborVh.stapleStrandSet()
+    #                 nStrand = neighborSS.getStrand(idx)
+    #                 if strand == None or nStrand == None:
+    #                     continue
+    #                 # check for bases on both strands at [idx-1:idx+3]
+    #                 if strand.lowIdx() < idx and strand.highIdx() > idx + 1 and\
+    #                    nStrand.lowIdx() < idx and nStrand.highIdx() > idx + 1:
+    #                     stapSS.splitStrand(strand, idx, updateSequence=False)
+    #                     neighborSS.splitStrand(nStrand, idx + 1, updateSequence=False)
+    #             if not isLowIdx and not is5to3:
+    #                 strand = stapSS.getStrand(idx)
+    #                 neighborSS = neighborVh.stapleStrandSet()
+    #                 nStrand = neighborSS.getStrand(idx)
+    #                 if strand == None or nStrand == None:
+    #                     continue
+    #                 # check for bases on both strands at [idx-1:idx+3]
+    #                 if strand.lowIdx() < idx - 1 and strand.highIdx() > idx and\
+    #                    nStrand.lowIdx() < idx - 1 and nStrand.highIdx() > idx:
+    #                     stapSS.splitStrand(strand, idx, updateSequence=False)
+    #                     neighborSS.splitStrand(nStrand, idx - 1, updateSequence=False)
+    # 
+    #     # create crossovers wherever possible (from strand5p only)
+    #     for vh in self.getVirtualHelices():
+    #         stapSS = vh.stapleStrandSet()
+    #         is5to3 = stapSS.isDrawn5to3()
+    #         potentialXovers = self.potentialCrossoverList(vh)
+    #         for neighborVh, idx, strandType, isLowIdx in potentialXovers:
+    #             if strandType != StrandType.Staple:
+    #                 continue
+    #             if (isLowIdx and is5to3) or (not isLowIdx and not is5to3):
+    #                 strand = stapSS.getStrand(idx)
+    #                 neighborSS = neighborVh.stapleStrandSet()
+    #                 nStrand = neighborSS.getStrand(idx)
+    #                 if strand == None or nStrand == None:
+    #                     continue
+    #                 self.createXover(strand, idx, nStrand, idx)
+    #     # do all the commands
+    #     util.endSuperMacro(self)
+
     def autoStaple(self):
         """Autostaple does the following:
         1. Clear existing staple strands by iterating over each strand
         and calling RemoveStrandCommand on each. The next strand to remove
         is always at index 0.
-        2. Create strands that span regions where scaffold is present.
-        3.
+        2. Create temporary strands that span regions where scaffold is present.
+        3. Determine where actual strands will go based on strand overlap with
+        prexovers.
+        4. Delete temporary strands and create new strands.
         """
-        util.beginSuperMacro(self, desc="Auto-Staple")
-
+        epDict = {}  # keyed on StrandSet
         cmds = []
-        # clear scaffold sequence
+
 
         # clear existing staple strands
         for vh in self.getVirtualHelices():
@@ -330,6 +418,8 @@ class Part(QObject):
             for strand in stapSS:
                 c = StrandSet.RemoveStrandCommand(stapSS, strand, 0)  # rm
                 cmds.append(c)
+        util.execCommandList(self, cmds, desc="Clear staples")
+        cmds = []
 
         # create strands that span all bases where scaffold is present
         for vh in self.getVirtualHelices():
@@ -344,13 +434,16 @@ class Part(QObject):
                 else:
                     segments.append([lo, hi])  # insert another strand
             stapSS = vh.stapleStrandSet()
+            epDict[stapSS] = []
             for i in range(len(segments)):
                 lo, hi = segments[i]
+                epDict[stapSS].extend(segments[i])
                 c = StrandSet.CreateStrandCommand(stapSS, lo, hi, i)
                 cmds.append(c)
-        util.execCommandList(self, cmds, desc="Create staples")
+        util.execCommandList(self, cmds, desc="Add tmp strands", useUndoStack=False)
+        cmds = []
 
-        # split strands before installing xovers
+        # determine where xovers should be installed
         for vh in self.getVirtualHelices():
             stapSS = vh.stapleStrandSet()
             is5to3 = stapSS.isDrawn5to3()
@@ -367,20 +460,32 @@ class Part(QObject):
                     # check for bases on both strands at [idx-1:idx+3]
                     if strand.lowIdx() < idx and strand.highIdx() > idx + 1 and\
                        nStrand.lowIdx() < idx and nStrand.highIdx() > idx + 1:
-                        stapSS.splitStrand(strand, idx, updateSequence=False)
-                        neighborSS.splitStrand(nStrand, idx + 1, updateSequence=False)
-                if not isLowIdx and not is5to3:
-                    strand = stapSS.getStrand(idx)
-                    neighborSS = neighborVh.stapleStrandSet()
-                    nStrand = neighborSS.getStrand(idx)
-                    if strand == None or nStrand == None:
-                        continue
-                    # check for bases on both strands at [idx-1:idx+3]
-                    if strand.lowIdx() < idx - 1 and strand.highIdx() > idx and\
-                       nStrand.lowIdx() < idx - 1 and nStrand.highIdx() > idx:
-                        stapSS.splitStrand(strand, idx, updateSequence=False)
-                        neighborSS.splitStrand(nStrand, idx - 1, updateSequence=False)
+                        epDict[stapSS].extend([idx, idx+1])
+                        epDict[neighborSS].extend([idx, idx+1])
 
+        # clear temporary staple strands
+        for vh in self.getVirtualHelices():
+            stapSS = vh.stapleStrandSet()
+            for strand in stapSS:
+                c = StrandSet.RemoveStrandCommand(stapSS, strand, 0)
+                cmds.append(c)
+        util.execCommandList(self, cmds, desc="Rm tmp strands", useUndoStack=False)
+        cmds = []
+
+        for stapSS, epList in epDict.iteritems():
+            assert (len(epList) % 2 == 0)
+            epList = sorted(epList)
+            ssIdx = 0
+            for i in range(0, len(epList),2):
+                lo, hi = epList[i:i+2]
+                c = StrandSet.CreateStrandCommand(stapSS, lo, hi, ssIdx)
+                cmds.append(c)
+                ssIdx += 1
+        util.execCommandList(self, cmds, desc="Create strands")
+        cmds = []
+
+        visited = {}  
+        util.beginSuperMacro(self, desc="Auto-Staple")
         # create crossovers wherever possible (from strand5p only)
         for vh in self.getVirtualHelices():
             stapSS = vh.stapleStrandSet()
@@ -395,9 +500,48 @@ class Part(QObject):
                     nStrand = neighborSS.getStrand(idx)
                     if strand == None or nStrand == None:
                         continue
-                    self.createXover(strand, idx, nStrand, idx)
-        # do all the commands
+                    self.createXover(strand, idx, nStrand, idx, updateOligo=False)
+                    visited[strand] = False
         util.endSuperMacro(self)
+
+        for strand in visited.keys():
+            if visited[strand]:
+                continue
+            visited[strand] = True
+            startOligo = strand.oligo()
+
+            strand5gen = islice(strand.generator5pStrand(), 1, None)  # skip self
+            for strand5 in strand5gen:
+                oligo5 = strand5.oligo()
+                if startOligo == oligo5:
+                    startOligo.setLoop(True)
+                    break
+                else:
+                    startOligo.incrementLength(oligo5.length())
+                    oligo5.removeFromPart()
+                    Strand.setOligo(strand5, startOligo)  # emits strandHasNewOligoSignal
+                    startOligo.setStrand5p(strand5)
+                    visited[strand5] = True
+            # end for
+
+            strand3gen = islice(strand.generator3pStrand(), 1, None)  # skip self
+            for strand3 in strand3gen:
+                oligo3 = strand3.oligo()
+                if startOligo == oligo3:
+                    startOligo.setLoop(True)
+                    break
+                else:
+                    startOligo.incrementLength(oligo3.length())
+                    oligo3.removeFromPart()
+                    Strand.setOligo(strand3, startOligo)  # emits strandHasNewOligoSignal
+                    visited[strand3] = True
+            # end for
+        # end for
+
+        for strand in visited.keys():
+            strand.strandUpdateSignal.emit(strand)
+    # end def
+
 
     def createVirtualHelix(self, row, col, useUndoStack=True):
         c = Part.CreateVirtualHelixCommand(self, row, col)
@@ -405,7 +549,7 @@ class Part(QObject):
                                                 useUndoStack=useUndoStack)
     # end def
 
-    def createXover(self, strand5p, idx5p, strand3p, idx3p, useUndoStack=True):
+    def createXover(self, strand5p, idx5p, strand3p, idx3p, updateOligo=True, useUndoStack=True):
         # prexoveritem needs to store left or right, and determine
         # locally whether it is from or to
         # pass that info in here in and then do the breaks
@@ -535,7 +679,7 @@ class Part(QObject):
                         self.undoStack().endMacro()
                     return
         # end else
-        e = Part.CreateXoverCommand(self, xoStrand5, idx5p, xoStrand3, idx3p)
+        e = Part.CreateXoverCommand(self, xoStrand5, idx5p, xoStrand3, idx3p, updateOligo=updateOligo)
         if useUndoStack:
             self.undoStack().push(e)
             self.undoStack().endMacro()
@@ -832,7 +976,6 @@ class Part(QObject):
         part._virtualHelices = dict(self._virtualHelices)
         part._oligos = dict(self._oligos)
         part._maxBase = self._maxBase
-        part._partInstances = list(self._partInstances)
         return part
     # end def
 
@@ -981,7 +1124,6 @@ class Part(QObject):
 
     ### COMMANDS ###
     class CreateVirtualHelixCommand(QUndoCommand):
-        """"""
         def __init__(self, part, row, col):
             super(Part.CreateVirtualHelixCommand, self).__init__()
             self._part = part
@@ -1029,7 +1171,7 @@ class Part(QObject):
         2. install the crossover
         3. apply the strand5p oligo to the strand3p
         """
-        def __init__(self, part, strand5p, strand5pIdx, strand3p, strand3pIdx):
+        def __init__(self, part, strand5p, strand5pIdx, strand3p, strand3pIdx, updateOligo=True):
             super(Part.CreateXoverCommand, self).__init__()
             self._part = part
             self._strand5p = strand5p
@@ -1037,6 +1179,7 @@ class Part(QObject):
             self._strand3p = strand3p
             self._strand3pIdx = strand3pIdx
             self._oldOligo3p = strand3p.oligo()
+            self._updateOligo = updateOligo
         # end def
 
         def redo(self):
@@ -1053,16 +1196,17 @@ class Part(QObject):
             doc.removeStrandFromSelection(strand5p)
             doc.removeStrandFromSelection(strand3p)
 
-            # 1. update preserved oligo length
-            olg5p.incrementLength(oldOlg3p.length())
-            # 2. Remove the old oligo and apply the 5' oligo to the 3' strand
-            if olg5p == strand3p.oligo():
-                olg5p.setLoop(True)
-            else:
-                oldOlg3p.removeFromPart()
-                for strand in strand3p.generator3pStrand():
-                    # emits strandHasNewOligoSignal
-                    Strand.setOligo(strand, olg5p)
+            if self._updateOligo:
+                # 1. update preserved oligo length
+                olg5p.incrementLength(oldOlg3p.length())
+                # 2. Remove the old oligo and apply the 5' oligo to the 3' strand
+                if olg5p == strand3p.oligo():
+                    olg5p.setLoop(True)
+                else:
+                    oldOlg3p.removeFromPart()
+                    for strand in strand3p.generator3pStrand():
+                        # emits strandHasNewOligoSignal
+                        Strand.setOligo(strand, olg5p)
 
             # 3. install the Xover
             strand5p.setConnection3p(strand3p)
@@ -1099,16 +1243,17 @@ class Part(QObject):
             strand5p.setConnection3p(None)
             strand3p.setConnection5p(None)
 
-            # 2. restore the modified oligo length
-            olg5p.decrementLength(oldOlg3p.length())
-            # 3. apply the old oligo to strand3p
-            if oldOlg3p.isLoop():
-                oldOlg3p.setLoop(False)
-            else:
-                oldOlg3p.addToPart(part)
-                for strand in strand3p.generator3pStrand():
-                    # emits strandHasNewOligoSignal
-                    Strand.setOligo(strand, oldOlg3p)
+            if self._updateOligo:
+                # 2. restore the modified oligo length
+                olg5p.decrementLength(oldOlg3p.length())
+                # 3. apply the old oligo to strand3p
+                if oldOlg3p.isLoop():
+                    oldOlg3p.setLoop(False)
+                else:
+                    oldOlg3p.addToPart(part)
+                    for strand in strand3p.generator3pStrand():
+                        # emits strandHasNewOligoSignal
+                        Strand.setOligo(strand, oldOlg3p)
 
             ss5 = strand5p.strandSet()
             vh5p = ss5.virtualHelix()

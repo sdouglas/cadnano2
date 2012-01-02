@@ -395,12 +395,14 @@ class DocumentController():
     # end def
 
     def actionPrefsSlot(self):
-        """docstring for actionPrefsSlot"""
         app().prefsClicked()
 
     def actionAutostapleSlot(self):
-        """docstring for actionAutostapleSlot"""
-        self.activePart().autoStaple()
+        part = self.activePart()
+        if part:
+            self.win.pathGraphicsView.setViewportUpdateOn(False)
+            part.autoStaple()
+            self.win.pathGraphicsView.setViewportUpdateOn(True)
 
     def actionModifySlot(self):
         """

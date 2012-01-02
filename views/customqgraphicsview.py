@@ -116,7 +116,7 @@ class CustomQGraphicsView(QGraphicsView):
 
         self.toolbar = None  # custom hack for the paint tool palette
         self._name = None
-        
+
         if GL:
             self.setViewport(QGLWidget(QGLFormat(QGL.SampleBuffers)))
             self.setViewportUpdateMode(QGraphicsView.FullViewportUpdate)
@@ -124,7 +124,7 @@ class CustomQGraphicsView(QGraphicsView):
             self.setViewportUpdateMode(QGraphicsView.MinimalViewportUpdate)
             # self.setViewportUpdateMode(QGraphicsView.SmartViewportUpdate)
     # end def
-    
+
     levelOfDetailChangedSignal = pyqtSignal(bool)
 
     def __repr__(self):
@@ -135,14 +135,14 @@ class CustomQGraphicsView(QGraphicsView):
     def setName(self, name):
         self._name = name
     # end def
-    
+
     def setViewportUpdateOn(self, isEnabled):
         if isEnabled:
             self.setViewportUpdateMode(QGraphicsView.MinimalViewportUpdate)
         else:
             self.setViewportUpdateMode(QGraphicsView.NoViewportUpdate)
     # end def
-        
+
     def activateSelection(self, isActive):
         if self._selectionLock:
             self._selectionLock.clearSelection(False)
@@ -154,7 +154,7 @@ class CustomQGraphicsView(QGraphicsView):
         if self.dragMode() != self._yesDrag:
             self.setDragMode(self._noDrag)
     # end def
-    
+
     def clearGraphicsView(self):
         # Event handling
         self._hasFocus = False
@@ -165,12 +165,12 @@ class CustomQGraphicsView(QGraphicsView):
         self._dollyZoomEnable = False
         self.setDragMode(self._noDrag)
     # end def
-    
+
     def clearSelectionLockAndCallbacks(self):
         self._selectionLock = None # a selection group to limit types of items selected
         self._pressList = [] # bookkeeping to handle passing mouseReleaseEvents to QGraphicsItems that don't get them
     # end def
-    
+
     def setGLView(self, boolval):
         scene = self.scene()
         if boolval and self.isGL == False:
@@ -184,7 +184,7 @@ class CustomQGraphicsView(QGraphicsView):
             # self.setViewport(QWidget())
             # self.setViewportUpdateMode(QGraphicsView.MinimalViewportUpdate)
     # end def
-    
+
     def setupGL(self):
         scene = self.scene()
         win = self.sceneRootItem.window()
@@ -199,7 +199,7 @@ class CustomQGraphicsView(QGraphicsView):
         # self.setViewport(QGLWidget(format))
         # self.setViewportUpdateMode(QGraphicsView.FullViewportUpdate)
     # end def
-    
+
     def resetGL(self):
         scaleFactor = self.transform().m11()
         # print "scaleFactor", scaleFactor
@@ -218,15 +218,15 @@ class CustomQGraphicsView(QGraphicsView):
             self.levelOfDetailChangedSignal.emit(True) # zoomed in 
             self.qTimer.singleShot(500, self.allowGLSwitch)
     # end def
-    
+
     def shouldShowDetails(self):
         return self._showDetails
     # end def
-    
+
     def allowGLSwitch(self):
         self.isGLSwitchAllowed = True
     # end def
-    
+
     def drawBackgroundGL(self, painter, rect):
         """
         This method is for overloading the QGraphicsScene.
@@ -254,20 +254,20 @@ class CustomQGraphicsView(QGraphicsView):
         self._hasFocus = False
         self._transformEnable = False
     # end def
-    
+
     def setSelectionLock(self, selectionLock):
         self._selectionLock = selectionLock
     # end def
-    
+
     def selectionLock(self):
         return self._selectionLock
     # end def
-    
+
     def setScaleFitFactor(self, value):
         """docstring for setScaleFitFactor"""
         self._scaleFitFactor = value
     # end def
-    
+
     def setKeyPan(self, button):
         """Set the class pan button remotely"""
         self._button_pan = button
@@ -361,9 +361,6 @@ class CustomQGraphicsView(QGraphicsView):
         breaks this feature.
         """
         if self._transformEnable == True:
-
-            # self._skipEvent = False if self._skipEvent == True else True
-
             if self.dragMode() == self._yesDrag:
                 # Add stuff to handle the pan event
                 xf = event.posF().x()
@@ -371,8 +368,6 @@ class CustomQGraphicsView(QGraphicsView):
                 factor = self.transform().m11()
                 self.sceneRootItem.translate((xf - self._x0)/factor,\
                                              (yf - self._y0)/factor)
-                # self.translate((xf - self._x0)/factor,\
-                #                             (yf - self._y0)/factor)
                 self._x0 = xf
                 self._y0 = yf
             elif self._dollyZoomEnable == True:
@@ -447,11 +442,6 @@ class CustomQGraphicsView(QGraphicsView):
         """docstring for fname"""
         pass
 
-    # def wheelZoom(self, event):
-    #     """docstring for wheelZoom"""
-    #     
-    # # end def
-    
     def wheelEvent(self, event):
         self.safeScale(event.delta())
     # end def
@@ -467,7 +457,7 @@ class CustomQGraphicsView(QGraphicsView):
                               self._scale_limit_max)
         scaleChange = newScaleLevel / currentScaleLevel
         self.scale(scaleChange, scaleChange)
-        
+
         self.resetGL()
     # end def
 

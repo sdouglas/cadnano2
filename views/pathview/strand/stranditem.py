@@ -391,7 +391,7 @@ class StrandItem(QGraphicsLineItem):
         color = QColor(oligo.color())
         self._updateHighlight(color)
     # end def
-    
+
     def _updateHighlight(self, color):
         """
         

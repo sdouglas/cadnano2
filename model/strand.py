@@ -99,6 +99,22 @@ class Strand(QObject):
                                 self._baseIdxHigh)
         return s
 
+    def generator5pStrand(self):
+        """
+        Iterate from self to the final _strand5p == None
+        3prime to 5prime
+        Includes originalCount to check for circular linked list
+        """
+        originalCount = 0
+        node = self
+        f = attrgetter('_strand5p')
+        while node and originalCount == 0:
+            yield node  # equivalent to: node = node._strand5p
+            node = f(node)
+            if node == self:
+                originalCount += 1
+    # end def
+
     def generator3pStrand(self):
         """
         Iterate from self to the final _strand3p == None
@@ -109,8 +125,7 @@ class Strand(QObject):
         node = self
         f = attrgetter('_strand3p')
         while node and originalCount == 0:
-            yield node
-            # equivalent to: node = node._strand3p
+            yield node  # equivalent to: node = node._strand3p
             node = f(node)
             if node == self:
                 originalCount += 1
