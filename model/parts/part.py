@@ -687,12 +687,28 @@ class Part(QObject):
                     even += 2
                 else:
                     vh.setNumber(odd)
-                    odd += 2 
+                    odd += 2
+            # end for
+            part = self._part
+            aVH =  part.activeVirtualHelix()
+            if aVH:
+                part.partStrandChangedSignal.emit(aVH)
+            for oligo in part._oligos.iterkeys():
+                for strand in oligo.strand5p().generator3pStrand():
+                    strand.strandUpdateSignal.emit(strand)
         # end def
             
         def undo(self):
             for vh, num in izip(self._vhs, self._oldNumbers):
                 vh.setNumber(num)
+            # end for
+            part = self._part
+            aVH =  part.activeVirtualHelix()
+            if aVH:
+                part.partStrandChangedSignal.emit(aVH)
+            for oligo in part._oligos.iterkeys():
+                for strand in oligo.strand5p().generator3pStrand():
+                    strand.strandUpdateSignal.emit(strand)
         # end def
     # end def
 
