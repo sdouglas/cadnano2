@@ -117,6 +117,9 @@ class SelectionItemGroup(QGraphicsItemGroup):
     # end def
 
     def processPendingToAddList(self):
+        """
+        Adds to the local selection and the document if required
+        """
         doc = self.document()
 
         # print "instant add is 1 from process pending"
@@ -160,7 +163,8 @@ class SelectionItemGroup(QGraphicsItemGroup):
         """
         key = event.key()
         if key in [Qt.Key_Backspace, Qt.Key_Delete]:
-            self.document().deleteSelection()
+            self.selectionbox.deleteSelection()
+            # self.document().deleteSelection()
             self.clearSelection(False)
             return QGraphicsItemGroup.keyPressEvent(self, event)
         else:
@@ -380,6 +384,19 @@ class VirtualHelixHandleSelectionBox(QGraphicsPathItem):
         self.setParentItem(temp)
         return temp
     # end def
+    
+    def deleteSelection(self):
+        """
+        Delete selection operates outside of the documents a virtual helices
+        are not actually selected in the model
+        """
+        vHelices = [vhh.virtualHelix() for vhh in self._itemGroup.childItems()]
+        uS = self._itemGroup.document().undoStack()
+        uS.beginMacro("delete Virtual Helices")
+        for vh in vHelices:
+            vh.remove()
+        uS.endMacro()
+    # end def
 
     def bounds(self):
         return self._bounds
@@ -474,6 +491,9 @@ class EndpointHandleSelectionBox(QGraphicsPathItem):
         delta = self.delta(rEnd, rStart)
         self._itemGroup._viewroot.document().resizeSelection(delta)
     # end def
+    
+    def deleteSelection(self):
+        self._itemGroup.document().deleteSelection()
 
     def boxParent(self):
         temp = self._itemGroup.childItems()[0].partItem()

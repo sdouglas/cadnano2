@@ -82,6 +82,9 @@ class VirtualHelixHandleItem(QGraphicsEllipseItem):
             self.setPen(_defPen)
         self.update(self.boundingRect())
     # end def
+    
+    def virtualHelix(self):
+        return self._virtualHelix
 
     def paint(self, painter, option, widget):
         painter.setPen(self.pen())
