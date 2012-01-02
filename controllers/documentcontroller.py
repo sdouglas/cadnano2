@@ -129,6 +129,8 @@ class DocumentController():
         self.win.actionFilterXover.triggered.connect(self.actionFilterXoverSlot)
         self.win.actionFilterScaf.triggered.connect(self.actionFilterScafSlot)
         self.win.actionFilterStap.triggered.connect(self.actionFilterStapSlot)
+        self.win.actionRenumber.triggered.connect(self.actionRenumberSlot)
+
 
     ### SLOTS ###
     def undoStackCleanChangedSlot(self):
@@ -174,7 +176,7 @@ class DocumentController():
             fH.setChecked(False)
         if not fS.isChecked() and not fX.isChecked():
             fE.setChecked(True)
-        self.strandFilterUpdate()
+        self._strandFilterUpdate()
     # end def
 
     def actionFilterStrandSlot(self):
@@ -190,7 +192,7 @@ class DocumentController():
             fH.setChecked(False)
         if not fE.isChecked() and not fX.isChecked():
             fS.setChecked(True)
-        self.strandFilterUpdate()
+        self._strandFilterUpdate()
     # end def
 
     def actionFilterXoverSlot(self):
@@ -206,7 +208,7 @@ class DocumentController():
             fH.setChecked(False)
         if not fE.isChecked() and not fS.isChecked():
             fX.setChecked(True)
-        self.strandFilterUpdate()
+        self._strandFilterUpdate()
     # end def
 
     def actionFilterScafSlot(self):
@@ -215,7 +217,7 @@ class DocumentController():
         fSt = self.win.actionFilterStap
         if not fSc.isChecked() and not fSt.isChecked():
             fSc.setChecked(True)
-        self.strandFilterUpdate()
+        self._strandFilterUpdate()
 
     def actionFilterStapSlot(self):
         """Remains checked if no other strand-type filter is active."""
@@ -223,10 +225,10 @@ class DocumentController():
         fSt = self.win.actionFilterStap
         if not fSc.isChecked() and not fSt.isChecked():
             fSt.setChecked(True)
-        self.strandFilterUpdate()
+        self._strandFilterUpdate()
     # end def
-    
-    def strandFilterUpdate(self):
+
+    def _strandFilterUpdate(self):
         win = self.win
         filterList = []
         if win.actionFilterEndpoint.isChecked():
@@ -428,6 +430,13 @@ class DocumentController():
         """docstring for actionAddSquarePartSlot"""
         part = self._document.addSquarePart()
         self.setActivePart(part)
+
+    def actionRenumberSlot(self):
+        print "actionRenumberSlot"
+        print "pathroot", self.win.pathroot
+        # part = self._window.selectedPart()
+        # if part != None:
+        #     part.renumber()
 
     ### ACCESSORS ###
     def document(self):

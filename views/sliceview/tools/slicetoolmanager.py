@@ -60,15 +60,9 @@ class SliceToolManager(QObject):
         if part != None:
             part.setActiveBaseIndex(part.maxBaseIdx()-1)
 
-    def actionRenumberSlot(self):
-        part = self._window.selectedPart()
-        if part != None:
-            part.renumber()
-
     ### METHODS ###
     def _connectWindowSignalsToSelf(self):
         """This method serves to group all the signal & slot connections
         made by SliceToolManager"""
         self._window.actionSliceFirst.triggered.connect(self.activeSliceFirstSlot)
         self._window.actionSliceLast.triggered.connect(self.activeSliceLastSlot)
-        self._window.actionRenumber.triggered.connect(self.actionRenumberSlot)
