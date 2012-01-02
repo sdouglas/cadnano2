@@ -1438,7 +1438,7 @@ class Part(QObject):
             for sSet in self._strandSets:
                 sList = sSet._strandList
                 for strand in sList:
-                    strand.strandRemovedSignal.emit(strand)
+                    sSet.removeStrand(strand)
                 # end for
                 sSet._strandList = []
             #end for

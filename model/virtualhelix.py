@@ -236,12 +236,14 @@ class VirtualHelix(QObject):
             self._idNum = virtualHelix.number()
             # is the number even or odd?  Assumes a valid idNum, row,col combo
             self._parityEven = (self._idNum % 2) == 0
+            
         # end def
 
         def redo(self):
             vh = self._vhelix
             part = self._part
             idNum = self._idNum
+            
             part._removeVirtualHelix(vh)
             part._recycleHelixIDNumber(idNum)
             # clear out part references
@@ -255,7 +257,8 @@ class VirtualHelix(QObject):
             vh = self._vhelix
             part = self._part
             idNum = self._idNum
-            # vh.setPart(part)
+            
+            vh.setPart(part)
             part._addVirtualHelix(vh)
             # vh.setNumber(idNum)
             if not vh.number():

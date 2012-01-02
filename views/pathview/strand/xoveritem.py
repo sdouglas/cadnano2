@@ -283,6 +283,11 @@ class XoverItem(QGraphicsPathItem):
             if s2:
                 s2.removeItem(self._node3)
                 s2.removeItem(self._node5)
+                self._node3 = None
+                self._node5 = None
+        self._strand5p = None
+        scene.removeItem(self._clickArea)
+        self._clickArea = None
         scene.removeItem(self)
     # end def
 
