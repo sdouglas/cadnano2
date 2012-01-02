@@ -432,11 +432,10 @@ class DocumentController():
         self.setActivePart(part)
 
     def actionRenumberSlot(self):
-        print "actionRenumberSlot"
-        print "pathroot", self.win.pathroot
-        # part = self._window.selectedPart()
-        # if part != None:
-        #     part.renumber()
+        coordList = self.win.pathroot.getSelectedPartOrderedVHList()
+        part = self._activePart
+        part.renumber(coordList)
+    # end def
 
     ### ACCESSORS ###
     def document(self):

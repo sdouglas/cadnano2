@@ -105,8 +105,8 @@ class VirtualHelixItem(QGraphicsPathItem):
         """
         pass
 
-    def virtualHelixNumberChangedSlot(self, virtualHelix):
-        pass
+    def virtualHelixNumberChangedSlot(self, virtualHelix, number):
+        self._handle.setNumber()
     # end def
 
     def virtualHelixRemovedSlot(self, virtualHelix):
