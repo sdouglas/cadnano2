@@ -1099,8 +1099,9 @@ class Part(QObject):
 
             part.partActiveVirtualHelixChangedSignal.emit(part, vh5p)
             # strand5p.strandXover5pChangedSignal.emit(strand5p, strand3p)
-            strand5p.strandUpdateSignal.emit(strand5p)
-            strand3p.strandUpdateSignal.emit(strand3p)
+            if self._updateOligo:
+                strand5p.strandUpdateSignal.emit(strand5p)
+                strand3p.strandUpdateSignal.emit(strand3p)
         # end def
 
         def undo(self):
@@ -1142,8 +1143,9 @@ class Part(QObject):
 
             part.partActiveVirtualHelixChangedSignal.emit(part, vh5p)
             # strand5p.strandXover5pChangedSignal.emit(strand5p, strand3p)
-            strand5p.strandUpdateSignal.emit(strand5p)
-            strand3p.strandUpdateSignal.emit(strand3p)
+            if self._updateOligo:
+                strand5p.strandUpdateSignal.emit(strand5p)
+                strand3p.strandUpdateSignal.emit(strand3p)
         # end def
     # end class
 
