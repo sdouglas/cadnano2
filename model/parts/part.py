@@ -657,8 +657,43 @@ class Part(QObject):
         del self._oligos[oligo]
     # end def
 
-    def renumber(self):
-        print "%s: renumber() called." % self
+    def renumber(self, coordList, useUndoStack=True):
+        if useUndoStack:
+            self.undoStack().beginMacro("Renumber VirtualHelices")
+        c = Part.RenumberVirtualHelicesCommand(self, coordList)
+        if useUndoStack:
+            self.undoStack().push(c)
+            self.undoStack().endMacro()
+        else:
+            c.redo()
+    # end def
+    
+    class RenumberVirtualHelicesCommand(QUndoCommand):
+        """
+        """
+        def __init__(self, part, coordList):
+            super(Part.RenumberVirtualHelicesCommand, self).__init__()
+            self._part = part
+            self._vhs = [part.virtualHelixAtCoord(coord) for coord in coordList]
+            self._oldNumbers = [vh.number() for vh in self._vhs]
+        # end def
+            
+        def redo(self):
+            even = 0
+            odd = 1
+            for vh in self._vhs:
+                if vh.isEvenParity():
+                    vh.setNumber(even)
+                    even += 2
+                else:
+                    vh.setNumber(odd)
+                    odd += 2 
+        # end def
+            
+        def undo(self):
+            for vh, num in izip(self._vhs, self._oldNumbers):
+                vh.setNumber(num)
+        # end def
     # end def
 
     def resizeLattice(self):

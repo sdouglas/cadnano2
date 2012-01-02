@@ -64,7 +64,7 @@ class VirtualHelix(QObject):
 
     ### SIGNALS ###
     virtualHelixRemovedSignal = pyqtSignal(QObject)  # self
-    virtualHelixNumberChangedSignal = pyqtSignal(QObject, object)  # self, num
+    virtualHelixNumberChangedSignal = pyqtSignal(QObject, int)  # self, num
 
     ### SLOTS ###
 
@@ -86,7 +86,9 @@ class VirtualHelix(QObject):
     # end def
     
     def setNumber(self, number):
-        self._number = number
+        if self._number != number:
+            self._number = number
+            self.virtualHelixNumberChangedSignal.emit(self, number)
     # end def
 
     def setPart(self, newPart):
