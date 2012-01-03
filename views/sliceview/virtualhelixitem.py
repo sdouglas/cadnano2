@@ -131,7 +131,11 @@ class VirtualHelixItem(QGraphicsEllipseItem):
         label = self._label
         radius = self._radius
 
-        label.setText("%d" % num)
+        if num != None:
+            label.setText("%d" % num)
+        else:
+            return
+
         y_val = radius / 3
         if num < 10:
             label.setPos(radius / 1.5, y_val)
