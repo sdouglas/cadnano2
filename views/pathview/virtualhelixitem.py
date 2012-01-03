@@ -73,7 +73,6 @@ class VirtualHelixItem(QGraphicsPathItem):
         self.setPath(self._gridPainterPath)
         self.setAcceptHoverEvents(True)  # for pathtools
         self.setZValue(styles.ZPATHHELIX)
-        print "VH added", self.number()
     # end def
 
     ### SIGNALS ###
@@ -111,7 +110,6 @@ class VirtualHelixItem(QGraphicsPathItem):
     # end def
 
     def virtualHelixRemovedSlot(self, virtualHelix):
-        print "VH removed", self.number()
         self._controller.disconnectSignals()
         self._controller = None
         
