@@ -466,7 +466,7 @@ class DocumentController():
         self._document.resetViews()
         self._document.removeAllParts()  # clear out old parts
         self._document.undoStack().clear()  # reset undostack
-        self._filename = fname if fname else "untitled.nno"
+        self._filename = fname if fname else "untitled.json"
         self._hasNoAssociatedFile = fname == None
         self._activePart = None
         self.win.setWindowTitle(self.documentTitle() + '[*]')
