@@ -91,6 +91,10 @@ class XoverNode3(QGraphicsRectItem):
     def customMouseRelease(self, event):
         pass
     # end def
+    
+    def virtualHelix(self):
+        return self._vhi.virtualHelix()
+    # end def
 
     def strandType(self):
         return self._strandType
@@ -158,9 +162,10 @@ class XoverNode3(QGraphicsRectItem):
         Clean up this joint
         """
         scene = self.scene()
-        scene.removeItem(self._label)
-        self._label = None
-        scene.removeItem(self)
+        if scene:
+            scene.removeItem(self._label)
+            self._label = None
+            scene.removeItem(self)
     # end def
 
     def _updateLabel(self, isLeft):
@@ -279,12 +284,10 @@ class XoverItem(QGraphicsPathItem):
     def remove(self):
         scene = self.scene()
         if self._node3:
-            s2 = self._node3.scene()
-            if s2:
-                s2.removeItem(self._node3)
-                s2.removeItem(self._node5)
-                self._node3 = None
-                self._node5 = None
+            self._node3.remove()
+            self._node5.remove()
+            self._node3 = None
+            self._node5 = None
         self._strand5p = None
         scene.removeItem(self._clickArea)
         self._clickArea = None
@@ -297,6 +300,8 @@ class XoverItem(QGraphicsPathItem):
         if self._node3:
             self._node3.hide()
             self._node5.hide()
+            self._node3.remove()
+            self._node3 = None
     # end def
 
     def showIt(self):
@@ -307,8 +312,22 @@ class XoverItem(QGraphicsPathItem):
     # end def
 
     def refreshXover(self):
-        if self._strand5p:
-            self.update(self._strand5p)
+        strand5p = self._strand5p
+        node3 = self._node3
+        if strand5p:
+            strand3p = strand5p.connection3p()
+            if strand3p != None and node3:
+                if node3.virtualHelix():
+                    self.update(self._strand5p)
+                else:
+                    node3.remove()
+                    self._node3 = None
+            elif node3:
+                node3.remove()
+                self._node3 = None
+        elif node3:
+            node3.remove()
+            self._node3 = None
     # end def
 
     def update(self, strand5p, idx=None):
@@ -337,9 +356,7 @@ class XoverItem(QGraphicsPathItem):
             self._updatePath(strand5p)
         else:
             if self._node3:
-                scene = self._node3.scene()
-                if scene:
-                    scene.removeItem(self._node3)
+                self._node3.remove()
                 self._node3 = None
         # end if
     # end def
