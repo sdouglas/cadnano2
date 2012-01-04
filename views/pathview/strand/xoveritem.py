@@ -336,7 +336,11 @@ class XoverItem(QGraphicsPathItem):
             self._node5.setPartnerVirtualHelix(strand5p)
             self._updatePath(strand5p)
         else:
-            self._node3 = None
+            if self._node3:
+                scene = self._node3.scene()
+                if scene:
+                    scene.removeItem(self._node3)
+                self._node3 = None
         # end if
     # end def
 

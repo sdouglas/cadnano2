@@ -65,6 +65,7 @@ class StrandItem(object):
         self._virtualHelixItem = virtualHelixItem
         self._viewroot = app().activeDocument.win.solidroot
         mayaNodeInfo = ()
+        print "solidview.StrandItem.__init__ %s" % mID
         if(modelStrand.strandSet().isScaffold()):
             mayaNodeInfo = self.createMayaHelixNodes(virtualHelixItem.x(),
                                                      virtualHelixItem.y(),
@@ -118,7 +119,7 @@ class StrandItem(object):
         mom = Mom()
         mID = mom.strandMayaID(strand)
         mom.removeIDMapping(mID, strand)
-        #print "solidview.StrandItem.strandRemovedSlot %s" % mID
+        print "solidview.StrandItem.strandRemovedSlot %s" % mID
         transformName = "%s%s" % (mom.helixTransformName, mID)
         cylinderName = "%s%s" % (mom.helixNodeName, mID)
         meshName = "%s%s" % (mom.helixMeshName, mID)
