@@ -1438,7 +1438,7 @@ class Part(QObject):
             for sSet in self._strandSets:
                 sList = sSet._strandList
                 for strand in sList:
-                    sSet.removeStrand(strand)
+                    sSet.removeStrand(strand, useUndoStack=False)
                 # end for
                 sSet._strandList = []
             #end for
