@@ -78,6 +78,7 @@ PATH_XOVER_LINE_SCALE_X = 0.035
 PATH_XOVER_LINE_SCALE_Y = 0.035
 
 # Path Colors
+scaffold_bkg_fill = QColor(230, 230, 230)
 activeslicehandlefill = QColor(255, 204, 153, 128)  # ffcc99
 activeslicehandlestroke = QColor(204, 102, 51, 128)  # cc6633
 minorgridstroke = QColor(204, 204, 204)  # 999999
@@ -137,6 +138,7 @@ PREF_ZOOM_AFTER_HELIX_ADD = True
 
 
 #Z values
+#bottom
 ZACTIVESLICEHANDLE = 10
 ZPATHHELIXGROUP = 20
 ZPATHHELIX = 30
@@ -154,6 +156,7 @@ ZSTRANDITEM = 140
 ZENDPOINTITEM = 150
 ZINSERTHANDLE = 160
 ZPARTITEM = 200
+#top
 
 # sequence stuff
 SEQUENCEFONT = QFont("Monaco")

@@ -450,6 +450,9 @@ class Document(QObject):
         
 
     ### PUBLIC SUPPORT METHODS ###
+    def controller(self):
+        return self._controller
+
     def setController(self, controller):
         """Called by DocumentController setDocument method."""
         self._controller = controller

@@ -71,6 +71,7 @@ class XoverNode3(QGraphicsRectItem):
         self.setPen(QPen(Qt.NoPen))
         self.setBrush(_nobrush)
         self.setRect(_rect)
+        self.setZValue(styles.ZXOVERITEM)
     # end def
 
 
@@ -253,7 +254,6 @@ class XoverItem(QGraphicsPathItem):
         self._node5 = None
         self._node3 = None
         self.hide()
-        self.setFlag(QGraphicsItem.ItemStacksBehindParent)
         self.setFlag(QGraphicsItem.ItemIsSelectable)
         
         # for easier mouseclick

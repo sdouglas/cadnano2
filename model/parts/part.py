@@ -80,7 +80,8 @@ class Part(QObject):
         # Data structure
         self._insertions = defaultdict(dict)  # dict of insertions per virtualhelix
         self._oligos = {}
-        self._virtualHelixHash = {}
+        self._coordToVirtualHelix = {}
+        self._numberToVirtualHelix = {}
         # Dimensions
         self._maxRow = 50  # subclass overrides based on prefs
         self._maxCol = 50
@@ -147,6 +148,30 @@ class Part(QObject):
     # end def
 
     ### PUBLIC METHODS FOR QUERYING THE MODEL ###
+    def virtualHelix(self, vhref, returnNoneIfAbsent=True):
+        # vhrefs are the shiny new way to talk to part about its constituent
+        # virtualhelices. Wherever you see f(...,vhref,...) you can
+        # f(...,27,...)         use the virtualhelix's id number
+        # f(...,vh,...)         use an actual virtualhelix
+        # f(...,(1,42),...)     use the coordinate representation of its position
+        """A vhref is the number of a virtual helix, the (row, col) of a virtual helix,
+        or the virtual helix itself. For conveniece, CRUD should now work with any of them."""
+        vh = None
+        if type(vhref) in (int, long):
+            vh = self._numberToVirtualHelix.get(vhref, None)
+        elif type(vhref) in (tuple, list):
+            vh = self._coordToVirtualHelix.get(vhref, None)
+        else:
+            vh = vhref
+        if not isinstance(vh, VirtualHelix):
+            if returnNoneIfAbsent:
+                return None
+            else:
+                err = "Couldn't find the virtual helix in part %s "+\
+                      "referenced by index %s" % (self, vhref)
+                raise IndexError(err)
+        return vh
+
     def activeBaseIndex(self):
         return self._activeBaseIndex
     # end def
@@ -174,8 +199,7 @@ class Part(QObject):
 
     def getVirtualHelices(self):
         """yield an iterator to the virtualHelix references in the part"""
-        # return self._virtualHelixHash.itervalues()
-        return self._virtualHelixHash.values()
+        return self._coordToVirtualHelix.values()
     # end def
 
     def indexOfRightmostNonemptyBase(self):
@@ -202,7 +226,7 @@ class Part(QObject):
     # end def
 
     def hasVirtualHelixAtCoord(self, coord):
-        return coord in self._virtualHelixHash
+        return coord in self._coordToVirtualHelix
     # end def
 
     def maxBaseIdx(self):
@@ -214,7 +238,7 @@ class Part(QObject):
     # end def
 
     def numberOfVirtualHelices(self):
-        return len(self._virtualHelixHash)
+        return len(self._coordToVirtualHelix)
     # end def
 
     def radius(self):
@@ -235,14 +259,14 @@ class Part(QObject):
         if it exists it is returned, else None is returned
         """
         try:
-            return self._virtualHelixHash[coord]
+            return self._coordToVirtualHelix[coord]
         except:
             return None
     # end def
 
     ### PUBLIC METHODS FOR EDITING THE MODEL ###
     def removeVirtualHelices(self, useUndoStack=True):
-        vhs = [vh for vh in self._virtualHelixHash.itervalues()]
+        vhs = [vh for vh in self._coordToVirtualHelix.itervalues()]
         for vh in vhs:
             vh.remove(useUndoStack)
         # end for
@@ -289,7 +313,7 @@ class Part(QObject):
         else:
             c.redo()
         # remove VHs
-        vhs = self._virtualHelixHash.values()
+        vhs = self._coordToVirtualHelix.values()
         for vh in vhs:
             d = VirtualHelix.RemoveVirtualHelixCommand(self, vh)
             if useUndoStack:
@@ -791,7 +815,7 @@ class Part(QObject):
         private method for adding a virtualHelix to the Parts data structure
         of virtualHelix references
         """
-        self._virtualHelixHash[virtualHelix.coord()] = virtualHelix
+        self._coordToVirtualHelix[virtualHelix.coord()] = virtualHelix
     # end def
 
     def _removeVirtualHelix(self, virtualHelix):
@@ -799,7 +823,7 @@ class Part(QObject):
         private method for adding a virtualHelix to the Parts data structure
         of virtualHelix references
         """
-        del self._virtualHelixHash[virtualHelix.coord()]
+        del self._coordToVirtualHelix[virtualHelix.coord()]
     # end def
 
     def _reserveHelixIDNumber(self, parityEven=True, requestedIDnum=None):
@@ -1491,7 +1515,7 @@ class Part(QObject):
             part._maxBase += self._maxDelta
             if self._minDelta != 0:
                 self.deltaMinDimension(part, self._minDelta)
-            for vh in part._virtualHelixHash.itervalues():
+            for vh in part._coordToVirtualHelix.itervalues():
                 part.partVirtualHelixResizedSignal.emit(vh.coord())
             if self._oldActiveIdx > part._maxBase:
                 part.setActiveBaseIndex(part._maxBase)
@@ -1504,7 +1528,7 @@ class Part(QObject):
             part._maxBase -= self._maxDelta
             if self._minDelta != 0:
                 self.deltaMinDimension(part, self._minDelta)
-            for vh in part._virtualHelixHash.itervalues():
+            for vh in part._coordToVirtualHelix.itervalues():
                 part.partVirtualHelixResizedSignal.emit(vh.coord())
             if self._oldActiveIdx != part.activeBaseIndex():
                 part.setActiveBaseIndex(self._oldActiveIdx)
@@ -1522,7 +1546,7 @@ class Part(QObject):
                     insertion.updateIdx(minDimensionDelta)
                 # end for
             # end for
-            for vh in part._virtualHelixHash.itervalues():
+            for vh in part._coordToVirtualHelix.itervalues():
                 for strand in vh.scaffoldStrand().generatorStrand():
                     strand.updateIdxs(minDimensionDelta)
                 for strand in vh.stapleStrand().generatorStrand():

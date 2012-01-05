@@ -57,6 +57,7 @@ if "-p" not in sys.argv:
 
 
 app = getAppInstance()
+print "initgui"
 app.initGui()
 if __name__ == '__main__':
     if "-p" in sys.argv:

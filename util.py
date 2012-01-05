@@ -273,3 +273,53 @@ def endSuperMacro(modelObject):
     """Ends a SuperMacro. Should be called after beginSuperMacro."""
     modelObject.undoStack().endMacro()
 # end def
+
+def findChild(self):
+    """
+    When called when self isa QGraphicsItem, iterates through self's
+    childItems(), placing a red rectangle (a sibling of self) around
+    each item in sequence (press return to move between items). Since
+    the index of each child item is displayed as it is highlighted,
+    one can use findChild() to quickly get a reference to one of self's
+    children. At each step, one can type a command letter before
+    hitting return. The command will apply to the current child.
+    Command Letter:     Action:
+    <return>            Advance to next child
+    s<return>           Show current child
+    S<return>           Show current child, hide siblings
+    h<return>           Hide current child
+    r<return>           return current child
+    """
+    qtWrapImport('QtGui', globals(), ['QGraphicsRectItem', 'QPen'])
+    qtWrapImport('QtCore', globals(), ['Qt'])
+    children = self.childItems()
+    parent = self.parentItem()
+    childVisibility = [(child, child.isVisible()) for child in children]
+    for n in range(len(children)):
+        child = children[n]
+        print "Highlighting %s.childItems()[%i] = %s"%(self, n, child)
+        childBR = child.mapToItem(parent, child.boundingRect())
+        childBR = childBR.boundingRect()  # xform gives us a QPolygonF
+        debugHighlighter = QGraphicsRectItem(childBR, parent)
+        debugHighlighter.setPen(QPen(Qt.red))
+        debugHighlighter.setZValue(9001)
+        while True:
+            # wait for return to be pressed while spinning the event loop.
+            # also process single-character commands.
+            command = raw_input()
+            if command == 's':    # Show current child
+                child.show()
+            elif command == 'h':  # Hde current child
+                child.hide()
+            elif command == 'S':  # Show only current child
+                for c in children:
+                    c.hide()
+                child.show()
+            elif command == 'r':  # Return current child
+                return child
+            else:
+                break
+        debugHighlighter.scene().removeItem(debugHighlighter)
+        for child, wasVisible in childVisibility:
+            child.setVisible(wasVisible)
+

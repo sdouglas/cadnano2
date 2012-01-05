@@ -47,8 +47,14 @@ _baseWidth = _bw = styles.PATH_BASE_WIDTH
 _defaultRect = QRectF(0, 0, _baseWidth, _baseWidth)
 _modPen = QPen(styles.bluestroke)
 
+class ProxyParentItem(QGraphicsRectItem):
+    """an invisible container that allows one to play with Z-ordering"""
+    findChild = util.findChild  # for debug
+
 
 class PartItem(QGraphicsRectItem):
+    findChild = util.findChild  # for debug
+
     def __init__(self, modelPart, viewroot, activeTool, parent):
         """parent should always be pathrootitem"""
         super(PartItem, self).__init__(parent)
@@ -65,7 +71,7 @@ class PartItem(QGraphicsRectItem):
         self.setAcceptHoverEvents(True)
         self._initModifierRect()
         self._initResizeButtons()
-        self._proxyParent = QGraphicsRectItem(self)
+        self._proxyParent = ProxyParentItem(self)
         self._proxyParent.setFlag(QGraphicsItem.ItemHasNoContents)
     # end def
     
@@ -90,6 +96,11 @@ class PartItem(QGraphicsRectItem):
         self._removeBasesButton.clicked.connect(self._removeBasesClicked)
         self._removeBasesButton.hide()
     # end def
+
+    def vhItemForVH(self, vhref):
+        """Returns the pathview VirtualHelixItem corresponding to vhref"""
+        vh = self._modelPart.virtualHelix(vhref)
+        return self._virtualHelixHash.get(vh.coord())
 
     ### SIGNALS ###
 

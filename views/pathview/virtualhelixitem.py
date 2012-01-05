@@ -31,12 +31,13 @@ from model.enum import StrandType
 from strand.stranditem import StrandItem
 from views import styles
 from virtualhelixhandleitem import VirtualHelixHandleItem
+from cadnano import Cadnano
 import util
 # import Qt stuff into the module namespace with PySide, PyQt4 independence
 util.qtWrapImport('QtCore', globals(), ['pyqtSignal', 'QObject', 'Qt', 'QRectF'])
 util.qtWrapImport('QtGui', globals(), ['QBrush', 'QGraphicsItem', \
                                        'QGraphicsPathItem',  'QGraphicsRectItem', \
-                                       'QPainterPath', 'QPen'])
+                                       'QPainterPath', 'QPen', 'QBrush', 'QColor'])
 _baseWidth = styles.PATH_BASE_WIDTH
 # _gridPen = QPen(styles.minorgridstroke, styles.MINOR_GRID_STROKE_WIDTH)
 # _gridPen.setCosmetic(True)
@@ -44,6 +45,7 @@ _baseWidth = styles.PATH_BASE_WIDTH
 
 class VirtualHelixItem(QGraphicsPathItem):
     """VirtualHelixItem for PathView"""
+    findChild = util.findChild  # for debug
 
     def __init__(self, partItem, modelVirtualHelix, viewroot, activeTool):
         super(VirtualHelixItem, self).__init__(partItem.proxy())
@@ -54,10 +56,9 @@ class VirtualHelixItem(QGraphicsPathItem):
         self._controller = VirtualHelixItemController(self, modelVirtualHelix)
         
         self._handle = VirtualHelixHandleItem(modelVirtualHelix, partItem, viewroot)
-        self._gridPainterPath = None  # needed for getGridPainterPath()
-        self._gridPainterPath = self.getGridPainterPath()
         self._lastStrandSet = None
         self._lastIdx = None
+        self._scaffoldBackground = None
         self.setFlag(QGraphicsItem.ItemUsesExtendedStyleOption)
         self.setCacheMode(QGraphicsItem.DeviceCoordinateCache)
         self.setBrush(QBrush(Qt.NoBrush))
@@ -70,7 +71,7 @@ class VirtualHelixItem(QGraphicsPathItem):
         pen.setCosmetic(shouldShowDetails)
         self.setPen(pen)
         
-        self.setPath(self._gridPainterPath)
+        self.refreshPath()
         self.setAcceptHoverEvents(True)  # for pathtools
         self.setZValue(styles.ZPATHHELIX)
     # end def
@@ -120,7 +121,6 @@ class VirtualHelixItem(QGraphicsPathItem):
         self._partItem = None
         self._modelVirtualHelix = None
         self._activeTool = None
-        self._gridPainterPath = None
         self._handle = None
     # end def
 
@@ -186,15 +186,12 @@ class VirtualHelixItem(QGraphicsPathItem):
         return x, y
     # end def
 
-    def getGridPainterPath(self):
+    def refreshPath(self):
         """
         Returns a QPainterPath object for the minor grid lines.
         The path also includes a border outline and a midline for
         dividing scaffold and staple bases.
         """
-        if self._gridPainterPath:
-            return self._gridPainterPath
-
         bw = _baseWidth
         bw2 = 2 * bw
         part = self.part()
@@ -230,17 +227,27 @@ class VirtualHelixItem(QGraphicsPathItem):
         # staple-scaffold divider
         path.moveTo(0, bw)
         path.lineTo(bw * canvasSize, bw)
-        self._gridPainterPath = path
-        return path
+        
+        self.setPath(path)
+        
+        if self._modelVirtualHelix.scaffoldIsOnTop():
+            scaffoldY = 0
+        else:
+            scaffoldY = bw
+        if self._scaffoldBackground == None:
+            highlightr = QGraphicsRectItem(0, scaffoldY, bw * canvasSize, bw, self)
+            highlightr.setBrush(QBrush(styles.scaffold_bkg_fill))
+            highlightr.setPen(QPen(Qt.NoPen))
+            highlightr.setFlag(QGraphicsItem.ItemStacksBehindParent)
+            self._scaffoldBackground = highlightr
+        else:
+            self._scaffoldBackground.setRect(0, scaffoldY, bw * canvasSize, bw)
+            
     # end def
 
     def resize(self):
         """Called by part on resize."""
-        # print "resize", self
-        self._gridPainterPath = None
-        self._gridPainterPath = self.getGridPainterPath()
-        self.setPath(self._gridPainterPath)
-    # end def
+        self.refreshPath()
 
     ### PUBLIC SUPPORT METHODS ###
     def setActive(self, idx):

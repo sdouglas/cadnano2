@@ -127,17 +127,36 @@ class Cadnano(QObject):
             print "Some handy locals:"
             print "\ta\tcadnano.app() (the shared cadnano application object)"
             print "\td()\tthe last created Document"
-            print ("\tv\tmaps the numbers of recently created " +
-                  "VirtualHelixes to the VHs themselves")
-            print "\tph\tmaps virtual helix numbers to virtualHelixItem"
-            print "\tpartItem()\tthe last initialized PartItem"
-            print "\tpySide()\ttrue iff the app is using PySide"
+            def d():
+                return self.d
+
+            print "\tw()\tshortcut for d().controller().window()"
+            def w():
+                return self.d.controller().window()
+
+            print "\tp()\tshortcut for d().selectedPart()"
+            def p():
+                return self.d.selectedPart()
+
+            print "\tpi()\tthe PartItem displaying p()"
+            def pi():
+                return w().pathroot.partItemForPart(p())
+
+            print "\tvh(i)\tshortcut for p().virtualHelix(i)"
+            def vh(vhref):
+                return p().virtualHelix(vhref)
+
+            print "\tvhi(i)\tvirtualHelixItem displaying vh(i)"
+            def vhi(vhref):
+                partitem = pi()
+                vHelix = vh(vhref)
+                return partitem.vhItemForVH(vHelix)
+                
+            print "\tpySide() true iff the app is using PySide"
             print "\tquit()\tquit (for when the menu fails)"
-            interact('', local={'a': self,
-                                'd': lambda: self.d,
-                                'vh': self.vh,
-                                'vhi': self.vhi,
-                                'pi': lambda: self.partItem,
+            print "\tgraphicsItm.findChild()  see help(pi().findChild)"
+            interact('', local={'a':self, 'd':d, 'w':w,\
+                                'p':p, 'pi':pi, 'vh':vh, 'vhi':vhi,\
                                 'pySide': self.usesPySide})
 
     def isInMaya(self):
@@ -145,7 +164,9 @@ class Cadnano(QObject):
                                                     "Maya", Qt.CaseInsensitive)
     def exec_(self):
         if hasattr(self, 'qApp'):
-            self.qApp.exec_()
+            self.mainEventLoop = QEventLoop()
+            self.mainEventLoop.exec_()
+            #self.qApp.exec_()
 
     def newDocument(self, isFirstNewDoc=False):
         from controllers.documentcontroller import DocumentController

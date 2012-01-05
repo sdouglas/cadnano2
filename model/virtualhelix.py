@@ -28,6 +28,7 @@
 from strandset import StrandSet
 import util
 from enum import StrandType
+from cadnano import Cadnano
 
 # import Qt stuff into the module namespace with PySide, PyQt4 independence
 util.qtWrapImport('QtCore', globals(), ['pyqtSignal', 'QObject', 'Qt'])
@@ -56,7 +57,8 @@ class VirtualHelix(QObject):
         # setNumber just routes the call to the parent
         # dnapart if one is present. If self._part == None
         # the virtualhelix owns self._number and may modify it.
-        self._number = idnum
+        self._number = None
+        self.setNumber(idnum)
     # end def
 
     def __repr__(self):
@@ -87,8 +89,11 @@ class VirtualHelix(QObject):
     
     def setNumber(self, number):
         if self._number != number:
+            numToVhDict = self._part._numberToVirtualHelix
+            numToVhDict[self._number] = None
             self._number = number
             self.virtualHelixNumberChangedSignal.emit(self, number)
+            numToVhDict[number] = self
     # end def
 
     def setPart(self, newPart):
@@ -109,6 +114,9 @@ class VirtualHelix(QObject):
     # end def
 
     ### METHODS FOR QUERYING THE MODEL ###
+    def scaffoldIsOnTop(self):
+        return self.isEvenParity()
+
     def getStrandSetByIdx(self, idx):
         """
         This is a path-view-specific accessor
