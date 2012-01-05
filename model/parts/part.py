@@ -320,20 +320,23 @@ class Part(QObject):
         prexovers.
         4. Delete temporary strands and create new strands.
         """
+        self.setActiveVirtualHelix(None)
+
+        vhList = self.getVirtualHelices()
         epDict = {}  # keyed on StrandSet
         cmds = []
 
         # clear existing staple strands
-        for vh in self.getVirtualHelices():
+        for vh in vhList:
             stapSS = vh.stapleStrandSet()
             for strand in stapSS:
-                c = StrandSet.RemoveStrandCommand(stapSS, strand, 0)  # rm
+                c = StrandSet.RemoveStrandCommand(stapSS, strand, 0, solo=False)
                 cmds.append(c)
         util.execCommandList(self, cmds, desc="Clear staples")
         cmds = []
 
         # create strands that span all bases where scaffold is present
-        for vh in self.getVirtualHelices():
+        for vh in vhList:
             segments = []
             scafSS = vh.scaffoldStrandSet()
             for strand in scafSS:
@@ -354,11 +357,14 @@ class Part(QObject):
         util.execCommandList(self, cmds, desc="Add tmp strands", useUndoStack=False)
         cmds = []
 
+        pXdict = {}
+
         # determine where xovers should be installed
-        for vh in self.getVirtualHelices():
+        for vh in vhList:
             stapSS = vh.stapleStrandSet()
             is5to3 = stapSS.isDrawn5to3()
             potentialXovers = self.potentialCrossoverList(vh)
+            pXdict[vh] = potentialXovers
             for neighborVh, idx, strandType, isLowIdx in potentialXovers:
                 if strandType != StrandType.Staple:
                     continue
@@ -375,7 +381,7 @@ class Part(QObject):
                         epDict[neighborSS].extend([idx, idx+1])
 
         # clear temporary staple strands
-        for vh in self.getVirtualHelices():
+        for vh in vhList:
             stapSS = vh.stapleStrandSet()
             for strand in stapSS:
                 c = StrandSet.RemoveStrandCommand(stapSS, strand, 0)
@@ -398,10 +404,10 @@ class Part(QObject):
         cmds = []
 
         # create crossovers wherever possible (from strand5p only)
-        for vh in self.getVirtualHelices():
+        for vh in vhList:
             stapSS = vh.stapleStrandSet()
             is5to3 = stapSS.isDrawn5to3()
-            potentialXovers = self.potentialCrossoverList(vh)
+            potentialXovers = pXdict[vh]
             for neighborVh, idx, strandType, isLowIdx in potentialXovers:
                 if strandType != StrandType.Staple:
                     continue
@@ -411,7 +417,7 @@ class Part(QObject):
                     nStrand = neighborSS.getStrand(idx)
                     if strand == None or nStrand == None:
                         continue
-                    self.createXover(strand, idx, nStrand, idx, updateOligo=False)
+                    self.createXover(strand, idx, nStrand, idx, updateOligo=False, updateActive=False)
 
         c = Part.RefreshOligosCommand(self)
         cmds.append(c)
@@ -420,14 +426,14 @@ class Part(QObject):
         util.endSuperMacro(self)
     # end def
 
-
     def createVirtualHelix(self, row, col, useUndoStack=True):
         c = Part.CreateVirtualHelixCommand(self, row, col)
         util.execCommandList(self, [c], desc="Add VirtualHelix", \
                                                 useUndoStack=useUndoStack)
     # end def
 
-    def createXover(self, strand5p, idx5p, strand3p, idx3p, updateOligo=True, useUndoStack=True):
+    def createXover(self, strand5p, idx5p, strand3p, idx3p, updateOligo=True,\
+                    updateActive=True, useUndoStack=True):
         # prexoveritem needs to store left or right, and determine
         # locally whether it is from or to
         # pass that info in here in and then do the breaks
@@ -557,7 +563,9 @@ class Part(QObject):
                         self.undoStack().endMacro()
                     return
         # end else
-        e = Part.CreateXoverCommand(self, xoStrand5, idx5p, xoStrand3, idx3p, updateOligo=updateOligo)
+        e = Part.CreateXoverCommand(self, xoStrand5, idx5p, xoStrand3, idx3p,\
+                                    updateOligo=updateOligo,\
+                                    updateActive=updateActive)
         if useUndoStack:
             self.undoStack().push(e)
             self.undoStack().endMacro()
@@ -858,47 +866,6 @@ class Part(QObject):
             heappush(self.oddRecycleBin, n)
     # end def
 
-    def _splitBeforeAutoXovers(self, vh5p, vh3p, idx, useUndoStack=True):
-        # prexoveritem needs to store left or right, and determine
-        # locally whether it is from or to
-        # pass that info in here in and then do the breaks
-        ss5p = strand5p.strandSet()
-        ss3p = strand3p.strandSet()
-        cmds = []
-
-        # is the 5' end ready for xover installation?
-        if strand3p.idx5Prime() == idx5p:  # yes, idx already matches
-            xoStrand3 = strand3p
-        else:  # no, let's try to split
-            offset3p = -1 if ss3p.isDrawn5to3() else 1
-            if ss3p.strandCanBeSplit(strand3p, idx3p + offset3p):
-                found, overlap, ssIdx = ss3p._findIndexOfRangeFor(strand3p)
-                if found:
-                    c = ss3p.SplitCommand(strand3p, idx3p + offset3p, ssIdx)
-                    cmds.append(c)
-                    xoStrand3 = c._strandHigh if ss3p.isDrawn5to3() else c._strandLow
-            else:  # can't split... abort
-                return
-
-        # is the 3' end ready for xover installation?
-        if strand5p.idx3Prime() == idx5p:  # yes, idx already matches
-            xoStrand5 = strand5p
-        else:
-            if ss5p.strandCanBeSplit(strand5p, idx5p):
-                found, overlap, ssIdx = ss5p._findIndexOfRangeFor(strand5p)
-                if found:
-                    d = ss5p.SplitCommand(strand5p, idx5p, ssIdx)
-                    cmds.append(d)
-                    xoStrand5 = d._strandLow if ss5p.isDrawn5to3() \
-                                                else d._strandHigh
-            else:  # can't split... abort
-                return
-        c = Part.CreateXoverCommand(self, xoStrand5, idx5p, xoStrand3, idx3p)
-        cmds.append(c)
-        util.execCommandList(self, cmds, desc="Create Xover", \
-                                                useUndoStack=useUndoStack)
-    # end def
-
     ### PUBLIC SUPPORT METHODS ###
     def shallowCopy(self):
         part = self.newPart()
@@ -1100,7 +1067,8 @@ class Part(QObject):
         2. install the crossover
         3. apply the strand5p oligo to the strand3p
         """
-        def __init__(self, part, strand5p, strand5pIdx, strand3p, strand3pIdx, updateOligo=True):
+        def __init__(self, part, strand5p, strand5pIdx, strand3p, strand3pIdx,\
+                     updateOligo=True, updateActive=True):
             super(Part.CreateXoverCommand, self).__init__()
             self._part = part
             self._strand5p = strand5p
@@ -1109,6 +1077,7 @@ class Part(QObject):
             self._strand3pIdx = strand3pIdx
             self._oldOligo3p = strand3p.oligo()
             self._updateOligo = updateOligo
+            self._updateActive = updateActive
         # end def
 
         def redo(self):
@@ -1148,8 +1117,9 @@ class Part(QObject):
             vh3p = ss3.virtualHelix()
             st3p = ss3.strandType()
 
-            part.partActiveVirtualHelixChangedSignal.emit(part, vh5p)
-            # strand5p.strandXover5pChangedSignal.emit(strand5p, strand3p)
+            if self._updateActive:
+                part.partActiveVirtualHelixChangedSignal.emit(part, vh5p)
+
             if self._updateOligo:
                 strand5p.strandUpdateSignal.emit(strand5p)
                 strand3p.strandUpdateSignal.emit(strand3p)
@@ -1192,8 +1162,9 @@ class Part(QObject):
             vh3p = ss3.virtualHelix()
             st3p = ss3.strandType()
 
-            part.partActiveVirtualHelixChangedSignal.emit(part, vh5p)
-            # strand5p.strandXover5pChangedSignal.emit(strand5p, strand3p)
+            if self._updateActive:
+                part.partActiveVirtualHelixChangedSignal.emit(part, vh5p)
+
             if self._updateOligo:
                 strand5p.strandUpdateSignal.emit(strand5p)
                 strand3p.strandUpdateSignal.emit(strand3p)

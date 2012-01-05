@@ -191,7 +191,9 @@ class PartItem(QGraphicsRectItem):
 
     def updatePreXoverItemsSlot(self, virtualHelix):
         part = self.part()
-        if part.areSameOrNeighbors(part.activeVirtualHelix(), virtualHelix):
+        if virtualHelix == None:
+            self.setPreXoverItemsVisible(None)
+        elif part.areSameOrNeighbors(part.activeVirtualHelix(), virtualHelix):
             vhi = self.itemForVirtualHelix(virtualHelix)
             self.setActiveVirtualHelixItem(vhi)
             self.setPreXoverItemsVisible(self.activeVirtualHelixItem())
@@ -424,9 +426,13 @@ class PartItem(QGraphicsRectItem):
         visible prexovers
         """
         vhi = virtualHelixItem
+
         if vhi == None:
+            if self._preXoverItems:
+                # clear all PreXoverItems
+                map(PreXoverItem.remove, self._preXoverItems)
+                self._preXoverItems = []
             return
-        # end if
 
         vh = vhi.virtualHelix()
         partItem = self

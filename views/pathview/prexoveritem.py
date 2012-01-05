@@ -184,7 +184,7 @@ class PreXoverItem(QGraphicsPathItem):
     def mousePress(self, event):
         if event.button() != Qt.LeftButton:
             return QGraphicsPathItem.mousePressEvent(self, event)
-        
+
         if self._isActive:
             fromVH = self._fromVHItem.virtualHelix()
             toVH = self._toVHItem.virtualHelix()
@@ -200,11 +200,11 @@ class PreXoverItem(QGraphicsPathItem):
             else:  # 5'
                 strand5p = toStrand
                 strand3p = fromStrand
-                
+
             # Gotta clear selections when installing a prexover
             # otherwise parenting in screwed up
             self._fromVHItem.viewroot().clearStrandSelections()
-            
+
             part.createXover(strand5p, self._idx, strand3p, self._idx)
     # end def
     
