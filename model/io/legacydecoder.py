@@ -207,14 +207,14 @@ def import_legacy_dict(document, obj):
             strand5p = scafStrandSet.getStrand(idx5p)
             toVh = part.virtualHelixAtCoord(vhNumToCoord[toVhNum])
             strand3p = toVh.scaffoldStrandSet().getStrand(idx3p)
-            part.createXover(strand5p, idx5p, strand3p, idx3p, useUndoStack=False)
+            part.createXover(strand5p, idx5p, strand3p, idx3p, updateActive=False, useUndoStack=False)
         # install staple xovers
         for (idx5p, toVhNum, idx3p) in stap_xo[vhNum]:
             # idx3p is 3' end of strand5p, idx5p is 5' end of strand3p
             strand5p = stapStrandSet.getStrand(idx5p)
             toVh = part.virtualHelixAtCoord(vhNumToCoord[toVhNum])
             strand3p = toVh.stapleStrandSet().getStrand(idx3p)
-            part.createXover(strand5p, idx5p, strand3p, idx3p, useUndoStack=False)
+            part.createXover(strand5p, idx5p, strand3p, idx3p, updateActive=False, useUndoStack=False)
 
     # SET DEFAULT COLOR
     for oligo in part.oligos():
