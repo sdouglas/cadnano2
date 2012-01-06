@@ -29,6 +29,7 @@ Created by Simon Breslav on 2011-10-05.
 
 from controllers.viewrootcontroller import ViewRootController
 from partitem import PartItem
+import maya.cmds as cmds
 
 import util
 util.qtWrapImport('QtCore', globals(), ['pyqtSignal', 'QObject'])
@@ -77,7 +78,9 @@ class SolidRootItem(object):
     # end def
     
     def clearSelectionsSlot(self, doc):
-        pass
+        cmds.select(clear=True)
+        for strand in self._selectedDict.keys():
+            self.removeFromSelectionDict(strand)
     # end def
     ### METHODS ###
 
@@ -87,13 +90,15 @@ class SolidRootItem(object):
 
     def selectedChanged(self, strandList, value):
         """is called from Mom when selection changed in 3D"""
-        print "selected changed 3D", strandList, self._selectedDict
+        # print "selected changed 3D", strandList, self._selectedDict
+        if len(strandList) == 0 and len(self._selectedDict) == 0:
+            return
         
         for strand in self._selectedDict.keys():
             # XXX does not work
             self.removeFromSelectionDict(strand)
             temp = self._document.removeStrandFromSelection(strand)
-            print temp, "cupcake"
+            # print temp, "cupcake"
         self._document.updateSelection()
         for strand in strandList:
             self.addToSelectionDict(strand)

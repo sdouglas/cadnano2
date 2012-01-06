@@ -66,13 +66,15 @@ def dagParentRemovedCallback(child, parent, clientData):
             if c in mom.mayaToCn:
                 strand = mom.mayaToCn[c]
                 if strand:
-                    #print "Strand %s : %s needs removal" % (c, strand)
+                    # print "Strand %s : %s needs removal" % (c, strand)
+                    mID = mom.strandMayaID(strand)
+                    mom.removeIDMapping(mID, strand)
                     strand.strandSet().removeStrand(strand)
                 else:
                     print "Error: no Strand inside mayaObjectModel"
             else:
                 pass
-                #print "dagParentRemovedCallback: %s already deleted" % c
+                # print "dagParentRemovedCallback: %s already deleted" % c
         elif c.startswith(mom.decoratorMeshName):
             if c in mom.decoratorToVirtualHelixItem:
                 pass

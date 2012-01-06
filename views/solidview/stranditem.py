@@ -215,10 +215,10 @@ class StrandItem(object):
         if cmds.objExists(transformName):
             if(indices[0] or indices[1]):
                 cmds.select(transformName, add=True)
-                print "selecting a strand"
+                # print "selecting a strand"
                 self._viewroot.addToSelectionDict(strand)
             else:
-                print "deselecting in the slot"
+                # print "deselecting in the slot"
                 cmds.select(transformName, deselect=True)
                 self._viewroot.removeFromSelectionDict(strand)
         mom.ignoreExternalSelectionSignal = False
