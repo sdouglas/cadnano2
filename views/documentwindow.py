@@ -93,7 +93,7 @@ class DocumentWindow(QMainWindow, ui_mainwindow.Ui_MainWindow):
         self.pathToolManager.sliceToolManager = self.sliceToolManager
 
         # set the selection filter default
-        doc.documentSelectionFilterChangedSignal.emit(["endpoint", "scaffold", "staple"])
+        doc.documentSelectionFilterChangedSignal.emit(["endpoint", "scaffold", "staple", "xover"])
 
         self.pathGraphicsView.setupGL()
         self.sliceGraphicsView.setupGL()
