@@ -93,9 +93,8 @@ class SolidRootItem(object):
         # print "selected changed 3D", strandList, self._selectedDict
         if len(strandList) == 0 and len(self._selectedDict) == 0:
             return
-        
+
         for strand in self._selectedDict.keys():
-            # XXX does not work
             self.removeFromSelectionDict(strand)
             temp = self._document.removeStrandFromSelection(strand)
             # print temp, "cupcake"
@@ -108,11 +107,11 @@ class SolidRootItem(object):
         # self.oldSelectionStrandList = strandList
         # pass
     # end def
-    
+
     def addToSelectionDict(self, item):
         self._selectedDict[item] = True
     # end def
-    
+
     def removeFromSelectionDict(self, item):
         if item in self._selectedDict:
             del self._selectedDict[item]
@@ -121,19 +120,23 @@ class SolidRootItem(object):
     def partItems(self):
         """Return a list of partItems associated with this RootItem"""
         return self._partItems
+    # end def
 
     def removePartItem(self, partItem):
         """Remove a given partItem"""
         del self._partItems[partItem]
+    # end def
 
     def setModifyState(self, val):
         """Notifies all the associated partItems of the Modify State Change"""
         self._modifyState = val
         for p in self._partItems:
             p.setModifyState(val)
+    # end def
 
     def clearSelectionFilterDict(self):
         self._selectionFilterDict = {}
+    # end def
 
     def selectionFilterDict(self):
         return self._selectionFilterDict
@@ -145,3 +148,5 @@ class SolidRootItem(object):
 
     def removeFromSelectionFilterDict(self, filterName):
         del self._selectionFilterDict[filterName]
+    # end def
+# end class

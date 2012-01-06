@@ -732,14 +732,14 @@
     <bool>true</bool>
    </property>
    <property name="checked">
-    <bool>false</bool>
+    <bool>true</bool>
    </property>
    <property name="icon">
     <iconset resource="icons.qrc">
      <normaloff>:/parttools/filter-xover</normaloff>:/parttools/filter-xover</iconset>
    </property>
    <property name="text">
-    <string> </string>
+    <string/>
    </property>
    <property name="toolTip">
     <string>(X)overs</string>

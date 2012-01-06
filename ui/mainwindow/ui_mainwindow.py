@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'mainwindow/mainwindow.ui'
 #
-# Created: Thu Dec 22 11:25:05 2011
+# Created: Fri Jan  6 14:29:36 2012
 #      by: PyQt4 UI code generator 4.8.6
 #
 # WARNING! All changes made in this file will be lost!
@@ -350,11 +350,11 @@ class Ui_MainWindow(object):
         self.actionFilterEndpoint.setObjectName(_fromUtf8("actionFilterEndpoint"))
         self.actionFilterXover = QtGui.QAction(MainWindow)
         self.actionFilterXover.setCheckable(True)
-        self.actionFilterXover.setChecked(False)
+        self.actionFilterXover.setChecked(True)
         icon22 = QtGui.QIcon()
         icon22.addPixmap(QtGui.QPixmap(_fromUtf8(":/parttools/filter-xover")), QtGui.QIcon.Normal, QtGui.QIcon.Off)
         self.actionFilterXover.setIcon(icon22)
-        self.actionFilterXover.setText(QtGui.QApplication.translate("MainWindow", " ", None, QtGui.QApplication.UnicodeUTF8))
+        self.actionFilterXover.setText(_fromUtf8(""))
         self.actionFilterXover.setToolTip(QtGui.QApplication.translate("MainWindow", "(X)overs", None, QtGui.QApplication.UnicodeUTF8))
         self.actionFilterXover.setShortcut(QtGui.QApplication.translate("MainWindow", "X", None, QtGui.QApplication.UnicodeUTF8))
         self.actionFilterXover.setObjectName(_fromUtf8("actionFilterXover"))
