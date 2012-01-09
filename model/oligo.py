@@ -30,7 +30,7 @@ import util
 import copy
 from strand import Strand
 # import Qt stuff into the module namespace with PySide, PyQt4 independence
-util.qtWrapImport('QtCore', globals(), ['pyqtSignal', 'QObject'])
+util.qtWrapImport('QtCore', globals(), ['QObject'])
 util.qtWrapImport('QtGui', globals(), ['QUndoCommand'])
 
 
@@ -80,10 +80,8 @@ class Oligo(QObject):
     # end def
 
     ### SIGNALS ###
-    oligoIdentityChangedSignal = pyqtSignal(QObject)  # new oligo
-    oligoAppearanceChangedSignal = pyqtSignal(QObject)  # self
-    oligoSequenceAddedSignal = pyqtSignal(QObject)  # self
-    oligoSequenceClearedSignal = pyqtSignal(QObject)  # self
+    emittedMessageNames = ['oligoIdentityChangedSignal', 'oligoAppearanceChangedSignal',\
+                           'oligoSequenceAddedSignal', 'oligoSequenceClearedSignal']
 
     ### SLOTS ###
 
@@ -226,7 +224,8 @@ class Oligo(QObject):
         before = self.shouldHighlight()
         self._length = length
         if before != self.shouldHighlight():
-            self.oligoAppearanceChangedSignal.emit(self)
+            util.emit(self, 'oligoSequenceClearedSignal')
+            util.emit(self, 'oligoAppearanceChangedSignal')
     # end def
 
     def strandMergeUpdate(self, oldStrandLow, oldStrandHigh, newStrand):
@@ -311,13 +310,13 @@ class Oligo(QObject):
         def redo(self):
             olg = self._oligo
             olg.setColor(self._newColor)
-            olg.oligoAppearanceChangedSignal.emit(olg)
+            util.emit(olg, 'oligoAppearanceChangedSignal')
         # end def
 
         def undo(self):
             olg = self._oligo
             olg.setColor(self._oldColor)
-            olg.oligoAppearanceChangedSignal.emit(olg)
+            util.emit(olg, 'oligoAppearanceChangedSignal')
         # end def
     # end class
 
@@ -349,7 +348,7 @@ class Oligo(QObject):
                     break
             # end for
             for oligo in oligoList:
-                oligo.oligoSequenceAddedSignal.emit(oligo)
+                util.emit(oligo, 'oligoSequenceAddedSignal')
         # end def
 
         def undo(self):
@@ -370,9 +369,8 @@ class Oligo(QObject):
                 # end for
             # for
 
-            # olg.oligoSequenceClearedSignal.emit(olg)
             for oligo in oligoList:
-                oligo.oligoSequenceAddedSignal.emit(oligo)
+                util.emit(oligo, 'oligoSequenceAddedSignal')
         # end def
     # end class
     class ApplyColorCommand(QUndoCommand):
@@ -386,13 +384,13 @@ class Oligo(QObject):
         def redo(self):
             olg = self._oligo
             olg.setColor(self._newColor)
-            olg.oligoAppearanceChangedSignal.emit(olg)
+            util.emit(olg, 'oligoAppearanceChangedSignal')
         # end def
 
         def undo(self):
             olg = self._oligo
             olg.setColor(self._oldColor)
-            olg.oligoAppearanceChangedSignal.emit(olg)
+            util.emit(olg, 'oligoAppearanceChangedSignal')
         # end def
     # end class
 

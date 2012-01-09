@@ -22,6 +22,7 @@
 #
 # http://www.opensource.org/licenses/mit-license.php
 
+import util
 from controllers.itemcontrollers.strand.abstractstranditemcontroller \
      import AbstractStrandItemController
 
@@ -56,8 +57,8 @@ class StrandItemController(AbstractStrandItemController):
         mO = self._modelStrand.oligo()
         self._modelOligo = mO
         sI = self._strandItem
-        mO.oligoSequenceAddedSignal.connect(sI.oligoSequenceAddedSlot)
-        mO.oligoSequenceClearedSignal.connect(sI.oligoSequenceClearedSlot)
+        util.observe(mO, 'oligoSequenceAddedSignal', sI.oligoSequenceAddedSlot)
+        util.observe(mO, 'oligoSequenceClearedSignal', sI.oligoSequenceClearedSlot)
     # end def
 
     def disconnectSignals(self):
@@ -73,6 +74,6 @@ class StrandItemController(AbstractStrandItemController):
     def disconnectOligoSignals(self):
         mO = self._modelOligo
         sI = self._strandItem
-        mO.oligoSequenceAddedSignal.disconnect(sI.oligoSequenceAddedSlot)
-        mO.oligoSequenceClearedSignal.disconnect(sI.oligoSequenceClearedSlot)
+        util.unObserve(mO, 'oligoSequenceAddedSignal', sI.oligoSequenceAddedSlot)
+        util.unObserve(mO, 'oligoSequenceClearedSignal', sI.oligoSequenceClearedSlot)
     # end def

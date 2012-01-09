@@ -344,14 +344,15 @@ def observe(emittingObject, messageName, destinationCallable):
     if messageName not in emittingObject.emittedMessageNames:
         print "WARNING: %s isn't known to emit %s but %s thinks it is"%\
                 (emittingObject, messageName, destinationCallable)
-    if not hasattr(emittingObject, 'observers'):
+    if not hasattr(emittingObject, 'observersForKey'):
         emittingObject.observersForKey = {}
     obs = emittingObject.observersForKey.get(messageName, set())
     obs.add(destinationCallable)
 
 def unObserve(emittingObject, messageName, destinationCallable):
-    assert(messageName in emittingObject.observers)
-    observersOfMsg = emittingObject.observers[messageName]
+    if not hasattr(emittingObject, 'observersOfMsg'):
+        return
+    observersOfMsg = emittingObject.observersOfMsg.get(messageName, set())
     observersOfMsg.remove(destinationCallable)
 
 def emit(emittingObject, messageName, *args):
@@ -359,6 +360,8 @@ def emit(emittingObject, messageName, *args):
         print "WARNING: %s isn't known to emit %s but it did."%\
                 (emittingObject, messageName)
         emittingObject.emittedMessageNames.add(messageName)
+    if not hasattr(emittingObject, 'observersOfMsg'):
+        return
     for c in emittingObject.observersOfMsg[messageName]:
         c(messageName, *args)
 
