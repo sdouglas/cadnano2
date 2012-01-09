@@ -79,7 +79,7 @@ class Part(QObject):
         super(Part, self).__init__(parent=self._document)
         # Data structure
         self._insertions = defaultdict(dict)  # dict of insertions per virtualhelix
-        self._oligos = {}
+        self._oligos = set()
         self._coordToVirtualHelix = {}
         self._numberToVirtualHelix = {}
         # Dimensions
@@ -331,7 +331,7 @@ class Part(QObject):
     # end def
 
     def addOligo(self, oligo):
-        self._oligos[oligo] = True
+        self._oligos.add(oligo)
     # end def
 
     def autoStaple(self):
@@ -677,8 +677,7 @@ class Part(QObject):
     # end def
 
     def removeOligo(self, oligo):
-        self._oligos[oligo] = False
-        del self._oligos[oligo]
+        self._oligos.remove(oligo)
     # end def
 
     def renumber(self, coordList, useUndoStack=True):
@@ -717,7 +716,7 @@ class Part(QObject):
             aVH =  part.activeVirtualHelix()
             if aVH:
                 part.partStrandChangedSignal.emit(aVH)
-            for oligo in part._oligos.iterkeys():
+            for oligo in part._oligos:
                 for strand in oligo.strand5p().generator3pStrand():
                     strand.strandUpdateSignal.emit(strand)
         # end def
@@ -730,7 +729,7 @@ class Part(QObject):
             aVH =  part.activeVirtualHelix()
             if aVH:
                 part.partStrandChangedSignal.emit(aVH)
-            for oligo in part._oligos.iterkeys():
+            for oligo in part._oligos:
                 for strand in oligo.strand5p().generator3pStrand():
                     strand.strandUpdateSignal.emit(strand)
         # end def
@@ -927,7 +926,7 @@ class Part(QObject):
     def shallowCopy(self):
         part = self.newPart()
         part._virtualHelices = dict(self._virtualHelices)
-        part._oligos = dict(self._oligos)
+        part._oligos = set(self._oligos)
         part._maxBase = self._maxBase
         return part
     # end def
@@ -1453,7 +1452,7 @@ class Part(QObject):
                 self._strandSets.append(x[1])
             self._strandSetListCopies = \
                         [[y for y in x._strandList] for x in self._strandSets]
-            self._oligos = part.oligos().keys()
+            self._oligos = set(part.oligos())
         # end def
 
         def redo(self):

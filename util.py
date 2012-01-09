@@ -316,6 +316,8 @@ def findChild(self):
                     c.hide()
                 child.show()
             elif command == 'r':  # Return current child
+                for child, wasVisible in childVisibility:
+                    child.setVisible(wasVisible)
                 return child
             else:
                 break
@@ -323,3 +325,41 @@ def findChild(self):
         for child, wasVisible in childVisibility:
             child.setVisible(wasVisible)
 
+
+# Message Passing: each class should declare a class variable
+# emittedMessageNames which is a set of all names of messages
+# that it will emit.
+#
+# class Foo:
+#   emittedMessageNames = set(('whine','shout'))
+#   def complain(self):
+#       util.emit(self, 'whine', 1, 2, 3)
+# def hearComplaint():
+#   print "Somebody has complained."
+# f = Foo()
+# util.observe(f, 'whine', hearComplaint)
+# f.complain()
+# # "Somebody has complained." gets printed.
+def observe(emittingObject, messageName, destinationCallable):
+    if messageName not in emittingObject.emittedMessageNames:
+        print "WARNING: %s isn't known to emit %s but %s thinks it is"%\
+                (emittingObject, messageName, destinationCallable)
+    if not hasattr(emittingObject, 'observers'):
+        emittingObject.observersForKey = {}
+    obs = emittingObject.observersForKey.get(messageName, set())
+    obs.add(destinationCallable)
+
+def unObserve(emittingObject, messageName, destinationCallable):
+    assert(messageName in emittingObject.observers)
+    observersOfMsg = emittingObject.observers[messageName]
+    observersOfMsg.remove(destinationCallable)
+
+def emit(emittingObject, messageName, *args):
+    if messageName not in emittingObject.emittedMessageNames:
+        print "WARNING: %s isn't known to emit %s but it did."%\
+                (emittingObject, messageName)
+        emittingObject.emittedMessageNames.add(messageName)
+    for c in emittingObject.observersOfMsg[messageName]:
+        c(messageName, *args)
+
+    
