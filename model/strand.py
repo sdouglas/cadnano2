@@ -32,7 +32,7 @@ from array import array
 from decorators.insertion import Insertion
 
 # import Qt stuff into the module namespace with PySide, PyQt4 independence
-util.qtWrapImport('QtCore', globals(), ['pyqtSignal', 'QObject', 'Qt'])
+util.qtWrapImport('QtCore', globals(), ['QObject', 'Qt'])
 util.qtWrapImport('QtGui', globals(), ['QUndoStack', 'QUndoCommand'])
 
 
@@ -135,36 +135,36 @@ class Strand(QObject):
         return self._strandSet.strandFilter()
 
     ### SIGNALS ###
-    emittedMessageNames = ['strandHasNewOligoSignal', 'strandRemovedSignal']
-    strandResizedSignal = pyqtSignal(QObject, tuple)
-
+    emittedMessageNames = ['strandHasNewOligoSignal', 'strandRemovedSignal',\
+                           'strandResizedSignal']
+    
     # Parameters: (strand3p, strand5p)
-    strandXover5pChangedSignal = pyqtSignal(QObject, QObject)
-    strandXover5pRemovedSignal = pyqtSignal(QObject, QObject)
-
+    emittedMessageNames.append('strandXover5pChangedSignal')
+    emittedMessageNames.append('strandXover5pRemovedSignal')
+    
     # Parameters: (strand)
-    strandUpdateSignal = pyqtSignal(QObject)
-
+    emittedMessageNames.append('strandUpdateSignal')
+    
     # Parameters: (strand, insertion object)
-    strandInsertionAddedSignal = pyqtSignal(QObject, object)
-    strandInsertionChangedSignal = pyqtSignal(QObject, object)
+    emittedMessageNames.append('strandInsertionAddedSignal')
+    emittedMessageNames.append('strandInsertionChangedSignal')
     # Parameters: (strand, insertion index)
-    strandInsertionRemovedSignal = pyqtSignal(QObject, int)
-
+    emittedMessageNames.append('strandInsertionRemovedSignal')
+    
     # Parameters: (strand, decorator object)
-    strandDecoratorAddedSignal = pyqtSignal(QObject, object)
-    strandDecoratorChangedSignal = pyqtSignal(QObject, object)
+    emittedMessageNames.append('strandDecoratorAddedSignal')
+    emittedMessageNames.append('strandDecoratorChangedSignal')
     # Parameters: (strand, decorator index)
-    strandDecoratorRemovedSignal = pyqtSignal(QObject, int)
-
+    emittedMessageNames.append('strandDecoratorRemovedSignal')
+    
     # Parameters: (strand, modifier object)
-    strandModifierAddedSignal = pyqtSignal(QObject, object)
-    strandModifierChangedSignal = pyqtSignal(QObject, object)
+    emittedMessageNames.append('strandModifierAddedSignal')
+    emittedMessageNames.append('strandModifierChangedSignal')
     # Parameters: (strand, modifier index)
-    strandModifierRemovedSignal = pyqtSignal(QObject, int)
-
+    emittedMessageNames.append('strandModifierRemovedSignal')
+    
     # Parameters: (strand, value)
-    selectedChangedSignal = pyqtSignal(QObject, tuple)
+    emittedMessageNames.append('selectedChangedSignal')
 
     ### SLOTS ###
     ### ACCESSORS ###
@@ -819,12 +819,12 @@ class Strand(QObject):
             std.setIdxs(nI)
             if strandSet.isStaple():
                 std.reapplySequence()
-            std.strandResizedSignal.emit(std, nI)
+            util.emit(std, 'strandResizedSignal', nI)
             # for updating the Slice View displayed helices
             part.partStrandChangedSignal.emit(strandSet.virtualHelix())
             std5p = std.connection5p()
             if std5p:
-                std5p.strandResizedSignal.emit(std5p, std5p.idxs())
+                util.emit(std5p, 'strandResizedSignal', std5p.idxs())
         # end def
 
         def undo(self):
@@ -837,12 +837,12 @@ class Strand(QObject):
             std.setIdxs(oI)
             if strandSet.isStaple():
                 std.reapplySequence()
-            std.strandResizedSignal.emit(std, oI)
+            util.emit(std, 'strandResizedSignal', oI)
             # for updating the Slice View displayed helices
             part.partStrandChangedSignal.emit(strandSet.virtualHelix())
             std5p = std.connection5p()
             if std5p:
-                std5p.strandResizedSignal.emit(std5p, std5p.idxs())
+                util.emit(std5p, 'strandResizedSignal', std5p.idxs())
         # end def
     # end class
 
@@ -865,10 +865,10 @@ class Strand(QObject):
             inst = self._insertion
             self._insertions[self._idx] = inst
             strand.oligo().incrementLength(inst.length())
-            strand.strandInsertionAddedSignal.emit(strand, inst)
+            util.emit(strand, 'strandInsertionAddedSignal', inst)
             if cStrand:
                 cStrand.oligo().incrementLength(inst.length())
-                cStrand.strandInsertionAddedSignal.emit(cStrand, inst)
+                util.emit(cStrand, 'strandInsertionAddedSignal', inst)
         # end def
 
         def undo(self):
@@ -880,9 +880,9 @@ class Strand(QObject):
                 cStrand.oligo().decrementLength(inst.length())
             idx = self._idx
             del self._insertions[idx]
-            strand.strandInsertionRemovedSignal.emit(strand, idx)
+            util.emit(strand, 'strandInsertionRemovedSignal', idx)
             if cStrand:
-                cStrand.strandInsertionRemovedSignal.emit(cStrand, idx)
+                util.emit(cStrand, 'strandInsertionRemovedSignal', idx)
         # end def
     # end class
 
@@ -907,9 +907,9 @@ class Strand(QObject):
                 cStrand.oligo().decrementLength(inst.length())
             idx = self._idx
             del self._insertions[idx]
-            strand.strandInsertionRemovedSignal.emit(strand, idx)
+            util.emit(strand, 'strandInsertionRemovedSignal', idx)
             if cStrand:
-                cStrand.strandInsertionRemovedSignal.emit(cStrand, idx)
+                util.emit(cStrand, 'strandInsertionRemovedSignal', idx)
         # end def
 
         def undo(self):
@@ -919,10 +919,10 @@ class Strand(QObject):
             inst = self._insertion
             strand.oligo().incrementLength(inst.length())
             self._insertions[self._idx] = inst
-            strand.strandInsertionAddedSignal.emit(strand, inst)
+            util.emit(strand, 'strandInsertionAddedSignal', inst)
             if cStrand:
                 cStrand.oligo().incrementLength(inst.length())
-                cStrand.strandInsertionAddedSignal.emit(cStrand, inst)
+                util.emit(cStrand, 'strandInsertionAddedSignal', inst)
         # end def
     # end class
 
@@ -950,11 +950,11 @@ class Strand(QObject):
             inst = self._insertions[self._idx]
             inst.setLength(self._newLength)
             strand.oligo().incrementLength(self._newLength - self._oldLength)
-            strand.strandInsertionChangedSignal.emit(strand, inst)
+            util.emit(strand, 'strandInsertionChangedSignal', inst)
             if cStrand:
                 cStrand.oligo().incrementLength(
                                             self._newLength - self._oldLength)
-                cStrand.strandInsertionChangedSignal.emit(cStrand, inst)
+                util.emit(cStrand, 'strandInsertionChangedSignal', inst)
         # end def
 
         def undo(self):
@@ -963,11 +963,11 @@ class Strand(QObject):
             inst = self._insertions[self._idx]
             inst.setLength(self._oldLength)
             strand.oligo().decrementLength(self._newLength - self._oldLength)
-            strand.strandInsertionChangedSignal.emit(strand, inst)
+            util.emit(strand, 'strandInsertionChangedSignal', inst)
             if cStrand:
                 cStrand.oligo().decrementLength(
                                             self._newLength - self._oldLength)
-                cStrand.strandInsertionChangedSignal.emit(cStrand, inst)
+                util.emit(cStrand, 'strandInsertionChangedSignal', inst)
         # end def
     # end class
 # end class

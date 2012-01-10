@@ -368,6 +368,6 @@ def emit(emittingObject, messageName, *args):
         return
     interestedObservers = emittingObject.observersOfMsg.get(messageName, ())
     for c in list(interestedObservers):
-        c(messageName, *args)
+        c(emittingObject, *args)
 
     

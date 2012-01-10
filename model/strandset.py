@@ -73,7 +73,7 @@ class StrandSet(QObject):
     # end def
 
     ### SIGNALS ###
-    strandsetStrandAddedSignal = pyqtSignal(QObject)
+    emittedMessageNames = ['strandsetStrandAddedSignal']
 
     ### SLOTS ###
 
@@ -768,7 +768,7 @@ class StrandSet(QObject):
             if strandSet.isStaple():
                 strand.reapplySequence()
             # Emit a signal to notify on completion
-            strandSet.strandsetStrandAddedSignal.emit(strand)
+            util.emit(strandSet, 'strandsetStrandAddedSignal', strand)
             # for updating the Slice View displayed helices
             strandSet.part().partStrandChangedSignal.emit(
                                                     strandSet.virtualHelix())
@@ -850,7 +850,7 @@ class StrandSet(QObject):
                     vh = strandSet.virtualHelix()
                     part.partActiveVirtualHelixChangedSignal.emit(part, vh)
                     #strand5p.strandXover5pChangedSignal.emit(strand5p, strand)
-                strand5p.strandUpdateSignal.emit(strand5p)
+                util.emit(strand5p, 'strandUpdateSignal')
             # end if
             if strand3p != None:
                 if not olg3p.isLoop():
@@ -863,7 +863,7 @@ class StrandSet(QObject):
                     vh = strandSet.virtualHelix()
                     part.partActiveVirtualHelixChangedSignal.emit(part, vh)
                     # strand.strandXover5pChangedSignal.emit(strand, strand3p)
-                strand3p.strandUpdateSignal.emit(strand3p)
+                util.emit(strand3p, 'strandUpdateSignal')
             # end if
             # Emit a signal to notify on completion
             util.emit(strand, 'strandRemovedSignal')
@@ -901,7 +901,7 @@ class StrandSet(QObject):
             # end for
 
             # Emit a signal to notify on completion
-            strandSet.strandsetStrandAddedSignal.emit(strand)
+            util.emit(strandSet, 'strandsetStrandAddedSignal', strand)
             # for updating the Slice View displayed helices
             strandSet.part().partStrandChangedSignal.emit(
                                                     strandSet.virtualHelix())
@@ -914,8 +914,8 @@ class StrandSet(QObject):
                     part.partActiveVirtualHelixChangedSignal.emit(part, vh)
                     # strand5p.strandXover5pChangedSignal.emit(
                     #                                        strand5p, strand)
-                strand5p.strandUpdateSignal.emit(strand5p)
-                strand.strandUpdateSignal.emit(strand)
+                util.emit(strand5p, 'strandUpdateSignal')
+                util.emit(strand, 'strandUpdateSignal')
 
             if strand3p != None:
                 if self._solo:
@@ -923,8 +923,8 @@ class StrandSet(QObject):
                     vh = strandSet.virtualHelix()
                     part.partActiveVirtualHelixChangedSignal.emit(part, vh)
                     # strand.strandXover5pChangedSignal.emit(strand, strand3p)
-                strand3p.strandUpdateSignal.emit(strand3p)
-                strand.strandUpdateSignal.emit(strand)
+                util.emit(strand3p, 'strandUpdateSignal')
+                util.emit(strand, 'strandUpdateSignal')
         # end def
     # end class
 
@@ -1018,9 +1018,9 @@ class StrandSet(QObject):
             hOlg.removeFromPart()
 
             # Emit Signals related to destruction and addition
-            util.emit(sL, 'strandRemovedSignal')  # out with the old...
-            util.emit(sH, 'strandRemovedSignal')  # out with the old...
-            sS.strandsetStrandAddedSignal.emit(nS)  # ...in with the new
+            util.emit(sL, 'strandRemovedSignal')
+            util.emit(sH, 'strandRemovedSignal')
+            util.emit(sS, 'strandsetStrandAddedSignal', nS)
         # end def
 
         def undo(self):
@@ -1066,9 +1066,9 @@ class StrandSet(QObject):
             hOlg.addToPart(sH.part())
 
             # Emit Signals related to destruction and addition
-            util.emit(nS, 'strandRemovedSignal')  # out with the new...
-            sS.strandsetStrandAddedSignal.emit(sH)  # ...in with the old
-            sS.strandsetStrandAddedSignal.emit(sL)  # ...in with the old
+            util.emit(nS, 'strandRemovedSignal')
+            util.emit(sS, 'strandRemovedSignal', sH)
+            util.emit(sS, 'strandsetStrandAddedSignal', sL)
         # end def
     # end class
 
@@ -1197,9 +1197,9 @@ class StrandSet(QObject):
                 hOlg.addToPart(sH.part())
 
             # Emit Signals related to destruction and addition
-            util.emit(oS, 'strandRemovedSignal')  # out with the old...
-            sS.strandsetStrandAddedSignal.emit(sH)  # ...in with the new
-            sS.strandsetStrandAddedSignal.emit(sL)  # ...in with the new
+            util.emit(oS, 'strandRemovedSignal')
+            util.emit(sS, 'strandsetStrandAddedSignal', sH)
+            util.emit(sS, 'strandsetStrandAddedSignal', sL)
         # end def
 
         def undo(self):
@@ -1245,9 +1245,9 @@ class StrandSet(QObject):
                 hOlg.removeFromPart()
 
             # Emit Signals related to destruction and addition
-            util.emit(sL, 'strandRemovedSignal')  # out with the new...
-            util.emit(sH, 'strandRemovedSignal')  # out with the new...
-            sS.strandsetStrandAddedSignal.emit(oS)  # ...in with the old
+            util.emit(sL, 'strandRemovedSignal')
+            util.emit(sH, 'strandRemovedSignal')
+            util.emit(sS, 'strandsetStrandAddedSignal', oS)
         # end def
     # end class
 

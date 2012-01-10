@@ -398,7 +398,7 @@ class Document(QObject):
         For now, individual objects need to emit signals
         """
         for obj, value in self._selectedChangedDict.iteritems():
-            obj.selectedChangedSignal.emit(obj, value)
+            util.emit(obj, 'selectedChangedSignal', value)
         # end for
         self._selectedChangedDict = {}
         # for sS in self._selectionDict:

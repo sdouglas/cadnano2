@@ -718,7 +718,7 @@ class Part(QObject):
                 part.partStrandChangedSignal.emit(aVH)
             for oligo in part._oligos:
                 for strand in oligo.strand5p().generator3pStrand():
-                    strand.strandUpdateSignal.emit(strand)
+                    util.emit(strand, 'strandUpdateSignal')
         # end def
             
         def undo(self):
@@ -731,7 +731,7 @@ class Part(QObject):
                 part.partStrandChangedSignal.emit(aVH)
             for oligo in part._oligos:
                 for strand in oligo.strand5p().generator3pStrand():
-                    strand.strandUpdateSignal.emit(strand)
+                    util.emit(strand, 'strandUpdateSignal')
         # end def
     # end def
 
@@ -1174,8 +1174,8 @@ class Part(QObject):
             part.partActiveVirtualHelixChangedSignal.emit(part, vh5p)
             # strand5p.strandXover5pChangedSignal.emit(strand5p, strand3p)
             if self._updateOligo:
-                strand5p.strandUpdateSignal.emit(strand5p)
-                strand3p.strandUpdateSignal.emit(strand3p)
+                util.emit(strand5p, 'strandUpdateSignal')
+                util.emit(strand3p, 'strandUpdateSignal')
         # end def
 
         def undo(self):
@@ -1218,8 +1218,8 @@ class Part(QObject):
             part.partActiveVirtualHelixChangedSignal.emit(part, vh5p)
             # strand5p.strandXover5pChangedSignal.emit(strand5p, strand3p)
             if self._updateOligo:
-                strand5p.strandUpdateSignal.emit(strand5p)
-                strand3p.strandUpdateSignal.emit(strand3p)
+                util.emit(strand5p, 'strandUpdateSignal')
+                util.emit(strand3p, 'strandUpdateSignal')
         # end def
     # end class
 
@@ -1282,7 +1282,7 @@ class Part(QObject):
             # end for
 
             for strand in visited.keys():
-                strand.strandUpdateSignal.emit(strand)
+                util.emit(strand, 'strandUpdateSignal')
         # end def
 
         def undo(self):
@@ -1359,8 +1359,8 @@ class Part(QObject):
 
             part.partActiveVirtualHelixChangedSignal.emit(part, vh5p)
             # strand5p.strandXover5pChangedSignal.emit(strand5p, strand3p)
-            strand5p.strandUpdateSignal.emit(strand5p)
-            strand3p.strandUpdateSignal.emit(strand3p)
+            util.emit(strand5p, 'strandUpdateSignal')
+            util.emit(strand3p, 'strandUpdateSignal')
         # end def
 
         def undo(self):
@@ -1403,8 +1403,8 @@ class Part(QObject):
 
             part.partActiveVirtualHelixChangedSignal.emit(part, vh5p)
             # strand5p.strandXover5pChangedSignal.emit(strand5p, strand3p)
-            strand5p.strandUpdateSignal.emit(strand5p)
-            strand3p.strandUpdateSignal.emit(strand3p)
+            util.emit(strand5p, 'strandUpdateSignal')
+            util.emit(strand3p, 'strandUpdateSignal')
         # end def
     # end class
 
@@ -1480,7 +1480,7 @@ class Part(QObject):
             for sSet in self._strandSets:
                 sList = sListCopyIterator.next()
                 for strand in sList:
-                    sSet.strandsetStrandAddedSignal.emit(strand)
+                    util.emit(sSet, 'strandsetStrandAddedSignal', strand)
                 # end for
                 sSet._strandList = sList
             #end for

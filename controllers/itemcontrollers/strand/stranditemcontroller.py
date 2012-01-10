@@ -47,9 +47,9 @@ class StrandItemController(AbstractStrandItemController):
         AbstractStrandItemController.connectSignals(self)
         mS = self._modelStrand
         sI = self._strandItem
-        mS.strandResizedSignal.connect(sI.strandResizedSlot)
+        util.observe(mS, 'strandResizedSignal', sI.strandResizedSlot)
         # mS.strandXover5pChangedSignal.connect(sI.strandXover5pChangedSlot)
-        mS.strandUpdateSignal.connect(sI.strandUpdateSlot)
+        util.observe(mS, 'strandUpdateSignal', sI.strandUpdateSlot)
         self.connectOligoSignals()
     # end def
 
@@ -65,9 +65,9 @@ class StrandItemController(AbstractStrandItemController):
         AbstractStrandItemController.disconnectSignals(self)
         mS = self._modelStrand
         sI = self._strandItem
-        mS.strandResizedSignal.disconnect(sI.strandResizedSlot)
+        util.unObserve(mS, 'strandResizedSignal', sI.strandResizedSlot)
         # mS.strandXover5pChangedSignal.disconnect(sI.strandXover5pChangedSlot)
-        mS.strandUpdateSignal.disconnect(sI.strandUpdateSlot)
+        util.unObserve(mS, 'strandUpdateSignal', sI.strandUpdateSlot)
         self.disconnectOligoSignals()
     # end def
 

@@ -21,6 +21,7 @@
 # THE SOFTWARE.
 #
 # http://www.opensource.org/licenses/mit-license.php
+import util
 
 class VirtualHelixItemController():
     def __init__(self, virtualHelixItem, modelVirtualHelix):
@@ -37,8 +38,7 @@ class VirtualHelixItemController():
         mvh.virtualHelixRemovedSignal.connect(vhItem.virtualHelixRemovedSlot)
         
         for strandSet in mvh.getStrandSets():
-            strandSet.strandsetStrandAddedSignal.connect(vhItem.strandAddedSlot)
-            # strandSet.decoratorAddedSignal.connect(vhItem.decoratorAddedSlot)
+            util.observe(strandSet, 'strandsetStrandAddedSignal', vhItem.strandAddedSlot)
     # end def
 
     def disconnectSignals(self):
@@ -49,5 +49,4 @@ class VirtualHelixItemController():
         mvh.virtualHelixRemovedSignal.disconnect(vhItem.virtualHelixRemovedSlot)
 
         for strandSet in mvh.getStrandSets():
-            strandSet.strandsetStrandAddedSignal.disconnect(vhItem.strandAddedSlot)
-            # strandSet.decoratorAddedSignal.disconnect(vhItem.decoratorAddedSlot)
+            util.disConnect(strandSet, 'strandsetStrandAddedSignal', vhItem.strandAddedSlot)

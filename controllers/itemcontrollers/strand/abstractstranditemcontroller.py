@@ -54,18 +54,16 @@ class AbstractStrandItemController(object):
         AbstractStrandItemController.connectOligoSignals(self)
         util.observe(mS, 'strandHasNewOligoSignal', sI.strandHasNewOligoSlot)
         util.observe(mS, 'strandRemovedSignal', sI.strandRemovedSlot)
-
-        mS.strandInsertionAddedSignal.connect(sI.strandInsertionAddedSlot)
-        mS.strandInsertionChangedSignal.connect(sI.strandInsertionChangedSlot)
-        mS.strandInsertionRemovedSignal.connect(sI.strandInsertionRemovedSlot)
-        mS.strandDecoratorAddedSignal.connect(sI.strandDecoratorAddedSlot)
-        mS.strandDecoratorChangedSignal.connect(sI.strandDecoratorChangedSlot)
-        mS.strandDecoratorRemovedSignal.connect(sI.strandDecoratorRemovedSlot)
-        mS.strandModifierAddedSignal.connect(sI.strandModifierAddedSlot)
-        mS.strandModifierChangedSignal.connect(sI.strandModifierChangedSlot)
-        mS.strandModifierRemovedSignal.connect(sI.strandModifierRemovedSlot)
-        
-        mS.selectedChangedSignal.connect(sI.selectedChangedSlot)
+        util.observe(mS, 'strandInsertionAddedSignal', sI.strandInsertionAddedSlot)
+        util.observe(mS, 'strandInsertionChangedSignal', sI.strandInsertionChangedSlot)
+        util.observe(mS, 'strandInsertionRemovedSignal', sI.strandInsertionRemovedSlot)
+        util.observe(mS, 'strandDecoratorAddedSignal', sI.strandDecoratorAddedSlot)
+        util.observe(mS, 'strandDecoratorChangedSignal', sI.strandDecoratorChangedSlot)
+        util.observe(mS, 'strandDecoratorRemovedSignal', sI.strandDecoratorRemovedSlot)
+        util.observe(mS, 'strandModifierAddedSignal', sI.strandModifierAddedSlot)
+        util.observe(mS, 'strandModifierChangedSignal', sI.strandModifierChangedSlot)
+        util.observe(mS, 'strandModifierRemovedSignal', sI.strandModifierRemovedSlot)
+        util.observe(mS, 'selectedChangedSignal', sI.selectedChangedSlot)
     # end def
 
     def connectOligoSignals(self):
@@ -82,18 +80,16 @@ class AbstractStrandItemController(object):
         AbstractStrandItemController.disconnectOligoSignals(self)
         util.unObserve(mS, 'strandHasNewOligoSignal', sI.strandHasNewOligoSlot)
         util.unObserve(mS, 'strandRemovedSignal', sI.strandRemovedSlot)
-
-        mS.strandInsertionAddedSignal.disconnect(sI.strandInsertionAddedSlot)
-        mS.strandInsertionChangedSignal.disconnect(sI.strandInsertionChangedSlot)
-        mS.strandInsertionRemovedSignal.disconnect(sI.strandInsertionRemovedSlot)
-        mS.strandDecoratorAddedSignal.disconnect(sI.strandDecoratorAddedSlot)
-        mS.strandDecoratorChangedSignal.disconnect(sI.strandDecoratorChangedSlot)
-        mS.strandDecoratorRemovedSignal.disconnect(sI.strandDecoratorRemovedSlot)
-        mS.strandModifierAddedSignal.disconnect(sI.strandModifierAddedSlot)
-        mS.strandModifierChangedSignal.disconnect(sI.strandModifierChangedSlot)
-        mS.strandModifierRemovedSignal.disconnect(sI.strandModifierRemovedSlot)
-        
-        mS.selectedChangedSignal.disconnect(sI.selectedChangedSlot)
+        util.unObserve(mS, 'strandInsertionAddedSignal', sI.strandInsertionAddedSlot)
+        util.unObserve(mS, 'strandInsertionChangedSignal', sI.strandInsertionChangedSlot)
+        util.unObserve(mS, 'strandInsertionRemovedSignal', sI.strandInsertionRemovedSlot)
+        util.unObserve(mS, 'strandDecoratorAddedSignal', sI.strandDecoratorAddedSlot)
+        util.unObserve(mS, 'strandDecoratorChangedSignal', sI.strandDecoratorChangedSlot)
+        util.unObserve(mS, 'strandDecoratorRemovedSignal', sI.strandDecoratorRemovedSlot)
+        util.unObserve(mS, 'strandModifierAddedSignal', sI.strandModifierAddedSlot)
+        util.unObserve(mS, 'strandModifierChangedSignal', sI.strandModifierChangedSlot)
+        util.unObserve(mS, 'strandModifierRemovedSignal', sI.strandModifierRemovedSlot)
+        util.unObserve(mS, 'selectedChangedSignal', sI.selectedChangedSlot)
     # end def
 
     def disconnectOligoSignals(self):

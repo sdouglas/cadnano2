@@ -87,7 +87,7 @@ class VirtualHelixItem(QGraphicsPathItem):
         self.setPen(pen)
     # end def
     
-    def strandAddedSlot(self, strand):
+    def strandAddedSlot(self, sender, strand):
         """
         Instantiates a StrandItem upon notification that the model has a
         new Strand.  The StrandItem is responsible for creating its own

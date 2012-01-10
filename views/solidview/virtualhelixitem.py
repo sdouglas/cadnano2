@@ -136,7 +136,7 @@ class VirtualHelixItem(object):
         self._modState = val
 
     ### SLOTS ###
-    def strandAddedSlot(self, strand):
+    def strandAddedSlot(self, sender, strand):
         """
         Instantiates a StrandItem upon notification that the model has a
         new Strand.  The StrandItem is responsible for creating its own
