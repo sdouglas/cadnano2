@@ -785,7 +785,7 @@ class StrandSet(QObject):
             oligo.setStrand5p(None)
             oligo.removeFromPart()
             # Emit a signal to notify on completion
-            strand.strandRemovedSignal.emit(strand)
+            util.emit(strand, 'strandRemovedSignal')
             strand.setOligo(None)
             # for updating the Slice View displayed helices
             strandSet.part().partStrandChangedSignal.emit(strandSet.virtualHelix())
@@ -866,7 +866,7 @@ class StrandSet(QObject):
                 strand3p.strandUpdateSignal.emit(strand3p)
             # end if
             # Emit a signal to notify on completion
-            strand.strandRemovedSignal.emit(strand)
+            util.emit(strand, 'strandRemovedSignal')
             # for updating the Slice View displayed helices
             strandSet.part().partStrandChangedSignal.emit(strandSet.virtualHelix())
         # end def
@@ -1018,8 +1018,8 @@ class StrandSet(QObject):
             hOlg.removeFromPart()
 
             # Emit Signals related to destruction and addition
-            sL.strandRemovedSignal.emit(sL)  # out with the old...
-            sH.strandRemovedSignal.emit(sH)  # out with the old...
+            util.emit(sL, 'strandRemovedSignal')  # out with the old...
+            util.emit(sH, 'strandRemovedSignal')  # out with the old...
             sS.strandsetStrandAddedSignal.emit(nS)  # ...in with the new
         # end def
 
@@ -1066,7 +1066,7 @@ class StrandSet(QObject):
             hOlg.addToPart(sH.part())
 
             # Emit Signals related to destruction and addition
-            nS.strandRemovedSignal.emit(nS)  # out with the new...
+            util.emit(nS, 'strandRemovedSignal')  # out with the new...
             sS.strandsetStrandAddedSignal.emit(sH)  # ...in with the old
             sS.strandsetStrandAddedSignal.emit(sL)  # ...in with the old
         # end def
@@ -1197,7 +1197,7 @@ class StrandSet(QObject):
                 hOlg.addToPart(sH.part())
 
             # Emit Signals related to destruction and addition
-            oS.strandRemovedSignal.emit(oS)  # out with the old...
+            util.emit(oS, 'strandRemovedSignal')  # out with the old...
             sS.strandsetStrandAddedSignal.emit(sH)  # ...in with the new
             sS.strandsetStrandAddedSignal.emit(sL)  # ...in with the new
         # end def
@@ -1245,8 +1245,8 @@ class StrandSet(QObject):
                 hOlg.removeFromPart()
 
             # Emit Signals related to destruction and addition
-            sL.strandRemovedSignal.emit(sL)  # out with the new...
-            sH.strandRemovedSignal.emit(sH)  # out with the new...
+            util.emit(sL, 'strandRemovedSignal')  # out with the new...
+            util.emit(sH, 'strandRemovedSignal')  # out with the new...
             sS.strandsetStrandAddedSignal.emit(oS)  # ...in with the old
         # end def
     # end class

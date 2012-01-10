@@ -53,7 +53,7 @@ class AbstractStrandItemController(object):
 
         AbstractStrandItemController.connectOligoSignals(self)
         util.observe(mS, 'strandHasNewOligoSignal', sI.strandHasNewOligoSlot)
-        mS.strandRemovedSignal.connect(sI.strandRemovedSlot)
+        util.observe(mS, 'strandRemovedSignal', sI.strandRemovedSlot)
 
         mS.strandInsertionAddedSignal.connect(sI.strandInsertionAddedSlot)
         mS.strandInsertionChangedSignal.connect(sI.strandInsertionChangedSlot)
