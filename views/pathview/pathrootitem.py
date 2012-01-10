@@ -65,7 +65,7 @@ class PathRootItem(QGraphicsRectItem):
     def partItemForPart(self, part):
         return self._partItemForPart[part]
     
-    def partAddedSlot(self, modelPart):
+    def partAddedSlot(self, sender, modelPart):
         """
         Receives notification from the model that a part has been added.
         The Pathview doesn't need to do anything on part addition, since
@@ -97,7 +97,7 @@ class PathRootItem(QGraphicsRectItem):
         self.scene().views()[0].clearSelectionLockAndCallbacks()
     # end def
 
-    def selectionFilterChangedSlot(self, filterNameList):
+    def selectionFilterChangedSlot(self, sender, filterNameList):
         self._vhiHSelectionGroup.clearSelection(False)
         self._strandItemSelectionGroup.clearSelection(False)
         self.clearSelectionFilterDict()

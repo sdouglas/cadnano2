@@ -455,27 +455,27 @@ class XoverItem(QGraphicsPathItem):
     # end def
 
     ### EVENT HANDERS ###
-    def mousePressEvent(self, event):
-        """
-        Special case for xovers and select tool, for now
-        """
-        if str(self.activeTool()) == "selectTool":
-            sI = self._strandItem
-            viewroot = sI.viewroot()
-            currentFilterDict = viewroot.selectionFilterDict()
-            if sI.strandFilter() in currentFilterDict and self._filterName in currentFilterDict:
-                selectionGroup = viewroot.strandItemSelectionGroup()
-                mod = Qt.MetaModifier
-                if not (event.modifiers() & mod):
-                     selectionGroup.clearSelection(False)
-                selectionGroup.setSelectionLock(selectionGroup)
-                # self.setSelectedColor(True)
-                selectionGroup.pendToAdd(self)
-                selectionGroup.processPendingToAddList()
-                return selectionGroup.mousePressEvent(event)
-        else:
-            return QGraphicsPathItem.mousePressEvent(self, event)
-    # end def 
+    # def mousePressEvent(self, event):
+    #     """
+    #     Special case for xovers and select tool, for now
+    #     """
+    #     if str(self.activeTool()) == "selectTool":
+    #         sI = self._strandItem
+    #         viewroot = sI.viewroot()
+    #         currentFilterDict = viewroot.selectionFilterDict()
+    #         if sI.strandFilter() in currentFilterDict and self._filterName in currentFilterDict:
+    #             selectionGroup = viewroot.strandItemSelectionGroup()
+    #             mod = Qt.MetaModifier
+    #             if not (event.modifiers() & mod):
+    #                  selectionGroup.clearSelection(False)
+    #             selectionGroup.setSelectionLock(selectionGroup)
+    #             # self.setSelectedColor(True)
+    #             selectionGroup.pendToAdd(self)
+    #             selectionGroup.processPendingToAddList()
+    #             return selectionGroup.mousePressEvent(event)
+    #     else:
+    #         return QGraphicsPathItem.mousePressEvent(self, event)
+    # # end def 
     
     def eraseToolMousePress(self):
         """Erase the strand."""

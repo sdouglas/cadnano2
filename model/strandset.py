@@ -34,7 +34,7 @@ from views import styles
 import util
 # import cadnano2.util as util
 # import Qt stuff into the module namespace with PySide, PyQt4 independence
-util.qtWrapImport('QtCore', globals(), ['pyqtSignal', 'QObject', 'Qt'])
+util.qtWrapImport('QtCore', globals(), ['QObject', 'Qt'])
 util.qtWrapImport('QtGui', globals(), ['QUndoStack', 'QUndoCommand'])
 
 

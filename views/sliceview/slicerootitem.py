@@ -49,7 +49,7 @@ class SliceRootItem(QGraphicsRectItem):
     ### SIGNALS ###
 
     ### SLOTS ###
-    def partAddedSlot(self, modelPart):
+    def partAddedSlot(self, sender, modelPart):
         """
         Receives notification from the model that a part has been added.
         Views that subclass AbstractView should override this method.
@@ -65,7 +65,7 @@ class SliceRootItem(QGraphicsRectItem):
         pass
     # end def
     
-    def selectionFilterChangedSlot(self, filterNameList):
+    def selectionFilterChangedSlot(self, sender, filterNameList):
         pass
     # end def
     

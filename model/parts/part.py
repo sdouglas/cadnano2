@@ -1432,7 +1432,7 @@ class Part(QObject):
             doc = self._doc
             doc._addPart(part)
             part.setDocument(doc)
-            doc.documentPartAddedSignal.emit(part)
+            util.emit(doc, 'documentPartAddedSignal', part)
         # end def
     # end class
 

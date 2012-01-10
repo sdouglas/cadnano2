@@ -51,7 +51,7 @@ class SolidRootItem(object):
         self._selectedDict = {}
 
     ### SLOTS ###
-    def partAddedSlot(self, modelPart):
+    def partAddedSlot(self, sender, modelPart):
         """
         Receives notification from the model that a part has been added.
         """
@@ -66,7 +66,7 @@ class SolidRootItem(object):
         pass
     # end def
 
-    def selectionFilterChangedSlot(self, filterNameList):
+    def selectionFilterChangedSlot(self, sender, filterNameList):
         self.clearSelectionFilterDict()
         for filterName in filterNameList:
             self.addToSelectionFilterDict(filterName)
