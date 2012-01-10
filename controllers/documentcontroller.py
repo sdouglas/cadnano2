@@ -433,7 +433,7 @@ class DocumentController():
 
     def actionRenumberSlot(self):
         coordList = self.win.pathroot.getSelectedPartOrderedVHList()
-        part = self._activePart
+        part = self.activePart()
         part.renumber(coordList)
     # end def
 

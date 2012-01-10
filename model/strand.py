@@ -198,6 +198,8 @@ class Strand(QObject):
         seq = self._sequence
         if seq:
             return util.markwhite(seq) if forExport else seq
+        elif forExport:
+            return ''.join(['?' for x in range(self.totalLength())])
         return ''
     # end def
 
