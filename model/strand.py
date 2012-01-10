@@ -135,7 +135,7 @@ class Strand(QObject):
         return self._strandSet.strandFilter()
 
     ### SIGNALS ###
-    strandHasNewOligoSignal = pyqtSignal(QObject)
+    emittedMessageNames = ['strandHasNewOligoSignal']
     strandRemovedSignal = pyqtSignal(QObject)
     strandResizedSignal = pyqtSignal(QObject, tuple)
 
@@ -665,7 +665,7 @@ class Strand(QObject):
     def setOligo(self, newOligo, emitSignal=True):
         self._oligo = newOligo
         if emitSignal:
-            self.strandHasNewOligoSignal.emit(self)
+            util.emit(self, 'strandHasNewOligoSignal')
     # end def
 
     def setStrandSet(self, strandSet):

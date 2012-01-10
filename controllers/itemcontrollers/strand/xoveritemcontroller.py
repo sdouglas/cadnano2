@@ -21,6 +21,7 @@
 # THE SOFTWARE.
 #
 # http://www.opensource.org/licenses/mit-license.php
+import util
 
 class XoverItemController(object):
     def __init__(self, xoverItem, modelStrand5p):
@@ -51,7 +52,7 @@ class XoverItemController(object):
         self._modelOligo = mO
 
         s5p.strand5pHasSwappedSignal.connect(xI.strandSwapSlot)
-        s5p.strandHasNewOligoSignal.connect(xI.strandHasNewOligoSlot)
+        util.observe(s5p, 'strandHasNewOligoSignal', xI.strandHasNewOligoSlot)
         util.observe(mO, 'oligoAppearanceChangedSignal', xI.oligoAppearanceChangedSlot)
         s5p.strandXover5pRemovedSignal.connect(xI.xover5pRemovedSlot)
     # end def
@@ -62,7 +63,7 @@ class XoverItemController(object):
         mO = self._modelOligo
 
         s5p.strand5pHasSwappedSignal.disconnect(xI.strandSwapSlot)
-        s5p.strandHasNewOligoSignal.disconnect(xI.strandHasNewOligoSlot)
+        util.unObserve(s5p, 'strandHasNewOligoSignal', xI.strandHasNewOligoSlot)
         util.unObserve(mO, 'oligoAppearanceChangedSignal', xI.oligoAppearanceChangedSlot)
         s5p.strandXover5pRemovedSignal.connect(xI.xover5pRemovedSlot)
     # end def
