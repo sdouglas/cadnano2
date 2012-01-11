@@ -56,7 +56,7 @@ class ActiveSliceItem(QGraphicsRectItem):
         vhi.setActiveSliceView(isActiveNow)
     # end def
 
-    def updateIndexSlot(self, newActiveSliceZIndex):
+    def updateIndexSlot(self, sender, newActiveSliceZIndex):
         part = self.part()
         if part.numberOfVirtualHelices() == 0:
             return

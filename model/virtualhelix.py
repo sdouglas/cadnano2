@@ -31,7 +31,7 @@ from enum import StrandType
 from cadnano import Cadnano
 
 # import Qt stuff into the module namespace with PySide, PyQt4 independence
-util.qtWrapImport('QtCore', globals(), ['pyqtSignal', 'QObject', 'Qt'])
+util.qtWrapImport('QtCore', globals(), ['QObject', 'Qt'])
 util.qtWrapImport('QtGui', globals(), ['QUndoStack', 'QUndoCommand'])
 
 
@@ -65,8 +65,9 @@ class VirtualHelix(QObject):
         return "<%s(%d)>" % (self.__class__.__name__, self._number)
 
     ### SIGNALS ###
-    virtualHelixRemovedSignal = pyqtSignal(QObject)  # self
-    virtualHelixNumberChangedSignal = pyqtSignal(QObject, int)  # self, num
+    emittedMessageNames = []
+    emittedMessageNames.append('virtualHelixRemovedSignal')
+    emittedMessageNames.append('virtualHelixNumberChangedSignal') # num
 
     ### SLOTS ###
 
@@ -92,7 +93,7 @@ class VirtualHelix(QObject):
             numToVhDict = self._part._numberToVirtualHelix
             numToVhDict[self._number] = None
             self._number = number
-            self.virtualHelixNumberChangedSignal.emit(self, number)
+            util.emit(self, 'virtualHelixNumberChangedSignal', number)
             numToVhDict[number] = self
     # end def
 
@@ -255,7 +256,7 @@ class VirtualHelix(QObject):
             part._removeVirtualHelix(vh)
             part._recycleHelixIDNumber(idNum)
             # clear out part references
-            vh.virtualHelixRemovedSignal.emit(vh)
+            util.emit(vh, 'virtualHelixRemovedSignal')
             util.emit(part, 'partActiveSliceResizeSignal')
             # vh.setPart(None)
             # vh.setNumber(None)

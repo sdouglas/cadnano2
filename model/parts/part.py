@@ -751,7 +751,7 @@ class Part(QObject):
 
     def setActiveBaseIndex(self, idx):
         self._activeBaseIndex = idx
-        util.emit('partActiveSliceIndexSignal', idx)
+        util.emit(self, 'partActiveSliceIndexSignal', idx)
     # end def
 
     def setActiveVirtualHelix(self, virtualHelix, idx=None):
@@ -1112,7 +1112,7 @@ class Part(QObject):
             # clear out part references
             vh.setPart(None)
             vh.setNumber(None)
-            vh.virtualHelixRemovedSignal.emit(vh)
+            util.emit(vh, 'virtualHelixRemovedSignal')
             util.emit(part, 'partActiveSliceResizeSignal')
         # end def
     # end class

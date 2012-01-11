@@ -34,8 +34,8 @@ class VirtualHelixItemController():
         vhItem = self._virtualHelixItem
         mvh = self._modelVirtualHelix
 
-        mvh.virtualHelixNumberChangedSignal.connect(vhItem.virtualHelixNumberChangedSlot)
-        mvh.virtualHelixRemovedSignal.connect(vhItem.virtualHelixRemovedSlot)
+        util.observe(mvh, 'virtualHelixNumberChangedSignal', vhItem.virtualHelixNumberChangedSlot)
+        util.observe(mvh, 'virtualHelixRemovedSignal', vhItem.virtualHelixRemovedSlot)
         
         for strandSet in mvh.getStrandSets():
             util.observe(strandSet, 'strandsetStrandAddedSignal', vhItem.strandAddedSlot)
@@ -45,8 +45,8 @@ class VirtualHelixItemController():
         vhItem = self._virtualHelixItem
         mvh = self._modelVirtualHelix
 
-        mvh.virtualHelixNumberChangedSignal.disconnect(vhItem.virtualHelixNumberChangedSlot)
-        mvh.virtualHelixRemovedSignal.disconnect(vhItem.virtualHelixRemovedSlot)
+        util.unObserve(mvh, 'virtualHelixNumberChangedSignal', vhItem.virtualHelixNumberChangedSlot)
+        util.unObserve(mvh, 'virtualHelixRemovedSignal', vhItem.virtualHelixRemovedSlot)
 
         for strandSet in mvh.getStrandSets():
             util.disConnect(strandSet, 'strandsetStrandAddedSignal', vhItem.strandAddedSlot)
