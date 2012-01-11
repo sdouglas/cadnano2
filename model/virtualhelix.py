@@ -256,7 +256,7 @@ class VirtualHelix(QObject):
             part._recycleHelixIDNumber(idNum)
             # clear out part references
             vh.virtualHelixRemovedSignal.emit(vh)
-            part.partActiveSliceResizeSignal.emit(part)
+            util.emit(part, 'partActiveSliceResizeSignal')
             # vh.setPart(None)
             # vh.setNumber(None)
         # end def
@@ -271,7 +271,7 @@ class VirtualHelix(QObject):
             # vh.setNumber(idNum)
             if not vh.number():
                 part._reserveHelixIDNumber(self._parityEven, requestedIDnum=idNum)
-            part.partVirtualHelixAddedSignal.emit(vh)
-            part.partActiveSliceResizeSignal.emit(part)
+            util.emit(part, 'partVirtualHelixAddedSignal', vh)
+            util.emit(part, 'partActiveSliceResizeSignal')
         # end def
     # end class

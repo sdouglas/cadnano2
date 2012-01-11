@@ -770,8 +770,7 @@ class StrandSet(QObject):
             # Emit a signal to notify on completion
             util.emit(strandSet, 'strandsetStrandAddedSignal', strand)
             # for updating the Slice View displayed helices
-            strandSet.part().partStrandChangedSignal.emit(
-                                                    strandSet.virtualHelix())
+            util.emit(strandSet.part(), 'partStrandChangedSignal', strandSet.virtualHelix())
         # end def
 
         def undo(self):
@@ -788,7 +787,7 @@ class StrandSet(QObject):
             util.emit(strand, 'strandRemovedSignal')
             strand.setOligo(None)
             # for updating the Slice View displayed helices
-            strandSet.part().partStrandChangedSignal.emit(strandSet.virtualHelix())
+            util.emit(strandSet.part(), 'partStrandChangedSignal', strandSet.virtualHelix())
         # end def
     # end class
 
@@ -848,7 +847,7 @@ class StrandSet(QObject):
                 if self._solo:
                     part = strandSet.part()
                     vh = strandSet.virtualHelix()
-                    part.partActiveVirtualHelixChangedSignal.emit(part, vh)
+                    util.emit(part, 'partActiveVirtualHelixChangedSignal', vh)
                     #strand5p.strandXover5pChangedSignal.emit(strand5p, strand)
                 util.emit(strand5p, 'strandUpdateSignal')
             # end if
@@ -861,14 +860,14 @@ class StrandSet(QObject):
                 if self._solo:
                     part = strandSet.part()
                     vh = strandSet.virtualHelix()
-                    part.partActiveVirtualHelixChangedSignal.emit(part, vh)
+                    util.emit(part, 'partActiveVirtualHelixChangedSignal', vh)
                     # strand.strandXover5pChangedSignal.emit(strand, strand3p)
                 util.emit(strand3p, 'strandUpdateSignal')
             # end if
             # Emit a signal to notify on completion
             util.emit(strand, 'strandRemovedSignal')
             # for updating the Slice View displayed helices
-            strandSet.part().partStrandChangedSignal.emit(strandSet.virtualHelix())
+            util.emit(strandSet.part(), 'partStrandChangedSignal', strandSet.virtualHelix())
         # end def
 
         def undo(self):
@@ -903,15 +902,14 @@ class StrandSet(QObject):
             # Emit a signal to notify on completion
             util.emit(strandSet, 'strandsetStrandAddedSignal', strand)
             # for updating the Slice View displayed helices
-            strandSet.part().partStrandChangedSignal.emit(
-                                                    strandSet.virtualHelix())
+            util.emit(strandSet.part(), 'partStrandChangedSignal', strandSet.virtualHelix())
 
             # Restore connections to this strand
             if strand5p != None:
                 if self._solo:
                     part = strandSet.part()
                     vh = strandSet.virtualHelix()
-                    part.partActiveVirtualHelixChangedSignal.emit(part, vh)
+                    util.emit(part, 'partActiveVirtualHelixChangedSignal', vh)
                     # strand5p.strandXover5pChangedSignal.emit(
                     #                                        strand5p, strand)
                 util.emit(strand5p, 'strandUpdateSignal')
@@ -921,7 +919,7 @@ class StrandSet(QObject):
                 if self._solo:
                     part = strandSet.part()
                     vh = strandSet.virtualHelix()
-                    part.partActiveVirtualHelixChangedSignal.emit(part, vh)
+                    util.emit(part, 'partActiveVirtualHelixChangedSignal', vh)
                     # strand.strandXover5pChangedSignal.emit(strand, strand3p)
                 util.emit(strand3p, 'strandUpdateSignal')
                 util.emit(strand, 'strandUpdateSignal')

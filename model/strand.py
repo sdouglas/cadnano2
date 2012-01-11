@@ -821,7 +821,7 @@ class Strand(QObject):
                 std.reapplySequence()
             util.emit(std, 'strandResizedSignal', nI)
             # for updating the Slice View displayed helices
-            part.partStrandChangedSignal.emit(strandSet.virtualHelix())
+            util.emit(part, 'partStrandChangedSignal', strandSet.virtualHelix())
             std5p = std.connection5p()
             if std5p:
                 util.emit(std5p, 'strandResizedSignal', std5p.idxs())
@@ -839,7 +839,7 @@ class Strand(QObject):
                 std.reapplySequence()
             util.emit(std, 'strandResizedSignal', oI)
             # for updating the Slice View displayed helices
-            part.partStrandChangedSignal.emit(strandSet.virtualHelix())
+            util.emit(part, 'partStrandChangedSignal', strandSet.virtualHelix())
             std5p = std.connection5p()
             if std5p:
                 util.emit(std5p, 'strandResizedSignal', std5p.idxs())

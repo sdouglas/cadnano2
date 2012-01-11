@@ -363,7 +363,7 @@ def emit(emittingObject, messageName, *args):
     if messageName not in emittingObject.emittedMessageNames:
         print "WARNING: %s isn't known to emit %s but it did."%\
                 (emittingObject, messageName)
-        emittingObject.emittedMessageNames.add(messageName)
+        emittingObject.emittedMessageNames.append(messageName)
     if not hasattr(emittingObject, 'observersOfMsg'):
         return
     interestedObservers = emittingObject.observersOfMsg.get(messageName, ())

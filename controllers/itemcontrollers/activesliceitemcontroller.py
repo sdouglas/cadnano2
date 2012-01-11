@@ -21,7 +21,7 @@
 # THE SOFTWARE.
 #
 # http://www.opensource.org/licenses/mit-license.php
-
+import util
 
 class ActiveSliceItemController(object):
     def __init__(self, activeSliceItem, modelPart):
@@ -33,17 +33,17 @@ class ActiveSliceItemController(object):
         aSI = self._activeSliceItem
         mP = self._modelPart
 
-        mP.partActiveSliceResizeSignal.connect(aSI.updateRectSlot)
-        mP.partActiveSliceIndexSignal.connect(aSI.updateIndexSlot)
-        mP.partStrandChangedSignal.connect(aSI.strandChangedSlot)
+        util.observe(mP, 'partActiveSliceResizeSignal', aSI.updateRectSlot)
+        util.observe(mP, 'partActiveSliceIndexSignal', aSI.updateIndexSlot)
+        util.observe(mP, 'partStrandChangedSignal', aSI.strandChangedSlot)
     # end def
 
     def disconnectSignals(self):
         aSI = self._activeSliceItem
         mP = self._modelPart
 
-        mP.partActiveSliceResizeSignal.disconnect(aSI.updateRectSlot)
-        mP.partActiveSliceIndexSignal.disconnect(aSI.updateIndexSlot)
-        mP.partStrandChangedSignal.disconnect(aSI.strandChangedSlot)
+        util.unObserve(mP, 'partActiveSliceResizeSignal', aSI.updateRectSlot)
+        util.unObserve(mP, 'partActiveSliceIndexSignal', aSI.updateIndexSlot)
+        util.unObserve(mP, 'partStrandChangedSignal', aSI.strandChangedSlot)
     # end def
 # end class

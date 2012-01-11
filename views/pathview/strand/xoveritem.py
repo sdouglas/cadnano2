@@ -455,6 +455,9 @@ class XoverItem(QGraphicsPathItem):
     # end def
 
     ### EVENT HANDERS ###
+    def sceneEvent(self, event):
+        print "XOVR got scene event %s"%event
+        return False
     # def mousePressEvent(self, event):
     #     """
     #     Special case for xovers and select tool, for now
