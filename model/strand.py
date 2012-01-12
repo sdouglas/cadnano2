@@ -32,7 +32,7 @@ from array import array
 from decorators.insertion import Insertion
 
 # import Qt stuff into the module namespace with PySide, PyQt4 independence
-util.qtWrapImport('QtCore', globals(), ['QObject', 'Qt'])
+util.qtWrapImport('QtCore', globals(), ['QObject'])
 util.qtWrapImport('QtGui', globals(), ['QUndoStack', 'QUndoCommand'])
 
 

@@ -32,14 +32,22 @@ from random import Random
 import string
 import sys
 from os import path
-from cadnano import app
 import platform
 from itertools import dropwhile, starmap
-
 prng = Random()
-importOverrideDict = None
 
-
+# qtWrapImport will try using each framework listed
+# in the qtFramework list until it finds one that works.
+# At that point, qtFramework becomes a string indicating
+# the framework that will thereafer be used to load qt classes.
+#  Dummy   Uses dummy Qt classes (used by the model when loaded as a module)
+#  PyQt    Tries to load Qt classes from PyQt4
+#  PySide  Tries to load Qt classes
+# The list is defined to consist only of the Dummy qt framework if util is the
+# only module that gets loaded. The main.py of applications actually using qt
+# need to redefine qtFramework to include PyQt and PySide.
+qtFrameworkList = ['Dummy']
+chosenQtFramework = None
 def qtWrapImport(name, globaldict, fromlist):
     """
     special function that allows for the import of PySide or PyQt modules
@@ -52,68 +60,71 @@ def qtWrapImport(name, globaldict, fromlist):
 
     fromlist is a list of subclasses such as [QFont, QColor], or [QRectF]
     """
-    pyWrapper = None
-    global importOverrideDict
-    if app().usesPySide():
-        pyWrapper = 'PySide'
-        # pyWrapper = 'PyQt4'
-        if importOverrideDict == None:
-            importOverrideDict = {}
-    else:
-        pyWrapper = 'PyQt4'
-        if importOverrideDict == None:
-            importOverrideDict = {}
-            import PyQt4
-            import PyQt4.QtGui
-            import PyQt4.QtCore
-            import PyQt4.QtSvg
-            # import PyQt4.QtOpenGL
+    global qtWrapFramework  # This method is a stub. It gets swapped out for
+    global qtFrameworkList  # a framework-specific version when called
+    for trialFmwk in qtFrameworkList:
+        if trialFmwk == 'Dummy':
+            qtWrapImport = qtWrapImportFromDummy
+            return qtWrapImport(name, globaldict, fromlist)
+        elif trialFmwk == 'PyQt':
+            try:
+                import PyQt4
+                chosenQtFramework = 'PyQt'
+                qtWrapImport = qtWrapImportFromPyQt
+                return qtWrapImport(name, globaldict, fromlist)
+            except ImportError:
+                pass
+        elif trialFmwk == 'PySide':
+            try:
+                import PySide
+                chosenQtFramework = 'PySide'
+                qtWrapImport = qtWrapImportFromPySide
+                return qtWrapImport(name, globaldict, fromlist)
+            except ImportError:
+                pass
+        else:
+            raise NameError('Illegal qt framework %s'%trialFmwk)
+    assert(False)  # Have not found a suitable qt framework
 
-            importOverrideDict['PyQt4'] = PyQt4
-            importOverrideDict['PyQt4.QtGui'] = PyQt4.QtGui
-            importOverrideDict['PyQt4.QtCore'] = PyQt4.QtCore
-            importOverrideDict['PyQt4.QtSvg'] = PyQt4.QtSvg
-            # importOverrideDict['PyQt4.QtOpenGL'] = PyQt4.QtOpenGL
+def qtWrapImportFromDummy(name, globaldict, fromlist):
+    modName = 'dummyqt.%s'%(name)
+    imports = __import__(modName, globaldict, locals(), fromlist, -1)
+    canary = object()
+    for k in fromlist:
+        binding = getattr(imports, k, canary)
+        if binding == canary:
+            raise KeyError("Couldn't import key '%s' from module '%s'"%(k, modName))
+        globaldict[k] = binding
 
-    # If name==None, import the module (QtCore, QtGui, etc) itself rather
-    # than a member of it
-    if name == None or name == '':
-        name = ''
-    else:
-        name = '.' + name
-
-    # Try to fetch imported modules from the overrideDict first
-    _temp = importOverrideDict.get(pyWrapper + name, None)
-    if _temp == None:
-        print "__import__ed %s (might not work in Maya 2012)"%(pyWrapper + name)
-        _temp = __import__(pyWrapper + name, \
-                           globaldict, locals(), fromlist, -1)
+def qtWrapImportFromPyQt(name, globaldict, fromlist):
+    modName = 'PyQt4.%s'%(name)
+    imports = __import__(modName, globaldict, locals(), fromlist, -1)
+    canary = object()
     for key in fromlist:
-        if pyWrapper == 'PySide' and key in ('pyqtSignal', 'pyqtSlot', 'QString',\
-                                             'QStringList'):
+        binding = getattr(imports, key, canary)
+        if binding == canary:
+            raise KeyError("Couldn't import key '%s' from module '%s'"%(key, modName))
+        globaldict[key] = binding
+
+def qtWrapImportFromPySide(name, globaldict, fromlist):
+    modName = 'PySide.%s'%(name)
+    imports = __import__(modName, globaldict, locals(), fromlist, -1)
+    canary = object()
+    for key in fromlist:
+        if key in ('pyqtSignal', 'pyqtSlot', 'QString', 'QStringList'):
             if key == 'pyqtSignal':
-                globaldict[key] = getattr(_temp, 'Signal') 
+                globaldict[key] = getattr(imports, 'Signal') 
             elif key == 'pyqtSlot':
-                globaldict[key] = getattr(_temp, 'Slot')
+                globaldict[key] = getattr(imports, 'Slot')
             elif key == 'QString':
                 globaldict[key] = str
             elif key == 'QStringList':
                 globaldict[key] = list
         else:
-            # if key == "QGraphicsObject":
-            #     globaldict[key] = getattr(_temp, 'QGraphicsItem') 
-            # else:
-            canary = object()
-            binding = getattr(_temp, key, canary)
+            binding = getattr(_temp, k, canary)
             if binding == canary:
-                raise KeyError("Couldn't import key '%s' from module '%s'"%(key, pyWrapper+name))
+                raise KeyError("Couldn't import key '%s' from module '%s'"%(key, modName))
             globaldict[key] = binding
-    # end for
-# end def
-
-# from PyQt4.QtGui import QGraphicsItem, QColor
-qtWrapImport('QtGui', globals(), [ 'QGraphicsItem', 'QColor', 'QMouseEvent',\
-                                   'QGraphicsSceneMouseEvent'])
 
 def clamp(x, minX, maxX):
     if x < minX:
@@ -152,6 +163,8 @@ def defineEventForwardingMethodsForClass(classObj, forwardedEventSuffix, eventNa
     activeTool(). If self.activeTool() does not implement eventName0ForwardedEventSuffix,
     no error is raised.
     """
+    qtWrapImport('QtGui', globals(), [ 'QGraphicsItem', 'QMouseEvent',\
+                                       'QGraphicsSceneMouseEvent'])
     for evName in eventNames:
         delegateMethodName = evName + forwardedEventSuffix
         eventMethodName = evName + 'Event'
@@ -174,7 +187,7 @@ def defineEventForwardingMethodsForClass(classObj, forwardedEventSuffix, eventNa
                         superMethod = getattr(QGraphicsItem, eventMethodName)
                         excludeSuperCallBecauseOfTypeIntolerance = \
                                  isinstance(event, QMouseEvent) and\
-                                 not isinstance(event, QGraphicsSceneMouseEvent)
+                                 not isinstance(event, )
                         if not excludeSuperCallBecauseOfTypeIntolerance:
                             superMethod(self, event)
                 else:

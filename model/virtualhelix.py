@@ -28,7 +28,6 @@
 from strandset import StrandSet
 import util
 from enum import StrandType
-from cadnano import Cadnano
 
 # import Qt stuff into the module namespace with PySide, PyQt4 independence
 util.qtWrapImport('QtCore', globals(), ['QObject', 'Qt'])

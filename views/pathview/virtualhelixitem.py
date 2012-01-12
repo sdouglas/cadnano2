@@ -31,7 +31,6 @@ from model.enum import StrandType
 from strand.stranditem import StrandItem
 from views import styles
 from virtualhelixhandleitem import VirtualHelixHandleItem
-from cadnano import Cadnano
 import util
 # import Qt stuff into the module namespace with PySide, PyQt4 independence
 util.qtWrapImport('QtCore', globals(), ['pyqtSignal', 'QObject', 'Qt', 'QRectF'])

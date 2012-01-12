@@ -28,11 +28,13 @@ from model.enum import LatticeType, StrandType
 from model.parts.honeycombpart import HoneycombPart
 from model.parts.squarepart import SquarePart
 from model.virtualhelix import VirtualHelix
-from ui.dialogs.ui_latticetype import Ui_LatticeType
 from views import styles
-import util
+import util, cadnano
 # import Qt stuff into the module namespace with PySide, PyQt4 independence
-util.qtWrapImport('QtGui', globals(),  ['QColor', 'QDialog', 'QDialogButtonBox'])
+util.qtWrapImport('QtGui', globals(),  ['QColor'])
+if not cadnano.headless:
+    from ui.dialogs.ui_latticetype import Ui_LatticeType
+    util.qtWrapImport('QtGui', globals(),  ['QDialog', 'QDialogButtonBox'])
 
 NODETAG = "node"
 NAME = "name"
@@ -51,31 +53,33 @@ STAPLE = "staple"
 INSERTION = "insertion"
 DELETION = "deletion"
 
-def import_legacy_dict(document, obj):
+def import_legacy_dict(document, obj, latticeType=LatticeType.Honeycomb):
     """
     Parses a dictionary (obj) created from reading a json file and uses it
     to populate the given document with model data.
     """
     numBases = len(obj['vstrands'][0]['scaf'])
-    dialog = QDialog()
-    dialogLT = Ui_LatticeType()
-    dialogLT.setupUi(dialog)
-
-    # DETERMINE LATTICE TYPE
-    if numBases % 21 == 0 and numBases % 32 == 0:
-        if dialog.exec_() == 1:
+    if not cadnano.headless:
+        dialog = QDialog()
+        dialogLT = Ui_LatticeType()
+        dialogLT.setupUi(dialog)
+        # DETERMINE LATTICE TYPE
+        if numBases % 21 == 0 and numBases % 32 == 0:
+            if dialog.exec_() == 1:
+                latticeType = LatticeType.Square
+            else:
+                latticeType = LatticeType.Honeycomb
+        elif numBases % 32 == 0:
             latticeType = LatticeType.Square
-        else:
+        elif numBases % 21 == 0:
             latticeType = LatticeType.Honeycomb
-    elif numBases % 32 == 0:
-        latticeType = LatticeType.Square
-    elif numBases % 21 == 0:
-        latticeType = LatticeType.Honeycomb
-    else:
-        if dialog.exec_() == 1:
-            latticeType = LatticeType.Square
         else:
-            latticeType = LatticeType.Honeycomb
+            if dialog.exec_() == 1:
+                latticeType = LatticeType.Square
+            else:
+                latticeType = LatticeType.Honeycomb
+    else:  # Headless, assume the latticeType arg was meaningful
+        pass
 
     # DETERMINE MAX ROW,COL
     maxRowJson = maxColJson = 0
@@ -185,9 +189,12 @@ def import_legacy_dict(document, obj):
                 highIdx = stap_seg[vhNum][i+1]
                 stapStrandSet.createStrand(lowIdx, highIdx, useUndoStack=False)
     except AssertionError:
-        dialogLT.label.setText("Unrecognized file format.")
-        dialogLT.buttonBox.setStandardButtons(QDialogButtonBox.Ok)
-        dialog.exec_()
+        if cadnano.headless:
+            print "Unrecognized file format."
+        else:
+            dialogLT.label.setText("Unrecognized file format.")
+            dialogLT.buttonBox.setStandardButtons(QDialogButtonBox.Ok)
+            dialog.exec_()
 
     # INSTALL XOVERS
     for helix in obj['vstrands']:

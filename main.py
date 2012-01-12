@@ -34,11 +34,12 @@ Created by Shawn Douglas on 2010-09-26.
 import sys
 import os
 sys.path.insert(0, '.')
-argv = [s for s in sys.argv]
+import cadnano
 
-if "-t" in argv:
+if "-t" in sys.argv:
     os.environ['CADNANO_IGNORE_ENV_VARS_EXCEPT_FOR_ME'] = 'YES'
-from cadnano import app as getAppInstance
+
+cadnano.initAppWithGui()
 
 if "-p" not in sys.argv:
     # Having our own NSApplication doesn't play nice with
@@ -56,9 +57,9 @@ if "-p" not in sys.argv:
     #     from applicationdelegate import ApplicationDelegate
 
 
-app = getAppInstance()
-app.initGui()
+
 if __name__ == '__main__':
+    app = cadnano.app()
     if "-p" in sys.argv:
         print "Collecting profile data into cadnano.profile"
         import cProfile
