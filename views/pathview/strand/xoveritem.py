@@ -455,30 +455,29 @@ class XoverItem(QGraphicsPathItem):
     # end def
 
     ### EVENT HANDERS ###
-    def sceneEvent(self, event):
-        print "XOVR got scene event %s"%event
-        return False
-    # def mousePressEvent(self, event):
-    #     """
-    #     Special case for xovers and select tool, for now
-    #     """
-    #     if str(self.activeTool()) == "selectTool":
-    #         sI = self._strandItem
-    #         viewroot = sI.viewroot()
-    #         currentFilterDict = viewroot.selectionFilterDict()
-    #         if sI.strandFilter() in currentFilterDict and self._filterName in currentFilterDict:
-    #             selectionGroup = viewroot.strandItemSelectionGroup()
-    #             mod = Qt.MetaModifier
-    #             if not (event.modifiers() & mod):
-    #                  selectionGroup.clearSelection(False)
-    #             selectionGroup.setSelectionLock(selectionGroup)
-    #             # self.setSelectedColor(True)
-    #             selectionGroup.pendToAdd(self)
-    #             selectionGroup.processPendingToAddList()
-    #             return selectionGroup.mousePressEvent(event)
-    #     else:
-    #         return QGraphicsPathItem.mousePressEvent(self, event)
-    # # end def 
+    def mousePressEvent(self, event):
+        """
+        Special case for xovers and select tool, for now
+        """
+        if str(self.activeTool()) == "selectTool":
+            event.setAccepted(False)
+            sI = self._strandItem
+            viewroot = sI.viewroot()
+            currentFilterDict = viewroot.selectionFilterDict()
+            if sI.strandFilter() in currentFilterDict and self._filterName in currentFilterDict:
+                event.setAccepted(True)
+                selectionGroup = viewroot.strandItemSelectionGroup()
+                mod = Qt.MetaModifier
+                if not (event.modifiers() & mod):
+                     selectionGroup.clearSelection(False)
+                selectionGroup.setSelectionLock(selectionGroup)
+                # self.setSelectedColor(True)
+                selectionGroup.pendToAdd(self)
+                selectionGroup.processPendingToAddList()
+                return selectionGroup.mousePressEvent(event)
+        else:
+            event.setAccepted(False)
+    # end def 
     
     def eraseToolMousePress(self):
         """Erase the strand."""

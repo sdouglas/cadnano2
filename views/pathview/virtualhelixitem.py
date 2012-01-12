@@ -273,6 +273,8 @@ class VirtualHelixItem(QGraphicsPathItem):
         if hasattr(self, toolMethodName):
             self._lastStrandSet, self._lastIdx = strandSet, idx
             getattr(self, toolMethodName)(strandSet, idx)
+        else:
+            event.setAccepted(False)
     # end def
 
     def mouseMoveEvent(self, event):
@@ -286,6 +288,8 @@ class VirtualHelixItem(QGraphicsPathItem):
             if self._lastStrandSet != strandSet or self._lastIdx != idx:
                 self._lastStrandSet, self._lastIdx = strandSet, idx
                 getattr(self, toolMethodName)(strandSet, idx)
+        else:
+            event.setAccepted(False)
     # end def
 
     def customMouseRelease(self, event):
@@ -296,6 +300,8 @@ class VirtualHelixItem(QGraphicsPathItem):
         toolMethodName = str(self._activeTool()) + "MouseRelease"
         if hasattr(self, toolMethodName):
             getattr(self, toolMethodName)(self._lastStrandSet, self._lastIdx)
+        else:
+            event.setAccepted(False)
     # end def
 
     ### COORDINATE UTILITIES ###
@@ -350,12 +356,6 @@ class VirtualHelixItem(QGraphicsPathItem):
     # end def
 
     ### TOOL METHODS ###
-    def selectToolMousePress(self, strandSet, idx):
-        """strand.getDragBounds"""
-        # print "%s: %s[%s]" % (util.methodName(), strandSet, idx)
-        pass
-    # end def
-
     def selectToolMouseMove(self, strandSet, idx):
         """move endpoint to new location"""
         # print "%s: %s[%s]" % (util.methodName(), strandSet, idx)

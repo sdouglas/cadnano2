@@ -27,6 +27,7 @@ cadnanoqt
 Created by Jonathan deWerd on 2012-01-11.
 """
 import util, sys, os
+from code import interact
 util.qtWrapImport('QtGui', globals(),  ['QApplication', 'QIcon',\
                                         'QUndoGroup'])
 util.qtWrapImport('QtCore', globals(), ['QObject', 'QCoreApplication', 'Qt',\
@@ -84,12 +85,11 @@ class CadnanoQt(QObject):
                 vHelix = vh(vhref)
                 return partitem.vhItemForVH(vHelix)
                 
-            print "\tpySide() true iff the app is using PySide"
             print "\tquit()\tquit (for when the menu fails)"
             print "\tgraphicsItm.findChild()  see help(pi().findChild)"
             interact('', local={'a':self, 'd':d, 'w':w,\
                                 'p':p, 'pi':pi, 'vh':vh, 'vhi':vhi,\
-                                'pySide': self.usesPySide})
+                                })
 
     def isInMaya(self):
         return QCoreApplication.instance().applicationName().contains(

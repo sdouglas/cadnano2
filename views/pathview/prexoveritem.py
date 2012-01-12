@@ -206,5 +206,7 @@ class PreXoverItem(QGraphicsPathItem):
             self._fromVHItem.viewroot().clearStrandSelections()
             
             part.createXover(strand5p, self._idx, strand3p, self._idx)
+        else:
+            event.setAccepted(False)
     # end def
     
