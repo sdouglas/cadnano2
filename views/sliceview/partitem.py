@@ -97,7 +97,7 @@ class PartItem(QGraphicsItem):
     ### SIGNALS ###
 
     ### SLOTS ###
-    def partDimensionsChangedSlot(self, sender, part):
+    def partDimensionsChangedSlot(self, sender):
         pass
     # end def
 

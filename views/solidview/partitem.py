@@ -136,7 +136,7 @@ class PartItem(object):
     # end def
 
     ### SLOTS ###
-    def partDimensionsChangedSlot(self, sender, part):
+    def partDimensionsChangedSlot(self, part):
         """
         Receives notification from the model when a dimentions of the part
         changes. Needs to change an attribute of every Maya Helix Nodes, so

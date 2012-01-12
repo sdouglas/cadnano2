@@ -119,7 +119,7 @@ class PartItem(QGraphicsRectItem):
         self.updatePreXoverItems()
     #end def
 
-    def partDimensionsChangedSlot(self, sender, part):
+    def partDimensionsChangedSlot(self, part):
         if len(self._virtualHelixItemList) > 0:
             vhi = self._virtualHelixItemList[0]
             vhiRect = vhi.boundingRect()
