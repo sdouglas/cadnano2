@@ -49,4 +49,4 @@ class VirtualHelixItemController():
         util.unObserve(mvh, 'virtualHelixRemovedSignal', vhItem.virtualHelixRemovedSlot)
 
         for strandSet in mvh.getStrandSets():
-            util.disConnect(strandSet, 'strandsetStrandAddedSignal', vhItem.strandAddedSlot)
+            util.unObserve(strandSet, 'strandsetStrandAddedSignal', vhItem.strandAddedSlot)

@@ -152,7 +152,6 @@ class PathRootItem(QGraphicsRectItem):
             if k==partItem:
                 del self._partItemForPart[k]
                 return
-        assert(False)  # Colud not find partItem for removal
     # end def
 
     def resetDocumentAndController(self, document):

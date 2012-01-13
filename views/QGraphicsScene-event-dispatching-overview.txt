@@ -1,6 +1,6 @@
 Here is a brief overview of the functions through which a mouse press event will descend until it finally reaches a QGraphicsItem.
 
------ From the run loop ------
+----- Run loop sends a mouse press ------
 bool QGraphicsScene::event(QEvent *event)  //Returns true
 void QGraphicsScene::mousePressEvent(QGraphicsSceneMouseEvent *mouseEvent)
 void QGraphicsScenePrivate::mousePressEventHandler(QGraphicsSceneMouseEvent *mouseEvent)
@@ -20,8 +20,22 @@ void QGraphicsScenePrivate::mousePressEventHandler(QGraphicsSceneMouseEvent *mou
       ungrab
     propagate to view
     
------ In the QGraphicsItem -----
+----- QGraphicsItem receives a mouse press -----
 The only default event->accept()ing that goes on is for popup widget closing
 bool QGraphicsItem::sceneEvent(QEvent *event)
   void QGraphicsItem::mousePressEvent(QGraphicsSceneMouseEvent *event)
   ignore mousePressEvent retval and return true
+
+----- Rubber Banding -----
+void QGraphicsView::mouseMoveEvent(QMouseEvent *event)
+  If dragMode is QGraphicsView::RubberBandDrag and scene interaction allowed, proceed.
+  If rubberBanding, proceed
+  Dirty the viewport
+  void QGraphicsScene::setSelectionArea(const QPainterPath &path, Qt::ItemSelectionMode mode,
+                                        const QTransform &deviceTransform)
+    foreach item in QGraphicsScene::items(selection rect, descending order)
+      if (item->flags() & QGraphicsItem::ItemIsSelectable)
+        item->setSelected(true)
+    foreach unselectedItem
+      item->setSelected(false)
+    emit selectionChanged();

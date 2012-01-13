@@ -356,18 +356,6 @@ class VirtualHelixItem(QGraphicsPathItem):
     # end def
 
     ### TOOL METHODS ###
-    def selectToolMouseMove(self, strandSet, idx):
-        """move endpoint to new location"""
-        # print "%s: %s[%s]" % (util.methodName(), strandSet, idx)
-        pass
-    # end def
-
-    def selectToolMouseRelease(self, strandSet, idx):
-        """if startIdx != end, vhelix.createNewStrand(startIdx, endIdx)"""
-        # print "%s: %s[%s]" % (util.methodName(), strandSet, idx)
-        pass
-    # end def
-
     def pencilToolMousePress(self, strandSet, idx):
         """strand.getDragBounds"""
         # print "%s: %s[%s]" % (util.methodName(), strandSet, idx)

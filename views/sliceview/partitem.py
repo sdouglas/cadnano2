@@ -101,7 +101,7 @@ class PartItem(QGraphicsItem):
         pass
     # end def
 
-    def partHideSlot(self, sender, part):
+    def partHideSlot(self, sender):
         self.hide()
     # end def
 
