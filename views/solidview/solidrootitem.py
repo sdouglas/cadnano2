@@ -66,7 +66,7 @@ class SolidRootItem(object):
         pass
     # end def
 
-    def selectionFilterChangedSlot(self, sender, filterNameList):
+    def selectionFilterChangedSlot(self, filterNameList):
         self.clearSelectionFilterDict()
         for filterName in filterNameList:
             self.addToSelectionFilterDict(filterName)

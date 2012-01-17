@@ -30,7 +30,7 @@ import util
 from enum import StrandType
 
 # import Qt stuff into the module namespace with PySide, PyQt4 independence
-util.qtWrapImport('QtCore', globals(), ['QObject', 'Qt'])
+util.qtWrapImport('QtCore', globals(), ['pyqtSignal', 'QObject', 'Qt'])
 util.qtWrapImport('QtGui', globals(), ['QUndoStack', 'QUndoCommand'])
 
 
@@ -64,9 +64,8 @@ class VirtualHelix(QObject):
         return "<%s(%d)>" % (self.__class__.__name__, self._number)
 
     ### SIGNALS ###
-    emittedMessageNames = []
-    emittedMessageNames.append('virtualHelixRemovedSignal')
-    emittedMessageNames.append('virtualHelixNumberChangedSignal') # num
+    virtualHelixRemovedSignal = pyqtSignal(QObject)  # self
+    virtualHelixNumberChangedSignal = pyqtSignal(QObject, int)  # self, num
 
     ### SLOTS ###
 
@@ -92,7 +91,7 @@ class VirtualHelix(QObject):
             numToVhDict = self._part._numberToVirtualHelix
             numToVhDict[self._number] = None
             self._number = number
-            util.emit(self, 'virtualHelixNumberChangedSignal', number)
+            self.virtualHelixNumberChangedSignal.emit(self, number)
             numToVhDict[number] = self
     # end def
 
@@ -255,8 +254,8 @@ class VirtualHelix(QObject):
             part._removeVirtualHelix(vh)
             part._recycleHelixIDNumber(idNum)
             # clear out part references
-            util.emit(vh, 'virtualHelixRemovedSignal')
-            util.emit(part, 'partActiveSliceResizeSignal')
+            vh.virtualHelixRemovedSignal.emit(vh)
+            part.partActiveSliceResizeSignal.emit(part)
             # vh.setPart(None)
             # vh.setNumber(None)
         # end def
@@ -271,7 +270,7 @@ class VirtualHelix(QObject):
             # vh.setNumber(idNum)
             if not vh.number():
                 part._reserveHelixIDNumber(self._parityEven, requestedIDnum=idNum)
-            util.emit(part, 'partVirtualHelixAddedSignal', vh)
-            util.emit(part, 'partActiveSliceResizeSignal')
+            part.partVirtualHelixAddedSignal.emit(part, vh)
+            part.partActiveSliceResizeSignal.emit(part)
         # end def
     # end class

@@ -65,7 +65,7 @@ class SliceRootItem(QGraphicsRectItem):
         pass
     # end def
     
-    def selectionFilterChangedSlot(self, sender, filterNameList):
+    def selectionFilterChangedSlot(self, filterNameList):
         pass
     # end def
     

@@ -50,10 +50,11 @@ class XoverItemController(object):
         s5p = self._modelStrand5p
         mO = s5p.oligo()
         self._modelOligo = mO
+
         s5p.strand5pHasSwappedSignal.connect(xI.strandSwapSlot)
-        util.observe(s5p, 'strandHasNewOligoSignal', xI.strandHasNewOligoSlot)
-        util.observe(mO, 'oligoAppearanceChangedSignal', xI.oligoAppearanceChangedSlot)
-        util.observe(s5p, 'strandXover5pRemovedSignal', xI.xover5pRemovedSlot)
+        s5p.strandHasNewOligoSignal.connect(xI.strandHasNewOligoSlot)
+        mO.oligoAppearanceChangedSignal.connect(xI.oligoAppearanceChangedSlot)
+        s5p.strandXover5pRemovedSignal.connect(xI.xover5pRemovedSlot)
     # end def
 
     def disconnectSignals(self):
@@ -62,7 +63,7 @@ class XoverItemController(object):
         mO = self._modelOligo
 
         s5p.strand5pHasSwappedSignal.disconnect(xI.strandSwapSlot)
-        util.unObserve(s5p, 'strandHasNewOligoSignal', xI.strandHasNewOligoSlot)
-        util.unObserve(mO, 'oligoAppearanceChangedSignal', xI.oligoAppearanceChangedSlot)
-        util.unObserve(s5p, 'strandXover5pRemovedSignal', xI.xover5pRemovedSlot)
+        s5p.strandHasNewOligoSignal.disconnect(xI.strandHasNewOligoSlot)
+        mO.oligoAppearanceChangedSignal.disconnect(xI.oligoAppearanceChangedSlot)
+        s5p.strandXover5pRemovedSignal.connect(xI.xover5pRemovedSlot)
     # end def

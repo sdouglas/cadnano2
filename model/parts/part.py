@@ -39,7 +39,7 @@ from views import styles
 
 import util
 
-util.qtWrapImport('QtCore', globals(), ['QObject'])
+util.qtWrapImport('QtCore', globals(), ['pyqtSignal', 'QObject'])
 util.qtWrapImport('QtGui', globals(), ['QUndoCommand'])
 
 
@@ -105,21 +105,20 @@ class Part(QObject):
         return "<%s %s>" % (clsName, str(id(self))[-4:])
 
     ### SIGNALS ###
-    emittedMessageNames = []
-    emittedMessageNames.append('partActiveSliceIndexSignal') # index
-    emittedMessageNames.append('partDimensionsChangedSignal')
-    emittedMessageNames.append('partInstanceAddedSignal')
-    emittedMessageNames.append('partParentChangedSignal')
-    emittedMessageNames.append('partPreDecoratorSelectedSignal') # row, col, idx
-    emittedMessageNames.append('partRemovedSignal')
-    emittedMessageNames.append('partStrandChangedSignal') # virtualHelix
-    emittedMessageNames.append('partVirtualHelixAddedSignal') # virtualHelix
-    emittedMessageNames.append('partVirtualHelixRenumberedSignal') # coord
-    emittedMessageNames.append('partVirtualHelixResizedSignal') # coord
-    emittedMessageNames.append('partVirtualHelicesReorderedSignal') # list
-    emittedMessageNames.append('partHideSignal')
-    emittedMessageNames.append('partActiveVirtualHelixChangedSignal')
-    emittedMessageNames.append('partActiveSliceResizeSignal')
+    partActiveSliceIndexSignal = pyqtSignal(QObject, int)  # self, index
+    partActiveSliceResizeSignal = pyqtSignal(QObject)      # self
+    partDimensionsChangedSignal = pyqtSignal(QObject)      # self
+    partInstanceAddedSignal = pyqtSignal(QObject)          # self
+    partParentChangedSignal = pyqtSignal(QObject)          # self
+    partPreDecoratorSelectedSignal = pyqtSignal(object, int, int, int)  # row,col,idx
+    partRemovedSignal = pyqtSignal(QObject)                # self
+    partStrandChangedSignal = pyqtSignal(object, QObject)          # self, virtualHelix
+    partVirtualHelixAddedSignal = pyqtSignal(object, QObject)      # self, virtualhelix
+    partVirtualHelixRenumberedSignal = pyqtSignal(object, tuple)   # self, coord
+    partVirtualHelixResizedSignal = pyqtSignal(object, tuple)      # self, coord
+    partVirtualHelicesReorderedSignal = pyqtSignal(object, list)   # self, list of coords
+    partHideSignal = pyqtSignal(QObject)
+    partActiveVirtualHelixChangedSignal = pyqtSignal(QObject, QObject)
 
     ### SLOTS ###
 
@@ -279,7 +278,7 @@ class Part(QObject):
     #     This method uses the slow method of removing each element one at a time
     #     while maintaining state while the command is executed
     #     """
-    #     util.emit(self, 'partHideSignal')
+    #     self.partHideSignal.emit(self)
     #     self._activeVirtualHelix = None
     #     if useUndoStack:
     #         self.undoStack().beginMacro("Delete Part")
@@ -304,7 +303,7 @@ class Part(QObject):
         not emitted.  This causes problems with undo and redo down the road
         but works as of now.
         """
-        util.emit(self, 'partHideSignal')
+        self.partHideSignal.emit(self)
         self._activeVirtualHelix = None
         if useUndoStack:
             self.undoStack().beginMacro("Delete Part")
@@ -720,10 +719,10 @@ class Part(QObject):
             part = self._part
             aVH =  part.activeVirtualHelix()
             if aVH:
-                util.emit(part, 'partStrandChangedSignal', aVH)
+                part.partStrandChangedSignal.emit(part, aVH)
             for oligo in part._oligos:
                 for strand in oligo.strand5p().generator3pStrand():
-                    util.emit(strand, 'strandUpdateSignal')
+                    strand.strandUpdateSignal.emit(strand)
         # end def
             
         def undo(self):
@@ -733,10 +732,10 @@ class Part(QObject):
             part = self._part
             aVH =  part.activeVirtualHelix()
             if aVH:
-                util.emit(part, 'partStrandChangedSignal', aVH)
+                part.partStrandChangedSignal.emit(part, aVH)
             for oligo in part._oligos:
                 for strand in oligo.strand5p().generator3pStrand():
-                    util.emit(strand, 'strandUpdateSignal')
+                    strand.strandUpdateSignal.emit(strand)
         # end def
     # end def
 
@@ -754,13 +753,13 @@ class Part(QObject):
 
     def setActiveBaseIndex(self, idx):
         self._activeBaseIndex = idx
-        util.emit(self, 'partActiveSliceIndexSignal', idx)
+        self.partActiveSliceIndexSignal.emit(self, idx)
     # end def
 
     def setActiveVirtualHelix(self, virtualHelix, idx=None):
         self._activeVirtualHelix = virtualHelix
         self._activeVirtualHelixIdx = idx
-        util.emit(self, 'partStrandChangedSignal', virtualHelix)
+        self.partStrandChangedSignal.emit(self, virtualHelix)
     # end def
 
     def selectPreDecorator(self, selectionList):
@@ -773,7 +772,7 @@ class Part(QObject):
             # partPreDecoratorUnSelectedSignal.emit()
         sel = selectionList[0]
         (row, col, baseIdx) = (sel[0], sel[1], sel[2])
-        util.emit(self, 'partPreDecoratorSelectedSignal', row, col, baseIdx)
+        self.partPreDecoratorSelectedSignal.emit(self, row, col, baseIdx)
 
     def xoverSnapTo(self, strand, idx, delta):
         """
@@ -1077,7 +1076,7 @@ class Part(QObject):
     def setImportedVHelixOrder(self, orderedCoordList):
         """Used on file import to store the order of the virtual helices."""
         self._importedVHelixOrder = orderedCoordList
-        util.emit(self, 'partVirtualHelicesReorderedSignal', orderedCoordList)
+        self.partVirtualHelicesReorderedSignal.emit(self, orderedCoordList)
 
     ### COMMANDS ###
     class CreateVirtualHelixCommand(QUndoCommand):
@@ -1102,8 +1101,8 @@ class Part(QObject):
                 part._reserveHelixIDNumber(self._parityEven,
                                             requestedIDnum=idNum)
             # end if
-            util.emit(part, 'partVirtualHelixAddedSignal', vh)
-            util.emit(part, 'partActiveSliceResizeSignal')
+            part.partVirtualHelixAddedSignal.emit(part, vh)
+            part.partActiveSliceResizeSignal.emit(part)
         # end def
 
         def undo(self):
@@ -1115,8 +1114,8 @@ class Part(QObject):
             # clear out part references
             vh.setPart(None)
             vh.setNumber(None)
-            util.emit(vh, 'virtualHelixRemovedSignal')
-            util.emit(part, 'partActiveSliceResizeSignal')
+            vh.virtualHelixRemovedSignal.emit(vh)
+            part.partActiveSliceResizeSignal.emit(part)
         # end def
     # end class
 
@@ -1176,11 +1175,11 @@ class Part(QObject):
             vh3p = ss3.virtualHelix()
             st3p = ss3.strandType()
 
-            util.emit(part, 'partActiveVirtualHelixChangedSignal', vh5p)
+            part.partActiveVirtualHelixChangedSignal.emit(part, vh5p)
             # strand5p.strandXover5pChangedSignal.emit(strand5p, strand3p)
             if self._updateOligo:
-                util.emit(strand5p, 'strandUpdateSignal')
-                util.emit(strand3p, 'strandUpdateSignal')
+                strand5p.strandUpdateSignal.emit(strand5p)
+                strand3p.strandUpdateSignal.emit(strand3p)
         # end def
 
         def undo(self):
@@ -1220,11 +1219,11 @@ class Part(QObject):
             vh3p = ss3.virtualHelix()
             st3p = ss3.strandType()
 
-            util.emit(part, 'partActiveVirtualHelixChangedSignal', vh5p)
+            part.partActiveVirtualHelixChangedSignal.emit(part, vh5p)
             # strand5p.strandXover5pChangedSignal.emit(strand5p, strand3p)
             if self._updateOligo:
-                util.emit(strand5p, 'strandUpdateSignal')
-                util.emit(strand3p, 'strandUpdateSignal')
+                strand5p.strandUpdateSignal.emit(strand5p)
+                strand3p.strandUpdateSignal.emit(strand3p)
         # end def
     # end class
 
@@ -1287,7 +1286,7 @@ class Part(QObject):
             # end for
 
             for strand in visited.keys():
-                util.emit(strand, 'strandUpdateSignal')
+                strand.strandUpdateSignal.emit(strand)
         # end def
 
         def undo(self):
@@ -1362,10 +1361,10 @@ class Part(QObject):
             vh3p = ss3.virtualHelix()
             st3p = ss3.strandType()
 
-            util.emit(part, 'partActiveVirtualHelixChangedSignal', vh5p)
+            part.partActiveVirtualHelixChangedSignal.emit(part, vh5p)
             # strand5p.strandXover5pChangedSignal.emit(strand5p, strand3p)
-            util.emit(strand5p, 'strandUpdateSignal')
-            util.emit(strand3p, 'strandUpdateSignal')
+            strand5p.strandUpdateSignal.emit(strand5p)
+            strand3p.strandUpdateSignal.emit(strand3p)
         # end def
 
         def undo(self):
@@ -1406,10 +1405,10 @@ class Part(QObject):
             vh3p = ss3.virtualHelix()
             st3p = ss3.strandType()
 
-            util.emit(part, 'partActiveVirtualHelixChangedSignal', vh5p)
+            part.partActiveVirtualHelixChangedSignal.emit(part, vh5p)
             # strand5p.strandXover5pChangedSignal.emit(strand5p, strand3p)
-            util.emit(strand5p, 'strandUpdateSignal')
-            util.emit(strand3p, 'strandUpdateSignal')
+            strand5p.strandUpdateSignal.emit(strand5p)
+            strand3p.strandUpdateSignal.emit(strand3p)
         # end def
     # end class
 
@@ -1429,7 +1428,7 @@ class Part(QObject):
             doc = self._doc
             doc.removePart(part)
             part.setDocument(None)
-            util.emit(part, 'partRemovedSignal')
+            part.partRemovedSignal.emit(part)
         # end def
 
         def undo(self):
@@ -1437,7 +1436,7 @@ class Part(QObject):
             doc = self._doc
             doc._addPart(part)
             part.setDocument(doc)
-            util.emit(doc, 'documentPartAddedSignal', part)
+            doc.documentPartAddedSignal.emit(doc, part)
         # end def
     # end class
 
@@ -1472,7 +1471,7 @@ class Part(QObject):
             #end for
             for vh in self._vhs:
                 # for updating the Slice View displayed helices
-                util.emit(part, 'partStrandChangedSignal', vh)
+                part.partStrandChangedSignal.emit(part, vh)
             # end for
             self._oligos.clear()
         # end def
@@ -1484,13 +1483,13 @@ class Part(QObject):
             for sSet in self._strandSets:
                 sList = sListCopyIterator.next()
                 for strand in sList:
-                    util.emit(sSet, 'strandsetStrandAddedSignal', strand)
+                    sSet.strandsetStrandAddedSignal.emit(sSet, strand)
                 # end for
                 sSet._strandList = sList
             #end for
             for vh in self._vhs:
                 # for updating the Slice View displayed helices
-                util.emit(part, 'partStrandChangedSignal', vh)
+                part.partStrandChangedSignal.emit(part, vh)
             # end for
             for olg in self._oligos:
                 part.addOligo(olg)
@@ -1519,10 +1518,10 @@ class Part(QObject):
             if self._minDelta != 0:
                 self.deltaMinDimension(part, self._minDelta)
             for vh in part._coordToVirtualHelix.itervalues():
-                util.emit(part, 'partVirtualHelixResizedSignal', vh.coord())
+                part.partVirtualHelixResizedSignal.emit(part, vh.coord())
             if self._oldActiveIdx > part._maxBase:
                 part.setActiveBaseIndex(part._maxBase)
-            util.emit(part, 'partDimensionsChangedSignal')
+            part.partDimensionsChangedSignal.emit(part)
         # end def
 
         def undo(self):
@@ -1532,10 +1531,10 @@ class Part(QObject):
             if self._minDelta != 0:
                 self.deltaMinDimension(part, self._minDelta)
             for vh in part._coordToVirtualHelix.itervalues():
-                util.emit(part, 'partVirtualHelixResizedSignal', vh.coord())
+                part.partVirtualHelixResizedSignal.emit(part, vh.coord())
             if self._oldActiveIdx != part.activeBaseIndex():
                 part.setActiveBaseIndex(self._oldActiveIdx)
-            util.emit(part, 'partDimensionsChangedSignal')
+            part.partDimensionsChangedSignal.emit(part)
         # end def
 
         def deltaMinDimension(self, part, minDimensionDelta):

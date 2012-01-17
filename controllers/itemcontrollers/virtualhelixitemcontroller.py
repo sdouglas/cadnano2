@@ -21,7 +21,6 @@
 # THE SOFTWARE.
 #
 # http://www.opensource.org/licenses/mit-license.php
-import util
 
 class VirtualHelixItemController():
     def __init__(self, virtualHelixItem, modelVirtualHelix):
@@ -34,19 +33,21 @@ class VirtualHelixItemController():
         vhItem = self._virtualHelixItem
         mvh = self._modelVirtualHelix
 
-        util.observe(mvh, 'virtualHelixNumberChangedSignal', vhItem.virtualHelixNumberChangedSlot)
-        util.observe(mvh, 'virtualHelixRemovedSignal', vhItem.virtualHelixRemovedSlot)
+        mvh.virtualHelixNumberChangedSignal.connect(vhItem.virtualHelixNumberChangedSlot)
+        mvh.virtualHelixRemovedSignal.connect(vhItem.virtualHelixRemovedSlot)
         
         for strandSet in mvh.getStrandSets():
-            util.observe(strandSet, 'strandsetStrandAddedSignal', vhItem.strandAddedSlot)
+            strandSet.strandsetStrandAddedSignal.connect(vhItem.strandAddedSlot)
+            # strandSet.decoratorAddedSignal.connect(vhItem.decoratorAddedSlot)
     # end def
 
     def disconnectSignals(self):
         vhItem = self._virtualHelixItem
         mvh = self._modelVirtualHelix
 
-        util.unObserve(mvh, 'virtualHelixNumberChangedSignal', vhItem.virtualHelixNumberChangedSlot)
-        util.unObserve(mvh, 'virtualHelixRemovedSignal', vhItem.virtualHelixRemovedSlot)
+        mvh.virtualHelixNumberChangedSignal.disconnect(vhItem.virtualHelixNumberChangedSlot)
+        mvh.virtualHelixRemovedSignal.disconnect(vhItem.virtualHelixRemovedSlot)
 
         for strandSet in mvh.getStrandSets():
-            util.unObserve(strandSet, 'strandsetStrandAddedSignal', vhItem.strandAddedSlot)
+            strandSet.strandsetStrandAddedSignal.disconnect(vhItem.strandAddedSlot)
+            # strandSet.decoratorAddedSignal.disconnect(vhItem.decoratorAddedSlot)

@@ -162,7 +162,7 @@ class DocumentController():
             fS.setChecked(False)
         if fX.isChecked():
             fX.setChecked(False)
-        util.emit(self._document, 'documentSelectionFilterChangedSignal', ["virtualHelix"])
+        self._document.documentSelectionFilterChangedSignal.emit(["virtualHelix"])
 
     def actionFilterEndpointSlot(self):
         """
@@ -242,7 +242,7 @@ class DocumentController():
             filterList.append("scaffold")
         if win.actionFilterStap.isChecked():
             filterList.append("staple")
-        util.emit(self._document, 'documentSelectionFilterChangedSignal', filterList)
+        self._document.documentSelectionFilterChangedSignal.emit(filterList)
     # end def
 
     def actionNewSlot(self):

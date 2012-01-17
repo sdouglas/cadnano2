@@ -31,7 +31,7 @@ from parts.part import Part
 from strand import Strand
 from operator import itemgetter
 import util
-util.qtWrapImport('QtCore', globals(), ['QObject'])
+util.qtWrapImport('QtCore', globals(), ['pyqtSignal', 'QObject'])
 util.qtWrapImport('QtGui', globals(), ['QUndoCommand', 'QUndoStack'])
 
 
@@ -55,15 +55,18 @@ class Document(QObject):
         self._selectedChangedDict = {}
 
     ### SIGNALS ###
-    emittedMessageNames = ['documentPartAddedSignal']
+    documentPartAddedSignal = pyqtSignal(object, QObject)  # doc, part
+
     # dict of tuples of objects using the reference as the key,
-    # and the value is a tuple with meta data is passed as the 1st arg
+    # and the value is a tuple with meta data
     # in the case of strands the metadata would be which endpoints of selected
     # e.g. { objectRef: (value0, value1),  ...}
-    emittedMessageNames.append('documentSelectedChangedSignal')
-    emittedMessageNames.append('documentSelectionFilterChangedSignal')
-    emittedMessageNames.append('documentViewResetSignal')
-    emittedMessageNames.append('documentClearSelectionsSignal')
+    documentSelectedChangedSignal = pyqtSignal(dict)  # tuples of items + data
+    documentSelectionFilterChangedSignal = pyqtSignal(list) # doc, filterlist
+
+    documentViewResetSignal = pyqtSignal(QObject)
+    documentClearSelectionsSignal = pyqtSignal(QObject)
+
 
     ### SLOTS ###
 
@@ -305,7 +308,7 @@ class Document(QObject):
             self.removeStrandFromSelection(strand)
             self.removeStrandFromSelection(strand3p)
         self._selectionDict = {}
-        util.emit(self, 'documentClearSelectionsSignal')
+        self.documentClearSelectionsSignal.emit(self)
         if useUndoStack:
             if xoList: # end xover macro if it was started
                 self.undoStack().endMacro()
@@ -397,7 +400,7 @@ class Document(QObject):
         For now, individual objects need to emit signals
         """
         for obj, value in self._selectedChangedDict.iteritems():
-            util.emit(obj, 'selectedChangedSignal', value)
+            obj.selectedChangedSignal.emit(obj, value)
         # end for
         self._selectedChangedDict = {}
         # for sS in self._selectionDict:
@@ -412,7 +415,7 @@ class Document(QObject):
         self._selectionDict = {}
         # the added list is what was recently selected or deselected
         self._selectedChangedDict = {}
-        util.emit(self, 'documentViewResetSignal')
+        self.documentViewResetSignal.emit(self)
     # end def
 
     ### PUBLIC METHODS FOR EDITING THE MODEL ###
@@ -438,13 +441,13 @@ class Document(QObject):
 
     def removeAllParts(self):
         """Used to reset the document. Not undoable."""
-        util.emit(self, 'documentClearSelectionsSignal')
+        self.documentClearSelectionsSignal.emit(self)
         for part in self._parts:
             part.remove(useUndoStack=False)
     # end def
 
     def removePart(self, part):
-        util.emit(self, 'documentClearSelectionsSignal')
+        self.documentClearSelectionsSignal.emit(self)
         self._parts.remove(part)
         
 
@@ -492,13 +495,13 @@ class Document(QObject):
                 self._doc._parts.append(self._part)
                 self._part.setDocument(self._doc)
                 self._doc.setSelectedPart(self._part)
-                util.emit(self._doc, 'documentPartAddedSignal', self._part)
+                self._doc.documentPartAddedSignal.emit(self._doc, self._part)
         # end def
 
         def undo(self):
             self._doc.removePart(self._part)
             self._part.setDocument(None)
-            util.emit(self._doc, 'documentPartAddedSignal', self._part)
+            self._doc.documentPartAddedSignal.emit(self._doc, self._part)
         # end def
     # end class
 # end class

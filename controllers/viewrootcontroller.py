@@ -21,7 +21,6 @@
 # THE SOFTWARE.
 #
 # http://www.opensource.org/licenses/mit-license.php
-import util
 
 class ViewRootController():
     def __init__(self, viewRoot, modelDocument):
@@ -32,15 +31,15 @@ class ViewRootController():
     def connectSignals(self):
         mD = self._modelDocument
         vR = self._viewRoot
-        util.observe(mD, 'documentPartAddedSignal', vR.partAddedSlot)
-        util.observe(mD, 'documentClearSelectionsSignal', vR.clearSelectionsSlot)
-        util.observe(mD, 'documentSelectionFilterChangedSignal', vR.selectionFilterChangedSlot)
-        util.observe(mD, 'documentViewResetSignal', vR.resetRootItemSlot)
+        mD.documentPartAddedSignal.connect(vR.partAddedSlot)
+        mD.documentClearSelectionsSignal.connect(vR.clearSelectionsSlot)
+        mD.documentSelectionFilterChangedSignal.connect(vR.selectionFilterChangedSlot)
+        mD.documentViewResetSignal.connect(vR.resetRootItemSlot)
         
     def disconnectSignals(self):
         mD = self._modelDocument
         vR = self._viewRoot
-        util.unObserve(mD, 'documentPartAddedSignal', vR.partAddedSlot)
-        util.unObserve(mD, 'documentClearSelectionsSignal', vR.clearSelectionsSlot)
-        util.unObserve(mD, 'documentSelectionFilterChangedSignal', vR.selectionFilterChangedSlot)
-        util.unObserve(mD, 'documentViewResetSignal', vR.resetRootItemSlot)
+        mD.documentPartAddedSignal.disconnect(vR.partAddedSlot)
+        mD.documentClearSelectionsSignal.disconnect(vR.clearSelectionsSlot)
+        mD.documentSelectionFilterChangedSignal.disconnect(vR.selectionFilterChangedSlot)
+        mD.documentViewResetSignal.disconnect(vR.resetRootItemSlot)

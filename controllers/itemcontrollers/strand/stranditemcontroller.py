@@ -47,9 +47,9 @@ class StrandItemController(AbstractStrandItemController):
         AbstractStrandItemController.connectSignals(self)
         mS = self._modelStrand
         sI = self._strandItem
-        util.observe(mS, 'strandResizedSignal', sI.strandResizedSlot)
+        mS.strandResizedSignal.connect(sI.strandResizedSlot)
         # mS.strandXover5pChangedSignal.connect(sI.strandXover5pChangedSlot)
-        util.observe(mS, 'strandUpdateSignal', sI.strandUpdateSlot)
+        mS.strandUpdateSignal.connect(sI.strandUpdateSlot)
         self.connectOligoSignals()
     # end def
 
@@ -57,23 +57,23 @@ class StrandItemController(AbstractStrandItemController):
         mO = self._modelStrand.oligo()
         self._modelOligo = mO
         sI = self._strandItem
-        util.observe(mO, 'oligoSequenceAddedSignal', sI.oligoSequenceAddedSlot)
-        util.observe(mO, 'oligoSequenceClearedSignal', sI.oligoSequenceClearedSlot)
+        mO.oligoSequenceAddedSignal.connect(sI.oligoSequenceAddedSlot)
+        mO.oligoSequenceClearedSignal.connect(sI.oligoSequenceClearedSlot)
     # end def
 
     def disconnectSignals(self):
         AbstractStrandItemController.disconnectSignals(self)
         mS = self._modelStrand
         sI = self._strandItem
-        util.unObserve(mS, 'strandResizedSignal', sI.strandResizedSlot)
+        mS.strandResizedSignal.disconnect(sI.strandResizedSlot)
         # mS.strandXover5pChangedSignal.disconnect(sI.strandXover5pChangedSlot)
-        util.unObserve(mS, 'strandUpdateSignal', sI.strandUpdateSlot)
+        mS.strandUpdateSignal.disconnect(sI.strandUpdateSlot)
         self.disconnectOligoSignals()
     # end def
 
     def disconnectOligoSignals(self):
         mO = self._modelOligo
         sI = self._strandItem
-        util.unObserve(mO, 'oligoSequenceAddedSignal', sI.oligoSequenceAddedSlot)
-        util.unObserve(mO, 'oligoSequenceClearedSignal', sI.oligoSequenceClearedSlot)
+        mO.oligoSequenceAddedSignal.disconnect(sI.oligoSequenceAddedSlot)
+        mO.oligoSequenceClearedSignal.disconnect(sI.oligoSequenceClearedSlot)
     # end def
