@@ -115,7 +115,7 @@ class PartItem(QGraphicsRectItem):
         self.hide()
     # end def
 
-    def partActiveVirtualHelixChangedSlot(self, sender, part, virtualHelix):
+    def partActiveVirtualHelixChangedSlot(self, part, virtualHelix):
         self.updatePreXoverItems()
     #end def
 

@@ -24,17 +24,23 @@
 from ui.dialogs.ui_preferences import Ui_Preferences
 from views import styles
 import util
-util.qtWrapImport('QtCore', globals(), ['QObject', 'QSettings'])
-util.qtWrapImport('QtGui', globals(), ['QDialog', 'QDialogButtonBox'])
+import cadnano
+import os.path, zipfile, shutil, platform, subprocess, tempfile, errno
+util.qtWrapImport('QtCore', globals(), ['QObject', 'QSettings', 'pyqtSlot', 'Qt'])
+util.qtWrapImport('QtGui', globals(), ['QWidget', 'QDialogButtonBox',\
+                                       'QTableWidgetItem', 'QFileDialog',\
+                                       'QMessageBox'])
 
-class Preferences():
+class Preferences(object):
     """docstring for Preferences"""
     def __init__(self):
         self.qs = QSettings()
-        self.dialog = QDialog()
         self.uiPrefs = Ui_Preferences()
-        self.uiPrefs.setupUi(self.dialog)
+        self.widget = QWidget()
+        self.uiPrefs.setupUi(self.widget)
         self.readPreferences()
+        self.widget.addAction(self.uiPrefs.actionClose)
+        self.uiPrefs.actionClose.triggered.connect(self.hideDialog)
         self.uiPrefs.honeycombRowsSpinBox.valueChanged.connect(self.setHoneycombRows)
         self.uiPrefs.honeycombColsSpinBox.valueChanged.connect(self.setHoneycombCols)
         self.uiPrefs.honeycombStepsSpinBox.valueChanged.connect(self.setHoneycombSteps)
@@ -46,11 +52,17 @@ class Preferences():
         self.uiPrefs.zoomSpeedSlider.valueChanged.connect(self.setZoomSpeed)
         # self.uiPrefs.helixAddCheckBox.toggled.connect(self.setZoomToFitOnHelixAddition)
         self.uiPrefs.buttonBox.clicked.connect(self.handleButtonClick)
+        self.uiPrefs.addPluginButton.clicked.connect(self.addPlugin)
 
     def showDialog(self):
-        self.dialog.exec_()
-        # self.dialog.show()  # launch prefs in mode-less dialog
+        # self.exec_()
+        self.readPreferences()
+        self.widget.show()  # launch prefs in mode-less dialog
 
+    def hideDialog(self):
+        self.widget.hide()
+
+    # @pyqtSlot(object)
     def handleButtonClick(self, button):
         """
         Restores defaults. Other buttons are ignored because connections
@@ -81,7 +93,15 @@ class Preferences():
         self.uiPrefs.autoScafComboBox.setCurrentIndex(self.autoScafIndex)
         self.uiPrefs.defaultToolComboBox.setCurrentIndex(self.startupToolIndex)
         self.uiPrefs.zoomSpeedSlider.setProperty("value", self.zoomSpeed)
+        ptw = self.uiPrefs.pluginTableWidget
+        loadedPluginPaths = cadnano.loadedPlugins.keys()
+        ptw.setRowCount(len(loadedPluginPaths))
+        for i in range(len(loadedPluginPaths)):
+            row = QTableWidgetItem(loadedPluginPaths[i])
+            row.setFlags(Qt.ItemIsEnabled | Qt.ItemIsSelectable)
+            ptw.setItem(i, 0, row)
         # self.uiPrefs.helixAddCheckBox.setChecked(self.zoomOnHelixAdd)
+        
 
     def restoreDefaults(self):
         self.uiPrefs.honeycombRowsSpinBox.setProperty("value", styles.HONEYCOMB_PART_MAXROWS)
@@ -161,3 +181,132 @@ class Preferences():
     def getStartupToolName(self):
         return ['Select', 'Pencil', 'Paint', 'AddSeq'][self.startupToolIndex]
 
+    def addPlugin(self):
+        fdialog = QFileDialog(
+                    self.widget,
+                    "Install Plugin",
+                    cadnano.path(),
+                    "Cadnano Plugins (*.cnp)")
+        fdialog.setAcceptMode(QFileDialog.AcceptOpen)
+        fdialog.setWindowFlags(Qt.Sheet)
+        fdialog.setWindowModality(Qt.WindowModal)
+        fdialog.filesSelected.connect(self.addPluginAtPath)
+        self.fileopendialog = fdialog
+        fdialog.open()
+
+    def addPluginAtPath(self, fname):
+        self.fileopendialog.close()
+        fname = str(fname[0])
+        print "Attempting to open plugin %s"%fname
+        try:
+            zf = zipfile.ZipFile(fname, 'r')
+        except Exception as e:
+            self.failWithMsg("Plugin file seems corrupt: %s."%e)
+            return
+        tdir = tempfile.mkdtemp()
+        try:
+            for f in zf.namelist():
+                if f.endswith('/'):
+                    os.makedirs(os.path.join(tdir,f))
+            for f in zf.namelist():
+                if not f.endswith('/'):
+                    zf.extract(f, tdir)
+        except Exception as e:
+            self.failWithMsg("Extraction of plugin archive failed: %s."%e)
+            return
+        filesInZip = [(f, os.path.join(tdir, f)) for f in os.listdir(tdir)]
+        try:
+            self.confirmDestructiveIfNecessary(filesInZip)
+            self.removePluginsToBeOverwritten(filesInZip)
+            self.movePluginsIntoPluginsFolder(filesInZip)
+        except OSError:
+            print "Couldn't copy files into plugin directory, attempting\
+                   again after boosting privileges."
+            if platform.system() == 'Darwin':
+                self.darwinAuthedMvPluginsIntoPluginsFolder(filesInZip)
+            elif platform.system() == 'Linux':
+                self.linuxAuthedMvPluginsIntoPluginsFolder(filesInZip)
+            else:
+                print "Can't boost privelages on platform %s"%platform.system()
+        loadedAPlugin = cadnano.loadAllPlugins()
+        if not loadedAPlugin:
+            print "Unable to load anythng from plugin %s"%fname
+        self.readPreferences()
+        shutil.rmtree(tdir)
+
+    def darwinAuthedMvPluginsIntoPluginsFolder(self, filesInZip):
+        envirn={"DST":cadnano.path()+'/plugins'}
+        srcstr = ''
+        for i in range(len(filesInZip)):
+            fileName, filePath = filesInZip[i]
+            srcstr += ' \\"$SRC' + str(i) + '\\"'
+            envirn['SRC'+str(i)] = filePath
+        proc = subprocess.Popen(['osascript','-e',\
+                          'do shell script "cp -fR ' + srcstr +\
+                          ' \\"$DST\\"" with administrator privileges'],\
+                          env=envirn)
+        retval = self.waitForProcExit(proc)
+        if retval != 0:
+            self.failWithMsg('cp failed with code %i'%retval)
+
+    def linuxAuthedMvPluginsIntoPluginsFolder(self, filesInZip):
+        args = ['gksudo', 'cp', '-fR']
+        args.extend(filePath for fileName, filePath in filesInZip)
+        args.append(cadnano.path()+'/plugins')
+        proc = subprocess.Popen(args)
+        retval = self.waitForProcExit(proc)
+        if retval != 0:
+            self.failWithMsg('cp failed with code %i'%retval)
+
+    def confirmDestructiveIfNecessary(self, filesInZip):
+        for fileName, filePath in filesInZip:
+            target = os.path.join(cadnano.path(), 'plugins', fileName)
+            if os.path.isfile(target):
+                return self.confirmDestructive()
+            elif os.path.isdir(target):
+                return self.confirmDestructive()
+
+    def confirmDestructive(self):
+        mb = QMessageBox(self.widget)
+        mb.setIcon(QMessageBox.Warning)
+        mb.setInformativeText("The plugin you are trying to install\
+has already been installed. Replace the currently installed one?")
+        mb.setStandardButtons(QMessageBox.No | QMessageBox.Yes)
+        mb.exec_()
+        return mb.clickedButton() == mb.button(QMessageBox.Yes)
+        
+    def removePluginsToBeOverwritten(self, filesInZip):
+        for fileName, filePath in filesInZip:
+            target = os.path.join(cadnano.path(), 'plugins', fileName)
+            if os.path.isfile(target):
+                os.unlink(target)
+            elif os.path.isdir(target):
+                shutil.rmtree(target)
+
+    def movePluginsIntoPluginsFolder(self, filesInZip):
+        for fileName, filePath in filesInZip:
+            target = os.path.join(cadnano.path(), 'plugins', fileName)
+            shutil.move(filePath, target)
+
+    def waitForProcExit(self, proc):
+        procexit = False
+        while not procexit:
+            try:
+                retval = proc.wait()
+                procexit = True
+            except OSError as e:
+                if e.errno != errno.EINTR:
+                    raise ose
+        return retval
+
+    def failWithMsg(self, str):
+        mb = QMessageBox(self.widget)
+        mb.setIcon(QMessageBox.Warning)
+        mb.setInformativeText(str)
+        mb.buttonClicked.connect(self.closeFailDialog)
+        self.failMessageBox = mb
+        mb.open()
+
+    def closeFailDialog(self, button):
+        self.failMessageBox.close()
+        del self.failMessageBox

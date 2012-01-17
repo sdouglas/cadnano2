@@ -27,8 +27,9 @@ cadnano
 Created by Jonathan deWerd on 2011-01-29.
 """
 
-import sys
-from os import path, environ
+import sys, imp
+import os.path
+from glob import glob
 from code import interact
 
 def ignoreEnv():
@@ -54,6 +55,7 @@ def app(appArgs=None):
 def initAppWithoutGui(appArgs=sys.argv):
     global sharedApp
     sharedApp = HeadlessCadnano()
+    loadAllPlugins()
     return sharedApp
 
 def initAppWithGui(appArgs=sys.argv):
@@ -65,9 +67,57 @@ def initAppWithGui(appArgs=sys.argv):
     headless = False
     sharedApp = CadnanoQt(appArgs)
     sharedApp.finishInit()
-    if environ.get('CADNANO_DISCARD_UNSAVED', False) and not ignoreEnv():
+    if os.environ.get('CADNANO_DISCARD_UNSAVED', False) and not ignoreEnv():
         sharedApp.dontAskAndJustDiscardUnsavedChanges = True
-    if environ.get('CADNANO_DEFAULT_DOCUMENT', False) and not ignoreEnv():
+    if os.environ.get('CADNANO_DEFAULT_DOCUMENT', False) and not ignoreEnv():
         sharedApp.shouldPerformBoilerplateStartupScript = True
+    loadAllPlugins()
     return sharedApp
 
+def path():
+    return os.path.abspath(os.path.dirname(__file__))
+
+# maps plugin path (extension stripped) -> plugin module
+loadedPlugins = {}
+
+def unloadedPlugins():
+    """ Returns a list of plugin paths that have yet to
+    be loaded but are in the top level of one of the
+    search directories specified in pluginDirs"""
+    internalPlugins = os.path.join(path(), 'plugins')
+    pluginDirs = [internalPlugins]
+    results = []
+    for pluginDir in pluginDirs:
+        if not os.path.isdir(pluginDir):
+            continue
+        for dirent in os.listdir(pluginDir):
+            f = os.path.join(pluginDir, dirent)
+            isfile = os.path.isfile(f)
+            hasValidSuffix = dirent.endswith(('.py', '.so'))
+            if isfile and hasValidSuffix:
+                results.append(f)
+            if os.path.isdir(f) and\
+               os.path.isfile(os.path.join(f, '__init__.py')):
+                results.append(f)
+    return filter(lambda x: x not in loadedPlugins, results)
+
+def loadPlugin(f):
+    path, fname = os.path.split(f)
+    name, ext = os.path.splitext(fname)
+    pluginKey = os.path.join(path, name)
+    try:
+        mod = loadedPlugins[pluginKey]
+        return mod
+    except KeyError:
+        pass
+    file, filename, data = imp.find_module(name, [path])
+    mod = imp.load_module(name, file, filename, data)
+    loadedPlugins[pluginKey] = mod
+    return mod
+
+def loadAllPlugins():
+    loadedAPlugin = False
+    for p in unloadedPlugins():
+        loadPlugin(p)
+        loadedAPlugin = True
+    return loadedAPlugin

@@ -679,6 +679,9 @@ class Part(QObject):
     # end def
 
     def removeOligo(self, oligo):
+        # Not a designated method
+        # (there exist methods that also directly
+        # remove parts from self._oligos)
         self._oligos.remove(oligo)
     # end def
 
@@ -1471,8 +1474,7 @@ class Part(QObject):
                 # for updating the Slice View displayed helices
                 util.emit(part, 'partStrandChangedSignal', vh)
             # end for
-            for olg in self._oligos:
-                part.removeOligo(olg)
+            self._oligos.clear()
         # end def
 
         def undo(self):

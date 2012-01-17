@@ -34,7 +34,7 @@ class PartItemController(object):
         pI = self._partItem
 
         util.observe(mP, 'partHideSignal', pI.partHideSlot)
-        # util.observe(mP, 'partActiveVirtualHelixChangedSignal', pI.partActiveVirtualHelixChangedSlot)
+        util.observe(mP, 'partActiveVirtualHelixChangedSignal', pI.partActiveVirtualHelixChangedSlot)
         util.observe(mP, 'partDimensionsChangedSignal', pI.partDimensionsChangedSlot)
         util.observe(mP, 'partParentChangedSignal', pI.partParentChangedSlot)
         util.observe(mP, 'partPreDecoratorSelectedSignal', pI.partPreDecoratorSelectedSlot)
@@ -51,7 +51,7 @@ class PartItemController(object):
         pI = self._partItem
         
         util.unObserve(mP, 'partHideSignal', pI.partHideSlot)
-        # util.unObserve(mP, 'partActiveVirtualHelixChangedSignal', pI.partActiveVirtualHelixChangedSlot)
+        util.unObserve(mP, 'partActiveVirtualHelixChangedSignal', pI.partActiveVirtualHelixChangedSlot)
         util.unObserve(mP, 'partDimensionsChangedSignal', pI.partDimensionsChangedSlot)
         util.unObserve(mP, 'partParentChangedSignal', pI.partParentChangedSlot)
         util.unObserve(mP, 'partPreDecoratorSelectedSignal', pI.partPreDecoratorSelectedSlot)

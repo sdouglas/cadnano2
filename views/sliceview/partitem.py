@@ -97,6 +97,9 @@ class PartItem(QGraphicsItem):
     ### SIGNALS ###
 
     ### SLOTS ###
+    def partActiveVirtualHelixChangedSlot(self, part, virtualHelix):
+        pass
+
     def partDimensionsChangedSlot(self, sender):
         pass
     # end def
