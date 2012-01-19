@@ -203,7 +203,6 @@
    <addaction name="actionNewHoneycombPart"/>
    <addaction name="actionNewSquarePart"/>
    <addaction name="separator"/>
-   <addaction name="actionAutoStaple"/>
    <addaction name="actionModify"/>
    <addaction name="separator"/>
    <addaction name="actionFiltersLabel"/>
@@ -521,18 +520,6 @@
    </property>
    <property name="toolTip">
     <string>(E)rase Tool</string>
-   </property>
-  </action>
-  <action name="actionAutoStaple">
-   <property name="icon">
-    <iconset resource="icons.qrc">
-     <normaloff>:/pathtools/autostaple</normaloff>:/pathtools/autostaple</iconset>
-   </property>
-   <property name="text">
-    <string>AutoStaple</string>
-   </property>
-   <property name="toolTip">
-    <string>Click this button to generate a default set of staples.</string>
    </property>
   </action>
   <action name="actionPathPencil">

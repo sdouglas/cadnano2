@@ -30,7 +30,7 @@ from parts.squarepart import SquarePart
 from parts.part import Part
 from strand import Strand
 from operator import itemgetter
-import util
+import util, cadnano
 util.qtWrapImport('QtCore', globals(), ['pyqtSignal', 'QObject'])
 util.qtWrapImport('QtGui', globals(), ['QUndoCommand', 'QUndoStack'])
 
@@ -48,11 +48,11 @@ class Document(QObject):
         self._assemblies = []
         self._controller = None
         self._selectedPart = None
-
         # the dictionary maintains what is selected
         self._selectionDict = {}
         # the added list is what was recently selected or deselected
         self._selectedChangedDict = {}
+        cadnano.app().documentWasCreatedSignal.emit(self)
 
     ### SIGNALS ###
     documentPartAddedSignal = pyqtSignal(object, QObject)  # doc, part

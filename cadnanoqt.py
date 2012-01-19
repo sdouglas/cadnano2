@@ -31,11 +31,13 @@ from code import interact
 util.qtWrapImport('QtGui', globals(),  ['QApplication', 'QIcon',\
                                         'QUndoGroup'])
 util.qtWrapImport('QtCore', globals(), ['QObject', 'QCoreApplication', 'Qt',\
-                                        'QEventLoop'])
+                                        'QEventLoop', 'pyqtSignal'])
 
 class CadnanoQt(QObject):
     dontAskAndJustDiscardUnsavedChanges = False
     shouldPerformBoilerplateStartupScript = False
+    documentWasCreatedSignal = pyqtSignal(object)  # doc
+    documentWindowWasCreatedSignal = pyqtSignal(object, object)  # doc, window
 
     def __init__(self, argv):
         self.argv = argv

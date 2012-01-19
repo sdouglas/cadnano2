@@ -27,7 +27,7 @@ cadnano
 Created by Jonathan deWerd on 2011-01-29.
 """
 
-import sys, imp
+import sys, imp, util
 import os.path
 from glob import glob
 from code import interact

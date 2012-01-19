@@ -73,6 +73,7 @@ class DocumentController():
     def _initWindow(self):
         """docstring for initWindow"""
         self.win = DocumentWindow(docCtrlr=self)
+        app().documentWindowWasCreatedSignal.emit(self._document, self.win)
         self._connectWindowSignalsToSelf()
         self.win.show()
 
@@ -112,7 +113,6 @@ class DocumentController():
         self.win.actionSave.triggered.connect(self.actionSaveSlot)
         self.win.actionSave_As.triggered.connect(self.actionSaveAsSlot)
         self.win.actionSVG.triggered.connect(self.actionSVGSlot)
-        self.win.actionAutoStaple.triggered.connect(self.actionAutostapleSlot)
         self.win.actionExportStaples.triggered.connect(self.actionExportStaplesSlot)
         self.win.actionPreferences.triggered.connect(self.actionPrefsSlot)
         self.win.actionModify.triggered.connect(self.actionModifySlot)
@@ -399,13 +399,6 @@ class DocumentController():
 
     def actionPrefsSlot(self):
         app().prefsClicked()
-
-    def actionAutostapleSlot(self):
-        part = self.activePart()
-        if part:
-            self.win.pathGraphicsView.setViewportUpdateOn(False)
-            part.autoStaple()
-            self.win.pathGraphicsView.setViewportUpdateOn(True)
 
     def actionModifySlot(self):
         """

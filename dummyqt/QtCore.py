@@ -8,8 +8,18 @@ class pyqtSignal(object):
         """ We don't actually do anything with argtypes because
         the real Qt will perform checks in the Gui version of
         cadnano which should suffice. """
+        self.signalEmitters = {}
         self.argtypes = args
-        self.targets = set()
+    def __get__(self, emitter):
+        try:
+            return self.signalEmitters.get(emitter)
+        except KeyError:
+            self.signalEmitters[emitter] = pyqtBoundSignal()
+            return emitter
+
+class pyqtBoundSignal(object):
+    def __init__(self):
+        self.targets = {}
     def connect(self, target):
         self.targets.add(target)
     def disconnect(self, target):
