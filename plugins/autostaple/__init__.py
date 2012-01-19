@@ -1,4 +1,4 @@
-from autostaple import autoStaple
+from autostapleconfig import AutostapleConfig
 import cadnano, util
 import resources
 util.qtWrapImport('QtGui', globals(), ['QIcon', 'QPixmap', 'QAction'])
@@ -15,14 +15,12 @@ class AutostapleHandler(object):
         self.actionAutoStaple.setObjectName("actionAutoStaple")
         self.actionAutoStaple.triggered.connect(self.actionAutostapleSlot)
         self.win.topToolBar.addAction(self.actionAutoStaple)
+        self.configDialog = None
 
     def actionAutostapleSlot(self):
-        part = self.doc.controller().activePart()
-        if part != None:
-            self.win.pathGraphicsView.setViewportUpdateOn(False)
-            autoStaple(part)
-            self.win.pathGraphicsView.setViewportUpdateOn(True)
-        
+        if self.configDialog == None:
+            self.configDialog = AutostapleConfig(self.win, self)
+        self.configDialog.show()
 
 def documentWindowWasCreatedSlot(doc, win):
     doc.autostapleHandler = AutostapleHandler(doc, win)

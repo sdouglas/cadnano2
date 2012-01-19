@@ -67,11 +67,6 @@ def initAppWithGui(appArgs=sys.argv):
     headless = False
     sharedApp = CadnanoQt(appArgs)
     sharedApp.finishInit()
-    if os.environ.get('CADNANO_DISCARD_UNSAVED', False) and not ignoreEnv():
-        sharedApp.dontAskAndJustDiscardUnsavedChanges = True
-    if os.environ.get('CADNANO_DEFAULT_DOCUMENT', False) and not ignoreEnv():
-        sharedApp.shouldPerformBoilerplateStartupScript = True
-    loadAllPlugins()
     return sharedApp
 
 def path():

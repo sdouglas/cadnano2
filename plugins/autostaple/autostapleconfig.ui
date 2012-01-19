@@ -1,0 +1,254 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>Dialog</class>
+ <widget class="QDialog" name="Dialog">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>528</width>
+    <height>388</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>Dialog</string>
+  </property>
+  <layout class="QVBoxLayout" name="verticalLayout">
+   <item>
+    <widget class="QLabel" name="label">
+     <property name="text">
+      <string>Choose an auto-staple algorithm:</string>
+     </property>
+    </widget>
+   </item>
+   <item>
+    <widget class="QTabWidget" name="algoTab">
+     <property name="minimumSize">
+      <size>
+       <width>504</width>
+       <height>338</height>
+      </size>
+     </property>
+     <property name="currentIndex">
+      <number>1</number>
+     </property>
+     <widget class="QWidget" name="manualTab">
+      <attribute name="title">
+       <string>Manual</string>
+      </attribute>
+      <layout class="QVBoxLayout" name="verticalLayout_3">
+       <item>
+        <widget class="QLabel" name="manualDesc">
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
+         <property name="maximumSize">
+          <size>
+           <width>16777215</width>
+           <height>16777215</height>
+          </size>
+         </property>
+         <property name="text">
+          <string>Complements all scaffold strands in the current part with staples and installs every available crossover to form long 'proto-crossover's. Breaking proto-crossovers into properly sized crossovers must be performed manually.</string>
+         </property>
+         <property name="wordWrap">
+          <bool>true</bool>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QDialogButtonBox" name="manualButtonBox">
+         <property name="standardButtons">
+          <set>QDialogButtonBox::Cancel|QDialogButtonBox::Ok</set>
+         </property>
+        </widget>
+       </item>
+      </layout>
+     </widget>
+     <widget class="QWidget" name="fixedTab">
+      <attribute name="title">
+       <string>Fixed</string>
+      </attribute>
+      <layout class="QVBoxLayout" name="verticalLayout_2">
+       <item>
+        <widget class="QLabel" name="fixedDesc">
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
+         <property name="maximumSize">
+          <size>
+           <width>16777215</width>
+           <height>77</height>
+          </size>
+         </property>
+         <property name="text">
+          <string>Complements all scaffold in the current part with staples, installs every available crossover to form long 'proto-crossover's and then breaks the proto-crossovers into pieces as close to targetLength as possible while not exceeding maxLength or undershooting minLengh. </string>
+         </property>
+         <property name="wordWrap">
+          <bool>true</bool>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <layout class="QFormLayout" name="formLayout">
+         <property name="fieldGrowthPolicy">
+          <enum>QFormLayout::FieldsStayAtSizeHint</enum>
+         </property>
+         <item row="0" column="0">
+          <widget class="QLabel" name="maxLengthLabel">
+           <property name="text">
+            <string>maxLength</string>
+           </property>
+          </widget>
+         </item>
+         <item row="0" column="1">
+          <widget class="QDoubleSpinBox" name="maxLengthDoubleSpinBox"/>
+         </item>
+         <item row="2" column="0">
+          <widget class="QLabel" name="minLengthLabel">
+           <property name="text">
+            <string>minLength</string>
+           </property>
+          </widget>
+         </item>
+         <item row="2" column="1">
+          <widget class="QDoubleSpinBox" name="minLengthDoubleSpinBox"/>
+         </item>
+         <item row="1" column="0">
+          <widget class="QLabel" name="targetLengthLabel">
+           <property name="text">
+            <string>targetLength</string>
+           </property>
+          </widget>
+         </item>
+         <item row="1" column="1">
+          <widget class="QDoubleSpinBox" name="targetLengthDoubleSpinBox"/>
+         </item>
+        </layout>
+       </item>
+       <item>
+        <widget class="QDialogButtonBox" name="fixedButtonBox">
+         <property name="standardButtons">
+          <set>QDialogButtonBox::Cancel|QDialogButtonBox::Ok</set>
+         </property>
+        </widget>
+       </item>
+      </layout>
+     </widget>
+     <widget class="QWidget" name="spatial">
+      <attribute name="title">
+       <string>Spatial</string>
+      </attribute>
+     </widget>
+     <widget class="QWidget" name="tab">
+      <attribute name="title">
+       <string>Staged</string>
+      </attribute>
+     </widget>
+    </widget>
+   </item>
+  </layout>
+  <action name="actionCloseDialog">
+   <property name="text">
+    <string>closeDialog</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+</string>
+   </property>
+  </action>
+ </widget>
+ <resources/>
+ <connections>
+  <connection>
+   <sender>fixedButtonBox</sender>
+   <signal>accepted()</signal>
+   <receiver>Dialog</receiver>
+   <slot>fixedAlgoChosen()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>473</x>
+     <y>352</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>522</x>
+     <y>339</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>fixedButtonBox</sender>
+   <signal>rejected()</signal>
+   <receiver>Dialog</receiver>
+   <slot>closeDialog()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>38</x>
+     <y>347</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>6</x>
+     <y>346</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>manualButtonBox</sender>
+   <signal>accepted()</signal>
+   <receiver>Dialog</receiver>
+   <slot>manualAlgoChosen()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>470</x>
+     <y>342</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>524</x>
+     <y>29</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>manualButtonBox</sender>
+   <signal>rejected()</signal>
+   <receiver>Dialog</receiver>
+   <slot>closeDialog()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>42</x>
+     <y>340</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>7</x>
+     <y>26</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>actionCloseDialog</sender>
+   <signal>triggered()</signal>
+   <receiver>Dialog</receiver>
+   <slot>closeDialog()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>263</x>
+     <y>193</y>
+    </hint>
+   </hints>
+  </connection>
+ </connections>
+ <slots>
+  <slot>fixedAlgoChosen()</slot>
+  <slot>manualAlgoChosen()</slot>
+  <slot>closeDialog()</slot>
+ </slots>
+</ui>

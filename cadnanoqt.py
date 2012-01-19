@@ -27,6 +27,7 @@ cadnanoqt
 Created by Jonathan deWerd on 2012-01-11.
 """
 import util, sys, os
+import cadnano
 from code import interact
 util.qtWrapImport('QtGui', globals(),  ['QApplication', 'QIcon',\
                                         'QUndoGroup'])
@@ -57,6 +58,11 @@ class CadnanoQt(QObject):
 
     def finishInit(self):
         self.d = self.newDocument(isFirstNewDoc=True)
+        if os.environ.get('CADNANO_DISCARD_UNSAVED', False) and not ignoreEnv():
+            sharedApp.dontAskAndJustDiscardUnsavedChanges = True
+        if os.environ.get('CADNANO_DEFAULT_DOCUMENT', False) and not ignoreEnv():
+            sharedApp.shouldPerformBoilerplateStartupScript = True
+        cadnano.loadAllPlugins()
         if "-i" in self.argv:
             print "Welcome to cadnano's debug mode!"
             print "Some handy locals:"
@@ -92,6 +98,8 @@ class CadnanoQt(QObject):
             interact('', local={'a':self, 'd':d, 'w':w,\
                                 'p':p, 'pi':pi, 'vh':vh, 'vhi':vhi,\
                                 })
+        else:
+            self.exec_()
 
     def isInMaya(self):
         return QCoreApplication.instance().applicationName().contains(

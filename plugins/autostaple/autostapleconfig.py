@@ -1,0 +1,53 @@
+# The MIT License
+#
+# Copyright (c) 2011 Wyss Institute at Harvard University
+#
+# Permission is hereby granted, free of charge, to any person obtaining a copy
+# of this software and associated documentation files (the "Software"), to deal
+# in the Software without restriction, including without limitation the rights
+# to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+# copies of the Software, and to permit persons to whom the Software is
+# furnished to do so, subject to the following conditions:
+#
+# The above copyright notice and this permission notice shall be included in
+# all copies or substantial portions of the Software.
+#
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+# AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+# LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+# OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+# THE SOFTWARE.
+#
+# http://www.opensource.org/licenses/mit-license.php
+
+"""
+config
+Created by Jonathan deWerd on 2012-01-19.
+"""
+import util, cadnano
+import autostapleconfig_ui
+from autostaple import autoStaple
+util.qtWrapImport('QtGui', globals(), ['QDialog', 'QKeySequence'])
+util.qtWrapImport('QtCore', globals(), ['Qt'])
+
+class AutostapleConfig(QDialog, autostapleconfig_ui.Ui_Dialog):
+    def __init__(self, parent, handler):
+        QDialog.__init__(self, parent, Qt.Sheet)
+        self.setupUi(self)
+        self.handler = handler
+        self.addAction(self.actionCloseDialog)
+        self.actionCloseDialog.setShortcut(QKeySequence(Qt.CTRL | Qt.Key_Period ))
+    def closeDialog(self):
+        self.close()
+    def fixedAlgoChosen(self):
+        print "Fixed algo chosen"
+    def manualAlgoChosen(self):
+        part = self.handler.doc.controller().activePart()
+        if part != None:
+            self.handler.win.pathGraphicsView.setViewportUpdateOn(False)
+            autoStaple(part)
+            self.handler.win.pathGraphicsView.setViewportUpdateOn(True)
+        self.close()
+        
