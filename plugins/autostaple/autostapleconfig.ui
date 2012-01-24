@@ -116,7 +116,7 @@
          <item row="0" column="1">
           <widget class="QSpinBox" name="maxLengthSpinBox">
            <property name="value">
-            <double>40</double>
+            <number>40</number>
            </property>
           </widget>
          </item>
@@ -130,7 +130,7 @@
          <item row="2" column="1">
           <widget class="QSpinBox" name="minLengthSpinBox">
            <property name="value">
-            <double>30</double>
+            <number>30</number>
            </property>
           </widget>
          </item>
@@ -144,7 +144,7 @@
          <item row="1" column="1">
           <widget class="QSpinBox" name="targetLengthSpinBox">
            <property name="value">
-            <double>35</double>
+            <number>35</number>
            </property>
           </widget>
          </item>
@@ -177,11 +177,47 @@
       <attribute name="title">
        <string>Spatial</string>
       </attribute>
+      <layout class="QVBoxLayout" name="verticalLayout_4">
+       <item>
+        <widget class="QLabel" name="fixedDesc_2">
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
+         <property name="maximumSize">
+          <size>
+           <width>16777215</width>
+           <height>77</height>
+          </size>
+         </property>
+         <property name="text">
+          <string>Similar to the &quot;Fixed&quot; strategy, but targetLength varies over the volume of the origami. At the surface, the target length is surfaceTargetLen. At the center, the target length is centerTargetLen. This encourages folding from the center to the exterior of the origami.</string>
+         </property>
+         <property name="wordWrap">
+          <bool>true</bool>
+         </property>
+        </widget>
+       </item>
+      </layout>
      </widget>
      <widget class="QWidget" name="tab">
       <attribute name="title">
        <string>Staged</string>
       </attribute>
+      <layout class="QVBoxLayout" name="verticalLayout_5">
+       <item>
+        <widget class="QLabel" name="label_2">
+         <property name="text">
+          <string>Breaks the origami into several geometrically contiguous &quot;stages&quot; (or allows the user to do so). Stapes on the interior of a stage have intraStageTargetLen while staples connecting stages have interStageTargetLen.</string>
+         </property>
+         <property name="wordWrap">
+          <bool>true</bool>
+         </property>
+        </widget>
+       </item>
+      </layout>
      </widget>
     </widget>
    </item>
