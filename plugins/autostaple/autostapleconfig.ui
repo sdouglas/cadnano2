@@ -6,9 +6,15 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>528</width>
-    <height>388</height>
+    <width>549</width>
+    <height>389</height>
    </rect>
+  </property>
+  <property name="minimumSize">
+   <size>
+    <width>549</width>
+    <height>389</height>
+   </size>
   </property>
   <property name="windowTitle">
    <string>Dialog</string>
@@ -88,7 +94,7 @@
           </size>
          </property>
          <property name="text">
-          <string>Complements all scaffold in the current part with staples, installs every available crossover to form long 'proto-crossover's and then breaks the proto-crossovers into pieces as close to targetLength as possible while not exceeding maxLength or undershooting minLengh. </string>
+          <string>Complements all scaffold in the current part with staples, installs every available crossover to form long &quot;proto-staples&quot;s, and then breaks the proto-staples into pieces as close to targetLength as possible while not exceeding maxLength or undershooting minLengh. minLegLength is the minimum numr of bases away from a crosover that a break can appear.</string>
          </property>
          <property name="wordWrap">
           <bool>true</bool>
@@ -108,7 +114,11 @@
           </widget>
          </item>
          <item row="0" column="1">
-          <widget class="QDoubleSpinBox" name="maxLengthDoubleSpinBox"/>
+          <widget class="QSpinBox" name="maxLengthSpinBox">
+           <property name="value">
+            <double>40</double>
+           </property>
+          </widget>
          </item>
          <item row="2" column="0">
           <widget class="QLabel" name="minLengthLabel">
@@ -118,7 +128,11 @@
           </widget>
          </item>
          <item row="2" column="1">
-          <widget class="QDoubleSpinBox" name="minLengthDoubleSpinBox"/>
+          <widget class="QSpinBox" name="minLengthSpinBox">
+           <property name="value">
+            <double>30</double>
+           </property>
+          </widget>
          </item>
          <item row="1" column="0">
           <widget class="QLabel" name="targetLengthLabel">
@@ -128,7 +142,25 @@
           </widget>
          </item>
          <item row="1" column="1">
-          <widget class="QDoubleSpinBox" name="targetLengthDoubleSpinBox"/>
+          <widget class="QSpinBox" name="targetLengthSpinBox">
+           <property name="value">
+            <double>35</double>
+           </property>
+          </widget>
+         </item>
+         <item row="3" column="0">
+          <widget class="QLabel" name="minLegLengthLabel">
+           <property name="text">
+            <string>minLegLength</string>
+           </property>
+          </widget>
+         </item>
+         <item row="3" column="1">
+          <widget class="QSpinBox" name="minLegLengthSpinBox">
+           <property name="value">
+            <number>2</number>
+           </property>
+          </widget>
          </item>
         </layout>
        </item>
@@ -159,7 +191,7 @@
     <string>closeDialog</string>
    </property>
    <property name="shortcut">
-    <string>Ctrl+</string>
+    <string>Ctrl+R</string>
    </property>
   </action>
  </widget>
@@ -172,8 +204,8 @@
    <slot>fixedAlgoChosen()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>473</x>
-     <y>352</y>
+     <x>488</x>
+     <y>326</y>
     </hint>
     <hint type="destinationlabel">
      <x>522</x>
@@ -188,8 +220,8 @@
    <slot>closeDialog()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>38</x>
-     <y>347</y>
+     <x>53</x>
+     <y>326</y>
     </hint>
     <hint type="destinationlabel">
      <x>6</x>
@@ -204,8 +236,8 @@
    <slot>manualAlgoChosen()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>470</x>
-     <y>342</y>
+     <x>100</x>
+     <y>333</y>
     </hint>
     <hint type="destinationlabel">
      <x>524</x>
@@ -220,8 +252,8 @@
    <slot>closeDialog()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>42</x>
-     <y>340</y>
+     <x>57</x>
+     <y>333</y>
     </hint>
     <hint type="destinationlabel">
      <x>7</x>

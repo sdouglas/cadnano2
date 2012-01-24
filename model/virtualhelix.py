@@ -70,6 +70,14 @@ class VirtualHelix(QObject):
     ### SLOTS ###
 
     ### ACCESSORS ###
+    def scaf(self, idx):
+        """ Returns the strand at idx in self's scaffold, if any """
+        return self._scafStrandSet.getStrand(idx)
+
+    def stap(self, idx):
+        """ Returns the strand at idx in self's scaffold, if any """
+        return self._stapStrandSet.getStrand(idx)
+
     def coord(self):
         return self._coord
     # end def

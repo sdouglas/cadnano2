@@ -2,8 +2,8 @@
 
 # Form implementation generated from reading ui file 'autostapleconfig.ui'
 #
-# Created: Thu Jan 19 18:00:14 2012
-#      by: PyQt4 UI code generator 4.8.6
+# Created: Tue Jan 24 10:10:43 2012
+#      by: PyQt4 UI code generator 4.9
 #
 # WARNING! All changes made in this file will be lost!
 
@@ -17,12 +17,11 @@ except AttributeError:
 class Ui_Dialog(object):
     def setupUi(self, Dialog):
         Dialog.setObjectName(_fromUtf8("Dialog"))
-        Dialog.resize(528, 388)
-        Dialog.setWindowTitle(QtGui.QApplication.translate("Dialog", "Dialog", None, QtGui.QApplication.UnicodeUTF8))
+        Dialog.resize(549, 389)
+        Dialog.setMinimumSize(QtCore.QSize(549, 389))
         self.verticalLayout = QtGui.QVBoxLayout(Dialog)
         self.verticalLayout.setObjectName(_fromUtf8("verticalLayout"))
         self.label = QtGui.QLabel(Dialog)
-        self.label.setText(QtGui.QApplication.translate("Dialog", "Choose an auto-staple algorithm:", None, QtGui.QApplication.UnicodeUTF8))
         self.label.setObjectName(_fromUtf8("label"))
         self.verticalLayout.addWidget(self.label)
         self.algoTab = QtGui.QTabWidget(Dialog)
@@ -39,7 +38,6 @@ class Ui_Dialog(object):
         sizePolicy.setHeightForWidth(self.manualDesc.sizePolicy().hasHeightForWidth())
         self.manualDesc.setSizePolicy(sizePolicy)
         self.manualDesc.setMaximumSize(QtCore.QSize(16777215, 16777215))
-        self.manualDesc.setText(QtGui.QApplication.translate("Dialog", "Complements all scaffold strands in the current part with staples and installs every available crossover to form long \'proto-crossover\'s. Breaking proto-crossovers into properly sized crossovers must be performed manually.", None, QtGui.QApplication.UnicodeUTF8))
         self.manualDesc.setWordWrap(True)
         self.manualDesc.setObjectName(_fromUtf8("manualDesc"))
         self.verticalLayout_3.addWidget(self.manualDesc)
@@ -59,7 +57,6 @@ class Ui_Dialog(object):
         sizePolicy.setHeightForWidth(self.fixedDesc.sizePolicy().hasHeightForWidth())
         self.fixedDesc.setSizePolicy(sizePolicy)
         self.fixedDesc.setMaximumSize(QtCore.QSize(16777215, 77))
-        self.fixedDesc.setText(QtGui.QApplication.translate("Dialog", "Complements all scaffold in the current part with staples, installs every available crossover to form long \'proto-crossover\'s and then breaks the proto-crossovers into pieces as close to targetLength as possible while not exceeding maxLength or undershooting minLengh. ", None, QtGui.QApplication.UnicodeUTF8))
         self.fixedDesc.setWordWrap(True)
         self.fixedDesc.setObjectName(_fromUtf8("fixedDesc"))
         self.verticalLayout_2.addWidget(self.fixedDesc)
@@ -67,26 +64,33 @@ class Ui_Dialog(object):
         self.formLayout.setFieldGrowthPolicy(QtGui.QFormLayout.FieldsStayAtSizeHint)
         self.formLayout.setObjectName(_fromUtf8("formLayout"))
         self.maxLengthLabel = QtGui.QLabel(self.fixedTab)
-        self.maxLengthLabel.setText(QtGui.QApplication.translate("Dialog", "maxLength", None, QtGui.QApplication.UnicodeUTF8))
         self.maxLengthLabel.setObjectName(_fromUtf8("maxLengthLabel"))
         self.formLayout.setWidget(0, QtGui.QFormLayout.LabelRole, self.maxLengthLabel)
-        self.maxLengthDoubleSpinBox = QtGui.QDoubleSpinBox(self.fixedTab)
-        self.maxLengthDoubleSpinBox.setObjectName(_fromUtf8("maxLengthDoubleSpinBox"))
-        self.formLayout.setWidget(0, QtGui.QFormLayout.FieldRole, self.maxLengthDoubleSpinBox)
+        self.maxLengthSpinBox = QtGui.QSpinBox(self.fixedTab)
+        self.maxLengthSpinBox.setProperty("value", 40.0)
+        self.maxLengthSpinBox.setObjectName(_fromUtf8("maxLengthSpinBox"))
+        self.formLayout.setWidget(0, QtGui.QFormLayout.FieldRole, self.maxLengthSpinBox)
         self.minLengthLabel = QtGui.QLabel(self.fixedTab)
-        self.minLengthLabel.setText(QtGui.QApplication.translate("Dialog", "minLength", None, QtGui.QApplication.UnicodeUTF8))
         self.minLengthLabel.setObjectName(_fromUtf8("minLengthLabel"))
         self.formLayout.setWidget(2, QtGui.QFormLayout.LabelRole, self.minLengthLabel)
-        self.minLengthDoubleSpinBox = QtGui.QDoubleSpinBox(self.fixedTab)
-        self.minLengthDoubleSpinBox.setObjectName(_fromUtf8("minLengthDoubleSpinBox"))
-        self.formLayout.setWidget(2, QtGui.QFormLayout.FieldRole, self.minLengthDoubleSpinBox)
+        self.minLengthSpinBox = QtGui.QSpinBox(self.fixedTab)
+        self.minLengthSpinBox.setProperty("value", 30.0)
+        self.minLengthSpinBox.setObjectName(_fromUtf8("minLengthSpinBox"))
+        self.formLayout.setWidget(2, QtGui.QFormLayout.FieldRole, self.minLengthSpinBox)
         self.targetLengthLabel = QtGui.QLabel(self.fixedTab)
-        self.targetLengthLabel.setText(QtGui.QApplication.translate("Dialog", "targetLength", None, QtGui.QApplication.UnicodeUTF8))
         self.targetLengthLabel.setObjectName(_fromUtf8("targetLengthLabel"))
         self.formLayout.setWidget(1, QtGui.QFormLayout.LabelRole, self.targetLengthLabel)
-        self.targetLengthDoubleSpinBox = QtGui.QDoubleSpinBox(self.fixedTab)
-        self.targetLengthDoubleSpinBox.setObjectName(_fromUtf8("targetLengthDoubleSpinBox"))
-        self.formLayout.setWidget(1, QtGui.QFormLayout.FieldRole, self.targetLengthDoubleSpinBox)
+        self.targetLengthSpinBox = QtGui.QSpinBox(self.fixedTab)
+        self.targetLengthSpinBox.setProperty("value", 35.0)
+        self.targetLengthSpinBox.setObjectName(_fromUtf8("targetLengthSpinBox"))
+        self.formLayout.setWidget(1, QtGui.QFormLayout.FieldRole, self.targetLengthSpinBox)
+        self.minLegLengthLabel = QtGui.QLabel(self.fixedTab)
+        self.minLegLengthLabel.setObjectName(_fromUtf8("minLegLengthLabel"))
+        self.formLayout.setWidget(3, QtGui.QFormLayout.LabelRole, self.minLegLengthLabel)
+        self.minLegLengthSpinBox = QtGui.QSpinBox(self.fixedTab)
+        self.minLegLengthSpinBox.setProperty("value", 2)
+        self.minLegLengthSpinBox.setObjectName(_fromUtf8("minLegLengthSpinBox"))
+        self.formLayout.setWidget(3, QtGui.QFormLayout.FieldRole, self.minLegLengthSpinBox)
         self.verticalLayout_2.addLayout(self.formLayout)
         self.fixedButtonBox = QtGui.QDialogButtonBox(self.fixedTab)
         self.fixedButtonBox.setStandardButtons(QtGui.QDialogButtonBox.Cancel|QtGui.QDialogButtonBox.Ok)
@@ -101,8 +105,6 @@ class Ui_Dialog(object):
         self.algoTab.addTab(self.tab, _fromUtf8(""))
         self.verticalLayout.addWidget(self.algoTab)
         self.actionCloseDialog = QtGui.QAction(Dialog)
-        self.actionCloseDialog.setText(QtGui.QApplication.translate("Dialog", "closeDialog", None, QtGui.QApplication.UnicodeUTF8))
-        self.actionCloseDialog.setShortcut(QtGui.QApplication.translate("Dialog", "Ctrl+", None, QtGui.QApplication.UnicodeUTF8))
         self.actionCloseDialog.setObjectName(_fromUtf8("actionCloseDialog"))
 
         self.retranslateUi(Dialog)
@@ -115,8 +117,18 @@ class Ui_Dialog(object):
         QtCore.QMetaObject.connectSlotsByName(Dialog)
 
     def retranslateUi(self, Dialog):
+        Dialog.setWindowTitle(QtGui.QApplication.translate("Dialog", "Dialog", None, QtGui.QApplication.UnicodeUTF8))
+        self.label.setText(QtGui.QApplication.translate("Dialog", "Choose an auto-staple algorithm:", None, QtGui.QApplication.UnicodeUTF8))
+        self.manualDesc.setText(QtGui.QApplication.translate("Dialog", "Complements all scaffold strands in the current part with staples and installs every available crossover to form long \'proto-crossover\'s. Breaking proto-crossovers into properly sized crossovers must be performed manually.", None, QtGui.QApplication.UnicodeUTF8))
         self.algoTab.setTabText(self.algoTab.indexOf(self.manualTab), QtGui.QApplication.translate("Dialog", "Manual", None, QtGui.QApplication.UnicodeUTF8))
+        self.fixedDesc.setText(QtGui.QApplication.translate("Dialog", "Complements all scaffold in the current part with staples, installs every available crossover to form long \"proto-staples\"s, and then breaks the proto-staples into pieces as close to targetLength as possible while not exceeding maxLength or undershooting minLengh. minLegLength is the minimum numr of bases away from a crosover that a break can appear.", None, QtGui.QApplication.UnicodeUTF8))
+        self.maxLengthLabel.setText(QtGui.QApplication.translate("Dialog", "maxLength", None, QtGui.QApplication.UnicodeUTF8))
+        self.minLengthLabel.setText(QtGui.QApplication.translate("Dialog", "minLength", None, QtGui.QApplication.UnicodeUTF8))
+        self.targetLengthLabel.setText(QtGui.QApplication.translate("Dialog", "targetLength", None, QtGui.QApplication.UnicodeUTF8))
+        self.minLegLengthLabel.setText(QtGui.QApplication.translate("Dialog", "minLegLength", None, QtGui.QApplication.UnicodeUTF8))
         self.algoTab.setTabText(self.algoTab.indexOf(self.fixedTab), QtGui.QApplication.translate("Dialog", "Fixed", None, QtGui.QApplication.UnicodeUTF8))
         self.algoTab.setTabText(self.algoTab.indexOf(self.spatial), QtGui.QApplication.translate("Dialog", "Spatial", None, QtGui.QApplication.UnicodeUTF8))
         self.algoTab.setTabText(self.algoTab.indexOf(self.tab), QtGui.QApplication.translate("Dialog", "Staged", None, QtGui.QApplication.UnicodeUTF8))
+        self.actionCloseDialog.setText(QtGui.QApplication.translate("Dialog", "closeDialog", None, QtGui.QApplication.UnicodeUTF8))
+        self.actionCloseDialog.setShortcut(QtGui.QApplication.translate("Dialog", "Ctrl+R", None, QtGui.QApplication.UnicodeUTF8))
 

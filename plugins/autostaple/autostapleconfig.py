@@ -28,8 +28,8 @@ Created by Jonathan deWerd on 2012-01-19.
 """
 import util, cadnano
 import autostapleconfig_ui
-from autostaple import autoStaple
-util.qtWrapImport('QtGui', globals(), ['QDialog', 'QKeySequence'])
+import autostaple
+util.qtWrapImport('QtGui', globals(), ['QDialog', 'QKeySequence', 'QDialogButtonBox'])
 util.qtWrapImport('QtCore', globals(), ['Qt'])
 
 class AutostapleConfig(QDialog, autostapleconfig_ui.Ui_Dialog):
@@ -37,17 +37,32 @@ class AutostapleConfig(QDialog, autostapleconfig_ui.Ui_Dialog):
         QDialog.__init__(self, parent, Qt.Sheet)
         self.setupUi(self)
         self.handler = handler
-        self.addAction(self.actionCloseDialog)
-        self.actionCloseDialog.setShortcut(QKeySequence(Qt.CTRL | Qt.Key_Period ))
+        # self.addAction(self.actionCloseDialog)
+        fb = self.fixedButtonBox.button(QDialogButtonBox.Cancel)
+        fb.setShortcut(QKeySequence(Qt.CTRL | Qt.Key_R ))
+    def keyPressEvent(self, e):
+        return QDialog.keyPressEvent(self, e)
     def closeDialog(self):
         self.close()
     def fixedAlgoChosen(self):
-        print "Fixed algo chosen"
+        part = self.handler.doc.controller().activePart()
+        if part != None:
+            settings = {\
+                'stapleScorer'    : autostaple.tgtLengthStapleScorer,\
+                'minStapleLegLen' : self.minLegLengthSpinBox.value(),\
+                'minStapleLen'    : self.minLengthSpinBox.value(),\
+                'maxStapleLen'    : self.maxLengthSpinBox.value(),\
+            }
+            self.handler.win.pathGraphicsView.setViewportUpdateOn(False)
+            autostaple.autoStaple(part)
+            autostaple.breakStaples(part, settings)
+            self.handler.win.pathGraphicsView.setViewportUpdateOn(True)
+        self.close()
     def manualAlgoChosen(self):
         part = self.handler.doc.controller().activePart()
         if part != None:
             self.handler.win.pathGraphicsView.setViewportUpdateOn(False)
-            autoStaple(part)
+            autostaple.autoStaple(part)
             self.handler.win.pathGraphicsView.setViewportUpdateOn(True)
         self.close()
         

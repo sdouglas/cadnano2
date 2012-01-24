@@ -672,9 +672,9 @@ class Strand(QObject):
         self._strandSet = strandSet
     # end def
 
-    def split(self, idx):
+    def split(self, idx, updateSequence=True):
         """Called by view items to split this strand at idx."""
-        self._strandSet.splitStrand(self, idx)
+        self._strandSet.splitStrand(self, idx, updateSequence)
 
     def updateIdxs(self, delta):
         self._baseIdxLow += delta
