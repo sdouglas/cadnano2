@@ -14,7 +14,7 @@ class AutostapleHandler(object):
         self.actionAutoStaple.setToolTip("Click this button to generate a default set of staples.")
         self.actionAutoStaple.setObjectName("actionAutoStaple")
         self.actionAutoStaple.triggered.connect(self.actionAutostapleSlot)
-        self.win.topToolBar.addAction(self.actionAutoStaple)
+        self.win.menuPlugins.addAction(self.actionAutoStaple)
         self.configDialog = None
 
     def actionAutostapleSlot(self):
