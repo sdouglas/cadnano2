@@ -7,7 +7,146 @@ def breakStaples(part, settings):
     for o in list(part.oligos()):
         if not o.isStaple():
             continue
-        breakStaple(o, settings)
+        # breakStaple(o, settings)
+        nickBreakStaple(o, settings)
+
+from staplegraph import StapleGraph
+def nickBreakStaple(oligo, settings):
+    stapleScorer = settings.get('stapleScorer', tgtLengthStapleScorer)
+    minStapleLegLen = settings.get('minStapleLegLen', 2)
+    minStapleLen = settings.get('minStapleLen', 30)
+    minStapleLenMinusOne = minStapleLen-1
+    maxStapleLen = settings.get('maxStapleLen', 40)
+    maxStapleLenPlusOne = maxStapleLen+1
+    tgtStapleLen = settings.get('tgtStapleLen', 35)
+    
+    # nodes = possibleBreakpoints(oligo, settings)
+    # lengthOfNodesArr = len(nodes)
+    # if lengthOfNodesArr == 0:
+    #     print "nada", minStapleLegLen, oligo.length()
+    #     return
+    
+    tokenList = tokenizeOligo(oligo, settings)
+    # print "tkList", tokenList, oligo.length(), oligo.color()
+    if len(tokenList) == 0:
+        return 
+
+    sg = StapleGraph(token_list_in=tokenList, \
+                    staple_limits=[minStapleLen,maxStapleLen,tgtStapleLen], \
+                    iscircle=oligo.isLoop())
+    # print sg.graph().nodes(), sg.graph().edges()
+    if len(sg.graph().nodes()) > 1:
+        print "total nodes:", len(sg.graph().nodes())
+        try:
+            output = sg.minPathDijkstra()
+            if len(output[1]) > 1:
+                nickPerformBreaks(oligo, output, tokenList)
+        except:
+            print "Oligo", oligo, "is unsolvable at current setttings for length", oligo.length() 
+
+# end def
+
+# def tokenizeOligo(nodes):
+#     return [x[0] for x in nodes]
+# # end def
+
+def tokenizeOligo(oligo, settings):
+    
+    tokenList = []
+    minStapleLegLen = settings.get('minStapleLegLen', 2)
+    minStapleLen = settings.get('minStapleLen', 30)
+    minStapleLenMinusOne = minStapleLen-1
+    maxStapleLen = settings.get('maxStapleLen', 40)
+    maxStapleLenPlusOne = maxStapleLen+1
+    oligoL = oligo.length()
+    if oligoL < 2*minStapleLen+1 or oligoL < minStapleLen:
+        return tokenList
+    
+    totalL = 0
+    strandGen = oligo.strand5p().generator3pStrand() 
+    for strand in strandGen:
+        a = strand.length()
+        totalL += a 
+        if a > 2*minStapleLegLen-1:
+            tokenList.append(minStapleLegLen)
+            a -= minStapleLegLen
+            while a > minStapleLegLen:
+                tokenList.append(1)
+                a -= 1
+            # end while
+            tokenList.append(minStapleLegLen)
+        else:
+            tokenList.append(a)
+        # end if
+    # end for
+    print "check", sum(tokenList), "==", oligoL, totalL
+    assert(sum(tokenList) == oligoL)
+    return tokenList
+# end def
+
+def nickPerformBreaks(oligo, breakList, tokenList):
+    """ fullBreakptSoln is in the format of an IBS (see breakStrands).
+    This function performs the breaks proposed by the solution. """
+    part = oligo.part()
+    if breakList:
+        util.beginSuperMacro(part, desc="Auto-Break")
+        # breakStart = breakList[1][0] if oligo.isLoop() else breakList[0]
+        # breakItems = breakList[1][1:-1] if oligo.isLoop() else breakList[1][0:-1]
+        
+        
+        breakStart = breakList[0]
+        breakItems = breakList[1][0:-1] if oligo.isLoop() else breakList[1][1:-1]
+
+        print "the sum is ", sum(breakList[1]), "==", oligo.length()
+        print "the breakItems", breakItems, "isLoop", oligo.isLoop()
+        
+        # start things off make first cut
+        length0 = sum(tokenList[0:breakStart+1])
+        
+        if not oligo.isLoop():
+            assert(breakList[1][0] == length0)
+        
+        strand, idx, is5to3 = getStrandAtLengthInOligo(oligo.strand5p(), length0)
+        sS = strand.strandSet()
+        found, overlap, sSIdx = sS._findIndexOfRangeFor(strand)
+        strand.split(idx, updateSequence=False)
+        strand = sS._strandList[sSIdx+1] if is5to3 else sS._strandList[sSIdx]
+
+        # now iterate through all the breaks
+        for b in breakItems:
+            if strand.oligo().length() > b:
+                strand, idx, is5to3 = getStrandAtLengthInOligo(strand, b)
+                sS = strand.strandSet()
+                found, overlap, sSIdx = sS._findIndexOfRangeFor(strand)
+                print "found", found, "overlap", overlap, "setIndex", sSIdx
+                print "sList A", len(sS._strandList), "splitting at", idx, "between", strand.idxs(), "is5to3", is5to3
+                strand.split(idx, updateSequence=False)
+                strand = sS._strandList[sSIdx+1] if is5to3 else sS._strandList[sSIdx]
+                print "sList B", len(sS._strandList), "oligoLen", strand.oligo().length()
+        util.endSuperMacro(part)
+# end def
+
+def getStrandAtLengthInOligo(strandIn, length):    
+    strandGen = strandIn.generator3pStrand()
+    strand = strandGen.next()
+    assert(strand == strandIn)
+    # find the starting strand
+    strandCounter = strand.length()
+    while strandCounter < length:
+        try:
+            strand = strandGen.next()
+        except:
+            print "yikes: ", strand.connection3p(), strandCounter, length
+            raise Exception
+        strandCounter += strand.length()
+    # end while
+    is5to3 = strand.isDrawn5to3()
+    delta = strand.length() - (strandCounter - length)
+    idx5p = strand.idx5Prime()
+    print "diff", delta, "idx5p", idx5p, "5to3", is5to3, "sCount", strandCounter, "L", length
+    outIdx = idx5p + delta - 1 if is5to3 else idx5p - (delta - 1)
+    return (strand, outIdx, is5to3)
+# end def
 
 # Scoring functions takes an incremental breaking solution (IBS, see below)
 # which is a linked list of breakpoints (nodes) and calculates the score
@@ -43,8 +182,10 @@ def breakStaple(oligo, settings):
     stapleScorer = settings.get('stapleScorer', tgtLengthStapleScorer)
     minStapleLegLen = settings.get('minStapleLegLen', 2)
     minStapleLen = settings.get('minStapleLen', 30)
+    minStapleLenMinusOne = minStapleLen-1
     maxStapleLen = settings.get('maxStapleLen', 40)
-        
+    maxStapleLenPlusOne = maxStapleLen+1
+    
     # First, we generate a list of valid breakpoints = nodes. This amortizes
     # the search for children in the inner loop of Djikstra later. Format:
     # node in nodes := (
@@ -54,6 +195,9 @@ def breakStaple(oligo, settings):
     #   isTerminal) True if this node can represent the last break in oligo
     nodes = possibleBreakpoints(oligo, settings)
     lengthOfNodesArr = len(nodes)
+    if lengthOfNodesArr == 0:
+        print "nada", minStapleLegLen, oligo.length()
+        return
     
     # Each element of heap represents an incremental breakpoint solution (IBS)
     # which is a linked list of nodes taking the following form:
@@ -78,6 +222,7 @@ def breakStaple(oligo, settings):
     #     heapq.heappush(heap, newIBS)
     
     # Just add the existing endpoint as an initial break
+    # print "the nodes", nodes
     newIBS = (0, None, nodes[0], 0)
     heap.append(newIBS)
     
@@ -96,7 +241,7 @@ def breakStaple(oligo, settings):
             nextNode = nodes[nextNodeIdx]
             nextNodePos = nextNode[0]
             proposedStrandLen = nextNodePos - nodePos
-            if minStapleLen <= proposedStrandLen <= maxStapleLen:
+            if minStapleLenMinusOne < proposedStrandLen < maxStapleLenPlusOne:
                 # nodePosLog.append(nextNodePos)
                 nextStapleScore = tgtLengthStapleScorer(curIBS, nextNode, settings)
                 newChildIBS = (curTotalScore + nextStapleScore,\

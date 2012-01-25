@@ -55,13 +55,17 @@ class CadnanoQt(QObject):
         self.vh = {}  # Newly created VirtualHelix register here by idnum.
         self.vhi = {}
         self.partItem = None
+        self.sharedApp = self
+    
+    def ignoreEnv(self):
+        return os.environ.get('CADNANO_IGNORE_ENV_VARS_EXCEPT_FOR_ME', False)
 
     def finishInit(self):
         self.d = self.newDocument(isFirstNewDoc=True)
-        if os.environ.get('CADNANO_DISCARD_UNSAVED', False) and not ignoreEnv():
-            sharedApp.dontAskAndJustDiscardUnsavedChanges = True
-        if os.environ.get('CADNANO_DEFAULT_DOCUMENT', False) and not ignoreEnv():
-            sharedApp.shouldPerformBoilerplateStartupScript = True
+        if os.environ.get('CADNANO_DISCARD_UNSAVED', False) and not self.ignoreEnv():
+            self.sharedApp.dontAskAndJustDiscardUnsavedChanges = True
+        if os.environ.get('CADNANO_DEFAULT_DOCUMENT', False) and not self.ignoreEnv():
+            self.sharedApp.shouldPerformBoilerplateStartupScript = True
         cadnano.loadAllPlugins()
         if "-i" in self.argv:
             print "Welcome to cadnano's debug mode!"
