@@ -8,10 +8,10 @@ def breakStaples(part, settings):
         if not o.isStaple():
             continue
         # breakStaple(o, settings)
-        nickBreakStaple(o, settings)
+        nxBreakStaple(o, settings)
 
 from staplegraph import StapleGraph
-def nickBreakStaple(oligo, settings):
+def nxBreakStaple(oligo, settings):
     stapleScorer = settings.get('stapleScorer', tgtLengthStapleScorer)
     minStapleLegLen = settings.get('minStapleLegLen', 2)
     minStapleLen = settings.get('minStapleLen', 30)
@@ -40,7 +40,7 @@ def nickBreakStaple(oligo, settings):
         try:
             output = sg.minPathDijkstra()
             if len(output[1]) > 1:
-                nickPerformBreaks(oligo, output, tokenList)
+                (oligo, output, tokenList)
         except:
             print "Oligo", oligo, "is unsolvable at current setttings for length", oligo.length() 
 
@@ -84,7 +84,7 @@ def tokenizeOligo(oligo, settings):
     return tokenList
 # end def
 
-def nickPerformBreaks(oligo, breakList, tokenList):
+def nxPerformBreaks(oligo, breakList, tokenList):
     """ fullBreakptSoln is in the format of an IBS (see breakStrands).
     This function performs the breaks proposed by the solution. """
     part = oligo.part()
