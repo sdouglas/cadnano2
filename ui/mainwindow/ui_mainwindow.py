@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'mainwindow/mainwindow.ui'
 #
-# Created: Thu Jan 19 13:57:58 2012
+# Created: Tue Jan 24 15:29:41 2012
 #      by: PyQt4 UI code generator 4.8.6
 #
 # WARNING! All changes made in this file will be lost!
@@ -128,6 +128,9 @@ class Ui_MainWindow(object):
         self.menuEdit = QtGui.QMenu(self.menubar)
         self.menuEdit.setTitle(QtGui.QApplication.translate("MainWindow", "Edit", None, QtGui.QApplication.UnicodeUTF8))
         self.menuEdit.setObjectName(_fromUtf8("menuEdit"))
+        self.menuPlugins = QtGui.QMenu(self.menubar)
+        self.menuPlugins.setTitle(QtGui.QApplication.translate("MainWindow", "Plugins", None, QtGui.QApplication.UnicodeUTF8))
+        self.menuPlugins.setObjectName(_fromUtf8("menuPlugins"))
         MainWindow.setMenuBar(self.menubar)
         self.actionNew = QtGui.QAction(MainWindow)
         icon = QtGui.QIcon()
@@ -343,11 +346,11 @@ class Ui_MainWindow(object):
         self.actionFilterEndpoint.setObjectName(_fromUtf8("actionFilterEndpoint"))
         self.actionFilterXover = QtGui.QAction(MainWindow)
         self.actionFilterXover.setCheckable(True)
-        self.actionFilterXover.setChecked(False)
+        self.actionFilterXover.setChecked(True)
         icon21 = QtGui.QIcon()
         icon21.addPixmap(QtGui.QPixmap(_fromUtf8(":/parttools/filter-xover")), QtGui.QIcon.Normal, QtGui.QIcon.Off)
         self.actionFilterXover.setIcon(icon21)
-        self.actionFilterXover.setText(QtGui.QApplication.translate("MainWindow", " ", None, QtGui.QApplication.UnicodeUTF8))
+        self.actionFilterXover.setText(_fromUtf8(""))
         self.actionFilterXover.setToolTip(QtGui.QApplication.translate("MainWindow", "(X)overs", None, QtGui.QApplication.UnicodeUTF8))
         self.actionFilterXover.setShortcut(QtGui.QApplication.translate("MainWindow", "X", None, QtGui.QApplication.UnicodeUTF8))
         self.actionFilterXover.setObjectName(_fromUtf8("actionFilterXover"))
@@ -432,6 +435,7 @@ class Ui_MainWindow(object):
         self.menuFile.addAction(self.actionSave_As)
         self.menubar.addAction(self.menuFile.menuAction())
         self.menubar.addAction(self.menuEdit.menuAction())
+        self.menubar.addAction(self.menuPlugins.menuAction())
 
         self.retranslateUi(MainWindow)
         QtCore.QObject.connect(self.actionClose, QtCore.SIGNAL(_fromUtf8("activated()")), MainWindow.close)

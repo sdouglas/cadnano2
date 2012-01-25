@@ -36,7 +36,7 @@
       </size>
      </property>
      <property name="currentIndex">
-      <number>1</number>
+      <number>0</number>
      </property>
      <widget class="QWidget" name="manualTab">
       <attribute name="title">
@@ -58,7 +58,7 @@
           </size>
          </property>
          <property name="text">
-          <string>Complements all scaffold strands in the current part with staples and installs every available crossover to form long 'proto-crossover's. Breaking proto-crossovers into properly sized crossovers must be performed manually.</string>
+          <string>Complements all scaffold strands with staples, and installs every available staple crossover. Breaking into properly sized staples must be performed manually.</string>
          </property>
          <property name="wordWrap">
           <bool>true</bool>
@@ -94,7 +94,7 @@
           </size>
          </property>
          <property name="text">
-          <string>Complements all scaffold in the current part with staples, installs every available crossover to form long &quot;proto-staples&quot;s, and then breaks the proto-staples into pieces as close to targetLength as possible while not exceeding maxLength or undershooting minLengh. minLegLength is the minimum numr of bases away from a crosover that a break can appear.</string>
+          <string>Complements all scaffold in the current part with staples, installs every available crossover to form long proto-staples, and then breaks them into pieces as close to targetLength as possible while not exceeding maxLength or undershooting minLength. minLegLength is the minimum bases away from a crosover that a break can appear.</string>
          </property>
          <property name="wordWrap">
           <bool>true</bool>
@@ -115,8 +115,11 @@
          </item>
          <item row="0" column="1">
           <widget class="QSpinBox" name="maxLengthSpinBox">
+           <property name="maximum">
+            <number>10000</number>
+           </property>
            <property name="value">
-            <number>40</number>
+            <number>60</number>
            </property>
           </widget>
          </item>
@@ -129,6 +132,9 @@
          </item>
          <item row="2" column="1">
           <widget class="QSpinBox" name="minLengthSpinBox">
+           <property name="maximum">
+            <number>10000</number>
+           </property>
            <property name="value">
             <number>30</number>
            </property>
@@ -143,8 +149,11 @@
          </item>
          <item row="1" column="1">
           <widget class="QSpinBox" name="targetLengthSpinBox">
+           <property name="maximum">
+            <number>10000</number>
+           </property>
            <property name="value">
-            <number>35</number>
+            <number>49</number>
            </property>
           </widget>
          </item>
@@ -157,8 +166,11 @@
          </item>
          <item row="3" column="1">
           <widget class="QSpinBox" name="minLegLengthSpinBox">
+           <property name="maximum">
+            <number>10000</number>
+           </property>
            <property name="value">
-            <number>2</number>
+            <number>3</number>
            </property>
           </widget>
          </item>
@@ -168,52 +180,6 @@
         <widget class="QDialogButtonBox" name="fixedButtonBox">
          <property name="standardButtons">
           <set>QDialogButtonBox::Cancel|QDialogButtonBox::Ok</set>
-         </property>
-        </widget>
-       </item>
-      </layout>
-     </widget>
-     <widget class="QWidget" name="spatial">
-      <attribute name="title">
-       <string>Spatial</string>
-      </attribute>
-      <layout class="QVBoxLayout" name="verticalLayout_4">
-       <item>
-        <widget class="QLabel" name="fixedDesc_2">
-         <property name="sizePolicy">
-          <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
-           <horstretch>0</horstretch>
-           <verstretch>0</verstretch>
-          </sizepolicy>
-         </property>
-         <property name="maximumSize">
-          <size>
-           <width>16777215</width>
-           <height>77</height>
-          </size>
-         </property>
-         <property name="text">
-          <string>Similar to the &quot;Fixed&quot; strategy, but targetLength varies over the volume of the origami. At the surface, the target length is surfaceTargetLen. At the center, the target length is centerTargetLen. This encourages folding from the center to the exterior of the origami.</string>
-         </property>
-         <property name="wordWrap">
-          <bool>true</bool>
-         </property>
-        </widget>
-       </item>
-      </layout>
-     </widget>
-     <widget class="QWidget" name="tab">
-      <attribute name="title">
-       <string>Staged</string>
-      </attribute>
-      <layout class="QVBoxLayout" name="verticalLayout_5">
-       <item>
-        <widget class="QLabel" name="label_2">
-         <property name="text">
-          <string>Breaks the origami into several geometrically contiguous &quot;stages&quot; (or allows the user to do so). Stapes on the interior of a stage have intraStageTargetLen while staples connecting stages have interStageTargetLen.</string>
-         </property>
-         <property name="wordWrap">
-          <bool>true</bool>
          </property>
         </widget>
        </item>
@@ -233,6 +199,22 @@
  </widget>
  <resources/>
  <connections>
+  <connection>
+   <sender>actionCloseDialog</sender>
+   <signal>triggered()</signal>
+   <receiver>Dialog</receiver>
+   <slot>closeDialog()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>263</x>
+     <y>193</y>
+    </hint>
+   </hints>
+  </connection>
   <connection>
    <sender>fixedButtonBox</sender>
    <signal>accepted()</signal>
@@ -294,22 +276,6 @@
     <hint type="destinationlabel">
      <x>7</x>
      <y>26</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>actionCloseDialog</sender>
-   <signal>triggered()</signal>
-   <receiver>Dialog</receiver>
-   <slot>closeDialog()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>-1</x>
-     <y>-1</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>263</x>
-     <y>193</y>
     </hint>
    </hints>
   </connection>
