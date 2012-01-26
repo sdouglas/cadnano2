@@ -1045,12 +1045,13 @@ class Part(QObject):
             doc.removeStrandFromSelection(strand3p)
 
             if self._updateOligo:
-                # 1. update preserved oligo length
-                olg5p.incrementLength(oldOlg3p.length())
-                # 2. Remove the old oligo and apply the 5' oligo to the 3' strand
+                # Test for Loopiness
                 if olg5p == strand3p.oligo():
                     olg5p.setLoop(True)
                 else:
+                    # 1. update preserved oligo length
+                    olg5p.incrementLength(oldOlg3p.length())
+                    # 2. Remove the old oligo and apply the 5' oligo to the 3' strand
                     oldOlg3p.removeFromPart()
                     for strand in strand3p.generator3pStrand():
                         # emits strandHasNewOligoSignal
@@ -1093,12 +1094,13 @@ class Part(QObject):
             strand3p.setConnection5p(None)
 
             if self._updateOligo:
-                # 2. restore the modified oligo length
-                olg5p.decrementLength(oldOlg3p.length())
-                # 3. apply the old oligo to strand3p
+                # Test Loopiness
                 if oldOlg3p.isLoop():
                     oldOlg3p.setLoop(False)
                 else:
+                    # 2. restore the modified oligo length
+                    olg5p.decrementLength(oldOlg3p.length())
+                    # 3. apply the old oligo to strand3p
                     oldOlg3p.addToPart(part)
                     for strand in strand3p.generator3pStrand():
                         # emits strandHasNewOligoSignal

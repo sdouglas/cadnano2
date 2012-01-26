@@ -60,6 +60,13 @@ The graph need be directed to enforce the visitation of all nodes
 Dijkstra's algorithm and Floyd Warshall are supported solutions
 '''
 
+import networkx as nx
+import matplotlib.pyplot as plt
+try:
+    from networkx import graphviz_layout
+except ImportError:
+    raise ImportError("This module needs Graphiz and either PyGraphiz or Pydot")
+
 # the DEFINE parameters address the staple_limits argument parameters
 MIN_IND = 0     # minimum length index
 MAX_IND = 1     # maximum length index
@@ -80,12 +87,6 @@ class StapleGraph(object):
         isCircle: whether or not the token list is cyclic (cyclic staple 
             strand or unconnected linear strand with predetermined end points
         """
-        import networkx as nx
-        import matplotlib.pyplot as plt
-        try:
-            from networkx import graphviz_layout
-        except ImportError:
-            raise ImportError("This module needs Graphiz and either PyGraphiz or Pydot")
             
         self.token_list = token_list_in
         self.token_list_length = len(self.token_list)

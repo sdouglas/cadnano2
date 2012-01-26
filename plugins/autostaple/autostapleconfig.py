@@ -54,15 +54,28 @@ class AutostapleConfig(QDialog, autostapleconfig_ui.Ui_Dialog):
                 'maxStapleLen'    : self.maxLengthSpinBox.value(),\
             }
             self.handler.win.pathGraphicsView.setViewportUpdateOn(False)
+            print "pre verify"
+            autostaple.verifyOligos(part)
+            print "autostaple"
             autostaple.autoStaple(part)
+            print "post verify"
+            autostaple.verifyOligos(part)
+            print "breakStaple"
             autostaple.breakStaples(part, settings)
+            print "post break verify"
+            autostaple.verifyOligos(part)
             self.handler.win.pathGraphicsView.setViewportUpdateOn(True)
         self.close()
     def manualAlgoChosen(self):
         part = self.handler.doc.controller().activePart()
         if part != None:
             self.handler.win.pathGraphicsView.setViewportUpdateOn(False)
+            print "pre verify"
+            autostaple.verifyOligos(part)
+            print "autostaple"
             autostaple.autoStaple(part)
+            print "post verify"
+            autostaple.verifyOligos(part)
             self.handler.win.pathGraphicsView.setViewportUpdateOn(True)
         self.close()
         

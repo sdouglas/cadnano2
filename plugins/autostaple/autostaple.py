@@ -3,14 +3,43 @@ import heapq
 from model.strandset import StrandSet
 from model.enum import StrandType
 from model.parts.part import Part
+from model.oligo import Oligo
+
+try:
+    from staplegraph import StapleGraph
+    nx = True
+except:
+    nx = False
+
 def breakStaples(part, settings):
     for o in list(part.oligos()):
         if not o.isStaple():
             continue
-        # breakStaple(o, settings)
-        nxBreakStaple(o, settings)
+        if nx:
+            nxBreakStaple(o, settings)
+        else:
+            breakStaple(o, settings)
 
-from staplegraph import StapleGraph
+def verifyOligos(part):
+    total_errors = 0
+    total_passed = 0
+    for o in list(part.oligos()):
+        oL = o.length()
+        a = 0
+        gen = o.strand5p().generator3pStrand()
+        for s in gen:
+            # print s
+            a += s.length()
+        # end for
+        if oL != a:
+            total_errors += 1
+            print "wtf", total_errors, "oligoL", oL, "strandsL", a, "isStaple?", o.isStaple()
+        else:
+            total_passed += 1
+    # end for
+    print "Total Passed: ", total_passed, "/", total_passed+total_errors
+# end def 
+
 def nxBreakStaple(oligo, settings):
     stapleScorer = settings.get('stapleScorer', tgtLengthStapleScorer)
     minStapleLegLen = settings.get('minStapleLegLen', 2)
@@ -19,12 +48,6 @@ def nxBreakStaple(oligo, settings):
     maxStapleLen = settings.get('maxStapleLen', 40)
     maxStapleLenPlusOne = maxStapleLen+1
     tgtStapleLen = settings.get('tgtStapleLen', 35)
-    
-    # nodes = possibleBreakpoints(oligo, settings)
-    # lengthOfNodesArr = len(nodes)
-    # if lengthOfNodesArr == 0:
-    #     print "nada", minStapleLegLen, oligo.length()
-    #     return
     
     tokenList = tokenizeOligo(oligo, settings)
     # print "tkList", tokenList, oligo.length(), oligo.color()
@@ -36,19 +59,21 @@ def nxBreakStaple(oligo, settings):
                     iscircle=oligo.isLoop())
     # print sg.graph().nodes(), sg.graph().edges()
     if len(sg.graph().nodes()) > 1:
-        print "total nodes:", len(sg.graph().nodes())
+        # print "total nodes:", len(sg.graph().nodes())
         try:
             output = sg.minPathDijkstra()
-            if len(output[1]) > 1:
-                (oligo, output, tokenList)
+            pathSolved = True
+            # print "Solved!"
         except:
-            print "Oligo", oligo, "is unsolvable at current setttings for length", oligo.length() 
+            pathSolved = False
+            print "Oligo", oligo, "is unsolvable at current setttings for length", oligo.length()
+        if pathSolved:
+            if len(output[1]) > 1:
+                print "breaking"
+                nxPerformBreaks(oligo, output, tokenList)
+
 
 # end def
-
-# def tokenizeOligo(nodes):
-#     return [x[0] for x in nodes]
-# # end def
 
 def tokenizeOligo(oligo, settings):
     
@@ -79,8 +104,11 @@ def tokenizeOligo(oligo, settings):
             tokenList.append(a)
         # end if
     # end for
-    print "check", sum(tokenList), "==", oligoL, totalL
-    assert(sum(tokenList) == oligoL)
+    # print "check", sum(tokenList), "==", oligoL, totalL
+    if sum(tokenList) != oligoL:
+        oligo.applyColor("#ff3333", useUndoStack=False)
+        return []
+    # assert(sum(tokenList) == oligoL)
     return tokenList
 # end def
 
@@ -90,27 +118,22 @@ def nxPerformBreaks(oligo, breakList, tokenList):
     part = oligo.part()
     if breakList:
         util.beginSuperMacro(part, desc="Auto-Break")
-        # breakStart = breakList[1][0] if oligo.isLoop() else breakList[0]
-        # breakItems = breakList[1][1:-1] if oligo.isLoop() else breakList[1][0:-1]
-        
-        
-        breakStart = breakList[0]
-        breakItems = breakList[1][0:-1] if oligo.isLoop() else breakList[1][1:-1]
 
-        print "the sum is ", sum(breakList[1]), "==", oligo.length()
-        print "the breakItems", breakItems, "isLoop", oligo.isLoop()
+        breakStart = breakList[0]
+        breakItems = breakList[1][0:-1]
+
+        # print "the sum is ", sum(breakList[1]), "==", oligo.length()
+        # print "the breakItems", breakItems, "isLoop", oligo.isLoop()
         
-        # start things off make first cut
-        length0 = sum(tokenList[0:breakStart+1])
-        
-        if not oligo.isLoop():
-            assert(breakList[1][0] == length0)
-        
-        strand, idx, is5to3 = getStrandAtLengthInOligo(oligo.strand5p(), length0)
-        sS = strand.strandSet()
-        found, overlap, sSIdx = sS._findIndexOfRangeFor(strand)
-        strand.split(idx, updateSequence=False)
-        strand = sS._strandList[sSIdx+1] if is5to3 else sS._strandList[sSIdx]
+        strand = oligo.strand5p()
+        if oligo.isLoop():
+            # start things off make first cut
+            length0 = sum(tokenList[0:breakStart+1])
+            strand, idx, is5to3 = getStrandAtLengthInOligo(strand, length0)
+            sS = strand.strandSet()
+            found, overlap, sSIdx = sS._findIndexOfRangeFor(strand)
+            strand.split(idx, updateSequence=False)
+            strand = sS._strandList[sSIdx+1] if is5to3 else sS._strandList[sSIdx]
 
         # now iterate through all the breaks
         for b in breakItems:
@@ -118,11 +141,11 @@ def nxPerformBreaks(oligo, breakList, tokenList):
                 strand, idx, is5to3 = getStrandAtLengthInOligo(strand, b)
                 sS = strand.strandSet()
                 found, overlap, sSIdx = sS._findIndexOfRangeFor(strand)
-                print "found", found, "overlap", overlap, "setIndex", sSIdx
-                print "sList A", len(sS._strandList), "splitting at", idx, "between", strand.idxs(), "is5to3", is5to3
+                # print "found", found, "overlap", overlap, "setIndex", sSIdx
+                # print "sList A", len(sS._strandList), "splitting at", idx, "between", strand.idxs(), "is5to3", is5to3
                 strand.split(idx, updateSequence=False)
                 strand = sS._strandList[sSIdx+1] if is5to3 else sS._strandList[sSIdx]
-                print "sList B", len(sS._strandList), "oligoLen", strand.oligo().length()
+                # print "sList B", len(sS._strandList), "oligoLen", strand.oligo().length()
         util.endSuperMacro(part)
 # end def
 
@@ -143,7 +166,7 @@ def getStrandAtLengthInOligo(strandIn, length):
     is5to3 = strand.isDrawn5to3()
     delta = strand.length() - (strandCounter - length)
     idx5p = strand.idx5Prime()
-    print "diff", delta, "idx5p", idx5p, "5to3", is5to3, "sCount", strandCounter, "L", length
+    # print "diff", delta, "idx5p", idx5p, "5to3", is5to3, "sCount", strandCounter, "L", length
     outIdx = idx5p + delta - 1 if is5to3 else idx5p - (delta - 1)
     return (strand, outIdx, is5to3)
 # end def
@@ -342,13 +365,24 @@ def autoStaple(part):
     cmds = []
 
     # clear existing staple strands
-    for vh in part.getVirtualHelices():
-        stapSS = vh.stapleStrandSet()
-        for strand in stapSS:
-            c = StrandSet.RemoveStrandCommand(stapSS, strand, 0)  # rm
-            cmds.append(c)
+    for o in list(part.oligos()):
+        if not o.isStaple():
+            continue
+        c = Oligo.RemoveOligoCommand(o)
+        cmds.append(c)
+    # end for
     util.execCommandList(part, cmds, desc="Clear staples")
     cmds = []
+    
+    # for vh in part.getVirtualHelices():
+    #     stapSS = vh.stapleStrandSet()
+    #     for strand in stapSS:
+    #         c = StrandSet.RemoveStrandCommand(stapSS, strand, 0)  # rm
+    #         cmds.append(c)
+    # util.execCommandList(part, cmds, desc="Clear staples")
+    # cmds = []
+    
+    # print "number oligos post remove 1", len(part.oligos())
 
     # create strands that span all bases where scaffold is present
     for vh in part.getVirtualHelices():
@@ -400,6 +434,8 @@ def autoStaple(part):
             cmds.append(c)
     util.execCommandList(part, cmds, desc="Rm tmp strands", useUndoStack=False)
     cmds = []
+    
+    # print "number oligos post remove 2", len(part.oligos())
 
     util.beginSuperMacro(part, desc="Auto-Staple")
 
@@ -430,10 +466,14 @@ def autoStaple(part):
                 if strand == None or nStrand == None:
                     continue
                 part.createXover(strand, idx, nStrand, idx, updateOligo=False)
-
+    # print "number oligos pre refresh", len(part.oligos())
+    
     c = Part.RefreshOligosCommand(part)
     cmds.append(c)
     util.execCommandList(part, cmds, desc="Assign oligos")
+    
+    # print "number oligos post refresh", len(part.oligos())
+    
     cmds = []
     util.endSuperMacro(part)
 # end def
