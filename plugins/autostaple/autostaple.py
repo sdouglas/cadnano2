@@ -374,14 +374,6 @@ def autoStaple(part):
     util.execCommandList(part, cmds, desc="Clear staples")
     cmds = []
     
-    # for vh in part.getVirtualHelices():
-    #     stapSS = vh.stapleStrandSet()
-    #     for strand in stapSS:
-    #         c = StrandSet.RemoveStrandCommand(stapSS, strand, 0)  # rm
-    #         cmds.append(c)
-    # util.execCommandList(part, cmds, desc="Clear staples")
-    # cmds = []
-    
     # print "number oligos post remove 1", len(part.oligos())
 
     # create strands that span all bases where scaffold is present

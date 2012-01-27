@@ -34,6 +34,7 @@ import random
 from model.enum import StrandType
 from model.virtualhelix import VirtualHelix
 from model.strand import Strand
+from model.oligo import Oligo
 from model.strandset import StrandSet
 from views import styles
 
@@ -308,11 +309,7 @@ class Part(QObject):
         if useUndoStack:
             self.undoStack().beginMacro("Delete Part")
         # remove strands and oligos
-        c = Part.RemoveAllStrandsCommand(self)
-        if useUndoStack:
-            self.undoStack().push(c)
-        else:
-            c.redo()
+        self.removeAllOligos(useUndoStack)
         # remove VHs
         vhs = self._coordToVirtualHelix.values()
         for vh in vhs:
@@ -329,6 +326,15 @@ class Part(QObject):
             self.undoStack().endMacro()
         else:
             e.redo()
+    # end def
+    
+    def removeAllOligos(self, useUndoStack=True):
+        # clear existing oligos
+        cmds = []
+        for o in list(self.oligos()):
+            cmds.append(Oligo.RemoveOligoCommand(o))
+        # end for
+        util.execCommandList(self, cmds, desc="Clear oligos", useUndoStack=useUndoStack)
     # end def
 
     def addOligo(self, oligo):
