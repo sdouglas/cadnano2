@@ -501,7 +501,7 @@ class DocumentController():
 
     def _readSettings(self):
         self.settings.beginGroup("FileSystem")
-        self._fileOpenPath = self.settings.value("openpath", QDir(os.environ["HOME"])).toString()
+        self._fileOpenPath = self.settings.value("openpath", QDir().homePath()).toString()
         self.settings.endGroup()
 
     def _writeFileOpenPath(self, path):
