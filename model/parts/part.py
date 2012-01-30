@@ -34,6 +34,7 @@ import random
 from model.enum import StrandType
 from model.virtualhelix import VirtualHelix
 from model.strand import Strand
+from model.oligo import Oligo
 from model.strandset import StrandSet
 from views import styles
 
@@ -308,11 +309,7 @@ class Part(QObject):
         if useUndoStack:
             self.undoStack().beginMacro("Delete Part")
         # remove strands and oligos
-        c = Part.RemoveAllStrandsCommand(self)
-        if useUndoStack:
-            self.undoStack().push(c)
-        else:
-            c.redo()
+        self.removeAllOligos(useUndoStack)
         # remove VHs
         vhs = self._coordToVirtualHelix.values()
         for vh in vhs:
@@ -329,6 +326,15 @@ class Part(QObject):
             self.undoStack().endMacro()
         else:
             e.redo()
+    # end def
+    
+    def removeAllOligos(self, useUndoStack=True):
+        # clear existing oligos
+        cmds = []
+        for o in list(self.oligos()):
+            cmds.append(Oligo.RemoveOligoCommand(o))
+        # end for
+        util.execCommandList(self, cmds, desc="Clear oligos", useUndoStack=useUndoStack)
     # end def
 
     def addOligo(self, oligo):
@@ -1045,12 +1051,13 @@ class Part(QObject):
             doc.removeStrandFromSelection(strand3p)
 
             if self._updateOligo:
-                # 1. update preserved oligo length
-                olg5p.incrementLength(oldOlg3p.length())
-                # 2. Remove the old oligo and apply the 5' oligo to the 3' strand
+                # Test for Loopiness
                 if olg5p == strand3p.oligo():
                     olg5p.setLoop(True)
                 else:
+                    # 1. update preserved oligo length
+                    olg5p.incrementLength(oldOlg3p.length())
+                    # 2. Remove the old oligo and apply the 5' oligo to the 3' strand
                     oldOlg3p.removeFromPart()
                     for strand in strand3p.generator3pStrand():
                         # emits strandHasNewOligoSignal
@@ -1093,12 +1100,13 @@ class Part(QObject):
             strand3p.setConnection5p(None)
 
             if self._updateOligo:
-                # 2. restore the modified oligo length
-                olg5p.decrementLength(oldOlg3p.length())
-                # 3. apply the old oligo to strand3p
+                # Test Loopiness
                 if oldOlg3p.isLoop():
                     oldOlg3p.setLoop(False)
                 else:
+                    # 2. restore the modified oligo length
+                    olg5p.decrementLength(oldOlg3p.length())
+                    # 3. apply the old oligo to strand3p
                     oldOlg3p.addToPart(part)
                     for strand in strand3p.generator3pStrand():
                         # emits strandHasNewOligoSignal

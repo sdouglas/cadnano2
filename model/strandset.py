@@ -298,10 +298,8 @@ class StrandSet(QObject):
         during autostaple).
         """
         if self.strandCanBeSplit(strand, baseIdx):
-            print "strand can be split"
             isInSet, overlap, strandSetIdx = self._findIndexOfRangeFor(strand)
             if isInSet:
-                print "splitting"
                 c = StrandSet.SplitCommand(strand, baseIdx, strandSetIdx, updateSequence)
                 util.execCommandList(self, [c], desc="Split", useUndoStack=useUndoStack)
     # end def
@@ -832,7 +830,8 @@ class StrandSet(QObject):
             olg5p = self._newOligo5p
             olg3p = self._newOligo3p
 
-            oligo.incrementLength(-strand.totalLength())
+            #oligo.incrementLength(-strand.totalLength())
+            
             oligo.removeFromPart()
 
             if strand5p != None:
@@ -892,7 +891,8 @@ class StrandSet(QObject):
             if strand3p != None:
                 strand3p.setConnection5p(strand)
 
-            oligo.decrementLength(-strand.totalLength())
+            # oligo.decrementLength(strand.totalLength())
+            
             # Restore the oligo
             oligo.addToPart(strandSet.part())
             olg5p.removeFromPart()

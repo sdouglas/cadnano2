@@ -156,6 +156,11 @@ class Oligo(QObject):
     # end def
 
     ### PUBLIC METHODS FOR EDITING THE MODEL ###
+    def remove(self, useUndoStack=True):
+        c = Oligo.RemoveOligoCommand(self)
+        util.execCommandList(self, [c], desc="Color Oligo", useUndoStack=useUndoStack)
+    # end def
+    
     def applyColor(self, color, useUndoStack=True):
         if color == self._color:
             return  # oligo already has color
@@ -397,16 +402,58 @@ class Oligo(QObject):
     # end class
 
     class RemoveOligoCommand(QUndoCommand):
-        def __init__(self, oligo, sequence):
+        def __init__(self,oligo):
             super(Oligo.RemoveOligoCommand, self).__init__()
+            self._oligo = oligo
+            self._part = oligo.part()
+            self._strandIdxList = []
+            self._strand3p = None
         # end def
 
         def redo(self):
-            pass
+            sIList = self._strandIdxList
+            o = self._oligo
+            s5p = o.strand5p()
+            part = self._part 
+            
+            for strand in s5p.generator3pStrand():
+                strandSet = strand.strandSet()
+                strandSet._doc.removeStrandFromSelection(strand)
+                isInSet, overlap, sSetIdx = strandSet._findIndexOfRangeFor(strand)
+                sIList.append(sSetIdx)
+                strandSet._strandList.pop(sSetIdx)
+                # Emit a signal to notify on completion
+                strand.strandRemovedSignal.emit(strand)
+                # for updating the Slice View displayed helices
+                strandSet.part().partStrandChangedSignal.emit(strandSet.part(), strandSet.virtualHelix())
+            # end def
+            # set the 3p strand for the undo
+            self._strand3p = strand
+            
+            # remove Oligo from part but don't set parent to None?
+            # o.removeFromPart()
+            part.removeOligo(o)
         # end def
 
         def undo(self):
-            pass
+            sIList = self._strandIdxList
+            o = self._oligo
+            s3p = self._strand3p
+            part = self._part 
+            
+            for strand in s3p.generator5pStrand():
+                strandSet = strand.strandSet()
+                sSetIdx = sIList.pop(-1)
+                strandSet._strandList.insert(sSetIdx, strand)
+                # Emit a signal to notify on completion
+                strandSet.strandsetStrandAddedSignal.emit(strandSet, strand)
+                # for updating the Slice View displayed helices
+                part.partStrandChangedSignal.emit(strandSet.part(), strandSet.virtualHelix())
+            # end def
+                        
+            # add Oligo to part but don't set parent to None?
+            # o.addToPart(part)
+            part.addOligo(o)
         # end def
     # end class
 # end class
