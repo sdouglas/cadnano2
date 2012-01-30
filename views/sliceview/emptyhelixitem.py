@@ -48,14 +48,11 @@ util.qtWrapImport('QtGui', globals(), ['QBrush', 'QFont', 'QGraphicsItem',\
                                        'QUndoCommand', 'QGraphicsEllipseItem',\
                                        'QTransform', 'QStyle'])
 
-#from .src.graphicsellipseitem import GraphicsEllipseItem
-
-# _strand_re = re.compile("\((\d+),(\d+)\)\.0\+\[(\d+),(\d+)\]")
+# strand addition stores some meta information in the UndoCommand's text
 _strand_re = re.compile("\((\d+),(\d+)\)\.0\^(\d+)")
 
 class EmptyHelixItem(QGraphicsEllipseItem):
-    """docstring for HelixItem"""
-
+    """docstring for EmptyHelixItem"""
     # set up default, hover, and active drawing styles
     _defaultBrush = QBrush(styles.grayfill)
     _defaultPen = QPen(styles.graystroke, styles.SLICE_HELIX_STROKE_WIDTH)
@@ -322,20 +319,23 @@ class EmptyHelixItem(QGraphicsEllipseItem):
         part = self.part()
         uS = part.undoStack()
         strands = []
+        # Look at the undo stack in reverse order
         for i in range(uS.index()-1, 0, -1):
+            # Check for contiguous strand additions
             m = _strand_re.match(uS.text(i))
             if m:
                 strands.insert(0, map(int, m.groups()))
             else:
                 break
 
-        autoScafType = app().prefs.getAutoScafType()
-        util.beginSuperMacro(part, "Auto-connect")
-        if autoScafType == "Mid-seam":
-            self.autoScafMidSeam(strands)
-        elif autoScafType == "Raster":
-            self.autoScafRaster(strands)
-        util.endSuperMacro(part)
+        if len(strands) > 1:
+            autoScafType = app().prefs.getAutoScafType()
+            util.beginSuperMacro(part, "Auto-connect")
+            if autoScafType == "Mid-seam":
+                self.autoScafMidSeam(strands)
+            elif autoScafType == "Raster":
+                self.autoScafRaster(strands)
+            util.endSuperMacro(part)
 
     def decideAction(self, modifiers):
         """ On mouse press, an action (add scaffold at the active slice, add

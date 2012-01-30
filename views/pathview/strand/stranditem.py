@@ -500,7 +500,8 @@ class StrandItem(QGraphicsLineItem):
         """
         vhiNum = self._virtualHelixItem.number()
         idx = int(floor((event.pos().x()) / _baseWidth))
-        self.partItem().updateStatusBar("%d[%d]" % (vhiNum, idx))
+        oligoLength = self._modelStrand.oligo().length()
+        self.partItem().updateStatusBar("%d[%d]\tlength: %d" % (vhiNum, idx, oligoLength))
         toolMethodName = str(self._activeTool()) + "HoverMove"
         if hasattr(self, toolMethodName):
             getattr(self, toolMethodName)(idx)
