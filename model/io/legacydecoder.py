@@ -23,6 +23,7 @@
 # http://www.opensource.org/licenses/mit-license.php
 
 from collections import defaultdict
+from cadnano import app
 from model.document import Document
 from model.enum import LatticeType, StrandType
 from model.parts.honeycombpart import HoneycombPart
@@ -86,8 +87,9 @@ def import_legacy_dict(document, obj):
     # CREATE PART ACCORDING TO LATTICE TYPE
     if latticeType == LatticeType.Honeycomb:
         steps = numBases/21
-        nRows = max(30, maxRowJson)
-        nCols = max(32, maxColJson)
+
+        nRows = max(30, maxRowJson, app().prefs.honeycombRows)
+        nCols = max(32, maxColJson, app().prefs.honeycombCols)
         part = HoneycombPart(document=document, maxRow=nRows, maxCol=nCols, maxSteps=steps)
     elif latticeType == LatticeType.Square:
         isSQ100 = True  # check for custom SQ100 format
@@ -104,8 +106,8 @@ def import_legacy_dict(document, obj):
         else:
             nRows, nCols = 40, 30
         steps = numBases/32
-        nRows = max(nRows, maxRowJson)
-        nCols = max(nCols, maxColJson)
+        nRows = max(nRows, maxRowJson, app().prefs.squareRows)
+        nCols = max(nCols, maxColJson, app().prefs.squareCols)
         part = SquarePart(document=document, maxRow=nRows, maxCol=nCols, maxSteps=steps)
     else:
         raise TypeError("Lattice type not recognized")
