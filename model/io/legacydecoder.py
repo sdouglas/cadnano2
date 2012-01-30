@@ -90,8 +90,8 @@ def import_legacy_dict(document, obj, latticeType=LatticeType.Honeycomb):
     # CREATE PART ACCORDING TO LATTICE TYPE
     if latticeType == LatticeType.Honeycomb:
         steps = numBases/21
-        nRows = max(30, maxRowJson)
-        nCols = max(32, maxColJson)
+        nRows = max(30, maxRowJson, cadnano.app().prefs.honeycombRows)
+        nCols = max(32, maxColJson, cadnano.app().prefs.honeycombCols)
         part = HoneycombPart(document=document, maxRow=nRows, maxCol=nCols, maxSteps=steps)
     elif latticeType == LatticeType.Square:
         isSQ100 = True  # check for custom SQ100 format
@@ -108,8 +108,8 @@ def import_legacy_dict(document, obj, latticeType=LatticeType.Honeycomb):
         else:
             nRows, nCols = 40, 30
         steps = numBases/32
-        nRows = max(nRows, maxRowJson)
-        nCols = max(nCols, maxColJson)
+        nRows = max(30, maxRowJson, cadnano.app().prefs.squareRows)
+        nCols = max(32, maxColJson, cadnano.app().prefs.squareCols)
         part = SquarePart(document=document, maxRow=nRows, maxCol=nCols, maxSteps=steps)
     else:
         raise TypeError("Lattice type not recognized")
