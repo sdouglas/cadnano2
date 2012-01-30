@@ -233,14 +233,14 @@ class VirtualHelixItem(QGraphicsPathItem):
             scaffoldY = 0
         else:
             scaffoldY = bw
-        if self._scaffoldBackground == None:
-            highlightr = QGraphicsRectItem(0, scaffoldY, bw * canvasSize, bw, self)
-            highlightr.setBrush(QBrush(styles.scaffold_bkg_fill))
-            highlightr.setPen(QPen(Qt.NoPen))
-            highlightr.setFlag(QGraphicsItem.ItemStacksBehindParent)
-            self._scaffoldBackground = highlightr
-        else:
-            self._scaffoldBackground.setRect(0, scaffoldY, bw * canvasSize, bw)
+        # if self._scaffoldBackground == None:
+        #     highlightr = QGraphicsRectItem(0, scaffoldY, bw * canvasSize, bw, self)
+        #     highlightr.setBrush(QBrush(styles.scaffold_bkg_fill))
+        #     highlightr.setPen(QPen(Qt.NoPen))
+        #     highlightr.setFlag(QGraphicsItem.ItemStacksBehindParent)
+        #     self._scaffoldBackground = highlightr
+        # else:
+        #     self._scaffoldBackground.setRect(0, scaffoldY, bw * canvasSize, bw)
             
     # end def
 
