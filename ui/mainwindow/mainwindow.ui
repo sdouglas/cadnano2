@@ -203,6 +203,7 @@
    <addaction name="actionNewHoneycombPart"/>
    <addaction name="actionNewSquarePart"/>
    <addaction name="separator"/>
+   <addaction name="actionAutoStaple"/>
    <addaction name="actionModify"/>
    <addaction name="separator"/>
    <addaction name="actionFiltersLabel"/>
@@ -824,6 +825,18 @@
   <action name="actionAbout">
    <property name="text">
     <string>About cadnano</string>
+   </property>
+  </action>
+  <action name="actionAutoStaple">
+   <property name="icon">
+    <iconset resource="icons.qrc">
+     <normaloff>:/pathtools/autostaple</normaloff>:/pathtools/autostaple</iconset>
+   </property>
+   <property name="text">
+    <string>AutoStaple</string>
+   </property>
+   <property name="toolTip">
+    <string>Create staple strands complementary to existing scaffold.</string>
    </property>
   </action>
  </widget>

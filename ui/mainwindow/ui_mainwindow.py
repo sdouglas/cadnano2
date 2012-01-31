@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'mainwindow/mainwindow.ui'
 #
-# Created: Tue Jan 24 15:29:41 2012
+# Created: Tue Jan 31 17:08:23 2012
 #      by: PyQt4 UI code generator 4.8.6
 #
 # WARNING! All changes made in this file will be lost!
@@ -397,6 +397,13 @@ class Ui_MainWindow(object):
         self.actionAbout = QtGui.QAction(MainWindow)
         self.actionAbout.setText(QtGui.QApplication.translate("MainWindow", "About cadnano", None, QtGui.QApplication.UnicodeUTF8))
         self.actionAbout.setObjectName(_fromUtf8("actionAbout"))
+        self.actionAutoStaple = QtGui.QAction(MainWindow)
+        icon26 = QtGui.QIcon()
+        icon26.addPixmap(QtGui.QPixmap(_fromUtf8(":/pathtools/autostaple")), QtGui.QIcon.Normal, QtGui.QIcon.Off)
+        self.actionAutoStaple.setIcon(icon26)
+        self.actionAutoStaple.setText(QtGui.QApplication.translate("MainWindow", "AutoStaple", None, QtGui.QApplication.UnicodeUTF8))
+        self.actionAutoStaple.setToolTip(QtGui.QApplication.translate("MainWindow", "Create staple strands complementary to existing scaffold.", None, QtGui.QApplication.UnicodeUTF8))
+        self.actionAutoStaple.setObjectName(_fromUtf8("actionAutoStaple"))
         self.topToolBar.addAction(self.actionNew)
         self.topToolBar.addAction(self.actionOpen)
         self.topToolBar.addAction(self.actionSave)
@@ -406,6 +413,7 @@ class Ui_MainWindow(object):
         self.topToolBar.addAction(self.actionNewHoneycombPart)
         self.topToolBar.addAction(self.actionNewSquarePart)
         self.topToolBar.addSeparator()
+        self.topToolBar.addAction(self.actionAutoStaple)
         self.topToolBar.addAction(self.actionModify)
         self.topToolBar.addSeparator()
         self.topToolBar.addAction(self.actionFiltersLabel)

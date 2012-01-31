@@ -26,6 +26,7 @@
     <file alias="go-first">images/slice-go-first.png</file>
   </qresource>
   <qresource prefix="pathtools">
+    <file alias="autobreak">images/path-autobreak.png</file>
     <file alias="modify">images/path-modify.png</file>
     <file alias="add-bases">images/add-bases.svg</file>
     <file alias="addseq">images/path-addseq.png</file>

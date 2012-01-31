@@ -229,7 +229,7 @@ class EndpointItem(QGraphicsPathItem):
         vhiNum = self._strandItem._virtualHelixItem.number()
         oligoLength = self._strandItem._modelStrand.oligo().length()
         msg = "%d[%d]\tlength: %d" % (vhiNum, self.idx(), oligoLength)
-        self.partItem().updateStatusBar(loc)
+        self.partItem().updateStatusBar(msg)
 
         activeToolStr = str(self._activeTool())
         if activeToolStr == 'pencilTool':
