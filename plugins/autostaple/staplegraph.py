@@ -294,15 +294,16 @@ class StapleGraph(object):
         # end if
         else: #linear path
             ind_min = 1 # just go from -1 to 1
-        # end else
+        # end else 
         path = self.getShortestPathDijkstra(-ind_min,ind_min)
+        # print "the path", path
         return self.formatOutput(path)
     #end def
     
     def formatOutput(self,path):
         """
         takes a path either from Dijkstra or Floyd-Warshall processing and formats
-        it for adding to a the set of a scafold structure staples 
+        it for adding to a the set of a scaffold structure staples 
         returns a list of [start_index,[L1,L2,...LN]]
         where start_index is the first token index into the 
         token_list and
@@ -310,22 +311,36 @@ class StapleGraph(object):
 
         this is translated from a list whose indices correspond to plus 1 from indices in
         """
-        p_start = abs(path[0])-1
-        output = [p_start,[]]
+        decreasingCount = 0 # keeps track of whether we loop through the token index more than once
+        
+        path_start = abs(path[0])-1
+        output = [path_start,[]]
+        
+        token_idx_last = path_start
+        
         path_length = len(path)
         for ind in range(0,path_length,2):
             #print ind
-            edge_length = 0 
-            jind = abs(path[ind])-1
-            while jind != (path[ind+1]-1):
-                edge_length += self.token_list[jind]
-                jind += 1
-                if jind == self.token_list_length:
-                    jind = 0
+            edge_length = 0
+            token_idx = abs(path[ind]) - 1
+            
+            # test for a decrease
+            if token_idx - token_idx_last < 0:
+                decreasingCount += 1
+                
+            token_idx_last = token_idx
+            
+            while token_idx != (path[ind+1]-1):
+                edge_length += self.token_list[token_idx]
+                token_idx += 1
+                if token_idx == self.token_list_length:
+                    token_idx = 0
                 # end if
             #end while
             output[1].append(edge_length)
         # end for
+        if decreasingCount > 1:
+            raise Exception("shortest path not solvable with these parameters")
         return output 
     #end def
     

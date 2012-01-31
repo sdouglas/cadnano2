@@ -50,7 +50,7 @@ def nxBreakStaple(oligo, settings):
     tgtStapleLen = settings.get('tgtStapleLen', 35)
     
     tokenList = tokenizeOligo(oligo, settings)
-    # print "tkList", tokenList, oligo.length(), oligo.color()
+    #print "tkList", tokenList, oligo.length(), oligo.color()
     if len(tokenList) == 0:
         return 
 
@@ -125,8 +125,13 @@ def nxPerformBreaks(oligo, breakList, tokenList):
         breakStart = breakList[0]
         breakItems = breakList[1][0:-1]
 
-        # print "the sum is ", sum(breakList[1]), "==", oligo.length(), breakStart, breakList
-        # print "the breakItems", breakItems, "isLoop", oligo.isLoop()
+        # temp = []
+        # for s in oligo.strand5p().generator3pStrand():
+        #     temp.append(s.length())
+        # print "the segments", sum(temp), temp
+        # 
+        # print "the sum is ", sum(breakList[1]), "==", oligo.length(), "isLoop", oligo.isLoop()
+        # print "the breakItems", breakItems
         
         strand = oligo.strand5p()
         if oligo.isLoop():
@@ -137,11 +142,6 @@ def nxPerformBreaks(oligo, breakList, tokenList):
             found, overlap, sSIdx = sS._findIndexOfRangeFor(strand)
             strand.split(idx, updateSequence=False)
             strand = sS._strandList[sSIdx+1] if is5to3 else sS._strandList[sSIdx]
-        # else:
-        #     temp = []
-        #     for s in oligo.strand5p().generator3pStrand():
-        #         temp.append(s.length())
-        #     print "the segments", temp
 
         # now iterate through all the breaks
         for b in breakItems:
@@ -152,7 +152,7 @@ def nxPerformBreaks(oligo, breakList, tokenList):
                 strand.split(idx, updateSequence=False)
                 strand = sS._strandList[sSIdx+1] if is5to3 else sS._strandList[sSIdx]
             else:
-                raise Exception("something is fucked")
+                raise Exception("Oligo length %d is shorter than break length %d" % (strand.oligo().length(), b))
         util.endSuperMacro(part)
 # end def
 
