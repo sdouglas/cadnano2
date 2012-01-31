@@ -69,7 +69,7 @@ def nxBreakStaple(oligo, settings):
             print "Oligo", oligo, "is unsolvable at current setttings for length", oligo.length()
         if pathSolved:
             if len(output[1]) > 1:
-                print "breaking"
+                # print "breaking"
                 nxPerformBreaks(oligo, output, tokenList)
 
 
@@ -93,7 +93,10 @@ def tokenizeOligo(oligo, settings):
         a = strand.length()
         totalL += a 
         if a > 2*minStapleLegLen-1:
-            tokenList.append(minStapleLegLen)
+            if len(tokenList) == 0:
+                tokenList.append(minStapleLegLen)
+            else:
+                tokenList[-1] = tokenList[-1] + minStapleLegLen
             a -= minStapleLegLen
             while a > minStapleLegLen:
                 tokenList.append(1)
@@ -108,7 +111,7 @@ def tokenizeOligo(oligo, settings):
     if sum(tokenList) != oligoL:
         oligo.applyColor("#ff3333", useUndoStack=False)
         return []
-    # assert(sum(tokenList) == oligoL)
+    assert(sum(tokenList) == oligoL)
     return tokenList
 # end def
 
@@ -122,7 +125,7 @@ def nxPerformBreaks(oligo, breakList, tokenList):
         breakStart = breakList[0]
         breakItems = breakList[1][0:-1]
 
-        # print "the sum is ", sum(breakList[1]), "==", oligo.length()
+        # print "the sum is ", sum(breakList[1]), "==", oligo.length(), breakStart, breakList
         # print "the breakItems", breakItems, "isLoop", oligo.isLoop()
         
         strand = oligo.strand5p()
@@ -134,6 +137,11 @@ def nxPerformBreaks(oligo, breakList, tokenList):
             found, overlap, sSIdx = sS._findIndexOfRangeFor(strand)
             strand.split(idx, updateSequence=False)
             strand = sS._strandList[sSIdx+1] if is5to3 else sS._strandList[sSIdx]
+        # else:
+        #     temp = []
+        #     for s in oligo.strand5p().generator3pStrand():
+        #         temp.append(s.length())
+        #     print "the segments", temp
 
         # now iterate through all the breaks
         for b in breakItems:
@@ -141,11 +149,10 @@ def nxPerformBreaks(oligo, breakList, tokenList):
                 strand, idx, is5to3 = getStrandAtLengthInOligo(strand, b)
                 sS = strand.strandSet()
                 found, overlap, sSIdx = sS._findIndexOfRangeFor(strand)
-                # print "found", found, "overlap", overlap, "setIndex", sSIdx
-                # print "sList A", len(sS._strandList), "splitting at", idx, "between", strand.idxs(), "is5to3", is5to3
                 strand.split(idx, updateSequence=False)
                 strand = sS._strandList[sSIdx+1] if is5to3 else sS._strandList[sSIdx]
-                # print "sList B", len(sS._strandList), "oligoLen", strand.oligo().length()
+            else:
+                raise Exception("something is fucked")
         util.endSuperMacro(part)
 # end def
 
@@ -159,15 +166,15 @@ def getStrandAtLengthInOligo(strandIn, length):
         try:
             strand = strandGen.next()
         except:
-            print "yikes: ", strand.connection3p(), strandCounter, length
+            print "yikes: ", strand.connection3p(), strandCounter, length, strand.oligo().isLoop(), strandIn.oligo().length()
             raise Exception
         strandCounter += strand.length()
     # end while
     is5to3 = strand.isDrawn5to3()
-    delta = strand.length() - (strandCounter - length)
+    delta = strand.length() - (strandCounter - length) - 1
     idx5p = strand.idx5Prime()
     # print "diff", delta, "idx5p", idx5p, "5to3", is5to3, "sCount", strandCounter, "L", length
-    outIdx = idx5p + delta - 1 if is5to3 else idx5p - (delta - 1)
+    outIdx = idx5p + delta if is5to3 else idx5p - delta
     return (strand, outIdx, is5to3)
 # end def
 

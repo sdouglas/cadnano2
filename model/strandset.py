@@ -298,10 +298,17 @@ class StrandSet(QObject):
         during autostaple).
         """
         if self.strandCanBeSplit(strand, baseIdx):
+            # print "splitting"
             isInSet, overlap, strandSetIdx = self._findIndexOfRangeFor(strand)
             if isInSet:
                 c = StrandSet.SplitCommand(strand, baseIdx, strandSetIdx, updateSequence)
                 util.execCommandList(self, [c], desc="Split", useUndoStack=useUndoStack)
+                return True
+            else:
+                return False
+        else:
+            # print "no split:", strand, baseIdx
+            return False
     # end def
 
     def strandCanBeSplit(self, strand, baseIdx):
