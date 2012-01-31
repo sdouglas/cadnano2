@@ -1010,7 +1010,7 @@ class Part(QObject):
             part._removeVirtualHelix(vh)
             part._recycleHelixIDNumber(idNum)
             # clear out part references
-            vh.setNumber(None)
+            vh.setNumber(None)  # must come before setPart(None)
             vh.setPart(None)
             vh.virtualHelixRemovedSignal.emit(vh)
             part.partActiveSliceResizeSignal.emit(part)
