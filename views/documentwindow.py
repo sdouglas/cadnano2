@@ -93,7 +93,7 @@ class DocumentWindow(QMainWindow, ui_mainwindow.Ui_MainWindow):
         self.pathToolManager.sliceToolManager = self.sliceToolManager
 
         # set the selection filter default
-        doc.documentSelectionFilterChangedSignal.emit(["endpoint", "scaffold", "staple"])
+        doc.documentSelectionFilterChangedSignal.emit(["endpoint", "scaffold", "staple", "xover"])
 
         self.pathGraphicsView.setupGL()
         self.sliceGraphicsView.setupGL()
@@ -127,7 +127,7 @@ class DocumentWindow(QMainWindow, ui_mainwindow.Ui_MainWindow):
                                             None, QApplication.UnicodeUTF8))
         self.sep = QAction(self)
         self.sep.setSeparator(True)
-        self.menuEdit.insertAction(self.actionCut, self.sep)
+        self.menuEdit.insertAction(self.actionModify, self.sep)
         self.menuEdit.insertAction(self.sep, self.actionRedo)
         self.menuEdit.insertAction(self.actionRedo, self.actionUndo)
         self.splitter.setSizes([400, 400])  # balance splitter size

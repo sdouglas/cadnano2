@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'mainwindow/mainwindow.ui'
 #
-# Created: Tue Jan 31 17:08:23 2012
+# Created: Tue Jan 31 18:45:42 2012
 #      by: PyQt4 UI code generator 4.8.6
 #
 # WARNING! All changes made in this file will be lost!
@@ -318,7 +318,7 @@ class Ui_MainWindow(object):
         icon18 = QtGui.QIcon()
         icon18.addPixmap(QtGui.QPixmap(_fromUtf8(":/pathtools/modify")), QtGui.QIcon.Normal, QtGui.QIcon.Off)
         self.actionModify.setIcon(icon18)
-        self.actionModify.setText(QtGui.QApplication.translate("MainWindow", "Modify", None, QtGui.QApplication.UnicodeUTF8))
+        self.actionModify.setText(QtGui.QApplication.translate("MainWindow", "Modify mode", None, QtGui.QApplication.UnicodeUTF8))
         self.actionModify.setToolTip(QtGui.QApplication.translate("MainWindow", "Modify mode", None, QtGui.QApplication.UnicodeUTF8))
         self.actionModify.setObjectName(_fromUtf8("actionModify"))
         self.actionCadnanoWebsite = QtGui.QAction(MainWindow)
@@ -414,8 +414,6 @@ class Ui_MainWindow(object):
         self.topToolBar.addAction(self.actionNewSquarePart)
         self.topToolBar.addSeparator()
         self.topToolBar.addAction(self.actionAutoStaple)
-        self.topToolBar.addAction(self.actionModify)
-        self.topToolBar.addSeparator()
         self.topToolBar.addAction(self.actionFiltersLabel)
         self.topToolBar.addAction(self.actionFilterScaf)
         self.topToolBar.addAction(self.actionFilterStap)
@@ -441,6 +439,7 @@ class Ui_MainWindow(object):
         self.menuFile.addAction(self.actionClose)
         self.menuFile.addAction(self.actionSave)
         self.menuFile.addAction(self.actionSave_As)
+        self.menuEdit.addAction(self.actionModify)
         self.menubar.addAction(self.menuFile.menuAction())
         self.menubar.addAction(self.menuEdit.menuAction())
         self.menubar.addAction(self.menuPlugins.menuAction())

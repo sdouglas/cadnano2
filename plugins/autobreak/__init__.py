@@ -14,12 +14,21 @@ class AutobreakHandler(object):
         self.actionAutoBreak.setObjectName("actionAutoBreak")
         self.actionAutoBreak.triggered.connect(self.actionAutobreakSlot)
         self.win.menuPlugins.addAction(self.actionAutoBreak)
+        # add to main tool bar
+        self.win.topToolBar.insertAction(self.win.actionFiltersLabel, self.actionAutoBreak)
+        self.win.topToolBar.insertSeparator(self.win.actionFiltersLabel)
         self.configDialog = None
 
     def actionAutobreakSlot(self):
-        if self.configDialog == None:
-            self.configDialog = AutobreakConfig(self.win, self)
-        self.configDialog.show()
+        """Only show the dialog if staple strands exist."""
+        part = self.doc.controller().activePart()
+        if part != None:  # is there a part?
+            for o in list(part.oligos()):
+                if o.isStaple():  # is there a staple oligo?
+                    if self.configDialog == None:
+                        self.configDialog = AutobreakConfig(self.win, self)
+                    self.configDialog.show()
+                    return
 
 def documentWindowWasCreatedSlot(doc, win):
     doc.autobreakHandler = AutobreakHandler(doc, win)
