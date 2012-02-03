@@ -204,8 +204,6 @@
    <addaction name="actionNewSquarePart"/>
    <addaction name="separator"/>
    <addaction name="actionAutoStaple"/>
-   <addaction name="actionModify"/>
-   <addaction name="separator"/>
    <addaction name="actionFiltersLabel"/>
    <addaction name="actionFilterScaf"/>
    <addaction name="actionFilterStap"/>
@@ -311,6 +309,7 @@
     <property name="title">
      <string>Edit</string>
     </property>
+    <addaction name="actionModify"/>
    </widget>
    <widget class="QMenu" name="menuPlugins">
     <property name="title">
@@ -672,7 +671,7 @@
      <normaloff>:/pathtools/modify</normaloff>:/pathtools/modify</iconset>
    </property>
    <property name="text">
-    <string>Modify</string>
+    <string>Modify mode</string>
    </property>
    <property name="toolTip">
     <string>Modify mode</string>

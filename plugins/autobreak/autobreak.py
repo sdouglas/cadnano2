@@ -86,7 +86,6 @@ def nxBreakStaple(oligo, settings):
 # end def
 
 def tokenizeOligo(oligo, settings):
-    
     tokenList = []
     minStapleLegLen = settings.get('minStapleLegLen', 2)
     minStapleLen = settings.get('minStapleLen', 30)
@@ -96,7 +95,7 @@ def tokenizeOligo(oligo, settings):
     oligoL = oligo.length()
     if oligoL < 2*minStapleLen+1 or oligoL < minStapleLen:
         return tokenList
-    
+
     totalL = 0
     strandGen = oligo.strand5p().generator3pStrand() 
     for strand in strandGen:
@@ -167,7 +166,7 @@ def nxPerformBreaks(oligo, breakItems, tokenList, startingToken, minStapleLegLen
         util.endSuperMacro(part)
 # end def
 
-def getStrandAtLengthInOligo(strandIn, length):    
+def getStrandAtLengthInOligo(strandIn, length):
     strandGen = strandIn.generator3pStrand()
     strand = strandGen.next()
     assert(strand == strandIn)
@@ -217,8 +216,8 @@ def breakStaple(oligo, settings):
     # better. Then we use Djikstra to find the most optimal way to break
     # the super-long staple passed in the oligo parameter into smaller staples
     # by finding the minimum-weight path from "starting" nodes to "terminal"
-    # nodes.        
-        
+    # nodes.
+
     # The minimum number of bases after a crossover
     stapleScorer = settings.get('stapleScorer', tgtLengthStapleScorer)
     minStapleLegLen = settings.get('minStapleLegLen', 2)
@@ -226,7 +225,7 @@ def breakStaple(oligo, settings):
     minStapleLenMinusOne = minStapleLen-1
     maxStapleLen = settings.get('maxStapleLen', 40)
     maxStapleLenPlusOne = maxStapleLen+1
-    
+
     # First, we generate a list of valid breakpoints = nodes. This amortizes
     # the search for children in the inner loop of Djikstra later. Format:
     # node in nodes := (
@@ -239,7 +238,7 @@ def breakStaple(oligo, settings):
     if lengthOfNodesArr == 0:
         print "nada", minStapleLegLen, oligo.length()
         return
-    
+
     # Each element of heap represents an incremental breakpoint solution (IBS)
     # which is a linked list of nodes taking the following form:
     # (totalWeight,   # the total weight of this list is first for automaic sorting
@@ -252,7 +251,7 @@ def breakStaple(oligo, settings):
     # Djikstra says: the first full breakpoint solution to be visited will be the optimal one
     heap = []
     firstStrand = oligo.strand5p()
-    
+
     # Add everything on the firstStrand as an initial break
     # for i in xrange(len(nodes)):
     #     node = nodes[i]
@@ -261,12 +260,12 @@ def breakStaple(oligo, settings):
     #         break
     #     newIBS = (0, None, node, i)
     #     heapq.heappush(heap, newIBS)
-    
+
     # Just add the existing endpoint as an initial break
     # print "the nodes", nodes
     newIBS = (0, None, nodes[0], 0)
     heap.append(newIBS)
-    
+
     # nodePosLog = []
     while heap:
         # Pop the min-weight node off the heap
@@ -323,12 +322,12 @@ def possibleBreakpoints(oligo, settings):
       strand,     strand where the break occurs
       idx,        the index on strand where the break occurs
       isTerminal) True if this node can represent the last break in oligo"""
-    
+
     # The minimum number of bases after a crossover
     minStapleLegLen = settings.get('minStapleLegLen', 2)
     minStapleLen = settings.get('minStapleLen', 30)
     maxStapleLen = settings.get('maxStapleLen', 40)
-    
+
     nodes = []
     strand = firstStrand = oligo.strand5p()
     isLoop = strand.connection5p() != None
@@ -368,7 +367,7 @@ def possibleBreakpoints(oligo, settings):
     # if nodes:  # dump the node array to stdout
     #     print ' '.join(str(n[0])+':'+str(n[2]) for n in nodes) + (' :: %i'%oligo.length()) + repr(nodes[-1])
     return nodes
-    
+
 def autoBreak(part):
     """Autobreak does the following:
     1. Clear existing staple strands by iterating over each strand
@@ -391,7 +390,7 @@ def autoBreak(part):
     # end for
     util.execCommandList(part, cmds, desc="Clear staples")
     cmds = []
-    
+
     # print "number oligos post remove 1", len(part.oligos())
 
     # create strands that span all bases where scaffold is present
@@ -444,7 +443,7 @@ def autoBreak(part):
             cmds.append(c)
     util.execCommandList(part, cmds, desc="Rm tmp strands", useUndoStack=False)
     cmds = []
-    
+
     # print "number oligos post remove 2", len(part.oligos())
 
     util.beginSuperMacro(part, desc="Auto-Staple")
@@ -477,13 +476,13 @@ def autoBreak(part):
                     continue
                 part.createXover(strand, idx, nStrand, idx, updateOligo=False)
     # print "number oligos pre refresh", len(part.oligos())
-    
+
     c = Part.RefreshOligosCommand(part)
     cmds.append(c)
     util.execCommandList(part, cmds, desc="Assign oligos")
-    
+
     # print "number oligos post refresh", len(part.oligos())
-    
+
     cmds = []
     util.endSuperMacro(part)
 # end def
