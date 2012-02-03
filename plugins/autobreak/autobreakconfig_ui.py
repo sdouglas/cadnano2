@@ -62,7 +62,7 @@ class Ui_Dialog(object):
         self.formLayout.setWidget(2, QtGui.QFormLayout.LabelRole, self.minLengthLabel)
         self.minLengthSpinBox = QtGui.QSpinBox(self.widget)
         self.minLengthSpinBox.setMaximum(10000)
-        self.minLengthSpinBox.setProperty("value", 30)
+        self.minLengthSpinBox.setProperty("value", 20)
         self.minLengthSpinBox.setObjectName(_fromUtf8("minLengthSpinBox"))
         self.formLayout.setWidget(2, QtGui.QFormLayout.FieldRole, self.minLengthSpinBox)
         self.minLegLengthLabel = QtGui.QLabel(self.widget)

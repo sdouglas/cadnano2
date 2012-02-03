@@ -4,9 +4,11 @@ from model.strandset import StrandSet
 from model.enum import StrandType
 from model.parts.part import Part
 from model.oligo import Oligo
+from multiprocessing import Pool, cpu_count
+from operator import itemgetter
 
 try:
-    from staplegraph import StapleGraph
+    import staplegraph
     nx = True
 except:
     nx = False
@@ -50,29 +52,37 @@ def nxBreakStaple(oligo, settings):
     tgtStapleLen = settings.get('tgtStapleLen', 35)
     
     tokenList = tokenizeOligo(oligo, settings)
-    #print "tkList", tokenList, oligo.length(), oligo.color()
+    # print "tkList", tokenList, oligo.length(), oligo.color()
     if len(tokenList) == 0:
-        return 
-
-    sg = StapleGraph(token_list_in=tokenList, \
-                    staple_limits=[minStapleLen,maxStapleLen,tgtStapleLen], \
-                    iscircle=oligo.isLoop())
-    # print sg.graph().nodes(), sg.graph().edges()
-    if len(sg.graph().nodes()) > 1:
-        # print "total nodes:", len(sg.graph().nodes())
-        try:
-            output = sg.minPathDijkstra()
-            pathSolved = True
-            # print "Solved!"
-        except:
-            pathSolved = False
-            print "Oligo", oligo, "is unsolvable at current setttings for length", oligo.length()
-        if pathSolved:
-            if len(output[1]) > 1:
-                # print "breaking"
-                nxPerformBreaks(oligo, output, tokenList)
-
-
+        return
+    
+    staple_limits = [minStapleLen, maxStapleLen, tgtStapleLen] 
+    tokenLists = [(tokenList, staple_limits,0)]
+    tokenCount = tokenList[0]
+    if oligo.isLoop():
+        lenList = len(tokenList)
+        for i in range(1, lenList):
+            if tokenCount > 2*maxStapleLen:
+                break
+            tL = tokenLists[i-1][0]
+            rotatedList =  tL[1:-1] + tL[0:1]   # assumes lenList > 1
+            tokenCount += rotatedList[0]
+            tokenLists.append((rotatedList, staple_limits, i))
+        # end for
+    # end if
+    # p = Pool(cpu_count() * 2)
+    p = Pool(4)
+    # returns ( [breakStart, [breakLengths, ], score], tokenIdx)
+    results = p.map(staplegraph.minimumPath, tokenLists)
+    # results = map(staplegraph.minimumPath, tokenLists)
+    # print "teh results", results
+    f = itemgetter(0)   # get the graph results
+    g = itemgetter(2)    # get the score
+    # so this is 
+    shortestScore, shortestScoreIdx = min(results, key=lambda x: g(f(x)) if x else 10000)
+    breakItems = results[shortestScoreIdx][0][1]
+    # print "daITems", breakItems
+    nxPerformBreaks(oligo, breakItems, tokenList, shortestScoreIdx, minStapleLegLen)
 # end def
 
 def tokenizeOligo(oligo, settings):
@@ -107,6 +117,10 @@ def tokenizeOligo(oligo, settings):
             tokenList.append(a)
         # end if
     # end for
+    if oligo.isLoop():
+        loop_token = tokenList.pop(-1)
+        tokenList[0] += loop_token
+        
     # print "check", sum(tokenList), "==", oligoL, totalL
     if sum(tokenList) != oligoL:
         oligo.applyColor("#ff3333", useUndoStack=False)
@@ -115,15 +129,12 @@ def tokenizeOligo(oligo, settings):
     return tokenList
 # end def
 
-def nxPerformBreaks(oligo, breakList, tokenList):
+def nxPerformBreaks(oligo, breakItems, tokenList, startingToken, minStapleLegLen):
     """ fullBreakptSoln is in the format of an IBS (see breakStrands).
     This function performs the breaks proposed by the solution. """
     part = oligo.part()
-    if breakList:
+    if breakItems:
         util.beginSuperMacro(part, desc="Auto-Break")
-
-        breakStart = breakList[0]
-        breakItems = breakList[1][0:-1]
 
         # temp = []
         # for s in oligo.strand5p().generator3pStrand():
@@ -136,15 +147,15 @@ def nxPerformBreaks(oligo, breakList, tokenList):
         strand = oligo.strand5p()
         if oligo.isLoop():
             # start things off make first cut
-            length0 = sum(tokenList[0:breakStart+1])
-            strand, idx, is5to3 = getStrandAtLengthInOligo(strand, length0)
+            length0 = sum(tokenList[0:startingToken+1])
+            strand, idx, is5to3 = getStrandAtLengthInOligo(strand, length0-minStapleLegLen)
             sS = strand.strandSet()
             found, overlap, sSIdx = sS._findIndexOfRangeFor(strand)
             strand.split(idx, updateSequence=False)
             strand = sS._strandList[sSIdx+1] if is5to3 else sS._strandList[sSIdx]
 
         # now iterate through all the breaks
-        for b in breakItems:
+        for b in breakItems[0:-1]:
             if strand.oligo().length() > b:
                 strand, idx, is5to3 = getStrandAtLengthInOligo(strand, b)
                 sS = strand.strandSet()

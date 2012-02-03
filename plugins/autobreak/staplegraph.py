@@ -72,11 +72,29 @@ MIN_IND = 0     # minimum length index
 MAX_IND = 1     # maximum length index
 OPT_IND = 2     # optimum length index
 
+def minimumPath(tokenlist_and_staple_limits):
+    tokenList, staple_limits, idx = tokenlist_and_staple_limits
+    sg = StapleGraph(token_list_in=tokenList, \
+                    staple_limits=staple_limits)
+    # print sg.graph().nodes(), sg.graph().edges()
+    # if len(sg.graph().nodes()) > 1:
+        # print "total nodes:", len(sg.graph().nodes())
+    try:
+        output = sg.minPathDijkstra()
+        return (output, idx)
+        # print "Solved!"
+    except:
+        # print "Oligo is unsolvable at current setttings for length"
+        return None
+    # else: 
+    #     return None
+# end def
+
 class StapleGraph(object):
     """
     
     """
-    def __init__(self,token_list_in=[4,7,6,5,7,8,3], staple_limits=[3,18,10], iscircle=True):
+    def __init__(self,token_list_in=[4,7,6,5,7,8,3], staple_limits=[3,18,10]):
         """
         Constructor  takes a
         
@@ -84,8 +102,6 @@ class StapleGraph(object):
             points in a staple
         staple_limits: min staple length, max staple length, optimum 
             staple length 
-        isCircle: whether or not the token list is cyclic (cyclic staple 
-            strand or unconnected linear strand with predetermined end points
         """
             
         self.token_list = token_list_in
@@ -95,7 +111,6 @@ class StapleGraph(object):
         self.max_staple_length = staple_limits[MAX_IND]
         self.optimum_staple = staple_limits[OPT_IND]
         self.min_path_dict = []
-        self.isCircular = iscircle
         self.the_min_path = []
         self.createGraph()          # create the graph
     # end def
@@ -152,12 +167,7 @@ class StapleGraph(object):
                     to_node_index = 1;  # wrap around to first non-zero
                 # end if
                 elif edge_index == self.token_list_length:
-                    if self.isCircular == True:
-                        edge_index = 0; # wrap around the token list
-                    # end if
-                    else: # not circular 
-                        break #non-circular last edge has already been added
-                    # end else
+                    break
                 # end elif
                 if visited_edge_counter == self.token_list_length:
                     break
@@ -251,12 +261,7 @@ class StapleGraph(object):
         Returns the shortest path using Floyd-Warshall algorithm.
         """
         self.floydWarshall()
-        if self.isCircular == True:
-            the_path = (self.getMinPathsFW())[0] # just pick the first item in the list
-        # end if
-        else: # its just a straight path
-            the_path = [0,-1,1]
-        #end else
+        the_path = [0,-1,1]
         path = self.getShortestPathFW(the_path[1],the_path[2])
         return self.formatOutput(path)
     #end def
@@ -274,26 +279,7 @@ class StapleGraph(object):
         temp = 0
         path = []
         token_sum = 0   # keeps track of the staple break points to look at
-        if self.isCircular == True:
-            for ind in range(1,self.token_list_length+1): 
-                temp = nx.dijkstra_path_length(self.G, -ind,ind)
-                if temp < min_length:
-                    min_length = temp
-                    ind_min = ind
-                # end if
-
-                # only need to look for paths as necessary
-                # once we've exceeded twice the max staple length we are
-                # sure to have found the correct path in the set
-                token_sum += self.token_list[ind-1]
-                # if token_sum > 2*self.max_staple_length:
-                #     break
-                # end if
-                
-            # end for
-        # end if
-        else: #linear path
-            ind_min = 1 # just go from -1 to 1
+        ind_min = 1 # just go from -1 to 1
         # end else 
         path = self.getShortestPathDijkstra(-ind_min,ind_min)
         # print "the path", path
@@ -311,24 +297,16 @@ class StapleGraph(object):
 
         this is translated from a list whose indices correspond to plus 1 from indices in
         """
-        decreasingCount = 0 # keeps track of whether we loop through the token index more than once
         
         path_start = abs(path[0])-1
-        output = [path_start,[]]
+        output = [path_start,[], 0]
         
-        token_idx_last = path_start
-        
+        # print "test 1"
         path_length = len(path)
         for ind in range(0,path_length,2):
             #print ind
             edge_length = 0
             token_idx = abs(path[ind]) - 1
-            
-            # test for a decrease
-            if token_idx - token_idx_last < 0:
-                decreasingCount += 1
-                
-            token_idx_last = token_idx
             
             while token_idx != (path[ind+1]-1):
                 edge_length += self.token_list[token_idx]
@@ -339,8 +317,12 @@ class StapleGraph(object):
             #end while
             output[1].append(edge_length)
         # end for
-        if decreasingCount > 1:
-            raise Exception("shortest path not solvable with these parameters")
+        # print "test 2"
+        ost = self.optimum_staple
+        finalScore = sum([abs(ost-x) for x in output[1]])
+        # print "test 3"
+        output[2] = finalScore
+        # print "test 4"
         return output 
     #end def
     
@@ -374,7 +356,7 @@ def testMe():
     """
     # testlist = [21, 7, 7, 7, 7, 7, 7, 7, 7, 7, 14, 7, 7, 7, 7, 21, 7, 7, 7, 7, 7, 7, 7, 7, 7, 14, 7, 7, 7, 7]
     testlist = [1,7,1,1,1,1,1,1,7,1,7,1,7,1,1,7,7,7,1,7,1,1,7,1,1,1,1,1]
-    b = StapleGraph(token_list_in=testlist, staple_limits=[20,50,35], iscircle=False)
+    b = StapleGraph(token_list_in=testlist, staple_limits=[20,50,35])
     # b.floydWarshall()
     print "input ", b.token_list
     print "sum lengths of of tokens: ", sum(b.token_list)

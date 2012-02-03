@@ -16,6 +16,7 @@ def breakStaples(part, settings):
         if not o.isStaple():
             continue
         if nx:
+            print "sup"
             nxBreakStaple(o, settings)
         else:
             breakStaple(o, settings)
@@ -50,7 +51,7 @@ def nxBreakStaple(oligo, settings):
     tgtStapleLen = settings.get('tgtStapleLen', 35)
     
     tokenList = tokenizeOligo(oligo, settings)
-    #print "tkList", tokenList, oligo.length(), oligo.color()
+    print "tkList", tokenList, oligo.length(), oligo.color()
     if len(tokenList) == 0:
         return 
 
@@ -60,13 +61,13 @@ def nxBreakStaple(oligo, settings):
     # print sg.graph().nodes(), sg.graph().edges()
     if len(sg.graph().nodes()) > 1:
         # print "total nodes:", len(sg.graph().nodes())
-        try:
-            output = sg.minPathDijkstra()
-            pathSolved = True
-            # print "Solved!"
-        except:
-            pathSolved = False
-            print "Oligo", oligo, "is unsolvable at current setttings for length", oligo.length()
+        # try:
+        output = sg.minPathDijkstra()
+        pathSolved = True
+        # print "Solved!"
+        # except:
+        #     pathSolved = False
+        #     print "Oligo", oligo, "is unsolvable at current setttings for length", oligo.length()
         if pathSolved:
             if len(output[1]) > 1:
                 # print "breaking"
@@ -107,6 +108,10 @@ def tokenizeOligo(oligo, settings):
             tokenList.append(a)
         # end if
     # end for
+    if oligo.isLoop():
+        loop_token = tokenList.pop(-1)
+        tokenList[0] += loop_token
+    
     # print "check", sum(tokenList), "==", oligoL, totalL
     if sum(tokenList) != oligoL:
         oligo.applyColor("#ff3333", useUndoStack=False)

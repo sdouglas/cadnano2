@@ -294,9 +294,9 @@ class StapleGraph(object):
         # end if
         else: #linear path
             ind_min = 1 # just go from -1 to 1
-        # end else 
+        # end else   
         path = self.getShortestPathDijkstra(-ind_min,ind_min)
-        # print "the path", path
+        print "the path", path
         return self.formatOutput(path)
     #end def
     
@@ -317,7 +317,7 @@ class StapleGraph(object):
         output = [path_start,[]]
         
         token_idx_last = path_start
-        
+        signChange = 0
         path_length = len(path)
         for ind in range(0,path_length,2):
             #print ind
@@ -326,8 +326,14 @@ class StapleGraph(object):
             
             # test for a decrease
             if token_idx - token_idx_last < 0:
-                decreasingCount += 1
-                
+                if signChange > 1:
+                    decreasingCount += 1
+                signChange = -1
+            else:
+                if signChange < 1:
+                    decreasingCount += 1
+                signChange = 1
+                    
             token_idx_last = token_idx
             
             while token_idx != (path[ind+1]-1):
