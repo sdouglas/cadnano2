@@ -428,6 +428,7 @@ class Part(QObject):
         if useUndoStack:
             self.undoStack().beginMacro("Delete Part")
         # remove strands and oligos
+        # print "total Oligos before remove", len(self._oligos) 
         self.removeAllOligos(useUndoStack)
         # remove VHs
         vhs = self._coordToVirtualHelix.values()
@@ -458,6 +459,7 @@ class Part(QObject):
 
     def addOligo(self, oligo):
         self._oligos.add(oligo)
+        # print "total Oligos more", len(self._oligos)
     # end def
 
     def createVirtualHelix(self, row, col, useUndoStack=True):
@@ -697,6 +699,7 @@ class Part(QObject):
         # remove parts from self._oligos)
         try:
             self._oligos.remove(oligo)
+            # print "totalOligos left", len(self._oligos)
         except KeyError:
             pass
     # end def

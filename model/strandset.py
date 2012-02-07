@@ -248,8 +248,8 @@ class StrandSet(QObject):
     def removeAllStrands(self, useUndoStack=True):
         # copy the list because we are going to shrink it and that's
         # a no no with iterators
-        temp = [x for x in self._strandList]
-        for strand in temp:
+        #temp = [x for x in self._strandList]
+        for strand in list(self._strandList):#temp:
             self.removeStrand(strand, 0, useUndoStack, solo=False)
         # end def
 
@@ -808,20 +808,23 @@ class StrandSet(QObject):
             self._strandSet = strandSet
             self._strand = strand
             self._sSetIdx = strandSetIdx
+            
+            self._solo = solo
+            
             self._oldStrand5p = strand.connection5p()
             self._oldStrand3p = strand.connection3p()
             self._oligo = olg = strand.oligo()
             self._newOligo5p = olg.shallowCopy()
-            self._newOligo3p = olg3p = olg.shallowCopy()
-            self._solo = solo
-            olg3p.setStrand5p(self._oldStrand3p)
-            colorList = styles.stapColors if strandSet.isStaple() else styles.scafColors
-            color = random.choice(colorList).name()
-            olg3p.setColor(color)
-            olg3p.refreshLength()
             if olg.isLoop():
+                self._newOligo3p = olg3p = None
                 self._newOligo5p.setLoop(False)
-                olg3p.setLoop(False)
+            else:
+                self._newOligo3p = olg3p = olg.shallowCopy()
+                olg3p.setStrand5p(self._oldStrand3p)
+                colorList = styles.stapColors if strandSet.isStaple() else styles.scafColors
+                color = random.choice(colorList).name()
+                olg3p.setColor(color)
+                olg3p.refreshLength()
         # end def
 
         def redo(self):
@@ -860,7 +863,7 @@ class StrandSet(QObject):
                 strand5p.strandUpdateSignal.emit(strand5p)
             # end if
             if strand3p != None:
-                if not olg3p.isLoop():
+                if not oligo.isLoop():
                     # apply 2nd oligo copy to all 3' downstream strands
                     for s3p in strand3p.generator3pStrand():
                         Strand.setOligo(s3p, olg3p)
@@ -903,7 +906,8 @@ class StrandSet(QObject):
             # Restore the oligo
             oligo.addToPart(strandSet.part())
             olg5p.removeFromPart()
-            olg3p.removeFromPart()
+            if olg3p:
+                olg3p.removeFromPart()
             for s5p in oligo.strand5p().generator3pStrand():
                 Strand.setOligo(s5p, oligo)
             # end for
