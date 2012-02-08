@@ -59,10 +59,10 @@ The graph need be directed to enforce the visitation of all nodes
 
 Dijkstra's algorithm and Floyd Warshall are supported solutions
 '''
-# try:
-#     import networkx as nx
-# except:
-import include.networkx as nx
+try:
+    import networkx as nx
+except:
+    import include.networkx as nx
 
 # the DEFINE parameters address the staple_limits argument parameters
 MIN_IND = 0     # minimum length index
