@@ -757,6 +757,19 @@ class Strand(QObject):
         return idx in self._decorators
     # end def
 
+    def hasInsertion(self):
+        """
+        Iterate through dict of insertions for this strand's virtualhelix
+        and return True of any of the indices overlap with the strand.
+        """
+        coord = self.virtualHelix().coord()
+        insts = self.part().insertions()[coord]
+        for i in range(self._baseIdxLow, self._baseIdxHigh+1):
+            if i in insts:
+                return True
+        return False
+    # end def
+
     def hasInsertionAt(self, idx):
         coord = self.virtualHelix().coord()
         insts = self.part().insertions()[coord]

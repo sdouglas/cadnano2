@@ -328,6 +328,14 @@ class CustomQGraphicsView(QGraphicsView):
             self.sceneRootItem.translate(-self.keyPanDeltaX(),0)
         elif event.key() == Qt.Key_Down:
             self.sceneRootItem.translate(0, -self.keyPanDeltaY())
+        elif event.key() == Qt.Key_1:
+            self.zoomIn(0.6)
+        elif event.key() == Qt.Key_2:
+            self.zoomIn(0.2)
+        elif event.key() == Qt.Key_3:
+            self.zoomIn(0.06)
+        elif event.key() == Qt.Key_4:
+            self.zoomIn(0.02)
         else:
             return QGraphicsView.keyPressEvent(self, event)
         # end else
@@ -464,6 +472,12 @@ class CustomQGraphicsView(QGraphicsView):
     def zoomIn(self, fractionOfMax=0.5):
         currentScaleLevel = self.transform().m11()
         scaleChange = (fractionOfMax * self._scale_limit_max) / currentScaleLevel
+        self.scale(scaleChange, scaleChange)
+    # end def
+
+    def zoomOut(self, fractionOfMin=1):
+        currentScaleLevel = self.transform().m11()
+        scaleChange = (fractionOfMin * self._scale_limit_min) / currentScaleLevel
         self.scale(scaleChange, scaleChange)
     # end def
 

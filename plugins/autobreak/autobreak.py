@@ -86,6 +86,10 @@ def nxBreakStaple(oligo, settings):
 # end def
 
 def tokenizeOligo(oligo, settings):
+    """
+    Split the oligo into sub-tokens. Strands with insertions are not tokenized
+    and their full length is added.
+    """
     tokenList = []
     minStapleLegLen = settings.get('minStapleLegLen', 2)
     minStapleLen = settings.get('minStapleLen', 30)
@@ -97,11 +101,12 @@ def tokenizeOligo(oligo, settings):
         return tokenList
 
     totalL = 0
-    strandGen = oligo.strand5p().generator3pStrand() 
+    strandGen = oligo.strand5p().generator3pStrand()
     for strand in strandGen:
-        a = strand.length()
-        totalL += a 
-        if a > 2*minStapleLegLen-1:
+        a = strand.totalLength()
+        totalL += a
+        # check length, and also for insertions
+        if a > 2*minStapleLegLen-1 and not strand.hasInsertion():
             if len(tokenList) == 0:
                 tokenList.append(minStapleLegLen)
             else:
@@ -171,17 +176,17 @@ def getStrandAtLengthInOligo(strandIn, length):
     strand = strandGen.next()
     assert(strand == strandIn)
     # find the starting strand
-    strandCounter = strand.length()
+    strandCounter = strand.totalLength()
     while strandCounter < length:
         try:
             strand = strandGen.next()
         except:
             print "yikes: ", strand.connection3p(), strandCounter, length, strand.oligo().isLoop(), strandIn.oligo().length()
             raise Exception
-        strandCounter += strand.length()
+        strandCounter += strand.totalLength()
     # end while
     is5to3 = strand.isDrawn5to3()
-    delta = strand.length() - (strandCounter - length) - 1
+    delta = strand.totalLength() - (strandCounter - length) - 1
     idx5p = strand.idx5Prime()
     # print "diff", delta, "idx5p", idx5p, "5to3", is5to3, "sCount", strandCounter, "L", length
     outIdx = idx5p + delta if is5to3 else idx5p - delta
@@ -367,124 +372,5 @@ def possibleBreakpoints(oligo, settings):
     # if nodes:  # dump the node array to stdout
     #     print ' '.join(str(n[0])+':'+str(n[2]) for n in nodes) + (' :: %i'%oligo.length()) + repr(nodes[-1])
     return nodes
-
-def autoBreak(part):
-    """Autobreak does the following:
-    1. Clear existing staple strands by iterating over each strand
-    and calling RemoveStrandCommand on each. The next strand to remove
-    is always at index 0.
-    2. Create temporary strands that span regions where scaffold is present.
-    3. Determine where actual strands will go based on strand overlap with
-    prexovers.
-    4. Delete temporary strands and create new strands.
-    """
-    epDict = {}  # keyed on StrandSet
-    cmds = []
-
-    # clear existing staple strands
-    for o in list(part.oligos()):
-        if not o.isStaple():
-            continue
-        c = Oligo.RemoveOligoCommand(o)
-        cmds.append(c)
-    # end for
-    util.execCommandList(part, cmds, desc="Clear staples")
-    cmds = []
-
-    # print "number oligos post remove 1", len(part.oligos())
-
-    # create strands that span all bases where scaffold is present
-    for vh in part.getVirtualHelices():
-        segments = []
-        scafSS = vh.scaffoldStrandSet()
-        for strand in scafSS:
-            lo, hi = strand.idxs()
-            if len(segments) == 0:
-                segments.append([lo, hi])  # insert 1st strand
-            elif segments[-1][1] == lo - 1:
-                segments[-1][1] = hi  # extend
-            else:
-                segments.append([lo, hi])  # insert another strand
-        stapSS = vh.stapleStrandSet()
-        epDict[stapSS] = []
-        for i in range(len(segments)):
-            lo, hi = segments[i]
-            epDict[stapSS].extend(segments[i])
-            c = StrandSet.CreateStrandCommand(stapSS, lo, hi, i)
-            cmds.append(c)
-    util.execCommandList(part, cmds, desc="Add tmp strands", useUndoStack=False)
-    cmds = []
-
-    # determine where xovers should be installed
-    for vh in part.getVirtualHelices():
-        stapSS = vh.stapleStrandSet()
-        is5to3 = stapSS.isDrawn5to3()
-        potentialXovers = part.potentialCrossoverList(vh)
-        for neighborVh, idx, strandType, isLowIdx in potentialXovers:
-            if strandType != StrandType.Staple:
-                continue
-            if isLowIdx and is5to3:
-                strand = stapSS.getStrand(idx)
-                neighborSS = neighborVh.stapleStrandSet()
-                nStrand = neighborSS.getStrand(idx)
-                if strand == None or nStrand == None:
-                    continue
-                # check for bases on both strands at [idx-1:idx+3]
-                if strand.lowIdx() < idx and strand.highIdx() > idx + 1 and\
-                   nStrand.lowIdx() < idx and nStrand.highIdx() > idx + 1:
-                    epDict[stapSS].extend([idx, idx+1])
-                    epDict[neighborSS].extend([idx, idx+1])
-
-    # clear temporary staple strands
-    for vh in part.getVirtualHelices():
-        stapSS = vh.stapleStrandSet()
-        for strand in stapSS:
-            c = StrandSet.RemoveStrandCommand(stapSS, strand, 0)
-            cmds.append(c)
-    util.execCommandList(part, cmds, desc="Rm tmp strands", useUndoStack=False)
-    cmds = []
-
-    # print "number oligos post remove 2", len(part.oligos())
-
-    util.beginSuperMacro(part, desc="Auto-Staple")
-
-    for stapSS, epList in epDict.iteritems():
-        assert (len(epList) % 2 == 0)
-        epList = sorted(epList)
-        ssIdx = 0
-        for i in range(0, len(epList),2):
-            lo, hi = epList[i:i+2]
-            c = StrandSet.CreateStrandCommand(stapSS, lo, hi, ssIdx)
-            cmds.append(c)
-            ssIdx += 1
-    util.execCommandList(part, cmds, desc="Create strands")
-    cmds = []
-
-    # create crossovers wherever possible (from strand5p only)
-    for vh in part.getVirtualHelices():
-        stapSS = vh.stapleStrandSet()
-        is5to3 = stapSS.isDrawn5to3()
-        potentialXovers = part.potentialCrossoverList(vh)
-        for neighborVh, idx, strandType, isLowIdx in potentialXovers:
-            if strandType != StrandType.Staple:
-                continue
-            if (isLowIdx and is5to3) or (not isLowIdx and not is5to3):
-                strand = stapSS.getStrand(idx)
-                neighborSS = neighborVh.stapleStrandSet()
-                nStrand = neighborSS.getStrand(idx)
-                if strand == None or nStrand == None:
-                    continue
-                part.createXover(strand, idx, nStrand, idx, updateOligo=False)
-    # print "number oligos pre refresh", len(part.oligos())
-
-    c = Part.RefreshOligosCommand(part)
-    cmds.append(c)
-    util.execCommandList(part, cmds, desc="Assign oligos")
-
-    # print "number oligos post refresh", len(part.oligos())
-
-    cmds = []
-    util.endSuperMacro(part)
-# end def
 
 cadnano.app().breakStaples = breakStaples

@@ -1,5 +1,0 @@
-<RCC>
-  <qresource prefix="pathtools">
-    <file alias="autostaple">action_icon.png</file>
-  </qresource>
-</RCC>
