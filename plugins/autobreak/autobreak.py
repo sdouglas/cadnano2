@@ -31,7 +31,7 @@ def verifyOligos(part):
         gen = o.strand5p().generator3pStrand()
         for s in gen:
             # print s
-            a += s.length()
+            a += s.totalLength()
         # end for
         if oL != a:
             total_errors += 1
