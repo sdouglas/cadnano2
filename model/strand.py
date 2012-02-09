@@ -821,6 +821,16 @@ class Strand(QObject):
             self.newIdxs = newIdxs
             # an increase in length leads to positive delta
             self.delta = (newIdxs[1] - newIdxs[0]) - (oI[1] - oI[0])
+            # now handle insertion deltas
+            oldInsertions = strand.insertionsOnStrand(*oI)
+            newInsertions = strand.insertionsOnStrand(*newIdxs)
+            oL = 0
+            for i in oldInsertions:
+                oL += i.length()
+            nL = 0
+            for i in newInsertions:
+                nL += i.length()
+            self.delta += (nL-oL)
         # end def
 
         def redo(self):

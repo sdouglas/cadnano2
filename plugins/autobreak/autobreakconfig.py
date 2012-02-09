@@ -57,10 +57,10 @@ class AutobreakConfig(QDialog, autobreakconfig_ui.Ui_Dialog):
             }
             self.handler.win.pathGraphicsView.setViewportUpdateOn(False)
             print "pre verify"
-            autobreak.verifyOligos(part)
+            part.verifyOligos()
             print "breakStaples"
             autobreak.breakStaples(part, settings)
             print "post break verify"
-            autobreak.verifyOligos(part)
+            part.verifyOligos()
             self.handler.win.pathGraphicsView.setViewportUpdateOn(True)
         self.close()

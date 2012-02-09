@@ -22,26 +22,6 @@ def breakStaples(part, settings):
         else:
             breakStaple(o, settings)
 
-def verifyOligos(part):
-    total_errors = 0
-    total_passed = 0
-    for o in list(part.oligos()):
-        oL = o.length()
-        a = 0
-        gen = o.strand5p().generator3pStrand()
-        for s in gen:
-            # print s
-            a += s.totalLength()
-        # end for
-        if oL != a:
-            total_errors += 1
-            print "wtf", total_errors, "oligoL", oL, "strandsL", a, "isStaple?", o.isStaple()
-        else:
-            total_passed += 1
-    # end for
-    print "Total Passed: ", total_passed, "/", total_passed+total_errors
-# end def 
-
 def nxBreakStaple(oligo, settings):
     stapleScorer = settings.get('stapleScorer', tgtLengthStapleScorer)
     minStapleLegLen = settings.get('minStapleLegLen', 2)
@@ -71,18 +51,21 @@ def nxBreakStaple(oligo, settings):
         # end for
     # end if
     # p = Pool(cpu_count() * 2)
-    p = Pool(4)
+    # p = Pool(4)
     # returns ( [breakStart, [breakLengths, ], score], tokenIdx)
-    results = p.map(staplegraph.minimumPath, tokenLists)
+    results = map(staplegraph.minimumPath, tokenLists)
     # results = map(staplegraph.minimumPath, tokenLists)
     # print "teh results", results
     f = itemgetter(0)   # get the graph results
     g = itemgetter(2)    # get the score
-    # so this is 
-    shortestScore, shortestScoreIdx = min(results, key=lambda x: g(f(x)) if x else 10000)
-    breakItems = results[shortestScoreIdx][0][1]
-    # print "daITems", breakItems
-    nxPerformBreaks(oligo, breakItems, tokenList, shortestScoreIdx, minStapleLegLen)
+    # so this is
+    scoreTuple = min(results, key=lambda x: g(f(x)) if x else 10000)
+    # ensure there's at least one result
+    if scoreTuple:
+        shortestScore, shortestScoreIdx = scoreTuple
+        breakItems = results[shortestScoreIdx][0][1]
+        # print "daITems", breakItems
+        nxPerformBreaks(oligo, breakItems, tokenList, shortestScoreIdx, minStapleLegLen)
 # end def
 
 def tokenizeOligo(oligo, settings):

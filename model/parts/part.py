@@ -373,7 +373,7 @@ class Part(QObject):
                     nStrand = neighborSS.getStrand(idx)
                     if strand == None or nStrand == None:
                         continue
-                    part.createXover(strand, idx, nStrand, idx, updateOligo=False)
+                    part.createXover(strand, idx, nStrand, idx, updateOligo=True)
         # print "number oligos pre refresh", len(part.oligos())
     
         c = Part.RefreshOligosCommand(part)
@@ -384,6 +384,28 @@ class Part(QObject):
     
         cmds = []
         util.endSuperMacro(part)
+        
+    # end def
+    
+    def verifyOligos(self):
+        total_errors = 0
+        total_passed = 0
+        for o in list(self.oligos()):
+            oL = o.length()
+            a = 0
+            gen = o.strand5p().generator3pStrand()
+            for s in gen:
+                # print s
+                a += s.totalLength()
+            # end for
+            if oL != a:
+                total_errors += 1
+                print "wtf", total_errors, "oligoL", oL, "strandsL", a, "isStaple?", o.isStaple()
+                o.applyColor('#ff0000')
+            else:
+                total_passed += 1
+        # end for
+        print "Total Passed: ", total_passed, "/", total_passed+total_errors
     # end def
 
     def removeVirtualHelices(self, useUndoStack=True):
@@ -1283,13 +1305,14 @@ class Part(QObject):
                 for strand5 in strand5gen:
                     oligo5 = strand5.oligo()
                     if startOligo == oligo5:
-                        startOligo.setLoop(True)
-                        break
+                        pass
+                        # startOligo.setLoop(True)
+                        # break
                     else:
-                        startOligo.incrementLength(oligo5.length())
-                        oligo5.removeFromPart()
-                        Strand.setOligo(strand5, startOligo)  # emits strandHasNewOligoSignal
-                        startOligo.setStrand5p(strand5)
+                        #startOligo.incrementLength(oligo5.length())
+                        # oligo5.removeFromPart()
+                        # Strand.setOligo(strand5, startOligo)  # emits strandHasNewOligoSignal
+                        # startOligo.setStrand5p(strand5)
                         visited[strand5] = True
                 # end for
 
@@ -1297,18 +1320,23 @@ class Part(QObject):
                 for strand3 in strand3gen:
                     oligo3 = strand3.oligo()
                     if startOligo == oligo3:
-                        startOligo.setLoop(True)
-                        break
+                        pass
+                        # startOligo.setLoop(True)
+                        # break
                     else:
-                        startOligo.incrementLength(oligo3.length())
-                        oligo3.removeFromPart()
-                        Strand.setOligo(strand3, startOligo)  # emits strandHasNewOligoSignal
+                        #startOligo.incrementLength(oligo3.length())
+                        # oligo3.removeFromPart()
+                        # Strand.setOligo(strand3, startOligo)  # emits strandHasNewOligoSignal
                         visited[strand3] = True
                 # end for
+                startOligo.refreshLength()
             # end for
-
+            
+            oligoSet = set()
             for strand in visited.keys():
+                oligoSet.add(strand.oligo())
                 strand.strandUpdateSignal.emit(strand)
+            print "the number of oligos seen:", len(oligoSet), "vs real:", len(self._part.oligos())
         # end def
 
         def undo(self):
