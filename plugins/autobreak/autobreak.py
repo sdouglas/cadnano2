@@ -13,6 +13,8 @@ try:
 except:
     nx = False
 
+token_cache = {}
+
 def breakStaples(part, settings):
     for o in list(part.oligos()):
         if not o.isStaple():
@@ -32,40 +34,61 @@ def nxBreakStaple(oligo, settings):
     tgtStapleLen = settings.get('tgtStapleLen', 35)
     
     tokenList = tokenizeOligo(oligo, settings)
+
     # print "tkList", tokenList, oligo.length(), oligo.color()
     if len(tokenList) == 0:
         return
     
-    staple_limits = [minStapleLen, maxStapleLen, tgtStapleLen] 
-    tokenLists = [(tokenList, staple_limits,0)]
-    tokenCount = tokenList[0]
-    if oligo.isLoop():
-        lenList = len(tokenList)
-        for i in range(1, lenList):
-            if tokenCount > 2*maxStapleLen:
-                break
-            tL = tokenLists[i-1][0]
-            rotatedList =  tL[1:-1] + tL[0:1]   # assumes lenList > 1
-            tokenCount += rotatedList[0]
-            tokenLists.append((rotatedList, staple_limits, i))
-        # end for
-    # end if
-    # p = Pool(cpu_count() * 2)
-    # p = Pool(4)
-    # returns ( [breakStart, [breakLengths, ], score], tokenIdx)
-    results = map(staplegraph.minimumPath, tokenLists)
-    # results = map(staplegraph.minimumPath, tokenLists)
-    # print "teh results", results
-    f = itemgetter(0)   # get the graph results
-    g = itemgetter(2)    # get the score
-    # so this is
-    scoreTuple = min(results, key=lambda x: g(f(x)) if x else 10000)
-    # ensure there's at least one result
-    if scoreTuple:
-        shortestScore, shortestScoreIdx = scoreTuple
-        breakItems = results[shortestScoreIdx][0][1]
-        # print "daITems", breakItems
+    cacheString = stringifyToken(oligo, tokenList)
+    if cacheString in token_cache:
+        print "cacheHit!"
+        breakItems, shortestScoreIdx = token_cache[cacheString]
         nxPerformBreaks(oligo, breakItems, tokenList, shortestScoreIdx, minStapleLegLen)
+    else:
+        staple_limits = [minStapleLen, maxStapleLen, tgtStapleLen] 
+        tokenLists = [(tokenList, staple_limits,0)]
+        tokenCount = tokenList[0]
+        if oligo.isLoop():
+            lenList = len(tokenList)
+            for i in range(1, lenList):
+                if tokenCount > 2*maxStapleLen:
+                    break
+                tL = tokenLists[i-1][0]
+                rotatedList =  tL[1:-1] + tL[0:1]   # assumes lenList > 1
+                tokenCount += rotatedList[0]
+                tokenLists.append((rotatedList, staple_limits, i))
+            # end for
+        # end if
+        # p = Pool(cpu_count() * 2)
+        p = Pool(4)
+        # returns ( [breakStart, [breakLengths, ], score], tokenIdx)
+        results = p.map(staplegraph.minimumPath, tokenLists)
+        # results = map(staplegraph.minimumPath, tokenLists)
+    
+    
+        # print "teh results", results
+        f = itemgetter(0)   # get the graph results
+        g = itemgetter(2)    # get the score
+        # so this is
+        scoreTuple = min(results, key=lambda x: g(f(x)) if x else 10000)
+        # ensure there's at least one result
+        if scoreTuple:
+            shortestScore, shortestScoreIdx = scoreTuple
+            breakItems = results[shortestScoreIdx][0][1]
+            addToTokenCache(cacheString, breakItems, shortestScoreIdx)
+            # print "daITems", breakItems
+            nxPerformBreaks(oligo, breakItems, tokenList, shortestScoreIdx, minStapleLegLen)
+# end def
+
+def addToTokenCache(cacheString, breakItems, shortestScoreIdx):
+    token_cache[cacheString] = (breakItems, shortestScoreIdx)
+# end def
+
+def stringifyToken(oligo, tokenList):
+    cacheString = str(tokenList)
+    if oligo.isLoop():
+        cacheString = 'L' + cacheString
+    return cacheString
 # end def
 
 def tokenizeOligo(oligo, settings):

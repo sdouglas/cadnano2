@@ -373,7 +373,7 @@ class Part(QObject):
                     nStrand = neighborSS.getStrand(idx)
                     if strand == None or nStrand == None:
                         continue
-                    part.createXover(strand, idx, nStrand, idx, updateOligo=True)
+                    part.createXover(strand, idx, nStrand, idx, updateOligo=False)
         # print "number oligos pre refresh", len(part.oligos())
     
         c = Part.RefreshOligosCommand(part)
@@ -1300,35 +1300,28 @@ class Part(QObject):
                     continue
                 visited[strand] = True
                 startOligo = strand.oligo()
-
-                strand5gen = islice(strand.generator5pStrand(), 1, None)  # skip self
+                strand5gen = strand.generator5pStrand()
+                # this gets the oligo and burns a strand in the generator
+                strand5 = strand5gen.next()
                 for strand5 in strand5gen:
                     oligo5 = strand5.oligo()
-                    if startOligo == oligo5:
-                        pass
-                        # startOligo.setLoop(True)
-                        # break
-                    else:
-                        #startOligo.incrementLength(oligo5.length())
-                        # oligo5.removeFromPart()
-                        # Strand.setOligo(strand5, startOligo)  # emits strandHasNewOligoSignal
-                        # startOligo.setStrand5p(strand5)
-                        visited[strand5] = True
+                    oligo5.removeFromPart()
+                    Strand.setOligo(strand5, startOligo)  # emits strandHasNewOligoSignal
+                    visited[strand5] = True
                 # end for
-
-                strand3gen = islice(strand.generator3pStrand(), 1, None)  # skip self
-                for strand3 in strand3gen:
-                    oligo3 = strand3.oligo()
-                    if startOligo == oligo3:
-                        pass
-                        # startOligo.setLoop(True)
-                        # break
-                    else:
-                        #startOligo.incrementLength(oligo3.length())
-                        # oligo3.removeFromPart()
-                        # Strand.setOligo(strand3, startOligo)  # emits strandHasNewOligoSignal
+                startOligo.setStrand5p(strand5)
+                # is it a loop?
+                if strand.connection3p() == strand5:
+                    startOligo.setLoop(True)
+                else:
+                    strand3gen = strand.generator3pStrand()
+                    strand3 = strand3gen.next()   # burn one
+                    for strand3 in strand3gen:
+                        oligo3 = strand3.oligo()
+                        oligo3.removeFromPart()
+                        Strand.setOligo(strand3, startOligo)  # emits strandHasNewOligoSignal
                         visited[strand3] = True
-                # end for
+                    # end for
                 startOligo.refreshLength()
             # end for
             
