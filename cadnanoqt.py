@@ -29,7 +29,7 @@ Created by Jonathan deWerd on 2012-01-11.
 import util, sys, os
 import cadnano
 from code import interact
-util.qtWrapImport('QtGui', globals(),  ['QApplication', 'QIcon',\
+util.qtWrapImport('QtGui', globals(),  ['qApp', 'QApplication', 'QIcon',\
                                         'QUndoGroup'])
 util.qtWrapImport('QtCore', globals(), ['QObject', 'QCoreApplication', 'Qt',\
                                         'QEventLoop', 'pyqtSignal'])
@@ -46,6 +46,8 @@ class CadnanoQt(QObject):
             self.qApp = QApplication(argv)
             assert(QCoreApplication.instance() != None)
             self.qApp.setOrganizationDomain("cadnano.org")
+        else:
+            self.qApp = qApp
         super(CadnanoQt, self).__init__()
         from views.preferences import Preferences
         self.prefs = Preferences()

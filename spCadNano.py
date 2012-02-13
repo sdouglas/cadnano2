@@ -137,6 +137,8 @@ def openCN():
                 x.win.setVisible(True)
     else:
         # begin program
+        import cadnano
+        cadnano.initAppWithGui()
         from cadnano import app as getAppInstance
         gCadNanoApp = getAppInstance(sys.argv)
         gCadNanoApp.initGui()
