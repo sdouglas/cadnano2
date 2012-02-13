@@ -236,8 +236,10 @@ class Strand(QObject):
         for compStrand in compSS._findOverlappingRanges(self):
             compSeq = compStrand.sequence()
             usedSeq = util.comp(compSeq) if compSeq else None
+            # usedSeq = self.setComplementSequence(
+            #                             usedSeq, compStrand, refreshSeq=True)
             usedSeq = self.setComplementSequence(
-                                        usedSeq, compStrand, refreshSeq=True)
+                                        usedSeq, compStrand, refreshSeq=False)
         # end for
     # end def
 
@@ -319,8 +321,9 @@ class Strand(QObject):
         end = start + b + highIdx - lowIdx + 1
         tempSelf[lowIdx - sLowIdx + a:highIdx - sLowIdx + 1 + a + b] = \
                                                                 temp[start:end]
+        # print "old sequence", self._sequence
         self._sequence = tempSelf.tostring()
-
+        
         # if we need to reverse it do it now
         if not self._isDrawn5to3:
             self._sequence = self._sequence[::-1]
@@ -328,6 +331,8 @@ class Strand(QObject):
         # test to see if the string is empty(), annoyingly expensive
         if len(self._sequence.strip()) == 0:
             self._sequence = None
+            
+        # print "new sequence", self._sequence
         return self._sequence
     # end def
 

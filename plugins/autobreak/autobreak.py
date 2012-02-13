@@ -160,7 +160,8 @@ def nxPerformBreaks(oligo, breakItems, tokenList, startingToken, minStapleLegLen
             length0 = sum(tokenList[0:startingToken+1])
             strand, idx, is5to3 = getStrandAtLengthInOligo(strand, length0-minStapleLegLen)
             sS = strand.strandSet()
-            found, overlap, sSIdx = sS._findIndexOfRangeFor(strand)
+            found, sSIdx = sS.getStrandIndex(strand)
+            # found, overlap, sSIdx = sS._findIndexOfRangeFor(strand)
             strand.split(idx, updateSequence=False)
             strand = sS._strandList[sSIdx+1] if is5to3 else sS._strandList[sSIdx]
 
@@ -169,7 +170,8 @@ def nxPerformBreaks(oligo, breakItems, tokenList, startingToken, minStapleLegLen
             if strand.oligo().length() > b:
                 strand, idx, is5to3 = getStrandAtLengthInOligo(strand, b)
                 sS = strand.strandSet()
-                found, overlap, sSIdx = sS._findIndexOfRangeFor(strand)
+                found, sSIdx = sS.getStrandIndex(strand)
+                # found, overlap, sSIdx = sS._findIndexOfRangeFor(strand)
                 strand.split(idx, updateSequence=False)
                 strand = sS._strandList[sSIdx+1] if is5to3 else sS._strandList[sSIdx]
             else:

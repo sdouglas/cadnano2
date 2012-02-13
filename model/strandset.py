@@ -628,6 +628,14 @@ class StrandSet(QObject):
             return
     # end def
 
+    def getStrandIndex(self, strand):
+        try:
+            ind = self._strandList.index(strand)
+            return (True, ind)
+        except ValueError:
+            return (False, 0)
+    # end def
+
     def _findIndexOfRangeFor(self, strand):
         """
         Performs a binary search for strand in self._strandList.
