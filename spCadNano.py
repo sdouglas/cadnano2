@@ -41,6 +41,7 @@ import views.solidview.mayaHotKeys as mayaHotKeys
 import views.solidview.mayaUI as mayaUI
 
 import util
+util.qtFrameworkList = ['PyQt'] # necessary to overide defaults
 util.qtWrapImport('QtGui', globals(), ['qApp', 'QDockWidget', 'QSizePolicy'])
 
 util.qtWrapImport('QtCore', globals(), ['Qt', 'QObject'])
