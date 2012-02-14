@@ -68,6 +68,17 @@ def initAppWithGui(appArgs=sys.argv):
     sharedApp = CadnanoQt(appArgs)
     sharedApp.finishInit()
     return sharedApp
+    
+def initAppMaya(appArgs=sys.argv):
+    import util
+    util.qtFrameworkList = ['PyQt', 'PySide']
+    from cadnanoqt import CadnanoQt
+    global sharedApp
+    global headless
+    headless = False
+    sharedApp = CadnanoQt(appArgs)
+    return sharedApp
+# end def
 
 def path():
     return os.path.abspath(os.path.dirname(__file__))

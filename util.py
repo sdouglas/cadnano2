@@ -46,6 +46,7 @@ prng = Random()
 # The list is defined to consist only of the Dummy qt framework if util is the
 # only module that gets loaded. The main.py of applications actually using qt
 # need to redefine qtFramework to include PyQt and PySide.
+
 qtFrameworkList = ['Dummy']
 chosenQtFramework = None
 def qtWrapImport(name, globaldict, fromlist):

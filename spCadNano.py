@@ -130,8 +130,9 @@ def uninitializePlugin(mobject):
 def openCN():
     global gCadNanoApp
     modifyMayaUI()
-
+    isInit = False
     if gCadNanoApp:
+        print "begin open B"
         for x in gCadNanoApp.documentControllers:
             if x.win:
                 x.windock.setVisible(True)
@@ -139,14 +140,9 @@ def openCN():
     else:
         # begin program
         import cadnano
-        cadnano.initAppWithGui()
-        from cadnano import app as getAppInstance
-        gCadNanoApp = getAppInstance(sys.argv)
-        gCadNanoApp.initGui()
-        if __name__ == '__main__':
-            gCadNanoApp.exec_()
-        #execfile( os.environ['CADNANO_PATH'] + '/mayamain.py')
-
+        gCadNanoApp =  cadnano.initAppMaya()
+        isInit = True
+        
     if gCadNanoApp.activeDocument:
         if hasattr(gCadNanoApp.activeDocument, 'solidHelixGrp'):
             if gCadNanoApp.activeDocument.solidHelixGrp:
@@ -166,7 +162,10 @@ def openCN():
         cmds.setToolTo("spMayaCtxCmd1")
     if not cmds.pluginInfo(hmPath, query=True, loaded=True):
             cmds.loadPlugin(hmPath)
-
+    
+    if isInit:
+        gCadNanoApp.finishInit()
+# end def
 
 def changed(self, event):
     print str(event.type())
