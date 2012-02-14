@@ -132,7 +132,6 @@ def openCN():
     modifyMayaUI()
     isInit = False
     if gCadNanoApp:
-        print "begin open B"
         for x in gCadNanoApp.documentControllers:
             if x.win:
                 x.windock.setVisible(True)

@@ -281,6 +281,8 @@ class Part(QObject):
         cmds = []
 
         # clear existing staple strands
+        print "begin autostaple"
+        part.verifyOligos()
         for o in list(part.oligos()):
             if not o.isStaple():
                 continue
@@ -290,7 +292,7 @@ class Part(QObject):
         util.execCommandList(part, cmds, desc="Clear staples")
         cmds = []
     
-        # print "number oligos post remove 1", len(part.oligos())
+        print "number oligos post remove 1", len(part.oligos())
 
         # create strands that span all bases where scaffold is present
         for vh in part.getVirtualHelices():
@@ -376,6 +378,7 @@ class Part(QObject):
                     part.createXover(strand, idx, nStrand, idx, updateOligo=False)
         # print "number oligos pre refresh", len(part.oligos())
     
+        print "begin refresh oligo"
         c = Part.RefreshOligosCommand(part)
         cmds.append(c)
         util.execCommandList(part, cmds, desc="Assign oligos")
@@ -723,7 +726,7 @@ class Part(QObject):
             self._oligos.remove(oligo)
             # print "totalOligos left", len(self._oligos)
         except KeyError:
-            pass
+            print "error removing oligo", oligo
     # end def
 
     def renumber(self, coordList, useUndoStack=True):
@@ -1295,7 +1298,7 @@ class Part(QObject):
                 for strand in stapSS:
                     visited[strand] = False
 
-            for strand in visited.keys():
+            for strand in list(visited.keys()):
                 if visited[strand]:
                     continue
                 visited[strand] = True
@@ -1305,21 +1308,24 @@ class Part(QObject):
                 strand5 = strand5gen.next()
                 for strand5 in strand5gen:
                     oligo5 = strand5.oligo()
-                    oligo5.removeFromPart()
-                    Strand.setOligo(strand5, startOligo)  # emits strandHasNewOligoSignal
+                    if oligo5 != startOligo:
+                        oligo5.removeFromPart()
+                        Strand.setOligo(strand5, startOligo)  # emits strandHasNewOligoSignal
                     visited[strand5] = True
                 # end for
                 startOligo.setStrand5p(strand5)
                 # is it a loop?
                 if strand.connection3p() == strand5:
+                    print "created a loop"
                     startOligo.setLoop(True)
                 else:
                     strand3gen = strand.generator3pStrand()
                     strand3 = strand3gen.next()   # burn one
                     for strand3 in strand3gen:
                         oligo3 = strand3.oligo()
-                        oligo3.removeFromPart()
-                        Strand.setOligo(strand3, startOligo)  # emits strandHasNewOligoSignal
+                        if oligo3 != startOligo:
+                            oligo3.removeFromPart()
+                            Strand.setOligo(strand3, startOligo)  # emits strandHasNewOligoSignal
                         visited[strand3] = True
                     # end for
                 startOligo.refreshLength()
