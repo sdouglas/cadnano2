@@ -237,7 +237,8 @@ class Oligo(QObject):
 
     def strandMergeUpdate(self, oldStrandLow, oldStrandHigh, newStrand):
         """
-        This method sets the isLoop status of the oligo and the oligo.
+        This method sets the isLoop status of the oligo and the oligo's
+        5' strand.
         """
         # check loop status
         if oldStrandLow.oligo() == oldStrandHigh.oligo():
@@ -248,27 +249,13 @@ class Oligo(QObject):
         # end if
 
         # Now get correct 5p end to oligo
-        # there are four cases, two where it's already correctly set
-        # and two where it needs to be changed, below are the two
-        if oldStrandLow.isDrawn5to3() and self._strand5p == oldStrandHigh:
-            """
-            the oldStrandLow is more 5p than self._strand5p 
-            and the self._strand5p was pointing to the oldHighstrand but 
-            the high strand didn't have priority so make
-            the new strands oligo
-            """
+        if oldStrandLow.isDrawn5to3():
             if oldStrandLow.connection5p() != None:
                 self._strand5p = oldStrandLow.oligo()._strand5p
             else:
                 self._strand5p = newStrand
-        elif not oldStrandHigh.isDrawn5to3() and self._strand5p == oldStrandLow:
-            """
-            the oldStrandHigh is more 5p than self._strand5p 
-            and the self._strand5p was pointing to the oldLowStrand but the 
-            low strand didn't have priority so make
-            the new strands oligo
-            """ 
-            if oldStrandLow.connection5p() != None:
+        else:
+            if oldStrandHigh.connection5p() != None:
                 self._strand5p = oldStrandHigh.oligo()._strand5p
             else:
                 self._strand5p = newStrand

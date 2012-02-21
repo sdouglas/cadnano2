@@ -87,13 +87,13 @@ class SolidRootItem(object):
 
     def selectedChanged(self, strandList, value):
         """is called from Mom when selection changed in 3D"""
-        print "selected changed 3D", strandList, self._selectedDict
+        # print "selected changed 3D", strandList, self._selectedDict
         
         for strand in self._selectedDict.keys():
             # XXX does not work
             self.removeFromSelectionDict(strand)
             temp = self._document.removeStrandFromSelection(strand)
-            print temp, "cupcake"
+            # print temp, "cupcake"
         self._document.updateSelection()
         for strand in strandList:
             self.addToSelectionDict(strand)

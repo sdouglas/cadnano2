@@ -1005,6 +1005,10 @@ class StrandSet(QObject):
             olg = self._newOligo
             lOlg = sL.oligo()
             hOlg = sH.oligo()
+
+            print "start merge redo"
+            sS.part().verifyOligos()
+
             # Remove old strands from the sSet (reusing idx, so order matters)
             sS._removeFromStrandList(sL)
             sS._removeFromStrandList(sH)
@@ -1035,6 +1039,8 @@ class StrandSet(QObject):
             olg.addToPart(sS.part())
             lOlg.removeFromPart()
             hOlg.removeFromPart()
+            print "end merge redo"
+            sS.part().verifyOligos()
 
             # Emit Signals related to destruction and addition
             sL.strandRemovedSignal.emit(sL)
@@ -1086,8 +1092,8 @@ class StrandSet(QObject):
 
             # Emit Signals related to destruction and addition
             nS.strandRemovedSignal.emit(nS)
-            sS.strandRemovedSignal.emit(sH)
             sS.strandsetStrandAddedSignal.emit(sS, sL)
+            sS.strandsetStrandAddedSignal.emit(sS, sH)
         # end def
     # end class
 

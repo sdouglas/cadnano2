@@ -281,8 +281,7 @@ class Part(QObject):
         cmds = []
 
         # clear existing staple strands
-        print "begin autostaple"
-        part.verifyOligos()
+        # part.verifyOligos()
         for o in list(part.oligos()):
             if not o.isStaple():
                 continue
@@ -291,7 +290,7 @@ class Part(QObject):
         # end for
         util.execCommandList(part, cmds, desc="Clear staples")
         cmds = []
-    
+
         print "number oligos post remove 1", len(part.oligos())
 
         # create strands that span all bases where scaffold is present
@@ -376,20 +375,19 @@ class Part(QObject):
                     if strand == None or nStrand == None:
                         continue
                     part.createXover(strand, idx, nStrand, idx, updateOligo=False)
-        # print "number oligos pre refresh", len(part.oligos())
-    
-        print "begin refresh oligo"
+
+        # print "begin refresh oligo"
         c = Part.RefreshOligosCommand(part)
         cmds.append(c)
         util.execCommandList(part, cmds, desc="Assign oligos")
-    
-        # print "number oligos post refresh", len(part.oligos())
-    
+
+        # part.verifyOligos()
+
         cmds = []
         util.endSuperMacro(part)
-        
+
     # end def
-    
+
     def verifyOligos(self):
         total_errors = 0
         total_passed = 0
@@ -484,7 +482,7 @@ class Part(QObject):
 
     def addOligo(self, oligo):
         self._oligos.add(oligo)
-        # print "total Oligos more", len(self._oligos)
+
     # end def
 
     def createVirtualHelix(self, row, col, useUndoStack=True):
@@ -726,6 +724,7 @@ class Part(QObject):
             self._oligos.remove(oligo)
             # print "totalOligos left", len(self._oligos)
         except KeyError:
+            print util.trace(5)
             print "error removing oligo", oligo
     # end def
 
@@ -1316,7 +1315,6 @@ class Part(QObject):
                 startOligo.setStrand5p(strand5)
                 # is it a loop?
                 if strand.connection3p() == strand5:
-                    print "created a loop"
                     startOligo.setLoop(True)
                 else:
                     strand3gen = strand.generator3pStrand()
@@ -1335,7 +1333,6 @@ class Part(QObject):
             for strand in visited.keys():
                 oligoSet.add(strand.oligo())
                 strand.strandUpdateSignal.emit(strand)
-            print "the number of oligos seen:", len(oligoSet), "vs real:", len(self._part.oligos())
         # end def
 
         def undo(self):
