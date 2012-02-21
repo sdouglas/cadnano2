@@ -407,7 +407,6 @@ class Oligo(QObject):
                 strandSet = strand.strandSet()
                 strandSet._doc.removeStrandFromSelection(strand)
                 isInSet, overlap, sSetIdx = strandSet._findIndexOfRangeFor(strand)
-                # print "isInSet", isInSet    
                 sIList.append(sSetIdx)
                 strandSet._strandList.pop(sSetIdx)
                 # Emit a signal to notify on completion
