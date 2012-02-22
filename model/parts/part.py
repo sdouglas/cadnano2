@@ -282,6 +282,7 @@ class Part(QObject):
 
         # clear existing staple strands
         # part.verifyOligos()
+
         for o in list(part.oligos()):
             if not o.isStaple():
                 continue
@@ -290,8 +291,6 @@ class Part(QObject):
         # end for
         util.execCommandList(part, cmds, desc="Clear staples")
         cmds = []
-
-        print "number oligos post remove 1", len(part.oligos())
 
         # create strands that span all bases where scaffold is present
         for vh in part.getVirtualHelices():
@@ -343,8 +342,6 @@ class Part(QObject):
                 cmds.append(c)
         util.execCommandList(part, cmds, desc="Rm tmp strands", useUndoStack=False)
         cmds = []
-    
-        # print "number oligos post remove 2", len(part.oligos())
 
         util.beginSuperMacro(part, desc="Auto-Staple")
 
@@ -374,29 +371,42 @@ class Part(QObject):
                     nStrand = neighborSS.getStrand(idx)
                     if strand == None or nStrand == None:
                         continue
-                    part.createXover(strand, idx, nStrand, idx, updateOligo=False)
+                    if idx in strand.idxs() and idx in nStrand.idxs():
+                        # only install xovers on pre-split strands
+                        part.createXover(strand, idx, nStrand, idx, updateOligo=False)
 
-        # print "begin refresh oligo"
         c = Part.RefreshOligosCommand(part)
         cmds.append(c)
         util.execCommandList(part, cmds, desc="Assign oligos")
-
-        # part.verifyOligos()
 
         cmds = []
         util.endSuperMacro(part)
 
     # end def
 
+    def verifyOligoStrandCounts(self):
+        total_stap_strands = 0
+        stapOligos = set()
+        total_stap_oligos = 0
+
+        for vh in self.getVirtualHelices():
+            stapSS = vh.stapleStrandSet()
+            total_stap_strands += len(stapSS._strandList)
+            for strand in stapSS:
+                stapOligos.add(strand.oligo())
+        print "# stap oligos:", len(stapOligos), "# stap strands:", total_stap_strands
+
+
     def verifyOligos(self):
         total_errors = 0
         total_passed = 0
+
         for o in list(self.oligos()):
             oL = o.length()
             a = 0
             gen = o.strand5p().generator3pStrand()
+
             for s in gen:
-                # print s
                 a += s.totalLength()
             # end for
             if oL != a:
@@ -451,7 +461,6 @@ class Part(QObject):
         if useUndoStack:
             self.undoStack().beginMacro("Delete Part")
         # remove strands and oligos
-        # print "total Oligos before remove", len(self._oligos) 
         self.removeAllOligos(useUndoStack)
         # remove VHs
         vhs = self._coordToVirtualHelix.values()
@@ -621,12 +630,14 @@ class Part(QObject):
                         self.undoStack().endMacro()
                     return
         # end else
+
         e = Part.CreateXoverCommand(self, xoStrand5, idx5p, xoStrand3, idx3p, updateOligo=updateOligo)
         if useUndoStack:
             self.undoStack().push(e)
             self.undoStack().endMacro()
         else:
             e.redo()
+
     # end def
 
     def removeXover(self, strand5p, strand3p, useUndoStack=True):
@@ -722,7 +733,6 @@ class Part(QObject):
         # remove parts from self._oligos)
         try:
             self._oligos.remove(oligo)
-            # print "totalOligos left", len(self._oligos)
         except KeyError:
             print util.trace(5)
             print "error removing oligo", oligo
@@ -1328,7 +1338,7 @@ class Part(QObject):
                     # end for
                 startOligo.refreshLength()
             # end for
-            
+
             oligoSet = set()
             for strand in visited.keys():
                 oligoSet.add(strand.oligo())

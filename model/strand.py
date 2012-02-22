@@ -106,13 +106,19 @@ class Strand(QObject):
         Includes originalCount to check for circular linked list
         """
         originalCount = 0
-        node = self
+        node0 = node = self
         f = attrgetter('_strand5p')
-        while node and originalCount == 0:
+        # while node and originalCount == 0:
+        #     yield node  # equivalent to: node = node._strand5p
+        #     node = f(node)
+        #     if node0 == self:
+        #         originalCount += 1
+        while node:
             yield node  # equivalent to: node = node._strand5p
             node = f(node)
-            if node == self:
-                originalCount += 1
+            if node0 == node:
+                break
+
     # end def
 
     def generator3pStrand(self):
@@ -122,13 +128,13 @@ class Strand(QObject):
         Includes originalCount to check for circular linked list
         """
         originalCount = 0
-        node = self
+        node0 = node = self
         f = attrgetter('_strand3p')
-        while node and originalCount == 0:
-            yield node  # equivalent to: node = node._strand3p
+        while node:
+            yield node  # equivalent to: node = node._strand5p
             node = f(node)
-            if node == self:
-                originalCount += 1
+            if node0 == node:
+                break
     # end def
 
     def strandFilter(self):
