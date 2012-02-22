@@ -814,16 +814,16 @@ class StrandSet(QObject):
             self._strandSet = strandSet
             self._strand = strand
             self._sSetIdx = strandSetIdx
-            
             self._solo = solo
-            
             self._oldStrand5p = strand.connection5p()
             self._oldStrand3p = strand.connection3p()
             self._oligo = olg = strand.oligo()
-            self._newOligo5p = olg.shallowCopy()
-            if olg.isLoop():
+            # only create a new 5p oligo if there is a 3' connection
+            self._newOligo5p = olg.shallowCopy() if self._oldStrand5p else None
+            if olg.isLoop() or self._oldStrand3p == None:
                 self._newOligo3p = olg3p = None
-                self._newOligo5p.setLoop(False)
+                if self._newOligo5p:
+                    self._newOligo5p.setLoop(False)
             else:
                 self._newOligo3p = olg3p = olg.shallowCopy()
                 olg3p.setStrand5p(self._oldStrand3p)
@@ -911,7 +911,8 @@ class StrandSet(QObject):
             
             # Restore the oligo
             oligo.addToPart(strandSet.part())
-            olg5p.removeFromPart()
+            if olg5p:
+                olg5p.removeFromPart()
             if olg3p:
                 olg3p.removeFromPart()
             for s5p in oligo.strand5p().generator3pStrand():
