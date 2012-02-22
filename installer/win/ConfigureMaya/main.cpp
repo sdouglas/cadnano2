@@ -240,11 +240,9 @@ int main(int argc, char* argv[])
 	//Maya Settings by default are stored in
 	//x86: %FOLDERID_Documents%\maya\2012
 	//x64: %FOLDERID_Documents%\maya\2012-x64
-	char szPath[MAX_PATH];
-	HRESULT hr;
-	LPITEMIDLIST pidl;
-	hr = SHGetFolderLocation( NULL, CSIDL_PERSONAL, NULL, 0, &pidl);
-	if (SUCCEEDED(hr) && SHGetPathFromIDList (pidl, (LPSTR)szPath)) {
+	char szPath[MAX_PATH*2];
+	bool success = SHGetSpecialFolderPath( NULL, (LPSTR)szPath, CSIDL_PERSONAL, FALSE );
+	if (success) {
 		
 		string userProfile( szPath );
 		string mayaSettingsPath = userProfile + "\\maya\\2012";
@@ -270,7 +268,6 @@ int main(int argc, char* argv[])
 		cerr << "My Documents folder could not be retrieved." << endl;
 		res = false;
 	}
-	ILFree(pidl);
 
 	cout << "Updating Environment." << endl;
 
