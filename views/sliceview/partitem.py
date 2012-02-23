@@ -272,7 +272,8 @@ class PartItem(QGraphicsItem):
 
     def updateStatusBar(self, statusString):
         """Shows statusString in the MainWindow's status bar."""
-        self.window().statusBar().showMessage(statusString)
+        pass  # disabled for now.
+        # self.window().statusBar().showMessage(statusString, timeout)
 
     def vhAtCoordsChanged(self, row, col):
         self._emptyhelixhash[(row, col)].update()

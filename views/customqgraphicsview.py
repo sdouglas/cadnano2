@@ -328,14 +328,10 @@ class CustomQGraphicsView(QGraphicsView):
             self.sceneRootItem.translate(-self.keyPanDeltaX(),0)
         elif event.key() == Qt.Key_Down:
             self.sceneRootItem.translate(0, -self.keyPanDeltaY())
-        elif event.key() == Qt.Key_1:
-            self.zoomIn(0.6)
-        elif event.key() == Qt.Key_2:
-            self.zoomIn(0.2)
-        elif event.key() == Qt.Key_3:
-            self.zoomIn(0.06)
-        elif event.key() == Qt.Key_4:
-            self.zoomIn(0.02)
+        elif event.key() == Qt.Key_Plus:
+            self.zoomIn(0.3)
+        elif event.key() == Qt.Key_Minus:
+            self.zoomIn(0.03)
         else:
             return QGraphicsView.keyPressEvent(self, event)
         # end else
