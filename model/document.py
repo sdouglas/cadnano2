@@ -140,6 +140,21 @@ class Document(QObject):
     def selectionDict(self):
         return self._selectionDict
     # end def
+    
+    def selectedOligos(self):
+        """
+        as long as one endpoint of a strand is in the selection, then the oligo
+        is considered selected
+        """
+        sDict = self._selectionDict
+        selectedOs = set()
+        for sS in sDict.iterkeys():
+            for strand in sS:
+                 selectedOs.add(strand.oligo())
+            # end for
+        # end for
+        return selectedOs if len(selectedOs) > 0 else None
+    #end def
 
     def isModelSelected(self, obj):
         return obj in self._selectionDict
