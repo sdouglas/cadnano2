@@ -971,14 +971,14 @@ class StrandSet(QObject):
             self._sSet = sSet = pS.strandSet()
             # Store oligos
             self._newOligo = pS.oligo().shallowCopy()
-            self._sLowOligo = sLO = strandLow.oligo()
-            self._sHighOligo = sHO = strandHigh.oligo()
+            self._sLowOligo = sLOlg = strandLow.oligo()
+            self._sHighOligo = sHOlg = strandHigh.oligo()
 
             self._sSetIdx = lowStrandSetIdx
 
             # update the new oligo length if it's not a loop
-            if sLO != sHO:
-                self._newOligo.setLength(sLO.length() + sHO.length())
+            if sLOlg != sHOlg:
+                self._newOligo.setLength(sLOlg.length() + sHOlg.length())
 
             # Create the newStrand by copying the priority strand to
             # preserve its properties
@@ -1034,7 +1034,8 @@ class StrandSet(QObject):
             # Add new oligo and remove old oligos
             olg.addToPart(sS.part())
             lOlg.removeFromPart()
-            hOlg.removeFromPart()
+            if hOlg != lOlg:  # check if a loop was created
+                hOlg.removeFromPart()
 
             # Emit Signals related to destruction and addition
             sL.strandRemovedSignal.emit(sL)
@@ -1082,7 +1083,8 @@ class StrandSet(QObject):
             # Remove new oligo and add old oligos
             olg.removeFromPart()
             lOlg.addToPart(sL.part())
-            hOlg.addToPart(sH.part())
+            if hOlg != lOlg:
+                hOlg.addToPart(sH.part())
 
             # Emit Signals related to destruction and addition
             nS.strandRemovedSignal.emit(nS)

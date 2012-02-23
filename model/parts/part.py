@@ -317,6 +317,7 @@ class Part(QObject):
         # determine where xovers should be installed
         for vh in part.getVirtualHelices():
             stapSS = vh.stapleStrandSet()
+            scafSS = vh.scaffoldStrandSet()
             is5to3 = stapSS.isDrawn5to3()
             potentialXovers = part.potentialCrossoverList(vh)
             for neighborVh, idx, strandType, isLowIdx in potentialXovers:
@@ -329,10 +330,23 @@ class Part(QObject):
                     if strand == None or nStrand == None:
                         continue
                     # check for bases on both strands at [idx-1:idx+3]
-                    if strand.lowIdx() < idx and strand.highIdx() > idx + 1 and\
-                       nStrand.lowIdx() < idx and nStrand.highIdx() > idx + 1:
-                        epDict[stapSS].extend([idx, idx+1])
-                        epDict[neighborSS].extend([idx, idx+1])
+                    if not (strand.lowIdx() < idx and strand.highIdx() > idx + 1):
+                        continue
+                    if not (nStrand.lowIdx() < idx and nStrand.highIdx() > idx + 1):
+                        continue
+
+                    # check for nearby scaffold xovers
+                    scafStrandL = scafSS.getStrand(idx-4)
+                    scafStrandH = scafSS.getStrand(idx+5)
+                    if scafStrandL:
+                        if scafStrandL.hasXoverAt(idx-4):
+                            continue
+                    if scafStrandH:
+                        if scafStrandH.hasXoverAt(idx+5):
+                            continue
+                    # Finally, add the xovers to install
+                    epDict[stapSS].extend([idx, idx+1])
+                    epDict[neighborSS].extend([idx, idx+1])
 
         # clear temporary staple strands
         for vh in part.getVirtualHelices():
