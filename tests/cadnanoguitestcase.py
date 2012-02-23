@@ -24,7 +24,8 @@
 
 from PyQt4.QtCore import *
 from PyQt4.QtGui import *
-from cadnano import app as getAppInstance
+# from cadnano import app as getAppInstance
+import cadnano
 from controllers.documentcontroller import DocumentController
 import tests.guitestcase
 
@@ -42,13 +43,16 @@ class CadnanoGuiTestCase(tests.guitestcase.GUITestCase):
         For GUI Tests, you always have to call setWidget to tell the
         framework what you will be testing.
         """
-        self.app = getAppInstance()
-
-        if not self.app.guiInitialized:  # First test needs to init the gui
-            self.app.initGui()
-            self.documentController = list(self.app.documentControllers)[0]
-        else:  # subsequent tests can just open a new document
-            self.documentController = DocumentController()
+        import sys
+        
+        self.app = cadnano.initAppWithGui()
+        # self.app = getAppInstance()
+        self.documentController = list(self.app.documentControllers)[0]
+        # if not self.app.guiInitialized:  # First test needs to init the gui
+        #     self.app.initGui()
+        #     self.documentController = list(self.app.documentControllers)[0]
+        # else:  # subsequent tests can just open a new document
+        #     self.documentController = DocumentController()
         self.mainWindow = self.documentController.win
 
         # Include this or the automatic build will hang
