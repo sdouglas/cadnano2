@@ -644,7 +644,16 @@ class StrandItem(QGraphicsLineItem):
         """
         mStrand = self._modelStrand
         if mStrand.isScaffold():
-            self._activeTool().applySequence(mStrand.oligo())
+            olgLen, seqLen = self._activeTool().applySequence(mStrand.oligo())
+            if olgLen:
+                msg = "Populated %d of %d scaffold bases." % (min(seqLen, olgLen), olgLen)
+                if olgLen > seqLen:
+                    d = olgLen - seqLen
+                    msg = msg + " Warning: %d bases have no sequence." % d
+                elif olgLen < seqLen:
+                    d = seqLen - olgLen
+                    msg = msg + " Warning: %d sequence bases unused." % d
+                self.partItem().updateStatusBar(msg)
     # end def
     
     def restoreParent(self, pos=None):

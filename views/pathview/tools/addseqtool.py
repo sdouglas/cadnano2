@@ -167,3 +167,5 @@ class AddSeqTool(AbstractPathTool):
             if self.useCustomSequence:
                 self.validatedSequenceToApply = str(self.seqBox.toPlainText().toUpper())
             oligo.applySequence(self.validatedSequenceToApply)
+            return oligo.length(), len(self.validatedSequenceToApply)
+        return (None, None)
