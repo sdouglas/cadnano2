@@ -33,10 +33,8 @@ sys.path.insert(0, '.')
 
 import time
 from PyQt4.QtCore import Qt, QPoint
-# from controllers.documentcontroller import DocumentController
 from data.dnasequences import sequences
 from model.enum import StrandType
-# from model.io.decoder import decode
 from model.virtualhelix import VirtualHelix
 from tests.cadnanoguitestcase import CadnanoGuiTestCase
 import tests.cadnanoguitestcase  # for main()

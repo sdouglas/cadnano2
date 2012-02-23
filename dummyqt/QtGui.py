@@ -1,5 +1,3 @@
-# print "Importing dummy qtgui"
-
 class QUndoCommand(object):
     children = []
     name = "untitled"

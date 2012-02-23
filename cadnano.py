@@ -32,6 +32,9 @@ import os.path
 from glob import glob
 from code import interact
 
+global sharedApp
+sharedApp = None
+
 def ignoreEnv():
     return environ.get('CADNANO_IGNORE_ENV_VARS_EXCEPT_FOR_ME', False)
 
@@ -46,10 +49,8 @@ class HeadlessCadnano(object):
         squareCols = 50
     def isGui(self):
         return False
+# end def
 
-global sharedApp
-sharedApp = None
-# headless = True
 def app(appArgs=None):
     global sharedApp
     if sharedApp != None:
@@ -67,8 +68,6 @@ def initAppWithGui(appArgs=sys.argv):
     util.qtFrameworkList = ['PyQt', 'PySide']
     from cadnanoqt import CadnanoQt
     global sharedApp
-    # global headless
-    # headless = False
     sharedApp = CadnanoQt(appArgs)
     sharedApp.finishInit()
     return sharedApp
@@ -78,8 +77,6 @@ def initAppMaya(appArgs=sys.argv):
     util.qtFrameworkList = ['PyQt', 'PySide']
     from cadnanoqt import CadnanoQt
     global sharedApp
-    # global headless
-    # headless = False
     sharedApp = CadnanoQt(appArgs)
     return sharedApp
 # end def
