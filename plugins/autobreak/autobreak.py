@@ -16,13 +16,17 @@ except:
 token_cache = {}
 
 def breakStaples(part, settings):
-    for o in list(part.oligos()):
+    breakOligos = part.document().selectedOligos()
+    if not breakOligos:
+        breakOligos = part.oligos()
+    for o in list(breakOligos):
         if not o.isStaple():
             continue
         if nx:
             nxBreakStaple(o, settings)
         else:
             breakStaple(o, settings)
+# end def
 
 def nxBreakStaple(oligo, settings):
     stapleScorer = settings.get('stapleScorer', tgtLengthStapleScorer)
