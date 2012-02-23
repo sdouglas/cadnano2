@@ -1,3 +1,5 @@
+print "Importing dummy qtcore"
+
 QObject = object
 
 class Qt(object):

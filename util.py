@@ -47,8 +47,46 @@ prng = Random()
 # only module that gets loaded. The main.py of applications actually using qt
 # need to redefine qtFramework to include PyQt and PySide.
 
-qtFrameworkList = ['Dummy']
+qtFrameworkList = ['PyQt', 'Dummy']
 chosenQtFramework = None
+# def qtWrapImport(name, globaldict, fromlist):
+#     """
+#     special function that allows for the import of PySide or PyQt modules
+#     as available
+# 
+#     name is the name of the Qt top level class such as QtCore, or QtGui
+# 
+#     globaldict is a the module level global namespace dictionary returned from
+#     calling the globals() method
+# 
+#     fromlist is a list of subclasses such as [QFont, QColor], or [QRectF]
+#     """
+#     global qtWrapFramework  # This method is a stub. It gets swapped out for
+#     global qtFrameworkList  # a framework-specific version when called
+#     for trialFmwk in qtFrameworkList:
+#         if trialFmwk == 'Dummy':
+#             qtWrapImport = qtWrapImportFromDummy
+#             return qtWrapImport(name, globaldict, fromlist)
+#         elif trialFmwk == 'PyQt':
+#             try:
+#                 import PyQt4
+#                 chosenQtFramework = 'PyQt'
+#                 qtWrapImport = qtWrapImportFromPyQt
+#                 return qtWrapImport(name, globaldict, fromlist)
+#             except ImportError:
+#                 pass
+#         elif trialFmwk == 'PySide':
+#             try:
+#                 import PySide
+#                 chosenQtFramework = 'PySide'
+#                 qtWrapImport = qtWrapImportFromPySide
+#                 return qtWrapImport(name, globaldict, fromlist)
+#             except ImportError:
+#                 pass
+#         else:
+#             raise NameError('Illegal qt framework %s'%trialFmwk)
+#     assert(False)  # Have not found a suitable qt framework
+
 def qtWrapImport(name, globaldict, fromlist):
     """
     special function that allows for the import of PySide or PyQt modules
@@ -64,10 +102,7 @@ def qtWrapImport(name, globaldict, fromlist):
     global qtWrapFramework  # This method is a stub. It gets swapped out for
     global qtFrameworkList  # a framework-specific version when called
     for trialFmwk in qtFrameworkList:
-        if trialFmwk == 'Dummy':
-            qtWrapImport = qtWrapImportFromDummy
-            return qtWrapImport(name, globaldict, fromlist)
-        elif trialFmwk == 'PyQt':
+        if trialFmwk == 'PyQt':
             try:
                 import PyQt4
                 chosenQtFramework = 'PyQt'
@@ -83,6 +118,9 @@ def qtWrapImport(name, globaldict, fromlist):
                 return qtWrapImport(name, globaldict, fromlist)
             except ImportError:
                 pass
+        elif trialFmwk == 'Dummy':
+            qtWrapImport = qtWrapImportFromDummy
+            return qtWrapImport(name, globaldict, fromlist)
         else:
             raise NameError('Illegal qt framework %s'%trialFmwk)
     assert(False)  # Have not found a suitable qt framework
