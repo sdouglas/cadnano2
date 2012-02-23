@@ -156,6 +156,11 @@ class Oligo(QObject):
     # end def
 
     ### PUBLIC METHODS FOR EDITING THE MODEL ###
+    def remove(self, useUndoStack=True):
+        c = Oligo.RemoveOligoCommand(self)
+        util.execCommandList(self, [c], desc="Color Oligo", useUndoStack=useUndoStack)
+    # end def
+    
     def applyColor(self, color, useUndoStack=True):
         if color == self._color:
             return  # oligo already has color
@@ -226,12 +231,14 @@ class Oligo(QObject):
         before = self.shouldHighlight()
         self._length = length
         if before != self.shouldHighlight():
+            self.oligoSequenceClearedSignal.emit(self)
             self.oligoAppearanceChangedSignal.emit(self)
     # end def
 
     def strandMergeUpdate(self, oldStrandLow, oldStrandHigh, newStrand):
         """
-        This method sets the isLoop status of the oligo and the oligo.
+        This method sets the isLoop status of the oligo and the oligo's
+        5' strand.
         """
         # check loop status
         if oldStrandLow.oligo() == oldStrandHigh.oligo():
@@ -242,27 +249,13 @@ class Oligo(QObject):
         # end if
 
         # Now get correct 5p end to oligo
-        # there are four cases, two where it's already correctly set
-        # and two where it needs to be changed, below are the two
-        if oldStrandLow.isDrawn5to3() and self._strand5p == oldStrandHigh:
-            """
-            the oldStrandLow is more 5p than self._strand5p 
-            and the self._strand5p was pointing to the oldHighstrand but 
-            the high strand didn't have priority so make
-            the new strands oligo
-            """
+        if oldStrandLow.isDrawn5to3():
             if oldStrandLow.connection5p() != None:
                 self._strand5p = oldStrandLow.oligo()._strand5p
             else:
                 self._strand5p = newStrand
-        elif not oldStrandHigh.isDrawn5to3() and self._strand5p == oldStrandLow:
-            """
-            the oldStrandHigh is more 5p than self._strand5p 
-            and the self._strand5p was pointing to the oldLowStrand but the 
-            low strand didn't have priority so make
-            the new strands oligo
-            """ 
-            if oldStrandLow.connection5p() != None:
+        else:
+            if oldStrandHigh.connection5p() != None:
                 self._strand5p = oldStrandHigh.oligo()._strand5p
             else:
                 self._strand5p = newStrand
@@ -370,7 +363,6 @@ class Oligo(QObject):
                 # end for
             # for
 
-            # olg.oligoSequenceClearedSignal.emit(olg)
             for oligo in oligoList:
                 oligo.oligoSequenceAddedSignal.emit(oligo)
         # end def
@@ -397,16 +389,58 @@ class Oligo(QObject):
     # end class
 
     class RemoveOligoCommand(QUndoCommand):
-        def __init__(self, oligo, sequence):
+        def __init__(self,oligo):
             super(Oligo.RemoveOligoCommand, self).__init__()
+            self._oligo = oligo
+            self._part = oligo.part()
+            self._strandIdxList = []
+            self._strand3p = None
         # end def
 
         def redo(self):
-            pass
+            sIList = self._strandIdxList
+            o = self._oligo
+            s5p = o.strand5p()
+            part = self._part 
+            
+            for strand in s5p.generator3pStrand():
+                strandSet = strand.strandSet()
+                strandSet._doc.removeStrandFromSelection(strand)
+                isInSet, overlap, sSetIdx = strandSet._findIndexOfRangeFor(strand)
+                sIList.append(sSetIdx)
+                strandSet._strandList.pop(sSetIdx)
+                # Emit a signal to notify on completion
+                strand.strandRemovedSignal.emit(strand)
+                # for updating the Slice View displayed helices
+                strandSet.part().partStrandChangedSignal.emit(strandSet.part(), strandSet.virtualHelix())
+            # end def
+            # set the 3p strand for the undo
+            self._strand3p = strand
+            
+            # remove Oligo from part but don't set parent to None?
+            # o.removeFromPart()
+            part.removeOligo(o)
         # end def
 
         def undo(self):
-            pass
+            sIList = self._strandIdxList
+            o = self._oligo
+            s3p = self._strand3p
+            part = self._part 
+            
+            for strand in s3p.generator5pStrand():
+                strandSet = strand.strandSet()
+                sSetIdx = sIList.pop(-1)
+                strandSet._strandList.insert(sSetIdx, strand)
+                # Emit a signal to notify on completion
+                strandSet.strandsetStrandAddedSignal.emit(strandSet, strand)
+                # for updating the Slice View displayed helices
+                part.partStrandChangedSignal.emit(strandSet.part(), strandSet.virtualHelix())
+            # end def
+                        
+            # add Oligo to part but don't set parent to None?
+            # o.addToPart(part)
+            part.addOligo(o)
         # end def
     # end class
 # end class

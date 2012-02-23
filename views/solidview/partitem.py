@@ -153,12 +153,12 @@ class PartItem(object):
             vh.updateDecorators()
     # end def
 
-    def partParentChangedSlot(self, part):
+    def partParentChangedSlot(self, sender, part):
         """partParentChangedSlot - empty"""
         pass
     # end def
 
-    def partRemovedSlot(self, part):
+    def partRemovedSlot(self, sender, part):
         """clears out private variables and disconnects signals"""
         # print "solidview.PartItem.partRemovedSlot"
         self._virtualHelixItems = None
@@ -169,36 +169,36 @@ class PartItem(object):
         self._controller = None
     # end def
 
-    def partPreDecoratorSelectedSlot(self, row, col, baseIdx):
+    def partPreDecoratorSelectedSlot(self, sender, row, col, baseIdx):
         """partPreDecoratorSelectedSlot - empty"""
         pass
     # end def
 
-    def partVirtualHelixAddedSlot(self, virtualHelix):
+    def partVirtualHelixAddedSlot(self, sender, virtualHelix):
         """Receives notification when new VitualHelix is added"""
         sh = self.createNewVirtualHelixItem(virtualHelix)
         sh.setModifyState(self.modifyState)
     # end def
 
     @pyqtSlot(tuple)
-    def partVirtualHelixRenumberedSlot(self, coord):
+    def partVirtualHelixRenumberedSlot(self, sender, coord):
         """partVirtualHelixRenumberedSlot - empty"""
         pass
     # end def
 
     @pyqtSlot(tuple)
-    def partVirtualHelixResizedSlot(self, coord):
+    def partVirtualHelixResizedSlot(self, sender, coord):
         """partVirtualHelixResizedSlot - empty"""
         pass
     # end def
 
     @pyqtSlot(list)
-    def partVirtualHelicesReorderedSlot(self, orderedCoordList):
+    def partVirtualHelicesReorderedSlot(self, sender, orderedCoordList):
         """partVirtualHelicesReorderedSlot - empty"""
         pass
     # end def
 
-    def updatePreXoverItemsSlot(self, virtualHelix):
+    def updatePreXoverItemsSlot(self, sender, virtualHelix):
         """updatePreXoverItemsSlot - empty"""
         pass
     # end def

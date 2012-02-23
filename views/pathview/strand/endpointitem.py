@@ -227,8 +227,9 @@ class EndpointItem(QGraphicsPathItem):
         necessary. Stores _moveIdx for future comparison.
         """
         vhiNum = self._strandItem._virtualHelixItem.number()
-        loc = "%d[%d]" % (vhiNum, self.idx())
-        self.partItem().updateStatusBar(loc)
+        oligoLength = self._strandItem._modelStrand.oligo().length()
+        msg = "%d[%d]\tlength: %d" % (vhiNum, self.idx(), oligoLength)
+        self.partItem().updateStatusBar(msg)
 
         activeToolStr = str(self._activeTool())
         if activeToolStr == 'pencilTool':

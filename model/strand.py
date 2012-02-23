@@ -32,7 +32,7 @@ from array import array
 from decorators.insertion import Insertion
 
 # import Qt stuff into the module namespace with PySide, PyQt4 independence
-util.qtWrapImport('QtCore', globals(), ['pyqtSignal', 'QObject', 'Qt'])
+util.qtWrapImport('QtCore', globals(), ['pyqtSignal', 'QObject'])
 util.qtWrapImport('QtGui', globals(), ['QUndoStack', 'QUndoCommand'])
 
 
@@ -106,13 +106,19 @@ class Strand(QObject):
         Includes originalCount to check for circular linked list
         """
         originalCount = 0
-        node = self
+        node0 = node = self
         f = attrgetter('_strand5p')
-        while node and originalCount == 0:
+        # while node and originalCount == 0:
+        #     yield node  # equivalent to: node = node._strand5p
+        #     node = f(node)
+        #     if node0 == self:
+        #         originalCount += 1
+        while node:
             yield node  # equivalent to: node = node._strand5p
             node = f(node)
-            if node == self:
-                originalCount += 1
+            if node0 == node:
+                break
+
     # end def
 
     def generator3pStrand(self):
@@ -122,21 +128,21 @@ class Strand(QObject):
         Includes originalCount to check for circular linked list
         """
         originalCount = 0
-        node = self
+        node0 = node = self
         f = attrgetter('_strand3p')
-        while node and originalCount == 0:
-            yield node  # equivalent to: node = node._strand3p
+        while node:
+            yield node  # equivalent to: node = node._strand5p
             node = f(node)
-            if node == self:
-                originalCount += 1
+            if node0 == node:
+                break
     # end def
 
     def strandFilter(self):
         return self._strandSet.strandFilter()
 
     ### SIGNALS ###
-    strandHasNewOligoSignal = pyqtSignal(QObject)
-    strandRemovedSignal = pyqtSignal(QObject)
+    strandHasNewOligoSignal = pyqtSignal(QObject)  # strand
+    strandRemovedSignal = pyqtSignal(QObject)  # strand
     strandResizedSignal = pyqtSignal(QObject, tuple)
 
     # Parameters: (strand3p, strand5p)
@@ -238,8 +244,10 @@ class Strand(QObject):
         for compStrand in compSS._findOverlappingRanges(self):
             compSeq = compStrand.sequence()
             usedSeq = util.comp(compSeq) if compSeq else None
+            # usedSeq = self.setComplementSequence(
+            #                             usedSeq, compStrand, refreshSeq=True)
             usedSeq = self.setComplementSequence(
-                                        usedSeq, compStrand, refreshSeq=True)
+                                        usedSeq, compStrand, refreshSeq=False)
         # end for
     # end def
 
@@ -321,8 +329,9 @@ class Strand(QObject):
         end = start + b + highIdx - lowIdx + 1
         tempSelf[lowIdx - sLowIdx + a:highIdx - sLowIdx + 1 + a + b] = \
                                                                 temp[start:end]
+        # print "old sequence", self._sequence
         self._sequence = tempSelf.tostring()
-
+        
         # if we need to reverse it do it now
         if not self._isDrawn5to3:
             self._sequence = self._sequence[::-1]
@@ -330,6 +339,8 @@ class Strand(QObject):
         # test to see if the string is empty(), annoyingly expensive
         if len(self._sequence.strip()) == 0:
             self._sequence = None
+            
+        # print "new sequence", self._sequence
         return self._sequence
     # end def
 
@@ -674,9 +685,9 @@ class Strand(QObject):
         self._strandSet = strandSet
     # end def
 
-    def split(self, idx):
+    def split(self, idx, updateSequence=True):
         """Called by view items to split this strand at idx."""
-        self._strandSet.splitStrand(self, idx)
+        self._strandSet.splitStrand(self, idx, updateSequence)
 
     def updateIdxs(self, delta):
         self._baseIdxLow += delta
@@ -759,6 +770,19 @@ class Strand(QObject):
         return idx in self._decorators
     # end def
 
+    def hasInsertion(self):
+        """
+        Iterate through dict of insertions for this strand's virtualhelix
+        and return True of any of the indices overlap with the strand.
+        """
+        coord = self.virtualHelix().coord()
+        insts = self.part().insertions()[coord]
+        for i in range(self._baseIdxLow, self._baseIdxHigh+1):
+            if i in insts:
+                return True
+        return False
+    # end def
+
     def hasInsertionAt(self, idx):
         coord = self.virtualHelix().coord()
         insts = self.part().insertions()[coord]
@@ -810,6 +834,16 @@ class Strand(QObject):
             self.newIdxs = newIdxs
             # an increase in length leads to positive delta
             self.delta = (newIdxs[1] - newIdxs[0]) - (oI[1] - oI[0])
+            # now handle insertion deltas
+            oldInsertions = strand.insertionsOnStrand(*oI)
+            newInsertions = strand.insertionsOnStrand(*newIdxs)
+            oL = 0
+            for i in oldInsertions:
+                oL += i.length()
+            nL = 0
+            for i in newInsertions:
+                nL += i.length()
+            self.delta += (nL-oL)
         # end def
 
         def redo(self):
@@ -824,7 +858,7 @@ class Strand(QObject):
                 std.reapplySequence()
             std.strandResizedSignal.emit(std, nI)
             # for updating the Slice View displayed helices
-            part.partStrandChangedSignal.emit(strandSet.virtualHelix())
+            part.partStrandChangedSignal.emit(part, strandSet.virtualHelix())
             std5p = std.connection5p()
             if std5p:
                 std5p.strandResizedSignal.emit(std5p, std5p.idxs())
@@ -842,7 +876,7 @@ class Strand(QObject):
                 std.reapplySequence()
             std.strandResizedSignal.emit(std, oI)
             # for updating the Slice View displayed helices
-            part.partStrandChangedSignal.emit(strandSet.virtualHelix())
+            part.partStrandChangedSignal.emit(part, strandSet.virtualHelix())
             std5p = std.connection5p()
             if std5p:
                 std5p.strandResizedSignal.emit(std5p, std5p.idxs())

@@ -21,6 +21,7 @@
 # THE SOFTWARE.
 #
 # http://www.opensource.org/licenses/mit-license.php
+import util
 
 class XoverItemController(object):
     def __init__(self, xoverItem, modelStrand5p):

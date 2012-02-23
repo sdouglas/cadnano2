@@ -73,7 +73,7 @@ class StrandSet(QObject):
     # end def
 
     ### SIGNALS ###
-    strandsetStrandAddedSignal = pyqtSignal(QObject)
+    strandsetStrandAddedSignal = pyqtSignal(QObject, QObject)  # strandset, strand
 
     ### SLOTS ###
 
@@ -248,8 +248,8 @@ class StrandSet(QObject):
     def removeAllStrands(self, useUndoStack=True):
         # copy the list because we are going to shrink it and that's
         # a no no with iterators
-        temp = [x for x in self._strandList]
-        for strand in temp:
+        #temp = [x for x in self._strandList]
+        for strand in list(self._strandList):#temp:
             self.removeStrand(strand, 0, useUndoStack, solo=False)
         # end def
 
@@ -302,6 +302,11 @@ class StrandSet(QObject):
             if isInSet:
                 c = StrandSet.SplitCommand(strand, baseIdx, strandSetIdx, updateSequence)
                 util.execCommandList(self, [c], desc="Split", useUndoStack=useUndoStack)
+                return True
+            else:
+                return False
+        else:
+            return False
     # end def
 
     def strandCanBeSplit(self, strand, baseIdx):
@@ -621,6 +626,14 @@ class StrandSet(QObject):
             return
     # end def
 
+    def getStrandIndex(self, strand):
+        try:
+            ind = self._strandList.index(strand)
+            return (True, ind)
+        except ValueError:
+            return (False, 0)
+    # end def
+
     def _findIndexOfRangeFor(self, strand):
         """
         Performs a binary search for strand in self._strandList.
@@ -768,10 +781,9 @@ class StrandSet(QObject):
             if strandSet.isStaple():
                 strand.reapplySequence()
             # Emit a signal to notify on completion
-            strandSet.strandsetStrandAddedSignal.emit(strand)
+            strandSet.strandsetStrandAddedSignal.emit(strandSet, strand)
             # for updating the Slice View displayed helices
-            strandSet.part().partStrandChangedSignal.emit(
-                                                    strandSet.virtualHelix())
+            strandSet.part().partStrandChangedSignal.emit(strandSet.part(), strandSet.virtualHelix())
         # end def
 
         def undo(self):
@@ -788,7 +800,7 @@ class StrandSet(QObject):
             strand.strandRemovedSignal.emit(strand)
             strand.setOligo(None)
             # for updating the Slice View displayed helices
-            strandSet.part().partStrandChangedSignal.emit(strandSet.virtualHelix())
+            strandSet.part().partStrandChangedSignal.emit(strandSet.part(), strandSet.virtualHelix())
         # end def
     # end class
 
@@ -802,20 +814,23 @@ class StrandSet(QObject):
             self._strandSet = strandSet
             self._strand = strand
             self._sSetIdx = strandSetIdx
+            self._solo = solo
             self._oldStrand5p = strand.connection5p()
             self._oldStrand3p = strand.connection3p()
             self._oligo = olg = strand.oligo()
-            self._newOligo5p = olg.shallowCopy()
-            self._newOligo3p = olg3p = olg.shallowCopy()
-            self._solo = solo
-            olg3p.setStrand5p(self._oldStrand3p)
-            colorList = styles.stapColors if strandSet.isStaple() else styles.scafColors
-            color = random.choice(colorList).name()
-            olg3p.setColor(color)
-            olg3p.refreshLength()
-            if olg.isLoop():
-                self._newOligo5p.setLoop(False)
-                olg3p.setLoop(False)
+            # only create a new 5p oligo if there is a 3' connection
+            self._newOligo5p = olg.shallowCopy() if self._oldStrand5p else None
+            if olg.isLoop() or self._oldStrand3p == None:
+                self._newOligo3p = olg3p = None
+                if self._newOligo5p:
+                    self._newOligo5p.setLoop(False)
+            else:
+                self._newOligo3p = olg3p = olg.shallowCopy()
+                olg3p.setStrand5p(self._oldStrand3p)
+                colorList = styles.stapColors if strandSet.isStaple() else styles.scafColors
+                color = random.choice(colorList).name()
+                olg3p.setColor(color)
+                olg3p.refreshLength()
         # end def
 
         def redo(self):
@@ -831,7 +846,8 @@ class StrandSet(QObject):
             olg5p = self._newOligo5p
             olg3p = self._newOligo3p
 
-            oligo.incrementLength(-strand.totalLength())
+            #oligo.incrementLength(-strand.totalLength())
+            
             oligo.removeFromPart()
 
             if strand5p != None:
@@ -853,7 +869,7 @@ class StrandSet(QObject):
                 strand5p.strandUpdateSignal.emit(strand5p)
             # end if
             if strand3p != None:
-                if not olg3p.isLoop():
+                if not oligo.isLoop():
                     # apply 2nd oligo copy to all 3' downstream strands
                     for s3p in strand3p.generator3pStrand():
                         Strand.setOligo(s3p, olg3p)
@@ -868,7 +884,7 @@ class StrandSet(QObject):
             # Emit a signal to notify on completion
             strand.strandRemovedSignal.emit(strand)
             # for updating the Slice View displayed helices
-            strandSet.part().partStrandChangedSignal.emit(strandSet.virtualHelix())
+            strandSet.part().partStrandChangedSignal.emit(strandSet.part(), strandSet.virtualHelix())
         # end def
 
         def undo(self):
@@ -891,20 +907,22 @@ class StrandSet(QObject):
             if strand3p != None:
                 strand3p.setConnection5p(strand)
 
-            oligo.decrementLength(-strand.totalLength())
+            # oligo.decrementLength(strand.totalLength())
+            
             # Restore the oligo
             oligo.addToPart(strandSet.part())
-            olg5p.removeFromPart()
-            olg3p.removeFromPart()
+            if olg5p:
+                olg5p.removeFromPart()
+            if olg3p:
+                olg3p.removeFromPart()
             for s5p in oligo.strand5p().generator3pStrand():
                 Strand.setOligo(s5p, oligo)
             # end for
 
             # Emit a signal to notify on completion
-            strandSet.strandsetStrandAddedSignal.emit(strand)
+            strandSet.strandsetStrandAddedSignal.emit(strandSet, strand)
             # for updating the Slice View displayed helices
-            strandSet.part().partStrandChangedSignal.emit(
-                                                    strandSet.virtualHelix())
+            strandSet.part().partStrandChangedSignal.emit(strandSet.part(), strandSet.virtualHelix())
 
             # Restore connections to this strand
             if strand5p != None:
@@ -986,6 +1004,9 @@ class StrandSet(QObject):
             olg = self._newOligo
             lOlg = sL.oligo()
             hOlg = sH.oligo()
+
+            sS.part().verifyOligos()
+
             # Remove old strands from the sSet (reusing idx, so order matters)
             sS._removeFromStrandList(sL)
             sS._removeFromStrandList(sH)
@@ -1016,11 +1037,12 @@ class StrandSet(QObject):
             olg.addToPart(sS.part())
             lOlg.removeFromPart()
             hOlg.removeFromPart()
+            sS.part().verifyOligos()
 
             # Emit Signals related to destruction and addition
-            sL.strandRemovedSignal.emit(sL)  # out with the old...
-            sH.strandRemovedSignal.emit(sH)  # out with the old...
-            sS.strandsetStrandAddedSignal.emit(nS)  # ...in with the new
+            sL.strandRemovedSignal.emit(sL)
+            sH.strandRemovedSignal.emit(sH)
+            sS.strandsetStrandAddedSignal.emit(sS, nS)
         # end def
 
         def undo(self):
@@ -1066,9 +1088,9 @@ class StrandSet(QObject):
             hOlg.addToPart(sH.part())
 
             # Emit Signals related to destruction and addition
-            nS.strandRemovedSignal.emit(nS)  # out with the new...
-            sS.strandsetStrandAddedSignal.emit(sH)  # ...in with the old
-            sS.strandsetStrandAddedSignal.emit(sL)  # ...in with the old
+            nS.strandRemovedSignal.emit(nS)
+            sS.strandsetStrandAddedSignal.emit(sS, sL)
+            sS.strandsetStrandAddedSignal.emit(sS, sH)
         # end def
     # end class
 
@@ -1197,9 +1219,9 @@ class StrandSet(QObject):
                 hOlg.addToPart(sH.part())
 
             # Emit Signals related to destruction and addition
-            oS.strandRemovedSignal.emit(oS)  # out with the old...
-            sS.strandsetStrandAddedSignal.emit(sH)  # ...in with the new
-            sS.strandsetStrandAddedSignal.emit(sL)  # ...in with the new
+            oS.strandRemovedSignal.emit(oS)
+            sS.strandsetStrandAddedSignal.emit(sS, sH)
+            sS.strandsetStrandAddedSignal.emit(sS, sL)
         # end def
 
         def undo(self):
@@ -1245,9 +1267,9 @@ class StrandSet(QObject):
                 hOlg.removeFromPart()
 
             # Emit Signals related to destruction and addition
-            sL.strandRemovedSignal.emit(sL)  # out with the new...
-            sH.strandRemovedSignal.emit(sH)  # out with the new...
-            sS.strandsetStrandAddedSignal.emit(oS)  # ...in with the old
+            sL.strandRemovedSignal.emit(sL)
+            sH.strandRemovedSignal.emit(sH)
+            sS.strandsetStrandAddedSignal.emit(sS, oS)
         # end def
     # end class
 

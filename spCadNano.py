@@ -41,6 +41,7 @@ import views.solidview.mayaHotKeys as mayaHotKeys
 import views.solidview.mayaUI as mayaUI
 
 import util
+util.qtFrameworkList = ['PyQt'] # necessary to overide defaults
 util.qtWrapImport('QtGui', globals(), ['qApp', 'QDockWidget', 'QSizePolicy'])
 
 util.qtWrapImport('QtCore', globals(), ['Qt', 'QObject'])
@@ -129,7 +130,7 @@ def uninitializePlugin(mobject):
 def openCN():
     global gCadNanoApp
     modifyMayaUI()
-
+    isInit = False
     if gCadNanoApp:
         for x in gCadNanoApp.documentControllers:
             if x.win:
@@ -137,13 +138,10 @@ def openCN():
                 x.win.setVisible(True)
     else:
         # begin program
-        from cadnano import app as getAppInstance
-        gCadNanoApp = getAppInstance(sys.argv)
-        gCadNanoApp.initGui()
-        if __name__ == '__main__':
-            gCadNanoApp.exec_()
-        #execfile( os.environ['CADNANO_PATH'] + '/mayamain.py')
-
+        import cadnano
+        gCadNanoApp =  cadnano.initAppMaya()
+        isInit = True
+        
     if gCadNanoApp.activeDocument:
         if hasattr(gCadNanoApp.activeDocument, 'solidHelixGrp'):
             if gCadNanoApp.activeDocument.solidHelixGrp:
@@ -163,7 +161,10 @@ def openCN():
         cmds.setToolTo("spMayaCtxCmd1")
     if not cmds.pluginInfo(hmPath, query=True, loaded=True):
             cmds.loadPlugin(hmPath)
-
+    
+    if isInit:
+        gCadNanoApp.finishInit()
+# end def
 
 def changed(self, event):
     print str(event.type())

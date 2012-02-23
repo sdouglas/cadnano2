@@ -49,6 +49,7 @@ class DocumentController():
         """docstring for __init__"""
         # initialize variables
         self._document = Document()
+        self._document.setController(self)
         self._activePart = None
         self._filename = None
         self._fileOpenPath = None  # will be set in _readSettings
@@ -72,6 +73,7 @@ class DocumentController():
     def _initWindow(self):
         """docstring for initWindow"""
         self.win = DocumentWindow(docCtrlr=self)
+        app().documentWindowWasCreatedSignal.emit(self._document, self.win)
         self._connectWindowSignalsToSelf()
         self.win.show()
 
@@ -440,6 +442,9 @@ class DocumentController():
     ### ACCESSORS ###
     def document(self):
         return self._document
+
+    def window(self):
+        return self.win
 
     def setDocument(self, doc):
         """

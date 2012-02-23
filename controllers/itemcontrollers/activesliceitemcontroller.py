@@ -21,7 +21,7 @@
 # THE SOFTWARE.
 #
 # http://www.opensource.org/licenses/mit-license.php
-
+import util
 
 class ActiveSliceItemController(object):
     def __init__(self, activeSliceItem, modelPart):

@@ -92,7 +92,7 @@ class ActiveSliceItem(QGraphicsRectItem):
     # end def
 
     ### SLOTS ###
-    def strandChangedSlot(self, vh):
+    def strandChangedSlot(self, sender, vh):
         pass
     # end def
 

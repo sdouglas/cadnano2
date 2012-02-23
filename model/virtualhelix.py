@@ -56,7 +56,8 @@ class VirtualHelix(QObject):
         # setNumber just routes the call to the parent
         # dnapart if one is present. If self._part == None
         # the virtualhelix owns self._number and may modify it.
-        self._number = idnum
+        self._number = None
+        self.setNumber(idnum)
     # end def
 
     def __repr__(self):
@@ -69,6 +70,14 @@ class VirtualHelix(QObject):
     ### SLOTS ###
 
     ### ACCESSORS ###
+    def scaf(self, idx):
+        """ Returns the strand at idx in self's scaffold, if any """
+        return self._scafStrandSet.getStrand(idx)
+
+    def stap(self, idx):
+        """ Returns the strand at idx in self's scaffold, if any """
+        return self._stapStrandSet.getStrand(idx)
+
     def coord(self):
         return self._coord
     # end def
@@ -87,8 +96,11 @@ class VirtualHelix(QObject):
     
     def setNumber(self, number):
         if self._number != number:
+            numToVhDict = self._part._numberToVirtualHelix
+            numToVhDict[self._number] = None
             self._number = number
             self.virtualHelixNumberChangedSignal.emit(self, number)
+            numToVhDict[number] = self
     # end def
 
     def setPart(self, newPart):
@@ -109,6 +121,9 @@ class VirtualHelix(QObject):
     # end def
 
     ### METHODS FOR QUERYING THE MODEL ###
+    def scaffoldIsOnTop(self):
+        return self.isEvenParity()
+
     def getStrandSetByIdx(self, idx):
         """
         This is a path-view-specific accessor
@@ -263,7 +278,7 @@ class VirtualHelix(QObject):
             # vh.setNumber(idNum)
             if not vh.number():
                 part._reserveHelixIDNumber(self._parityEven, requestedIDnum=idNum)
-            part.partVirtualHelixAddedSignal.emit(vh)
+            part.partVirtualHelixAddedSignal.emit(part, vh)
             part.partActiveSliceResizeSignal.emit(part)
         # end def
     # end class

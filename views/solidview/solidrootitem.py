@@ -52,7 +52,7 @@ class SolidRootItem(object):
         self._selectedDict = {}
 
     ### SLOTS ###
-    def partAddedSlot(self, modelPart):
+    def partAddedSlot(self, sender, modelPart):
         """
         Receives notification from the model that a part has been added.
         """
@@ -93,7 +93,6 @@ class SolidRootItem(object):
         # print "selected changed 3D", strandList, self._selectedDict
         if len(strandList) == 0 and len(self._selectedDict) == 0:
             return
-
         for strand in self._selectedDict.keys():
             self.removeFromSelectionDict(strand)
             temp = self._document.removeStrandFromSelection(strand)

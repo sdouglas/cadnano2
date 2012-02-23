@@ -71,6 +71,7 @@ class XoverNode3(QGraphicsRectItem):
         self.setPen(QPen(Qt.NoPen))
         self.setBrush(_nobrush)
         self.setRect(_rect)
+        self.setZValue(styles.ZXOVERITEM)
     # end def
 
 
@@ -258,7 +259,6 @@ class XoverItem(QGraphicsPathItem):
         self._node5 = None
         self._node3 = None
         self.hide()
-        self.setFlag(QGraphicsItem.ItemStacksBehindParent)
         self.setFlag(QGraphicsItem.ItemIsSelectable)
         
         # for easier mouseclick
@@ -481,10 +481,12 @@ class XoverItem(QGraphicsPathItem):
         Special case for xovers and select tool, for now
         """
         if str(self.activeTool()) == "selectTool":
+            event.setAccepted(False)
             sI = self._strandItem
             viewroot = sI.viewroot()
             currentFilterDict = viewroot.selectionFilterDict()
             if sI.strandFilter() in currentFilterDict and self._filterName in currentFilterDict:
+                event.setAccepted(True)
                 selectionGroup = viewroot.strandItemSelectionGroup()
                 mod = Qt.MetaModifier
                 if not (event.modifiers() & mod):
@@ -495,7 +497,7 @@ class XoverItem(QGraphicsPathItem):
                 selectionGroup.processPendingToAddList()
                 return selectionGroup.mousePressEvent(event)
         else:
-            return QGraphicsPathItem.mousePressEvent(self, event)
+            event.setAccepted(False)
     # end def 
     
     def eraseToolMousePress(self):

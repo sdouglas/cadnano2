@@ -110,7 +110,7 @@ class VirtualHelixItem(QGraphicsEllipseItem):
         self.scene().removeItem(self)
     # end def
 
-    def strandAddedSlot(self, strand):
+    def strandAddedSlot(self, sender, strand):
         pass
     # end def
 

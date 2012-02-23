@@ -43,13 +43,15 @@ class PathRootItem(QGraphicsRectItem):
     PathRootItem must instantiate its own controller to receive signals
     from the model.
     """
+    findChild = util.findChild  # for debug
+
     def __init__(self, rect, parent, window, document):
         super(PathRootItem, self).__init__(rect, parent)
         self._window = window
         self._document = document
         self._controller = ViewRootController(self, document)
         self._modelPart = None
-        self._partItems = []
+        self._partItemForPart = {}  # Maps Part -> PartItem
         self._selectionFilterDict = {}
         self._initSelections()
     # end def
@@ -57,7 +59,13 @@ class PathRootItem(QGraphicsRectItem):
     ### SIGNALS ###
 
     ### SLOTS ###
-    def partAddedSlot(self, modelPart):
+    def partItems(self):
+        return self._partItemForPart.values()
+
+    def partItemForPart(self, part):
+        return self._partItemForPart[part]
+    
+    def partAddedSlot(self, sender, modelPart):
         """
         Receives notification from the model that a part has been added.
         The Pathview doesn't need to do anything on part addition, since
@@ -70,7 +78,7 @@ class PathRootItem(QGraphicsRectItem):
                             viewroot=self, \
                             activeTool=win.pathToolManager.activeTool,\
                             parent=self)
-        self._partItems.append(partItem)
+        self._partItemForPart[modelPart] = partItem
         win.pathToolManager.setActivePart(partItem)
         self.setModifyState(win.actionModify.isChecked())
     # end def
@@ -136,13 +144,14 @@ class PathRootItem(QGraphicsRectItem):
     def getSelectedPartOrderedVHList(self):
         """Used for encoding."""
         selectedPart = self._document.selectedPart()
-        for partItem in self._partItems:
-            if partItem._modelPart == selectedPart:
-                return partItem.getOrderedVirtualHelixList()
+        return self._partItemForPart[selectedPart].getOrderedVirtualHelixList()
     # end def
 
     def removePartItem(self, partItem):
-        self._partItems.remove(partItem)
+        for k in self._partItemForPart.iterkeys():
+            if k==partItem:
+                del self._partItemForPart[k]
+                return
     # end def
 
     def resetDocumentAndController(self, document):
@@ -153,7 +162,7 @@ class PathRootItem(QGraphicsRectItem):
 
     def setModifyState(self, bool):
         """docstring for setModifyState"""
-        for partItem in self._partItems:
+        for partItem in self._partItemForPart.itervalues():
             partItem.setModifyState(bool)
     # end def
 

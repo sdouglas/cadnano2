@@ -474,6 +474,8 @@ class StrandItem(QGraphicsLineItem):
         toolMethodName =  activeToolStr + "MousePress"
         if hasattr(self, toolMethodName):
             getattr(self, toolMethodName)(event, idx)
+        else:
+            event.setAccepted(False)
     # end def
 
     def mouseMoveEvent(self, event):
@@ -498,7 +500,8 @@ class StrandItem(QGraphicsLineItem):
         """
         vhiNum = self._virtualHelixItem.number()
         idx = int(floor((event.pos().x()) / _baseWidth))
-        self.partItem().updateStatusBar("%d[%d]" % (vhiNum, idx))
+        oligoLength = self._modelStrand.oligo().length()
+        self.partItem().updateStatusBar("%d[%d]\tlength: %d" % (vhiNum, idx, oligoLength))
         toolMethodName = str(self._activeTool()) + "HoverMove"
         if hasattr(self, toolMethodName):
             getattr(self, toolMethodName)(idx)
@@ -531,6 +534,7 @@ class StrandItem(QGraphicsLineItem):
     # end def
 
     def selectToolMousePress(self, event, idx):
+        event.setAccepted(False)
         currentFilterDict = self._viewroot.selectionFilterDict()
         if self.strandFilter() in currentFilterDict and self._filterName in currentFilterDict:
             selectionGroup = self._viewroot.strandItemSelectionGroup()
@@ -542,6 +546,7 @@ class StrandItem(QGraphicsLineItem):
             selectionGroup.pendToAdd(self._lowCap)
             selectionGroup.pendToAdd(self._highCap)
             selectionGroup.processPendingToAddList()
+            event.setAccepted(True)
             return selectionGroup.mousePressEvent(event)
     # end def
 

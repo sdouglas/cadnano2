@@ -26,14 +26,17 @@ import json
 from exceptions import ImportError
 from legacydecoder import import_legacy_dict
 from ui.dialogs.ui_latticetype import Ui_LatticeType
-import util
-util.qtWrapImport('QtGui', globals(),  ['QDialog', 'QDialogButtonBox'])
+import util, cadnano
+if not cadnano.headless:
+    from ui.dialogs.ui_latticetype import Ui_LatticeType
+    util.qtWrapImport('QtGui', globals(),  ['QDialog', 'QDialogButtonBox'])
 
 
 def decode(document, string):
-    dialog = QDialog()
-    dialogLT = Ui_LatticeType()  # reusing this dialog, should rename
-    dialogLT.setupUi(dialog)
+    if not cadnano.headless:
+        dialog = QDialog()
+        dialogLT = Ui_LatticeType()  # reusing this dialog, should rename
+        dialogLT.setupUi(dialog)
 
     # try:  # try to do it fast
     #     try:

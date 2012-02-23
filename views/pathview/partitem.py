@@ -47,8 +47,14 @@ _baseWidth = _bw = styles.PATH_BASE_WIDTH
 _defaultRect = QRectF(0, 0, _baseWidth, _baseWidth)
 _modPen = QPen(styles.bluestroke)
 
+class ProxyParentItem(QGraphicsRectItem):
+    """an invisible container that allows one to play with Z-ordering"""
+    findChild = util.findChild  # for debug
+
 
 class PartItem(QGraphicsRectItem):
+    findChild = util.findChild  # for debug
+
     def __init__(self, modelPart, viewroot, activeTool, parent):
         """parent should always be pathrootitem"""
         super(PartItem, self).__init__(parent)
@@ -65,7 +71,7 @@ class PartItem(QGraphicsRectItem):
         self.setAcceptHoverEvents(True)
         self._initModifierRect()
         self._initResizeButtons()
-        self._proxyParent = QGraphicsRectItem(self)
+        self._proxyParent = ProxyParentItem(self)
         self._proxyParent.setFlag(QGraphicsItem.ItemHasNoContents)
     # end def
     
@@ -91,16 +97,21 @@ class PartItem(QGraphicsRectItem):
         self._removeBasesButton.hide()
     # end def
 
+    def vhItemForVH(self, vhref):
+        """Returns the pathview VirtualHelixItem corresponding to vhref"""
+        vh = self._modelPart.virtualHelix(vhref)
+        return self._virtualHelixHash.get(vh.coord())
+
     ### SIGNALS ###
 
     ### SLOTS ###
-    def partParentChangedSlot(self):
+    def partParentChangedSlot(self, sender):
         """docstring for partParentChangedSlot"""
         # print "PartItem.partParentChangedSlot"
         pass
     # end def
 
-    def partHideSlot(self, part):
+    def partHideSlot(self, sender):
         self.hide()
     # end def
 
@@ -120,7 +131,7 @@ class PartItem(QGraphicsRectItem):
         self._updateBoundingRect()
     # end def
 
-    def partRemovedSlot(self):
+    def partRemovedSlot(self, sender):
         """docstring for partRemovedSlot"""
         self._activeSliceItem.removed()
         self.parentItem().removePartItem(self)
@@ -133,7 +144,7 @@ class PartItem(QGraphicsRectItem):
         self._controller = None
     # end def
 
-    def partPreDecoratorSelectedSlot(self, row, col, baseIdx):
+    def partPreDecoratorSelectedSlot(self, sender, row, col, baseIdx):
         """docstring for partPreDecoratorSelectedSlot"""
         part = self._modelPart
         vh = part.virtualHelixAtCoord((row,col))
@@ -149,7 +160,7 @@ class PartItem(QGraphicsRectItem):
             self._modRect.show()
     # end def
 
-    def partVirtualHelixAddedSlot(self, modelVirtualHelix):
+    def partVirtualHelixAddedSlot(self, sender, modelVirtualHelix):
         """
         When a virtual helix is added to the model, this slot handles
         the instantiation of a virtualhelix item.
@@ -163,7 +174,7 @@ class PartItem(QGraphicsRectItem):
         self._updateBoundingRect()
     # end def
 
-    def partVirtualHelixRenumberedSlot(self, coord):
+    def partVirtualHelixRenumberedSlot(self, sender, coord):
         """Notifies the virtualhelix at coord to change its number"""
         vh = self._virtualHelixHash[coord]
         # check for new number
@@ -173,13 +184,13 @@ class PartItem(QGraphicsRectItem):
         pass
     # end def
 
-    def partVirtualHelixResizedSlot(self, coord):
+    def partVirtualHelixResizedSlot(self, sender, coord):
         """Notifies the virtualhelix at coord to resize."""
         vh = self._virtualHelixHash[coord]
         vh.resize()
     # end def
 
-    def partVirtualHelicesReorderedSlot(self, orderedCoordList):
+    def partVirtualHelicesReorderedSlot(self, sender, orderedCoordList):
         """docstring for partVirtualHelicesReorderedSlot"""
         newList = self._virtualHelixItemList
         decorated = [(orderedCoordList.index(vhi.coord()), vhi)\
@@ -189,7 +200,7 @@ class PartItem(QGraphicsRectItem):
         self._setVirtualHelixItemList(newList)
     # end def
 
-    def updatePreXoverItemsSlot(self, virtualHelix):
+    def updatePreXoverItemsSlot(self, sender, virtualHelix):
         part = self.part()
         if virtualHelix == None:
             self.setPreXoverItemsVisible(None)

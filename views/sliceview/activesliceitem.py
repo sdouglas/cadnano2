@@ -49,7 +49,7 @@ class ActiveSliceItem(QGraphicsRectItem):
     # end def
 
     ### SLOTS ###
-    def strandChangedSlot(self, vh):
+    def strandChangedSlot(self, sender, vh):
         if vh == None:
             return
         partItem = self._partItem
@@ -58,7 +58,7 @@ class ActiveSliceItem(QGraphicsRectItem):
         vhi.setActiveSliceView(isActiveNow)
     # end def
 
-    def updateIndexSlot(self, newActiveSliceZIndex):
+    def updateIndexSlot(self, sender, newActiveSliceZIndex):
         part = self.part()
         if part.numberOfVirtualHelices() == 0:
             return

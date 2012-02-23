@@ -97,20 +97,23 @@ class PartItem(QGraphicsItem):
     ### SIGNALS ###
 
     ### SLOTS ###
-    def partDimensionsChangedSlot(self, part):
+    def partActiveVirtualHelixChangedSlot(self, part, virtualHelix):
+        pass
+
+    def partDimensionsChangedSlot(self, sender):
         pass
     # end def
 
-    def partHideSlot(self, part):
+    def partHideSlot(self, sender):
         self.hide()
     # end def
 
-    def partParentChangedSlot(self):
+    def partParentChangedSlot(self, sender):
         """docstring for partParentChangedSlot"""
         # print "PartItem.partParentChangedSlot"
         pass
 
-    def partRemovedSlot(self):
+    def partRemovedSlot(self, sender):
         """docstring for partRemovedSlot"""
         self._activeSliceItem.removed()
         self.parentItem().removePartItem(self)
@@ -136,11 +139,11 @@ class PartItem(QGraphicsItem):
         self._controller = None
     # end def
 
-    def partVirtualHelicesReorderedSlot(self, orderedCoordList):
+    def partVirtualHelicesReorderedSlot(self, sender, orderedCoordList):
         pass
     # end def
 
-    def partPreDecoratorSelectedSlot(self, row, col, baseIdx):
+    def partPreDecoratorSelectedSlot(self, sender, row, col, baseIdx):
         """docstring for partPreDecoratorSelectedSlot"""
         vhi = self.getVirtualHelixItemByCoord(row, col)
         view = self.window().sliceGraphicsView
@@ -154,7 +157,7 @@ class PartItem(QGraphicsItem):
             mC.show()
     # end def
 
-    def partVirtualHelixAddedSlot(self, virtualHelix):
+    def partVirtualHelixAddedSlot(self, sender, virtualHelix):
         vh = virtualHelix
         coords = vh.coord()
         emptyHelixItem = self._emptyhelixhash[coords]
@@ -163,15 +166,15 @@ class PartItem(QGraphicsItem):
         self._virtualHelixHash[coords] = vhi
     # end def
 
-    def partVirtualHelixRenumberedSlot(self, coord):
+    def partVirtualHelixRenumberedSlot(self, sender, coord):
         pass
     # end def
 
-    def partVirtualHelixResizedSlot(self, coord):
+    def partVirtualHelixResizedSlot(self, sender, coord):
         pass
     # end def
 
-    def updatePreXoverItemsSlot(self, virtualHelix):
+    def updatePreXoverItemsSlot(self, sender, virtualHelix):
         pass
     # end def
 

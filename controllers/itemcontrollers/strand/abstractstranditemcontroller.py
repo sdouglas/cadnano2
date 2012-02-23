@@ -23,6 +23,7 @@
 # http://www.opensource.org/licenses/mit-license.php
 
 from exceptions import NotImplementedError
+import util
 # from controllers.itemcontrollers.abstractitemcontroller import AbstractItemController
 
 
@@ -71,7 +72,6 @@ class AbstractStrandItemController(object):
         sI = self._strandItem
         mO = self._modelStrand.oligo()
         self._modelOligo = mO
-
         mO.oligoAppearanceChangedSignal.connect(sI.oligoAppearanceChangedSlot)
     # end def
 

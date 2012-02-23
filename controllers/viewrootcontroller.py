@@ -22,7 +22,6 @@
 #
 # http://www.opensource.org/licenses/mit-license.php
 
-
 class ViewRootController():
     def __init__(self, viewRoot, modelDocument):
         self._viewRoot = viewRoot
