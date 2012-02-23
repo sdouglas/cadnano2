@@ -23,7 +23,6 @@
 # http://www.opensource.org/licenses/mit-license.php
 
 from collections import defaultdict
-from cadnano import app
 from model.document import Document
 from model.enum import LatticeType, StrandType
 from model.parts.honeycombpart import HoneycombPart
@@ -93,7 +92,6 @@ def import_legacy_dict(document, obj, latticeType=LatticeType.Honeycomb):
         steps = numBases/21
         nRows = max(30, maxRowJson, cadnano.app().prefs.honeycombRows)
         nCols = max(32, maxColJson, cadnano.app().prefs.honeycombCols)
-
         part = HoneycombPart(document=document, maxRow=nRows, maxCol=nCols, maxSteps=steps)
     elif latticeType == LatticeType.Square:
         isSQ100 = True  # check for custom SQ100 format
@@ -110,8 +108,8 @@ def import_legacy_dict(document, obj, latticeType=LatticeType.Honeycomb):
         else:
             nRows, nCols = 40, 30
         steps = numBases/32
-        nRows = max(nRows, maxRowJson, cadnano.app().prefs.squareRows)
-        nCols = max(nCols, maxColJson, cadnano.app().prefs.squareCols)
+        nRows = max(30, maxRowJson, cadnano.app().prefs.squareRows)
+        nCols = max(32, maxColJson, cadnano.app().prefs.squareCols)
         part = SquarePart(document=document, maxRow=nRows, maxCol=nCols, maxSteps=steps)
     else:
         raise TypeError("Lattice type not recognized")
@@ -216,14 +214,14 @@ def import_legacy_dict(document, obj, latticeType=LatticeType.Honeycomb):
             strand5p = scafStrandSet.getStrand(idx5p)
             toVh = part.virtualHelixAtCoord(vhNumToCoord[toVhNum])
             strand3p = toVh.scaffoldStrandSet().getStrand(idx3p)
-            part.createXover(strand5p, idx5p, strand3p, idx3p, updateActive=False, useUndoStack=False)
+            part.createXover(strand5p, idx5p, strand3p, idx3p, useUndoStack=False)
         # install staple xovers
         for (idx5p, toVhNum, idx3p) in stap_xo[vhNum]:
             # idx3p is 3' end of strand5p, idx5p is 5' end of strand3p
             strand5p = stapStrandSet.getStrand(idx5p)
             toVh = part.virtualHelixAtCoord(vhNumToCoord[toVhNum])
             strand3p = toVh.stapleStrandSet().getStrand(idx3p)
-            part.createXover(strand5p, idx5p, strand3p, idx3p, updateActive=False, useUndoStack=False)
+            part.createXover(strand5p, idx5p, strand3p, idx3p, useUndoStack=False)
 
     # SET DEFAULT COLOR
     for oligo in part.oligos():

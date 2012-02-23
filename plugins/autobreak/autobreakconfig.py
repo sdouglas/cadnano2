@@ -56,11 +56,11 @@ class AutobreakConfig(QDialog, autobreakconfig_ui.Ui_Dialog):
                 'maxStapleLen'    : self.maxLengthSpinBox.value(),\
             }
             self.handler.win.pathGraphicsView.setViewportUpdateOn(False)
-            print "pre verify"
-            part.verifyOligos()
-            print "breakStaples"
+            # print "pre verify"
+            # part.verifyOligos()
+            # print "breakStaples"
             autobreak.breakStaples(part, settings)
-            print "post break verify"
-            part.verifyOligos()
+            # print "post break verify"
+            # part.verifyOligos()
             self.handler.win.pathGraphicsView.setViewportUpdateOn(True)
         self.close()
