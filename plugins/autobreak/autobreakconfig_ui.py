@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'autobreakconfig.ui'
 #
-# Created: Tue Jan 31 18:54:50 2012
+# Created: Thu Feb 23 18:19:32 2012
 #      by: PyQt4 UI code generator 4.8.6
 #
 # WARNING! All changes made in this file will be lost!
@@ -86,6 +86,10 @@ class Ui_Dialog(object):
         QtCore.QObject.connect(self.buttonBox, QtCore.SIGNAL(_fromUtf8("accepted()")), Dialog.accept)
         QtCore.QObject.connect(self.buttonBox, QtCore.SIGNAL(_fromUtf8("rejected()")), Dialog.reject)
         QtCore.QMetaObject.connectSlotsByName(Dialog)
+        Dialog.setTabOrder(self.targetLengthSpinBox, self.minLengthSpinBox)
+        Dialog.setTabOrder(self.minLengthSpinBox, self.maxLengthSpinBox)
+        Dialog.setTabOrder(self.maxLengthSpinBox, self.minLegLengthSpinBox)
+        Dialog.setTabOrder(self.minLegLengthSpinBox, self.buttonBox)
 
     def retranslateUi(self, Dialog):
         pass

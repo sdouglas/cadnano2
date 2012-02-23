@@ -130,6 +130,13 @@
    </layout>
   </widget>
  </widget>
+ <tabstops>
+  <tabstop>targetLengthSpinBox</tabstop>
+  <tabstop>minLengthSpinBox</tabstop>
+  <tabstop>maxLengthSpinBox</tabstop>
+  <tabstop>minLegLengthSpinBox</tabstop>
+  <tabstop>buttonBox</tabstop>
+ </tabstops>
  <resources/>
  <connections>
   <connection>
