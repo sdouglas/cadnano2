@@ -26,7 +26,7 @@ from PyQt4.QtCore import *
 from PyQt4.QtGui import *
 # from cadnano import app as getAppInstance
 import cadnano
-from controllers.documentcontroller import DocumentController
+# from controllers.documentcontroller import DocumentController
 import tests.guitestcase
 
 main = tests.guitestcase.main

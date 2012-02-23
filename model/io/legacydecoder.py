@@ -32,7 +32,7 @@ from views import styles
 import util, cadnano
 # import Qt stuff into the module namespace with PySide, PyQt4 independence
 util.qtWrapImport('QtGui', globals(),  ['QColor'])
-if not cadnano.headless:
+if cadnano.app().isGui():
     from ui.dialogs.ui_latticetype import Ui_LatticeType
     util.qtWrapImport('QtGui', globals(),  ['QDialog', 'QDialogButtonBox'])
 
@@ -59,7 +59,9 @@ def import_legacy_dict(document, obj, latticeType=LatticeType.Honeycomb):
     to populate the given document with model data.
     """
     numBases = len(obj['vstrands'][0]['scaf'])
-    if not cadnano.headless:
+    if cadnano.app().isGui():
+        # from ui.dialogs.ui_latticetype import Ui_LatticeType
+        # util.qtWrapImport('QtGui', globals(),  ['QDialog', 'QDialogButtonBox'])
         dialog = QDialog()
         dialogLT = Ui_LatticeType()
         dialogLT.setupUi(dialog)
@@ -189,7 +191,7 @@ def import_legacy_dict(document, obj, latticeType=LatticeType.Honeycomb):
                 highIdx = stap_seg[vhNum][i+1]
                 stapStrandSet.createStrand(lowIdx, highIdx, useUndoStack=False)
     except AssertionError:
-        if cadnano.headless:
+        if not cadnano.app().isGui():
             print "Unrecognized file format."
         else:
             dialogLT.label.setText("Unrecognized file format.")

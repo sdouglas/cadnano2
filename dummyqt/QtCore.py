@@ -1,4 +1,4 @@
-print "Importing dummy qtcore"
+# print "Importing dummy qtcore"
 
 QObject = object
 

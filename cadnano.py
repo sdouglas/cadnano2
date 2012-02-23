@@ -36,6 +36,7 @@ def ignoreEnv():
     return environ.get('CADNANO_IGNORE_ENV_VARS_EXCEPT_FOR_ME', False)
 
 # The global application object used when cadnano is run as a python module
+
 class HeadlessCadnano(object):
     undoGroup = None
     def isInMaya(self):
@@ -43,9 +44,12 @@ class HeadlessCadnano(object):
     class prefs():
         squareRows = 50
         squareCols = 50
+    def isGui(self):
+        return False
 
+global sharedApp
 sharedApp = None
-headless = True
+# headless = True
 def app(appArgs=None):
     global sharedApp
     if sharedApp != None:
@@ -63,8 +67,8 @@ def initAppWithGui(appArgs=sys.argv):
     util.qtFrameworkList = ['PyQt', 'PySide']
     from cadnanoqt import CadnanoQt
     global sharedApp
-    global headless
-    headless = False
+    # global headless
+    # headless = False
     sharedApp = CadnanoQt(appArgs)
     sharedApp.finishInit()
     return sharedApp
@@ -74,8 +78,8 @@ def initAppMaya(appArgs=sys.argv):
     util.qtFrameworkList = ['PyQt', 'PySide']
     from cadnanoqt import CadnanoQt
     global sharedApp
-    global headless
-    headless = False
+    # global headless
+    # headless = False
     sharedApp = CadnanoQt(appArgs)
     return sharedApp
 # end def
