@@ -104,8 +104,8 @@ class CadnanoQt(QObject):
             interact('', local={'a':self, 'd':d, 'w':w,\
                                 'p':p, 'pi':pi, 'vh':vh, 'vhi':vhi,\
                                 })
-        else:
-            self.exec_()
+        # else:
+        #     self.exec_()
 
     def isInMaya(self):
         return QCoreApplication.instance().applicationName().contains(
