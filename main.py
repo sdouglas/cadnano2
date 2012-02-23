@@ -52,7 +52,8 @@ if "-p" not in sys.argv:
     except Exception, e:
         print e
     if supportsPythonObjCBridge:
-        from osx.CNApplicationDelegate import sharedDelegate as appDelegate
+        pass
+        # from osx.CNApplicationDelegate import sharedDelegate as appDelegate
     # else:
     #     from applicationdelegate import ApplicationDelegate
 

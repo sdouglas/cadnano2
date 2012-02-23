@@ -110,6 +110,9 @@ class CadnanoQt(QObject):
     def isInMaya(self):
         return QCoreApplication.instance().applicationName().contains(
                                                     "Maya", Qt.CaseInsensitive)
+    def isGui(self):
+        return True
+    
     def exec_(self):
         if hasattr(self, 'qApp'):
             self.mainEventLoop = QEventLoop()
@@ -124,7 +127,7 @@ class CadnanoQt(QObject):
             defaultFile = path.expandvars(defaultFile)
             dc = DocumentController()
             doc = dc.document()
-            from model.decoder import decode
+            from model.io.decoder import decode
             decode(doc, file(defaultFile).read())
             print "Loaded default document: %s" % doc
         else:
