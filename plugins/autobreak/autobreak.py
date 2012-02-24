@@ -48,7 +48,7 @@ def nxBreakStaple(oligo, settings):
     
     cacheString = stringifyToken(oligo, tokenList)
     if cacheString in token_cache:
-        print "cacheHit!"
+        # print "cacheHit!"
         breakItems, shortestScoreIdx = token_cache[cacheString]
         nxPerformBreaks(oligo, breakItems, tokenList, shortestScoreIdx, minStapleLegLen)
     else:
@@ -69,11 +69,10 @@ def nxBreakStaple(oligo, settings):
         # p = Pool(cpu_count() * 2)
         # p = Pool(4)
         # returns ( [breakStart, [breakLengths, ], score], tokenIdx)
+
         # results = p.map(staplegraph.minimumPath, tokenLists)
         results = map(staplegraph.minimumPath, tokenLists)
-    
-    
-        # print "teh results", results
+
         f = itemgetter(0)   # get the graph results
         g = itemgetter(2)    # get the score
         # so this is
@@ -83,7 +82,6 @@ def nxBreakStaple(oligo, settings):
             shortestScore, shortestScoreIdx = scoreTuple
             breakItems = results[shortestScoreIdx][0][1]
             addToTokenCache(cacheString, breakItems, shortestScoreIdx)
-            # print "daITems", breakItems
             nxPerformBreaks(oligo, breakItems, tokenList, shortestScoreIdx, minStapleLegLen)
         else:
             if oligo.isLoop():
@@ -141,10 +139,11 @@ def tokenizeOligo(oligo, settings):
             tokenList.append(a)
         # end if
     # end for
+
     if oligo.isLoop():
         loop_token = tokenList.pop(-1)
         tokenList[0] += loop_token
-        
+
     # print "check", sum(tokenList), "==", oligoL, totalL
     if sum(tokenList) != oligoL:
         oligo.applyColor("#ff3333", useUndoStack=False)
@@ -164,10 +163,10 @@ def nxPerformBreaks(oligo, breakItems, tokenList, startingToken, minStapleLegLen
         # for s in oligo.strand5p().generator3pStrand():
         #     temp.append(s.length())
         # print "the segments", sum(temp), temp
-        # 
+
         # print "the sum is ", sum(breakList[1]), "==", oligo.length(), "isLoop", oligo.isLoop()
         # print "the breakItems", breakItems
-        
+
         strand = oligo.strand5p()
         if oligo.isLoop():
             # start things off make first cut
