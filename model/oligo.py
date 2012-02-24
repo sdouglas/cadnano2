@@ -133,6 +133,9 @@ class Oligo(QObject):
         vhNum5p = self.strand5p().virtualHelix().number()
         idx5p = self.strand5p().idx5Prime()
         seq = ''
+        if self.isLoop():
+            print "A loop exists"
+            raise Exception
         for strand in self.strand5p().generator3pStrand():
             seq = seq + Strand.sequence(strand, forExport=True)
             if strand.connection3p() == None:  # last strand in the oligo
