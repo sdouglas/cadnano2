@@ -157,11 +157,10 @@ class Document(QObject):
     #end def
     
     def clearAllSelected(self):
-        for strandSetDict in self._selectionDict.values():
-            for strand, selected in strandSetDict.items():
-                self.removeStrandFromSelection(strand)
-            # end for
-        # end for
+        self._selectionDict = {}
+        # the added list is what was recently selected or deselected
+        self._selectedChangedDict = {}
+        self.documentClearSelectionsSignal.emit(self)
     # end def
 
     def isModelSelected(self, obj):
