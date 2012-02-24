@@ -989,10 +989,17 @@ class StrandSet(QObject):
             # Merging any decorators
             newStrand.addDecorators(strandHigh.decorators())
             self._newStrand = newStrand
-            if sSet.isStaple():
-                newStrand.reapplySequence()
             # Update the oligo for things like its 5prime end and isLoop
             self._newOligo.strandMergeUpdate(strandLow, strandHigh, newStrand)
+            
+            tL = strandLow.totalLength()
+            tH = strandHigh.totalLength()
+            seqL = strandLow._sequence if strandLow._sequence else "".join([" " for i in range(tL)])
+            seqH = strandHigh._sequence if strandHigh._sequence else "".join([" " for i in range(tH)])    
+            if newStrand.isDrawn5to3():
+                newStrand._sequence = strandLow._sequence + strandHigh._sequence
+            else:
+                newStrand._sequence = strandHigh._sequence + strandLow._sequence
         # end def
 
         def redo(self):
@@ -1109,12 +1116,17 @@ class StrandSet(QObject):
             super(StrandSet.SplitCommand, self).__init__()
             # Store inputs
             self._oldStrand = strand
+            oldSequence  = strand._sequence
+            
             self._sSetIdx = strandSetIdx
             self._sSet = sSet = strand.strandSet()
             self._oldOligo = oligo = strand.oligo()
             # Create copies
             self._strandLow = strandLow = strand.shallowCopy()
             self._strandHigh = strandHigh = strand.shallowCopy()
+            
+            
+            
             if oligo.isLoop():
                 self._lOligo = self._hOligo = lOligo = hOligo = oligo.shallowCopy()
             else:
@@ -1122,6 +1134,9 @@ class StrandSet(QObject):
                 self._hOligo = hOligo = oligo.shallowCopy()
             colorList = styles.stapColors if sSet.isStaple() \
                                             else styles.scafColors
+            # end 
+                
+                                            
             # Determine oligo retention based on strand priority
             if strand.isDrawn5to3():  # strandLow has priority
                 iNewLow = baseIdx
@@ -1163,10 +1178,17 @@ class StrandSet(QObject):
                 olg5p.setLength(olg5p.length() - length)
                 olg3p.setLength(length)
             # end if
+            
+            if updateSequence and oldSequence:
+                if strand.isDrawn5to3():  # strandLow has priority
+                    tL = strandLow.totalLength()
+                    strandLow._sequence = oldSequence[0:tL]
+                    strandHigh._sequence = oldSequence[tL:]
+                else:
+                    tH = strandHigh.totalLength()
+                    strandHigh._sequence = oldSequence[0:tH]
+                    strandLow._sequence = oldSequence[tH:]
 
-            if updateSequence and sSet.isStaple():
-                strandLow.reapplySequence()
-                strandHigh.reapplySequence()
         # end def
 
         def redo(self):
