@@ -155,6 +155,14 @@ class Document(QObject):
         # end for
         return selectedOs if len(selectedOs) > 0 else None
     #end def
+    
+    def clearAllSelected(self):
+        for strandSetDict in self._selectionDict.values():
+            for strand, selected in strandSetDict.items():
+                self.removeStrandFromSelection(strand)
+            # end for
+        # end for
+    # end def
 
     def isModelSelected(self, obj):
         return obj in self._selectionDict

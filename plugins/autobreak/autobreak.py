@@ -20,6 +20,8 @@ def breakStaples(part, settings):
     breakOligos = part.document().selectedOligos()
     if not breakOligos:
         breakOligos = part.oligos()
+    else:
+        part.document().clearAllSelected()
     for o in list(breakOligos):
         if not o.isStaple():
             continue
