@@ -246,12 +246,13 @@ class Strand(QObject):
         # as there are no guarantees about the entirety of the strand moving
         # i.e. both endpoints thanks to multiple selections so just redo the 
         # whole thing
+        self._sequence = None
         
         for compStrand in compSS._findOverlappingRanges(self):
             compSeq = compStrand.sequence()
             usedSeq = util.comp(compSeq) if compSeq else None
             usedSeq = self.setComplementSequence(
-                                        usedSeq, compStrand, refreshSeq=True)
+                                        usedSeq, compStrand)
         # end for
     # end def
     
@@ -287,7 +288,7 @@ class Strand(QObject):
     #     return ret
     # # end def
 
-    def setComplementSequence(self, sequenceString, strand, refreshSeq=False):
+    def setComplementSequence(self, sequenceString, strand):
         """
         This version takes anothers strand and only sets the indices that
         align with the given complimentary strand
@@ -327,7 +328,7 @@ class Strand(QObject):
                                             else sequenceString
 
         temp = array('c', useSeq)
-        if self._sequence == None or refreshSeq:
+        if self._sequence == None:
             tempSelf = array('c', ''.join([' ' for x in range(totalLength)]))
         else:
             tempSelf = array('c', self._sequence if self._isDrawn5to3 \
