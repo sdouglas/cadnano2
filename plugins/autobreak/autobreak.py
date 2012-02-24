@@ -16,6 +16,7 @@ except:
 token_cache = {}
 
 def breakStaples(part, settings):
+    clearTokenCache()
     breakOligos = part.document().selectedOligos()
     if not breakOligos:
         breakOligos = part.oligos()
@@ -64,10 +65,10 @@ def nxBreakStaple(oligo, settings):
             # end for
         # end if
         # p = Pool(cpu_count() * 2)
-        p = Pool(4)
+        # p = Pool(4)
         # returns ( [breakStart, [breakLengths, ], score], tokenIdx)
-        results = p.map(staplegraph.minimumPath, tokenLists)
-        # results = map(staplegraph.minimumPath, tokenLists)
+        # results = p.map(staplegraph.minimumPath, tokenLists)
+        results = map(staplegraph.minimumPath, tokenLists)
     
     
         # print "teh results", results
@@ -82,10 +83,17 @@ def nxBreakStaple(oligo, settings):
             addToTokenCache(cacheString, breakItems, shortestScoreIdx)
             # print "daITems", breakItems
             nxPerformBreaks(oligo, breakItems, tokenList, shortestScoreIdx, minStapleLegLen)
+        else:
+            if oligo.isLoop():
+                print "unbroken Loop", oligo, oligo.length()
 # end def
 
 def addToTokenCache(cacheString, breakItems, shortestScoreIdx):
     token_cache[cacheString] = (breakItems, shortestScoreIdx)
+# end def
+
+def clearTokenCache():
+    token_cache = {}
 # end def
 
 def stringifyToken(oligo, tokenList):
