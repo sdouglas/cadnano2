@@ -241,15 +241,27 @@ class Strand(QObject):
         """
         """
         compSS = self.strandSet().complementStrandSet()
+        
+        # the strand sequence will need to be regenerated from scratch
+        # as there are no guarantees about the entirety of the strand moving
+        # i.e. both endpoints thanks to multiple selections so just redo the 
+        # whole thing
+        
         for compStrand in compSS._findOverlappingRanges(self):
             compSeq = compStrand.sequence()
             usedSeq = util.comp(compSeq) if compSeq else None
-            # usedSeq = self.setComplementSequence(
-            #                             usedSeq, compStrand, refreshSeq=True)
             usedSeq = self.setComplementSequence(
-                                        usedSeq, compStrand, refreshSeq=False)
+                                        usedSeq, compStrand, refreshSeq=True)
         # end for
     # end def
+    
+    def getComplementStrands(self):
+        """
+        return the list of complement strands that overlap with this strand
+        """
+        compSS = self.strandSet().complementStrandSet()
+        return [compStrand for compStrand in compSS._findOverlappingRanges(self)]
+    # end def 
 
     def getPreDecoratorIdxList(self):
         """
@@ -580,14 +592,15 @@ class Strand(QObject):
             -1 for a skip
         """
         cmds = []
-        if self.strandSet().isScaffold() and useUndoStack:
-            cmds.append(self.oligo().applySequenceCMD(None))
         idxLow, idxHigh = self.idxs()
         if idxLow <= idx <= idxHigh:
             if not self.hasInsertionAt(idx):
                 # make sure length is -1 if a skip
                 if length < 0:
                     length = -1
+                cmds.append(self.oligo().applySequenceCMD(None, useUndoStack=useUndoStack))
+                for strand in self.getComplementStrands():
+                    cmds.append(strand.oligo().applySequenceCMD(None, useUndoStack=useUndoStack))
                 cmds.append(Strand.AddInsertionCommand(self, idx, length))
                 util.execCommandList(
                                     self, cmds, desc="Add Insertion",
@@ -598,8 +611,6 @@ class Strand(QObject):
 
     def changeInsertion(self, idx, length, useUndoStack=True):
         cmds = []
-        if self.strandSet().isScaffold():
-            cmds.append(self.oligo().applySequenceCMD(None))
         idxLow, idxHigh = self.idxs()
         if idxLow <= idx <= idxHigh:
             if self.hasInsertionAt(idx):
@@ -609,11 +620,30 @@ class Strand(QObject):
                     # make sure length is -1 if a skip
                     if length < 0:
                         length = -1
+                    cmds.append(self.oligo().applySequenceCMD(None, useUndoStack=useUndoStack))
+                    for strand in self.getComplementStrands():
+                        cmds.append(strand.oligo().applySequenceCMD(None, useUndoStack=useUndoStack))
                     cmds.append(
                             Strand.ChangeInsertionCommand(self, idx, length))
                     util.execCommandList(
                                         self, cmds, desc="Change Insertion",
                                         useUndoStack=useUndoStack)
+            # end if
+        # end if
+    # end def
+    
+    def removeInsertion(self,  idx, useUndoStack=True):
+        cmds = []
+        idxLow, idxHigh = self.idxs()
+        if idxLow <= idx <= idxHigh:
+            if self.hasInsertionAt(idx):
+                cmds.append(self.oligo().applySequenceCMD(None, useUndoStack=useUndoStack))
+                for strand in self.getComplementStrands():
+                    cmds.append(strand.oligo().applySequenceCMD(None, useUndoStack=useUndoStack))
+                cmds.append(Strand.RemoveInsertionCommand(self, idx))
+                util.execCommandList(
+                                    self, [c], desc="Remove Insertion",
+                                    useUndoStack=useUndoStack)
             # end if
         # end if
     # end def
@@ -637,18 +667,6 @@ class Strand(QObject):
                     self._strandSet.mergeStrands(self, highNeighbor)
         else:
             raise IndexError
-    # end def
-
-    def removeInsertion(self,  idx, useUndoStack=True):
-        idxLow, idxHigh = self.idxs()
-        if idxLow <= idx <= idxHigh:
-            if self.hasInsertionAt(idx):
-                c = Strand.RemoveInsertionCommand(self, idx)
-                util.execCommandList(
-                                    self, [c], desc="Remove Insertion",
-                                    useUndoStack=useUndoStack)
-            # end if
-        # end if
     # end def
 
     def resize(self, newIdxs, useUndoStack=True):
@@ -844,6 +862,10 @@ class Strand(QObject):
             for i in newInsertions:
                 nL += i.length()
             self.delta += (nL-oL)
+
+            # the strand sequence will need to be regenerated from scratch
+            # as there are no guarantees about the entirety of the strand moving
+            # thanks to multiple selections
         # end def
 
         def redo(self):
@@ -855,6 +877,7 @@ class Strand(QObject):
             std.oligo().incrementLength(self.delta)
             std.setIdxs(nI)
             if strandSet.isStaple():
+                
                 std.reapplySequence()
             std.strandResizedSignal.emit(std, nI)
             # for updating the Slice View displayed helices
