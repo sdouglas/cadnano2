@@ -992,14 +992,16 @@ class StrandSet(QObject):
             # Update the oligo for things like its 5prime end and isLoop
             self._newOligo.strandMergeUpdate(strandLow, strandHigh, newStrand)
             
-            tL = strandLow.totalLength()
-            tH = strandHigh.totalLength()
-            seqL = strandLow._sequence if strandLow._sequence else "".join([" " for i in range(tL)])
-            seqH = strandHigh._sequence if strandHigh._sequence else "".join([" " for i in range(tH)])    
-            if newStrand.isDrawn5to3():
-                newStrand._sequence = strandLow._sequence + strandHigh._sequence
-            else:
-                newStrand._sequence = strandHigh._sequence + strandLow._sequence
+            # set the new sequence by concatenating the sequence properly
+            if strandLow._sequence or strandHigh._sequence:
+                tL = strandLow.totalLength()
+                tH = strandHigh.totalLength()
+                seqL = strandLow._sequence if strandLow._sequence else "".join([" " for i in range(tL)])
+                seqH = strandHigh._sequence if strandHigh._sequence else "".join([" " for i in range(tH)])    
+                if newStrand.isDrawn5to3():
+                    newStrand._sequence = seqL + seqH
+                else:
+                    newStrand._sequence = seqH + seqL
         # end def
 
         def redo(self):
