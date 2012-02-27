@@ -65,7 +65,7 @@ class StrandItem(object):
         self._virtualHelixItem = virtualHelixItem
         self._viewroot = app().activeDocument.win.solidroot
         mayaNodeInfo = ()
-        print "solidview.StrandItem.__init__ %s" % mID
+        # print "solidview.StrandItem.__init__ %s" % mID
         if(modelStrand.strandSet().isScaffold()):
             mayaNodeInfo = self.createMayaHelixNodes(virtualHelixItem.x(),
                                                      virtualHelixItem.y(),

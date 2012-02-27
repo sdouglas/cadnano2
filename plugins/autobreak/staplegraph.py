@@ -61,8 +61,11 @@ Dijkstra's algorithm and Floyd Warshall are supported solutions
 '''
 try:
     import networkx as nx
+    print "successs on nx"
 except:
+    print "trying embedded nx"
     import include.networkx as nx
+    print "got embedded"
 
 # the DEFINE parameters address the staple_limits argument parameters
 MIN_IND = 0     # minimum length index

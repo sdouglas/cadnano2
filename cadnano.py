@@ -32,6 +32,8 @@ import os.path
 from glob import glob
 from code import interact
 
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__))+"/include")
+
 global sharedApp
 sharedApp = None
 
