@@ -36,6 +36,8 @@ import maya.mel as mel
 import sip
 
 sys.path.insert(0, os.environ['CADNANO_PATH'])
+# cmds.flushUndo()
+cmds.undoInfo(state=False)
 
 import views.solidview.mayaHotKeys as mayaHotKeys
 import views.solidview.mayaUI as mayaUI
