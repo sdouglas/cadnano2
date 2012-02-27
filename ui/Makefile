@@ -2,7 +2,7 @@ IMAGES = mainwindow/images/data-svg.png mainwindow/images/data-new_32.png mainwi
 DIALOGIMAGES = dialogs/images/path-edit_32.png dialogs/images/path-force-xover.png dialogs/images/path-paint_48.png
 
 
-all: mainwindow/icons_rc.py mainwindow/ui_mainwindow.py dialogs/dialogicons_rc.py dialogs/ui_preferences.py dialogs/ui_latticetype.py dialogs/ui_addseq.py dialogs/ui_about.py
+all: mainwindow/icons_rc.py mainwindow/ui_mainwindow.py dialogs/dialogicons_rc.py dialogs/ui_preferences.py dialogs/ui_latticetype.py dialogs/ui_addseq.py dialogs/ui_about.py dialogs/ui_warning.py
 
 mainwindow/icons_rc.py : mainwindow/icons.qrc $(IMAGES)
 	/System/Library/Frameworks/Python.framework/Versions/2.6/bin/pyrcc4 -o $@ $<
@@ -23,4 +23,7 @@ dialogs/ui_addseq.py : dialogs/addseq.ui
 	/System/Library/Frameworks/Python.framework/Versions/2.6/bin/pyuic4 $< > $@
 
 dialogs/ui_about.py : dialogs/about.ui
+	/System/Library/Frameworks/Python.framework/Versions/2.6/bin/pyuic4 $< > $@
+
+dialogs/ui_warning.py : dialogs/warning.ui
 	/System/Library/Frameworks/Python.framework/Versions/2.6/bin/pyuic4 $< > $@

@@ -119,7 +119,7 @@ class StrandItem(object):
         mom = Mom()
         mID = mom.strandMayaID(strand)
         mom.removeIDMapping(mID, strand)
-        # print "solidview.StrandItem.strandRemovedSlot %s" % mID
+        print "solidview.StrandItem.strandRemovedSlot %s" % mID
         transformName = "%s%s" % (mom.helixTransformName, mID)
         cylinderName = "%s%s" % (mom.helixNodeName, mID)
         meshName = "%s%s" % (mom.helixMeshName, mID)

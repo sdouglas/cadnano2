@@ -549,7 +549,7 @@ class XoverItem(QGraphicsPathItem):
             oligo = self._strandItem.strand().oligo()
             color = QColor(oligo.color())
             if oligo.shouldHighlight():
-                color.setAlpha(128)   
+                color.setAlpha(128)
         pen = self.pen()
         pen.setColor(color)
         self.setPen(pen)

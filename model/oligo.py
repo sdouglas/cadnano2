@@ -88,23 +88,30 @@ class Oligo(QObject):
     ### SLOTS ###
 
     ### ACCESSORS ###
+    def color(self):
+        return self._color
+    # end def
 
-    def undoStack(self):
-        return self._part.undoStack()
+    def locString(self):
+        vhNum = self._strand5p.strandSet().virtualHelix().number()
+        idx = self._strand5p.idx5Prime()
+        return "%d[%d]" % (vhNum, idx)
     # end def
 
     def part(self):
         return self._part
+    # end def
 
     def strand5p(self):
         return self._strand5p
+    # end def
 
     def setStrand5p(self, strand):
         self._strand5p = strand
     # end def
 
-    def color(self):
-        return self._color
+    def undoStack(self):
+        return self._part.undoStack()
     # end def
 
     ### PUBLIC METHODS FOR QUERYING THE MODEL ###
@@ -163,7 +170,7 @@ class Oligo(QObject):
         c = Oligo.RemoveOligoCommand(self)
         util.execCommandList(self, [c], desc="Color Oligo", useUndoStack=useUndoStack)
     # end def
-    
+
     def applyColor(self, color, useUndoStack=True):
         if color == self._color:
             return  # oligo already has color
