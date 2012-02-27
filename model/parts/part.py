@@ -227,6 +227,18 @@ class Part(QObject):
         raise NotImplementedError
     # end def
 
+    def getStapleLoopOligos(self):
+        """
+        Returns staple oligos with no 5'/3' ends. Used by
+        actionExportStaplesSlot in documentcontroller to validate before
+        exporting staple sequences.
+        """
+        stapLoopOlgs = []
+        for o in list(self.oligos()):
+            if o.isStaple() and o.isLoop():
+                stapLoopOlgs.append(o)
+        return stapLoopOlgs
+
     def hasVirtualHelixAtCoord(self, coord):
         return coord in self._coordToVirtualHelix
     # end def

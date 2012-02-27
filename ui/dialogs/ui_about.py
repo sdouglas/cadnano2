@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'dialogs/about.ui'
 #
-# Created: Tue Nov 29 18:34:54 2011
+# Created: Mon Feb 27 11:16:24 2012
 #      by: PyQt4 UI code generator 4.8.6
 #
 # WARNING! All changes made in this file will be lost!
@@ -46,7 +46,7 @@ class Ui_About(object):
         self.appname.setObjectName(_fromUtf8("appname"))
         self.version = QtGui.QLabel(self.frame)
         self.version.setGeometry(QtCore.QRect(0, 40, 101, 16))
-        self.version.setText(QtGui.QApplication.translate("About", "version 2.1.2", None, QtGui.QApplication.UnicodeUTF8))
+        self.version.setText(QtGui.QApplication.translate("About", "version 2.2.0", None, QtGui.QApplication.UnicodeUTF8))
         self.version.setObjectName(_fromUtf8("version"))
         self.info = QtGui.QLabel(self.frame)
         self.info.setGeometry(QtCore.QRect(0, 90, 411, 161))
@@ -64,6 +64,7 @@ class Ui_About(object):
         self.info.setTextFormat(QtCore.Qt.RichText)
         self.info.setAlignment(QtCore.Qt.AlignLeading|QtCore.Qt.AlignLeft|QtCore.Qt.AlignTop)
         self.info.setWordWrap(True)
+        self.info.setOpenExternalLinks(True)
         self.info.setObjectName(_fromUtf8("info"))
         self.gridLayout.addWidget(self.frame, 0, 0, 1, 1)
 

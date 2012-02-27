@@ -28,6 +28,7 @@ from model.document import Document
 from model.io.decoder import decode
 from model.io.encoder import encode
 from views.documentwindow import DocumentWindow
+from views import styles
 import util
 util.qtWrapImport('QtCore', globals(), ['QDir', 'QFileInfo', 'QRect',
                                         'QString', 'QStringList', 'QSettings',
@@ -371,6 +372,26 @@ class DocumentController():
         exportStaplesCallback which collects the staple sequences and exports
         the file.
         """
+        # Validate that no staple oligos are loops.
+        part = self.activePart()
+        stapLoopOlgs = part.getStapleLoopOligos()
+        if stapLoopOlgs:
+            from ui.dialogs.ui_warning import Ui_Warning
+            dialog = QDialog()
+            dialogWarning = Ui_Warning()  # reusing this dialog, should rename
+            dialog.setStyleSheet("QDialog { background-image: url(ui/dialogs/images/cadnano2-about.png); background-repeat: none; }")
+            dialogWarning.setupUi(dialog)
+
+            locs = ", ".join([o.locString() for o in stapLoopOlgs])
+            msg = "Part contains staple loop(s) at %s.\n\nUse the break tool to introduce 5' & 3' ends before exporting. Loops have been colored red; use undo to revert." % locs
+            dialogWarning.title.setText("Staple validation failed")
+            dialogWarning.message.setText(msg)
+            for o in stapLoopOlgs:
+                o.applyColor(styles.stapColors[0].name())
+            dialog.exec_()
+            return
+
+        # Proceed with staple export.
         fname = self.filename()
         if fname == None:
             directory = "."
