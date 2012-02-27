@@ -1126,9 +1126,7 @@ class StrandSet(QObject):
             # Create copies
             self._strandLow = strandLow = strand.shallowCopy()
             self._strandHigh = strandHigh = strand.shallowCopy()
-            
-            
-            
+
             if oligo.isLoop():
                 self._lOligo = self._hOligo = lOligo = hOligo = oligo.shallowCopy()
             else:
@@ -1136,9 +1134,8 @@ class StrandSet(QObject):
                 self._hOligo = hOligo = oligo.shallowCopy()
             colorList = styles.stapColors if sSet.isStaple() \
                                             else styles.scafColors
-            # end 
-                
-                                            
+            # end
+
             # Determine oligo retention based on strand priority
             if strand.isDrawn5to3():  # strandLow has priority
                 iNewLow = baseIdx
@@ -1180,7 +1177,7 @@ class StrandSet(QObject):
                 olg5p.setLength(olg5p.length() - length)
                 olg3p.setLength(length)
             # end if
-            
+
             if updateSequence and oldSequence:
                 if strand.isDrawn5to3():  # strandLow has priority
                     tL = strandLow.totalLength()

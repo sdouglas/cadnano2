@@ -76,7 +76,7 @@ class SolidRootItem(object):
     def resetRootItemSlot(self, doc):
         pass
     # end def
-    
+
     def clearSelectionsSlot(self, doc):
         cmds.select(clear=True)
         for strand in self._selectedDict.keys():
