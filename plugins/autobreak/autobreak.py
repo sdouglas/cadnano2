@@ -46,15 +46,12 @@ def nxBreakStaple(oligo, settings):
     # print "tkList", tokenList, oligo.length(), oligo.color()
     if len(tokenList) == 0:
         return
-    print "A"
     cacheString = stringifyToken(oligo, tokenList)
     if cacheString in token_cache:
-        print "A$$$"
         # print "cacheHit!"
         breakItems, shortestScoreIdx = token_cache[cacheString]
         nxPerformBreaks(oligo, breakItems, tokenList, shortestScoreIdx, minStapleLegLen)
     else:
-        print "B"
         staple_limits = [minStapleLen, maxStapleLen, tgtStapleLen] 
         tokenLists = [(tokenList, staple_limits,0)]
         tokenCount = tokenList[0]
@@ -72,7 +69,6 @@ def nxBreakStaple(oligo, settings):
         # p = Pool(cpu_count() * 2)
         # p = Pool(4)
         # returns ( [breakStart, [breakLengths, ], score], tokenIdx)
-        print "C"
         # results = p.map(staplegraph.minimumPath, tokenLists)
         results = map(staplegraph.minimumPath, tokenLists)
 
@@ -85,7 +81,6 @@ def nxBreakStaple(oligo, settings):
             shortestScore, shortestScoreIdx = scoreTuple
             breakItems = results[shortestScoreIdx][0][1]
             addToTokenCache(cacheString, breakItems, shortestScoreIdx)
-            print "D"
             nxPerformBreaks(oligo, breakItems, tokenList, shortestScoreIdx, minStapleLegLen)
         else:
             if oligo.isLoop():

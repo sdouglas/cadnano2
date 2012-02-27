@@ -141,7 +141,7 @@ class Oligo(QObject):
         idx5p = self.strand5p().idx5Prime()
         seq = ''
         if self.isLoop():
-            print "A loop exists"
+            # print "A loop exists"
             raise Exception
         for strand in self.strand5p().generator3pStrand():
             seq = seq + Strand.sequence(strand, forExport=True)

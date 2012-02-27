@@ -185,6 +185,9 @@ class PreXoverItem(QGraphicsPathItem):
         if event.button() != Qt.LeftButton:
             return QGraphicsPathItem.mousePressEvent(self, event)
 
+        if event.modifiers() & Qt.ShiftModifier:
+            return  # ignore shift click, user is probably trying to merge
+
         if self._isActive:
             fromVH = self._fromVHItem.virtualHelix()
             toVH = self._toVHItem.virtualHelix()
