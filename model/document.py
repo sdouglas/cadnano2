@@ -523,7 +523,9 @@ class Document(QObject):
         def undo(self):
             self._doc.removePart(self._part)
             self._part.setDocument(None)
-            self._doc.documentPartAddedSignal.emit(self._doc, self._part)
+            self._doc.setSelectedPart(None)
+            self._part.partRemovedSignal.emit(self._part)
+            # self._doc.documentPartAddedSignal.emit(self._doc, self._part)
         # end def
     # end class
 # end class

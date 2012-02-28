@@ -420,7 +420,7 @@ class Part(QObject):
             total_stap_strands += len(stapSS._strandList)
             for strand in stapSS:
                 stapOligos.add(strand.oligo())
-        print "# stap oligos:", len(stapOligos), "# stap strands:", total_stap_strands
+        # print "# stap oligos:", len(stapOligos), "# stap strands:", total_stap_strands
 
 
     def verifyOligos(self):
@@ -437,12 +437,12 @@ class Part(QObject):
             # end for
             if oL != a:
                 total_errors += 1
-                print "wtf", total_errors, "oligoL", oL, "strandsL", a, "isStaple?", o.isStaple()
+                # print "wtf", total_errors, "oligoL", oL, "strandsL", a, "isStaple?", o.isStaple()
                 o.applyColor('#ff0000')
             else:
                 total_passed += 1
         # end for
-        print "Total Passed: ", total_passed, "/", total_passed+total_errors
+        # print "Total Passed: ", total_passed, "/", total_passed+total_errors
     # end def
 
     def removeVirtualHelices(self, useUndoStack=True):
@@ -761,7 +761,7 @@ class Part(QObject):
             self._oligos.remove(oligo)
         except KeyError:
             print util.trace(5)
-            print "error removing oligo", oligo
+            # print "error removing oligo", oligo
     # end def
 
     def renumber(self, coordList, useUndoStack=True):

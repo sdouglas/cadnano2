@@ -160,6 +160,7 @@ class PartItem(QGraphicsItem):
     def partVirtualHelixAddedSlot(self, sender, virtualHelix):
         vh = virtualHelix
         coords = vh.coord()
+
         emptyHelixItem = self._emptyhelixhash[coords]
         # TODO test to see if self._virtualHelixHash is necessary
         vhi = VirtualHelixItem(vh, emptyHelixItem)

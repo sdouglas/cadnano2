@@ -34,7 +34,7 @@ def breakStaples(part, settings):
 
 def nxBreakStaple(oligo, settings):
     stapleScorer = settings.get('stapleScorer', tgtLengthStapleScorer)
-    minStapleLegLen = settings.get('minStapleLegLen', 2)
+    minStapleLegLen = settings.get('minStapleLegLen', 3)
     minStapleLen = settings.get('minStapleLen', 30)
     minStapleLenMinusOne = minStapleLen-1
     maxStapleLen = settings.get('maxStapleLen', 40)
