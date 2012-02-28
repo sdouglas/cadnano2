@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'dialogs/about.ui'
 #
-# Created: Tue Feb 28 13:00:00 2012
+# Created: Tue Feb 28 13:08:31 2012
 #      by: PyQt4 UI code generator 4.8.6
 #
 # WARNING! All changes made in this file will be lost!
@@ -49,12 +49,12 @@ class Ui_About(object):
         self.version.setText(QtGui.QApplication.translate("About", "version 2.2.0", None, QtGui.QApplication.UnicodeUTF8))
         self.version.setObjectName(_fromUtf8("version"))
         self.info = QtGui.QLabel(self.frame)
-        self.info.setGeometry(QtCore.QRect(0, 90, 431, 181))
+        self.info.setGeometry(QtCore.QRect(0, 90, 441, 181))
         self.info.setText(QtGui.QApplication.translate("About", "<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.0//EN\" \"http://www.w3.org/TR/REC-html40/strict.dtd\">\n"
 "<html><head><meta name=\"qrichtext\" content=\"1\" /><style type=\"text/css\">\n"
 "p, li { white-space: pre-wrap; }\n"
 "</style></head><body style=\" font-family:\'Lucida Grande\'; font-size:13pt; font-weight:400; font-style:normal;\">\n"
-"<p style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\">Copyright © 2009–2011 cadnano.org.</p>\n"
+"<p style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\">Copyright © 2009–2012 cadnano.org.</p>\n"
 "<p style=\"-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\"></p>\n"
 "<p style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\">cadnano is free and open-source. The source code is available under the MIT license.</p>\n"
 "<p style=\"-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\"></p>\n"
