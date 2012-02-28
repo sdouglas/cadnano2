@@ -1008,7 +1008,8 @@
                         "Type" = "3:32769"
                         "ContextData" = "8:_RetargetableFolder"
                         "Attributes" = "3:6"
-                        "Setting" = "3:1"
+                        "Setting" = "3:2"
+                        "Value" = "8:_8C7FE393F19541AB918E9B685D2045B6"
                         "UsePlugInResources" = "11:FALSE"
                         }
                     }
@@ -1061,7 +1062,8 @@
                         "Type" = "3:32769"
                         "ContextData" = "8:_RetargetableFolder"
                         "Attributes" = "3:6"
-                        "Setting" = "3:1"
+                        "Setting" = "3:2"
+                        "Value" = "8:_D6E43118FEC84BA3981C8357DCC5D048"
                         "UsePlugInResources" = "11:FALSE"
                         }
                     }
