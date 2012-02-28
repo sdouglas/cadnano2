@@ -971,7 +971,7 @@
             "SourcePath" = "8:..\\PyQt-x86\\Release\\PyQt-x86.msm"
             "TargetName" = "8:"
             "Tag" = "8:"
-            "Folder" = "8:_AB1CFB233EBC4A0A92A6897606695AD2"
+            "Folder" = "8:_8C7FE393F19541AB918E9B685D2045B6"
             "Condition" = "8:"
             "Transitive" = "11:FALSE"
             "Vital" = "11:TRUE"
@@ -1014,7 +1014,7 @@
                     }
                 "LanguageId" = "3:1033"
                 "Exclude" = "11:FALSE"
-                "Folder" = "8:_AB1CFB233EBC4A0A92A6897606695AD2"
+                "Folder" = "8:_8C7FE393F19541AB918E9B685D2045B6"
                 "Feature" = "8:"
                 "IsolateTo" = "8:"
                 }
@@ -1024,7 +1024,7 @@
             "SourcePath" = "8:..\\PyQt-x86 (Standard)\\Release\\PyQt-x86 (Standard).msm"
             "TargetName" = "8:"
             "Tag" = "8:"
-            "Folder" = "8:_AB1CFB233EBC4A0A92A6897606695AD2"
+            "Folder" = "8:_D6E43118FEC84BA3981C8357DCC5D048"
             "Condition" = "8:"
             "Transitive" = "11:FALSE"
             "Vital" = "11:TRUE"
@@ -1067,7 +1067,7 @@
                     }
                 "LanguageId" = "3:1033"
                 "Exclude" = "11:FALSE"
-                "Folder" = "8:_AB1CFB233EBC4A0A92A6897606695AD2"
+                "Folder" = "8:_D6E43118FEC84BA3981C8357DCC5D048"
                 "Feature" = "8:"
                 "IsolateTo" = "8:"
                 }
