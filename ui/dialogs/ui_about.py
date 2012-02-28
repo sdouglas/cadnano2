@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'dialogs/about.ui'
 #
-# Created: Mon Feb 27 11:16:24 2012
+# Created: Tue Feb 28 13:00:00 2012
 #      by: PyQt4 UI code generator 4.8.6
 #
 # WARNING! All changes made in this file will be lost!
@@ -38,18 +38,18 @@ class Ui_About(object):
         self.frame.setFrameShadow(QtGui.QFrame.Plain)
         self.frame.setObjectName(_fromUtf8("frame"))
         self.appname = QtGui.QLabel(self.frame)
-        self.appname.setGeometry(QtCore.QRect(0, 10, 101, 21))
+        self.appname.setGeometry(QtCore.QRect(0, 10, 191, 31))
         font = QtGui.QFont()
         font.setPointSize(24)
         self.appname.setFont(font)
         self.appname.setText(QtGui.QApplication.translate("About", "cadnano", None, QtGui.QApplication.UnicodeUTF8))
         self.appname.setObjectName(_fromUtf8("appname"))
         self.version = QtGui.QLabel(self.frame)
-        self.version.setGeometry(QtCore.QRect(0, 40, 101, 16))
+        self.version.setGeometry(QtCore.QRect(0, 40, 211, 31))
         self.version.setText(QtGui.QApplication.translate("About", "version 2.2.0", None, QtGui.QApplication.UnicodeUTF8))
         self.version.setObjectName(_fromUtf8("version"))
         self.info = QtGui.QLabel(self.frame)
-        self.info.setGeometry(QtCore.QRect(0, 90, 411, 161))
+        self.info.setGeometry(QtCore.QRect(0, 90, 431, 181))
         self.info.setText(QtGui.QApplication.translate("About", "<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.0//EN\" \"http://www.w3.org/TR/REC-html40/strict.dtd\">\n"
 "<html><head><meta name=\"qrichtext\" content=\"1\" /><style type=\"text/css\">\n"
 "p, li { white-space: pre-wrap; }\n"
