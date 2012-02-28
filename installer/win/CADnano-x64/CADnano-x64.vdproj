@@ -21,6 +21,12 @@
         }
         "Entry"
         {
+        "MsmKey" = "8:_08636217D18E481DBDFE6284233F40AE"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
         "MsmKey" = "8:_16BECA7B6D814236B1D1426095F1FD7E"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
@@ -33,13 +39,13 @@
         }
         "Entry"
         {
-        "MsmKey" = "8:_ABA7A06EC06046D9B97225A3A07F721C"
+        "MsmKey" = "8:_F102444D628F48D6AFB33D072F3A9A57"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
         {
-        "MsmKey" = "8:_B5FC466E90B04C5AB009494DE23872D4"
+        "MsmKey" = "8:_FFF1D8AB430A49FEB25C0B6627BC4D81"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
         }
@@ -182,6 +188,26 @@
         }
         "File"
         {
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_08636217D18E481DBDFE6284233F40AE"
+            {
+            "SourcePath" = "8:..\\..\\..\\ui\\mainwindow\\images\\cadnano2-app-icon.ico"
+            "TargetName" = "8:cadnano2-app-icon.ico"
+            "Tag" = "8:"
+            "Folder" = "8:_2175223356364958B945750C7B8A9D21"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_16BECA7B6D814236B1D1426095F1FD7E"
             {
             "SourcePath" = "8:..\\msvcr100.dll"
@@ -313,26 +339,26 @@
         "Product"
         {
         "Name" = "8:Microsoft Visual Studio"
-        "ProductName" = "8:CADnano2"
-        "ProductCode" = "8:{457C3979-4EC3-47C0-917C-91A77CAD13AB}"
-        "PackageCode" = "8:{81640D25-2097-46F2-98CB-361AC5883555}"
+        "ProductName" = "8:cadnano2"
+        "ProductCode" = "8:{618C8661-E1DD-43ED-963F-6846A84A4D76}"
+        "PackageCode" = "8:{05EE36BC-BC31-4C5F-A096-F7076682EBA7}"
         "UpgradeCode" = "8:{83FFBD67-55A4-4F5E-AE78-11641B1B9B25}"
         "AspNetVersion" = "8:4.0.30319.0"
         "RestartWWWService" = "11:FALSE"
         "RemovePreviousVersions" = "11:TRUE"
         "DetectNewerInstalledVersion" = "11:TRUE"
         "InstallAllUsers" = "11:TRUE"
-        "ProductVersion" = "8:2.1"
-        "Manufacturer" = "8:CADnano Team"
+        "ProductVersion" = "8:2.2.0"
+        "Manufacturer" = "8:cadnano Team"
         "ARPHELPTELEPHONE" = "8:"
         "ARPHELPLINK" = "8:"
-        "Title" = "8:CADnano2 (x64)"
+        "Title" = "8:cadnano2 (x64)"
         "Subject" = "8:"
-        "ARPCONTACT" = "8:CADnano Team"
+        "ARPCONTACT" = "8:cadnano Team"
         "Keywords" = "8:"
         "ARPCOMMENTS" = "8:"
         "ARPURLINFOABOUT" = "8:http://www.cadnano.org"
-        "ARPPRODUCTICON" = "8:"
+        "ARPPRODUCTICON" = "8:_08636217D18E481DBDFE6284233F40AE"
         "ARPIconIndex" = "3:0"
         "SearchPath" = "8:"
         "UseSystemSearchPath" = "11:TRUE"
@@ -993,12 +1019,12 @@
                 {
                 }
             }
-            "{5259A561-127C-4D43-A0A1-72F10C7B3BF8}:_ABA7A06EC06046D9B97225A3A07F721C"
+            "{5259A561-127C-4D43-A0A1-72F10C7B3BF8}:_F102444D628F48D6AFB33D072F3A9A57"
             {
             "SourcePath" = "8:..\\PyQt-x64\\Release\\PyQt-x64.msm"
             "TargetName" = "8:"
             "Tag" = "8:"
-            "Folder" = "8:_6E231C9ED8804DAD90343D24CB1C28E9"
+            "Folder" = "8:_2175223356364958B945750C7B8A9D21"
             "Condition" = "8:"
             "Transitive" = "11:FALSE"
             "Vital" = "11:TRUE"
@@ -1035,24 +1061,23 @@
                         "Type" = "3:32769"
                         "ContextData" = "8:_RetargetableFolder"
                         "Attributes" = "3:6"
-                        "Setting" = "3:2"
-                        "Value" = "8:_6E231C9ED8804DAD90343D24CB1C28E9"
+                        "Setting" = "3:1"
                         "UsePlugInResources" = "11:FALSE"
                         }
                     }
                 "LanguageId" = "3:1033"
                 "Exclude" = "11:FALSE"
-                "Folder" = "8:_6E231C9ED8804DAD90343D24CB1C28E9"
+                "Folder" = "8:_2175223356364958B945750C7B8A9D21"
                 "Feature" = "8:"
                 "IsolateTo" = "8:"
                 }
             }
-            "{5259A561-127C-4D43-A0A1-72F10C7B3BF8}:_B5FC466E90B04C5AB009494DE23872D4"
+            "{5259A561-127C-4D43-A0A1-72F10C7B3BF8}:_FFF1D8AB430A49FEB25C0B6627BC4D81"
             {
-            "SourcePath" = "8:..\\PyQt-x64 (Standard)\\Debug\\PyQt-x64 (Standard).msm"
+            "SourcePath" = "8:..\\PyQt-x64 (Standard)\\Release\\PyQt-x64 (Standard).msm"
             "TargetName" = "8:"
             "Tag" = "8:"
-            "Folder" = "8:_A3DC0E5961A0404EB74A3D98B9D02F8E"
+            "Folder" = "8:_2175223356364958B945750C7B8A9D21"
             "Condition" = "8:"
             "Transitive" = "11:FALSE"
             "Vital" = "11:TRUE"
@@ -1089,14 +1114,13 @@
                         "Type" = "3:32769"
                         "ContextData" = "8:_RetargetableFolder"
                         "Attributes" = "3:6"
-                        "Setting" = "3:2"
-                        "Value" = "8:_A3DC0E5961A0404EB74A3D98B9D02F8E"
+                        "Setting" = "3:1"
                         "UsePlugInResources" = "11:FALSE"
                         }
                     }
                 "LanguageId" = "3:1033"
                 "Exclude" = "11:FALSE"
-                "Folder" = "8:_A3DC0E5961A0404EB74A3D98B9D02F8E"
+                "Folder" = "8:_2175223356364958B945750C7B8A9D21"
                 "Feature" = "8:"
                 "IsolateTo" = "8:"
                 }
