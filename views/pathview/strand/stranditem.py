@@ -430,6 +430,7 @@ class StrandItem(QGraphicsLineItem):
         seqList = [x[1][0] for x in strandSeqList]
         insertSeqList = [(x[0], x[1][1]) for x in strandSeqList]
         iItems = self.insertionItems()
+
         for idx, seqTxt in insertSeqList:
             if seqTxt != '':
                 iItems[idx].setSequence(seqTxt)
