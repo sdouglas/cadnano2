@@ -1119,6 +1119,7 @@ class StrandSet(QObject):
             # Store inputs
             self._oldStrand = strand
             oldSequence  = strand._sequence
+            is5to3 = strand.isDrawn5to3()
             
             self._sSetIdx = strandSetIdx
             self._sSet = sSet = strand.strandSet()
@@ -1137,7 +1138,7 @@ class StrandSet(QObject):
             # end
 
             # Determine oligo retention based on strand priority
-            if strand.isDrawn5to3():  # strandLow has priority
+            if is5to3:  # strandLow has priority
                 iNewLow = baseIdx
                 colorLow = oligo.color()
                 colorHigh = random.choice(colorList).name()
@@ -1179,14 +1180,18 @@ class StrandSet(QObject):
             # end if
 
             if updateSequence and oldSequence:
-                if strand.isDrawn5to3():  # strandLow has priority
+                if is5to3:  # strandLow has priority
                     tL = strandLow.totalLength()
                     strandLow._sequence = oldSequence[0:tL]
                     strandHigh._sequence = oldSequence[tL:]
+                    # print "lenght match 5 to 3", strandHigh.totalLength()+tL == len(oldSequence)
+                    # assert (strandHigh.totalLength()+tL == len(oldSequence))
                 else:
                     tH = strandHigh.totalLength()
                     strandHigh._sequence = oldSequence[0:tH]
                     strandLow._sequence = oldSequence[tH:]
+                    # print "lenght match 3 to 5", strandLow.totalLength()+tH == len(oldSequence)
+                    # assert (strandLow.totalLength()+tH == len(oldSequence))
 
         # end def
 

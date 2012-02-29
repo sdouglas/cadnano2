@@ -450,7 +450,9 @@ class StrandItem(QGraphicsLineItem):
 
         if isDrawn3to5:
             seqList = seqList[::-1]
+            
         seqTxt = ''.join(seqList)
+        
         # seqLbl.setPen(QPen( Qt.NoPen))    # leave the Pen as None for unless required
         seqLbl.setBrush(QBrush(Qt.black))
         seqLbl.setFont(styles.SEQUENCEFONT)
