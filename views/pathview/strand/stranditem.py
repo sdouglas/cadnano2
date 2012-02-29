@@ -76,6 +76,8 @@ class StrandItem(QGraphicsLineItem):
         # self._isOnTop = virtualHelixItem.isStrandOnTop(modelStrand)
         # label
         self._seqLabel = QGraphicsSimpleTextItem(self)
+        
+        self.refreshInsertionItems(modelStrand)
         self._updateSequenceText()
 
         # create a larger click area rect to capture mouse events
@@ -261,15 +263,25 @@ class StrandItem(QGraphicsLineItem):
     def refreshInsertionItems(self, strand):
         iItems = self.insertionItems()
         iModel = strand.insertionsOnStrand()
-        # remove all in items
-        for index, iItem in iItems.items():
-            iItem.remove()
-            del iItems[index]
-        # end for
+        
+        was_in_use = set(iItems)
+        in_use = set()
         # add in the ones supposed to be there
         for insertion in iModel:
-            iItems[insertion.idx()] = \
+            idx = insertion.idx()
+            in_use.add(idx)
+            if idx in iItems:
+                pass
+            else:
+                iItems[insertion.idx()] = \
                     InsertionItem(self._virtualHelixItem, strand, insertion)
+        # end for
+        
+        # remove all in items
+        not_in_use = was_in_use - in_use
+        for index in not_in_use:
+            iItems[index].remove()
+            del iItems[index]
         # end for
     # end def
 
@@ -415,6 +427,7 @@ class StrandItem(QGraphicsLineItem):
         bw = _baseWidth
         seqLbl = self._seqLabel
         strand = self.strand()
+        
         seqTxt = strand.sequence()
         isDrawn3to5 = not self._isDrawn5to3
         textXCenteringOffset = styles.SEQUENCETEXTXCENTERINGOFFSET
@@ -429,6 +442,7 @@ class StrandItem(QGraphicsLineItem):
         strandSeqList = strand.getSequenceList()
         seqList = [x[1][0] for x in strandSeqList]
         insertSeqList = [(x[0], x[1][1]) for x in strandSeqList]
+        
         iItems = self.insertionItems()
         for idx, seqTxt in insertSeqList:
             if seqTxt != '':
