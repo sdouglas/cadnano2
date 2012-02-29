@@ -165,10 +165,10 @@ class ForcedStrandItem(QGraphicsLineItem):
         cA.setPen(_noPen)
 
         # cA.setBrush(QBrush(Qt.white))
-        self.setZValue(styles.ZPATHTOOL)
-        cA.setZValue(styles.ZPATHTOOL-2)
-        self._lowCap.setZValue(styles.ZPATHTOOL+1)
-        self._highCap.setZValue(styles.ZPATHTOOL+1)
+        self.setZValue(styles.ZENDPOINTITEM+1)
+        cA.setZValue(styles.ZENDPOINTITEM)
+        self._lowCap.setZValue(styles.ZENDPOINTITEM+2)
+        self._highCap.setZValue(styles.ZENDPOINTITEM+2)
         cA.setFlag(QGraphicsItem.ItemStacksBehindParent)
 
         self._updatePensAndBrushes()
@@ -351,7 +351,7 @@ class ForcedXoverNode3(QGraphicsRectItem):
         self.setBrush(_noBrush)
         self.setRect(_rect)
 
-        self.setZValue(styles.ZPATHTOOL-.1)
+        self.setZValue(styles.ZENDPOINTITEM+1)
     # end def
 
     def updateForFloatFromVHI(self, virtualHelixItem, strandType, idxX, idxY):
