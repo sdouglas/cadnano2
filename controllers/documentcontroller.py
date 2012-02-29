@@ -37,7 +37,7 @@ util.qtWrapImport('QtGui', globals(), ['QApplication', 'QDialog',
                                        'QDockWidget', 'QFileDialog',
                                        'QKeySequence', 'QGraphicsItem',
                                        'QMainWindow',
-                                       'QMessageBox', 'QPainter',
+                                       'QMessageBox', 'QPainter', 'QIcon',
                                        'QStyleOptionGraphicsItem'])
 util.qtWrapImport('QtSvg', globals(), ['QSvgGenerator'])
 
@@ -74,6 +74,7 @@ class DocumentController():
     def _initWindow(self):
         """docstring for initWindow"""
         self.win = DocumentWindow(docCtrlr=self)
+        self.win.setWindowIcon(QIcon('ui/mainwindow/images/cadnano2-app-icon.png'))
         app().documentWindowWasCreatedSignal.emit(self._document, self.win)
         self._connectWindowSignalsToSelf()
         self.win.show()
@@ -285,8 +286,14 @@ class DocumentController():
 
     def actionCloseSlot(self):
         """This will trigger a Window closeEvent."""
+        #print "closing"
         if util.isWindows():
+            #print "close win"
             self.win.close()
+            if not app().isInMaya():
+                #print "exit app"
+                import sys
+                sys.exit(1)
 
     def actionSaveSlot(self):
         """SaveAs if necessary, otherwise overwrite existing file."""
@@ -643,6 +650,7 @@ class DocumentController():
             app().documentControllers.remove(self)
         else:
             event.ignore()
+        self.actionCloseSlot()
 
     ### FILE INPUT ##
     def documentTitle(self):

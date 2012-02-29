@@ -72,6 +72,11 @@ def initAppWithGui(appArgs=sys.argv):
     global sharedApp
     sharedApp = CadnanoQt(appArgs)
     sharedApp.finishInit()
+    if util.isWindows():
+        pass
+        # import ctypes
+        # myappid = 'harvard.cadnano.cadnano2.2' # arbitrary string
+        # ctypes.windll.shell32.SetCurrentProcessExplicitAppUserModelID(myappid)
     return sharedApp
     
 def initAppMaya(appArgs=sys.argv):

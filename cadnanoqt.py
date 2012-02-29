@@ -58,6 +58,7 @@ class CadnanoQt(QObject):
         self.vhi = {}
         self.partItem = None
         self.sharedApp = self
+	
     
     def ignoreEnv(self):
         return os.environ.get('CADNANO_IGNORE_ENV_VARS_EXCEPT_FOR_ME', False)

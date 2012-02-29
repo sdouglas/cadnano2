@@ -15,7 +15,13 @@
     {
         "Entry"
         {
-        "MsmKey" = "8:_7EFECE87A7954D5AAAC44B5E5C7D92C3"
+        "MsmKey" = "8:_48C132E0E8F1428AB6E37FD79F5BE249"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_5F24C7055FC64EB9B5971AB33C5DD6D6"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
         }
@@ -33,13 +39,13 @@
         }
         "Entry"
         {
-        "MsmKey" = "8:_D3472111604B4E3BBABD910AA2B186A5"
+        "MsmKey" = "8:_DFA594AA30D1440CA851CA8C2A5C5CF0"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
         {
-        "MsmKey" = "8:_DFA594AA30D1440CA851CA8C2A5C5CF0"
+        "MsmKey" = "8:_E966A25DF12D4B36976183F8D3A95BBC"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
         }
@@ -222,6 +228,26 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_E966A25DF12D4B36976183F8D3A95BBC"
+            {
+            "SourcePath" = "8:..\\..\\..\\ui\\mainwindow\\images\\cadnano2-app-icon.ico"
+            "TargetName" = "8:cadnano2-app-icon.ico"
+            "Tag" = "8:"
+            "Folder" = "8:_AB1CFB233EBC4A0A92A6897606695AD2"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
         }
         "FileType"
         {
@@ -313,26 +339,26 @@
         "Product"
         {
         "Name" = "8:Microsoft Visual Studio"
-        "ProductName" = "8:CADnano2"
-        "ProductCode" = "8:{6548F939-F707-48E5-8F85-10C9F65FADA7}"
-        "PackageCode" = "8:{A47D0E1B-21E8-4CE4-9D72-3ADDE36F2D67}"
+        "ProductName" = "8:cadnano2"
+        "ProductCode" = "8:{9D0797FA-64F9-41C1-A7A4-7BCAA3A78F76}"
+        "PackageCode" = "8:{49EA335B-2BCC-41C3-9D66-A432290C111E}"
         "UpgradeCode" = "8:{1DD60FBB-A9DC-4BCF-80D7-63553B60403C}"
         "AspNetVersion" = "8:4.0.30319.0"
         "RestartWWWService" = "11:FALSE"
         "RemovePreviousVersions" = "11:TRUE"
         "DetectNewerInstalledVersion" = "11:TRUE"
         "InstallAllUsers" = "11:TRUE"
-        "ProductVersion" = "8:2.1"
-        "Manufacturer" = "8:CADnano Team"
+        "ProductVersion" = "8:2.2.0"
+        "Manufacturer" = "8:cadnano Team"
         "ARPHELPTELEPHONE" = "8:"
         "ARPHELPLINK" = "8:"
-        "Title" = "8:CADnano2 (x86)"
+        "Title" = "8:cadnano2 (x86)"
         "Subject" = "8:"
-        "ARPCONTACT" = "8:CADnano Team"
+        "ARPCONTACT" = "8:cadnano Team"
         "Keywords" = "8:"
         "ARPCOMMENTS" = "8:"
         "ARPURLINFOABOUT" = "8:http://www.cadnano.org"
-        "ARPPRODUCTICON" = "8:"
+        "ARPPRODUCTICON" = "8:_E966A25DF12D4B36976183F8D3A95BBC"
         "ARPIconIndex" = "3:0"
         "SearchPath" = "8:"
         "UseSystemSearchPath" = "11:TRUE"
@@ -940,7 +966,7 @@
                 {
                 }
             }
-            "{5259A561-127C-4D43-A0A1-72F10C7B3BF8}:_7EFECE87A7954D5AAAC44B5E5C7D92C3"
+            "{5259A561-127C-4D43-A0A1-72F10C7B3BF8}:_48C132E0E8F1428AB6E37FD79F5BE249"
             {
             "SourcePath" = "8:..\\PyQt-x86\\Release\\PyQt-x86.msm"
             "TargetName" = "8:"
@@ -994,6 +1020,60 @@
                 "IsolateTo" = "8:"
                 }
             }
+            "{5259A561-127C-4D43-A0A1-72F10C7B3BF8}:_5F24C7055FC64EB9B5971AB33C5DD6D6"
+            {
+            "SourcePath" = "8:..\\PyQt-x86 (Standard)\\Release\\PyQt-x86 (Standard).msm"
+            "TargetName" = "8:"
+            "Tag" = "8:"
+            "Folder" = "8:_D6E43118FEC84BA3981C8357DCC5D048"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            "ProjectOutputGroupRegister" = "3:1"
+            "OutputConfiguration" = "8:"
+            "OutputGroupCanonicalName" = "8:Built"
+            "OutputProjectGuid" = "8:{9CFD3E0E-940B-41D7-AB0F-C7C08347781D}"
+            "ShowKeyOutput" = "11:TRUE"
+                "ExcludeFilters"
+                {
+                }
+                "KeyOutputModule"
+                {
+                "UseDynamicProperties" = "11:TRUE"
+                "IsDependency" = "11:FALSE"
+                "SourcePath" = "8:..\\PyQt-x86 (Standard)\\Release\\PyQt-x86 (Standard).msm"
+                    "Properties"
+                    {
+                        "_0730A569BC354B61A8E81AAA6D96BF40.F83999D5848E442D95DD0289E6F6B6CE"
+                        {
+                        "Name" = "8:_0730A569BC354B61A8E81AAA6D96BF40.F83999D5848E442D95DD0289E6F6B6CE"
+                        "DisplayName" = "8:Module Retargetable Folder"
+                        "Description" = "8:"
+                        "Type" = "3:32769"
+                        "ContextData" = "8:_RetargetableFolder"
+                        "Attributes" = "3:6"
+                        "Setting" = "3:2"
+                        "Value" = "8:_D6E43118FEC84BA3981C8357DCC5D048"
+                        "UsePlugInResources" = "11:FALSE"
+                        }
+                    }
+                "LanguageId" = "3:1033"
+                "Exclude" = "11:FALSE"
+                "Folder" = "8:_D6E43118FEC84BA3981C8357DCC5D048"
+                "Feature" = "8:"
+                "IsolateTo" = "8:"
+                }
+            }
             "{5259A561-127C-4D43-A0A1-72F10C7B3BF8}:_A6DBF0C72EFD4EF282D3BCA043E7EABC"
             {
             "SourcePath" = "8:..\\CadNanoModule\\Release\\CadNanoModule.msm"
@@ -1043,60 +1123,6 @@
                 "LanguageId" = "3:1033"
                 "Exclude" = "11:FALSE"
                 "Folder" = "8:_AB1CFB233EBC4A0A92A6897606695AD2"
-                "Feature" = "8:"
-                "IsolateTo" = "8:"
-                }
-            }
-            "{5259A561-127C-4D43-A0A1-72F10C7B3BF8}:_D3472111604B4E3BBABD910AA2B186A5"
-            {
-            "SourcePath" = "8:..\\PyQt-x86 (Standard)\\Debug\\PyQt-x86 (Standard).msm"
-            "TargetName" = "8:"
-            "Tag" = "8:"
-            "Folder" = "8:_D6E43118FEC84BA3981C8357DCC5D048"
-            "Condition" = "8:"
-            "Transitive" = "11:FALSE"
-            "Vital" = "11:TRUE"
-            "ReadOnly" = "11:FALSE"
-            "Hidden" = "11:FALSE"
-            "System" = "11:FALSE"
-            "Permanent" = "11:FALSE"
-            "SharedLegacy" = "11:FALSE"
-            "PackageAs" = "3:1"
-            "Register" = "3:1"
-            "Exclude" = "11:FALSE"
-            "IsDependency" = "11:FALSE"
-            "IsolateTo" = "8:"
-            "ProjectOutputGroupRegister" = "3:1"
-            "OutputConfiguration" = "8:"
-            "OutputGroupCanonicalName" = "8:Built"
-            "OutputProjectGuid" = "8:{9CFD3E0E-940B-41D7-AB0F-C7C08347781D}"
-            "ShowKeyOutput" = "11:TRUE"
-                "ExcludeFilters"
-                {
-                }
-                "KeyOutputModule"
-                {
-                "UseDynamicProperties" = "11:TRUE"
-                "IsDependency" = "11:FALSE"
-                "SourcePath" = "8:..\\PyQt-x86 (Standard)\\Release\\PyQt-x86 (Standard).msm"
-                    "Properties"
-                    {
-                        "_0730A569BC354B61A8E81AAA6D96BF40.F83999D5848E442D95DD0289E6F6B6CE"
-                        {
-                        "Name" = "8:_0730A569BC354B61A8E81AAA6D96BF40.F83999D5848E442D95DD0289E6F6B6CE"
-                        "DisplayName" = "8:Module Retargetable Folder"
-                        "Description" = "8:"
-                        "Type" = "3:32769"
-                        "ContextData" = "8:_RetargetableFolder"
-                        "Attributes" = "3:6"
-                        "Setting" = "3:2"
-                        "Value" = "8:_D6E43118FEC84BA3981C8357DCC5D048"
-                        "UsePlugInResources" = "11:FALSE"
-                        }
-                    }
-                "LanguageId" = "3:1033"
-                "Exclude" = "11:FALSE"
-                "Folder" = "8:_D6E43118FEC84BA3981C8357DCC5D048"
                 "Feature" = "8:"
                 "IsolateTo" = "8:"
                 }
