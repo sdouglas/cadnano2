@@ -383,9 +383,13 @@ class Document(QObject):
                 # process xovers to get revised delta
                 if selected[0] and strand.connectionLow():
                     newL = part.xoverSnapTo(strand, idxL, delta)
+                    if newL == None:
+                        return
                     deltaH = newL-idxL
                 if selected[1] and strand.connectionHigh():
                     newH = part.xoverSnapTo(strand, idxH, delta)
+                    if newH == None:
+                        return
                     deltaL = newH-idxH
 
                 # process endpoints

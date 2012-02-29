@@ -632,7 +632,7 @@ class Strand(QObject):
             # end if
         # end if
     # end def
-    
+
     def removeInsertion(self,  idx, useUndoStack=True):
         cmds = []
         idxLow, idxHigh = self.idxs()
@@ -643,7 +643,7 @@ class Strand(QObject):
                     cmds.append(strand.oligo().applySequenceCMD(None, useUndoStack=useUndoStack))
                 cmds.append(Strand.RemoveInsertionCommand(self, idx))
                 util.execCommandList(
-                                    self, [c], desc="Remove Insertion",
+                                    self, cmds, desc="Remove Insertion",
                                     useUndoStack=useUndoStack)
             # end if
         # end if
