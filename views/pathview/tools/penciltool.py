@@ -595,6 +595,16 @@ class ForcedXoverItem(QGraphicsPathItem):
     def strandType(self):
         return self._strandType
     # end def
+    
+    def hide5prime(self):
+        self._node5._pathThing.hide()
+
+    def hide3prime(self):
+        self._node3._pathThing.hide()
+        
+    def show3prime(self):
+        if self._node3._blankThing.isVisible():
+            self._node3._pathThing.show()
 
     def hideIt(self):
         self.hide()
