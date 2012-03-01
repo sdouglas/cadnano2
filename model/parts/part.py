@@ -585,6 +585,9 @@ class Part(QObject):
                 else:
                     if useUndoStack:
                         self.undoStack().endMacro()
+                        # unclear the applied sequence
+                        if self.undoStack().canUndo() and ss5p.isScaffold():
+                            self.undoStack().undo()
                     return
                 # end if
             if xoStrand3.idx3Prime() == idx5p:
@@ -614,6 +617,9 @@ class Part(QObject):
                 else:
                     if useUndoStack:
                         self.undoStack().endMacro()
+                        # unclear the applied sequence
+                        if self.undoStack().canUndo() and ss5p.isScaffold():
+                            self.undoStack().undo()
                     return
         # end if
         else:  # Do the following if it is in fact a different strand
@@ -635,6 +641,9 @@ class Part(QObject):
                 else:  # can't split... abort
                     if useUndoStack:
                         self.undoStack().endMacro()
+                        # unclear the applied sequence
+                        if self.undoStack().canUndo() and ss5p.isScaffold():
+                            self.undoStack().undo()
                     return
 
             # is the 3' end ready for xover installation?
@@ -654,6 +663,9 @@ class Part(QObject):
                 else:  # can't split... abort
                     if useUndoStack:
                         self.undoStack().endMacro()
+                        # unclear the applied sequence
+                        if self.undoStack().canUndo() and ss5p.isScaffold():
+                            self.undoStack().undo()
                     return
         # end else
 

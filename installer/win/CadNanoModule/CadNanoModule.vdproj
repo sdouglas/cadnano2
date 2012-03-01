@@ -21,12 +21,6 @@
         }
         "Entry"
         {
-        "MsmKey" = "8:_00F0BD4478E94074A3702F2411F18CE7"
-        "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
         "MsmKey" = "8:_013C2F2CB92145658116FE844B5381BF"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
@@ -39,25 +33,7 @@
         }
         "Entry"
         {
-        "MsmKey" = "8:_015D7F0E25D9470C9F24B188F63DFC3F"
-        "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
-        "MsmKey" = "8:_027F1BEA3E544988B05263E1E2A657FB"
-        "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
         "MsmKey" = "8:_02BC93EE91A4460498466C46F63BAC61"
-        "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
-        "MsmKey" = "8:_030040BFCC5F40DB8BD81F8213AEA571"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
         }
@@ -159,12 +135,6 @@
         }
         "Entry"
         {
-        "MsmKey" = "8:_0E9624315B1D483FA32B78D45F35F24E"
-        "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
         "MsmKey" = "8:_0EF8CA22A2BE492CB4160A89A175D796"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
@@ -183,25 +153,7 @@
         }
         "Entry"
         {
-        "MsmKey" = "8:_0FD69CF64FC043C1BC1A31F0A29CD186"
-        "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
-        "MsmKey" = "8:_1037812B179848889DF781F3806BAB27"
-        "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
         "MsmKey" = "8:_1069E4E6A5E447688EFC1E6F34FDC44D"
-        "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
-        "MsmKey" = "8:_10931076E55A461095178AA0AFB04AB4"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
         }
@@ -214,12 +166,6 @@
         "Entry"
         {
         "MsmKey" = "8:_10FB513AE26D4B52AB487FD7ED789C51"
-        "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
-        "MsmKey" = "8:_11EE18D9CB654EA4B739DEBD365A0B80"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
         }
@@ -255,19 +201,7 @@
         }
         "Entry"
         {
-        "MsmKey" = "8:_150A0F67B3F347AEBDB8722FB91B0658"
-        "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
         "MsmKey" = "8:_15D3AC9BCA8449FBA0A477EAB163C601"
-        "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
-        "MsmKey" = "8:_15EDE5D9394F458B99C53DDCF9F78069"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
         }
@@ -321,12 +255,6 @@
         }
         "Entry"
         {
-        "MsmKey" = "8:_185332FF56974D43ADC9EA71A3242514"
-        "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
         "MsmKey" = "8:_18587969C4214FF498F1A51D455EA5D7"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
@@ -351,37 +279,13 @@
         }
         "Entry"
         {
-        "MsmKey" = "8:_1898265133DC460F9352192AF838DDEA"
-        "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
         "MsmKey" = "8:_18EDE07D7DA948B89EEB4C74A63BCA82"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
         {
-        "MsmKey" = "8:_18EF64996B164E76AFBC46AA10E7EEAE"
-        "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
-        "MsmKey" = "8:_1A022FA9EFD64CD7B23957A5D40B2FBB"
-        "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
         "MsmKey" = "8:_1A116538AD2E413F87387727B92B762E"
-        "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
-        "MsmKey" = "8:_1A1DBADE5AE44C91A1FBAA32F60337EB"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
         }
@@ -423,24 +327,6 @@
         }
         "Entry"
         {
-        "MsmKey" = "8:_1C6FB6B3064B40B290F13EF4DF63AE3F"
-        "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
-        "MsmKey" = "8:_1DB643DA78A2488CA25A39C6759F0BF1"
-        "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
-        "MsmKey" = "8:_1DC472198B7B4069AD587285C40160B4"
-        "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
         "MsmKey" = "8:_1DDCD4EAE8BC4E8291F1E0A015FA45E0"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
@@ -465,18 +351,6 @@
         }
         "Entry"
         {
-        "MsmKey" = "8:_20028D65D6D84BBABAC7C8FBBD37F9B9"
-        "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
-        "MsmKey" = "8:_2052F45010DC4922BA166FAFCEBABAD2"
-        "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
         "MsmKey" = "8:_20605FBEC9DA40BC80779A7E94B1D32C"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
@@ -489,19 +363,7 @@
         }
         "Entry"
         {
-        "MsmKey" = "8:_2105A5862A6246749E5890FEA3B838C3"
-        "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
         "MsmKey" = "8:_212B7C3627A14D7CB46CE1353BA45F58"
-        "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
-        "MsmKey" = "8:_21BB47469B0F492BA9C187AE216120E5"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
         }
@@ -597,36 +459,6 @@
         }
         "Entry"
         {
-        "MsmKey" = "8:_27C47543350A49FFA475C625BD93846F"
-        "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
-        "MsmKey" = "8:_286C709CE9D449CD9F9F6A701226ECA1"
-        "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
-        "MsmKey" = "8:_28A6E6A9F0A9442EB868E4E0993BDC59"
-        "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
-        "MsmKey" = "8:_28DBDDCCD5A644099D60814A76DB6461"
-        "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
-        "MsmKey" = "8:_29455E9FAF27463C970EF9FF3D57E74A"
-        "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
         "MsmKey" = "8:_295DF1580ECC4834A36BD95B4E286A43"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
@@ -634,12 +466,6 @@
         "Entry"
         {
         "MsmKey" = "8:_295FCEAE93C14880A0480DFECDF8EFA0"
-        "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
-        "MsmKey" = "8:_2974A7E5C676491DA19E350855D0A763"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
         }
@@ -735,19 +561,7 @@
         }
         "Entry"
         {
-        "MsmKey" = "8:_2FB6CD688E6B4A92ACFD0E01B284966C"
-        "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
         "MsmKey" = "8:_2FC65EF9C97641AAB99E4D41D5774043"
-        "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
-        "MsmKey" = "8:_2FD81B43865F45E7BDBCC4E28665C0C9"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
         }
@@ -795,12 +609,6 @@
         }
         "Entry"
         {
-        "MsmKey" = "8:_354DE0ED443D449B9D40369A38230959"
-        "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
         "MsmKey" = "8:_35BE28D8A95F4D809A18D271B9CE98DA"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
@@ -813,19 +621,7 @@
         }
         "Entry"
         {
-        "MsmKey" = "8:_3747B3CA996A4EE89CC622B8E5ED6615"
-        "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
         "MsmKey" = "8:_37F1852C6EC144C29719F3346D23F9BD"
-        "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
-        "MsmKey" = "8:_3809AD18657B4B198AFD15F4711A88BB"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
         }
@@ -862,12 +658,6 @@
         "Entry"
         {
         "MsmKey" = "8:_3925AC4044164D39888D94ED50266C48"
-        "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
-        "MsmKey" = "8:_3A3A51A65FED455E8C5E497F3373BA47"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
         }
@@ -951,25 +741,7 @@
         }
         "Entry"
         {
-        "MsmKey" = "8:_3DC4EE39ABB64325959C5647BF89840C"
-        "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
         "MsmKey" = "8:_3E469EE7DE14496AB867F61C5CE7C511"
-        "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
-        "MsmKey" = "8:_3EC78954A86543FA9E19DEDE5299FAFD"
-        "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
-        "MsmKey" = "8:_3F22C257C01848BA9AD68C3407A51910"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
         }
@@ -981,37 +753,13 @@
         }
         "Entry"
         {
-        "MsmKey" = "8:_3FD1ADC123A645CCA956ACC7931E5A04"
-        "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
         "MsmKey" = "8:_400A6298E6E74A4A9C124FB0E7FF39DF"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
         {
-        "MsmKey" = "8:_401905B8D1084279AAAE6CAC736C34D7"
-        "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
         "MsmKey" = "8:_40200DDE728B4854AD390699CB82A320"
-        "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
-        "MsmKey" = "8:_4089162E67B74CBDAC09E99E308AAC44"
-        "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
-        "MsmKey" = "8:_409E4243D5734F87BED80860A071E9B5"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
         }
@@ -1024,18 +772,6 @@
         "Entry"
         {
         "MsmKey" = "8:_416C6D7038BF4DF7A2FB242D220EB9E1"
-        "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
-        "MsmKey" = "8:_41797BC0BC5B4F3689DAB77E85515D8C"
-        "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
-        "MsmKey" = "8:_4183405EFC8D49C3BB425904738B9BF3"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
         }
@@ -1077,19 +813,7 @@
         }
         "Entry"
         {
-        "MsmKey" = "8:_43D5D0DE534E43D992D109326134000C"
-        "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
         "MsmKey" = "8:_44925CB60E884771B7A558EEE226170E"
-        "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
-        "MsmKey" = "8:_44A4896165BA411AB9B3635AD8E48AB5"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
         }
@@ -1131,12 +855,6 @@
         }
         "Entry"
         {
-        "MsmKey" = "8:_4A00A145011B4539A944935988E334AD"
-        "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
         "MsmKey" = "8:_4A61841549C64B8389B75472F08F5153"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
@@ -1155,19 +873,7 @@
         }
         "Entry"
         {
-        "MsmKey" = "8:_4A9946E0E4DF4CC5A092DDAA0FCDBBFD"
-        "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
         "MsmKey" = "8:_4AABBA9FB74748BB81CC47F116575400"
-        "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
-        "MsmKey" = "8:_4AAEBB4BB3514BD4A2D2D2B0CFDBCF95"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
         }
@@ -1203,12 +909,6 @@
         }
         "Entry"
         {
-        "MsmKey" = "8:_4D4E3EE736524E22A7696D89D9C32788"
-        "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
         "MsmKey" = "8:_4FB76E4CF07B438E8D2182233B8825A8"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
@@ -1216,18 +916,6 @@
         "Entry"
         {
         "MsmKey" = "8:_4FC4A45BA68F4090AA40EA310EA94D42"
-        "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
-        "MsmKey" = "8:_4FD75571706447258164DC578D481683"
-        "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
-        "MsmKey" = "8:_50AE18A4EC114308AFE538E4A0EE08F1"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
         }
@@ -1275,25 +963,7 @@
         }
         "Entry"
         {
-        "MsmKey" = "8:_52FDCBA96CE447ECBD98713042C55040"
-        "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
-        "MsmKey" = "8:_531BC6BE34624F15ACEE5AC000595DAF"
-        "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
         "MsmKey" = "8:_5361DC8DF3B84D7AAD90DBF18E10BBE5"
-        "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
-        "MsmKey" = "8:_538910D7F1604ED99220CB8F5AA74CDE"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
         }
@@ -1341,31 +1011,13 @@
         }
         "Entry"
         {
-        "MsmKey" = "8:_5754638295D94256B8910521CB0AB385"
-        "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
         "MsmKey" = "8:_57F35333B8414CF0866D373B19130B76"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
         {
-        "MsmKey" = "8:_588FF32B28924B038C2743C9B05AA81D"
-        "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
         "MsmKey" = "8:_58AF1DD2C0AB450194D4125608E3BA0C"
-        "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
-        "MsmKey" = "8:_59074DF7985C4B4B80C73B1A8FDB8AF9"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
         }
@@ -1443,30 +1095,6 @@
         }
         "Entry"
         {
-        "MsmKey" = "8:_5D534E3F54DF47249DD8B1F36E78E83D"
-        "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
-        "MsmKey" = "8:_5DAC7DFB440D4C08947DC5FEB5415FEB"
-        "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
-        "MsmKey" = "8:_5DAE85BCD8B14C2C8683FA8E1EE7D062"
-        "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
-        "MsmKey" = "8:_5DE37147AEA94F4F8C06C153353B86C3"
-        "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
         "MsmKey" = "8:_5DF56D1F07174753A7AF80AFE6541135"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
@@ -1474,12 +1102,6 @@
         "Entry"
         {
         "MsmKey" = "8:_5E428939796B46619515B366987F3792"
-        "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
-        "MsmKey" = "8:_5EA0128E24D94413B90F7612E3CAB7C4"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
         }
@@ -1498,12 +1120,6 @@
         "Entry"
         {
         "MsmKey" = "8:_60630540BB944F21ACACE686296EF541"
-        "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
-        "MsmKey" = "8:_607BF17A44BD419D80BE00E2D3F19766"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
         }
@@ -1545,12 +1161,6 @@
         }
         "Entry"
         {
-        "MsmKey" = "8:_644470A757DD4D9EAF405BF35F6ED7D1"
-        "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
         "MsmKey" = "8:_6572AF5A39144D6A9BB2AE08216DA594"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
@@ -1587,12 +1197,6 @@
         }
         "Entry"
         {
-        "MsmKey" = "8:_6796C6A26CEB42189D14B82999368565"
-        "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
         "MsmKey" = "8:_679F2A782CA3455BAB34F96C9CC8C127"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
@@ -1600,12 +1204,6 @@
         "Entry"
         {
         "MsmKey" = "8:_67E7FC7E41AD49C2B42905CEE442E3B4"
-        "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
-        "MsmKey" = "8:_67E9789122A14BDBB332C78BA2BADBFF"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
         }
@@ -1641,12 +1239,6 @@
         }
         "Entry"
         {
-        "MsmKey" = "8:_6A366C2E53BF4469937F0FD8710D73B6"
-        "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
         "MsmKey" = "8:_6A50CA0A82E640F29F5866D1CA3C8EC2"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
@@ -1659,12 +1251,6 @@
         }
         "Entry"
         {
-        "MsmKey" = "8:_6A5C4E3E233E4A3797D86605A005CB0A"
-        "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
         "MsmKey" = "8:_6A645C3FF8A040C5B9D35A594B103DF3"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
@@ -1672,12 +1258,6 @@
         "Entry"
         {
         "MsmKey" = "8:_6ACA7B86F59F477CAC014C235FA6FDE7"
-        "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
-        "MsmKey" = "8:_6B2DD91E12DD4EAEA82F2AB903D3A703"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
         }
@@ -1702,12 +1282,6 @@
         "Entry"
         {
         "MsmKey" = "8:_6CB87F91E5D145BF90CA68764389C70C"
-        "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
-        "MsmKey" = "8:_6CEAE56DD90B438494CED78C6E2E3771"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
         }
@@ -1774,12 +1348,6 @@
         "Entry"
         {
         "MsmKey" = "8:_701C297BA40F4B17A13B6E9C70A3B29B"
-        "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
-        "MsmKey" = "8:_704B0BC0B8A647A3BBCA4BA66A445F7B"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
         }
@@ -1857,12 +1425,6 @@
         }
         "Entry"
         {
-        "MsmKey" = "8:_742A2ED42E2E46A391A3C8129DD79A45"
-        "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
         "MsmKey" = "8:_745740C9D05645B4A9943D9930E947C7"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
@@ -1917,12 +1479,6 @@
         }
         "Entry"
         {
-        "MsmKey" = "8:_77EF033B202641DFAD2572553293AFC0"
-        "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
         "MsmKey" = "8:_7862F2B55D0F4B768B353B0EEF215E94"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
@@ -1936,12 +1492,6 @@
         "Entry"
         {
         "MsmKey" = "8:_791E2FCDC5144EA49D2E175BF830CCC5"
-        "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
-        "MsmKey" = "8:_795301818A75445FAB8870914B4CA173"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
         }
@@ -1971,18 +1521,6 @@
         }
         "Entry"
         {
-        "MsmKey" = "8:_7D01282FB5034444B7CEF20A54669460"
-        "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
-        "MsmKey" = "8:_7D4B1B0E4C634531A1DE82B8EB839456"
-        "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
         "MsmKey" = "8:_7DC9739C482E4674A2F2A9AA5A7626E0"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
@@ -2002,12 +1540,6 @@
         "Entry"
         {
         "MsmKey" = "8:_7E6168F58A194701A7FD5253D188E712"
-        "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
-        "MsmKey" = "8:_7EA2866539E942878BD15F2F6136D946"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
         }
@@ -2062,18 +1594,6 @@
         "Entry"
         {
         "MsmKey" = "8:_826B39AEE92B4220933CC847535DD8B7"
-        "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
-        "MsmKey" = "8:_82A4E59428CF4FBB8B7210E8905E5917"
-        "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
-        "MsmKey" = "8:_82C9EA0674024EB18586C13D4FDC7558"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
         }
@@ -2175,31 +1695,13 @@
         }
         "Entry"
         {
-        "MsmKey" = "8:_8911FA49FC214D77BF3CB3227798DCC4"
-        "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
         "MsmKey" = "8:_8947AF72CDD448DC94F82FB0AE37B3AF"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
         {
-        "MsmKey" = "8:_8947C7C74CD74B68A109E37927103823"
-        "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
         "MsmKey" = "8:_8ABDB8883A984B9B8C6CBF465474A130"
-        "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
-        "MsmKey" = "8:_8ADE42158A4A4ACE98BD7BE0BDCBDF7F"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
         }
@@ -2236,12 +1738,6 @@
         "Entry"
         {
         "MsmKey" = "8:_8C552704EA174229892F7A5C482B8E38"
-        "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
-        "MsmKey" = "8:_8C7CA0D490C4427D97371B7FCF527E91"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
         }
@@ -2307,12 +1803,6 @@
         }
         "Entry"
         {
-        "MsmKey" = "8:_92320E7D71624EB09F92AB6E295D5728"
-        "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
         "MsmKey" = "8:_927A3F7A0C0540C7914A457CC487C65B"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
@@ -2373,19 +1863,7 @@
         }
         "Entry"
         {
-        "MsmKey" = "8:_974FD85525734D61BFDC0289D42C750F"
-        "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
         "MsmKey" = "8:_97A39DFECC0E423192E13E2D5972C169"
-        "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
-        "MsmKey" = "8:_9816B313E8F64A73A9B06862DDA6CDC7"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
         }
@@ -2433,19 +1911,7 @@
         }
         "Entry"
         {
-        "MsmKey" = "8:_99D75F8E53C54CEA879E05B056774A5D"
-        "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
         "MsmKey" = "8:_99EEAE3B0F7A41A081BFE55B57CF5AA2"
-        "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
-        "MsmKey" = "8:_9A20520156024208AD1941777CD9DD0F"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
         }
@@ -2475,25 +1941,7 @@
         }
         "Entry"
         {
-        "MsmKey" = "8:_9C4E23C1050443F199DFB13BFE3B0662"
-        "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
         "MsmKey" = "8:_9C5D61C1AC354CAE85AADBF58D563225"
-        "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
-        "MsmKey" = "8:_9C8B8F7A40AA4CE68D41DF740DC6D8EE"
-        "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
-        "MsmKey" = "8:_9D47ADB44AB045D59A36EFA874BD4ECA"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
         }
@@ -2523,18 +1971,6 @@
         }
         "Entry"
         {
-        "MsmKey" = "8:_9F0C58877CC444F5B13AE4187F3394D0"
-        "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
-        "MsmKey" = "8:_9F49E6754293424980D91EAD8B0E191C"
-        "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
         "MsmKey" = "8:_9F8385D566574A258C751F51000ACCCA"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
@@ -2542,18 +1978,6 @@
         "Entry"
         {
         "MsmKey" = "8:_9FD0CF5C486A44D2A21B2DBCFDEF3930"
-        "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
-        "MsmKey" = "8:_A03677A0AABD4E538A520E753AB61013"
-        "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
-        "MsmKey" = "8:_A043B15F0B3B46EEBB465FF7B2B66CAB"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
         }
@@ -2589,12 +2013,6 @@
         }
         "Entry"
         {
-        "MsmKey" = "8:_A1E983ED2CE14F5EB0166C4CE93E6FDE"
-        "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
         "MsmKey" = "8:_A2FAFBF21B9A465E9BC546D5E1132143"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
@@ -2613,25 +2031,7 @@
         }
         "Entry"
         {
-        "MsmKey" = "8:_A419174B243F4DF6964B1473DE64D7E5"
-        "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
         "MsmKey" = "8:_A58BE3A8061F47EF8B5C690E70A1DE57"
-        "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
-        "MsmKey" = "8:_A5908790770443C5BA377E8A366E5D8C"
-        "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
-        "MsmKey" = "8:_A5ED1226493B4392938C5F4A131FB529"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
         }
@@ -2679,19 +2079,7 @@
         }
         "Entry"
         {
-        "MsmKey" = "8:_AC2A66F24DF04B869A4D61D8D826B0A4"
-        "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
         "MsmKey" = "8:_AC430F37C2CE43A7B67C8E5486C383E6"
-        "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
-        "MsmKey" = "8:_AC45F18A179D4F5EAF7F49CDFF82D39C"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
         }
@@ -2733,12 +2121,6 @@
         }
         "Entry"
         {
-        "MsmKey" = "8:_B0D86AF79A2943709C71E3D279C2CA94"
-        "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
         "MsmKey" = "8:_B1AC5A33181D43A49107E2D7728B5AE6"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
@@ -2746,12 +2128,6 @@
         "Entry"
         {
         "MsmKey" = "8:_B1C9FD6119184559BD30345F6FC3584C"
-        "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
-        "MsmKey" = "8:_B1D17C0702DC41B5892F63EF003A2C70"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
         }
@@ -2787,18 +2163,6 @@
         }
         "Entry"
         {
-        "MsmKey" = "8:_B47CA9A7789D44E6B34836D59DD5575A"
-        "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
-        "MsmKey" = "8:_B5014EB554104BBD907A71FC9CC6DE3B"
-        "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
         "MsmKey" = "8:_B51C68CD759A496784D1C68293016FB0"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
@@ -2829,19 +2193,7 @@
         }
         "Entry"
         {
-        "MsmKey" = "8:_B753957D5580460BBE593B8C61E9F1DC"
-        "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
         "MsmKey" = "8:_B7F1D151A6774C388E2F5CAAAD1D0490"
-        "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
-        "MsmKey" = "8:_B82B83006E8945D8A9FBCDEFF01709B5"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
         }
@@ -2854,12 +2206,6 @@
         "Entry"
         {
         "MsmKey" = "8:_B8A87AD696ED4B76B9E40ABADB55A4BA"
-        "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
-        "MsmKey" = "8:_B9316F2179E04388B66A6587FFDB7399"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
         }
@@ -2907,19 +2253,7 @@
         }
         "Entry"
         {
-        "MsmKey" = "8:_BAAA78AB846A47408F96C8F374C0477C"
-        "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
         "MsmKey" = "8:_BB3D5C392029438B807309C6C66625FF"
-        "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
-        "MsmKey" = "8:_BC46D3E543B54CD399D49D4DFA2DAFA1"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
         }
@@ -2967,12 +2301,6 @@
         }
         "Entry"
         {
-        "MsmKey" = "8:_BF1FC9D5A51840328740B03F718E4A63"
-        "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
         "MsmKey" = "8:_BF4019C5A563437DA43BC20A2F8B9023"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
@@ -2992,12 +2320,6 @@
         "Entry"
         {
         "MsmKey" = "8:_C24A1F841B1A47CCA683664CB98FCEE5"
-        "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
-        "MsmKey" = "8:_C24B17CAA74A408987238C682381CC99"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
         }
@@ -3063,18 +2385,6 @@
         }
         "Entry"
         {
-        "MsmKey" = "8:_C60D8FFF66774EBD8F7E0067B164EE45"
-        "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
-        "MsmKey" = "8:_C668D3FD864540428361EA18CAE969EB"
-        "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
         "MsmKey" = "8:_C671B0A457C7449BB35BAD570ABFB07F"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
@@ -3088,12 +2398,6 @@
         "Entry"
         {
         "MsmKey" = "8:_C8FFA5D8FDEE4028BEB2AAB2D9483EF5"
-        "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
-        "MsmKey" = "8:_C98F85E4494943C89F75E01FC8BF48FD"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
         }
@@ -3195,19 +2499,7 @@
         }
         "Entry"
         {
-        "MsmKey" = "8:_CE5C6F194FB645698E2F3BEC16DAE9D3"
-        "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
         "MsmKey" = "8:_CE9B61D77F3746E0B0A562822C8600C9"
-        "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
-        "MsmKey" = "8:_D034149BDDC74886A00E18989D8405BE"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
         }
@@ -3249,12 +2541,6 @@
         }
         "Entry"
         {
-        "MsmKey" = "8:_D3C1FD41F84D4001BF04FCBF963CDE63"
-        "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
         "MsmKey" = "8:_D3D29E00FECD4BF1B1AB9A3242B0F514"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
@@ -3274,12 +2560,6 @@
         "Entry"
         {
         "MsmKey" = "8:_D48825A4ACB94130AC9A457EB91D7EB5"
-        "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
-        "MsmKey" = "8:_D5979292FD8F41A5BF73838965007036"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
         }
@@ -3321,12 +2601,6 @@
         }
         "Entry"
         {
-        "MsmKey" = "8:_D8DD75D3E5964FD3BEF30F7C1D0B461C"
-        "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
         "MsmKey" = "8:_D9D512F4472D4BCAA229F128B634A14C"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
@@ -3334,12 +2608,6 @@
         "Entry"
         {
         "MsmKey" = "8:_D9DBA66CF150416DAA774075A3FE49DF"
-        "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
-        "MsmKey" = "8:_DA2549122934411DAE4F097447FE7EEE"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
         }
@@ -3387,12 +2655,6 @@
         }
         "Entry"
         {
-        "MsmKey" = "8:_DCACA6F1AB4F485CA3B42C6B6B2336BE"
-        "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
         "MsmKey" = "8:_DCB4FD5FA7704EC6AB850D4056C9F682"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
@@ -3417,12 +2679,6 @@
         }
         "Entry"
         {
-        "MsmKey" = "8:_DD93C8BFDEF94259AD072513C03065F6"
-        "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
         "MsmKey" = "8:_DD98990FA01248B18A081E018232B36C"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
@@ -3430,18 +2686,6 @@
         "Entry"
         {
         "MsmKey" = "8:_DDB95DABCEE444F0854628CFA6CD9CC6"
-        "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
-        "MsmKey" = "8:_DEF957C97A4A49B7A882B275E98BC762"
-        "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
-        "MsmKey" = "8:_DFA2211F9F274218AE0A1B7BD0271895"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
         }
@@ -3460,12 +2704,6 @@
         "Entry"
         {
         "MsmKey" = "8:_E047532DAE44472A82B62BCAE4FFED58"
-        "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
-        "MsmKey" = "8:_E0837FA3BE784C4EA036CE7626C0813A"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
         }
@@ -3490,12 +2728,6 @@
         "Entry"
         {
         "MsmKey" = "8:_E1F5E58972364E03A63A91C4A5E39380"
-        "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
-        "MsmKey" = "8:_E2239235806D4D20B922C0864F45D3F3"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
         }
@@ -3531,37 +2763,7 @@
         }
         "Entry"
         {
-        "MsmKey" = "8:_E2E6DF44179C4DE28EA6C0556D4F657E"
-        "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
-        "MsmKey" = "8:_E47A4B0A09AE4E9EA7C485916C441099"
-        "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
-        "MsmKey" = "8:_E48579886A584AA48DE02EABDB3AC9EF"
-        "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
         "MsmKey" = "8:_E50C947236F04ABB8B4320BB39256D63"
-        "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
-        "MsmKey" = "8:_E542853A67584F57A188D489931E07B0"
-        "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
-        "MsmKey" = "8:_E671764C1E984F97A1CE2606ABDDE89F"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
         }
@@ -3585,19 +2787,7 @@
         }
         "Entry"
         {
-        "MsmKey" = "8:_E7E45BF3F452494983A39C6422E88E19"
-        "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
         "MsmKey" = "8:_E8E5EBE82DE84D8E9C20B05C39E569F5"
-        "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
-        "MsmKey" = "8:_E9699F8924F1420986924B46DC33D7A1"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
         }
@@ -3633,12 +2823,6 @@
         }
         "Entry"
         {
-        "MsmKey" = "8:_EAF6C8B17638412C917E595D3D1B7C15"
-        "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
         "MsmKey" = "8:_EB240124729148D6AC4C95180585DC82"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
@@ -3657,19 +2841,7 @@
         }
         "Entry"
         {
-        "MsmKey" = "8:_ECD042D792D54439B750BE0A5AF03A27"
-        "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
         "MsmKey" = "8:_ECD7E6724B6A495785F7F73D4D3BE782"
-        "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
-        "MsmKey" = "8:_EE23FCBBADE741C8BAA009932CAA584C"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
         }
@@ -3705,19 +2877,7 @@
         }
         "Entry"
         {
-        "MsmKey" = "8:_F28EBE863D964A1E84FA908A6B717E6F"
-        "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
         "MsmKey" = "8:_F2F171DCE2B9449F978CCA7E06CBB0A5"
-        "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
-        "MsmKey" = "8:_F33D9E97EAD246459C8933B600621949"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
         }
@@ -3729,19 +2889,7 @@
         }
         "Entry"
         {
-        "MsmKey" = "8:_F466E723BBD94FA2BB6FA69D6BEF41E8"
-        "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
         "MsmKey" = "8:_F46C8E674D9249CFB00291958F836D03"
-        "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
-        "MsmKey" = "8:_F5A4E212E4D94FCBB2960DDD4070D555"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
         }
@@ -3771,12 +2919,6 @@
         }
         "Entry"
         {
-        "MsmKey" = "8:_F6E4F8DFCAF4449F898DA7F6C0357DA0"
-        "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
         "MsmKey" = "8:_F74D7E683C814396A65958016E145420"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
@@ -3789,25 +2931,7 @@
         }
         "Entry"
         {
-        "MsmKey" = "8:_F8B4A5CE2B614F3581F2ED5CE2D3B82B"
-        "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
-        "MsmKey" = "8:_F9714516020F4418BCEB58B8269B719D"
-        "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
         "MsmKey" = "8:_FBAD52B6587244E291BA95A57B1A3F70"
-        "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
-        "MsmKey" = "8:_FC506CB33C4F4CFEA17AE0B2D893C07E"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
         }
@@ -3820,12 +2944,6 @@
         "Entry"
         {
         "MsmKey" = "8:_FD92CCA9FF0A48A9ADFECC5C819D671C"
-        "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
-        "MsmKey" = "8:_FDCCE41F3D0A4A5BBB4B0DAD723BF693"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
         }
@@ -3982,26 +3100,6 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
-            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_00F0BD4478E94074A3702F2411F18CE7"
-            {
-            "SourcePath" = "8:..\\..\\..\\include\\networkx\\algorithms\\shortest_paths\\astar.pyc"
-            "TargetName" = "8:astar.pyc"
-            "Tag" = "8:"
-            "Folder" = "8:_1EE1F655FADF4B74B5D90E8FFC23CC9B"
-            "Condition" = "8:"
-            "Transitive" = "11:FALSE"
-            "Vital" = "11:TRUE"
-            "ReadOnly" = "11:FALSE"
-            "Hidden" = "11:FALSE"
-            "System" = "11:FALSE"
-            "Permanent" = "11:FALSE"
-            "SharedLegacy" = "11:FALSE"
-            "PackageAs" = "3:1"
-            "Register" = "3:1"
-            "Exclude" = "11:FALSE"
-            "IsDependency" = "11:FALSE"
-            "IsolateTo" = "8:"
-            }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_013C2F2CB92145658116FE844B5381BF"
             {
             "SourcePath" = "8:..\\..\\..\\ui\\mainwindow\\images\\remove-bases.svg"
@@ -4042,72 +3140,12 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
-            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_015D7F0E25D9470C9F24B188F63DFC3F"
-            {
-            "SourcePath" = "8:..\\..\\..\\include\\networkx\\linalg\\graphmatrix.pyc"
-            "TargetName" = "8:graphmatrix.pyc"
-            "Tag" = "8:"
-            "Folder" = "8:_80778F26DD414242B176CE3B5E5451FE"
-            "Condition" = "8:"
-            "Transitive" = "11:FALSE"
-            "Vital" = "11:TRUE"
-            "ReadOnly" = "11:FALSE"
-            "Hidden" = "11:FALSE"
-            "System" = "11:FALSE"
-            "Permanent" = "11:FALSE"
-            "SharedLegacy" = "11:FALSE"
-            "PackageAs" = "3:1"
-            "Register" = "3:1"
-            "Exclude" = "11:FALSE"
-            "IsDependency" = "11:FALSE"
-            "IsolateTo" = "8:"
-            }
-            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_027F1BEA3E544988B05263E1E2A657FB"
-            {
-            "SourcePath" = "8:..\\..\\..\\include\\networkx\\classes\\function.pyc"
-            "TargetName" = "8:function.pyc"
-            "Tag" = "8:"
-            "Folder" = "8:_DA63C9530AFD4051B4BB2E3969416159"
-            "Condition" = "8:"
-            "Transitive" = "11:FALSE"
-            "Vital" = "11:TRUE"
-            "ReadOnly" = "11:FALSE"
-            "Hidden" = "11:FALSE"
-            "System" = "11:FALSE"
-            "Permanent" = "11:FALSE"
-            "SharedLegacy" = "11:FALSE"
-            "PackageAs" = "3:1"
-            "Register" = "3:1"
-            "Exclude" = "11:FALSE"
-            "IsDependency" = "11:FALSE"
-            "IsolateTo" = "8:"
-            }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_02BC93EE91A4460498466C46F63BAC61"
             {
             "SourcePath" = "8:..\\..\\..\\include\\networkx\\algorithms\\shortest_paths\\unweighted.py"
             "TargetName" = "8:unweighted.py"
             "Tag" = "8:"
             "Folder" = "8:_1EE1F655FADF4B74B5D90E8FFC23CC9B"
-            "Condition" = "8:"
-            "Transitive" = "11:FALSE"
-            "Vital" = "11:TRUE"
-            "ReadOnly" = "11:FALSE"
-            "Hidden" = "11:FALSE"
-            "System" = "11:FALSE"
-            "Permanent" = "11:FALSE"
-            "SharedLegacy" = "11:FALSE"
-            "PackageAs" = "3:1"
-            "Register" = "3:1"
-            "Exclude" = "11:FALSE"
-            "IsDependency" = "11:FALSE"
-            "IsolateTo" = "8:"
-            }
-            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_030040BFCC5F40DB8BD81F8213AEA571"
-            {
-            "SourcePath" = "8:..\\..\\..\\include\\networkx\\generators\\intersection.pyc"
-            "TargetName" = "8:intersection.pyc"
-            "Tag" = "8:"
-            "Folder" = "8:_7D81BF20942644B883FC3097B5670152"
             "Condition" = "8:"
             "Transitive" = "11:FALSE"
             "Vital" = "11:TRUE"
@@ -4442,26 +3480,6 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
-            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_0E9624315B1D483FA32B78D45F35F24E"
-            {
-            "SourcePath" = "8:..\\..\\..\\include\\networkx\\generators\\ego.pyc"
-            "TargetName" = "8:ego.pyc"
-            "Tag" = "8:"
-            "Folder" = "8:_7D81BF20942644B883FC3097B5670152"
-            "Condition" = "8:"
-            "Transitive" = "11:FALSE"
-            "Vital" = "11:TRUE"
-            "ReadOnly" = "11:FALSE"
-            "Hidden" = "11:FALSE"
-            "System" = "11:FALSE"
-            "Permanent" = "11:FALSE"
-            "SharedLegacy" = "11:FALSE"
-            "PackageAs" = "3:1"
-            "Register" = "3:1"
-            "Exclude" = "11:FALSE"
-            "IsDependency" = "11:FALSE"
-            "IsolateTo" = "8:"
-            }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_0EF8CA22A2BE492CB4160A89A175D796"
             {
             "SourcePath" = "8:..\\..\\..\\views\\sliceview\\tools\\__init__.py"
@@ -4522,72 +3540,12 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
-            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_0FD69CF64FC043C1BC1A31F0A29CD186"
-            {
-            "SourcePath" = "8:..\\..\\..\\include\\networkx\\generators\\atlas.pyc"
-            "TargetName" = "8:atlas.pyc"
-            "Tag" = "8:"
-            "Folder" = "8:_7D81BF20942644B883FC3097B5670152"
-            "Condition" = "8:"
-            "Transitive" = "11:FALSE"
-            "Vital" = "11:TRUE"
-            "ReadOnly" = "11:FALSE"
-            "Hidden" = "11:FALSE"
-            "System" = "11:FALSE"
-            "Permanent" = "11:FALSE"
-            "SharedLegacy" = "11:FALSE"
-            "PackageAs" = "3:1"
-            "Register" = "3:1"
-            "Exclude" = "11:FALSE"
-            "IsDependency" = "11:FALSE"
-            "IsolateTo" = "8:"
-            }
-            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_1037812B179848889DF781F3806BAB27"
-            {
-            "SourcePath" = "8:..\\..\\..\\include\\networkx\\algorithms\\shortest_paths\\generic.pyc"
-            "TargetName" = "8:generic.pyc"
-            "Tag" = "8:"
-            "Folder" = "8:_1EE1F655FADF4B74B5D90E8FFC23CC9B"
-            "Condition" = "8:"
-            "Transitive" = "11:FALSE"
-            "Vital" = "11:TRUE"
-            "ReadOnly" = "11:FALSE"
-            "Hidden" = "11:FALSE"
-            "System" = "11:FALSE"
-            "Permanent" = "11:FALSE"
-            "SharedLegacy" = "11:FALSE"
-            "PackageAs" = "3:1"
-            "Register" = "3:1"
-            "Exclude" = "11:FALSE"
-            "IsDependency" = "11:FALSE"
-            "IsolateTo" = "8:"
-            }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_1069E4E6A5E447688EFC1E6F34FDC44D"
             {
             "SourcePath" = "8:..\\..\\..\\include\\networkx\\algorithms\\shortest_paths\\tests\\test_generic.py"
             "TargetName" = "8:test_generic.py"
             "Tag" = "8:"
             "Folder" = "8:_31ABA642A36E45738265C225408024F0"
-            "Condition" = "8:"
-            "Transitive" = "11:FALSE"
-            "Vital" = "11:TRUE"
-            "ReadOnly" = "11:FALSE"
-            "Hidden" = "11:FALSE"
-            "System" = "11:FALSE"
-            "Permanent" = "11:FALSE"
-            "SharedLegacy" = "11:FALSE"
-            "PackageAs" = "3:1"
-            "Register" = "3:1"
-            "Exclude" = "11:FALSE"
-            "IsDependency" = "11:FALSE"
-            "IsolateTo" = "8:"
-            }
-            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_10931076E55A461095178AA0AFB04AB4"
-            {
-            "SourcePath" = "8:..\\..\\..\\include\\networkx\\generators\\directed.pyc"
-            "TargetName" = "8:directed.pyc"
-            "Tag" = "8:"
-            "Folder" = "8:_7D81BF20942644B883FC3097B5670152"
             "Condition" = "8:"
             "Transitive" = "11:FALSE"
             "Vital" = "11:TRUE"
@@ -4628,26 +3586,6 @@
             "TargetName" = "8:load.py"
             "Tag" = "8:"
             "Folder" = "8:_67567E396D354C8EA07D5B52857101A3"
-            "Condition" = "8:"
-            "Transitive" = "11:FALSE"
-            "Vital" = "11:TRUE"
-            "ReadOnly" = "11:FALSE"
-            "Hidden" = "11:FALSE"
-            "System" = "11:FALSE"
-            "Permanent" = "11:FALSE"
-            "SharedLegacy" = "11:FALSE"
-            "PackageAs" = "3:1"
-            "Register" = "3:1"
-            "Exclude" = "11:FALSE"
-            "IsDependency" = "11:FALSE"
-            "IsolateTo" = "8:"
-            }
-            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_11EE18D9CB654EA4B739DEBD365A0B80"
-            {
-            "SourcePath" = "8:..\\..\\..\\plugins\\test.pyc"
-            "TargetName" = "8:test.pyc"
-            "Tag" = "8:"
-            "Folder" = "8:_F2C51F439BAA4551BF5FBDFFC8A5A595"
             "Condition" = "8:"
             "Transitive" = "11:FALSE"
             "Vital" = "11:TRUE"
@@ -4762,52 +3700,12 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
-            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_150A0F67B3F347AEBDB8722FB91B0658"
-            {
-            "SourcePath" = "8:..\\..\\..\\include\\networkx\\algorithms\\isomorphism\\isomorph.pyc"
-            "TargetName" = "8:isomorph.pyc"
-            "Tag" = "8:"
-            "Folder" = "8:_6B3F6231B5BE4F6B88AF52AB4909DA7E"
-            "Condition" = "8:"
-            "Transitive" = "11:FALSE"
-            "Vital" = "11:TRUE"
-            "ReadOnly" = "11:FALSE"
-            "Hidden" = "11:FALSE"
-            "System" = "11:FALSE"
-            "Permanent" = "11:FALSE"
-            "SharedLegacy" = "11:FALSE"
-            "PackageAs" = "3:1"
-            "Register" = "3:1"
-            "Exclude" = "11:FALSE"
-            "IsDependency" = "11:FALSE"
-            "IsolateTo" = "8:"
-            }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_15D3AC9BCA8449FBA0A477EAB163C601"
             {
             "SourcePath" = "8:..\\..\\..\\include\\networkx\\algorithms\\__init__.py"
             "TargetName" = "8:__init__.py"
             "Tag" = "8:"
             "Folder" = "8:_EA22127335F8424F8E8AC2816E2ED782"
-            "Condition" = "8:"
-            "Transitive" = "11:FALSE"
-            "Vital" = "11:TRUE"
-            "ReadOnly" = "11:FALSE"
-            "Hidden" = "11:FALSE"
-            "System" = "11:FALSE"
-            "Permanent" = "11:FALSE"
-            "SharedLegacy" = "11:FALSE"
-            "PackageAs" = "3:1"
-            "Register" = "3:1"
-            "Exclude" = "11:FALSE"
-            "IsDependency" = "11:FALSE"
-            "IsolateTo" = "8:"
-            }
-            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_15EDE5D9394F458B99C53DDCF9F78069"
-            {
-            "SourcePath" = "8:..\\..\\..\\include\\networkx\\generators\\degree_seq.pyc"
-            "TargetName" = "8:degree_seq.pyc"
-            "Tag" = "8:"
-            "Folder" = "8:_7D81BF20942644B883FC3097B5670152"
             "Condition" = "8:"
             "Transitive" = "11:FALSE"
             "Vital" = "11:TRUE"
@@ -4982,26 +3880,6 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
-            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_185332FF56974D43ADC9EA71A3242514"
-            {
-            "SourcePath" = "8:..\\..\\..\\include\\networkx\\algorithms\\bipartite\\__init__.pyc"
-            "TargetName" = "8:__init__.pyc"
-            "Tag" = "8:"
-            "Folder" = "8:_2BF5A901602B489BB71A63C61B88F105"
-            "Condition" = "8:"
-            "Transitive" = "11:FALSE"
-            "Vital" = "11:TRUE"
-            "ReadOnly" = "11:FALSE"
-            "Hidden" = "11:FALSE"
-            "System" = "11:FALSE"
-            "Permanent" = "11:FALSE"
-            "SharedLegacy" = "11:FALSE"
-            "PackageAs" = "3:1"
-            "Register" = "3:1"
-            "Exclude" = "11:FALSE"
-            "IsDependency" = "11:FALSE"
-            "IsolateTo" = "8:"
-            }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_18587969C4214FF498F1A51D455EA5D7"
             {
             "SourcePath" = "8:..\\..\\..\\ui\\mainwindow\\images\\part-filter-handle.png"
@@ -5082,26 +3960,6 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
-            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_1898265133DC460F9352192AF838DDEA"
-            {
-            "SourcePath" = "8:..\\..\\..\\include\\networkx\\generators\\random_clustered.pyc"
-            "TargetName" = "8:random_clustered.pyc"
-            "Tag" = "8:"
-            "Folder" = "8:_7D81BF20942644B883FC3097B5670152"
-            "Condition" = "8:"
-            "Transitive" = "11:FALSE"
-            "Vital" = "11:TRUE"
-            "ReadOnly" = "11:FALSE"
-            "Hidden" = "11:FALSE"
-            "System" = "11:FALSE"
-            "Permanent" = "11:FALSE"
-            "SharedLegacy" = "11:FALSE"
-            "PackageAs" = "3:1"
-            "Register" = "3:1"
-            "Exclude" = "11:FALSE"
-            "IsDependency" = "11:FALSE"
-            "IsolateTo" = "8:"
-            }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_18EDE07D7DA948B89EEB4C74A63BCA82"
             {
             "SourcePath" = "8:..\\..\\..\\include\\networkx\\algorithms\\isolate.py"
@@ -5122,72 +3980,12 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
-            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_18EF64996B164E76AFBC46AA10E7EEAE"
-            {
-            "SourcePath" = "8:..\\..\\..\\include\\networkx\\algorithms\\matching.pyc"
-            "TargetName" = "8:matching.pyc"
-            "Tag" = "8:"
-            "Folder" = "8:_EA22127335F8424F8E8AC2816E2ED782"
-            "Condition" = "8:"
-            "Transitive" = "11:FALSE"
-            "Vital" = "11:TRUE"
-            "ReadOnly" = "11:FALSE"
-            "Hidden" = "11:FALSE"
-            "System" = "11:FALSE"
-            "Permanent" = "11:FALSE"
-            "SharedLegacy" = "11:FALSE"
-            "PackageAs" = "3:1"
-            "Register" = "3:1"
-            "Exclude" = "11:FALSE"
-            "IsDependency" = "11:FALSE"
-            "IsolateTo" = "8:"
-            }
-            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_1A022FA9EFD64CD7B23957A5D40B2FBB"
-            {
-            "SourcePath" = "8:..\\..\\..\\include\\networkx\\generators\\line.pyc"
-            "TargetName" = "8:line.pyc"
-            "Tag" = "8:"
-            "Folder" = "8:_7D81BF20942644B883FC3097B5670152"
-            "Condition" = "8:"
-            "Transitive" = "11:FALSE"
-            "Vital" = "11:TRUE"
-            "ReadOnly" = "11:FALSE"
-            "Hidden" = "11:FALSE"
-            "System" = "11:FALSE"
-            "Permanent" = "11:FALSE"
-            "SharedLegacy" = "11:FALSE"
-            "PackageAs" = "3:1"
-            "Register" = "3:1"
-            "Exclude" = "11:FALSE"
-            "IsDependency" = "11:FALSE"
-            "IsolateTo" = "8:"
-            }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_1A116538AD2E413F87387727B92B762E"
             {
             "SourcePath" = "8:..\\..\\..\\include\\networkx\\algorithms\\isomorphism\\tests\\si2_b06_m200.B99"
             "TargetName" = "8:si2_b06_m200.B99"
             "Tag" = "8:"
             "Folder" = "8:_85B5564F766C469FBC5B8B6E7A5C7810"
-            "Condition" = "8:"
-            "Transitive" = "11:FALSE"
-            "Vital" = "11:TRUE"
-            "ReadOnly" = "11:FALSE"
-            "Hidden" = "11:FALSE"
-            "System" = "11:FALSE"
-            "Permanent" = "11:FALSE"
-            "SharedLegacy" = "11:FALSE"
-            "PackageAs" = "3:1"
-            "Register" = "3:1"
-            "Exclude" = "11:FALSE"
-            "IsDependency" = "11:FALSE"
-            "IsolateTo" = "8:"
-            }
-            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_1A1DBADE5AE44C91A1FBAA32F60337EB"
-            {
-            "SourcePath" = "8:..\\..\\..\\include\\networkx\\readwrite\\graphml.pyc"
-            "TargetName" = "8:graphml.pyc"
-            "Tag" = "8:"
-            "Folder" = "8:_AB128C2CACF34BD2AF5D35DC7722E71C"
             "Condition" = "8:"
             "Transitive" = "11:FALSE"
             "Vital" = "11:TRUE"
@@ -5322,66 +4120,6 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
-            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_1C6FB6B3064B40B290F13EF4DF63AE3F"
-            {
-            "SourcePath" = "8:..\\..\\..\\include\\networkx\\utils\\union_find.pyc"
-            "TargetName" = "8:union_find.pyc"
-            "Tag" = "8:"
-            "Folder" = "8:_BD99E801A6184BF188F30C1BDD9E13F3"
-            "Condition" = "8:"
-            "Transitive" = "11:FALSE"
-            "Vital" = "11:TRUE"
-            "ReadOnly" = "11:FALSE"
-            "Hidden" = "11:FALSE"
-            "System" = "11:FALSE"
-            "Permanent" = "11:FALSE"
-            "SharedLegacy" = "11:FALSE"
-            "PackageAs" = "3:1"
-            "Register" = "3:1"
-            "Exclude" = "11:FALSE"
-            "IsDependency" = "11:FALSE"
-            "IsolateTo" = "8:"
-            }
-            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_1DB643DA78A2488CA25A39C6759F0BF1"
-            {
-            "SourcePath" = "8:..\\..\\..\\include\\networkx\\generators\\social.pyc"
-            "TargetName" = "8:social.pyc"
-            "Tag" = "8:"
-            "Folder" = "8:_7D81BF20942644B883FC3097B5670152"
-            "Condition" = "8:"
-            "Transitive" = "11:FALSE"
-            "Vital" = "11:TRUE"
-            "ReadOnly" = "11:FALSE"
-            "Hidden" = "11:FALSE"
-            "System" = "11:FALSE"
-            "Permanent" = "11:FALSE"
-            "SharedLegacy" = "11:FALSE"
-            "PackageAs" = "3:1"
-            "Register" = "3:1"
-            "Exclude" = "11:FALSE"
-            "IsDependency" = "11:FALSE"
-            "IsolateTo" = "8:"
-            }
-            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_1DC472198B7B4069AD587285C40160B4"
-            {
-            "SourcePath" = "8:..\\..\\..\\include\\networkx\\tests\\__init__.pyc"
-            "TargetName" = "8:__init__.pyc"
-            "Tag" = "8:"
-            "Folder" = "8:_E1528F27661E4DED962ABD6DEDDF9174"
-            "Condition" = "8:"
-            "Transitive" = "11:FALSE"
-            "Vital" = "11:TRUE"
-            "ReadOnly" = "11:FALSE"
-            "Hidden" = "11:FALSE"
-            "System" = "11:FALSE"
-            "Permanent" = "11:FALSE"
-            "SharedLegacy" = "11:FALSE"
-            "PackageAs" = "3:1"
-            "Register" = "3:1"
-            "Exclude" = "11:FALSE"
-            "IsDependency" = "11:FALSE"
-            "IsolateTo" = "8:"
-            }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_1DDCD4EAE8BC4E8291F1E0A015FA45E0"
             {
             "SourcePath" = "8:..\\..\\..\\include\\networkx\\generators\\degree_seq.py"
@@ -5462,46 +4200,6 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
-            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_20028D65D6D84BBABAC7C8FBBD37F9B9"
-            {
-            "SourcePath" = "8:..\\..\\..\\include\\networkx\\algorithms\\traversal\\breadth_first_search.pyc"
-            "TargetName" = "8:breadth_first_search.pyc"
-            "Tag" = "8:"
-            "Folder" = "8:_393BD34AF9E448E895090C748366143E"
-            "Condition" = "8:"
-            "Transitive" = "11:FALSE"
-            "Vital" = "11:TRUE"
-            "ReadOnly" = "11:FALSE"
-            "Hidden" = "11:FALSE"
-            "System" = "11:FALSE"
-            "Permanent" = "11:FALSE"
-            "SharedLegacy" = "11:FALSE"
-            "PackageAs" = "3:1"
-            "Register" = "3:1"
-            "Exclude" = "11:FALSE"
-            "IsDependency" = "11:FALSE"
-            "IsolateTo" = "8:"
-            }
-            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_2052F45010DC4922BA166FAFCEBABAD2"
-            {
-            "SourcePath" = "8:..\\..\\..\\include\\networkx\\algorithms\\bipartite\\redundancy.pyc"
-            "TargetName" = "8:redundancy.pyc"
-            "Tag" = "8:"
-            "Folder" = "8:_2BF5A901602B489BB71A63C61B88F105"
-            "Condition" = "8:"
-            "Transitive" = "11:FALSE"
-            "Vital" = "11:TRUE"
-            "ReadOnly" = "11:FALSE"
-            "Hidden" = "11:FALSE"
-            "System" = "11:FALSE"
-            "Permanent" = "11:FALSE"
-            "SharedLegacy" = "11:FALSE"
-            "PackageAs" = "3:1"
-            "Register" = "3:1"
-            "Exclude" = "11:FALSE"
-            "IsDependency" = "11:FALSE"
-            "IsolateTo" = "8:"
-            }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_20605FBEC9DA40BC80779A7E94B1D32C"
             {
             "SourcePath" = "8:..\\..\\..\\include\\networkx\\classes\\tests\\test_graph_historical.py"
@@ -5542,52 +4240,12 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
-            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_2105A5862A6246749E5890FEA3B838C3"
-            {
-            "SourcePath" = "8:..\\..\\..\\include\\networkx\\generators\\random_graphs.pyc"
-            "TargetName" = "8:random_graphs.pyc"
-            "Tag" = "8:"
-            "Folder" = "8:_7D81BF20942644B883FC3097B5670152"
-            "Condition" = "8:"
-            "Transitive" = "11:FALSE"
-            "Vital" = "11:TRUE"
-            "ReadOnly" = "11:FALSE"
-            "Hidden" = "11:FALSE"
-            "System" = "11:FALSE"
-            "Permanent" = "11:FALSE"
-            "SharedLegacy" = "11:FALSE"
-            "PackageAs" = "3:1"
-            "Register" = "3:1"
-            "Exclude" = "11:FALSE"
-            "IsDependency" = "11:FALSE"
-            "IsolateTo" = "8:"
-            }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_212B7C3627A14D7CB46CE1353BA45F58"
             {
             "SourcePath" = "8:..\\..\\..\\include\\networkx\\algorithms\\components\\weakly_connected.py"
             "TargetName" = "8:weakly_connected.py"
             "Tag" = "8:"
             "Folder" = "8:_D9396B9E596D464999A021A03B75FE37"
-            "Condition" = "8:"
-            "Transitive" = "11:FALSE"
-            "Vital" = "11:TRUE"
-            "ReadOnly" = "11:FALSE"
-            "Hidden" = "11:FALSE"
-            "System" = "11:FALSE"
-            "Permanent" = "11:FALSE"
-            "SharedLegacy" = "11:FALSE"
-            "PackageAs" = "3:1"
-            "Register" = "3:1"
-            "Exclude" = "11:FALSE"
-            "IsDependency" = "11:FALSE"
-            "IsolateTo" = "8:"
-            }
-            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_21BB47469B0F492BA9C187AE216120E5"
-            {
-            "SourcePath" = "8:..\\..\\..\\include\\networkx\\algorithms\\isomorphism\\__init__.pyc"
-            "TargetName" = "8:__init__.pyc"
-            "Tag" = "8:"
-            "Folder" = "8:_6B3F6231B5BE4F6B88AF52AB4909DA7E"
             "Condition" = "8:"
             "Transitive" = "11:FALSE"
             "Vital" = "11:TRUE"
@@ -5902,106 +4560,6 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
-            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_27C47543350A49FFA475C625BD93846F"
-            {
-            "SourcePath" = "8:..\\..\\..\\include\\networkx\\external\\__init__.pyc"
-            "TargetName" = "8:__init__.pyc"
-            "Tag" = "8:"
-            "Folder" = "8:_07F8D0B1A78E4ECA9309DF0896D9E62B"
-            "Condition" = "8:"
-            "Transitive" = "11:FALSE"
-            "Vital" = "11:TRUE"
-            "ReadOnly" = "11:FALSE"
-            "Hidden" = "11:FALSE"
-            "System" = "11:FALSE"
-            "Permanent" = "11:FALSE"
-            "SharedLegacy" = "11:FALSE"
-            "PackageAs" = "3:1"
-            "Register" = "3:1"
-            "Exclude" = "11:FALSE"
-            "IsDependency" = "11:FALSE"
-            "IsolateTo" = "8:"
-            }
-            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_286C709CE9D449CD9F9F6A701226ECA1"
-            {
-            "SourcePath" = "8:..\\..\\..\\include\\networkx\\readwrite\\nx_shp.pyc"
-            "TargetName" = "8:nx_shp.pyc"
-            "Tag" = "8:"
-            "Folder" = "8:_AB128C2CACF34BD2AF5D35DC7722E71C"
-            "Condition" = "8:"
-            "Transitive" = "11:FALSE"
-            "Vital" = "11:TRUE"
-            "ReadOnly" = "11:FALSE"
-            "Hidden" = "11:FALSE"
-            "System" = "11:FALSE"
-            "Permanent" = "11:FALSE"
-            "SharedLegacy" = "11:FALSE"
-            "PackageAs" = "3:1"
-            "Register" = "3:1"
-            "Exclude" = "11:FALSE"
-            "IsDependency" = "11:FALSE"
-            "IsolateTo" = "8:"
-            }
-            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_28A6E6A9F0A9442EB868E4E0993BDC59"
-            {
-            "SourcePath" = "8:..\\..\\..\\include\\networkx\\generators\\stochastic.pyc"
-            "TargetName" = "8:stochastic.pyc"
-            "Tag" = "8:"
-            "Folder" = "8:_7D81BF20942644B883FC3097B5670152"
-            "Condition" = "8:"
-            "Transitive" = "11:FALSE"
-            "Vital" = "11:TRUE"
-            "ReadOnly" = "11:FALSE"
-            "Hidden" = "11:FALSE"
-            "System" = "11:FALSE"
-            "Permanent" = "11:FALSE"
-            "SharedLegacy" = "11:FALSE"
-            "PackageAs" = "3:1"
-            "Register" = "3:1"
-            "Exclude" = "11:FALSE"
-            "IsDependency" = "11:FALSE"
-            "IsolateTo" = "8:"
-            }
-            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_28DBDDCCD5A644099D60814A76DB6461"
-            {
-            "SourcePath" = "8:..\\..\\..\\include\\__init__.pyc"
-            "TargetName" = "8:__init__.pyc"
-            "Tag" = "8:"
-            "Folder" = "8:_F0A23781CC0D483B9BA9CC1EB7EEBE9B"
-            "Condition" = "8:"
-            "Transitive" = "11:FALSE"
-            "Vital" = "11:TRUE"
-            "ReadOnly" = "11:FALSE"
-            "Hidden" = "11:FALSE"
-            "System" = "11:FALSE"
-            "Permanent" = "11:FALSE"
-            "SharedLegacy" = "11:FALSE"
-            "PackageAs" = "3:1"
-            "Register" = "3:1"
-            "Exclude" = "11:FALSE"
-            "IsDependency" = "11:FALSE"
-            "IsolateTo" = "8:"
-            }
-            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_29455E9FAF27463C970EF9FF3D57E74A"
-            {
-            "SourcePath" = "8:..\\..\\..\\include\\networkx\\classes\\__init__.pyc"
-            "TargetName" = "8:__init__.pyc"
-            "Tag" = "8:"
-            "Folder" = "8:_DA63C9530AFD4051B4BB2E3969416159"
-            "Condition" = "8:"
-            "Transitive" = "11:FALSE"
-            "Vital" = "11:TRUE"
-            "ReadOnly" = "11:FALSE"
-            "Hidden" = "11:FALSE"
-            "System" = "11:FALSE"
-            "Permanent" = "11:FALSE"
-            "SharedLegacy" = "11:FALSE"
-            "PackageAs" = "3:1"
-            "Register" = "3:1"
-            "Exclude" = "11:FALSE"
-            "IsDependency" = "11:FALSE"
-            "IsolateTo" = "8:"
-            }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_295DF1580ECC4834A36BD95B4E286A43"
             {
             "SourcePath" = "8:..\\..\\..\\controllers\\mayacontrollers\\mayaObjectManager.py"
@@ -6028,26 +4586,6 @@
             "TargetName" = "8:abstractstranditem.py"
             "Tag" = "8:"
             "Folder" = "8:_E9DEA5F37ABA45E888312268BA17A132"
-            "Condition" = "8:"
-            "Transitive" = "11:FALSE"
-            "Vital" = "11:TRUE"
-            "ReadOnly" = "11:FALSE"
-            "Hidden" = "11:FALSE"
-            "System" = "11:FALSE"
-            "Permanent" = "11:FALSE"
-            "SharedLegacy" = "11:FALSE"
-            "PackageAs" = "3:1"
-            "Register" = "3:1"
-            "Exclude" = "11:FALSE"
-            "IsDependency" = "11:FALSE"
-            "IsolateTo" = "8:"
-            }
-            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_2974A7E5C676491DA19E350855D0A763"
-            {
-            "SourcePath" = "8:..\\..\\..\\plugins\\autobreak\\__init__.pyc"
-            "TargetName" = "8:__init__.pyc"
-            "Tag" = "8:"
-            "Folder" = "8:_5072D81A7C6C42B49B08E44C0CD3F234"
             "Condition" = "8:"
             "Transitive" = "11:FALSE"
             "Vital" = "11:TRUE"
@@ -6362,52 +4900,12 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
-            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_2FB6CD688E6B4A92ACFD0E01B284966C"
-            {
-            "SourcePath" = "8:..\\..\\..\\include\\networkx\\algorithms\\centrality\\eigenvector.pyc"
-            "TargetName" = "8:eigenvector.pyc"
-            "Tag" = "8:"
-            "Folder" = "8:_67567E396D354C8EA07D5B52857101A3"
-            "Condition" = "8:"
-            "Transitive" = "11:FALSE"
-            "Vital" = "11:TRUE"
-            "ReadOnly" = "11:FALSE"
-            "Hidden" = "11:FALSE"
-            "System" = "11:FALSE"
-            "Permanent" = "11:FALSE"
-            "SharedLegacy" = "11:FALSE"
-            "PackageAs" = "3:1"
-            "Register" = "3:1"
-            "Exclude" = "11:FALSE"
-            "IsDependency" = "11:FALSE"
-            "IsolateTo" = "8:"
-            }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_2FC65EF9C97641AAB99E4D41D5774043"
             {
             "SourcePath" = "8:..\\..\\..\\include\\networkx\\utils\\tests\\test_decorators.py"
             "TargetName" = "8:test_decorators.py"
             "Tag" = "8:"
             "Folder" = "8:_D65C8A04B71A428BBAF75E6B95284674"
-            "Condition" = "8:"
-            "Transitive" = "11:FALSE"
-            "Vital" = "11:TRUE"
-            "ReadOnly" = "11:FALSE"
-            "Hidden" = "11:FALSE"
-            "System" = "11:FALSE"
-            "Permanent" = "11:FALSE"
-            "SharedLegacy" = "11:FALSE"
-            "PackageAs" = "3:1"
-            "Register" = "3:1"
-            "Exclude" = "11:FALSE"
-            "IsDependency" = "11:FALSE"
-            "IsolateTo" = "8:"
-            }
-            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_2FD81B43865F45E7BDBCC4E28665C0C9"
-            {
-            "SourcePath" = "8:..\\..\\..\\include\\networkx\\algorithms\\product.pyc"
-            "TargetName" = "8:product.pyc"
-            "Tag" = "8:"
-            "Folder" = "8:_EA22127335F8424F8E8AC2816E2ED782"
             "Condition" = "8:"
             "Transitive" = "11:FALSE"
             "Vital" = "11:TRUE"
@@ -6562,26 +5060,6 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
-            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_354DE0ED443D449B9D40369A38230959"
-            {
-            "SourcePath" = "8:..\\..\\..\\include\\networkx\\algorithms\\assortativity\\correlation.pyc"
-            "TargetName" = "8:correlation.pyc"
-            "Tag" = "8:"
-            "Folder" = "8:_F0157367152B42688A561089D6B70C19"
-            "Condition" = "8:"
-            "Transitive" = "11:FALSE"
-            "Vital" = "11:TRUE"
-            "ReadOnly" = "11:FALSE"
-            "Hidden" = "11:FALSE"
-            "System" = "11:FALSE"
-            "Permanent" = "11:FALSE"
-            "SharedLegacy" = "11:FALSE"
-            "PackageAs" = "3:1"
-            "Register" = "3:1"
-            "Exclude" = "11:FALSE"
-            "IsDependency" = "11:FALSE"
-            "IsolateTo" = "8:"
-            }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_35BE28D8A95F4D809A18D271B9CE98DA"
             {
             "SourcePath" = "8:..\\..\\..\\views\\pathview\\strand\\decorators\\abstractdecoratoritem.py"
@@ -6622,52 +5100,12 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
-            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_3747B3CA996A4EE89CC622B8E5ED6615"
-            {
-            "SourcePath" = "8:..\\..\\..\\include\\networkx\\algorithms\\mis.pyc"
-            "TargetName" = "8:mis.pyc"
-            "Tag" = "8:"
-            "Folder" = "8:_EA22127335F8424F8E8AC2816E2ED782"
-            "Condition" = "8:"
-            "Transitive" = "11:FALSE"
-            "Vital" = "11:TRUE"
-            "ReadOnly" = "11:FALSE"
-            "Hidden" = "11:FALSE"
-            "System" = "11:FALSE"
-            "Permanent" = "11:FALSE"
-            "SharedLegacy" = "11:FALSE"
-            "PackageAs" = "3:1"
-            "Register" = "3:1"
-            "Exclude" = "11:FALSE"
-            "IsDependency" = "11:FALSE"
-            "IsolateTo" = "8:"
-            }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_37F1852C6EC144C29719F3346D23F9BD"
             {
             "SourcePath" = "8:..\\..\\..\\views\\solidview\\virtualhelixitem.py"
             "TargetName" = "8:virtualhelixitem.py"
             "Tag" = "8:"
             "Folder" = "8:_CAC65934C299487187183E8934BD45EF"
-            "Condition" = "8:"
-            "Transitive" = "11:FALSE"
-            "Vital" = "11:TRUE"
-            "ReadOnly" = "11:FALSE"
-            "Hidden" = "11:FALSE"
-            "System" = "11:FALSE"
-            "Permanent" = "11:FALSE"
-            "SharedLegacy" = "11:FALSE"
-            "PackageAs" = "3:1"
-            "Register" = "3:1"
-            "Exclude" = "11:FALSE"
-            "IsDependency" = "11:FALSE"
-            "IsolateTo" = "8:"
-            }
-            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_3809AD18657B4B198AFD15F4711A88BB"
-            {
-            "SourcePath" = "8:..\\..\\..\\include\\networkx\\algorithms\\isomorphism\\isomorphvf2.pyc"
-            "TargetName" = "8:isomorphvf2.pyc"
-            "Tag" = "8:"
-            "Folder" = "8:_6B3F6231B5BE4F6B88AF52AB4909DA7E"
             "Condition" = "8:"
             "Transitive" = "11:FALSE"
             "Vital" = "11:TRUE"
@@ -6788,26 +5226,6 @@
             "TargetName" = "8:Science09_beachball_v1.csv"
             "Tag" = "8:"
             "Folder" = "8:_CA7C7CB9B6F44FF9AFA832DB42ACDF74"
-            "Condition" = "8:"
-            "Transitive" = "11:FALSE"
-            "Vital" = "11:TRUE"
-            "ReadOnly" = "11:FALSE"
-            "Hidden" = "11:FALSE"
-            "System" = "11:FALSE"
-            "Permanent" = "11:FALSE"
-            "SharedLegacy" = "11:FALSE"
-            "PackageAs" = "3:1"
-            "Register" = "3:1"
-            "Exclude" = "11:FALSE"
-            "IsDependency" = "11:FALSE"
-            "IsolateTo" = "8:"
-            }
-            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_3A3A51A65FED455E8C5E497F3373BA47"
-            {
-            "SourcePath" = "8:..\\..\\..\\include\\networkx\\convert.pyc"
-            "TargetName" = "8:convert.pyc"
-            "Tag" = "8:"
-            "Folder" = "8:_A35954EA6CD14A51B269FC222FB2AAEA"
             "Condition" = "8:"
             "Transitive" = "11:FALSE"
             "Vital" = "11:TRUE"
@@ -7082,72 +5500,12 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
-            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_3DC4EE39ABB64325959C5647BF89840C"
-            {
-            "SourcePath" = "8:..\\..\\..\\include\\networkx\\algorithms\\shortest_paths\\unweighted.pyc"
-            "TargetName" = "8:unweighted.pyc"
-            "Tag" = "8:"
-            "Folder" = "8:_1EE1F655FADF4B74B5D90E8FFC23CC9B"
-            "Condition" = "8:"
-            "Transitive" = "11:FALSE"
-            "Vital" = "11:TRUE"
-            "ReadOnly" = "11:FALSE"
-            "Hidden" = "11:FALSE"
-            "System" = "11:FALSE"
-            "Permanent" = "11:FALSE"
-            "SharedLegacy" = "11:FALSE"
-            "PackageAs" = "3:1"
-            "Register" = "3:1"
-            "Exclude" = "11:FALSE"
-            "IsDependency" = "11:FALSE"
-            "IsolateTo" = "8:"
-            }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_3E469EE7DE14496AB867F61C5CE7C511"
             {
             "SourcePath" = "8:..\\..\\..\\views\\solidview\\predecoratornode.py"
             "TargetName" = "8:predecoratornode.py"
             "Tag" = "8:"
             "Folder" = "8:_CAC65934C299487187183E8934BD45EF"
-            "Condition" = "8:"
-            "Transitive" = "11:FALSE"
-            "Vital" = "11:TRUE"
-            "ReadOnly" = "11:FALSE"
-            "Hidden" = "11:FALSE"
-            "System" = "11:FALSE"
-            "Permanent" = "11:FALSE"
-            "SharedLegacy" = "11:FALSE"
-            "PackageAs" = "3:1"
-            "Register" = "3:1"
-            "Exclude" = "11:FALSE"
-            "IsDependency" = "11:FALSE"
-            "IsolateTo" = "8:"
-            }
-            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_3EC78954A86543FA9E19DEDE5299FAFD"
-            {
-            "SourcePath" = "8:..\\..\\..\\include\\networkx\\algorithms\\components\\attracting.pyc"
-            "TargetName" = "8:attracting.pyc"
-            "Tag" = "8:"
-            "Folder" = "8:_D9396B9E596D464999A021A03B75FE37"
-            "Condition" = "8:"
-            "Transitive" = "11:FALSE"
-            "Vital" = "11:TRUE"
-            "ReadOnly" = "11:FALSE"
-            "Hidden" = "11:FALSE"
-            "System" = "11:FALSE"
-            "Permanent" = "11:FALSE"
-            "SharedLegacy" = "11:FALSE"
-            "PackageAs" = "3:1"
-            "Register" = "3:1"
-            "Exclude" = "11:FALSE"
-            "IsDependency" = "11:FALSE"
-            "IsolateTo" = "8:"
-            }
-            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_3F22C257C01848BA9AD68C3407A51910"
-            {
-            "SourcePath" = "8:..\\..\\..\\include\\networkx\\algorithms\\bipartite\\projection.pyc"
-            "TargetName" = "8:projection.pyc"
-            "Tag" = "8:"
-            "Folder" = "8:_2BF5A901602B489BB71A63C61B88F105"
             "Condition" = "8:"
             "Transitive" = "11:FALSE"
             "Vital" = "11:TRUE"
@@ -7182,26 +5540,6 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
-            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_3FD1ADC123A645CCA956ACC7931E5A04"
-            {
-            "SourcePath" = "8:..\\..\\..\\include\\networkx\\algorithms\\mst.pyc"
-            "TargetName" = "8:mst.pyc"
-            "Tag" = "8:"
-            "Folder" = "8:_EA22127335F8424F8E8AC2816E2ED782"
-            "Condition" = "8:"
-            "Transitive" = "11:FALSE"
-            "Vital" = "11:TRUE"
-            "ReadOnly" = "11:FALSE"
-            "Hidden" = "11:FALSE"
-            "System" = "11:FALSE"
-            "Permanent" = "11:FALSE"
-            "SharedLegacy" = "11:FALSE"
-            "PackageAs" = "3:1"
-            "Register" = "3:1"
-            "Exclude" = "11:FALSE"
-            "IsDependency" = "11:FALSE"
-            "IsolateTo" = "8:"
-            }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_400A6298E6E74A4A9C124FB0E7FF39DF"
             {
             "SourcePath" = "8:..\\..\\..\\include\\networkx\\classes\\multigraph.py"
@@ -7222,72 +5560,12 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
-            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_401905B8D1084279AAAE6CAC736C34D7"
-            {
-            "SourcePath" = "8:..\\..\\..\\include\\networkx\\algorithms\\shortest_paths\\__init__.pyc"
-            "TargetName" = "8:__init__.pyc"
-            "Tag" = "8:"
-            "Folder" = "8:_1EE1F655FADF4B74B5D90E8FFC23CC9B"
-            "Condition" = "8:"
-            "Transitive" = "11:FALSE"
-            "Vital" = "11:TRUE"
-            "ReadOnly" = "11:FALSE"
-            "Hidden" = "11:FALSE"
-            "System" = "11:FALSE"
-            "Permanent" = "11:FALSE"
-            "SharedLegacy" = "11:FALSE"
-            "PackageAs" = "3:1"
-            "Register" = "3:1"
-            "Exclude" = "11:FALSE"
-            "IsDependency" = "11:FALSE"
-            "IsolateTo" = "8:"
-            }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_40200DDE728B4854AD390699CB82A320"
             {
             "SourcePath" = "8:..\\..\\..\\include\\__init__.py"
             "TargetName" = "8:__init__.py"
             "Tag" = "8:"
             "Folder" = "8:_F0A23781CC0D483B9BA9CC1EB7EEBE9B"
-            "Condition" = "8:"
-            "Transitive" = "11:FALSE"
-            "Vital" = "11:TRUE"
-            "ReadOnly" = "11:FALSE"
-            "Hidden" = "11:FALSE"
-            "System" = "11:FALSE"
-            "Permanent" = "11:FALSE"
-            "SharedLegacy" = "11:FALSE"
-            "PackageAs" = "3:1"
-            "Register" = "3:1"
-            "Exclude" = "11:FALSE"
-            "IsDependency" = "11:FALSE"
-            "IsolateTo" = "8:"
-            }
-            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_4089162E67B74CBDAC09E99E308AAC44"
-            {
-            "SourcePath" = "8:..\\..\\..\\include\\networkx\\algorithms\\centrality\\degree_alg.pyc"
-            "TargetName" = "8:degree_alg.pyc"
-            "Tag" = "8:"
-            "Folder" = "8:_67567E396D354C8EA07D5B52857101A3"
-            "Condition" = "8:"
-            "Transitive" = "11:FALSE"
-            "Vital" = "11:TRUE"
-            "ReadOnly" = "11:FALSE"
-            "Hidden" = "11:FALSE"
-            "System" = "11:FALSE"
-            "Permanent" = "11:FALSE"
-            "SharedLegacy" = "11:FALSE"
-            "PackageAs" = "3:1"
-            "Register" = "3:1"
-            "Exclude" = "11:FALSE"
-            "IsDependency" = "11:FALSE"
-            "IsolateTo" = "8:"
-            }
-            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_409E4243D5734F87BED80860A071E9B5"
-            {
-            "SourcePath" = "8:..\\..\\..\\include\\networkx\\algorithms\\link_analysis\\pagerank_alg.pyc"
-            "TargetName" = "8:pagerank_alg.pyc"
-            "Tag" = "8:"
-            "Folder" = "8:_12CDBC07B0B249D0A02444A8364CD026"
             "Condition" = "8:"
             "Transitive" = "11:FALSE"
             "Vital" = "11:TRUE"
@@ -7328,46 +5606,6 @@
             "TargetName" = "8:cadnano.bat"
             "Tag" = "8:"
             "Folder" = "8:_0969E8665EC94BB2A1FB615DC65E5093"
-            "Condition" = "8:"
-            "Transitive" = "11:FALSE"
-            "Vital" = "11:TRUE"
-            "ReadOnly" = "11:FALSE"
-            "Hidden" = "11:FALSE"
-            "System" = "11:FALSE"
-            "Permanent" = "11:FALSE"
-            "SharedLegacy" = "11:FALSE"
-            "PackageAs" = "3:1"
-            "Register" = "3:1"
-            "Exclude" = "11:FALSE"
-            "IsDependency" = "11:FALSE"
-            "IsolateTo" = "8:"
-            }
-            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_41797BC0BC5B4F3689DAB77E85515D8C"
-            {
-            "SourcePath" = "8:..\\..\\..\\include\\networkx\\algorithms\\vitality.pyc"
-            "TargetName" = "8:vitality.pyc"
-            "Tag" = "8:"
-            "Folder" = "8:_EA22127335F8424F8E8AC2816E2ED782"
-            "Condition" = "8:"
-            "Transitive" = "11:FALSE"
-            "Vital" = "11:TRUE"
-            "ReadOnly" = "11:FALSE"
-            "Hidden" = "11:FALSE"
-            "System" = "11:FALSE"
-            "Permanent" = "11:FALSE"
-            "SharedLegacy" = "11:FALSE"
-            "PackageAs" = "3:1"
-            "Register" = "3:1"
-            "Exclude" = "11:FALSE"
-            "IsDependency" = "11:FALSE"
-            "IsolateTo" = "8:"
-            }
-            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_4183405EFC8D49C3BB425904738B9BF3"
-            {
-            "SourcePath" = "8:..\\..\\..\\include\\networkx\\release.pyc"
-            "TargetName" = "8:release.pyc"
-            "Tag" = "8:"
-            "Folder" = "8:_A35954EA6CD14A51B269FC222FB2AAEA"
             "Condition" = "8:"
             "Transitive" = "11:FALSE"
             "Vital" = "11:TRUE"
@@ -7502,52 +5740,12 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
-            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_43D5D0DE534E43D992D109326134000C"
-            {
-            "SourcePath" = "8:..\\..\\..\\include\\networkx\\generators\\classic.pyc"
-            "TargetName" = "8:classic.pyc"
-            "Tag" = "8:"
-            "Folder" = "8:_7D81BF20942644B883FC3097B5670152"
-            "Condition" = "8:"
-            "Transitive" = "11:FALSE"
-            "Vital" = "11:TRUE"
-            "ReadOnly" = "11:FALSE"
-            "Hidden" = "11:FALSE"
-            "System" = "11:FALSE"
-            "Permanent" = "11:FALSE"
-            "SharedLegacy" = "11:FALSE"
-            "PackageAs" = "3:1"
-            "Register" = "3:1"
-            "Exclude" = "11:FALSE"
-            "IsDependency" = "11:FALSE"
-            "IsolateTo" = "8:"
-            }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_44925CB60E884771B7A558EEE226170E"
             {
             "SourcePath" = "8:..\\..\\..\\ui\\dialogs\\ui_addseq.py"
             "TargetName" = "8:ui_addseq.py"
             "Tag" = "8:"
             "Folder" = "8:_3C711F3C6E4D48BEA308FDD9C532AA2B"
-            "Condition" = "8:"
-            "Transitive" = "11:FALSE"
-            "Vital" = "11:TRUE"
-            "ReadOnly" = "11:FALSE"
-            "Hidden" = "11:FALSE"
-            "System" = "11:FALSE"
-            "Permanent" = "11:FALSE"
-            "SharedLegacy" = "11:FALSE"
-            "PackageAs" = "3:1"
-            "Register" = "3:1"
-            "Exclude" = "11:FALSE"
-            "IsDependency" = "11:FALSE"
-            "IsolateTo" = "8:"
-            }
-            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_44A4896165BA411AB9B3635AD8E48AB5"
-            {
-            "SourcePath" = "8:..\\..\\..\\include\\networkx\\exception.pyc"
-            "TargetName" = "8:exception.pyc"
-            "Tag" = "8:"
-            "Folder" = "8:_A35954EA6CD14A51B269FC222FB2AAEA"
             "Condition" = "8:"
             "Transitive" = "11:FALSE"
             "Vital" = "11:TRUE"
@@ -7682,26 +5880,6 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
-            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_4A00A145011B4539A944935988E334AD"
-            {
-            "SourcePath" = "8:..\\..\\..\\include\\networkx\\drawing\\__init__.pyc"
-            "TargetName" = "8:__init__.pyc"
-            "Tag" = "8:"
-            "Folder" = "8:_8CF6B8A9A1CF4856BD964D4513937593"
-            "Condition" = "8:"
-            "Transitive" = "11:FALSE"
-            "Vital" = "11:TRUE"
-            "ReadOnly" = "11:FALSE"
-            "Hidden" = "11:FALSE"
-            "System" = "11:FALSE"
-            "Permanent" = "11:FALSE"
-            "SharedLegacy" = "11:FALSE"
-            "PackageAs" = "3:1"
-            "Register" = "3:1"
-            "Exclude" = "11:FALSE"
-            "IsDependency" = "11:FALSE"
-            "IsolateTo" = "8:"
-            }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_4A61841549C64B8389B75472F08F5153"
             {
             "SourcePath" = "8:..\\..\\..\\include\\networkx\\generators\\random_clustered.py"
@@ -7762,52 +5940,12 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
-            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_4A9946E0E4DF4CC5A092DDAA0FCDBBFD"
-            {
-            "SourcePath" = "8:..\\..\\..\\include\\networkx\\linalg\\laplacianmatrix.pyc"
-            "TargetName" = "8:laplacianmatrix.pyc"
-            "Tag" = "8:"
-            "Folder" = "8:_80778F26DD414242B176CE3B5E5451FE"
-            "Condition" = "8:"
-            "Transitive" = "11:FALSE"
-            "Vital" = "11:TRUE"
-            "ReadOnly" = "11:FALSE"
-            "Hidden" = "11:FALSE"
-            "System" = "11:FALSE"
-            "Permanent" = "11:FALSE"
-            "SharedLegacy" = "11:FALSE"
-            "PackageAs" = "3:1"
-            "Register" = "3:1"
-            "Exclude" = "11:FALSE"
-            "IsDependency" = "11:FALSE"
-            "IsolateTo" = "8:"
-            }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_4AABBA9FB74748BB81CC47F116575400"
             {
             "SourcePath" = "8:..\\..\\..\\tests\\functionaltestinputs\\simple42legacy.csv"
             "TargetName" = "8:simple42legacy.csv"
             "Tag" = "8:"
             "Folder" = "8:_CA7C7CB9B6F44FF9AFA832DB42ACDF74"
-            "Condition" = "8:"
-            "Transitive" = "11:FALSE"
-            "Vital" = "11:TRUE"
-            "ReadOnly" = "11:FALSE"
-            "Hidden" = "11:FALSE"
-            "System" = "11:FALSE"
-            "Permanent" = "11:FALSE"
-            "SharedLegacy" = "11:FALSE"
-            "PackageAs" = "3:1"
-            "Register" = "3:1"
-            "Exclude" = "11:FALSE"
-            "IsDependency" = "11:FALSE"
-            "IsolateTo" = "8:"
-            }
-            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_4AAEBB4BB3514BD4A2D2D2B0CFDBCF95"
-            {
-            "SourcePath" = "8:..\\..\\..\\include\\networkx\\algorithms\\isomorphism\\matchhelpers.pyc"
-            "TargetName" = "8:matchhelpers.pyc"
-            "Tag" = "8:"
-            "Folder" = "8:_6B3F6231B5BE4F6B88AF52AB4909DA7E"
             "Condition" = "8:"
             "Transitive" = "11:FALSE"
             "Vital" = "11:TRUE"
@@ -7922,26 +6060,6 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
-            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_4D4E3EE736524E22A7696D89D9C32788"
-            {
-            "SourcePath" = "8:..\\..\\..\\include\\networkx\\algorithms\\centrality\\load.pyc"
-            "TargetName" = "8:load.pyc"
-            "Tag" = "8:"
-            "Folder" = "8:_67567E396D354C8EA07D5B52857101A3"
-            "Condition" = "8:"
-            "Transitive" = "11:FALSE"
-            "Vital" = "11:TRUE"
-            "ReadOnly" = "11:FALSE"
-            "Hidden" = "11:FALSE"
-            "System" = "11:FALSE"
-            "Permanent" = "11:FALSE"
-            "SharedLegacy" = "11:FALSE"
-            "PackageAs" = "3:1"
-            "Register" = "3:1"
-            "Exclude" = "11:FALSE"
-            "IsDependency" = "11:FALSE"
-            "IsolateTo" = "8:"
-            }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_4FB76E4CF07B438E8D2182233B8825A8"
             {
             "SourcePath" = "8:..\\..\\..\\include\\networkx\\external\\decorator\\_decorator.py"
@@ -7968,46 +6086,6 @@
             "TargetName" = "8:cadnano2-about.png"
             "Tag" = "8:"
             "Folder" = "8:_AA4F142CAE1640E982BCD3BC185A0D99"
-            "Condition" = "8:"
-            "Transitive" = "11:FALSE"
-            "Vital" = "11:TRUE"
-            "ReadOnly" = "11:FALSE"
-            "Hidden" = "11:FALSE"
-            "System" = "11:FALSE"
-            "Permanent" = "11:FALSE"
-            "SharedLegacy" = "11:FALSE"
-            "PackageAs" = "3:1"
-            "Register" = "3:1"
-            "Exclude" = "11:FALSE"
-            "IsDependency" = "11:FALSE"
-            "IsolateTo" = "8:"
-            }
-            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_4FD75571706447258164DC578D481683"
-            {
-            "SourcePath" = "8:..\\..\\..\\include\\networkx\\__init__.pyc"
-            "TargetName" = "8:__init__.pyc"
-            "Tag" = "8:"
-            "Folder" = "8:_A35954EA6CD14A51B269FC222FB2AAEA"
-            "Condition" = "8:"
-            "Transitive" = "11:FALSE"
-            "Vital" = "11:TRUE"
-            "ReadOnly" = "11:FALSE"
-            "Hidden" = "11:FALSE"
-            "System" = "11:FALSE"
-            "Permanent" = "11:FALSE"
-            "SharedLegacy" = "11:FALSE"
-            "PackageAs" = "3:1"
-            "Register" = "3:1"
-            "Exclude" = "11:FALSE"
-            "IsDependency" = "11:FALSE"
-            "IsolateTo" = "8:"
-            }
-            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_50AE18A4EC114308AFE538E4A0EE08F1"
-            {
-            "SourcePath" = "8:..\\..\\..\\include\\networkx\\algorithms\\centrality\\closeness.pyc"
-            "TargetName" = "8:closeness.pyc"
-            "Tag" = "8:"
-            "Folder" = "8:_67567E396D354C8EA07D5B52857101A3"
             "Condition" = "8:"
             "Transitive" = "11:FALSE"
             "Vital" = "11:TRUE"
@@ -8162,72 +6240,12 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
-            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_52FDCBA96CE447ECBD98713042C55040"
-            {
-            "SourcePath" = "8:..\\..\\..\\include\\networkx\\algorithms\\core.pyc"
-            "TargetName" = "8:core.pyc"
-            "Tag" = "8:"
-            "Folder" = "8:_EA22127335F8424F8E8AC2816E2ED782"
-            "Condition" = "8:"
-            "Transitive" = "11:FALSE"
-            "Vital" = "11:TRUE"
-            "ReadOnly" = "11:FALSE"
-            "Hidden" = "11:FALSE"
-            "System" = "11:FALSE"
-            "Permanent" = "11:FALSE"
-            "SharedLegacy" = "11:FALSE"
-            "PackageAs" = "3:1"
-            "Register" = "3:1"
-            "Exclude" = "11:FALSE"
-            "IsDependency" = "11:FALSE"
-            "IsolateTo" = "8:"
-            }
-            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_531BC6BE34624F15ACEE5AC000595DAF"
-            {
-            "SourcePath" = "8:..\\..\\..\\plugins\\autobreak\\autobreakconfig_ui.pyc"
-            "TargetName" = "8:autobreakconfig_ui.pyc"
-            "Tag" = "8:"
-            "Folder" = "8:_5072D81A7C6C42B49B08E44C0CD3F234"
-            "Condition" = "8:"
-            "Transitive" = "11:FALSE"
-            "Vital" = "11:TRUE"
-            "ReadOnly" = "11:FALSE"
-            "Hidden" = "11:FALSE"
-            "System" = "11:FALSE"
-            "Permanent" = "11:FALSE"
-            "SharedLegacy" = "11:FALSE"
-            "PackageAs" = "3:1"
-            "Register" = "3:1"
-            "Exclude" = "11:FALSE"
-            "IsDependency" = "11:FALSE"
-            "IsolateTo" = "8:"
-            }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_5361DC8DF3B84D7AAD90DBF18E10BBE5"
             {
             "SourcePath" = "8:..\\..\\..\\include\\networkx\\utils\\rcm.py"
             "TargetName" = "8:rcm.py"
             "Tag" = "8:"
             "Folder" = "8:_BD99E801A6184BF188F30C1BDD9E13F3"
-            "Condition" = "8:"
-            "Transitive" = "11:FALSE"
-            "Vital" = "11:TRUE"
-            "ReadOnly" = "11:FALSE"
-            "Hidden" = "11:FALSE"
-            "System" = "11:FALSE"
-            "Permanent" = "11:FALSE"
-            "SharedLegacy" = "11:FALSE"
-            "PackageAs" = "3:1"
-            "Register" = "3:1"
-            "Exclude" = "11:FALSE"
-            "IsDependency" = "11:FALSE"
-            "IsolateTo" = "8:"
-            }
-            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_538910D7F1604ED99220CB8F5AA74CDE"
-            {
-            "SourcePath" = "8:..\\..\\..\\include\\networkx\\algorithms\\assortativity\\mixing.pyc"
-            "TargetName" = "8:mixing.pyc"
-            "Tag" = "8:"
-            "Folder" = "8:_F0157367152B42688A561089D6B70C19"
             "Condition" = "8:"
             "Transitive" = "11:FALSE"
             "Vital" = "11:TRUE"
@@ -8382,26 +6400,6 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
-            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_5754638295D94256B8910521CB0AB385"
-            {
-            "SourcePath" = "8:..\\..\\..\\include\\fetchfile.pyc"
-            "TargetName" = "8:fetchfile.pyc"
-            "Tag" = "8:"
-            "Folder" = "8:_F0A23781CC0D483B9BA9CC1EB7EEBE9B"
-            "Condition" = "8:"
-            "Transitive" = "11:FALSE"
-            "Vital" = "11:TRUE"
-            "ReadOnly" = "11:FALSE"
-            "Hidden" = "11:FALSE"
-            "System" = "11:FALSE"
-            "Permanent" = "11:FALSE"
-            "SharedLegacy" = "11:FALSE"
-            "PackageAs" = "3:1"
-            "Register" = "3:1"
-            "Exclude" = "11:FALSE"
-            "IsDependency" = "11:FALSE"
-            "IsolateTo" = "8:"
-            }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_57F35333B8414CF0866D373B19130B76"
             {
             "SourcePath" = "8:..\\..\\..\\include\\networkx\\tests\\benchmark.py"
@@ -8422,52 +6420,12 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
-            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_588FF32B28924B038C2743C9B05AA81D"
-            {
-            "SourcePath" = "8:..\\..\\..\\include\\networkx\\drawing\\nx_pylab.pyc"
-            "TargetName" = "8:nx_pylab.pyc"
-            "Tag" = "8:"
-            "Folder" = "8:_8CF6B8A9A1CF4856BD964D4513937593"
-            "Condition" = "8:"
-            "Transitive" = "11:FALSE"
-            "Vital" = "11:TRUE"
-            "ReadOnly" = "11:FALSE"
-            "Hidden" = "11:FALSE"
-            "System" = "11:FALSE"
-            "Permanent" = "11:FALSE"
-            "SharedLegacy" = "11:FALSE"
-            "PackageAs" = "3:1"
-            "Register" = "3:1"
-            "Exclude" = "11:FALSE"
-            "IsDependency" = "11:FALSE"
-            "IsolateTo" = "8:"
-            }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_58AF1DD2C0AB450194D4125608E3BA0C"
             {
             "SourcePath" = "8:..\\..\\..\\include\\networkx\\algorithms\\flow\\tests\\test_maxflow_large_graph.py"
             "TargetName" = "8:test_maxflow_large_graph.py"
             "Tag" = "8:"
             "Folder" = "8:_AECDB973A9CD4744ACDC3C80468B62B5"
-            "Condition" = "8:"
-            "Transitive" = "11:FALSE"
-            "Vital" = "11:TRUE"
-            "ReadOnly" = "11:FALSE"
-            "Hidden" = "11:FALSE"
-            "System" = "11:FALSE"
-            "Permanent" = "11:FALSE"
-            "SharedLegacy" = "11:FALSE"
-            "PackageAs" = "3:1"
-            "Register" = "3:1"
-            "Exclude" = "11:FALSE"
-            "IsDependency" = "11:FALSE"
-            "IsolateTo" = "8:"
-            }
-            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_59074DF7985C4B4B80C73B1A8FDB8AF9"
-            {
-            "SourcePath" = "8:..\\..\\..\\include\\networkx\\linalg\\__init__.pyc"
-            "TargetName" = "8:__init__.pyc"
-            "Tag" = "8:"
-            "Folder" = "8:_80778F26DD414242B176CE3B5E5451FE"
             "Condition" = "8:"
             "Transitive" = "11:FALSE"
             "Vital" = "11:TRUE"
@@ -8722,86 +6680,6 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
-            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_5D534E3F54DF47249DD8B1F36E78E83D"
-            {
-            "SourcePath" = "8:..\\..\\..\\include\\networkx\\algorithms\\graphical.pyc"
-            "TargetName" = "8:graphical.pyc"
-            "Tag" = "8:"
-            "Folder" = "8:_EA22127335F8424F8E8AC2816E2ED782"
-            "Condition" = "8:"
-            "Transitive" = "11:FALSE"
-            "Vital" = "11:TRUE"
-            "ReadOnly" = "11:FALSE"
-            "Hidden" = "11:FALSE"
-            "System" = "11:FALSE"
-            "Permanent" = "11:FALSE"
-            "SharedLegacy" = "11:FALSE"
-            "PackageAs" = "3:1"
-            "Register" = "3:1"
-            "Exclude" = "11:FALSE"
-            "IsDependency" = "11:FALSE"
-            "IsolateTo" = "8:"
-            }
-            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_5DAC7DFB440D4C08947DC5FEB5415FEB"
-            {
-            "SourcePath" = "8:..\\..\\..\\include\\networkx\\algorithms\\shortest_paths\\weighted.pyc"
-            "TargetName" = "8:weighted.pyc"
-            "Tag" = "8:"
-            "Folder" = "8:_1EE1F655FADF4B74B5D90E8FFC23CC9B"
-            "Condition" = "8:"
-            "Transitive" = "11:FALSE"
-            "Vital" = "11:TRUE"
-            "ReadOnly" = "11:FALSE"
-            "Hidden" = "11:FALSE"
-            "System" = "11:FALSE"
-            "Permanent" = "11:FALSE"
-            "SharedLegacy" = "11:FALSE"
-            "PackageAs" = "3:1"
-            "Register" = "3:1"
-            "Exclude" = "11:FALSE"
-            "IsDependency" = "11:FALSE"
-            "IsolateTo" = "8:"
-            }
-            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_5DAE85BCD8B14C2C8683FA8E1EE7D062"
-            {
-            "SourcePath" = "8:..\\..\\..\\include\\networkx\\algorithms\\components\\__init__.pyc"
-            "TargetName" = "8:__init__.pyc"
-            "Tag" = "8:"
-            "Folder" = "8:_D9396B9E596D464999A021A03B75FE37"
-            "Condition" = "8:"
-            "Transitive" = "11:FALSE"
-            "Vital" = "11:TRUE"
-            "ReadOnly" = "11:FALSE"
-            "Hidden" = "11:FALSE"
-            "System" = "11:FALSE"
-            "Permanent" = "11:FALSE"
-            "SharedLegacy" = "11:FALSE"
-            "PackageAs" = "3:1"
-            "Register" = "3:1"
-            "Exclude" = "11:FALSE"
-            "IsDependency" = "11:FALSE"
-            "IsolateTo" = "8:"
-            }
-            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_5DE37147AEA94F4F8C06C153353B86C3"
-            {
-            "SourcePath" = "8:..\\..\\..\\include\\networkx\\algorithms\\shortest_paths\\dense.pyc"
-            "TargetName" = "8:dense.pyc"
-            "Tag" = "8:"
-            "Folder" = "8:_1EE1F655FADF4B74B5D90E8FFC23CC9B"
-            "Condition" = "8:"
-            "Transitive" = "11:FALSE"
-            "Vital" = "11:TRUE"
-            "ReadOnly" = "11:FALSE"
-            "Hidden" = "11:FALSE"
-            "System" = "11:FALSE"
-            "Permanent" = "11:FALSE"
-            "SharedLegacy" = "11:FALSE"
-            "PackageAs" = "3:1"
-            "Register" = "3:1"
-            "Exclude" = "11:FALSE"
-            "IsDependency" = "11:FALSE"
-            "IsolateTo" = "8:"
-            }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_5DF56D1F07174753A7AF80AFE6541135"
             {
             "SourcePath" = "8:..\\..\\..\\include\\networkx\\readwrite\\tests\\test_adjlist.py"
@@ -8828,26 +6706,6 @@
             "TargetName" = "8:erasetool.py"
             "Tag" = "8:"
             "Folder" = "8:_527FE82D934C462DA91152C628B00986"
-            "Condition" = "8:"
-            "Transitive" = "11:FALSE"
-            "Vital" = "11:TRUE"
-            "ReadOnly" = "11:FALSE"
-            "Hidden" = "11:FALSE"
-            "System" = "11:FALSE"
-            "Permanent" = "11:FALSE"
-            "SharedLegacy" = "11:FALSE"
-            "PackageAs" = "3:1"
-            "Register" = "3:1"
-            "Exclude" = "11:FALSE"
-            "IsDependency" = "11:FALSE"
-            "IsolateTo" = "8:"
-            }
-            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_5EA0128E24D94413B90F7612E3CAB7C4"
-            {
-            "SourcePath" = "8:..\\..\\..\\include\\networkx\\readwrite\\gexf.pyc"
-            "TargetName" = "8:gexf.pyc"
-            "Tag" = "8:"
-            "Folder" = "8:_AB128C2CACF34BD2AF5D35DC7722E71C"
             "Condition" = "8:"
             "Transitive" = "11:FALSE"
             "Vital" = "11:TRUE"
@@ -8908,26 +6766,6 @@
             "TargetName" = "8:helixManip.py"
             "Tag" = "8:"
             "Folder" = "8:_39EF0AD284BA4A34AF94DF7B3BAB1176"
-            "Condition" = "8:"
-            "Transitive" = "11:FALSE"
-            "Vital" = "11:TRUE"
-            "ReadOnly" = "11:FALSE"
-            "Hidden" = "11:FALSE"
-            "System" = "11:FALSE"
-            "Permanent" = "11:FALSE"
-            "SharedLegacy" = "11:FALSE"
-            "PackageAs" = "3:1"
-            "Register" = "3:1"
-            "Exclude" = "11:FALSE"
-            "IsDependency" = "11:FALSE"
-            "IsolateTo" = "8:"
-            }
-            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_607BF17A44BD419D80BE00E2D3F19766"
-            {
-            "SourcePath" = "8:..\\..\\..\\include\\networkx\\relabel.pyc"
-            "TargetName" = "8:relabel.pyc"
-            "Tag" = "8:"
-            "Folder" = "8:_A35954EA6CD14A51B269FC222FB2AAEA"
             "Condition" = "8:"
             "Transitive" = "11:FALSE"
             "Vital" = "11:TRUE"
@@ -9062,26 +6900,6 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
-            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_644470A757DD4D9EAF405BF35F6ED7D1"
-            {
-            "SourcePath" = "8:..\\..\\..\\include\\networkx\\tests\\test.pyc"
-            "TargetName" = "8:test.pyc"
-            "Tag" = "8:"
-            "Folder" = "8:_E1528F27661E4DED962ABD6DEDDF9174"
-            "Condition" = "8:"
-            "Transitive" = "11:FALSE"
-            "Vital" = "11:TRUE"
-            "ReadOnly" = "11:FALSE"
-            "Hidden" = "11:FALSE"
-            "System" = "11:FALSE"
-            "Permanent" = "11:FALSE"
-            "SharedLegacy" = "11:FALSE"
-            "PackageAs" = "3:1"
-            "Register" = "3:1"
-            "Exclude" = "11:FALSE"
-            "IsDependency" = "11:FALSE"
-            "IsolateTo" = "8:"
-            }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_6572AF5A39144D6A9BB2AE08216DA594"
             {
             "SourcePath" = "8:..\\..\\..\\include\\networkx\\algorithms\\components\\tests\\test_weakly_connected.py"
@@ -9202,26 +7020,6 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
-            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_6796C6A26CEB42189D14B82999368565"
-            {
-            "SourcePath" = "8:..\\..\\..\\include\\networkx\\algorithms\\clique.pyc"
-            "TargetName" = "8:clique.pyc"
-            "Tag" = "8:"
-            "Folder" = "8:_EA22127335F8424F8E8AC2816E2ED782"
-            "Condition" = "8:"
-            "Transitive" = "11:FALSE"
-            "Vital" = "11:TRUE"
-            "ReadOnly" = "11:FALSE"
-            "Hidden" = "11:FALSE"
-            "System" = "11:FALSE"
-            "Permanent" = "11:FALSE"
-            "SharedLegacy" = "11:FALSE"
-            "PackageAs" = "3:1"
-            "Register" = "3:1"
-            "Exclude" = "11:FALSE"
-            "IsDependency" = "11:FALSE"
-            "IsolateTo" = "8:"
-            }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_679F2A782CA3455BAB34F96C9CC8C127"
             {
             "SourcePath" = "8:..\\..\\..\\ui\\mainwindow\\images\\path-skip_48x48.png"
@@ -9248,26 +7046,6 @@
             "TargetName" = "8:main.py"
             "Tag" = "8:"
             "Folder" = "8:_0969E8665EC94BB2A1FB615DC65E5093"
-            "Condition" = "8:"
-            "Transitive" = "11:FALSE"
-            "Vital" = "11:TRUE"
-            "ReadOnly" = "11:FALSE"
-            "Hidden" = "11:FALSE"
-            "System" = "11:FALSE"
-            "Permanent" = "11:FALSE"
-            "SharedLegacy" = "11:FALSE"
-            "PackageAs" = "3:1"
-            "Register" = "3:1"
-            "Exclude" = "11:FALSE"
-            "IsDependency" = "11:FALSE"
-            "IsolateTo" = "8:"
-            }
-            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_67E9789122A14BDBB332C78BA2BADBFF"
-            {
-            "SourcePath" = "8:..\\..\\..\\include\\networkx\\utils\\misc.pyc"
-            "TargetName" = "8:misc.pyc"
-            "Tag" = "8:"
-            "Folder" = "8:_BD99E801A6184BF188F30C1BDD9E13F3"
             "Condition" = "8:"
             "Transitive" = "11:FALSE"
             "Vital" = "11:TRUE"
@@ -9382,26 +7160,6 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
-            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_6A366C2E53BF4469937F0FD8710D73B6"
-            {
-            "SourcePath" = "8:..\\..\\..\\include\\networkx\\algorithms\\assortativity\\connectivity.pyc"
-            "TargetName" = "8:connectivity.pyc"
-            "Tag" = "8:"
-            "Folder" = "8:_F0157367152B42688A561089D6B70C19"
-            "Condition" = "8:"
-            "Transitive" = "11:FALSE"
-            "Vital" = "11:TRUE"
-            "ReadOnly" = "11:FALSE"
-            "Hidden" = "11:FALSE"
-            "System" = "11:FALSE"
-            "Permanent" = "11:FALSE"
-            "SharedLegacy" = "11:FALSE"
-            "PackageAs" = "3:1"
-            "Register" = "3:1"
-            "Exclude" = "11:FALSE"
-            "IsDependency" = "11:FALSE"
-            "IsolateTo" = "8:"
-            }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_6A50CA0A82E640F29F5866D1CA3C8EC2"
             {
             "SourcePath" = "8:..\\..\\..\\ui\\mainwindow\\images\\slice-delete-last.png"
@@ -9442,26 +7200,6 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
-            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_6A5C4E3E233E4A3797D86605A005CB0A"
-            {
-            "SourcePath" = "8:..\\..\\..\\include\\networkx\\algorithms\\centrality\\betweenness_subset.pyc"
-            "TargetName" = "8:betweenness_subset.pyc"
-            "Tag" = "8:"
-            "Folder" = "8:_67567E396D354C8EA07D5B52857101A3"
-            "Condition" = "8:"
-            "Transitive" = "11:FALSE"
-            "Vital" = "11:TRUE"
-            "ReadOnly" = "11:FALSE"
-            "Hidden" = "11:FALSE"
-            "System" = "11:FALSE"
-            "Permanent" = "11:FALSE"
-            "SharedLegacy" = "11:FALSE"
-            "PackageAs" = "3:1"
-            "Register" = "3:1"
-            "Exclude" = "11:FALSE"
-            "IsDependency" = "11:FALSE"
-            "IsolateTo" = "8:"
-            }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_6A645C3FF8A040C5B9D35A594B103DF3"
             {
             "SourcePath" = "8:..\\..\\..\\ui\\mainwindow\\images\\cadnano2-app-icon.png"
@@ -9488,26 +7226,6 @@
             "TargetName" = "8:test_relabel.py"
             "Tag" = "8:"
             "Folder" = "8:_E1528F27661E4DED962ABD6DEDDF9174"
-            "Condition" = "8:"
-            "Transitive" = "11:FALSE"
-            "Vital" = "11:TRUE"
-            "ReadOnly" = "11:FALSE"
-            "Hidden" = "11:FALSE"
-            "System" = "11:FALSE"
-            "Permanent" = "11:FALSE"
-            "SharedLegacy" = "11:FALSE"
-            "PackageAs" = "3:1"
-            "Register" = "3:1"
-            "Exclude" = "11:FALSE"
-            "IsDependency" = "11:FALSE"
-            "IsolateTo" = "8:"
-            }
-            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_6B2DD91E12DD4EAEA82F2AB903D3A703"
-            {
-            "SourcePath" = "8:..\\..\\..\\include\\networkx\\algorithms\\__init__.pyc"
-            "TargetName" = "8:__init__.pyc"
-            "Tag" = "8:"
-            "Folder" = "8:_EA22127335F8424F8E8AC2816E2ED782"
             "Condition" = "8:"
             "Transitive" = "11:FALSE"
             "Vital" = "11:TRUE"
@@ -9588,26 +7306,6 @@
             "TargetName" = "8:test_graphmatrix.py"
             "Tag" = "8:"
             "Folder" = "8:_B9320BA6BEAA49F19B7AA85DCA0E5845"
-            "Condition" = "8:"
-            "Transitive" = "11:FALSE"
-            "Vital" = "11:TRUE"
-            "ReadOnly" = "11:FALSE"
-            "Hidden" = "11:FALSE"
-            "System" = "11:FALSE"
-            "Permanent" = "11:FALSE"
-            "SharedLegacy" = "11:FALSE"
-            "PackageAs" = "3:1"
-            "Register" = "3:1"
-            "Exclude" = "11:FALSE"
-            "IsDependency" = "11:FALSE"
-            "IsolateTo" = "8:"
-            }
-            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_6CEAE56DD90B438494CED78C6E2E3771"
-            {
-            "SourcePath" = "8:..\\..\\..\\include\\networkx\\linalg\\spectrum.pyc"
-            "TargetName" = "8:spectrum.pyc"
-            "Tag" = "8:"
-            "Folder" = "8:_80778F26DD414242B176CE3B5E5451FE"
             "Condition" = "8:"
             "Transitive" = "11:FALSE"
             "Vital" = "11:TRUE"
@@ -9828,26 +7526,6 @@
             "TargetName" = "8:part.py"
             "Tag" = "8:"
             "Folder" = "8:_1B59806BDAE644268A712ECC2F82C8DC"
-            "Condition" = "8:"
-            "Transitive" = "11:FALSE"
-            "Vital" = "11:TRUE"
-            "ReadOnly" = "11:FALSE"
-            "Hidden" = "11:FALSE"
-            "System" = "11:FALSE"
-            "Permanent" = "11:FALSE"
-            "SharedLegacy" = "11:FALSE"
-            "PackageAs" = "3:1"
-            "Register" = "3:1"
-            "Exclude" = "11:FALSE"
-            "IsDependency" = "11:FALSE"
-            "IsolateTo" = "8:"
-            }
-            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_704B0BC0B8A647A3BBCA4BA66A445F7B"
-            {
-            "SourcePath" = "8:..\\..\\..\\include\\networkx\\algorithms\\assortativity\\neighbor_degree.pyc"
-            "TargetName" = "8:neighbor_degree.pyc"
-            "Tag" = "8:"
-            "Folder" = "8:_F0157367152B42688A561089D6B70C19"
             "Condition" = "8:"
             "Transitive" = "11:FALSE"
             "Vital" = "11:TRUE"
@@ -10102,26 +7780,6 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
-            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_742A2ED42E2E46A391A3C8129DD79A45"
-            {
-            "SourcePath" = "8:..\\..\\..\\include\\networkx\\algorithms\\centrality\\current_flow_betweenness_subset.pyc"
-            "TargetName" = "8:current_flow_betweenness_subset.pyc"
-            "Tag" = "8:"
-            "Folder" = "8:_67567E396D354C8EA07D5B52857101A3"
-            "Condition" = "8:"
-            "Transitive" = "11:FALSE"
-            "Vital" = "11:TRUE"
-            "ReadOnly" = "11:FALSE"
-            "Hidden" = "11:FALSE"
-            "System" = "11:FALSE"
-            "Permanent" = "11:FALSE"
-            "SharedLegacy" = "11:FALSE"
-            "PackageAs" = "3:1"
-            "Register" = "3:1"
-            "Exclude" = "11:FALSE"
-            "IsDependency" = "11:FALSE"
-            "IsolateTo" = "8:"
-            }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_745740C9D05645B4A9943D9930E947C7"
             {
             "SourcePath" = "8:..\\..\\..\\include\\networkx\\generators\\directed.py"
@@ -10302,26 +7960,6 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
-            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_77EF033B202641DFAD2572553293AFC0"
-            {
-            "SourcePath" = "8:..\\..\\..\\plugins\\autobreak\\autobreak.pyc"
-            "TargetName" = "8:autobreak.pyc"
-            "Tag" = "8:"
-            "Folder" = "8:_5072D81A7C6C42B49B08E44C0CD3F234"
-            "Condition" = "8:"
-            "Transitive" = "11:FALSE"
-            "Vital" = "11:TRUE"
-            "ReadOnly" = "11:FALSE"
-            "Hidden" = "11:FALSE"
-            "System" = "11:FALSE"
-            "Permanent" = "11:FALSE"
-            "SharedLegacy" = "11:FALSE"
-            "PackageAs" = "3:1"
-            "Register" = "3:1"
-            "Exclude" = "11:FALSE"
-            "IsDependency" = "11:FALSE"
-            "IsolateTo" = "8:"
-            }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_7862F2B55D0F4B768B353B0EEF215E94"
             {
             "SourcePath" = "8:..\\..\\..\\include\\networkx\\utils\\decorators.py"
@@ -10368,26 +8006,6 @@
             "TargetName" = "8:unittests.py"
             "Tag" = "8:"
             "Folder" = "8:_17044EDDBF4847588686BF6407FFCF2C"
-            "Condition" = "8:"
-            "Transitive" = "11:FALSE"
-            "Vital" = "11:TRUE"
-            "ReadOnly" = "11:FALSE"
-            "Hidden" = "11:FALSE"
-            "System" = "11:FALSE"
-            "Permanent" = "11:FALSE"
-            "SharedLegacy" = "11:FALSE"
-            "PackageAs" = "3:1"
-            "Register" = "3:1"
-            "Exclude" = "11:FALSE"
-            "IsDependency" = "11:FALSE"
-            "IsolateTo" = "8:"
-            }
-            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_795301818A75445FAB8870914B4CA173"
-            {
-            "SourcePath" = "8:..\\..\\..\\include\\networkx\\algorithms\\smetric.pyc"
-            "TargetName" = "8:smetric.pyc"
-            "Tag" = "8:"
-            "Folder" = "8:_EA22127335F8424F8E8AC2816E2ED782"
             "Condition" = "8:"
             "Transitive" = "11:FALSE"
             "Vital" = "11:TRUE"
@@ -10482,46 +8100,6 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
-            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_7D01282FB5034444B7CEF20A54669460"
-            {
-            "SourcePath" = "8:..\\..\\..\\include\\networkx\\readwrite\\edgelist.pyc"
-            "TargetName" = "8:edgelist.pyc"
-            "Tag" = "8:"
-            "Folder" = "8:_AB128C2CACF34BD2AF5D35DC7722E71C"
-            "Condition" = "8:"
-            "Transitive" = "11:FALSE"
-            "Vital" = "11:TRUE"
-            "ReadOnly" = "11:FALSE"
-            "Hidden" = "11:FALSE"
-            "System" = "11:FALSE"
-            "Permanent" = "11:FALSE"
-            "SharedLegacy" = "11:FALSE"
-            "PackageAs" = "3:1"
-            "Register" = "3:1"
-            "Exclude" = "11:FALSE"
-            "IsDependency" = "11:FALSE"
-            "IsolateTo" = "8:"
-            }
-            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_7D4B1B0E4C634531A1DE82B8EB839456"
-            {
-            "SourcePath" = "8:..\\..\\..\\include\\networkx\\utils\\random_sequence.pyc"
-            "TargetName" = "8:random_sequence.pyc"
-            "Tag" = "8:"
-            "Folder" = "8:_BD99E801A6184BF188F30C1BDD9E13F3"
-            "Condition" = "8:"
-            "Transitive" = "11:FALSE"
-            "Vital" = "11:TRUE"
-            "ReadOnly" = "11:FALSE"
-            "Hidden" = "11:FALSE"
-            "System" = "11:FALSE"
-            "Permanent" = "11:FALSE"
-            "SharedLegacy" = "11:FALSE"
-            "PackageAs" = "3:1"
-            "Register" = "3:1"
-            "Exclude" = "11:FALSE"
-            "IsDependency" = "11:FALSE"
-            "IsolateTo" = "8:"
-            }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_7DC9739C482E4674A2F2A9AA5A7626E0"
             {
             "SourcePath" = "8:..\\..\\..\\controllers\\itemcontrollers\\strand\\endpointitemcontroller.py"
@@ -10588,26 +8166,6 @@
             "TargetName" = "8:edgelist.py"
             "Tag" = "8:"
             "Folder" = "8:_AB128C2CACF34BD2AF5D35DC7722E71C"
-            "Condition" = "8:"
-            "Transitive" = "11:FALSE"
-            "Vital" = "11:TRUE"
-            "ReadOnly" = "11:FALSE"
-            "Hidden" = "11:FALSE"
-            "System" = "11:FALSE"
-            "Permanent" = "11:FALSE"
-            "SharedLegacy" = "11:FALSE"
-            "PackageAs" = "3:1"
-            "Register" = "3:1"
-            "Exclude" = "11:FALSE"
-            "IsDependency" = "11:FALSE"
-            "IsolateTo" = "8:"
-            }
-            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_7EA2866539E942878BD15F2F6136D946"
-            {
-            "SourcePath" = "8:..\\..\\..\\include\\networkx\\generators\\hybrid.pyc"
-            "TargetName" = "8:hybrid.pyc"
-            "Tag" = "8:"
-            "Folder" = "8:_7D81BF20942644B883FC3097B5670152"
             "Condition" = "8:"
             "Transitive" = "11:FALSE"
             "Vital" = "11:TRUE"
@@ -10788,46 +8346,6 @@
             "TargetName" = "8:test_serialize.py"
             "Tag" = "8:"
             "Folder" = "8:_FAD874661E47446EA033119BD6048B73"
-            "Condition" = "8:"
-            "Transitive" = "11:FALSE"
-            "Vital" = "11:TRUE"
-            "ReadOnly" = "11:FALSE"
-            "Hidden" = "11:FALSE"
-            "System" = "11:FALSE"
-            "Permanent" = "11:FALSE"
-            "SharedLegacy" = "11:FALSE"
-            "PackageAs" = "3:1"
-            "Register" = "3:1"
-            "Exclude" = "11:FALSE"
-            "IsDependency" = "11:FALSE"
-            "IsolateTo" = "8:"
-            }
-            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_82A4E59428CF4FBB8B7210E8905E5917"
-            {
-            "SourcePath" = "8:..\\..\\..\\include\\networkx\\readwrite\\pajek.pyc"
-            "TargetName" = "8:pajek.pyc"
-            "Tag" = "8:"
-            "Folder" = "8:_AB128C2CACF34BD2AF5D35DC7722E71C"
-            "Condition" = "8:"
-            "Transitive" = "11:FALSE"
-            "Vital" = "11:TRUE"
-            "ReadOnly" = "11:FALSE"
-            "Hidden" = "11:FALSE"
-            "System" = "11:FALSE"
-            "Permanent" = "11:FALSE"
-            "SharedLegacy" = "11:FALSE"
-            "PackageAs" = "3:1"
-            "Register" = "3:1"
-            "Exclude" = "11:FALSE"
-            "IsDependency" = "11:FALSE"
-            "IsolateTo" = "8:"
-            }
-            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_82C9EA0674024EB18586C13D4FDC7558"
-            {
-            "SourcePath" = "8:..\\..\\..\\include\\networkx\\algorithms\\chordal\\chordal_alg.pyc"
-            "TargetName" = "8:chordal_alg.pyc"
-            "Tag" = "8:"
-            "Folder" = "8:_4D0FD8C7EF0B4C5590030BA13949D265"
             "Condition" = "8:"
             "Transitive" = "11:FALSE"
             "Vital" = "11:TRUE"
@@ -11162,26 +8680,6 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
-            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_8911FA49FC214D77BF3CB3227798DCC4"
-            {
-            "SourcePath" = "8:..\\..\\..\\include\\networkx\\algorithms\\cluster.pyc"
-            "TargetName" = "8:cluster.pyc"
-            "Tag" = "8:"
-            "Folder" = "8:_EA22127335F8424F8E8AC2816E2ED782"
-            "Condition" = "8:"
-            "Transitive" = "11:FALSE"
-            "Vital" = "11:TRUE"
-            "ReadOnly" = "11:FALSE"
-            "Hidden" = "11:FALSE"
-            "System" = "11:FALSE"
-            "Permanent" = "11:FALSE"
-            "SharedLegacy" = "11:FALSE"
-            "PackageAs" = "3:1"
-            "Register" = "3:1"
-            "Exclude" = "11:FALSE"
-            "IsDependency" = "11:FALSE"
-            "IsolateTo" = "8:"
-            }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_8947AF72CDD448DC94F82FB0AE37B3AF"
             {
             "SourcePath" = "8:..\\..\\..\\model\\parts\\honeycombpart.py"
@@ -11202,52 +8700,12 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
-            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_8947C7C74CD74B68A109E37927103823"
-            {
-            "SourcePath" = "8:..\\..\\..\\include\\networkx\\classes\\multigraph.pyc"
-            "TargetName" = "8:multigraph.pyc"
-            "Tag" = "8:"
-            "Folder" = "8:_DA63C9530AFD4051B4BB2E3969416159"
-            "Condition" = "8:"
-            "Transitive" = "11:FALSE"
-            "Vital" = "11:TRUE"
-            "ReadOnly" = "11:FALSE"
-            "Hidden" = "11:FALSE"
-            "System" = "11:FALSE"
-            "Permanent" = "11:FALSE"
-            "SharedLegacy" = "11:FALSE"
-            "PackageAs" = "3:1"
-            "Register" = "3:1"
-            "Exclude" = "11:FALSE"
-            "IsDependency" = "11:FALSE"
-            "IsolateTo" = "8:"
-            }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_8ABDB8883A984B9B8C6CBF465474A130"
             {
             "SourcePath" = "8:..\\..\\..\\data\\__init__.py"
             "TargetName" = "8:__init__.py"
             "Tag" = "8:"
             "Folder" = "8:_107B671F114344E5A2D4C11BF8B896A3"
-            "Condition" = "8:"
-            "Transitive" = "11:FALSE"
-            "Vital" = "11:TRUE"
-            "ReadOnly" = "11:FALSE"
-            "Hidden" = "11:FALSE"
-            "System" = "11:FALSE"
-            "Permanent" = "11:FALSE"
-            "SharedLegacy" = "11:FALSE"
-            "PackageAs" = "3:1"
-            "Register" = "3:1"
-            "Exclude" = "11:FALSE"
-            "IsDependency" = "11:FALSE"
-            "IsolateTo" = "8:"
-            }
-            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_8ADE42158A4A4ACE98BD7BE0BDCBDF7F"
-            {
-            "SourcePath" = "8:..\\..\\..\\include\\networkx\\readwrite\\multiline_adjlist.pyc"
-            "TargetName" = "8:multiline_adjlist.pyc"
-            "Tag" = "8:"
-            "Folder" = "8:_AB128C2CACF34BD2AF5D35DC7722E71C"
             "Condition" = "8:"
             "Transitive" = "11:FALSE"
             "Vital" = "11:TRUE"
@@ -11368,26 +8826,6 @@
             "TargetName" = "8:test_laplaican.py"
             "Tag" = "8:"
             "Folder" = "8:_B9320BA6BEAA49F19B7AA85DCA0E5845"
-            "Condition" = "8:"
-            "Transitive" = "11:FALSE"
-            "Vital" = "11:TRUE"
-            "ReadOnly" = "11:FALSE"
-            "Hidden" = "11:FALSE"
-            "System" = "11:FALSE"
-            "Permanent" = "11:FALSE"
-            "SharedLegacy" = "11:FALSE"
-            "PackageAs" = "3:1"
-            "Register" = "3:1"
-            "Exclude" = "11:FALSE"
-            "IsDependency" = "11:FALSE"
-            "IsolateTo" = "8:"
-            }
-            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_8C7CA0D490C4427D97371B7FCF527E91"
-            {
-            "SourcePath" = "8:..\\..\\..\\include\\networkx\\algorithms\\isolate.pyc"
-            "TargetName" = "8:isolate.pyc"
-            "Tag" = "8:"
-            "Folder" = "8:_EA22127335F8424F8E8AC2816E2ED782"
             "Condition" = "8:"
             "Transitive" = "11:FALSE"
             "Vital" = "11:TRUE"
@@ -11602,26 +9040,6 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
-            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_92320E7D71624EB09F92AB6E295D5728"
-            {
-            "SourcePath" = "8:..\\..\\..\\include\\networkx\\generators\\geometric.pyc"
-            "TargetName" = "8:geometric.pyc"
-            "Tag" = "8:"
-            "Folder" = "8:_7D81BF20942644B883FC3097B5670152"
-            "Condition" = "8:"
-            "Transitive" = "11:FALSE"
-            "Vital" = "11:TRUE"
-            "ReadOnly" = "11:FALSE"
-            "Hidden" = "11:FALSE"
-            "System" = "11:FALSE"
-            "Permanent" = "11:FALSE"
-            "SharedLegacy" = "11:FALSE"
-            "PackageAs" = "3:1"
-            "Register" = "3:1"
-            "Exclude" = "11:FALSE"
-            "IsDependency" = "11:FALSE"
-            "IsolateTo" = "8:"
-            }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_927A3F7A0C0540C7914A457CC487C65B"
             {
             "SourcePath" = "8:..\\..\\..\\ui\\mainwindow\\mainwindow.ui"
@@ -11822,52 +9240,12 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
-            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_974FD85525734D61BFDC0289D42C750F"
-            {
-            "SourcePath" = "8:..\\..\\..\\include\\networkx\\algorithms\\swap.pyc"
-            "TargetName" = "8:swap.pyc"
-            "Tag" = "8:"
-            "Folder" = "8:_EA22127335F8424F8E8AC2816E2ED782"
-            "Condition" = "8:"
-            "Transitive" = "11:FALSE"
-            "Vital" = "11:TRUE"
-            "ReadOnly" = "11:FALSE"
-            "Hidden" = "11:FALSE"
-            "System" = "11:FALSE"
-            "Permanent" = "11:FALSE"
-            "SharedLegacy" = "11:FALSE"
-            "PackageAs" = "3:1"
-            "Register" = "3:1"
-            "Exclude" = "11:FALSE"
-            "IsDependency" = "11:FALSE"
-            "IsolateTo" = "8:"
-            }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_97A39DFECC0E423192E13E2D5972C169"
             {
             "SourcePath" = "8:..\\..\\..\\include\\networkx\\drawing\\tests\\test_agraph.py"
             "TargetName" = "8:test_agraph.py"
             "Tag" = "8:"
             "Folder" = "8:_F412C89F4507412E9BFB7AA47B944415"
-            "Condition" = "8:"
-            "Transitive" = "11:FALSE"
-            "Vital" = "11:TRUE"
-            "ReadOnly" = "11:FALSE"
-            "Hidden" = "11:FALSE"
-            "System" = "11:FALSE"
-            "Permanent" = "11:FALSE"
-            "SharedLegacy" = "11:FALSE"
-            "PackageAs" = "3:1"
-            "Register" = "3:1"
-            "Exclude" = "11:FALSE"
-            "IsDependency" = "11:FALSE"
-            "IsolateTo" = "8:"
-            }
-            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_9816B313E8F64A73A9B06862DDA6CDC7"
-            {
-            "SourcePath" = "8:..\\..\\..\\include\\networkx\\algorithms\\flow\\maxflow.pyc"
-            "TargetName" = "8:maxflow.pyc"
-            "Tag" = "8:"
-            "Folder" = "8:_1F00C5607899433097EF3A7EC9B23C21"
             "Condition" = "8:"
             "Transitive" = "11:FALSE"
             "Vital" = "11:TRUE"
@@ -12022,52 +9400,12 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
-            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_99D75F8E53C54CEA879E05B056774A5D"
-            {
-            "SourcePath" = "8:..\\..\\..\\include\\networkx\\generators\\threshold.pyc"
-            "TargetName" = "8:threshold.pyc"
-            "Tag" = "8:"
-            "Folder" = "8:_7D81BF20942644B883FC3097B5670152"
-            "Condition" = "8:"
-            "Transitive" = "11:FALSE"
-            "Vital" = "11:TRUE"
-            "ReadOnly" = "11:FALSE"
-            "Hidden" = "11:FALSE"
-            "System" = "11:FALSE"
-            "Permanent" = "11:FALSE"
-            "SharedLegacy" = "11:FALSE"
-            "PackageAs" = "3:1"
-            "Register" = "3:1"
-            "Exclude" = "11:FALSE"
-            "IsDependency" = "11:FALSE"
-            "IsolateTo" = "8:"
-            }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_99EEAE3B0F7A41A081BFE55B57CF5AA2"
             {
             "SourcePath" = "8:..\\..\\..\\include\\networkx\\algorithms\\tests\\test_product.py"
             "TargetName" = "8:test_product.py"
             "Tag" = "8:"
             "Folder" = "8:_8DE8C279194048948978FD382BC6AD28"
-            "Condition" = "8:"
-            "Transitive" = "11:FALSE"
-            "Vital" = "11:TRUE"
-            "ReadOnly" = "11:FALSE"
-            "Hidden" = "11:FALSE"
-            "System" = "11:FALSE"
-            "Permanent" = "11:FALSE"
-            "SharedLegacy" = "11:FALSE"
-            "PackageAs" = "3:1"
-            "Register" = "3:1"
-            "Exclude" = "11:FALSE"
-            "IsDependency" = "11:FALSE"
-            "IsolateTo" = "8:"
-            }
-            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_9A20520156024208AD1941777CD9DD0F"
-            {
-            "SourcePath" = "8:..\\..\\..\\include\\networkx\\version.pyc"
-            "TargetName" = "8:version.pyc"
-            "Tag" = "8:"
-            "Folder" = "8:_A35954EA6CD14A51B269FC222FB2AAEA"
             "Condition" = "8:"
             "Transitive" = "11:FALSE"
             "Vital" = "11:TRUE"
@@ -12162,72 +9500,12 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
-            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_9C4E23C1050443F199DFB13BFE3B0662"
-            {
-            "SourcePath" = "8:..\\..\\..\\include\\networkx\\drawing\\nx_agraph.pyc"
-            "TargetName" = "8:nx_agraph.pyc"
-            "Tag" = "8:"
-            "Folder" = "8:_8CF6B8A9A1CF4856BD964D4513937593"
-            "Condition" = "8:"
-            "Transitive" = "11:FALSE"
-            "Vital" = "11:TRUE"
-            "ReadOnly" = "11:FALSE"
-            "Hidden" = "11:FALSE"
-            "System" = "11:FALSE"
-            "Permanent" = "11:FALSE"
-            "SharedLegacy" = "11:FALSE"
-            "PackageAs" = "3:1"
-            "Register" = "3:1"
-            "Exclude" = "11:FALSE"
-            "IsDependency" = "11:FALSE"
-            "IsolateTo" = "8:"
-            }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_9C5D61C1AC354CAE85AADBF58D563225"
             {
             "SourcePath" = "8:..\\..\\..\\include\\networkx\\readwrite\\leda.py"
             "TargetName" = "8:leda.py"
             "Tag" = "8:"
             "Folder" = "8:_AB128C2CACF34BD2AF5D35DC7722E71C"
-            "Condition" = "8:"
-            "Transitive" = "11:FALSE"
-            "Vital" = "11:TRUE"
-            "ReadOnly" = "11:FALSE"
-            "Hidden" = "11:FALSE"
-            "System" = "11:FALSE"
-            "Permanent" = "11:FALSE"
-            "SharedLegacy" = "11:FALSE"
-            "PackageAs" = "3:1"
-            "Register" = "3:1"
-            "Exclude" = "11:FALSE"
-            "IsDependency" = "11:FALSE"
-            "IsolateTo" = "8:"
-            }
-            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_9C8B8F7A40AA4CE68D41DF740DC6D8EE"
-            {
-            "SourcePath" = "8:..\\..\\..\\include\\networkx\\classes\\digraph.pyc"
-            "TargetName" = "8:digraph.pyc"
-            "Tag" = "8:"
-            "Folder" = "8:_DA63C9530AFD4051B4BB2E3969416159"
-            "Condition" = "8:"
-            "Transitive" = "11:FALSE"
-            "Vital" = "11:TRUE"
-            "ReadOnly" = "11:FALSE"
-            "Hidden" = "11:FALSE"
-            "System" = "11:FALSE"
-            "Permanent" = "11:FALSE"
-            "SharedLegacy" = "11:FALSE"
-            "PackageAs" = "3:1"
-            "Register" = "3:1"
-            "Exclude" = "11:FALSE"
-            "IsDependency" = "11:FALSE"
-            "IsolateTo" = "8:"
-            }
-            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_9D47ADB44AB045D59A36EFA874BD4ECA"
-            {
-            "SourcePath" = "8:..\\..\\..\\include\\networkx\\algorithms\\block.pyc"
-            "TargetName" = "8:block.pyc"
-            "Tag" = "8:"
-            "Folder" = "8:_EA22127335F8424F8E8AC2816E2ED782"
             "Condition" = "8:"
             "Transitive" = "11:FALSE"
             "Vital" = "11:TRUE"
@@ -12322,46 +9600,6 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
-            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_9F0C58877CC444F5B13AE4187F3394D0"
-            {
-            "SourcePath" = "8:..\\..\\..\\include\\networkx\\algorithms\\operators.pyc"
-            "TargetName" = "8:operators.pyc"
-            "Tag" = "8:"
-            "Folder" = "8:_EA22127335F8424F8E8AC2816E2ED782"
-            "Condition" = "8:"
-            "Transitive" = "11:FALSE"
-            "Vital" = "11:TRUE"
-            "ReadOnly" = "11:FALSE"
-            "Hidden" = "11:FALSE"
-            "System" = "11:FALSE"
-            "Permanent" = "11:FALSE"
-            "SharedLegacy" = "11:FALSE"
-            "PackageAs" = "3:1"
-            "Register" = "3:1"
-            "Exclude" = "11:FALSE"
-            "IsDependency" = "11:FALSE"
-            "IsolateTo" = "8:"
-            }
-            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_9F49E6754293424980D91EAD8B0E191C"
-            {
-            "SourcePath" = "8:..\\..\\..\\include\\networkx\\algorithms\\components\\strongly_connected.pyc"
-            "TargetName" = "8:strongly_connected.pyc"
-            "Tag" = "8:"
-            "Folder" = "8:_D9396B9E596D464999A021A03B75FE37"
-            "Condition" = "8:"
-            "Transitive" = "11:FALSE"
-            "Vital" = "11:TRUE"
-            "ReadOnly" = "11:FALSE"
-            "Hidden" = "11:FALSE"
-            "System" = "11:FALSE"
-            "Permanent" = "11:FALSE"
-            "SharedLegacy" = "11:FALSE"
-            "PackageAs" = "3:1"
-            "Register" = "3:1"
-            "Exclude" = "11:FALSE"
-            "IsDependency" = "11:FALSE"
-            "IsolateTo" = "8:"
-            }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_9F8385D566574A258C751F51000ACCCA"
             {
             "SourcePath" = "8:..\\..\\..\\include\\networkx\\classes\\tests\\test_function.py"
@@ -12388,46 +9626,6 @@
             "TargetName" = "8:__init__.py"
             "Tag" = "8:"
             "Folder" = "8:_CA7C7CB9B6F44FF9AFA832DB42ACDF74"
-            "Condition" = "8:"
-            "Transitive" = "11:FALSE"
-            "Vital" = "11:TRUE"
-            "ReadOnly" = "11:FALSE"
-            "Hidden" = "11:FALSE"
-            "System" = "11:FALSE"
-            "Permanent" = "11:FALSE"
-            "SharedLegacy" = "11:FALSE"
-            "PackageAs" = "3:1"
-            "Register" = "3:1"
-            "Exclude" = "11:FALSE"
-            "IsDependency" = "11:FALSE"
-            "IsolateTo" = "8:"
-            }
-            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_A03677A0AABD4E538A520E753AB61013"
-            {
-            "SourcePath" = "8:..\\..\\..\\include\\networkx\\algorithms\\components\\weakly_connected.pyc"
-            "TargetName" = "8:weakly_connected.pyc"
-            "Tag" = "8:"
-            "Folder" = "8:_D9396B9E596D464999A021A03B75FE37"
-            "Condition" = "8:"
-            "Transitive" = "11:FALSE"
-            "Vital" = "11:TRUE"
-            "ReadOnly" = "11:FALSE"
-            "Hidden" = "11:FALSE"
-            "System" = "11:FALSE"
-            "Permanent" = "11:FALSE"
-            "SharedLegacy" = "11:FALSE"
-            "PackageAs" = "3:1"
-            "Register" = "3:1"
-            "Exclude" = "11:FALSE"
-            "IsDependency" = "11:FALSE"
-            "IsolateTo" = "8:"
-            }
-            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_A043B15F0B3B46EEBB465FF7B2B66CAB"
-            {
-            "SourcePath" = "8:..\\..\\..\\plugins\\autobreak\\staplegraph.pyc"
-            "TargetName" = "8:staplegraph.pyc"
-            "Tag" = "8:"
-            "Folder" = "8:_5072D81A7C6C42B49B08E44C0CD3F234"
             "Condition" = "8:"
             "Transitive" = "11:FALSE"
             "Vital" = "11:TRUE"
@@ -12542,26 +9740,6 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
-            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_A1E983ED2CE14F5EB0166C4CE93E6FDE"
-            {
-            "SourcePath" = "8:..\\..\\..\\include\\networkx\\algorithms\\centrality\\current_flow_betweenness.pyc"
-            "TargetName" = "8:current_flow_betweenness.pyc"
-            "Tag" = "8:"
-            "Folder" = "8:_67567E396D354C8EA07D5B52857101A3"
-            "Condition" = "8:"
-            "Transitive" = "11:FALSE"
-            "Vital" = "11:TRUE"
-            "ReadOnly" = "11:FALSE"
-            "Hidden" = "11:FALSE"
-            "System" = "11:FALSE"
-            "Permanent" = "11:FALSE"
-            "SharedLegacy" = "11:FALSE"
-            "PackageAs" = "3:1"
-            "Register" = "3:1"
-            "Exclude" = "11:FALSE"
-            "IsDependency" = "11:FALSE"
-            "IsolateTo" = "8:"
-            }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_A2FAFBF21B9A465E9BC546D5E1132143"
             {
             "SourcePath" = "8:..\\..\\..\\README.md"
@@ -12622,72 +9800,12 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
-            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_A419174B243F4DF6964B1473DE64D7E5"
-            {
-            "SourcePath" = "8:..\\..\\..\\include\\networkx\\algorithms\\centrality\\communicability_alg.pyc"
-            "TargetName" = "8:communicability_alg.pyc"
-            "Tag" = "8:"
-            "Folder" = "8:_67567E396D354C8EA07D5B52857101A3"
-            "Condition" = "8:"
-            "Transitive" = "11:FALSE"
-            "Vital" = "11:TRUE"
-            "ReadOnly" = "11:FALSE"
-            "Hidden" = "11:FALSE"
-            "System" = "11:FALSE"
-            "Permanent" = "11:FALSE"
-            "SharedLegacy" = "11:FALSE"
-            "PackageAs" = "3:1"
-            "Register" = "3:1"
-            "Exclude" = "11:FALSE"
-            "IsDependency" = "11:FALSE"
-            "IsolateTo" = "8:"
-            }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_A58BE3A8061F47EF8B5C690E70A1DE57"
             {
             "SourcePath" = "8:..\\..\\..\\include\\networkx\\algorithms\\tests\\test_boundary.py"
             "TargetName" = "8:test_boundary.py"
             "Tag" = "8:"
             "Folder" = "8:_8DE8C279194048948978FD382BC6AD28"
-            "Condition" = "8:"
-            "Transitive" = "11:FALSE"
-            "Vital" = "11:TRUE"
-            "ReadOnly" = "11:FALSE"
-            "Hidden" = "11:FALSE"
-            "System" = "11:FALSE"
-            "Permanent" = "11:FALSE"
-            "SharedLegacy" = "11:FALSE"
-            "PackageAs" = "3:1"
-            "Register" = "3:1"
-            "Exclude" = "11:FALSE"
-            "IsDependency" = "11:FALSE"
-            "IsolateTo" = "8:"
-            }
-            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_A5908790770443C5BA377E8A366E5D8C"
-            {
-            "SourcePath" = "8:..\\..\\..\\include\\networkx\\algorithms\\components\\connected.pyc"
-            "TargetName" = "8:connected.pyc"
-            "Tag" = "8:"
-            "Folder" = "8:_D9396B9E596D464999A021A03B75FE37"
-            "Condition" = "8:"
-            "Transitive" = "11:FALSE"
-            "Vital" = "11:TRUE"
-            "ReadOnly" = "11:FALSE"
-            "Hidden" = "11:FALSE"
-            "System" = "11:FALSE"
-            "Permanent" = "11:FALSE"
-            "SharedLegacy" = "11:FALSE"
-            "PackageAs" = "3:1"
-            "Register" = "3:1"
-            "Exclude" = "11:FALSE"
-            "IsDependency" = "11:FALSE"
-            "IsolateTo" = "8:"
-            }
-            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_A5ED1226493B4392938C5F4A131FB529"
-            {
-            "SourcePath" = "8:..\\..\\..\\include\\networkx\\readwrite\\nx_yaml.pyc"
-            "TargetName" = "8:nx_yaml.pyc"
-            "Tag" = "8:"
-            "Folder" = "8:_AB128C2CACF34BD2AF5D35DC7722E71C"
             "Condition" = "8:"
             "Transitive" = "11:FALSE"
             "Vital" = "11:TRUE"
@@ -12842,52 +9960,12 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
-            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_AC2A66F24DF04B869A4D61D8D826B0A4"
-            {
-            "SourcePath" = "8:..\\..\\..\\include\\networkx\\algorithms\\distance_measures.pyc"
-            "TargetName" = "8:distance_measures.pyc"
-            "Tag" = "8:"
-            "Folder" = "8:_EA22127335F8424F8E8AC2816E2ED782"
-            "Condition" = "8:"
-            "Transitive" = "11:FALSE"
-            "Vital" = "11:TRUE"
-            "ReadOnly" = "11:FALSE"
-            "Hidden" = "11:FALSE"
-            "System" = "11:FALSE"
-            "Permanent" = "11:FALSE"
-            "SharedLegacy" = "11:FALSE"
-            "PackageAs" = "3:1"
-            "Register" = "3:1"
-            "Exclude" = "11:FALSE"
-            "IsDependency" = "11:FALSE"
-            "IsolateTo" = "8:"
-            }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_AC430F37C2CE43A7B67C8E5486C383E6"
             {
             "SourcePath" = "8:..\\..\\..\\include\\networkx\\generators\\tests\\test_atlas.py"
             "TargetName" = "8:test_atlas.py"
             "Tag" = "8:"
             "Folder" = "8:_7FC15E111B6940588DE020FCEF3C5273"
-            "Condition" = "8:"
-            "Transitive" = "11:FALSE"
-            "Vital" = "11:TRUE"
-            "ReadOnly" = "11:FALSE"
-            "Hidden" = "11:FALSE"
-            "System" = "11:FALSE"
-            "Permanent" = "11:FALSE"
-            "SharedLegacy" = "11:FALSE"
-            "PackageAs" = "3:1"
-            "Register" = "3:1"
-            "Exclude" = "11:FALSE"
-            "IsDependency" = "11:FALSE"
-            "IsolateTo" = "8:"
-            }
-            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_AC45F18A179D4F5EAF7F49CDFF82D39C"
-            {
-            "SourcePath" = "8:..\\..\\..\\include\\networkx\\readwrite\\__init__.pyc"
-            "TargetName" = "8:__init__.pyc"
-            "Tag" = "8:"
-            "Folder" = "8:_AB128C2CACF34BD2AF5D35DC7722E71C"
             "Condition" = "8:"
             "Transitive" = "11:FALSE"
             "Vital" = "11:TRUE"
@@ -13022,26 +10100,6 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
-            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_B0D86AF79A2943709C71E3D279C2CA94"
-            {
-            "SourcePath" = "8:..\\..\\..\\include\\networkx\\utils\\__init__.pyc"
-            "TargetName" = "8:__init__.pyc"
-            "Tag" = "8:"
-            "Folder" = "8:_BD99E801A6184BF188F30C1BDD9E13F3"
-            "Condition" = "8:"
-            "Transitive" = "11:FALSE"
-            "Vital" = "11:TRUE"
-            "ReadOnly" = "11:FALSE"
-            "Hidden" = "11:FALSE"
-            "System" = "11:FALSE"
-            "Permanent" = "11:FALSE"
-            "SharedLegacy" = "11:FALSE"
-            "PackageAs" = "3:1"
-            "Register" = "3:1"
-            "Exclude" = "11:FALSE"
-            "IsDependency" = "11:FALSE"
-            "IsolateTo" = "8:"
-            }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_B1AC5A33181D43A49107E2D7728B5AE6"
             {
             "SourcePath" = "8:..\\..\\..\\include\\networkx\\tests\\test_convert_numpy.py"
@@ -13068,26 +10126,6 @@
             "TargetName" = "8:kclique.py"
             "Tag" = "8:"
             "Folder" = "8:_6A3E5AA8C62B47689E07AA3E5BED53A8"
-            "Condition" = "8:"
-            "Transitive" = "11:FALSE"
-            "Vital" = "11:TRUE"
-            "ReadOnly" = "11:FALSE"
-            "Hidden" = "11:FALSE"
-            "System" = "11:FALSE"
-            "Permanent" = "11:FALSE"
-            "SharedLegacy" = "11:FALSE"
-            "PackageAs" = "3:1"
-            "Register" = "3:1"
-            "Exclude" = "11:FALSE"
-            "IsDependency" = "11:FALSE"
-            "IsolateTo" = "8:"
-            }
-            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_B1D17C0702DC41B5892F63EF003A2C70"
-            {
-            "SourcePath" = "8:..\\..\\..\\include\\networkx\\algorithms\\richclub.pyc"
-            "TargetName" = "8:richclub.pyc"
-            "Tag" = "8:"
-            "Folder" = "8:_EA22127335F8424F8E8AC2816E2ED782"
             "Condition" = "8:"
             "Transitive" = "11:FALSE"
             "Vital" = "11:TRUE"
@@ -13202,46 +10240,6 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
-            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_B47CA9A7789D44E6B34836D59DD5575A"
-            {
-            "SourcePath" = "8:..\\..\\..\\include\\networkx\\algorithms\\community\\kclique.pyc"
-            "TargetName" = "8:kclique.pyc"
-            "Tag" = "8:"
-            "Folder" = "8:_6A3E5AA8C62B47689E07AA3E5BED53A8"
-            "Condition" = "8:"
-            "Transitive" = "11:FALSE"
-            "Vital" = "11:TRUE"
-            "ReadOnly" = "11:FALSE"
-            "Hidden" = "11:FALSE"
-            "System" = "11:FALSE"
-            "Permanent" = "11:FALSE"
-            "SharedLegacy" = "11:FALSE"
-            "PackageAs" = "3:1"
-            "Register" = "3:1"
-            "Exclude" = "11:FALSE"
-            "IsDependency" = "11:FALSE"
-            "IsolateTo" = "8:"
-            }
-            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_B5014EB554104BBD907A71FC9CC6DE3B"
-            {
-            "SourcePath" = "8:..\\..\\..\\include\\networkx\\algorithms\\chordal\\__init__.pyc"
-            "TargetName" = "8:__init__.pyc"
-            "Tag" = "8:"
-            "Folder" = "8:_4D0FD8C7EF0B4C5590030BA13949D265"
-            "Condition" = "8:"
-            "Transitive" = "11:FALSE"
-            "Vital" = "11:TRUE"
-            "ReadOnly" = "11:FALSE"
-            "Hidden" = "11:FALSE"
-            "System" = "11:FALSE"
-            "Permanent" = "11:FALSE"
-            "SharedLegacy" = "11:FALSE"
-            "PackageAs" = "3:1"
-            "Register" = "3:1"
-            "Exclude" = "11:FALSE"
-            "IsDependency" = "11:FALSE"
-            "IsolateTo" = "8:"
-            }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_B51C68CD759A496784D1C68293016FB0"
             {
             "SourcePath" = "8:..\\..\\..\\include\\networkx\\algorithms\\flow\\tests\\test_maxflow.py"
@@ -13342,52 +10340,12 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
-            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_B753957D5580460BBE593B8C61E9F1DC"
-            {
-            "SourcePath" = "8:..\\..\\..\\include\\networkx\\algorithms\\link_analysis\\hits_alg.pyc"
-            "TargetName" = "8:hits_alg.pyc"
-            "Tag" = "8:"
-            "Folder" = "8:_12CDBC07B0B249D0A02444A8364CD026"
-            "Condition" = "8:"
-            "Transitive" = "11:FALSE"
-            "Vital" = "11:TRUE"
-            "ReadOnly" = "11:FALSE"
-            "Hidden" = "11:FALSE"
-            "System" = "11:FALSE"
-            "Permanent" = "11:FALSE"
-            "SharedLegacy" = "11:FALSE"
-            "PackageAs" = "3:1"
-            "Register" = "3:1"
-            "Exclude" = "11:FALSE"
-            "IsDependency" = "11:FALSE"
-            "IsolateTo" = "8:"
-            }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_B7F1D151A6774C388E2F5CAAAD1D0490"
             {
             "SourcePath" = "8:..\\..\\..\\include\\networkx\\algorithms\\bipartite\\tests\\test_basic.py"
             "TargetName" = "8:test_basic.py"
             "Tag" = "8:"
             "Folder" = "8:_065466DC492649C98B5462074F99D23D"
-            "Condition" = "8:"
-            "Transitive" = "11:FALSE"
-            "Vital" = "11:TRUE"
-            "ReadOnly" = "11:FALSE"
-            "Hidden" = "11:FALSE"
-            "System" = "11:FALSE"
-            "Permanent" = "11:FALSE"
-            "SharedLegacy" = "11:FALSE"
-            "PackageAs" = "3:1"
-            "Register" = "3:1"
-            "Exclude" = "11:FALSE"
-            "IsDependency" = "11:FALSE"
-            "IsolateTo" = "8:"
-            }
-            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_B82B83006E8945D8A9FBCDEFF01709B5"
-            {
-            "SourcePath" = "8:..\\..\\..\\include\\networkx\\readwrite\\gml.pyc"
-            "TargetName" = "8:gml.pyc"
-            "Tag" = "8:"
-            "Folder" = "8:_AB128C2CACF34BD2AF5D35DC7722E71C"
             "Condition" = "8:"
             "Transitive" = "11:FALSE"
             "Vital" = "11:TRUE"
@@ -13428,26 +10386,6 @@
             "TargetName" = "8:bipartite.py"
             "Tag" = "8:"
             "Folder" = "8:_7D81BF20942644B883FC3097B5670152"
-            "Condition" = "8:"
-            "Transitive" = "11:FALSE"
-            "Vital" = "11:TRUE"
-            "ReadOnly" = "11:FALSE"
-            "Hidden" = "11:FALSE"
-            "System" = "11:FALSE"
-            "Permanent" = "11:FALSE"
-            "SharedLegacy" = "11:FALSE"
-            "PackageAs" = "3:1"
-            "Register" = "3:1"
-            "Exclude" = "11:FALSE"
-            "IsDependency" = "11:FALSE"
-            "IsolateTo" = "8:"
-            }
-            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_B9316F2179E04388B66A6587FFDB7399"
-            {
-            "SourcePath" = "8:..\\..\\..\\include\\networkx\\algorithms\\boundary.pyc"
-            "TargetName" = "8:boundary.pyc"
-            "Tag" = "8:"
-            "Folder" = "8:_EA22127335F8424F8E8AC2816E2ED782"
             "Condition" = "8:"
             "Transitive" = "11:FALSE"
             "Vital" = "11:TRUE"
@@ -13602,52 +10540,12 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
-            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_BAAA78AB846A47408F96C8F374C0477C"
-            {
-            "SourcePath" = "8:..\\..\\..\\include\\networkx\\algorithms\\assortativity\\pairs.pyc"
-            "TargetName" = "8:pairs.pyc"
-            "Tag" = "8:"
-            "Folder" = "8:_F0157367152B42688A561089D6B70C19"
-            "Condition" = "8:"
-            "Transitive" = "11:FALSE"
-            "Vital" = "11:TRUE"
-            "ReadOnly" = "11:FALSE"
-            "Hidden" = "11:FALSE"
-            "System" = "11:FALSE"
-            "Permanent" = "11:FALSE"
-            "SharedLegacy" = "11:FALSE"
-            "PackageAs" = "3:1"
-            "Register" = "3:1"
-            "Exclude" = "11:FALSE"
-            "IsDependency" = "11:FALSE"
-            "IsolateTo" = "8:"
-            }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_BB3D5C392029438B807309C6C66625FF"
             {
             "SourcePath" = "8:..\\..\\..\\include\\networkx\\readwrite\\tests\\test_leda.py"
             "TargetName" = "8:test_leda.py"
             "Tag" = "8:"
             "Folder" = "8:_BD947ACDE8F740DDBE6A2391684975D7"
-            "Condition" = "8:"
-            "Transitive" = "11:FALSE"
-            "Vital" = "11:TRUE"
-            "ReadOnly" = "11:FALSE"
-            "Hidden" = "11:FALSE"
-            "System" = "11:FALSE"
-            "Permanent" = "11:FALSE"
-            "SharedLegacy" = "11:FALSE"
-            "PackageAs" = "3:1"
-            "Register" = "3:1"
-            "Exclude" = "11:FALSE"
-            "IsDependency" = "11:FALSE"
-            "IsolateTo" = "8:"
-            }
-            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_BC46D3E543B54CD399D49D4DFA2DAFA1"
-            {
-            "SourcePath" = "8:..\\..\\..\\plugins\\autobreak\\autobreakconfig.pyc"
-            "TargetName" = "8:autobreakconfig.pyc"
-            "Tag" = "8:"
-            "Folder" = "8:_5072D81A7C6C42B49B08E44C0CD3F234"
             "Condition" = "8:"
             "Transitive" = "11:FALSE"
             "Vital" = "11:TRUE"
@@ -13802,26 +10700,6 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
-            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_BF1FC9D5A51840328740B03F718E4A63"
-            {
-            "SourcePath" = "8:..\\..\\..\\include\\networkx\\algorithms\\bipartite\\centrality.pyc"
-            "TargetName" = "8:centrality.pyc"
-            "Tag" = "8:"
-            "Folder" = "8:_2BF5A901602B489BB71A63C61B88F105"
-            "Condition" = "8:"
-            "Transitive" = "11:FALSE"
-            "Vital" = "11:TRUE"
-            "ReadOnly" = "11:FALSE"
-            "Hidden" = "11:FALSE"
-            "System" = "11:FALSE"
-            "Permanent" = "11:FALSE"
-            "SharedLegacy" = "11:FALSE"
-            "PackageAs" = "3:1"
-            "Register" = "3:1"
-            "Exclude" = "11:FALSE"
-            "IsDependency" = "11:FALSE"
-            "IsolateTo" = "8:"
-            }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_BF4019C5A563437DA43BC20A2F8B9023"
             {
             "SourcePath" = "8:..\\..\\..\\include\\networkx\\algorithms\\components\\tests\\test_strongly_connected.py"
@@ -13888,26 +10766,6 @@
             "TargetName" = "8:euler.py"
             "Tag" = "8:"
             "Folder" = "8:_EA22127335F8424F8E8AC2816E2ED782"
-            "Condition" = "8:"
-            "Transitive" = "11:FALSE"
-            "Vital" = "11:TRUE"
-            "ReadOnly" = "11:FALSE"
-            "Hidden" = "11:FALSE"
-            "System" = "11:FALSE"
-            "Permanent" = "11:FALSE"
-            "SharedLegacy" = "11:FALSE"
-            "PackageAs" = "3:1"
-            "Register" = "3:1"
-            "Exclude" = "11:FALSE"
-            "IsDependency" = "11:FALSE"
-            "IsolateTo" = "8:"
-            }
-            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_C24B17CAA74A408987238C682381CC99"
-            {
-            "SourcePath" = "8:..\\..\\..\\include\\networkx\\utils\\rcm.pyc"
-            "TargetName" = "8:rcm.pyc"
-            "Tag" = "8:"
-            "Folder" = "8:_BD99E801A6184BF188F30C1BDD9E13F3"
             "Condition" = "8:"
             "Transitive" = "11:FALSE"
             "Vital" = "11:TRUE"
@@ -14122,46 +10980,6 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
-            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_C60D8FFF66774EBD8F7E0067B164EE45"
-            {
-            "SourcePath" = "8:..\\..\\..\\include\\networkx\\algorithms\\assortativity\\__init__.pyc"
-            "TargetName" = "8:__init__.pyc"
-            "Tag" = "8:"
-            "Folder" = "8:_F0157367152B42688A561089D6B70C19"
-            "Condition" = "8:"
-            "Transitive" = "11:FALSE"
-            "Vital" = "11:TRUE"
-            "ReadOnly" = "11:FALSE"
-            "Hidden" = "11:FALSE"
-            "System" = "11:FALSE"
-            "Permanent" = "11:FALSE"
-            "SharedLegacy" = "11:FALSE"
-            "PackageAs" = "3:1"
-            "Register" = "3:1"
-            "Exclude" = "11:FALSE"
-            "IsDependency" = "11:FALSE"
-            "IsolateTo" = "8:"
-            }
-            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_C668D3FD864540428361EA18CAE969EB"
-            {
-            "SourcePath" = "8:..\\..\\..\\include\\networkx\\algorithms\\bipartite\\basic.pyc"
-            "TargetName" = "8:basic.pyc"
-            "Tag" = "8:"
-            "Folder" = "8:_2BF5A901602B489BB71A63C61B88F105"
-            "Condition" = "8:"
-            "Transitive" = "11:FALSE"
-            "Vital" = "11:TRUE"
-            "ReadOnly" = "11:FALSE"
-            "Hidden" = "11:FALSE"
-            "System" = "11:FALSE"
-            "Permanent" = "11:FALSE"
-            "SharedLegacy" = "11:FALSE"
-            "PackageAs" = "3:1"
-            "Register" = "3:1"
-            "Exclude" = "11:FALSE"
-            "IsDependency" = "11:FALSE"
-            "IsolateTo" = "8:"
-            }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_C671B0A457C7449BB35BAD570ABFB07F"
             {
             "SourcePath" = "8:..\\..\\..\\model\\parts\\__init__.py"
@@ -14208,26 +11026,6 @@
             "TargetName" = "8:test_intersection.py"
             "Tag" = "8:"
             "Folder" = "8:_7FC15E111B6940588DE020FCEF3C5273"
-            "Condition" = "8:"
-            "Transitive" = "11:FALSE"
-            "Vital" = "11:TRUE"
-            "ReadOnly" = "11:FALSE"
-            "Hidden" = "11:FALSE"
-            "System" = "11:FALSE"
-            "Permanent" = "11:FALSE"
-            "SharedLegacy" = "11:FALSE"
-            "PackageAs" = "3:1"
-            "Register" = "3:1"
-            "Exclude" = "11:FALSE"
-            "IsDependency" = "11:FALSE"
-            "IsolateTo" = "8:"
-            }
-            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_C98F85E4494943C89F75E01FC8BF48FD"
-            {
-            "SourcePath" = "8:..\\..\\..\\include\\networkx\\algorithms\\euler.pyc"
-            "TargetName" = "8:euler.pyc"
-            "Tag" = "8:"
-            "Folder" = "8:_EA22127335F8424F8E8AC2816E2ED782"
             "Condition" = "8:"
             "Transitive" = "11:FALSE"
             "Vital" = "11:TRUE"
@@ -14562,52 +11360,12 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
-            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_CE5C6F194FB645698E2F3BEC16DAE9D3"
-            {
-            "SourcePath" = "8:..\\..\\..\\include\\networkx\\algorithms\\flow\\__init__.pyc"
-            "TargetName" = "8:__init__.pyc"
-            "Tag" = "8:"
-            "Folder" = "8:_1F00C5607899433097EF3A7EC9B23C21"
-            "Condition" = "8:"
-            "Transitive" = "11:FALSE"
-            "Vital" = "11:TRUE"
-            "ReadOnly" = "11:FALSE"
-            "Hidden" = "11:FALSE"
-            "System" = "11:FALSE"
-            "Permanent" = "11:FALSE"
-            "SharedLegacy" = "11:FALSE"
-            "PackageAs" = "3:1"
-            "Register" = "3:1"
-            "Exclude" = "11:FALSE"
-            "IsDependency" = "11:FALSE"
-            "IsolateTo" = "8:"
-            }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_CE9B61D77F3746E0B0A562822C8600C9"
             {
             "SourcePath" = "8:..\\..\\..\\tests\\functionaltestinputs\\gap_vs_skip.csv"
             "TargetName" = "8:gap_vs_skip.csv"
             "Tag" = "8:"
             "Folder" = "8:_CA7C7CB9B6F44FF9AFA832DB42ACDF74"
-            "Condition" = "8:"
-            "Transitive" = "11:FALSE"
-            "Vital" = "11:TRUE"
-            "ReadOnly" = "11:FALSE"
-            "Hidden" = "11:FALSE"
-            "System" = "11:FALSE"
-            "Permanent" = "11:FALSE"
-            "SharedLegacy" = "11:FALSE"
-            "PackageAs" = "3:1"
-            "Register" = "3:1"
-            "Exclude" = "11:FALSE"
-            "IsDependency" = "11:FALSE"
-            "IsolateTo" = "8:"
-            }
-            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_D034149BDDC74886A00E18989D8405BE"
-            {
-            "SourcePath" = "8:..\\..\\..\\include\\networkx\\utils\\decorators.pyc"
-            "TargetName" = "8:decorators.pyc"
-            "Tag" = "8:"
-            "Folder" = "8:_BD99E801A6184BF188F30C1BDD9E13F3"
             "Condition" = "8:"
             "Transitive" = "11:FALSE"
             "Vital" = "11:TRUE"
@@ -14742,26 +11500,6 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
-            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_D3C1FD41F84D4001BF04FCBF963CDE63"
-            {
-            "SourcePath" = "8:..\\..\\..\\include\\networkx\\classes\\graph.pyc"
-            "TargetName" = "8:graph.pyc"
-            "Tag" = "8:"
-            "Folder" = "8:_DA63C9530AFD4051B4BB2E3969416159"
-            "Condition" = "8:"
-            "Transitive" = "11:FALSE"
-            "Vital" = "11:TRUE"
-            "ReadOnly" = "11:FALSE"
-            "Hidden" = "11:FALSE"
-            "System" = "11:FALSE"
-            "Permanent" = "11:FALSE"
-            "SharedLegacy" = "11:FALSE"
-            "PackageAs" = "3:1"
-            "Register" = "3:1"
-            "Exclude" = "11:FALSE"
-            "IsDependency" = "11:FALSE"
-            "IsolateTo" = "8:"
-            }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_D3D29E00FECD4BF1B1AB9A3242B0F514"
             {
             "SourcePath" = "8:..\\..\\..\\views\\pathview\\strand\\xoveritem.py"
@@ -14828,26 +11566,6 @@
             "TargetName" = "8:autobreakconfig.ui"
             "Tag" = "8:"
             "Folder" = "8:_5072D81A7C6C42B49B08E44C0CD3F234"
-            "Condition" = "8:"
-            "Transitive" = "11:FALSE"
-            "Vital" = "11:TRUE"
-            "ReadOnly" = "11:FALSE"
-            "Hidden" = "11:FALSE"
-            "System" = "11:FALSE"
-            "Permanent" = "11:FALSE"
-            "SharedLegacy" = "11:FALSE"
-            "PackageAs" = "3:1"
-            "Register" = "3:1"
-            "Exclude" = "11:FALSE"
-            "IsDependency" = "11:FALSE"
-            "IsolateTo" = "8:"
-            }
-            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_D5979292FD8F41A5BF73838965007036"
-            {
-            "SourcePath" = "8:..\\..\\..\\include\\networkx\\algorithms\\traversal\\depth_first_search.pyc"
-            "TargetName" = "8:depth_first_search.pyc"
-            "Tag" = "8:"
-            "Folder" = "8:_393BD34AF9E448E895090C748366143E"
             "Condition" = "8:"
             "Transitive" = "11:FALSE"
             "Vital" = "11:TRUE"
@@ -14982,26 +11700,6 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
-            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_D8DD75D3E5964FD3BEF30F7C1D0B461C"
-            {
-            "SourcePath" = "8:..\\..\\..\\include\\networkx\\readwrite\\adjlist.pyc"
-            "TargetName" = "8:adjlist.pyc"
-            "Tag" = "8:"
-            "Folder" = "8:_AB128C2CACF34BD2AF5D35DC7722E71C"
-            "Condition" = "8:"
-            "Transitive" = "11:FALSE"
-            "Vital" = "11:TRUE"
-            "ReadOnly" = "11:FALSE"
-            "Hidden" = "11:FALSE"
-            "System" = "11:FALSE"
-            "Permanent" = "11:FALSE"
-            "SharedLegacy" = "11:FALSE"
-            "PackageAs" = "3:1"
-            "Register" = "3:1"
-            "Exclude" = "11:FALSE"
-            "IsDependency" = "11:FALSE"
-            "IsolateTo" = "8:"
-            }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_D9D512F4472D4BCAA229F128B634A14C"
             {
             "SourcePath" = "8:..\\..\\..\\tests\\runall.py"
@@ -15028,26 +11726,6 @@
             "TargetName" = "8:path-paint_48.png"
             "Tag" = "8:"
             "Folder" = "8:_3F6351B6561948C1879CF096521DD2DB"
-            "Condition" = "8:"
-            "Transitive" = "11:FALSE"
-            "Vital" = "11:TRUE"
-            "ReadOnly" = "11:FALSE"
-            "Hidden" = "11:FALSE"
-            "System" = "11:FALSE"
-            "Permanent" = "11:FALSE"
-            "SharedLegacy" = "11:FALSE"
-            "PackageAs" = "3:1"
-            "Register" = "3:1"
-            "Exclude" = "11:FALSE"
-            "IsDependency" = "11:FALSE"
-            "IsolateTo" = "8:"
-            }
-            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_DA2549122934411DAE4F097447FE7EEE"
-            {
-            "SourcePath" = "8:..\\..\\..\\include\\networkx\\algorithms\\centrality\\__init__.pyc"
-            "TargetName" = "8:__init__.pyc"
-            "Tag" = "8:"
-            "Folder" = "8:_67567E396D354C8EA07D5B52857101A3"
             "Condition" = "8:"
             "Transitive" = "11:FALSE"
             "Vital" = "11:TRUE"
@@ -15202,26 +11880,6 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
-            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_DCACA6F1AB4F485CA3B42C6B6B2336BE"
-            {
-            "SourcePath" = "8:..\\..\\..\\include\\networkx\\linalg\\attrmatrix.pyc"
-            "TargetName" = "8:attrmatrix.pyc"
-            "Tag" = "8:"
-            "Folder" = "8:_80778F26DD414242B176CE3B5E5451FE"
-            "Condition" = "8:"
-            "Transitive" = "11:FALSE"
-            "Vital" = "11:TRUE"
-            "ReadOnly" = "11:FALSE"
-            "Hidden" = "11:FALSE"
-            "System" = "11:FALSE"
-            "Permanent" = "11:FALSE"
-            "SharedLegacy" = "11:FALSE"
-            "PackageAs" = "3:1"
-            "Register" = "3:1"
-            "Exclude" = "11:FALSE"
-            "IsDependency" = "11:FALSE"
-            "IsolateTo" = "8:"
-            }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_DCB4FD5FA7704EC6AB850D4056C9F682"
             {
             "SourcePath" = "8:..\\..\\..\\include\\networkx\\algorithms\\tests\\test_operators.py"
@@ -15302,26 +11960,6 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
-            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_DD93C8BFDEF94259AD072513C03065F6"
-            {
-            "SourcePath" = "8:..\\..\\..\\include\\networkx\\generators\\small.pyc"
-            "TargetName" = "8:small.pyc"
-            "Tag" = "8:"
-            "Folder" = "8:_7D81BF20942644B883FC3097B5670152"
-            "Condition" = "8:"
-            "Transitive" = "11:FALSE"
-            "Vital" = "11:TRUE"
-            "ReadOnly" = "11:FALSE"
-            "Hidden" = "11:FALSE"
-            "System" = "11:FALSE"
-            "Permanent" = "11:FALSE"
-            "SharedLegacy" = "11:FALSE"
-            "PackageAs" = "3:1"
-            "Register" = "3:1"
-            "Exclude" = "11:FALSE"
-            "IsDependency" = "11:FALSE"
-            "IsolateTo" = "8:"
-            }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_DD98990FA01248B18A081E018232B36C"
             {
             "SourcePath" = "8:..\\..\\..\\ui\\dialogs\\__init__.py"
@@ -15348,46 +11986,6 @@
             "TargetName" = "8:svgbutton.py"
             "Tag" = "8:"
             "Folder" = "8:_AE0886A676BA474A8EF231BB6C564657"
-            "Condition" = "8:"
-            "Transitive" = "11:FALSE"
-            "Vital" = "11:TRUE"
-            "ReadOnly" = "11:FALSE"
-            "Hidden" = "11:FALSE"
-            "System" = "11:FALSE"
-            "Permanent" = "11:FALSE"
-            "SharedLegacy" = "11:FALSE"
-            "PackageAs" = "3:1"
-            "Register" = "3:1"
-            "Exclude" = "11:FALSE"
-            "IsDependency" = "11:FALSE"
-            "IsolateTo" = "8:"
-            }
-            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_DEF957C97A4A49B7A882B275E98BC762"
-            {
-            "SourcePath" = "8:..\\..\\..\\include\\networkx\\algorithms\\bipartite\\spectral.pyc"
-            "TargetName" = "8:spectral.pyc"
-            "Tag" = "8:"
-            "Folder" = "8:_2BF5A901602B489BB71A63C61B88F105"
-            "Condition" = "8:"
-            "Transitive" = "11:FALSE"
-            "Vital" = "11:TRUE"
-            "ReadOnly" = "11:FALSE"
-            "Hidden" = "11:FALSE"
-            "System" = "11:FALSE"
-            "Permanent" = "11:FALSE"
-            "SharedLegacy" = "11:FALSE"
-            "PackageAs" = "3:1"
-            "Register" = "3:1"
-            "Exclude" = "11:FALSE"
-            "IsDependency" = "11:FALSE"
-            "IsolateTo" = "8:"
-            }
-            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_DFA2211F9F274218AE0A1B7BD0271895"
-            {
-            "SourcePath" = "8:..\\..\\..\\include\\networkx\\generators\\bipartite.pyc"
-            "TargetName" = "8:bipartite.pyc"
-            "Tag" = "8:"
-            "Folder" = "8:_7D81BF20942644B883FC3097B5670152"
             "Condition" = "8:"
             "Transitive" = "11:FALSE"
             "Vital" = "11:TRUE"
@@ -15448,26 +12046,6 @@
             "TargetName" = "8:social.py"
             "Tag" = "8:"
             "Folder" = "8:_7D81BF20942644B883FC3097B5670152"
-            "Condition" = "8:"
-            "Transitive" = "11:FALSE"
-            "Vital" = "11:TRUE"
-            "ReadOnly" = "11:FALSE"
-            "Hidden" = "11:FALSE"
-            "System" = "11:FALSE"
-            "Permanent" = "11:FALSE"
-            "SharedLegacy" = "11:FALSE"
-            "PackageAs" = "3:1"
-            "Register" = "3:1"
-            "Exclude" = "11:FALSE"
-            "IsDependency" = "11:FALSE"
-            "IsolateTo" = "8:"
-            }
-            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_E0837FA3BE784C4EA036CE7626C0813A"
-            {
-            "SourcePath" = "8:..\\..\\..\\include\\networkx\\algorithms\\community\\__init__.pyc"
-            "TargetName" = "8:__init__.pyc"
-            "Tag" = "8:"
-            "Folder" = "8:_6A3E5AA8C62B47689E07AA3E5BED53A8"
             "Condition" = "8:"
             "Transitive" = "11:FALSE"
             "Vital" = "11:TRUE"
@@ -15548,26 +12126,6 @@
             "TargetName" = "8:test_node_link.py"
             "Tag" = "8:"
             "Folder" = "8:_FAD874661E47446EA033119BD6048B73"
-            "Condition" = "8:"
-            "Transitive" = "11:FALSE"
-            "Vital" = "11:TRUE"
-            "ReadOnly" = "11:FALSE"
-            "Hidden" = "11:FALSE"
-            "System" = "11:FALSE"
-            "Permanent" = "11:FALSE"
-            "SharedLegacy" = "11:FALSE"
-            "PackageAs" = "3:1"
-            "Register" = "3:1"
-            "Exclude" = "11:FALSE"
-            "IsDependency" = "11:FALSE"
-            "IsolateTo" = "8:"
-            }
-            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_E2239235806D4D20B922C0864F45D3F3"
-            {
-            "SourcePath" = "8:..\\..\\..\\include\\networkx\\algorithms\\link_analysis\\__init__.pyc"
-            "TargetName" = "8:__init__.pyc"
-            "Tag" = "8:"
-            "Folder" = "8:_12CDBC07B0B249D0A02444A8364CD026"
             "Condition" = "8:"
             "Transitive" = "11:FALSE"
             "Vital" = "11:TRUE"
@@ -15682,112 +12240,12 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
-            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_E2E6DF44179C4DE28EA6C0556D4F657E"
-            {
-            "SourcePath" = "8:..\\..\\..\\include\\networkx\\algorithms\\centrality\\flow_matrix.pyc"
-            "TargetName" = "8:flow_matrix.pyc"
-            "Tag" = "8:"
-            "Folder" = "8:_67567E396D354C8EA07D5B52857101A3"
-            "Condition" = "8:"
-            "Transitive" = "11:FALSE"
-            "Vital" = "11:TRUE"
-            "ReadOnly" = "11:FALSE"
-            "Hidden" = "11:FALSE"
-            "System" = "11:FALSE"
-            "Permanent" = "11:FALSE"
-            "SharedLegacy" = "11:FALSE"
-            "PackageAs" = "3:1"
-            "Register" = "3:1"
-            "Exclude" = "11:FALSE"
-            "IsDependency" = "11:FALSE"
-            "IsolateTo" = "8:"
-            }
-            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_E47A4B0A09AE4E9EA7C485916C441099"
-            {
-            "SourcePath" = "8:..\\..\\..\\include\\networkx\\algorithms\\dag.pyc"
-            "TargetName" = "8:dag.pyc"
-            "Tag" = "8:"
-            "Folder" = "8:_EA22127335F8424F8E8AC2816E2ED782"
-            "Condition" = "8:"
-            "Transitive" = "11:FALSE"
-            "Vital" = "11:TRUE"
-            "ReadOnly" = "11:FALSE"
-            "Hidden" = "11:FALSE"
-            "System" = "11:FALSE"
-            "Permanent" = "11:FALSE"
-            "SharedLegacy" = "11:FALSE"
-            "PackageAs" = "3:1"
-            "Register" = "3:1"
-            "Exclude" = "11:FALSE"
-            "IsDependency" = "11:FALSE"
-            "IsolateTo" = "8:"
-            }
-            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_E48579886A584AA48DE02EABDB3AC9EF"
-            {
-            "SourcePath" = "8:..\\..\\..\\include\\networkx\\readwrite\\leda.pyc"
-            "TargetName" = "8:leda.pyc"
-            "Tag" = "8:"
-            "Folder" = "8:_AB128C2CACF34BD2AF5D35DC7722E71C"
-            "Condition" = "8:"
-            "Transitive" = "11:FALSE"
-            "Vital" = "11:TRUE"
-            "ReadOnly" = "11:FALSE"
-            "Hidden" = "11:FALSE"
-            "System" = "11:FALSE"
-            "Permanent" = "11:FALSE"
-            "SharedLegacy" = "11:FALSE"
-            "PackageAs" = "3:1"
-            "Register" = "3:1"
-            "Exclude" = "11:FALSE"
-            "IsDependency" = "11:FALSE"
-            "IsolateTo" = "8:"
-            }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_E50C947236F04ABB8B4320BB39256D63"
             {
             "SourcePath" = "8:..\\..\\..\\include\\networkx\\algorithms\\components\\strongly_connected.py"
             "TargetName" = "8:strongly_connected.py"
             "Tag" = "8:"
             "Folder" = "8:_D9396B9E596D464999A021A03B75FE37"
-            "Condition" = "8:"
-            "Transitive" = "11:FALSE"
-            "Vital" = "11:TRUE"
-            "ReadOnly" = "11:FALSE"
-            "Hidden" = "11:FALSE"
-            "System" = "11:FALSE"
-            "Permanent" = "11:FALSE"
-            "SharedLegacy" = "11:FALSE"
-            "PackageAs" = "3:1"
-            "Register" = "3:1"
-            "Exclude" = "11:FALSE"
-            "IsDependency" = "11:FALSE"
-            "IsolateTo" = "8:"
-            }
-            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_E542853A67584F57A188D489931E07B0"
-            {
-            "SourcePath" = "8:..\\..\\..\\include\\networkx\\classes\\multidigraph.pyc"
-            "TargetName" = "8:multidigraph.pyc"
-            "Tag" = "8:"
-            "Folder" = "8:_DA63C9530AFD4051B4BB2E3969416159"
-            "Condition" = "8:"
-            "Transitive" = "11:FALSE"
-            "Vital" = "11:TRUE"
-            "ReadOnly" = "11:FALSE"
-            "Hidden" = "11:FALSE"
-            "System" = "11:FALSE"
-            "Permanent" = "11:FALSE"
-            "SharedLegacy" = "11:FALSE"
-            "PackageAs" = "3:1"
-            "Register" = "3:1"
-            "Exclude" = "11:FALSE"
-            "IsDependency" = "11:FALSE"
-            "IsolateTo" = "8:"
-            }
-            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_E671764C1E984F97A1CE2606ABDDE89F"
-            {
-            "SourcePath" = "8:..\\..\\..\\include\\networkx\\readwrite\\sparsegraph6.pyc"
-            "TargetName" = "8:sparsegraph6.pyc"
-            "Tag" = "8:"
-            "Folder" = "8:_AB128C2CACF34BD2AF5D35DC7722E71C"
             "Condition" = "8:"
             "Transitive" = "11:FALSE"
             "Vital" = "11:TRUE"
@@ -15862,52 +12320,12 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
-            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_E7E45BF3F452494983A39C6422E88E19"
-            {
-            "SourcePath" = "8:..\\..\\..\\include\\networkx\\algorithms\\flow\\mincost.pyc"
-            "TargetName" = "8:mincost.pyc"
-            "Tag" = "8:"
-            "Folder" = "8:_1F00C5607899433097EF3A7EC9B23C21"
-            "Condition" = "8:"
-            "Transitive" = "11:FALSE"
-            "Vital" = "11:TRUE"
-            "ReadOnly" = "11:FALSE"
-            "Hidden" = "11:FALSE"
-            "System" = "11:FALSE"
-            "Permanent" = "11:FALSE"
-            "SharedLegacy" = "11:FALSE"
-            "PackageAs" = "3:1"
-            "Register" = "3:1"
-            "Exclude" = "11:FALSE"
-            "IsDependency" = "11:FALSE"
-            "IsolateTo" = "8:"
-            }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_E8E5EBE82DE84D8E9C20B05C39E569F5"
             {
             "SourcePath" = "8:..\\..\\..\\include\\networkx\\algorithms\\graphical.py"
             "TargetName" = "8:graphical.py"
             "Tag" = "8:"
             "Folder" = "8:_EA22127335F8424F8E8AC2816E2ED782"
-            "Condition" = "8:"
-            "Transitive" = "11:FALSE"
-            "Vital" = "11:TRUE"
-            "ReadOnly" = "11:FALSE"
-            "Hidden" = "11:FALSE"
-            "System" = "11:FALSE"
-            "Permanent" = "11:FALSE"
-            "SharedLegacy" = "11:FALSE"
-            "PackageAs" = "3:1"
-            "Register" = "3:1"
-            "Exclude" = "11:FALSE"
-            "IsDependency" = "11:FALSE"
-            "IsolateTo" = "8:"
-            }
-            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_E9699F8924F1420986924B46DC33D7A1"
-            {
-            "SourcePath" = "8:..\\..\\..\\include\\networkx\\algorithms\\components\\biconnected.pyc"
-            "TargetName" = "8:biconnected.pyc"
-            "Tag" = "8:"
-            "Folder" = "8:_D9396B9E596D464999A021A03B75FE37"
             "Condition" = "8:"
             "Transitive" = "11:FALSE"
             "Vital" = "11:TRUE"
@@ -16022,26 +12440,6 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
-            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_EAF6C8B17638412C917E595D3D1B7C15"
-            {
-            "SourcePath" = "8:..\\..\\..\\include\\networkx\\algorithms\\cycles.pyc"
-            "TargetName" = "8:cycles.pyc"
-            "Tag" = "8:"
-            "Folder" = "8:_EA22127335F8424F8E8AC2816E2ED782"
-            "Condition" = "8:"
-            "Transitive" = "11:FALSE"
-            "Vital" = "11:TRUE"
-            "ReadOnly" = "11:FALSE"
-            "Hidden" = "11:FALSE"
-            "System" = "11:FALSE"
-            "Permanent" = "11:FALSE"
-            "SharedLegacy" = "11:FALSE"
-            "PackageAs" = "3:1"
-            "Register" = "3:1"
-            "Exclude" = "11:FALSE"
-            "IsDependency" = "11:FALSE"
-            "IsolateTo" = "8:"
-            }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_EB240124729148D6AC4C95180585DC82"
             {
             "SourcePath" = "8:..\\..\\..\\include\\networkx\\algorithms\\core.py"
@@ -16102,52 +12500,12 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
-            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_ECD042D792D54439B750BE0A5AF03A27"
-            {
-            "SourcePath" = "8:..\\..\\..\\include\\networkx\\algorithms\\distance_regular.pyc"
-            "TargetName" = "8:distance_regular.pyc"
-            "Tag" = "8:"
-            "Folder" = "8:_EA22127335F8424F8E8AC2816E2ED782"
-            "Condition" = "8:"
-            "Transitive" = "11:FALSE"
-            "Vital" = "11:TRUE"
-            "ReadOnly" = "11:FALSE"
-            "Hidden" = "11:FALSE"
-            "System" = "11:FALSE"
-            "Permanent" = "11:FALSE"
-            "SharedLegacy" = "11:FALSE"
-            "PackageAs" = "3:1"
-            "Register" = "3:1"
-            "Exclude" = "11:FALSE"
-            "IsDependency" = "11:FALSE"
-            "IsolateTo" = "8:"
-            }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_ECD7E6724B6A495785F7F73D4D3BE782"
             {
             "SourcePath" = "8:..\\..\\..\\model\\strandset.py"
             "TargetName" = "8:strandset.py"
             "Tag" = "8:"
             "Folder" = "8:_17BF768FB21047B2995C448082AF4797"
-            "Condition" = "8:"
-            "Transitive" = "11:FALSE"
-            "Vital" = "11:TRUE"
-            "ReadOnly" = "11:FALSE"
-            "Hidden" = "11:FALSE"
-            "System" = "11:FALSE"
-            "Permanent" = "11:FALSE"
-            "SharedLegacy" = "11:FALSE"
-            "PackageAs" = "3:1"
-            "Register" = "3:1"
-            "Exclude" = "11:FALSE"
-            "IsDependency" = "11:FALSE"
-            "IsolateTo" = "8:"
-            }
-            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_EE23FCBBADE741C8BAA009932CAA584C"
-            {
-            "SourcePath" = "8:..\\..\\..\\include\\networkx\\drawing\\layout.pyc"
-            "TargetName" = "8:layout.pyc"
-            "Tag" = "8:"
-            "Folder" = "8:_8CF6B8A9A1CF4856BD964D4513937593"
             "Condition" = "8:"
             "Transitive" = "11:FALSE"
             "Vital" = "11:TRUE"
@@ -16262,52 +12620,12 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
-            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_F28EBE863D964A1E84FA908A6B717E6F"
-            {
-            "SourcePath" = "8:..\\..\\..\\include\\networkx\\algorithms\\isomorphism\\vf2userfunc.pyc"
-            "TargetName" = "8:vf2userfunc.pyc"
-            "Tag" = "8:"
-            "Folder" = "8:_6B3F6231B5BE4F6B88AF52AB4909DA7E"
-            "Condition" = "8:"
-            "Transitive" = "11:FALSE"
-            "Vital" = "11:TRUE"
-            "ReadOnly" = "11:FALSE"
-            "Hidden" = "11:FALSE"
-            "System" = "11:FALSE"
-            "Permanent" = "11:FALSE"
-            "SharedLegacy" = "11:FALSE"
-            "PackageAs" = "3:1"
-            "Register" = "3:1"
-            "Exclude" = "11:FALSE"
-            "IsDependency" = "11:FALSE"
-            "IsolateTo" = "8:"
-            }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_F2F171DCE2B9449F978CCA7E06CBB0A5"
             {
             "SourcePath" = "8:..\\..\\..\\include\\networkx\\external\\__init__.py"
             "TargetName" = "8:__init__.py"
             "Tag" = "8:"
             "Folder" = "8:_07F8D0B1A78E4ECA9309DF0896D9E62B"
-            "Condition" = "8:"
-            "Transitive" = "11:FALSE"
-            "Vital" = "11:TRUE"
-            "ReadOnly" = "11:FALSE"
-            "Hidden" = "11:FALSE"
-            "System" = "11:FALSE"
-            "Permanent" = "11:FALSE"
-            "SharedLegacy" = "11:FALSE"
-            "PackageAs" = "3:1"
-            "Register" = "3:1"
-            "Exclude" = "11:FALSE"
-            "IsDependency" = "11:FALSE"
-            "IsolateTo" = "8:"
-            }
-            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_F33D9E97EAD246459C8933B600621949"
-            {
-            "SourcePath" = "8:..\\..\\..\\include\\networkx\\algorithms\\bipartite\\cluster.pyc"
-            "TargetName" = "8:cluster.pyc"
-            "Tag" = "8:"
-            "Folder" = "8:_2BF5A901602B489BB71A63C61B88F105"
             "Condition" = "8:"
             "Transitive" = "11:FALSE"
             "Vital" = "11:TRUE"
@@ -16342,52 +12660,12 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
-            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_F466E723BBD94FA2BB6FA69D6BEF41E8"
-            {
-            "SourcePath" = "8:..\\..\\..\\include\\networkx\\algorithms\\centrality\\current_flow_closeness.pyc"
-            "TargetName" = "8:current_flow_closeness.pyc"
-            "Tag" = "8:"
-            "Folder" = "8:_67567E396D354C8EA07D5B52857101A3"
-            "Condition" = "8:"
-            "Transitive" = "11:FALSE"
-            "Vital" = "11:TRUE"
-            "ReadOnly" = "11:FALSE"
-            "Hidden" = "11:FALSE"
-            "System" = "11:FALSE"
-            "Permanent" = "11:FALSE"
-            "SharedLegacy" = "11:FALSE"
-            "PackageAs" = "3:1"
-            "Register" = "3:1"
-            "Exclude" = "11:FALSE"
-            "IsDependency" = "11:FALSE"
-            "IsolateTo" = "8:"
-            }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_F46C8E674D9249CFB00291958F836D03"
             {
             "SourcePath" = "8:..\\..\\..\\views\\solidview\\partitem.py"
             "TargetName" = "8:partitem.py"
             "Tag" = "8:"
             "Folder" = "8:_CAC65934C299487187183E8934BD45EF"
-            "Condition" = "8:"
-            "Transitive" = "11:FALSE"
-            "Vital" = "11:TRUE"
-            "ReadOnly" = "11:FALSE"
-            "Hidden" = "11:FALSE"
-            "System" = "11:FALSE"
-            "Permanent" = "11:FALSE"
-            "SharedLegacy" = "11:FALSE"
-            "PackageAs" = "3:1"
-            "Register" = "3:1"
-            "Exclude" = "11:FALSE"
-            "IsDependency" = "11:FALSE"
-            "IsolateTo" = "8:"
-            }
-            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_F5A4E212E4D94FCBB2960DDD4070D555"
-            {
-            "SourcePath" = "8:..\\..\\..\\include\\networkx\\external\\decorator\\_decorator.pyc"
-            "TargetName" = "8:_decorator.pyc"
-            "Tag" = "8:"
-            "Folder" = "8:_567CC66A9F4E406DB2E14D6B1A30B15A"
             "Condition" = "8:"
             "Transitive" = "11:FALSE"
             "Vital" = "11:TRUE"
@@ -16482,26 +12760,6 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
-            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_F6E4F8DFCAF4449F898DA7F6C0357DA0"
-            {
-            "SourcePath" = "8:..\\..\\..\\include\\networkx\\readwrite\\gpickle.pyc"
-            "TargetName" = "8:gpickle.pyc"
-            "Tag" = "8:"
-            "Folder" = "8:_AB128C2CACF34BD2AF5D35DC7722E71C"
-            "Condition" = "8:"
-            "Transitive" = "11:FALSE"
-            "Vital" = "11:TRUE"
-            "ReadOnly" = "11:FALSE"
-            "Hidden" = "11:FALSE"
-            "System" = "11:FALSE"
-            "Permanent" = "11:FALSE"
-            "SharedLegacy" = "11:FALSE"
-            "PackageAs" = "3:1"
-            "Register" = "3:1"
-            "Exclude" = "11:FALSE"
-            "IsDependency" = "11:FALSE"
-            "IsolateTo" = "8:"
-            }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_F74D7E683C814396A65958016E145420"
             {
             "SourcePath" = "8:..\\..\\..\\include\\networkx\\algorithms\\product.py"
@@ -16542,70 +12800,10 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
-            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_F8B4A5CE2B614F3581F2ED5CE2D3B82B"
-            {
-            "SourcePath" = "8:..\\..\\..\\include\\networkx\\algorithms\\centrality\\betweenness.pyc"
-            "TargetName" = "8:betweenness.pyc"
-            "Tag" = "8:"
-            "Folder" = "8:_67567E396D354C8EA07D5B52857101A3"
-            "Condition" = "8:"
-            "Transitive" = "11:FALSE"
-            "Vital" = "11:TRUE"
-            "ReadOnly" = "11:FALSE"
-            "Hidden" = "11:FALSE"
-            "System" = "11:FALSE"
-            "Permanent" = "11:FALSE"
-            "SharedLegacy" = "11:FALSE"
-            "PackageAs" = "3:1"
-            "Register" = "3:1"
-            "Exclude" = "11:FALSE"
-            "IsDependency" = "11:FALSE"
-            "IsolateTo" = "8:"
-            }
-            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_F9714516020F4418BCEB58B8269B719D"
-            {
-            "SourcePath" = "8:..\\..\\..\\include\\networkx\\external\\decorator\\__init__.pyc"
-            "TargetName" = "8:__init__.pyc"
-            "Tag" = "8:"
-            "Folder" = "8:_567CC66A9F4E406DB2E14D6B1A30B15A"
-            "Condition" = "8:"
-            "Transitive" = "11:FALSE"
-            "Vital" = "11:TRUE"
-            "ReadOnly" = "11:FALSE"
-            "Hidden" = "11:FALSE"
-            "System" = "11:FALSE"
-            "Permanent" = "11:FALSE"
-            "SharedLegacy" = "11:FALSE"
-            "PackageAs" = "3:1"
-            "Register" = "3:1"
-            "Exclude" = "11:FALSE"
-            "IsDependency" = "11:FALSE"
-            "IsolateTo" = "8:"
-            }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_FBAD52B6587244E291BA95A57B1A3F70"
             {
             "SourcePath" = "8:..\\..\\..\\include\\networkx\\generators\\classic.py"
             "TargetName" = "8:classic.py"
-            "Tag" = "8:"
-            "Folder" = "8:_7D81BF20942644B883FC3097B5670152"
-            "Condition" = "8:"
-            "Transitive" = "11:FALSE"
-            "Vital" = "11:TRUE"
-            "ReadOnly" = "11:FALSE"
-            "Hidden" = "11:FALSE"
-            "System" = "11:FALSE"
-            "Permanent" = "11:FALSE"
-            "SharedLegacy" = "11:FALSE"
-            "PackageAs" = "3:1"
-            "Register" = "3:1"
-            "Exclude" = "11:FALSE"
-            "IsDependency" = "11:FALSE"
-            "IsolateTo" = "8:"
-            }
-            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_FC506CB33C4F4CFEA17AE0B2D893C07E"
-            {
-            "SourcePath" = "8:..\\..\\..\\include\\networkx\\generators\\__init__.pyc"
-            "TargetName" = "8:__init__.pyc"
             "Tag" = "8:"
             "Folder" = "8:_7D81BF20942644B883FC3097B5670152"
             "Condition" = "8:"
@@ -16648,26 +12846,6 @@
             "TargetName" = "8:test_cluster.py"
             "Tag" = "8:"
             "Folder" = "8:_065466DC492649C98B5462074F99D23D"
-            "Condition" = "8:"
-            "Transitive" = "11:FALSE"
-            "Vital" = "11:TRUE"
-            "ReadOnly" = "11:FALSE"
-            "Hidden" = "11:FALSE"
-            "System" = "11:FALSE"
-            "Permanent" = "11:FALSE"
-            "SharedLegacy" = "11:FALSE"
-            "PackageAs" = "3:1"
-            "Register" = "3:1"
-            "Exclude" = "11:FALSE"
-            "IsDependency" = "11:FALSE"
-            "IsolateTo" = "8:"
-            }
-            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_FDCCE41F3D0A4A5BBB4B0DAD723BF693"
-            {
-            "SourcePath" = "8:..\\..\\..\\include\\networkx\\algorithms\\traversal\\__init__.pyc"
-            "TargetName" = "8:__init__.pyc"
-            "Tag" = "8:"
-            "Folder" = "8:_393BD34AF9E448E895090C748366143E"
             "Condition" = "8:"
             "Transitive" = "11:FALSE"
             "Vital" = "11:TRUE"
