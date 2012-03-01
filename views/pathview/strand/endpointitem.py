@@ -319,8 +319,8 @@ class EndpointItem(QGraphicsPathItem):
         if not activeTool.isFloatingXoverBegin():
             tempXover = activeTool.floatingXover()
             tempXover.updateFloatingFromStrandItem(vhi, mStrand, idx)
-            if mStrand.idx5Prime() == idx:
-                tempXover.hide3prime()
+            # if mStrand.idx5Prime() == idx:
+            #     tempXover.hide3prime()
     # end def
 
     def pencilToolMousePress(self, modifiers, event, idx):
@@ -336,7 +336,7 @@ class EndpointItem(QGraphicsPathItem):
             tempXover = activeTool.floatingXover()
             tempXover.updateBase(vhi, mStrand, idx)
             activeTool.setFloatingXoverBegin(False)
-            tempXover.hide5prime()
+            # tempXover.hide5prime()
         else:
             activeTool.setFloatingXoverBegin(True)
             # install Xover

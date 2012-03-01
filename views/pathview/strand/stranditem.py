@@ -624,10 +624,10 @@ class StrandItem(QGraphicsLineItem):
         if not activeTool.isFloatingXoverBegin():
             tempXover = activeTool.floatingXover()
             tempXover.updateFloatingFromStrandItem(vhi, mStrand, idx)
-            if mStrand.idx5Prime() == idx:
-                tempXover.hide3prime()
-            elif mStrand.idx3Prime() != idx:
-                tempXover.show3prime()
+            # if mStrand.idx5Prime() == idx:
+            #     tempXover.hide3prime()
+            # elif mStrand.idx3Prime() != idx:
+            #     tempXover.show3prime()
     # end def
 
     def pencilToolMousePress(self, event, idx):
