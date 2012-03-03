@@ -216,6 +216,15 @@ bool modifyMayaPluginPrefs( string mayaSettingsPath, bool add = true )
 	return true;
 }
 
+string upperCase(string strToConvert)
+{
+	for(unsigned int i=0;i<strToConvert.length();i++)
+	{
+		strToConvert[i] = toupper(strToConvert[i]);
+	}
+	return strToConvert;
+}
+
 int main(int argc, char* argv[])
 {
 	if( argc != 5 ){
@@ -226,6 +235,7 @@ int main(int argc, char* argv[])
 	}
 
 	string appMode(argv[1]);
+	appMode = upperCase(appMode);
 	string mayaPath(argv[2]);
 	string cadnanoPath(argv[3]);
 	string platform(argv[4]);
@@ -245,6 +255,9 @@ int main(int argc, char* argv[])
 	if (success) {
 		
 		string userProfile( szPath );
+
+		cout << "My Documents folder found at " << userProfile << endl;
+
 		string mayaSettingsPath = userProfile + "\\maya\\2012";
 
 		if( platform.compare("x64") == 0 )
@@ -256,13 +269,16 @@ int main(int argc, char* argv[])
 
 		cout << "Settings folder at: " << mayaSettingsPath << endl;
 
-		if( appMode == "/Install" ) {
+		if( appMode == "/INSTALL" ) {
 			res &= CreateDirectories( mayaSettingsPath );
 			res &= modifyMayaEnvironment(mayaSettingsPath, cadnanoPath);
 			res &= modifyMayaPluginPrefs(mayaSettingsPath);
-		}else if( appMode == "/Uninstall" || appMode == "/Rollback" ){
+		}else if( appMode == "/UNINSTALL" || appMode == "/ROLLBACK" ){
 			res &= modifyMayaEnvironment(mayaSettingsPath, cadnanoPath, false);
 			res &= modifyMayaPluginPrefs(mayaSettingsPath, false);
+		}else{
+			cout << "Invalid Configure Mode." << endl;
+			res &= false;
 		}
 	}else{
 		cerr << "My Documents folder could not be retrieved." << endl;
