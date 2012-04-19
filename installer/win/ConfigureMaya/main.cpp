@@ -134,10 +134,10 @@ bool modifyMayaEnvironment( string mayaSettingsPath, string cadnanoPath, bool ad
 				if( varfound != string::npos ){
 					size_t pathfound = line.find( cadnanoPath );
 					if( pathfound != string::npos ){
-						//CadNano already exists in Maya's MAYA_PLUG_IN_PATH
+						//cadnano already exists in Maya's MAYA_PLUG_IN_PATH
 						return true;
 					}else{
-						//MAYA_PLUG_IN_PATH is defined, but CadNano is not in it
+						//MAYA_PLUG_IN_PATH is defined, but cadnano is not in it
 						file[i] = line + ";" + cadnanoPath;
 						return WriteFile( mayaEnvironmentPath, file );
 					}
@@ -294,10 +294,10 @@ int main(int argc, char* argv[])
 	}
 
 	if( res ){
-		//MessageBox( NULL, "CadNano plugin for Autodesk Maya configurations succeeded.", NULL, NULL);
+		//MessageBox( NULL, "cadnano plugin for Autodesk Maya configurations succeeded.", NULL, NULL);
 		return 0;
 	}else{
-		MessageBox( NULL, "CadNano plugin for Autodesk Maya configurations failed.", NULL, NULL);
+		MessageBox( NULL, "cadnano plugin for Autodesk Maya configurations failed.", NULL, NULL);
 		return -1;
 	}
 }

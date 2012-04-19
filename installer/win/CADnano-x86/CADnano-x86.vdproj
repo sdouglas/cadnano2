@@ -15,13 +15,7 @@
     {
         "Entry"
         {
-        "MsmKey" = "8:_48C132E0E8F1428AB6E37FD79F5BE249"
-        "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
-        "MsmKey" = "8:_5F24C7055FC64EB9B5971AB33C5DD6D6"
+        "MsmKey" = "8:_4B2DF4C2A2CF4151B7D7C3E8DD63B09F"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
         }
@@ -46,6 +40,12 @@
         "Entry"
         {
         "MsmKey" = "8:_E966A25DF12D4B36976183F8D3A95BBC"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_FBB825F299FF44B49C1CBAC400055A87"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
         }
@@ -341,7 +341,7 @@
         "Name" = "8:Microsoft Visual Studio"
         "ProductName" = "8:cadnano2"
         "ProductCode" = "8:{9D0797FA-64F9-41C1-A7A4-7BCAA3A78F76}"
-        "PackageCode" = "8:{49EA335B-2BCC-41C3-9D66-A432290C111E}"
+        "PackageCode" = "8:{4C47AF01-FC3C-4BAA-B66F-86844ADEC56D}"
         "UpgradeCode" = "8:{1DD60FBB-A9DC-4BCF-80D7-63553B60403C}"
         "AspNetVersion" = "8:4.0.30319.0"
         "RestartWWWService" = "11:FALSE"
@@ -935,6 +935,58 @@
         }
         "MergeModule"
         {
+            "{CEE29DC0-9FBA-4B99-8D47-5BC643D9B626}:_4B2DF4C2A2CF4151B7D7C3E8DD63B09F"
+            {
+            "UseDynamicProperties" = "11:TRUE"
+            "IsDependency" = "11:FALSE"
+            "SourcePath" = "8:..\\PyQt-x86\\Release\\PyQt-x86.msm"
+                "Properties"
+                {
+                    "_C18CE5D8ACB8419B853675DDF66C045A.6451A689D8334537A87633E87C1B7707"
+                    {
+                    "Name" = "8:_C18CE5D8ACB8419B853675DDF66C045A.6451A689D8334537A87633E87C1B7707"
+                    "DisplayName" = "8:Module Retargetable Folder"
+                    "Description" = "8:"
+                    "Type" = "3:32769"
+                    "ContextData" = "8:_RetargetableFolder"
+                    "Attributes" = "3:6"
+                    "Setting" = "3:2"
+                    "Value" = "8:_8C7FE393F19541AB918E9B685D2045B6"
+                    "UsePlugInResources" = "11:FALSE"
+                    }
+                }
+            "LanguageId" = "3:1033"
+            "Exclude" = "11:FALSE"
+            "Folder" = "8:"
+            "Feature" = "8:"
+            "IsolateTo" = "8:"
+            }
+            "{CEE29DC0-9FBA-4B99-8D47-5BC643D9B626}:_FBB825F299FF44B49C1CBAC400055A87"
+            {
+            "UseDynamicProperties" = "11:TRUE"
+            "IsDependency" = "11:FALSE"
+            "SourcePath" = "8:..\\PyQt-x86 (Standard)\\Release\\PyQt-x86 (Standard).msm"
+                "Properties"
+                {
+                    "_0730A569BC354B61A8E81AAA6D96BF40.F83999D5848E442D95DD0289E6F6B6CE"
+                    {
+                    "Name" = "8:_0730A569BC354B61A8E81AAA6D96BF40.F83999D5848E442D95DD0289E6F6B6CE"
+                    "DisplayName" = "8:Module Retargetable Folder"
+                    "Description" = "8:"
+                    "Type" = "3:32769"
+                    "ContextData" = "8:_RetargetableFolder"
+                    "Attributes" = "3:6"
+                    "Setting" = "3:2"
+                    "Value" = "8:_D6E43118FEC84BA3981C8357DCC5D048"
+                    "UsePlugInResources" = "11:FALSE"
+                    }
+                }
+            "LanguageId" = "3:1033"
+            "Exclude" = "11:FALSE"
+            "Folder" = "8:"
+            "Feature" = "8:"
+            "IsolateTo" = "8:"
+            }
         }
         "ProjectOutput"
         {
@@ -964,114 +1016,6 @@
             "ShowKeyOutput" = "11:TRUE"
                 "ExcludeFilters"
                 {
-                }
-            }
-            "{5259A561-127C-4D43-A0A1-72F10C7B3BF8}:_48C132E0E8F1428AB6E37FD79F5BE249"
-            {
-            "SourcePath" = "8:..\\PyQt-x86\\Release\\PyQt-x86.msm"
-            "TargetName" = "8:"
-            "Tag" = "8:"
-            "Folder" = "8:_8C7FE393F19541AB918E9B685D2045B6"
-            "Condition" = "8:"
-            "Transitive" = "11:FALSE"
-            "Vital" = "11:TRUE"
-            "ReadOnly" = "11:FALSE"
-            "Hidden" = "11:FALSE"
-            "System" = "11:FALSE"
-            "Permanent" = "11:FALSE"
-            "SharedLegacy" = "11:FALSE"
-            "PackageAs" = "3:1"
-            "Register" = "3:1"
-            "Exclude" = "11:FALSE"
-            "IsDependency" = "11:FALSE"
-            "IsolateTo" = "8:"
-            "ProjectOutputGroupRegister" = "3:1"
-            "OutputConfiguration" = "8:"
-            "OutputGroupCanonicalName" = "8:Built"
-            "OutputProjectGuid" = "8:{993616AF-CB7B-4C67-A45F-5D12C5AFEFCA}"
-            "ShowKeyOutput" = "11:TRUE"
-                "ExcludeFilters"
-                {
-                }
-                "KeyOutputModule"
-                {
-                "UseDynamicProperties" = "11:TRUE"
-                "IsDependency" = "11:FALSE"
-                "SourcePath" = "8:..\\PyQt-x86\\Release\\PyQt-x86.msm"
-                    "Properties"
-                    {
-                        "_C18CE5D8ACB8419B853675DDF66C045A.6451A689D8334537A87633E87C1B7707"
-                        {
-                        "Name" = "8:_C18CE5D8ACB8419B853675DDF66C045A.6451A689D8334537A87633E87C1B7707"
-                        "DisplayName" = "8:Module Retargetable Folder"
-                        "Description" = "8:"
-                        "Type" = "3:32769"
-                        "ContextData" = "8:_RetargetableFolder"
-                        "Attributes" = "3:6"
-                        "Setting" = "3:2"
-                        "Value" = "8:_8C7FE393F19541AB918E9B685D2045B6"
-                        "UsePlugInResources" = "11:FALSE"
-                        }
-                    }
-                "LanguageId" = "3:1033"
-                "Exclude" = "11:FALSE"
-                "Folder" = "8:_8C7FE393F19541AB918E9B685D2045B6"
-                "Feature" = "8:"
-                "IsolateTo" = "8:"
-                }
-            }
-            "{5259A561-127C-4D43-A0A1-72F10C7B3BF8}:_5F24C7055FC64EB9B5971AB33C5DD6D6"
-            {
-            "SourcePath" = "8:..\\PyQt-x86 (Standard)\\Release\\PyQt-x86 (Standard).msm"
-            "TargetName" = "8:"
-            "Tag" = "8:"
-            "Folder" = "8:_D6E43118FEC84BA3981C8357DCC5D048"
-            "Condition" = "8:"
-            "Transitive" = "11:FALSE"
-            "Vital" = "11:TRUE"
-            "ReadOnly" = "11:FALSE"
-            "Hidden" = "11:FALSE"
-            "System" = "11:FALSE"
-            "Permanent" = "11:FALSE"
-            "SharedLegacy" = "11:FALSE"
-            "PackageAs" = "3:1"
-            "Register" = "3:1"
-            "Exclude" = "11:FALSE"
-            "IsDependency" = "11:FALSE"
-            "IsolateTo" = "8:"
-            "ProjectOutputGroupRegister" = "3:1"
-            "OutputConfiguration" = "8:"
-            "OutputGroupCanonicalName" = "8:Built"
-            "OutputProjectGuid" = "8:{9CFD3E0E-940B-41D7-AB0F-C7C08347781D}"
-            "ShowKeyOutput" = "11:TRUE"
-                "ExcludeFilters"
-                {
-                }
-                "KeyOutputModule"
-                {
-                "UseDynamicProperties" = "11:TRUE"
-                "IsDependency" = "11:FALSE"
-                "SourcePath" = "8:..\\PyQt-x86 (Standard)\\Release\\PyQt-x86 (Standard).msm"
-                    "Properties"
-                    {
-                        "_0730A569BC354B61A8E81AAA6D96BF40.F83999D5848E442D95DD0289E6F6B6CE"
-                        {
-                        "Name" = "8:_0730A569BC354B61A8E81AAA6D96BF40.F83999D5848E442D95DD0289E6F6B6CE"
-                        "DisplayName" = "8:Module Retargetable Folder"
-                        "Description" = "8:"
-                        "Type" = "3:32769"
-                        "ContextData" = "8:_RetargetableFolder"
-                        "Attributes" = "3:6"
-                        "Setting" = "3:2"
-                        "Value" = "8:_D6E43118FEC84BA3981C8357DCC5D048"
-                        "UsePlugInResources" = "11:FALSE"
-                        }
-                    }
-                "LanguageId" = "3:1033"
-                "Exclude" = "11:FALSE"
-                "Folder" = "8:_D6E43118FEC84BA3981C8357DCC5D048"
-                "Feature" = "8:"
-                "IsolateTo" = "8:"
                 }
             }
             "{5259A561-127C-4D43-A0A1-72F10C7B3BF8}:_A6DBF0C72EFD4EF282D3BCA043E7EABC"

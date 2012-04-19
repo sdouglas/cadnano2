@@ -13057,7 +13057,7 @@
             "DefaultLocation" = "8:[TARGETDIR]"
             "DisplayName" = "8:Module Retargetable Folder"
             "Description" = "8:"
-            "Name" = "8:CadNano"
+            "Name" = "8:cadnano"
             "AlwaysCreate" = "11:FALSE"
             "Condition" = "8:"
             "Transitive" = "11:TRUE"
@@ -13891,7 +13891,7 @@
                 {
                     "{9EF0B969-E518-4E46-987F-47570745A589}:_6E86D11B8D0A450F8F42F7B67B5AE2A7"
                     {
-                    "Name" = "8:CADnano2"
+                    "Name" = "8:cadnano2"
                     "AlwaysCreate" = "11:FALSE"
                     "Condition" = "8:"
                     "Transitive" = "11:FALSE"
@@ -13924,7 +13924,7 @@
         {
         "ModuleSignature" = "8:MergeModule.A2E6D61B70F049A7BE24D6BCAB6AED6D"
         "Version" = "8:1.0.0.0"
-        "Title" = "8:CadNano"
+        "Title" = "8:cadnano"
         "Subject" = "8:"
         "Author" = "8:Microsoft"
         "Keywords" = "8:"
@@ -14054,7 +14054,7 @@
         {
             "{970C0BB2-C7D0-45D7-ABFA-7EC378858BC0}:_F6EFED86DF084F48BB8864D5EE2E8013"
             {
-            "Name" = "8:CADnano2"
+            "Name" = "8:cadnano2"
             "Arguments" = "8:"
             "Description" = "8:"
             "ShowCmd" = "3:1"
