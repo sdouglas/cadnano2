@@ -21,13 +21,13 @@
         }
         "Entry"
         {
-        "MsmKey" = "8:_08636217D18E481DBDFE6284233F40AE"
+        "MsmKey" = "8:_07A800A5C2744EB1A16368CF6BD9804D"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
         {
-        "MsmKey" = "8:_132A0B9E590046FE94697786DBBBF9E4"
+        "MsmKey" = "8:_08636217D18E481DBDFE6284233F40AE"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
         }
@@ -45,7 +45,7 @@
         }
         "Entry"
         {
-        "MsmKey" = "8:_F102444D628F48D6AFB33D072F3A9A57"
+        "MsmKey" = "8:_A21304548ACB432EA2996650D9517F90"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
         }
@@ -308,7 +308,7 @@
             {
             "Name" = "8:Python or Maya"
             "Condition" = "8:PYTHONPATH_X64 <> \"\" OR MAYAPATH_X64 <> \"\""
-            "Message" = "8:Both Python 2.7 and Autodesk Maya not found. Please install either Python 2.7 to use CADnano standalone, or Autodesk Maya to use CADnano as a plug-in."
+            "Message" = "8:Both Python 2.7 and Autodesk Maya not found. Please install either Python 2.7 to use cadnano standalone, or Autodesk Maya to use cadnano as a plug-in."
             "InstallUrl" = "8:"
             }
         }
@@ -341,7 +341,7 @@
         "Name" = "8:Microsoft Visual Studio"
         "ProductName" = "8:cadnano2"
         "ProductCode" = "8:{618C8661-E1DD-43ED-963F-6846A84A4D76}"
-        "PackageCode" = "8:{45301A57-1A43-42BE-9F4D-F6BC4CD75915}"
+        "PackageCode" = "8:{349A04FE-59C2-4D04-95CC-66581944F068}"
         "UpgradeCode" = "8:{83FFBD67-55A4-4F5E-AE78-11641B1B9B25}"
         "AspNetVersion" = "8:4.0.30319.0"
         "RestartWWWService" = "11:FALSE"
@@ -935,6 +935,58 @@
         }
         "MergeModule"
         {
+            "{CEE29DC0-9FBA-4B99-8D47-5BC643D9B626}:_07A800A5C2744EB1A16368CF6BD9804D"
+            {
+            "UseDynamicProperties" = "11:TRUE"
+            "IsDependency" = "11:FALSE"
+            "SourcePath" = "8:..\\PyQt-x64 (Standard)\\Release\\PyQt-x64 (Standard).msm"
+                "Properties"
+                {
+                    "_4B9B43CCCFFC46909564FABDE22F881D.29D8BA9660214A019C80B0F1628407B3"
+                    {
+                    "Name" = "8:_4B9B43CCCFFC46909564FABDE22F881D.29D8BA9660214A019C80B0F1628407B3"
+                    "DisplayName" = "8:Module Retargetable Folder"
+                    "Description" = "8:"
+                    "Type" = "3:32769"
+                    "ContextData" = "8:_RetargetableFolder"
+                    "Attributes" = "3:6"
+                    "Setting" = "3:2"
+                    "Value" = "8:_A3DC0E5961A0404EB74A3D98B9D02F8E"
+                    "UsePlugInResources" = "11:FALSE"
+                    }
+                }
+            "LanguageId" = "3:1033"
+            "Exclude" = "11:FALSE"
+            "Folder" = "8:"
+            "Feature" = "8:"
+            "IsolateTo" = "8:"
+            }
+            "{CEE29DC0-9FBA-4B99-8D47-5BC643D9B626}:_A21304548ACB432EA2996650D9517F90"
+            {
+            "UseDynamicProperties" = "11:TRUE"
+            "IsDependency" = "11:FALSE"
+            "SourcePath" = "8:..\\PyQt-x64\\Release\\PyQt-x64.msm"
+                "Properties"
+                {
+                    "_9058F2FC58A44C6DA50C1E79C877DCBE.8B678D0D018845B8AC458E3C0473542E"
+                    {
+                    "Name" = "8:_9058F2FC58A44C6DA50C1E79C877DCBE.8B678D0D018845B8AC458E3C0473542E"
+                    "DisplayName" = "8:Module Retargetable Folder"
+                    "Description" = "8:"
+                    "Type" = "3:32769"
+                    "ContextData" = "8:_RetargetableFolder"
+                    "Attributes" = "3:6"
+                    "Setting" = "3:2"
+                    "Value" = "8:_6E231C9ED8804DAD90343D24CB1C28E9"
+                    "UsePlugInResources" = "11:FALSE"
+                    }
+                }
+            "LanguageId" = "3:1033"
+            "Exclude" = "11:FALSE"
+            "Folder" = "8:"
+            "Feature" = "8:"
+            "IsolateTo" = "8:"
+            }
         }
         "ProjectOutput"
         {
@@ -991,60 +1043,6 @@
                 "IsolateTo" = "8:"
                 }
             }
-            "{5259A561-127C-4D43-A0A1-72F10C7B3BF8}:_132A0B9E590046FE94697786DBBBF9E4"
-            {
-            "SourcePath" = "8:..\\PyQt-x64 (Standard)\\Release\\PyQt-x64 (Standard).msm"
-            "TargetName" = "8:"
-            "Tag" = "8:"
-            "Folder" = "8:_A3DC0E5961A0404EB74A3D98B9D02F8E"
-            "Condition" = "8:"
-            "Transitive" = "11:FALSE"
-            "Vital" = "11:TRUE"
-            "ReadOnly" = "11:FALSE"
-            "Hidden" = "11:FALSE"
-            "System" = "11:FALSE"
-            "Permanent" = "11:FALSE"
-            "SharedLegacy" = "11:FALSE"
-            "PackageAs" = "3:1"
-            "Register" = "3:1"
-            "Exclude" = "11:FALSE"
-            "IsDependency" = "11:FALSE"
-            "IsolateTo" = "8:"
-            "ProjectOutputGroupRegister" = "3:1"
-            "OutputConfiguration" = "8:"
-            "OutputGroupCanonicalName" = "8:Built"
-            "OutputProjectGuid" = "8:{0F32D8BE-063D-4E94-854E-2A98FDA71378}"
-            "ShowKeyOutput" = "11:TRUE"
-                "ExcludeFilters"
-                {
-                }
-                "KeyOutputModule"
-                {
-                "UseDynamicProperties" = "11:TRUE"
-                "IsDependency" = "11:FALSE"
-                "SourcePath" = "8:..\\PyQt-x64 (Standard)\\Release\\PyQt-x64 (Standard).msm"
-                    "Properties"
-                    {
-                        "_4B9B43CCCFFC46909564FABDE22F881D.29D8BA9660214A019C80B0F1628407B3"
-                        {
-                        "Name" = "8:_4B9B43CCCFFC46909564FABDE22F881D.29D8BA9660214A019C80B0F1628407B3"
-                        "DisplayName" = "8:Module Retargetable Folder"
-                        "Description" = "8:"
-                        "Type" = "3:32769"
-                        "ContextData" = "8:_RetargetableFolder"
-                        "Attributes" = "3:6"
-                        "Setting" = "3:2"
-                        "Value" = "8:_A3DC0E5961A0404EB74A3D98B9D02F8E"
-                        "UsePlugInResources" = "11:FALSE"
-                        }
-                    }
-                "LanguageId" = "3:1033"
-                "Exclude" = "11:FALSE"
-                "Folder" = "8:_A3DC0E5961A0404EB74A3D98B9D02F8E"
-                "Feature" = "8:"
-                "IsolateTo" = "8:"
-                }
-            }
             "{5259A561-127C-4D43-A0A1-72F10C7B3BF8}:_8B9EB4A5651142C3869F16F42CDBB99E"
             {
             "SourcePath" = "8:..\\ConfigureMaya\\Release\\ConfigureMaya.exe"
@@ -1071,60 +1069,6 @@
             "ShowKeyOutput" = "11:TRUE"
                 "ExcludeFilters"
                 {
-                }
-            }
-            "{5259A561-127C-4D43-A0A1-72F10C7B3BF8}:_F102444D628F48D6AFB33D072F3A9A57"
-            {
-            "SourcePath" = "8:..\\PyQt-x64\\Release\\PyQt-x64.msm"
-            "TargetName" = "8:"
-            "Tag" = "8:"
-            "Folder" = "8:_6E231C9ED8804DAD90343D24CB1C28E9"
-            "Condition" = "8:"
-            "Transitive" = "11:FALSE"
-            "Vital" = "11:TRUE"
-            "ReadOnly" = "11:FALSE"
-            "Hidden" = "11:FALSE"
-            "System" = "11:FALSE"
-            "Permanent" = "11:FALSE"
-            "SharedLegacy" = "11:FALSE"
-            "PackageAs" = "3:1"
-            "Register" = "3:1"
-            "Exclude" = "11:FALSE"
-            "IsDependency" = "11:FALSE"
-            "IsolateTo" = "8:"
-            "ProjectOutputGroupRegister" = "3:1"
-            "OutputConfiguration" = "8:"
-            "OutputGroupCanonicalName" = "8:Built"
-            "OutputProjectGuid" = "8:{202B734F-4DBE-4A53-9A4C-9A76F097CE38}"
-            "ShowKeyOutput" = "11:TRUE"
-                "ExcludeFilters"
-                {
-                }
-                "KeyOutputModule"
-                {
-                "UseDynamicProperties" = "11:TRUE"
-                "IsDependency" = "11:FALSE"
-                "SourcePath" = "8:..\\PyQt-x64\\Release\\PyQt-x64.msm"
-                    "Properties"
-                    {
-                        "_9058F2FC58A44C6DA50C1E79C877DCBE.8B678D0D018845B8AC458E3C0473542E"
-                        {
-                        "Name" = "8:_9058F2FC58A44C6DA50C1E79C877DCBE.8B678D0D018845B8AC458E3C0473542E"
-                        "DisplayName" = "8:Module Retargetable Folder"
-                        "Description" = "8:"
-                        "Type" = "3:32769"
-                        "ContextData" = "8:_RetargetableFolder"
-                        "Attributes" = "3:6"
-                        "Setting" = "3:2"
-                        "Value" = "8:_6E231C9ED8804DAD90343D24CB1C28E9"
-                        "UsePlugInResources" = "11:FALSE"
-                        }
-                    }
-                "LanguageId" = "3:1033"
-                "Exclude" = "11:FALSE"
-                "Folder" = "8:_6E231C9ED8804DAD90343D24CB1C28E9"
-                "Feature" = "8:"
-                "IsolateTo" = "8:"
                 }
             }
         }
