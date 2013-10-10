@@ -38,7 +38,8 @@ import util
 util.qtWrapImport('QtCore', globals(), ['Qt', 'QEvent', 'QString', 'QRectF',\
                                         'QPointF'])
 util.qtWrapImport('QtGui', globals(), ['QGraphicsEllipseItem', 'QGraphicsItem',\
-                                'QGraphicsSimpleTextItem', 'QBrush', 'QPen'])
+                                'QGraphicsSimpleTextItem', 'QBrush', 'QPen', \
+                                'QPainterPath', 'QPolygonF', 'QGraphicsLineItem', 'QColor'])
 
 class VirtualHelixItem(QGraphicsEllipseItem):
     """
@@ -82,6 +83,7 @@ class VirtualHelixItem(QGraphicsEllipseItem):
         # handle the label specific stuff
         self._label = self.createLabel()
         self.setNumber()
+        self.createArrow()
 
         self._controller = VirtualHelixItemController(self, modelVirtualHelix)
 
@@ -124,6 +126,30 @@ class VirtualHelixItem(QGraphicsEllipseItem):
         return label
     # end def
 
+    def createArrow(self):
+        rad = self._radius
+        pen = QPen()
+        pen.setWidth(3)
+        color = QColor(Qt.blue)
+        color.setAlphaF(0.25)
+        pen.setBrush(color)
+        if (self._virtualHelix.number() % 2) == 0:
+            arrow = QGraphicsLineItem(rad, rad, 2*rad, rad, self)
+        else:
+            arrow = QGraphicsLineItem(0, rad, rad, rad, self)
+        arrow.setTransformOriginPoint(rad, rad)
+        arrow.setZValue(400)
+        arrow.setPen(pen)
+        self.arrow = arrow
+        self.arrow.hide()
+    # end def
+
+    def updateArrow(self, idx):
+        tpb = self.part()._twistPerBase
+        angle = idx*tpb #- 0.5*tpb
+        self.arrow.setRotation(angle)
+    # end def
+
     def setNumber(self):
         """docstring for setNumber"""
         vh = self._virtualHelix
@@ -159,13 +185,16 @@ class VirtualHelixItem(QGraphicsEllipseItem):
     def number(self):
         return self.virtualHelix().number()
 
-    def setActiveSliceView(self, isActiveNow):
+    def setActiveSliceView(self, isActiveNow, idx):
         if isActiveNow:
             self.setPen(self._usePen)
             self.setBrush(self._useBrush)
+            self.updateArrow(idx)
+            self.arrow.show()
         else:
             self.setPen(self._outOfSlicePen)
             self.setBrush(self._outOfSliceBrush)
+            self.arrow.hide()
     # end def
 
     ############################ User Interaction ############################

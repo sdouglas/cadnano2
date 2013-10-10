@@ -54,8 +54,9 @@ class ActiveSliceItem(QGraphicsRectItem):
             return
         partItem = self._partItem
         vhi = partItem.getVirtualHelixItemByCoord(*vh.coord())
-        isActiveNow = vh.hasStrandAtIdx(partItem.part().activeBaseIndex())
-        vhi.setActiveSliceView(isActiveNow)
+        activeBaseIdx = partItem.part().activeBaseIndex()
+        isActiveNow = vh.hasStrandAtIdx(activeBaseIdx)
+        vhi.setActiveSliceView(isActiveNow, activeBaseIdx)
     # end def
 
     def updateIndexSlot(self, sender, newActiveSliceZIndex):
@@ -68,7 +69,7 @@ class ActiveSliceItem(QGraphicsRectItem):
             vh = vhi.virtualHelix()
             if vh:
                 isActiveNow = vh.hasStrandAtIdx(activeBaseIdx)
-                vhi.setActiveSliceView(isActiveNow)
+                vhi.setActiveSliceView(isActiveNow, activeBaseIdx)
     # end def
 
     def updateRectSlot(self, part):

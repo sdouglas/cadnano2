@@ -65,6 +65,7 @@ class CadnanoQt(QObject):
 
     def finishInit(self):
         self.d = self.newDocument(isFirstNewDoc=True)
+        os.environ['CADNANO_DISCARD_UNSAVED'] = 'True' ## added by Nick 
         if os.environ.get('CADNANO_DISCARD_UNSAVED', False) and not self.ignoreEnv():
             self.sharedApp.dontAskAndJustDiscardUnsavedChanges = True
         if os.environ.get('CADNANO_DEFAULT_DOCUMENT', False) and not self.ignoreEnv():
