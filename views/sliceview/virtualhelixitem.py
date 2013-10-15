@@ -133,7 +133,7 @@ class VirtualHelixItem(QGraphicsEllipseItem):
         color = QColor(Qt.blue)
         color.setAlphaF(0.25)
         pen.setBrush(color)
-        if (self._virtualHelix.number() % 2) == 0:
+        if self._virtualHelix.isEvenParity():
             arrow = QGraphicsLineItem(rad, rad, 2*rad, rad, self)
         else:
             arrow = QGraphicsLineItem(0, rad, rad, rad, self)
