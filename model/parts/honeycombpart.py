@@ -44,6 +44,7 @@ class HoneycombPart(Part):
     _turnsPerStep = 2.0
     _helicalPitch = _step/_turnsPerStep
     _twistPerBase = 360/_helicalPitch # degrees
+    _twistOffset = 0 # degrees
     
     _activeBaseIndex = _step
     _subStepSize = _step / 3
