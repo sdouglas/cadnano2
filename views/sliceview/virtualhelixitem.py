@@ -145,9 +145,10 @@ class VirtualHelixItem(QGraphicsEllipseItem):
     # end def
 
     def updateArrow(self, idx):
-        tpb = self.part()._twistPerBase
-        angle = idx*tpb #- 0.5*tpb
-        self.arrow.setRotation(angle)
+        part = self.part()
+        tpb = part._twistPerBase
+        angle = idx*tpb
+        self.arrow.setRotation(angle + part._twistOffset)
     # end def
 
     def setNumber(self):
