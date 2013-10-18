@@ -41,6 +41,6 @@
     <file alias="select">images/path-edit_32.png</file>
     <file alias="erase">images/path-erase_48x48.png</file>
     <file alias="autostaple">images/path-staple.png</file>
-    <file alias="decorator">images/path-decorator_48x48.png</file>
+    <file alias="mods">images/path-decorator_48x48.png</file>
   </qresource>
 </RCC>

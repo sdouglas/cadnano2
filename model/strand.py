@@ -159,10 +159,10 @@ class Strand(QObject):
     strandInsertionRemovedSignal = pyqtSignal(QObject, int)
 
     # Parameters: (strand, decorator object)
-    strandDecoratorAddedSignal = pyqtSignal(QObject, object)
-    strandDecoratorChangedSignal = pyqtSignal(QObject, object)
+    strandModsAddedSignal = pyqtSignal(QObject, object)
+    strandModsChangedSignal = pyqtSignal(QObject, object)
     # Parameters: (strand, decorator index)
-    strandDecoratorRemovedSignal = pyqtSignal(QObject, int)
+    strandModsRemovedSignal = pyqtSignal(QObject, int)
 
     # Parameters: (strand, modifier object)
     strandModifierAddedSignal = pyqtSignal(QObject, object)

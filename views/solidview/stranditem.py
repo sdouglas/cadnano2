@@ -179,16 +179,16 @@ class StrandItem(object):
         """strandInsertionRemovedSlot - empty"""
         pass
 
-    def strandDecoratorAddedSlot(self, strand, decorator):
-        """strandDecoratorAddedSlot - empty"""
+    def strandModsAddedSlot(self, strand, mods):
+        """strandModsAddedSlot - empty"""
         pass
 
-    def strandDecoratorChangedSlot(self, strand, decorator):
-        """strandDecoratorChangedSlot - empty"""
+    def strandModsChangedSlot(self, strand, mods):
+        """strandModsChangedSlot - empty"""
         pass
 
-    def strandDecoratorRemovedSlot(self, strand, index):
-        """strandDecoratorRemovedSlot - empty"""
+    def strandModsRemovedSlot(self, strand, index):
+        """strandModsRemovedSlot - empty"""
         pass
 
     def strandModifierAddedSlot(self, strand, modifier):

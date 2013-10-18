@@ -200,15 +200,16 @@ class StrandItem(QGraphicsLineItem):
         del self.insertionItems()[index]
     # end def
 
-    def strandDecoratorAddedSlot(self, strand, decorator):
+    def strandModsAddedSlot(self, strand, mods):
         pass
     # end def
-    def strandDecoratorChangedSlot(self, strand, decorator):
+    def strandModsChangedSlot(self, strand, mods):
         pass
     # end def
-    def strandDecoratorRemovedSlot(self, strand, index):
+    def strandModsRemovedSlot(self, strand, index):
         pass
     # end def
+    
     def strandModifierAddedSlot(self, strand, modifier):
         pass
     # end def

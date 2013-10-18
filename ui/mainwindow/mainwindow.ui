@@ -251,7 +251,7 @@
    <addaction name="actionPathSkip"/>
    <addaction name="actionPathPaint"/>
    <addaction name="actionPathAddSeq"/>
-   <addaction name="actionPathDecorator"/>
+   <addaction name="actionPathMods"/>
   </widget>
   <widget class="QToolBar" name="leftToolBar">
    <property name="sizePolicy">
@@ -840,22 +840,22 @@
     <string>Create staple strands complementary to existing scaffold.</string>
    </property>
   </action>
-  <action name="actionPathDecorator">
+  <action name="actionPathMods">
    <property name="checkable">
     <bool>true</bool>
    </property>
    <property name="icon">
     <iconset resource="icons.qrc">
-     <normaloff>:/pathtools/decorator</normaloff>:/pathtools/decorator</iconset>
+     <normaloff>:/pathtools/mods</normaloff>:/pathtools/mods</iconset>
    </property>
    <property name="text">
-    <string>Decorator</string>
+    <string>Mods</string>
    </property>
    <property name="toolTip">
-    <string>(D)ecorator Tool</string>
+    <string>(M)ods Tool</string>
    </property>
    <property name="shortcut">
-    <string>D</string>
+    <string>M</string>
    </property>
   </action>
  </widget>

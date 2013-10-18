@@ -28,12 +28,12 @@ util.qtWrapImport('QtCore', globals(), [])
 util.qtWrapImport('QtGui', globals(), [])
 
 
-class DecoratorTool(AbstractPathTool):
+class ModsTool(AbstractPathTool):
     """
-    docstring for SkipTool
+    docstring for ModsTool
     """
     def __init__(self, controller):
-        super(DecoratorTool, self).__init__(controller)
+        super(ModsTool, self).__init__(controller)
 
     def __repr__(self):
-        return "decoratorTool"  # first letter should be lowercase
+        return "modsTool"  # first letter should be lowercase

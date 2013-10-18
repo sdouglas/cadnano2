@@ -80,6 +80,8 @@ class Part(QObject):
         super(Part, self).__init__(parent=self._document)
         # Data structure
         self._insertions = defaultdict(dict)  # dict of insertions per virtualhelix
+        self._mods = defaultdict(dict)
+        
         self._oligos = set()
         self._coordToVirtualHelix = {}
         self._numberToVirtualHelix = {}
@@ -221,6 +223,10 @@ class Part(QObject):
         """Return dictionary of insertions."""
         return self._insertions
     # end def
+
+    def mods(self):
+        return self._mods
+    # end def 
 
     def isEvenParity(self, row, column):
         """Should be overridden when subclassing."""
