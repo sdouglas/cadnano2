@@ -563,6 +563,23 @@ class Strand(QObject):
         return insertions
     # end def
 
+    def modifersOnStrand(self):
+        """
+        """
+        mods = []
+        modsDict = self.part().mods()['ext_instances']
+        coord = self.virtualHelix().coord()
+        isstaple = self.isStaple()
+        idxL, idxH = self.idxs()
+        keyL =  "{},{},{}".format(coord, isstaple, idxL)
+        keyH =  "{},{},{}".format(coord, isstaple, idxH)
+        if keyL in modsDict:
+            mods.append(modsDict[keyL])
+        if keyH in modsDict:
+            mods.append(modsDict[keyH])
+        return mods
+    # end def
+
     def length(self):
         return self._baseIdxHigh - self._baseIdxLow + 1
     # end def
@@ -583,6 +600,18 @@ class Strand(QObject):
     def addDecorators(self, additionalDecorators):
         """Used to add decorators during a merge operation."""
         self._decorators.update(additionalDecorators)
+    # end def
+
+    def addMods(self, mod_id, idx, useUndoStack=True):
+        """Used to add mods during a merge operation."""
+        cmds = []
+        idxLow, idxHigh = self.idxs()
+        if idxLow == idx or idx == idxHigh:
+            cmds.append(Strand.AddModsCommand(self, mod_id, idx))
+            util.execCommandList(
+                                self, cmds, desc="Add Modification",
+                                    useUndoStack=useUndoStack)
+        # end if
     # end def
 
     def addInsertion(self, idx, length, useUndoStack=True):

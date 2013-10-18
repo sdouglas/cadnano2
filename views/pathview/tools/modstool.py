@@ -23,9 +23,11 @@
 # http://www.opensource.org/licenses/mit-license.php
 import sys
 from abstractpathtool import AbstractPathTool
+from data.sequencemods import mods
+from ui.dialogs.ui_mods import Ui_ModsDialog
 import util
-util.qtWrapImport('QtCore', globals(), [])
-util.qtWrapImport('QtGui', globals(), [])
+util.qtWrapImport('QtCore', globals(), ['QSignalMapper'])
+util.qtWrapImport('QtGui', globals(), ['QBrush','QColor', 'QDialog'])
 
 
 class ModsTool(AbstractPathTool):
@@ -34,6 +36,27 @@ class ModsTool(AbstractPathTool):
     """
     def __init__(self, controller):
         super(ModsTool, self).__init__(controller)
+        self.dialog = QDialog()
+        self.buttons = []
+        self.seqBox = None
+        self.chosenStandardSequence = None  # state for tab switching
+        self.customSequenceIsValid = False  # state for tab switching
+        self.useCustomSequence = False  # for applying sequence
+        self.validatedSequenceToApply = None
+        self.initDialog()
 
     def __repr__(self):
         return "modsTool"  # first letter should be lowercase
+
+    def initDialog(self):
+        """
+        1. Create buttons according to available scaffold sequences and
+        add them to the dialog.
+        2. Map the clicked signal of those buttons to keep track of what
+        sequence gets selected.
+        3. Watch the tabWidget change signal to determine whether a
+        standard or custom sequence should be applied.
+        """
+        uiDlg = Ui_ModsDialog()
+        uiDlg.setupUi(self.dialog)
+        self.signalMapper = QSignalMapper(self)

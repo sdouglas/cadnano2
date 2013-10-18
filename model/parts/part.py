@@ -30,6 +30,7 @@ from heapq import heapify, heappush, heappop
 from itertools import product, izip, islice
 from collections import defaultdict
 import random
+from uuid import uuid4
 
 from model.enum import StrandType
 from model.virtualhelix import VirtualHelix
@@ -81,7 +82,8 @@ class Part(QObject):
         # Data structure
         self._insertions = defaultdict(dict)  # dict of insertions per virtualhelix
         self._mods = defaultdict(dict)
-        
+        # self._mods['instances']
+
         self._oligos = set()
         self._coordToVirtualHelix = {}
         self._numberToVirtualHelix = {}
@@ -1175,6 +1177,89 @@ class Part(QObject):
         """Used on file import to store the order of the virtual helices."""
         self._importedVHelixOrder = orderedCoordList
         self.partVirtualHelicesReorderedSignal.emit(self, orderedCoordList)
+
+    def createMod(self, name=None, color=None, note=None, seq5p=None, seq3p=None, seqInt=None):
+        mid =  uuid4()
+        name = mid if name is None else name
+        color = 0x00FF00 if color is None and not isinstance(color, int)  else color
+        seq5p = '' if seq5p is None and not isinstance(seq5p, str) else seq5p
+        seq3p = '' if seq3p is None and not isinstance(seq3p, str) else seq3p
+        seqInt = '' if seqInt is None and not isinstance(seqInt, str) else seqInt
+
+        self._mods[mid] = {
+            'name': name,
+            'color': color,
+            'note': note,
+            'seq5p': seq5p,
+            'seq3p': seq3p,
+            'seqInt': seqInt,
+            'ext_locations': set(), # external mods, mod belongs to idx outside of strand
+            'int_locations': set()  # internal mods, mod belongs between idx and idx + 1
+        }
+    # end def
+
+    def modifyMod(self, mid, name=None, color=None, note=None, seq5p=None, seq3p=None, seqInt=None):
+        updated = {}
+        if mid in self._mods:
+            if name is not None and isinstance(name, str):
+                updated['name'] = name
+            if color is not None and isinstance(color, int):
+                updated['color'] = color
+            if note is not None and isinstance(note, str):
+                updated['note'] = note
+            if seq5p is not None and isinstance(seq5p, str):
+                updated['seq5p'] = seq5p
+            if seq3p is not None and isinstance(seq3p, str):
+                updated['seq3p'] = seq3p
+            if seqInt is not None and isinstance(seqInt, str):
+                updated['seqInt'] = seqInt
+            self._mods[mid].update(updated)
+    # end def
+
+    def destroyMod(self, mid):
+        if mid in self._mods:
+            # Destroy all instances of the mod
+            locations = self._mods[mid]['ext_locations']
+            mods_strand = self._mods['ext_instances']
+            for key in locations:        
+                if key in mods_strand:
+                    del mods_strand[key]
+            # now internal locations
+            locations_int = self._mods[mid]['int_locations']
+            mods_strand_internal = self._mods['int_instances']
+            for key in locations_int:
+                if key in mods_strand_internal:
+                    del mods_strand_internal[key]
+            del self._mods[mid]
+    # end def
+
+    def addModInstance(self, coord, idx, isstaple, isinternal, mid):
+        key =  "{},{},{}".format(coord, isstaple, idx)
+        mods_strand = self._mods['int_instances'] if isinternal else self._mods['ext_instances']
+        locations = self._mods[mid]['int_locations'] if isinternal else self._mods[mid]['ext_locations']
+        if key in mods_strand:
+            removeModInstance(strand, idx, isstaple, isinternal, mid)
+        mods_strand[key] = mid # add to strand lookup
+        # add to set of locations
+        locations.add(key)
+    # end def
+
+    def removeModInstance(self, coord, idx, isstaple, isinternal, mid):
+        key =  "{},{},{}".format(coord, isstaple, idx)
+        mods_strand = self._mods['int_instances'] if isinternal else self._mods['ext_instances']
+        locations = self._mods[mid]['int_locations'] if isinternal else self._mods[mid]['ext_locations']
+        if key in mods_strand:
+            del mods_strand[key]
+            locations.remove(key)
+    # end def
+
+    def changeModInstance(self, coord, idx, isstaple, isinternal, mid_old, mid_new):
+        if mid_new != mid_old:
+            mods = self._mods
+            if mid_old in mods and mid_new in mods:
+                removeModInstance(coord, idx, isinternal, isinternal, mid_old)
+                addModInstance(coord, idx, isinternal, isinternal, mid_new)
+    # end def
 
     ### COMMANDS ###
     class CreateVirtualHelixCommand(QUndoCommand):
