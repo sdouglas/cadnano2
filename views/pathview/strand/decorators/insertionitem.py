@@ -384,6 +384,8 @@ class InsertionItem(QGraphicsPathItem):
             self._strand.changeInsertion(insertion.idx(), insertionSize)
             if insertion.length():
                 self._resetPosition()
+        else:
+            self._updateLabel()
         # end if
         self._focusOut()
     # end def

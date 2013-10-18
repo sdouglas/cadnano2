@@ -381,6 +381,8 @@ class DocumentController():
         """
         # Validate that no staple oligos are loops.
         part = self.activePart()
+        if part is None:
+            return
         stapLoopOlgs = part.getStapleLoopOligos()
         if stapLoopOlgs:
             from ui.dialogs.ui_warning import Ui_Warning
