@@ -258,6 +258,20 @@ def import_legacy_dict(document, obj, latticeType=LatticeType.Honeycomb):
             strand = stapStrandSet.getStrand(baseIdx)
             strand.oligo().applyColor(color, useUndoStack=False)
 
+    for oligo in obj['oligos']:
+        vhNum = oligo['vh_num']
+        idx = oligo['idx']
+        seq = str(oligo['seq'])
+        if seq != '':
+            coord = vhNumToCoord[vhNum]
+            vh = part.virtualHelixAtCoord(coord)
+            scafStrandSet = vh.scaffoldStrandSet()
+            # stapStrandSet = vh.stapleStrandSet()
+            strand = scafStrandSet.getStrand(idx)
+            # print "sequence", seq, vh, idx,  strand.oligo()._strand5p
+            strand.oligo().applySequence(seq, useUndoStack=False)
+# end def
+
 def isSegmentStartOrEnd(strandType, vhNum, baseIdx, fiveVH, fiveIdx, threeVH, threeIdx):
     """Returns True if the base is a breakpoint or crossover."""
     if strandType == StrandType.Scaffold:

@@ -125,6 +125,10 @@ class Oligo(QObject):
         return self._length
     # end def
 
+    def markers(self):
+        return [None, None]
+    # end def
+
     def sequence(self):
         temp = self.strand5p()
         if not temp:

@@ -31,10 +31,16 @@ from model.enum import LatticeType
 
 
 class Crossovers:
-    honeycombScafLow = [[1, 11], [8, 18], [4, 15]]
-    honeycombScafHigh = [[2, 12], [9, 19], [5, 16]]
-    honeycombStapLow = [[6], [13], [20]]
-    honeycombStapHigh = [[7], [14], [0]]
+    # honeycombScafLow = [[1, 11], [8, 18], [4, 15]]
+    # honeycombScafHigh = [[2, 12], [9, 19], [5, 16]]
+    # honeycombStapLow = [[6], [13], [20]]
+    # honeycombStapHigh = [[7], [14], [0]]
+
+    # from 0: DR U DL aka 210 90 330
+    honeycombScafLow = [[1, 12], [8, 19], [5, 15]]
+    honeycombScafHigh = [[2, 13], [9, 20], [6, 16]]
+    honeycombStapLow = [[17], [3], [10]]
+    honeycombStapHigh = [[18], [4], [11]]
 
 root3 = 1.732051
 
@@ -44,7 +50,7 @@ class HoneycombPart(Part):
     _turnsPerStep = 2.0
     _helicalPitch = _step/_turnsPerStep
     _twistPerBase = 360/_helicalPitch # degrees
-    _twistOffset = 0 # degrees
+    _twistOffset = -30.0 #_twistPerBase/2 # degrees
     
     _activeBaseIndex = _step
     _subStepSize = _step / 3

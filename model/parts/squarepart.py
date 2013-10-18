@@ -32,6 +32,11 @@ class Crossovers:
     squareStapLow = [[31], [23], [15], [7]]
     squareStapHigh = [[0], [24], [16], [8]]
 
+    # squareScafLow = [[5, 26, 15], [18, 29, 7], [10, 21, 31], [2, 13, 23]]
+    # squareScafHigh = [[6, 27, 16], [19, 30, 8], [11, 22, 0], [3, 14, 24]]
+    # squareStapLow = [[31], [23], [15], [7]]
+    # squareStapHigh = [[0], [24], [16], [8]]
+
 
 class SquarePart(Part):
     _step = 32  # 21 in honeycomb
@@ -40,7 +45,7 @@ class SquarePart(Part):
     _helicalPitch = _step/_turnsPerStep
     _twistPerBase = 360/_helicalPitch # degrees
     _twistOffset = 180 + _twistPerBase/2 # degrees
-    
+
     # Used in VirtualHelix::potentialCrossoverList
     _scafL = Crossovers.squareScafLow
     _scafH = Crossovers.squareScafHigh

@@ -148,6 +148,7 @@ class VirtualHelixItem(QGraphicsEllipseItem):
         part = self.part()
         tpb = part._twistPerBase
         angle = idx*tpb
+        # for some reason rotation is CW and not CCW with increasing angle
         self.arrow.setRotation(angle + part._twistOffset)
     # end def
 

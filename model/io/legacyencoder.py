@@ -62,5 +62,18 @@ def legacy_dict_from_doc(document, fname, helixOrderList):
                   "stap_colors":stapColors}
         vhList.append(vhDict)
     bname = basename(str(fname))
-    obj = {"name":bname , "vstrands":vhList}
+    oligoList = []
+    decoratorList = []
+    for oligo in part.oligos():
+      vhNum = oligo.strand5p().strandSet().virtualHelix().number()
+      idx = oligo.strand5p().idx5Prime()
+      seq = oligo.sequence() if not oligo.isStaple() else ''
+      markers = oligo.markers()
+      oligoList.append({"vh_num": vhNum,
+                        "idx": idx,
+                        "seq": seq,
+                        "markers": markers,
+        })
+    obj = {"name":bname , "vstrands":vhList, 
+      "oligos": oligoList}
     return obj
