@@ -404,6 +404,19 @@ class Ui_MainWindow(object):
         self.actionAutoStaple.setText(QtGui.QApplication.translate("MainWindow", "AutoStaple", None, QtGui.QApplication.UnicodeUTF8))
         self.actionAutoStaple.setToolTip(QtGui.QApplication.translate("MainWindow", "Create staple strands complementary to existing scaffold.", None, QtGui.QApplication.UnicodeUTF8))
         self.actionAutoStaple.setObjectName(_fromUtf8("actionAutoStaple"))
+
+        self.actionPathDecorator = QtGui.QAction(MainWindow)
+        self.actionPathDecorator.setCheckable(True)
+        icon27 = QtGui.QIcon()
+        icon27.addPixmap(QtGui.QPixmap(_fromUtf8(":/pathtools/decorator")), QtGui.QIcon.Normal, QtGui.QIcon.Off)
+        self.actionPathDecorator.setIcon(icon27)
+        self.actionPathDecorator.setText(QtGui.QApplication.translate("MainWindow", "Decorator", None, QtGui.QApplication.UnicodeUTF8))
+        self.actionPathDecorator.setToolTip(QtGui.QApplication.translate("MainWindow", "(D)ecorator Tool", None, QtGui.QApplication.UnicodeUTF8))
+        self.actionPathDecorator.setShortcut(QtGui.QApplication.translate("MainWindow", "D", None, QtGui.QApplication.UnicodeUTF8))
+        self.actionPathDecorator.setObjectName(_fromUtf8("actionPathDecorator"))
+        
+        self.actionRenumber = QtGui.QAction(MainWindow)
+
         self.topToolBar.addAction(self.actionNew)
         self.topToolBar.addAction(self.actionOpen)
         self.topToolBar.addAction(self.actionSave)
@@ -428,6 +441,7 @@ class Ui_MainWindow(object):
         self.rightToolBar.addAction(self.actionPathSkip)
         self.rightToolBar.addAction(self.actionPathPaint)
         self.rightToolBar.addAction(self.actionPathAddSeq)
+        self.rightToolBar.addAction(self.actionPathDecorator)
         self.leftToolBar.addAction(self.actionSliceFirst)
         self.leftToolBar.addAction(self.actionSliceLast)
         self.leftToolBar.addAction(self.actionRenumber)
@@ -452,4 +466,4 @@ class Ui_MainWindow(object):
         pass
 
 from views.customqgraphicsview import CustomQGraphicsView
-import icons_rc
+import new_icons_rc

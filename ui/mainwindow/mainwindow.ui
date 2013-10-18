@@ -211,6 +211,7 @@
    <addaction name="actionFilterEndpoint"/>
    <addaction name="actionFilterXover"/>
    <addaction name="actionFilterStrand"/>
+
   </widget>
   <widget class="QToolBar" name="rightToolBar">
    <property name="sizePolicy">
@@ -250,6 +251,7 @@
    <addaction name="actionPathSkip"/>
    <addaction name="actionPathPaint"/>
    <addaction name="actionPathAddSeq"/>
+   <addaction name="actionPathDecorator"/>
   </widget>
   <widget class="QToolBar" name="leftToolBar">
    <property name="sizePolicy">
@@ -836,6 +838,24 @@
    </property>
    <property name="toolTip">
     <string>Create staple strands complementary to existing scaffold.</string>
+   </property>
+  </action>
+  <action name="actionPathDecorator">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="icon">
+    <iconset resource="icons.qrc">
+     <normaloff>:/pathtools/decorator</normaloff>:/pathtools/decorator</iconset>
+   </property>
+   <property name="text">
+    <string>Decorator</string>
+   </property>
+   <property name="toolTip">
+    <string>(D)ecorator Tool</string>
+   </property>
+   <property name="shortcut">
+    <string>D</string>
    </property>
   </action>
  </widget>

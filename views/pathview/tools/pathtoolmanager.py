@@ -32,6 +32,7 @@ from insertiontool import InsertionTool
 from skiptool import SkipTool
 from painttool import PaintTool
 from addseqtool import AddSeqTool
+from decoratortool import DecoratorTool
 import util
 
 # import Qt stuff into the module namespace with PySide, PyQt4 independence
@@ -56,6 +57,7 @@ class PathToolManager(QObject):
         self.skipTool = SkipTool(self)
         self.paintTool = PaintTool(self) # (self, win.pathGraphicsView.toolbar)
         self.addSeqTool = AddSeqTool(self)
+        self.decoratorTool = DecoratorTool(self)
 
         def installTool(toolName, window):
             toolWidget = getattr(window, 'actionPath' + toolName)
@@ -74,7 +76,7 @@ class PathToolManager(QObject):
             toolWidget.triggered.connect(handler)
             return toolWidget
 
-        tools = ('Select', 'Pencil', 'Break', 'Erase', 'Insertion', 'Skip', 'Paint', 'AddSeq')
+        tools = ('Select', 'Pencil', 'Break', 'Erase', 'Insertion', 'Skip', 'Paint', 'AddSeq', 'Decorator')
         ag = QActionGroup(win)
         # Call installTool on every tool
         map((lambda toolName: ag.addAction(installTool(toolName, win))), tools)
