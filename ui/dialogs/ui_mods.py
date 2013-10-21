@@ -69,12 +69,12 @@ class Ui_ModsDialog(object):
         self.sequenceInternalLineEdit = QtGui.QLineEdit(ModsDialog)
         self.sequenceInternalLineEdit.setObjectName(_fromUtf8("sequenceInternalLineEdit"))
         self.formLayout_2.setWidget(4, QtGui.QFormLayout.FieldRole, self.sequenceInternalLineEdit)
-        self.notesLabel = QtGui.QLabel(ModsDialog)
-        self.notesLabel.setObjectName(_fromUtf8("notesLabel"))
-        self.formLayout_2.setWidget(5, QtGui.QFormLayout.LabelRole, self.notesLabel)
-        self.textEdit = QtGui.QTextEdit(ModsDialog)
-        self.textEdit.setObjectName(_fromUtf8("textEdit"))
-        self.formLayout_2.setWidget(5, QtGui.QFormLayout.FieldRole, self.textEdit)
+        self.noteLabel = QtGui.QLabel(ModsDialog)
+        self.noteLabel.setObjectName(_fromUtf8("noteLabel"))
+        self.formLayout_2.setWidget(5, QtGui.QFormLayout.LabelRole, self.noteLabel)
+        self.noteTextEdit = QtGui.QTextEdit(ModsDialog)
+        self.noteTextEdit.setObjectName(_fromUtf8("noteTextEdit"))
+        self.formLayout_2.setWidget(5, QtGui.QFormLayout.FieldRole, self.noteTextEdit)
         self.dialogGridLayout.addLayout(self.formLayout_2, 0, 0, 1, 1)
 
         self.retranslateUi(ModsDialog)
@@ -83,11 +83,11 @@ class Ui_ModsDialog(object):
         QtCore.QMetaObject.connectSlotsByName(ModsDialog)
 
     def retranslateUi(self, ModsDialog):
-        ModsDialog.setWindowTitle(_translate("ModsDialog", "Choose a sequence", None))
+        ModsDialog.setWindowTitle(_translate("ModsDialog", "Choose a Modification", None))
         self.nameLabel.setText(_translate("ModsDialog", "Name", None))
         self.colorLabel.setText(_translate("ModsDialog", "color", None))
         self.sequence5Label.setText(_translate("ModsDialog", "sequence 5\'", None))
         self.sequence3Label.setText(_translate("ModsDialog", "sequence 3\'", None))
         self.sequenceInternalLabel.setText(_translate("ModsDialog", "sequence internal", None))
-        self.notesLabel.setText(_translate("ModsDialog", "Notes", None))
+        self.noteLabel.setText(_translate("ModsDialog", "Note", None))
 

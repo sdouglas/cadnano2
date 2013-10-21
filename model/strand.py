@@ -159,10 +159,10 @@ class Strand(QObject):
     strandInsertionRemovedSignal = pyqtSignal(QObject, int)
 
     # Parameters: (strand, decorator object)
-    strandModsAddedSignal = pyqtSignal(QObject, object)
-    strandModsChangedSignal = pyqtSignal(QObject, object)
+    strandModsAddedSignal = pyqtSignal(QObject, object, int)
+    strandModsChangedSignal = pyqtSignal(QObject, object, int)
     # Parameters: (strand, decorator index)
-    strandModsRemovedSignal = pyqtSignal(QObject, int)
+    strandModsRemovedSignal = pyqtSignal(QObject, object, int)
 
     # Parameters: (strand, modifier object)
     strandModifierAddedSignal = pyqtSignal(QObject, object)
@@ -602,12 +602,13 @@ class Strand(QObject):
         self._decorators.update(additionalDecorators)
     # end def
 
-    def addMods(self, mod_id, idx, useUndoStack=True):
+    def addMods(self, mod_id, params, idx, useUndoStack=True):
         """Used to add mods during a merge operation."""
         cmds = []
         idxLow, idxHigh = self.idxs()
         if idxLow == idx or idx == idxHigh:
-            cmds.append(Strand.AddModsCommand(self, mod_id, idx))
+            print "adding a {} modification at {}".format(params['name'], idx) 
+            cmds.append(Strand.AddModsCommand(self, idx, mod_id))
             util.execCommandList(
                                 self, cmds, desc="Add Modification",
                                     useUndoStack=useUndoStack)
@@ -1058,6 +1059,66 @@ class Strand(QObject):
                 cStrand.oligo().decrementLength(
                                             self._newLength - self._oldLength)
                 cStrand.strandInsertionChangedSignal.emit(cStrand, inst)
+        # end def
+    # end class
+
+    class AddModsCommand(QUndoCommand):
+        def __init__(self, strand, idx, mod_id):
+            super(Strand.AddModsCommand, self).__init__()
+            self._strand = strand
+            self._coord = strand.virtualHelix().coord()
+            self._idx = idx
+            self._mod_id = mod_id
+        # end def
+
+        def redo(self):
+            strand = self._strand
+            isstaple = strand.isStaple()
+            mid = self._mod_id
+            part = strand.part()
+            part.addModInstance(self._coord, self._idx, 
+                isstaple, False, mid)
+            strand.strandModsAddedSignal.emit(strand, mid, self._idx)
+        # end def
+
+        def undo(self):
+            strand = self._strand
+            isstaple = strand.isStaple()
+            mid = self._mod_id
+            part = strand.part()
+            part.removeModInstance(self._coord, self._idx, 
+                isstaple, False, self._mod_id)
+            strand.strandModsRemovedSignal.emit(strand, mid, self._idx)
+        # end def
+    # end class
+
+    class RemoveModsCommand(QUndoCommand):
+        def __init__(self, strand, idx, mod_id):
+            super(Strand.RemoveModsCommand, self).__init__()
+            self._strand = strand
+            self._coord = strand.virtualHelix().coord()
+            self._idx = idx
+            self._mod_id = mod_id
+        # end def
+
+        def redo(self):
+            strand = self._strand
+            isstaple = strand.isStaple()
+            mid = self._mod_id
+            part = strand.part()
+            part.removeModInstance(self._coord, self._idx, 
+                isstaple, False, mid)
+            strand.strandModsRemovedSignal.emit(strand, mid, self._idx)
+        # end def
+
+        def undo(self):
+            strand = self._strand
+            isstaple = strand.isStaple()
+            mid = self._mod_id
+            part = strand.part()
+            part.addModInstance(self._coord, self._idx, 
+                isstaple, False, mid)
+            strand.strandModsAddedSignal.emit(strand, mid, self._idx)
         # end def
     # end class
 # end class

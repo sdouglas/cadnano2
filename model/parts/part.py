@@ -1178,13 +1178,18 @@ class Part(QObject):
         self._importedVHelixOrder = orderedCoordList
         self.partVirtualHelicesReorderedSignal.emit(self, orderedCoordList)
 
-    def createMod(self, name=None, color=None, note=None, seq5p=None, seq3p=None, seqInt=None):
-        mid =  uuid4()
-        name = mid if name is None else name
-        color = 0x00FF00 if color is None and not isinstance(color, int)  else color
-        seq5p = '' if seq5p is None and not isinstance(seq5p, str) else seq5p
-        seq3p = '' if seq3p is None and not isinstance(seq3p, str) else seq3p
-        seqInt = '' if seqInt is None and not isinstance(seqInt, str) else seqInt
+    def createMod(self, params, mid=None):
+        if mid is None:
+            mid =  uuid4()
+        elif mid in self._mods:
+            raise KeyError("createMod: Duplicate mod id: {}".format(mid))
+        
+        name = params.get('name', mid)
+        color = params.get('color', '#00FF00')
+        seq5p = params.get('seq5p', '')
+        seq3p = params.get('seq3p', '')
+        seqInt = params.get('seqInt', '')
+        note = params.get('note', '')
 
         self._mods[mid] = {
             'name': name,
@@ -1196,24 +1201,22 @@ class Part(QObject):
             'ext_locations': set(), # external mods, mod belongs to idx outside of strand
             'int_locations': set()  # internal mods, mod belongs between idx and idx + 1
         }
+        item = { 'name': name,
+            'color': color,
+            'note': note,
+            'seq5p': seq5p,
+            'seq3p': seq3p,
+            'seqInt': seqInt
+        }
+        return item, mid
     # end def
 
-    def modifyMod(self, mid, name=None, color=None, note=None, seq5p=None, seq3p=None, seqInt=None):
-        updated = {}
+    def modifyMod(self, params, mid):
         if mid in self._mods:
-            if name is not None and isinstance(name, str):
-                updated['name'] = name
-            if color is not None and isinstance(color, int):
-                updated['color'] = color
-            if note is not None and isinstance(note, str):
-                updated['note'] = note
-            if seq5p is not None and isinstance(seq5p, str):
-                updated['seq5p'] = seq5p
-            if seq3p is not None and isinstance(seq3p, str):
-                updated['seq3p'] = seq3p
-            if seqInt is not None and isinstance(seqInt, str):
-                updated['seqInt'] = seqInt
-            self._mods[mid].update(updated)
+            self._mods[mid].update(params)
+        else:
+            self.createMod(params, mid)
+            # raise KeyError("modifyMod: Invalid mod id: {}".format(mid))
     # end def
 
     def destroyMod(self, mid):
@@ -1233,10 +1236,27 @@ class Part(QObject):
             del self._mods[mid]
     # end def
 
+    def getMod(self, mid):
+        return self._mods[mid]
+    # end def
+
+    def getModID(self, strand, idx):
+        coord = strand.virtualHelix().coord()
+        isstaple = strand.isStaple()
+        key =  "{},{},{}".format(coord, isstaple, idx)
+        mods_strand  = self._mods['ext_instances']
+        if key in mods_strand:
+            return mods_strand[key]
+    # end def
+
     def addModInstance(self, coord, idx, isstaple, isinternal, mid):
         key =  "{},{},{}".format(coord, isstaple, idx)
         mods_strand = self._mods['int_instances'] if isinternal else self._mods['ext_instances']
-        locations = self._mods[mid]['int_locations'] if isinternal else self._mods[mid]['ext_locations']
+        try:
+            locations = self._mods[mid]['int_locations'] if isinternal else self._mods[mid]['ext_locations']
+        except:
+            print mid, self._mods[mid]
+            raise
         if key in mods_strand:
             removeModInstance(strand, idx, isstaple, isinternal, mid)
         mods_strand[key] = mid # add to strand lookup

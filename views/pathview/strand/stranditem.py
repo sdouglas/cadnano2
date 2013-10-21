@@ -200,16 +200,33 @@ class StrandItem(QGraphicsLineItem):
         del self.insertionItems()[index]
     # end def
 
-    def strandModsAddedSlot(self, strand, mods):
-        pass
+    def strandModsAddedSlot(self, strand, mod_id, idx):
+        idxL, idxH = strand.idxs()
+        color = strand.part().getMod(mod_id)['color']
+        if idx == idxH:
+            self._highCap.showMod(mod_id, color)
+        else:
+            self._lowCap.showMod(mod_id, color) 
     # end def
-    def strandModsChangedSlot(self, strand, mods):
-        pass
+
+    def strandModsChangedSlot(self, strand, mod_id, idx):
+        idxL, idxH = strand.idxs()
+        color = strand.part().getMod(mod_id)['color']
+        if idx == idxH:
+            self._highCap.changeMod(mod_id, color)
+        else:
+            self._lowCap.changeMod(mod_id, color) 
     # end def
-    def strandModsRemovedSlot(self, strand, index):
-        pass
+
+    def strandModsRemovedSlot(self, strand, mod_id, idx):
+        idxL, idxH = strand.idxs()
+        color = strand.part().getMod(mod_id)['color']
+        if idx == idxH:
+            self._highCap.destroyMod()
+        else:
+            self._lowCap.destroyMod() 
     # end def
-    
+
     def strandModifierAddedSlot(self, strand, modifier):
         pass
     # end def

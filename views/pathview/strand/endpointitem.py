@@ -38,6 +38,7 @@ util.qtWrapImport('QtCore', globals(), ['pyqtSignal', 'QObject', 'QPointF',
 util.qtWrapImport('QtGui', globals(), ['QGraphicsPathItem', 'QPen', \
                                         'QGraphicsItem', 'QPainterPath', \
                                         'QPolygonF', 'QGraphicsRectItem', \
+                                        'QGraphicsEllipseItem',
                                         'QBrush', 'QColor'])
 
 _baseWidth = styles.PATH_BASE_WIDTH
@@ -91,6 +92,7 @@ pp35.addPolygon(poly35)
 _defaultRect = QRectF(0, 0, _baseWidth, _baseWidth)
 _noPen = QPen(Qt.NoPen)
 
+modRect = QRectF(.25*_baseWidth, -.25*_baseWidth, 0.5*_baseWidth, 0.5*_baseWidth)
 
 class EndpointItem(QGraphicsPathItem):
 
@@ -105,6 +107,7 @@ class EndpointItem(QGraphicsPathItem):
         self._capType = captype
         self._lowDragBound = None
         self._highDragBound = None
+        self._modItem = None
         self._initCapSpecificState(isDrawn5to3)
         self.setPen(QPen())
         # for easier mouseclick
@@ -178,6 +181,24 @@ class EndpointItem(QGraphicsPathItem):
         self._initCapSpecificState(isDrawn5to3)
         upperLeftY = 0 if isDrawn5to3 else _baseWidth
         self.setY(upperLeftY)
+    # end def
+
+    def showMod(self, mod_id, color):
+        self._modItem = QGraphicsEllipseItem(modRect, self)
+        self.changeMod(mod_id, color)
+        self._modItem.show()
+        print("Showing {}".format(mod_id))
+    # end def
+
+    def changeMod(self, mod_id, color):
+        self._modID = mod_id
+        self._modItem.setBrush(QBrush(QColor(color)))
+    # end def
+
+    def destroyMod(self):
+        scene.removeItem(self._modItem)
+        self._modItem = None
+        self._modID = None
     # end def
 
     ### PRIVATE SUPPORT METHODS ###
@@ -279,7 +300,16 @@ class EndpointItem(QGraphicsPathItem):
                     d = seqLen - olgLen
                     msg = msg + " Warning: %d sequence bases unused." % d
                 self.partItem().updateStatusBar(msg)
+    # end def
 
+    def modsToolMousePress(self, modifiers, event, idx):
+        """
+        Checks that a scaffold was clicked, and then calls apply sequence
+        to the clicked strand via its oligo.
+        """
+        mStrand = self._strandItem._modelStrand
+        self._activeTool().applyMod(mStrand, idx)
+    # end def
 
     def breakToolMouseRelease(self, modifiers, x):
         """Shift-click to merge without switching back to select tool."""
