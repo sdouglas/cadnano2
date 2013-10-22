@@ -87,13 +87,15 @@ class ModsTool(AbstractPathTool):
         self.displayCurrent()
 
     def saveModChecker(self):
-        print "save clicked"
+        # print "save clicked"
         part = self.current_strand.part()
         item, mid = self.getCurrentItem()
 
         if mid == "new":
             item, mid = part.createMod(item)
             combobox.addItem(item['name'], mid)
+        elif part.getMod(mid) is None: 
+            item, mid = part.createMod(item, mid=mid)
         else:
             part.modifyMod(item, mid)
         return 
@@ -111,7 +113,6 @@ class ModsTool(AbstractPathTool):
         idx = self.current_idx
         part = strand.part()
         mid = part.getModID(strand, idx)
-        print "trying to remove", mid
         if mid:
             strand.removeMods(mid, idx)
         # part.removeModInstance(mid)
@@ -200,10 +201,10 @@ class ModsTool(AbstractPathTool):
             combobox = self.uiDlg.nameComboBox
             mod = strand.part().getMod(mid)
             # print mod, mid
-            idx = combobox.findText(mod['name'])
-            combobox.setCurrentIndex(idx)
+            cidx = combobox.findText(mod['name'])
+            combobox.setCurrentIndex(cidx)
         self.dialog.setFocus()
         if self.dialog.exec_():  # apply the sequence if accept was clicked
             item, mid = self.getCurrentItem()
-            strand.addMods(mid, item, idx)
+            strand.addMods(mid, idx)
             self.disconnectSignals(part)

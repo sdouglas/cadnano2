@@ -228,10 +228,6 @@ class Part(QObject):
         return self._insertions
     # end def
 
-    def mods(self):
-        return self._mods
-    # end def 
-
     def isEvenParity(self, row, column):
         """Should be overridden when subclassing."""
         raise NotImplementedError
@@ -1219,12 +1215,13 @@ class Part(QObject):
         return item, mid
     # end def
 
-    def modifyMod(self, params, mid):
+    def modifyMod(self, params, mid, useUndoStack=True):
         if mid in self._mods:
-            self._mods[mid].update(params)
-        else:
-            self.createMod(params, mid)
-            # raise KeyError("modifyMod: Invalid mod id: {}".format(mid))
+            cmds = []
+            c = Part.ModifyModCommand(self, params, mid)
+            cmds.append(c)
+            util.execCommandList(self, cmds, desc="Modify Mod", \
+                                                useUndoStack=useUndoStack)
     # end def
 
     def destroyMod(self, mid):
@@ -1237,8 +1234,23 @@ class Part(QObject):
     # end def
 
     def getMod(self, mid):
-        return self._mods[mid]
+        return self._mods.get(mid)
     # end def
+
+    def mods(self):
+        """
+        """
+        mods = self._mods
+        res = {}
+        for mid in mods.iterkeys():
+            if mid != 'int_instances' and mid != 'ext_instances':
+                res[mid] = mods[mid].copy()
+                del res[mid]['int_locations']
+                del res[mid]['ext_locations']
+        res['int_instances'] = self._mods['int_instances']
+        res['ext_instances'] = self._mods['ext_instances']
+        return res
+    #end def
 
     def getModID(self, strand, idx):
         coord = strand.virtualHelix().coord()
@@ -1251,10 +1263,10 @@ class Part(QObject):
 
     def getModStrandIdx(self, key):
         keylist = key.split(',')
-        coord = keylist[0], keylist[1]
-        isstaple = bool(keylist[2])
-        idx = keylist[3]
-        vh = self.virtualHelix(coord)
+        coord = int(keylist[0]), int(keylist[1])
+        isstaple = True if keylist[2] == 'True' else False
+        idx = int(keylist[3])
+        vh = self.virtualHelixAtCoord(coord)
         if vh:
             strand = vh.stap(idx) if isstaple else vh.scaf(idx)
             return strand, idx

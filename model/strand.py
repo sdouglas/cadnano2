@@ -602,16 +602,24 @@ class Strand(QObject):
         self._decorators.update(additionalDecorators)
     # end def
 
-    def addMods(self, mod_id, params, idx, useUndoStack=True):
+    def addMods(self, mod_id, idx, useUndoStack=True):
         """Used to add mods during a merge operation."""
         cmds = []
         idxLow, idxHigh = self.idxs()
         if idxLow == idx or idx == idxHigh:
-            print "adding a {} modification at {}".format(params['name'], idx) 
-            cmds.append(Strand.AddModsCommand(self, idx, mod_id))
-            util.execCommandList(
-                                self, cmds, desc="Add Modification",
-                                    useUndoStack=useUndoStack)
+            check_mid1 = self.part().getModID(self, idx)
+            check_mid2 = self.part().getMod(mod_id)
+            if check_mid2 is not None:
+                if check_mid1 != mod_id:
+                    if check_mid1 is not None:
+                        cmds.append(Strand.RemoveModsCommand(self, idx, check_mid1))
+                    # print "adding a {} modification at {}".format(mod_id, idx) 
+                    cmds.append(Strand.AddModsCommand(self, idx, mod_id))
+                    util.execCommandList(
+                                        self, cmds, desc="Add Modification",
+                                            useUndoStack=useUndoStack)
+                else:
+                    print check_mid, mod_id
         # end if
     # end def
 

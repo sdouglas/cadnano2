@@ -68,12 +68,13 @@ def legacy_dict_from_doc(document, fname, helixOrderList):
       vhNum = oligo.strand5p().strandSet().virtualHelix().number()
       idx = oligo.strand5p().idx5Prime()
       seq = oligo.sequence() if not oligo.isStaple() else ''
-      markers = oligo.markers()
+      # markers = oligo.markers()
       oligoList.append({"vh_num": vhNum,
                         "idx": idx,
                         "seq": seq,
-                        "markers": markers,
+                        # "markers": markers,
         })
     obj = {"name":bname , "vstrands":vhList, 
-      "oligos": oligoList}
+      "oligos": oligoList, 
+      "modifications": part.mods()}
     return obj

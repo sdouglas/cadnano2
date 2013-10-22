@@ -258,18 +258,37 @@ def import_legacy_dict(document, obj, latticeType=LatticeType.Honeycomb):
             strand = stapStrandSet.getStrand(baseIdx)
             strand.oligo().applyColor(color, useUndoStack=False)
 
-    for oligo in obj['oligos']:
-        vhNum = oligo['vh_num']
-        idx = oligo['idx']
-        seq = str(oligo['seq'])
-        if seq != '':
-            coord = vhNumToCoord[vhNum]
-            vh = part.virtualHelixAtCoord(coord)
-            scafStrandSet = vh.scaffoldStrandSet()
-            # stapStrandSet = vh.stapleStrandSet()
-            strand = scafStrandSet.getStrand(idx)
-            # print "sequence", seq, vh, idx,  strand.oligo()._strand5p
-            strand.oligo().applySequence(seq, useUndoStack=False)
+    if 'oligos' in obj:
+        for oligo in obj['oligos']:
+            vhNum = oligo['vh_num']
+            idx = oligo['idx']
+            seq = str(oligo['seq']) if oligo['seq'] != None else ''
+            if seq != '':
+                coord = vhNumToCoord[vhNum]
+                vh = part.virtualHelixAtCoord(coord)
+                scafStrandSet = vh.scaffoldStrandSet()
+                # stapStrandSet = vh.stapleStrandSet()
+                strand = scafStrandSet.getStrand(idx)
+                # print "sequence", seq, vh, idx,  strand.oligo()._strand5p
+                strand.oligo().applySequence(seq, useUndoStack=False)
+    if 'modifications' in obj:
+        for mod_id, item in obj['modifications'].iteritems():
+            if mod_id != 'int_instances' and mod_id != 'ext_instances':
+                part.createMod(item, mod_id)
+        for key, mid in obj['modifications']['ext_instances'].iteritems():
+            strand, idx = part.getModStrandIdx(key)
+            try:
+                strand.addMods(mid, idx, useUndoStack=False)
+            except:
+                print strand, idx
+                raise
+        for key in obj['modifications']['int_instances'].iteritems():
+            strand, idx = part.getModStrandIdx(key)
+            try:
+                strand.addMods(mid, idx, useUndoStack=False)
+            except:
+                print strand, idx
+                raise
 # end def
 
 def isSegmentStartOrEnd(strandType, vhNum, baseIdx, fiveVH, fiveIdx, threeVH, threeIdx):

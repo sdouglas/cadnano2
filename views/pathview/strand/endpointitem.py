@@ -187,7 +187,7 @@ class EndpointItem(QGraphicsPathItem):
         self._modItem = QGraphicsEllipseItem(modRect, self)
         self.changeMod(mod_id, color)
         self._modItem.show()
-        print("Showing {}".format(mod_id))
+        # print("Showing {}".format(mod_id))
     # end def
 
     def changeMod(self, mod_id, color):
