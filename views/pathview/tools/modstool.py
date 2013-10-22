@@ -57,7 +57,7 @@ class ModsTool(AbstractPathTool):
 
         uiDlg.createButtonBox = QDialogButtonBox(self.dialog)
         uiDlg.createButtonBox.setCenterButtons(True)
-        uiDlg.customButtonBox.setObjectName(_fromUtf8("customButtonBox"))
+        uiDlg.customButtonBox.setObjectName(_fromUtf8("createButtonBox"))
         uiDlg.dialogGridLayout.addWidget(uiDlg.createButtonBox, 2, 0, 1, 1)
         
         saveButton = QPushButton("Save", uiDlg.createButtonBox)
@@ -68,8 +68,13 @@ class ModsTool(AbstractPathTool):
         uiDlg.createButtonBox.addButton(deleteButton, QDialogButtonBox.ActionRole)
         deleteButton.released.connect(self.deleteModChecker)
 
-        deleteInstButton = QPushButton("Delete Instance", uiDlg.createButtonBox)
-        uiDlg.createButtonBox.addButton(deleteInstButton, QDialogButtonBox.ActionRole)
+        uiDlg.instanceButtonBox = QDialogButtonBox(self.dialog)
+        uiDlg.instanceButtonBox.setCenterButtons(True)
+        uiDlg.instanceButtonBox.setObjectName(_fromUtf8("instanceButtonBox"))
+        uiDlg.dialogGridLayout.addWidget(uiDlg.instanceButtonBox, 3, 0, 1, 1)
+
+        deleteInstButton = QPushButton("Delete Instance", uiDlg.instanceButtonBox)
+        uiDlg.instanceButtonBox.addButton(deleteInstButton, QDialogButtonBox.ActionRole)
         deleteInstButton.released.connect(self.deleteInstModChecker)
 
         combobox = uiDlg.nameComboBox
@@ -81,8 +86,7 @@ class ModsTool(AbstractPathTool):
         combobox.currentIndexChanged.connect(self.displayCurrent)
         self.displayCurrent()
 
-    def saveModChecker(self):#, button):
-        # if button.text() == "Create":
+    def saveModChecker(self):
         print "save clicked"
         part = self.current_strand.part()
         item, mid = self.getCurrentItem()
@@ -95,20 +99,22 @@ class ModsTool(AbstractPathTool):
         return 
     # end def
 
-    def deleteModChecker(self):#, button):
-        # if button.text() == "Create":
+    def deleteModChecker(self):
         part = self.current_strand.part()
         item, mid = self.getCurrentItem() 
         if mid != "new":
             part.destroyMod(mid)
     # end def
 
-    def deleteInstModChecker(self):#, button):
-        # if button.text() == "Create":
-        part = self.current_strand.part()
-        item, mid = self.getCurrentItem() 
-        if mid != "new":
-            part.destroyMod(mid)
+    def deleteInstModChecker(self):
+        strand = self.current_strand
+        idx = self.current_idx
+        part = strand.part()
+        mid = part.getModID(strand, idx)
+        print "trying to remove", mid
+        if mid:
+            strand.removeMods(mid, idx)
+        # part.removeModInstance(mid)
     # end def
 
     def getCurrentItem(self):
@@ -117,6 +123,12 @@ class ModsTool(AbstractPathTool):
         mid = str(qvmid.toString())
         return mods.get(mid), mid
     # end def
+
+    def getItemIdxByMID(self, mid):
+        combobox = self.uiDlg.nameComboBox
+        idx = combobox.findData(mid)
+        if idx > -1:
+            return idx
 
     def displayCurrent(self):
         item, mid = self.getCurrentItem()
@@ -140,11 +152,50 @@ class ModsTool(AbstractPathTool):
         item['note'] = uiDlg.noteTextEdit.text() # notes
     # end def
 
+    def connectSignals(self, part):
+        part.partModAddedSignal.connect(self.updateDialogMods)
+        part.partModRemovedSignal.connect(self.deleteDialogMods)
+        part.partModChangedSignal.connect(self.updateDialogMods)
+    # end def
+
+    def disconnectSignals(self, part):
+        part.partModAddedSignal.disconnect(self.updateDialogMods)
+        part.partModRemovedSignal.disconnect(self.deleteDialogMods)
+        part.partModChangedSignal.disconnect(self.updateDialogMods)
+    # end def
+
+    def updateDialogMods(self, part, item, mid):
+        local_item = mods.get(mid)
+        combobox = self.uiDlg.nameComboBox
+        if local_item:
+            local_item.update(item)
+            idx = self.getItemIdxByMID(mid)
+            if idx:
+                combobox.setItemText(idx, item['name'])
+        else:
+            mods[mid] = {}
+            mods[mid].update(item)
+            combobox.addItem(item['name'], mid)
+        self.displayCurrent()
+    # end def
+
+    def deleteDialogMods(self, part, mid):
+        local_item = mods.get(mid)
+        combobox = self.uiDlg.nameComboBox
+        if local_item:
+            del mods[mid]
+            idx = self.getItemIdxByMID(mid)
+            combobox.removeItem(idx)
+        self.displayCurrent()
+    # end def
+
     def applyMod(self, strand, idx):
         self.current_strand = strand
         self.current_idx = idx
+        part = strand.part()
+        self.connectSignals(part)
         self.dialog.show()
-        mid = strand.part().getModID(strand, idx)
+        mid = part.getModID(strand, idx)
         if mid:
             combobox = self.uiDlg.nameComboBox
             mod = strand.part().getMod(mid)
@@ -155,4 +206,4 @@ class ModsTool(AbstractPathTool):
         if self.dialog.exec_():  # apply the sequence if accept was clicked
             item, mid = self.getCurrentItem()
             strand.addMods(mid, item, idx)
-
+            self.disconnectSignals(part)

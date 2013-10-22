@@ -124,7 +124,9 @@ class Part(QObject):
     partVirtualHelicesReorderedSignal = pyqtSignal(object, list)   # self, list of coords
     partHideSignal = pyqtSignal(QObject)
     partActiveVirtualHelixChangedSignal = pyqtSignal(QObject, QObject)
-
+    partModAddedSignal = pyqtSignal(object, object, object) 
+    partModRemovedSignal = pyqtSignal(object, object) 
+    partModChangedSignal = pyqtSignal(object, object, object) 
     ### SLOTS ###
 
     ### ACCESSORS ###
@@ -1178,7 +1180,7 @@ class Part(QObject):
         self._importedVHelixOrder = orderedCoordList
         self.partVirtualHelicesReorderedSignal.emit(self, orderedCoordList)
 
-    def createMod(self, params, mid=None):
+    def createMod(self, params, mid=None, useUndoStack=True):
         if mid is None:
             mid =  uuid4()
         elif mid in self._mods:
@@ -1191,7 +1193,7 @@ class Part(QObject):
         seqInt = params.get('seqInt', '')
         note = params.get('note', '')
 
-        self._mods[mid] = {
+        cmdparams = {
             'name': name,
             'color': color,
             'note': note,
@@ -1201,6 +1203,7 @@ class Part(QObject):
             'ext_locations': set(), # external mods, mod belongs to idx outside of strand
             'int_locations': set()  # internal mods, mod belongs between idx and idx + 1
         }
+
         item = { 'name': name,
             'color': color,
             'note': note,
@@ -1208,6 +1211,11 @@ class Part(QObject):
             'seq3p': seq3p,
             'seqInt': seqInt
         }
+        cmds = []
+        c = Part.AddModCommand(self, cmdparams, mid)
+        cmds.append(c)
+        util.execCommandList(self, cmds, desc="Create Mod", \
+                                                useUndoStack=useUndoStack)
         return item, mid
     # end def
 
@@ -1221,19 +1229,11 @@ class Part(QObject):
 
     def destroyMod(self, mid):
         if mid in self._mods:
-            # Destroy all instances of the mod
-            locations = self._mods[mid]['ext_locations']
-            mods_strand = self._mods['ext_instances']
-            for key in locations:        
-                if key in mods_strand:
-                    del mods_strand[key]
-            # now internal locations
-            locations_int = self._mods[mid]['int_locations']
-            mods_strand_internal = self._mods['int_instances']
-            for key in locations_int:
-                if key in mods_strand_internal:
-                    del mods_strand_internal[key]
-            del self._mods[mid]
+            cmds = []
+            c = Part.RemoveModCommand(self, mid)
+            cmds.append(c)
+            util.execCommandList(self, cmds, desc="Remove Mod", \
+                                                useUndoStack=useUndoStack)
     # end def
 
     def getMod(self, mid):
@@ -1243,14 +1243,27 @@ class Part(QObject):
     def getModID(self, strand, idx):
         coord = strand.virtualHelix().coord()
         isstaple = strand.isStaple()
-        key =  "{},{},{}".format(coord, isstaple, idx)
+        key =  "{},{},{},{}".format(coord[0], coord[1], isstaple, idx)
         mods_strand  = self._mods['ext_instances']
         if key in mods_strand:
             return mods_strand[key]
     # end def
 
+    def getModStrandIdx(self, key):
+        keylist = key.split(',')
+        coord = keylist[0], keylist[1]
+        isstaple = bool(keylist[2])
+        idx = keylist[3]
+        vh = self.virtualHelix(coord)
+        if vh:
+            strand = vh.stap(idx) if isstaple else vh.scaf(idx)
+            return strand, idx
+        else:
+            raise ValueError("getModStrandIdx: no strand for key: {}", key)
+    # end def
+
     def addModInstance(self, coord, idx, isstaple, isinternal, mid):
-        key =  "{},{},{}".format(coord, isstaple, idx)
+        key =  "{},{},{},{}".format(coord[0], coord[1], isstaple, idx)
         mods_strand = self._mods['int_instances'] if isinternal else self._mods['ext_instances']
         try:
             locations = self._mods[mid]['int_locations'] if isinternal else self._mods[mid]['ext_locations']
@@ -1265,7 +1278,7 @@ class Part(QObject):
     # end def
 
     def removeModInstance(self, coord, idx, isstaple, isinternal, mid):
-        key =  "{},{},{}".format(coord, isstaple, idx)
+        key =  "{},{},{},{}".format(coord[0], coord[1], isstaple, idx)
         mods_strand = self._mods['int_instances'] if isinternal else self._mods['ext_instances']
         locations = self._mods[mid]['int_locations'] if isinternal else self._mods[mid]['ext_locations']
         if key in mods_strand:
@@ -1759,6 +1772,136 @@ class Part(QObject):
                 for strand in vh.stapleStrand().generatorStrand():
                     strand.updateIdxs(minDimensionDelta)
             # end for
+        # end def
+    # end class
+
+    class AddModCommand(QUndoCommand):
+        def __init__(self, part, params, mid):
+            super(Part.AddModCommand, self).__init__()
+            self._part = part
+            self._params = params
+            self._mid = mid
+        # end def
+
+        def redo(self):
+            part = self._part
+            mid = self._mid
+            part._mods[mid] = self._params
+            part.partModAddedSignal.emit(part, self._params, mid)
+        # end def
+
+        def undo(self):
+            part = self.part
+            mid = self._mid
+            del self._part._mods[mid]
+            part.partModRemovedSignal.emit(part, mid)
+        # end def
+    # end class
+
+    class RemoveModCommand(QUndoCommand):
+        def __init__(self, part, params, mid):
+            super(Part.RemoveModCommand, self).__init__()
+            self._part = part
+            self._params_old = self._part._mods[mid].copy()
+            self._mid = mid
+            self._ext_instances = []
+            locations = part._mods[mid]['ext_locations']
+            mods_strand = part._mods['ext_instances']
+            for key in locations:        
+                if key in mods_strand:
+                    self._ext_instances.append(key, strand, idx)
+            self._int_instances = []
+            locations = part._mods[mid]['int_locations']
+            mods_strand = part._mods['int_instances']
+            for key in locations:        
+                if key in mods_strand:
+                    strand, idx = part.getModStrandIdx(key)
+                    self._int_instances.append(key, strand, idx)
+        # end def
+
+        def redo(self):
+            part = self._part
+            mid = self._mid
+            # Destroy all instances of the mod
+            mods_strand = part._mods['ext_instances']
+            for key, strand, idx in self._ext_instances:
+                strand.strandModsRemovedSignal.emit(strand, mid, idx)
+                del mods_strand[key]
+            # now internal locations
+            mods_strand_internal = part._mods['int_instances']
+            for key, strand, idx in self._int_instances:
+                strand.strandModsRemovedSignal.emit(strand, mid, idx)
+                del mods_strand_internal[key]
+            del part._mods[mid]
+            part.partModRemovedSignal.emit(part, mid)
+        # end def
+
+        def undo(self):
+            part = self._part
+            mid = self._mid
+            part._mods[mid] = self._params_old
+            # Destroy all instances of the mod
+            mods_strand = part._mods['ext_instances']
+            for key, strand, idx in self._ext_instances:
+                mods_strand[key] = mid
+                strand.strandModsAddedSignal.emit(strand, mid, idx)
+            # now internal locations
+            mods_strand_internal = part._mods['int_instances']
+            for key, strand, idx in self._int_instances:
+                mods_strand_internal[key] = mid
+                strand.strandModsAddedSignal.emit(strand, mid, idx)
+            part.partModAddedSignal.emit(part, self._params_old, mid)
+        # end def
+    # end class
+
+    class ModifyModCommand(QUndoCommand):
+        def __init__(self, part, params, mid):
+            super(Part.ModifyModCommand, self).__init__()
+            self._part = part
+            params_old = part._mods[mid].copy()
+
+            self._params = params
+            self._mid = mid
+
+            self._ext_instances = []
+            locations = params_old['ext_locations']
+            mods_strand = part._mods['ext_instances']
+            for key in locations:        
+                if key in mods_strand:
+                    self._ext_instances.append(key, strand, idx)
+            self._int_instances = []
+            locations = params_old['int_locations']
+            mods_strand = part._mods['int_instances']
+            for key in locations:        
+                if key in mods_strand:
+                    strand, idx = part.getModStrandIdx(key)
+                    self._int_instances.append(key, strand, idx)
+
+            del params_old['ext_locations']
+            del params_old['int_locations']
+            self._params_old = params_old
+        # end def
+
+        def redo(self):
+            part = self._part
+            mid = self._mid
+            part._mods[mid].update(self._params)
+            part.partModChangedSignal.emit(part, self._params, mid)
+            for key, strand, idx in self._ext_instances:
+                strand.strandModsChangedSignal.emit(strand, mid, idx)
+            for key, strand, idx in self._int_instances:
+                strand.strandModsChangedSignal.emit(strand, mid, idx)
+        # end def
+
+        def undo(self):
+            part = self._part
+            mid = self._mid
+            self._part._mods[mid].update(self._params_old)
+            part.partModChangedSignal.emit(part, self._params_old, mid)
+            for key, strand, idx in self._ext_instances:
+                strand.strandModsChangedSignal.emit(strand, mid, idx)
+            for key, strand, idx in self._int_instances:
+                strand.strandModsChangedSignal.emit(strand, mid, idx)
         # end def
     # end class
 # end class

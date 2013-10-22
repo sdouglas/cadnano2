@@ -615,6 +615,20 @@ class Strand(QObject):
         # end if
     # end def
 
+    def removeMods(self, mod_id, idx, useUndoStack=True):
+        """Used to add mods during a merge operation."""
+        cmds = []
+        idxLow, idxHigh = self.idxs()
+        print "attempting to remove"
+        if idxLow == idx or idx == idxHigh:
+            print "removing a modification at {}".format(idx) 
+            cmds.append(Strand.RemoveModsCommand(self, idx, mod_id))
+            util.execCommandList(
+                                self, cmds, desc="Remove Modification",
+                                    useUndoStack=useUndoStack)
+        # end if
+    # end def
+
     def addInsertion(self, idx, length, useUndoStack=True):
         """
         Adds an insertion or skip at idx.

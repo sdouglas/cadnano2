@@ -196,7 +196,7 @@ class EndpointItem(QGraphicsPathItem):
     # end def
 
     def destroyMod(self):
-        scene.removeItem(self._modItem)
+        self.scene().removeItem(self._modItem)
         self._modItem = None
         self._modID = None
     # end def
