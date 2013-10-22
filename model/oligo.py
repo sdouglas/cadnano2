@@ -141,17 +141,22 @@ class Oligo(QObject):
     # end def
 
     def sequenceExport(self):
+        part = self.part()
         vhNum5p = self.strand5p().virtualHelix().number()
-        idx5p = self.strand5p().idx5Prime()
+        strand5p = self.strand5p()
+        idx5p = strand5p.idx5Prime()
         seq = ''
         if self.isLoop():
             # print "A loop exists"
             raise Exception
-        for strand in self.strand5p().generator3pStrand():
+        for strand in strand5p.generator3pStrand():
             seq = seq + Strand.sequence(strand, forExport=True)
             if strand.connection3p() == None:  # last strand in the oligo
                 vhNum3p = strand.virtualHelix().number()
                 idx3p = strand.idx3Prime()
+        modseq5p = part.getModSequence(strand5p, idx5p, 0)
+        modseq3p = part.getModSequence(strand, idx3p, 1)
+        seq = modseq5p + seq + modseq3p
         output = "%d[%d],%d[%d],%s,%s,%s\n" % \
                 (vhNum5p, idx5p, vhNum3p, idx3p, seq, len(seq), self._color)
         return output

@@ -205,6 +205,13 @@ class Part(QObject):
                 s = s + oligo.sequenceExport()
         return s
 
+    def getAllSequences(self):
+        """getStapleSequences"""
+        s = "Start,End,Sequence,Length,Color\n"
+        for oligo in self._oligos:
+            s = s + oligo.sequenceExport()
+        return s
+
     def getVirtualHelices(self):
         """yield an iterator to the virtualHelix references in the part"""
         return self._coordToVirtualHelix.values()
@@ -1260,6 +1267,16 @@ class Part(QObject):
         if key in mods_strand:
             return mods_strand[key]
     # end def
+
+    def getModSequence(self, strand, idx, modtype):
+        mid = self.getModID(strand, idx)
+        if modtype == 0:
+            seq = '' if mid is None else self._mods[mid]['seq5p']
+        elif modtype == 1:
+            seq = '' if mid is None else self._mods[mid]['seq3p']
+        else:
+            seq = '' if mid is None else self._mods[mid]['seqInt']
+        return seq
 
     def getModStrandIdx(self, key):
         keylist = key.split(',')
