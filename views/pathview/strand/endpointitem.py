@@ -201,6 +201,15 @@ class EndpointItem(QGraphicsPathItem):
         self._modID = None
     # end def
 
+    def destroy(self):
+        scene = self.scene()
+        if self._modItem is not None:
+            self.destroyMod()
+        scene.removeItem(self._clickArea)
+        self._clickArea = None
+        scene.removeItem(self)
+    # end def
+
     ### PRIVATE SUPPORT METHODS ###
     def _initCapSpecificState(self, isDrawn5to3):
         cT = self._capType
@@ -398,9 +407,11 @@ class EndpointItem(QGraphicsPathItem):
         sI = self._strandItem
         viewroot = sI.viewroot()
         currentFilterDict = viewroot.selectionFilterDict()
+        print "pathviewslecasfdf 444"
         if sI.strandFilter() in currentFilterDict \
                                     and self._filterName in currentFilterDict:
             selectionGroup = viewroot.strandItemSelectionGroup()
+            print selectionGroup, "pathviewslec"
             mod = Qt.MetaModifier
             if not (modifiers & mod):
                 selectionGroup.clearSelection(False)

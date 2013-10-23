@@ -930,8 +930,10 @@ class Strand(QObject):
             std.oligo().incrementLength(self.delta)
             std.setIdxs(nI)
             if strandSet.isStaple():
-                
                 std.reapplySequence()
+
+            part.changeModStrandLocation(std, self.oldIndices, nI)
+            
             std.strandResizedSignal.emit(std, nI)
             # for updating the Slice View displayed helices
             part.partStrandChangedSignal.emit(part, strandSet.virtualHelix())
@@ -950,6 +952,9 @@ class Strand(QObject):
             std.setIdxs(oI)
             if strandSet.isStaple():
                 std.reapplySequence()
+
+            part.changeModStrandLocation(std, self.newIdxs, oI)
+
             std.strandResizedSignal.emit(std, oI)
             # for updating the Slice View displayed helices
             part.partStrandChangedSignal.emit(part, strandSet.virtualHelix())

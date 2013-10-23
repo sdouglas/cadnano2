@@ -123,6 +123,7 @@ class CustomQGraphicsView(QGraphicsView):
         else:
             self.setViewportUpdateMode(QGraphicsView.MinimalViewportUpdate)
             # self.setViewportUpdateMode(QGraphicsView.SmartViewportUpdate)
+        # self.setFocusPolicy(Qt.ClickFocus)
     # end def
 
     levelOfDetailChangedSignal = pyqtSignal(bool)
@@ -350,7 +351,7 @@ class CustomQGraphicsView(QGraphicsView):
     # end def
 
     def enterEvent(self, event):
-        self.setFocus()
+        # self.setFocus() # this call robs selection from key focus
         self.setDragMode(self._noDrag)
         QGraphicsView.enterEvent(self, event)
 

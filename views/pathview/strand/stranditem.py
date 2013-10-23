@@ -137,8 +137,10 @@ class StrandItem(QGraphicsLineItem):
         self._controller = None
         scene = self.scene()
         scene.removeItem(self._clickArea)
-        scene.removeItem(self._highCap)
-        scene.removeItem(self._lowCap)
+        self._highCap.destroy()
+        self._lowCap.destroy()
+        # scene.removeItem(self._highCap)
+        # scene.removeItem(self._lowCap)
         scene.removeItem(self._seqLabel)
         self._xover3pEnd.remove()
         self._xover3pEnd = None

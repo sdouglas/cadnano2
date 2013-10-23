@@ -323,7 +323,7 @@ class Document(QObject):
                         strandDict[strand] = True
 
 
-        if useUndoStack and xoList:
+        if useUndoStack and len(xoList) > 0:
             self.undoStack().beginMacro("Delete xovers")
         for part, strand, strand3p, useUndo in xoList:
             Part.removeXover(part, strand, strand3p, useUndo)
@@ -332,7 +332,7 @@ class Document(QObject):
         self._selectionDict = {}
         self.documentClearSelectionsSignal.emit(self)
         if useUndoStack:
-            if xoList: # end xover macro if it was started
+            if len(xoList) > 0: # end xover macro if it was started
                 self.undoStack().endMacro()
             if True in strandDict.values():
                 self.undoStack().beginMacro("Delete selection")

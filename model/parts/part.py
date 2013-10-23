@@ -1293,35 +1293,82 @@ class Part(QObject):
 
     def addModInstance(self, coord, idx, isstaple, isinternal, mid):
         key =  "{},{},{},{}".format(coord[0], coord[1], isstaple, idx)
-        mods_strand = self._mods['int_instances'] if isinternal else self._mods['ext_instances']
+        mods_strands = self._mods['int_instances'] if isinternal else self._mods['ext_instances']
         try:
             locations = self._mods[mid]['int_locations'] if isinternal else self._mods[mid]['ext_locations']
         except:
             print mid, self._mods[mid]
             raise
-        if key in mods_strand:
-            removeModInstance(strand, idx, isstaple, isinternal, mid)
-        mods_strand[key] = mid # add to strand lookup
+        if key in mods_strands:
+            self.removeModInstance(coord, idx, isstaple, isinternal, mid)
+        self.addModInstanceKey(key, mods_strands, locations, mid)
+    # end def
+
+    def addModInstanceKey(self, key, mods_strands, locations, mid):
+        mods_strands[key] = mid # add to strand lookup
         # add to set of locations
         locations.add(key)
     # end def
 
+    def addModStrandInstance(self, strand, idx, mid):
+        coord = strand.virtualHelix().coord()
+        isstaple = strand.isStaple()
+        if mid is not None:
+            self.addModInstance(coord, idx, isstaple, False, mid)
+    # end def
+
     def removeModInstance(self, coord, idx, isstaple, isinternal, mid):
         key =  "{},{},{},{}".format(coord[0], coord[1], isstaple, idx)
-        mods_strand = self._mods['int_instances'] if isinternal else self._mods['ext_instances']
+        mods_strands = self._mods['int_instances'] if isinternal else self._mods['ext_instances']
         locations = self._mods[mid]['int_locations'] if isinternal else self._mods[mid]['ext_locations']
-        if key in mods_strand:
-            del mods_strand[key]
-            locations.remove(key)
+        if key in mods_strands:
+            self.removeModInstanceKey(key, mods_strands, locations)
+    # end def
+
+    def removeModInstanceKey(self, key, mods_strands, locations):
+        del mods_strands[key]
+        locations.remove(key)
+    # end def
+
+    def removeModStrandInstance(self, strand, idx, mid):
+        coord = strand.virtualHelix().coord()
+        isstaple = strand.isStaple()
+        if mid is not None:
+            self.removeModInstance(coord, idx, isstaple, False, mid)
     # end def
 
     def changeModInstance(self, coord, idx, isstaple, isinternal, mid_old, mid_new):
         if mid_new != mid_old:
             mods = self._mods
             if mid_old in mods and mid_new in mods:
-                removeModInstance(coord, idx, isinternal, isinternal, mid_old)
-                addModInstance(coord, idx, isinternal, isinternal, mid_new)
+                self.removeModInstance(coord, idx, istaple, isinternal, mid_old)
+                self.addModInstance(coord, idx, isstaple, isinternal, mid_new)
     # end def
+
+    def changeModLocation(self, coord, idx_old, idx, isstaple, isinternal, mid):
+        if idx_old != idx:
+            self.removeModInstance(coord, idx_old, isstaple, isinternal, mid)
+            self.addModInstance(coord, idx, isstaple, isinternal, mid)
+    # end def
+
+    def changeModStrandLocation(self, strand, idxs_old, idxs):
+        coord = strand.virtualHelix().coord()
+        isstaple = strand.isStaple()
+        mods_strands = self._mods['ext_instances']
+        for i in [0,1]:
+            idx_old = idxs_old[i]
+            idx = idxs[i]
+            if idx_old != idx:
+                key_old =  "{},{},{},{}".format(coord[0], coord[1], isstaple, idx_old)
+                if key_old in mods_strands:
+                    mid = mods_strands[key_old]
+                    locations = self._mods[mid]['ext_locations']
+                    self.removeModInstanceKey(key_old, mods_strands, locations)
+                    key =  "{},{},{},{}".format(coord[0], coord[1], isstaple, idx)
+                    self.addModInstanceKey(key, mods_strands, locations, mid)
+        # end for
+    # end def
+
 
     ### COMMANDS ###
     class CreateVirtualHelixCommand(QUndoCommand):
