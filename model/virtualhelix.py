@@ -97,6 +97,7 @@ class VirtualHelix(QObject):
     def setNumber(self, number):
         if self._number != number:
             numToVhDict = self._part._numberToVirtualHelix
+            # if self._number is not None:
             numToVhDict[self._number] = None
             self._number = number
             self.virtualHelixNumberChangedSignal.emit(self, number)

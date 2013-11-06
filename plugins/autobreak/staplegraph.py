@@ -84,7 +84,7 @@ def minimumPath(tokenlist_and_staple_limits):
         return (output, idx)
         # print "Solved!"
     except:
-        print "Oligo is unsolvable at current setttings for length"
+        print "Oligo is unsolvable at current settings for length"
         return None
     # else: 
     #     return None

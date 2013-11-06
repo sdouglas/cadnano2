@@ -818,6 +818,10 @@ class StrandSet(QObject):
             self._oldStrand5p = strand.connection5p()
             self._oldStrand3p = strand.connection3p()
             self._oligo = olg = strand.oligo()
+
+            part = strand.part()
+            idxs = strand.idxs()
+            self.mids = part.getModID(strand, strand.lowIdx()), part.getModID(strand, strand.highIdx())
             # only create a new 5p oligo if there is a 3' connection
             self._newOligo5p = olg.shallowCopy() if self._oldStrand5p else None
             if olg.isLoop() or self._oldStrand3p == None:
@@ -883,6 +887,14 @@ class StrandSet(QObject):
             # end if
             # Emit a signal to notify on completion
             strand.strandRemovedSignal.emit(strand)
+
+            if self.mids[0] is not None:
+                strand.part().removeModStrandInstance(strand, strand.lowIdx(), self.mids[0])
+                # strand.strandModsRemovedSignal.emit(strand, self.mids[0], strand.lowIdx())
+            if self.mids[1] is not None:
+                strand.part().removeModStrandInstance(strand, strand.highIdx(), self.mids[1])
+                # strand.strandModsRemovedSignal.emit(strand, self.mids[1], strand.highIdx())
+
             # for updating the Slice View displayed helices
             strandSet.part().partStrandChangedSignal.emit(strandSet.part(), strandSet.virtualHelix())
         # end def
@@ -921,6 +933,14 @@ class StrandSet(QObject):
 
             # Emit a signal to notify on completion
             strandSet.strandsetStrandAddedSignal.emit(strandSet, strand)
+
+            if self.mids[0] is not None:
+                strand.part().addModStrandInstance(strand, strand.lowIdx(), self.mids[0])
+                strand.strandModsAddedSignal.emit(strand, self.mids[0], strand.lowIdx())
+            if self.mids[1] is not None:
+                strand.part().addModStrandInstance(strand, strand.highIdx(), self.mids[1])
+                strand.strandModsAddedSignal.emit(strand, self.mids[1], strand.highIdx())
+
             # for updating the Slice View displayed helices
             strandSet.part().partStrandChangedSignal.emit(strandSet.part(), strandSet.virtualHelix())
 

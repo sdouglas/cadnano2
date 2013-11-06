@@ -25,7 +25,7 @@
 #
 # http://www.opensource.org/licenses/mit-license.php
 
-from parts.honeycombpart import HoneycombPart
+from parts.honeycombpart2 import HoneycombPart
 from parts.squarepart import SquarePart
 from parts.part import Part
 from strand import Strand

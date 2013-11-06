@@ -87,16 +87,17 @@ class ModsTool(AbstractPathTool):
         self.displayCurrent()
 
     def saveModChecker(self):
-        # print "save clicked"
         part = self.current_strand.part()
         item, mid = self.getCurrentItem()
-
+        # print "save clicked", mid, item
         if mid == "new":
             item, mid = part.createMod(item)
-            combobox.addItem(item['name'], mid)
+            # combobox = self.uiDlg.nameComboBox
+            # combobox.addItem(item['name'], mid)
         elif part.getMod(mid) is None: 
             item, mid = part.createMod(item, mid=mid)
         else:
+            print "modifying mod"
             part.modifyMod(item, mid)
         return 
     # end def
@@ -118,10 +119,31 @@ class ModsTool(AbstractPathTool):
         # part.removeModInstance(mid)
     # end def
 
-    def getCurrentItem(self):
-        combobox = self.uiDlg.nameComboBox
-        qvmid = combobox.itemData(combobox.currentIndex())
+    def getCurrentItem(self, mid=None):
+        uiDlg = self.uiDlg
+        combobox = uiDlg.nameComboBox
+        if mid is None:
+            idx = combobox.currentIndex()
+            qvmid = combobox.itemData(idx)
+            mid = str(qvmid.toString())
+        item = {}
+        item['name'] = str(combobox.currentText()) ##str(combobox.itemText(idx))
+        item['color'] = str(uiDlg.colorLineEdit.text())
+        item['seq5p'] = str(uiDlg.sequence5LineEdit.text())
+        item['seq3p'] = str(uiDlg.sequence3LineEdit.text())
+        item['seqInt'] = str(uiDlg.sequenceInternalLineEdit.text())
+        item['note'] = str(uiDlg.noteTextEdit.toPlainText()) # notes
+        return item, mid
+    # end def
+
+    def retrieveCurrentItem(self):
+        uiDlg = self.uiDlg
+        combobox = uiDlg.nameComboBox
+        idx = combobox.currentIndex()
+        qvmid = combobox.itemData(idx)
         mid = str(qvmid.toString())
+        if mid == 'new':
+            return self.getCurrentItem(mid)
         return mods.get(mid), mid
     # end def
 
@@ -132,7 +154,7 @@ class ModsTool(AbstractPathTool):
             return idx
 
     def displayCurrent(self):
-        item, mid = self.getCurrentItem()
+        item, mid = self.retrieveCurrentItem()
         if mid != 'new':
             uiDlg = self.uiDlg
             uiDlg.colorLineEdit.setText(item['color'])
@@ -142,16 +164,16 @@ class ModsTool(AbstractPathTool):
             uiDlg.noteTextEdit.setText(item['note']) # notes
     # end def
 
-    def saveCurrent(self):
-        item, mid = self.getCurrentItem()
-        uiDlg = self.uiDlg
-        item['name'] = uiDlg.nameComboBox.text()
-        item['color'] = str(uiDlg.colorLineEdit.text())
-        item['seq5p'] = uiDlg.sequence5LineEdit.text()
-        item['seq3p'] = uiDlg.sequence3LineEdit.text()
-        item['seqInt'] = uiDlg.sequenceInternalLineEdit.text()
-        item['note'] = uiDlg.noteTextEdit.text() # notes
-    # end def
+    # def saveCurrent(self):
+    #     item, mid = self.getCurrentItem()
+    #     uiDlg = self.uiDlg
+    #     item['name'] = str(uiDlg.nameComboBox.currentText())
+    #     item['color'] = str(uiDlg.colorLineEdit.text())
+    #     item['seq5p'] = str(uiDlg.sequence5LineEdit.text())
+    #     item['seq3p'] = str(uiDlg.sequence3LineEdit.text())
+    #     item['seqInt'] = str(uiDlg.sequenceInternalLineEdit.text())
+    #     item['note'] = str(uiDlg.noteTextEdit.toPlainText()) # notes
+    # # end def
 
     def connectSignals(self, part):
         part.partModAddedSignal.connect(self.updateDialogMods)
@@ -174,6 +196,7 @@ class ModsTool(AbstractPathTool):
             if idx:
                 combobox.setItemText(idx, item['name'])
         else:
+            print "adding a mods", item, mid
             mods[mid] = {}
             mods[mid].update(item)
             combobox.addItem(item['name'], mid)

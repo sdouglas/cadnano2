@@ -78,6 +78,7 @@ class DocumentController():
         app().documentWindowWasCreatedSignal.emit(self._document, self.win)
         self._connectWindowSignalsToSelf()
         self.win.show()
+        app().activeDocument = self
 
     def _initMaya(self):
         """

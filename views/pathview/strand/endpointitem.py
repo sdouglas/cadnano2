@@ -407,11 +407,9 @@ class EndpointItem(QGraphicsPathItem):
         sI = self._strandItem
         viewroot = sI.viewroot()
         currentFilterDict = viewroot.selectionFilterDict()
-        print "pathviewslecasfdf 444"
         if sI.strandFilter() in currentFilterDict \
                                     and self._filterName in currentFilterDict:
             selectionGroup = viewroot.strandItemSelectionGroup()
-            print selectionGroup, "pathviewslec"
             mod = Qt.MetaModifier
             if not (modifiers & mod):
                 selectionGroup.clearSelection(False)

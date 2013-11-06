@@ -272,6 +272,10 @@ def import_legacy_dict(document, obj, latticeType=LatticeType.Honeycomb):
                 # print "sequence", seq, vh, idx,  strand.oligo()._strand5p
                 strand.oligo().applySequence(seq, useUndoStack=False)
     if 'modifications' in obj:
+        print "AD", cadnano.app().activeDocument
+        win = cadnano.app().activeDocument.win
+        modstool = win.pathToolManager.modsTool
+        modstool.connectSignals(part)
         for mod_id, item in obj['modifications'].iteritems():
             if mod_id != 'int_instances' and mod_id != 'ext_instances':
                 part.createMod(item, mod_id)
@@ -289,6 +293,7 @@ def import_legacy_dict(document, obj, latticeType=LatticeType.Honeycomb):
             except:
                 print strand, idx
                 raise
+        modstool.disconnectSignals(part)
 # end def
 
 def isSegmentStartOrEnd(strandType, vhNum, baseIdx, fiveVH, fiveIdx, threeVH, threeIdx):
