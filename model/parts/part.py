@@ -199,7 +199,7 @@ class Part(QObject):
 
     def getStapleSequences(self):
         """getStapleSequences"""
-        s = "Start,End,Sequence,Length,Color\n"
+        s = "Start,End,Sequence,Length,Color, Mod Seq 5p name, Mod Seq 3P name\n"
         for oligo in self._oligos:
             if oligo.strand5p().strandSet().isStaple():
                 s = s + oligo.sequenceExport()
@@ -1270,13 +1270,14 @@ class Part(QObject):
 
     def getModSequence(self, strand, idx, modtype):
         mid = self.getModID(strand, idx)
+        name = '' if mid is None else self._mods[mid]['name']
         if modtype == 0:
             seq = '' if mid is None else self._mods[mid]['seq5p']
         elif modtype == 1:
             seq = '' if mid is None else self._mods[mid]['seq3p']
         else:
             seq = '' if mid is None else self._mods[mid]['seqInt']
-        return seq
+        return seq, name
 
     def getModStrandIdx(self, key):
         keylist = key.split(',')

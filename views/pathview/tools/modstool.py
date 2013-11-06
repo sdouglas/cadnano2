@@ -97,7 +97,7 @@ class ModsTool(AbstractPathTool):
         elif part.getMod(mid) is None: 
             item, mid = part.createMod(item, mid=mid)
         else:
-            print "modifying mod"
+            # print "modifying mod"
             part.modifyMod(item, mid)
         return 
     # end def
@@ -196,7 +196,7 @@ class ModsTool(AbstractPathTool):
             if idx:
                 combobox.setItemText(idx, item['name'])
         else:
-            print "adding a mods", item, mid
+            # print "adding a mods", item, mid
             mods[mid] = {}
             mods[mid].update(item)
             combobox.addItem(item['name'], mid)
