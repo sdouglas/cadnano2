@@ -1145,9 +1145,10 @@ class Part(QObject):
                 for pt, isLowIdx in izip(pts, (True, False)):
                     for i, j in product(baseRange, pt):
                         index = i + j
+                        toIndex = index + 1 if isLowIdx else index - 1
                         if index < numBases:
                             if fromSS.hasNoStrandAtOrNoXover(index) and \
-                                    toSS.hasNoStrandAtOrNoXover(index):
+                                    toSS.hasNoStrandAtOrNoXover(toIndex):
                                 ret.append((neighbor, index, st, isLowIdx))
                             # end if
                         # end if
@@ -1161,8 +1162,12 @@ class Part(QObject):
     def possibleXoverAt(self, fromVirtualHelix, toVirtualHelix, strandType, idx):
         fromSS = fromVirtualHelix.getStrandSetByType(strandType)
         toSS = toVirtualHelix.getStrandSetByType(strandType)
-        return fromSS.hasStrandAtAndNoXover(idx) and \
-                toSS.hasStrandAtAndNoXover(idx)
+        if fromSS.isDrawn5to3():
+            return fromSS.hasStrandAtAndNoXover(idx) and \
+                    toSS.hasStrandAtAndNoXover(idx + 1)
+        else:
+            return fromSS.hasStrandAtAndNoXover(idx) and \
+                    toSS.hasStrandAtAndNoXover(idx - 1)
     # end def
 
     def setImportedVHelixOrder(self, orderedCoordList):

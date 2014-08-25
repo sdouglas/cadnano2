@@ -41,7 +41,7 @@ util.qtWrapImport('QtGui', globals(), [ 'QBrush', 'QFont', 'QGraphicsPathItem', 
 # construct paths for breakpoint handles
 def _hashMarkGen(path, p1, p2, p3):
     path.moveTo(p1)
-    path.lineTo(p2)
+    # path.lineTo(p2) # parallel xover
     path.lineTo(p3)
 # end
 
@@ -193,22 +193,46 @@ class PreXoverItem(QGraphicsPathItem):
             toVH = self._toVHItem.virtualHelix()
             fromSS = fromVH.getStrandSetByType(self._strandType)
             toSS = toVH.getStrandSetByType(self._strandType)
-            fromStrand = fromSS.getStrand(self._idx)
-            toStrand = toSS.getStrand(self._idx)
+
+            fromIdx = self._idx
+            fromStrand = fromSS.getStrand(fromIdx)
+
             part = self._fromVHItem.part()
+
             # determine if we are a 5' or a 3' end
             if self.path() in [_ppathLU, _ppathRD]:  # 3' end of strand5p clicked
+                print "3' clicked:", fromStrand, self._idx
+                if self.path() == _ppathLU: # on top
+                    toIdx = fromIdx + 1
+                else:
+                    toIdx = fromIdx - 1
+
+                toStrand = toSS.getStrand(toIdx)
+
                 strand5p = fromStrand
                 strand3p = toStrand
+                idx5p = fromIdx
+                idx3p = toIdx
             else:  # 5'
+                print "5' clicked:", fromStrand, self._idx
+                if self.path() == _ppathRU: # on top
+                    toIdx = fromIdx - 1
+                else:
+                    toIdx = fromIdx + 1
+
+                toStrand = toSS.getStrand(toIdx)
+
                 strand5p = toStrand
                 strand3p = fromStrand
+                idx5p = toIdx
+                idx3p = fromIdx
 
             # Gotta clear selections when installing a prexover
-            # otherwise parenting in screwed up
+            # otherwise parenting is screwed up
             self._fromVHItem.viewroot().clearStrandSelections()
 
-            part.createXover(strand5p, self._idx, strand3p, self._idx)
+            print "createXover", strand5p, idx5p, strand3p, idx3p
+            part.createXover(strand5p, idx5p, strand3p, idx3p)
         else:
             event.setAccepted(False)
     # end def

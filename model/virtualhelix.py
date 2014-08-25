@@ -167,7 +167,8 @@ class VirtualHelix(QObject):
     def isDrawn5to3(self, strandSet):
         isScaf = strandSet == self._scafStrandSet
         isEven = self.isEvenParity()
-        return isEven == isScaf
+        # return isEven == isScaf
+        return isScaf # scaf always on top for parallel xovers
     # end def
 
     def isEvenParity(self):

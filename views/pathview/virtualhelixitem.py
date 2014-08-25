@@ -164,13 +164,13 @@ class VirtualHelixItem(QGraphicsPathItem):
         sS = strand.strandSet()
         isEvenParity = self._modelVirtualHelix.isEvenParity()
         return isEvenParity and sS.isScaffold() or\
-               not isEvenParity and sS.isStaple()
+               not isEvenParity and sS.isScaffold()
     # end def
 
     def isStrandTypeOnTop(self, strandType):
         isEvenParity = self._modelVirtualHelix.isEvenParity()
         return isEvenParity and strandType == StrandType.Scaffold or \
-               not isEvenParity and strandType == StrandType.Staple
+               not isEvenParity and strandType == StrandType.Scaffold
     # end def
 
     def upperLeftCornerOfBase(self, idx, strand):

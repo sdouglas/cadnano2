@@ -83,7 +83,7 @@ class VirtualHelixItem(QGraphicsEllipseItem):
         # handle the label specific stuff
         self._label = self.createLabel()
         self.setNumber()
-        self.createArrow()
+        self.createArrows()
 
         self._controller = VirtualHelixItemController(self, modelVirtualHelix)
 
@@ -126,29 +126,43 @@ class VirtualHelixItem(QGraphicsEllipseItem):
         return label
     # end def
 
-    def createArrow(self):
+    def createArrows(self):
         rad = self._radius
-        pen = QPen()
-        pen.setWidth(3)
-        color = QColor(Qt.blue)
-        color.setAlphaF(0.25)
-        pen.setBrush(color)
+        pen1 = QPen()
+        pen1.setWidth(3)
+        color1 = QColor(Qt.blue)
+        color1.setAlphaF(0.3)
+        pen1.setBrush(color1)
+        pen2 = QPen()
+        pen2.setWidth(3)
+        color2 = QColor(Qt.red)
+        color2.setAlphaF(0.3)
+        pen2.setBrush(color2)
         if self._virtualHelix.isEvenParity():
-            arrow = QGraphicsLineItem(rad, rad, 2*rad, rad, self)
+            arrow1 = QGraphicsLineItem(rad, rad, 2*rad, rad, self)
+            arrow2 = QGraphicsLineItem(0, rad, rad, rad, self)
         else:
-            arrow = QGraphicsLineItem(0, rad, rad, rad, self)
-        arrow.setTransformOriginPoint(rad, rad)
-        arrow.setZValue(400)
-        arrow.setPen(pen)
-        self.arrow = arrow
-        self.arrow.hide()
+            arrow1 = QGraphicsLineItem(0, rad, rad, rad, self)
+            arrow2 = QGraphicsLineItem(rad, rad, 2*rad, rad, self)
+        arrow1.setTransformOriginPoint(rad, rad)
+        arrow2.setTransformOriginPoint(rad, rad)
+        arrow1.setZValue(400)
+        arrow2.setZValue(400)
+        arrow1.setPen(pen1)
+        arrow2.setPen(pen2)
+        self.arrow1 = arrow1
+        self.arrow2 = arrow2
+        self.arrow1.hide()
+        self.arrow2.hide()
     # end def
 
     def updateArrow(self, idx):
         part = self.part()
         tpb = part._twistPerBase
         angle = idx*tpb
-        self.arrow.setRotation(angle + part._twistOffset)
+        # for some reason rotation is CW and not CCW with increasing angle
+        self.arrow1.setRotation(angle + part._twistOffset)
+        self.arrow2.setRotation(angle + part._twistOffset)
     # end def
 
     def setNumber(self):
@@ -191,11 +205,13 @@ class VirtualHelixItem(QGraphicsEllipseItem):
             self.setPen(self._usePen)
             self.setBrush(self._useBrush)
             self.updateArrow(idx)
-            self.arrow.show()
+            self.arrow1.show()
+            self.arrow2.show()
         else:
             self.setPen(self._outOfSlicePen)
             self.setBrush(self._outOfSliceBrush)
-            self.arrow.hide()
+            self.arrow1.hide()
+            self.arrow2.hide()
     # end def
 
     ############################ User Interaction ############################
