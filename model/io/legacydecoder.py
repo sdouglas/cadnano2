@@ -163,10 +163,8 @@ def import_legacy_dict(document, obj, latticeType=LatticeType.Honeycomb):
                                        fiveIdx, threeVH, threeIdx):
                     scaf_seg[vhNum].append(i)
                 if fiveVH != vhNum and threeVH != vhNum:  # special case
-                    print "special case"
                     scaf_seg[vhNum].append(i)  # end segment on a double crossover
                 if is3primeXover(StrandType.Scaffold, vhNum, i, threeVH, threeIdx):
-                    print "3p xover"
                     scaf_xo[vhNum].append((i, threeVH, threeIdx))
             assert (len(scaf_seg[vhNum]) % 2 == 0), "even # scaf segs"
             # install scaffold segments
@@ -272,16 +270,12 @@ def isSegmentStartOrEnd(strandType, vhNum, baseIdx, fiveVH, fiveIdx, threeVH, th
     if (fiveVH != vhNum and threeVH == vhNum):
         return True
     if (vhNum % 2 == 0 and fiveVH == vhNum and fiveIdx != baseIdx-offset):
-        print "even vH, fiveIdx"
         return True
     if (vhNum % 2 == 0 and threeVH == vhNum and threeIdx != baseIdx+offset):
-        print "even vH, threeIdx"
         return True
     if (vhNum % 2 == 1 and fiveVH == vhNum and fiveIdx != baseIdx-offset):
-        print "odd vH, fiveIdx"
         return True
     if (vhNum % 2 == 1 and threeVH == vhNum and threeIdx != baseIdx+offset):
-        print "odd vH, threeIdx"
         return True
     if (fiveVH == -1 and threeVH != -1):
         return True
