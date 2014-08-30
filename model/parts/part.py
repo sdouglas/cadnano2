@@ -532,8 +532,9 @@ class Part(QObject):
         # pass that info in here in and then do the breaks
         ss5p = strand5p.strandSet()
         ss3p = strand3p.strandSet()
-        if ss5p.strandType() != ss3p.strandType():
-            return
+        # commenting out below allows scaf-to-stap xovers
+        # if ss5p.strandType() != ss3p.strandType():
+        #     return
         if useUndoStack:
             self.undoStack().beginMacro("Create Xover")
         if ss5p.isScaffold() and useUndoStack:  # ignore on import

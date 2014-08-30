@@ -168,7 +168,7 @@ class Oligo(QObject):
     ### PUBLIC METHODS FOR EDITING THE MODEL ###
     def remove(self, useUndoStack=True):
         c = Oligo.RemoveOligoCommand(self)
-        util.execCommandList(self, [c], desc="Color Oligo", useUndoStack=useUndoStack)
+        util.execCommandList(self, [c], desc="Remove Oligo", useUndoStack=useUndoStack)
     # end def
 
     def applyColor(self, color, useUndoStack=True):

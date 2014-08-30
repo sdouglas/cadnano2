@@ -508,11 +508,12 @@ class Strand(QObject):
             return False
         sS = self.strandSet()
         isSameStrand = fromStrand == self
-        isStrandTypeMatch = \
-                fromStrand.strandSet().strandType() == sS.strandType() \
-                                                if fromStrand else True
-        if not isStrandTypeMatch:
-            return False
+        # commenting out below allows scaf-to-stap xovers
+        # isStrandTypeMatch = \
+        #         fromStrand.strandSet().strandType() == sS.strandType() \
+        #                                         if fromStrand else True
+        # if not isStrandTypeMatch:
+        #     return False
         isDrawn5to3 = sS.isDrawn5to3()
         indexDiffH = self.highIdx() - idx
         indexDiffL = idx - self.lowIdx()

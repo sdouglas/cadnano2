@@ -153,7 +153,7 @@ def import_legacy_dict(document, obj, latticeType=LatticeType.Honeycomb):
             scafStrandSet = vh.scaffoldStrandSet()
             stapStrandSet = vh.stapleStrandSet()
             assert(len(scaf)==len(stap) and len(stap)==part.maxBaseIdx()+1 and\
-                   len(scaf)==len(insertions) and len(insertions)==len(skips))
+                   len(scaf)==len(insertions) and len(insertions)==len(skips)), "scaf, stap, ins, skip lengths look good"
             # read scaffold segments and xovers
             for i in range(len(scaf)):
                 fiveVH, fiveIdx, threeVH, threeIdx = scaf[i]
@@ -163,10 +163,12 @@ def import_legacy_dict(document, obj, latticeType=LatticeType.Honeycomb):
                                        fiveIdx, threeVH, threeIdx):
                     scaf_seg[vhNum].append(i)
                 if fiveVH != vhNum and threeVH != vhNum:  # special case
+                    print "special case"
                     scaf_seg[vhNum].append(i)  # end segment on a double crossover
                 if is3primeXover(StrandType.Scaffold, vhNum, i, threeVH, threeIdx):
+                    print "3p xover"
                     scaf_xo[vhNum].append((i, threeVH, threeIdx))
-            assert (len(scaf_seg[vhNum]) % 2 == 0)
+            assert (len(scaf_seg[vhNum]) % 2 == 0), "even # scaf segs"
             # install scaffold segments
             for i in range(0, len(scaf_seg[vhNum]), 2):
                 lowIdx = scaf_seg[vhNum][i]
@@ -184,16 +186,17 @@ def import_legacy_dict(document, obj, latticeType=LatticeType.Honeycomb):
                     stap_seg[vhNum].append(i)  # end segment on a double crossover
                 if is3primeXover(StrandType.Staple, vhNum, i, threeVH, threeIdx):
                     stap_xo[vhNum].append((i, threeVH, threeIdx))
-            assert (len(stap_seg[vhNum]) % 2 == 0)
+            assert (len(stap_seg[vhNum]) % 2 == 0), "even # stap segs"
             # install staple segments
             for i in range(0, len(stap_seg[vhNum]), 2):
                 lowIdx = stap_seg[vhNum][i]
                 highIdx = stap_seg[vhNum][i+1]
                 stapStrandSet.createStrand(lowIdx, highIdx, useUndoStack=False)
-    except AssertionError:
+    except AssertionError, e:
         if not cadnano.app().isGui():
             print "Unrecognized file format."
         else:
+            print "Assertion Error", e
             dialogLT.label.setText("Unrecognized file format.")
             dialogLT.buttonBox.setStandardButtons(QDialogButtonBox.Ok)
             dialog.exec_()
@@ -269,12 +272,16 @@ def isSegmentStartOrEnd(strandType, vhNum, baseIdx, fiveVH, fiveIdx, threeVH, th
     if (fiveVH != vhNum and threeVH == vhNum):
         return True
     if (vhNum % 2 == 0 and fiveVH == vhNum and fiveIdx != baseIdx-offset):
+        print "even vH, fiveIdx"
         return True
     if (vhNum % 2 == 0 and threeVH == vhNum and threeIdx != baseIdx+offset):
+        print "even vH, threeIdx"
         return True
-    if (vhNum % 2 == 1 and fiveVH == vhNum and fiveIdx != baseIdx+offset):
+    if (vhNum % 2 == 1 and fiveVH == vhNum and fiveIdx != baseIdx-offset):
+        print "odd vH, fiveIdx"
         return True
-    if (vhNum % 2 == 1 and threeVH == vhNum and threeIdx != baseIdx-offset):
+    if (vhNum % 2 == 1 and threeVH == vhNum and threeIdx != baseIdx+offset):
+        print "odd vH, threeIdx"
         return True
     if (fiveVH == -1 and threeVH != -1):
         return True
@@ -290,11 +297,9 @@ def is3primeXover(strandType, vhNum, baseIdx, threeVH, threeIdx):
     if vhNum != threeVH:
         return True
     if strandType == StrandType.Scaffold:
-        offset = 1
+        offset = 1 # scaffold always goes 5 to 3 left to right
     else:
         offset = -1
-    if (vhNum % 2 == 0 and threeVH == vhNum and threeIdx != baseIdx+offset):
-        return True
-    if (vhNum % 2 == 1 and threeVH == vhNum and threeIdx != baseIdx-offset):
+    if (threeVH == vhNum and threeIdx != baseIdx+offset):
         return True
     return False
