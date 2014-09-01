@@ -67,6 +67,7 @@ class Strand(QObject):
         self._strand5p = None  # 5' connection to another strand
         self._strand3p = None  # 3' connection to another strand
         self._sequence = None
+        self._virtualSequence = {}
 
         self._decorators = {}
         self._modifiers = {}
@@ -209,12 +210,21 @@ class Strand(QObject):
         return ''
     # end def
 
+    def virtualSequence(self, forExport=False):
+        '''returns a list of virtualSequence bases, ordered from lowIdx to highIdx'''
+        vSeq = []
+        for i in range(self.lowIdx, self.highIdx + 1):
+            vSeq.append(self._virtualSequence[i])
+        return vSeq
+    # end def
+
     def strandSet(self):
         return self._strandSet
     # end def
 
     def strandType(self):
         return self._strandSet.strandType()
+    # end def
 
     def virtualHelix(self):
         return self._strandSet.virtualHelix()
@@ -274,20 +284,6 @@ class Strand(QObject):
         return range(self._baseIdxLow, self._baseIdxHigh + 1)
     # end def
 
-    # def getPreDecoratorIdxList(self):
-    #     """Return positions where predecorators should be displayed."""
-    #     part = self._strandSet.part()
-    #     validIdxs = sorted([idx[0] for idx in part._stapL + part._stapH])
-    #     lo, hi = self._baseIdxLow, self._baseIdxHigh
-    #     start = lo if self.connectionLow() == None else lo+1
-    #     end = hi if self.connectionHigh() == None else hi-1
-    #     ret = []
-    #     for i in range(start, end+1):
-    #         if i % part.stepSize() in validIdxs:
-    #             ret.append(i)
-    #     return ret
-    # # end def
-
     def setComplementSequence(self, sequenceString, strand):
         """
         This version takes anothers strand and only sets the indices that
@@ -334,7 +330,94 @@ class Strand(QObject):
             tempSelf = array('c', self._sequence if self._isDrawn5to3 \
                                                     else self._sequence[::-1])
 
-        # generate the index into the compliment string
+        # generate the index into the complement string
+        a = self.insertionLengthBetweenIdxs(sLowIdx, lowIdx - 1)
+        b = self.insertionLengthBetweenIdxs(lowIdx, highIdx)
+        c = strand.insertionLengthBetweenIdxs(cLowIdx, lowIdx - 1)
+        start = lowIdx - cLowIdx + c
+        end = start + b + highIdx - lowIdx + 1
+        tempSelf[lowIdx - sLowIdx + a:highIdx - sLowIdx + 1 + a + b] = \
+                                                                temp[start:end]
+        # print "old sequence", self._sequence
+        self._sequence = tempSelf.tostring()
+        
+        # if we need to reverse it do it now
+        if not self._isDrawn5to3:
+            self._sequence = self._sequence[::-1]
+
+        # test to see if the string is empty(), annoyingly expensive
+        if len(self._sequence.strip()) == 0:
+            self._sequence = None
+            
+        # print "new sequence", self._sequence
+        return self._sequence
+    # end def
+
+    def setVirtualSequenceIndexAt(self, idx, virtualSequenceNum):
+        """assign virtualSequenceNum to position idx"""
+        vSeq = self._virtualSequence
+        vSeq[idx] = virtualSequenceNum
+
+    
+    # needs to apply a vSequenceIdx to each location
+    def setVirtualSequence(self):
+        """
+        Assigns virtual index from 5' to 3' on strand and it's complement location.
+        """
+        vSeq = self._virtualSequence
+        sLowIdx, sHighIdx = self._baseIdxLow, self._baseIdxHigh
+        counter = self.part.virtualSequenceCounter()
+
+        # assign virtual sequence to self
+        for i in range(sLowIdx, sHighIdx+1):
+            virtualSequenceNum = next(counter)
+            print virtualSequenceNum
+            self.setVirtualSequenceIndexAt(i, virtualSequenceNum)
+
+        # assign matching virtual sequence to overlap regions of complement strands
+        for strand in self.getComplementStrands():
+            cLowIdx, cHighIdx = strand.idxs()
+            lowIdx, highIdx = util.overlap(sLowIdx, sHighIdx, cLowIdx, cHighIdx)
+
+            for i in range(lowIdx, highIdx+1):
+                if i in vSeq:
+                    print vSeq[i]
+                    strand.setVirtualSequenceIndexAt(i, vSeq[i])
+                else:
+                    virtualSequenceNum = next(counter)
+                    print virtualSequenceNum
+                    strand.setVirtualSequenceIndexAt(i, virtualSequenceNum)
+
+    # end def
+
+    def setVirtualComplementSequence(self, sequenceString, strand):
+        sLowIdx, sHighIdx = self._baseIdxLow, self._baseIdxHigh
+        cLowIdx, cHighIdx = strand.idxs()
+
+        # get the ovelap
+        lowIdx, highIdx = util.overlap(sLowIdx, sHighIdx, cLowIdx, cHighIdx)
+
+        # only get the characters we're using, while we're at it, make it the
+        # reverse compliment
+
+        totalLength = self.totalLength()
+
+        # see if we are applying
+        if sequenceString == None:
+            # clear out string for in case of not total overlap
+            useSeq = ''.join([' ' for x in range(totalLength)])
+        else:  # use the string as is
+            useSeq = sequenceString[::-1] if self._isDrawn5to3 \
+                                            else sequenceString
+
+        temp = array('c', useSeq)
+        if self._sequence == None:
+            tempSelf = array('c', ''.join([' ' for x in range(totalLength)]))
+        else:
+            tempSelf = array('c', self._sequence if self._isDrawn5to3 \
+                                                    else self._sequence[::-1])
+
+        # generate the index into the complement string
         a = self.insertionLengthBetweenIdxs(sLowIdx, lowIdx - 1)
         b = self.insertionLengthBetweenIdxs(lowIdx, highIdx)
         c = strand.insertionLengthBetweenIdxs(cLowIdx, lowIdx - 1)

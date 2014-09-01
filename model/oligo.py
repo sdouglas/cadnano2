@@ -153,6 +153,25 @@ class Oligo(QObject):
         return output
     # end def
 
+    def virtualSequenceExport(self):
+        '''returns a dictionary to be exported'''
+        vhNum5p = self.strand5p().virtualHelix().number()
+        idx5p = self.strand5p().idx5Prime()
+        seq = []
+        if self.isLoop():
+            # print "A loop exists"
+            raise Exception
+        for strand in self.strand5p().generator3pStrand():
+            seq = seq + Strand.virtualSequence(strand, forExport=True)
+            if strand.connection3p() == None:  # last strand in the oligo
+                vhNum3p = strand.virtualHelix().number()
+                idx3p = strand.idx3Prime()
+        start = "%d[%d]" % (vhNum5p, idx5p)
+        end = "%d[%d]" % (vhNum3p, idx3p)
+        return {"start": start, "end":end, "vSeq":seq, "color":self._color}
+    # end def
+
+
     def shouldHighlight(self):
         if not self._strand5p:
             return False

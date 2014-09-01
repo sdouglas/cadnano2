@@ -29,7 +29,9 @@ from model.io.decoder import decode
 from model.io.encoder import encode
 from views.documentwindow import DocumentWindow
 from views import styles
+from json import dumps
 import util
+
 util.qtWrapImport('QtCore', globals(), ['QDir', 'QFileInfo', 'QRect',
                                         'QString', 'QStringList', 'QSettings',
                                         'QSize', 'Qt'])
@@ -430,11 +432,13 @@ class DocumentController():
         app().prefsClicked()
 
     def actionAutostapleSlot(self):
-        part = self.activePart()
-        if part:
-            self.win.pathGraphicsView.setViewportUpdateOn(False)
-            part.autoStaple()
-            self.win.pathGraphicsView.setViewportUpdateOn(True)
+        print "autoStaple is disabled."
+        return  # disable 
+        # part = self.activePart()
+        # if part:
+        #     self.win.pathGraphicsView.setViewportUpdateOn(False)
+        #     part.autoStaple()
+        #     self.win.pathGraphicsView.setViewportUpdateOn(True)
 
     def actionModifySlot(self):
         """
@@ -574,9 +578,11 @@ class DocumentController():
             del self.saveStaplesDialog
             self.saveStaplesDialog = None
         # write the file
-        output = self.activePart().getStapleSequences()
+        obj = self.activePart().getVirtualSequences()
+        json_string = dumps(obj, separators=(',',':'))
+        print "export:", json_string
         with open(fname, 'w') as f:
-            f.write(output)
+            f.write(json_string)
     # end def
 
     def newClickedCallback(self):

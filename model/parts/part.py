@@ -27,7 +27,7 @@
 
 from exceptions import KeyError
 from heapq import heapify, heappush, heappop
-from itertools import product, izip, islice
+from itertools import count, product, izip, islice
 from collections import defaultdict
 import random
 
@@ -94,13 +94,13 @@ class Part(QObject):
         self._highestUsedOdd = -1  # Used in _reserveHelixIDNumber
         self._highestUsedEven = -2  # same
         self._importedVHelixOrder = None
+        self._virtualSequenceNum = count(0)
         # Runtime state
         self._activeBaseIndex = self._step
         self._activeVirtualHelix = None
         self._activeVirtualHelixIdx = None
 
     # end def
-
     def __repr__(self):
         clsName = self.__class__.__name__
         return "<%s %s>" % (clsName, str(id(self))[-4:])
@@ -199,6 +199,22 @@ class Part(QObject):
                 s = s + oligo.sequenceExport()
         return s
 
+    def virtualSequenceCounter(self):
+        return self._virtualSequenceNum
+
+    def getVirtualSequences(self):
+        """
+        Returns a list of dicts be converted to json and written to file.
+        Called by doc controller exportStaplesCallback.
+        """
+        print "in getVirtualSequences"
+        s = []
+        for oligo in self._oligos:
+            vSeqDict = oligo.virtualSequenceExport()
+            print vSeqDict
+            s.append(vSeqDict)
+        return s
+
     def getVirtualHelices(self):
         """yield an iterator to the virtualHelix references in the part"""
         return self._coordToVirtualHelix.values()
@@ -279,6 +295,7 @@ class Part(QObject):
     # end def
 
     ### PUBLIC METHODS FOR EDITING THE MODEL ###
+
     def autoStaple(part):
         """Autostaple does the following:
         1. Clear existing staple strands by iterating over each strand
