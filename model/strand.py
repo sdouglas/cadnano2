@@ -367,7 +367,6 @@ class Strand(QObject):
         """
         Assigns virtual index from 5' to 3' on strand and it's complement location.
         """
-        print "in strand.applyVirtualSequence", self
         vSeq = self._virtualSequence
         sLowIdx, sHighIdx = self._baseIdxLow, self._baseIdxHigh
         counter = self.part().virtualSequenceCounter()
@@ -381,10 +380,11 @@ class Strand(QObject):
         # assign virtual sequence to self
         for i in range(sLowIdx, sHighIdx+1)[::sOrder]:
             if i in vSeq:
-                print self, i, vSeq[i]
+                # print self, i, vSeq[i]
+                pass
             else:
                 virtualSequenceNum = next(counter)
-                print self, i, virtualSequenceNum, "*"
+                # print self, i, virtualSequenceNum, "*"
                 self.setVirtualSequenceNumberAt(i, virtualSequenceNum)
 
         # assign matching virtual sequence to overlap regions of complement strands
@@ -394,11 +394,11 @@ class Strand(QObject):
 
             for i in range(lowIdx, highIdx+1)[::cOrder]:
                 if i in vSeq:
-                    print strand, i, vSeq[i]
+                    # print strand, i, vSeq[i]
                     strand.setVirtualSequenceNumberAt(i, vSeq[i])
                 else:
                     virtualSequenceNum = next(counter)
-                    print strand, i, virtualSequenceNum, "*"
+                    # print strand, i, virtualSequenceNum, "*"
                     strand.setVirtualSequenceNumberAt(i, virtualSequenceNum)
     # end def
 
@@ -408,56 +408,6 @@ class Strand(QObject):
         self._sequence = ''.join([ascii_letters[vSeq[i] % 52] for i in range(sLowIdx, sHighIdx+1)])
         if not self._isDrawn5to3:
             self._sequence = self._sequence[::-1]
-
-
-    def setVirtualComplementSequence(self, sequenceString, strand):
-        sLowIdx, sHighIdx = self._baseIdxLow, self._baseIdxHigh
-        cLowIdx, cHighIdx = strand.idxs()
-
-        # get the ovelap
-        lowIdx, highIdx = util.overlap(sLowIdx, sHighIdx, cLowIdx, cHighIdx)
-
-        # only get the characters we're using, while we're at it, make it the
-        # reverse compliment
-
-        totalLength = self.totalLength()
-
-        # see if we are applying
-        if sequenceString == None:
-            # clear out string for in case of not total overlap
-            useSeq = ''.join([' ' for x in range(totalLength)])
-        else:  # use the string as is
-            useSeq = sequenceString[::-1] if self._isDrawn5to3 \
-                                            else sequenceString
-
-        temp = array('c', useSeq)
-        if self._sequence == None:
-            tempSelf = array('c', ''.join([' ' for x in range(totalLength)]))
-        else:
-            tempSelf = array('c', self._sequence if self._isDrawn5to3 \
-                                                    else self._sequence[::-1])
-
-        # generate the index into the complement string
-        a = self.insertionLengthBetweenIdxs(sLowIdx, lowIdx - 1)
-        b = self.insertionLengthBetweenIdxs(lowIdx, highIdx)
-        c = strand.insertionLengthBetweenIdxs(cLowIdx, lowIdx - 1)
-        start = lowIdx - cLowIdx + c
-        end = start + b + highIdx - lowIdx + 1
-        tempSelf[lowIdx - sLowIdx + a:highIdx - sLowIdx + 1 + a + b] = \
-                                                                temp[start:end]
-        # print "old sequence", self._sequence
-        self._sequence = tempSelf.tostring()
-        
-        # if we need to reverse it do it now
-        if not self._isDrawn5to3:
-            self._sequence = self._sequence[::-1]
-
-        # test to see if the string is empty(), annoyingly expensive
-        if len(self._sequence.strip()) == 0:
-            self._sequence = None
-            
-        # print "new sequence", self._sequence
-        return self._sequence
     # end def
 
     ### PUBLIC METHODS FOR QUERYING THE MODEL ###

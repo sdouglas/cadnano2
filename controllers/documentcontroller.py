@@ -478,7 +478,6 @@ class DocumentController():
     # end def
 
     def actionPathAddSeqSlot(self):
-        print "ADD SEQ TOOL CLICKED!"
         self.activePart().setVirtualSequences()
     # end def
 

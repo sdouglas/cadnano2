@@ -83,10 +83,13 @@ class VirtualHelixItem(QGraphicsEllipseItem):
         # handle the label specific stuff
         self._label = self.createLabel()
         self.setNumber()
+
+        # arrow pens
+        self._pen1 = QPen()
+        self._pen2 = QPen()
         self.createArrows()
 
         self._controller = VirtualHelixItemController(self, modelVirtualHelix)
-
         self.show()
     # end def
 
@@ -128,16 +131,12 @@ class VirtualHelixItem(QGraphicsEllipseItem):
 
     def createArrows(self):
         rad = self._radius
-        pen1 = QPen()
+        pen1 = self._pen1
+        pen2 = self._pen2
         pen1.setWidth(3)
-        color1 = QColor(Qt.blue)
-        color1.setAlphaF(0.3)
-        pen1.setBrush(color1)
-        pen2 = QPen()
         pen2.setWidth(3)
-        color2 = QColor(Qt.red)
-        color2.setAlphaF(0.3)
-        pen2.setBrush(color2)
+        pen1.setBrush(Qt.gray)
+        pen2.setBrush(Qt.lightGray)
         if self._virtualHelix.isEvenParity():
             arrow1 = QGraphicsLineItem(rad, rad, 2*rad, rad, self)
             arrow2 = QGraphicsLineItem(0, rad, rad, rad, self)
@@ -157,12 +156,26 @@ class VirtualHelixItem(QGraphicsEllipseItem):
     # end def
 
     def updateArrow(self, idx):
+        scafStrand = self._virtualHelix.scaf(idx)
+        scafStrandColor = QColor(scafStrand.oligo().color()) if scafStrand else QColor(Qt.gray)
+        scafStrandColor.setAlphaF(0.5)
+        stapStrand = self._virtualHelix.stap(idx)
+        stapStrandColor = QColor(stapStrand.oligo().color()) if stapStrand else QColor(Qt.lightGray)
+        stapStrandColor.setAlphaF(0.5)
+        pen1 = self._pen1
+        pen2 = self._pen2
+        pen1.setBrush(scafStrandColor)
+        pen2.setBrush(stapStrandColor)
+        self.arrow1.setPen(pen1)
+        self.arrow2.setPen(pen2)
         part = self.part()
         tpb = part._twistPerBase
         angle = idx*tpb
         # for some reason rotation is CW and not CCW with increasing angle
         self.arrow1.setRotation(angle + part._twistOffset)
         self.arrow2.setRotation(angle + part._twistOffset)
+
+
     # end def
 
     def setNumber(self):
