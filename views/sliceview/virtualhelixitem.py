@@ -157,25 +157,32 @@ class VirtualHelixItem(QGraphicsEllipseItem):
 
     def updateArrow(self, idx):
         scafStrand = self._virtualHelix.scaf(idx)
-        scafStrandColor = QColor(scafStrand.oligo().color()) if scafStrand else QColor(Qt.gray)
-        scafStrandColor.setAlphaF(0.5)
         stapStrand = self._virtualHelix.stap(idx)
-        stapStrandColor = QColor(stapStrand.oligo().color()) if stapStrand else QColor(Qt.lightGray)
-        stapStrandColor.setAlphaF(0.5)
-        pen1 = self._pen1
-        pen2 = self._pen2
-        pen1.setBrush(scafStrandColor)
-        pen2.setBrush(stapStrandColor)
-        self.arrow1.setPen(pen1)
-        self.arrow2.setPen(pen2)
+        if scafStrand:
+            scafStrandColor = QColor(scafStrand.oligo().color())
+            scafAlpha = 0.9 if scafStrand.hasXoverAt(idx) else 0.3
+        else:
+            scafStrandColor = QColor(Qt.gray)
+            scafAlpha = 0.1
+        if stapStrand:
+            stapStrandColor = QColor(stapStrand.oligo().color()) 
+            stapAlpha = 0.9 if stapStrand.hasXoverAt(idx) else 0.3
+        else:
+            stapStrandColor = QColor(Qt.lightGray)
+            stapAlpha = 0.1
+
+        scafStrandColor.setAlphaF(scafAlpha)
+        stapStrandColor.setAlphaF(stapAlpha)
+        self._pen1.setBrush(scafStrandColor)
+        self._pen2.setBrush(stapStrandColor)
+        self.arrow1.setPen(self._pen1)
+        self.arrow2.setPen(self._pen2)
         part = self.part()
         tpb = part._twistPerBase
         angle = idx*tpb
         # for some reason rotation is CW and not CCW with increasing angle
         self.arrow1.setRotation(angle + part._twistOffset)
         self.arrow2.setRotation(angle + part._twistOffset)
-
-
     # end def
 
     def setNumber(self):
