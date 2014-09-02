@@ -131,15 +131,19 @@ class VirtualHelix(QObject):
         idx == 1 means bottom strand
         """
         if idx == 0:
-            if self.isEvenParity():
-                return self._scafStrandSet
-            else:
-                return self._stapStrandSet
+            return self._scafStrandSet
         else:
-            if self.isEvenParity():
-                return self._stapStrandSet
-            else:
-                return self._scafStrandSet
+            return self._stapStrandSet
+        # if idx == 0:
+        #     if self.isEvenParity():
+        #         return self._scafStrandSet
+        #     else:
+        #         return self._stapStrandSet
+        # else:
+        #     if self.isEvenParity():
+        #         return self._stapStrandSet
+        #     else:
+        #         return self._scafStrandSet
     # end def
 
     def getStrandSetByType(self, strandType):
@@ -155,7 +159,7 @@ class VirtualHelix(QObject):
     # end def
 
     def hasStrandAtIdx(self, idx):
-        return self._scafStrandSet.hasStrandAt(idx, idx)
+        return self._scafStrandSet.hasStrandAt(idx, idx) or self._stapStrandSet.hasStrandAt(idx, idx)
     # end def
 
     def indexOfRightmostNonemptyBase(self):

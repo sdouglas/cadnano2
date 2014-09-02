@@ -131,11 +131,12 @@ class AbstractPathTool(QGraphicsObject):
         """Returns the (strandType, baseIdx) corresponding
         to pt in virtualHelixItem."""
         x, strandIdx = self.helixIndex(pt)
-        vh = virtualHelixItem.virtualHelix()
-        if vh.isEvenParity():
-            strandType = (StrandType.Scaffold, StrandType.Staple)[util.clamp(strandIdx, 0, 1)]
-        else:
-            strandType = (StrandType.Staple, StrandType.Scaffold)[util.clamp(strandIdx, 0, 1)]
+        # vh = virtualHelixItem.virtualHelix()
+        # if vh.isEvenParity():
+        #     strandType = (StrandType.Scaffold, StrandType.Staple)[util.clamp(strandIdx, 0, 1)]
+        # else:
+        #     strandType = (StrandType.Staple, StrandType.Scaffold)[util.clamp(strandIdx, 0, 1)]
+        strandType = (StrandType.Scaffold, StrandType.Staple)[util.clamp(strandIdx, 0, 1)]
         return (strandType, x, strandIdx)
 
     def helixIndex(self, point):
