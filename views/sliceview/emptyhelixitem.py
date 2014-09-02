@@ -328,14 +328,15 @@ class EmptyHelixItem(QGraphicsEllipseItem):
             else:
                 break
 
-        if len(strands) > 1:
-            autoScafType = app().prefs.getAutoScafType()
-            util.beginSuperMacro(part, "Auto-connect")
-            if autoScafType == "Mid-seam":
-                self.autoScafMidSeam(strands)
-            elif autoScafType == "Raster":
-                self.autoScafRaster(strands)
-            util.endSuperMacro(part)
+        # disable auto-raster in px
+        # if len(strands) > 1:
+        #     autoScafType = app().prefs.getAutoScafType()
+        #     util.beginSuperMacro(part, "Auto-connect")
+        #     if autoScafType == "Mid-seam":
+        #         self.autoScafMidSeam(strands)
+        #     elif autoScafType == "Raster":
+        #         self.autoScafRaster(strands)
+        #     util.endSuperMacro(part)
 
     def decideAction(self, modifiers):
         """ On mouse press, an action (add scaffold at the active slice, add
