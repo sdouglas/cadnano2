@@ -156,7 +156,7 @@ def import_legacy_dict(document, obj, latticeType=LatticeType.Honeycomb):
                    len(scaf)==len(insertions) and len(insertions)==len(skips)), "scaf, stap, ins, skip lengths look good"
             # read scaffold segments and xovers
             for i in range(len(scaf)):
-                fiveVH, fiveIdx, threeVH, threeIdx = scaf[i]
+                fiveVH, fiveStrand, fiveIdx, threeVH, threeStrand, threeIdx = scaf[i]
                 if fiveVH == -1 and threeVH == -1:
                     continue  # null base
                 if isSegmentStartOrEnd(StrandType.Scaffold, vhNum, i, fiveVH,\
@@ -165,7 +165,7 @@ def import_legacy_dict(document, obj, latticeType=LatticeType.Honeycomb):
                 if fiveVH != vhNum and threeVH != vhNum:  # special case
                     scaf_seg[vhNum].append(i)  # end segment on a double crossover
                 if is3primeXover(StrandType.Scaffold, vhNum, i, threeVH, threeIdx):
-                    scaf_xo[vhNum].append((i, threeVH, threeIdx))
+                    scaf_xo[vhNum].append((i, threeVH, threeStrand, threeIdx))
             assert (len(scaf_seg[vhNum]) % 2 == 0), "even # scaf segs"
             # install scaffold segments
             for i in range(0, len(scaf_seg[vhNum]), 2):
@@ -174,7 +174,7 @@ def import_legacy_dict(document, obj, latticeType=LatticeType.Honeycomb):
                 scafStrandSet.createStrand(lowIdx, highIdx, useUndoStack=False)
             # read staple segments and xovers
             for i in range(len(stap)):
-                fiveVH, fiveIdx, threeVH, threeIdx = stap[i]
+                fiveVH, fiveStrand, fiveIdx, threeVH, threeStrand, threeIdx = stap[i]
                 if fiveVH == -1 and threeVH == -1:
                     continue  # null base
                 if isSegmentStartOrEnd(StrandType.Staple, vhNum, i, fiveVH,\
@@ -183,7 +183,7 @@ def import_legacy_dict(document, obj, latticeType=LatticeType.Honeycomb):
                 if fiveVH != vhNum and threeVH != vhNum:  # special case
                     stap_seg[vhNum].append(i)  # end segment on a double crossover
                 if is3primeXover(StrandType.Staple, vhNum, i, threeVH, threeIdx):
-                    stap_xo[vhNum].append((i, threeVH, threeIdx))
+                    stap_xo[vhNum].append((i, threeVH, threeStrand, threeIdx))
             assert (len(stap_seg[vhNum]) % 2 == 0), "even # stap segs"
             # install staple segments
             for i in range(0, len(stap_seg[vhNum]), 2):
@@ -212,18 +212,24 @@ def import_legacy_dict(document, obj, latticeType=LatticeType.Honeycomb):
         scafStrandSet = fromVh.scaffoldStrandSet()
         stapStrandSet = fromVh.stapleStrandSet()
         # install scaffold xovers
-        for (idx5p, toVhNum, idx3p) in scaf_xo[vhNum]:
+        for (idx5p, toVhNum, toStrand3p, idx3p) in scaf_xo[vhNum]:
             # idx3p is 3' end of strand5p, idx5p is 5' end of strand3p
             strand5p = scafStrandSet.getStrand(idx5p)
             toVh = part.virtualHelixAtCoord(vhNumToCoord[toVhNum])
-            strand3p = toVh.scaffoldStrandSet().getStrand(idx3p)
+            if toStrand3p == 0:
+                strand3p = toVh.scaffoldStrandSet().getStrand(idx3p)
+            else:
+                strand3p = toVh.stapleStrandSet().getStrand(idx3p)
             part.createXover(strand5p, idx5p, strand3p, idx3p, useUndoStack=False)
         # install staple xovers
-        for (idx5p, toVhNum, idx3p) in stap_xo[vhNum]:
+        for (idx5p, toVhNum, toStrand3p, idx3p) in stap_xo[vhNum]:
             # idx3p is 3' end of strand5p, idx5p is 5' end of strand3p
             strand5p = stapStrandSet.getStrand(idx5p)
             toVh = part.virtualHelixAtCoord(vhNumToCoord[toVhNum])
-            strand3p = toVh.stapleStrandSet().getStrand(idx3p)
+            if toStrand3p == 0:
+                strand3p = toVh.scaffoldStrandSet().getStrand(idx3p)
+            else:
+                strand3p = toVh.stapleStrandSet().getStrand(idx3p)
             part.createXover(strand5p, idx5p, strand3p, idx3p, useUndoStack=False)
 
     # SET DEFAULT COLOR

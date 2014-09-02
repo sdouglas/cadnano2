@@ -529,14 +529,14 @@ class DocumentController():
                             self.win,
                             "%s - Save As" % QApplication.applicationName(),
                             directory,
-                            "%s (*.json)" % QApplication.applicationName())
+                            "%s (*.cpx)" % QApplication.applicationName())
             self.writeDocumentToFile(fname)
         else:  # access through non-blocking callback
             fdialog = QFileDialog(
                             self.win,
                             "%s - Save As" % QApplication.applicationName(),
                             directory,
-                            "%s (*.json)" % QApplication.applicationName())
+                            "%s (*.cpx)" % QApplication.applicationName())
             fdialog.setAcceptMode(QFileDialog.AcceptSave)
             fdialog.setWindowFlags(Qt.Sheet)
             fdialog.setWindowModality(Qt.WindowModal)
@@ -643,8 +643,8 @@ class DocumentController():
         if fname.isEmpty() or os.path.isdir(fname):
             return False
         fname = str(fname)
-        if not fname.lower().endswith(".json"):
-            fname += ".json"
+        if not fname.lower().endswith(".cpx"):
+            fname += ".cpx"
         if self.filesavedialog != None:
             self.filesavedialog.filesSelected.disconnect(
                                                 self.saveFileDialogCallback)
@@ -696,7 +696,7 @@ class DocumentController():
             fname = QFileDialog.getOpenFileName(
                         None,
                         "Open Document", path,
-                        "cadnano1 / cadnano2 Files (*.nno *.json *.cadnano)")
+                        "cadnano1 / cadnano2 Files (*.cpx *.json *.cadnano)")
             self.filesavedialog = None
             self.openAfterMaybeSaveCallback(fname)
         else:  # access through non-blocking callback
@@ -704,7 +704,7 @@ class DocumentController():
                         self.win,
                         "Open Document",
                         path,
-                        "cadnano1 / cadnano2 Files (*.nno *.json *.cadnano)")
+                        "cadnano1 / cadnano2 Files (*.cpx *.json *.cadnano)")
             fdialog.setAcceptMode(QFileDialog.AcceptOpen)
             fdialog.setWindowFlags(Qt.Sheet)
             fdialog.setWindowModality(Qt.WindowModal)
