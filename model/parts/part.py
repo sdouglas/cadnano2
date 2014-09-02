@@ -94,7 +94,7 @@ class Part(QObject):
         self._highestUsedOdd = -1  # Used in _reserveHelixIDNumber
         self._highestUsedEven = -2  # same
         self._importedVHelixOrder = None
-        self._virtualSequenceNum = count(0)
+        self._virtualSequenceNum = None
         # Runtime state
         self._activeBaseIndex = self._step
         self._activeVirtualHelix = None
@@ -202,18 +202,37 @@ class Part(QObject):
     def virtualSequenceCounter(self):
         return self._virtualSequenceNum
 
+    def setVirtualSequences(self):
+        """Reset, assign, and display virtual sequence numbers."""
+        # reset all sequence numbers
+        for oligo in self._oligos:
+            oligo.clearVirtualSequences()
+
+        # assign new sequence numbers
+        self._virtualSequenceNum = count(0)
+        for oligo in self._oligos:
+            oligo.applyVirtualSequences()
+
+        # display new sequence numbers
+        for oligo in self._oligos:
+            oligo.displayVirtualSequences()
+            oligo.oligoSequenceAddedSignal.emit(oligo)
+    # end def
+
     def getVirtualSequences(self):
         """
         Returns a list of dicts be converted to json and written to file.
         Called by doc controller exportStaplesCallback.
         """
-        print "in getVirtualSequences"
+        # extract and output sequence numbers
         s = []
         for oligo in self._oligos:
+            print oligo
             vSeqDict = oligo.virtualSequenceExport()
             print vSeqDict
             s.append(vSeqDict)
         return s
+    # end def
 
     def getVirtualHelices(self):
         """yield an iterator to the virtualHelix references in the part"""
@@ -254,6 +273,7 @@ class Part(QObject):
             if o.isStaple() and o.isLoop():
                 stapLoopOlgs.append(o)
         return stapLoopOlgs
+    # end def
 
     def hasVirtualHelixAtCoord(self, coord):
         return coord in self._coordToVirtualHelix
@@ -424,7 +444,6 @@ class Part(QObject):
 
         cmds = []
         util.endSuperMacro(part)
-
     # end def
 
     def verifyOligoStrandCounts(self):
@@ -438,7 +457,7 @@ class Part(QObject):
             for strand in stapSS:
                 stapOligos.add(strand.oligo())
         # print "# stap oligos:", len(stapOligos), "# stap strands:", total_stap_strands
-
+    # end def
 
     def verifyOligos(self):
         total_errors = 0
@@ -468,24 +487,6 @@ class Part(QObject):
             vh.remove(useUndoStack)
         # end for
     # end def
-
-    # def remove(self, useUndoStack=True):
-    #     """
-    #     This method uses the slow method of removing each element one at a time
-    #     while maintaining state while the command is executed
-    #     """
-    #     self.partHideSignal.emit(self)
-    #     self._activeVirtualHelix = None
-    #     if useUndoStack:
-    #         self.undoStack().beginMacro("Delete Part")
-    #     self.removeVirtualHelices(useUndoStack)
-    #     c = Part.RemovePartCommand(self)
-    #     if useUndoStack:
-    #         self.undoStack().push(c)
-    #         self.undoStack().endMacro()
-    #     else:
-    #         c.redo()
-    # # end def
 
     def remove(self, useUndoStack=True):
         """
@@ -534,7 +535,6 @@ class Part(QObject):
 
     def addOligo(self, oligo):
         self._oligos.add(oligo)
-
     # end def
 
     def createVirtualHelix(self, row, col, useUndoStack=True):

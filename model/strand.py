@@ -30,6 +30,7 @@ from operator import attrgetter
 import util
 from array import array
 from decorators.insertion import Insertion
+from string import ascii_letters
 
 # import Qt stuff into the module namespace with PySide, PyQt4 independence
 util.qtWrapImport('QtCore', globals(), ['pyqtSignal', 'QObject'])
@@ -213,7 +214,7 @@ class Strand(QObject):
     def virtualSequence(self, forExport=False):
         '''returns a list of virtualSequence bases, ordered from lowIdx to highIdx'''
         vSeq = []
-        for i in range(self.lowIdx, self.highIdx + 1):
+        for i in range(self.lowIdx(), self.highIdx() + 1):
             vSeq.append(self._virtualSequence[i])
         return vSeq
     # end def
@@ -353,42 +354,61 @@ class Strand(QObject):
         return self._sequence
     # end def
 
-    def setVirtualSequenceIndexAt(self, idx, virtualSequenceNum):
+    def setVirtualSequenceNumberAt(self, idx, virtualSequenceNum):
         """assign virtualSequenceNum to position idx"""
         vSeq = self._virtualSequence
         vSeq[idx] = virtualSequenceNum
 
-    
-    # needs to apply a vSequenceIdx to each location
-    def setVirtualSequence(self):
+    def clearVirtualSequence(self):
+        self._virtualSequence = {}
+
+    # needs to apply a virtualSequenceNum to each location
+    def applyVirtualSequence(self):
         """
         Assigns virtual index from 5' to 3' on strand and it's complement location.
         """
+        print "in strand.applyVirtualSequence", self
         vSeq = self._virtualSequence
         sLowIdx, sHighIdx = self._baseIdxLow, self._baseIdxHigh
-        counter = self.part.virtualSequenceCounter()
+        counter = self.part().virtualSequenceCounter()
+
+        # make sure we apply numbers from 5' to 3'
+        if self._isDrawn5to3:
+            sOrder, cOrder = 1, -1
+        else:
+            sOrder, cOrder = -1, 1
 
         # assign virtual sequence to self
-        for i in range(sLowIdx, sHighIdx+1):
-            virtualSequenceNum = next(counter)
-            print virtualSequenceNum
-            self.setVirtualSequenceIndexAt(i, virtualSequenceNum)
+        for i in range(sLowIdx, sHighIdx+1)[::sOrder]:
+            if i in vSeq:
+                print self, i, vSeq[i]
+            else:
+                virtualSequenceNum = next(counter)
+                print self, i, virtualSequenceNum, "*"
+                self.setVirtualSequenceNumberAt(i, virtualSequenceNum)
 
         # assign matching virtual sequence to overlap regions of complement strands
         for strand in self.getComplementStrands():
             cLowIdx, cHighIdx = strand.idxs()
             lowIdx, highIdx = util.overlap(sLowIdx, sHighIdx, cLowIdx, cHighIdx)
 
-            for i in range(lowIdx, highIdx+1):
+            for i in range(lowIdx, highIdx+1)[::cOrder]:
                 if i in vSeq:
-                    print vSeq[i]
-                    strand.setVirtualSequenceIndexAt(i, vSeq[i])
+                    print strand, i, vSeq[i]
+                    strand.setVirtualSequenceNumberAt(i, vSeq[i])
                 else:
                     virtualSequenceNum = next(counter)
-                    print virtualSequenceNum
-                    strand.setVirtualSequenceIndexAt(i, virtualSequenceNum)
-
+                    print strand, i, virtualSequenceNum, "*"
+                    strand.setVirtualSequenceNumberAt(i, virtualSequenceNum)
     # end def
+
+    def copyVirtualSequenceToSequence(self):
+        vSeq = self._virtualSequence
+        sLowIdx, sHighIdx = self._baseIdxLow, self._baseIdxHigh
+        self._sequence = ''.join([ascii_letters[vSeq[i] % 52] for i in range(sLowIdx, sHighIdx+1)])
+        if not self._isDrawn5to3:
+            self._sequence = self._sequence[::-1]
+
 
     def setVirtualComplementSequence(self, sequenceString, strand):
         sLowIdx, sHighIdx = self._baseIdxLow, self._baseIdxHigh

@@ -168,9 +168,8 @@ class Oligo(QObject):
                 idx3p = strand.idx3Prime()
         start = "%d[%d]" % (vhNum5p, idx5p)
         end = "%d[%d]" % (vhNum3p, idx3p)
-        return {"start": start, "end":end, "vSeq":seq, "color":self._color}
+        return {"start": start, "end":end, "vSeq":seq, "color":str(self._color)}
     # end def
-
 
     def shouldHighlight(self):
         if not self._strand5p:
@@ -215,6 +214,31 @@ class Oligo(QObject):
         self.setParent(part)
         part.addOligo(self)
     # end def
+
+    def applyVirtualSequences(self):
+        temp = self.strand5p()
+        if not temp:
+            return
+        for strand in temp.generator3pStrand():
+            strand.applyVirtualSequence()
+    # end def
+
+    def clearVirtualSequences(self):
+        temp = self.strand5p()
+        if not temp:
+            return
+        for strand in temp.generator3pStrand():
+            strand.clearVirtualSequence()
+    # end def
+
+    def displayVirtualSequences(self):
+        temp = self.strand5p()
+        if not temp:
+            return
+        for strand in temp.generator3pStrand():
+            strand.copyVirtualSequenceToSequence()
+    # end def
+
 
     def destroy(self):
         # QObject also emits a destroyed() Signal

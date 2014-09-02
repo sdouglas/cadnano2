@@ -136,6 +136,7 @@ class DocumentController():
         self.win.actionFilterScaf.triggered.connect(self.actionFilterScafSlot)
         self.win.actionFilterStap.triggered.connect(self.actionFilterStapSlot)
         self.win.actionRenumber.triggered.connect(self.actionRenumberSlot)
+        self.win.actionPathAddSeq.triggered.connect(self.actionPathAddSeqSlot)
 
 
     ### SLOTS ###
@@ -430,6 +431,7 @@ class DocumentController():
 
     def actionPrefsSlot(self):
         app().prefsClicked()
+    # end def
 
     def actionAutostapleSlot(self):
         print "autoStaple is disabled."
@@ -439,6 +441,7 @@ class DocumentController():
         #     self.win.pathGraphicsView.setViewportUpdateOn(False)
         #     part.autoStaple()
         #     self.win.pathGraphicsView.setViewportUpdateOn(True)
+    # end def
 
     def actionModifySlot(self):
         """
@@ -454,21 +457,29 @@ class DocumentController():
             self.win.pathroot.setModifyState(isChecked)
             self.win.sliceroot.setModifyState(isChecked)
             self.win.solidroot.setModifyState(isChecked)
+    # end def
 
     def actionAddHoneycombPartSlot(self):
         """docstring for actionAddHoneycombPartSlot"""
         part = self._document.addHoneycombPart()
         self.setActivePart(part)
+    # end def
 
     def actionAddSquarePartSlot(self):
         """docstring for actionAddSquarePartSlot"""
         part = self._document.addSquarePart()
         self.setActivePart(part)
+    # end def
 
     def actionRenumberSlot(self):
         coordList = self.win.pathroot.getSelectedPartOrderedVHList()
         part = self.activePart()
         part.renumber(coordList)
+    # end def
+
+    def actionPathAddSeqSlot(self):
+        print "ADD SEQ TOOL CLICKED!"
+        self.activePart().setVirtualSequences()
     # end def
 
     ### ACCESSORS ###
@@ -570,8 +581,8 @@ class DocumentController():
         if fname.isEmpty() or os.path.isdir(fname):
             return False
         fname = str(fname)
-        if not fname.lower().endswith(".csv"):
-            fname += ".csv"
+        if not fname.lower().endswith(".json"):
+            fname += ".json"
         if self.saveStaplesDialog != None:
             self.saveStaplesDialog.filesSelected.disconnect(self.exportStaplesCallback)
             # manual garbage collection to prevent hang (in osx)
@@ -580,7 +591,6 @@ class DocumentController():
         # write the file
         obj = self.activePart().getVirtualSequences()
         json_string = dumps(obj, separators=(',',':'))
-        print "export:", json_string
         with open(fname, 'w') as f:
             f.write(json_string)
     # end def
