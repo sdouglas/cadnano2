@@ -214,7 +214,8 @@ class Strand(QObject):
     def virtualSequence(self, forExport=False):
         '''returns a list of virtualSequence bases, ordered from lowIdx to highIdx'''
         vSeq = []
-        for i in range(self.lowIdx(), self.highIdx() + 1):
+        parity = 1 if self._isDrawn5to3 else -1
+        for i in range(self.lowIdx(), self.highIdx() + 1)[::parity]:
             vSeq.append(self._virtualSequence[i])
         return vSeq
     # end def

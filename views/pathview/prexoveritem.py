@@ -201,7 +201,6 @@ class PreXoverItem(QGraphicsPathItem):
 
             # determine if we are a 5' or a 3' end
             if self.path() in [_ppathLU, _ppathRD]:  # 3' end of strand5p clicked
-                print "3' clicked:", fromStrand, self._idx
                 if self.path() == _ppathLU: # on top
                     toIdx = fromIdx + 1
                 else:
@@ -214,7 +213,6 @@ class PreXoverItem(QGraphicsPathItem):
                 idx5p = fromIdx
                 idx3p = toIdx
             else:  # 5'
-                print "5' clicked:", fromStrand, self._idx
                 if self.path() == _ppathRU: # on top
                     toIdx = fromIdx - 1
                 else:

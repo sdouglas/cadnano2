@@ -412,7 +412,7 @@ class DocumentController():
                             self.win,
                             "%s - Export As" % QApplication.applicationName(),
                             directory,
-                            "(*.csv)")
+                            "(*.vseq)")
             self.saveStaplesDialog = None
             self.exportStaplesCallback(fname)
         else:  # access through non-blocking callback
@@ -420,7 +420,7 @@ class DocumentController():
                             self.win,
                             "%s - Export As" % QApplication.applicationName(),
                             directory,
-                            "(*.csv)")
+                            "(*.vseq)")
             fdialog.setAcceptMode(QFileDialog.AcceptSave)
             fdialog.setWindowFlags(Qt.Sheet)
             fdialog.setWindowModality(Qt.WindowModal)
@@ -580,8 +580,8 @@ class DocumentController():
         if fname.isEmpty() or os.path.isdir(fname):
             return False
         fname = str(fname)
-        if not fname.lower().endswith(".json"):
-            fname += ".json"
+        if not fname.lower().endswith(".vseq"):
+            fname += ".vseq"
         if self.saveStaplesDialog != None:
             self.saveStaplesDialog.filesSelected.disconnect(self.exportStaplesCallback)
             # manual garbage collection to prevent hang (in osx)
