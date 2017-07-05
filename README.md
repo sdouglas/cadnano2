@@ -1,3 +1,9 @@
+# This project has moved
+
+Active cadnano development has moved to https://github.com/cadnano.
+
+# License
+
 The MIT License
 
 Copyright (c) 2011 Wyss Institute at Harvard University
